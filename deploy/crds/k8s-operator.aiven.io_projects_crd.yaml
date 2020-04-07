@@ -1,0 +1,102 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: projects.k8s-operator.aiven.io
+spec:
+  group: k8s-operator.aiven.io
+  names:
+    kind: Project
+    listKind: ProjectList
+    plural: projects
+    singular: project
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: Project is the Schema for the projects API
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: ProjectSpec defines the desired state of Project
+          type: object
+          properties:
+            name:
+              type: string
+              pattern: "^[a-zA-Z0-9_-]*$"
+              description: 'Project name'
+            card_id:
+              type: string
+              description: 'Credit card ID'
+            account_id:
+              type: string
+              description: 'Account ID'
+            billing_address:
+              type: string
+              description: 'Billing name and address of the project'
+            billing_emails:
+              type: array
+              description: 'Billing contact emails of the project'
+              items:
+                type: string
+            billing_currency:
+              type: string
+              enum:
+                - AUD
+                - CAD
+                - CHF
+                - DKK
+                - EUR
+                - GBP
+                - NOK
+                - SEK
+                - USD
+              description: 'Billing currency'
+            billing_extra_text:
+              type: string
+              description: 'Extra text to be included in all project invoices, e.g.
+                purchase order or cost center number'
+            country_code:
+              type: string
+              description: 'Billing country code of the project'
+            cloud:
+              type: string
+              description: 'Target cloud, example: aws-eu-central-1'
+            copy_from_project:
+              type: string
+              description: 'Project name from which to copy settings to the new project'
+            technical_emails:
+              type: array
+              description: 'Technical contact emails of the project'
+              items:
+                type: string
+            vat_id:
+              type: string
+              description: 'EU VAT Identification Number'
+            required:
+              - name
+        status:
+          description: ProjectStatus defines the observed state of Project
+          type: object
+          properties:
+            ca_certificate:
+              type: string
+              description: 'Project root CA. This is used by some services like
+                Kafka to sign service certificate'
+      type: object
+  version: v1alpha1
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true

@@ -1,0 +1,7 @@
+apiVersion: k8s-operator.aiven.io/v1alpha1
+kind: Project
+metadata:
+  name: example-project
+spec:
+  name: "test-project-1"
+  size: 1
