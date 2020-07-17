@@ -1,0 +1,122 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.3.0
+  creationTimestamp: null
+  name: projects.k8s-operator.aiven.io
+spec:
+  group: k8s-operator.aiven.io
+  names:
+    kind: Project
+    listKind: ProjectList
+    plural: projects
+    singular: project
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: Project is the Schema for the projects API
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: ProjectSpec defines the desired state of Project
+          type: object
+        status:
+          description: ProjectStatus defines the observed state of Project
+          properties:
+            account_id:
+              description: Account ID
+              maxLength: 32
+              type: string
+            billing_address:
+              description: Billing name and address of the project
+              maxLength: 1000
+              type: string
+            billing_currency:
+              description: Billing currency
+              enum:
+              - AUD
+              - CAD
+              - CHF
+              - DKK
+              - EUR
+              - GBP
+              - NOK
+              - SEK
+              - USD
+              type: string
+            billing_emails:
+              description: Billing contact emails of the project
+              items:
+                type: string
+              maxItems: 10
+              type: array
+              uniqueItems: true
+            billing_extra_text:
+              description: Extra text to be included in all project invoices, e.g.
+                purchase order or cost center number
+              maxLength: 1000
+              type: string
+            card_id:
+              description: Credit card ID
+              maxLength: 64
+              type: string
+            cloud:
+              description: 'Target cloud, example: aws-eu-central-1'
+              maxLength: 256
+              type: string
+            copy_from_project:
+              description: Project name from which to copy settings to the new project
+              maxLength: 63
+              type: string
+            country_code:
+              description: Billing country code of the project
+              maxLength: 2
+              minLength: 2
+              type: string
+            name:
+              description: Project name
+              format: ^[a-zA-Z0-9_-]*$
+              maxLength: 63
+              type: string
+            technical_emails:
+              description: Technical contact emails of the project
+              items:
+                type: string
+              maxItems: 10
+              type: array
+              uniqueItems: true
+            vat_id:
+              description: EU VAT Identification Number
+              maxLength: 64
+              type: string
+          required:
+          - name
+          type: object
+      type: object
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
