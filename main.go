@@ -27,6 +27,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
+	k8soperatoraiveniov1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
 	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
 	"github.com/aiven/aiven-k8s-operator/controllers"
 	// +kubebuilder:scaffold:imports
@@ -41,6 +42,7 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
 	utilruntime.Must(k8soperatorv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(k8soperatoraiveniov1alpha1.AddToScheme(scheme))
 	// +kubebuilder:scaffold:scheme
 }
 
@@ -75,6 +77,13 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Project")
 		os.Exit(1)
 	}
+	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
+		if err = (&k8soperatoraiveniov1alpha1.Project{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Project")
+			os.Exit(1)
+		}
+	}
+
 	// +kubebuilder:scaffold:builder
 
 	setupLog.Info("starting manager")
