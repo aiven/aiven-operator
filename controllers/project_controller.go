@@ -1,25 +1,11 @@
-/*
-
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// Copyright (c) 2020 Aiven, Helsinki, Finland. https://aiven.io/
 
 package controllers
 
 import (
 	"context"
 	"fmt"
-	aiven "github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-go-client"
 	"github.com/go-logr/logr"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -148,6 +134,7 @@ func (r *ProjectReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	return ctrl.Result{}, nil
 }
 
+// createProject creates a project on Aiven side
 func (r *ProjectReconciler) createProject(project *k8soperatorv1alpha1.Project, aivenC *aiven.Client) (*aiven.Project, error) {
 	var billingEmails *[]*aiven.ContactEmail
 	if len(project.Spec.BillingEmails) > 0 {
@@ -159,7 +146,6 @@ func (r *ProjectReconciler) createProject(project *k8soperatorv1alpha1.Project, 
 		technicalEmails = aiven.ContactEmailFromStringSlice(project.Spec.TechnicalEmails)
 	}
 
-	// Create a project on Aiven side
 	p, err := aivenC.Projects.Create(aiven.CreateProjectRequest{
 		BillingAddress:   &project.Spec.BillingAddress,
 		BillingEmails:    billingEmails,
@@ -180,6 +166,7 @@ func (r *ProjectReconciler) createProject(project *k8soperatorv1alpha1.Project, 
 	return p, err
 }
 
+// updateProject updates a project on Aiven side
 func (r *ProjectReconciler) updateProject(project *k8soperatorv1alpha1.Project, aivenC *aiven.Client) (*aiven.Project, error) {
 	var billingEmails *[]*aiven.ContactEmail
 	if len(project.Spec.BillingEmails) > 0 {
@@ -191,7 +178,6 @@ func (r *ProjectReconciler) updateProject(project *k8soperatorv1alpha1.Project, 
 		technicalEmails = aiven.ContactEmailFromStringSlice(project.Spec.TechnicalEmails)
 	}
 
-	// Update a project on Aiven side
 	p, err := aivenC.Projects.Update(project.Spec.Name, aiven.UpdateProjectRequest{
 		BillingAddress:   &project.Spec.BillingAddress,
 		BillingEmails:    billingEmails,
@@ -210,6 +196,7 @@ func (r *ProjectReconciler) updateProject(project *k8soperatorv1alpha1.Project, 
 	return p, err
 }
 
+// updateCRStatus updates Kubernetes Custom Resource status
 func (r *ProjectReconciler) updateCRStatus(project *k8soperatorv1alpha1.Project, p *aiven.Project) error {
 	project.Status.Name = p.Name
 	project.Status.AccountId = p.AccountId
@@ -292,6 +279,7 @@ func contains(list []string, s string) bool {
 	return false
 }
 
+// finalizeProject deletes Aiven project
 func (r *ProjectReconciler) finalizeProject(log logr.Logger, p *k8soperatorv1alpha1.Project, c *aiven.Client) error {
 	if err := c.Projects.Delete(p.Spec.Name); err != nil {
 		log.Error(err, "Cannot delete Aiven project", "Project.Namespace", p.Namespace, "Project.Name", p.Name)
@@ -302,6 +290,7 @@ func (r *ProjectReconciler) finalizeProject(log logr.Logger, p *k8soperatorv1alp
 	return nil
 }
 
+// addFinalizer add finalizer to CR
 func (r *ProjectReconciler) addFinalizer(reqLogger logr.Logger, p *k8soperatorv1alpha1.Project) error {
 	reqLogger.Info("Adding Finalizer for the Project")
 	controllerutil.AddFinalizer(p, projectFinalizer)
