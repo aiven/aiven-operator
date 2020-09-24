@@ -37,17 +37,9 @@ func (r *ProjectReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
 	log := r.Log.WithValues("project", req.NamespacedName)
 
-	// Check if aiven-token secret already exists
-	token := &corev1.Secret{}
-	err := r.Get(context.TODO(), types.NamespacedName{Name: "aiven-token", Namespace: req.Namespace}, token)
-	if err != nil {
-		log.Error(err, "aiven-token secret is missing, required by the Aiven client", "Project.Namespace", req.Namespace, "Project.Name", req.Name)
-		return reconcile.Result{}, err
-	}
-
 	// Fetch the Project instance
 	project := &k8soperatorv1alpha1.Project{}
-	err = r.Get(ctx, req.NamespacedName, project)
+	err := r.Get(ctx, req.NamespacedName, project)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// Request object not token, could have been deleted after reconcile request.
@@ -62,7 +54,7 @@ func (r *ProjectReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	}
 
 	// Get Aiven client
-	aivenC, err := r.GetClient(token)
+	aivenC, err := r.GetClient(ctx, log, req)
 	if err != nil {
 		log.Error(err, "Failed to initiate Aiven client", "Project.Namespace", project.Namespace, "Project.Name", project.Name)
 		return ctrl.Result{}, err
@@ -83,7 +75,7 @@ func (r *ProjectReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			// Remove projectFinalizer. Once all finalizers have been
 			// removed, the object will be deleted.
 			controllerutil.RemoveFinalizer(project, projectFinalizer)
-			err := r.Client.Update(context.TODO(), project)
+			err := r.Client.Update(ctx, project)
 			if err != nil {
 				return reconcile.Result{}, err
 			}
@@ -112,26 +104,72 @@ func (r *ProjectReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 				return ctrl.Result{}, err
 			}
 
-			return ctrl.Result{}, nil
+			// Update project custom resource status
+			err = r.updateCRStatus(project, aivenProject)
+			if err != nil {
+				log.Error(err, "Failed to update Project status", "Project.Namespace", project.Namespace, "Project.Name", project.Name)
+				return ctrl.Result{}, err
+			}
+
+			// Get CA Certificate of a newly created project and save it as K8s secret
+			err = r.createCACertSecret(project, aivenC)
+			if err != nil {
+				log.Error(err, "Failed to create Project CA Secret", "Project.Namespace", project.Namespace, "Project.Name", project.Name)
+				return ctrl.Result{}, err
+			}
 		}
+
 		return ctrl.Result{}, err
-	} else {
-		// Update project via API and update CR status
-		aivenProject, err = r.updateProject(project, aivenC)
-		if err != nil {
-			log.Error(err, "Failed to update Project", "Project.Namespace", project.Namespace, "Project.Name", project.Name)
-			return ctrl.Result{}, err
-		}
+	}
+
+	// Update project via API and update CR status
+	aivenProject, err = r.updateProject(project, aivenC)
+	if err != nil {
+		log.Error(err, "Failed to update Project", "Project.Namespace", project.Namespace, "Project.Name", project.Name)
+		return ctrl.Result{}, err
 	}
 
 	// Update project custom resource status
-	errS := r.updateCRStatus(project, aivenProject)
-	if errS != nil {
-		log.Error(errS, "Failed to update Project status", "Project.Namespace", project.Namespace, "Project.Name", project.Name)
-		return ctrl.Result{}, errS
+	err = r.updateCRStatus(project, aivenProject)
+	if err != nil {
+		log.Error(err, "Failed to update Project status", "Project.Namespace", project.Namespace, "Project.Name", project.Name)
+		return ctrl.Result{}, err
 	}
 
 	return ctrl.Result{}, nil
+}
+
+// createCACertSecret creates a CA project certificate secret
+func (r *ProjectReconciler) createCACertSecret(project *k8soperatorv1alpha1.Project, aivenC *aiven.Client) error {
+	cert, err := aivenC.CA.Get(project.Status.Name)
+	if err != nil {
+		return fmt.Errorf("aiven client error %w", err)
+	}
+
+	secret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s%s", project.Name, "-ca-cert"),
+			Namespace: project.Namespace,
+			Labels: map[string]string{
+				"app": project.Name,
+			},
+		},
+		StringData: map[string]string{
+			"cert": cert,
+		},
+	}
+	err = r.Client.Create(context.Background(), secret)
+	if err != nil {
+		return fmt.Errorf("k8s client create error %w", err)
+	}
+
+	// Set Project instance as the owner and controller
+	err = controllerutil.SetControllerReference(project, secret, r.Scheme)
+	if err != nil {
+		return fmt.Errorf("k8s set controller error %w", err)
+	}
+
+	return nil
 }
 
 // createProject creates a project on Aiven side
@@ -253,10 +291,18 @@ func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 // GetClient retrieves an Aiven client
-func (r *ProjectReconciler) GetClient(s *corev1.Secret) (*aiven.Client, error) {
+func (r *ProjectReconciler) GetClient(ctx context.Context, log logr.Logger, req ctrl.Request) (*aiven.Client, error) {
 	var token string
 
-	if v, ok := s.Data["token"]; ok {
+	// Check if aiven-token secret exists
+	secret := &corev1.Secret{}
+	err := r.Get(ctx, types.NamespacedName{Name: "aiven-token", Namespace: req.Namespace}, secret)
+	if err != nil {
+		log.Error(err, "aiven-token secret is missing, required by the Aiven client")
+		return nil, err
+	}
+
+	if v, ok := secret.Data["token"]; ok {
 		token = string(v)
 	} else {
 		return nil, fmt.Errorf("cannot initialize Aiven client, kubernetes secret has no `token` key")
@@ -270,20 +316,22 @@ func (r *ProjectReconciler) GetClient(s *corev1.Secret) (*aiven.Client, error) {
 	return c, nil
 }
 
-func contains(list []string, s string) bool {
-	for _, v := range list {
-		if v == s {
-			return true
-		}
-	}
-	return false
-}
-
 // finalizeProject deletes Aiven project
 func (r *ProjectReconciler) finalizeProject(log logr.Logger, p *k8soperatorv1alpha1.Project, c *aiven.Client) error {
+	// Delete project on Aiven side
 	if err := c.Projects.Delete(p.Spec.Name); err != nil {
 		log.Error(err, "Cannot delete Aiven project", "Project.Namespace", p.Namespace, "Project.Name", p.Name)
-		return err
+		return fmt.Errorf("aiven client delete project error: %w", err)
+	}
+
+	// Check if secret exists
+	secret := &corev1.Secret{}
+	err := r.Get(context.Background(), types.NamespacedName{Name: fmt.Sprintf("%s%s", p.Name, "-ca-cert"), Namespace: p.Namespace}, secret)
+	if err == nil {
+		err = r.Client.Delete(context.Background(), secret)
+		if err != nil {
+			return fmt.Errorf("delete project secret error: %w", err)
+		}
 	}
 
 	log.Info("Successfully finalized project")
@@ -296,7 +344,7 @@ func (r *ProjectReconciler) addFinalizer(reqLogger logr.Logger, p *k8soperatorv1
 	controllerutil.AddFinalizer(p, projectFinalizer)
 
 	// Update CR
-	err := r.Client.Update(context.TODO(), p)
+	err := r.Client.Update(context.Background(), p)
 	if err != nil {
 		reqLogger.Error(err, "Failed to update Project with finalizer")
 		return err

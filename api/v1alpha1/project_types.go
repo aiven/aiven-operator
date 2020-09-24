@@ -16,7 +16,7 @@ type ProjectSpec struct {
 
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// x-kubernetes-immutable: false
+	// x-kubernetes-immutable: true
 	// Project name
 	Name string `json:"name"`
 
@@ -61,18 +61,6 @@ type ProjectSpec struct {
 	// Technical contact emails of the project
 	TechnicalEmails []string `json:"technical_emails,omitempty"`
 }
-
-//BillingAddress   *string          `json:"billing_address,omitempty"`
-//BillingEmails    *[]*ContactEmail `json:"billing_emails,omitempty"`
-//BillingExtraText *string          `json:"billing_extra_text,omitempty"`
-//CardID           string           `json:"card_id,omitempty"`
-//Cloud            string           `json:"cloud,omitempty"`
-//CopyFromProject  string           `json:"copy_from_project,omitempty"`
-//CountryCode      *string          `json:"country_code,omitempty"`
-//Project          string           `json:"project"`
-//AccountId        string           `json:"account_id,omitempty"`
-//TechnicalEmails  *[]*ContactEmail `json:"tech_emails,omitempty"`
-//BillingCurrency  string           `json:"billing_currency,omitempty"`
 
 // ProjectStatus defines the observed state of Project
 type ProjectStatus struct {

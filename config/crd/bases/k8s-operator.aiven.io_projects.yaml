@@ -86,7 +86,7 @@ spec:
               minLength: 2
               type: string
             name:
-              description: 'x-kubernetes-immutable: false Project name'
+              description: 'x-kubernetes-immutable: true Project name'
               format: ^[a-zA-Z0-9_-]*$
               maxLength: 63
               type: string
