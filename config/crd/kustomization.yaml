@@ -3,6 +3,7 @@
 # It should be run by config/default
 resources:
 - bases/k8s-operator.aiven.io_projects.yaml
+- bases/k8s-operator.aiven.io_pgs.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:
