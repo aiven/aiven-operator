@@ -1,7 +1,12 @@
 apiVersion: k8s-operator.aiven.io/v1alpha1
 kind: Project
 metadata:
-  name: project-sample
+  name: project-sample1
 spec:
-  # Add fields here
-  foo: bar
+  name: test-k8s-project
+  env:
+    - name: AIVEN_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: aiven-token
+          key: token
