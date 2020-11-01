@@ -27,7 +27,7 @@ rules:
   - patch
   - update
 - apiGroups:
-    - k8s-operator.aiven.io
+  - k8s-operator.aiven.io
   resources:
   - databases
   verbs:
