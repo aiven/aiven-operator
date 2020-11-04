@@ -5,6 +5,9 @@ resources:
 - group: k8s-operator
   kind: Project
   version: v1alpha1
+- group: k8s-operator
+  kind: ServiceUser
+  version: v1alpha1
 version: 3-alpha
 plugins:
   go.operator-sdk.io/v2-alpha: {}

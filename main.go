@@ -77,6 +77,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err = (&controllers.ServiceUserReconciler{
+		Controller: controllers.Controller{
+			Client: mgr.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("ServiceUser"),
+			Scheme: mgr.GetScheme(),
+		},
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ServiceUser")
+		os.Exit(1)
+	}
+
+	// +kubebuilder:scaffold:builder
+
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
 		if err = (&k8soperatoraiveniov1alpha1.Project{}).SetupWebhookWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create webhook", "webhook", "Project")
@@ -88,8 +101,6 @@ func main() {
 			os.Exit(1)
 		}
 	}
-
-	// +kubebuilder:scaffold:builder
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
