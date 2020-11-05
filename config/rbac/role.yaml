@@ -9,6 +9,26 @@ rules:
 - apiGroups:
   - k8s-operator.aiven.io
   resources:
+  - connectionpools
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - k8s-operator.aiven.io
+  resources:
+  - connectionpools/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+    - k8s-operator.aiven.io
+  resources:
   - databases
   verbs:
   - create
