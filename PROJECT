@@ -6,6 +6,9 @@ resources:
   kind: Project
   version: v1alpha1
 - group: k8s-operator
+  kind: ConnectionPool
+  version: v1alpha1
+- group: k8s-operator
   kind: Database
   version: v1alpha1
 version: 3-alpha
