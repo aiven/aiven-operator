@@ -172,7 +172,7 @@ func (r *PGReconciler) createPGService(pg *k8soperatorv1alpha1.PG) (*aiven.Servi
 		ServiceName:           pg.Spec.ServiceName,
 		ServiceType:           "pg",
 		TerminationProtection: false,
-		UserConfig:            nil,
+		UserConfig:            UserConfigurationToAPI(pg.Spec.PGUserConfig).(map[string]interface{}),
 		ServiceIntegrations:   nil,
 	})
 	if err != nil {
@@ -209,7 +209,7 @@ func (r *PGReconciler) updatePGService(pg *k8soperatorv1alpha1.PG) (*aiven.Servi
 		Plan:                  pg.Spec.Plan,
 		ProjectVPCID:          prVPCID,
 		TerminationProtection: false,
-		UserConfig:            nil,
+		UserConfig:            UserConfigurationToAPI(pg.Spec.PGUserConfig).(map[string]interface{}),
 		Powered:               true,
 	})
 	if err != nil {

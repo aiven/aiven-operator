@@ -8,8 +8,10 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"reflect"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"strings"
 )
 
 type Controller struct {
@@ -63,4 +65,67 @@ func contains(list []string, s string) bool {
 // belonging to the given project CR name.
 func labelsForProject(name string) map[string]string {
 	return map[string]string{"app": "project", "project_cr": name}
+}
+
+// UserConfigurationToAPI converts UserConfiguration options structure
+// to Aiven API compatible map[string]interface{}
+func UserConfigurationToAPI(c interface{}) interface{} {
+	result := make(map[string]interface{})
+
+	v := reflect.ValueOf(c)
+
+	// if its a pointer, resolve its value
+	if v.Kind() == reflect.Ptr {
+		v = reflect.Indirect(v)
+	}
+
+	if v.Kind() != reflect.Struct {
+		switch v.Kind() {
+		case reflect.Int64:
+			return *c.(*int64)
+		case reflect.Bool:
+			return *c.(*bool)
+		default:
+			return c
+		}
+	}
+
+	structType := v.Type()
+
+	// convert UserConfig structure to a map
+	for i := 0; i < structType.NumField(); i++ {
+		name := strings.ReplaceAll(structType.Field(i).Tag.Get("json"), ",omitempty", "")
+
+		if structType.Kind() == reflect.Struct {
+			result[name] = UserConfigurationToAPI(v.Field(i).Interface())
+		} else {
+			result[name] = v.Elem().Field(i).Interface()
+		}
+	}
+
+	// remove all the nil and empty map data
+	for key, val := range result {
+		if val == nil || isNil(val) || val == "" {
+			delete(result, key)
+		}
+
+		if reflect.TypeOf(val).Kind() == reflect.Map {
+			if len(val.(map[string]interface{})) == 0 {
+				delete(result, key)
+			}
+		}
+	}
+
+	return result
+}
+
+func isNil(i interface{}) bool {
+	if i == nil {
+		return true
+	}
+	switch reflect.TypeOf(i).Kind() {
+	case reflect.Ptr, reflect.Map, reflect.Array, reflect.Chan, reflect.Slice:
+		return reflect.ValueOf(i).IsNil()
+	}
+	return false
 }
