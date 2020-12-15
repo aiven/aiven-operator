@@ -1,0 +1,20 @@
+# permissions for end users to view projectvpcs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: projectvpc-viewer-role
+rules:
+- apiGroups:
+  - k8s-operator.aiven.io
+  resources:
+  - projectvpcs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - k8s-operator.aiven.io
+  resources:
+  - projectvpcs/status
+  verbs:
+  - get
