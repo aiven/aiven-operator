@@ -6,57 +6,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-//"project": {
-//		Type:        schema.TypeString,
-//		Required:    true,
-//		Description: "Project to link the user to",
-//		ForceNew:    true,
-//	},
-//	"service_name": {
-//		Type:        schema.TypeString,
-//		Required:    true,
-//		Description: "Service to link the user to",
-//		ForceNew:    true,
-//	},
-//	"username": {
-//		Type:        schema.TypeString,
-//		Required:    true,
-//		Description: "Name of the user account",
-//		ForceNew:    true,
-//	},
-//	"password": {
-//		Type:             schema.TypeString,
-//		Sensitive:        true,
-//		Computed:         true,
-//		Optional:         true,
-//		Description:      "Password of the user",
-//		DiffSuppressFunc: emptyObjectDiffSuppressFunc,
-//	},
-//	"authentication": {
-//		Type:             schema.TypeString,
-//		Optional:         true,
-//		Description:      "Authentication details",
-//		DiffSuppressFunc: emptyObjectDiffSuppressFunc,
-//		ValidateFunc:     validation.StringInSlice([]string{"caching_sha2_password", "mysql_native_password"}, false),
-//	},
-//	"type": {
-//		Type:        schema.TypeString,
-//		Computed:    true,
-//		Description: "Type of the user account",
-//	},
-//	"access_cert": {
-//		Type:        schema.TypeString,
-//		Sensitive:   true,
-//		Computed:    true,
-//		Description: "Access certificate for the user if applicable for the service in question",
-//	},
-//	"access_key": {
-//		Type:        schema.TypeString,
-//		Sensitive:   true,
-//		Computed:    true,
-//		Description: "Access certificate key for the user if applicable for the service in question",
-//	},
-
 // ServiceUserSpec defines the desired state of ServiceUser
 type ServiceUserSpec struct {
 	// +kubebuilder:validation:MaxLength=63
@@ -76,6 +25,7 @@ type ServiceUserSpec struct {
 	Username string `json:"username"`
 
 	// +kubebuilder:validation:Enum=caching_sha2_password;mysql_native_password
+	// x-kubernetes-immutable: true
 	// Authentication details
 	Authentication string `json:"authentication,omitempty"`
 }

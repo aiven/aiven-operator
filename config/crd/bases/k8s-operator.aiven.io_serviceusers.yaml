@@ -37,7 +37,7 @@ spec:
           description: ServiceUserSpec defines the desired state of ServiceUser
           properties:
             authentication:
-              description: Authentication details
+              description: 'x-kubernetes-immutable: true Authentication details'
               enum:
               - caching_sha2_password
               - mysql_native_password
