@@ -1,0 +1,7 @@
+apiVersion: k8s-operator.aiven.io/v1alpha1
+kind: ServiceUser
+metadata:
+  name: serviceuser-sample
+spec:
+  # Add fields here
+  foo: bar
