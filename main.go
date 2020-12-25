@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Aiven, Helsinki, Finland. https://aiven.io/
+// Copyright (c) 2020 Aiven, Helsinki, Finland. https://aiven.io/
 
 package main
 
@@ -99,6 +99,15 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err = (&controllers.KafkaReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("Kafka"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Kafka")
+		os.Exit(1)
+	}
+
 	if err = (&controllers.ProjectVPCReconciler{
 		Controller: controllers.Controller{
 			Client: mgr.GetClient(),
@@ -122,6 +131,8 @@ func main() {
 			os.Exit(1)
 		}
 	}
+
+	// +kubebuilder:scaffold:builder
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {

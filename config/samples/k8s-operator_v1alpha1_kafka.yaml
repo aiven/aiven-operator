@@ -1,0 +1,7 @@
+apiVersion: k8s-operator.aiven.io/v1alpha1
+kind: Kafka
+metadata:
+  name: kafka-sample
+spec:
+  # Add fields here
+  foo: bar
