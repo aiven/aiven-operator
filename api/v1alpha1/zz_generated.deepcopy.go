@@ -533,8 +533,8 @@ func (in *KafkaSubKafkaUserConfig) DeepCopyInto(out *KafkaSubKafkaUserConfig) {
 		*out = new(int64)
 		**out = **in
 	}
-	if in.MaxConnectionsPerIp != nil {
-		in, out := &in.MaxConnectionsPerIp, &out.MaxConnectionsPerIp
+	if in.MaxConnectionsPerIP != nil {
+		in, out := &in.MaxConnectionsPerIP, &out.MaxConnectionsPerIP
 		*out = new(int64)
 		**out = **in
 	}
@@ -672,8 +672,8 @@ func (in *KafkaUserConfig) DeepCopyInto(out *KafkaUserConfig) {
 	in.KafkaConnectConfig.DeepCopyInto(&out.KafkaConnectConfig)
 	in.PrivateAccess.DeepCopyInto(&out.PrivateAccess)
 	in.SchemaRegistryConfig.DeepCopyInto(&out.SchemaRegistryConfig)
-	if in.IpFilter != nil {
-		in, out := &in.IpFilter, &out.IpFilter
+	if in.IPFilter != nil {
+		in, out := &in.IPFilter, &out.IPFilter
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}

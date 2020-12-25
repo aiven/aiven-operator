@@ -540,6 +540,7 @@ spec:
                   - "2.4"
                   - "2.5"
                   - "2.6"
+                  - "2.7"
                   type: string
                 private_access:
                   description: Allow access to selected service ports from private
@@ -1125,6 +1126,7 @@ spec:
                   - "2.4"
                   - "2.5"
                   - "2.6"
+                  - "2.7"
                   type: string
                 private_access:
                   description: Allow access to selected service ports from private
@@ -1198,6 +1200,9 @@ spec:
             service_name:
               description: Service name.
               maxLength: 63
+              type: string
+            state:
+              description: PostgreSQL Service state
               type: string
           required:
           - project

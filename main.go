@@ -100,9 +100,11 @@ func main() {
 	}
 
 	if err = (&controllers.KafkaReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("Kafka"),
-		Scheme: mgr.GetScheme(),
+		Controller: controllers.Controller{
+			Client: mgr.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("Kafka"),
+			Scheme: mgr.GetScheme(),
+		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Kafka")
 		os.Exit(1)
@@ -131,8 +133,6 @@ func main() {
 			os.Exit(1)
 		}
 	}
-
-	// +kubebuilder:scaffold:builder
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {

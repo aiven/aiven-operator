@@ -76,10 +76,13 @@ type KafkaStatus struct {
 
 	// Kafka specific user configuration options
 	KafkaUserConfig KafkaUserConfig `json:"kafka_user_config,omitempty"`
+
+	// PostgreSQL Service state
+	State string `json:"state,omitempty"`
 }
 
 type KafkaUserConfig struct {
-	// +kubebuilder:validation:Enum="1.0";"1.1";"2.0";"2.1";"2.2";"2.3";"2.4";"2.5";"2.6"
+	// +kubebuilder:validation:Enum="1.0";"1.1";"2.0";"2.1";"2.2";"2.3";"2.4";"2.5";"2.6";"2.7"
 	// Kafka major version
 	KafkaVersion string `json:"kafka_version,omitempty"`
 
@@ -99,7 +102,7 @@ type KafkaUserConfig struct {
 	SchemaRegistryConfig KafkaSchemaRegistryConfig `json:"schema_registry_config,omitempty"`
 
 	// IP filter Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
-	IpFilter []string `json:"ip_filter,omitempty"`
+	IPFilter []string `json:"ip_filter,omitempty"`
 
 	// Kafka authentication methods
 	KafkaAuthenticationMethods KafkaAuthenticationMethodsUserConfig `json:"kafka_authentication_methods,omitempty"`
@@ -296,7 +299,7 @@ type KafkaSubKafkaUserConfig struct {
 	// +kubebuilder:validation:Minimum=256
 	// +kubebuilder:validation:Maximum=2147483647
 	// max.connections.per.ip The maximum number of connections allowed from each ip address (defaults to 2147483647).
-	MaxConnectionsPerIp *int64 `json:"max_connections_per_ip,omitempty"`
+	MaxConnectionsPerIP *int64 `json:"max_connections_per_ip,omitempty"`
 
 	// +kubebuilder:validation:Minimum=10485760
 	// +kubebuilder:validation:Maximum=1048576000
