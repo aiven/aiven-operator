@@ -99,6 +99,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err = (&controllers.ProjectVPCReconciler{
+		Controller: controllers.Controller{
+			Client: mgr.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("ProjectVPC"),
+			Scheme: mgr.GetScheme(),
+		},
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ProjectVPC")
+		os.Exit(1)
+	}
 	// +kubebuilder:scaffold:builder
 
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
@@ -112,8 +122,6 @@ func main() {
 			os.Exit(1)
 		}
 	}
-
-	// +kubebuilder:scaffold:builder
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
