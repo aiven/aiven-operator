@@ -43,13 +43,38 @@ func (r *ProjectVPCReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 		return ctrl.Result{}, err
 	}
 
-	_, err = r.createProjectVPC(projectVPC)
+	// Check if project VPC  already exists on the Aiven side, create a
+	// new one if it is not found
+	vpc, err := r.getProjectVPC(projectVPC)
 	if err != nil {
-		log.Error(err, "Failed to create Project VPC")
 		return ctrl.Result{}, err
 	}
 
+	if vpc == nil {
+		_, err = r.createProjectVPC(projectVPC)
+		if err != nil {
+			log.Error(err, "Failed to create Project VPC")
+			return ctrl.Result{}, err
+		}
+	}
+
 	return ctrl.Result{}, nil
+}
+
+// getProjectVPC retrieves a project VPC from the list
+func (r *ProjectVPCReconciler) getProjectVPC(projectVPC *k8soperatorv1alpha1.ProjectVPC) (*aiven.VPC, error) {
+	vpcs, err := r.AivenClient.VPCs.List(projectVPC.Spec.Project)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, vpc := range vpcs {
+		if vpc.CloudName == projectVPC.Spec.CloudName {
+			return vpc, nil
+		}
+	}
+
+	return nil, nil
 }
 
 // createProjectVPC creates a project VPC on Aiven side
