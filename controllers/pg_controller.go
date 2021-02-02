@@ -126,6 +126,12 @@ func (r *PGReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		}, nil
 	}
 
+	err = r.updateCRStatus(pg, aivenPG)
+	if err != nil {
+		log.Error(err, "Failed to refresh PG service status")
+		return ctrl.Result{}, err
+	}
+
 	return ctrl.Result{}, nil
 }
 
