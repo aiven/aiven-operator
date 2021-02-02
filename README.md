@@ -74,6 +74,14 @@ spec:
 ")
 ```
 
+Check the PG service status:
+
+```shell script
+kubectl describe PG my-pg1
+```
+
+A couple secrets will be created for each Aiven Service; example-connection and example-private-connection.
+
 Create a service user for our PG cluster:
 ```shell script
 kubectl apply -f <(echo "
@@ -106,4 +114,154 @@ spec:
   pool_mode: transaction
   pool_size: 10
 ")
+```
+
+## Test on GCP Kubernetes cluster
+
+Instructions on how to build, push to the Docker registry and deploy Aiven Operator on FCP Kubernetes cluster
+
+### GCP preparation
+
+First of all, in your local environment install and configure gcloud command-line tool by initializing 
+Cloud SDK, instructions can be found [here](https://cloud.google.com/sdk/docs/quickstart).
+
+Then with the gcloud CLI tool or using the GCP web console create a new project and start a new 
+Kubernetes cluster (can be found in Kubernetes Engine section) after that enable a Google Container 
+Registry for that project.
+
+Make sure you do have [Docker installed](https://cloud.google.com/container-registry/docs/advanced-authentication#prereqs) 
+on your box, then configured it with permissions to access Docker repositories in the project. 
+You can do so  with the following command:
+
+```shell script
+$ gcloud auth configure-docker
+```
+
+Your credentials are saved in your user home directory `$HOME/.docker/config.json`.
+
+Now let`s create Kubernetes Secret based on existing Docker credentials:
+
+```shell script
+$ kubectl create secret generic regcred \
+    --from-file=.dockerconfigjson=$HOME/.docker/config.json \
+    --type=kubernetes.io/dockerconfigjson
+```
+
+### Local Open SDK preparation
+
+Make sure you have [Operator Lifecycle Manager (OLM)](https://github.com/operator-framework/operator-lifecycle-manager/) 
+enabled. You can check if OLM is already installed by running the following command, 
+which will detect the installed OLM version automatically (0.15.1 in this example):
+
+```shell script
+$ operator-sdk olm status
+INFO[0000] Fetching CRDs for version "0.15.1"
+INFO[0002] Fetching resources for version "0.15.1"
+INFO[0002] Successfully got OLM status for version "0.15.1"
+
+NAME                                            NAMESPACE    KIND                        STATUS
+olm                                                          Namespace                   Installed
+operatorgroups.operators.coreos.com                          CustomResourceDefinition    Installed
+catalogsources.operators.coreos.com                          CustomResourceDefinition    Installed
+subscriptions.operators.coreos.com                           CustomResourceDefinition    Installed
+...
+```
+
+All resources listed should have status `Installed`.
+
+If OLM is not already installed, go ahead and install the latest version:
+
+```shell script
+$ operator-sdk olm install
+INFO[0000] Fetching CRDs for version "latest"
+INFO[0001] Fetching resources for version "latest"
+INFO[0007] Creating CRDs and resources
+INFO[0007]   Creating CustomResourceDefinition "clusterserviceversions.operators.coreos.com"
+INFO[0007]   Creating CustomResourceDefinition "installplans.operators.coreos.com"
+INFO[0007]   Creating CustomResourceDefinition "subscriptions.operators.coreos.com"
+...
+NAME                                            NAMESPACE    KIND                        STATUS
+clusterserviceversions.operators.coreos.com                  CustomResourceDefinition    Installed
+installplans.operators.coreos.com                            CustomResourceDefinition    Installed
+subscriptions.operators.coreos.com                           CustomResourceDefinition    Installed
+catalogsources.operators.coreos.com                          CustomResourceDefinition    Installed
+...
+```
+
+**Note:** By default, `olm status` and `olm uninstall` auto-detect the OLM version installed in your cluster. 
+This can fail if the installation is broken in some way, so the version of OLM can be overridden using 
+the `--version` flag provided with these commands.
+
+### Prepare an OLM bundle
+
+Then create a bundle with the following command:
+
+```shell
+$ make bundle
+/Users/ivansavciuc/go/bin/controller-gen "crd:trivialVersions=true" rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+operator-sdk generate kustomize manifests -q
+kustomize build config/manifests | operator-sdk generate bundle -q --overwrite --version 0.0.1  
+... 
+INFO[0000] Building annotations.yaml                    
+INFO[0000] Writing annotations.yaml in /Users/ivansavciuc/GitHub/aiven-k8s-operator/bundle/metadata 
+INFO[0000] Building Dockerfile                          
+INFO[0000] Writing bundle.Dockerfile in /Users/ivansavciuc/GitHub/aiven-k8s-operator 
+operator-sdk bundle validate ./bundle
+INFO[0000] Found annotations file                        bundle-dir=bundle container-tool=docker
+INFO[0000] Could not find optional dependencies file     bundle-dir=bundle container-tool=docker
+... 
+INFO[0000] All validation tests have completed successfully
+```
+
+OLM and Operator Registry consumes Operator bundles via an index image, which are composed of 
+one or more bundles. To build an aiven-operator bundle, run:
+
+```shell
+make bundle-build BUNDLE_IMG=eu.gcr.io/{GCP_PROJECT_ID}/aiven-operator:{your-username-version-tag}
+docker push eu.gcr.io/{GCP_PROJECT_ID}/aiven-operator:{your-username-version-tag}
+```
+
+Although we’ve validated on-disk manifests and metadata, we also must make sure the bundle itself is valid:
+
+```shell
+operator-sdk bundle validate eu.gcr.io/{GCP_PROJECT_ID}/aiven-operator:{your-username-version-tag}
+```
+
+To make an index image make sure you have `opm` and `podman` installed, latest binary can be 
+found [here](https://github.com/operator-framework/operator-registry/releases).
+
+```shell
+# Create the index image
+opm index add --bundles eu.gcr.io/{GCP_PROJECT_ID}/aiven-operator:{your-username-version-tag} --tag eu.gcr.io/{GCP_PROJECT_ID}/aiven-operator-index:{your-username-version-tag}
+
+# Push the index image
+podman push eu.gcr.io/{GCP_PROJECT_ID}/aiven-operator-index:v0.0.1
+```
+
+As the result we should have two images in GCP Container registry:
+- `/aiven-operator:{your-username-version-tag}`
+- `/aiven-operator-index:{your-username-version-tag}`
+
+At this point we have our bundle and index image ready, we just need to create the required 
+CatalogSource into the cluster so that we get access to our Aiven K8s Operator bundle.
+
+```shell
+OLM_NAMESPACE=$(kubectl get pods -A | grep catalog-operator | awk '{print $1}')
+
+cat <<EOF | kubectl create -f -
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: aiven-catalog
+  namespace: $OLM_NAMESPACE
+spec:
+  sourceType: grpc
+  image: eu.gcr.io/{GCP_PROJECT_ID}/aiven-operator-index:v0.0.1
+EOF
+```
+
+A pod will be created on the OLM namespace:
+
+```shell
+kubectl -n $OLM_NAMESPACE get pod -l olm.catalogSource=aiven-catalog
 ```
