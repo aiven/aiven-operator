@@ -1,0 +1,64 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+    operators.operatorframework.io/builder: operator-sdk-v1.2.0
+    operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
+  name: aiven-operator.v0.0.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: ConnectionPool is the Schema for the connectionpools API
+      displayName: Connection Pool
+      kind: ConnectionPool
+      name: connectionpools.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: Database is the Schema for the databases API
+      displayName: Database
+      kind: Database
+      name: databases.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: Project is the Schema for the projects API
+      displayName: Project
+      kind: Project
+      name: projects.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: ProjectVPC is the Schema for the projectvpcs API
+      displayName: Project VPC
+      kind: ProjectVPC
+      name: projectvpcs.k8s-operator.aiven.io
+      version: v1alpha1
+  description: A Kubernetes operator for provisioning and managing Aiven Databases and other resources
+  displayName: Aiven Kubernetes Operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - aiven
+  links:
+  - name: Aiven Operator
+    url: https://aiven-operator.domain
+  maintainers:
+  - email: ivan.savciuc@gmail.com
+    name: Ivan Savciuc
+  maturity: alpha
+  provider:
+    name: as Custom Resources in your cluster.aiven-operator
+  version: 0.0.0
