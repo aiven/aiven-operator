@@ -42,6 +42,9 @@ type ProjectVPCStatus struct {
 
 	// State of the VPC (APPROVED, ACTIVE, DELETING, DELETED)
 	State string `json:"state"`
+
+	// Project VPC id
+	Id string `json:"id"`
 }
 
 // +kubebuilder:object:root=true

@@ -63,6 +63,9 @@ spec:
               description: Cloud the VPC is in
               maxLength: 256
               type: string
+            id:
+              description: Project VPC id
+              type: string
             network_cidr:
               description: Network address range used by the VPC like 192.168.0.0/24
               maxLength: 36
@@ -77,6 +80,7 @@ spec:
               type: string
           required:
           - cloud_name
+          - id
           - network_cidr
           - project
           - state
