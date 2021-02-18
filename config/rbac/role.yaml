@@ -49,26 +49,6 @@ rules:
 - apiGroups:
   - k8s-operator.aiven.io
   resources:
-    - kafkaschemas
-  verbs:
-    - create
-    - delete
-    - get
-    - list
-    - patch
-    - update
-    - watch
-- apiGroups:
-    - k8s-operator.aiven.io
-  resources:
-    - kafkaschemas/status
-  verbs:
-    - get
-    - patch
-    - update
-- apiGroups:
-    - k8s-operator.aiven.io
-  resources:
   - kafkaconnects
   verbs:
   - create
@@ -102,6 +82,46 @@ rules:
   - k8s-operator.aiven.io
   resources:
   - kafkas/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - k8s-operator.aiven.io
+  resources:
+  - kafkaschemas
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - k8s-operator.aiven.io
+  resources:
+  - kafkaschemas/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - k8s-operator.aiven.io
+  resources:
+  - kafkaschemas
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - k8s-operator.aiven.io
+  resources:
+  - kafkaschemas/status
   verbs:
   - get
   - patch

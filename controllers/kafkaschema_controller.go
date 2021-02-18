@@ -6,11 +6,16 @@ import (
 	"context"
 	"fmt"
 	"github.com/aiven/aiven-go-client"
+	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
+
+const schemaFinalizer = "kafkaschema-finalizer.k8s-operator.aiven.io"
 
 // KafkaSchemaReconciler reconciles a KafkaSchema object
 type KafkaSchemaReconciler struct {
@@ -33,15 +38,45 @@ func (r *KafkaSchemaReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 	err := r.Get(ctx, req.NamespacedName, schema)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			// Request object not token, could have been deleted after reconcile request.
+			// Request object not found, could have been deleted after reconcile request.
 			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
 			// Return and don't requeue
-			log.Info("KafkaSchema resource not token. Ignoring since object must be deleted")
+			log.Info("KafkaSchema resource not found. Ignoring since object must be deleted")
 			return ctrl.Result{}, nil
 		}
 		// Error reading the object - requeue the request.
 		log.Error(err, "Failed to get KafkaSchema")
 		return ctrl.Result{}, err
+	}
+
+	// Check if the Kafka Schema instance is marked to be deleted, which is
+	// indicated by the deletion timestamp being set.
+	isSchemaMarkedToBeDeleted := schema.GetDeletionTimestamp() != nil
+	if isSchemaMarkedToBeDeleted {
+		if contains(schema.GetFinalizers(), schemaFinalizer) {
+			// Run finalization logic for schemaFinalizer. If the
+			// finalization logic fails, don't remove the finalizer so
+			// that we can retry during the next reconciliation.
+			if err := r.finalize(log, schema); err != nil {
+				return reconcile.Result{}, err
+			}
+
+			// Remove schemaFinalizer. Once all finalizers have been
+			// removed, the object will be deleted.
+			controllerutil.RemoveFinalizer(schema, schemaFinalizer)
+			err := r.Client.Update(ctx, schema)
+			if err != nil {
+				return reconcile.Result{}, err
+			}
+		}
+		return reconcile.Result{}, nil
+	}
+
+	// Add finalizer for this CR
+	if !contains(schema.GetFinalizers(), schemaFinalizer) {
+		if err := r.addFinalizer(log, schema); err != nil {
+			return reconcile.Result{}, err
+		}
 	}
 
 	// Check if Kafka Schema already exists on the Aiven side, create a
@@ -51,7 +86,7 @@ func (r *KafkaSchemaReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 		return ctrl.Result{}, err
 	}
 
-	// Create a new project if project does not exists and update CR status
+	// Create a new schema if it does not exists and update CR status
 	if !schemaExists {
 		err = r.create(schema)
 		if err != nil {
@@ -206,5 +241,36 @@ func (r *KafkaSchemaReconciler) create(schema *k8soperatorv1alpha1.KafkaSchema) 
 		return err
 	}
 
+	return nil
+}
+
+// finalizeProject deletes Aiven Kafka Schema
+func (r *KafkaSchemaReconciler) finalize(log logr.Logger, s *k8soperatorv1alpha1.KafkaSchema) error {
+	err := r.AivenClient.KafkaSubjectSchemas.Delete(s.Spec.Project, s.Spec.ServiceName, s.Spec.Schema)
+	if err != nil {
+		// If schema not found then there is nothing to delete
+		if aiven.IsNotFound(err) {
+			return nil
+		}
+
+		log.Error(err, "Cannot delete Kafka Schema")
+		return fmt.Errorf("aiven client delete Kafka Schema error: %w", err)
+	}
+
+	log.Info("Successfully finalized Kafka Schema")
+	return nil
+}
+
+// addFinalizer add finalizer to CR
+func (r *KafkaSchemaReconciler) addFinalizer(reqLogger logr.Logger, s *k8soperatorv1alpha1.KafkaSchema) error {
+	reqLogger.Info("Adding Finalizer for the Kafka Schema")
+	controllerutil.AddFinalizer(s, schemaFinalizer)
+
+	// Update CR
+	err := r.Client.Update(context.Background(), s)
+	if err != nil {
+		reqLogger.Error(err, "Failed to update Kafka Schema with finalizer")
+		return err
+	}
 	return nil
 }
