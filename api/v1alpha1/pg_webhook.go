@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Aiven, Helsinki, Finland. https://aiven.io/
+// Copyright (c) 2021 Aiven, Helsinki, Finland. https://aiven.io/
 
 package v1alpha1
 
@@ -39,7 +39,7 @@ func (r *PG) ValidateCreate() error {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *PG) ValidateUpdate(old runtime.Object) error {
+func (r *PG) ValidateUpdate(_ runtime.Object) error {
 	pglog.Info("validate update", "name", r.Name)
 
 	return nil
