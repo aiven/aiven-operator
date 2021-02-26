@@ -6,6 +6,7 @@ resources:
 - bases/k8s-operator.aiven.io_pgs.yaml
 - bases/k8s-operator.aiven.io_connectionpools.yaml
 - bases/k8s-operator.aiven.io_databases.yaml
+- bases/k8s-operator.aiven.io_kafkas.yaml
 - bases/k8s-operator.aiven.io_projectvpcs.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
@@ -15,6 +16,7 @@ patchesStrategicMerge:
 #- patches/webhook_in_projects.yaml
 #- patches/webhook_in_databases.yaml
 #- patches/webhook_in_connectionpools.yaml
+#- patches/webhook_in_kafkas.yaml
 #- patches/webhook_in_projectvpcs.yaml
 # +kubebuilder:scaffold:crdkustomizewebhookpatch
 
@@ -23,6 +25,7 @@ patchesStrategicMerge:
 #- patches/cainjection_in_projects.yaml
 #- patches/cainjection_in_connectionpools.yaml
 #- patches/cainjection_in_databases.yaml
+#- patches/cainjection_in_kafkas.yaml
 #- patches/cainjection_in_projectvpcs.yaml
 # +kubebuilder:scaffold:crdkustomizecainjectionpatch
 
