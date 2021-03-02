@@ -12,6 +12,9 @@ resources:
   kind: Database
   version: v1alpha1
 - group: k8s-operator
+  kind: ServiceUser
+  version: v1alpha1
+- group: k8s-operator
   kind: ProjectVPC
   version: v1alpha1
 - group: k8s-operator

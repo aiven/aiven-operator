@@ -120,6 +120,17 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "ProjectVPC")
 		os.Exit(1)
 	}
+
+	if err = (&controllers.ServiceUserReconciler{
+		Controller: controllers.Controller{
+			Client: mgr.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("ServiceUser"),
+			Scheme: mgr.GetScheme(),
+		},
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ServiceUser")
+		os.Exit(1)
+	}
 	// +kubebuilder:scaffold:builder
 
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {

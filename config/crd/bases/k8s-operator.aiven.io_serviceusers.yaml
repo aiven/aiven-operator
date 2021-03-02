@@ -1,0 +1,106 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.3.0
+  creationTimestamp: null
+  name: serviceusers.k8s-operator.aiven.io
+spec:
+  group: k8s-operator.aiven.io
+  names:
+    kind: ServiceUser
+    listKind: ServiceUserList
+    plural: serviceusers
+    singular: serviceuser
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: ServiceUser is the Schema for the serviceusers API
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: ServiceUserSpec defines the desired state of ServiceUser
+          properties:
+            authentication:
+              description: 'x-kubernetes-immutable: true Authentication details'
+              enum:
+              - caching_sha2_password
+              - mysql_native_password
+              type: string
+            project:
+              description: 'x-kubernetes-immutable: true Project to link the user
+                to'
+              format: ^[a-zA-Z0-9_-]*$
+              maxLength: 63
+              type: string
+            service_name:
+              description: 'x-kubernetes-immutable: true Service to link the user
+                to'
+              maxLength: 63
+              type: string
+            username:
+              description: 'x-kubernetes-immutable: true Name of the user account'
+              maxLength: 63
+              type: string
+          required:
+          - project
+          - service_name
+          - username
+          type: object
+        status:
+          description: ServiceUserStatus defines the observed state of ServiceUser
+          properties:
+            authentication:
+              description: Authentication details
+              enum:
+              - caching_sha2_password
+              - mysql_native_password
+              type: string
+            project:
+              description: Project to link the user to
+              format: ^[a-zA-Z0-9_-]*$
+              maxLength: 63
+              type: string
+            service_name:
+              description: Service to link the user to
+              maxLength: 63
+              type: string
+            type:
+              description: Type of the user account
+              type: string
+            username:
+              description: Name of the user account
+              maxLength: 63
+              type: string
+          required:
+          - project
+          - service_name
+          - username
+          type: object
+      type: object
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
