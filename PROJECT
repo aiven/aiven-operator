@@ -25,6 +25,9 @@ resources:
   kind: KafkaTopic
   version: v1alpha1
 - group: k8s-operator
+  kind: ServiceIntegration
+  version: v1alpha1
+- group: k8s-operator
   kind: KafkaSchema
   version: v1alpha1
 - group: k8s-operator

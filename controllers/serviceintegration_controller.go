@@ -4,8 +4,12 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"github.com/aiven/aiven-go-client"
+	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -15,6 +19,8 @@ import (
 type ServiceIntegrationReconciler struct {
 	Controller
 }
+
+const serviceIntegrationFinalizer = "serviceintegration-finalizer.k8s-operator.aiven.io"
 
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=serviceintegrations,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=serviceintegrations/status,verbs=get;update;patch
@@ -32,15 +38,45 @@ func (r *ServiceIntegrationReconciler) Reconcile(req ctrl.Request) (ctrl.Result,
 	err := r.Get(ctx, req.NamespacedName, serviceInt)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			// Request object not token, could have been deleted after reconcile request.
+			// Request object not found, could have been deleted after reconcile request.
 			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
 			// Return and don't requeue
-			log.Info("Service Integration resource not token. Ignoring since object must be deleted")
+			log.Info("Service Integration resource not found. Ignoring since object must be deleted")
 			return ctrl.Result{}, nil
 		}
 		// Error reading the object - requeue the request.
 		log.Error(err, "Failed to get ServiceIntegration")
 		return ctrl.Result{}, err
+	}
+
+	// Check if the ServiceIntegration instance is marked to be deleted, which is
+	// indicated by the deletion timestamp being set.
+	isServiceIntegrationMarkedToBeDeleted := serviceInt.GetDeletionTimestamp() != nil
+	if isServiceIntegrationMarkedToBeDeleted {
+		if contains(serviceInt.GetFinalizers(), serviceIntegrationFinalizer) {
+			// Run finalization logic for serviceIntegrationFinalizer. If the
+			// finalization logic fails, don't remove the finalizer so
+			// that we can retry during the next reconciliation.
+			if err := r.finalizeServiceIntegration(log, serviceInt); err != nil {
+				return reconcile.Result{}, err
+			}
+
+			// Remove serviceIntegrationFinalizer. Once all finalizers have been
+			// removed, the object will be deleted.
+			controllerutil.RemoveFinalizer(serviceInt, serviceIntegrationFinalizer)
+			err := r.Client.Update(ctx, serviceInt)
+			if err != nil {
+				return reconcile.Result{}, err
+			}
+		}
+		return reconcile.Result{}, nil
+	}
+
+	// Add finalizer for this CR
+	if !contains(serviceInt.GetFinalizers(), serviceIntegrationFinalizer) {
+		if err := r.addFinalizer(log, serviceInt); err != nil {
+			return reconcile.Result{}, err
+		}
 	}
 
 	// Check if service integration already exists on the Aiven side, create a
@@ -65,6 +101,34 @@ func (r *ServiceIntegrationReconciler) Reconcile(req ctrl.Request) (ctrl.Result,
 	}
 
 	return ctrl.Result{}, nil
+}
+
+// addFinalizer add finalizer to CR
+func (r *ServiceIntegrationReconciler) addFinalizer(reqLogger logr.Logger, i *k8soperatorv1alpha1.ServiceIntegration) error {
+	reqLogger.Info("Adding Finalizer for the Service Integration")
+	controllerutil.AddFinalizer(i, serviceIntegrationFinalizer)
+
+	// Update CR
+	err := r.Client.Update(context.Background(), i)
+	if err != nil {
+		reqLogger.Error(err, "Failed to update Service Integration with finalizer")
+		return err
+	}
+
+	return nil
+}
+
+// finalizeServiceIntegration deletes Service Integration on Aiven side
+func (r *ServiceIntegrationReconciler) finalizeServiceIntegration(log logr.Logger, i *k8soperatorv1alpha1.ServiceIntegration) error {
+	// Delete service integration on Aiven side
+	err := r.AivenClient.ServiceIntegrations.Delete(i.Spec.Project, i.Status.ID)
+	if err != nil && !aiven.IsNotFound(err) {
+		log.Error(err, "Cannot delete Service Integration")
+		return fmt.Errorf("aiven client delete service ingtegration error: %w", err)
+	}
+
+	log.Info("Successfully finalized service integration")
+	return nil
 }
 
 func (r *ServiceIntegrationReconciler) exists(int *k8soperatorv1alpha1.ServiceIntegration) (bool, error) {
