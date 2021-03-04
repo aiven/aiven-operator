@@ -9,7 +9,6 @@ resources:
 - bases/k8s-operator.aiven.io_kafkas.yaml
 - bases/k8s-operator.aiven.io_serviceusers.yaml
 - bases/k8s-operator.aiven.io_projectvpcs.yaml
-- bases/k8s-operator.aiven.io_kafkas.yaml
 - bases/k8s-operator.aiven.io_kafkaconnects.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 

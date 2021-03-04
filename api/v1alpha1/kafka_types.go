@@ -93,7 +93,7 @@ type KafkaUserConfig struct {
 	Kafka KafkaSubKafkaUserConfig `json:"kafka,omitempty"`
 
 	// Kafka Connect configuration values
-	KafkaConnectConfig KafkaConnectUserConfig `json:"kafka_connect_config,omitempty"`
+	KafkaConnectConfig KafkServiceKafkaConnectUserConfig `json:"kafka_connect_user_config,omitempty"`
 
 	// Allow access to selected service ports from private networks
 	PrivateAccess KafkaPrivateAccessUserConfig `json:"private_access,omitempty"`
@@ -193,7 +193,7 @@ type KafkaSchemaRegistryConfig struct {
 	TopicName string `json:"topic_name,omitempty"`
 }
 
-type KafkaConnectUserConfig struct {
+type KafkServiceKafkaConnectUserConfig struct {
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=10000
 	// The maximum number of records returned by a single poll The maximum number of records returned in a single call to poll() (defaults to 500).

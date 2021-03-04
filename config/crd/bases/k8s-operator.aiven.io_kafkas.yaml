@@ -336,7 +336,7 @@ spec:
                 kafka_connect:
                   description: Enable Kafka Connect service
                   type: boolean
-                kafka_connect_config:
+                kafka_connect_user_config:
                   description: Kafka Connect configuration values
                   properties:
                     connector_client_config_override_policy:
@@ -922,7 +922,7 @@ spec:
                 kafka_connect:
                   description: Enable Kafka Connect service
                   type: boolean
-                kafka_connect_config:
+                kafka_connect_user_config:
                   description: Kafka Connect configuration values
                   properties:
                     connector_client_config_override_policy:

@@ -40,7 +40,7 @@ type KafkaConnectSpec struct {
 	MaintenanceWindowTime string `json:"maintenance_window_time,omitempty"`
 
 	// PostgreSQL specific user configuration options
-	KafkaConnectUserConfig KafkaServiceKafkaConnectUserConfig `json:"kafka_connect_user_config,omitempty"`
+	KafkaConnectUserConfig KafkaConnectUserConfig `json:"kafka_connect_user_config,omitempty"`
 }
 
 // KafkaConnectStatus defines the observed state of KafkaConnect
@@ -96,10 +96,10 @@ type KafkaConnectStatus struct {
 	Status string `json:"status"`
 
 	// PostgreSQL specific user configuration options
-	KafkaConnectUserConfig KafkaServiceKafkaConnectUserConfig `json:"kafka_connect_user_config,omitempty"`
+	KafkaConnectUserConfig KafkaConnectUserConfig `json:"kafka_connect_user_config,omitempty"`
 }
 
-type KafkaServiceKafkaConnectUserConfig struct {
+type KafkaConnectUserConfig struct {
 	// Defines what client configurations can be overridden by the connector. Default is None
 	ConnectorClientConfigOverridePolicy string `json:"additionalProperties,omitempty"`
 
