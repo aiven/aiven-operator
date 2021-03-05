@@ -56,7 +56,7 @@ func (r *KafkaReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	if err != nil {
 		// Create a new PG service if does not exists
 		if aiven.IsNotFound(err) {
-			aivenKafka, err = r.createKafkaService(kafka)
+			_, err = r.createKafkaService(kafka)
 			if err != nil {
 				log.Error(err, "Failed to create Kafka service")
 				return ctrl.Result{}, err
@@ -79,7 +79,7 @@ func (r *KafkaReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		}, nil
 	}
 
-	aivenKafka, err = r.updateKafkaService(kafka)
+	_, err = r.updateKafkaService(kafka, aivenKafka)
 	if err != nil {
 		log.Error(err, "Failed to update Kafka service")
 		return ctrl.Result{}, err
@@ -101,13 +101,12 @@ func (r *KafkaReconciler) createKafkaService(kafka *k8soperatorv1alpha1.Kafka) (
 			DayOfWeek: kafka.Spec.MaintenanceWindowDow,
 			TimeOfDay: kafka.Spec.MaintenanceWindowTime,
 		},
-		Plan:                  kafka.Spec.Plan,
-		ProjectVPCID:          prVPCID,
-		ServiceName:           kafka.Spec.ServiceName,
-		ServiceType:           "kafka",
-		TerminationProtection: false,
-		UserConfig:            UserConfigurationToAPI(kafka.Spec.KafkaUserConfig).(map[string]interface{}),
-		ServiceIntegrations:   nil,
+		Plan:                kafka.Spec.Plan,
+		ProjectVPCID:        prVPCID,
+		ServiceName:         kafka.Spec.ServiceName,
+		ServiceType:         "kafka",
+		UserConfig:          UserConfigurationToAPI(kafka.Spec.KafkaUserConfig).(map[string]interface{}),
+		ServiceIntegrations: nil,
 	})
 	if err != nil {
 		return nil, err
@@ -179,7 +178,7 @@ func (r *KafkaReconciler) createSecret(kafka *k8soperatorv1alpha1.Kafka, s *aive
 }
 
 // updatePGService updates Kafka service and updates CR status
-func (r *KafkaReconciler) updateKafkaService(kafka *k8soperatorv1alpha1.Kafka) (*aiven.Service, error) {
+func (r *KafkaReconciler) updateKafkaService(kafka *k8soperatorv1alpha1.Kafka, s *aiven.Service) (*aiven.Service, error) {
 	var prVPCID *string
 	if kafka.Spec.ProjectVPCID != "" {
 		prVPCID = &kafka.Spec.ProjectVPCID
@@ -193,7 +192,7 @@ func (r *KafkaReconciler) updateKafkaService(kafka *k8soperatorv1alpha1.Kafka) (
 		},
 		Plan:                  kafka.Spec.Plan,
 		ProjectVPCID:          prVPCID,
-		TerminationProtection: false,
+		TerminationProtection: s.TerminationProtection,
 		UserConfig:            UserConfigurationToAPI(kafka.Spec.KafkaUserConfig).(map[string]interface{}),
 		Powered:               true,
 	})

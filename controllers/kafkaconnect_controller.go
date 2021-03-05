@@ -88,7 +88,7 @@ func (r *KafkaConnectReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error
 	if err != nil {
 		// Create a new KafkaConnect service if does not exists
 		if aiven.IsNotFound(err) {
-			aivenKC, err = r.createService(kc)
+			_, err = r.createService(kc)
 			if err != nil {
 				log.Error(err, "Failed to create KafkaConnect service")
 				return ctrl.Result{}, err
@@ -113,7 +113,7 @@ func (r *KafkaConnectReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error
 
 	// Update KafkaConnect service if it has differences between CR and Aiven representation
 	if r.hasDifferences(kc, aivenKC) {
-		aivenKC, err = r.updateService(kc)
+		_, err = r.updateService(kc, aivenKC)
 		if err != nil {
 			log.Error(err, "Failed to update KafkaConnect service")
 			return ctrl.Result{}, err
@@ -165,13 +165,12 @@ func (r *KafkaConnectReconciler) createService(kc *k8soperatorv1alpha1.KafkaConn
 			DayOfWeek: kc.Spec.MaintenanceWindowDow,
 			TimeOfDay: kc.Spec.MaintenanceWindowTime,
 		},
-		Plan:                  kc.Spec.Plan,
-		ProjectVPCID:          prVPCID,
-		ServiceName:           kc.Spec.ServiceName,
-		ServiceType:           "kafka_connect",
-		TerminationProtection: false,
-		UserConfig:            UserConfigurationToAPI(kc.Spec.KafkaConnectUserConfig).(map[string]interface{}),
-		ServiceIntegrations:   nil,
+		Plan:                kc.Spec.Plan,
+		ProjectVPCID:        prVPCID,
+		ServiceName:         kc.Spec.ServiceName,
+		ServiceType:         "kafka_connect",
+		UserConfig:          UserConfigurationToAPI(kc.Spec.KafkaConnectUserConfig).(map[string]interface{}),
+		ServiceIntegrations: nil,
 	})
 	if err != nil {
 		return nil, err
@@ -187,7 +186,7 @@ func (r *KafkaConnectReconciler) createService(kc *k8soperatorv1alpha1.KafkaConn
 }
 
 // updateService updates Kafka Connect service and updates CR status
-func (r *KafkaConnectReconciler) updateService(kc *k8soperatorv1alpha1.KafkaConnect) (*aiven.Service, error) {
+func (r *KafkaConnectReconciler) updateService(kc *k8soperatorv1alpha1.KafkaConnect, s *aiven.Service) (*aiven.Service, error) {
 	var prVPCID *string
 	if kc.Spec.ProjectVPCID != "" {
 		prVPCID = &kc.Spec.ProjectVPCID
@@ -201,7 +200,7 @@ func (r *KafkaConnectReconciler) updateService(kc *k8soperatorv1alpha1.KafkaConn
 		},
 		Plan:                  kc.Spec.Plan,
 		ProjectVPCID:          prVPCID,
-		TerminationProtection: false,
+		TerminationProtection: s.TerminationProtection,
 		UserConfig:            UserConfigurationToAPI(kc.Spec.KafkaConnectUserConfig).(map[string]interface{}),
 		Powered:               true,
 	})

@@ -90,7 +90,7 @@ func (r *PGReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	if err != nil {
 		// Create a new PG service if does not exists
 		if aiven.IsNotFound(err) {
-			aivenPG, err = r.createPGService(pg)
+			_, err = r.createPGService(pg)
 			if err != nil {
 				log.Error(err, "Failed to create PG service")
 				return ctrl.Result{}, err
@@ -115,7 +115,7 @@ func (r *PGReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// Update PG service if it has differences between CR and Aiven representation
 	if r.hasDifferences(pg, aivenPG) {
-		aivenPG, err = r.updatePGService(pg)
+		_, err = r.updatePGService(pg, aivenPG)
 		if err != nil {
 			log.Error(err, "Failed to update PG service")
 			return ctrl.Result{}, err
@@ -173,13 +173,12 @@ func (r *PGReconciler) createPGService(pg *k8soperatorv1alpha1.PG) (*aiven.Servi
 			DayOfWeek: pg.Spec.MaintenanceWindowDow,
 			TimeOfDay: pg.Spec.MaintenanceWindowTime,
 		},
-		Plan:                  pg.Spec.Plan,
-		ProjectVPCID:          prVPCID,
-		ServiceName:           pg.Spec.ServiceName,
-		ServiceType:           "pg",
-		TerminationProtection: false,
-		UserConfig:            UserConfigurationToAPI(pg.Spec.PGUserConfig).(map[string]interface{}),
-		ServiceIntegrations:   nil,
+		Plan:                pg.Spec.Plan,
+		ProjectVPCID:        prVPCID,
+		ServiceName:         pg.Spec.ServiceName,
+		ServiceType:         "pg",
+		UserConfig:          UserConfigurationToAPI(pg.Spec.PGUserConfig).(map[string]interface{}),
+		ServiceIntegrations: nil,
 	})
 	if err != nil {
 		return nil, err
@@ -200,7 +199,7 @@ func (r *PGReconciler) createPGService(pg *k8soperatorv1alpha1.PG) (*aiven.Servi
 }
 
 // updatePGService updates PG service and updates CR status
-func (r *PGReconciler) updatePGService(pg *k8soperatorv1alpha1.PG) (*aiven.Service, error) {
+func (r *PGReconciler) updatePGService(pg *k8soperatorv1alpha1.PG, s *aiven.Service) (*aiven.Service, error) {
 	var prVPCID *string
 	if pg.Spec.ProjectVPCID != "" {
 		prVPCID = &pg.Spec.ProjectVPCID
@@ -214,7 +213,7 @@ func (r *PGReconciler) updatePGService(pg *k8soperatorv1alpha1.PG) (*aiven.Servi
 		},
 		Plan:                  pg.Spec.Plan,
 		ProjectVPCID:          prVPCID,
-		TerminationProtection: false,
+		TerminationProtection: s.TerminationProtection,
 		UserConfig:            UserConfigurationToAPI(pg.Spec.PGUserConfig).(map[string]interface{}),
 		Powered:               true,
 	})
