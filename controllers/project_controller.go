@@ -128,7 +128,7 @@ func (r *ProjectReconciler) createCACertSecret(project *k8soperatorv1alpha1.Proj
 			"cert": cert,
 		},
 	}
-	err = r.Client.Create(context.Background(), secret)
+	err = r.Client.Create(context.TODO(), secret)
 	if err != nil {
 		return fmt.Errorf("k8s client create error %w", err)
 	}
@@ -155,15 +155,15 @@ func (r *ProjectReconciler) createProject(project *k8soperatorv1alpha1.Project) 
 	}
 
 	p, err := r.AivenClient.Projects.Create(aiven.CreateProjectRequest{
-		BillingAddress:   &project.Spec.BillingAddress,
+		BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
 		BillingEmails:    billingEmails,
-		BillingExtraText: &project.Spec.BillingExtraText,
-		CardID:           &project.Spec.CardId,
-		Cloud:            &project.Spec.Cloud,
+		BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
+		CardID:           toOptionalStringPointer(project.Spec.CardId),
+		Cloud:            toOptionalStringPointer(project.Spec.Cloud),
 		CopyFromProject:  project.Spec.CopyFromProject,
-		CountryCode:      &project.Spec.CountryCode,
+		CountryCode:      toOptionalStringPointer(project.Spec.CountryCode),
 		Project:          project.Spec.Name,
-		AccountId:        &project.Spec.AccountId,
+		AccountId:        toOptionalStringPointer(project.Spec.AccountId),
 		TechnicalEmails:  technicalEmails,
 		BillingCurrency:  project.Spec.BillingCurrency,
 	})
@@ -199,13 +199,13 @@ func (r *ProjectReconciler) updateProject(project *k8soperatorv1alpha1.Project) 
 	}
 
 	p, err := r.AivenClient.Projects.Update(project.Spec.Name, aiven.UpdateProjectRequest{
-		BillingAddress:   &project.Spec.BillingAddress,
+		BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
 		BillingEmails:    billingEmails,
-		BillingExtraText: &project.Spec.BillingExtraText,
-		CardID:           &project.Spec.CardId,
-		Cloud:            &project.Spec.Cloud,
-		CountryCode:      &project.Spec.CountryCode,
-		AccountId:        &project.Spec.AccountId,
+		BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
+		CardID:           toOptionalStringPointer(project.Spec.CardId),
+		Cloud:            toOptionalStringPointer(project.Spec.Cloud),
+		CountryCode:      toOptionalStringPointer(project.Spec.CountryCode),
+		AccountId:        toOptionalStringPointer(project.Spec.AccountId),
 		TechnicalEmails:  technicalEmails,
 		BillingCurrency:  project.Spec.BillingCurrency,
 	})
