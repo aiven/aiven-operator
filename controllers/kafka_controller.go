@@ -6,10 +6,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/aiven/aiven-go-client"
+	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"time"
 
 	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
@@ -20,6 +23,8 @@ import (
 type KafkaReconciler struct {
 	Controller
 }
+
+const kafkaServiceFinalizer = "kafka-service-finalizer.k8s-operator.aiven.io"
 
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=kafkas,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=kafkas/status,verbs=get;update;patch
@@ -48,13 +53,43 @@ func (r *KafkaReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, err
 	}
 
+	// Check if the Kafka instance is marked to be deleted, which is
+	// indicated by the deletion timestamp being set.
+	isKafkaMarkedToBeDeleted := kafka.GetDeletionTimestamp() != nil
+	if isKafkaMarkedToBeDeleted {
+		if contains(kafka.GetFinalizers(), kafkaServiceFinalizer) {
+			// Run finalization logic for kafkaServiceFinalizer. If the
+			// finalization logic fails, don't remove the finalizer so
+			// that we can retry during the next reconciliation.
+			if err := r.finalizeService(log, kafka); err != nil {
+				return reconcile.Result{}, err
+			}
+
+			// Remove kafkaServiceFinalizer. Once all finalizers have been
+			// removed, the object will be deleted.
+			controllerutil.RemoveFinalizer(kafka, kafkaServiceFinalizer)
+			err := r.Client.Update(ctx, kafka)
+			if err != nil {
+				return reconcile.Result{}, err
+			}
+		}
+		return reconcile.Result{}, nil
+	}
+
+	// Add finalizer for this CR
+	if !contains(kafka.GetFinalizers(), kafkaServiceFinalizer) {
+		if err := r.addFinalizer(log, kafka); err != nil {
+			return reconcile.Result{}, err
+		}
+	}
+
 	var aivenKafka *aiven.Service
 
 	// Check if Kafka already exists on the Aiven side, create a
 	// new one if it is not found
 	aivenKafka, err = r.AivenClient.Services.Get(kafka.Spec.Project, kafka.Spec.ServiceName)
 	if err != nil {
-		// Create a new PG service if does not exists
+		// Create a new Kafka service if does not exists
 		if aiven.IsNotFound(err) {
 			_, err = r.createKafkaService(kafka)
 			if err != nil {
@@ -177,7 +212,7 @@ func (r *KafkaReconciler) createSecret(kafka *k8soperatorv1alpha1.Kafka, s *aive
 	return nil
 }
 
-// updatePGService updates Kafka service and updates CR status
+// updateKafkaService updates Kafka service and updates CR status
 func (r *KafkaReconciler) updateKafkaService(kafka *k8soperatorv1alpha1.Kafka, s *aiven.Service) (*aiven.Service, error) {
 	var prVPCID *string
 	if kafka.Spec.ProjectVPCID != "" {
@@ -212,4 +247,42 @@ func (r *KafkaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&k8soperatorv1alpha1.Kafka{}).
 		Complete(r)
+}
+
+// addFinalizer add finalizer to CR
+func (r *KafkaReconciler) addFinalizer(reqLogger logr.Logger, k *k8soperatorv1alpha1.Kafka) error {
+	reqLogger.Info("Adding Finalizer for the Kafka Service")
+	controllerutil.AddFinalizer(k, kafkaServiceFinalizer)
+
+	// Update CR
+	err := r.Client.Update(context.Background(), k)
+	if err != nil {
+		reqLogger.Error(err, "Failed to update Kafka with finalizer")
+		return err
+	}
+	return nil
+}
+
+// finalizeService deletes Aiven Kafka service
+func (r *KafkaReconciler) finalizeService(log logr.Logger, k *k8soperatorv1alpha1.Kafka) error {
+	// Delete project on Aiven side
+	if err := r.AivenClient.Services.Delete(k.Spec.Project, k.Spec.ServiceName); err != nil {
+		if !aiven.IsNotFound(err) {
+			log.Error(err, "Cannot delete Aiven Kafka service")
+			return fmt.Errorf("aiven client delete Kafka error: %w", err)
+		}
+	}
+
+	// Check if secret exists and delete if it is
+	secret := &corev1.Secret{}
+	err := r.Get(context.Background(), types.NamespacedName{Name: fmt.Sprintf("%s%s", k.Name, "-kafka-secret"), Namespace: k.Namespace}, secret)
+	if err == nil {
+		err = r.Client.Delete(context.Background(), secret)
+		if err != nil {
+			return fmt.Errorf("delete Kafka secret error: %w", err)
+		}
+	}
+
+	log.Info("Successfully finalized Kafka service")
+	return nil
 }
