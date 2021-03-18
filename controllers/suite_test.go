@@ -53,6 +53,15 @@ var _ = BeforeSuite(func(done Done) {
 		CRDDirectoryPaths: []string{filepath.Join("..", "config", "crd", "bases")},
 	}
 
+	token := os.Getenv("AIVEN_TOKEN")
+	if token == "" {
+		Fail("cannot create Aiven API client, `AIVEN_TOKEN` is required")
+	}
+
+	if os.Getenv("AIVEN_PROJECT_NAME") == "" {
+		Fail("`AIVEN_PROJECT_NAME` is required")
+	}
+
 	var err error
 	cfg, err = testEnv.Start()
 	Expect(err).ToNot(HaveOccurred())
@@ -89,6 +98,7 @@ var _ = BeforeSuite(func(done Done) {
 	err = k8sClient.Create(context.TODO(), secret)
 	Expect(err).ToNot(HaveOccurred())
 
+	// set-up roject
 	err = (&ProjectReconciler{
 		Controller{
 			Client: k8sManager.GetClient(),
@@ -97,6 +107,42 @@ var _ = BeforeSuite(func(done Done) {
 		},
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
+
+	// set-up Kafka reconciler
+	err = (&KafkaReconciler{
+		Controller{
+			Client: k8sManager.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("Kafka"),
+			Scheme: k8sManager.GetScheme(),
+		},
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	// set-up PG reconciler
+	err = (&PGReconciler{
+		Controller{
+			Client: k8sManager.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("PG"),
+			Scheme: k8sManager.GetScheme(),
+		},
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	// set-up KafkaConnect reconciler
+	err = (&KafkaConnectReconciler{
+		Controller{
+			Client: k8sManager.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("KafkaConnect"),
+			Scheme: k8sManager.GetScheme(),
+		},
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	go func() {
+		err = k8sManager.Start(ctrl.SetupSignalHandler())
+		Expect(err).ToNot(HaveOccurred())
+	}()
+
 
 	go func() {
 		err = k8sManager.Start(ctrl.SetupSignalHandler())
