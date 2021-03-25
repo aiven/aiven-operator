@@ -129,3 +129,11 @@ func isNil(i interface{}) bool {
 	}
 	return false
 }
+
+func toOptionalStringPointer(s string) *string {
+	if s == "" {
+		return nil
+	}
+
+	return &s
+}
