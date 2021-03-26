@@ -124,6 +124,11 @@ func (r *KafkaConnectReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error
 		}, nil
 	}
 
+	err = r.updateCRStatus(kc, aivenKC)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
 	return ctrl.Result{}, nil
 }
 
