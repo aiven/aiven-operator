@@ -1,0 +1,103 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.3.0
+  creationTimestamp: null
+  name: databases.k8s-operator.aiven.io
+spec:
+  group: k8s-operator.aiven.io
+  names:
+    kind: Database
+    listKind: DatabaseList
+    plural: databases
+    singular: database
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: Database is the Schema for the databases API
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: DatabaseSpec defines the desired state of Database
+          properties:
+            database_name:
+              description: 'x-kubernetes-immutable: true Service database name'
+              maxLength: 40
+              type: string
+            lc_collate:
+              description: 'x-kubernetes-immutable: true Default string sort order (LC_COLLATE) of the database. Default value: en_US.UTF-8'
+              maxLength: 128
+              type: string
+            lc_ctype:
+              description: 'x-kubernetes-immutable: true Default character classification (LC_CTYPE) of the database. Default value: en_US.UTF-8'
+              maxLength: 128
+              type: string
+            project:
+              description: 'x-kubernetes-immutable: true Project to link the database to'
+              format: ^[a-zA-Z0-9_-]*$
+              maxLength: 63
+              type: string
+            service_name:
+              description: 'x-kubernetes-immutable: true PostgreSQL service to link the database to'
+              maxLength: 63
+              type: string
+          required:
+          - database_name
+          - lc_collate
+          - lc_ctype
+          - project
+          - service_name
+          type: object
+        status:
+          description: DatabaseStatus defines the observed state of Database
+          properties:
+            database_name:
+              description: Service database name
+              maxLength: 40
+              type: string
+            lc_collate:
+              description: 'Default string sort order (LC_COLLATE) of the database. Default value: en_US.UTF-8'
+              maxLength: 128
+              type: string
+            lc_ctype:
+              description: 'Default character classification (LC_CTYPE) of the database. Default value: en_US.UTF-8'
+              maxLength: 128
+              type: string
+            project:
+              description: Project to link the database to
+              format: ^[a-zA-Z0-9_-]*$
+              maxLength: 63
+              type: string
+            service_name:
+              description: PostgreSQL service to link the database to
+              maxLength: 63
+              type: string
+          required:
+          - database_name
+          - lc_collate
+          - lc_ctype
+          - project
+          - service_name
+          type: object
+      type: object
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

@@ -1,6 +1,7 @@
 domain: aiven.io
 layout: go.kubebuilder.io/v2
 repo: github.com/aiven/aiven-k8s-operator
+projectName: aiven-operator
 resources:
 - group: k8s-operator
   kind: Project
@@ -23,3 +24,5 @@ resources:
 version: 3-alpha
 plugins:
   go.operator-sdk.io/v2-alpha: {}
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
