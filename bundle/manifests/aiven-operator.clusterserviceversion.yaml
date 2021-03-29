@@ -1,0 +1,349 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "kind": "Project",
+          "metadata": {
+            "name": "project-sample1"
+          },
+          "spec": {
+            "env": [
+              {
+                "name": "AIVEN_TOKEN",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "key": "token",
+                    "name": "aiven-token"
+                  }
+                }
+              }
+            ],
+            "name": "test-k8s-project"
+          }
+        }
+      ]
+    capabilities: Basic Install
+    operators.operatorframework.io/builder: operator-sdk-v1.3.0
+    operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
+  name: aiven-operator.v0.0.1
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: ConnectionPool is the Schema for the connectionpools API
+      displayName: Connection Pool
+      kind: ConnectionPool
+      name: connectionpools.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: Database is the Schema for the databases API
+      displayName: Database
+      kind: Database
+      name: databases.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: Kafka Connect is the Schema for the kafkas API
+      displayName: KafkaConnect
+      kind: KafkaConnect
+      name: kafkaconnects.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: Kafka is the Schema for the kafkas API
+      displayName: Kafka
+      kind: Kafka
+      name: kafkas.k8s-operator.aiven.io
+      version: v1alpha1
+    - kind: PG
+      name: pgs.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: Project is the Schema for the projects API
+      displayName: Project
+      kind: Project
+      name: projects.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: ProjectVPC is the Schema for the projectvpcs API
+      displayName: Project VPC
+      kind: ProjectVPC
+      name: projectvpcs.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: ServiceUser is the Schema for the serviceusers API
+      displayName: Service User
+      kind: ServiceUser
+      name: serviceusers.k8s-operator.aiven.io
+      version: v1alpha1
+  description: A Kubernetes operator for provisioning and managing Aiven Databases and other resources
+  displayName: Aiven Kubernetes Operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      clusterPermissions:
+      - rules:
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - connectionpools
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - connectionpools/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - databases
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - databases/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - kafkaconnects
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - kafkaconnects/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - kafkas
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - kafkas/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - pgs
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - pgs/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - projects
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - projects/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - projectvpcs
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - projectvpcs/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - serviceusers
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - serviceusers/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
+        - apiGroups:
+          - authorization.k8s.io
+          resources:
+          - subjectaccessreviews
+          verbs:
+          - create
+        serviceAccountName: default
+      deployments:
+      - name: aiven-k8s-operator-controller-manager
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              control-plane: controller-manager
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                control-plane: controller-manager
+            spec:
+              containers:
+              - args:
+                - --secure-listen-address=0.0.0.0:8443
+                - --upstream=http://127.0.0.1:8080/
+                - --logtostderr=true
+                - --v=10
+                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.5.0
+                name: kube-rbac-proxy
+                ports:
+                - containerPort: 8443
+                  name: https
+                resources: {}
+              - args:
+                - --metrics-addr=127.0.0.1:8080
+                - --enable-leader-election
+                command:
+                - /manager
+                image: controller:latest
+                name: manager
+                resources:
+                  limits:
+                    cpu: 100m
+                    memory: 30Mi
+                  requests:
+                    cpu: 100m
+                    memory: 20Mi
+              terminationGracePeriodSeconds: 10
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps/status
+          verbs:
+          - get
+          - update
+          - patch
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - create
+          - patch
+        serviceAccountName: default
+    strategy: deployment
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - aiven
+  links:
+  - name: Aiven Operator
+    url: https://aiven-operator.domain
+  maintainers:
+  - email: ivan.savciuc@gmail.com
+    name: Ivan Savciuc
+  maturity: alpha
+  provider:
+    name: as Custom Resources in your cluster.aiven-operator
+  version: 0.0.1
