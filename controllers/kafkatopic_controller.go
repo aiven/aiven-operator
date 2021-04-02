@@ -50,10 +50,10 @@ func (r *KafkaTopicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 		return ctrl.Result{}, err
 	}
 
-	// Check if the Project instance is marked to be deleted, which is
+	// Check if the Kafka Topic instance is marked to be deleted, which is
 	// indicated by the deletion timestamp being set.
-	isProjectMarkedToBeDeleted := topic.GetDeletionTimestamp() != nil
-	if isProjectMarkedToBeDeleted {
+	isKafkaTopicMarkedToBeDeleted := topic.GetDeletionTimestamp() != nil
+	if isKafkaTopicMarkedToBeDeleted {
 		if contains(topic.GetFinalizers(), kafkaTopicFinalizer) {
 			// Run finalization logic for kafkaTopicFinalizer. If the
 			// finalization logic fails, don't remove the finalizer so
@@ -83,7 +83,18 @@ func (r *KafkaTopicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 	// Check if Kafka Topic already exists on the Aiven side, createTopic a
 	// new one if it is not found
 	t, err := r.AivenClient.KafkaTopics.Get(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName)
-	if err != nil && err.(aiven.Error).Status != 501 {
+	if err != nil {
+		if aivenError, ok := err.(aiven.Error); ok {
+			// Getting topic info can sometimes temporarily fail with 501 and 502. Don't
+			// treat that as fatal error but keep on retrying instead.
+			if aivenError.Status == 501 || aivenError.Status == 502 {
+				return ctrl.Result{
+					Requeue:      true,
+					RequeueAfter: 10 * time.Second,
+				}, nil
+			}
+		}
+
 		// Create a new Kafka Topic if it does not exists and update CR status
 		if aiven.IsNotFound(err) {
 			err = r.createTopic(topic)
@@ -118,19 +129,37 @@ func (r *KafkaTopicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 }
 
 func (r *KafkaTopicReconciler) createTopic(topic *k8soperatorv1alpha1.KafkaTopic) error {
+	var tags []aiven.KafkaTopicTag
+	for _, t := range topic.Spec.Tags {
+		tags = append(tags, aiven.KafkaTopicTag{
+			Key:   t.Key,
+			Value: t.Value,
+		})
+	}
+
 	return r.AivenClient.KafkaTopics.Create(topic.Spec.Project, topic.Spec.ServiceName, aiven.CreateKafkaTopicRequest{
 		Partitions:  &topic.Spec.Partitions,
 		Replication: &topic.Spec.Replication,
 		TopicName:   topic.Spec.TopicName,
+		Tags:        tags,
 		Config:      convertKafkaTopicConfig(topic),
 	})
 }
 
 func (r *KafkaTopicReconciler) updateTopic(topic *k8soperatorv1alpha1.KafkaTopic) error {
+	var tags []aiven.KafkaTopicTag
+	for _, t := range topic.Spec.Tags {
+		tags = append(tags, aiven.KafkaTopicTag{
+			Key:   t.Key,
+			Value: t.Value,
+		})
+	}
+
 	err := r.AivenClient.KafkaTopics.Update(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName,
 		aiven.UpdateKafkaTopicRequest{
 			Partitions:  &topic.Spec.Partitions,
 			Replication: &topic.Spec.Replication,
+			Tags:        tags,
 			Config:      convertKafkaTopicConfig(topic),
 		})
 	if err != nil {
@@ -175,10 +204,19 @@ func convertKafkaTopicConfig(topic *k8soperatorv1alpha1.KafkaTopic) aiven.KafkaT
 
 // updateCRStatus updates Kubernetes Custom Resource status
 func (r *KafkaTopicReconciler) updateCRStatus(topic *k8soperatorv1alpha1.KafkaTopic, t *aiven.KafkaTopic) error {
+	var tags []k8soperatorv1alpha1.KafkaTopicTag
+	for _, tt := range t.Tags {
+		tags = append(tags, k8soperatorv1alpha1.KafkaTopicTag{
+			Key:   tt.Key,
+			Value: tt.Value,
+		})
+	}
+
 	topic.Status.Project = topic.Spec.Project
 	topic.Status.ServiceName = topic.Spec.ServiceName
 	topic.Status.TopicName = t.TopicName
 	topic.Status.Partitions = len(t.Partitions)
+	topic.Status.Tags = tags
 
 	topic.Status.Config.CleanupPolicy = t.Config.CleanupPolicy.Value
 	topic.Status.Config.CompressionType = t.Config.CompressionType.Value

@@ -143,6 +143,23 @@ spec:
               description: 'x-kubernetes-immutable: true Service name.'
               maxLength: 63
               type: string
+            tags:
+              description: Kafka topic tags
+              items:
+                properties:
+                  key:
+                    format: ^[a-zA-Z0-9_-]*$
+                    maxLength: 64
+                    minLength: 1
+                    type: string
+                  value:
+                    format: ^[a-zA-Z0-9_-]*$
+                    maxLength: 256
+                    type: string
+                required:
+                - key
+                type: object
+              type: array
             topic_name:
               description: 'x-kubernetes-immutable: true Topic name.'
               maxLength: 63
@@ -261,6 +278,23 @@ spec:
               description: Service name.
               maxLength: 63
               type: string
+            tags:
+              description: Kafka topic tags
+              items:
+                properties:
+                  key:
+                    format: ^[a-zA-Z0-9_-]*$
+                    maxLength: 64
+                    minLength: 1
+                    type: string
+                  value:
+                    format: ^[a-zA-Z0-9_-]*$
+                    maxLength: 256
+                    type: string
+                required:
+                - key
+                type: object
+              type: array
             topic_name:
               description: Topic name.
               maxLength: 63

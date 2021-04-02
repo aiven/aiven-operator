@@ -33,8 +33,22 @@ type KafkaTopicSpec struct {
 	// Replication factor for the topic
 	Replication int `json:"replication"`
 
+	// Kafka topic tags
+	Tags []KafkaTopicTag `json:"tags,omitempty"`
+
 	// Kafka topic configuration
 	Config KafkaTopicConfig `json:"config,omitempty"`
+}
+
+type KafkaTopicTag struct {
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=64
+	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
+	Key string `json:"key"`
+
+	// +kubebuilder:validation:MaxLength=256
+	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
+	Value string `json:"value,omitempty"`
 }
 
 type KafkaTopicConfig struct {
@@ -132,6 +146,9 @@ type KafkaTopicStatus struct {
 
 	// Replication factor for the topic
 	Replication int `json:"replication"`
+
+	// Kafka topic tags
+	Tags []KafkaTopicTag `json:"tags,omitempty"`
 
 	// Kafka topic configuration
 	Config KafkaTopicConfig `json:"config,omitempty"`
