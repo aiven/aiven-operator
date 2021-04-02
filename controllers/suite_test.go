@@ -10,9 +10,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"math/rand"
 	"os"
 	"path/filepath"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"strconv"
 	"testing"
 	"time"
 
@@ -143,7 +145,6 @@ var _ = BeforeSuite(func(done Done) {
 		Expect(err).ToNot(HaveOccurred())
 	}()
 
-
 	go func() {
 		err = k8sManager.Start(ctrl.SetupSignalHandler())
 		Expect(err).ToNot(HaveOccurred())
@@ -173,4 +174,20 @@ func ensureDelete(ctx context.Context, instance runtime.Object) {
 		return apierrors.IsNotFound(err)
 	}, time.Minute*1, time.Second*5, "wait for instance to be gone from k8s").Should(BeTrue())
 
+}
+
+// boolPointer converts boolean to *bool
+func boolPointer(b bool) *bool {
+	return &b
+}
+
+// int64Pointer converts int64 to a pointer int64
+func int64Pointer(i int64) *int64 {
+	return &i
+}
+
+// generateRandomString generate a random id
+func generateRandomID() string {
+	var src = rand.NewSource(time.Now().UnixNano())
+	return strconv.FormatInt(src.Int63(), 10)
 }
