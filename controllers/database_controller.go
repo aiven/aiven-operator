@@ -20,8 +20,7 @@ type DatabaseReconciler struct {
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=databases,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=databases/status,verbs=get;update;patch
 
-func (r *DatabaseReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx := context.Background()
+func (r *DatabaseReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("database", req.NamespacedName)
 
 	if err := r.InitAivenClient(req, ctx, log); err != nil {

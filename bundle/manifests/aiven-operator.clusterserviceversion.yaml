@@ -27,7 +27,7 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    operators.operatorframework.io/builder: operator-sdk-v1.3.0
+    operators.operatorframework.io/builder: operator-sdk-v1.5.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
   name: aiven-operator.v0.0.1
   namespace: placeholder
@@ -54,6 +54,16 @@ spec:
       displayName: Kafka
       kind: Kafka
       name: kafkas.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: KafkaSchema is the Schema for the kafkaschemas API
+      displayName: Kafka Schema
+      kind: KafkaSchema
+      name: kafkaschemas.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: KafkaTopic is the Schema for the kafkatopics API
+      displayName: Kafka Topic
+      kind: KafkaTopic
+      name: kafkatopics.k8s-operator.aiven.io
       version: v1alpha1
     - kind: PG
       name: pgs.k8s-operator.aiven.io
@@ -158,6 +168,46 @@ spec:
           - k8s-operator.aiven.io
           resources:
           - kafkas/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - kafkaschemas
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - kafkaschemas/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - kafkatopics
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - kafkatopics/status
           verbs:
           - get
           - patch

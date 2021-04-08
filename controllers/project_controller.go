@@ -28,8 +28,7 @@ const projectFinalizer = "project-finalizer.k8s-operator.aiven.io"
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=projects,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=projects/status,verbs=get;update;patch
 
-func (r *ProjectReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx := context.Background()
+func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("project", req.NamespacedName)
 
 	if err := r.InitAivenClient(req, ctx, log); err != nil {

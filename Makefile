@@ -119,3 +119,34 @@ bundle: manifests
 # Build the bundle image.
 bundle-build:
 	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
+
+# Test your bundle using built-in and kuttl (created for each API) tests using scorecard.
+# To test a remote bundle image, remove the 'deploy' dependency and add 'operator-sdk run bundle <bundle-image>'.
+# Scorecard configuration docs: https://sdk.operatorframework.io/docs/advanced-topics/scorecard/scorecard/#configuration
+# Kuttl configuration docs: https://sdk.operatorframework.io/docs/advanced-topics/scorecard/kuttl-tests/
+.PHONY: test-scorecard check-token-env create-namespace create-secret
+test-scorecard: check-token-env create-namespace create-secret bundle deploy
+	rm -rf testbundle/ && cp -r bundle/ testbundle/ && mkdir -p testbundle/tests/scorecard/
+	$(KUSTOMIZE) build config/scorecard > testbundle/tests/scorecard/config.yaml
+	cp -r test/kuttl/ testbundle/tests/scorecard/
+	operator-sdk scorecard testbundle --namespace aiven-k8s-operator-system -w 30m
+
+# Checks if AIVEN_TOKEN environment variable is set
+check-token-env:
+ifndef AIVEN_TOKEN
+	$(error AIVEN_TOKEN is undefined)
+endif
+
+# Checks if test namespace already exists, if not it will create one
+create-namespace:
+ifeq ($(shell kubectl get namespaces | grep aiven-k8s-operator-system),)
+	echo "Namespace aiven-k8s-operator-system does not exist, creating it ...";
+	kubectl create namespace aiven-k8s-operator-system
+endif
+
+# Check if aiven-token sercret already exists, if not it will create one
+create-secret: check-token-env
+ifeq ($(shell kubectl get secrets --namespace aiven-k8s-operator-system | grep aiven-token),)
+	echo "Secret aiven-token does not exist in aiven-k8s-operator-system namespace, creating it ...";
+	kubectl create secret generic aiven-token --from-literal='token=${AIVEN_TOKEN}' --namespace aiven-k8s-operator-system
+endif

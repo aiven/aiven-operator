@@ -28,3 +28,6 @@ testbin/*
 
 # Aiven internal
 hack/tmp/*
+
+# testbundle/ is used for local testing and should not be committed.
+/testbundle/

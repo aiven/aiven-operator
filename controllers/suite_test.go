@@ -8,7 +8,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"math/rand"
 	"os"
@@ -155,7 +154,7 @@ var _ = AfterSuite(func() {
 })
 
 // EnsureDelete deletes the instance and waits for it to be gone or timeout
-func ensureDelete(ctx context.Context, instance runtime.Object) {
+func ensureDelete(ctx context.Context, instance client.Object) {
 	Expect(k8sClient.Delete(ctx, instance)).Should(Succeed())
 
 	res, err := meta.Accessor(instance)

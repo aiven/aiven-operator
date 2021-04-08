@@ -1,0 +1,17 @@
+apiVersion: k8s-operator.aiven.io/v1alpha1
+kind: PG
+metadata:
+  name: my-kuttl-pg1
+
+spec:
+  service_name: my-kuttl-pg1
+  project: dev-sandbox
+  cloud_name: google-europe-west1
+  plan: startup-4
+  maintenance_window_dow: friday
+  maintenance_window_time: 23:00:00
+  pg_user_config: {
+    pg_version: '11'
+  }
+label:
+  test: kuttl

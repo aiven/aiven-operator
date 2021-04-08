@@ -1,0 +1,18 @@
+apiVersion: k8s-operator.aiven.io/v1alpha1
+kind: Kafka
+metadata:
+  name: my-kuttl-kafka1
+
+spec:
+  service_name: my-kuttl-kafka1
+  project: dev-sandbox
+  cloud_name: google-europe-west1
+  plan: business-4
+  maintenance_window_dow: friday
+  maintenance_window_time: 23:00:00
+
+status:
+  state: RUNNING
+
+label:
+  test: kuttl
