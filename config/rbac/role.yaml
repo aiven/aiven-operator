@@ -89,6 +89,26 @@ rules:
 - apiGroups:
   - k8s-operator.aiven.io
   resources:
+  - kafkatopics
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - k8s-operator.aiven.io
+  resources:
+  - kafkatopics/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - k8s-operator.aiven.io
+  resources:
   - pgs
   verbs:
   - create

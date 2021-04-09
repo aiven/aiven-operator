@@ -120,6 +120,17 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "ProjectVPC")
 		os.Exit(1)
 	}
+	if err = (&controllers.KafkaTopicReconciler{
+		Controller: controllers.Controller{
+			Client: mgr.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("KafkaTopic"),
+			Scheme: mgr.GetScheme(),
+		},
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "KafkaTopic")
+		os.Exit(1)
+	}
+
 	if err = (&controllers.KafkaConnectReconciler{
 		Controller: controllers.Controller{
 			Client: mgr.GetClient(),
