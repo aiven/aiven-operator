@@ -29,6 +29,7 @@ var _ = Describe("Database Controller", func() {
 	)
 
 	BeforeEach(func() {
+		ctx = context.Background()
 		serviceName = "k8s-test-pg-db-acc-" + generateRandomID()
 		dbName = "k8s-db-acc-" + generateRandomID()
 		pg = pgSpec(serviceName, namespace)
@@ -49,10 +50,10 @@ var _ = Describe("Database Controller", func() {
 			return ""
 		}, timeout, interval).Should(Equal("RUNNING"))
 
-		ctx = context.Background()
-
 		By("Creating a new Database CR instance")
 		Expect(k8sClient.Create(ctx, db)).Should(Succeed())
+
+		time.Sleep(5 * time.Second)
 
 		// We'll need to retry getting this newly created instance,
 		// given that creation may not immediately happen.
@@ -86,8 +87,6 @@ var _ = Describe("Database Controller", func() {
 	AfterEach(func() {
 		By("Ensures that PG instance was deleted")
 		ensureDelete(ctx, pg)
-		By("Ensures that Database instance was deleted")
-		ensureDelete(ctx, db)
 	})
 })
 

@@ -85,6 +85,8 @@ func (r *DatabaseReconciler) updateCRStatus(db *k8soperatorv1alpha1.Database, d 
 	db.Status.DatabaseName = d.DatabaseName
 	db.Status.LcCollate = d.LcCollate
 	db.Status.LcType = d.LcType
+	db.Status.Project = db.Spec.Project
+	db.Status.ServiceName = db.Spec.ServiceName
 
 	err := r.Status().Update(context.Background(), db)
 	if err != nil {

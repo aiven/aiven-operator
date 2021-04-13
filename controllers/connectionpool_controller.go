@@ -123,6 +123,8 @@ func (r *ConnectionPoolReconciler) updateCRStatus(cp *k8soperatorv1alpha1.Connec
 	cp.Status.DatabaseName = conPool.Database
 	cp.Status.PoolSize = conPool.PoolSize
 	cp.Status.ConnectionURI = conPool.ConnectionURI
+	cp.Status.ServiceName = cp.Spec.ServiceName
+	cp.Status.Project = cp.Spec.Project
 
 	err := r.Status().Update(context.Background(), cp)
 	if err != nil {

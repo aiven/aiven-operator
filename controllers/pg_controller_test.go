@@ -94,12 +94,14 @@ func pgSpec(serviceName, namespace string) *v1alpha1.PG {
 			Namespace: namespace,
 		},
 		Spec: v1alpha1.PGSpec{
-			Project:               os.Getenv("AIVEN_PROJECT_NAME"),
-			ServiceName:           serviceName,
-			Plan:                  "business-4",
-			CloudName:             "google-europe-west1",
-			MaintenanceWindowDow:  "monday",
-			MaintenanceWindowTime: "10:00:00",
+			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
+				Project:               os.Getenv("AIVEN_PROJECT_NAME"),
+				ServiceName:           serviceName,
+				Plan:                  "business-4",
+				CloudName:             "google-europe-west1",
+				MaintenanceWindowDow:  "monday",
+				MaintenanceWindowTime: "10:00:00",
+			},
 			PGUserConfig: v1alpha1.PGUserConfig{
 				PgVersion: "12",
 				PublicAccess: v1alpha1.PublicAccessUserConfig{

@@ -67,6 +67,7 @@ func (r *ServiceUserReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 }
 
 func (r *ServiceUserReconciler) createUser(user *k8soperatorv1alpha1.ServiceUser) (*aiven.ServiceUser, error) {
+	r.Log.Info("project: " + user.Spec.Project + " service: " + user.Spec.ServiceName)
 	u, err := r.AivenClient.ServiceUsers.Create(user.Spec.Project, user.Spec.ServiceName,
 		aiven.CreateServiceUserRequest{
 			Username: user.Spec.Username,
@@ -101,6 +102,7 @@ func (r *ServiceUserReconciler) updateCRStatus(user *k8soperatorv1alpha1.Service
 	user.Status.ServiceName = user.Spec.ServiceName
 	user.Status.Project = user.Spec.Project
 	user.Status.Type = u.Type
+	user.Status.Authentication = user.Spec.Authentication
 
 	return r.Status().Update(context.Background(), user)
 }
