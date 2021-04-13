@@ -27,39 +27,9 @@ var _ = Describe("PG Controller", func() {
 	)
 
 	BeforeEach(func() {
-		serviceName = "k8s-test-pg-acc-" + generateRandomID()
-
-		pg = &v1alpha1.PG{
-			TypeMeta: metav1.TypeMeta{
-				APIVersion: "k8s-operator.aiven.io/v1alpha1",
-				Kind:       "PG",
-			},
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      serviceName,
-				Namespace: pgNamespace,
-			},
-			Spec: v1alpha1.PGSpec{
-				ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
-					Project:               os.Getenv("AIVEN_PROJECT_NAME"),
-					ServiceName:           serviceName,
-					Plan:                  "business-4",
-					CloudName:             "google-europe-west1",
-					MaintenanceWindowDow:  "monday",
-					MaintenanceWindowTime: "10:00:00",
-				},
-				PGUserConfig: v1alpha1.PGUserConfig{
-					PgVersion: "12",
-					PublicAccess: v1alpha1.PublicAccessUserConfig{
-						Pg:         boolPointer(true),
-						Prometheus: boolPointer(true),
-					},
-					Pg: v1alpha1.PGSubPGUserConfig{
-						IdleInTransactionSessionTimeout: int64Pointer(900),
-					},
-				},
-			},
-		}
 		ctx = context.Background()
+		serviceName = "k8s-test-pg-acc-" + generateRandomID()
+		pg = pgSpec(serviceName, pgNamespace)
 
 		By("Creating a new PG CR instance")
 		Expect(k8sClient.Create(ctx, pg)).Should(Succeed())
@@ -112,3 +82,34 @@ var _ = Describe("PG Controller", func() {
 		ensureDelete(ctx, pg)
 	})
 })
+
+func pgSpec(serviceName, namespace string) *v1alpha1.PG {
+	return &v1alpha1.PG{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "k8s-operator.aiven.io/v1alpha1",
+			Kind:       "PG",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      serviceName,
+			Namespace: namespace,
+		},
+		Spec: v1alpha1.PGSpec{
+			Project:               os.Getenv("AIVEN_PROJECT_NAME"),
+			ServiceName:           serviceName,
+			Plan:                  "business-4",
+			CloudName:             "google-europe-west1",
+			MaintenanceWindowDow:  "monday",
+			MaintenanceWindowTime: "10:00:00",
+			PGUserConfig: v1alpha1.PGUserConfig{
+				PgVersion: "12",
+				PublicAccess: v1alpha1.PublicAccessUserConfig{
+					Pg:         boolPointer(true),
+					Prometheus: boolPointer(true),
+				},
+				Pg: v1alpha1.PGSubPGUserConfig{
+					IdleInTransactionSessionTimeout: int64Pointer(900),
+				},
+			},
+		},
+	}
+}
