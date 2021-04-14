@@ -71,6 +71,11 @@ func (r *ServiceUserReconciler) createUser(user *k8soperatorv1alpha1.ServiceUser
 	u, err := r.AivenClient.ServiceUsers.Create(user.Spec.Project, user.Spec.ServiceName,
 		aiven.CreateServiceUserRequest{
 			Username: user.Spec.Username,
+			AccessControl: aiven.AccessControl{
+				RedisACLCategories: []string{},
+				RedisACLCommands:   []string{},
+				RedisACLKeys:       []string{},
+			},
 		})
 	if err != nil {
 		return nil, err
