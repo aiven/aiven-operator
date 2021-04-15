@@ -87,26 +87,41 @@ func (r *KafkaACLReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, err
 	}
 
-	// Create a new Kafka ACL
-	if !isACLExists {
-		err := r.createACL(acl)
+	// r.exists() updates status, so r.unchanged() has up-to-date info
+	if isACLExists && r.unchanged(acl) {
+		return ctrl.Result{}, nil
+	}
+
+	if isACLExists {
+		// This is an update, so delete the old ACL first
+		err := r.deleteACL(log, acl)
 		if err != nil {
-			log.Error(err, "Failed to create Kafka ACL")
+			log.Error(err, "Failed to delete old Kafka ACL")
 			return ctrl.Result{}, err
 		}
+	}
+
+	// Create a new Kafka ACL
+	if err := r.createACL(acl); err != nil {
+		log.Error(err, "Failed to create Kafka ACL")
+		return ctrl.Result{}, err
 	}
 
 	return ctrl.Result{}, nil
 }
 
-// finalize deletes Aiven Kafka ACL
-func (r *KafkaACLReconciler) finalize(log logr.Logger, a *k8soperatorv1alpha1.KafkaACL) error {
+func (r *KafkaACLReconciler) deleteACL(log logr.Logger, a *k8soperatorv1alpha1.KafkaACL) error {
 	err := r.AivenClient.KafkaACLs.Delete(a.Status.Project, a.Status.ServiceName, a.Status.Id)
 	if err != nil && !aiven.IsNotFound(err) {
 		log.Error(err, "Cannot delete Kafka ACL")
 		return fmt.Errorf("aiven client delete Kafka ACL error: %w", err)
 	}
+	return nil
+}
 
+// finalize deletes Aiven Kafka ACL
+func (r *KafkaACLReconciler) finalize(log logr.Logger, a *k8soperatorv1alpha1.KafkaACL) error {
+	r.deleteACL(log, a)
 	log.Info("Successfully finalized Kafka ACL")
 	return nil
 }
@@ -164,6 +179,12 @@ func (r *KafkaACLReconciler) createACL(acl *k8soperatorv1alpha1.KafkaACL) error 
 
 	// Update custom resource status
 	return r.updateCRStatus(acl, a)
+}
+
+func (r *KafkaACLReconciler) unchanged(acl *k8soperatorv1alpha1.KafkaACL) bool {
+	return acl.Status.Username == acl.Spec.Username &&
+		acl.Status.Permission == acl.Spec.Permission &&
+		acl.Status.Topic == acl.Spec.Topic
 }
 
 // updateCRStatus updates Kubernetes Custom Resource status
