@@ -64,7 +64,7 @@ func (r *KafkaACLReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			// Remove kafkaACLFinalizer. Once all finalizers have been
 			// removed, the object will be deleted.
 			controllerutil.RemoveFinalizer(acl, kafkaACLFinalizer)
-			err := r.Client.Update(ctx, acl)
+			err := r.Update(ctx, acl)
 			if err != nil {
 				return reconcile.Result{}, err
 			}
@@ -117,7 +117,7 @@ func (r *KafkaACLReconciler) addFinalizer(reqLogger logr.Logger, a *k8soperatorv
 	controllerutil.AddFinalizer(a, kafkaACLFinalizer)
 
 	// Update CR
-	return r.Client.Update(context.Background(), a)
+	return r.Update(context.Background(), a)
 }
 
 func (r *KafkaACLReconciler) exists(acl *k8soperatorv1alpha1.KafkaACL) (bool, error) {
