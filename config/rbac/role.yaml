@@ -49,6 +49,26 @@ rules:
 - apiGroups:
   - k8s-operator.aiven.io
   resources:
+  - kafkaacls
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - k8s-operator.aiven.io
+  resources:
+  - kafkaacls/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - k8s-operator.aiven.io
+  resources:
   - kafkaconnects
   verbs:
   - create
