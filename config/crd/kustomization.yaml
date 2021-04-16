@@ -25,6 +25,7 @@ patchesStrategicMerge:
 #- patches/webhook_in_serviceusers.yaml
 #- patches/webhook_in_kafkas.yaml
 #- patches/webhook_in_projectvpcs.yaml
+#- patches/webhook_in_kafkatopics
 #- patches/webhook_in_serviceintegrations.yaml
 #- patches/webhook_in_kafkaschemas.yaml
 #- patches/webhook_in_kafkaconnects.yaml

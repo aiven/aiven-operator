@@ -64,12 +64,6 @@ spec:
                   items:
                     type: string
                   type: array
-              required:
-              - exclude_consumer_groups
-              - exclude_topics
-              - include_consumer_groups
-              - include_topics
-              - kafka_custom_metrics
               type: object
             destination_endpoint_id:
               description: 'x-kubernetes-immutable: true Destination endpoint for
@@ -81,6 +75,20 @@ spec:
               type: string
             integration_type:
               description: 'x-kubernetes-immutable: true Type of the service integration'
+              enum:
+              - datadog
+              - kafka_logs
+              - kafka_connect
+              - metrics
+              - dashboard
+              - rsyslog
+              - read_replica
+              - schema_registry_proxy
+              - signalfx
+              - jolokia
+              - internal_connectivity
+              - external_google_cloud_logging
+              - datasource
               type: string
             kafka_connect:
               description: Kafka Connect service configuration values
@@ -110,12 +118,6 @@ spec:
                   items:
                     type: string
                   type: array
-              required:
-              - exclude_consumer_groups
-              - exclude_topics
-              - include_consumer_groups
-              - include_topics
-              - kafka_custom_metrics
               type: object
             kafka_logs:
               description: Kafka logs configuration values
@@ -125,19 +127,13 @@ spec:
                   maxLength: 63
                   minLength: 1
                   type: string
-              required:
-              - kafka_topic
               type: object
             metrics:
               description: Metrics configuration values
               properties:
                 database:
-                  description: Name of a user that can be used to read metrics. This
-                    will be used for Grafana integration (if enabled) to prevent Grafana
-                    users from making undesired changes. Only affects PostgreSQL destinations.
-                    Defaults to 'metrics_reader'. Note that this must be the same
-                    for all metrics integrations that write data to the same PostgreSQL
-                    service.
+                  description: Name of the database where to store metric datapoints.
+                    Only affects PostgreSQL destinations
                   format: ^[_A-Za-z0-9][-_A-Za-z0-9]{0,39}$
                   maxLength: 40
                   type: string
@@ -164,11 +160,6 @@ spec:
                   format: ^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$
                   maxLength: 40
                   type: string
-              required:
-              - database
-              - retention_days
-              - ro_username
-              - username
               type: object
             project:
               description: 'x-kubernetes-immutable: true Project the integration belongs
@@ -219,12 +210,6 @@ spec:
                   items:
                     type: string
                   type: array
-              required:
-              - exclude_consumer_groups
-              - exclude_topics
-              - include_consumer_groups
-              - include_topics
-              - kafka_custom_metrics
               type: object
             destination_endpoint_id:
               description: Destination endpoint for the integration (if any)
@@ -237,6 +222,20 @@ spec:
               type: string
             integration_type:
               description: Type of the service integration
+              enum:
+              - datadog
+              - kafka_logs
+              - kafka_connect
+              - metrics
+              - dashboard
+              - rsyslog
+              - read_replica
+              - schema_registry_proxy
+              - signalfx
+              - jolokia
+              - internal_connectivity
+              - external_google_cloud_logging
+              - datasource
               type: string
             kafka_connect:
               description: Kafka Connect service configuration values
@@ -266,12 +265,6 @@ spec:
                   items:
                     type: string
                   type: array
-              required:
-              - exclude_consumer_groups
-              - exclude_topics
-              - include_consumer_groups
-              - include_topics
-              - kafka_custom_metrics
               type: object
             kafka_logs:
               description: Kafka logs configuration values
@@ -281,19 +274,13 @@ spec:
                   maxLength: 63
                   minLength: 1
                   type: string
-              required:
-              - kafka_topic
               type: object
             metrics:
               description: Metrics configuration values
               properties:
                 database:
-                  description: Name of a user that can be used to read metrics. This
-                    will be used for Grafana integration (if enabled) to prevent Grafana
-                    users from making undesired changes. Only affects PostgreSQL destinations.
-                    Defaults to 'metrics_reader'. Note that this must be the same
-                    for all metrics integrations that write data to the same PostgreSQL
-                    service.
+                  description: Name of the database where to store metric datapoints.
+                    Only affects PostgreSQL destinations
                   format: ^[_A-Za-z0-9][-_A-Za-z0-9]{0,39}$
                   maxLength: 40
                   type: string
@@ -320,11 +307,6 @@ spec:
                   format: ^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$
                   maxLength: 40
                   type: string
-              required:
-              - database
-              - retention_days
-              - ro_username
-              - username
               type: object
             project:
               description: Project the integration belongs to

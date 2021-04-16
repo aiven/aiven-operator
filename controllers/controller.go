@@ -21,7 +21,7 @@ type Controller struct {
 	AivenClient *aiven.Client
 }
 
-// GetAivenClient retrieves an Aiven client
+// InitAivenClient retrieves an Aiven client
 func (c *Controller) InitAivenClient(req ctrl.Request, ctx context.Context, log logr.Logger) error {
 	if c.AivenClient != nil {
 		return nil
@@ -59,12 +59,6 @@ func contains(list []string, s string) bool {
 		}
 	}
 	return false
-}
-
-// labelsForProject returns the labels for selecting the resources
-// belonging to the given project CR name.
-func labelsForProject(name string) map[string]string {
-	return map[string]string{"app": "project", "project_cr": name}
 }
 
 // UserConfigurationToAPI converts UserConfiguration options structure
@@ -136,4 +130,12 @@ func toOptionalStringPointer(s string) *string {
 	}
 
 	return &s
+}
+
+func stringPointerToString(s *string) string {
+	if s == nil {
+		return ""
+	}
+
+	return *s
 }

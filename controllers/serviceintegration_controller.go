@@ -74,27 +74,25 @@ func (r *ServiceIntegrationReconciler) Reconcile(req ctrl.Request) (ctrl.Result,
 
 	// Add finalizer for this CR
 	if !contains(serviceInt.GetFinalizers(), serviceIntegrationFinalizer) {
-		if err := r.addFinalizer(log, serviceInt); err != nil {
+		if err := r.addFinalizer(ctx, log, serviceInt); err != nil {
 			return reconcile.Result{}, err
 		}
 	}
 
-	// Check if service integration already exists on the Aiven side, create a
-	// new one if it is not found
-	isServiceIntegrationExists, err := r.exists(serviceInt)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	if !isServiceIntegrationExists {
+	if serviceInt.Status.ID == "" {
+		log.Info("Creating a new Service integration")
 		_, err = r.createServiceIntegration(serviceInt)
+	if serviceInt.Status.ID == "" {
+		log.Info("Creating a new Service integration")
+		_, err = r.createServiceIntegration(ctx, serviceInt)
 		if err != nil {
 			log.Error(err, "Failed to create Service Integration")
 			return ctrl.Result{}, err
 		}
+		return ctrl.Result{}, nil
 	}
 
-	_, err = r.updateServiceIntegration(serviceInt)
+	_, err = r.updateServiceIntegration(ctx, serviceInt)
 	if err != nil {
 		log.Error(err, "Failed to update Service Integration")
 		return ctrl.Result{}, err
@@ -104,12 +102,12 @@ func (r *ServiceIntegrationReconciler) Reconcile(req ctrl.Request) (ctrl.Result,
 }
 
 // addFinalizer add finalizer to CR
-func (r *ServiceIntegrationReconciler) addFinalizer(reqLogger logr.Logger, i *k8soperatorv1alpha1.ServiceIntegration) error {
+func (r *ServiceIntegrationReconciler) addFinalizer(ctx context.Context, reqLogger logr.Logger, i *k8soperatorv1alpha1.ServiceIntegration) error {
 	reqLogger.Info("Adding Finalizer for the Service Integration")
 	controllerutil.AddFinalizer(i, serviceIntegrationFinalizer)
 
 	// Update CR
-	err := r.Client.Update(context.Background(), i)
+	err := r.Client.Update(ctx, i)
 	if err != nil {
 		reqLogger.Error(err, "Failed to update Service Integration with finalizer")
 		return err
@@ -131,52 +129,31 @@ func (r *ServiceIntegrationReconciler) finalizeServiceIntegration(log logr.Logge
 	return nil
 }
 
-func (r *ServiceIntegrationReconciler) exists(int *k8soperatorv1alpha1.ServiceIntegration) (bool, error) {
-	integrations, err := r.AivenClient.ServiceIntegrations.List(int.Spec.Project, int.Spec.SourceServiceName)
-	if err != nil {
-		return false, err
-	}
-
-	for _, i := range integrations {
-		if i.SourceService == nil || i.DestinationService == nil {
-			continue
-		}
-
-		if i.IntegrationType == int.Spec.IntegrationType &&
-			*i.SourceService == int.Spec.SourceServiceName &&
-			*i.DestinationService == int.Spec.DestinationServiceName {
-			return true, nil
-		}
-	}
-
-	return false, nil
-}
-
-func (r *ServiceIntegrationReconciler) createServiceIntegration(int *k8soperatorv1alpha1.ServiceIntegration) (*aiven.ServiceIntegration, error) {
+func (r *ServiceIntegrationReconciler) createServiceIntegration(ctx context.Context, int *k8soperatorv1alpha1.ServiceIntegration) (*aiven.ServiceIntegration, error) {
 	i, err := r.AivenClient.ServiceIntegrations.Create(
 		int.Spec.Project,
 		aiven.CreateServiceIntegrationRequest{
-			DestinationEndpointID: &int.Spec.DestinationEndpointID,
-			DestinationService:    &int.Spec.DestinationServiceName,
+			DestinationEndpointID: toOptionalStringPointer(int.Spec.DestinationEndpointID),
+			DestinationService:    toOptionalStringPointer(int.Spec.DestinationServiceName),
 			IntegrationType:       int.Spec.IntegrationType,
-			SourceEndpointID:      &int.Spec.SourceEndpointID,
-			SourceService:         &int.Spec.SourceServiceName,
+			SourceEndpointID:      toOptionalStringPointer(int.Spec.SourceEndpointID),
+			SourceService:         toOptionalStringPointer(int.Spec.SourceServiceName),
 			UserConfig:            r.GetUserConfig(int),
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot create service integration:%w", err)
 	}
 
-	err = r.updateCRStatus(int, i)
+	err = r.updateCRStatus(ctx, int, i)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot update CR status: %w", err)
 	}
 
 	return i, nil
 }
 
-func (r *ServiceIntegrationReconciler) updateServiceIntegration(int *k8soperatorv1alpha1.ServiceIntegration) (*aiven.ServiceIntegration, error) {
+func (r *ServiceIntegrationReconciler) updateServiceIntegration(ctx context.Context, int *k8soperatorv1alpha1.ServiceIntegration) (*aiven.ServiceIntegration, error) {
 	i, err := r.AivenClient.ServiceIntegrations.Update(
 		int.Spec.Project,
 		int.Status.ID,
@@ -188,7 +165,7 @@ func (r *ServiceIntegrationReconciler) updateServiceIntegration(int *k8soperator
 		return nil, err
 	}
 
-	err = r.updateCRStatus(int, i)
+	err = r.updateCRStatus(ctx, int, i)
 	if err != nil {
 		return nil, err
 	}
@@ -197,16 +174,16 @@ func (r *ServiceIntegrationReconciler) updateServiceIntegration(int *k8soperator
 }
 
 // updateCRStatus updates Kubernetes Custom Resource status
-func (r *ServiceIntegrationReconciler) updateCRStatus(int *k8soperatorv1alpha1.ServiceIntegration, i *aiven.ServiceIntegration) error {
+func (r *ServiceIntegrationReconciler) updateCRStatus(ctx context.Context, int *k8soperatorv1alpha1.ServiceIntegration, i *aiven.ServiceIntegration) error {
 	int.Status.Project = int.Spec.Project
 	int.Status.IntegrationType = i.IntegrationType
-	int.Status.SourceServiceName = *i.SourceService
-	int.Status.DestinationServiceName = *i.DestinationService
-	int.Status.DestinationEndpointID = *i.DestinationEndpointID
-	int.Status.SourceEndpointID = *i.SourceEndpointID
+	int.Status.SourceServiceName = stringPointerToString(i.SourceService)
+	int.Status.DestinationServiceName = stringPointerToString(i.DestinationService)
+	int.Status.DestinationEndpointID = stringPointerToString(i.DestinationEndpointID)
+	int.Status.SourceEndpointID = stringPointerToString(i.SourceEndpointID)
 	int.Status.ID = i.ServiceIntegrationID
 
-	return r.Status().Update(context.Background(), int)
+	return r.Status().Update(ctx, int)
 }
 
 func (r *ServiceIntegrationReconciler) GetUserConfig(int *k8soperatorv1alpha1.ServiceIntegration) map[string]interface{} {
