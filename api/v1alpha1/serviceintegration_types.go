@@ -10,28 +10,22 @@ import (
 type ServiceIntegrationSpec struct {
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// x-kubernetes-immutable: true
 	// Project the integration belongs to
 	Project string `json:"project"`
 
 	// +kubebuilder:validation:Enum=datadog;kafka_logs;kafka_connect;metrics;dashboard;rsyslog;read_replica;schema_registry_proxy;signalfx;jolokia;internal_connectivity;external_google_cloud_logging;datasource
-	// x-kubernetes-immutable: true
 	// Type of the service integration
 	IntegrationType string `json:"integration_type"`
 
-	// x-kubernetes-immutable: true
 	// Source endpoint for the integration (if any)
 	SourceEndpointID string `json:"source_endpoint_id,omitempty"`
 
-	// x-kubernetes-immutable: true
 	// Source service for the integration (if any)
 	SourceServiceName string `json:"source_service_name,omitempty"`
 
-	// x-kubernetes-immutable: true
 	// Destination endpoint for the integration (if any)
 	DestinationEndpointID string `json:"destination_endpoint_id,omitempty"`
 
-	// x-kubernetes-immutable: true
 	// Destination service for the integration (if any)
 	DestinationServiceName string `json:"destination_service_name,omitempty"`
 
@@ -50,38 +44,7 @@ type ServiceIntegrationSpec struct {
 
 // ServiceIntegrationStatus defines the observed state of ServiceIntegration
 type ServiceIntegrationStatus struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// Project the integration belongs to
-	Project string `json:"project"`
-
-	// +kubebuilder:validation:Enum=datadog;kafka_logs;kafka_connect;metrics;dashboard;rsyslog;read_replica;schema_registry_proxy;signalfx;jolokia;internal_connectivity;external_google_cloud_logging;datasource
-	// Type of the service integration
-	IntegrationType string `json:"integration_type"`
-
-	// Source endpoint for the integration (if any)
-	SourceEndpointID string `json:"source_endpoint_id,omitempty"`
-
-	// Source service for the integration (if any)
-	SourceServiceName string `json:"source_service_name,omitempty"`
-
-	// Destination endpoint for the integration (if any)
-	DestinationEndpointID string `json:"destination_endpoint_id,omitempty"`
-
-	// Destination service for the integration (if any)
-	DestinationServiceName string `json:"destination_service_name,omitempty"`
-
-	// Datadog specific user configuration options
-	DatadogUserConfig ServiceIntegrationDatadogUserConfig `json:"datadog,omitempty"`
-
-	// Kafka Connect service configuration values
-	KafkaConnectUserConfig ServiceIntegrationKafkaConnectUserConfig `json:"kafka_connect,omitempty"`
-
-	// Kafka logs configuration values
-	KafkaLogsUserConfig ServiceIntegrationKafkaLogsUserConfig `json:"kafka_logs,omitempty"`
-
-	// Metrics configuration values
-	MetricsUserConfig ServiceIntegrationMetricsUserConfig `json:"metrics,omitempty"`
+	ServiceIntegrationSpec `json:",inline"`
 
 	// Service integration ID
 	ID string `json:"id"`

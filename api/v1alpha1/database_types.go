@@ -10,53 +10,29 @@ import (
 type DatabaseSpec struct {
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// x-kubernetes-immutable: true
 	// Project to link the database to
 	Project string `json:"project"`
 
 	// +kubebuilder:validation:MaxLength=63
-	// x-kubernetes-immutable: true
 	// PostgreSQL service to link the database to
 	ServiceName string `json:"service_name"`
 
 	// +kubebuilder:validation:MaxLength=40
-	// x-kubernetes-immutable: true
 	// Service database name
 	DatabaseName string `json:"database_name"`
 
 	// +kubebuilder:validation:MaxLength=128
-	// x-kubernetes-immutable: true
 	// Default string sort order (LC_COLLATE) of the database. Default value: en_US.UTF-8
 	LcCollate string `json:"lc_collate"`
 
 	// +kubebuilder:validation:MaxLength=128
-	// x-kubernetes-immutable: true
 	// Default character classification (LC_CTYPE) of the database. Default value: en_US.UTF-8
 	LcType string `json:"lc_ctype"`
 }
 
 // DatabaseStatus defines the observed state of Database
 type DatabaseStatus struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// Project to link the database to
-	Project string `json:"project"`
-
-	// +kubebuilder:validation:MaxLength=63
-	// PostgreSQL service to link the database to
-	ServiceName string `json:"service_name"`
-
-	// +kubebuilder:validation:MaxLength=40
-	// Service database name
-	DatabaseName string `json:"database_name"`
-
-	// +kubebuilder:validation:MaxLength=128
-	// Default string sort order (LC_COLLATE) of the database. Default value: en_US.UTF-8
-	LcCollate string `json:"lc_collate"`
-
-	// +kubebuilder:validation:MaxLength=128
-	// Default character classification (LC_CTYPE) of the database. Default value: en_US.UTF-8
-	LcType string `json:"lc_ctype"`
+	DatabaseSpec `json:",inline"`
 }
 
 // +kubebuilder:object:root=true

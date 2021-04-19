@@ -48,8 +48,7 @@ spec:
                 - NONE
                 type: string
               project:
-                description: 'x-kubernetes-immutable: true Project to link the Kafka
-                  Schema to'
+                description: Project to link the Kafka Schema to
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
@@ -58,12 +57,11 @@ spec:
                   JSON format
                 type: string
               service_name:
-                description: 'x-kubernetes-immutable: true Service to link the Kafka
-                  Schema to'
+                description: Service to link the Kafka Schema to
                 maxLength: 63
                 type: string
               subject_name:
-                description: 'x-kubernetes-immutable: true Kafka Schema Subject name'
+                description: Kafka Schema Subject name
                 maxLength: 63
                 type: string
             required:

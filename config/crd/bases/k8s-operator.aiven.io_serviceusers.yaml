@@ -37,24 +37,22 @@ spec:
             description: ServiceUserSpec defines the desired state of ServiceUser
             properties:
               authentication:
-                description: 'x-kubernetes-immutable: true Authentication details'
+                description: Authentication details
                 enum:
                 - caching_sha2_password
                 - mysql_native_password
                 type: string
               project:
-                description: 'x-kubernetes-immutable: true Project to link the user
-                  to'
+                description: Project to link the user to
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
               service_name:
-                description: 'x-kubernetes-immutable: true Service to link the user
-                  to'
+                description: Service to link the user to
                 maxLength: 63
                 type: string
               username:
-                description: 'x-kubernetes-immutable: true Name of the user account'
+                description: Name of the user account
                 maxLength: 63
                 type: string
             required:

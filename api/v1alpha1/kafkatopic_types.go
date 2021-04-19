@@ -10,17 +10,14 @@ import (
 type KafkaTopicSpec struct {
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// x-kubernetes-immutable: true
 	// Target project.
 	Project string `json:"project"`
 
 	// +kubebuilder:validation:MaxLength=63
-	// x-kubernetes-immutable: true
 	// Service name.
 	ServiceName string `json:"service_name"`
 
 	// +kubebuilder:validation:MaxLength=63
-	// x-kubernetes-immutable: true
 	// Topic name.
 	TopicName string `json:"topic_name"`
 
@@ -128,30 +125,7 @@ type KafkaTopicConfig struct {
 
 // KafkaTopicStatus defines the observed state of KafkaTopic
 type KafkaTopicStatus struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// Target project.
-	Project string `json:"project"`
-
-	// +kubebuilder:validation:MaxLength=63
-	// Service name.
-	ServiceName string `json:"service_name"`
-
-	// +kubebuilder:validation:MaxLength=63
-	// Topic name.
-	TopicName string `json:"topic_name"`
-
-	// Number of partitions to create in the topic
-	Partitions int `json:"partitions"`
-
-	// Replication factor for the topic
-	Replication int `json:"replication"`
-
-	// Kafka topic tags
-	Tags []KafkaTopicTag `json:"tags,omitempty"`
-
-	// Kafka topic configuration
-	Config KafkaTopicConfig `json:"config,omitempty"`
+	KafkaTopicSpec `json:",inline"`
 }
 
 // +kubebuilder:object:root=true

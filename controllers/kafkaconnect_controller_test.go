@@ -39,12 +39,14 @@ var _ = Describe("KafkaConnect Controller", func() {
 				Namespace: kafkaconnectNamespace,
 			},
 			Spec: v1alpha1.KafkaConnectSpec{
-				Project:               os.Getenv("AIVEN_PROJECT_NAME"),
-				ServiceName:           serviceName,
-				Plan:                  "business-4",
-				CloudName:             "google-europe-west1",
-				MaintenanceWindowDow:  "monday",
-				MaintenanceWindowTime: "10:00:00",
+				ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
+					Project:               os.Getenv("AIVEN_PROJECT_NAME"),
+					ServiceName:           serviceName,
+					Plan:                  "business-4",
+					CloudName:             "google-europe-west1",
+					MaintenanceWindowDow:  "monday",
+					MaintenanceWindowTime: "10:00:00",
+				},
 			},
 		}
 		ctx = context.Background()

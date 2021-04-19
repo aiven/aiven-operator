@@ -10,27 +10,22 @@ import (
 type ConnectionPoolSpec struct {
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// x-kubernetes-immutable: true
 	// Target project.
 	Project string `json:"project"`
 
 	// +kubebuilder:validation:MaxLength=63
-	// x-kubernetes-immutable: true
 	// Service name.
 	ServiceName string `json:"service_name"`
 
 	// +kubebuilder:validation:MaxLength=40
-	// x-kubernetes-immutable: true
 	// Name of the database the pool connects to
 	DatabaseName string `json:"database_name"`
 
 	// +kubebuilder:validation:MaxLength=60
-	// x-kubernetes-immutable: true
 	// Name of the pool
 	PoolName string `json:"pool_name"`
 
 	// +kubebuilder:validation:MaxLength=64
-	// x-kubernetes-immutable: true
 	// Name of the service user used to connect to the database
 	Username string `json:"username"`
 
@@ -46,35 +41,7 @@ type ConnectionPoolSpec struct {
 
 // ConnectionPoolStatus defines the observed state of ConnectionPool
 type ConnectionPoolStatus struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// Target project.
-	Project string `json:"project"`
-
-	// +kubebuilder:validation:MaxLength=63
-	// Service name.
-	ServiceName string `json:"service_name"`
-
-	// +kubebuilder:validation:MaxLength=40
-	// Name of the database the pool connects to
-	DatabaseName string `json:"database_name"`
-
-	// +kubebuilder:validation:MaxLength=60
-	// Name of the pool
-	PoolName string `json:"pool_name"`
-
-	// +kubebuilder:validation:MaxLength=64
-	// Name of the service user used to connect to the database
-	Username string `json:"username"`
-
-	// +kubebuilder:validation:Min=1
-	// +kubebuilder:validation:Max=1000
-	// Number of connections the pool may create towards the backend server
-	PoolSize int `json:"pool_size,omitempty"`
-
-	// +kubebuilder:validation:Enum=session;transaction;statement
-	// Mode the pool operates in (session, transaction, statement)
-	PoolMode string `json:"pool_mode,omitempty"`
+	ConnectionPoolSpec `json:",inline"`
 
 	// URI for connecting to the pool
 	ConnectionURI string `json:"connection_uri,omitempty"`

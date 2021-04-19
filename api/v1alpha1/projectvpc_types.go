@@ -10,35 +10,21 @@ import (
 type ProjectVPCSpec struct {
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// x-kubernetes-immutable: true
 	// The project the VPC belongs to
 	Project string `json:"project"`
 
 	// +kubebuilder:validation:MaxLength=256
-	// x-kubernetes-immutable: true
 	// Cloud the VPC is in
 	CloudName string `json:"cloud_name"`
 
 	// +kubebuilder:validation:MaxLength=36
-	// x-kubernetes-immutable: true
 	// Network address range used by the VPC like 192.168.0.0/24
 	NetworkCidr string `json:"network_cidr"`
 }
 
 // ProjectVPCStatus defines the observed state of ProjectVPC
 type ProjectVPCStatus struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// The project the VPC belongs to
-	Project string `json:"project"`
-
-	// Cloud the VPC is in
-	// +kubebuilder:validation:MaxLength=256
-	CloudName string `json:"cloud_name"`
-
-	// +kubebuilder:validation:MaxLength=36
-	// Network address range used by the VPC like 192.168.0.0/24
-	NetworkCidr string `json:"network_cidr"`
+	ProjectVPCSpec `json:",inline"`
 
 	// State of the VPC (APPROVED, ACTIVE, DELETING, DELETED)
 	State string `json:"state"`

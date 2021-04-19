@@ -10,17 +10,14 @@ import (
 type KafkaSchemaSpec struct {
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// x-kubernetes-immutable: true
 	// Project to link the Kafka Schema to
 	Project string `json:"project"`
 
 	// +kubebuilder:validation:MaxLength=63
-	// x-kubernetes-immutable: true
 	// Service to link the Kafka Schema to
 	ServiceName string `json:"service_name"`
 
 	// +kubebuilder:validation:MaxLength=63
-	// x-kubernetes-immutable: true
 	// Kafka Schema Subject name
 	SubjectName string `json:"subject_name"`
 
@@ -34,25 +31,7 @@ type KafkaSchemaSpec struct {
 
 // KafkaSchemaStatus defines the observed state of KafkaSchema
 type KafkaSchemaStatus struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// Project to link the Kafka Schema to
-	Project string `json:"project"`
-
-	// +kubebuilder:validation:MaxLength=63
-	// Service to link the Kafka Schema to
-	ServiceName string `json:"service_name"`
-
-	// +kubebuilder:validation:MaxLength=63
-	// Kafka Schema Subject name
-	SubjectName string `json:"subject_name"`
-
-	// Kafka Schema configuration should be a valid Avro Schema JSON format
-	Schema string `json:"schema"`
-
-	// +kubebuilder:validation:Enum=BACKWARD;BACKWARD_TRANSITIVE;FORWARD;FORWARD_TRANSITIVE;FULL;FULL_TRANSITIVE;NONE
-	// Kafka Schemas compatibility level
-	CompatibilityLevel string `json:"compatibility_level,omitempty"`
+	KafkaSchemaSpec `json:",inline"`
 
 	// Kafka Schema configuration version
 	Version int `json:"version"`

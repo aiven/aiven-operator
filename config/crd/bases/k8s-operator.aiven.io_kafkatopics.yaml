@@ -131,7 +131,7 @@ spec:
                 minimum: 1
                 type: integer
               project:
-                description: 'x-kubernetes-immutable: true Target project.'
+                description: Target project.
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
@@ -140,7 +140,7 @@ spec:
                 minimum: 2
                 type: integer
               service_name:
-                description: 'x-kubernetes-immutable: true Service name.'
+                description: Service name.
                 maxLength: 63
                 type: string
               tags:
@@ -161,7 +161,7 @@ spec:
                   type: object
                 type: array
               topic_name:
-                description: 'x-kubernetes-immutable: true Topic name.'
+                description: Topic name.
                 maxLength: 63
                 type: string
             required:
@@ -265,6 +265,8 @@ spec:
                 type: object
               partitions:
                 description: Number of partitions to create in the topic
+                maximum: 1000000
+                minimum: 1
                 type: integer
               project:
                 description: Target project.
@@ -273,6 +275,7 @@ spec:
                 type: string
               replication:
                 description: Replication factor for the topic
+                minimum: 2
                 type: integer
               service_name:
                 description: Service name.
