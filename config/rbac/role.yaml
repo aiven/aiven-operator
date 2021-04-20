@@ -209,6 +209,26 @@ rules:
 - apiGroups:
   - k8s-operator.aiven.io
   resources:
+  - serviceintegrations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - k8s-operator.aiven.io
+  resources:
+  - serviceintegrations/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - k8s-operator.aiven.io
+  resources:
   - serviceusers
   verbs:
   - create

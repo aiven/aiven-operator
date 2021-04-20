@@ -175,6 +175,17 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "KafkaSchema")
 		os.Exit(1)
 	}
+
+	if err = (&controllers.ServiceIntegrationReconciler{
+		Controller: controllers.Controller{
+			Client: mgr.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("ServiceIntegration"),
+			Scheme: mgr.GetScheme(),
+		},
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ServiceIntegration")
+		os.Exit(1)
+	}
 	// +kubebuilder:scaffold:builder
 
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
