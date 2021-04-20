@@ -31,15 +31,15 @@ spec:
           description: ProjectVPCSpec defines the desired state of ProjectVPC
           properties:
             cloud_name:
-              description: Cloud the VPC is in
+              description: 'x-kubernetes-immutable: true Cloud the VPC is in'
               maxLength: 256
               type: string
             network_cidr:
-              description: Network address range used by the VPC like 192.168.0.0/24
+              description: 'x-kubernetes-immutable: true Network address range used by the VPC like 192.168.0.0/24'
               maxLength: 36
               type: string
             project:
-              description: The project the VPC belongs to
+              description: 'x-kubernetes-immutable: true The project the VPC belongs to'
               format: ^[a-zA-Z0-9_-]*$
               maxLength: 63
               type: string

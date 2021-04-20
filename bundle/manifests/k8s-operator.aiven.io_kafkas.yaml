@@ -454,7 +454,7 @@ spec:
               maxLength: 128
               type: string
             project:
-              description: Target project.
+              description: 'x-kubernetes-immutable: true Target project.'
               format: ^[a-zA-Z0-9_-]*$
               maxLength: 63
               type: string
@@ -463,7 +463,7 @@ spec:
               maxLength: 36
               type: string
             service_name:
-              description: Service name.
+              description: 'x-kubernetes-immutable: true Service name.'
               maxLength: 63
               type: string
           required:
@@ -910,12 +910,11 @@ spec:
               maxLength: 63
               type: string
             state:
-              description: Service state
+              description: PostgreSQL Service state
               type: string
           required:
           - project
           - service_name
-          - state
           type: object
       type: object
   version: v1alpha1
