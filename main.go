@@ -69,7 +69,7 @@ func main() {
 	if err = (&controllers.PGReconciler{
 		Controller: controllers.Controller{
 			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("Project"),
+			Log:    ctrl.Log.WithName("controllers").WithName("PG"),
 			Scheme: mgr.GetScheme(),
 		},
 	}).SetupWithManager(mgr); err != nil {
@@ -187,18 +187,6 @@ func main() {
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder
-
-	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
-		if err = (&k8soperatoraiveniov1alpha1.Project{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Project")
-			os.Exit(1)
-		}
-
-		if err = (&k8soperatorv1alpha1.PG{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "PG")
-			os.Exit(1)
-		}
-	}
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {

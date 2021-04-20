@@ -4,12 +4,10 @@ repo: github.com/aiven/aiven-k8s-operator
 projectName: aiven-operator
 resources:
 -
-  # TODO(user): Uncomment the below line if this resource implements a controller, else delete it.
-  # controller: true
+  controller: true
   domain: aiven.io
   group: k8s-operator
   kind: Project
-  # TODO(user): Update the package path for your API if the below value is incorrect.
   path: github.com/aiven/aiven-k8s-operator/api/v1alpha1
   version: v1alpha1
 -

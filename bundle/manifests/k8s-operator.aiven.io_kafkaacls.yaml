@@ -1,8 +1,8 @@
-apiVersion: apiextensions.k8s.io/v1beta1
+apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.3.0
+    controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
   name: kafkaacls.k8s-operator.aiven.io
 spec:
@@ -13,96 +13,95 @@ spec:
     plural: kafkaacls
     singular: kafkaacl
   scope: Namespaced
-  subresources:
-    status: {}
-  validation:
-    openAPIV3Schema:
-      description: KafkaACL is the Schema for the kafkaacls API
-      properties:
-        apiVersion:
-          description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
-          type: string
-        kind:
-          description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-          type: string
-        metadata:
-          type: object
-        spec:
-          description: KafkaACLSpec defines the desired state of KafkaACL
-          properties:
-            permission:
-              description: 'x-kubernetes-immutable: true Kafka permission to grant (admin, read, readwrite, write)'
-              enum:
-              - admin
-              - read
-              - readwrite
-              - write
-              type: string
-            project:
-              description: 'x-kubernetes-immutable: true Project to link the Kafka ACL to'
-              format: ^[a-zA-Z0-9_-]*$
-              maxLength: 63
-              type: string
-            service_name:
-              description: 'x-kubernetes-immutable: true Service to link the Kafka ACL to'
-              maxLength: 63
-              type: string
-            topic:
-              description: 'x-kubernetes-immutable: true Topic name pattern for the ACL entry'
-              type: string
-            username:
-              description: 'x-kubernetes-immutable: true Username pattern for the ACL entry'
-              type: string
-          required:
-          - permission
-          - project
-          - service_name
-          - topic
-          - username
-          type: object
-        status:
-          description: KafkaACLStatus defines the observed state of KafkaACL
-          properties:
-            id:
-              description: Kafka ACL ID
-              type: string
-            permission:
-              description: Kafka permission to grant (admin, read, readwrite, write)
-              enum:
-              - admin
-              - read
-              - readwrite
-              - write
-              type: string
-            project:
-              description: Project to link the Kafka ACL to
-              format: ^[a-zA-Z0-9_-]*$
-              maxLength: 63
-              type: string
-            service_name:
-              description: Service to link the Kafka ACL to
-              maxLength: 63
-              type: string
-            topic:
-              description: Topic name pattern for the ACL entry
-              type: string
-            username:
-              description: Username pattern for the ACL entry
-              type: string
-          required:
-          - id
-          - permission
-          - project
-          - service_name
-          - topic
-          - username
-          type: object
-      type: object
-  version: v1alpha1
   versions:
   - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: KafkaACL is the Schema for the kafkaacls API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: KafkaACLSpec defines the desired state of KafkaACL
+            properties:
+              permission:
+                description: 'x-kubernetes-immutable: true Kafka permission to grant (admin, read, readwrite, write)'
+                enum:
+                - admin
+                - read
+                - readwrite
+                - write
+                type: string
+              project:
+                description: 'x-kubernetes-immutable: true Project to link the Kafka ACL to'
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              service_name:
+                description: 'x-kubernetes-immutable: true Service to link the Kafka ACL to'
+                maxLength: 63
+                type: string
+              topic:
+                description: 'x-kubernetes-immutable: true Topic name pattern for the ACL entry'
+                type: string
+              username:
+                description: 'x-kubernetes-immutable: true Username pattern for the ACL entry'
+                type: string
+            required:
+            - permission
+            - project
+            - service_name
+            - topic
+            - username
+            type: object
+          status:
+            description: KafkaACLStatus defines the observed state of KafkaACL
+            properties:
+              id:
+                description: Kafka ACL ID
+                type: string
+              permission:
+                description: Kafka permission to grant (admin, read, readwrite, write)
+                enum:
+                - admin
+                - read
+                - readwrite
+                - write
+                type: string
+              project:
+                description: Project to link the Kafka ACL to
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              service_name:
+                description: Service to link the Kafka ACL to
+                maxLength: 63
+                type: string
+              topic:
+                description: Topic name pattern for the ACL entry
+                type: string
+              username:
+                description: Username pattern for the ACL entry
+                type: string
+            required:
+            - id
+            - permission
+            - project
+            - service_name
+            - topic
+            - username
+            type: object
+        type: object
     served: true
     storage: true
+    subresources:
+      status: {}
 status:
   acceptedNames:
     kind: ""

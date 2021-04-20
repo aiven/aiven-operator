@@ -21,6 +21,9 @@ type Controller struct {
 	AivenClient *aiven.Client
 }
 
+// +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;list;create;update
+// +kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;create;update;patch;delete
+
 // InitAivenClient retrieves an Aiven client
 func (c *Controller) InitAivenClient(req ctrl.Request, ctx context.Context, log logr.Logger) error {
 	if c.AivenClient != nil {

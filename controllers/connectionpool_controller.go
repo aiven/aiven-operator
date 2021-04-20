@@ -20,8 +20,7 @@ type ConnectionPoolReconciler struct {
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=connectionpools,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=connectionpools/status,verbs=get;update;patch
 
-func (r *ConnectionPoolReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx := context.Background()
+func (r *ConnectionPoolReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("connectionpool", req.NamespacedName)
 
 	if err := r.InitAivenClient(req, ctx, log); err != nil {

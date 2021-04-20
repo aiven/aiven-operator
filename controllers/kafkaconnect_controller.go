@@ -26,8 +26,7 @@ const kcServiceFinalizer = "kc-service-finalizer.k8s-operator.aiven.io"
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=kafkaconnects,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=kafkaconnects/status,verbs=get;update;patch
 
-func (r *KafkaConnectReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx := context.Background()
+func (r *KafkaConnectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("kafkaconnect", req.NamespacedName)
 
 	if err := r.InitAivenClient(req, ctx, log); err != nil {

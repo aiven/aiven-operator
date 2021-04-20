@@ -1,10 +1,10 @@
 
 ---
-apiVersion: apiextensions.k8s.io/v1beta1
+apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.3.0
+    controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
   name: kafkatopics.k8s-operator.aiven.io
 spec:
@@ -15,303 +15,302 @@ spec:
     plural: kafkatopics
     singular: kafkatopic
   scope: Namespaced
-  subresources:
-    status: {}
-  validation:
-    openAPIV3Schema:
-      description: KafkaTopic is the Schema for the kafkatopics API
-      properties:
-        apiVersion:
-          description: 'APIVersion defines the versioned schema of this representation
-            of an object. Servers should convert recognized schemas to the latest
-            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
-          type: string
-        kind:
-          description: 'Kind is a string value representing the REST resource this
-            object represents. Servers may infer this from the endpoint the client
-            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-          type: string
-        metadata:
-          type: object
-        spec:
-          description: KafkaTopicSpec defines the desired state of KafkaTopic
-          properties:
-            config:
-              description: Kafka topic configuration
-              properties:
-                cleanup_policy:
-                  description: cleanup.policy value
-                  type: string
-                compression_type:
-                  description: compression.type value
-                  type: string
-                delete_retention_ms:
-                  description: delete.retention.ms value
-                  format: int64
-                  type: integer
-                file_delete_delay_ms:
-                  description: file.delete.delay.ms value
-                  format: int64
-                  type: integer
-                flush_messages:
-                  description: flush.messages value
-                  format: int64
-                  type: integer
-                flush_ms:
-                  description: flush.ms value
-                  format: int64
-                  type: integer
-                index_interval_bytes:
-                  description: index.interval.bytes value
-                  format: int64
-                  type: integer
-                max_compaction_lag_ms:
-                  description: max.compaction.lag.ms value
-                  format: int64
-                  type: integer
-                max_message_bytes:
-                  description: max.message.bytes value
-                  format: int64
-                  type: integer
-                message_downconversion_enable:
-                  description: message.downconversion.enable value
-                  type: boolean
-                message_format_version:
-                  description: message.format.version value
-                  type: string
-                message_timestamp_difference_max_ms:
-                  description: message.timestamp.difference.max.ms value
-                  format: int64
-                  type: integer
-                message_timestamp_type:
-                  description: message.timestamp.type value
-                  type: string
-                min_compaction_lag_ms:
-                  description: min.compaction.lag.ms value
-                  format: int64
-                  type: integer
-                min_insync_replicas:
-                  description: min.insync.replicas value
-                  format: int64
-                  type: integer
-                preallocate:
-                  description: preallocate value
-                  type: boolean
-                retention_bytes:
-                  description: retention.bytes value
-                  format: int64
-                  type: integer
-                retention_ms:
-                  description: retention.ms value
-                  format: int64
-                  type: integer
-                segment_bytes:
-                  description: segment.bytes value
-                  format: int64
-                  type: integer
-                segment_index_bytes:
-                  description: segment.index.bytes value
-                  format: int64
-                  type: integer
-                segment_jitter_ms:
-                  description: segment.jitter.ms value
-                  format: int64
-                  type: integer
-                segment_ms:
-                  description: segment.ms value
-                  format: int64
-                  type: integer
-                unclean_leader_election_enable:
-                  description: unclean.leader.election.enable value
-                  type: boolean
-              type: object
-            partitions:
-              description: Number of partitions to create in the topic
-              maximum: 1000000
-              minimum: 1
-              type: integer
-            project:
-              description: 'x-kubernetes-immutable: true Target project.'
-              format: ^[a-zA-Z0-9_-]*$
-              maxLength: 63
-              type: string
-            replication:
-              description: Replication factor for the topic
-              minimum: 2
-              type: integer
-            service_name:
-              description: 'x-kubernetes-immutable: true Service name.'
-              maxLength: 63
-              type: string
-            tags:
-              description: Kafka topic tags
-              items:
-                properties:
-                  key:
-                    format: ^[a-zA-Z0-9_-]*$
-                    maxLength: 64
-                    minLength: 1
-                    type: string
-                  value:
-                    format: ^[a-zA-Z0-9_-]*$
-                    maxLength: 256
-                    type: string
-                required:
-                - key
-                type: object
-              type: array
-            topic_name:
-              description: 'x-kubernetes-immutable: true Topic name.'
-              maxLength: 63
-              type: string
-          required:
-          - partitions
-          - project
-          - replication
-          - service_name
-          - topic_name
-          type: object
-        status:
-          description: KafkaTopicStatus defines the observed state of KafkaTopic
-          properties:
-            config:
-              description: Kafka topic configuration
-              properties:
-                cleanup_policy:
-                  description: cleanup.policy value
-                  type: string
-                compression_type:
-                  description: compression.type value
-                  type: string
-                delete_retention_ms:
-                  description: delete.retention.ms value
-                  format: int64
-                  type: integer
-                file_delete_delay_ms:
-                  description: file.delete.delay.ms value
-                  format: int64
-                  type: integer
-                flush_messages:
-                  description: flush.messages value
-                  format: int64
-                  type: integer
-                flush_ms:
-                  description: flush.ms value
-                  format: int64
-                  type: integer
-                index_interval_bytes:
-                  description: index.interval.bytes value
-                  format: int64
-                  type: integer
-                max_compaction_lag_ms:
-                  description: max.compaction.lag.ms value
-                  format: int64
-                  type: integer
-                max_message_bytes:
-                  description: max.message.bytes value
-                  format: int64
-                  type: integer
-                message_downconversion_enable:
-                  description: message.downconversion.enable value
-                  type: boolean
-                message_format_version:
-                  description: message.format.version value
-                  type: string
-                message_timestamp_difference_max_ms:
-                  description: message.timestamp.difference.max.ms value
-                  format: int64
-                  type: integer
-                message_timestamp_type:
-                  description: message.timestamp.type value
-                  type: string
-                min_compaction_lag_ms:
-                  description: min.compaction.lag.ms value
-                  format: int64
-                  type: integer
-                min_insync_replicas:
-                  description: min.insync.replicas value
-                  format: int64
-                  type: integer
-                preallocate:
-                  description: preallocate value
-                  type: boolean
-                retention_bytes:
-                  description: retention.bytes value
-                  format: int64
-                  type: integer
-                retention_ms:
-                  description: retention.ms value
-                  format: int64
-                  type: integer
-                segment_bytes:
-                  description: segment.bytes value
-                  format: int64
-                  type: integer
-                segment_index_bytes:
-                  description: segment.index.bytes value
-                  format: int64
-                  type: integer
-                segment_jitter_ms:
-                  description: segment.jitter.ms value
-                  format: int64
-                  type: integer
-                segment_ms:
-                  description: segment.ms value
-                  format: int64
-                  type: integer
-                unclean_leader_election_enable:
-                  description: unclean.leader.election.enable value
-                  type: boolean
-              type: object
-            partitions:
-              description: Number of partitions to create in the topic
-              type: integer
-            project:
-              description: Target project.
-              format: ^[a-zA-Z0-9_-]*$
-              maxLength: 63
-              type: string
-            replication:
-              description: Replication factor for the topic
-              type: integer
-            service_name:
-              description: Service name.
-              maxLength: 63
-              type: string
-            tags:
-              description: Kafka topic tags
-              items:
-                properties:
-                  key:
-                    format: ^[a-zA-Z0-9_-]*$
-                    maxLength: 64
-                    minLength: 1
-                    type: string
-                  value:
-                    format: ^[a-zA-Z0-9_-]*$
-                    maxLength: 256
-                    type: string
-                required:
-                - key
-                type: object
-              type: array
-            topic_name:
-              description: Topic name.
-              maxLength: 63
-              type: string
-          required:
-          - partitions
-          - project
-          - replication
-          - service_name
-          - topic_name
-          type: object
-      type: object
-  version: v1alpha1
   versions:
   - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: KafkaTopic is the Schema for the kafkatopics API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: KafkaTopicSpec defines the desired state of KafkaTopic
+            properties:
+              config:
+                description: Kafka topic configuration
+                properties:
+                  cleanup_policy:
+                    description: cleanup.policy value
+                    type: string
+                  compression_type:
+                    description: compression.type value
+                    type: string
+                  delete_retention_ms:
+                    description: delete.retention.ms value
+                    format: int64
+                    type: integer
+                  file_delete_delay_ms:
+                    description: file.delete.delay.ms value
+                    format: int64
+                    type: integer
+                  flush_messages:
+                    description: flush.messages value
+                    format: int64
+                    type: integer
+                  flush_ms:
+                    description: flush.ms value
+                    format: int64
+                    type: integer
+                  index_interval_bytes:
+                    description: index.interval.bytes value
+                    format: int64
+                    type: integer
+                  max_compaction_lag_ms:
+                    description: max.compaction.lag.ms value
+                    format: int64
+                    type: integer
+                  max_message_bytes:
+                    description: max.message.bytes value
+                    format: int64
+                    type: integer
+                  message_downconversion_enable:
+                    description: message.downconversion.enable value
+                    type: boolean
+                  message_format_version:
+                    description: message.format.version value
+                    type: string
+                  message_timestamp_difference_max_ms:
+                    description: message.timestamp.difference.max.ms value
+                    format: int64
+                    type: integer
+                  message_timestamp_type:
+                    description: message.timestamp.type value
+                    type: string
+                  min_compaction_lag_ms:
+                    description: min.compaction.lag.ms value
+                    format: int64
+                    type: integer
+                  min_insync_replicas:
+                    description: min.insync.replicas value
+                    format: int64
+                    type: integer
+                  preallocate:
+                    description: preallocate value
+                    type: boolean
+                  retention_bytes:
+                    description: retention.bytes value
+                    format: int64
+                    type: integer
+                  retention_ms:
+                    description: retention.ms value
+                    format: int64
+                    type: integer
+                  segment_bytes:
+                    description: segment.bytes value
+                    format: int64
+                    type: integer
+                  segment_index_bytes:
+                    description: segment.index.bytes value
+                    format: int64
+                    type: integer
+                  segment_jitter_ms:
+                    description: segment.jitter.ms value
+                    format: int64
+                    type: integer
+                  segment_ms:
+                    description: segment.ms value
+                    format: int64
+                    type: integer
+                  unclean_leader_election_enable:
+                    description: unclean.leader.election.enable value
+                    type: boolean
+                type: object
+              partitions:
+                description: Number of partitions to create in the topic
+                maximum: 1000000
+                minimum: 1
+                type: integer
+              project:
+                description: 'x-kubernetes-immutable: true Target project.'
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              replication:
+                description: Replication factor for the topic
+                minimum: 2
+                type: integer
+              service_name:
+                description: 'x-kubernetes-immutable: true Service name.'
+                maxLength: 63
+                type: string
+              tags:
+                description: Kafka topic tags
+                items:
+                  properties:
+                    key:
+                      format: ^[a-zA-Z0-9_-]*$
+                      maxLength: 64
+                      minLength: 1
+                      type: string
+                    value:
+                      format: ^[a-zA-Z0-9_-]*$
+                      maxLength: 256
+                      type: string
+                  required:
+                  - key
+                  type: object
+                type: array
+              topic_name:
+                description: 'x-kubernetes-immutable: true Topic name.'
+                maxLength: 63
+                type: string
+            required:
+            - partitions
+            - project
+            - replication
+            - service_name
+            - topic_name
+            type: object
+          status:
+            description: KafkaTopicStatus defines the observed state of KafkaTopic
+            properties:
+              config:
+                description: Kafka topic configuration
+                properties:
+                  cleanup_policy:
+                    description: cleanup.policy value
+                    type: string
+                  compression_type:
+                    description: compression.type value
+                    type: string
+                  delete_retention_ms:
+                    description: delete.retention.ms value
+                    format: int64
+                    type: integer
+                  file_delete_delay_ms:
+                    description: file.delete.delay.ms value
+                    format: int64
+                    type: integer
+                  flush_messages:
+                    description: flush.messages value
+                    format: int64
+                    type: integer
+                  flush_ms:
+                    description: flush.ms value
+                    format: int64
+                    type: integer
+                  index_interval_bytes:
+                    description: index.interval.bytes value
+                    format: int64
+                    type: integer
+                  max_compaction_lag_ms:
+                    description: max.compaction.lag.ms value
+                    format: int64
+                    type: integer
+                  max_message_bytes:
+                    description: max.message.bytes value
+                    format: int64
+                    type: integer
+                  message_downconversion_enable:
+                    description: message.downconversion.enable value
+                    type: boolean
+                  message_format_version:
+                    description: message.format.version value
+                    type: string
+                  message_timestamp_difference_max_ms:
+                    description: message.timestamp.difference.max.ms value
+                    format: int64
+                    type: integer
+                  message_timestamp_type:
+                    description: message.timestamp.type value
+                    type: string
+                  min_compaction_lag_ms:
+                    description: min.compaction.lag.ms value
+                    format: int64
+                    type: integer
+                  min_insync_replicas:
+                    description: min.insync.replicas value
+                    format: int64
+                    type: integer
+                  preallocate:
+                    description: preallocate value
+                    type: boolean
+                  retention_bytes:
+                    description: retention.bytes value
+                    format: int64
+                    type: integer
+                  retention_ms:
+                    description: retention.ms value
+                    format: int64
+                    type: integer
+                  segment_bytes:
+                    description: segment.bytes value
+                    format: int64
+                    type: integer
+                  segment_index_bytes:
+                    description: segment.index.bytes value
+                    format: int64
+                    type: integer
+                  segment_jitter_ms:
+                    description: segment.jitter.ms value
+                    format: int64
+                    type: integer
+                  segment_ms:
+                    description: segment.ms value
+                    format: int64
+                    type: integer
+                  unclean_leader_election_enable:
+                    description: unclean.leader.election.enable value
+                    type: boolean
+                type: object
+              partitions:
+                description: Number of partitions to create in the topic
+                type: integer
+              project:
+                description: Target project.
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              replication:
+                description: Replication factor for the topic
+                type: integer
+              service_name:
+                description: Service name.
+                maxLength: 63
+                type: string
+              tags:
+                description: Kafka topic tags
+                items:
+                  properties:
+                    key:
+                      format: ^[a-zA-Z0-9_-]*$
+                      maxLength: 64
+                      minLength: 1
+                      type: string
+                    value:
+                      format: ^[a-zA-Z0-9_-]*$
+                      maxLength: 256
+                      type: string
+                  required:
+                  - key
+                  type: object
+                type: array
+              topic_name:
+                description: Topic name.
+                maxLength: 63
+                type: string
+            required:
+            - partitions
+            - project
+            - replication
+            - service_name
+            - topic_name
+            type: object
+        type: object
     served: true
     storage: true
+    subresources:
+      status: {}
 status:
   acceptedNames:
     kind: ""

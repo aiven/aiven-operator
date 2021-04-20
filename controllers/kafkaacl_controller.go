@@ -25,8 +25,7 @@ type KafkaACLReconciler struct {
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=kafkaacls,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=kafkaacls/status,verbs=get;update;patch
 
-func (r *KafkaACLReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx := context.Background()
+func (r *KafkaACLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("kafkaacl", req.NamespacedName)
 
 	if err := r.InitAivenClient(req, ctx, log); err != nil {
