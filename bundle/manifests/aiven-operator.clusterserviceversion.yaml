@@ -406,7 +406,7 @@ spec:
                 - --enable-leader-election
                 command:
                 - /manager
-                image: controller:latest
+                image: eu.gcr.io/integral-magnet-301414/aiven-operator:v0.0.70
                 name: manager
                 resources:
                   limits:
