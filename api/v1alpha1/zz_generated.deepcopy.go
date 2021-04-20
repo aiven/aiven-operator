@@ -2103,7 +2103,7 @@ func (in *ServiceIntegrationMetricsUserConfig) DeepCopy() *ServiceIntegrationMet
 func (in *ServiceIntegrationSpec) DeepCopyInto(out *ServiceIntegrationSpec) {
 	*out = *in
 	in.DatadogUserConfig.DeepCopyInto(&out.DatadogUserConfig)
-	in.KafkaConnectUserConfig.DeepCopyInto(&out.KafkaConnectUserConfig)
+	out.KafkaConnectUserConfig = in.KafkaConnectUserConfig
 	out.KafkaLogsUserConfig = in.KafkaLogsUserConfig
 	out.MetricsUserConfig = in.MetricsUserConfig
 }
@@ -2122,7 +2122,7 @@ func (in *ServiceIntegrationSpec) DeepCopy() *ServiceIntegrationSpec {
 func (in *ServiceIntegrationStatus) DeepCopyInto(out *ServiceIntegrationStatus) {
 	*out = *in
 	in.DatadogUserConfig.DeepCopyInto(&out.DatadogUserConfig)
-	in.KafkaConnectUserConfig.DeepCopyInto(&out.KafkaConnectUserConfig)
+	out.KafkaConnectUserConfig = in.KafkaConnectUserConfig
 	out.KafkaLogsUserConfig = in.KafkaLogsUserConfig
 	out.MetricsUserConfig = in.MetricsUserConfig
 }

@@ -93,31 +93,32 @@ spec:
             kafka_connect:
               description: Kafka Connect service configuration values
               properties:
-                exclude_consumer_groups:
-                  description: Consumer groups to exclude
-                  items:
-                    type: string
-                  type: array
-                exclude_topics:
-                  description: List of topics to exclude
-                  items:
-                    type: string
-                  type: array
-                include_consumer_groups:
-                  description: Consumer groups to include
-                  items:
-                    type: string
-                  type: array
-                include_topics:
-                  description: Topics to include
-                  items:
-                    type: string
-                  type: array
-                kafka_custom_metrics:
-                  description: List of custom metrics
-                  items:
-                    type: string
-                  type: array
+                kafka_connect:
+                  properties:
+                    config_storage_topic:
+                      description: The name of the topic where connector and task
+                        configuration data are stored. This must be the same for all
+                        workers with the same group_id.
+                      maxLength: 249
+                      type: string
+                    group_id:
+                      description: A unique string that identifies the Connect cluster
+                        group this worker belongs to.
+                      maxLength: 249
+                      type: string
+                    offset_storage_topic:
+                      description: The name of the topic where connector and task
+                        configuration offsets are stored. This must be the same for
+                        all workers with the same group_id.
+                      maxLength: 249
+                      type: string
+                    status_storage_topic:
+                      description: The name of the topic where connector and task
+                        configuration status updates are stored.This must be the same
+                        for all workers with the same group_id.
+                      maxLength: 249
+                      type: string
+                  type: object
               type: object
             kafka_logs:
               description: Kafka logs configuration values
@@ -240,31 +241,32 @@ spec:
             kafka_connect:
               description: Kafka Connect service configuration values
               properties:
-                exclude_consumer_groups:
-                  description: Consumer groups to exclude
-                  items:
-                    type: string
-                  type: array
-                exclude_topics:
-                  description: List of topics to exclude
-                  items:
-                    type: string
-                  type: array
-                include_consumer_groups:
-                  description: Consumer groups to include
-                  items:
-                    type: string
-                  type: array
-                include_topics:
-                  description: Topics to include
-                  items:
-                    type: string
-                  type: array
-                kafka_custom_metrics:
-                  description: List of custom metrics
-                  items:
-                    type: string
-                  type: array
+                kafka_connect:
+                  properties:
+                    config_storage_topic:
+                      description: The name of the topic where connector and task
+                        configuration data are stored. This must be the same for all
+                        workers with the same group_id.
+                      maxLength: 249
+                      type: string
+                    group_id:
+                      description: A unique string that identifies the Connect cluster
+                        group this worker belongs to.
+                      maxLength: 249
+                      type: string
+                    offset_storage_topic:
+                      description: The name of the topic where connector and task
+                        configuration offsets are stored. This must be the same for
+                        all workers with the same group_id.
+                      maxLength: 249
+                      type: string
+                    status_storage_topic:
+                      description: The name of the topic where connector and task
+                        configuration status updates are stored.This must be the same
+                        for all workers with the same group_id.
+                      maxLength: 249
+                      type: string
+                  type: object
               type: object
             kafka_logs:
               description: Kafka logs configuration values

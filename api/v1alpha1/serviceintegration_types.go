@@ -39,7 +39,7 @@ type ServiceIntegrationSpec struct {
 	DatadogUserConfig ServiceIntegrationDatadogUserConfig `json:"datadog,omitempty"`
 
 	// Kafka Connect service configuration values
-	KafkaConnectUserConfig ServiceIntegrationDatadogUserConfig `json:"kafka_connect,omitempty"`
+	KafkaConnectUserConfig ServiceIntegrationKafkaConnectUserConfig `json:"kafka_connect,omitempty"`
 
 	// Kafka logs configuration values
 	KafkaLogsUserConfig ServiceIntegrationKafkaLogsUserConfig `json:"kafka_logs,omitempty"`
@@ -75,7 +75,7 @@ type ServiceIntegrationStatus struct {
 	DatadogUserConfig ServiceIntegrationDatadogUserConfig `json:"datadog,omitempty"`
 
 	// Kafka Connect service configuration values
-	KafkaConnectUserConfig ServiceIntegrationDatadogUserConfig `json:"kafka_connect,omitempty"`
+	KafkaConnectUserConfig ServiceIntegrationKafkaConnectUserConfig `json:"kafka_connect,omitempty"`
 
 	// Kafka logs configuration values
 	KafkaLogsUserConfig ServiceIntegrationKafkaLogsUserConfig `json:"kafka_logs,omitempty"`
