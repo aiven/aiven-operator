@@ -31,24 +31,24 @@ spec:
           description: DatabaseSpec defines the desired state of Database
           properties:
             database_name:
-              description: 'x-kubernetes-immutable: true Service database name'
+              description: Service database name
               maxLength: 40
               type: string
             lc_collate:
-              description: 'x-kubernetes-immutable: true Default string sort order (LC_COLLATE) of the database. Default value: en_US.UTF-8'
+              description: 'Default string sort order (LC_COLLATE) of the database. Default value: en_US.UTF-8'
               maxLength: 128
               type: string
             lc_ctype:
-              description: 'x-kubernetes-immutable: true Default character classification (LC_CTYPE) of the database. Default value: en_US.UTF-8'
+              description: 'Default character classification (LC_CTYPE) of the database. Default value: en_US.UTF-8'
               maxLength: 128
               type: string
             project:
-              description: 'x-kubernetes-immutable: true Project to link the database to'
+              description: Project to link the database to
               format: ^[a-zA-Z0-9_-]*$
               maxLength: 63
               type: string
             service_name:
-              description: 'x-kubernetes-immutable: true PostgreSQL service to link the database to'
+              description: PostgreSQL service to link the database to
               maxLength: 63
               type: string
           required:

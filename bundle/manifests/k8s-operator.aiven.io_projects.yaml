@@ -79,7 +79,7 @@ spec:
               minLength: 2
               type: string
             name:
-              description: 'x-kubernetes-immutable: true Project name'
+              description: Project name
               format: ^[a-zA-Z0-9_-]*$
               maxLength: 63
               type: string
@@ -100,6 +100,7 @@ spec:
               maxLength: 32
               type: string
             available_credits:
+              description: Available credirs
               type: string
             billing_address:
               description: Billing name and address of the project
