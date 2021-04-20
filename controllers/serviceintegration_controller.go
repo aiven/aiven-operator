@@ -6,13 +6,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/aiven/aiven-go-client"
+	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/errors"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-
-	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
-	ctrl "sigs.k8s.io/controller-runtime"
+	"strings"
 )
 
 // ServiceIntegrationReconciler reconciles a ServiceIntegration object
@@ -79,9 +79,6 @@ func (r *ServiceIntegrationReconciler) Reconcile(req ctrl.Request) (ctrl.Result,
 		}
 	}
 
-	if serviceInt.Status.ID == "" {
-		log.Info("Creating a new Service integration")
-		_, err = r.createServiceIntegration(serviceInt)
 	if serviceInt.Status.ID == "" {
 		log.Info("Creating a new Service integration")
 		_, err = r.createServiceIntegration(ctx, serviceInt)
@@ -162,6 +159,9 @@ func (r *ServiceIntegrationReconciler) updateServiceIntegration(ctx context.Cont
 		},
 	)
 	if err != nil {
+		if strings.Contains(err.Error(), "User config not changed") {
+			return nil, nil
+		}
 		return nil, err
 	}
 
