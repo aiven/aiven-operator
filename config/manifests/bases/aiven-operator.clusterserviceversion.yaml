@@ -9,70 +9,90 @@ metadata:
   name: aiven-operator.v0.0.0
   namespace: placeholder
 spec:
-  apiservicedefinitions: { }
+  apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
-      - description: Kafka Connect is the Schema for the kafkas API
-        displayName: KafkaConnect
-        kind: KafkaConnect
-        name: kafkaconnects.k8s-operator.aiven.io
-        version: v1alpha1
-      - description: ConnectionPool is the Schema for the connectionpools API
-        displayName: Connection Pool
-        kind: ConnectionPool
-        name: connectionpools.k8s-operator.aiven.io
-        version: v1alpha1
-      - description: Database is the Schema for the databases API
-        displayName: Database
-        kind: Database
-        name: databases.k8s-operator.aiven.io
-        version: v1alpha1
-      - description: Kafka is the Schema for the kafkas API
-        displayName: Kafka
-        kind: Kafka
-        name: kafkas.k8s-operator.aiven.io
-        version: v1alpha1
-      - description: Project is the Schema for the projects API
-        displayName: Project
-        kind: Project
-        name: projects.k8s-operator.aiven.io
-        version: v1alpha1
-      - description: ProjectVPC is the Schema for the projectvpcs API
-        displayName: Project VPC
-        kind: ProjectVPC
-        name: projectvpcs.k8s-operator.aiven.io
-        version: v1alpha1
-      - description: ServiceUser is the Schema for the serviceusers API
-        displayName: Service User
-        kind: ServiceUser
-        name: serviceusers.k8s-operator.aiven.io
-        version: v1alpha1
+    - description: Kafka Connect is the Schema for the kafkas API
+      displayName: KafkaConnect
+      kind: KafkaConnect
+      name: kafkaconnects.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: ConnectionPool is the Schema for the connectionpools API
+      displayName: Connection Pool
+      kind: ConnectionPool
+      name: connectionpools.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: Database is the Schema for the databases API
+      displayName: Database
+      kind: Database
+      name: databases.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: KafkaACL is the Schema for the kafkaacls API
+      displayName: Kafka ACL
+      kind: KafkaACL
+      name: kafkaacls.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: Kafka is the Schema for the kafkas API
+      displayName: Kafka
+      kind: Kafka
+      name: kafkas.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: KafkaSchema is the Schema for the kafkaschemas API
+      displayName: Kafka Schema
+      kind: KafkaSchema
+      name: kafkaschemas.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: KafkaTopic is the Schema for the kafkatopics API
+      displayName: Kafka Topic
+      kind: KafkaTopic
+      name: kafkatopics.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: Project is the Schema for the projects API
+      displayName: Project
+      kind: Project
+      name: projects.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: ProjectVPC is the Schema for the projectvpcs API
+      displayName: Project VPC
+      kind: ProjectVPC
+      name: projectvpcs.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: ServiceIntegration is the Schema for the serviceintegrations API
+      displayName: Service Integration
+      kind: ServiceIntegration
+      name: serviceintegrations.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: ServiceUser is the Schema for the serviceusers API
+      displayName: Service User
+      kind: ServiceUser
+      name: serviceusers.k8s-operator.aiven.io
+      version: v1alpha1
   description: A Kubernetes operator for provisioning and managing Aiven Databases and other resources
   displayName: Aiven Kubernetes Operator
   icon:
-    - base64data: ""
-      mediatype: ""
+  - base64data: ""
+    mediatype: ""
   install:
     spec:
       deployments: null
     strategy: ""
   installModes:
-    - supported: false
-      type: OwnNamespace
-    - supported: false
-      type: SingleNamespace
-    - supported: false
-      type: MultiNamespace
-    - supported: true
-      type: AllNamespaces
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
   keywords:
-    - aiven
+  - aiven
   links:
-    - name: Aiven Operator
-      url: https://aiven-operator.domain
+  - name: Aiven Operator
+    url: https://aiven-operator.domain
   maintainers:
-    - email: ivan.savciuc@gmail.com
-      name: Ivan Savciuc
+  - email: ivan.savciuc@gmail.com
+    name: Ivan Savciuc
   maturity: alpha
   provider:
     name: as Custom Resources in your cluster.aiven-operator

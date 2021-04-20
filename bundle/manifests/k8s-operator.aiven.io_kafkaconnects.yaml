@@ -37,7 +37,7 @@ spec:
             kafka_connect_user_config:
               description: PostgreSQL specific user configuration options
               properties:
-                additionalProperties:
+                connector_client_config_override_policy:
                   description: Defines what client configurations can be overridden by the connector. Default is None
                   type: string
                 consumer_auto_offset_reset:
@@ -142,7 +142,7 @@ spec:
             kafka_connect_user_config:
               description: PostgreSQL specific user configuration options
               properties:
-                additionalProperties:
+                connector_client_config_override_policy:
                   description: Defines what client configurations can be overridden by the connector. Default is None
                   type: string
                 consumer_auto_offset_reset:
