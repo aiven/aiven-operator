@@ -101,7 +101,7 @@ type KafkaConnectStatus struct {
 
 type KafkaConnectUserConfig struct {
 	// Defines what client configurations can be overridden by the connector. Default is None
-	ConnectorClientConfigOverridePolicy string `json:"additionalProperties,omitempty"`
+	ConnectorClientConfigOverridePolicy string `json:"connector_client_config_override_policy,omitempty"`
 
 	// What to do when there is no initial offset in Kafka or if the current offset does not exist any more on the server. Default is earliest
 	ConsumerAutoOffsetReset string `json:"consumer_auto_offset_reset,omitempty"`
