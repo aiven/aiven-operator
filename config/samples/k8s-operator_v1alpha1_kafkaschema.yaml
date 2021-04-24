@@ -3,5 +3,20 @@ kind: KafkaSchema
 metadata:
   name: kafkaschema-sample
 spec:
-  # Add fields here
-  foo: bar
+  project: dev-sandbox
+  service_name: kafka-service
+  subject_name: kafkaschemasubject-sample
+  compatibility_level: BACKWARD_TRANSITIVE
+  schema: '{
+                "doc": "example",
+                "fields": [{
+                    "default": 5,
+                    "doc": "my test number",
+                    "name": "test",
+                    "namespace": "test",
+                    "type": "int"
+                }],
+                "name": "example",
+                "namespace": "example",
+                "type": "record"
+            }'

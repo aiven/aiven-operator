@@ -3,5 +3,10 @@ kind: ConnectionPool
 metadata:
   name: connectionpool-sample
 spec:
-  # Add fields here
-  foo: bar
+  project: dev-sandbox
+  service_name: pg-service-name
+  database_name: pg-database-sample
+  pool_name: connectionpool-sample
+  username: pg-service-user
+  pool_size: 10
+  pool_mode: transaction

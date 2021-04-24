@@ -3,5 +3,9 @@ kind: ServiceIntegration
 metadata:
   name: serviceintegration-sample
 spec:
-  # Add fields here
-  foo: bar
+  service_name: serviceintegration-sample
+  project: dev-sandbox
+  cloud_name: google-europe-west1
+  plan: startup-4
+  maintenance_window_dow: friday
+  maintenance_window_time: 23:00:00

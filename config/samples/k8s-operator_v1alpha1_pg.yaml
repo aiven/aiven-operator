@@ -1,15 +1,13 @@
 apiVersion: k8s-operator.aiven.io/v1alpha1
 kind: PG
 metadata:
-  name: demo-pg-sr1
-
+  name: pg-sample
 spec:
-  service_name: demo-pg-sr1
-  project: project-6d36
+  service_name: pg-sample
+  project: dev-sandbox
   cloud_name: google-europe-west1
   plan: startup-4
   maintenance_window_dow: friday
   maintenance_window_time: 23:00:00
-  pg_user_config: {
+  pg_user_config:
     pg_version: '11'
-  }

@@ -6,23 +6,188 @@ metadata:
       [
         {
           "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "kind": "ConnectionPool",
+          "metadata": {
+            "name": "connectionpool-sample"
+          },
+          "spec": {
+            "database_name": "pg-database-sample",
+            "pool_mode": "transaction",
+            "pool_name": "connectionpool-sample",
+            "pool_size": 10,
+            "project": "dev-sandbox",
+            "service_name": "pg-service-name",
+            "username": "pg-service-user"
+          }
+        },
+        {
+          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "kind": "Database",
+          "metadata": {
+            "name": "database-sample"
+          },
+          "spec": {
+            "database_name": "database-sample",
+            "lc_collate": "en_US.UTF-8",
+            "lc_ctype": "en_US.UTF-8",
+            "project": "dev-sandbox",
+            "service_name": "kafka-sample"
+          }
+        },
+        {
+          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "kind": "Kafka",
+          "metadata": {
+            "name": "kafka-sample"
+          },
+          "spec": {
+            "cloud_name": "google-europe-west1",
+            "kafka_user_config": {
+              "kafka_version": "2.4"
+            },
+            "maintenance_window_dow": "friday",
+            "maintenance_window_time": "23:00:00",
+            "plan": "business-4",
+            "project": "dev-sandbox",
+            "service_name": "kafka-sample"
+          }
+        },
+        {
+          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "kind": "KafkaACL",
+          "metadata": {
+            "name": "kafkaacl-sample"
+          },
+          "spec": {
+            "permission": "admin",
+            "project": "dev-sandbox",
+            "service_name": "kafka-sample",
+            "topic": "topic-sample",
+            "username": "user1-sample"
+          }
+        },
+        {
+          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "kind": "KafkaConnect",
+          "metadata": {
+            "name": "kafkaconnect-sample"
+          },
+          "spec": {
+            "cloud_name": "google-europe-west1",
+            "maintenance_window_dow": "friday",
+            "maintenance_window_time": "23:00:00",
+            "plan": "startup-4",
+            "project": "dev-sandbox",
+            "service_name": "kafkaconnect-sample"
+          }
+        },
+        {
+          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "kind": "KafkaSchema",
+          "metadata": {
+            "name": "kafkaschema-sample"
+          },
+          "spec": {
+            "compatibility_level": "BACKWARD_TRANSITIVE",
+            "project": "dev-sandbox",
+            "schema": "{ \"doc\": \"example\", \"fields\": [{ \"default\": 5, \"doc\": \"my test number\", \"name\": \"test\", \"namespace\": \"test\", \"type\": \"int\" }], \"name\": \"example\", \"namespace\": \"example\", \"type\": \"record\" }",
+            "service_name": "kafka-service",
+            "subject_name": "kafkaschemasubject-sample"
+          }
+        },
+        {
+          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "kind": "KafkaTopic",
+          "metadata": {
+            "name": "kafkatopic-sample"
+          },
+          "spec": {
+            "config": {
+              "flush_ms": 100
+            },
+            "partitions": 3,
+            "project": "dev-sandbox",
+            "replication": 2,
+            "service_name": "kafka-sample",
+            "tags": [
+              {
+                "key": "tagk1,",
+                "value": "tagv1"
+              },
+              {
+                "key": "tagk2,",
+                "value": "tagv2"
+              }
+            ],
+            "topic_name": "kafkatopic-sample"
+          }
+        },
+        {
+          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "kind": "PG",
+          "metadata": {
+            "name": "pg-sample"
+          },
+          "spec": {
+            "cloud_name": "google-europe-west1",
+            "maintenance_window_dow": "friday",
+            "maintenance_window_time": "23:00:00",
+            "pg_user_config": {
+              "pg_version": "11"
+            },
+            "plan": "startup-4",
+            "project": "dev-sandbox",
+            "service_name": "pg-sample"
+          }
+        },
+        {
+          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
           "kind": "Project",
           "metadata": {
             "name": "project-sample1"
           },
           "spec": {
-            "env": [
-              {
-                "name": "AIVEN_TOKEN",
-                "valueFrom": {
-                  "secretKeyRef": {
-                    "key": "token",
-                    "name": "aiven-token"
-                  }
-                }
-              }
-            ],
             "name": "test-k8s-project"
+          }
+        },
+        {
+          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "kind": "ProjectVPC",
+          "metadata": {
+            "name": "projectvpc-sample"
+          },
+          "spec": {
+            "cloud_name": "aws-eu-west-1",
+            "network_cidr": "192.168.0.0/24",
+            "project": "sample-project"
+          }
+        },
+        {
+          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "kind": "ServiceIntegration",
+          "metadata": {
+            "name": "serviceintegration-sample"
+          },
+          "spec": {
+            "cloud_name": "google-europe-west1",
+            "maintenance_window_dow": "friday",
+            "maintenance_window_time": "23:00:00",
+            "plan": "startup-4",
+            "project": "dev-sandbox",
+            "service_name": "serviceintegration-sample"
+          }
+        },
+        {
+          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "kind": "ServiceUser",
+          "metadata": {
+            "name": "serviceuser-sample"
+          },
+          "spec": {
+            "authentication": "caching_sha2_password",
+            "project": "dev-sandbox",
+            "service_name": "service-pg-or-kafka-sample",
+            "username": "serviceuser-sample"
           }
         }
       ]
@@ -406,7 +571,7 @@ spec:
                 - --enable-leader-election
                 command:
                 - /manager
-                image: eu.gcr.io/integral-magnet-301414/aiven-operator:v0.0.70
+                image: controller:latest
                 name: manager
                 resources:
                   limits:
