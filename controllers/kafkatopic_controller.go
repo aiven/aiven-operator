@@ -26,8 +26,7 @@ const kafkaTopicFinalizer = "kafkatopic-finalizer.k8s-operator.aiven.io"
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=kafkatopics,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=kafkatopics/status,verbs=get;update;patch
 
-func (r *KafkaTopicReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx := context.Background()
+func (r *KafkaTopicReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("kafkatopic", req.NamespacedName)
 
 	if err := r.InitAivenClient(req, ctx, log); err != nil {

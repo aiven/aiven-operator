@@ -1,10 +1,10 @@
 
 ---
-apiVersion: apiextensions.k8s.io/v1beta1
+apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.3.0
+    controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
   name: kafkaschemas.k8s-operator.aiven.io
 spec:
@@ -15,110 +15,109 @@ spec:
     plural: kafkaschemas
     singular: kafkaschema
   scope: Namespaced
-  subresources:
-    status: {}
-  validation:
-    openAPIV3Schema:
-      description: KafkaSchema is the Schema for the kafkaschemas API
-      properties:
-        apiVersion:
-          description: 'APIVersion defines the versioned schema of this representation
-            of an object. Servers should convert recognized schemas to the latest
-            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
-          type: string
-        kind:
-          description: 'Kind is a string value representing the REST resource this
-            object represents. Servers may infer this from the endpoint the client
-            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-          type: string
-        metadata:
-          type: object
-        spec:
-          description: KafkaSchemaSpec defines the desired state of KafkaSchema
-          properties:
-            compatibility_level:
-              description: Kafka Schemas compatibility level
-              enum:
-              - BACKWARD
-              - BACKWARD_TRANSITIVE
-              - FORWARD
-              - FORWARD_TRANSITIVE
-              - FULL
-              - FULL_TRANSITIVE
-              - NONE
-              type: string
-            project:
-              description: 'x-kubernetes-immutable: true Project to link the Kafka
-                Schema to'
-              format: ^[a-zA-Z0-9_-]*$
-              maxLength: 63
-              type: string
-            schema:
-              description: Kafka Schema configuration should be a valid Avro Schema
-                JSON format
-              type: string
-            service_name:
-              description: 'x-kubernetes-immutable: true Service to link the Kafka
-                Schema to'
-              maxLength: 63
-              type: string
-            subject_name:
-              description: 'x-kubernetes-immutable: true Kafka Schema Subject name'
-              maxLength: 63
-              type: string
-          required:
-          - project
-          - schema
-          - service_name
-          - subject_name
-          type: object
-        status:
-          description: KafkaSchemaStatus defines the observed state of KafkaSchema
-          properties:
-            compatibility_level:
-              description: Kafka Schemas compatibility level
-              enum:
-              - BACKWARD
-              - BACKWARD_TRANSITIVE
-              - FORWARD
-              - FORWARD_TRANSITIVE
-              - FULL
-              - FULL_TRANSITIVE
-              - NONE
-              type: string
-            project:
-              description: Project to link the Kafka Schema to
-              format: ^[a-zA-Z0-9_-]*$
-              maxLength: 63
-              type: string
-            schema:
-              description: Kafka Schema configuration should be a valid Avro Schema
-                JSON format
-              type: string
-            service_name:
-              description: Service to link the Kafka Schema to
-              maxLength: 63
-              type: string
-            subject_name:
-              description: Kafka Schema Subject name
-              maxLength: 63
-              type: string
-            version:
-              description: Kafka Schema configuration version
-              type: integer
-          required:
-          - project
-          - schema
-          - service_name
-          - subject_name
-          - version
-          type: object
-      type: object
-  version: v1alpha1
   versions:
   - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: KafkaSchema is the Schema for the kafkaschemas API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: KafkaSchemaSpec defines the desired state of KafkaSchema
+            properties:
+              compatibility_level:
+                description: Kafka Schemas compatibility level
+                enum:
+                - BACKWARD
+                - BACKWARD_TRANSITIVE
+                - FORWARD
+                - FORWARD_TRANSITIVE
+                - FULL
+                - FULL_TRANSITIVE
+                - NONE
+                type: string
+              project:
+                description: 'x-kubernetes-immutable: true Project to link the Kafka
+                  Schema to'
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              schema:
+                description: Kafka Schema configuration should be a valid Avro Schema
+                  JSON format
+                type: string
+              service_name:
+                description: 'x-kubernetes-immutable: true Service to link the Kafka
+                  Schema to'
+                maxLength: 63
+                type: string
+              subject_name:
+                description: 'x-kubernetes-immutable: true Kafka Schema Subject name'
+                maxLength: 63
+                type: string
+            required:
+            - project
+            - schema
+            - service_name
+            - subject_name
+            type: object
+          status:
+            description: KafkaSchemaStatus defines the observed state of KafkaSchema
+            properties:
+              compatibility_level:
+                description: Kafka Schemas compatibility level
+                enum:
+                - BACKWARD
+                - BACKWARD_TRANSITIVE
+                - FORWARD
+                - FORWARD_TRANSITIVE
+                - FULL
+                - FULL_TRANSITIVE
+                - NONE
+                type: string
+              project:
+                description: Project to link the Kafka Schema to
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              schema:
+                description: Kafka Schema configuration should be a valid Avro Schema
+                  JSON format
+                type: string
+              service_name:
+                description: Service to link the Kafka Schema to
+                maxLength: 63
+                type: string
+              subject_name:
+                description: Kafka Schema Subject name
+                maxLength: 63
+                type: string
+              version:
+                description: Kafka Schema configuration version
+                type: integer
+            required:
+            - project
+            - schema
+            - service_name
+            - subject_name
+            - version
+            type: object
+        type: object
     served: true
     storage: true
+    subresources:
+      status: {}
 status:
   acceptedNames:
     kind: ""

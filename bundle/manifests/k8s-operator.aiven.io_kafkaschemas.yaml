@@ -4,20 +4,20 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: serviceusers.k8s-operator.aiven.io
+  name: kafkaschemas.k8s-operator.aiven.io
 spec:
   group: k8s-operator.aiven.io
   names:
-    kind: ServiceUser
-    listKind: ServiceUserList
-    plural: serviceusers
-    singular: serviceuser
+    kind: KafkaSchema
+    listKind: KafkaSchemaList
+    plural: kafkaschemas
+    singular: kafkaschema
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: ServiceUser is the Schema for the serviceusers API
+        description: KafkaSchema is the Schema for the kafkaschemas API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
@@ -28,61 +28,80 @@ spec:
           metadata:
             type: object
           spec:
-            description: ServiceUserSpec defines the desired state of ServiceUser
+            description: KafkaSchemaSpec defines the desired state of KafkaSchema
             properties:
-              authentication:
-                description: 'x-kubernetes-immutable: true Authentication details'
+              compatibility_level:
+                description: Kafka Schemas compatibility level
                 enum:
-                - caching_sha2_password
-                - mysql_native_password
+                - BACKWARD
+                - BACKWARD_TRANSITIVE
+                - FORWARD
+                - FORWARD_TRANSITIVE
+                - FULL
+                - FULL_TRANSITIVE
+                - NONE
                 type: string
               project:
-                description: 'x-kubernetes-immutable: true Project to link the user to'
+                description: 'x-kubernetes-immutable: true Project to link the Kafka Schema to'
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
+              schema:
+                description: Kafka Schema configuration should be a valid Avro Schema JSON format
+                type: string
               service_name:
-                description: 'x-kubernetes-immutable: true Service to link the user to'
+                description: 'x-kubernetes-immutable: true Service to link the Kafka Schema to'
                 maxLength: 63
                 type: string
-              username:
-                description: 'x-kubernetes-immutable: true Name of the user account'
+              subject_name:
+                description: 'x-kubernetes-immutable: true Kafka Schema Subject name'
                 maxLength: 63
                 type: string
             required:
             - project
+            - schema
             - service_name
-            - username
+            - subject_name
             type: object
           status:
-            description: ServiceUserStatus defines the observed state of ServiceUser
+            description: KafkaSchemaStatus defines the observed state of KafkaSchema
             properties:
-              authentication:
-                description: Authentication details
+              compatibility_level:
+                description: Kafka Schemas compatibility level
                 enum:
-                - caching_sha2_password
-                - mysql_native_password
+                - BACKWARD
+                - BACKWARD_TRANSITIVE
+                - FORWARD
+                - FORWARD_TRANSITIVE
+                - FULL
+                - FULL_TRANSITIVE
+                - NONE
                 type: string
               project:
-                description: Project to link the user to
+                description: Project to link the Kafka Schema to
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
+              schema:
+                description: Kafka Schema configuration should be a valid Avro Schema JSON format
+                type: string
               service_name:
-                description: Service to link the user to
+                description: Service to link the Kafka Schema to
                 maxLength: 63
                 type: string
-              type:
-                description: Type of the user account
-                type: string
-              username:
-                description: Name of the user account
+              subject_name:
+                description: Kafka Schema Subject name
                 maxLength: 63
                 type: string
+              version:
+                description: Kafka Schema configuration version
+                type: integer
             required:
             - project
+            - schema
             - service_name
-            - username
+            - subject_name
+            - version
             type: object
         type: object
     served: true

@@ -4,20 +4,20 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: serviceusers.k8s-operator.aiven.io
+  name: kafkaacls.k8s-operator.aiven.io
 spec:
   group: k8s-operator.aiven.io
   names:
-    kind: ServiceUser
-    listKind: ServiceUserList
-    plural: serviceusers
-    singular: serviceuser
+    kind: KafkaACL
+    listKind: KafkaACLList
+    plural: kafkaacls
+    singular: kafkaacl
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: ServiceUser is the Schema for the serviceusers API
+        description: KafkaACL is the Schema for the kafkaacls API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
@@ -28,60 +28,73 @@ spec:
           metadata:
             type: object
           spec:
-            description: ServiceUserSpec defines the desired state of ServiceUser
+            description: KafkaACLSpec defines the desired state of KafkaACL
             properties:
-              authentication:
-                description: 'x-kubernetes-immutable: true Authentication details'
+              permission:
+                description: 'x-kubernetes-immutable: true Kafka permission to grant (admin, read, readwrite, write)'
                 enum:
-                - caching_sha2_password
-                - mysql_native_password
+                - admin
+                - read
+                - readwrite
+                - write
                 type: string
               project:
-                description: 'x-kubernetes-immutable: true Project to link the user to'
+                description: 'x-kubernetes-immutable: true Project to link the Kafka ACL to'
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
               service_name:
-                description: 'x-kubernetes-immutable: true Service to link the user to'
+                description: 'x-kubernetes-immutable: true Service to link the Kafka ACL to'
                 maxLength: 63
+                type: string
+              topic:
+                description: 'x-kubernetes-immutable: true Topic name pattern for the ACL entry'
                 type: string
               username:
-                description: 'x-kubernetes-immutable: true Name of the user account'
-                maxLength: 63
+                description: 'x-kubernetes-immutable: true Username pattern for the ACL entry'
                 type: string
             required:
+            - permission
             - project
             - service_name
+            - topic
             - username
             type: object
           status:
-            description: ServiceUserStatus defines the observed state of ServiceUser
+            description: KafkaACLStatus defines the observed state of KafkaACL
             properties:
-              authentication:
-                description: Authentication details
+              id:
+                description: Kafka ACL ID
+                type: string
+              permission:
+                description: Kafka permission to grant (admin, read, readwrite, write)
                 enum:
-                - caching_sha2_password
-                - mysql_native_password
+                - admin
+                - read
+                - readwrite
+                - write
                 type: string
               project:
-                description: Project to link the user to
+                description: Project to link the Kafka ACL to
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
               service_name:
-                description: Service to link the user to
+                description: Service to link the Kafka ACL to
                 maxLength: 63
                 type: string
-              type:
-                description: Type of the user account
+              topic:
+                description: Topic name pattern for the ACL entry
                 type: string
               username:
-                description: Name of the user account
-                maxLength: 63
+                description: Username pattern for the ACL entry
                 type: string
             required:
+            - id
+            - permission
             - project
             - service_name
+            - topic
             - username
             type: object
         type: object

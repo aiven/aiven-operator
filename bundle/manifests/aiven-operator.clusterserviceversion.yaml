@@ -27,7 +27,7 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    operators.operatorframework.io/builder: operator-sdk-v1.3.0
+    operators.operatorframework.io/builder: operator-sdk-v1.6.1+git
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
   name: aiven-operator.v0.0.1
   namespace: placeholder
@@ -45,6 +45,11 @@ spec:
       kind: Database
       name: databases.k8s-operator.aiven.io
       version: v1alpha1
+    - description: KafkaACL is the Schema for the kafkaacls API
+      displayName: Kafka ACL
+      kind: KafkaACL
+      name: kafkaacls.k8s-operator.aiven.io
+      version: v1alpha1
     - description: Kafka Connect is the Schema for the kafkas API
       displayName: KafkaConnect
       kind: KafkaConnect
@@ -54,6 +59,16 @@ spec:
       displayName: Kafka
       kind: Kafka
       name: kafkas.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: KafkaSchema is the Schema for the kafkaschemas API
+      displayName: Kafka Schema
+      kind: KafkaSchema
+      name: kafkaschemas.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: KafkaTopic is the Schema for the kafkatopics API
+      displayName: Kafka Topic
+      kind: KafkaTopic
+      name: kafkatopics.k8s-operator.aiven.io
       version: v1alpha1
     - kind: PG
       name: pgs.k8s-operator.aiven.io
@@ -67,6 +82,11 @@ spec:
       displayName: Project VPC
       kind: ProjectVPC
       name: projectvpcs.k8s-operator.aiven.io
+      version: v1alpha1
+    - description: ServiceIntegration is the Schema for the serviceintegrations API
+      displayName: Service Integration
+      kind: ServiceIntegration
+      name: serviceintegrations.k8s-operator.aiven.io
       version: v1alpha1
     - description: ServiceUser is the Schema for the serviceusers API
       displayName: Service User
@@ -82,6 +102,27 @@ spec:
     spec:
       clusterPermissions:
       - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - secrets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - coordination.k8s.io
+          resources:
+          - leases
+          verbs:
+          - create
+          - get
+          - list
+          - update
         - apiGroups:
           - k8s-operator.aiven.io
           resources:
@@ -125,6 +166,26 @@ spec:
         - apiGroups:
           - k8s-operator.aiven.io
           resources:
+          - kafkaacls
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - kafkaacls/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
           - kafkaconnects
           verbs:
           - create
@@ -158,6 +219,46 @@ spec:
           - k8s-operator.aiven.io
           resources:
           - kafkas/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - kafkaschemas
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - kafkaschemas/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - kafkatopics
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - kafkatopics/status
           verbs:
           - get
           - patch
@@ -218,6 +319,26 @@ spec:
           - k8s-operator.aiven.io
           resources:
           - projectvpcs/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - serviceintegrations
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - k8s-operator.aiven.io
+          resources:
+          - serviceintegrations/status
           verbs:
           - get
           - patch

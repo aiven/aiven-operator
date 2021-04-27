@@ -25,8 +25,7 @@ const serviceIntegrationFinalizer = "serviceintegration-finalizer.k8s-operator.a
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=serviceintegrations,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=serviceintegrations/status,verbs=get;update;patch
 
-func (r *ServiceIntegrationReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx := context.Background()
+func (r *ServiceIntegrationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("serviceintegration", req.NamespacedName)
 
 	if err := r.InitAivenClient(req, ctx, log); err != nil {

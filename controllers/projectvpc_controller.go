@@ -25,8 +25,7 @@ type ProjectVPCReconciler struct {
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=projectvpcs,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=projectvpcs/status,verbs=get;update;patch
 
-func (r *ProjectVPCReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx := context.Background()
+func (r *ProjectVPCReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("projectvpc", req.NamespacedName)
 
 	if err := r.InitAivenClient(req, ctx, log); err != nil {
