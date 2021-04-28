@@ -4,9 +4,3 @@ metadata:
   name: project-sample1
 spec:
   name: test-k8s-project
-  env:
-    - name: AIVEN_TOKEN
-      valueFrom:
-        secretKeyRef:
-          name: aiven-token
-          key: token

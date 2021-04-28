@@ -3,5 +3,7 @@ kind: ServiceUser
 metadata:
   name: serviceuser-sample
 spec:
-  # Add fields here
-  foo: bar
+  project: dev-sandbox
+  service_name: service-pg-or-kafka-sample
+  username: serviceuser-sample
+  authentication: caching_sha2_password

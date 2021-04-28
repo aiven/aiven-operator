@@ -3,5 +3,15 @@ kind: KafkaTopic
 metadata:
   name: kafkatopic-sample
 spec:
-  # Add fields here
-  foo: bar
+  service_name: kafka-sample
+  project: dev-sandbox
+  topic_name: kafkatopic-sample
+  partitions: 3
+  replication: 2
+  tags:
+    - key: tagk1,
+      value: tagv1
+    - key: tagk2,
+      value: tagv2
+  config:
+    flush_ms: 100

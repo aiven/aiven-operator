@@ -3,5 +3,8 @@ kind: KafkaACL
 metadata:
   name: kafkaacl-sample
 spec:
-  # Add fields here
-  foo: bar
+  project: dev-sandbox
+  service_name: kafka-sample
+  permission: admin
+  topic: topic-sample
+  username: user1-sample
