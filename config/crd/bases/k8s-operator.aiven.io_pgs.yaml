@@ -563,7 +563,7 @@ spec:
                 maxLength: 128
                 type: string
               project:
-                description: 'x-kubernetes-immutable: true Target project.'
+                description: Target project.
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
@@ -572,7 +572,7 @@ spec:
                 maxLength: 36
                 type: string
               service_name:
-                description: 'x-kubernetes-immutable: true Service name.'
+                description: Service name.
                 maxLength: 63
                 type: string
             required:
@@ -1117,35 +1117,17 @@ spec:
                 description: Identifier of the VPC the service should be in, if any.
                 maxLength: 36
                 type: string
-              service_host:
-                description: PostgreSQL hostname
-                type: string
               service_name:
                 description: Service name.
                 maxLength: 63
                 type: string
-              service_password:
-                description: Password used for connecting to the PostgreSQL service.
-                type: string
-              service_port:
-                description: PostgreSQL service port.
-                type: integer
-              service_uri:
-                description: URI for connecting to the PostgreSQL service.
-                type: string
-              service_username:
-                description: Username used for connecting to the PostgreSQL service.
-                type: string
               state:
-                description: PostgreSQL Service state
-                type: string
-              status:
-                description: Service status
+                description: Service state
                 type: string
             required:
             - project
             - service_name
-            - status
+            - state
             type: object
         type: object
     served: true

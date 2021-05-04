@@ -10,44 +10,25 @@ import (
 type ServiceUserSpec struct {
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// x-kubernetes-immutable: true
 	// Project to link the user to
 	Project string `json:"project"`
 
 	// +kubebuilder:validation:MaxLength=63
-	// x-kubernetes-immutable: true
 	// Service to link the user to
 	ServiceName string `json:"service_name"`
 
 	// +kubebuilder:validation:MaxLength=63
-	// x-kubernetes-immutable: true
 	// Name of the user account
 	Username string `json:"username"`
 
 	// +kubebuilder:validation:Enum=caching_sha2_password;mysql_native_password
-	// x-kubernetes-immutable: true
 	// Authentication details
 	Authentication string `json:"authentication,omitempty"`
 }
 
 // ServiceUserStatus defines the observed state of ServiceUser
 type ServiceUserStatus struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// Project to link the user to
-	Project string `json:"project"`
-
-	// +kubebuilder:validation:MaxLength=63
-	// Service to link the user to
-	ServiceName string `json:"service_name"`
-
-	// +kubebuilder:validation:MaxLength=63
-	// Name of the user account
-	Username string `json:"username"`
-
-	// +kubebuilder:validation:Enum=caching_sha2_password;mysql_native_password
-	// Authentication details
-	Authentication string `json:"authentication,omitempty"`
+	ServiceUserSpec `json:",inline"`
 
 	// Type of the user account
 	Type string `json:"type,omitempty"`

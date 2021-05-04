@@ -39,12 +39,14 @@ var _ = Describe("Kafka Controller", func() {
 				Namespace: kafkaNamespace,
 			},
 			Spec: v1alpha1.KafkaSpec{
-				Project:               os.Getenv("AIVEN_PROJECT_NAME"),
-				ServiceName:           serviceName,
-				Plan:                  "business-4",
-				CloudName:             "google-europe-west1",
-				MaintenanceWindowDow:  "monday",
-				MaintenanceWindowTime: "10:00:00",
+				ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
+					Project:               os.Getenv("AIVEN_PROJECT_NAME"),
+					ServiceName:           serviceName,
+					Plan:                  "business-4",
+					CloudName:             "google-europe-west1",
+					MaintenanceWindowDow:  "monday",
+					MaintenanceWindowTime: "10:00:00",
+				},
 				KafkaUserConfig: v1alpha1.KafkaUserConfig{
 					KafkaRest:      boolPointer(true),
 					KafkaConnect:   boolPointer(true),

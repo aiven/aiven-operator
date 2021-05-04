@@ -37,8 +37,7 @@ spec:
             description: ConnectionPoolSpec defines the desired state of ConnectionPool
             properties:
               database_name:
-                description: 'x-kubernetes-immutable: true Name of the database the
-                  pool connects to'
+                description: Name of the database the pool connects to
                 maxLength: 40
                 type: string
               pool_mode:
@@ -49,7 +48,7 @@ spec:
                 - statement
                 type: string
               pool_name:
-                description: 'x-kubernetes-immutable: true Name of the pool'
+                description: Name of the pool
                 maxLength: 60
                 type: string
               pool_size:
@@ -57,17 +56,16 @@ spec:
                   backend server
                 type: integer
               project:
-                description: 'x-kubernetes-immutable: true Target project.'
+                description: Target project.
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
               service_name:
-                description: 'x-kubernetes-immutable: true Service name.'
+                description: Service name.
                 maxLength: 63
                 type: string
               username:
-                description: 'x-kubernetes-immutable: true Name of the service user
-                  used to connect to the database'
+                description: Name of the service user used to connect to the database
                 maxLength: 64
                 type: string
             required:

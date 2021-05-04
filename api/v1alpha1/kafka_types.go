@@ -8,36 +8,7 @@ import (
 
 // KafkaSpec defines the desired state of Kafka
 type KafkaSpec struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// x-kubernetes-immutable: true
-	// Target project.
-	Project string `json:"project"`
-
-	// +kubebuilder:validation:MaxLength=63
-	// x-kubernetes-immutable: true
-	// Service name.
-	ServiceName string `json:"service_name"`
-
-	// +kubebuilder:validation:MaxLength=128
-	// Subscription plan.
-	Plan string `json:"plan,omitempty"`
-
-	// +kubebuilder:validation:MaxLength=256
-	// Cloud the service runs in.
-	CloudName string `json:"cloud_name,omitempty"`
-
-	// +kubebuilder:validation:MaxLength=36
-	// Identifier of the VPC the service should be in, if any.
-	ProjectVPCID string `json:"project_vpc_id,omitempty"`
-
-	// +kubebuilder:validation:Enum=monday;tuesday;wednesday;thursday;friday;saturday;sunday;never
-	// Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.
-	MaintenanceWindowDow string `json:"maintenance_window_dow,omitempty"`
-
-	// +kubebuilder:validation:MaxLength=8
-	// Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
-	MaintenanceWindowTime string `json:"maintenance_window_time,omitempty"`
+	ServiceCommonSpec `json:",inline"`
 
 	// Kafka specific user configuration options
 	KafkaUserConfig KafkaUserConfig `json:"kafka_user_config,omitempty"`
@@ -45,40 +16,10 @@ type KafkaSpec struct {
 
 // KafkaStatus defines the observed state of Kafka
 type KafkaStatus struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// Target project.
-	Project string `json:"project"`
+	KafkaSpec `json:",inline"`
 
-	// +kubebuilder:validation:MaxLength=63
-	// Service name.
-	ServiceName string `json:"service_name"`
-
-	// +kubebuilder:validation:MaxLength=128
-	// Subscription plan.
-	Plan string `json:"plan,omitempty"`
-
-	// +kubebuilder:validation:MaxLength=256
-	// Cloud the service runs in.
-	CloudName string `json:"cloud_name,omitempty"`
-
-	// +kubebuilder:validation:MaxLength=36
-	// Identifier of the VPC the service should be in, if any.
-	ProjectVPCID string `json:"project_vpc_id,omitempty"`
-
-	// +kubebuilder:validation:Enum=monday;tuesday;wednesday;thursday;friday;saturday;sunday;never
-	// Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.
-	MaintenanceWindowDow string `json:"maintenance_window_dow,omitempty"`
-
-	// +kubebuilder:validation:MaxLength=8
-	// Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
-	MaintenanceWindowTime string `json:"maintenance_window_time,omitempty"`
-
-	// Kafka specific user configuration options
-	KafkaUserConfig KafkaUserConfig `json:"kafka_user_config,omitempty"`
-
-	// PostgreSQL Service state
-	State string `json:"state,omitempty"`
+	// Service state
+	State string `json:"state"`
 }
 
 type KafkaUserConfig struct {

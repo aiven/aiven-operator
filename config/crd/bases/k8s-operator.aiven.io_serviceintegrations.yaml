@@ -67,15 +67,13 @@ spec:
                     type: array
                 type: object
               destination_endpoint_id:
-                description: 'x-kubernetes-immutable: true Destination endpoint for
-                  the integration (if any)'
+                description: Destination endpoint for the integration (if any)
                 type: string
               destination_service_name:
-                description: 'x-kubernetes-immutable: true Destination service for
-                  the integration (if any)'
+                description: Destination service for the integration (if any)
                 type: string
               integration_type:
-                description: 'x-kubernetes-immutable: true Type of the service integration'
+                description: Type of the service integration
                 enum:
                 - datadog
                 - kafka_logs
@@ -164,18 +162,15 @@ spec:
                     type: string
                 type: object
               project:
-                description: 'x-kubernetes-immutable: true Project the integration
-                  belongs to'
+                description: Project the integration belongs to
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
               source_endpoint_id:
-                description: 'x-kubernetes-immutable: true Source endpoint for the
-                  integration (if any)'
+                description: Source endpoint for the integration (if any)
                 type: string
               source_service_name:
-                description: 'x-kubernetes-immutable: true Source service for the
-                  integration (if any)'
+                description: Source service for the integration (if any)
                 type: string
             required:
             - integration_type
