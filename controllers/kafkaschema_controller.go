@@ -10,6 +10,8 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"strings"
+	"time"
 
 	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -78,27 +80,18 @@ func (r *KafkaSchemaReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		}
 	}
 
-	// Check if Kafka Schema already exists on the Aiven side, create a
-	// new one if it is not found
-	schemaExists, err := r.exists(schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	// Create a new schema if it does not exists and update CR status
-	if !schemaExists {
-		err = r.create(schema)
-		if err != nil {
-			log.Error(err, "Failed to create Kafka Schema")
-			return ctrl.Result{}, err
-		}
-		return ctrl.Result{}, nil
-	}
-
 	// Update Kafka Schema via API and update CR status
-	err = r.update(schema)
+	err = r.addNewSchema(schema, ctx)
 	if err != nil {
-		log.Error(err, "Failed to update Kafka Schema")
+		if aiven.IsNotFound(err) ||
+			strings.Contains(err.Error(), "Internal server error") ||
+			strings.Contains(err.Error(), "Please try again later") {
+			return ctrl.Result{
+				Requeue:      true,
+				RequeueAfter: time.Second * 5,
+			}, nil
+		}
+		log.Error(err, "Failed to add Kafka Schema Subject")
 		return ctrl.Result{}, err
 	}
 
@@ -112,14 +105,15 @@ func (r *KafkaSchemaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 // updateCRStatus updates Kubernetes Custom Resource status
-func (r *KafkaSchemaReconciler) updateCRStatus(schema *k8soperatorv1alpha1.KafkaSchema, v int) error {
+func (r *KafkaSchemaReconciler) updateCRStatus(ctx context.Context, schema *k8soperatorv1alpha1.KafkaSchema, v int) error {
 	schema.Status.Project = schema.Spec.Project
 	schema.Status.ServiceName = schema.Spec.ServiceName
 	schema.Status.SubjectName = schema.Spec.SubjectName
+	schema.Status.Schema = schema.Spec.Schema
 	schema.Status.CompatibilityLevel = schema.Spec.CompatibilityLevel
 	schema.Status.Version = v
 
-	return r.Status().Update(context.Background(), schema)
+	return r.Status().Update(ctx, schema)
 }
 
 func (r *KafkaSchemaReconciler) getLastVersion(schema *k8soperatorv1alpha1.KafkaSchema) (int, error) {
@@ -141,22 +135,7 @@ func (r *KafkaSchemaReconciler) getLastVersion(schema *k8soperatorv1alpha1.Kafka
 	return latestVersion, nil
 }
 
-func (r *KafkaSchemaReconciler) exists(project, serviceName, subjectName string) (bool, error) {
-	l, err := r.AivenClient.KafkaSubjectSchemas.List(project, serviceName)
-	if err != nil {
-		return false, err
-	}
-
-	for _, s := range l.Subjects {
-		if s == subjectName {
-			return true, nil
-		}
-	}
-
-	return false, nil
-}
-
-func (r *KafkaSchemaReconciler) update(schema *k8soperatorv1alpha1.KafkaSchema) error {
+func (r *KafkaSchemaReconciler) addNewSchema(schema *k8soperatorv1alpha1.KafkaSchema, ctx context.Context) error {
 	// create Kafka Schema Subject
 	_, err := r.AivenClient.KafkaSubjectSchemas.Add(
 		schema.Spec.Project,
@@ -167,7 +146,7 @@ func (r *KafkaSchemaReconciler) update(schema *k8soperatorv1alpha1.KafkaSchema) 
 		},
 	)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot add Kafka Schema Subject: %w", err)
 	}
 
 	// set compatibility level if defined for a newly created Kafka Schema Subject
@@ -179,65 +158,19 @@ func (r *KafkaSchemaReconciler) update(schema *k8soperatorv1alpha1.KafkaSchema) 
 			schema.Spec.CompatibilityLevel,
 		)
 		if err != nil {
-			return err
+			return fmt.Errorf("cannot update Kafka Schema Configuration: %w", err)
 		}
 	}
 
 	// get last version
 	version, err := r.getLastVersion(schema)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot get Kafka Schema Subject version: %w", err)
 	}
 
-	err = r.updateCRStatus(schema, version)
+	err = r.updateCRStatus(ctx, schema, version)
 	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (r *KafkaSchemaReconciler) create(schema *k8soperatorv1alpha1.KafkaSchema) error {
-	// create Kafka Schema Subject
-	_, err := r.AivenClient.KafkaSubjectSchemas.Add(
-		schema.Spec.Project,
-		schema.Spec.ServiceName,
-		schema.Spec.SubjectName,
-		aiven.KafkaSchemaSubject{
-			Schema: schema.Spec.Schema,
-		},
-	)
-	if err != nil {
-		return err
-	}
-
-	// set compatibility level if defined for a newly created Kafka Schema Subject
-	if schema.Spec.CompatibilityLevel != "" {
-		_, err := r.AivenClient.KafkaSubjectSchemas.UpdateConfiguration(
-			schema.Spec.Project,
-			schema.Spec.ServiceName,
-			schema.Spec.SubjectName,
-			schema.Spec.CompatibilityLevel,
-		)
-		if err != nil {
-			return err
-		}
-	}
-
-	// get last version
-	version, err := r.getLastVersion(schema)
-	if err != nil {
-		return err
-	}
-
-	// newly created versions start from 1
-	if version == 0 {
-		return fmt.Errorf("kafka schema subject after creation has an empty list of versions")
-	}
-
-	err = r.updateCRStatus(schema, version)
-	if err != nil {
-		return err
+		return fmt.Errorf("cannot udapte Kafka Schema Subject CR status: %w", err)
 	}
 
 	return nil

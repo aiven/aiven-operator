@@ -14,7 +14,7 @@ import (
 var _ = Describe("KafkaConnect Controller", func() {
 	// Define utility constants for object names and testing timeouts/durations and intervals.
 	const (
-		kafkaconnectNamespace = "default"
+		namespace = "default"
 
 		timeout  = time.Minute * 20
 		interval = time.Second * 10
@@ -27,34 +27,14 @@ var _ = Describe("KafkaConnect Controller", func() {
 	)
 
 	BeforeEach(func() {
-		serviceName = "k8s-test-kafkaconnect-acc-" + generateRandomID()
-
-		kafkaconnect = &v1alpha1.KafkaConnect{
-			TypeMeta: metav1.TypeMeta{
-				APIVersion: "k8s-operator.aiven.io/v1alpha1",
-				Kind:       "KafkaConnect",
-			},
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      serviceName,
-				Namespace: kafkaconnectNamespace,
-			},
-			Spec: v1alpha1.KafkaConnectSpec{
-				ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
-					Project:               os.Getenv("AIVEN_PROJECT_NAME"),
-					ServiceName:           serviceName,
-					Plan:                  "business-4",
-					CloudName:             "google-europe-west1",
-					MaintenanceWindowDow:  "monday",
-					MaintenanceWindowTime: "10:00:00",
-				},
-			},
-		}
 		ctx = context.Background()
+		serviceName = "k8s-test-kafkaconnect-acc-" + generateRandomID()
+		kafkaconnect = kafkaConnectSpec(serviceName, namespace)
 
 		By("Creating a new KafkaConnect CR instance")
 		Expect(k8sClient.Create(ctx, kafkaconnect)).Should(Succeed())
 
-		kcLookupKey := types.NamespacedName{Name: serviceName, Namespace: kafkaconnectNamespace}
+		kcLookupKey := types.NamespacedName{Name: serviceName, Namespace: namespace}
 		createdKafkaConnect := &v1alpha1.KafkaConnect{}
 		// We'll need to retry getting this newly created KafkaConnect,
 		// given that creation may not immediately happen.
@@ -82,7 +62,7 @@ var _ = Describe("KafkaConnect Controller", func() {
 	Context("Validating KafkaConnect reconciler behaviour", func() {
 		It("should create a new Kafka Connect service", func() {
 			createdKafkaConnect := &v1alpha1.KafkaConnect{}
-			kcLookupKey := types.NamespacedName{Name: serviceName, Namespace: kafkaconnectNamespace}
+			kcLookupKey := types.NamespacedName{Name: serviceName, Namespace: namespace}
 
 			Expect(k8sClient.Get(ctx, kcLookupKey, createdKafkaConnect)).Should(Succeed())
 
@@ -102,3 +82,26 @@ var _ = Describe("KafkaConnect Controller", func() {
 		ensureDelete(ctx, kafkaconnect)
 	})
 })
+
+func kafkaConnectSpec(serviceName, namespace string) *v1alpha1.KafkaConnect {
+	return &v1alpha1.KafkaConnect{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "k8s-operator.aiven.io/v1alpha1",
+			Kind:       "KafkaConnect",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      serviceName,
+			Namespace: namespace,
+		},
+		Spec: v1alpha1.KafkaConnectSpec{
+			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
+				Project:               os.Getenv("AIVEN_PROJECT_NAME"),
+				ServiceName:           serviceName,
+				Plan:                  "business-4",
+				CloudName:             "google-europe-west1",
+				MaintenanceWindowDow:  "monday",
+				MaintenanceWindowTime: "10:00:00",
+			},
+		},
+	}
+}
