@@ -75,13 +75,13 @@ func (r *KafkaSchemaReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 
 	// Add finalizer for this CR
 	if !contains(schema.GetFinalizers(), schemaFinalizer) {
-		if err := r.addFinalizer(log, schema); err != nil {
+		if err := r.addFinalizer(ctx, log, schema); err != nil {
 			return reconcile.Result{}, err
 		}
 	}
 
 	// Update Kafka Schema via API and update CR status
-	err = r.addNewSchema(schema, ctx)
+	err = r.addNewSchema(ctx, schema)
 	if err != nil {
 		if aiven.IsNotFound(err) ||
 			strings.Contains(err.Error(), "Internal server error") ||
@@ -135,7 +135,7 @@ func (r *KafkaSchemaReconciler) getLastVersion(schema *k8soperatorv1alpha1.Kafka
 	return latestVersion, nil
 }
 
-func (r *KafkaSchemaReconciler) addNewSchema(schema *k8soperatorv1alpha1.KafkaSchema, ctx context.Context) error {
+func (r *KafkaSchemaReconciler) addNewSchema(ctx context.Context, schema *k8soperatorv1alpha1.KafkaSchema) error {
 	// create Kafka Schema Subject
 	_, err := r.AivenClient.KafkaSubjectSchemas.Add(
 		schema.Spec.Project,
@@ -194,12 +194,12 @@ func (r *KafkaSchemaReconciler) finalize(log logr.Logger, s *k8soperatorv1alpha1
 }
 
 // addFinalizer add finalizer to CR
-func (r *KafkaSchemaReconciler) addFinalizer(reqLogger logr.Logger, s *k8soperatorv1alpha1.KafkaSchema) error {
+func (r *KafkaSchemaReconciler) addFinalizer(ctx context.Context, reqLogger logr.Logger, s *k8soperatorv1alpha1.KafkaSchema) error {
 	reqLogger.Info("Adding Finalizer for the Kafka Schema")
 	controllerutil.AddFinalizer(s, schemaFinalizer)
 
 	// Update CR
-	err := r.Client.Update(context.Background(), s)
+	err := r.Client.Update(ctx, s)
 	if err != nil {
 		reqLogger.Error(err, "Failed to update Kafka Schema with finalizer")
 		return err

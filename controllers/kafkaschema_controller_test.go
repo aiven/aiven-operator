@@ -72,7 +72,7 @@ var _ = Describe("Kafka Schema Controller", func() {
 
 			Expect(k8sClient.Get(ctx, lookupKey, createdSchema)).Should(Succeed())
 
-			By("by checking that after creation KafkaACL status fields were properly populated")
+			By("by checking that after creation KafkaSchema status fields were properly populated")
 			Expect(createdSchema.Status.ServiceName).Should(Equal(serviceName))
 			Expect(createdSchema.Status.Project).Should(Equal(os.Getenv("AIVEN_PROJECT_NAME")))
 			Expect(createdSchema.Status.CompatibilityLevel).Should(Equal("BACKWARD"))
