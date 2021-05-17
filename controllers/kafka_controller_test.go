@@ -27,39 +27,9 @@ var _ = Describe("Kafka Controller", func() {
 	)
 
 	BeforeEach(func() {
-		serviceName = "k8s-test-kafka-acc-" + generateRandomID()
-
-		kafka = &v1alpha1.Kafka{
-			TypeMeta: metav1.TypeMeta{
-				APIVersion: "k8s-operator.aiven.io/v1alpha1",
-				Kind:       "Kafka",
-			},
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      serviceName,
-				Namespace: kafkaNamespace,
-			},
-			Spec: v1alpha1.KafkaSpec{
-				ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
-					Project:               os.Getenv("AIVEN_PROJECT_NAME"),
-					ServiceName:           serviceName,
-					Plan:                  "business-4",
-					CloudName:             "google-europe-west1",
-					MaintenanceWindowDow:  "monday",
-					MaintenanceWindowTime: "10:00:00",
-				},
-				KafkaUserConfig: v1alpha1.KafkaUserConfig{
-					KafkaRest:      boolPointer(true),
-					KafkaConnect:   boolPointer(true),
-					SchemaRegistry: boolPointer(true),
-					KafkaVersion:   "2.7",
-					Kafka: v1alpha1.KafkaSubKafkaUserConfig{
-						GroupMaxSessionTimeoutMs: int64Pointer(70000),
-						LogRetentionBytes:        int64Pointer(1000000000),
-					},
-				},
-			},
-		}
 		ctx = context.Background()
+		serviceName = "k8s-test-kafka-acc-" + generateRandomID()
+		kafka = kafkaSpec(serviceName, kafkaNamespace)
 
 		By("Creating a new Kafka CR instance")
 		Expect(k8sClient.Create(ctx, kafka)).Should(Succeed())
@@ -112,3 +82,36 @@ var _ = Describe("Kafka Controller", func() {
 		ensureDelete(ctx, kafka)
 	})
 })
+
+func kafkaSpec(serviceName, namespace string) *v1alpha1.Kafka {
+	return &v1alpha1.Kafka{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "k8s-operator.aiven.io/v1alpha1",
+			Kind:       "Kafka",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      serviceName,
+			Namespace: namespace,
+		},
+		Spec: v1alpha1.KafkaSpec{
+			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
+				Project:               os.Getenv("AIVEN_PROJECT_NAME"),
+				ServiceName:           serviceName,
+				Plan:                  "business-4",
+				CloudName:             "google-europe-west1",
+				MaintenanceWindowDow:  "monday",
+				MaintenanceWindowTime: "10:00:00",
+			},
+			KafkaUserConfig: v1alpha1.KafkaUserConfig{
+				KafkaRest:      boolPointer(true),
+				KafkaConnect:   boolPointer(true),
+				SchemaRegistry: boolPointer(true),
+				KafkaVersion:   "2.7",
+				Kafka: v1alpha1.KafkaSubKafkaUserConfig{
+					GroupMaxSessionTimeoutMs: int64Pointer(70000),
+					LogRetentionBytes:        int64Pointer(1000000000),
+				},
+			},
+		},
+	}
+}

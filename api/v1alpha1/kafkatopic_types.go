@@ -126,6 +126,8 @@ type KafkaTopicConfig struct {
 // KafkaTopicStatus defines the observed state of KafkaTopic
 type KafkaTopicStatus struct {
 	KafkaTopicSpec `json:",inline"`
+
+	State string `json:"state"`
 }
 
 // +kubebuilder:object:root=true

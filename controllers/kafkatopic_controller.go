@@ -136,13 +136,23 @@ func (r *KafkaTopicReconciler) createTopic(topic *k8soperatorv1alpha1.KafkaTopic
 		})
 	}
 
-	return r.AivenClient.KafkaTopics.Create(topic.Spec.Project, topic.Spec.ServiceName, aiven.CreateKafkaTopicRequest{
+	err := r.AivenClient.KafkaTopics.Create(topic.Spec.Project, topic.Spec.ServiceName, aiven.CreateKafkaTopicRequest{
 		Partitions:  &topic.Spec.Partitions,
 		Replication: &topic.Spec.Replication,
 		TopicName:   topic.Spec.TopicName,
 		Tags:        tags,
 		Config:      convertKafkaTopicConfig(topic),
 	})
+	if err != nil {
+		return err
+	}
+
+	t, err := r.AivenClient.KafkaTopics.Get(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName)
+	if err != nil {
+		return err
+	}
+
+	return r.updateCRStatus(topic, t)
 }
 
 func (r *KafkaTopicReconciler) updateTopic(topic *k8soperatorv1alpha1.KafkaTopic) error {
@@ -215,7 +225,9 @@ func (r *KafkaTopicReconciler) updateCRStatus(topic *k8soperatorv1alpha1.KafkaTo
 	topic.Status.ServiceName = topic.Spec.ServiceName
 	topic.Status.TopicName = t.TopicName
 	topic.Status.Partitions = len(t.Partitions)
+	topic.Status.Replication = t.Replication
 	topic.Status.Tags = tags
+	topic.Status.State = t.State
 
 	topic.Status.Config.CleanupPolicy = t.Config.CleanupPolicy.Value
 	topic.Status.Config.CompressionType = t.Config.CompressionType.Value

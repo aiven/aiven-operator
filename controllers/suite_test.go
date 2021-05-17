@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -78,7 +79,8 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(k8sClient).ToNot(BeNil())
 
 	k8sManager, err := ctrl.NewManager(cfg, ctrl.Options{
-		Scheme: scheme.Scheme,
+		Scheme:             scheme.Scheme,
+		MetricsBindAddress: "0",
 	})
 	Expect(err).ToNot(HaveOccurred())
 
@@ -97,7 +99,11 @@ var _ = BeforeSuite(func(done Done) {
 	}
 
 	err = k8sClient.Create(context.TODO(), secret)
-	Expect(err).ToNot(HaveOccurred())
+	if err != nil {
+		if !strings.Contains(err.Error(), "already exists") {
+			Expect(err).ToNot(HaveOccurred())
+		}
+	}
 
 	// set-up roject
 	err = (&ProjectReconciler{
@@ -134,6 +140,76 @@ var _ = BeforeSuite(func(done Done) {
 		Controller{
 			Client: k8sManager.GetClient(),
 			Log:    ctrl.Log.WithName("controllers").WithName("KafkaConnect"),
+			Scheme: k8sManager.GetScheme(),
+		},
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	// set-up Database reconciler
+	err = (&DatabaseReconciler{
+		Controller{
+			Client: k8sManager.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("Database"),
+			Scheme: k8sManager.GetScheme(),
+		},
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	// set-up ConnectionPool reconciler
+	err = (&ConnectionPoolReconciler{
+		Controller{
+			Client: k8sManager.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("ConnectionPool"),
+			Scheme: k8sManager.GetScheme(),
+		},
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	// set-up ServiceUser reconciler
+	err = (&ServiceUserReconciler{
+		Controller{
+			Client: k8sManager.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("ServiceUser"),
+			Scheme: k8sManager.GetScheme(),
+		},
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	// set-up KafkaTopic reconciler
+	err = (&KafkaTopicReconciler{
+		Controller{
+			Client: k8sManager.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("KafkaTopic"),
+			Scheme: k8sManager.GetScheme(),
+		},
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	// set-up KafkaACL reconciler
+	err = (&KafkaACLReconciler{
+		Controller{
+			Client: k8sManager.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("KafkaACL"),
+			Scheme: k8sManager.GetScheme(),
+		},
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	// set-up KafkaSchema reconciler
+	err = (&KafkaSchemaReconciler{
+		Controller{
+			Client: k8sManager.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("KafkaSchema"),
+			Scheme: k8sManager.GetScheme(),
+		},
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	// set-up ServiceIntegration reconciler
+	err = (&ServiceIntegrationReconciler{
+		Controller{
+			Client: k8sManager.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("ServiceIntegration"),
 			Scheme: k8sManager.GetScheme(),
 		},
 	}).SetupWithManager(k8sManager)
