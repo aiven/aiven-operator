@@ -168,10 +168,9 @@ func (r *PGReconciler) createPGService(pg *k8soperatorv1alpha1.PG) (*aiven.Servi
 
 	s, err := r.AivenClient.Services.Create(pg.Spec.Project, aiven.CreateServiceRequest{
 		Cloud: pg.Spec.CloudName,
-		MaintenanceWindow: &aiven.MaintenanceWindow{
-			DayOfWeek: pg.Spec.MaintenanceWindowDow,
-			TimeOfDay: pg.Spec.MaintenanceWindowTime,
-		},
+		MaintenanceWindow: getMaintenanceWindow(
+			pg.Spec.MaintenanceWindowDow,
+			pg.Spec.MaintenanceWindowTime),
 		Plan:                pg.Spec.Plan,
 		ProjectVPCID:        prVPCID,
 		ServiceName:         pg.Spec.ServiceName,
@@ -206,10 +205,9 @@ func (r *PGReconciler) updatePGService(pg *k8soperatorv1alpha1.PG, s *aiven.Serv
 
 	s, err := r.AivenClient.Services.Update(pg.Spec.Project, pg.Spec.ServiceName, aiven.UpdateServiceRequest{
 		Cloud: pg.Spec.CloudName,
-		MaintenanceWindow: &aiven.MaintenanceWindow{
-			DayOfWeek: pg.Spec.MaintenanceWindowDow,
-			TimeOfDay: pg.Spec.MaintenanceWindowTime,
-		},
+		MaintenanceWindow: getMaintenanceWindow(
+			pg.Spec.MaintenanceWindowDow,
+			pg.Spec.MaintenanceWindowTime),
 		Plan:                  pg.Spec.Plan,
 		ProjectVPCID:          prVPCID,
 		TerminationProtection: s.TerminationProtection,

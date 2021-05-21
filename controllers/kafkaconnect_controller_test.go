@@ -72,8 +72,8 @@ var _ = Describe("KafkaConnect Controller", func() {
 			Expect(createdKafkaConnect.Status.State).Should(Equal("RUNNING"))
 			Expect(createdKafkaConnect.Status.Plan).Should(Equal("business-4"))
 			Expect(createdKafkaConnect.Status.CloudName).Should(Equal("google-europe-west1"))
-			Expect(createdKafkaConnect.Status.MaintenanceWindowDow).Should(Equal("monday"))
-			Expect(createdKafkaConnect.Status.MaintenanceWindowTime).Should(Equal("10:00:00"))
+			Expect(createdKafkaConnect.Status.MaintenanceWindowDow).NotTo(BeEmpty())
+			Expect(createdKafkaConnect.Status.MaintenanceWindowTime).NotTo(BeEmpty())
 		})
 	})
 
@@ -95,12 +95,10 @@ func kafkaConnectSpec(serviceName, namespace string) *v1alpha1.KafkaConnect {
 		},
 		Spec: v1alpha1.KafkaConnectSpec{
 			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
-				Project:               os.Getenv("AIVEN_PROJECT_NAME"),
-				ServiceName:           serviceName,
-				Plan:                  "business-4",
-				CloudName:             "google-europe-west1",
-				MaintenanceWindowDow:  "monday",
-				MaintenanceWindowTime: "10:00:00",
+				Project:     os.Getenv("AIVEN_PROJECT_NAME"),
+				ServiceName: serviceName,
+				Plan:        "business-4",
+				CloudName:   "google-europe-west1",
 			},
 		},
 	}
