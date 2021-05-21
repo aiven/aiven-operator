@@ -544,6 +544,7 @@ spec:
                     - "2.5"
                     - "2.6"
                     - "2.7"
+                    - "2.8"
                     type: string
                   private_access:
                     description: Allow access to selected service ports from private
@@ -1133,6 +1134,7 @@ spec:
                     - "2.5"
                     - "2.6"
                     - "2.7"
+                    - "2.8"
                     type: string
                   private_access:
                     description: Allow access to selected service ports from private

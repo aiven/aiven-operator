@@ -23,7 +23,7 @@ type KafkaStatus struct {
 }
 
 type KafkaUserConfig struct {
-	// +kubebuilder:validation:Enum="1.0";"1.1";"2.0";"2.1";"2.2";"2.3";"2.4";"2.5";"2.6";"2.7"
+	// +kubebuilder:validation:Enum="1.0";"1.1";"2.0";"2.1";"2.2";"2.3";"2.4";"2.5";"2.6";"2.7";"2.8"
 	// Kafka major version
 	KafkaVersion string `json:"kafka_version,omitempty"`
 
