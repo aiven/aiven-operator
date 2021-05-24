@@ -1,8 +1,8 @@
 ## Requirements
 
-- Install the [Operator SDK CLI >=1.6](https://sdk.operatorframework.io/docs/installation/install-operator-sdk/)
+- Install the [Operator SDK CLI >=1.6](https://sdk.operatorframework.io/docs/installation/)
 - Set test environment by following
-  these [instructions](https://sdk.operatorframework.io/docs/building-operators/golang/references/envtest-setup/)
+  these [instructions](https://sdk.operatorframework.io/docs/building-operators/golang/testing/)
 - Install and configure a local Kubernetes cluster, and any distribution will work; just make sure that `kubectl` is
   connected to a local cluster
 
