@@ -72,8 +72,8 @@ var _ = Describe("PG Controller", func() {
 			Expect(createdPG.Status.State).Should(Equal("RUNNING"))
 			Expect(createdPG.Status.Plan).Should(Equal("business-4"))
 			Expect(createdPG.Status.CloudName).Should(Equal("google-europe-west1"))
-			Expect(createdPG.Status.MaintenanceWindowDow).Should(Equal("monday"))
-			Expect(createdPG.Status.MaintenanceWindowTime).Should(Equal("10:00:00"))
+			Expect(createdPG.Status.MaintenanceWindowDow).NotTo(BeEmpty())
+			Expect(createdPG.Status.MaintenanceWindowTime).NotTo(BeEmpty())
 		})
 	})
 
@@ -95,12 +95,10 @@ func pgSpec(serviceName, namespace string) *v1alpha1.PG {
 		},
 		Spec: v1alpha1.PGSpec{
 			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
-				Project:               os.Getenv("AIVEN_PROJECT_NAME"),
-				ServiceName:           serviceName,
-				Plan:                  "business-4",
-				CloudName:             "google-europe-west1",
-				MaintenanceWindowDow:  "monday",
-				MaintenanceWindowTime: "10:00:00",
+				Project:     os.Getenv("AIVEN_PROJECT_NAME"),
+				ServiceName: serviceName,
+				Plan:        "business-4",
+				CloudName:   "google-europe-west1",
 			},
 			PGUserConfig: v1alpha1.PGUserConfig{
 				PgVersion: "12",

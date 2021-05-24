@@ -131,10 +131,9 @@ func (r *KafkaReconciler) createKafkaService(kafka *k8soperatorv1alpha1.Kafka) (
 
 	s, err := r.AivenClient.Services.Create(kafka.Spec.Project, aiven.CreateServiceRequest{
 		Cloud: kafka.Spec.CloudName,
-		MaintenanceWindow: &aiven.MaintenanceWindow{
-			DayOfWeek: kafka.Spec.MaintenanceWindowDow,
-			TimeOfDay: kafka.Spec.MaintenanceWindowTime,
-		},
+		MaintenanceWindow: getMaintenanceWindow(
+			kafka.Spec.MaintenanceWindowDow,
+			kafka.Spec.MaintenanceWindowTime),
 		Plan:                kafka.Spec.Plan,
 		ProjectVPCID:        prVPCID,
 		ServiceName:         kafka.Spec.ServiceName,
@@ -220,10 +219,9 @@ func (r *KafkaReconciler) updateKafkaService(kafka *k8soperatorv1alpha1.Kafka, s
 
 	s, err := r.AivenClient.Services.Update(kafka.Spec.Project, kafka.Spec.ServiceName, aiven.UpdateServiceRequest{
 		Cloud: kafka.Spec.CloudName,
-		MaintenanceWindow: &aiven.MaintenanceWindow{
-			DayOfWeek: kafka.Spec.MaintenanceWindowDow,
-			TimeOfDay: kafka.Spec.MaintenanceWindowTime,
-		},
+		MaintenanceWindow: getMaintenanceWindow(
+			kafka.Spec.MaintenanceWindowDow,
+			kafka.Spec.MaintenanceWindowTime),
 		Plan:                  kafka.Spec.Plan,
 		ProjectVPCID:          prVPCID,
 		TerminationProtection: s.TerminationProtection,

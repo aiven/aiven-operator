@@ -5,7 +5,7 @@ cluster.
 
 ## Documentation
 
-Golang >=1.15 and [Operator SDK CLI](https://sdk.operatorframework.io/docs/installation/install-operator-sdk/) >= 1.16
+Golang >=1.15 and [Operator SDK CLI](https://sdk.operatorframework.io/docs/installation/) >= 1.16
 and is a must testing on any environment.
 
 - [Testing locally using env-test](docs/test-locally.md)

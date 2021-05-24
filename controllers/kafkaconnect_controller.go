@@ -165,10 +165,9 @@ func (r *KafkaConnectReconciler) createService(kc *k8soperatorv1alpha1.KafkaConn
 
 	s, err := r.AivenClient.Services.Create(kc.Spec.Project, aiven.CreateServiceRequest{
 		Cloud: kc.Spec.CloudName,
-		MaintenanceWindow: &aiven.MaintenanceWindow{
-			DayOfWeek: kc.Spec.MaintenanceWindowDow,
-			TimeOfDay: kc.Spec.MaintenanceWindowTime,
-		},
+		MaintenanceWindow: getMaintenanceWindow(
+			kc.Spec.MaintenanceWindowDow,
+			kc.Spec.MaintenanceWindowTime),
 		Plan:                kc.Spec.Plan,
 		ProjectVPCID:        prVPCID,
 		ServiceName:         kc.Spec.ServiceName,
@@ -198,10 +197,9 @@ func (r *KafkaConnectReconciler) updateService(kc *k8soperatorv1alpha1.KafkaConn
 
 	s, err := r.AivenClient.Services.Update(kc.Spec.Project, kc.Spec.ServiceName, aiven.UpdateServiceRequest{
 		Cloud: kc.Spec.CloudName,
-		MaintenanceWindow: &aiven.MaintenanceWindow{
-			DayOfWeek: kc.Spec.MaintenanceWindowDow,
-			TimeOfDay: kc.Spec.MaintenanceWindowTime,
-		},
+		MaintenanceWindow: getMaintenanceWindow(
+			kc.Spec.MaintenanceWindowDow,
+			kc.Spec.MaintenanceWindowTime),
 		Plan:                  kc.Spec.Plan,
 		ProjectVPCID:          prVPCID,
 		TerminationProtection: s.TerminationProtection,

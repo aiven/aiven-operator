@@ -72,8 +72,8 @@ var _ = Describe("Kafka Controller", func() {
 			Expect(createdKafka.Status.State).Should(Equal("RUNNING"))
 			Expect(createdKafka.Status.Plan).Should(Equal("business-4"))
 			Expect(createdKafka.Status.CloudName).Should(Equal("google-europe-west1"))
-			Expect(createdKafka.Status.MaintenanceWindowDow).Should(Equal("monday"))
-			Expect(createdKafka.Status.MaintenanceWindowTime).Should(Equal("10:00:00"))
+			Expect(createdKafka.Status.MaintenanceWindowDow).NotTo(BeEmpty())
+			Expect(createdKafka.Status.MaintenanceWindowTime).NotTo(BeEmpty())
 		})
 	})
 
@@ -95,18 +95,16 @@ func kafkaSpec(serviceName, namespace string) *v1alpha1.Kafka {
 		},
 		Spec: v1alpha1.KafkaSpec{
 			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
-				Project:               os.Getenv("AIVEN_PROJECT_NAME"),
-				ServiceName:           serviceName,
-				Plan:                  "business-4",
-				CloudName:             "google-europe-west1",
-				MaintenanceWindowDow:  "monday",
-				MaintenanceWindowTime: "10:00:00",
+				Project:     os.Getenv("AIVEN_PROJECT_NAME"),
+				ServiceName: serviceName,
+				Plan:        "business-4",
+				CloudName:   "google-europe-west1",
 			},
 			KafkaUserConfig: v1alpha1.KafkaUserConfig{
 				KafkaRest:      boolPointer(true),
 				KafkaConnect:   boolPointer(true),
 				SchemaRegistry: boolPointer(true),
-				KafkaVersion:   "2.7",
+				KafkaVersion:   "2.8",
 				Kafka: v1alpha1.KafkaSubKafkaUserConfig{
 					GroupMaxSessionTimeoutMs: int64Pointer(70000),
 					LogRetentionBytes:        int64Pointer(1000000000),

@@ -142,3 +142,14 @@ func stringPointerToString(s *string) string {
 
 	return *s
 }
+
+func getMaintenanceWindow(dow, time string) *aiven.MaintenanceWindow {
+	if dow != "" || time != "" {
+		return &aiven.MaintenanceWindow{
+			DayOfWeek: dow,
+			TimeOfDay: time,
+		}
+	}
+
+	return nil
+}
