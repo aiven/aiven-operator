@@ -107,7 +107,7 @@ var _ = BeforeSuite(func(done Done) {
 
 	// set-up roject
 	err = (&ProjectReconciler{
-		Controller{
+		Controller: Controller{
 			Client: k8sManager.GetClient(),
 			Log:    ctrl.Log.WithName("controllers").WithName("Project"),
 			Scheme: k8sManager.GetScheme(),

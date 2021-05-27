@@ -9,13 +9,10 @@ import (
 	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 	"regexp"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 // ProjectReconciler reconciles a Project object
@@ -23,126 +20,38 @@ type ProjectReconciler struct {
 	Controller
 }
 
-const projectFinalizer = "project-finalizer.k8s-operator.aiven.io"
+// ProjectHandler handles an Aiven project
+type ProjectHandler struct {
+	Handlers
+}
 
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=projects,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=projects/status,verbs=get;update;patch
 
 func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("project", req.NamespacedName)
+	log.Info("Reconciling Aiven Project")
 
-	if err := r.InitAivenClient(req, ctx, log); err != nil {
-		return ctrl.Result{}, err
-	}
-
-	// Fetch the Project instance
+	const projectFinalizer = "project-finalize.k8s-operator.aiven.io"
 	project := &k8soperatorv1alpha1.Project{}
-	err := r.Get(ctx, req.NamespacedName, project)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			// Request object not token, could have been deleted after reconcile request.
-			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-			// Return and don't requeue
-			log.Info("Project resource not token. Ignoring since object must be deleted")
-			return ctrl.Result{}, nil
-		}
-		// Error reading the object - requeue the request.
-		log.Error(err, "Failed to get Project")
-		return ctrl.Result{}, err
-	}
-
-	// Check if the Project instance is marked to be deleted, which is
-	// indicated by the deletion timestamp being set.
-	isProjectMarkedToBeDeleted := project.GetDeletionTimestamp() != nil
-	if isProjectMarkedToBeDeleted {
-		if contains(project.GetFinalizers(), projectFinalizer) {
-			// Run finalization logic for projectFinalizer. If the
-			// finalization logic fails, don't remove the finalizer so
-			// that we can retry during the next reconciliation.
-			if err := r.finalizeProject(log, project); err != nil {
-				return reconcile.Result{}, err
-			}
-
-			// Remove projectFinalizer. Once all finalizers have been
-			// removed, the object will be deleted.
-			controllerutil.RemoveFinalizer(project, projectFinalizer)
-			err := r.Client.Update(ctx, project)
-			if err != nil {
-				return reconcile.Result{}, err
-			}
-		}
-		return reconcile.Result{}, nil
-	}
-
-	// Add finalizer for this CR
-	if !contains(project.GetFinalizers(), projectFinalizer) {
-		if err := r.addFinalizer(log, project); err != nil {
-			return reconcile.Result{}, err
-		}
-	}
-
-	// Check if project already exists on the Aiven side, create a
-	// new one if project is not found
-	_, err = r.AivenClient.Projects.Get(project.Spec.Name)
-	if err != nil {
-		// Create a new project if project does not exists and update CR status
-		if aiven.IsNotFound(err) {
-			_, err = r.createProject(project)
-			if err != nil {
-				log.Error(err, "Failed to create Project")
-				return ctrl.Result{}, err
-			}
-			return ctrl.Result{}, nil
-		}
-
-		return ctrl.Result{}, err
-	}
-
-	// Update project via API and update CR status
-	_, err = r.updateProject(project)
-	if err != nil {
-		log.Error(err, "Failed to update Project")
-		return ctrl.Result{}, err
-	}
-
-	return ctrl.Result{}, nil
+	return r.reconcileInstance(&ProjectHandler{}, ctx, log, req, project, projectFinalizer)
 }
 
-// createCACertSecret creates a CA project certificate secret
-func (r *ProjectReconciler) createCACertSecret(project *k8soperatorv1alpha1.Project) error {
-	cert, err := r.AivenClient.CA.Get(project.Status.Name)
-	if err != nil {
-		return fmt.Errorf("aiven client error %w", err)
-	}
-
-	secret := &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s%s", project.Name, "-ca-cert"),
-			Namespace: project.Namespace,
-			Labels: map[string]string{
-				"app": project.Name,
-			},
-		},
-		StringData: map[string]string{
-			"cert": cert,
-		},
-	}
-	err = r.Client.Create(context.TODO(), secret)
-	if err != nil {
-		return fmt.Errorf("k8s client create error %w", err)
-	}
-
-	// Set Project instance as the owner and controller
-	err = controllerutil.SetControllerReference(project, secret, r.Scheme)
-	if err != nil {
-		return fmt.Errorf("k8s set controller error %w", err)
-	}
-
-	return nil
+func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	return ctrl.NewControllerManagedBy(mgr).
+		For(&k8soperatorv1alpha1.Project{}).
+		Complete(r)
 }
 
-// createProject creates a project on Aiven side
-func (r *ProjectReconciler) createProject(project *k8soperatorv1alpha1.Project) (*aiven.Project, error) {
+// create creates a project on Aiven side
+func (h *ProjectHandler) create(log logr.Logger, i client.Object) (client.Object, error) {
+	project, err := h.convert(i)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Info("Creating a new project")
+
 	var billingEmails *[]*aiven.ContactEmail
 	if len(project.Spec.BillingEmails) > 0 {
 		billingEmails = aiven.ContactEmailFromStringSlice(project.Spec.BillingEmails)
@@ -153,7 +62,7 @@ func (r *ProjectReconciler) createProject(project *k8soperatorv1alpha1.Project) 
 		technicalEmails = aiven.ContactEmailFromStringSlice(project.Spec.TechnicalEmails)
 	}
 
-	p, err := r.AivenClient.Projects.Create(aiven.CreateProjectRequest{
+	p, err := aivenClient.Projects.Create(aiven.CreateProjectRequest{
 		BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
 		BillingEmails:    billingEmails,
 		BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
@@ -167,62 +76,15 @@ func (r *ProjectReconciler) createProject(project *k8soperatorv1alpha1.Project) 
 		BillingCurrency:  project.Spec.BillingCurrency,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create Project on Aiven side: %w", err)
 	}
 
-	// Update project custom resource status
-	err = r.updateCRStatus(project, p)
-	if err != nil {
-		return nil, fmt.Errorf("failed to update Project status: %w", err)
-	}
+	h.setStatus(project, p)
 
-	// Get CA Certificate of a newly created project and save it as K8s secret
-	err = r.createCACertSecret(project)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create Project CA Secret: %w", err)
-	}
-
-	return p, err
+	return project, nil
 }
 
-// updateProject updates a project on Aiven side
-func (r *ProjectReconciler) updateProject(project *k8soperatorv1alpha1.Project) (*aiven.Project, error) {
-	var billingEmails *[]*aiven.ContactEmail
-	if len(project.Spec.BillingEmails) > 0 {
-		billingEmails = aiven.ContactEmailFromStringSlice(project.Spec.BillingEmails)
-	}
-
-	var technicalEmails *[]*aiven.ContactEmail
-	if len(project.Spec.TechnicalEmails) > 0 {
-		technicalEmails = aiven.ContactEmailFromStringSlice(project.Spec.TechnicalEmails)
-	}
-
-	p, err := r.AivenClient.Projects.Update(project.Spec.Name, aiven.UpdateProjectRequest{
-		BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
-		BillingEmails:    billingEmails,
-		BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
-		CardID:           toOptionalStringPointer(project.Spec.CardId),
-		Cloud:            toOptionalStringPointer(project.Spec.Cloud),
-		CountryCode:      toOptionalStringPointer(project.Spec.CountryCode),
-		AccountId:        toOptionalStringPointer(project.Spec.AccountId),
-		TechnicalEmails:  technicalEmails,
-		BillingCurrency:  project.Spec.BillingCurrency,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	// Update project custom resource status
-	err = r.updateCRStatus(project, p)
-	if err != nil {
-		return nil, fmt.Errorf("failed to update Project status: %w", err)
-	}
-
-	return p, err
-}
-
-// updateCRStatus updates Kubernetes Custom Resource status
-func (r *ProjectReconciler) updateCRStatus(project *k8soperatorv1alpha1.Project, p *aiven.Project) error {
+func (*ProjectHandler) setStatus(project *k8soperatorv1alpha1.Project, p *aiven.Project) {
 	project.Status.Name = p.Name
 	project.Status.AccountId = p.AccountId
 	project.Status.BillingAddress = p.BillingAddress
@@ -235,35 +97,102 @@ func (r *ProjectReconciler) updateCRStatus(project *k8soperatorv1alpha1.Project,
 	project.Status.VatId = p.VatID
 	project.Status.CopyFromProject = p.CopyFromProject
 	project.Status.BillingCurrency = p.BillingCurrency
+}
 
-	err := r.Status().Update(context.Background(), project)
+func (h *ProjectHandler) getSecret(log logr.Logger, i client.Object) (*corev1.Secret, error) {
+	project, err := h.convert(i)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
-}
+	log.Info("Creating a Project secret with CA certificate")
 
-func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&k8soperatorv1alpha1.Project{}).
-		Complete(r)
-}
-
-// finalizeProject deletes Aiven project
-func (r *ProjectReconciler) finalizeProject(log logr.Logger, p *k8soperatorv1alpha1.Project) error {
-	// Check if secret exists and delete if it is
-	secret := &corev1.Secret{}
-	err := r.Get(context.Background(), types.NamespacedName{Name: fmt.Sprintf("%s%s", p.Name, "-ca-cert"), Namespace: p.Namespace}, secret)
-	if err == nil {
-		err = r.Client.Delete(context.Background(), secret)
-		if err != nil {
-			return fmt.Errorf("delete project secret error: %w", err)
-		}
+	cert, err := aivenClient.CA.Get(project.Status.Name)
+	if err != nil {
+		return nil, fmt.Errorf("aiven client error %w", err)
 	}
+
+	return &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s%s", project.Name, "-ca-cert"),
+			Namespace: project.Namespace,
+			Labels: map[string]string{
+				"app": project.Name,
+			},
+		},
+		StringData: map[string]string{
+			"cert": cert,
+		},
+	}, nil
+}
+
+// update updates a project on Aiven side
+func (h *ProjectHandler) update(log logr.Logger, i client.Object) (client.Object, error) {
+	project, err := h.convert(i)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Info("Updating Project")
+
+	var billingEmails *[]*aiven.ContactEmail
+	if len(project.Spec.BillingEmails) > 0 {
+		billingEmails = aiven.ContactEmailFromStringSlice(project.Spec.BillingEmails)
+	}
+
+	var technicalEmails *[]*aiven.ContactEmail
+	if len(project.Spec.TechnicalEmails) > 0 {
+		technicalEmails = aiven.ContactEmailFromStringSlice(project.Spec.TechnicalEmails)
+	}
+
+	p, err := aivenClient.Projects.Update(project.Spec.Name, aiven.UpdateProjectRequest{
+		BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
+		BillingEmails:    billingEmails,
+		BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
+		CardID:           toOptionalStringPointer(project.Spec.CardId),
+		Cloud:            toOptionalStringPointer(project.Spec.Cloud),
+		CountryCode:      toOptionalStringPointer(project.Spec.CountryCode),
+		AccountId:        toOptionalStringPointer(project.Spec.AccountId),
+		TechnicalEmails:  technicalEmails,
+		BillingCurrency:  project.Spec.BillingCurrency,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to update Project on Aiven side: %w", err)
+	}
+
+	h.setStatus(project, p)
+
+	return project, nil
+}
+
+// exists checks if project already exists on Aiven side
+func (h *ProjectHandler) exists(log logr.Logger, i client.Object) (bool, error) {
+	project, err := h.convert(i)
+	if err != nil {
+		return false, err
+	}
+
+	log.Info("Checking if project exists")
+
+	pr, err := aivenClient.Projects.Get(project.Spec.Name)
+	if aiven.IsNotFound(err) {
+		return false, nil
+	}
+
+	return pr != nil, err
+}
+
+// delete deletes Aiven project
+func (h *ProjectHandler) delete(log logr.Logger, i client.Object) (client.Object, bool, error) {
+	project, err := h.convert(i)
+	if err != nil {
+		return nil, false, err
+	}
+
+	log.Info("Finalizing project")
 
 	// Delete project on Aiven side
-	if err := r.AivenClient.Projects.Delete(p.Spec.Name); err != nil {
+	if err := aivenClient.Projects.Delete(project.Spec.Name); err != nil {
 		var skip bool
 
 		// If project not found then there is nothing to delete
@@ -281,24 +210,32 @@ func (r *ProjectReconciler) finalizeProject(log logr.Logger, p *k8soperatorv1alp
 
 		if !skip {
 			log.Error(err, "Cannot delete Aiven project")
-			return fmt.Errorf("aiven client delete project error: %w", err)
+			return nil, false, fmt.Errorf("aiven client delete project error: %w", err)
 		}
 	}
 
-	log.Info("Successfully finalized project")
-	return nil
+	log.Info("Successfully finalized project on Aiven side")
+	return &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s%s", project.Name, "-ca-cert"),
+			Namespace: project.Namespace,
+		},
+	}, true, nil
 }
 
-// addFinalizer add finalizer to CR
-func (r *ProjectReconciler) addFinalizer(reqLogger logr.Logger, p *k8soperatorv1alpha1.Project) error {
-	reqLogger.Info("Adding Finalizer for the Project")
-	controllerutil.AddFinalizer(p, projectFinalizer)
-
-	// Update CR
-	err := r.Client.Update(context.Background(), p)
-	if err != nil {
-		reqLogger.Error(err, "Failed to update Project with finalizer")
-		return err
+func (h *ProjectHandler) convert(i client.Object) (*k8soperatorv1alpha1.Project, error) {
+	p, ok := i.(*k8soperatorv1alpha1.Project)
+	if !ok {
+		return nil, fmt.Errorf("cannot convert object to project")
 	}
-	return nil
+
+	return p, nil
+}
+
+func (h *ProjectHandler) isActive(logr.Logger, client.Object) (bool, error) {
+	return true, nil
+}
+
+func (h *ProjectHandler) checkPreconditions(logr.Logger, client.Object) bool {
+	return true
 }
