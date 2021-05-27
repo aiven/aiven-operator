@@ -32,36 +32,37 @@ type (
 	// It intended to be a layer between Kubernetes and Aiven API that handles all aspects
 	// of the Aiven services lifecycle.
 	Handlers interface {
-		// create creates an instance on the Aiven side.
-		// If entity already exists it should not error, but if it impossible to create it by
-		// any other reason it should return an error
+		// create an instance on the Aiven side.
+		// If the entity already exists, it should not be an error, but if it impossible to create it by any
+		// other reason, it should return an error
 		create(logr.Logger, client.Object) (createdObj client.Object, error error)
 
-		// delete remove an instance on Aiven side.
-		// If an object already deleted and cannot be found, it should not error. Otherwise, retrieve an error.
-		// For example, if there is a secret associated with an instance, it should retrieve it to be deleted
-		// by controller. When deletion requires multiple runs, the bool parameter 'isDeleted' should be
-		// false and only when an entity was successfully deleted on the Aiven side should it be true.
+		// remove an instance on Aiven side.
+		// If an object is already deleted and cannot be found, it should not be an error. For other deletion
+		// errors, return an error.
+		// The return value is any other object that should be deleted along with this one.  For example, if
+		// there is a secret associated with an instance, it should return it to have it deleted by controller.
+		// When deletion requires further runs, the bool parameter 'isDeleted' should be false and only when an
+		// entity was successfully deleted on the Aiven side should it be true.
 		delete(logr.Logger, client.Object) (objToBeDeleted client.Object, isDeleted bool, error error)
 
-		// exists checks if an instance already exists on the Aiven side. It should return true if it does
-		// exist and false when it does not.
+		// checks if an instance already exists on the Aiven side.
 		exists(logr.Logger, client.Object) (exists bool, error error)
 
-		// update updates an instance on the Aiven side, assuming it was previously created.
+		// update an instance on the Aiven side, assuming it was previously created.
+		// Should return the updated object, if the update was successful.
 		update(logr.Logger, client.Object) (updatedObj client.Object, error error)
 
-		// getSecret retrieves a secret that is generated on the fly based on data from Aiven API.
-		// When not applicable to service, it should return nil.
+		// retrieve a secret (for example, connection credentials) that is generated on the fly based on data
+		// from Aiven API.  When not applicable to service, it should return nil.
 		getSecret(logr.Logger, client.Object) (secret *corev1.Secret, error error)
 
-		// checkPreconditions checks whether all preconditions are met for an Aiven service to be handled
-		// further down the road. For example, it is applicable when one instance is dependent on other to
-		// be created upfront. Or parent instance is in the transition state.
+		// check whether all preconditions for creating (or updating) the resource are in place.
+		// For example, it is applicable when a service needs to be running before this resource can be created.
 		checkPreconditions(logr.Logger, client.Object) bool
 
-		// isActive checks if an instance is Active on the Aiven side. Applicable for services that have
-		// multiple states and in transition. When a service reaches a target state, return true.
+		// checks if an instance is ready for use on the Aiven side. Applicable for services that have multiple
+		// states and start in a transition state. When a service reaches a target state, return true.
 		isActive(logr.Logger, client.Object) (bool, error)
 	}
 )
@@ -104,7 +105,7 @@ func (c *Controller) reconcileInstance(h Handlers, ctx context.Context, log logr
 			// When applicable, it retrieves an associated object that
 			// has to be deleted from Kubernetes, and it could be a
 			// secret associated with an instance.
-			objToBeDeleted, finalised, err := h.delete(log, o)
+			associatedObjToBeDeleted, finalised, err := h.delete(log, o)
 			if err != nil {
 				return ctrl.Result{}, err
 			}
@@ -117,9 +118,9 @@ func (c *Controller) reconcileInstance(h Handlers, ctx context.Context, log logr
 				}, nil
 			}
 
-			// Delete a K8s object if handler finalized things on Aiven side
-			if objToBeDeleted != nil {
-				if err := c.Delete(ctx, objToBeDeleted); err != nil {
+			// Delete a K8s secret if handler finalized things on Aiven side
+			if associatedObjToBeDeleted != nil {
+				if err := c.Delete(ctx, associatedObjToBeDeleted); err != nil {
 					return ctrl.Result{}, fmt.Errorf("cannot delete object: %w", err)
 				}
 			}
@@ -188,7 +189,7 @@ func (c *Controller) reconcileInstance(h Handlers, ctx context.Context, log logr
 		return ctrl.Result{}, err
 	}
 
-	// If instance is not active wait and try again
+	// If instance is not yet active wait and try again
 	if !isActive {
 		return ctrl.Result{
 			Requeue:      true,
@@ -202,7 +203,7 @@ func (c *Controller) reconcileInstance(h Handlers, ctx context.Context, log logr
 		return ctrl.Result{}, err
 	}
 
-	if obj != nil { // If update functionality is available
+	if obj != nil { // If object was updated
 		// Updating a secret if available
 		s, err := h.getSecret(log, o)
 		if err != nil {
