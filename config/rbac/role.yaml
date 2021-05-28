@@ -256,8 +256,6 @@ rules:
   - delete
   - get
   - list
-  - patch
-  - update
   - watch
 - apiGroups:
   - k8s-operator.aiven.io
@@ -265,5 +263,3 @@ rules:
   - serviceusers/status
   verbs:
   - get
-  - patch
-  - update
