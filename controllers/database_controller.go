@@ -18,6 +18,7 @@ type DatabaseReconciler struct {
 	Controller
 }
 
+// DatabaseHandler handles an Aiven Database
 type DatabaseHandler struct {
 	Handlers
 }
@@ -40,7 +41,7 @@ func (r *DatabaseReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h *DatabaseHandler) create(log logr.Logger, i client.Object) (client.Object, error) {
+func (h DatabaseHandler) create(log logr.Logger, i client.Object) (client.Object, error) {
 	db, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -62,20 +63,26 @@ func (h *DatabaseHandler) create(log logr.Logger, i client.Object) (client.Objec
 	return db, nil
 }
 
-func (h *DatabaseHandler) delete(log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h DatabaseHandler) delete(log logr.Logger, i client.Object) (client.Object, bool, error) {
 	db, err := h.convert(i)
 	if err != nil {
 		return nil, false, err
 	}
 
-	log.Info("Successfully finalized Database on Aiven side")
-	return nil, true, aivenClient.Databases.Delete(
+	err = aivenClient.Databases.Delete(
 		db.Status.Project,
 		db.Status.ServiceName,
 		db.Status.DatabaseName)
+	if !aiven.IsNotFound(err) {
+		return nil, false, err
+	}
+
+	log.Info("Successfully finalized Database on Aiven side")
+
+	return nil, true, nil
 }
 
-func (h *DatabaseHandler) exists(log logr.Logger, i client.Object) (bool, error) {
+func (h DatabaseHandler) exists(log logr.Logger, i client.Object) (bool, error) {
 	db, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -91,39 +98,40 @@ func (h *DatabaseHandler) exists(log logr.Logger, i client.Object) (bool, error)
 	return d != nil, nil
 }
 
-func (h *DatabaseHandler) update(log logr.Logger, _ client.Object) (client.Object, error) {
+func (h DatabaseHandler) update(log logr.Logger, _ client.Object) (client.Object, error) {
 	log.Info("Aiven Database cannot be updated, skipping update handler")
 	return nil, nil
 }
 
-func (h *DatabaseHandler) getSecret(log logr.Logger, _ client.Object) (*corev1.Secret, error) {
+func (h DatabaseHandler) getSecret(log logr.Logger, _ client.Object) (*corev1.Secret, error) {
 	log.Info("Aiven Database has no secrets, skipping this handler")
 	return nil, nil
 }
 
-func (h *DatabaseHandler) checkPreconditions(log logr.Logger, i client.Object) bool {
+func (h DatabaseHandler) checkPreconditions(log logr.Logger, i client.Object) bool {
 	db, err := h.convert(i)
 	if err != nil {
 		return false
 	}
 
 	log.Info("Checking Database preconditions")
+	return checkServiceIsRunning(db.Spec.Project, db.Spec.ServiceName)
+}
 
-	s, err := aivenClient.Services.Get(db.Spec.Project, db.Spec.ServiceName)
+func checkServiceIsRunning(project, serviceName string) bool {
+	s, err := aivenClient.Services.Get(project, serviceName)
 	if err != nil {
 		return false
 	}
 
-	log.Info("Checking is parent service is RUNNING, current state: " + s.State)
-
 	return s.State == "RUNNING"
 }
 
-func (h *DatabaseHandler) isActive(logr.Logger, client.Object) (bool, error) {
+func (h DatabaseHandler) isActive(logr.Logger, client.Object) (bool, error) {
 	return true, nil
 }
 
-func (h *DatabaseHandler) setStatus(db *k8soperatorv1alpha1.Database, d *aiven.Database) {
+func (h DatabaseHandler) setStatus(db *k8soperatorv1alpha1.Database, d *aiven.Database) {
 	db.Status.DatabaseName = d.DatabaseName
 	db.Status.LcCollate = d.LcCollate
 	db.Status.LcType = d.LcType
@@ -131,7 +139,7 @@ func (h *DatabaseHandler) setStatus(db *k8soperatorv1alpha1.Database, d *aiven.D
 	db.Status.ServiceName = db.Spec.ServiceName
 }
 
-func (h *DatabaseHandler) convert(i client.Object) (*k8soperatorv1alpha1.Database, error) {
+func (h DatabaseHandler) convert(i client.Object) (*k8soperatorv1alpha1.Database, error) {
 	db, ok := i.(*k8soperatorv1alpha1.Database)
 	if !ok {
 		return nil, fmt.Errorf("cannot convert object to Database")
