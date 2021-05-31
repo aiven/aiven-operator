@@ -8,11 +8,6 @@ import (
 
 // ProjectSpec defines the desired state of Project
 type ProjectSpec struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// Project name
-	Name string `json:"name"`
-
 	// +kubebuilder:validation:MaxLength=64
 	// Credit card ID
 	CardId string `json:"card_id,omitempty"`

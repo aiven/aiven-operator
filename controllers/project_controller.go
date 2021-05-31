@@ -70,7 +70,7 @@ func (h ProjectHandler) create(log logr.Logger, i client.Object) (client.Object,
 		Cloud:            toOptionalStringPointer(project.Spec.Cloud),
 		CopyFromProject:  project.Spec.CopyFromProject,
 		CountryCode:      toOptionalStringPointer(project.Spec.CountryCode),
-		Project:          project.Spec.Name,
+		Project:          project.Name,
 		AccountId:        toOptionalStringPointer(project.Spec.AccountId),
 		TechnicalEmails:  technicalEmails,
 		BillingCurrency:  project.Spec.BillingCurrency,
@@ -85,7 +85,6 @@ func (h ProjectHandler) create(log logr.Logger, i client.Object) (client.Object,
 }
 
 func (*ProjectHandler) setStatus(project *k8soperatorv1alpha1.Project, p *aiven.Project) {
-	project.Status.Name = p.Name
 	project.Status.AccountId = p.AccountId
 	project.Status.BillingAddress = p.BillingAddress
 	project.Status.BillingEmails = p.GetBillingEmailsAsStringSlice()
@@ -97,6 +96,7 @@ func (*ProjectHandler) setStatus(project *k8soperatorv1alpha1.Project, p *aiven.
 	project.Status.VatId = p.VatID
 	project.Status.CopyFromProject = p.CopyFromProject
 	project.Status.BillingCurrency = p.BillingCurrency
+	project.Status.EstimatedBalance = p.EstimatedBalance
 }
 
 func (h ProjectHandler) getSecret(log logr.Logger, i client.Object) (*corev1.Secret, error) {
@@ -107,7 +107,7 @@ func (h ProjectHandler) getSecret(log logr.Logger, i client.Object) (*corev1.Sec
 
 	log.Info("Creating a Project secret with CA certificate")
 
-	cert, err := aivenClient.CA.Get(project.Status.Name)
+	cert, err := aivenClient.CA.Get(project.Name)
 	if err != nil {
 		return nil, fmt.Errorf("aiven client error %w", err)
 	}
@@ -145,7 +145,7 @@ func (h ProjectHandler) update(log logr.Logger, i client.Object) (client.Object,
 		technicalEmails = aiven.ContactEmailFromStringSlice(project.Spec.TechnicalEmails)
 	}
 
-	p, err := aivenClient.Projects.Update(project.Spec.Name, aiven.UpdateProjectRequest{
+	p, err := aivenClient.Projects.Update(project.Name, aiven.UpdateProjectRequest{
 		BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
 		BillingEmails:    billingEmails,
 		BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
@@ -174,7 +174,7 @@ func (h ProjectHandler) exists(log logr.Logger, i client.Object) (bool, error) {
 
 	log.Info("Checking if project exists")
 
-	pr, err := aivenClient.Projects.Get(project.Spec.Name)
+	pr, err := aivenClient.Projects.Get(project.Name)
 	if aiven.IsNotFound(err) {
 		return false, nil
 	}
@@ -192,7 +192,7 @@ func (h ProjectHandler) delete(log logr.Logger, i client.Object) (client.Object,
 	log.Info("Finalizing project")
 
 	// Delete project on Aiven side
-	if err := aivenClient.Projects.Delete(project.Spec.Name); err != nil {
+	if err := aivenClient.Projects.Delete(project.Name); err != nil {
 		var skip bool
 
 		// If project not found then there is nothing to delete

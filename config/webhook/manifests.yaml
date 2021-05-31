@@ -6,14 +6,15 @@ metadata:
   creationTimestamp: null
   name: mutating-webhook-configuration
 webhooks:
-- clientConfig:
-    caBundle: Cg==
+- admissionReviewVersions:
+  - v1
+  clientConfig:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-k8s-operator-aiven-io-v1alpha1-pg
+      path: /mutate-k8s-operator-aiven-io-v1alpha1-project
   failurePolicy: Fail
-  name: mpg.kb.io
+  name: mproject.kb.io
   rules:
   - apiGroups:
     - k8s-operator.aiven.io
@@ -23,25 +24,8 @@ webhooks:
     - CREATE
     - UPDATE
     resources:
-    - pgs
-- clientConfig:
-    caBundle: Cg==
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-k8s-operator-aiven-io-aiven-io-v1alpha1-project
-  failurePolicy: Fail
-  name: mproject.kb.io
-  rules:
-  - apiGroups:
-    - k8s-operator.aiven.io.aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
     - projects
+  sideEffects: None
 
 ---
 apiVersion: admissionregistration.k8s.io/v1
@@ -50,14 +34,15 @@ metadata:
   creationTimestamp: null
   name: validating-webhook-configuration
 webhooks:
-- clientConfig:
-    caBundle: Cg==
+- admissionReviewVersions:
+  - v1
+  clientConfig:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-k8s-operator-aiven-io-v1alpha1-pg
+      path: /validate-k8s-operator-aiven-io-v1alpha1-project
   failurePolicy: Fail
-  name: vpg.kb.io
+  name: vproject.kb.io
   rules:
   - apiGroups:
     - k8s-operator.aiven.io
@@ -66,23 +51,7 @@ webhooks:
     operations:
     - CREATE
     - UPDATE
-    resources:
-    - pgs
-- clientConfig:
-    caBundle: Cg==
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-k8s-operator-aiven-io-aiven-io-v1alpha1-project
-  failurePolicy: Fail
-  name: vproject.kb.io
-  rules:
-  - apiGroups:
-    - k8s-operator.aiven.io.aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
+    - DELETE
     resources:
     - projects
+  sideEffects: None
