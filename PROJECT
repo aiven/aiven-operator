@@ -14,6 +14,13 @@ resources:
   controller: true
   domain: aiven.io
   group: k8s-operator
+  kind: PG
+  path: github.com/aiven/aiven-k8s-operator/api/v1alpha1
+  version: v1alpha1
+-
+  controller: true
+  domain: aiven.io
+  group: k8s-operator
   kind: ConnectionPool
   path: github.com/aiven/aiven-k8s-operator/api/v1alpha1
   version: v1alpha1
