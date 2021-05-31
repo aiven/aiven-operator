@@ -50,7 +50,7 @@ func (h PGHandler) exists(log logr.Logger, i client.Object) (bool, error) {
 
 	log.Info("Checking if PG service already exists")
 
-	s, err := aivenClient.Services.Get(pg.Spec.Project, pg.Spec.ServiceName)
+	s, err := aivenClient.Services.Get(pg.Spec.Project, pg.Name)
 	if aiven.IsNotFound(err) {
 		return false, nil
 	}
@@ -79,7 +79,7 @@ func (h PGHandler) create(log logr.Logger, i client.Object) (client.Object, erro
 			pg.Spec.MaintenanceWindowTime),
 		Plan:                pg.Spec.Plan,
 		ProjectVPCID:        prVPCID,
-		ServiceName:         pg.Spec.ServiceName,
+		ServiceName:         pg.Name,
 		ServiceType:         "pg",
 		UserConfig:          UserConfigurationToAPI(pg.Spec.PGUserConfig).(map[string]interface{}),
 		ServiceIntegrations: nil,
@@ -107,7 +107,7 @@ func (h PGHandler) update(log logr.Logger, i client.Object) (client.Object, erro
 		prVPCID = &pg.Spec.ProjectVPCID
 	}
 
-	s, err := aivenClient.Services.Update(pg.Spec.Project, pg.Spec.ServiceName, aiven.UpdateServiceRequest{
+	s, err := aivenClient.Services.Update(pg.Spec.Project, pg.Name, aiven.UpdateServiceRequest{
 		Cloud: pg.Spec.CloudName,
 		MaintenanceWindow: getMaintenanceWindow(
 			pg.Spec.MaintenanceWindowDow,
@@ -151,7 +151,7 @@ func (h PGHandler) delete(log logr.Logger, i client.Object) (client.Object, bool
 	}
 
 	// Delete PG on Aiven side
-	if err := aivenClient.Services.Delete(pg.Spec.Project, pg.Spec.ServiceName); err != nil {
+	if err := aivenClient.Services.Delete(pg.Spec.Project, pg.Name); err != nil {
 		if !aiven.IsNotFound(err) {
 			log.Error(err, "Cannot delete Aiven PG service")
 			return nil, false, fmt.Errorf("aiven client delete PG error: %w", err)
@@ -176,7 +176,7 @@ func (h PGHandler) getSecret(log logr.Logger, i client.Object) (*corev1.Secret, 
 
 	log.Info("Getting PG secret")
 
-	s, err := aivenClient.Services.Get(pg.Spec.Project, pg.Spec.ServiceName)
+	s, err := aivenClient.Services.Get(pg.Spec.Project, pg.Name)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get PG: %w", err)
 	}

@@ -186,8 +186,13 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "ServiceIntegration")
 		os.Exit(1)
 	}
+
 	if err = (&k8soperatorv1alpha1.Project{}).SetupWebhookWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create webhook", "webhook", "Project")
+		os.Exit(1)
+	}
+	if err = (&k8soperatorv1alpha1.PG{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook", "webhook", "PG")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder

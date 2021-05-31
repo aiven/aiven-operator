@@ -14,7 +14,7 @@ type ServiceCommonSpec struct {
 
 	// +kubebuilder:validation:MaxLength=63
 	// Service name.
-	ServiceName string `json:"service_name"`
+	ServiceName string `json:"service_name,omitempty"` //TODO: remove it in the future
 
 	// +kubebuilder:validation:MaxLength=128
 	// Subscription plan.
@@ -35,6 +35,8 @@ type ServiceCommonSpec struct {
 	// +kubebuilder:validation:MaxLength=8
 	// Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
 	MaintenanceWindowTime string `json:"maintenance_window_time,omitempty"`
+
+	TerminationProtection bool `json:"termination_protection,omitempty"`
 }
 
 // PGSpec defines the desired state of PG

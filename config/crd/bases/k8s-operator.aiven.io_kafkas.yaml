@@ -619,9 +619,10 @@ spec:
                 description: Service name.
                 maxLength: 63
                 type: string
+              termination_protection:
+                type: boolean
             required:
             - project
-            - service_name
             type: object
           status:
             description: KafkaStatus defines the observed state of Kafka
@@ -1212,9 +1213,10 @@ spec:
               state:
                 description: Service state
                 type: string
+              termination_protection:
+                type: boolean
             required:
             - project
-            - service_name
             - state
             type: object
         type: object

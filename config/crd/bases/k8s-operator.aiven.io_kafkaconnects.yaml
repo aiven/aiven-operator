@@ -166,9 +166,10 @@ spec:
                 description: Service name.
                 maxLength: 63
                 type: string
+              termination_protection:
+                type: boolean
             required:
             - project
-            - service_name
             type: object
           status:
             description: KafkaConnectStatus defines the observed state of KafkaConnect
@@ -306,9 +307,10 @@ spec:
               state:
                 description: Service state
                 type: string
+              termination_protection:
+                type: boolean
             required:
             - project
-            - service_name
             type: object
         type: object
     served: true
