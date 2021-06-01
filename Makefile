@@ -195,3 +195,13 @@ catalog-build: opm ## Build a catalog image.
 .PHONY: catalog-push
 catalog-push: ## Push a catalog image.
 	$(MAKE) docker-push IMG=$(CATALOG_IMG)
+
+.PHONY: install-cert-manager ## Deploy cert-manager to the cluster
+install-cert-manager:
+	helm repo add jetstack https://charts.jetstack.io
+	helm install \
+	  cert-manager jetstack/cert-manager \
+	  --namespace cert-manager \
+	  --create-namespace \
+	  --version v1.3.1 \
+	  --set installCRDs=true

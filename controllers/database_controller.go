@@ -81,11 +81,6 @@ func (h DatabaseHandler) delete(log logr.Logger, i client.Object) (client.Object
 	return nil, true, nil
 }
 
-	log.Info("Successfully finalized Database on Aiven side")
-
-	return nil, true, nil
-}
-
 func (h DatabaseHandler) exists(log logr.Logger, i client.Object) (bool, error) {
 	db, err := h.convert(i)
 	if err != nil {

@@ -207,7 +207,7 @@ func (h PGHandler) isActive(log logr.Logger, i client.Object) (bool, error) {
 
 	log.Info("Checking if PG service is active")
 
-	return checkServiceIsRunning(pg.Spec.Project, pg.Spec.ServiceName), nil
+	return checkServiceIsRunning(pg.Spec.Project, pg.Name), nil
 }
 
 func (h PGHandler) convert(i client.Object) (*k8soperatorv1alpha1.PG, error) {

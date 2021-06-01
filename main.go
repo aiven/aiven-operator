@@ -187,17 +187,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&k8soperatorv1alpha1.Project{}).SetupWebhookWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create webhook", "webhook", "Project")
-		os.Exit(1)
-	}
-	if err = (&k8soperatorv1alpha1.PG{}).SetupWebhookWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create webhook", "webhook", "PG")
-		os.Exit(1)
-	}
-	if err = (&k8soperatorv1alpha1.Database{}).SetupWebhookWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create webhook", "webhook", "Database")
-		os.Exit(1)
+	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
+		if err = (&k8soperatorv1alpha1.Project{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Project")
+			os.Exit(1)
+		}
+		if err = (&k8soperatorv1alpha1.PG{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "PG")
+			os.Exit(1)
+		}
+		if err = (&k8soperatorv1alpha1.Database{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Database")
+			os.Exit(1)
+		}
 	}
 	// +kubebuilder:scaffold:builder
 

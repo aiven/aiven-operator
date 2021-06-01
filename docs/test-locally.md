@@ -40,3 +40,10 @@ make run ENABLE_WEBHOOKS=false
 Aiven customer resource. It is useful to have it running in a separate terminal for monitoring.
 
 Looks for example of usage here: [config/samples folder](../config/samples)
+
+To run it with the web-hooks:
+```shell script
+make install-cert-manager # install cert manager to the cluster 
+make docker-build docker-push IMG="example.com/aiven-operator:v0.0.1"         
+make deploy IMG="example.com/aiven-operator:v0.0.1"
+```
