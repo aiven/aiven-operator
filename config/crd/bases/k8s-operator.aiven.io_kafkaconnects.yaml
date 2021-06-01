@@ -167,6 +167,8 @@ spec:
                 maxLength: 63
                 type: string
               termination_protection:
+                description: Prevent service from being deleted. It is recommended
+                  to have this enabled for all services.
                 type: boolean
             required:
             - project
@@ -308,6 +310,8 @@ spec:
                 description: Service state
                 type: string
               termination_protection:
+                description: Prevent service from being deleted. It is recommended
+                  to have this enabled for all services.
                 type: boolean
             required:
             - project

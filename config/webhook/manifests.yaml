@@ -12,6 +12,26 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
+      path: /mutate-k8s-operator-aiven-io-v1alpha1-database
+  failurePolicy: Fail
+  name: mdatabase.kb.io
+  rules:
+  - apiGroups:
+    - k8s-operator.aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - databases
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
       path: /mutate-k8s-operator-aiven-io-v1alpha1-pg
   failurePolicy: Fail
   name: mpg.kb.io
@@ -54,6 +74,27 @@ metadata:
   creationTimestamp: null
   name: validating-webhook-configuration
 webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-k8s-operator-aiven-io-v1alpha1-database
+  failurePolicy: Fail
+  name: vdatabase.kb.io
+  rules:
+  - apiGroups:
+    - k8s-operator.aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - databases
+  sideEffects: None
 - admissionReviewVersions:
   - v1
   clientConfig:

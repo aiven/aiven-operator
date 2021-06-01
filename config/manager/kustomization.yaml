@@ -5,4 +5,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: eu.gcr.io/integral-magnet-301414/aiven-operator
-  newTag: v30
+  newTag: v32

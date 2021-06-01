@@ -3,7 +3,6 @@ kind: PG
 metadata:
   name: pg-sample
 spec:
-  service_name: pg-sample
   project: dev-sandbox
   cloud_name: google-europe-west1
   plan: startup-4

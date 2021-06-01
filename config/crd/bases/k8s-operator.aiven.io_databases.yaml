@@ -36,10 +36,6 @@ spec:
           spec:
             description: DatabaseSpec defines the desired state of Database
             properties:
-              database_name:
-                description: Service database name
-                maxLength: 40
-                type: string
               lc_collate:
                 description: 'Default string sort order (LC_COLLATE) of the database.
                   Default value: en_US.UTF-8'
@@ -59,20 +55,19 @@ spec:
                 description: PostgreSQL service to link the database to
                 maxLength: 63
                 type: string
+              termination_protection:
+                description: It is a Kubernetes side deletion protections, which prevents
+                  the database from being deleted by Kubernetes. It is recommended
+                  to enable this for any production databases containing critical
+                  data.
+                type: boolean
             required:
-            - database_name
-            - lc_collate
-            - lc_ctype
             - project
             - service_name
             type: object
           status:
             description: DatabaseStatus defines the observed state of Database
             properties:
-              database_name:
-                description: Service database name
-                maxLength: 40
-                type: string
               lc_collate:
                 description: 'Default string sort order (LC_COLLATE) of the database.
                   Default value: en_US.UTF-8'
@@ -92,10 +87,13 @@ spec:
                 description: PostgreSQL service to link the database to
                 maxLength: 63
                 type: string
+              termination_protection:
+                description: It is a Kubernetes side deletion protections, which prevents
+                  the database from being deleted by Kubernetes. It is recommended
+                  to enable this for any production databases containing critical
+                  data.
+                type: boolean
             required:
-            - database_name
-            - lc_collate
-            - lc_ctype
             - project
             - service_name
             type: object

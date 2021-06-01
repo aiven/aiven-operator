@@ -36,6 +36,7 @@ type ServiceCommonSpec struct {
 	// Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
 	MaintenanceWindowTime string `json:"maintenance_window_time,omitempty"`
 
+	// Prevent service from being deleted. It is recommended to have this enabled for all services.
 	TerminationProtection bool `json:"termination_protection,omitempty"`
 }
 
