@@ -56,7 +56,7 @@ func (h KafkaACLHandler) create(_ logr.Logger, i client.Object) (client.Object, 
 			Username:   acl.Spec.Username,
 		},
 	)
-	if err != nil {
+	if err != nil && !aiven.IsAlreadyExists(err) {
 		return nil, err
 	}
 
