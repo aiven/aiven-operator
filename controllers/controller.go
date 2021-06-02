@@ -258,6 +258,8 @@ func (c *Controller) InitAivenClient(req ctrl.Request, ctx context.Context, log 
 
 	c.AivenClient = aivenClient //TODO: remove it, left here for backwards compatibility
 	log.Info("Aiven Client was successfully initialized")
+	c.AivenClient = aivenClient //TODO: remove it, left here for backwards compatibility
+
 	return nil
 }
 
@@ -373,4 +375,13 @@ func getMaintenanceWindow(dow, time string) *aiven.MaintenanceWindow {
 	}
 
 	return nil
+}
+
+func checkServiceIsRunning(project, serviceName string) bool {
+	s, err := aivenClient.Services.Get(project, serviceName)
+	if err != nil {
+		return false
+	}
+
+	return s.State == "RUNNING"
 }

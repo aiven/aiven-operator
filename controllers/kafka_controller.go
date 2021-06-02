@@ -67,7 +67,7 @@ func (h *KafkaHandler) create(log logr.Logger, i client.Object) (client.Object, 
 		UserConfig:          UserConfigurationToAPI(kafka.Spec.KafkaUserConfig).(map[string]interface{}),
 		ServiceIntegrations: nil,
 	})
-	if err != nil {
+	if err != nil && !aiven.IsAlreadyExists(err) {
 		return nil, err
 	}
 
@@ -213,13 +213,4 @@ func (h KafkaHandler) setStatus(kafka *k8soperatorv1alpha1.Kafka, s *aiven.Servi
 	kafka.Status.MaintenanceWindowTime = s.MaintenanceWindow.TimeOfDay
 	kafka.Status.MaintenanceWindowDow = s.MaintenanceWindow.DayOfWeek
 	kafka.Status.CloudName = s.CloudName
-}
-
-func checkServiceIsRunning(project, serviceName string) bool {
-	s, err := aivenClient.Services.Get(project, serviceName)
-	if err != nil {
-		return false
-	}
-
-	return s.State == "RUNNING"
 }
