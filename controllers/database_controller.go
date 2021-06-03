@@ -118,15 +118,6 @@ func (h DatabaseHandler) checkPreconditions(log logr.Logger, i client.Object) bo
 	return checkServiceIsRunning(db.Spec.Project, db.Spec.ServiceName)
 }
 
-func checkServiceIsRunning(project, serviceName string) bool {
-	s, err := aivenClient.Services.Get(project, serviceName)
-	if err != nil {
-		return false
-	}
-
-	return s.State == "RUNNING"
-}
-
 func (h DatabaseHandler) isActive(logr.Logger, client.Object) (bool, error) {
 	return true, nil
 }

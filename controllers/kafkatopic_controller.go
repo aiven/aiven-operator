@@ -6,14 +6,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/aiven/aiven-go-client"
-	"github.com/go-logr/logr"
-	"k8s.io/apimachinery/pkg/api/errors"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"time"
-
 	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
+	"github.com/go-logr/logr"
+	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 // KafkaTopicReconciler reconciles a KafkaTopic object
@@ -21,7 +18,9 @@ type KafkaTopicReconciler struct {
 	Controller
 }
 
-const kafkaTopicFinalizer = "kafkatopic-finalizer.k8s-operator.aiven.io"
+type KafkaTopicHandler struct {
+	Handlers
+}
 
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=kafkatopics,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=kafkatopics/status,verbs=get;update;patch
@@ -29,105 +28,27 @@ const kafkaTopicFinalizer = "kafkatopic-finalizer.k8s-operator.aiven.io"
 func (r *KafkaTopicReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("kafkatopic", req.NamespacedName)
 
-	if err := r.InitAivenClient(req, ctx, log); err != nil {
-		return ctrl.Result{}, err
-	}
+	log.Info("Reconciling Aiven Kafka Topic")
 
-	// Fetch the KafkaTopic instance
+	const finalizer = "kafkatopic-finalizer.k8s-operator.aiven.io"
 	topic := &k8soperatorv1alpha1.KafkaTopic{}
-	err := r.Get(ctx, req.NamespacedName, topic)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			// Request object not found, could have been deleted after reconcile request.
-			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-			// Return and don't requeue
-			log.Info("KafkaTopic resource not found. Ignoring since object must be deleted")
-			return ctrl.Result{}, nil
-		}
-		// Error reading the object - requeue the request.
-		log.Error(err, "Failed to get KafkaTopic")
-		return ctrl.Result{}, err
-	}
-
-	// Check if the Kafka Topic instance is marked to be deleted, which is
-	// indicated by the deletion timestamp being set.
-	isKafkaTopicMarkedToBeDeleted := topic.GetDeletionTimestamp() != nil
-	if isKafkaTopicMarkedToBeDeleted {
-		if contains(topic.GetFinalizers(), kafkaTopicFinalizer) {
-			// Run finalization logic for kafkaTopicFinalizer. If the
-			// finalization logic fails, don't remove the finalizer so
-			// that we can retry during the next reconciliation.
-			if err := r.finalize(log, topic); err != nil {
-				return reconcile.Result{}, err
-			}
-
-			// Remove kafkaTopicFinalizer. Once all finalizers have been
-			// removed, the object will be deleted.
-			controllerutil.RemoveFinalizer(topic, kafkaTopicFinalizer)
-			err := r.Client.Update(ctx, topic)
-			if err != nil {
-				return reconcile.Result{}, err
-			}
-		}
-		return reconcile.Result{}, nil
-	}
-
-	// Add finalizer for this CR
-	if !contains(topic.GetFinalizers(), kafkaTopicFinalizer) {
-		if err := r.addFinalizer(log, topic); err != nil {
-			return reconcile.Result{}, err
-		}
-	}
-
-	// Check if Kafka Topic already exists on the Aiven side, createTopic a
-	// new one if it is not found
-	t, err := r.AivenClient.KafkaTopics.Get(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName)
-	if err != nil {
-		if aivenError, ok := err.(aiven.Error); ok {
-			// Getting topic info can sometimes temporarily fail with 501 and 502. Don't
-			// treat that as fatal error but keep on retrying instead.
-			if aivenError.Status == 501 || aivenError.Status == 502 {
-				return ctrl.Result{
-					Requeue:      true,
-					RequeueAfter: 10 * time.Second,
-				}, nil
-			}
-		}
-
-		// Create a new Kafka Topic if it does not exists and update CR status
-		if aiven.IsNotFound(err) {
-			err = r.createTopic(topic)
-			if err != nil && !aiven.IsAlreadyExists(err) {
-				log.Error(err, "Failed to createTopic KafkaTopic")
-				return ctrl.Result{}, err
-			}
-
-			return ctrl.Result{
-				Requeue:      true,
-				RequeueAfter: 10 * time.Second,
-			}, nil
-		}
-		return ctrl.Result{}, err
-	}
-
-	// Check Kafka Topic status and wait until it is ACTIVE
-	if t != nil && t.State != "ACTIVE" {
-		log.Info("Kafka Topic state is " + t.State + ", waiting to become ACTIVE")
-		err = r.updateCRStatus(topic, t)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-
-		return ctrl.Result{
-			Requeue:      true,
-			RequeueAfter: 10 * time.Second,
-		}, nil
-	}
-
-	return ctrl.Result{}, r.updateTopic(topic)
+	return r.reconcileInstance(&KafkaTopicHandler{}, ctx, log, req, topic, finalizer)
 }
 
-func (r *KafkaTopicReconciler) createTopic(topic *k8soperatorv1alpha1.KafkaTopic) error {
+func (r *KafkaTopicReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	return ctrl.NewControllerManagedBy(mgr).
+		For(&k8soperatorv1alpha1.KafkaTopic{}).
+		Complete(r)
+}
+
+func (h KafkaTopicHandler) create(log logr.Logger, i client.Object) (client.Object, error) {
+	topic, err := h.convert(i)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Info("Creating a new Kafka Topic")
+
 	var tags []aiven.KafkaTopicTag
 	for _, t := range topic.Spec.Tags {
 		tags = append(tags, aiven.KafkaTopicTag{
@@ -136,26 +57,74 @@ func (r *KafkaTopicReconciler) createTopic(topic *k8soperatorv1alpha1.KafkaTopic
 		})
 	}
 
-	err := r.AivenClient.KafkaTopics.Create(topic.Spec.Project, topic.Spec.ServiceName, aiven.CreateKafkaTopicRequest{
+	err = aivenClient.KafkaTopics.Create(topic.Spec.Project, topic.Spec.ServiceName, aiven.CreateKafkaTopicRequest{
 		Partitions:  &topic.Spec.Partitions,
 		Replication: &topic.Spec.Replication,
 		TopicName:   topic.Spec.TopicName,
 		Tags:        tags,
 		Config:      convertKafkaTopicConfig(topic),
 	})
-	if err != nil {
-		return err
+	if err != nil && !aiven.IsAlreadyExists(err) {
+		return nil, err
 	}
 
-	t, err := r.AivenClient.KafkaTopics.Get(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName)
+	t, err := aivenClient.KafkaTopics.Get(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return r.updateCRStatus(topic, t)
+	h.setStatus(topic, t)
+
+	return topic, nil
 }
 
-func (r *KafkaTopicReconciler) updateTopic(topic *k8soperatorv1alpha1.KafkaTopic) error {
+func (h KafkaTopicHandler) delete(log logr.Logger, i client.Object) (client.Object, bool, error) {
+	topic, err := h.convert(i)
+	if err != nil {
+		return nil, false, err
+	}
+
+	// Delete project on Aiven side
+	err = aivenClient.KafkaTopics.Delete(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName)
+	if err != nil && !aiven.IsNotFound(err) {
+		return nil, false, err
+	}
+
+	log.Info("Successfully finalized Kafka Topic")
+
+	return nil, true, nil
+}
+
+func (h KafkaTopicHandler) exists(_ logr.Logger, i client.Object) (bool, error) {
+	topic, err := h.convert(i)
+	if err != nil {
+		return false, err
+	}
+
+	t, err := aivenClient.KafkaTopics.Get(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName)
+	if err != nil && !aiven.IsNotFound(err) {
+		if aivenError, ok := err.(aiven.Error); ok {
+			// Getting topic info can sometimes temporarily fail with 501 and 502. Don't
+			// treat that as fatal error but keep on retrying instead.
+			if aivenError.Status == 501 || aivenError.Status == 502 {
+				return true, nil
+			}
+		}
+
+		return false, err
+	}
+
+	return t != nil, nil
+}
+
+func (h KafkaTopicHandler) update(log logr.Logger, i client.Object) (client.Object, error) {
+	topic, err := h.convert(i)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Info("Updating a Kafka Topic")
+
 	var tags []aiven.KafkaTopicTag
 	for _, t := range topic.Spec.Tags {
 		tags = append(tags, aiven.KafkaTopicTag{
@@ -164,7 +133,7 @@ func (r *KafkaTopicReconciler) updateTopic(topic *k8soperatorv1alpha1.KafkaTopic
 		})
 	}
 
-	err := r.AivenClient.KafkaTopics.Update(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName,
+	err = aivenClient.KafkaTopics.Update(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName,
 		aiven.UpdateKafkaTopicRequest{
 			Partitions:  &topic.Spec.Partitions,
 			Replication: &topic.Spec.Replication,
@@ -172,47 +141,64 @@ func (r *KafkaTopicReconciler) updateTopic(topic *k8soperatorv1alpha1.KafkaTopic
 			Config:      convertKafkaTopicConfig(topic),
 		})
 	if err != nil {
-		return fmt.Errorf("cannot update Kafka Topic: %w", err)
+		return nil, fmt.Errorf("cannot update Kafka Topic: %w", err)
 	}
 
-	t, err := r.AivenClient.KafkaTopics.Get(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName)
+	t, err := aivenClient.KafkaTopics.Get(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName)
 	if err != nil {
-		return fmt.Errorf("cannot get Kafka Topic after update: %w", err)
+		return nil, fmt.Errorf("cannot get Kafka Topic after update: %w", err)
 	}
 
-	return r.updateCRStatus(topic, t)
+	h.setStatus(topic, t)
+
+	return topic, nil
 }
 
-func convertKafkaTopicConfig(topic *k8soperatorv1alpha1.KafkaTopic) aiven.KafkaTopicConfig {
-	return aiven.KafkaTopicConfig{
-		CleanupPolicy:                   topic.Spec.Config.CleanupPolicy,
-		CompressionType:                 topic.Spec.Config.CompressionType,
-		DeleteRetentionMs:               topic.Spec.Config.DeleteRetentionMs,
-		FileDeleteDelayMs:               topic.Spec.Config.FileDeleteDelayMs,
-		FlushMessages:                   topic.Spec.Config.FlushMessages,
-		FlushMs:                         topic.Spec.Config.FlushMs,
-		IndexIntervalBytes:              topic.Spec.Config.IndexIntervalBytes,
-		MaxCompactionLagMs:              topic.Spec.Config.MaxCompactionLagMs,
-		MaxMessageBytes:                 topic.Spec.Config.MaxMessageBytes,
-		MessageDownconversionEnable:     topic.Spec.Config.MessageDownconversionEnable,
-		MessageFormatVersion:            topic.Spec.Config.MessageFormatVersion,
-		MessageTimestampDifferenceMaxMs: topic.Spec.Config.MessageTimestampDifferenceMaxMs,
-		MessageTimestampType:            topic.Spec.Config.MessageTimestampType,
-		MinCompactionLagMs:              topic.Spec.Config.MinCompactionLagMs,
-		MinInsyncReplicas:               topic.Spec.Config.MinInsyncReplicas,
-		Preallocate:                     topic.Spec.Config.Preallocate,
-		RetentionBytes:                  topic.Spec.Config.RetentionBytes,
-		RetentionMs:                     topic.Spec.Config.RetentionMs,
-		SegmentBytes:                    topic.Spec.Config.SegmentBytes,
-		SegmentIndexBytes:               topic.Spec.Config.SegmentIndexBytes,
-		SegmentJitterMs:                 topic.Spec.Config.SegmentJitterMs,
-		SegmentMs:                       topic.Spec.Config.SegmentMs,
-		UncleanLeaderElectionEnable:     topic.Spec.Config.UncleanLeaderElectionEnable,
+func (h KafkaTopicHandler) getSecret(_ logr.Logger, _ client.Object) (*corev1.Secret, error) {
+	return nil, nil
+}
+
+func (h KafkaTopicHandler) checkPreconditions(_ logr.Logger, i client.Object) bool {
+	topic, err := h.convert(i)
+	if err != nil {
+		return false
 	}
+
+	return checkServiceIsRunning(topic.Spec.Project, topic.Spec.ServiceName)
 }
 
-// updateCRStatus updates Kubernetes Custom Resource status
-func (r *KafkaTopicReconciler) updateCRStatus(topic *k8soperatorv1alpha1.KafkaTopic, t *aiven.KafkaTopic) error {
+func (h KafkaTopicHandler) isActive(_ logr.Logger, i client.Object) (bool, error) {
+	topic, err := h.convert(i)
+	if err != nil {
+		return false, err
+	}
+
+	t, err := aivenClient.KafkaTopics.Get(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName)
+	if err != nil && !aiven.IsNotFound(err) {
+		if aivenError, ok := err.(aiven.Error); ok {
+			// Getting topic info can sometimes temporarily fail with 501 and 502. Don't
+			// treat that as fatal error but keep on retrying instead.
+			if aivenError.Status == 501 || aivenError.Status == 502 {
+				return false, nil
+			}
+		}
+
+		return false, err
+	}
+
+	return t.State == "ACTIVE", nil
+}
+
+func (h KafkaTopicHandler) convert(i client.Object) (*k8soperatorv1alpha1.KafkaTopic, error) {
+	topic, ok := i.(*k8soperatorv1alpha1.KafkaTopic)
+	if !ok {
+		return nil, fmt.Errorf("cannot convert object to KafkaTopic")
+	}
+
+	return topic, nil
+}
+
+func (h KafkaTopicHandler) setStatus(topic *k8soperatorv1alpha1.KafkaTopic, t *aiven.KafkaTopic) {
 	var tags []k8soperatorv1alpha1.KafkaTopicTag
 	for _, tt := range t.Tags {
 		tags = append(tags, k8soperatorv1alpha1.KafkaTopicTag{
@@ -255,43 +241,32 @@ func (r *KafkaTopicReconciler) updateCRStatus(topic *k8soperatorv1alpha1.KafkaTo
 	topic.Status.Config.SegmentMs = &t.Config.SegmentMs.Value
 	topic.Status.Config.SegmentJitterMs = &t.Config.SegmentJitterMs.Value
 	topic.Status.Config.UncleanLeaderElectionEnable = &t.Config.UncleanLeaderElectionEnable.Value
-
-	err := r.Status().Update(context.Background(), topic)
-	if err != nil {
-		return fmt.Errorf("cannot update CR status: %w", err)
-	}
-
-	return nil
 }
 
-// finalizeProject deletes Aiven Kafka Topic
-func (r *KafkaTopicReconciler) finalize(log logr.Logger, t *k8soperatorv1alpha1.KafkaTopic) error {
-	// Delete project on Aiven side
-	err := r.AivenClient.KafkaTopics.Delete(t.Spec.Project, t.Spec.ServiceName, t.Spec.TopicName)
-	if err != nil && !aiven.IsNotFound(err) {
-		return err
+func convertKafkaTopicConfig(topic *k8soperatorv1alpha1.KafkaTopic) aiven.KafkaTopicConfig {
+	return aiven.KafkaTopicConfig{
+		CleanupPolicy:                   topic.Spec.Config.CleanupPolicy,
+		CompressionType:                 topic.Spec.Config.CompressionType,
+		DeleteRetentionMs:               topic.Spec.Config.DeleteRetentionMs,
+		FileDeleteDelayMs:               topic.Spec.Config.FileDeleteDelayMs,
+		FlushMessages:                   topic.Spec.Config.FlushMessages,
+		FlushMs:                         topic.Spec.Config.FlushMs,
+		IndexIntervalBytes:              topic.Spec.Config.IndexIntervalBytes,
+		MaxCompactionLagMs:              topic.Spec.Config.MaxCompactionLagMs,
+		MaxMessageBytes:                 topic.Spec.Config.MaxMessageBytes,
+		MessageDownconversionEnable:     topic.Spec.Config.MessageDownconversionEnable,
+		MessageFormatVersion:            topic.Spec.Config.MessageFormatVersion,
+		MessageTimestampDifferenceMaxMs: topic.Spec.Config.MessageTimestampDifferenceMaxMs,
+		MessageTimestampType:            topic.Spec.Config.MessageTimestampType,
+		MinCompactionLagMs:              topic.Spec.Config.MinCompactionLagMs,
+		MinInsyncReplicas:               topic.Spec.Config.MinInsyncReplicas,
+		Preallocate:                     topic.Spec.Config.Preallocate,
+		RetentionBytes:                  topic.Spec.Config.RetentionBytes,
+		RetentionMs:                     topic.Spec.Config.RetentionMs,
+		SegmentBytes:                    topic.Spec.Config.SegmentBytes,
+		SegmentIndexBytes:               topic.Spec.Config.SegmentIndexBytes,
+		SegmentJitterMs:                 topic.Spec.Config.SegmentJitterMs,
+		SegmentMs:                       topic.Spec.Config.SegmentMs,
+		UncleanLeaderElectionEnable:     topic.Spec.Config.UncleanLeaderElectionEnable,
 	}
-
-	log.Info("Successfully finalized Kafka Topic")
-	return nil
-}
-
-// addFinalizer add finalizer to CR
-func (r *KafkaTopicReconciler) addFinalizer(l logr.Logger, t *k8soperatorv1alpha1.KafkaTopic) error {
-	l.Info("Adding Finalizer for the Kafka Topic")
-	controllerutil.AddFinalizer(t, kafkaTopicFinalizer)
-
-	// Update CR
-	err := r.Client.Update(context.Background(), t)
-	if err != nil {
-		l.Error(err, "Failed to update KafkaTopic with finalizer")
-		return err
-	}
-	return nil
-}
-
-func (r *KafkaTopicReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&k8soperatorv1alpha1.KafkaTopic{}).
-		Complete(r)
 }
