@@ -1,0 +1,49 @@
+baseURL = "https://aiven.github.io/aiven-k8s-operator/"
+title = "Aiven Kubernetes Operator"
+
+theme = "docsy"
+
+languageCode = "en-us"
+contentDir = "content/en"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = false
+
+[languages]
+[languages.en]
+title = "Aiven Kubernetes Operator"
+description = "Aiven Kubernetes Operator"
+languageName = "English"
+
+[services]
+[services.googleAnalytics]
+# TODO: Configure Google Analytics
+id = ""
+
+[params]
+copyright = "Aiven"
+
+# Repository configuration (URLs for in-page links to opening issues and suggesting changes)
+github_repo = "https://github.com/aiven/aiven-k8s-operator"
+github_subdir = "docs"
+
+# Search
+# TODO: Configure search
+gcs_engine_id = ""
+
+[params.links]
+[[params.links.user]]
+	name = "Aiven Website"
+	url = "https://aiven.io"
+    # TODO: Add crab logo
+	icon = "fa fa-globe"
+        desc = "Aiven website"
+[[params.links.user]]
+	name ="Twitter"
+	url = "https://twitter.com/aiven_io"
+	icon = "fab fa-twitter"
+        desc = "Follow us on Twitter"
+[[params.links.user]]
+	name = "GitHub"
+	url = "https://github.com/aiven/aiven-k8s-operator"
+	icon = "fab fa-github"
+        desc = "Find us on GitHub"
