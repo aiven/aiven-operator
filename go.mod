@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/aiven/aiven-go-client v1.5.12-0.20210401064156-3594908646c8
 	github.com/go-logr/logr v0.4.0
-	github.com/onsi/ginkgo v1.16.3
+	github.com/onsi/ginkgo v1.16.4
 	github.com/onsi/gomega v1.13.0
 	github.com/stretchr/testify v1.6.1
 	k8s.io/api v0.20.2

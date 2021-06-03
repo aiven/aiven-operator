@@ -50,10 +50,10 @@ var _ = Describe("Kafka Schema Controller", func() {
 			return ""
 		}, timeout, interval).Should(Equal("RUNNING"))
 
-		time.Sleep(5 * time.Second)
-
 		By("Creating a new KafkaSchema instance")
 		Expect(k8sClient.Create(ctx, schema)).Should(Succeed())
+
+		time.Sleep(5 * time.Second)
 
 		By("by retrieving KafkaSchema instance from k8s")
 		Eventually(func() bool {
@@ -66,7 +66,7 @@ var _ = Describe("Kafka Schema Controller", func() {
 	})
 
 	Context("Validating Kafka ACL reconciler behaviour", func() {
-		It("should create a new Kafka ACL", func() {
+		It("should create a new Kafka Schema", func() {
 			createdSchema := &v1alpha1.KafkaSchema{}
 			lookupKey := types.NamespacedName{Name: schemaSubject, Namespace: namespace}
 
