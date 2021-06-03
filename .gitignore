@@ -28,3 +28,8 @@ testbin/*
 
 # Aiven internal
 hack/tmp/*
+
+# Docs
+docs/node_modules
+docs/public
+docs/resources
