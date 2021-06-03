@@ -42,7 +42,7 @@ func (r *PGReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h *PGHandler) exists(log logr.Logger, i client.Object) (bool, error) {
+func (h PGHandler) exists(log logr.Logger, i client.Object) (bool, error) {
 	pg, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -59,7 +59,7 @@ func (h *PGHandler) exists(log logr.Logger, i client.Object) (bool, error) {
 }
 
 // create creates PG service and update CR status and creates secrets
-func (h *PGHandler) create(log logr.Logger, i client.Object) (client.Object, error) {
+func (h PGHandler) create(log logr.Logger, i client.Object) (client.Object, error) {
 	pg, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func (h *PGHandler) create(log logr.Logger, i client.Object) (client.Object, err
 }
 
 // update updates PG service and updates CR status
-func (h *PGHandler) update(log logr.Logger, i client.Object) (client.Object, error) {
+func (h PGHandler) update(log logr.Logger, i client.Object) (client.Object, error) {
 	pg, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -127,7 +127,7 @@ func (h *PGHandler) update(log logr.Logger, i client.Object) (client.Object, err
 }
 
 // setStatus updates PG CR status
-func (h *PGHandler) setStatus(pg *k8soperatorv1alpha1.PG, s *aiven.Service) {
+func (h PGHandler) setStatus(pg *k8soperatorv1alpha1.PG, s *aiven.Service) {
 	var prVPCID string
 
 	if s.ProjectVPCID != nil {
@@ -144,7 +144,7 @@ func (h *PGHandler) setStatus(pg *k8soperatorv1alpha1.PG, s *aiven.Service) {
 }
 
 // delete deletes Aiven PG service
-func (h *PGHandler) delete(log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h PGHandler) delete(log logr.Logger, i client.Object) (client.Object, bool, error) {
 	pg, err := h.convert(i)
 	if err != nil {
 		return nil, false, err
@@ -168,7 +168,7 @@ func (h *PGHandler) delete(log logr.Logger, i client.Object) (client.Object, boo
 }
 
 // getSecret retrieves a PG service secret
-func (h *PGHandler) getSecret(log logr.Logger, i client.Object) (*corev1.Secret, error) {
+func (h PGHandler) getSecret(log logr.Logger, i client.Object) (*corev1.Secret, error) {
 	pg, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -199,7 +199,7 @@ func (h *PGHandler) getSecret(log logr.Logger, i client.Object) (*corev1.Secret,
 	}, nil
 }
 
-func (h *PGHandler) isActive(log logr.Logger, i client.Object) (bool, error) {
+func (h PGHandler) isActive(log logr.Logger, i client.Object) (bool, error) {
 	pg, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -218,7 +218,7 @@ func (h *PGHandler) isActive(log logr.Logger, i client.Object) (bool, error) {
 	return s.State == "RUNNING", nil
 }
 
-func (h *PGHandler) convert(i client.Object) (*k8soperatorv1alpha1.PG, error) {
+func (h PGHandler) convert(i client.Object) (*k8soperatorv1alpha1.PG, error) {
 	pg, ok := i.(*k8soperatorv1alpha1.PG)
 	if !ok {
 		return nil, fmt.Errorf("cannot convert object to PG")
@@ -227,6 +227,6 @@ func (h *PGHandler) convert(i client.Object) (*k8soperatorv1alpha1.PG, error) {
 	return pg, nil
 }
 
-func (h *PGHandler) checkPreconditions(logr.Logger, client.Object) bool {
+func (h PGHandler) checkPreconditions(logr.Logger, client.Object) bool {
 	return true
 }

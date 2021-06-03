@@ -44,7 +44,7 @@ func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 // create creates a project on Aiven side
-func (h *ProjectHandler) create(log logr.Logger, i client.Object) (client.Object, error) {
+func (h ProjectHandler) create(log logr.Logger, i client.Object) (client.Object, error) {
 	project, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -99,7 +99,7 @@ func (*ProjectHandler) setStatus(project *k8soperatorv1alpha1.Project, p *aiven.
 	project.Status.BillingCurrency = p.BillingCurrency
 }
 
-func (h *ProjectHandler) getSecret(log logr.Logger, i client.Object) (*corev1.Secret, error) {
+func (h ProjectHandler) getSecret(log logr.Logger, i client.Object) (*corev1.Secret, error) {
 	project, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -127,7 +127,7 @@ func (h *ProjectHandler) getSecret(log logr.Logger, i client.Object) (*corev1.Se
 }
 
 // update updates a project on Aiven side
-func (h *ProjectHandler) update(log logr.Logger, i client.Object) (client.Object, error) {
+func (h ProjectHandler) update(log logr.Logger, i client.Object) (client.Object, error) {
 	project, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -166,7 +166,7 @@ func (h *ProjectHandler) update(log logr.Logger, i client.Object) (client.Object
 }
 
 // exists checks if project already exists on Aiven side
-func (h *ProjectHandler) exists(log logr.Logger, i client.Object) (bool, error) {
+func (h ProjectHandler) exists(log logr.Logger, i client.Object) (bool, error) {
 	project, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -183,7 +183,7 @@ func (h *ProjectHandler) exists(log logr.Logger, i client.Object) (bool, error) 
 }
 
 // delete deletes Aiven project
-func (h *ProjectHandler) delete(log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h ProjectHandler) delete(log logr.Logger, i client.Object) (client.Object, bool, error) {
 	project, err := h.convert(i)
 	if err != nil {
 		return nil, false, err
@@ -223,7 +223,7 @@ func (h *ProjectHandler) delete(log logr.Logger, i client.Object) (client.Object
 	}, true, nil
 }
 
-func (h *ProjectHandler) convert(i client.Object) (*k8soperatorv1alpha1.Project, error) {
+func (h ProjectHandler) convert(i client.Object) (*k8soperatorv1alpha1.Project, error) {
 	p, ok := i.(*k8soperatorv1alpha1.Project)
 	if !ok {
 		return nil, fmt.Errorf("cannot convert object to project")
@@ -232,10 +232,10 @@ func (h *ProjectHandler) convert(i client.Object) (*k8soperatorv1alpha1.Project,
 	return p, nil
 }
 
-func (h *ProjectHandler) isActive(logr.Logger, client.Object) (bool, error) {
+func (h ProjectHandler) isActive(logr.Logger, client.Object) (bool, error) {
 	return true, nil
 }
 
-func (h *ProjectHandler) checkPreconditions(logr.Logger, client.Object) bool {
+func (h ProjectHandler) checkPreconditions(logr.Logger, client.Object) bool {
 	return true
 }

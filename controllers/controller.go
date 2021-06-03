@@ -37,7 +37,7 @@ type (
 		// other reason, it should return an error
 		create(logr.Logger, client.Object) (createdObj client.Object, error error)
 
-		// remove an instance on Aiven side.
+		// delete removes an instance on Aiven side.
 		// If an object is already deleted and cannot be found, it should not be an error. For other deletion
 		// errors, return an error.
 		// The return value is any other object that should be deleted along with this one.  For example, if
@@ -46,22 +46,22 @@ type (
 		// entity was successfully deleted on the Aiven side should it be true.
 		delete(logr.Logger, client.Object) (objToBeDeleted client.Object, isDeleted bool, error error)
 
-		// checks if an instance already exists on the Aiven side.
+		// exists checks if an instance already exists on the Aiven side.
 		exists(logr.Logger, client.Object) (exists bool, error error)
 
 		// update an instance on the Aiven side, assuming it was previously created.
 		// Should return the updated object, if the update was successful.
 		update(logr.Logger, client.Object) (updatedObj client.Object, error error)
 
-		// retrieve a secret (for example, connection credentials) that is generated on the fly based on data
+		// getSecret retrieve a secret (for example, connection credentials) that is generated on the fly based on data
 		// from Aiven API.  When not applicable to service, it should return nil.
 		getSecret(logr.Logger, client.Object) (secret *corev1.Secret, error error)
 
-		// check whether all preconditions for creating (or updating) the resource are in place.
+		// checkPreconditions check whether all preconditions for creating (or updating) the resource are in place.
 		// For example, it is applicable when a service needs to be running before this resource can be created.
 		checkPreconditions(logr.Logger, client.Object) bool
 
-		// checks if an instance is ready for use on the Aiven side. Applicable for services that have multiple
+		// isActive checks if an instance is ready for use on the Aiven side. Applicable for services that have multiple
 		// states and start in a transition state. When a service reaches a target state, return true.
 		isActive(logr.Logger, client.Object) (bool, error)
 	}
@@ -77,7 +77,6 @@ func (c *Controller) reconcileInstance(h Handlers, ctx context.Context, log logr
 	if err := c.InitAivenClient(req, ctx, log); err != nil {
 		return ctrl.Result{}, err
 	}
-	c.AivenClient = aivenClient //TODO: remove it, left here for backwards compatibility
 
 	// Fetch an instance
 	err := c.Get(ctx, req.NamespacedName, o)
@@ -120,7 +119,7 @@ func (c *Controller) reconcileInstance(h Handlers, ctx context.Context, log logr
 
 			// Delete a K8s secret if handler finalized things on Aiven side
 			if associatedObjToBeDeleted != nil {
-				if err := c.Delete(ctx, associatedObjToBeDeleted); err != nil {
+				if err := c.Delete(ctx, associatedObjToBeDeleted); err != nil && !errors.IsNotFound(err) {
 					return ctrl.Result{}, fmt.Errorf("cannot delete object: %w", err)
 				}
 			}
@@ -170,7 +169,7 @@ func (c *Controller) reconcileInstance(h Handlers, ctx context.Context, log logr
 
 		// Creating a secret if available
 		if s != nil {
-			if err := c.Create(ctx, s); err != nil {
+			if err := c.Create(ctx, s); err != nil && !errors.IsAlreadyExists(err) {
 				return ctrl.Result{}, err
 			}
 
@@ -257,6 +256,7 @@ func (c *Controller) InitAivenClient(req ctrl.Request, ctx context.Context, log 
 		return fmt.Errorf("cannot create an Aiven Client: %w", err)
 	}
 
+	c.AivenClient = aivenClient //TODO: remove it, left here for backwards compatibility
 	log.Info("Aiven Client was successfully initialized")
 	return nil
 }
