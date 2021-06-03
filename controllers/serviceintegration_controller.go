@@ -8,10 +8,9 @@ import (
 	"github.com/aiven/aiven-go-client"
 	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
 	"github.com/go-logr/logr"
-	"k8s.io/apimachinery/pkg/api/errors"
+	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"strings"
 )
 
@@ -20,141 +19,84 @@ type ServiceIntegrationReconciler struct {
 	Controller
 }
 
-const serviceIntegrationFinalizer = "serviceintegration-finalizer.k8s-operator.aiven.io"
+type ServiceIntegrationHandler struct {
+}
 
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=serviceintegrations,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=serviceintegrations/status,verbs=get;update;patch
 
 func (r *ServiceIntegrationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("serviceintegration", req.NamespacedName)
+	log.Info("Reconciling Aiven ServiceIntegration")
 
-	if err := r.InitAivenClient(req, ctx, log); err != nil {
-		return ctrl.Result{}, err
-	}
-
-	// Fetch the Service Integration instance
-	serviceInt := &k8soperatorv1alpha1.ServiceIntegration{}
-	err := r.Get(ctx, req.NamespacedName, serviceInt)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			// Request object not found, could have been deleted after reconcile request.
-			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-			// Return and don't requeue
-			log.Info("Service Integration resource not found. Ignoring since object must be deleted")
-			return ctrl.Result{}, nil
-		}
-		// Error reading the object - requeue the request.
-		log.Error(err, "Failed to get ServiceIntegration")
-		return ctrl.Result{}, err
-	}
-
-	// Check if the ServiceIntegration instance is marked to be deleted, which is
-	// indicated by the deletion timestamp being set.
-	isServiceIntegrationMarkedToBeDeleted := serviceInt.GetDeletionTimestamp() != nil
-	if isServiceIntegrationMarkedToBeDeleted {
-		if contains(serviceInt.GetFinalizers(), serviceIntegrationFinalizer) {
-			// Run finalization logic for serviceIntegrationFinalizer. If the
-			// finalization logic fails, don't remove the finalizer so
-			// that we can retry during the next reconciliation.
-			if err := r.finalizeServiceIntegration(log, serviceInt); err != nil {
-				return reconcile.Result{}, err
-			}
-
-			// Remove serviceIntegrationFinalizer. Once all finalizers have been
-			// removed, the object will be deleted.
-			controllerutil.RemoveFinalizer(serviceInt, serviceIntegrationFinalizer)
-			err := r.Client.Update(ctx, serviceInt)
-			if err != nil {
-				return reconcile.Result{}, err
-			}
-		}
-		return reconcile.Result{}, nil
-	}
-
-	// Add finalizer for this CR
-	if !contains(serviceInt.GetFinalizers(), serviceIntegrationFinalizer) {
-		if err := r.addFinalizer(ctx, log, serviceInt); err != nil {
-			return reconcile.Result{}, err
-		}
-	}
-
-	if serviceInt.Status.ID == "" {
-		log.Info("Creating a new Service integration")
-		_, err = r.createServiceIntegration(ctx, serviceInt)
-		if err != nil {
-			log.Error(err, "Failed to create Service Integration")
-			return ctrl.Result{}, err
-		}
-		return ctrl.Result{}, nil
-	}
-
-	_, err = r.updateServiceIntegration(ctx, serviceInt)
-	if err != nil {
-		log.Error(err, "Failed to update Service Integration")
-		return ctrl.Result{}, err
-	}
-
-	return ctrl.Result{}, nil
+	const finalizer = "serviceintegration-finalizer.k8s-operator.aiven.io"
+	si := &k8soperatorv1alpha1.ServiceIntegration{}
+	return r.reconcileInstance(&ServiceIntegrationHandler{}, ctx, log, req, si, finalizer)
 }
 
-// addFinalizer add finalizer to CR
-func (r *ServiceIntegrationReconciler) addFinalizer(ctx context.Context, reqLogger logr.Logger, i *k8soperatorv1alpha1.ServiceIntegration) error {
-	reqLogger.Info("Adding Finalizer for the Service Integration")
-	controllerutil.AddFinalizer(i, serviceIntegrationFinalizer)
-
-	// Update CR
-	err := r.Client.Update(ctx, i)
+func (h ServiceIntegrationHandler) create(_ logr.Logger, i client.Object) (client.Object, error) {
+	si, err := h.convert(i)
 	if err != nil {
-		reqLogger.Error(err, "Failed to update Service Integration with finalizer")
-		return err
+		return nil, err
 	}
 
-	return nil
-}
-
-// finalizeServiceIntegration deletes Service Integration on Aiven side
-func (r *ServiceIntegrationReconciler) finalizeServiceIntegration(log logr.Logger, i *k8soperatorv1alpha1.ServiceIntegration) error {
-	// Delete service integration on Aiven side
-	err := r.AivenClient.ServiceIntegrations.Delete(i.Spec.Project, i.Status.ID)
-	if err != nil && !aiven.IsNotFound(err) {
-		log.Error(err, "Cannot delete Service Integration")
-		return fmt.Errorf("aiven client delete service ingtegration error: %w", err)
-	}
-
-	log.Info("Successfully finalized service integration")
-	return nil
-}
-
-func (r *ServiceIntegrationReconciler) createServiceIntegration(ctx context.Context, int *k8soperatorv1alpha1.ServiceIntegration) (*aiven.ServiceIntegration, error) {
-	i, err := r.AivenClient.ServiceIntegrations.Create(
-		int.Spec.Project,
+	integration, err := aivenClient.ServiceIntegrations.Create(
+		si.Spec.Project,
 		aiven.CreateServiceIntegrationRequest{
-			DestinationEndpointID: toOptionalStringPointer(int.Spec.DestinationEndpointID),
-			DestinationService:    toOptionalStringPointer(int.Spec.DestinationServiceName),
-			IntegrationType:       int.Spec.IntegrationType,
-			SourceEndpointID:      toOptionalStringPointer(int.Spec.SourceEndpointID),
-			SourceService:         toOptionalStringPointer(int.Spec.SourceServiceName),
-			UserConfig:            r.GetUserConfig(int),
+			DestinationEndpointID: toOptionalStringPointer(si.Spec.DestinationEndpointID),
+			DestinationService:    toOptionalStringPointer(si.Spec.DestinationServiceName),
+			IntegrationType:       si.Spec.IntegrationType,
+			SourceEndpointID:      toOptionalStringPointer(si.Spec.SourceEndpointID),
+			SourceService:         toOptionalStringPointer(si.Spec.SourceServiceName),
+			UserConfig:            h.getUserConfig(si),
 		},
 	)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create service integration:%w", err)
 	}
 
-	err = r.updateCRStatus(ctx, int, i)
-	if err != nil {
-		return nil, fmt.Errorf("cannot update CR status: %w", err)
-	}
+	h.setStatus(si, integration)
 
-	return i, nil
+	return si, nil
 }
 
-func (r *ServiceIntegrationReconciler) updateServiceIntegration(ctx context.Context, int *k8soperatorv1alpha1.ServiceIntegration) (*aiven.ServiceIntegration, error) {
-	i, err := r.AivenClient.ServiceIntegrations.Update(
-		int.Spec.Project,
-		int.Status.ID,
+func (h ServiceIntegrationHandler) delete(log logr.Logger, i client.Object) (client.Object, bool, error) {
+	si, err := h.convert(i)
+	if err != nil {
+		return nil, false, err
+	}
+
+	err = aivenClient.ServiceIntegrations.Delete(si.Spec.Project, si.Status.ID)
+	if err != nil && !aiven.IsNotFound(err) {
+		log.Error(err, "Cannot delete Service Integration")
+		return nil, false, fmt.Errorf("aiven client delete service ingtegration error: %w", err)
+	}
+
+	log.Info("Successfully finalized service integration")
+
+	return nil, true, nil
+}
+
+func (h ServiceIntegrationHandler) exists(_ logr.Logger, i client.Object) (bool, error) {
+	si, err := h.convert(i)
+	if err != nil {
+		return false, err
+	}
+
+	return si.Status.ID != "", nil
+}
+
+func (h ServiceIntegrationHandler) update(_ logr.Logger, i client.Object) (client.Object, error) {
+	si, err := h.convert(i)
+	if err != nil {
+		return nil, err
+	}
+
+	integration, err := aivenClient.ServiceIntegrations.Update(
+		si.Spec.Project,
+		si.Status.ID,
 		aiven.UpdateServiceIntegrationRequest{
-			UserConfig: r.GetUserConfig(int),
+			UserConfig: h.getUserConfig(si),
 		},
 	)
 	if err != nil {
@@ -164,16 +106,43 @@ func (r *ServiceIntegrationReconciler) updateServiceIntegration(ctx context.Cont
 		return nil, err
 	}
 
-	err = r.updateCRStatus(ctx, int, i)
-	if err != nil {
-		return nil, err
-	}
+	h.setStatus(si, integration)
 
-	return i, nil
+	return si, nil
 }
 
-// updateCRStatus updates Kubernetes Custom Resource status
-func (r *ServiceIntegrationReconciler) updateCRStatus(ctx context.Context, int *k8soperatorv1alpha1.ServiceIntegration, i *aiven.ServiceIntegration) error {
+func (h ServiceIntegrationHandler) getSecret(logr.Logger, client.Object) (secret *corev1.Secret, error error) {
+	return nil, nil
+}
+
+func (h ServiceIntegrationHandler) checkPreconditions(_ logr.Logger, i client.Object) bool {
+	si, err := h.convert(i)
+	if err != nil {
+		return false
+	}
+
+	if checkServiceIsRunning(si.Spec.Project, si.Spec.SourceServiceName) &&
+		checkServiceIsRunning(si.Spec.Project, si.Spec.DestinationServiceName) {
+		return true
+	}
+
+	return false
+}
+
+func (h ServiceIntegrationHandler) isActive(logr.Logger, client.Object) (bool, error) {
+	return true, nil
+}
+
+func (h ServiceIntegrationHandler) convert(i client.Object) (*k8soperatorv1alpha1.ServiceIntegration, error) {
+	si, ok := i.(*k8soperatorv1alpha1.ServiceIntegration)
+	if !ok {
+		return nil, fmt.Errorf("cannot convert object to ServiceIntegration")
+	}
+
+	return si, nil
+}
+
+func (h ServiceIntegrationHandler) setStatus(int *k8soperatorv1alpha1.ServiceIntegration, i *aiven.ServiceIntegration) {
 	int.Status.Project = int.Spec.Project
 	int.Status.IntegrationType = i.IntegrationType
 	int.Status.SourceServiceName = stringPointerToString(i.SourceService)
@@ -181,11 +150,9 @@ func (r *ServiceIntegrationReconciler) updateCRStatus(ctx context.Context, int *
 	int.Status.DestinationEndpointID = stringPointerToString(i.DestinationEndpointID)
 	int.Status.SourceEndpointID = stringPointerToString(i.SourceEndpointID)
 	int.Status.ID = i.ServiceIntegrationID
-
-	return r.Status().Update(ctx, int)
 }
 
-func (r *ServiceIntegrationReconciler) GetUserConfig(int *k8soperatorv1alpha1.ServiceIntegration) map[string]interface{} {
+func (h ServiceIntegrationHandler) getUserConfig(int *k8soperatorv1alpha1.ServiceIntegration) map[string]interface{} {
 	if int.Spec.IntegrationType == "datadog" {
 		return UserConfigurationToAPI(int.Spec.DatadogUserConfig).(map[string]interface{})
 	}

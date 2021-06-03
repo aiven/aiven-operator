@@ -256,9 +256,7 @@ func (c *Controller) InitAivenClient(req ctrl.Request, ctx context.Context, log 
 		return fmt.Errorf("cannot create an Aiven Client: %w", err)
 	}
 
-	c.AivenClient = aivenClient //TODO: remove it, left here for backwards compatibility
 	log.Info("Aiven Client was successfully initialized")
-	c.AivenClient = aivenClient //TODO: remove it, left here for backwards compatibility
 
 	return nil
 }

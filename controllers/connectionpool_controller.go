@@ -57,7 +57,7 @@ func (h ConnectionPoolHandler) create(log logr.Logger, i client.Object) (client.
 			PoolSize: cp.Spec.PoolSize,
 			Username: cp.Spec.Username,
 		})
-	if err != nil {
+	if err != nil && !aiven.IsAlreadyExists(err) {
 		return nil, err
 	}
 
@@ -136,21 +136,19 @@ func (h ConnectionPoolHandler) checkPreconditions(log logr.Logger, i client.Obje
 
 	log.Info("Checking ConnectionPool preconditions")
 
-	s, err := aivenClient.Services.Get(cp.Spec.Project, cp.Spec.ServiceName)
-	if err != nil {
-		return false
-	}
-
-	log.Info("Checking if parent service is RUNNING, current state: " + s.State)
-
-	if s.State == "RUNNING" {
+	if checkServiceIsRunning(cp.Spec.Project, cp.Spec.ServiceName) {
 		log.Info("Checking if database exists")
 		db, err := aivenClient.Databases.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.DatabaseName)
 		if err != nil {
 			return false
 		}
 
-		return db != nil
+		user, err := aivenClient.ServiceUsers.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.Username)
+		if err != nil {
+			return false
+		}
+
+		return db != nil && user != nil
 	}
 
 	return false

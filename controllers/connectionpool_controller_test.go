@@ -75,7 +75,7 @@ var _ = Describe("ConnectionPool Controller", func() {
 			createdPool := &v1alpha1.ConnectionPool{}
 			err := k8sClient.Get(ctx, lookupKey, createdPool)
 
-			return err == nil
+			return err == nil && createdPool.Status.ConnectionURI != ""
 		}, timeout, interval).Should(BeTrue())
 	})
 
