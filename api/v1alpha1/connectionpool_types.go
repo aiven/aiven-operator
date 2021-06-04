@@ -21,10 +21,6 @@ type ConnectionPoolSpec struct {
 	// Name of the database the pool connects to
 	DatabaseName string `json:"database_name"`
 
-	// +kubebuilder:validation:MaxLength=60
-	// Name of the pool
-	PoolName string `json:"pool_name"`
-
 	// +kubebuilder:validation:MaxLength=64
 	// Name of the service user used to connect to the database
 	Username string `json:"username"`

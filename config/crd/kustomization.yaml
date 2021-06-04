@@ -22,7 +22,7 @@ patchesStrategicMerge:
 - patches/webhook_in_projects.yaml
 - patches/webhook_in_databases.yaml
 - patches/webhook_in_pgs.yaml
-#- patches/webhook_in_connectionpools.yaml
+- patches/webhook_in_connectionpools.yaml
 #- patches/webhook_in_serviceusers.yaml
 #- patches/webhook_in_kafkas.yaml
 #- patches/webhook_in_projectvpcs.yaml
@@ -38,7 +38,7 @@ patchesStrategicMerge:
 - patches/cainjection_in_projects.yaml
 - patches/cainjection_in_pgs.yaml
 - patches/cainjection_in_databases.yaml
-  #- patches/cainjection_in_connectionpools.yaml
+  - patches/cainjection_in_connectionpools.yaml
 #- patches/cainjection_in_serviceusers.yaml
 #- patches/cainjection_in_kafkas.yaml
 #- patches/cainjection_in_projectvpcs.yaml

@@ -92,7 +92,6 @@ var _ = Describe("ConnectionPool Controller", func() {
 			Expect(createdPool.Status.Project).Should(Equal(os.Getenv("AIVEN_PROJECT_NAME")))
 			Expect(createdPool.Status.DatabaseName).Should(Equal(dbName))
 			Expect(createdPool.Status.Username).Should(Equal(userName))
-			Expect(createdPool.Status.PoolName).Should(Equal(poolName))
 			Expect(createdPool.Status.PoolSize).Should(Equal(25))
 			Expect(createdPool.Status.PoolMode).Should(Equal("transaction"))
 		})
@@ -118,7 +117,6 @@ func connectionPoolSpec(service, database, pool, user, namespace string) *v1alph
 			Project:      os.Getenv("AIVEN_PROJECT_NAME"),
 			ServiceName:  service,
 			DatabaseName: database,
-			PoolName:     pool,
 			Username:     user,
 			PoolSize:     25,
 			PoolMode:     "transaction",

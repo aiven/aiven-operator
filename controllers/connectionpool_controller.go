@@ -53,7 +53,7 @@ func (h ConnectionPoolHandler) create(log logr.Logger, i client.Object) (client.
 		aiven.CreateConnectionPoolRequest{
 			Database: cp.Spec.DatabaseName,
 			PoolMode: cp.Spec.PoolMode,
-			PoolName: cp.Spec.PoolName,
+			PoolName: cp.Name,
 			PoolSize: cp.Spec.PoolSize,
 			Username: cp.Spec.Username,
 		})
@@ -75,7 +75,7 @@ func (h ConnectionPoolHandler) delete(log logr.Logger, i client.Object) (client.
 	log.Info("Deleting a ConnectionPool on Aiven side")
 
 	err = aivenClient.ConnectionPools.Delete(
-		cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.PoolName)
+		cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
 	if !aiven.IsNotFound(err) {
 		return nil, false, err
 	}
@@ -89,7 +89,7 @@ func (h ConnectionPoolHandler) exists(_ logr.Logger, i client.Object) (bool, err
 		return false, err
 	}
 
-	conPool, err := aivenClient.ConnectionPools.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.PoolName)
+	conPool, err := aivenClient.ConnectionPools.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
 	if err != nil {
 		if aiven.IsNotFound(err) {
 			return false, nil
@@ -108,7 +108,7 @@ func (h ConnectionPoolHandler) update(log logr.Logger, i client.Object) (client.
 
 	log.Info("Updating a ConnectionPool on Aiven side")
 
-	conPool, err := aivenClient.ConnectionPools.Update(cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.PoolName,
+	conPool, err := aivenClient.ConnectionPools.Update(cp.Spec.Project, cp.Spec.ServiceName, cp.Name,
 		aiven.UpdateConnectionPoolRequest{
 			Database: cp.Spec.DatabaseName,
 			PoolMode: cp.Spec.PoolMode,
@@ -170,7 +170,6 @@ func (h *ConnectionPoolHandler) convert(i client.Object) (*k8soperatorv1alpha1.C
 // updateCRStatus updates Kubernetes Custom Resource status
 func (h *ConnectionPoolHandler) setStatus(cp *k8soperatorv1alpha1.ConnectionPool, conPool *aiven.ConnectionPool) {
 	cp.Status.Username = conPool.Username
-	cp.Status.PoolName = conPool.PoolName
 	cp.Status.PoolMode = conPool.PoolMode
 	cp.Status.DatabaseName = conPool.Database
 	cp.Status.PoolSize = conPool.PoolSize
