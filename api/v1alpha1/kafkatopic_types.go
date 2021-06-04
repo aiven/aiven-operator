@@ -35,6 +35,11 @@ type KafkaTopicSpec struct {
 
 	// Kafka topic configuration
 	Config KafkaTopicConfig `json:"config,omitempty"`
+
+	// It is a Kubernetes side deletion protections, which prevents the kafka topic
+	// from being deleted by Kubernetes. It is recommended to enable this for any production
+	// databases containing critical data.
+	TerminationProtection bool `json:"termination_protection,omitempty"`
 }
 
 type KafkaTopicTag struct {

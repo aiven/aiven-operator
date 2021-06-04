@@ -92,6 +92,26 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
+      path: /mutate-k8s-operator-aiven-io-v1alpha1-kafkatopic
+  failurePolicy: Fail
+  name: mkafkatopic.kb.io
+  rules:
+  - apiGroups:
+    - k8s-operator.aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - kafkatopics
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
       path: /mutate-k8s-operator-aiven-io-v1alpha1-pg
   failurePolicy: Fail
   name: mpg.kb.io
@@ -257,6 +277,27 @@ webhooks:
     - DELETE
     resources:
     - kafkaconnects
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-k8s-operator-aiven-io-v1alpha1-kafkatopic
+  failurePolicy: Fail
+  name: vkafkatopic.kb.io
+  rules:
+  - apiGroups:
+    - k8s-operator.aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - kafkatopics
   sideEffects: None
 - admissionReviewVersions:
   - v1
