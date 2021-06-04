@@ -116,4 +116,8 @@ resources:
   kind: KafkaACL
   path: github.com/aiven/aiven-k8s-operator/api/v1alpha1
   version: v1alpha1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1beta1
 version: "3"

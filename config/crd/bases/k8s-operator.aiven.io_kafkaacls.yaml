@@ -54,12 +54,10 @@ spec:
                 maxLength: 63
                 type: string
               topic:
-                description: 'x-kubernetes-immutable: true Topic name pattern for
-                  the ACL entry'
+                description: Topic name pattern for the ACL entry
                 type: string
               username:
-                description: 'x-kubernetes-immutable: true Username pattern for the
-                  ACL entry'
+                description: Username pattern for the ACL entry
                 type: string
             required:
             - permission
@@ -92,12 +90,10 @@ spec:
                 maxLength: 63
                 type: string
               topic:
-                description: 'x-kubernetes-immutable: true Topic name pattern for
-                  the ACL entry'
+                description: Topic name pattern for the ACL entry
                 type: string
               username:
-                description: 'x-kubernetes-immutable: true Username pattern for the
-                  ACL entry'
+                description: Username pattern for the ACL entry
                 type: string
             required:
             - id
