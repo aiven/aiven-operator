@@ -212,6 +212,26 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
+      path: /mutate-k8s-operator-aiven-io-v1alpha1-serviceintegration
+  failurePolicy: Fail
+  name: mserviceintegration.kb.io
+  rules:
+  - apiGroups:
+    - k8s-operator.aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - serviceintegrations
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
       path: /mutate-k8s-operator-aiven-io-v1alpha1-serviceuser
   failurePolicy: Fail
   name: mserviceuser.kb.io
@@ -440,6 +460,26 @@ webhooks:
     - UPDATE
     resources:
     - projectvpcs
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-k8s-operator-aiven-io-v1alpha1-serviceintegration
+  failurePolicy: Fail
+  name: vserviceintegration.kb.io
+  rules:
+  - apiGroups:
+    - k8s-operator.aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - serviceintegrations
   sideEffects: None
 - admissionReviewVersions:
   - v1

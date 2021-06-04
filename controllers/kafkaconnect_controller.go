@@ -48,7 +48,7 @@ func (h KafkaConnectHandler) exists(log logr.Logger, i client.Object) (bool, err
 
 	log.Info("Checking if Kafka Connect service already exists")
 
-	s, err := aivenClient.Services.Get(kc.Spec.Project, kc.Spec.ServiceName)
+	s, err := aivenClient.Services.Get(kc.Spec.Project, kc.Name)
 	if aiven.IsNotFound(err) {
 		return false, nil
 	}
@@ -76,7 +76,7 @@ func (h KafkaConnectHandler) create(log logr.Logger, i client.Object) (client.Ob
 			kc.Spec.MaintenanceWindowTime),
 		Plan:                kc.Spec.Plan,
 		ProjectVPCID:        prVPCID,
-		ServiceName:         kc.Spec.ServiceName,
+		ServiceName:         kc.Name,
 		ServiceType:         "kafka_connect",
 		UserConfig:          UserConfigurationToAPI(kc.Spec.KafkaConnectUserConfig).(map[string]interface{}),
 		ServiceIntegrations: nil,
@@ -103,7 +103,7 @@ func (h KafkaConnectHandler) update(log logr.Logger, i client.Object) (client.Ob
 		prVPCID = &kc.Spec.ProjectVPCID
 	}
 
-	s, err := aivenClient.Services.Update(kc.Spec.Project, kc.Spec.ServiceName, aiven.UpdateServiceRequest{
+	s, err := aivenClient.Services.Update(kc.Spec.Project, kc.Name, aiven.UpdateServiceRequest{
 		Cloud: kc.Spec.CloudName,
 		MaintenanceWindow: getMaintenanceWindow(
 			kc.Spec.MaintenanceWindowDow,
@@ -130,7 +130,6 @@ func (h KafkaConnectHandler) setStatus(kc *k8soperatorv1alpha1.KafkaConnect, s *
 	}
 
 	kc.Status.State = s.State
-	kc.Status.ServiceName = s.Name
 	kc.Status.ProjectVPCID = prVPCID
 	kc.Status.Plan = s.Plan
 	kc.Status.MaintenanceWindowTime = s.MaintenanceWindow.TimeOfDay
@@ -144,7 +143,7 @@ func (h KafkaConnectHandler) delete(log logr.Logger, i client.Object) (client.Ob
 		return nil, false, err
 	}
 
-	if err := aivenClient.Services.Delete(kc.Spec.Project, kc.Spec.ServiceName); err != nil {
+	if err := aivenClient.Services.Delete(kc.Spec.Project, kc.Name); err != nil {
 		if !aiven.IsNotFound(err) {
 			log.Error(err, "Cannot delete Aiven KafkaConnect service")
 			return nil, false, fmt.Errorf("aiven client delete KafkaConnect error: %w", err)
@@ -168,7 +167,7 @@ func (h KafkaConnectHandler) isActive(log logr.Logger, i client.Object) (bool, e
 
 	log.Info("Checking if KafkaConnect service is active")
 
-	return checkServiceIsRunning(kc.Spec.Project, kc.Spec.ServiceName), nil
+	return checkServiceIsRunning(kc.Spec.Project, kc.Name), nil
 }
 
 func (h KafkaConnectHandler) convert(i client.Object) (*k8soperatorv1alpha1.KafkaConnect, error) {

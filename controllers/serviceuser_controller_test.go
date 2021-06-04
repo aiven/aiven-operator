@@ -61,7 +61,7 @@ var _ = Describe("ServiceUser Controller", func() {
 			createdUser := &v1alpha1.ServiceUser{}
 			err := k8sClient.Get(ctx, suLookupKey, createdUser)
 
-			return err == nil
+			return err == nil && createdUser.Status.Type != ""
 		}, timeout, interval).Should(BeTrue())
 
 		time.Sleep(10 * time.Second)

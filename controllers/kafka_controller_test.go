@@ -68,7 +68,6 @@ var _ = Describe("Kafka Controller", func() {
 
 			// Let's make sure our Kafka status was properly populated.
 			By("by checking that after creation Kafka service status fields were properly populated")
-			Expect(createdKafka.Status.ServiceName).Should(Equal(serviceName))
 			Expect(createdKafka.Status.State).Should(Equal("RUNNING"))
 			Expect(createdKafka.Status.Plan).Should(Equal("business-4"))
 			Expect(createdKafka.Status.CloudName).Should(Equal("google-europe-west1"))
@@ -95,10 +94,9 @@ func kafkaSpec(serviceName, namespace string) *v1alpha1.Kafka {
 		},
 		Spec: v1alpha1.KafkaSpec{
 			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
-				Project:     os.Getenv("AIVEN_PROJECT_NAME"),
-				ServiceName: serviceName,
-				Plan:        "business-4",
-				CloudName:   "google-europe-west1",
+				Project:   os.Getenv("AIVEN_PROJECT_NAME"),
+				Plan:      "business-4",
+				CloudName: "google-europe-west1",
 			},
 			KafkaUserConfig: v1alpha1.KafkaUserConfig{
 				KafkaRest:      boolPointer(true),

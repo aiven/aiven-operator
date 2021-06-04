@@ -135,7 +135,6 @@ func (h PGHandler) setStatus(pg *k8soperatorv1alpha1.PG, s *aiven.Service) {
 	}
 
 	pg.Status.State = s.State
-	pg.Status.ServiceName = s.Name
 	pg.Status.ProjectVPCID = prVPCID
 	pg.Status.Plan = s.Plan
 	pg.Status.MaintenanceWindowTime = s.MaintenanceWindow.TimeOfDay

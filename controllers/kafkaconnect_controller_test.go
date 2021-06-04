@@ -68,7 +68,6 @@ var _ = Describe("KafkaConnect Controller", func() {
 
 			// Let's make sure our KafkaConnect status was properly populated.
 			By("by checking that after creation KafkaConnect service status fields were properly populated")
-			Expect(createdKafkaConnect.Status.ServiceName).Should(Equal(serviceName))
 			Expect(createdKafkaConnect.Status.State).Should(Equal("RUNNING"))
 			Expect(createdKafkaConnect.Status.Plan).Should(Equal("business-4"))
 			Expect(createdKafkaConnect.Status.CloudName).Should(Equal("google-europe-west1"))
@@ -95,10 +94,9 @@ func kafkaConnectSpec(serviceName, namespace string) *v1alpha1.KafkaConnect {
 		},
 		Spec: v1alpha1.KafkaConnectSpec{
 			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
-				Project:     os.Getenv("AIVEN_PROJECT_NAME"),
-				ServiceName: serviceName,
-				Plan:        "business-4",
-				CloudName:   "google-europe-west1",
+				Project:   os.Getenv("AIVEN_PROJECT_NAME"),
+				Plan:      "business-4",
+				CloudName: "google-europe-west1",
 			},
 		},
 	}
