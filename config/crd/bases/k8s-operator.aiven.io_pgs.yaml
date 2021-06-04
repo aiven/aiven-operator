@@ -575,9 +575,12 @@ spec:
                 description: Service name.
                 maxLength: 63
                 type: string
+              termination_protection:
+                description: Prevent service from being deleted. It is recommended
+                  to have this enabled for all services.
+                type: boolean
             required:
             - project
-            - service_name
             type: object
           status:
             description: PGStatus defines the observed state of PG
@@ -1124,9 +1127,12 @@ spec:
               state:
                 description: Service state
                 type: string
+              termination_protection:
+                description: Prevent service from being deleted. It is recommended
+                  to have this enabled for all services.
+                type: boolean
             required:
             - project
-            - service_name
             - state
             type: object
         type: object

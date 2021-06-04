@@ -85,19 +85,12 @@ spec:
                 maxLength: 2
                 minLength: 2
                 type: string
-              name:
-                description: Project name
-                format: ^[a-zA-Z0-9_-]*$
-                maxLength: 63
-                type: string
               technical_emails:
                 description: Technical contact emails of the project
                 items:
                   type: string
                 maxItems: 10
                 type: array
-            required:
-            - name
             type: object
           status:
             description: ProjectStatus defines the observed state of Project
@@ -160,11 +153,6 @@ spec:
               estimated_balance:
                 description: Estimated balance
                 type: string
-              name:
-                description: Project name
-                format: ^[a-zA-Z0-9_-]*$
-                maxLength: 63
-                type: string
               payment_method:
                 description: Payment method name
                 type: string
@@ -178,8 +166,6 @@ spec:
                 description: EU VAT Identification Number
                 maxLength: 64
                 type: string
-            required:
-            - name
             type: object
         type: object
     served: true

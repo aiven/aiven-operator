@@ -50,7 +50,7 @@ func (h DatabaseHandler) create(log logr.Logger, i client.Object) (client.Object
 	log.Info("Creating a new Database on Aiven side")
 
 	database, err := aivenClient.Databases.Create(db.Spec.Project, db.Spec.ServiceName, aiven.CreateDatabaseRequest{
-		Database:  db.Spec.DatabaseName,
+		Database:  db.Name,
 		LcCollate: db.Spec.LcCollate,
 		LcType:    db.Spec.LcType,
 	})
@@ -72,13 +72,12 @@ func (h DatabaseHandler) delete(log logr.Logger, i client.Object) (client.Object
 	err = aivenClient.Databases.Delete(
 		db.Status.Project,
 		db.Status.ServiceName,
-		db.Status.DatabaseName)
-	if !aiven.IsNotFound(err) {
+		db.Name)
+	if err != nil && !aiven.IsNotFound(err) {
 		return nil, false, err
 	}
 
 	log.Info("Successfully finalized Database on Aiven side")
-
 	return nil, true, nil
 }
 
@@ -90,7 +89,7 @@ func (h DatabaseHandler) exists(log logr.Logger, i client.Object) (bool, error) 
 
 	log.Info("Checking if Database exists on Aiven side")
 
-	d, err := aivenClient.Databases.Get(db.Spec.Project, db.Spec.ServiceName, db.Spec.DatabaseName)
+	d, err := aivenClient.Databases.Get(db.Spec.Project, db.Spec.ServiceName, db.Name)
 	if aiven.IsNotFound(err) {
 		return false, nil
 	}
@@ -122,8 +121,7 @@ func (h DatabaseHandler) isActive(logr.Logger, client.Object) (bool, error) {
 	return true, nil
 }
 
-func (h DatabaseHandler) setStatus(db *k8soperatorv1alpha1.Database, d *aiven.Database) {
-	db.Status.DatabaseName = d.DatabaseName
+func (h *DatabaseHandler) setStatus(db *k8soperatorv1alpha1.Database, d *aiven.Database) {
 	db.Status.LcCollate = d.LcCollate
 	db.Status.LcType = d.LcType
 	db.Status.Project = db.Spec.Project

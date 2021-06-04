@@ -78,7 +78,6 @@ var _ = Describe("Database Controller", func() {
 			By("by checking that after creation Database status fields were properly populated")
 			Expect(createdDB.Status.ServiceName).Should(Equal(serviceName))
 			Expect(createdDB.Status.Project).Should(Equal(os.Getenv("AIVEN_PROJECT_NAME")))
-			Expect(createdDB.Status.DatabaseName).Should(Equal(dbName))
 			Expect(createdDB.Status.LcType).Should(Equal("en_US.UTF-8"))
 			Expect(createdDB.Status.LcCollate).Should(Equal("en_US.UTF-8"))
 		})
@@ -101,11 +100,10 @@ func databaseSpec(service, database, namespace string) *v1alpha1.Database {
 			Namespace: namespace,
 		},
 		Spec: v1alpha1.DatabaseSpec{
-			Project:      os.Getenv("AIVEN_PROJECT_NAME"),
-			ServiceName:  service,
-			DatabaseName: database,
-			LcType:       "en_US.UTF-8",
-			LcCollate:    "en_US.UTF-8",
+			Project:     os.Getenv("AIVEN_PROJECT_NAME"),
+			ServiceName: service,
+			LcType:      "en_US.UTF-8",
+			LcCollate:   "en_US.UTF-8",
 		},
 	}
 }

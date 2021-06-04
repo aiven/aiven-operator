@@ -5,6 +5,5 @@ metadata:
 spec:
   project: dev-sandbox
   service_name: kafka-sample
-  database_name: database-sample
   lc_collate: en_US.UTF-8
   lc_ctype: en_US.UTF-8

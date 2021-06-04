@@ -6,8 +6,29 @@ metadata:
   creationTimestamp: null
   name: mutating-webhook-configuration
 webhooks:
-- clientConfig:
-    caBundle: Cg==
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /mutate-k8s-operator-aiven-io-v1alpha1-database
+  failurePolicy: Fail
+  name: mdatabase.kb.io
+  rules:
+  - apiGroups:
+    - k8s-operator.aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - databases
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
     service:
       name: webhook-service
       namespace: system
@@ -24,17 +45,19 @@ webhooks:
     - UPDATE
     resources:
     - pgs
-- clientConfig:
-    caBundle: Cg==
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-k8s-operator-aiven-io-aiven-io-v1alpha1-project
+      path: /mutate-k8s-operator-aiven-io-v1alpha1-project
   failurePolicy: Fail
   name: mproject.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io.aiven.io
+    - k8s-operator.aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -42,6 +65,7 @@ webhooks:
     - UPDATE
     resources:
     - projects
+  sideEffects: None
 
 ---
 apiVersion: admissionregistration.k8s.io/v1
@@ -50,8 +74,30 @@ metadata:
   creationTimestamp: null
   name: validating-webhook-configuration
 webhooks:
-- clientConfig:
-    caBundle: Cg==
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-k8s-operator-aiven-io-v1alpha1-database
+  failurePolicy: Fail
+  name: vdatabase.kb.io
+  rules:
+  - apiGroups:
+    - k8s-operator.aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - databases
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
     service:
       name: webhook-service
       namespace: system
@@ -66,23 +112,28 @@ webhooks:
     operations:
     - CREATE
     - UPDATE
+    - DELETE
     resources:
     - pgs
-- clientConfig:
-    caBundle: Cg==
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-k8s-operator-aiven-io-aiven-io-v1alpha1-project
+      path: /validate-k8s-operator-aiven-io-v1alpha1-project
   failurePolicy: Fail
   name: vproject.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io.aiven.io
+    - k8s-operator.aiven.io
     apiVersions:
     - v1alpha1
     operations:
     - CREATE
     - UPDATE
+    - DELETE
     resources:
     - projects
+  sideEffects: None

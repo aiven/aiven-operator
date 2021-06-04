@@ -1,80 +1,89 @@
 domain: aiven.io
-layout: go.kubebuilder.io/v2
-repo: github.com/aiven/aiven-k8s-operator
+layout:
+- go.kubebuilder.io/v2
+plugins:
+  go.operator-sdk.io/v2-alpha: {}
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
 projectName: aiven-operator
+repo: github.com/aiven/aiven-k8s-operator
 resources:
--
-  controller: true
+- controller: true
   domain: aiven.io
   group: k8s-operator
   kind: Project
   path: github.com/aiven/aiven-k8s-operator/api/v1alpha1
   version: v1alpha1
--
-  controller: true
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1beta1
+- controller: true
+  domain: aiven.io
+  group: k8s-operator
+  kind: PG
+  path: github.com/aiven/aiven-k8s-operator/api/v1alpha1
+  version: v1alpha1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1beta1
+- controller: true
   domain: aiven.io
   group: k8s-operator
   kind: ConnectionPool
   path: github.com/aiven/aiven-k8s-operator/api/v1alpha1
   version: v1alpha1
--
-  controller: true
+- controller: true
   domain: aiven.io
   group: k8s-operator
   kind: Database
   path: github.com/aiven/aiven-k8s-operator/api/v1alpha1
   version: v1alpha1
--
-  controller: true
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1beta1
+- controller: true
   domain: aiven.io
   group: k8s-operator
   kind: ServiceUser
   path: github.com/aiven/aiven-k8s-operator/api/v1alpha1
   version: v1alpha1
--
-  controller: true
+- controller: true
   domain: aiven.io
   group: k8s-operator
   kind: ProjectVPC
   path: github.com/aiven/aiven-k8s-operator/api/v1alpha1
   version: v1alpha1
--
-  controller: true
+- controller: true
   domain: aiven.io
   group: k8s-operator
   kind: Kafka
   path: github.com/aiven/aiven-k8s-operator/api/v1alpha1
   version: v1alpha1
--
-  controller: true
+- controller: true
   domain: aiven.io
   group: k8s-operator
   kind: KafkaTopic
   path: github.com/aiven/aiven-k8s-operator/api/v1alpha1
   version: v1alpha1
--
-  controller: true
+- controller: true
   domain: aiven.io
   group: k8s-operator
   kind: ServiceIntegration
   path: github.com/aiven/aiven-k8s-operator/api/v1alpha1
   version: v1alpha1
--
-  controller: true
+- controller: true
   domain: aiven.io
   group: k8s-operator
   kind: KafkaSchema
   path: github.com/aiven/aiven-k8s-operator/api/v1alpha1
   version: v1alpha1
--
-  controller: true
+- controller: true
   domain: aiven.io
   group: k8s-operator
   kind: KafkaACL
   path: github.com/aiven/aiven-k8s-operator/api/v1alpha1
   version: v1alpha1
 version: "3"
-plugins:
-  go.operator-sdk.io/v2-alpha: {}
-  manifests.sdk.operatorframework.io/v2: {}
-  scorecard.sdk.operatorframework.io/v2: {}

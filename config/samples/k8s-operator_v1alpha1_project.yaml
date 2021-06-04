@@ -3,4 +3,4 @@ kind: Project
 metadata:
   name: project-sample1
 spec:
-  name: test-k8s-project
+  billing_address: NYC
