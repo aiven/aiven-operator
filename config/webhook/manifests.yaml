@@ -92,6 +92,26 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
+      path: /mutate-k8s-operator-aiven-io-v1alpha1-projectvpc
+  failurePolicy: Fail
+  name: mprojectvpc.kb.io
+  rules:
+  - apiGroups:
+    - k8s-operator.aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - projectvpcs
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
       path: /mutate-k8s-operator-aiven-io-v1alpha1-serviceuser
   failurePolicy: Fail
   name: mserviceuser.kb.io
@@ -197,6 +217,26 @@ webhooks:
     - DELETE
     resources:
     - projects
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-k8s-operator-aiven-io-v1alpha1-projectvpc
+  failurePolicy: Fail
+  name: vprojectvpc.kb.io
+  rules:
+  - apiGroups:
+    - k8s-operator.aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - projectvpcs
   sideEffects: None
 - admissionReviewVersions:
   - v1
