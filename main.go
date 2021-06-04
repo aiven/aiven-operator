@@ -235,6 +235,11 @@ func main() {
 			setupLog.Error(err, "unable to create webhook", "webhook", "KafkaACL")
 			os.Exit(1)
 		}
+
+		if err = (&k8soperatorv1alpha1.KafkaSchema{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "KafkaSchema")
+			os.Exit(1)
+		}
 	}
 
 	// +kubebuilder:scaffold:builder

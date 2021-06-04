@@ -43,7 +43,7 @@ func (r *KafkaConnect) ValidateCreate() error {
 func (r *KafkaConnect) ValidateUpdate(old runtime.Object) error {
 	kafkaconnectlog.Info("validate update", "name", r.Name)
 
-	if r.Spec.Project != old.(*Kafka).Spec.Project {
+	if r.Spec.Project != old.(*KafkaConnect).Spec.Project {
 		return errors.New("cannot update a KafkaConnect service, project field is immutable and cannot be updated")
 	}
 
