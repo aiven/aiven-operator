@@ -62,7 +62,7 @@ func (h *KafkaHandler) create(log logr.Logger, i client.Object) (client.Object, 
 			kafka.Spec.MaintenanceWindowTime),
 		Plan:                kafka.Spec.Plan,
 		ProjectVPCID:        prVPCID,
-		ServiceName:         kafka.Spec.ServiceName,
+		ServiceName:         kafka.Name,
 		ServiceType:         "kafka",
 		UserConfig:          UserConfigurationToAPI(kafka.Spec.KafkaUserConfig).(map[string]interface{}),
 		ServiceIntegrations: nil,
@@ -83,7 +83,7 @@ func (h KafkaHandler) delete(log logr.Logger, i client.Object) (client.Object, b
 	}
 
 	// Delete project on Aiven side
-	if err := aivenClient.Services.Delete(kafka.Spec.Project, kafka.Spec.ServiceName); err != nil {
+	if err := aivenClient.Services.Delete(kafka.Spec.Project, kafka.Name); err != nil {
 		if !aiven.IsNotFound(err) {
 			log.Error(err, "Cannot delete Aiven Kafka service")
 			return nil, false, fmt.Errorf("aiven client delete Kafka error: %w", err)
@@ -108,7 +108,7 @@ func (h KafkaHandler) exists(log logr.Logger, i client.Object) (bool, error) {
 
 	log.Info("Checking if Kafka service already exists")
 
-	s, err := aivenClient.Services.Get(kafka.Spec.Project, kafka.Spec.ServiceName)
+	s, err := aivenClient.Services.Get(kafka.Spec.Project, kafka.Name)
 	if aiven.IsNotFound(err) {
 		return false, nil
 	}
@@ -127,7 +127,7 @@ func (h KafkaHandler) update(_ logr.Logger, i client.Object) (client.Object, err
 		prVPCID = &kafka.Spec.ProjectVPCID
 	}
 
-	s, err := aivenClient.Services.Update(kafka.Spec.Project, kafka.Spec.ServiceName, aiven.UpdateServiceRequest{
+	s, err := aivenClient.Services.Update(kafka.Spec.Project, kafka.Name, aiven.UpdateServiceRequest{
 		Cloud: kafka.Spec.CloudName,
 		MaintenanceWindow: getMaintenanceWindow(
 			kafka.Spec.MaintenanceWindowDow,
@@ -152,7 +152,7 @@ func (h KafkaHandler) getSecret(_ logr.Logger, i client.Object) (*corev1.Secret,
 		return nil, err
 	}
 
-	s, err := aivenClient.Services.Get(kafka.Spec.Project, kafka.Spec.ServiceName)
+	s, err := aivenClient.Services.Get(kafka.Spec.Project, kafka.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +187,7 @@ func (h KafkaHandler) isActive(log logr.Logger, i client.Object) (bool, error) {
 
 	log.Info("Checking if Kafka service is active")
 
-	return checkServiceIsRunning(kafka.Spec.Project, kafka.Spec.ServiceName), nil
+	return checkServiceIsRunning(kafka.Spec.Project, kafka.Name), nil
 }
 
 func (h KafkaHandler) convert(i client.Object) (*k8soperatorv1alpha1.Kafka, error) {
@@ -207,7 +207,6 @@ func (h KafkaHandler) setStatus(kafka *k8soperatorv1alpha1.Kafka, s *aiven.Servi
 	}
 
 	kafka.Status.State = s.State
-	kafka.Status.ServiceName = s.Name
 	kafka.Status.ProjectVPCID = prVPCID
 	kafka.Status.Plan = s.Plan
 	kafka.Status.MaintenanceWindowTime = s.MaintenanceWindow.TimeOfDay

@@ -12,10 +12,6 @@ type ServiceCommonSpec struct {
 	// Target project.
 	Project string `json:"project"`
 
-	// +kubebuilder:validation:MaxLength=63
-	// Service name.
-	ServiceName string `json:"service_name,omitempty"` //TODO: remove it in the future
-
 	// +kubebuilder:validation:MaxLength=128
 	// Subscription plan.
 	Plan string `json:"plan,omitempty"`

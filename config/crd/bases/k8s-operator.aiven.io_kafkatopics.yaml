@@ -160,6 +160,12 @@ spec:
                   - key
                   type: object
                 type: array
+              termination_protection:
+                description: It is a Kubernetes side deletion protections, which prevents
+                  the kafka topic from being deleted by Kubernetes. It is recommended
+                  to enable this for any production databases containing critical
+                  data.
+                type: boolean
               topic_name:
                 description: Topic name.
                 maxLength: 63
@@ -300,6 +306,12 @@ spec:
                   - key
                   type: object
                 type: array
+              termination_protection:
+                description: It is a Kubernetes side deletion protections, which prevents
+                  the kafka topic from being deleted by Kubernetes. It is recommended
+                  to enable this for any production databases containing critical
+                  data.
+                type: boolean
               topic_name:
                 description: Topic name.
                 maxLength: 63

@@ -51,14 +51,9 @@ spec:
                 description: Service to link the user to
                 maxLength: 63
                 type: string
-              username:
-                description: Name of the user account
-                maxLength: 63
-                type: string
             required:
             - project
             - service_name
-            - username
             type: object
           status:
             description: ServiceUserStatus defines the observed state of ServiceUser
@@ -81,14 +76,9 @@ spec:
               type:
                 description: Type of the user account
                 type: string
-              username:
-                description: Name of the user account
-                maxLength: 63
-                type: string
             required:
             - project
             - service_name
-            - username
             type: object
         type: object
     served: true

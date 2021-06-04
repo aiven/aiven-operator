@@ -200,7 +200,53 @@ func main() {
 			setupLog.Error(err, "unable to create webhook", "webhook", "Database")
 			os.Exit(1)
 		}
+
+		if err = (&k8soperatorv1alpha1.ConnectionPool{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "ConnectionPool")
+			os.Exit(1)
+		}
+
+		if err = (&k8soperatorv1alpha1.ServiceUser{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "ServiceUser")
+			os.Exit(1)
+		}
+
+		if err = (&k8soperatorv1alpha1.ProjectVPC{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "ProjectVPC")
+			os.Exit(1)
+		}
+
+		if err = (&k8soperatorv1alpha1.Kafka{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Kafka")
+			os.Exit(1)
+		}
+
+		if err = (&k8soperatorv1alpha1.KafkaConnect{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "KafkaConnect")
+			os.Exit(1)
+		}
+
+		if err = (&k8soperatorv1alpha1.KafkaTopic{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "KafkaTopic")
+			os.Exit(1)
+		}
+
+		if err = (&k8soperatorv1alpha1.KafkaACL{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "KafkaACL")
+			os.Exit(1)
+		}
+
+		if err = (&k8soperatorv1alpha1.KafkaSchema{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "KafkaSchema")
+			os.Exit(1)
+		}
+
+		if err = (&k8soperatorv1alpha1.ServiceIntegration{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "ServiceIntegration")
+			os.Exit(1)
+		}
 	}
+
 	// +kubebuilder:scaffold:builder
 
 	setupLog.Info("starting manager")

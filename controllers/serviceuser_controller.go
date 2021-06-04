@@ -51,7 +51,7 @@ func (h *ServiceUserHandler) create(log logr.Logger, i client.Object) (client.Ob
 
 	u, err := aivenClient.ServiceUsers.Create(user.Spec.Project, user.Spec.ServiceName,
 		aiven.CreateServiceUserRequest{
-			Username: user.Spec.Username,
+			Username: user.Name,
 			AccessControl: aiven.AccessControl{
 				RedisACLCategories: []string{},
 				RedisACLCommands:   []string{},
@@ -77,14 +77,14 @@ func (h ServiceUserHandler) delete(_ logr.Logger, i client.Object) (client.Objec
 		return nil, false, err
 	}
 
-	err = aivenClient.ServiceUsers.Delete(user.Spec.Project, user.Spec.ServiceName, user.Spec.Username)
+	err = aivenClient.ServiceUsers.Delete(user.Spec.Project, user.Spec.ServiceName, user.Name)
 	if !aiven.IsNotFound(err) {
 		return nil, false, err
 	}
 
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s%s", user.Spec.Username, "-secret"),
+			Name:      fmt.Sprintf("%s%s", user.Name, "-secret"),
 			Namespace: user.Namespace,
 			Labels: map[string]string{
 				"app": user.Name,
@@ -99,7 +99,7 @@ func (h ServiceUserHandler) exists(_ logr.Logger, i client.Object) (exists bool,
 		return false, err
 	}
 
-	u, err := aivenClient.ServiceUsers.Get(user.Spec.Project, user.Spec.ServiceName, user.Spec.Username)
+	u, err := aivenClient.ServiceUsers.Get(user.Spec.Project, user.Spec.ServiceName, user.Name)
 	if !aiven.IsNotFound(err) {
 		return false, err
 	}
@@ -117,7 +117,7 @@ func (h ServiceUserHandler) getSecret(_ logr.Logger, i client.Object) (secret *c
 		return nil, err
 	}
 
-	u, err := aivenClient.ServiceUsers.Get(user.Spec.Project, user.Spec.ServiceName, user.Spec.Username)
+	u, err := aivenClient.ServiceUsers.Get(user.Spec.Project, user.Spec.ServiceName, user.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +163,6 @@ func (h ServiceUserHandler) convert(i client.Object) (*k8soperatorv1alpha1.Servi
 }
 
 func (h ServiceUserHandler) setStatus(user *k8soperatorv1alpha1.ServiceUser, u *aiven.ServiceUser) {
-	user.Status.Username = u.Username
 	user.Status.ServiceName = user.Spec.ServiceName
 	user.Status.Project = user.Spec.Project
 	user.Status.Type = u.Type

@@ -21,11 +21,9 @@ type KafkaACLSpec struct {
 	// Kafka permission to grant (admin, read, readwrite, write)
 	Permission string `json:"permission"`
 
-	// x-kubernetes-immutable: true
 	// Topic name pattern for the ACL entry
 	Topic string `json:"topic"`
 
-	// x-kubernetes-immutable: true
 	// Username pattern for the ACL entry
 	Username string `json:"username"`
 }

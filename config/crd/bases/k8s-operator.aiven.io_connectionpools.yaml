@@ -47,10 +47,6 @@ spec:
                 - transaction
                 - statement
                 type: string
-              pool_name:
-                description: Name of the pool
-                maxLength: 60
-                type: string
               pool_size:
                 description: Number of connections the pool may create towards the
                   backend server
@@ -70,7 +66,6 @@ spec:
                 type: string
             required:
             - database_name
-            - pool_name
             - project
             - service_name
             - username
@@ -92,10 +87,6 @@ spec:
                 - transaction
                 - statement
                 type: string
-              pool_name:
-                description: Name of the pool
-                maxLength: 60
-                type: string
               pool_size:
                 description: Number of connections the pool may create towards the
                   backend server
@@ -115,7 +106,6 @@ spec:
                 type: string
             required:
             - database_name
-            - pool_name
             - project
             - service_name
             - username
