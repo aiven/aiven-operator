@@ -54,6 +54,10 @@ resources:
   kind: ServiceUser
   path: github.com/aiven/aiven-k8s-operator/api/v1alpha1
   version: v1alpha1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1beta1
 - controller: true
   domain: aiven.io
   group: k8s-operator

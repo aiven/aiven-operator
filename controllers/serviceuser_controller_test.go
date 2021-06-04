@@ -77,7 +77,6 @@ var _ = Describe("ServiceUser Controller", func() {
 			// Let's make sure our instance status was properly populated.
 			By("by checking that after creation ServiceUser status fields were properly populated")
 			Expect(createdUser.Status.Project).Should(Equal(os.Getenv("AIVEN_PROJECT_NAME")))
-			Expect(createdUser.Status.Username).Should(Equal(userName))
 			Expect(createdUser.Status.Authentication).Should(Equal("caching_sha2_password"))
 			Expect(createdUser.Status.Type).ToNot(BeEmpty())
 			Expect(createdUser.Status.ServiceName).Should(Equal(serviceName))
@@ -103,7 +102,6 @@ func serviceUserSpec(service, user, namespace string) *v1alpha1.ServiceUser {
 		Spec: v1alpha1.ServiceUserSpec{
 			Project:        os.Getenv("AIVEN_PROJECT_NAME"),
 			ServiceName:    service,
-			Username:       user,
 			Authentication: "caching_sha2_password",
 		},
 	}

@@ -62,6 +62,5 @@ func (r *ConnectionPool) ValidateUpdate(old runtime.Object) error {
 func (r *ConnectionPool) ValidateDelete() error {
 	connectionpoollog.Info("validate delete", "name", r.Name)
 
-	// TODO(user): fill in your validation logic upon object deletion.
 	return nil
 }
