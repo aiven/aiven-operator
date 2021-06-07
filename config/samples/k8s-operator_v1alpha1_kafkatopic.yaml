@@ -3,9 +3,8 @@ kind: KafkaTopic
 metadata:
   name: kafkatopic-sample
 spec:
-  service_name: kafka-sample
+  serviceName: kafka-sample
   project: dev-sandbox
-  topic_name: kafkatopic-sample
   partitions: 3
   replication: 2
   tags:

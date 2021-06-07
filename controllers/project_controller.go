@@ -66,12 +66,12 @@ func (h ProjectHandler) create(log logr.Logger, i client.Object) (client.Object,
 		BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
 		BillingEmails:    billingEmails,
 		BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
-		CardID:           toOptionalStringPointer(project.Spec.CardId),
+		CardID:           toOptionalStringPointer(project.Spec.CardID),
 		Cloud:            toOptionalStringPointer(project.Spec.Cloud),
 		CopyFromProject:  project.Spec.CopyFromProject,
 		CountryCode:      toOptionalStringPointer(project.Spec.CountryCode),
 		Project:          project.Name,
-		AccountId:        toOptionalStringPointer(project.Spec.AccountId),
+		AccountId:        toOptionalStringPointer(project.Spec.AccountID),
 		TechnicalEmails:  technicalEmails,
 		BillingCurrency:  project.Spec.BillingCurrency,
 	})
@@ -85,15 +85,15 @@ func (h ProjectHandler) create(log logr.Logger, i client.Object) (client.Object,
 }
 
 func (*ProjectHandler) setStatus(project *k8soperatorv1alpha1.Project, p *aiven.Project) {
-	project.Status.AccountId = p.AccountId
+	project.Status.AccountID = p.AccountId
 	project.Status.BillingAddress = p.BillingAddress
 	project.Status.BillingEmails = p.GetBillingEmailsAsStringSlice()
 	project.Status.TechnicalEmails = p.GetTechnicalEmailsAsStringSlice()
 	project.Status.BillingExtraText = p.BillingExtraText
-	project.Status.CardId = p.Card.CardID
+	project.Status.CardID = p.Card.CardID
 	project.Status.Cloud = p.DefaultCloud
 	project.Status.CountryCode = p.CountryCode
-	project.Status.VatId = p.VatID
+	project.Status.VatID = p.VatID
 	project.Status.CopyFromProject = p.CopyFromProject
 	project.Status.BillingCurrency = p.BillingCurrency
 	project.Status.EstimatedBalance = p.EstimatedBalance
@@ -149,10 +149,10 @@ func (h ProjectHandler) update(log logr.Logger, i client.Object) (client.Object,
 		BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
 		BillingEmails:    billingEmails,
 		BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
-		CardID:           toOptionalStringPointer(project.Spec.CardId),
+		CardID:           toOptionalStringPointer(project.Spec.CardID),
 		Cloud:            toOptionalStringPointer(project.Spec.Cloud),
 		CountryCode:      toOptionalStringPointer(project.Spec.CountryCode),
-		AccountId:        toOptionalStringPointer(project.Spec.AccountId),
+		AccountId:        toOptionalStringPointer(project.Spec.AccountID),
 		TechnicalEmails:  technicalEmails,
 		BillingCurrency:  project.Spec.BillingCurrency,
 	})

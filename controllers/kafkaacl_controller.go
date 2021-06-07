@@ -71,7 +71,7 @@ func (h KafkaACLHandler) delete(log logr.Logger, i client.Object) (client.Object
 		return nil, false, err
 	}
 
-	err = aivenClient.KafkaACLs.Delete(acl.Status.Project, acl.Status.ServiceName, acl.Status.Id)
+	err = aivenClient.KafkaACLs.Delete(acl.Status.Project, acl.Status.ServiceName, acl.Status.ID)
 	if err != nil && !aiven.IsNotFound(err) {
 		log.Error(err, "Cannot delete Kafka ACL")
 		return nil, false, fmt.Errorf("aiven client delete Kafka ACL error: %w", err)
@@ -89,8 +89,8 @@ func (h KafkaACLHandler) exists(_ logr.Logger, i client.Object) (exists bool, er
 	}
 
 	var aivenACL *aiven.KafkaACL
-	if acl.Status.Id != "" {
-		aivenACL, err = aivenClient.KafkaACLs.Get(acl.Spec.Project, acl.Spec.ServiceName, acl.Status.Id)
+	if acl.Status.ID != "" {
+		aivenACL, err = aivenClient.KafkaACLs.Get(acl.Spec.Project, acl.Spec.ServiceName, acl.Status.ID)
 		if err != nil {
 			return false, err
 		}
@@ -146,5 +146,5 @@ func (h KafkaACLHandler) setStatus(acl *k8soperatorv1alpha1.KafkaACL, a *aiven.K
 	acl.Status.Username = a.Username
 	acl.Status.Permission = a.Permission
 	acl.Status.Topic = a.Topic
-	acl.Status.Id = a.ID
+	acl.Status.ID = a.ID
 }

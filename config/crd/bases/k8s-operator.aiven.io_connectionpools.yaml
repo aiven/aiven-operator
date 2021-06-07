@@ -36,18 +36,18 @@ spec:
           spec:
             description: ConnectionPoolSpec defines the desired state of ConnectionPool
             properties:
-              database_name:
+              databaseName:
                 description: Name of the database the pool connects to
                 maxLength: 40
                 type: string
-              pool_mode:
+              poolMode:
                 description: Mode the pool operates in (session, transaction, statement)
                 enum:
                 - session
                 - transaction
                 - statement
                 type: string
-              pool_size:
+              poolSize:
                 description: Number of connections the pool may create towards the
                   backend server
                 type: integer
@@ -56,7 +56,7 @@ spec:
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
-              service_name:
+              serviceName:
                 description: Service name.
                 maxLength: 63
                 type: string
@@ -65,29 +65,29 @@ spec:
                 maxLength: 64
                 type: string
             required:
-            - database_name
+            - databaseName
             - project
-            - service_name
+            - serviceName
             - username
             type: object
           status:
             description: ConnectionPoolStatus defines the observed state of ConnectionPool
             properties:
-              connection_uri:
+              connectionUri:
                 description: URI for connecting to the pool
                 type: string
-              database_name:
+              databaseName:
                 description: Name of the database the pool connects to
                 maxLength: 40
                 type: string
-              pool_mode:
+              poolMode:
                 description: Mode the pool operates in (session, transaction, statement)
                 enum:
                 - session
                 - transaction
                 - statement
                 type: string
-              pool_size:
+              poolSize:
                 description: Number of connections the pool may create towards the
                   backend server
                 type: integer
@@ -96,7 +96,7 @@ spec:
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
-              service_name:
+              serviceName:
                 description: Service name.
                 maxLength: 63
                 type: string
@@ -105,9 +105,9 @@ spec:
                 maxLength: 64
                 type: string
             required:
-            - database_name
+            - databaseName
             - project
-            - service_name
+            - serviceName
             - username
             type: object
         type: object

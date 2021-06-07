@@ -15,7 +15,7 @@ type KafkaACLSpec struct {
 
 	// +kubebuilder:validation:MaxLength=63
 	// Service to link the Kafka ACL to
-	ServiceName string `json:"service_name"`
+	ServiceName string `json:"serviceName"`
 
 	// +kubebuilder:validation:Enum=admin;read;readwrite;write
 	// Kafka permission to grant (admin, read, readwrite, write)
@@ -33,7 +33,7 @@ type KafkaACLStatus struct {
 	KafkaACLSpec `json:",inline"`
 
 	// Kafka ACL ID
-	Id string `json:"id"`
+	ID string `json:"id"`
 }
 
 // +kubebuilder:object:root=true

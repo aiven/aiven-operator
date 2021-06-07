@@ -14,7 +14,11 @@ spec:
     singular: projectvpc
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .status.state
+      name: State
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: ProjectVPC is the Schema for the projectvpcs API
@@ -30,35 +34,35 @@ spec:
           spec:
             description: ProjectVPCSpec defines the desired state of ProjectVPC
             properties:
-              cloud_name:
-                description: 'x-kubernetes-immutable: true Cloud the VPC is in'
+              cloudName:
+                description: Cloud the VPC is in
                 maxLength: 256
                 type: string
-              network_cidr:
-                description: 'x-kubernetes-immutable: true Network address range used by the VPC like 192.168.0.0/24'
+              networkCidr:
+                description: Network address range used by the VPC like 192.168.0.0/24
                 maxLength: 36
                 type: string
               project:
-                description: 'x-kubernetes-immutable: true The project the VPC belongs to'
+                description: The project the VPC belongs to
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
             required:
-            - cloud_name
-            - network_cidr
+            - cloudName
+            - networkCidr
             - project
             type: object
           status:
             description: ProjectVPCStatus defines the observed state of ProjectVPC
             properties:
-              cloud_name:
+              cloudName:
                 description: Cloud the VPC is in
                 maxLength: 256
                 type: string
               id:
                 description: Project VPC id
                 type: string
-              network_cidr:
+              networkCidr:
                 description: Network address range used by the VPC like 192.168.0.0/24
                 maxLength: 36
                 type: string
@@ -71,9 +75,9 @@ spec:
                 description: State of the VPC (APPROVED, ACTIVE, DELETING, DELETED)
                 type: string
             required:
-            - cloud_name
+            - cloudName
             - id
-            - network_cidr
+            - networkCidr
             - project
             - state
             type: object

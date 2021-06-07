@@ -4,5 +4,5 @@ metadata:
   name: projectvpc-sample
 spec:
   project: sample-project
-  cloud_name: aws-eu-west-1
-  network_cidr: 192.168.0.0/24
+  cloudName: aws-eu-west-1
+  networkCidr: 192.168.0.0/24

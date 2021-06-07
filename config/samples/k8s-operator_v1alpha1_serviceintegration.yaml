@@ -3,9 +3,8 @@ kind: ServiceIntegration
 metadata:
   name: serviceintegration-sample
 spec:
-  service_name: serviceintegration-sample
   project: dev-sandbox
-  cloud_name: google-europe-west1
+  cloudName: google-europe-west1
   plan: startup-4
-  maintenance_window_dow: friday
-  maintenance_window_time: 23:00:00
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00

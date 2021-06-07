@@ -15,18 +15,18 @@ type KafkaSchemaSpec struct {
 
 	// +kubebuilder:validation:MaxLength=63
 	// Service to link the Kafka Schema to
-	ServiceName string `json:"service_name"`
+	ServiceName string `json:"serviceName"`
 
 	// +kubebuilder:validation:MaxLength=63
 	// Kafka Schema Subject name
-	SubjectName string `json:"subject_name"`
+	SubjectName string `json:"subjectName"`
 
 	// Kafka Schema configuration should be a valid Avro Schema JSON format
 	Schema string `json:"schema"`
 
 	// +kubebuilder:validation:Enum=BACKWARD;BACKWARD_TRANSITIVE;FORWARD;FORWARD_TRANSITIVE;FULL;FULL_TRANSITIVE;NONE
 	// Kafka Schemas compatibility level
-	CompatibilityLevel string `json:"compatibility_level,omitempty"`
+	CompatibilityLevel string `json:"compatibilityLevel,omitempty"`
 }
 
 // KafkaSchemaStatus defines the observed state of KafkaSchema

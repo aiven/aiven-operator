@@ -30,43 +30,7 @@ spec:
           spec:
             description: KafkaSchemaSpec defines the desired state of KafkaSchema
             properties:
-              compatibility_level:
-                description: Kafka Schemas compatibility level
-                enum:
-                - BACKWARD
-                - BACKWARD_TRANSITIVE
-                - FORWARD
-                - FORWARD_TRANSITIVE
-                - FULL
-                - FULL_TRANSITIVE
-                - NONE
-                type: string
-              project:
-                description: 'x-kubernetes-immutable: true Project to link the Kafka Schema to'
-                format: ^[a-zA-Z0-9_-]*$
-                maxLength: 63
-                type: string
-              schema:
-                description: Kafka Schema configuration should be a valid Avro Schema JSON format
-                type: string
-              service_name:
-                description: 'x-kubernetes-immutable: true Service to link the Kafka Schema to'
-                maxLength: 63
-                type: string
-              subject_name:
-                description: 'x-kubernetes-immutable: true Kafka Schema Subject name'
-                maxLength: 63
-                type: string
-            required:
-            - project
-            - schema
-            - service_name
-            - subject_name
-            type: object
-          status:
-            description: KafkaSchemaStatus defines the observed state of KafkaSchema
-            properties:
-              compatibility_level:
+              compatibilityLevel:
                 description: Kafka Schemas compatibility level
                 enum:
                 - BACKWARD
@@ -85,11 +49,47 @@ spec:
               schema:
                 description: Kafka Schema configuration should be a valid Avro Schema JSON format
                 type: string
-              service_name:
+              serviceName:
                 description: Service to link the Kafka Schema to
                 maxLength: 63
                 type: string
-              subject_name:
+              subjectName:
+                description: Kafka Schema Subject name
+                maxLength: 63
+                type: string
+            required:
+            - project
+            - schema
+            - serviceName
+            - subjectName
+            type: object
+          status:
+            description: KafkaSchemaStatus defines the observed state of KafkaSchema
+            properties:
+              compatibilityLevel:
+                description: Kafka Schemas compatibility level
+                enum:
+                - BACKWARD
+                - BACKWARD_TRANSITIVE
+                - FORWARD
+                - FORWARD_TRANSITIVE
+                - FULL
+                - FULL_TRANSITIVE
+                - NONE
+                type: string
+              project:
+                description: Project to link the Kafka Schema to
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              schema:
+                description: Kafka Schema configuration should be a valid Avro Schema JSON format
+                type: string
+              serviceName:
+                description: Service to link the Kafka Schema to
+                maxLength: 63
+                type: string
+              subjectName:
                 description: Kafka Schema Subject name
                 maxLength: 63
                 type: string
@@ -99,8 +99,8 @@ spec:
             required:
             - project
             - schema
-            - service_name
-            - subject_name
+            - serviceName
+            - subjectName
             - version
             type: object
         type: object

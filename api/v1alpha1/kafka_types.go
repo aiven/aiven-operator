@@ -11,7 +11,7 @@ type KafkaSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
 	// Kafka specific user configuration options
-	KafkaUserConfig KafkaUserConfig `json:"kafka_user_config,omitempty"`
+	KafkaUserConfig KafkaUserConfig `json:"kafkaUserConfig,omitempty"`
 }
 
 // KafkaStatus defines the observed state of Kafka
@@ -351,6 +351,7 @@ type KafkaSubKafkaUserConfig struct {
 // +kubebuilder:subresource:status
 
 // Kafka is the Schema for the kafkas API
+// +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state"
 type Kafka struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

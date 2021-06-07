@@ -66,13 +66,13 @@ spec:
                       type: string
                     type: array
                 type: object
-              destination_endpoint_id:
+              destinationEndpointId:
                 description: Destination endpoint for the integration (if any)
                 type: string
-              destination_service_name:
+              destinationServiceName:
                 description: Destination service for the integration (if any)
                 type: string
-              integration_type:
+              integrationType:
                 description: Type of the service integration
                 enum:
                 - datadog
@@ -89,7 +89,7 @@ spec:
                 - external_google_cloud_logging
                 - datasource
                 type: string
-              kafka_connect:
+              kafkaConnect:
                 description: Kafka Connect service configuration values
                 properties:
                   kafka_connect:
@@ -119,7 +119,7 @@ spec:
                         type: string
                     type: object
                 type: object
-              kafka_logs:
+              kafkaLogs:
                 description: Kafka logs configuration values
                 properties:
                   kafka_topic:
@@ -166,14 +166,14 @@ spec:
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
-              source_endpoint_id:
+              sourceEndpointID:
                 description: Source endpoint for the integration (if any)
                 type: string
-              source_service_name:
+              sourceServiceName:
                 description: Source service for the integration (if any)
                 type: string
             required:
-            - integration_type
+            - integrationType
             - project
             type: object
           status:
@@ -208,16 +208,16 @@ spec:
                       type: string
                     type: array
                 type: object
-              destination_endpoint_id:
+              destinationEndpointId:
                 description: Destination endpoint for the integration (if any)
                 type: string
-              destination_service_name:
+              destinationServiceName:
                 description: Destination service for the integration (if any)
                 type: string
               id:
                 description: Service integration ID
                 type: string
-              integration_type:
+              integrationType:
                 description: Type of the service integration
                 enum:
                 - datadog
@@ -234,7 +234,7 @@ spec:
                 - external_google_cloud_logging
                 - datasource
                 type: string
-              kafka_connect:
+              kafkaConnect:
                 description: Kafka Connect service configuration values
                 properties:
                   kafka_connect:
@@ -264,7 +264,7 @@ spec:
                         type: string
                     type: object
                 type: object
-              kafka_logs:
+              kafkaLogs:
                 description: Kafka logs configuration values
                 properties:
                   kafka_topic:
@@ -311,15 +311,15 @@ spec:
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
-              source_endpoint_id:
+              sourceEndpointID:
                 description: Source endpoint for the integration (if any)
                 type: string
-              source_service_name:
+              sourceServiceName:
                 description: Source service for the integration (if any)
                 type: string
             required:
             - id
-            - integration_type
+            - integrationType
             - project
             type: object
         type: object

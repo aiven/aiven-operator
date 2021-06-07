@@ -4,7 +4,7 @@ metadata:
   name: kafkaacl-sample
 spec:
   project: dev-sandbox
-  service_name: kafka-sample
+  serviceName: kafka-sample
   permission: admin
   topic: topic-sample
   username: user1-sample

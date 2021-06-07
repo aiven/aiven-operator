@@ -47,6 +47,11 @@ spec:
       kind: KafkaTopic
       name: kafkatopics.k8s-operator.aiven.io
       version: v1alpha1
+    - description: PG is the Schema for the pgs API
+      displayName: PG
+      kind: PG
+      name: pgs.k8s-operator.aiven.io
+      version: v1alpha1
     - description: Project is the Schema for the projects API
       displayName: Project
       kind: Project

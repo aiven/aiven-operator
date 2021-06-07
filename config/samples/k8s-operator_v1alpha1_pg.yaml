@@ -4,9 +4,9 @@ metadata:
   name: pg-sample
 spec:
   project: dev-sandbox
-  cloud_name: google-europe-west1
+  cloudName: google-europe-west1
   plan: startup-4
-  maintenance_window_dow: friday
-  maintenance_window_time: 23:00:00
-  pg_user_config:
+  maintenanceWindowWow: friday
+  maintenanceWindowTime: 23:00:00
+  pgUserConfig:
     pg_version: '11'

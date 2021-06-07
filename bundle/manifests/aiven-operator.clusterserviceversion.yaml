@@ -27,7 +27,6 @@ metadata:
             "name": "database-sample"
           },
           "spec": {
-            "database_name": "database-sample",
             "lc_collate": "en_US.UTF-8",
             "lc_ctype": "en_US.UTF-8",
             "project": "dev-sandbox",
@@ -136,8 +135,7 @@ metadata:
               "pg_version": "11"
             },
             "plan": "startup-4",
-            "project": "dev-sandbox",
-            "service_name": "pg-sample"
+            "project": "dev-sandbox"
           }
         },
         {
@@ -147,7 +145,7 @@ metadata:
             "name": "project-sample1"
           },
           "spec": {
-            "name": "test-k8s-project"
+            "billing_address": "NYC"
           }
         },
         {
@@ -192,7 +190,7 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    operators.operatorframework.io/builder: operator-sdk-v1.6.1+git
+    operators.operatorframework.io/builder: operator-sdk-v1.7.2
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
   name: aiven-operator.v0.0.1
   namespace: placeholder
@@ -235,7 +233,9 @@ spec:
       kind: KafkaTopic
       name: kafkatopics.k8s-operator.aiven.io
       version: v1alpha1
-    - kind: PG
+    - description: PG is the Schema for the pgs API
+      displayName: PG
+      kind: PG
       name: pgs.k8s-operator.aiven.io
       version: v1alpha1
     - description: Project is the Schema for the projects API
@@ -337,8 +337,6 @@ spec:
           - delete
           - get
           - list
-          - patch
-          - update
           - watch
         - apiGroups:
           - k8s-operator.aiven.io
@@ -346,8 +344,6 @@ spec:
           - kafkaacls/status
           verbs:
           - get
-          - patch
-          - update
         - apiGroups:
           - k8s-operator.aiven.io
           resources:
@@ -517,8 +513,6 @@ spec:
           - delete
           - get
           - list
-          - patch
-          - update
           - watch
         - apiGroups:
           - k8s-operator.aiven.io
@@ -526,8 +520,6 @@ spec:
           - serviceusers/status
           verbs:
           - get
-          - patch
-          - update
         - apiGroups:
           - authentication.k8s.io
           resources:
@@ -573,6 +565,10 @@ spec:
                 - /manager
                 image: controller:latest
                 name: manager
+                ports:
+                - containerPort: 9443
+                  name: webhook-server
+                  protocol: TCP
                 resources:
                   limits:
                     cpu: 100m
@@ -580,7 +576,16 @@ spec:
                   requests:
                     cpu: 100m
                     memory: 20Mi
+                volumeMounts:
+                - mountPath: /tmp/k8s-webhook-server/serving-certs
+                  name: cert
+                  readOnly: true
               terminationGracePeriodSeconds: 10
+              volumes:
+              - name: cert
+                secret:
+                  defaultMode: 420
+                  secretName: webhook-server-cert
       permissions:
       - rules:
         - apiGroups:
@@ -633,3 +638,127 @@ spec:
   provider:
     name: as Custom Resources in your cluster.aiven-operator
   version: 0.0.1
+  webhookdefinitions:
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-k8s-operator-controller-manager
+    failurePolicy: Fail
+    generateName: vdatabase.kb.io
+    rules:
+    - apiGroups:
+      - k8s-operator.aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      - DELETE
+      resources:
+      - databases
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-k8s-operator-aiven-io-v1alpha1-database
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-k8s-operator-controller-manager
+    failurePolicy: Fail
+    generateName: vpg.kb.io
+    rules:
+    - apiGroups:
+      - k8s-operator.aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      - DELETE
+      resources:
+      - pgs
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-k8s-operator-aiven-io-v1alpha1-pg
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-k8s-operator-controller-manager
+    failurePolicy: Fail
+    generateName: vproject.kb.io
+    rules:
+    - apiGroups:
+      - k8s-operator.aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      - DELETE
+      resources:
+      - projects
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-k8s-operator-aiven-io-v1alpha1-project
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-k8s-operator-controller-manager
+    failurePolicy: Fail
+    generateName: mdatabase.kb.io
+    rules:
+    - apiGroups:
+      - k8s-operator.aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - databases
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-k8s-operator-aiven-io-v1alpha1-database
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-k8s-operator-controller-manager
+    failurePolicy: Fail
+    generateName: mpg.kb.io
+    rules:
+    - apiGroups:
+      - k8s-operator.aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - pgs
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-k8s-operator-aiven-io-v1alpha1-pg
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-k8s-operator-controller-manager
+    failurePolicy: Fail
+    generateName: mproject.kb.io
+    rules:
+    - apiGroups:
+      - k8s-operator.aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - projects
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-k8s-operator-aiven-io-v1alpha1-project

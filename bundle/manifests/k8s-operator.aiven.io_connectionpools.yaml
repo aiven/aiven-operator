@@ -30,66 +30,22 @@ spec:
           spec:
             description: ConnectionPoolSpec defines the desired state of ConnectionPool
             properties:
-              database_name:
-                description: 'x-kubernetes-immutable: true Name of the database the pool connects to'
-                maxLength: 40
-                type: string
-              pool_mode:
-                description: Mode the pool operates in (session, transaction, statement)
-                enum:
-                - session
-                - transaction
-                - statement
-                type: string
-              pool_name:
-                description: 'x-kubernetes-immutable: true Name of the pool'
-                maxLength: 60
-                type: string
-              pool_size:
-                description: Number of connections the pool may create towards the backend server
-                type: integer
-              project:
-                description: 'x-kubernetes-immutable: true Target project.'
-                format: ^[a-zA-Z0-9_-]*$
-                maxLength: 63
-                type: string
-              service_name:
-                description: 'x-kubernetes-immutable: true Service name.'
-                maxLength: 63
-                type: string
-              username:
-                description: 'x-kubernetes-immutable: true Name of the service user used to connect to the database'
-                maxLength: 64
-                type: string
-            required:
-            - database_name
-            - pool_name
-            - project
-            - service_name
-            - username
-            type: object
-          status:
-            description: ConnectionPoolStatus defines the observed state of ConnectionPool
-            properties:
-              connection_uri:
-                description: URI for connecting to the pool
-                type: string
-              database_name:
+              databaseName:
                 description: Name of the database the pool connects to
                 maxLength: 40
-                type: string
-              pool_mode:
-                description: Mode the pool operates in (session, transaction, statement)
-                enum:
-                - session
-                - transaction
-                - statement
                 type: string
               pool_name:
                 description: Name of the pool
                 maxLength: 60
                 type: string
-              pool_size:
+              poolMode:
+                description: Mode the pool operates in (session, transaction, statement)
+                enum:
+                - session
+                - transaction
+                - statement
+                type: string
+              poolSize:
                 description: Number of connections the pool may create towards the backend server
                 type: integer
               project:
@@ -97,7 +53,7 @@ spec:
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
-              service_name:
+              serviceName:
                 description: Service name.
                 maxLength: 63
                 type: string
@@ -106,10 +62,54 @@ spec:
                 maxLength: 64
                 type: string
             required:
-            - database_name
+            - databaseName
             - pool_name
             - project
-            - service_name
+            - serviceName
+            - username
+            type: object
+          status:
+            description: ConnectionPoolStatus defines the observed state of ConnectionPool
+            properties:
+              connectionUri:
+                description: URI for connecting to the pool
+                type: string
+              databaseName:
+                description: Name of the database the pool connects to
+                maxLength: 40
+                type: string
+              pool_name:
+                description: Name of the pool
+                maxLength: 60
+                type: string
+              poolMode:
+                description: Mode the pool operates in (session, transaction, statement)
+                enum:
+                - session
+                - transaction
+                - statement
+                type: string
+              poolSize:
+                description: Number of connections the pool may create towards the backend server
+                type: integer
+              project:
+                description: Target project.
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              serviceName:
+                description: Service name.
+                maxLength: 63
+                type: string
+              username:
+                description: Name of the service user used to connect to the database
+                maxLength: 64
+                type: string
+            required:
+            - databaseName
+            - pool_name
+            - project
+            - serviceName
             - username
             type: object
         type: object

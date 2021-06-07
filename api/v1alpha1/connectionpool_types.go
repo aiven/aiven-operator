@@ -15,11 +15,11 @@ type ConnectionPoolSpec struct {
 
 	// +kubebuilder:validation:MaxLength=63
 	// Service name.
-	ServiceName string `json:"service_name"`
+	ServiceName string `json:"serviceName"`
 
 	// +kubebuilder:validation:MaxLength=40
 	// Name of the database the pool connects to
-	DatabaseName string `json:"database_name"`
+	DatabaseName string `json:"databaseName"`
 
 	// +kubebuilder:validation:MaxLength=64
 	// Name of the service user used to connect to the database
@@ -28,11 +28,11 @@ type ConnectionPoolSpec struct {
 	// +kubebuilder:validation:Min=1
 	// +kubebuilder:validation:Max=1000
 	// Number of connections the pool may create towards the backend server
-	PoolSize int `json:"pool_size,omitempty"`
+	PoolSize int `json:"poolSize,omitempty"`
 
 	// +kubebuilder:validation:Enum=session;transaction;statement
 	// Mode the pool operates in (session, transaction, statement)
-	PoolMode string `json:"pool_mode,omitempty"`
+	PoolMode string `json:"poolMode,omitempty"`
 }
 
 // ConnectionPoolStatus defines the observed state of ConnectionPool
@@ -40,7 +40,7 @@ type ConnectionPoolStatus struct {
 	ConnectionPoolSpec `json:",inline"`
 
 	// URI for connecting to the pool
-	ConnectionURI string `json:"connection_uri,omitempty"`
+	ConnectionURI string `json:"connectionUri,omitempty"`
 }
 
 // +kubebuilder:object:root=true

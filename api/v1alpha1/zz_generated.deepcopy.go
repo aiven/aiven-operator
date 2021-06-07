@@ -1612,8 +1612,8 @@ func (in *PGUserConfig) DeepCopyInto(out *PGUserConfig) {
 	}
 	in.Timescaledb.DeepCopyInto(&out.Timescaledb)
 	in.Pg.DeepCopyInto(&out.Pg)
-	if in.IpFilter != nil {
-		in, out := &in.IpFilter, &out.IpFilter
+	if in.IPFilter != nil {
+		in, out := &in.IPFilter, &out.IPFilter
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}

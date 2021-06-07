@@ -2,10 +2,23 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
+    cert-manager.io/inject-ca-from: aiven-k8s-operator-system/aiven-k8s-operator-serving-cert
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
   name: databases.k8s-operator.aiven.io
 spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
   group: k8s-operator.aiven.io
   names:
     kind: Database
@@ -30,46 +43,11 @@ spec:
           spec:
             description: DatabaseSpec defines the desired state of Database
             properties:
-              database_name:
-                description: 'x-kubernetes-immutable: true Service database name'
-                maxLength: 40
-                type: string
-              lc_collate:
-                description: 'x-kubernetes-immutable: true Default string sort order (LC_COLLATE) of the database. Default value: en_US.UTF-8'
-                maxLength: 128
-                type: string
-              lc_ctype:
-                description: 'x-kubernetes-immutable: true Default character classification (LC_CTYPE) of the database. Default value: en_US.UTF-8'
-                maxLength: 128
-                type: string
-              project:
-                description: 'x-kubernetes-immutable: true Project to link the database to'
-                format: ^[a-zA-Z0-9_-]*$
-                maxLength: 63
-                type: string
-              service_name:
-                description: 'x-kubernetes-immutable: true PostgreSQL service to link the database to'
-                maxLength: 63
-                type: string
-            required:
-            - database_name
-            - lc_collate
-            - lc_ctype
-            - project
-            - service_name
-            type: object
-          status:
-            description: DatabaseStatus defines the observed state of Database
-            properties:
-              database_name:
-                description: Service database name
-                maxLength: 40
-                type: string
-              lc_collate:
+              lcCollate:
                 description: 'Default string sort order (LC_COLLATE) of the database. Default value: en_US.UTF-8'
                 maxLength: 128
                 type: string
-              lc_ctype:
+              lcCtype:
                 description: 'Default character classification (LC_CTYPE) of the database. Default value: en_US.UTF-8'
                 maxLength: 128
                 type: string
@@ -78,16 +56,43 @@ spec:
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
-              service_name:
+              serviceName:
                 description: PostgreSQL service to link the database to
                 maxLength: 63
                 type: string
+              terminationProtection:
+                description: It is a Kubernetes side deletion protections, which prevents the database from being deleted by Kubernetes. It is recommended to enable this for any production databases containing critical data.
+                type: boolean
             required:
-            - database_name
-            - lc_collate
-            - lc_ctype
             - project
-            - service_name
+            - serviceName
+            type: object
+          status:
+            description: DatabaseStatus defines the observed state of Database
+            properties:
+              lcCollate:
+                description: 'Default string sort order (LC_COLLATE) of the database. Default value: en_US.UTF-8'
+                maxLength: 128
+                type: string
+              lcCtype:
+                description: 'Default character classification (LC_CTYPE) of the database. Default value: en_US.UTF-8'
+                maxLength: 128
+                type: string
+              project:
+                description: Project to link the database to
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              serviceName:
+                description: PostgreSQL service to link the database to
+                maxLength: 63
+                type: string
+              terminationProtection:
+                description: It is a Kubernetes side deletion protections, which prevents the database from being deleted by Kubernetes. It is recommended to enable this for any production databases containing critical data.
+                type: boolean
+            required:
+            - project
+            - serviceName
             type: object
         type: object
     served: true
