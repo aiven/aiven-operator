@@ -77,7 +77,7 @@ func (h ProjectVPCHandler) delete(log logr.Logger, i client.Object) (client.Obje
 
 	if vpc.State != "DELETING" && vpc.State != "DELETED" {
 		// Delete project VPC on Aiven side
-		if err := aivenClient.VPCs.Delete(projectVPC.Status.Project, projectVPC.Status.Id); err != nil && !aiven.IsNotFound(err) {
+		if err := aivenClient.VPCs.Delete(projectVPC.Status.Project, projectVPC.Status.ID); err != nil && !aiven.IsNotFound(err) {
 			return nil, false, err
 		}
 	}
@@ -157,7 +157,7 @@ func (h *ProjectVPCHandler) convert(i client.Object) (*k8soperatorv1alpha1.Proje
 func (h ProjectVPCHandler) setStatus(projectVPC *k8soperatorv1alpha1.ProjectVPC, vpc *aiven.VPC) {
 	projectVPC.Status.Project = projectVPC.Spec.Project
 	projectVPC.Status.CloudName = vpc.CloudName
-	projectVPC.Status.Id = vpc.ProjectVPCID
+	projectVPC.Status.ID = vpc.ProjectVPCID
 	projectVPC.Status.State = vpc.State
 	projectVPC.Status.NetworkCidr = vpc.NetworkCIDR
 }

@@ -15,7 +15,7 @@ type ServiceUserSpec struct {
 
 	// +kubebuilder:validation:MaxLength=63
 	// Service to link the user to
-	ServiceName string `json:"service_name"`
+	ServiceName string `json:"serviceName"`
 
 	// +kubebuilder:validation:Enum=caching_sha2_password;mysql_native_password
 	// Authentication details

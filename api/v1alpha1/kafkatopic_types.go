@@ -15,11 +15,11 @@ type KafkaTopicSpec struct {
 
 	// +kubebuilder:validation:MaxLength=63
 	// Service name.
-	ServiceName string `json:"service_name"`
+	ServiceName string `json:"serviceName"`
 
 	// +kubebuilder:validation:MaxLength=63
 	// Topic name.
-	TopicName string `json:"topic_name"`
+	TopicName string `json:"topicName"`
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=1000000

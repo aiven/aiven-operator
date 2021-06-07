@@ -15,11 +15,11 @@ type ProjectVPCSpec struct {
 
 	// +kubebuilder:validation:MaxLength=256
 	// Cloud the VPC is in
-	CloudName string `json:"cloud_name"`
+	CloudName string `json:"cloudName"`
 
 	// +kubebuilder:validation:MaxLength=36
 	// Network address range used by the VPC like 192.168.0.0/24
-	NetworkCidr string `json:"network_cidr"`
+	NetworkCidr string `json:"networkCidr"`
 }
 
 // ProjectVPCStatus defines the observed state of ProjectVPC
@@ -30,13 +30,14 @@ type ProjectVPCStatus struct {
 	State string `json:"state"`
 
 	// Project VPC id
-	Id string `json:"id"`
+	ID string `json:"id"`
 }
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 
 // ProjectVPC is the Schema for the projectvpcs API
+// +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state"
 type ProjectVPC struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

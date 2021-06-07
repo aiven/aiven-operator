@@ -11,7 +11,7 @@ type KafkaConnectSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
 	// PostgreSQL specific user configuration options
-	KafkaConnectUserConfig KafkaConnectUserConfig `json:"kafka_connect_user_config,omitempty"`
+	KafkaConnectUserConfig KafkaConnectUserConfig `json:"KafkaConnectUserConfig,omitempty"`
 }
 
 // KafkaConnectStatus defines the observed state of KafkaConnect
@@ -80,6 +80,7 @@ type KafkaConnectPublicAccessUserConfig struct {
 // +kubebuilder:subresource:status
 
 // KafkaConnect is the Schema for the kafkaconnects API
+// +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state"
 type KafkaConnect struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

@@ -132,7 +132,7 @@ func serviceIntegrationSpec(siName, source, destination, namespace string) *v1al
 			DestinationServiceName: destination,
 			KafkaConnectUserConfig: v1alpha1.ServiceIntegrationKafkaConnectUserConfig{
 				KafkaConnect: v1alpha1.ServiceIntegrationKafkaConnect{
-					GroupId:            "connect",
+					GroupID:            "connect",
 					OffsetStorageTopic: "__connect_status",
 					StatusStorageTopic: "__connect_offsets",
 				},

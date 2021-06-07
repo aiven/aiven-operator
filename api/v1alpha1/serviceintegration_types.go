@@ -15,28 +15,28 @@ type ServiceIntegrationSpec struct {
 
 	// +kubebuilder:validation:Enum=datadog;kafka_logs;kafka_connect;metrics;dashboard;rsyslog;read_replica;schema_registry_proxy;signalfx;jolokia;internal_connectivity;external_google_cloud_logging;datasource
 	// Type of the service integration
-	IntegrationType string `json:"integration_type"`
+	IntegrationType string `json:"integrationType"`
 
 	// Source endpoint for the integration (if any)
-	SourceEndpointID string `json:"source_endpoint_id,omitempty"`
+	SourceEndpointID string `json:"sourceEndpointID,omitempty"`
 
 	// Source service for the integration (if any)
-	SourceServiceName string `json:"source_service_name,omitempty"`
+	SourceServiceName string `json:"sourceServiceName,omitempty"`
 
 	// Destination endpoint for the integration (if any)
-	DestinationEndpointID string `json:"destination_endpoint_id,omitempty"`
+	DestinationEndpointID string `json:"destinationEndpointId,omitempty"`
 
 	// Destination service for the integration (if any)
-	DestinationServiceName string `json:"destination_service_name,omitempty"`
+	DestinationServiceName string `json:"destinationServiceName,omitempty"`
 
 	// Datadog specific user configuration options
 	DatadogUserConfig ServiceIntegrationDatadogUserConfig `json:"datadog,omitempty"`
 
 	// Kafka Connect service configuration values
-	KafkaConnectUserConfig ServiceIntegrationKafkaConnectUserConfig `json:"kafka_connect,omitempty"`
+	KafkaConnectUserConfig ServiceIntegrationKafkaConnectUserConfig `json:"kafkaConnect,omitempty"`
 
 	// Kafka logs configuration values
-	KafkaLogsUserConfig ServiceIntegrationKafkaLogsUserConfig `json:"kafka_logs,omitempty"`
+	KafkaLogsUserConfig ServiceIntegrationKafkaLogsUserConfig `json:"kafkaLogs,omitempty"`
 
 	// Metrics configuration values
 	MetricsUserConfig ServiceIntegrationMetricsUserConfig `json:"metrics,omitempty"`
@@ -106,7 +106,7 @@ type ServiceIntegrationKafkaConnect struct {
 
 	// +kubebuilder:validation:MaxLength=249
 	// A unique string that identifies the Connect cluster group this worker belongs to.
-	GroupId string `json:"group_id,omitempty"`
+	GroupID string `json:"group_id,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=249
 	// The name of the topic where connector and task configuration offsets are stored. This must be the same for all workers with the same group_id.

@@ -4,9 +4,9 @@ metadata:
   name: kafkaschema-sample
 spec:
   project: dev-sandbox
-  service_name: kafka-service
-  subject_name: kafkaschemasubject-sample
-  compatibility_level: BACKWARD_TRANSITIVE
+  serviceName: kafka-service
+  subjectName: kafkaschemasubject-sample
+  compatibilityLevel: BACKWARD_TRANSITIVE
   schema: '{
                 "doc": "example",
                 "fields": [{

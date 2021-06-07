@@ -15,20 +15,20 @@ type DatabaseSpec struct {
 
 	// +kubebuilder:validation:MaxLength=63
 	// PostgreSQL service to link the database to
-	ServiceName string `json:"service_name"`
+	ServiceName string `json:"serviceName"`
 
 	// +kubebuilder:validation:MaxLength=128
 	// Default string sort order (LC_COLLATE) of the database. Default value: en_US.UTF-8
-	LcCollate string `json:"lc_collate,omitempty"`
+	LcCollate string `json:"lcCollate,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=128
 	// Default character classification (LC_CTYPE) of the database. Default value: en_US.UTF-8
-	LcType string `json:"lc_ctype,omitempty"`
+	LcType string `json:"lcCtype,omitempty"`
 
 	// It is a Kubernetes side deletion protections, which prevents the database
 	// from being deleted by Kubernetes. It is recommended to enable this for any production
 	// databases containing critical data.
-	TerminationProtection bool `json:"termination_protection,omitempty"`
+	TerminationProtection bool `json:"terminationProtection,omitempty"`
 }
 
 // DatabaseStatus defines the observed state of Database

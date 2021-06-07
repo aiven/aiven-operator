@@ -36,15 +36,15 @@ spec:
           spec:
             description: ProjectSpec defines the desired state of Project
             properties:
-              account_id:
+              accountId:
                 description: Account ID
                 maxLength: 32
                 type: string
-              billing_address:
+              billingAddress:
                 description: Billing name and address of the project
                 maxLength: 1000
                 type: string
-              billing_currency:
+              billingCurrency:
                 description: Billing currency
                 enum:
                 - AUD
@@ -57,18 +57,18 @@ spec:
                 - SEK
                 - USD
                 type: string
-              billing_emails:
+              billingEmails:
                 description: Billing contact emails of the project
                 items:
                   type: string
                 maxItems: 10
                 type: array
-              billing_extra_text:
+              billingExtraText:
                 description: Extra text to be included in all project invoices, e.g.
                   purchase order or cost center number
                 maxLength: 1000
                 type: string
-              card_id:
+              cardId:
                 description: Credit card ID
                 maxLength: 64
                 type: string
@@ -76,16 +76,16 @@ spec:
                 description: 'Target cloud, example: aws-eu-central-1'
                 maxLength: 256
                 type: string
-              copy_from_project:
+              copyFromProject:
                 description: Project name from which to copy settings to the new project
                 maxLength: 63
                 type: string
-              country_code:
+              countryCode:
                 description: Billing country code of the project
                 maxLength: 2
                 minLength: 2
                 type: string
-              technical_emails:
+              technicalEmails:
                 description: Technical contact emails of the project
                 items:
                   type: string
@@ -95,18 +95,18 @@ spec:
           status:
             description: ProjectStatus defines the observed state of Project
             properties:
-              account_id:
+              accountId:
                 description: Account ID
                 maxLength: 32
                 type: string
-              available_credits:
+              availableCredits:
                 description: Available credirs
                 type: string
-              billing_address:
+              billingAddress:
                 description: Billing name and address of the project
                 maxLength: 1000
                 type: string
-              billing_currency:
+              billingCurrency:
                 description: Billing currency
                 enum:
                 - AUD
@@ -119,18 +119,18 @@ spec:
                 - SEK
                 - USD
                 type: string
-              billing_emails:
+              billingEmails:
                 description: Billing contact emails of the project
                 items:
                   type: string
                 maxItems: 10
                 type: array
-              billing_extra_text:
+              billingExtraText:
                 description: Extra text to be included in all project invoices, e.g.
                   purchase order or cost center number
                 maxLength: 1000
                 type: string
-              card_id:
+              cardId:
                 description: Credit card ID
                 maxLength: 64
                 type: string
@@ -138,31 +138,31 @@ spec:
                 description: 'Target cloud, example: aws-eu-central-1'
                 maxLength: 256
                 type: string
-              copy_from_project:
+              copyFromProject:
                 description: Project name from which to copy settings to the new project
                 maxLength: 63
                 type: string
               country:
                 description: Country name
                 type: string
-              country_code:
+              countryCode:
                 description: Billing country code of the project
                 maxLength: 2
                 minLength: 2
                 type: string
-              estimated_balance:
+              estimatedBalance:
                 description: Estimated balance
                 type: string
-              payment_method:
+              paymentMethod:
                 description: Payment method name
                 type: string
-              technical_emails:
+              technicalEmails:
                 description: Technical contact emails of the project
                 items:
                   type: string
                 maxItems: 10
                 type: array
-              vat_id:
+              vatId:
                 description: EU VAT Identification Number
                 maxLength: 64
                 type: string

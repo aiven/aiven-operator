@@ -18,22 +18,22 @@ type ServiceCommonSpec struct {
 
 	// +kubebuilder:validation:MaxLength=256
 	// Cloud the service runs in.
-	CloudName string `json:"cloud_name,omitempty"`
+	CloudName string `json:"cloudName,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=36
 	// Identifier of the VPC the service should be in, if any.
-	ProjectVPCID string `json:"project_vpc_id,omitempty"`
+	ProjectVPCID string `json:"projectVpcId,omitempty"`
 
 	// +kubebuilder:validation:Enum=monday;tuesday;wednesday;thursday;friday;saturday;sunday;never
 	// Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.
-	MaintenanceWindowDow string `json:"maintenance_window_dow,omitempty"`
+	MaintenanceWindowDow string `json:"maintenanceWindowDow,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=8
 	// Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
-	MaintenanceWindowTime string `json:"maintenance_window_time,omitempty"`
+	MaintenanceWindowTime string `json:"maintenanceWindowTime,omitempty"`
 
 	// Prevent service from being deleted. It is recommended to have this enabled for all services.
-	TerminationProtection bool `json:"termination_protection,omitempty"`
+	TerminationProtection bool `json:"terminationProtection,omitempty"`
 }
 
 // PGSpec defines the desired state of PG
@@ -41,7 +41,7 @@ type PGSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
 	// PostgreSQL specific user configuration options
-	PGUserConfig PGUserConfig `json:"pg_user_config,omitempty"`
+	PGUserConfig PGUserConfig `json:"pgUserConfig,omitempty"`
 }
 
 // PGStatus defines the observed state of PG
@@ -344,7 +344,7 @@ type PGUserConfig struct {
 	Pg PGSubPGUserConfig `json:"pg,omitempty"`
 
 	// IP filter Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
-	IpFilter []string `json:"ip_filter,omitempty"`
+	IPFilter []string `json:"ip_filter,omitempty"`
 
 	// PGBouncer connection pooling settings
 	Pgbouncer PgbouncerUserConfig `json:"pgbouncer,omitempty"`
@@ -384,8 +384,9 @@ type PGUserConfig struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 
-// +kubebuilder:subresource:status
 // PG is the Schema for the pgs API
+// +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state"
 type PG struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

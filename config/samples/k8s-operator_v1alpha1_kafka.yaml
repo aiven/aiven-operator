@@ -3,11 +3,10 @@ kind: Kafka
 metadata:
   name: kafka-sample
 spec:
-  service_name: kafka-sample
   project: dev-sandbox
-  cloud_name: google-europe-west1
+  cloudName: google-europe-west1
   plan: business-4
-  maintenance_window_dow: friday
-  maintenance_window_time: 23:00:00
-  kafka_user_config:
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00
+  kafkaUserConfig:
     kafka_version: '2.4'

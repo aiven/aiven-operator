@@ -3,4 +3,4 @@ kind: Project
 metadata:
   name: project-sample1
 spec:
-  billing_address: NYC
+  billingAddress: NYC

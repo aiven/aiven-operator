@@ -4,9 +4,8 @@ metadata:
   name: connectionpool-sample
 spec:
   project: dev-sandbox
-  service_name: pg-service-name
-  database_name: pg-database-sample
-  pool_name: connectionpool-sample
+  service_Name: pg-service-name
+  databaseName: pg-database-sample
   username: pg-service-user
-  pool_size: 10
-  pool_mode: transaction
+  poolSize: 10
+  poolMode: transaction

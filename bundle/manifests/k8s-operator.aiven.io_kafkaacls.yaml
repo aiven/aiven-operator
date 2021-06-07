@@ -31,7 +31,7 @@ spec:
             description: KafkaACLSpec defines the desired state of KafkaACL
             properties:
               permission:
-                description: 'x-kubernetes-immutable: true Kafka permission to grant (admin, read, readwrite, write)'
+                description: Kafka permission to grant (admin, read, readwrite, write)
                 enum:
                 - admin
                 - read
@@ -39,12 +39,12 @@ spec:
                 - write
                 type: string
               project:
-                description: 'x-kubernetes-immutable: true Project to link the Kafka ACL to'
+                description: Project to link the Kafka ACL to
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
-              service_name:
-                description: 'x-kubernetes-immutable: true Service to link the Kafka ACL to'
+              serviceName:
+                description: Service to link the Kafka ACL to
                 maxLength: 63
                 type: string
               topic:
@@ -56,7 +56,7 @@ spec:
             required:
             - permission
             - project
-            - service_name
+            - serviceName
             - topic
             - username
             type: object
@@ -79,21 +79,21 @@ spec:
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
-              service_name:
+              serviceName:
                 description: Service to link the Kafka ACL to
                 maxLength: 63
                 type: string
               topic:
-                description: Topic name pattern for the ACL entry
+                description: 'x-kubernetes-immutable: true Topic name pattern for the ACL entry'
                 type: string
               username:
-                description: Username pattern for the ACL entry
+                description: 'x-kubernetes-immutable: true Username pattern for the ACL entry'
                 type: string
             required:
             - id
             - permission
             - project
-            - service_name
+            - serviceName
             - topic
             - username
             type: object
