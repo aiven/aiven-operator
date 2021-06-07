@@ -44,7 +44,7 @@ func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 // create creates a project on Aiven side
-func (h ProjectHandler) create(log logr.Logger, i client.Object) (client.Object, error) {
+func (h ProjectHandler) create(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
 	project, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func (h ProjectHandler) create(log logr.Logger, i client.Object) (client.Object,
 		technicalEmails = aiven.ContactEmailFromStringSlice(project.Spec.TechnicalEmails)
 	}
 
-	p, err := aivenClient.Projects.Create(aiven.CreateProjectRequest{
+	p, err := c.Projects.Create(aiven.CreateProjectRequest{
 		BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
 		BillingEmails:    billingEmails,
 		BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
@@ -99,7 +99,7 @@ func (*ProjectHandler) setStatus(project *k8soperatorv1alpha1.Project, p *aiven.
 	project.Status.EstimatedBalance = p.EstimatedBalance
 }
 
-func (h ProjectHandler) getSecret(log logr.Logger, i client.Object) (*corev1.Secret, error) {
+func (h ProjectHandler) getSecret(c *aiven.Client, log logr.Logger, i client.Object) (*corev1.Secret, error) {
 	project, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -107,7 +107,7 @@ func (h ProjectHandler) getSecret(log logr.Logger, i client.Object) (*corev1.Sec
 
 	log.Info("Creating a Project secret with CA certificate")
 
-	cert, err := aivenClient.CA.Get(project.Name)
+	cert, err := c.CA.Get(project.Name)
 	if err != nil {
 		return nil, fmt.Errorf("aiven client error %w", err)
 	}
@@ -127,7 +127,7 @@ func (h ProjectHandler) getSecret(log logr.Logger, i client.Object) (*corev1.Sec
 }
 
 // update updates a project on Aiven side
-func (h ProjectHandler) update(log logr.Logger, i client.Object) (client.Object, error) {
+func (h ProjectHandler) update(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
 	project, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -145,7 +145,7 @@ func (h ProjectHandler) update(log logr.Logger, i client.Object) (client.Object,
 		technicalEmails = aiven.ContactEmailFromStringSlice(project.Spec.TechnicalEmails)
 	}
 
-	p, err := aivenClient.Projects.Update(project.Name, aiven.UpdateProjectRequest{
+	p, err := c.Projects.Update(project.Name, aiven.UpdateProjectRequest{
 		BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
 		BillingEmails:    billingEmails,
 		BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
@@ -166,7 +166,7 @@ func (h ProjectHandler) update(log logr.Logger, i client.Object) (client.Object,
 }
 
 // exists checks if project already exists on Aiven side
-func (h ProjectHandler) exists(log logr.Logger, i client.Object) (bool, error) {
+func (h ProjectHandler) exists(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	project, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -174,7 +174,7 @@ func (h ProjectHandler) exists(log logr.Logger, i client.Object) (bool, error) {
 
 	log.Info("Checking if project exists")
 
-	pr, err := aivenClient.Projects.Get(project.Name)
+	pr, err := c.Projects.Get(project.Name)
 	if aiven.IsNotFound(err) {
 		return false, nil
 	}
@@ -183,7 +183,7 @@ func (h ProjectHandler) exists(log logr.Logger, i client.Object) (bool, error) {
 }
 
 // delete deletes Aiven project
-func (h ProjectHandler) delete(log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h ProjectHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
 	project, err := h.convert(i)
 	if err != nil {
 		return nil, false, err
@@ -192,7 +192,7 @@ func (h ProjectHandler) delete(log logr.Logger, i client.Object) (client.Object,
 	log.Info("Finalizing project")
 
 	// Delete project on Aiven side
-	if err := aivenClient.Projects.Delete(project.Name); err != nil {
+	if err := c.Projects.Delete(project.Name); err != nil {
 		var skip bool
 
 		// If project not found then there is nothing to delete
@@ -232,10 +232,19 @@ func (h ProjectHandler) convert(i client.Object) (*k8soperatorv1alpha1.Project, 
 	return p, nil
 }
 
-func (h ProjectHandler) isActive(logr.Logger, client.Object) (bool, error) {
+func (h ProjectHandler) isActive(*aiven.Client, logr.Logger, client.Object) (bool, error) {
 	return true, nil
 }
 
-func (h ProjectHandler) checkPreconditions(logr.Logger, client.Object) bool {
+func (h ProjectHandler) checkPreconditions(*aiven.Client, logr.Logger, client.Object) bool {
 	return true
+}
+
+func (h ProjectHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {
+	project, err := h.convert(i)
+	if err != nil {
+		return nil
+	}
+
+	return &project.Spec.AuthSecretRef
 }

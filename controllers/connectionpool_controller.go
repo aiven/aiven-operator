@@ -41,7 +41,7 @@ func (r *ConnectionPoolReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ConnectionPoolHandler) create(log logr.Logger, i client.Object) (client.Object, error) {
+func (h ConnectionPoolHandler) create(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
 	cp, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (h ConnectionPoolHandler) create(log logr.Logger, i client.Object) (client.
 
 	log.Info("Creating a ConnectionPool on Aiven side")
 
-	conPool, err := aivenClient.ConnectionPools.Create(cp.Spec.Project, cp.Spec.ServiceName,
+	conPool, err := c.ConnectionPools.Create(cp.Spec.Project, cp.Spec.ServiceName,
 		aiven.CreateConnectionPoolRequest{
 			Database: cp.Spec.DatabaseName,
 			PoolMode: cp.Spec.PoolMode,
@@ -66,7 +66,7 @@ func (h ConnectionPoolHandler) create(log logr.Logger, i client.Object) (client.
 	return cp, nil
 }
 
-func (h ConnectionPoolHandler) delete(log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h ConnectionPoolHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
 	cp, err := h.convert(i)
 	if err != nil {
 		return nil, false, err
@@ -74,7 +74,7 @@ func (h ConnectionPoolHandler) delete(log logr.Logger, i client.Object) (client.
 
 	log.Info("Deleting a ConnectionPool on Aiven side")
 
-	err = aivenClient.ConnectionPools.Delete(
+	err = c.ConnectionPools.Delete(
 		cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
 	if !aiven.IsNotFound(err) {
 		return nil, false, err
@@ -83,13 +83,13 @@ func (h ConnectionPoolHandler) delete(log logr.Logger, i client.Object) (client.
 	return nil, true, nil
 }
 
-func (h ConnectionPoolHandler) exists(_ logr.Logger, i client.Object) (bool, error) {
+func (h ConnectionPoolHandler) exists(c *aiven.Client, _ logr.Logger, i client.Object) (bool, error) {
 	cp, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	conPool, err := aivenClient.ConnectionPools.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
+	conPool, err := c.ConnectionPools.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
 	if err != nil {
 		if aiven.IsNotFound(err) {
 			return false, nil
@@ -100,7 +100,7 @@ func (h ConnectionPoolHandler) exists(_ logr.Logger, i client.Object) (bool, err
 	return conPool != nil, nil
 }
 
-func (h ConnectionPoolHandler) update(log logr.Logger, i client.Object) (client.Object, error) {
+func (h ConnectionPoolHandler) update(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
 	cp, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -108,7 +108,7 @@ func (h ConnectionPoolHandler) update(log logr.Logger, i client.Object) (client.
 
 	log.Info("Updating a ConnectionPool on Aiven side")
 
-	conPool, err := aivenClient.ConnectionPools.Update(cp.Spec.Project, cp.Spec.ServiceName, cp.Name,
+	conPool, err := c.ConnectionPools.Update(cp.Spec.Project, cp.Spec.ServiceName, cp.Name,
 		aiven.UpdateConnectionPoolRequest{
 			Database: cp.Spec.DatabaseName,
 			PoolMode: cp.Spec.PoolMode,
@@ -124,11 +124,11 @@ func (h ConnectionPoolHandler) update(log logr.Logger, i client.Object) (client.
 	return cp, nil
 }
 
-func (h ConnectionPoolHandler) getSecret(_ logr.Logger, _ client.Object) (*corev1.Secret, error) {
+func (h ConnectionPoolHandler) getSecret(_ *aiven.Client, _ logr.Logger, _ client.Object) (*corev1.Secret, error) {
 	return nil, nil
 }
 
-func (h ConnectionPoolHandler) checkPreconditions(log logr.Logger, i client.Object) bool {
+func (h ConnectionPoolHandler) checkPreconditions(c *aiven.Client, log logr.Logger, i client.Object) bool {
 	cp, err := h.convert(i)
 	if err != nil {
 		return false
@@ -136,14 +136,14 @@ func (h ConnectionPoolHandler) checkPreconditions(log logr.Logger, i client.Obje
 
 	log.Info("Checking ConnectionPool preconditions")
 
-	if checkServiceIsRunning(cp.Spec.Project, cp.Spec.ServiceName) {
+	if checkServiceIsRunning(c, cp.Spec.Project, cp.Spec.ServiceName) {
 		log.Info("Checking if database exists")
-		db, err := aivenClient.Databases.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.DatabaseName)
+		db, err := c.Databases.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.DatabaseName)
 		if err != nil {
 			return false
 		}
 
-		user, err := aivenClient.ServiceUsers.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.Username)
+		user, err := c.ServiceUsers.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.Username)
 		if err != nil {
 			return false
 		}
@@ -154,7 +154,7 @@ func (h ConnectionPoolHandler) checkPreconditions(log logr.Logger, i client.Obje
 	return false
 }
 
-func (h ConnectionPoolHandler) isActive(_ logr.Logger, _ client.Object) (bool, error) {
+func (h ConnectionPoolHandler) isActive(_ *aiven.Client, _ logr.Logger, _ client.Object) (bool, error) {
 	return true, nil
 }
 
@@ -176,4 +176,13 @@ func (h *ConnectionPoolHandler) setStatus(cp *k8soperatorv1alpha1.ConnectionPool
 	cp.Status.ConnectionURI = conPool.ConnectionURI
 	cp.Status.ServiceName = cp.Spec.ServiceName
 	cp.Status.Project = cp.Spec.Project
+}
+
+func (h ConnectionPoolHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {
+	cp, err := h.convert(i)
+	if err != nil {
+		return nil
+	}
+
+	return &cp.Spec.AuthSecretRef
 }

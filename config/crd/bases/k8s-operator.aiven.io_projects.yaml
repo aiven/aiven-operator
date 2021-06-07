@@ -40,6 +40,17 @@ spec:
                 description: Account ID
                 maxLength: 32
                 type: string
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               billingAddress:
                 description: Billing name and address of the project
                 maxLength: 1000
@@ -91,6 +102,8 @@ spec:
                   type: string
                 maxItems: 10
                 type: array
+            required:
+            - authSecretRef
             type: object
           status:
             description: ProjectStatus defines the observed state of Project
@@ -99,6 +112,17 @@ spec:
                 description: Account ID
                 maxLength: 32
                 type: string
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               availableCredits:
                 description: Available credirs
                 type: string
@@ -166,6 +190,8 @@ spec:
                 description: EU VAT Identification Number
                 maxLength: 64
                 type: string
+            required:
+            - authSecretRef
             type: object
         type: object
     served: true

@@ -39,6 +39,9 @@ var cfg *rest.Config
 var k8sClient client.Client
 var testEnv *envtest.Environment
 
+const secretRefName = "aiven-token"
+const secretRefKey = "token"
+
 func TestAPIs(t *testing.T) {
 	RegisterFailHandler(Fail)
 
@@ -90,11 +93,11 @@ var _ = BeforeSuite(func(done Done) {
 	// add Aiven secret
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "aiven-token",
+			Name:      secretRefName,
 			Namespace: "default",
 		},
 		StringData: map[string]string{
-			"token": os.Getenv("AIVEN_TOKEN"),
+			secretRefKey: os.Getenv("AIVEN_TOKEN"),
 		},
 	}
 

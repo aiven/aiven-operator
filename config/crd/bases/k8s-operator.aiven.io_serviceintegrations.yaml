@@ -37,6 +37,17 @@ spec:
           spec:
             description: ServiceIntegrationSpec defines the desired state of ServiceIntegration
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               datadog:
                 description: Datadog specific user configuration options
                 properties:
@@ -173,12 +184,24 @@ spec:
                 description: Source service for the integration (if any)
                 type: string
             required:
+            - authSecretRef
             - integrationType
             - project
             type: object
           status:
             description: ServiceIntegrationStatus defines the observed state of ServiceIntegration
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               datadog:
                 description: Datadog specific user configuration options
                 properties:
@@ -318,6 +341,7 @@ spec:
                 description: Source service for the integration (if any)
                 type: string
             required:
+            - authSecretRef
             - id
             - integrationType
             - project

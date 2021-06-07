@@ -40,6 +40,17 @@ spec:
           spec:
             description: PGSpec defines the desired state of PG
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               cloudName:
                 description: Cloud the service runs in.
                 maxLength: 256
@@ -580,11 +591,23 @@ spec:
                   to have this enabled for all services.
                 type: boolean
             required:
+            - authSecretRef
             - project
             type: object
           status:
             description: PGStatus defines the observed state of PG
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               cloudName:
                 description: Cloud the service runs in.
                 maxLength: 256
@@ -1128,6 +1151,7 @@ spec:
                   to have this enabled for all services.
                 type: boolean
             required:
+            - authSecretRef
             - project
             - state
             type: object

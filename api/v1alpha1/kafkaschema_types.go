@@ -27,6 +27,9 @@ type KafkaSchemaSpec struct {
 	// +kubebuilder:validation:Enum=BACKWARD;BACKWARD_TRANSITIVE;FORWARD;FORWARD_TRANSITIVE;FULL;FULL_TRANSITIVE;NONE
 	// Kafka Schemas compatibility level
 	CompatibilityLevel string `json:"compatibilityLevel,omitempty"`
+
+	// Authentication reference to Aiven token in a secret
+	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
 }
 
 // KafkaSchemaStatus defines the observed state of KafkaSchema

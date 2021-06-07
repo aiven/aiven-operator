@@ -29,6 +29,9 @@ type DatabaseSpec struct {
 	// from being deleted by Kubernetes. It is recommended to enable this for any production
 	// databases containing critical data.
 	TerminationProtection bool `json:"terminationProtection,omitempty"`
+
+	// Authentication reference to Aiven token in a secret
+	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
 }
 
 // DatabaseStatus defines the observed state of Database

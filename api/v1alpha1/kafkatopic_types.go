@@ -40,6 +40,9 @@ type KafkaTopicSpec struct {
 	// from being deleted by Kubernetes. It is recommended to enable this for any production
 	// databases containing critical data.
 	TerminationProtection bool `json:"termination_protection,omitempty"`
+
+	// Authentication reference to Aiven token in a secret
+	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
 }
 
 type KafkaTopicTag struct {

@@ -33,6 +33,9 @@ type ConnectionPoolSpec struct {
 	// +kubebuilder:validation:Enum=session;transaction;statement
 	// Mode the pool operates in (session, transaction, statement)
 	PoolMode string `json:"poolMode,omitempty"`
+
+	// Authentication reference to Aiven token in a secret
+	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
 }
 
 // ConnectionPoolStatus defines the observed state of ConnectionPool

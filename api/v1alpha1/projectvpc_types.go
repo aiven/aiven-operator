@@ -20,6 +20,9 @@ type ProjectVPCSpec struct {
 	// +kubebuilder:validation:MaxLength=36
 	// Network address range used by the VPC like 192.168.0.0/24
 	NetworkCidr string `json:"networkCidr"`
+
+	// Authentication reference to Aiven token in a secret
+	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
 }
 
 // ProjectVPCStatus defines the observed state of ProjectVPC
