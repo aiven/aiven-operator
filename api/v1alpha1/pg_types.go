@@ -44,7 +44,7 @@ type PGSpec struct {
 	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
 
 	// Information regarding secret creation
-	SecretCoonInfo SecretConnectionInfo `json:"secretConnectionInfo,omitempty"`
+	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
 	// PostgreSQL specific user configuration options
 	PGUserConfig PGUserConfig `json:"pgUserConfig,omitempty"`

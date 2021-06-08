@@ -190,12 +190,22 @@ func (h PGHandler) getSecret(c *aiven.Client, log logr.Logger, i client.Object) 
 			},
 		},
 		StringData: map[string]string{
-			"host":     params["host"],
-			"port":     params["port"],
-			"password": params["password"],
-			"user":     params["user"],
+			"PGHOST":       params["host"],
+			"PGPORT":       params["port"],
+			"PGDATABASE":   params["dbname"],
+			"PGUSER":       params["user"],
+			"PGPASSWORD":   params["password"],
+			"PGSSLMODE":    params["sslmode"],
+			"DATABASE_URI": s.URI,
 		},
 	}, nil
+}
+
+func (h PGHandler) getSecretName(pg *k8soperatorv1alpha1.PG) string {
+	if pg.Spec.ConnInfoSecretTarget.Name != "" {
+		return pg.Spec.ConnInfoSecretTarget.Name
+	}
+	return pg.Name
 }
 
 func (h PGHandler) isActive(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
@@ -220,13 +230,6 @@ func (h PGHandler) convert(i client.Object) (*k8soperatorv1alpha1.PG, error) {
 
 func (h PGHandler) checkPreconditions(*aiven.Client, logr.Logger, client.Object) bool {
 	return true
-}
-
-func (h PGHandler) getSecretName(pg *k8soperatorv1alpha1.PG) string {
-	if pg.Spec.SecretCoonInfo.Name != "" {
-		return pg.Spec.SecretCoonInfo.Name
-	}
-	return pg.Name
 }
 
 func (h PGHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {

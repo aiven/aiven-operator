@@ -131,11 +131,19 @@ func (h ServiceUserHandler) getSecret(c *aiven.Client, _ logr.Logger, i client.O
 			},
 		},
 		StringData: map[string]string{
-			"password":    u.Password,
-			"access_cert": u.AccessCert,
-			"access_key":  u.AccessKey,
+			"USERNAME":    u.Username,
+			"PASSWORD":    u.Password,
+			"ACCESS_CERT": u.AccessCert,
+			"ACCESS_KEY":  u.AccessKey,
 		},
 	}, nil
+}
+
+func (h ServiceUserHandler) getSecretName(user *k8soperatorv1alpha1.ServiceUser) string {
+	if user.Spec.ConnInfoSecretTarget.Name != "" {
+		return user.Spec.ConnInfoSecretTarget.Name
+	}
+	return user.Name
 }
 
 func (h ServiceUserHandler) checkPreconditions(c *aiven.Client, log logr.Logger, i client.Object) bool {
@@ -168,14 +176,6 @@ func (h ServiceUserHandler) setStatus(user *k8soperatorv1alpha1.ServiceUser, u *
 	user.Status.Type = u.Type
 	user.Status.Authentication = user.Spec.Authentication
 }
-
-func (h ServiceUserHandler) getSecretName(user *k8soperatorv1alpha1.ServiceUser) string {
-	if user.Spec.SecretCoonInfo.Name != "" {
-		return user.Spec.SecretCoonInfo.Name
-	}
-	return user.Name
-}
-
 
 func (h ServiceUserHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {
 	user, err := h.convert(i)

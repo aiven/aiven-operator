@@ -157,6 +157,12 @@ func (h KafkaHandler) getSecret(c *aiven.Client, _ logr.Logger, i client.Object)
 		return nil, err
 	}
 
+	var userName, password string
+	if len(s.Users) > 0 {
+		userName = s.Users[0].Username
+		password = s.Users[0].Password
+	}
+
 	params := s.URIParams
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -167,10 +173,12 @@ func (h KafkaHandler) getSecret(c *aiven.Client, _ logr.Logger, i client.Object)
 			},
 		},
 		StringData: map[string]string{
-			"host":     params["host"],
-			"port":     params["port"],
-			"password": params["password"],
-			"user":     params["user"],
+			"HOST":        params["host"],
+			"PORT":        params["port"],
+			"PASSWORD":    password,
+			"USERNAME":    userName,
+			"ACCESS_CERT": s.ConnectionInfo.KafkaAccessCert,
+			"ACCESS_KEY":  s.ConnectionInfo.KafkaAccessKey,
 		},
 	}, nil
 }
@@ -215,8 +223,8 @@ func (h KafkaHandler) setStatus(kafka *k8soperatorv1alpha1.Kafka, s *aiven.Servi
 }
 
 func (h KafkaHandler) getSecretName(kafka *k8soperatorv1alpha1.Kafka) string {
-	if kafka.Spec.SecretCoonInfo.Name != "" {
-		return kafka.Spec.SecretCoonInfo.Name
+	if kafka.Spec.ConnInfoSecretTarget.Name != "" {
+		return kafka.Spec.ConnInfoSecretTarget.Name
 	}
 	return kafka.Name
 }

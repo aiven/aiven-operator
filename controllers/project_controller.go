@@ -121,7 +121,7 @@ func (h ProjectHandler) getSecret(c *aiven.Client, log logr.Logger, i client.Obj
 			},
 		},
 		StringData: map[string]string{
-			"cert": cert,
+			"CA_CERT": cert,
 		},
 	}, nil
 }
@@ -224,8 +224,8 @@ func (h ProjectHandler) delete(c *aiven.Client, log logr.Logger, i client.Object
 }
 
 func (h ProjectHandler) getSecretName(project *k8soperatorv1alpha1.Project) string {
-	if project.Spec.SecretCoonInfo.Name != "" {
-		return project.Spec.SecretCoonInfo.Name
+	if project.Spec.ConnInfoSecretTarget.Name != "" {
+		return project.Spec.ConnInfoSecretTarget.Name
 	}
 	return project.Name
 }

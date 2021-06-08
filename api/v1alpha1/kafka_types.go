@@ -14,7 +14,7 @@ type KafkaSpec struct {
 	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
 
 	// Information regarding secret creation
-	SecretCoonInfo SecretConnectionInfo `json:"secretConnectionInfo,omitempty"`
+	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
 	// Kafka specific user configuration options
 	KafkaUserConfig KafkaUserConfig `json:"kafkaUserConfig,omitempty"`

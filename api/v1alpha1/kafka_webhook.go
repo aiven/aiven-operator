@@ -46,9 +46,6 @@ func (r *Kafka) ValidateUpdate(old runtime.Object) error {
 	if r.Spec.Project != old.(*Kafka).Spec.Project {
 		return errors.New("cannot update a Kafka service, project field is immutable and cannot be updated")
 	}
-	if r.Spec.SecretCoonInfo.Name != old.(*Kafka).Spec.SecretCoonInfo.Name {
-		return errors.New("secretConnectionInfo can only be set during creation of a Kafka service")
-	}
 
 	return nil
 }

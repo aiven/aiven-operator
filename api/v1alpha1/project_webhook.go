@@ -49,10 +49,6 @@ func (r *Project) ValidateUpdate(old runtime.Object) error {
 		return errors.New("'copyFromProject' can only be set during creation of a project")
 	}
 
-	if r.Spec.SecretCoonInfo.Name != old.(*Project).Spec.SecretCoonInfo.Name {
-		return errors.New("secretConnectionInfo can only be set during creation of a project")
-	}
-
 	return nil
 }
 

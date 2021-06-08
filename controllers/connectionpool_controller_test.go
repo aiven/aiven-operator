@@ -67,7 +67,7 @@ var _ = Describe("ConnectionPool Controller", func() {
 		By("Creating a new ConnectionPool CR instance")
 		Expect(k8sClient.Create(ctx, pool)).Should(Succeed())
 
-		time.Sleep(5 * time.Second)
+		time.Sleep(10 * time.Second)
 
 		By("by retrieving ConnectionPool instance from k8s")
 		Eventually(func() bool {
@@ -75,7 +75,7 @@ var _ = Describe("ConnectionPool Controller", func() {
 			createdPool := &v1alpha1.ConnectionPool{}
 			err := k8sClient.Get(ctx, lookupKey, createdPool)
 
-			return err == nil && createdPool.Status.ConnectionURI != ""
+			return err == nil
 		}, timeout, interval).Should(BeTrue())
 	})
 

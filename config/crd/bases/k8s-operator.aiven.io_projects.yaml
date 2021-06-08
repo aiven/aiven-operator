@@ -87,6 +87,15 @@ spec:
                 description: 'Target cloud, example: aws-eu-central-1'
                 maxLength: 256
                 type: string
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
               copyFromProject:
                 description: Project name from which to copy settings to the new project
                 maxLength: 63
@@ -96,15 +105,6 @@ spec:
                 maxLength: 2
                 minLength: 2
                 type: string
-              secretConnectionInfo:
-                description: Information regarding secret creation
-                properties:
-                  name:
-                    description: Name of the Secret resource to be created
-                    type: string
-                required:
-                - name
-                type: object
               technicalEmails:
                 description: Technical contact emails of the project
                 items:
@@ -171,6 +171,15 @@ spec:
                 description: 'Target cloud, example: aws-eu-central-1'
                 maxLength: 256
                 type: string
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
               copyFromProject:
                 description: Project name from which to copy settings to the new project
                 maxLength: 63
@@ -189,15 +198,6 @@ spec:
               paymentMethod:
                 description: Payment method name
                 type: string
-              secretConnectionInfo:
-                description: Information regarding secret creation
-                properties:
-                  name:
-                    description: Name of the Secret resource to be created
-                    type: string
-                required:
-                - name
-                type: object
               technicalEmails:
                 description: Technical contact emails of the project
                 items:

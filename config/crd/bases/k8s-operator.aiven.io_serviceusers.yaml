@@ -53,12 +53,7 @@ spec:
                 - caching_sha2_password
                 - mysql_native_password
                 type: string
-              project:
-                description: Project to link the user to
-                format: ^[a-zA-Z0-9_-]*$
-                maxLength: 63
-                type: string
-              secretConnectionInfo:
+              connInfoSecretTarget:
                 description: Information regarding secret creation
                 properties:
                   name:
@@ -67,6 +62,11 @@ spec:
                 required:
                 - name
                 type: object
+              project:
+                description: Project to link the user to
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
               serviceName:
                 description: Service to link the user to
                 maxLength: 63
@@ -96,12 +96,7 @@ spec:
                 - caching_sha2_password
                 - mysql_native_password
                 type: string
-              project:
-                description: Project to link the user to
-                format: ^[a-zA-Z0-9_-]*$
-                maxLength: 63
-                type: string
-              secretConnectionInfo:
+              connInfoSecretTarget:
                 description: Information regarding secret creation
                 properties:
                   name:
@@ -110,6 +105,11 @@ spec:
                 required:
                 - name
                 type: object
+              project:
+                description: Project to link the user to
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
               serviceName:
                 description: Service to link the user to
                 maxLength: 63

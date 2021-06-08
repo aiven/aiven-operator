@@ -52,10 +52,6 @@ func (r *ServiceUser) ValidateUpdate(old runtime.Object) error {
 		return errors.New("cannot update a Service User, serviceName field is immutable and cannot be updated")
 	}
 
-	if r.Spec.SecretCoonInfo.Name != old.(*Project).Spec.SecretCoonInfo.Name {
-		return errors.New("secretConnectionInfo can only be set during creation of a service user")
-	}
-
 	return nil
 }
 

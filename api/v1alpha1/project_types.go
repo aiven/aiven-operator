@@ -50,8 +50,7 @@ type ProjectSpec struct {
 	TechnicalEmails []string `json:"technicalEmails,omitempty"`
 
 	// Information regarding secret creation
-	SecretCoonInfo SecretConnectionInfo `json:"secretConnectionInfo,omitempty"`
-
+	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef AuthSecretReference `json:"authSecretRef"`

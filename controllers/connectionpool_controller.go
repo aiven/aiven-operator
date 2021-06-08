@@ -9,6 +9,7 @@ import (
 	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -80,7 +81,15 @@ func (h ConnectionPoolHandler) delete(c *aiven.Client, log logr.Logger, i client
 		return nil, false, err
 	}
 
-	return nil, true, nil
+	return &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      h.getSecretName(cp),
+			Namespace: cp.Namespace,
+			Labels: map[string]string{
+				"app": cp.Name,
+			},
+		},
+	}, true, nil
 }
 
 func (h ConnectionPoolHandler) exists(c *aiven.Client, _ logr.Logger, i client.Object) (bool, error) {
@@ -124,8 +133,47 @@ func (h ConnectionPoolHandler) update(c *aiven.Client, log logr.Logger, i client
 	return cp, nil
 }
 
-func (h ConnectionPoolHandler) getSecret(_ *aiven.Client, _ logr.Logger, _ client.Object) (*corev1.Secret, error) {
-	return nil, nil
+func (h ConnectionPoolHandler) getSecret(c *aiven.Client, log logr.Logger, i client.Object) (*corev1.Secret, error) {
+	connPool, err := h.convert(i)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Info("Getting ConnectionPool secret")
+
+	cp, err := c.ConnectionPools.Get(connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Name)
+	if err != nil {
+		return nil, fmt.Errorf("cannot get ConnectionPool: %w", err)
+	}
+
+	s, err := c.Services.Get(connPool.Spec.Project, connPool.Spec.ServiceName)
+	if err != nil {
+		return nil, fmt.Errorf("cannot get service: %w", err)
+	}
+
+	u, err := c.ServiceUsers.Get(connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Spec.Username)
+	if err != nil {
+		return nil, fmt.Errorf("cannot get user: %w", err)
+	}
+
+	return &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      h.getSecretName(connPool),
+			Namespace: connPool.Namespace,
+			Labels: map[string]string{
+				"app": connPool.Name,
+			},
+		},
+		StringData: map[string]string{
+			"PGHOST":       s.URIParams["host"],
+			"PGPORT":       s.URIParams["port"],
+			"PGDATABASE":   cp.Database,
+			"PGUSER":       cp.Username,
+			"PGPASSWORD":   u.Password,
+			"PGSSLMODE":    s.URIParams["sslmode"],
+			"DATABASE_URI": cp.ConnectionURI,
+		},
+	}, nil
 }
 
 func (h ConnectionPoolHandler) checkPreconditions(c *aiven.Client, log logr.Logger, i client.Object) bool {
@@ -168,12 +216,11 @@ func (h *ConnectionPoolHandler) convert(i client.Object) (*k8soperatorv1alpha1.C
 }
 
 // updateCRStatus updates Kubernetes Custom Resource status
-func (h *ConnectionPoolHandler) setStatus(cp *k8soperatorv1alpha1.ConnectionPool, conPool *aiven.ConnectionPool) {
+func (h ConnectionPoolHandler) setStatus(cp *k8soperatorv1alpha1.ConnectionPool, conPool *aiven.ConnectionPool) {
 	cp.Status.Username = conPool.Username
 	cp.Status.PoolMode = conPool.PoolMode
 	cp.Status.DatabaseName = conPool.Database
 	cp.Status.PoolSize = conPool.PoolSize
-	cp.Status.ConnectionURI = conPool.ConnectionURI
 	cp.Status.ServiceName = cp.Spec.ServiceName
 	cp.Status.Project = cp.Spec.Project
 }
@@ -185,4 +232,11 @@ func (h ConnectionPoolHandler) getSecretReference(i client.Object) *k8soperatorv
 	}
 
 	return &cp.Spec.AuthSecretRef
+}
+
+func (h ConnectionPoolHandler) getSecretName(cp *k8soperatorv1alpha1.ConnectionPool) string {
+	if cp.Spec.ConnInfoSecretTarget.Name != "" {
+		return cp.Spec.ConnInfoSecretTarget.Name
+	}
+	return cp.Name
 }
