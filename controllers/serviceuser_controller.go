@@ -84,7 +84,7 @@ func (h ServiceUserHandler) delete(c *aiven.Client, _ logr.Logger, i client.Obje
 
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s%s", user.Name, "-secret"),
+			Name:      h.getSecretName(user),
 			Namespace: user.Namespace,
 			Labels: map[string]string{
 				"app": user.Name,
@@ -124,7 +124,7 @@ func (h ServiceUserHandler) getSecret(c *aiven.Client, _ logr.Logger, i client.O
 
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s%s", u.Username, "-secret"),
+			Name:      h.getSecretName(user),
 			Namespace: user.Namespace,
 			Labels: map[string]string{
 				"app": user.Name,
@@ -168,6 +168,14 @@ func (h ServiceUserHandler) setStatus(user *k8soperatorv1alpha1.ServiceUser, u *
 	user.Status.Type = u.Type
 	user.Status.Authentication = user.Spec.Authentication
 }
+
+func (h ServiceUserHandler) getSecretName(user *k8soperatorv1alpha1.ServiceUser) string {
+	if user.Spec.SecretCoonInfo.Name != "" {
+		return user.Spec.SecretCoonInfo.Name
+	}
+	return user.Name
+}
+
 
 func (h ServiceUserHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {
 	user, err := h.convert(i)

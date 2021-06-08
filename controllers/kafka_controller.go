@@ -94,7 +94,7 @@ func (h KafkaHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) 
 
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s%s", kafka.Name, "-kafka-secret"),
+			Name:      h.getSecretName(kafka),
 			Namespace: kafka.Namespace,
 		},
 	}, true, nil
@@ -160,7 +160,7 @@ func (h KafkaHandler) getSecret(c *aiven.Client, _ logr.Logger, i client.Object)
 	params := s.URIParams
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s%s", kafka.Name, "-kafka-secret"),
+			Name:      h.getSecretName(kafka),
 			Namespace: kafka.Namespace,
 			Labels: map[string]string{
 				"app": kafka.Name,
@@ -212,6 +212,13 @@ func (h KafkaHandler) setStatus(kafka *k8soperatorv1alpha1.Kafka, s *aiven.Servi
 	kafka.Status.MaintenanceWindowTime = s.MaintenanceWindow.TimeOfDay
 	kafka.Status.MaintenanceWindowDow = s.MaintenanceWindow.DayOfWeek
 	kafka.Status.CloudName = s.CloudName
+}
+
+func (h KafkaHandler) getSecretName(kafka *k8soperatorv1alpha1.Kafka) string {
+	if kafka.Spec.SecretCoonInfo.Name != "" {
+		return kafka.Spec.SecretCoonInfo.Name
+	}
+	return kafka.Name
 }
 
 func (h KafkaHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {

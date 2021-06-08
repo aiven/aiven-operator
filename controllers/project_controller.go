@@ -114,7 +114,7 @@ func (h ProjectHandler) getSecret(c *aiven.Client, log logr.Logger, i client.Obj
 
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s%s", project.Name, "-ca-cert"),
+			Name:      h.getSecretName(project),
 			Namespace: project.Namespace,
 			Labels: map[string]string{
 				"app": project.Name,
@@ -217,10 +217,17 @@ func (h ProjectHandler) delete(c *aiven.Client, log logr.Logger, i client.Object
 	log.Info("successfully finalized project on aiven side")
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s%s", project.Name, "-ca-cert"),
+			Name:      h.getSecretName(project),
 			Namespace: project.Namespace,
 		},
 	}, true, nil
+}
+
+func (h ProjectHandler) getSecretName(project *k8soperatorv1alpha1.Project) string {
+	if project.Spec.SecretCoonInfo.Name != "" {
+		return project.Spec.SecretCoonInfo.Name
+	}
+	return project.Name
 }
 
 func (h ProjectHandler) convert(i client.Object) (*k8soperatorv1alpha1.Project, error) {

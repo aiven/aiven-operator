@@ -160,7 +160,7 @@ func (h PGHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (cl
 	log.Info("Successfully finalized PG service on Aiven side")
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s%s", pg.Name, "-pg-secret"),
+			Name:      h.getSecretName(pg),
 			Namespace: pg.Namespace,
 		},
 	}, true, nil
@@ -183,7 +183,7 @@ func (h PGHandler) getSecret(c *aiven.Client, log logr.Logger, i client.Object) 
 	params := s.URIParams
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s%s", pg.Name, "-pg-secret"),
+			Name:      h.getSecretName(pg),
 			Namespace: pg.Namespace,
 			Labels: map[string]string{
 				"app": pg.Name,
@@ -220,6 +220,13 @@ func (h PGHandler) convert(i client.Object) (*k8soperatorv1alpha1.PG, error) {
 
 func (h PGHandler) checkPreconditions(*aiven.Client, logr.Logger, client.Object) bool {
 	return true
+}
+
+func (h PGHandler) getSecretName(pg *k8soperatorv1alpha1.PG) string {
+	if pg.Spec.SecretCoonInfo.Name != "" {
+		return pg.Spec.SecretCoonInfo.Name
+	}
+	return pg.Name
 }
 
 func (h PGHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {

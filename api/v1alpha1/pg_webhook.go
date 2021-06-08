@@ -47,6 +47,10 @@ func (r *PG) ValidateUpdate(old runtime.Object) error {
 		return errors.New("cannot update a PG service, project field is immutable and cannot be updated")
 	}
 
+	if r.Spec.SecretCoonInfo.Name != old.(*PG).Spec.SecretCoonInfo.Name {
+		return errors.New("secretConnectionInfo can only be set during creation of a PG service")
+	}
+
 	return nil
 }
 

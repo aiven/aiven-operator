@@ -96,6 +96,15 @@ spec:
                 maxLength: 2
                 minLength: 2
                 type: string
+              secretConnectionInfo:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
               technicalEmails:
                 description: Technical contact emails of the project
                 items:
@@ -180,6 +189,15 @@ spec:
               paymentMethod:
                 description: Payment method name
                 type: string
+              secretConnectionInfo:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
               technicalEmails:
                 description: Technical contact emails of the project
                 items:

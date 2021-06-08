@@ -21,6 +21,10 @@ type ServiceUserSpec struct {
 	// Authentication details
 	Authentication string `json:"authentication,omitempty"`
 
+	// Information regarding secret creation
+	SecretCoonInfo SecretConnectionInfo `json:"secretConnectionInfo,omitempty"`
+
+
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
 }

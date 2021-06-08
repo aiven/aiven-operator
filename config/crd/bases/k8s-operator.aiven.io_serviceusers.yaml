@@ -58,6 +58,15 @@ spec:
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
+              secretConnectionInfo:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
               serviceName:
                 description: Service to link the user to
                 maxLength: 63
@@ -92,6 +101,15 @@ spec:
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
+              secretConnectionInfo:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
               serviceName:
                 description: Service to link the user to
                 maxLength: 63

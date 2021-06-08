@@ -5,3 +5,9 @@ type AuthSecretReference struct {
 	Name string `json:"name"`
 	Key  string `json:"key"`
 }
+
+// SecretConnectionInfo contains information secret name
+type SecretConnectionInfo struct {
+	// Name of the Secret resource to be created
+	Name string `json:"name"`
+}

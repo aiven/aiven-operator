@@ -630,6 +630,15 @@ spec:
                 description: Identifier of the VPC the service should be in, if any.
                 maxLength: 36
                 type: string
+              secretConnectionInfo:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
               terminationProtection:
                 description: Prevent service from being deleted. It is recommended
                   to have this enabled for all services.
@@ -1231,6 +1240,15 @@ spec:
                 description: Identifier of the VPC the service should be in, if any.
                 maxLength: 36
                 type: string
+              secretConnectionInfo:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
               state:
                 description: Service state
                 type: string

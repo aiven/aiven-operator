@@ -13,6 +13,9 @@ type KafkaSpec struct {
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
 
+	// Information regarding secret creation
+	SecretCoonInfo SecretConnectionInfo `json:"secretConnectionInfo,omitempty"`
+
 	// Kafka specific user configuration options
 	KafkaUserConfig KafkaUserConfig `json:"kafkaUserConfig,omitempty"`
 }
