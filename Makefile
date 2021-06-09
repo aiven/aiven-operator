@@ -104,6 +104,9 @@ docker-push: ## Push docker image with the manager.
 
 ##@ Deployment
 
+install-cert-manager: ## Deploy cert-manager to the cluster
+	kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.3.1/cert-manager.yaml
+
 install: manifests kustomize ## Install CRDs into the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/crd | kubectl apply -f -
 
@@ -111,7 +114,6 @@ uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified 
 	$(KUSTOMIZE) build config/crd | kubectl delete -f -
 
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	$(KUSTOMIZE) build config/default | kubectl apply -f -
 
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
@@ -195,13 +197,3 @@ catalog-build: opm ## Build a catalog image.
 .PHONY: catalog-push
 catalog-push: ## Push a catalog image.
 	$(MAKE) docker-push IMG=$(CATALOG_IMG)
-
-.PHONY: install-cert-manager ## Deploy cert-manager to the cluster
-install-cert-manager:
-	helm repo add jetstack https://charts.jetstack.io
-	helm install \
-	  cert-manager jetstack/cert-manager \
-	  --namespace cert-manager \
-	  --create-namespace \
-	  --version v1.3.1 \
-	  --set installCRDs=true

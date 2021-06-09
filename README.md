@@ -1,23 +1,95 @@
-A Kubernetes operator for provisioning and managing Aiven Databases and other resources as Custom Resources in your
-cluster.
+# Aiven Kubernetes Operator
+Provision and manage [Aiven Services](https://aiven.io/) from your Kubernetes cluster.
 
-**This operator is work-in-progress- and is not production-ready.**
+See the full documentation [here](https://aiven.github.io/aiven-k8s-operator/).
 
-## Documentation
+## Installation
+Clone this repository:
+```bash
+$ git clone git@github.com:aiven/aiven-k8s-operator.git
+$ cd aiven-k8s-operator
+```
 
-### Dependencies
+Install the `cert-manager` Operator:
+> cert-manager is needed to correctly deploy the Operator [webhooks](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/).
+```bash
+$ make install-cert-manager
+```
 
-Required for testing on any environment:
-* Golang >=1.15
-* [Operator SDK CLI](https://sdk.operatorframework.io/docs/installation/) >= 1.16
-* [Ginkgo](https://github.com/onsi/ginkgo#global-installation)
+Install the CRDs:
+```bash
+$ make install
+```
 
-### Different setups
+Install the Operator:
+```bash
+$ make deploy
+```
 
-- [Testing locally using env-test](docs/test-locally.md)
-- [Testing in the cloud](docs/test-gcp-cloud.md)
-- [Create and deploy OLM bundle](docs/create-and-deploy-olm.md)
+## Deploying PostgreSQL at Aiven
+Sign in or create an account at [Aiven](https://console.aiven.io/signup?utm_source=github&utm_medium=organic&utm_campaign=k8s-operator&utm_content=signup), generate an [authentication token](https://help.aiven.io/en/articles/2059201-authentication-tokens) and take note of your Aiven project name.
 
-### Examples
+Create a [Kubernetes Secret](https://kubernetes.io/docs/concepts/configuration/secret/) to store the generated token:
+```bash
+$ export AIVEN_TOKEN="<your-token-here>"
+$ kubectl create secret generic aiven-token --from-literal=token="$AIVEN_TOKEN"
+```
 
-Samples on how to use Aiven resource can be found [here](config/samples).
+Now let's create a `PG` resource with the following YAML – please fill in your project name under in the `project` field:
+```yaml
+apiVersion: k8s-operator.aiven.io/v1alpha1
+kind: PG
+metadata:
+  name: pg-sample
+spec:
+  project: <project>
+  cloudName: google-europe-west1
+  plan: hobbyist
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00
+  pgUserConfig:
+    pg_version: '11'
+```
+
+Watch the resource being created and wait until its status is `RUNNING`:
+```bash
+$ watch kubectl get pg.k8s-operator.aiven.io pg-sample
+```
+
+After created, the Operator will create a Kubernetes Secret containing the PostgreSQL connection information:
+```bash
+$ kubectl describe secret pg-sample-pg-secret
+```
+
+Use the following [jq](https://github.com/stedolan/jq) command to decode the Secret:
+```bash
+$ kubectl get secret pg-sample-pg-secret -o json | jq '.data | map_values(@base64d)'
+```
+
+## Sample App ✨
+Let's deploy a [simple Golang application](https://github.com/jonatasbaldin/simple-golang-postgres) to test the database connection using the generated Secret:
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: simple-golang-application
+spec:
+  containers:
+    - image: jonatasbaldin/simple-golang-postgres
+      name: simple-golang-postgres
+      envFrom:
+      - secretRef:
+          name: pg-sample-pg-secret
+```
+
+After deploying, let's see if the application run:
+```bash
+$ kubectl logs simple-golang-application
+2021/06/09 08:00:51 Connection to PostgreSQL successful!
+```
+
+## Contributing
+We welcome and encourage contributions to this project. Please take a look at our [Contribution guide line](https://aiven.github.io/aiven-k8s-operator/docs/contributing/).
+
+## License
+[MIT](LICENSE).
