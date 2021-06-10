@@ -27,7 +27,7 @@ type ProjectVPCHandler struct {
 
 func (r *ProjectVPCReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("projectvpc", req.NamespacedName)
-	log.Info("Reconciling Aiven ProjectVPC")
+	log.Info("reconciling aiven project vpc")
 
 	const finalizer = "projectvpc-finalizer.k8s-operator.aiven.io"
 	vpc := &k8soperatorv1alpha1.ProjectVPC{}
@@ -71,7 +71,7 @@ func (h ProjectVPCHandler) delete(c *aiven.Client, log logr.Logger, i client.Obj
 	}
 
 	if vpc == nil {
-		log.Info("Successfully finalized project VPC")
+		log.Info("successfully finalized project vpc")
 		return nil, true, nil
 	}
 
@@ -83,7 +83,7 @@ func (h ProjectVPCHandler) delete(c *aiven.Client, log logr.Logger, i client.Obj
 	}
 
 	if vpc.State == "DELETED" {
-		log.Info("Successfully finalized project VPC")
+		log.Info("successfully finalized project vpc")
 		return nil, true, nil
 	}
 

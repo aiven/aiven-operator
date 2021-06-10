@@ -29,7 +29,7 @@ type PGHandler struct {
 
 func (r *PGReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("pg", req.NamespacedName)
-	log.Info("Reconciling Aiven PG")
+	log.Info("reconciling aiven pg")
 
 	const pgServiceFinalizer = "pg-service-finalizer.k8s-operator.aiven.io"
 	pg := &k8soperatorv1alpha1.PG{}
@@ -48,7 +48,7 @@ func (h PGHandler) exists(c *aiven.Client, log logr.Logger, i client.Object) (bo
 		return false, err
 	}
 
-	log.Info("Checking if PG service already exists")
+	log.Info("checking if pg service already exists")
 
 	s, err := c.Services.Get(pg.Spec.Project, pg.Name)
 	if aiven.IsNotFound(err) {
@@ -65,7 +65,7 @@ func (h PGHandler) create(c *aiven.Client, log logr.Logger, i client.Object) (cl
 		return nil, err
 	}
 
-	log.Info("Creating a new PG service")
+	log.Info("creating a new pg service")
 
 	var prVPCID *string
 	if pg.Spec.ProjectVPCID != "" {
@@ -100,7 +100,7 @@ func (h PGHandler) update(c *aiven.Client, log logr.Logger, i client.Object) (cl
 		return nil, err
 	}
 
-	log.Info("Updating PG service")
+	log.Info("updating pg service")
 
 	var prVPCID *string
 	if pg.Spec.ProjectVPCID != "" {
@@ -152,8 +152,8 @@ func (h PGHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (cl
 	// Delete PG on Aiven side
 	if err := c.Services.Delete(pg.Spec.Project, pg.Name); err != nil {
 		if !aiven.IsNotFound(err) {
-			log.Error(err, "Cannot delete Aiven PG service")
-			return nil, false, fmt.Errorf("aiven client delete PG error: %w", err)
+			log.Error(err, "cannot delete aiven pg service")
+			return nil, false, fmt.Errorf("aiven client delete pg error: %w", err)
 		}
 	}
 
@@ -173,11 +173,11 @@ func (h PGHandler) getSecret(c *aiven.Client, log logr.Logger, i client.Object) 
 		return nil, err
 	}
 
-	log.Info("Getting PG secret")
+	log.Info("getting pg secret")
 
 	s, err := c.Services.Get(pg.Spec.Project, pg.Name)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get PG: %w", err)
+		return nil, fmt.Errorf("cannot get pg: %w", err)
 	}
 
 	params := s.URIParams
@@ -204,7 +204,7 @@ func (h PGHandler) isActive(c *aiven.Client, log logr.Logger, i client.Object) (
 		return false, err
 	}
 
-	log.Info("Checking if PG service is active")
+	log.Info("checking if pg service is active")
 
 	return checkServiceIsRunning(c, pg.Spec.Project, pg.Name), nil
 }

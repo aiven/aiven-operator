@@ -29,7 +29,7 @@ type KafkaHandler struct {
 
 func (r *KafkaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("kafka", req.NamespacedName)
-	log.Info("Reconciling Aiven Kafka")
+	log.Info("reconciling aiven kafka")
 
 	const finalizer = "kafka-service-finalizer.k8s-operator.aiven.io"
 	kafka := &k8soperatorv1alpha1.Kafka{}
@@ -48,7 +48,7 @@ func (h *KafkaHandler) create(c *aiven.Client, log logr.Logger, i client.Object)
 		return nil, err
 	}
 
-	log.Info("Creating Kafka service")
+	log.Info("creating kafka service")
 
 	var prVPCID *string
 	if kafka.Spec.ProjectVPCID != "" {
@@ -85,12 +85,12 @@ func (h KafkaHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) 
 	// Delete project on Aiven side
 	if err := c.Services.Delete(kafka.Spec.Project, kafka.Name); err != nil {
 		if !aiven.IsNotFound(err) {
-			log.Error(err, "Cannot delete Aiven Kafka service")
+			log.Error(err, "cannot delete aiven kafka service")
 			return nil, false, fmt.Errorf("aiven client delete Kafka error: %w", err)
 		}
 	}
 
-	log.Info("Successfully finalized Kafka service on Aiven side")
+	log.Info("successfully finalized kafka service on aiven side")
 
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -106,7 +106,7 @@ func (h KafkaHandler) exists(c *aiven.Client, log logr.Logger, i client.Object) 
 		return false, err
 	}
 
-	log.Info("Checking if Kafka service already exists")
+	log.Info("checking if kafka service already exists")
 
 	s, err := c.Services.Get(kafka.Spec.Project, kafka.Name)
 	if aiven.IsNotFound(err) {
@@ -185,7 +185,7 @@ func (h KafkaHandler) isActive(c *aiven.Client, log logr.Logger, i client.Object
 		return false, err
 	}
 
-	log.Info("Checking if Kafka service is active")
+	log.Info("checking if kafka service is active")
 
 	return checkServiceIsRunning(c, kafka.Spec.Project, kafka.Name), nil
 }

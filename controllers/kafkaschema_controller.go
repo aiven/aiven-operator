@@ -27,7 +27,7 @@ type KafkaSchemaHandler struct {
 
 func (r *KafkaSchemaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("kafkaschema", req.NamespacedName)
-	log.Info("Reconciling Aiven Kafka Schema")
+	log.Info("reconciling aiven kafka schema")
 
 	const finalizer = "kafkaschema-finalizer.k8s-operator.aiven.io"
 	schema := &k8soperatorv1alpha1.KafkaSchema{}
@@ -94,7 +94,7 @@ func (h KafkaSchemaHandler) delete(c *aiven.Client, log logr.Logger, i client.Ob
 		return nil, false, fmt.Errorf("aiven client delete Kafka Schema error: %w", err)
 	}
 
-	log.Info("Successfully finalized Kafka Schema")
+	log.Info("successfully finalized kafka schema")
 
 	return nil, true, nil
 }

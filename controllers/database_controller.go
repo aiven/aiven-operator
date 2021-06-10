@@ -28,7 +28,7 @@ type DatabaseHandler struct {
 
 func (r *DatabaseReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("database", req.NamespacedName)
-	log.Info("Reconciling Aiven Database")
+	log.Info("reconciling aiven database")
 
 	const dbFinalizer = "database-finalizer.k8s-operator.aiven.io"
 	db := &k8soperatorv1alpha1.Database{}
@@ -47,7 +47,7 @@ func (h DatabaseHandler) create(c *aiven.Client, log logr.Logger, i client.Objec
 		return nil, err
 	}
 
-	log.Info("Creating a new Database on Aiven side")
+	log.Info("creating a new database on aiven side")
 
 	database, err := c.Databases.Create(db.Spec.Project, db.Spec.ServiceName, aiven.CreateDatabaseRequest{
 		Database:  db.Name,
@@ -77,7 +77,7 @@ func (h DatabaseHandler) delete(c *aiven.Client, log logr.Logger, i client.Objec
 		return nil, false, err
 	}
 
-	log.Info("Successfully finalized Database on Aiven side")
+	log.Info("successfully finalized database on aiven side")
 	return nil, true, nil
 }
 
@@ -87,7 +87,7 @@ func (h DatabaseHandler) exists(c *aiven.Client, log logr.Logger, i client.Objec
 		return false, err
 	}
 
-	log.Info("Checking if Database exists on Aiven side")
+	log.Info("checking if database exists on aiven side")
 
 	d, err := c.Databases.Get(db.Spec.Project, db.Spec.ServiceName, db.Name)
 	if aiven.IsNotFound(err) {
@@ -98,12 +98,12 @@ func (h DatabaseHandler) exists(c *aiven.Client, log logr.Logger, i client.Objec
 }
 
 func (h DatabaseHandler) update(_ *aiven.Client, log logr.Logger, _ client.Object) (client.Object, error) {
-	log.Info("Aiven Database cannot be updated, skipping update handler")
+	log.Info("aiven database cannot be updated, skipping update handler")
 	return nil, nil
 }
 
 func (h DatabaseHandler) getSecret(_ *aiven.Client, log logr.Logger, _ client.Object) (*corev1.Secret, error) {
-	log.Info("Aiven Database has no secrets, skipping this handler")
+	log.Info("aiven database has no secrets, skipping this handler")
 	return nil, nil
 }
 
@@ -113,7 +113,7 @@ func (h DatabaseHandler) checkPreconditions(c *aiven.Client, log logr.Logger, i 
 		return false
 	}
 
-	log.Info("Checking Database preconditions")
+	log.Info("checking database preconditions")
 	return checkServiceIsRunning(c, db.Spec.Project, db.Spec.ServiceName)
 }
 

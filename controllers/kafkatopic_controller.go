@@ -28,7 +28,7 @@ type KafkaTopicHandler struct {
 func (r *KafkaTopicReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("kafkatopic", req.NamespacedName)
 
-	log.Info("Reconciling Aiven Kafka Topic")
+	log.Info("reconciling aiven kafka topic")
 
 	const finalizer = "kafkatopic-finalizer.k8s-operator.aiven.io"
 	topic := &k8soperatorv1alpha1.KafkaTopic{}
@@ -47,7 +47,7 @@ func (h KafkaTopicHandler) create(c *aiven.Client, log logr.Logger, i client.Obj
 		return nil, err
 	}
 
-	log.Info("Creating a new Kafka Topic")
+	log.Info("creating a new kafka topic")
 
 	var tags []aiven.KafkaTopicTag
 	for _, t := range topic.Spec.Tags {
@@ -90,7 +90,7 @@ func (h KafkaTopicHandler) delete(c *aiven.Client, log logr.Logger, i client.Obj
 		return nil, false, err
 	}
 
-	log.Info("Successfully finalized Kafka Topic")
+	log.Info("successfully finalized kafka topic")
 
 	return nil, true, nil
 }
@@ -123,7 +123,7 @@ func (h KafkaTopicHandler) update(c *aiven.Client, log logr.Logger, i client.Obj
 		return nil, err
 	}
 
-	log.Info("Updating a Kafka Topic")
+	log.Info("updating a kafka topic")
 
 	var tags []aiven.KafkaTopicTag
 	for _, t := range topic.Spec.Tags {

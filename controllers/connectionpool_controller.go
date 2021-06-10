@@ -28,7 +28,7 @@ type ConnectionPoolHandler struct {
 
 func (r *ConnectionPoolReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("connectionpool", req.NamespacedName)
-	log.Info("Reconciling Aiven ConnectionPool")
+	log.Info("reconciling aiven connection pool")
 
 	const finalizer = "connectionpool-finalizer.k8s-operator.aiven.io"
 	cp := &k8soperatorv1alpha1.ConnectionPool{}
@@ -47,7 +47,7 @@ func (h ConnectionPoolHandler) create(c *aiven.Client, log logr.Logger, i client
 		return nil, err
 	}
 
-	log.Info("Creating a ConnectionPool on Aiven side")
+	log.Info("creating a connection pool on aiven side")
 
 	conPool, err := c.ConnectionPools.Create(cp.Spec.Project, cp.Spec.ServiceName,
 		aiven.CreateConnectionPoolRequest{
@@ -72,7 +72,7 @@ func (h ConnectionPoolHandler) delete(c *aiven.Client, log logr.Logger, i client
 		return nil, false, err
 	}
 
-	log.Info("Deleting a ConnectionPool on Aiven side")
+	log.Info("deleting a connection pool on aiven side")
 
 	err = c.ConnectionPools.Delete(
 		cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
@@ -106,7 +106,7 @@ func (h ConnectionPoolHandler) update(c *aiven.Client, log logr.Logger, i client
 		return nil, err
 	}
 
-	log.Info("Updating a ConnectionPool on Aiven side")
+	log.Info("updating a connection pool on aiven side")
 
 	conPool, err := c.ConnectionPools.Update(cp.Spec.Project, cp.Spec.ServiceName, cp.Name,
 		aiven.UpdateConnectionPoolRequest{
@@ -134,10 +134,10 @@ func (h ConnectionPoolHandler) checkPreconditions(c *aiven.Client, log logr.Logg
 		return false
 	}
 
-	log.Info("Checking ConnectionPool preconditions")
+	log.Info("checking connection pool preconditions")
 
 	if checkServiceIsRunning(c, cp.Spec.Project, cp.Spec.ServiceName) {
-		log.Info("Checking if database exists")
+		log.Info("checking if database exists")
 		db, err := c.Databases.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.DatabaseName)
 		if err != nil {
 			return false

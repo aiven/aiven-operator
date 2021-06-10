@@ -27,7 +27,7 @@ type KafkaConnectHandler struct {
 
 func (r *KafkaConnectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("kafkaconnect", req.NamespacedName)
-	log.Info("Reconciling Aiven Kafka Connect")
+	log.Info("reconciling aiven kafka connect")
 
 	const finalizer = "kafkaconnect-service-finalizer.k8s-operator.aiven.io"
 	kc := &k8soperatorv1alpha1.KafkaConnect{}
@@ -46,7 +46,7 @@ func (h KafkaConnectHandler) exists(c *aiven.Client, log logr.Logger, i client.O
 		return false, err
 	}
 
-	log.Info("Checking if Kafka Connect service already exists")
+	log.Info("checking if kafka connect service already exists")
 
 	s, err := c.Services.Get(kc.Spec.Project, kc.Name)
 	if aiven.IsNotFound(err) {
@@ -62,7 +62,7 @@ func (h KafkaConnectHandler) create(c *aiven.Client, log logr.Logger, i client.O
 		return nil, err
 	}
 
-	log.Info("Creating a new KafkaConnect service")
+	log.Info("creating a new kafkaConnect service")
 
 	var prVPCID *string
 	if kc.Spec.ProjectVPCID != "" {
@@ -96,7 +96,7 @@ func (h KafkaConnectHandler) update(c *aiven.Client, log logr.Logger, i client.O
 		return nil, err
 	}
 
-	log.Info("Updating KafkaConnect service")
+	log.Info("updating kafka connect service")
 
 	var prVPCID *string
 	if kc.Spec.ProjectVPCID != "" {
@@ -145,12 +145,12 @@ func (h KafkaConnectHandler) delete(c *aiven.Client, log logr.Logger, i client.O
 
 	if err := c.Services.Delete(kc.Spec.Project, kc.Name); err != nil {
 		if !aiven.IsNotFound(err) {
-			log.Error(err, "Cannot delete Aiven KafkaConnect service")
+			log.Error(err, "cannot delete aiven kafka connect service")
 			return nil, false, fmt.Errorf("aiven client delete KafkaConnect error: %w", err)
 		}
 	}
 
-	log.Info("Successfully finalized KafkaConnect service on Aiven side")
+	log.Info("successfully finalized kafka connect service on aiven side")
 
 	return nil, true, nil
 }

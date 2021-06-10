@@ -28,7 +28,7 @@ type KafkaACLHandler struct {
 func (r *KafkaACLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("kafkaacl", req.NamespacedName)
 
-	log.Info("Reconciling Aiven Kafka ACL")
+	log.Info("reconciling aiven kafka acl")
 
 	const finalizer = "kafka-acl-finalizer.k8s-operator.aiven.io"
 	acl := &k8soperatorv1alpha1.KafkaACL{}
@@ -77,7 +77,7 @@ func (h KafkaACLHandler) delete(c *aiven.Client, log logr.Logger, i client.Objec
 		return nil, false, fmt.Errorf("aiven client delete Kafka ACL error: %w", err)
 	}
 
-	log.Info("Successfully finalized KafkaACL service on Aiven side")
+	log.Info("successfully finalized kafka acl service on aiven side")
 
 	return nil, true, nil
 }

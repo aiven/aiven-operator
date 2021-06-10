@@ -27,7 +27,7 @@ type ServiceIntegrationHandler struct {
 
 func (r *ServiceIntegrationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("serviceintegration", req.NamespacedName)
-	log.Info("Reconciling Aiven ServiceIntegration")
+	log.Info("reconciling aiven service integration")
 
 	const finalizer = "serviceintegration-finalizer.k8s-operator.aiven.io"
 	si := &k8soperatorv1alpha1.ServiceIntegration{}
@@ -58,7 +58,7 @@ func (h ServiceIntegrationHandler) create(c *aiven.Client, _ logr.Logger, i clie
 		},
 	)
 	if err != nil {
-		return nil, fmt.Errorf("cannot create service integration:%w", err)
+		return nil, fmt.Errorf("cannot create service integration: %w", err)
 	}
 
 	h.setStatus(si, integration)
@@ -74,11 +74,11 @@ func (h ServiceIntegrationHandler) delete(c *aiven.Client, log logr.Logger, i cl
 
 	err = c.ServiceIntegrations.Delete(si.Spec.Project, si.Status.ID)
 	if err != nil && !aiven.IsNotFound(err) {
-		log.Error(err, "Cannot delete Service Integration")
+		log.Error(err, "cannot delete service integration")
 		return nil, false, fmt.Errorf("aiven client delete service ingtegration error: %w", err)
 	}
 
-	log.Info("Successfully finalized service integration")
+	log.Info("successfully finalized service integration")
 
 	return nil, true, nil
 }
@@ -106,7 +106,7 @@ func (h ServiceIntegrationHandler) update(c *aiven.Client, _ logr.Logger, i clie
 		},
 	)
 	if err != nil {
-		if strings.Contains(err.Error(), "User config not changed") {
+		if strings.Contains(err.Error(), "user config not changed") {
 			return nil, nil
 		}
 		return nil, err

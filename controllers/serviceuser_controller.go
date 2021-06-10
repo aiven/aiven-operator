@@ -28,7 +28,7 @@ type ServiceUserHandler struct {
 
 func (r *ServiceUserReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("serviceuser", req.NamespacedName)
-	log.Info("Reconciling Aiven ServiceUser")
+	log.Info("reconciling aiven service user")
 
 	const finalizer = "serviceuser-finalizer.k8s-operator.aiven.io"
 	su := &k8soperatorv1alpha1.ServiceUser{}
@@ -47,7 +47,7 @@ func (h *ServiceUserHandler) create(c *aiven.Client, log logr.Logger, i client.O
 		return nil, err
 	}
 
-	log.Info("Creating Service User")
+	log.Info("creating service user")
 
 	u, err := c.ServiceUsers.Create(user.Spec.Project, user.Spec.ServiceName,
 		aiven.CreateServiceUserRequest{
@@ -62,7 +62,7 @@ func (h *ServiceUserHandler) create(c *aiven.Client, log logr.Logger, i client.O
 		if aiven.IsAlreadyExists(err) {
 			return user, nil
 		}
-		return nil, fmt.Errorf("cannot create service user on Aiven side: %w", err)
+		return nil, fmt.Errorf("cannot create service user on aiven side: %w", err)
 	}
 
 	h.setStatus(user, u)
@@ -144,7 +144,7 @@ func (h ServiceUserHandler) checkPreconditions(c *aiven.Client, log logr.Logger,
 		return false
 	}
 
-	log.Info("Checking ServiceUser preconditions")
+	log.Info("checking service user preconditions")
 
 	return checkServiceIsRunning(c, user.Spec.Project, user.Spec.ServiceName)
 }

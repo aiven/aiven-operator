@@ -83,11 +83,11 @@ func (c *Controller) reconcileInstance(h Handlers, ctx context.Context, log logr
 			// Request object not found, could have been deleted after reconcile request.
 			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
 			// Return and don't requeue
-			c.Log.Info("Instance resource not found. Ignoring since object must be deleted")
+			c.Log.Info("instance resource not found. ignoring since object must be deleted")
 			return ctrl.Result{}, nil
 		}
 		// Error reading the object - requeue the request.
-		c.Log.Error(err, "Failed to get Instance")
+		c.Log.Error(err, "failed to get instance")
 		return ctrl.Result{}, err
 	}
 
@@ -129,7 +129,7 @@ func (c *Controller) reconcileInstance(h Handlers, ctx context.Context, log logr
 
 			// Remove finalizer. Once all finalizers have been
 			// removed, the object will be deleted.
-			c.Log.Info("Removing finalizer from instance ...")
+			c.Log.Info("removing finalizer from instance")
 			controllerutil.RemoveFinalizer(o, finalizerName)
 			err = c.Update(ctx, o)
 			if err != nil {
@@ -229,57 +229,57 @@ func (c *Controller) InitAivenClient(h Handlers, o client.Object, req ctrl.Reque
 	if c.AivenClient != nil {
 		return nil
 	}
-	log.Info("Initializing an Aiven Client ...")
+	log.Info("initializing an aiven client")
 
 	// Check if aiven-token secret exists
 	var token string
 	secret := &corev1.Secret{}
 	secretRef := h.getSecretReference(o)
 	if secretRef == nil {
-		return fmt.Errorf("secret ref is nil, cannot create an Aiven client")
+		return fmt.Errorf("secret ref is nil, cannot create an aiven client")
 	}
 
 	if secretRef.Name == "" || secretRef.Key == "" {
-		return fmt.Errorf("secret ref  key or secret is empty, cannot create an Aiven client")
+		return fmt.Errorf("secret ref  key or secret is empty, cannot create an aiven client")
 	}
 
 	err := c.Get(ctx, types.NamespacedName{Name: secretRef.Name, Namespace: req.Namespace}, secret)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			log.Error(err, secretRef.Name+" secret is missing, it is required by the Aiven client")
+			log.Error(err, "secret is missing, it is required by the aiven client", secretRef.Name, "secretName")
 		}
-		return fmt.Errorf("cannot get `"+secretRef.Name+"` secret: %w", err)
+		return fmt.Errorf("cannot get %q secret: %w", secretRef.Name, err)
 	}
 
 	if v, ok := secret.Data[secretRef.Key]; ok {
 		token = string(v)
 	} else {
-		return fmt.Errorf("cannot initialize Aiven client, kubernetes secret has no `" + secretRef.Key + "` key")
+		return fmt.Errorf("cannot initialize aiven client, kubernetes secret has no %q key", secretRef.Key)
 	}
 
 	if len(token) == 0 {
-		return fmt.Errorf("cannot initialize Aiven client, `" + secretRef.Key + "` key in a secret is empty")
+		return fmt.Errorf("cannot initialize aiven client, %q key in a secret is empty", secretRef.Key)
 	}
 
-	log.Info("Creating an Aiven Client ...")
+	log.Info("creating an aiven client")
 	c.AivenClient, err = aiven.NewTokenClient(token, "k8s-operator/")
 	if err != nil {
-		return fmt.Errorf("cannot create an Aiven Client: %w", err)
+		return fmt.Errorf("cannot create an aiven client: %w", err)
 	}
 
-	log.Info("Aiven Client was successfully initialized")
+	log.Info("aiven client was successfully initialized")
 
 	return nil
 }
 
 func (c *Controller) addFinalizer(o client.Object, f string) error {
-	c.Log.Info("Adding Finalizer for the instance")
+	c.Log.Info("adding finalizer for the instance")
 	controllerutil.AddFinalizer(o, f)
 
 	// Update CR
 	err := c.Client.Update(context.Background(), o)
 	if err != nil {
-		c.Log.Error(err, "Failed to update instance with finalize")
+		c.Log.Error(err, "failed to update instance with finalize")
 		return err
 	}
 

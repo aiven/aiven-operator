@@ -30,7 +30,7 @@ type ProjectHandler struct {
 
 func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("project", req.NamespacedName)
-	log.Info("Reconciling Aiven Project")
+	log.Info("reconciling aiven project")
 
 	const projectFinalizer = "project-finalize.k8s-operator.aiven.io"
 	project := &k8soperatorv1alpha1.Project{}
@@ -50,7 +50,7 @@ func (h ProjectHandler) create(c *aiven.Client, log logr.Logger, i client.Object
 		return nil, err
 	}
 
-	log.Info("Creating a new project")
+	log.Info("creating a new project")
 
 	var billingEmails *[]*aiven.ContactEmail
 	if len(project.Spec.BillingEmails) > 0 {
@@ -105,7 +105,7 @@ func (h ProjectHandler) getSecret(c *aiven.Client, log logr.Logger, i client.Obj
 		return nil, err
 	}
 
-	log.Info("Creating a Project secret with CA certificate")
+	log.Info("creating a project secret with ca certificate")
 
 	cert, err := c.CA.Get(project.Name)
 	if err != nil {
@@ -133,7 +133,7 @@ func (h ProjectHandler) update(c *aiven.Client, log logr.Logger, i client.Object
 		return nil, err
 	}
 
-	log.Info("Updating Project")
+	log.Info("updating project")
 
 	var billingEmails *[]*aiven.ContactEmail
 	if len(project.Spec.BillingEmails) > 0 {
@@ -157,7 +157,7 @@ func (h ProjectHandler) update(c *aiven.Client, log logr.Logger, i client.Object
 		BillingCurrency:  project.Spec.BillingCurrency,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to update Project on Aiven side: %w", err)
+		return nil, fmt.Errorf("failed to update project on aiven side: %w", err)
 	}
 
 	h.setStatus(project, p)
@@ -172,7 +172,7 @@ func (h ProjectHandler) exists(c *aiven.Client, log logr.Logger, i client.Object
 		return false, err
 	}
 
-	log.Info("Checking if project exists")
+	log.Info("checking if project exists")
 
 	pr, err := c.Projects.Get(project.Name)
 	if aiven.IsNotFound(err) {
@@ -189,7 +189,7 @@ func (h ProjectHandler) delete(c *aiven.Client, log logr.Logger, i client.Object
 		return nil, false, err
 	}
 
-	log.Info("Finalizing project")
+	log.Info("finalizing project")
 
 	// Delete project on Aiven side
 	if err := c.Projects.Delete(project.Name); err != nil {
@@ -209,12 +209,12 @@ func (h ProjectHandler) delete(c *aiven.Client, log logr.Logger, i client.Object
 		}
 
 		if !skip {
-			log.Error(err, "Cannot delete Aiven project")
+			log.Error(err, "cannot delete aiven project")
 			return nil, false, fmt.Errorf("aiven client delete project error: %w", err)
 		}
 	}
 
-	log.Info("Successfully finalized project on Aiven side")
+	log.Info("successfully finalized project on aiven side")
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%s%s", project.Name, "-ca-cert"),
