@@ -39,6 +39,7 @@ func (r *PGReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Re
 func (r *PGReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&k8soperatorv1alpha1.PG{}).
+		Owns(&corev1.Secret{}).
 		Complete(r)
 }
 
@@ -143,27 +144,22 @@ func (h PGHandler) setStatus(pg *k8soperatorv1alpha1.PG, s *aiven.Service) {
 }
 
 // delete deletes Aiven PG service
-func (h PGHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h PGHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	pg, err := h.convert(i)
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 
 	// Delete PG on Aiven side
 	if err := c.Services.Delete(pg.Spec.Project, pg.Name); err != nil {
 		if !aiven.IsNotFound(err) {
 			log.Error(err, "cannot delete aiven pg service")
-			return nil, false, fmt.Errorf("aiven client delete pg error: %w", err)
+			return false, fmt.Errorf("aiven client delete pg error: %w", err)
 		}
 	}
 
-	log.Info("Successfully finalized PG service on Aiven side")
-	return &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      h.getSecretName(pg),
-			Namespace: pg.Namespace,
-		},
-	}, true, nil
+	log.Info("successfully finalized pg service on Aiven side")
+	return true, nil
 }
 
 // getSecret retrieves a PG service secret

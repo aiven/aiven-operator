@@ -63,10 +63,10 @@ func (h DatabaseHandler) create(c *aiven.Client, log logr.Logger, i client.Objec
 	return db, nil
 }
 
-func (h DatabaseHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h DatabaseHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	db, err := h.convert(i)
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 
 	err = c.Databases.Delete(
@@ -74,11 +74,11 @@ func (h DatabaseHandler) delete(c *aiven.Client, log logr.Logger, i client.Objec
 		db.Status.ServiceName,
 		db.Name)
 	if err != nil && !aiven.IsNotFound(err) {
-		return nil, false, err
+		return false, err
 	}
 
 	log.Info("successfully finalized database on aiven side")
-	return nil, true, nil
+	return true, nil
 }
 
 func (h DatabaseHandler) exists(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {

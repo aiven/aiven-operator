@@ -71,26 +71,18 @@ func (h *ServiceUserHandler) create(c *aiven.Client, log logr.Logger, i client.O
 
 }
 
-func (h ServiceUserHandler) delete(c *aiven.Client, _ logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h ServiceUserHandler) delete(c *aiven.Client, _ logr.Logger, i client.Object) (bool, error) {
 	user, err := h.convert(i)
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 
 	err = c.ServiceUsers.Delete(user.Spec.Project, user.Spec.ServiceName, user.Name)
 	if !aiven.IsNotFound(err) {
-		return nil, false, err
+		return false, err
 	}
 
-	return &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      h.getSecretName(user),
-			Namespace: user.Namespace,
-			Labels: map[string]string{
-				"app": user.Name,
-			},
-		},
-	}, true, nil
+	return true, nil
 }
 
 func (h ServiceUserHandler) exists(c *aiven.Client, _ logr.Logger, i client.Object) (exists bool, error error) {

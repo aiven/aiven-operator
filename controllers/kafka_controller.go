@@ -39,6 +39,7 @@ func (r *KafkaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 func (r *KafkaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&k8soperatorv1alpha1.Kafka{}).
+		Owns(&corev1.Secret{}).
 		Complete(r)
 }
 
@@ -76,28 +77,23 @@ func (h *KafkaHandler) create(c *aiven.Client, log logr.Logger, i client.Object)
 	return kafka, nil
 }
 
-func (h KafkaHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h KafkaHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	kafka, err := h.convert(i)
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 
 	// Delete project on Aiven side
 	if err := c.Services.Delete(kafka.Spec.Project, kafka.Name); err != nil {
 		if !aiven.IsNotFound(err) {
 			log.Error(err, "cannot delete aiven kafka service")
-			return nil, false, fmt.Errorf("aiven client delete Kafka error: %w", err)
+			return false, fmt.Errorf("aiven client delete Kafka error: %w", err)
 		}
 	}
 
 	log.Info("successfully finalized kafka service on aiven side")
 
-	return &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      h.getSecretName(kafka),
-			Namespace: kafka.Namespace,
-		},
-	}, true, nil
+	return true, nil
 }
 
 func (h KafkaHandler) exists(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {

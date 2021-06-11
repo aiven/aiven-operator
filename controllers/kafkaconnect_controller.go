@@ -137,22 +137,22 @@ func (h KafkaConnectHandler) setStatus(kc *k8soperatorv1alpha1.KafkaConnect, s *
 	kc.Status.CloudName = s.CloudName
 }
 
-func (h KafkaConnectHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h KafkaConnectHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	kc, err := h.convert(i)
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 
 	if err := c.Services.Delete(kc.Spec.Project, kc.Name); err != nil {
 		if !aiven.IsNotFound(err) {
 			log.Error(err, "cannot delete aiven kafka connect service")
-			return nil, false, fmt.Errorf("aiven client delete KafkaConnect error: %w", err)
+			return false, fmt.Errorf("aiven client delete KafkaConnect error: %w", err)
 		}
 	}
 
 	log.Info("successfully finalized kafka connect service on aiven side")
 
-	return nil, true, nil
+	return true, nil
 }
 
 func (h KafkaConnectHandler) getSecret(*aiven.Client, logr.Logger, client.Object) (*corev1.Secret, error) {

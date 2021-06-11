@@ -78,21 +78,21 @@ func (h KafkaTopicHandler) create(c *aiven.Client, log logr.Logger, i client.Obj
 	return topic, nil
 }
 
-func (h KafkaTopicHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h KafkaTopicHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	topic, err := h.convert(i)
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 
 	// Delete project on Aiven side
 	err = c.KafkaTopics.Delete(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName)
 	if err != nil && !aiven.IsNotFound(err) {
-		return nil, false, err
+		return false, err
 	}
 
 	log.Info("successfully finalized kafka topic")
 
-	return nil, true, nil
+	return true, nil
 }
 
 func (h KafkaTopicHandler) exists(c *aiven.Client, _ logr.Logger, i client.Object) (bool, error) {

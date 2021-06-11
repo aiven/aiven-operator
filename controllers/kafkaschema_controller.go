@@ -83,20 +83,20 @@ func (h KafkaSchemaHandler) create(c *aiven.Client, _ logr.Logger, i client.Obje
 	return schema, nil
 }
 
-func (h KafkaSchemaHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h KafkaSchemaHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	schema, err := h.convert(i)
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 
 	err = c.KafkaSubjectSchemas.Delete(schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.Schema)
 	if err != nil && !aiven.IsNotFound(err) {
-		return nil, false, fmt.Errorf("aiven client delete Kafka Schema error: %w", err)
+		return false, fmt.Errorf("aiven client delete Kafka Schema error: %w", err)
 	}
 
 	log.Info("successfully finalized kafka schema")
 
-	return nil, true, nil
+	return true, nil
 }
 
 func (h KafkaSchemaHandler) exists(_ *aiven.Client, _ logr.Logger, i client.Object) (bool, error) {

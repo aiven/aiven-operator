@@ -40,6 +40,7 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&k8soperatorv1alpha1.Project{}).
+		Owns(&corev1.Secret{}).
 		Complete(r)
 }
 
@@ -183,10 +184,10 @@ func (h ProjectHandler) exists(c *aiven.Client, log logr.Logger, i client.Object
 }
 
 // delete deletes Aiven project
-func (h ProjectHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h ProjectHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	project, err := h.convert(i)
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 
 	log.Info("finalizing project")
@@ -210,17 +211,12 @@ func (h ProjectHandler) delete(c *aiven.Client, log logr.Logger, i client.Object
 
 		if !skip {
 			log.Error(err, "cannot delete aiven project")
-			return nil, false, fmt.Errorf("aiven client delete project error: %w", err)
+			return false, fmt.Errorf("aiven client delete project error: %w", err)
 		}
 	}
 
 	log.Info("successfully finalized project on aiven side")
-	return &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      h.getSecretName(project),
-			Namespace: project.Namespace,
-		},
-	}, true, nil
+	return true, nil
 }
 
 func (h ProjectHandler) getSecretName(project *k8soperatorv1alpha1.Project) string {

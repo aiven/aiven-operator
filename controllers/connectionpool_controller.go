@@ -39,6 +39,7 @@ func (r *ConnectionPoolReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 func (r *ConnectionPoolReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&k8soperatorv1alpha1.ConnectionPool{}).
+		Owns(&corev1.Secret{}).
 		Complete(r)
 }
 
@@ -67,10 +68,10 @@ func (h ConnectionPoolHandler) create(c *aiven.Client, log logr.Logger, i client
 	return cp, nil
 }
 
-func (h ConnectionPoolHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h ConnectionPoolHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	cp, err := h.convert(i)
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 
 	log.Info("deleting a connection pool on aiven side")
@@ -78,18 +79,10 @@ func (h ConnectionPoolHandler) delete(c *aiven.Client, log logr.Logger, i client
 	err = c.ConnectionPools.Delete(
 		cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
 	if !aiven.IsNotFound(err) {
-		return nil, false, err
+		return false, err
 	}
 
-	return &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      h.getSecretName(cp),
-			Namespace: cp.Namespace,
-			Labels: map[string]string{
-				"app": cp.Name,
-			},
-		},
-	}, true, nil
+	return true, nil
 }
 
 func (h ConnectionPoolHandler) exists(c *aiven.Client, _ logr.Logger, i client.Object) (bool, error) {
@@ -139,7 +132,7 @@ func (h ConnectionPoolHandler) getSecret(c *aiven.Client, log logr.Logger, i cli
 		return nil, err
 	}
 
-	log.Info("Getting ConnectionPool secret")
+	log.Info("getting connection pool secret")
 
 	cp, err := c.ConnectionPools.Get(connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Name)
 	if err != nil {
