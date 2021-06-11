@@ -40,6 +40,9 @@ type ServiceCommonSpec struct {
 type PGSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
+	// Authentication reference to Aiven token in a secret
+	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
+
 	// PostgreSQL specific user configuration options
 	PGUserConfig PGUserConfig `json:"pgUserConfig,omitempty"`
 }

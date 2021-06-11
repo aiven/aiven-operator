@@ -36,6 +36,17 @@ spec:
           spec:
             description: KafkaTopicSpec defines the desired state of KafkaTopic
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               config:
                 description: Kafka topic configuration
                 properties:
@@ -171,6 +182,7 @@ spec:
                 maxLength: 63
                 type: string
             required:
+            - authSecretRef
             - partitions
             - project
             - replication
@@ -180,6 +192,17 @@ spec:
           status:
             description: KafkaTopicStatus defines the observed state of KafkaTopic
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               config:
                 description: Kafka topic configuration
                 properties:
@@ -317,6 +340,7 @@ spec:
                 maxLength: 63
                 type: string
             required:
+            - authSecretRef
             - partitions
             - project
             - replication

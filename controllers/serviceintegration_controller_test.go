@@ -137,6 +137,10 @@ func serviceIntegrationSpec(siName, source, destination, namespace string) *v1al
 					StatusStorageTopic: "__connect_offsets",
 				},
 			},
+			AuthSecretRef: v1alpha1.AuthSecretReference{
+				Name: secretRefName,
+				Key:  secretRefKey,
+			},
 		},
 	}
 }

@@ -10,6 +10,9 @@ import (
 type KafkaConnectSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
+	// Authentication reference to Aiven token in a secret
+	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
+
 	// PostgreSQL specific user configuration options
 	KafkaConnectUserConfig KafkaConnectUserConfig `json:"KafkaConnectUserConfig,omitempty"`
 }

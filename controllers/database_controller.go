@@ -28,7 +28,7 @@ type DatabaseHandler struct {
 
 func (r *DatabaseReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("database", req.NamespacedName)
-	log.Info("Reconciling Aiven Database")
+	log.Info("reconciling aiven database")
 
 	const dbFinalizer = "database-finalizer.k8s-operator.aiven.io"
 	db := &k8soperatorv1alpha1.Database{}
@@ -41,15 +41,15 @@ func (r *DatabaseReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h DatabaseHandler) create(log logr.Logger, i client.Object) (client.Object, error) {
+func (h DatabaseHandler) create(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
 	db, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Info("Creating a new Database on Aiven side")
+	log.Info("creating a new database on aiven side")
 
-	database, err := aivenClient.Databases.Create(db.Spec.Project, db.Spec.ServiceName, aiven.CreateDatabaseRequest{
+	database, err := c.Databases.Create(db.Spec.Project, db.Spec.ServiceName, aiven.CreateDatabaseRequest{
 		Database:  db.Name,
 		LcCollate: db.Spec.LcCollate,
 		LcType:    db.Spec.LcType,
@@ -63,13 +63,13 @@ func (h DatabaseHandler) create(log logr.Logger, i client.Object) (client.Object
 	return db, nil
 }
 
-func (h DatabaseHandler) delete(log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h DatabaseHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
 	db, err := h.convert(i)
 	if err != nil {
 		return nil, false, err
 	}
 
-	err = aivenClient.Databases.Delete(
+	err = c.Databases.Delete(
 		db.Status.Project,
 		db.Status.ServiceName,
 		db.Name)
@@ -77,19 +77,19 @@ func (h DatabaseHandler) delete(log logr.Logger, i client.Object) (client.Object
 		return nil, false, err
 	}
 
-	log.Info("Successfully finalized Database on Aiven side")
+	log.Info("successfully finalized database on aiven side")
 	return nil, true, nil
 }
 
-func (h DatabaseHandler) exists(log logr.Logger, i client.Object) (bool, error) {
+func (h DatabaseHandler) exists(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	db, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	log.Info("Checking if Database exists on Aiven side")
+	log.Info("checking if database exists on aiven side")
 
-	d, err := aivenClient.Databases.Get(db.Spec.Project, db.Spec.ServiceName, db.Name)
+	d, err := c.Databases.Get(db.Spec.Project, db.Spec.ServiceName, db.Name)
 	if aiven.IsNotFound(err) {
 		return false, nil
 	}
@@ -97,27 +97,27 @@ func (h DatabaseHandler) exists(log logr.Logger, i client.Object) (bool, error) 
 	return d != nil, nil
 }
 
-func (h DatabaseHandler) update(log logr.Logger, _ client.Object) (client.Object, error) {
-	log.Info("Aiven Database cannot be updated, skipping update handler")
+func (h DatabaseHandler) update(_ *aiven.Client, log logr.Logger, _ client.Object) (client.Object, error) {
+	log.Info("aiven database cannot be updated, skipping update handler")
 	return nil, nil
 }
 
-func (h DatabaseHandler) getSecret(log logr.Logger, _ client.Object) (*corev1.Secret, error) {
-	log.Info("Aiven Database has no secrets, skipping this handler")
+func (h DatabaseHandler) getSecret(_ *aiven.Client, log logr.Logger, _ client.Object) (*corev1.Secret, error) {
+	log.Info("aiven database has no secrets, skipping this handler")
 	return nil, nil
 }
 
-func (h DatabaseHandler) checkPreconditions(log logr.Logger, i client.Object) bool {
+func (h DatabaseHandler) checkPreconditions(c *aiven.Client, log logr.Logger, i client.Object) bool {
 	db, err := h.convert(i)
 	if err != nil {
 		return false
 	}
 
-	log.Info("Checking Database preconditions")
-	return checkServiceIsRunning(db.Spec.Project, db.Spec.ServiceName)
+	log.Info("checking database preconditions")
+	return checkServiceIsRunning(c, db.Spec.Project, db.Spec.ServiceName)
 }
 
-func (h DatabaseHandler) isActive(logr.Logger, client.Object) (bool, error) {
+func (h DatabaseHandler) isActive(*aiven.Client, logr.Logger, client.Object) (bool, error) {
 	return true, nil
 }
 
@@ -135,4 +135,13 @@ func (h DatabaseHandler) convert(i client.Object) (*k8soperatorv1alpha1.Database
 	}
 
 	return db, nil
+}
+
+func (h DatabaseHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {
+	cp, err := h.convert(i)
+	if err != nil {
+		return nil
+	}
+
+	return &cp.Spec.AuthSecretRef
 }

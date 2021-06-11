@@ -27,7 +27,7 @@ type KafkaConnectHandler struct {
 
 func (r *KafkaConnectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("kafkaconnect", req.NamespacedName)
-	log.Info("Reconciling Aiven Kafka Connect")
+	log.Info("reconciling aiven kafka connect")
 
 	const finalizer = "kafkaconnect-service-finalizer.k8s-operator.aiven.io"
 	kc := &k8soperatorv1alpha1.KafkaConnect{}
@@ -40,15 +40,15 @@ func (r *KafkaConnectReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaConnectHandler) exists(log logr.Logger, i client.Object) (bool, error) {
+func (h KafkaConnectHandler) exists(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	kc, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	log.Info("Checking if Kafka Connect service already exists")
+	log.Info("checking if kafka connect service already exists")
 
-	s, err := aivenClient.Services.Get(kc.Spec.Project, kc.Name)
+	s, err := c.Services.Get(kc.Spec.Project, kc.Name)
 	if aiven.IsNotFound(err) {
 		return false, nil
 	}
@@ -56,20 +56,20 @@ func (h KafkaConnectHandler) exists(log logr.Logger, i client.Object) (bool, err
 	return s != nil, nil
 }
 
-func (h KafkaConnectHandler) create(log logr.Logger, i client.Object) (client.Object, error) {
+func (h KafkaConnectHandler) create(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
 	kc, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Info("Creating a new KafkaConnect service")
+	log.Info("creating a new kafkaConnect service")
 
 	var prVPCID *string
 	if kc.Spec.ProjectVPCID != "" {
 		prVPCID = &kc.Spec.ProjectVPCID
 	}
 
-	s, err := aivenClient.Services.Create(kc.Spec.Project, aiven.CreateServiceRequest{
+	s, err := c.Services.Create(kc.Spec.Project, aiven.CreateServiceRequest{
 		Cloud: kc.Spec.CloudName,
 		MaintenanceWindow: getMaintenanceWindow(
 			kc.Spec.MaintenanceWindowDow,
@@ -90,20 +90,20 @@ func (h KafkaConnectHandler) create(log logr.Logger, i client.Object) (client.Ob
 	return kc, err
 }
 
-func (h KafkaConnectHandler) update(log logr.Logger, i client.Object) (client.Object, error) {
+func (h KafkaConnectHandler) update(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
 	kc, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Info("Updating KafkaConnect service")
+	log.Info("updating kafka connect service")
 
 	var prVPCID *string
 	if kc.Spec.ProjectVPCID != "" {
 		prVPCID = &kc.Spec.ProjectVPCID
 	}
 
-	s, err := aivenClient.Services.Update(kc.Spec.Project, kc.Name, aiven.UpdateServiceRequest{
+	s, err := c.Services.Update(kc.Spec.Project, kc.Name, aiven.UpdateServiceRequest{
 		Cloud: kc.Spec.CloudName,
 		MaintenanceWindow: getMaintenanceWindow(
 			kc.Spec.MaintenanceWindowDow,
@@ -137,29 +137,29 @@ func (h KafkaConnectHandler) setStatus(kc *k8soperatorv1alpha1.KafkaConnect, s *
 	kc.Status.CloudName = s.CloudName
 }
 
-func (h KafkaConnectHandler) delete(log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h KafkaConnectHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
 	kc, err := h.convert(i)
 	if err != nil {
 		return nil, false, err
 	}
 
-	if err := aivenClient.Services.Delete(kc.Spec.Project, kc.Name); err != nil {
+	if err := c.Services.Delete(kc.Spec.Project, kc.Name); err != nil {
 		if !aiven.IsNotFound(err) {
-			log.Error(err, "Cannot delete Aiven KafkaConnect service")
+			log.Error(err, "cannot delete aiven kafka connect service")
 			return nil, false, fmt.Errorf("aiven client delete KafkaConnect error: %w", err)
 		}
 	}
 
-	log.Info("Successfully finalized KafkaConnect service on Aiven side")
+	log.Info("successfully finalized kafka connect service on aiven side")
 
 	return nil, true, nil
 }
 
-func (h KafkaConnectHandler) getSecret(logr.Logger, client.Object) (*corev1.Secret, error) {
+func (h KafkaConnectHandler) getSecret(*aiven.Client, logr.Logger, client.Object) (*corev1.Secret, error) {
 	return nil, nil
 }
 
-func (h KafkaConnectHandler) isActive(log logr.Logger, i client.Object) (bool, error) {
+func (h KafkaConnectHandler) isActive(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	kc, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -167,7 +167,7 @@ func (h KafkaConnectHandler) isActive(log logr.Logger, i client.Object) (bool, e
 
 	log.Info("Checking if KafkaConnect service is active")
 
-	return checkServiceIsRunning(kc.Spec.Project, kc.Name), nil
+	return checkServiceIsRunning(c, kc.Spec.Project, kc.Name), nil
 }
 
 func (h KafkaConnectHandler) convert(i client.Object) (*k8soperatorv1alpha1.KafkaConnect, error) {
@@ -179,6 +179,15 @@ func (h KafkaConnectHandler) convert(i client.Object) (*k8soperatorv1alpha1.Kafk
 	return kc, nil
 }
 
-func (h KafkaConnectHandler) checkPreconditions(logr.Logger, client.Object) bool {
+func (h KafkaConnectHandler) checkPreconditions(*aiven.Client, logr.Logger, client.Object) bool {
 	return true
+}
+
+func (h KafkaConnectHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {
+	kc, err := h.convert(i)
+	if err != nil {
+		return nil
+	}
+
+	return &kc.Spec.AuthSecretRef
 }

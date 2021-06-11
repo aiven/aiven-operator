@@ -129,6 +129,10 @@ func kafkaTopicSpec(service, topic, namespace string) *v1alpha1.KafkaTopic {
 					Value: "val1",
 				},
 			},
+			AuthSecretRef: v1alpha1.AuthSecretReference{
+				Name: secretRefName,
+				Key:  secretRefKey,
+			},
 		},
 	}
 }

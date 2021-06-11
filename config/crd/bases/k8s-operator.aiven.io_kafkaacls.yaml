@@ -36,6 +36,17 @@ spec:
           spec:
             description: KafkaACLSpec defines the desired state of KafkaACL
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               permission:
                 description: Kafka permission to grant (admin, read, readwrite, write)
                 enum:
@@ -60,6 +71,7 @@ spec:
                 description: Username pattern for the ACL entry
                 type: string
             required:
+            - authSecretRef
             - permission
             - project
             - serviceName
@@ -69,6 +81,17 @@ spec:
           status:
             description: KafkaACLStatus defines the observed state of KafkaACL
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               id:
                 description: Kafka ACL ID
                 type: string
@@ -96,6 +119,7 @@ spec:
                 description: Username pattern for the ACL entry
                 type: string
             required:
+            - authSecretRef
             - id
             - permission
             - project

@@ -20,6 +20,9 @@ type ServiceUserSpec struct {
 	// +kubebuilder:validation:Enum=caching_sha2_password;mysql_native_password
 	// Authentication details
 	Authentication string `json:"authentication,omitempty"`
+
+	// Authentication reference to Aiven token in a secret
+	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
 }
 
 // ServiceUserStatus defines the observed state of ServiceUser

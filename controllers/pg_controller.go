@@ -29,7 +29,7 @@ type PGHandler struct {
 
 func (r *PGReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("pg", req.NamespacedName)
-	log.Info("Reconciling Aiven PG")
+	log.Info("reconciling aiven pg")
 
 	const pgServiceFinalizer = "pg-service-finalizer.k8s-operator.aiven.io"
 	pg := &k8soperatorv1alpha1.PG{}
@@ -42,15 +42,15 @@ func (r *PGReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h PGHandler) exists(log logr.Logger, i client.Object) (bool, error) {
+func (h PGHandler) exists(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	pg, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	log.Info("Checking if PG service already exists")
+	log.Info("checking if pg service already exists")
 
-	s, err := aivenClient.Services.Get(pg.Spec.Project, pg.Name)
+	s, err := c.Services.Get(pg.Spec.Project, pg.Name)
 	if aiven.IsNotFound(err) {
 		return false, nil
 	}
@@ -59,20 +59,20 @@ func (h PGHandler) exists(log logr.Logger, i client.Object) (bool, error) {
 }
 
 // create creates PG service and update CR status and creates secrets
-func (h PGHandler) create(log logr.Logger, i client.Object) (client.Object, error) {
+func (h PGHandler) create(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
 	pg, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Info("Creating a new PG service")
+	log.Info("creating a new pg service")
 
 	var prVPCID *string
 	if pg.Spec.ProjectVPCID != "" {
 		prVPCID = &pg.Spec.ProjectVPCID
 	}
 
-	s, err := aivenClient.Services.Create(pg.Spec.Project, aiven.CreateServiceRequest{
+	s, err := c.Services.Create(pg.Spec.Project, aiven.CreateServiceRequest{
 		Cloud: pg.Spec.CloudName,
 		MaintenanceWindow: getMaintenanceWindow(
 			pg.Spec.MaintenanceWindowDow,
@@ -94,20 +94,20 @@ func (h PGHandler) create(log logr.Logger, i client.Object) (client.Object, erro
 }
 
 // update updates PG service and updates CR status
-func (h PGHandler) update(log logr.Logger, i client.Object) (client.Object, error) {
+func (h PGHandler) update(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
 	pg, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Info("Updating PG service")
+	log.Info("updating pg service")
 
 	var prVPCID *string
 	if pg.Spec.ProjectVPCID != "" {
 		prVPCID = &pg.Spec.ProjectVPCID
 	}
 
-	s, err := aivenClient.Services.Update(pg.Spec.Project, pg.Name, aiven.UpdateServiceRequest{
+	s, err := c.Services.Update(pg.Spec.Project, pg.Name, aiven.UpdateServiceRequest{
 		Cloud: pg.Spec.CloudName,
 		MaintenanceWindow: getMaintenanceWindow(
 			pg.Spec.MaintenanceWindowDow,
@@ -143,17 +143,17 @@ func (h PGHandler) setStatus(pg *k8soperatorv1alpha1.PG, s *aiven.Service) {
 }
 
 // delete deletes Aiven PG service
-func (h PGHandler) delete(log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h PGHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
 	pg, err := h.convert(i)
 	if err != nil {
 		return nil, false, err
 	}
 
 	// Delete PG on Aiven side
-	if err := aivenClient.Services.Delete(pg.Spec.Project, pg.Name); err != nil {
+	if err := c.Services.Delete(pg.Spec.Project, pg.Name); err != nil {
 		if !aiven.IsNotFound(err) {
-			log.Error(err, "Cannot delete Aiven PG service")
-			return nil, false, fmt.Errorf("aiven client delete PG error: %w", err)
+			log.Error(err, "cannot delete aiven pg service")
+			return nil, false, fmt.Errorf("aiven client delete pg error: %w", err)
 		}
 	}
 
@@ -167,17 +167,17 @@ func (h PGHandler) delete(log logr.Logger, i client.Object) (client.Object, bool
 }
 
 // getSecret retrieves a PG service secret
-func (h PGHandler) getSecret(log logr.Logger, i client.Object) (*corev1.Secret, error) {
+func (h PGHandler) getSecret(c *aiven.Client, log logr.Logger, i client.Object) (*corev1.Secret, error) {
 	pg, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Info("Getting PG secret")
+	log.Info("getting pg secret")
 
-	s, err := aivenClient.Services.Get(pg.Spec.Project, pg.Name)
+	s, err := c.Services.Get(pg.Spec.Project, pg.Name)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get PG: %w", err)
+		return nil, fmt.Errorf("cannot get pg: %w", err)
 	}
 
 	params := s.URIParams
@@ -198,15 +198,15 @@ func (h PGHandler) getSecret(log logr.Logger, i client.Object) (*corev1.Secret, 
 	}, nil
 }
 
-func (h PGHandler) isActive(log logr.Logger, i client.Object) (bool, error) {
+func (h PGHandler) isActive(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	pg, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	log.Info("Checking if PG service is active")
+	log.Info("checking if pg service is active")
 
-	return checkServiceIsRunning(pg.Spec.Project, pg.Name), nil
+	return checkServiceIsRunning(c, pg.Spec.Project, pg.Name), nil
 }
 
 func (h PGHandler) convert(i client.Object) (*k8soperatorv1alpha1.PG, error) {
@@ -218,6 +218,15 @@ func (h PGHandler) convert(i client.Object) (*k8soperatorv1alpha1.PG, error) {
 	return pg, nil
 }
 
-func (h PGHandler) checkPreconditions(logr.Logger, client.Object) bool {
+func (h PGHandler) checkPreconditions(*aiven.Client, logr.Logger, client.Object) bool {
 	return true
+}
+
+func (h PGHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {
+	pg, err := h.convert(i)
+	if err != nil {
+		return nil
+	}
+
+	return &pg.Spec.AuthSecretRef
 }

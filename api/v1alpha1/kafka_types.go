@@ -10,6 +10,9 @@ import (
 type KafkaSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
+	// Authentication reference to Aiven token in a secret
+	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
+
 	// Kafka specific user configuration options
 	KafkaUserConfig KafkaUserConfig `json:"kafkaUserConfig,omitempty"`
 }

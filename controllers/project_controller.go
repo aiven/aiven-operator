@@ -30,7 +30,7 @@ type ProjectHandler struct {
 
 func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("project", req.NamespacedName)
-	log.Info("Reconciling Aiven Project")
+	log.Info("reconciling aiven project")
 
 	const projectFinalizer = "project-finalize.k8s-operator.aiven.io"
 	project := &k8soperatorv1alpha1.Project{}
@@ -44,13 +44,13 @@ func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 // create creates a project on Aiven side
-func (h ProjectHandler) create(log logr.Logger, i client.Object) (client.Object, error) {
+func (h ProjectHandler) create(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
 	project, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Info("Creating a new project")
+	log.Info("creating a new project")
 
 	var billingEmails *[]*aiven.ContactEmail
 	if len(project.Spec.BillingEmails) > 0 {
@@ -62,7 +62,7 @@ func (h ProjectHandler) create(log logr.Logger, i client.Object) (client.Object,
 		technicalEmails = aiven.ContactEmailFromStringSlice(project.Spec.TechnicalEmails)
 	}
 
-	p, err := aivenClient.Projects.Create(aiven.CreateProjectRequest{
+	p, err := c.Projects.Create(aiven.CreateProjectRequest{
 		BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
 		BillingEmails:    billingEmails,
 		BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
@@ -99,15 +99,15 @@ func (*ProjectHandler) setStatus(project *k8soperatorv1alpha1.Project, p *aiven.
 	project.Status.EstimatedBalance = p.EstimatedBalance
 }
 
-func (h ProjectHandler) getSecret(log logr.Logger, i client.Object) (*corev1.Secret, error) {
+func (h ProjectHandler) getSecret(c *aiven.Client, log logr.Logger, i client.Object) (*corev1.Secret, error) {
 	project, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Info("Creating a Project secret with CA certificate")
+	log.Info("creating a project secret with ca certificate")
 
-	cert, err := aivenClient.CA.Get(project.Name)
+	cert, err := c.CA.Get(project.Name)
 	if err != nil {
 		return nil, fmt.Errorf("aiven client error %w", err)
 	}
@@ -127,13 +127,13 @@ func (h ProjectHandler) getSecret(log logr.Logger, i client.Object) (*corev1.Sec
 }
 
 // update updates a project on Aiven side
-func (h ProjectHandler) update(log logr.Logger, i client.Object) (client.Object, error) {
+func (h ProjectHandler) update(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
 	project, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Info("Updating Project")
+	log.Info("updating project")
 
 	var billingEmails *[]*aiven.ContactEmail
 	if len(project.Spec.BillingEmails) > 0 {
@@ -145,7 +145,7 @@ func (h ProjectHandler) update(log logr.Logger, i client.Object) (client.Object,
 		technicalEmails = aiven.ContactEmailFromStringSlice(project.Spec.TechnicalEmails)
 	}
 
-	p, err := aivenClient.Projects.Update(project.Name, aiven.UpdateProjectRequest{
+	p, err := c.Projects.Update(project.Name, aiven.UpdateProjectRequest{
 		BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
 		BillingEmails:    billingEmails,
 		BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
@@ -157,7 +157,7 @@ func (h ProjectHandler) update(log logr.Logger, i client.Object) (client.Object,
 		BillingCurrency:  project.Spec.BillingCurrency,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to update Project on Aiven side: %w", err)
+		return nil, fmt.Errorf("failed to update project on aiven side: %w", err)
 	}
 
 	h.setStatus(project, p)
@@ -166,15 +166,15 @@ func (h ProjectHandler) update(log logr.Logger, i client.Object) (client.Object,
 }
 
 // exists checks if project already exists on Aiven side
-func (h ProjectHandler) exists(log logr.Logger, i client.Object) (bool, error) {
+func (h ProjectHandler) exists(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	project, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	log.Info("Checking if project exists")
+	log.Info("checking if project exists")
 
-	pr, err := aivenClient.Projects.Get(project.Name)
+	pr, err := c.Projects.Get(project.Name)
 	if aiven.IsNotFound(err) {
 		return false, nil
 	}
@@ -183,16 +183,16 @@ func (h ProjectHandler) exists(log logr.Logger, i client.Object) (bool, error) {
 }
 
 // delete deletes Aiven project
-func (h ProjectHandler) delete(log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h ProjectHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
 	project, err := h.convert(i)
 	if err != nil {
 		return nil, false, err
 	}
 
-	log.Info("Finalizing project")
+	log.Info("finalizing project")
 
 	// Delete project on Aiven side
-	if err := aivenClient.Projects.Delete(project.Name); err != nil {
+	if err := c.Projects.Delete(project.Name); err != nil {
 		var skip bool
 
 		// If project not found then there is nothing to delete
@@ -209,12 +209,12 @@ func (h ProjectHandler) delete(log logr.Logger, i client.Object) (client.Object,
 		}
 
 		if !skip {
-			log.Error(err, "Cannot delete Aiven project")
+			log.Error(err, "cannot delete aiven project")
 			return nil, false, fmt.Errorf("aiven client delete project error: %w", err)
 		}
 	}
 
-	log.Info("Successfully finalized project on Aiven side")
+	log.Info("successfully finalized project on aiven side")
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%s%s", project.Name, "-ca-cert"),
@@ -232,10 +232,19 @@ func (h ProjectHandler) convert(i client.Object) (*k8soperatorv1alpha1.Project, 
 	return p, nil
 }
 
-func (h ProjectHandler) isActive(logr.Logger, client.Object) (bool, error) {
+func (h ProjectHandler) isActive(*aiven.Client, logr.Logger, client.Object) (bool, error) {
 	return true, nil
 }
 
-func (h ProjectHandler) checkPreconditions(logr.Logger, client.Object) bool {
+func (h ProjectHandler) checkPreconditions(*aiven.Client, logr.Logger, client.Object) bool {
 	return true
+}
+
+func (h ProjectHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {
+	project, err := h.convert(i)
+	if err != nil {
+		return nil
+	}
+
+	return &project.Spec.AuthSecretRef
 }

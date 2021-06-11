@@ -108,6 +108,10 @@ func pgSpec(serviceName, namespace string) *v1alpha1.PG {
 					IdleInTransactionSessionTimeout: int64Pointer(900),
 				},
 			},
+			AuthSecretRef: v1alpha1.AuthSecretReference{
+				Name: secretRefName,
+				Key:  secretRefKey,
+			},
 		},
 	}
 }

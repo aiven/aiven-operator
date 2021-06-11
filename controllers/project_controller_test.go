@@ -45,6 +45,10 @@ var _ = Describe("Project Controller", func() {
 			Spec: v1alpha1.ProjectSpec{
 				BillingAddress: projectBillingAddress,
 				Cloud:          projectCloud,
+				AuthSecretRef: v1alpha1.AuthSecretReference{
+					Name: secretRefName,
+					Key:  secretRefKey,
+				},
 			},
 		}
 		ctx = context.Background()

@@ -27,7 +27,7 @@ type ProjectVPCHandler struct {
 
 func (r *ProjectVPCReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("projectvpc", req.NamespacedName)
-	log.Info("Reconciling Aiven ProjectVPC")
+	log.Info("reconciling aiven project vpc")
 
 	const finalizer = "projectvpc-finalizer.k8s-operator.aiven.io"
 	vpc := &k8soperatorv1alpha1.ProjectVPC{}
@@ -40,13 +40,13 @@ func (r *ProjectVPCReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ProjectVPCHandler) create(_ logr.Logger, i client.Object) (createdObj client.Object, error error) {
+func (h ProjectVPCHandler) create(c *aiven.Client, _ logr.Logger, i client.Object) (createdObj client.Object, error error) {
 	projectVPC, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
-	vpc, err := aivenClient.VPCs.Create(projectVPC.Spec.Project, aiven.CreateVPCRequest{
+	vpc, err := c.VPCs.Create(projectVPC.Spec.Project, aiven.CreateVPCRequest{
 		CloudName:   projectVPC.Spec.CloudName,
 		NetworkCIDR: projectVPC.Spec.NetworkCidr,
 	})
@@ -59,44 +59,44 @@ func (h ProjectVPCHandler) create(_ logr.Logger, i client.Object) (createdObj cl
 	return projectVPC, nil
 }
 
-func (h ProjectVPCHandler) delete(log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h ProjectVPCHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
 	projectVPC, err := h.convert(i)
 	if err != nil {
 		return nil, false, err
 	}
 
-	vpc, err := h.getVPC(projectVPC)
+	vpc, err := h.getVPC(c, projectVPC)
 	if err != nil {
 		return nil, false, err
 	}
 
 	if vpc == nil {
-		log.Info("Successfully finalized project VPC")
+		log.Info("successfully finalized project vpc")
 		return nil, true, nil
 	}
 
 	if vpc.State != "DELETING" && vpc.State != "DELETED" {
 		// Delete project VPC on Aiven side
-		if err := aivenClient.VPCs.Delete(projectVPC.Status.Project, projectVPC.Status.ID); err != nil && !aiven.IsNotFound(err) {
+		if err := c.VPCs.Delete(projectVPC.Status.Project, projectVPC.Status.ID); err != nil && !aiven.IsNotFound(err) {
 			return nil, false, err
 		}
 	}
 
 	if vpc.State == "DELETED" {
-		log.Info("Successfully finalized project VPC")
+		log.Info("successfully finalized project vpc")
 		return nil, true, nil
 	}
 
 	return nil, false, nil
 }
 
-func (h ProjectVPCHandler) exists(_ logr.Logger, i client.Object) (exists bool, error error) {
+func (h ProjectVPCHandler) exists(c *aiven.Client, _ logr.Logger, i client.Object) (exists bool, error error) {
 	projectVPC, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	vpc, err := h.getVPC(projectVPC)
+	vpc, err := h.getVPC(c, projectVPC)
 	if err != nil {
 		return false, err
 	}
@@ -104,8 +104,8 @@ func (h ProjectVPCHandler) exists(_ logr.Logger, i client.Object) (exists bool, 
 	return vpc != nil, nil
 }
 
-func (h ProjectVPCHandler) getVPC(projectVPC *k8soperatorv1alpha1.ProjectVPC) (*aiven.VPC, error) {
-	vpcs, err := aivenClient.VPCs.List(projectVPC.Spec.Project)
+func (h ProjectVPCHandler) getVPC(c *aiven.Client, projectVPC *k8soperatorv1alpha1.ProjectVPC) (*aiven.VPC, error) {
+	vpcs, err := c.VPCs.List(projectVPC.Spec.Project)
 	if err != nil {
 		return nil, err
 	}
@@ -119,25 +119,25 @@ func (h ProjectVPCHandler) getVPC(projectVPC *k8soperatorv1alpha1.ProjectVPC) (*
 	return nil, nil
 }
 
-func (h ProjectVPCHandler) update(logr.Logger, client.Object) (client.Object, error) {
+func (h ProjectVPCHandler) update(*aiven.Client, logr.Logger, client.Object) (client.Object, error) {
 	return nil, nil
 }
 
-func (h ProjectVPCHandler) getSecret(logr.Logger, client.Object) (*corev1.Secret, error) {
+func (h ProjectVPCHandler) getSecret(*aiven.Client, logr.Logger, client.Object) (*corev1.Secret, error) {
 	return nil, nil
 }
 
-func (h ProjectVPCHandler) checkPreconditions(logr.Logger, client.Object) bool {
+func (h ProjectVPCHandler) checkPreconditions(*aiven.Client, logr.Logger, client.Object) bool {
 	return true
 }
 
-func (h ProjectVPCHandler) isActive(_ logr.Logger, i client.Object) (bool, error) {
+func (h ProjectVPCHandler) isActive(c *aiven.Client, _ logr.Logger, i client.Object) (bool, error) {
 	projectVPC, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	vpc, err := h.getVPC(projectVPC)
+	vpc, err := h.getVPC(c, projectVPC)
 	if err != nil {
 		return false, err
 	}
@@ -160,4 +160,13 @@ func (h ProjectVPCHandler) setStatus(projectVPC *k8soperatorv1alpha1.ProjectVPC,
 	projectVPC.Status.ID = vpc.ProjectVPCID
 	projectVPC.Status.State = vpc.State
 	projectVPC.Status.NetworkCidr = vpc.NetworkCIDR
+}
+
+func (h ProjectVPCHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {
+	vpc, err := h.convert(i)
+	if err != nil {
+		return nil
+	}
+
+	return &vpc.Spec.AuthSecretRef
 }

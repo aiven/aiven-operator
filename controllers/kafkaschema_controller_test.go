@@ -117,6 +117,10 @@ func kafkaSchemaSpec(service, subjName, namespace string) *v1alpha1.KafkaSchema 
 					"type": "record"
 				}`,
 			CompatibilityLevel: "BACKWARD",
+			AuthSecretRef: v1alpha1.AuthSecretReference{
+				Name: secretRefName,
+				Key:  secretRefKey,
+			},
 		},
 	}
 }

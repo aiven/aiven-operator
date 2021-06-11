@@ -48,6 +48,9 @@ type ProjectSpec struct {
 	// +kubebuilder:validation:MaxItems=10
 	// Technical contact emails of the project
 	TechnicalEmails []string `json:"technicalEmails,omitempty"`
+
+	// Authentication reference to Aiven token in a secret
+	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
 }
 
 // ProjectStatus defines the observed state of Project

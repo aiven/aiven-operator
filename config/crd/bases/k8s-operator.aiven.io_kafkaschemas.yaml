@@ -36,6 +36,17 @@ spec:
           spec:
             description: KafkaSchemaSpec defines the desired state of KafkaSchema
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               compatibilityLevel:
                 description: Kafka Schemas compatibility level
                 enum:
@@ -65,6 +76,7 @@ spec:
                 maxLength: 63
                 type: string
             required:
+            - authSecretRef
             - project
             - schema
             - serviceName
@@ -73,6 +85,17 @@ spec:
           status:
             description: KafkaSchemaStatus defines the observed state of KafkaSchema
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               compatibilityLevel:
                 description: Kafka Schemas compatibility level
                 enum:
@@ -105,6 +128,7 @@ spec:
                 description: Kafka Schema configuration version
                 type: integer
             required:
+            - authSecretRef
             - project
             - schema
             - serviceName

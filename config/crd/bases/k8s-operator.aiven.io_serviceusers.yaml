@@ -36,6 +36,17 @@ spec:
           spec:
             description: ServiceUserSpec defines the desired state of ServiceUser
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               authentication:
                 description: Authentication details
                 enum:
@@ -52,12 +63,24 @@ spec:
                 maxLength: 63
                 type: string
             required:
+            - authSecretRef
             - project
             - serviceName
             type: object
           status:
             description: ServiceUserStatus defines the observed state of ServiceUser
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               authentication:
                 description: Authentication details
                 enum:
@@ -77,6 +100,7 @@ spec:
                 description: Type of the user account
                 type: string
             required:
+            - authSecretRef
             - project
             - serviceName
             type: object

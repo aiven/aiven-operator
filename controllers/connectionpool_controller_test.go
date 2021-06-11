@@ -120,6 +120,10 @@ func connectionPoolSpec(service, database, pool, user, namespace string) *v1alph
 			Username:     user,
 			PoolSize:     25,
 			PoolMode:     "transaction",
+			AuthSecretRef: v1alpha1.AuthSecretReference{
+				Name: secretRefName,
+				Key:  secretRefKey,
+			},
 		},
 	}
 }
