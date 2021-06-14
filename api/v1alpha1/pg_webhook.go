@@ -47,6 +47,10 @@ func (r *PG) ValidateUpdate(old runtime.Object) error {
 		return errors.New("cannot update a PG service, project field is immutable and cannot be updated")
 	}
 
+	if r.Spec.ConnInfoSecretTarget.Name != old.(*PG).Spec.ConnInfoSecretTarget.Name {
+		return errors.New("cannot update a PG service, connInfoSecretTarget.name field is immutable and cannot be updated")
+	}
+
 	return nil
 }
 

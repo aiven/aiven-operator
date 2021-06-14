@@ -55,6 +55,10 @@ func (r *ConnectionPool) ValidateUpdate(old runtime.Object) error {
 		return errors.New("cannot update a ConnectionPool, serviceName field is immutable and cannot be updated")
 	}
 
+	if r.Spec.ConnInfoSecretTarget.Name != old.(*ConnectionPool).Spec.ConnInfoSecretTarget.Name {
+		return errors.New("cannot update a ConnectionPool, connInfoSecretTarget.name field is immutable and cannot be updated")
+	}
+
 	return nil
 }
 

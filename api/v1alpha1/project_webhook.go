@@ -49,6 +49,10 @@ func (r *Project) ValidateUpdate(old runtime.Object) error {
 		return errors.New("'copyFromProject' can only be set during creation of a project")
 	}
 
+	if r.Spec.ConnInfoSecretTarget.Name != old.(*Project).Spec.ConnInfoSecretTarget.Name {
+		return errors.New("cannot update a Project, connInfoSecretTarget.name field is immutable and cannot be updated")
+	}
+
 	return nil
 }
 

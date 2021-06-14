@@ -47,6 +47,10 @@ func (r *Kafka) ValidateUpdate(old runtime.Object) error {
 		return errors.New("cannot update a Kafka service, project field is immutable and cannot be updated")
 	}
 
+	if r.Spec.ConnInfoSecretTarget.Name != old.(*Kafka).Spec.ConnInfoSecretTarget.Name {
+		return errors.New("cannot update a Kafka service, connInfoSecretTarget.name field is immutable and cannot be updated")
+	}
+
 	return nil
 }
 

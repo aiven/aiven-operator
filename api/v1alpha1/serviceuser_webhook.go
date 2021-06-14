@@ -52,6 +52,10 @@ func (r *ServiceUser) ValidateUpdate(old runtime.Object) error {
 		return errors.New("cannot update a Service User, serviceName field is immutable and cannot be updated")
 	}
 
+	if r.Spec.ConnInfoSecretTarget.Name != old.(*ServiceUser).Spec.ConnInfoSecretTarget.Name {
+		return errors.New("cannot update a ServiceUser, connInfoSecretTarget.name field is immutable and cannot be updated")
+	}
+
 	return nil
 }
 
