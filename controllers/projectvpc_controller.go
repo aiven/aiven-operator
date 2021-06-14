@@ -59,35 +59,35 @@ func (h ProjectVPCHandler) create(c *aiven.Client, _ logr.Logger, i client.Objec
 	return projectVPC, nil
 }
 
-func (h ProjectVPCHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h ProjectVPCHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	projectVPC, err := h.convert(i)
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 
 	vpc, err := h.getVPC(c, projectVPC)
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 
 	if vpc == nil {
 		log.Info("successfully finalized project vpc")
-		return nil, true, nil
+		return true, nil
 	}
 
 	if vpc.State != "DELETING" && vpc.State != "DELETED" {
 		// Delete project VPC on Aiven side
 		if err := c.VPCs.Delete(projectVPC.Status.Project, projectVPC.Status.ID); err != nil && !aiven.IsNotFound(err) {
-			return nil, false, err
+			return false, err
 		}
 	}
 
 	if vpc.State == "DELETED" {
 		log.Info("successfully finalized project vpc")
-		return nil, true, nil
+		return true, nil
 	}
 
-	return nil, false, nil
+	return false, nil
 }
 
 func (h ProjectVPCHandler) exists(c *aiven.Client, _ logr.Logger, i client.Object) (exists bool, error error) {

@@ -39,6 +39,7 @@ func (r *KafkaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 func (r *KafkaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&k8soperatorv1alpha1.Kafka{}).
+		Owns(&corev1.Secret{}).
 		Complete(r)
 }
 
@@ -76,28 +77,23 @@ func (h *KafkaHandler) create(c *aiven.Client, log logr.Logger, i client.Object)
 	return kafka, nil
 }
 
-func (h KafkaHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h KafkaHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	kafka, err := h.convert(i)
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 
 	// Delete project on Aiven side
 	if err := c.Services.Delete(kafka.Spec.Project, kafka.Name); err != nil {
 		if !aiven.IsNotFound(err) {
 			log.Error(err, "cannot delete aiven kafka service")
-			return nil, false, fmt.Errorf("aiven client delete Kafka error: %w", err)
+			return false, fmt.Errorf("aiven client delete Kafka error: %w", err)
 		}
 	}
 
 	log.Info("successfully finalized kafka service on aiven side")
 
-	return &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s%s", kafka.Name, "-kafka-secret"),
-			Namespace: kafka.Namespace,
-		},
-	}, true, nil
+	return true, nil
 }
 
 func (h KafkaHandler) exists(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
@@ -157,20 +153,28 @@ func (h KafkaHandler) getSecret(c *aiven.Client, _ logr.Logger, i client.Object)
 		return nil, err
 	}
 
+	var userName, password string
+	if len(s.Users) > 0 {
+		userName = s.Users[0].Username
+		password = s.Users[0].Password
+	}
+
 	params := s.URIParams
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s%s", kafka.Name, "-kafka-secret"),
+			Name:      h.getSecretName(kafka),
 			Namespace: kafka.Namespace,
 			Labels: map[string]string{
 				"app": kafka.Name,
 			},
 		},
 		StringData: map[string]string{
-			"host":     params["host"],
-			"port":     params["port"],
-			"password": params["password"],
-			"user":     params["user"],
+			"HOST":        params["host"],
+			"PORT":        params["port"],
+			"PASSWORD":    password,
+			"USERNAME":    userName,
+			"ACCESS_CERT": s.ConnectionInfo.KafkaAccessCert,
+			"ACCESS_KEY":  s.ConnectionInfo.KafkaAccessKey,
 		},
 	}, nil
 }
@@ -212,6 +216,13 @@ func (h KafkaHandler) setStatus(kafka *k8soperatorv1alpha1.Kafka, s *aiven.Servi
 	kafka.Status.MaintenanceWindowTime = s.MaintenanceWindow.TimeOfDay
 	kafka.Status.MaintenanceWindowDow = s.MaintenanceWindow.DayOfWeek
 	kafka.Status.CloudName = s.CloudName
+}
+
+func (h KafkaHandler) getSecretName(kafka *k8soperatorv1alpha1.Kafka) string {
+	if kafka.Spec.ConnInfoSecretTarget.Name != "" {
+		return kafka.Spec.ConnInfoSecretTarget.Name
+	}
+	return kafka.Name
 }
 
 func (h KafkaHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {

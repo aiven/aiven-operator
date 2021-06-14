@@ -41,11 +41,7 @@ type (
 		// delete removes an instance on Aiven side.
 		// If an object is already deleted and cannot be found, it should not be an error. For other deletion
 		// errors, return an error.
-		// The return value is any other object that should be deleted along with this one.  For example, if
-		// there is a secret associated with an instance, it should return it to have it deleted by controller.
-		// When deletion requires further runs, the bool parameter 'isDeleted' should be false and only when an
-		// entity was successfully deleted on the Aiven side should it be true.
-		delete(*aiven.Client, logr.Logger, client.Object) (objToBeDeleted client.Object, isDeleted bool, error error)
+		delete(*aiven.Client, logr.Logger, client.Object) (isDeleted bool, error error)
 
 		// exists checks if an instance already exists on the Aiven side.
 		exists(*aiven.Client, logr.Logger, client.Object) (exists bool, error error)
@@ -107,7 +103,7 @@ func (c *Controller) reconcileInstance(h Handlers, ctx context.Context, log logr
 			// When applicable, it retrieves an associated object that
 			// has to be deleted from Kubernetes, and it could be a
 			// secret associated with an instance.
-			associatedObjToBeDeleted, finalised, err := h.delete(c.AivenClient, log, o)
+			finalised, err := h.delete(c.AivenClient, log, o)
 			if err != nil {
 				return ctrl.Result{}, err
 			}
@@ -118,13 +114,6 @@ func (c *Controller) reconcileInstance(h Handlers, ctx context.Context, log logr
 					Requeue:      true,
 					RequeueAfter: requeueTimeout,
 				}, nil
-			}
-
-			// Delete a K8s secret if handler finalized things on Aiven side
-			if associatedObjToBeDeleted != nil {
-				if err := c.Delete(ctx, associatedObjToBeDeleted); err != nil && !errors.IsNotFound(err) {
-					return ctrl.Result{}, fmt.Errorf("cannot delete object: %w", err)
-				}
 			}
 
 			// Remove finalizer. Once all finalizers have been
@@ -164,22 +153,9 @@ func (c *Controller) reconcileInstance(h Handlers, ctx context.Context, log logr
 			return ctrl.Result{}, err
 		}
 
-		// Get a secret if available
-		s, err := h.getSecret(c.AivenClient, log, o)
+		err = c.manageSecret(log, ctx, h, o)
 		if err != nil {
-			return ctrl.Result{}, err
-		}
-
-		// Creating a secret if available
-		if s != nil {
-			if err := c.Create(ctx, s); err != nil && !errors.IsAlreadyExists(err) {
-				return ctrl.Result{}, err
-			}
-
-			err = controllerutil.SetControllerReference(o, s, c.Scheme)
-			if err != nil {
-				return ctrl.Result{}, fmt.Errorf("k8s set controller reference error %w", err)
-			}
+			return ctrl.Result{}, fmt.Errorf("managing secret %w", err)
 		}
 
 		return ctrl.Result{}, c.Status().Update(ctx, obj)
@@ -207,21 +183,49 @@ func (c *Controller) reconcileInstance(h Handlers, ctx context.Context, log logr
 
 	if obj != nil { // If object was updated
 		// Updating a secret if available
-		s, err := h.getSecret(c.AivenClient, log, o)
+		err = c.manageSecret(log, ctx, h, o)
 		if err != nil {
-			return ctrl.Result{}, err
-		}
-
-		if s != nil {
-			if err := c.Update(ctx, s); err != nil {
-				return ctrl.Result{}, err
-			}
+			return ctrl.Result{}, fmt.Errorf("managing secret %w", err)
 		}
 
 		return ctrl.Result{}, c.Status().Update(ctx, obj)
 	}
 
 	return ctrl.Result{}, nil
+}
+
+func (c *Controller) manageSecret(log logr.Logger, ctx context.Context, h Handlers, o client.Object) error {
+	// Get a secret if available
+	s, err := h.getSecret(c.AivenClient, log, o)
+	if err != nil {
+		return err
+	}
+
+	// Creating or updating a secret if available
+	if s != nil {
+		createdSecret := &corev1.Secret{}
+		err := c.Get(ctx, types.NamespacedName{Name: s.Name, Namespace: s.Namespace}, createdSecret)
+		if err != nil && !errors.IsNotFound(err) {
+			return err
+		}
+
+		if len(createdSecret.Data) != 0 {
+			if err := c.Update(ctx, s); err != nil {
+				return err
+			}
+		} else {
+			err = ctrl.SetControllerReference(o, s, c.Scheme)
+			if err != nil {
+				return err
+			}
+
+			if err := c.Create(ctx, s); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 // InitAivenClient retrieves an Aiven client

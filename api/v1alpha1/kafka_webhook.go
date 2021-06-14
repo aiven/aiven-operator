@@ -19,8 +19,6 @@ func (r *Kafka) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		Complete()
 }
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-
 //+kubebuilder:webhook:path=/mutate-k8s-operator-aiven-io-v1alpha1-kafka,mutating=true,failurePolicy=fail,groups=k8s-operator.aiven.io,resources=kafkas,verbs=create;update,versions=v1alpha1,name=mkafka.kb.io,sideEffects=none,admissionReviewVersions=v1
 
 var _ webhook.Defaulter = &Kafka{}
@@ -47,6 +45,10 @@ func (r *Kafka) ValidateUpdate(old runtime.Object) error {
 
 	if r.Spec.Project != old.(*Kafka).Spec.Project {
 		return errors.New("cannot update a Kafka service, project field is immutable and cannot be updated")
+	}
+
+	if r.Spec.ConnInfoSecretTarget.Name != old.(*Kafka).Spec.ConnInfoSecretTarget.Name {
+		return errors.New("cannot update a Kafka service, connInfoSecretTarget.name field is immutable and cannot be updated")
 	}
 
 	return nil

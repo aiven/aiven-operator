@@ -39,6 +39,7 @@ func (r *PGReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Re
 func (r *PGReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&k8soperatorv1alpha1.PG{}).
+		Owns(&corev1.Secret{}).
 		Complete(r)
 }
 
@@ -143,27 +144,22 @@ func (h PGHandler) setStatus(pg *k8soperatorv1alpha1.PG, s *aiven.Service) {
 }
 
 // delete deletes Aiven PG service
-func (h PGHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h PGHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	pg, err := h.convert(i)
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 
 	// Delete PG on Aiven side
 	if err := c.Services.Delete(pg.Spec.Project, pg.Name); err != nil {
 		if !aiven.IsNotFound(err) {
 			log.Error(err, "cannot delete aiven pg service")
-			return nil, false, fmt.Errorf("aiven client delete pg error: %w", err)
+			return false, fmt.Errorf("aiven client delete pg error: %w", err)
 		}
 	}
 
-	log.Info("Successfully finalized PG service on Aiven side")
-	return &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s%s", pg.Name, "-pg-secret"),
-			Namespace: pg.Namespace,
-		},
-	}, true, nil
+	log.Info("successfully finalized pg service on Aiven side")
+	return true, nil
 }
 
 // getSecret retrieves a PG service secret
@@ -183,19 +179,29 @@ func (h PGHandler) getSecret(c *aiven.Client, log logr.Logger, i client.Object) 
 	params := s.URIParams
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s%s", pg.Name, "-pg-secret"),
+			Name:      h.getSecretName(pg),
 			Namespace: pg.Namespace,
 			Labels: map[string]string{
 				"app": pg.Name,
 			},
 		},
 		StringData: map[string]string{
-			"host":     params["host"],
-			"port":     params["port"],
-			"password": params["password"],
-			"user":     params["user"],
+			"PGHOST":       params["host"],
+			"PGPORT":       params["port"],
+			"PGDATABASE":   params["dbname"],
+			"PGUSER":       params["user"],
+			"PGPASSWORD":   params["password"],
+			"PGSSLMODE":    params["sslmode"],
+			"DATABASE_URI": s.URI,
 		},
 	}, nil
+}
+
+func (h PGHandler) getSecretName(pg *k8soperatorv1alpha1.PG) string {
+	if pg.Spec.ConnInfoSecretTarget.Name != "" {
+		return pg.Spec.ConnInfoSecretTarget.Name
+	}
+	return pg.Name
 }
 
 func (h PGHandler) isActive(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {

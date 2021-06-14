@@ -34,6 +34,9 @@ type ConnectionPoolSpec struct {
 	// Mode the pool operates in (session, transaction, statement)
 	PoolMode string `json:"poolMode,omitempty"`
 
+	// Information regarding secret creation
+	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
+
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
 }
@@ -41,9 +44,6 @@ type ConnectionPoolSpec struct {
 // ConnectionPoolStatus defines the observed state of ConnectionPool
 type ConnectionPoolStatus struct {
 	ConnectionPoolSpec `json:",inline"`
-
-	// URI for connecting to the pool
-	ConnectionURI string `json:"connectionUri,omitempty"`
 }
 
 // +kubebuilder:object:root=true

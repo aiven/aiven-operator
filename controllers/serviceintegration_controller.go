@@ -66,21 +66,21 @@ func (h ServiceIntegrationHandler) create(c *aiven.Client, _ logr.Logger, i clie
 	return si, nil
 }
 
-func (h ServiceIntegrationHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h ServiceIntegrationHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	si, err := h.convert(i)
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 
 	err = c.ServiceIntegrations.Delete(si.Spec.Project, si.Status.ID)
 	if err != nil && !aiven.IsNotFound(err) {
 		log.Error(err, "cannot delete service integration")
-		return nil, false, fmt.Errorf("aiven client delete service ingtegration error: %w", err)
+		return false, fmt.Errorf("aiven client delete service ingtegration error: %w", err)
 	}
 
 	log.Info("successfully finalized service integration")
 
-	return nil, true, nil
+	return true, nil
 }
 
 func (h ServiceIntegrationHandler) exists(_ *aiven.Client, _ logr.Logger, i client.Object) (bool, error) {

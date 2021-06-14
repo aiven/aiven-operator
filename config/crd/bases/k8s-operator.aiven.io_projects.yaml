@@ -87,6 +87,15 @@ spec:
                 description: 'Target cloud, example: aws-eu-central-1'
                 maxLength: 256
                 type: string
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
               copyFromProject:
                 description: Project name from which to copy settings to the new project
                 maxLength: 63
@@ -162,6 +171,15 @@ spec:
                 description: 'Target cloud, example: aws-eu-central-1'
                 maxLength: 256
                 type: string
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
               copyFromProject:
                 description: Project name from which to copy settings to the new project
                 maxLength: 63

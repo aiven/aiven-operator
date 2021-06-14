@@ -65,21 +65,21 @@ func (h KafkaACLHandler) create(c *aiven.Client, _ logr.Logger, i client.Object)
 	return acl, nil
 }
 
-func (h KafkaACLHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, bool, error) {
+func (h KafkaACLHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
 	acl, err := h.convert(i)
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 
 	err = c.KafkaACLs.Delete(acl.Status.Project, acl.Status.ServiceName, acl.Status.ID)
 	if err != nil && !aiven.IsNotFound(err) {
 		log.Error(err, "Cannot delete Kafka ACL")
-		return nil, false, fmt.Errorf("aiven client delete Kafka ACL error: %w", err)
+		return false, fmt.Errorf("aiven client delete Kafka ACL error: %w", err)
 	}
 
 	log.Info("successfully finalized kafka acl service on aiven side")
 
-	return nil, true, nil
+	return true, nil
 }
 
 func (h KafkaACLHandler) exists(c *aiven.Client, _ logr.Logger, i client.Object) (exists bool, error error) {

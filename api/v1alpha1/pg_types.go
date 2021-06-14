@@ -43,6 +43,9 @@ type PGSpec struct {
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
 
+	// Information regarding secret creation
+	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
+
 	// PostgreSQL specific user configuration options
 	PGUserConfig PGUserConfig `json:"pgUserConfig,omitempty"`
 }
