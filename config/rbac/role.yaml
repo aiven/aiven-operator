@@ -19,16 +19,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - coordination.k8s.io
-  resources:
-  - leases
-  verbs:
-  - create
-  - get
-  - list
-  - update
-- apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - connectionpools
   verbs:
@@ -40,7 +31,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - connectionpools/status
   verbs:
@@ -48,7 +39,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - databases
   verbs:
@@ -60,7 +51,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - databases/status
   verbs:
@@ -68,7 +59,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - kafkaacls
   verbs:
@@ -78,13 +69,13 @@ rules:
   - list
   - watch
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - kafkaacls/status
   verbs:
   - get
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - kafkaconnects
   verbs:
@@ -96,7 +87,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - kafkaconnects/status
   verbs:
@@ -104,7 +95,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - kafkas
   verbs:
@@ -116,7 +107,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - kafkas/status
   verbs:
@@ -124,7 +115,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - kafkaschemas
   verbs:
@@ -136,7 +127,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - kafkaschemas/status
   verbs:
@@ -144,7 +135,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - kafkatopics
   verbs:
@@ -156,7 +147,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - kafkatopics/status
   verbs:
@@ -164,7 +155,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - pgs
   verbs:
@@ -176,7 +167,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - pgs/status
   verbs:
@@ -184,7 +175,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - projects
   verbs:
@@ -196,7 +187,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - projects/status
   verbs:
@@ -204,7 +195,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - projectvpcs
   verbs:
@@ -216,7 +207,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - projectvpcs/status
   verbs:
@@ -224,7 +215,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - serviceintegrations
   verbs:
@@ -236,7 +227,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - serviceintegrations/status
   verbs:
@@ -244,7 +235,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - serviceusers
   verbs:
@@ -254,8 +245,17 @@ rules:
   - list
   - watch
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - serviceusers/status
   verbs:
   - get
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - get
+  - list
+  - update

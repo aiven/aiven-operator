@@ -15,62 +15,62 @@ spec:
     - description: Kafka Connect is the Schema for the kafkas API
       displayName: KafkaConnect
       kind: KafkaConnect
-      name: kafkaconnects.k8s-operator.aiven.io
+      name: kafkaconnects.aiven.io
       version: v1alpha1
     - description: ConnectionPool is the Schema for the connectionpools API
       displayName: Connection Pool
       kind: ConnectionPool
-      name: connectionpools.k8s-operator.aiven.io
+      name: connectionpools.aiven.io
       version: v1alpha1
     - description: Database is the Schema for the databases API
       displayName: Database
       kind: Database
-      name: databases.k8s-operator.aiven.io
+      name: databases.aiven.io
       version: v1alpha1
     - description: KafkaACL is the Schema for the kafkaacls API
       displayName: Kafka ACL
       kind: KafkaACL
-      name: kafkaacls.k8s-operator.aiven.io
+      name: kafkaacls.aiven.io
       version: v1alpha1
     - description: Kafka is the Schema for the kafkas API
       displayName: Kafka
       kind: Kafka
-      name: kafkas.k8s-operator.aiven.io
+      name: kafkas.aiven.io
       version: v1alpha1
     - description: KafkaSchema is the Schema for the kafkaschemas API
       displayName: Kafka Schema
       kind: KafkaSchema
-      name: kafkaschemas.k8s-operator.aiven.io
+      name: kafkaschemas.aiven.io
       version: v1alpha1
     - description: KafkaTopic is the Schema for the kafkatopics API
       displayName: Kafka Topic
       kind: KafkaTopic
-      name: kafkatopics.k8s-operator.aiven.io
+      name: kafkatopics.aiven.io
       version: v1alpha1
     - description: PG is the Schema for the pgs API
       displayName: PG
       kind: PG
-      name: pgs.k8s-operator.aiven.io
+      name: pgs.aiven.io
       version: v1alpha1
     - description: Project is the Schema for the projects API
       displayName: Project
       kind: Project
-      name: projects.k8s-operator.aiven.io
+      name: projects.aiven.io
       version: v1alpha1
     - description: ProjectVPC is the Schema for the projectvpcs API
       displayName: Project VPC
       kind: ProjectVPC
-      name: projectvpcs.k8s-operator.aiven.io
+      name: projectvpcs.aiven.io
       version: v1alpha1
     - description: ServiceIntegration is the Schema for the serviceintegrations API
       displayName: Service Integration
       kind: ServiceIntegration
-      name: serviceintegrations.k8s-operator.aiven.io
+      name: serviceintegrations.aiven.io
       version: v1alpha1
     - description: ServiceUser is the Schema for the serviceusers API
       displayName: Service User
       kind: ServiceUser
-      name: serviceusers.k8s-operator.aiven.io
+      name: serviceusers.aiven.io
       version: v1alpha1
   description: A Kubernetes operator for provisioning and managing Aiven Databases and other resources
   displayName: Aiven Kubernetes Operator

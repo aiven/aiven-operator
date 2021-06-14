@@ -1,13 +1,13 @@
 # Aiven Kubernetes Operator
 Provision and manage [Aiven Services](https://aiven.io/) from your Kubernetes cluster.
 
-See the full documentation [here](https://aiven.github.io/aiven-k8s-operator/).
+See the full documentation [here](https://aiven.github.io/aiven-kubernetes-operator/).
 
 ## Installation
 Clone this repository:
 ```bash
-$ git clone git@github.com:aiven/aiven-k8s-operator.git
-$ cd aiven-k8s-operator
+$ git clone git@github.com:aiven/aiven-kubernetes-operator.git
+$ cd aiven-kubernetes-operator
 ```
 
 Install the `cert-manager` Operator:
@@ -37,7 +37,7 @@ $ kubectl create secret generic aiven-token --from-literal=token="$AIVEN_TOKEN"
 
 Now let's create a `PG` resource with the following YAML – please fill in your project name under in the `project` field:
 ```yaml
-apiVersion: k8s-operator.aiven.io/v1alpha1
+apiVersion: aiven.io/v1alpha1
 kind: PG
 metadata:
   name: pg-sample
@@ -53,7 +53,7 @@ spec:
 
 Watch the resource being created and wait until its status is `RUNNING`:
 ```bash
-$ watch kubectl get pg.k8s-operator.aiven.io pg-sample
+$ watch kubectl get pg.aiven.io pg-sample
 ```
 
 After created, the Operator will create a Kubernetes Secret containing the PostgreSQL connection information:
@@ -89,7 +89,7 @@ $ kubectl logs simple-golang-application
 ```
 
 ## Contributing
-We welcome and encourage contributions to this project. Please take a look at our [Contribution guide line](https://aiven.github.io/aiven-k8s-operator/docs/contributing/).
+We welcome and encourage contributions to this project. Please take a look at our [Contribution guide line](https://aiven.github.io/aiven-kubernetes-operator/docs/contributing/).
 
 ## License
 [MIT](LICENSE).

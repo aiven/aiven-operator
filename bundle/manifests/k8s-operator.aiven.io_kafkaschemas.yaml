@@ -4,9 +4,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: kafkaschemas.k8s-operator.aiven.io
+  name: kafkaschemas.aiven.io
 spec:
-  group: k8s-operator.aiven.io
+  group: aiven.io
   names:
     kind: KafkaSchema
     listKind: KafkaSchemaList

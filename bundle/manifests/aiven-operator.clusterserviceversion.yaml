@@ -5,7 +5,7 @@ metadata:
     alm-examples: |-
       [
         {
-          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "apiVersion": "aiven.io/v1alpha1",
           "kind": "ConnectionPool",
           "metadata": {
             "name": "connectionpool-sample"
@@ -21,7 +21,7 @@ metadata:
           }
         },
         {
-          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "apiVersion": "aiven.io/v1alpha1",
           "kind": "Database",
           "metadata": {
             "name": "database-sample"
@@ -34,7 +34,7 @@ metadata:
           }
         },
         {
-          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "apiVersion": "aiven.io/v1alpha1",
           "kind": "Kafka",
           "metadata": {
             "name": "kafka-sample"
@@ -52,7 +52,7 @@ metadata:
           }
         },
         {
-          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "apiVersion": "aiven.io/v1alpha1",
           "kind": "KafkaACL",
           "metadata": {
             "name": "kafkaacl-sample"
@@ -66,7 +66,7 @@ metadata:
           }
         },
         {
-          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "apiVersion": "aiven.io/v1alpha1",
           "kind": "KafkaConnect",
           "metadata": {
             "name": "kafkaconnect-sample"
@@ -81,7 +81,7 @@ metadata:
           }
         },
         {
-          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "apiVersion": "aiven.io/v1alpha1",
           "kind": "KafkaSchema",
           "metadata": {
             "name": "kafkaschema-sample"
@@ -95,7 +95,7 @@ metadata:
           }
         },
         {
-          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "apiVersion": "aiven.io/v1alpha1",
           "kind": "KafkaTopic",
           "metadata": {
             "name": "kafkatopic-sample"
@@ -122,7 +122,7 @@ metadata:
           }
         },
         {
-          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "apiVersion": "aiven.io/v1alpha1",
           "kind": "PG",
           "metadata": {
             "name": "pg-sample"
@@ -139,7 +139,7 @@ metadata:
           }
         },
         {
-          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "apiVersion": "aiven.io/v1alpha1",
           "kind": "Project",
           "metadata": {
             "name": "project-sample1"
@@ -149,7 +149,7 @@ metadata:
           }
         },
         {
-          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "apiVersion": "aiven.io/v1alpha1",
           "kind": "ProjectVPC",
           "metadata": {
             "name": "projectvpc-sample"
@@ -161,7 +161,7 @@ metadata:
           }
         },
         {
-          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "apiVersion": "aiven.io/v1alpha1",
           "kind": "ServiceIntegration",
           "metadata": {
             "name": "serviceintegration-sample"
@@ -176,7 +176,7 @@ metadata:
           }
         },
         {
-          "apiVersion": "k8s-operator.aiven.io/v1alpha1",
+          "apiVersion": "aiven.io/v1alpha1",
           "kind": "ServiceUser",
           "metadata": {
             "name": "serviceuser-sample"
@@ -201,62 +201,62 @@ spec:
     - description: ConnectionPool is the Schema for the connectionpools API
       displayName: Connection Pool
       kind: ConnectionPool
-      name: connectionpools.k8s-operator.aiven.io
+      name: connectionpools.aiven.io
       version: v1alpha1
     - description: Database is the Schema for the databases API
       displayName: Database
       kind: Database
-      name: databases.k8s-operator.aiven.io
+      name: databases.aiven.io
       version: v1alpha1
     - description: KafkaACL is the Schema for the kafkaacls API
       displayName: Kafka ACL
       kind: KafkaACL
-      name: kafkaacls.k8s-operator.aiven.io
+      name: kafkaacls.aiven.io
       version: v1alpha1
     - description: Kafka Connect is the Schema for the kafkas API
       displayName: KafkaConnect
       kind: KafkaConnect
-      name: kafkaconnects.k8s-operator.aiven.io
+      name: kafkaconnects.aiven.io
       version: v1alpha1
     - description: Kafka is the Schema for the kafkas API
       displayName: Kafka
       kind: Kafka
-      name: kafkas.k8s-operator.aiven.io
+      name: kafkas.aiven.io
       version: v1alpha1
     - description: KafkaSchema is the Schema for the kafkaschemas API
       displayName: Kafka Schema
       kind: KafkaSchema
-      name: kafkaschemas.k8s-operator.aiven.io
+      name: kafkaschemas.aiven.io
       version: v1alpha1
     - description: KafkaTopic is the Schema for the kafkatopics API
       displayName: Kafka Topic
       kind: KafkaTopic
-      name: kafkatopics.k8s-operator.aiven.io
+      name: kafkatopics.aiven.io
       version: v1alpha1
     - description: PG is the Schema for the pgs API
       displayName: PG
       kind: PG
-      name: pgs.k8s-operator.aiven.io
+      name: pgs.aiven.io
       version: v1alpha1
     - description: Project is the Schema for the projects API
       displayName: Project
       kind: Project
-      name: projects.k8s-operator.aiven.io
+      name: projects.aiven.io
       version: v1alpha1
     - description: ProjectVPC is the Schema for the projectvpcs API
       displayName: Project VPC
       kind: ProjectVPC
-      name: projectvpcs.k8s-operator.aiven.io
+      name: projectvpcs.aiven.io
       version: v1alpha1
     - description: ServiceIntegration is the Schema for the serviceintegrations API
       displayName: Service Integration
       kind: ServiceIntegration
-      name: serviceintegrations.k8s-operator.aiven.io
+      name: serviceintegrations.aiven.io
       version: v1alpha1
     - description: ServiceUser is the Schema for the serviceusers API
       displayName: Service User
       kind: ServiceUser
-      name: serviceusers.k8s-operator.aiven.io
+      name: serviceusers.aiven.io
       version: v1alpha1
   description: A Kubernetes operator for provisioning and managing Aiven Databases and other resources
   displayName: Aiven Kubernetes Operator
@@ -289,7 +289,7 @@ spec:
           - list
           - update
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - connectionpools
           verbs:
@@ -301,7 +301,7 @@ spec:
           - update
           - watch
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - connectionpools/status
           verbs:
@@ -309,7 +309,7 @@ spec:
           - patch
           - update
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - databases
           verbs:
@@ -321,7 +321,7 @@ spec:
           - update
           - watch
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - databases/status
           verbs:
@@ -329,7 +329,7 @@ spec:
           - patch
           - update
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - kafkaacls
           verbs:
@@ -339,13 +339,13 @@ spec:
           - list
           - watch
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - kafkaacls/status
           verbs:
           - get
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - kafkaconnects
           verbs:
@@ -357,7 +357,7 @@ spec:
           - update
           - watch
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - kafkaconnects/status
           verbs:
@@ -365,7 +365,7 @@ spec:
           - patch
           - update
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - kafkas
           verbs:
@@ -377,7 +377,7 @@ spec:
           - update
           - watch
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - kafkas/status
           verbs:
@@ -385,7 +385,7 @@ spec:
           - patch
           - update
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - kafkaschemas
           verbs:
@@ -397,7 +397,7 @@ spec:
           - update
           - watch
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - kafkaschemas/status
           verbs:
@@ -405,7 +405,7 @@ spec:
           - patch
           - update
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - kafkatopics
           verbs:
@@ -417,7 +417,7 @@ spec:
           - update
           - watch
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - kafkatopics/status
           verbs:
@@ -425,7 +425,7 @@ spec:
           - patch
           - update
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - pgs
           verbs:
@@ -437,7 +437,7 @@ spec:
           - update
           - watch
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - pgs/status
           verbs:
@@ -445,7 +445,7 @@ spec:
           - patch
           - update
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - projects
           verbs:
@@ -457,7 +457,7 @@ spec:
           - update
           - watch
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - projects/status
           verbs:
@@ -465,7 +465,7 @@ spec:
           - patch
           - update
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - projectvpcs
           verbs:
@@ -477,7 +477,7 @@ spec:
           - update
           - watch
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - projectvpcs/status
           verbs:
@@ -485,7 +485,7 @@ spec:
           - patch
           - update
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - serviceintegrations
           verbs:
@@ -497,7 +497,7 @@ spec:
           - update
           - watch
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - serviceintegrations/status
           verbs:
@@ -505,7 +505,7 @@ spec:
           - patch
           - update
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - serviceusers
           verbs:
@@ -515,7 +515,7 @@ spec:
           - list
           - watch
         - apiGroups:
-          - k8s-operator.aiven.io
+          - aiven.io
           resources:
           - serviceusers/status
           verbs:
@@ -534,7 +534,7 @@ spec:
           - create
         serviceAccountName: default
       deployments:
-      - name: aiven-k8s-operator-controller-manager
+      - name: aiven-kubernetes-operator-controller-manager
         spec:
           replicas: 1
           selector:
@@ -642,12 +642,12 @@ spec:
   - admissionReviewVersions:
     - v1
     containerPort: 443
-    deploymentName: aiven-k8s-operator-controller-manager
+    deploymentName: aiven-kubernetes-operator-controller-manager
     failurePolicy: Fail
     generateName: vdatabase.kb.io
     rules:
     - apiGroups:
-      - k8s-operator.aiven.io
+      - aiven.io
       apiVersions:
       - v1alpha1
       operations:
@@ -659,16 +659,16 @@ spec:
     sideEffects: None
     targetPort: 9443
     type: ValidatingAdmissionWebhook
-    webhookPath: /validate-k8s-operator-aiven-io-v1alpha1-database
+    webhookPath: /validate-aiven-io-v1alpha1-database
   - admissionReviewVersions:
     - v1
     containerPort: 443
-    deploymentName: aiven-k8s-operator-controller-manager
+    deploymentName: aiven-kubernetes-operator-controller-manager
     failurePolicy: Fail
     generateName: vpg.kb.io
     rules:
     - apiGroups:
-      - k8s-operator.aiven.io
+      - aiven.io
       apiVersions:
       - v1alpha1
       operations:
@@ -680,16 +680,16 @@ spec:
     sideEffects: None
     targetPort: 9443
     type: ValidatingAdmissionWebhook
-    webhookPath: /validate-k8s-operator-aiven-io-v1alpha1-pg
+    webhookPath: /validate-aiven-io-v1alpha1-pg
   - admissionReviewVersions:
     - v1
     containerPort: 443
-    deploymentName: aiven-k8s-operator-controller-manager
+    deploymentName: aiven-kubernetes-operator-controller-manager
     failurePolicy: Fail
     generateName: vproject.kb.io
     rules:
     - apiGroups:
-      - k8s-operator.aiven.io
+      - aiven.io
       apiVersions:
       - v1alpha1
       operations:
@@ -701,16 +701,16 @@ spec:
     sideEffects: None
     targetPort: 9443
     type: ValidatingAdmissionWebhook
-    webhookPath: /validate-k8s-operator-aiven-io-v1alpha1-project
+    webhookPath: /validate-aiven-io-v1alpha1-project
   - admissionReviewVersions:
     - v1
     containerPort: 443
-    deploymentName: aiven-k8s-operator-controller-manager
+    deploymentName: aiven-kubernetes-operator-controller-manager
     failurePolicy: Fail
     generateName: mdatabase.kb.io
     rules:
     - apiGroups:
-      - k8s-operator.aiven.io
+      - aiven.io
       apiVersions:
       - v1alpha1
       operations:
@@ -721,16 +721,16 @@ spec:
     sideEffects: None
     targetPort: 9443
     type: MutatingAdmissionWebhook
-    webhookPath: /mutate-k8s-operator-aiven-io-v1alpha1-database
+    webhookPath: /mutate-aiven-io-v1alpha1-database
   - admissionReviewVersions:
     - v1
     containerPort: 443
-    deploymentName: aiven-k8s-operator-controller-manager
+    deploymentName: aiven-kubernetes-operator-controller-manager
     failurePolicy: Fail
     generateName: mpg.kb.io
     rules:
     - apiGroups:
-      - k8s-operator.aiven.io
+      - aiven.io
       apiVersions:
       - v1alpha1
       operations:
@@ -741,16 +741,16 @@ spec:
     sideEffects: None
     targetPort: 9443
     type: MutatingAdmissionWebhook
-    webhookPath: /mutate-k8s-operator-aiven-io-v1alpha1-pg
+    webhookPath: /mutate-aiven-io-v1alpha1-pg
   - admissionReviewVersions:
     - v1
     containerPort: 443
-    deploymentName: aiven-k8s-operator-controller-manager
+    deploymentName: aiven-kubernetes-operator-controller-manager
     failurePolicy: Fail
     generateName: mproject.kb.io
     rules:
     - apiGroups:
-      - k8s-operator.aiven.io
+      - aiven.io
       apiVersions:
       - v1alpha1
       operations:
@@ -761,4 +761,4 @@ spec:
     sideEffects: None
     targetPort: 9443
     type: MutatingAdmissionWebhook
-    webhookPath: /mutate-k8s-operator-aiven-io-v1alpha1-project
+    webhookPath: /mutate-aiven-io-v1alpha1-project

@@ -4,9 +4,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: serviceintegrations.k8s-operator.aiven.io
+  name: serviceintegrations.aiven.io
 spec:
-  group: k8s-operator.aiven.io
+  group: aiven.io
   names:
     kind: ServiceIntegration
     listKind: ServiceIntegrationList

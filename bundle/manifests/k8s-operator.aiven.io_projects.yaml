@@ -2,10 +2,10 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: aiven-k8s-operator-system/aiven-k8s-operator-serving-cert
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: projects.k8s-operator.aiven.io
+  name: projects.aiven.io
 spec:
   conversion:
     strategy: Webhook
@@ -19,7 +19,7 @@ spec:
       conversionReviewVersions:
       - v1
       - v1beta1
-  group: k8s-operator.aiven.io
+  group: aiven.io
   names:
     kind: Project
     listKind: ProjectList

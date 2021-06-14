@@ -5,8 +5,9 @@ package controllers
 import (
 	"context"
 	"fmt"
+
 	"github.com/aiven/aiven-go-client"
-	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
+	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -22,15 +23,15 @@ type KafkaTopicHandler struct {
 	Handlers
 }
 
-// +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=kafkatopics,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=kafkatopics/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=aiven.io,resources=kafkatopics,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=kafkatopics/status,verbs=get;update;patch
 
 func (r *KafkaTopicReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("kafkatopic", req.NamespacedName)
 
 	log.Info("reconciling aiven kafka topic")
 
-	const finalizer = "kafkatopic-finalizer.k8s-operator.aiven.io"
+	const finalizer = "kafkatopic-finalizer.aiven.io"
 	topic := &k8soperatorv1alpha1.KafkaTopic{}
 	return r.reconcileInstance(&KafkaTopicHandler{}, ctx, log, req, topic, finalizer)
 }

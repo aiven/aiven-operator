@@ -5,8 +5,9 @@ package controllers
 import (
 	"context"
 	"fmt"
+
 	"github.com/aiven/aiven-go-client"
-	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
+	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -23,14 +24,14 @@ type ServiceUserHandler struct {
 	Handlers
 }
 
-// +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=serviceusers,verbs=get;list;watch;create;delete
-// +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=serviceusers/status,verbs=get
+// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers,verbs=get;list;watch;create;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers/status,verbs=get
 
 func (r *ServiceUserReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("serviceuser", req.NamespacedName)
 	log.Info("reconciling aiven service user")
 
-	const finalizer = "serviceuser-finalizer.k8s-operator.aiven.io"
+	const finalizer = "serviceuser-finalizer.aiven.io"
 	su := &k8soperatorv1alpha1.ServiceUser{}
 	return r.reconcileInstance(&ServiceUserHandler{}, ctx, log, req, su, finalizer)
 }

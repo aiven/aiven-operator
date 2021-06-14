@@ -5,8 +5,9 @@ package controllers
 import (
 	"context"
 	"fmt"
+
 	"github.com/aiven/aiven-go-client"
-	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
+	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -22,14 +23,14 @@ type ProjectVPCHandler struct {
 	Handlers
 }
 
-// +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=projectvpcs,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=projectvpcs/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=aiven.io,resources=projectvpcs,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=projectvpcs/status,verbs=get;update;patch
 
 func (r *ProjectVPCReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("projectvpc", req.NamespacedName)
 	log.Info("reconciling aiven project vpc")
 
-	const finalizer = "projectvpc-finalizer.k8s-operator.aiven.io"
+	const finalizer = "projectvpc-finalizer.aiven.io"
 	vpc := &k8soperatorv1alpha1.ProjectVPC{}
 	return r.reconcileInstance(&ProjectVPCHandler{}, ctx, log, req, vpc, finalizer)
 }

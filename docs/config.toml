@@ -1,4 +1,4 @@
-baseURL = "https://aiven.github.io/aiven-k8s-operator/"
+baseURL = "https://aiven.github.io/aiven-kubernetes-operator/"
 title = "Aiven Kubernetes Operator"
 
 theme = "docsy"
@@ -23,7 +23,7 @@ id = ""
 copyright = "Aiven"
 
 # Repository configuration (URLs for in-page links to opening issues and suggesting changes)
-github_repo = "https://github.com/aiven/aiven-k8s-operator"
+github_repo = "https://github.com/aiven/aiven-kubernetes-operator"
 github_subdir = "docs"
 
 # Search
@@ -44,6 +44,6 @@ gcs_engine_id = ""
         desc = "Follow us on Twitter"
 [[params.links.user]]
 	name = "GitHub"
-	url = "https://github.com/aiven/aiven-k8s-operator"
+	url = "https://github.com/aiven/aiven-kubernetes-operator"
 	icon = "fab fa-github"
         desc = "Find us on GitHub"

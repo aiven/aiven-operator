@@ -4,6 +4,7 @@ package v1alpha1
 
 import (
 	"errors"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -21,7 +22,7 @@ func (r *Project) SetupWebhookWithManager(mgr ctrl.Manager) error {
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 
-//+kubebuilder:webhook:path=/mutate-k8s-operator-aiven-io-v1alpha1-project,mutating=true,failurePolicy=fail,groups=k8s-operator.aiven.io,resources=projects,verbs=create;update,versions=v1alpha1,name=mproject.kb.io,sideEffects=none,admissionReviewVersions=v1
+//+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-project,mutating=true,failurePolicy=fail,groups=aiven.io,resources=projects,verbs=create;update,versions=v1alpha1,name=mproject.kb.io,sideEffects=none,admissionReviewVersions=v1
 
 var _ webhook.Defaulter = &Project{}
 
@@ -30,7 +31,7 @@ func (r *Project) Default() {
 	projectlog.Info("default", "name", r.Name)
 }
 
-//+kubebuilder:webhook:verbs=create;update;delete,path=/validate-k8s-operator-aiven-io-v1alpha1-project,mutating=false,failurePolicy=fail,groups=k8s-operator.aiven.io,resources=projects,versions=v1alpha1,name=vproject.kb.io,sideEffects=none,admissionReviewVersions=v1
+//+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-project,mutating=false,failurePolicy=fail,groups=aiven.io,resources=projects,versions=v1alpha1,name=vproject.kb.io,sideEffects=none,admissionReviewVersions=v1
 
 var _ webhook.Validator = &Project{}
 
