@@ -19,7 +19,8 @@ type KafkaSpec struct {
 
 // KafkaStatus defines the observed state of Kafka
 type KafkaStatus struct {
-	KafkaSpec `json:",inline"`
+	// Conditions represent the latest available observations of Kafka service
+	Conditions []metav1.Condition `json:"conditions"`
 
 	// Service state
 	State string `json:"state"`

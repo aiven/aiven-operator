@@ -9,6 +9,7 @@ import (
 	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -72,6 +73,14 @@ func (h *KafkaHandler) create(c *aiven.Client, log logr.Logger, i client.Object)
 	}
 
 	h.setStatus(kafka, s)
+
+	meta.SetStatusCondition(&kafka.Status.Conditions, metav1.Condition{
+		Type:               "created",
+		Status:             metav1.ConditionUnknown,
+		LastTransitionTime: metav1.Time{},
+		Reason:             "kafkaCreated",
+		Message:            "kafka service was created on Aiven",
+	})
 
 	return kafka, nil
 }
@@ -143,6 +152,14 @@ func (h KafkaHandler) update(c *aiven.Client, _ logr.Logger, i client.Object) (c
 
 	h.setStatus(kafka, s)
 
+	meta.SetStatusCondition(&kafka.Status.Conditions, metav1.Condition{
+		Type:               "updated",
+		Status:             metav1.ConditionTrue,
+		LastTransitionTime: metav1.Time{},
+		Reason:             "kafkaInitializationSucceeded",
+		Message:            "kafka service updated on Aiven",
+	})
+
 	return kafka, nil
 }
 
@@ -187,7 +204,27 @@ func (h KafkaHandler) isActive(c *aiven.Client, log logr.Logger, i client.Object
 
 	log.Info("checking if kafka service is active")
 
-	return checkServiceIsRunning(c, kafka.Spec.Project, kafka.Name), nil
+	if checkServiceIsRunning(c, kafka.Spec.Project, kafka.Name) {
+		meta.SetStatusCondition(&kafka.Status.Conditions, metav1.Condition{
+			Type:               "isActive",
+			Status:             metav1.ConditionTrue,
+			LastTransitionTime: metav1.Time{},
+			Reason:             "kafkaInitializationSucceeded",
+			Message:            "service is running",
+		})
+
+		return true, nil
+	}
+
+	meta.SetStatusCondition(&kafka.Status.Conditions, metav1.Condition{
+		Type:               "isActive",
+		Status:             metav1.ConditionFalse,
+		LastTransitionTime: metav1.Time{},
+		Reason:             "kafkaInitializationInProgress",
+		Message:            "kafka service is rebuilding",
+	})
+
+	return false, nil
 }
 
 func (h KafkaHandler) convert(i client.Object) (*k8soperatorv1alpha1.Kafka, error) {
@@ -200,18 +237,7 @@ func (h KafkaHandler) convert(i client.Object) (*k8soperatorv1alpha1.Kafka, erro
 }
 
 func (h KafkaHandler) setStatus(kafka *k8soperatorv1alpha1.Kafka, s *aiven.Service) {
-	var prVPCID string
-
-	if s.ProjectVPCID != nil {
-		prVPCID = *s.ProjectVPCID
-	}
-
 	kafka.Status.State = s.State
-	kafka.Status.ProjectVPCID = prVPCID
-	kafka.Status.Plan = s.Plan
-	kafka.Status.MaintenanceWindowTime = s.MaintenanceWindow.TimeOfDay
-	kafka.Status.MaintenanceWindowDow = s.MaintenanceWindow.DayOfWeek
-	kafka.Status.CloudName = s.CloudName
 }
 
 func (h KafkaHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {

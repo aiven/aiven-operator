@@ -69,10 +69,6 @@ var _ = Describe("Kafka Controller", func() {
 			// Let's make sure our Kafka status was properly populated.
 			By("by checking that after creation Kafka service status fields were properly populated")
 			Expect(createdKafka.Status.State).Should(Equal("RUNNING"))
-			Expect(createdKafka.Status.Plan).Should(Equal("business-4"))
-			Expect(createdKafka.Status.CloudName).Should(Equal("google-europe-west1"))
-			Expect(createdKafka.Status.MaintenanceWindowDow).NotTo(BeEmpty())
-			Expect(createdKafka.Status.MaintenanceWindowTime).NotTo(BeEmpty())
 		})
 	})
 
