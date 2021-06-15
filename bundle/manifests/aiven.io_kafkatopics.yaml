@@ -2,10 +2,23 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
   name: kafkatopics.aiven.io
 spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
   group: aiven.io
   names:
     kind: KafkaTopic
@@ -20,16 +33,31 @@ spec:
         description: KafkaTopic is the Schema for the kafkatopics API
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
           spec:
             description: KafkaTopicSpec defines the desired state of KafkaTopic
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               config:
                 description: Kafka topic configuration
                 properties:
@@ -154,14 +182,18 @@ spec:
                   - key
                   type: object
                 type: array
-              terminationProtection:
-                description: It is a Kubernetes side deletion protections, which prevents the kafka topic from being deleted by Kubernetes. It is recommended to enable this for any production databases containing critical data.
+              termination_protection:
+                description: It is a Kubernetes side deletion protections, which prevents
+                  the kafka topic from being deleted by Kubernetes. It is recommended
+                  to enable this for any production databases containing critical
+                  data.
                 type: boolean
               topicName:
                 description: Topic name.
                 maxLength: 63
                 type: string
             required:
+            - authSecretRef
             - partitions
             - project
             - replication
@@ -171,6 +203,17 @@ spec:
           status:
             description: KafkaTopicStatus defines the observed state of KafkaTopic
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               config:
                 description: Kafka topic configuration
                 properties:
@@ -297,14 +340,18 @@ spec:
                   - key
                   type: object
                 type: array
-              terminationProtection:
-                description: It is a Kubernetes side deletion protections, which prevents the kafka topic from being deleted by Kubernetes. It is recommended to enable this for any production databases containing critical data.
+              termination_protection:
+                description: It is a Kubernetes side deletion protections, which prevents
+                  the kafka topic from being deleted by Kubernetes. It is recommended
+                  to enable this for any production databases containing critical
+                  data.
                 type: boolean
               topicName:
                 description: Topic name.
                 maxLength: 63
                 type: string
             required:
+            - authSecretRef
             - partitions
             - project
             - replication

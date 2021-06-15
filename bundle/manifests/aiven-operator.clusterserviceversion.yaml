@@ -11,12 +11,11 @@ metadata:
             "name": "connectionpool-sample"
           },
           "spec": {
-            "database_name": "pg-database-sample",
-            "pool_mode": "transaction",
-            "pool_name": "connectionpool-sample",
-            "pool_size": 10,
+            "databaseName": "pg-database-sample",
+            "poolMode": "transaction",
+            "poolSize": 10,
             "project": "dev-sandbox",
-            "service_name": "pg-service-name",
+            "service_Name": "pg-service-name",
             "username": "pg-service-user"
           }
         },
@@ -27,10 +26,10 @@ metadata:
             "name": "database-sample"
           },
           "spec": {
-            "lc_collate": "en_US.UTF-8",
-            "lc_ctype": "en_US.UTF-8",
+            "lcCollate": "en_US.UTF-8",
+            "lcCtype": "en_US.UTF-8",
             "project": "dev-sandbox",
-            "service_name": "kafka-sample"
+            "serviceName": "kafka-sample"
           }
         },
         {
@@ -40,15 +39,14 @@ metadata:
             "name": "kafka-sample"
           },
           "spec": {
-            "cloud_name": "google-europe-west1",
-            "kafka_user_config": {
+            "cloudName": "google-europe-west1",
+            "kafkaUserConfig": {
               "kafka_version": "2.4"
             },
-            "maintenance_window_dow": "friday",
-            "maintenance_window_time": "23:00:00",
+            "maintenanceWindowDow": "friday",
+            "maintenanceWindowTime": "23:00:00",
             "plan": "business-4",
-            "project": "dev-sandbox",
-            "service_name": "kafka-sample"
+            "project": "dev-sandbox"
           }
         },
         {
@@ -60,7 +58,7 @@ metadata:
           "spec": {
             "permission": "admin",
             "project": "dev-sandbox",
-            "service_name": "kafka-sample",
+            "serviceName": "kafka-sample",
             "topic": "topic-sample",
             "username": "user1-sample"
           }
@@ -72,12 +70,11 @@ metadata:
             "name": "kafkaconnect-sample"
           },
           "spec": {
-            "cloud_name": "google-europe-west1",
-            "maintenance_window_dow": "friday",
-            "maintenance_window_time": "23:00:00",
+            "cloudName": "google-europe-west1",
+            "maintenanceWindowDow": "friday",
+            "maintenanceWindowTime": "23:00:00",
             "plan": "startup-4",
-            "project": "dev-sandbox",
-            "service_name": "kafkaconnect-sample"
+            "project": "dev-sandbox"
           }
         },
         {
@@ -87,11 +84,11 @@ metadata:
             "name": "kafkaschema-sample"
           },
           "spec": {
-            "compatibility_level": "BACKWARD_TRANSITIVE",
+            "compatibilityLevel": "BACKWARD_TRANSITIVE",
             "project": "dev-sandbox",
             "schema": "{ \"doc\": \"example\", \"fields\": [{ \"default\": 5, \"doc\": \"my test number\", \"name\": \"test\", \"namespace\": \"test\", \"type\": \"int\" }], \"name\": \"example\", \"namespace\": \"example\", \"type\": \"record\" }",
-            "service_name": "kafka-service",
-            "subject_name": "kafkaschemasubject-sample"
+            "serviceName": "kafka-service",
+            "subjectName": "kafkaschemasubject-sample"
           }
         },
         {
@@ -107,7 +104,7 @@ metadata:
             "partitions": 3,
             "project": "dev-sandbox",
             "replication": 2,
-            "service_name": "kafka-sample",
+            "serviceName": "kafka-sample",
             "tags": [
               {
                 "key": "tagk1,",
@@ -117,8 +114,7 @@ metadata:
                 "key": "tagk2,",
                 "value": "tagv2"
               }
-            ],
-            "topic_name": "kafkatopic-sample"
+            ]
           }
         },
         {
@@ -128,10 +124,10 @@ metadata:
             "name": "pg-sample"
           },
           "spec": {
-            "cloud_name": "google-europe-west1",
-            "maintenance_window_dow": "friday",
-            "maintenance_window_time": "23:00:00",
-            "pg_user_config": {
+            "cloudName": "google-europe-west1",
+            "maintenanceWindowTime": "23:00:00",
+            "maintenanceWindowWow": "friday",
+            "pgUserConfig": {
               "pg_version": "11"
             },
             "plan": "startup-4",
@@ -145,7 +141,7 @@ metadata:
             "name": "project-sample1"
           },
           "spec": {
-            "billing_address": "NYC"
+            "billingAddress": "NYC"
           }
         },
         {
@@ -155,8 +151,8 @@ metadata:
             "name": "projectvpc-sample"
           },
           "spec": {
-            "cloud_name": "aws-eu-west-1",
-            "network_cidr": "192.168.0.0/24",
+            "cloudName": "aws-eu-west-1",
+            "networkCidr": "192.168.0.0/24",
             "project": "sample-project"
           }
         },
@@ -167,12 +163,11 @@ metadata:
             "name": "serviceintegration-sample"
           },
           "spec": {
-            "cloud_name": "google-europe-west1",
-            "maintenance_window_dow": "friday",
-            "maintenance_window_time": "23:00:00",
+            "cloudName": "google-europe-west1",
+            "maintenanceWindowDow": "friday",
+            "maintenanceWindowTime": "23:00:00",
             "plan": "startup-4",
-            "project": "dev-sandbox",
-            "service_name": "serviceintegration-sample"
+            "project": "dev-sandbox"
           }
         },
         {
@@ -184,13 +179,12 @@ metadata:
           "spec": {
             "authentication": "caching_sha2_password",
             "project": "dev-sandbox",
-            "service_name": "service-pg-or-kafka-sample",
-            "username": "serviceuser-sample"
+            "serviceName": "service-pg-or-kafka-sample"
           }
         }
       ]
     capabilities: Basic Install
-    operators.operatorframework.io/builder: operator-sdk-v1.7.2
+    operators.operatorframework.io/builder: operator-sdk-v1.8.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
   name: aiven-operator.v0.0.1
   namespace: placeholder
@@ -258,7 +252,8 @@ spec:
       kind: ServiceUser
       name: serviceusers.aiven.io
       version: v1alpha1
-  description: A Kubernetes operator for provisioning and managing Aiven Databases and other resources
+  description: A Kubernetes operator for provisioning and managing Aiven Databases
+    and other resources
   displayName: Aiven Kubernetes Operator
   icon:
   - base64data: ""
@@ -279,15 +274,6 @@ spec:
           - patch
           - update
           - watch
-        - apiGroups:
-          - coordination.k8s.io
-          resources:
-          - leases
-          verbs:
-          - create
-          - get
-          - list
-          - update
         - apiGroups:
           - aiven.io
           resources:
@@ -521,17 +507,14 @@ spec:
           verbs:
           - get
         - apiGroups:
-          - authentication.k8s.io
+          - coordination.k8s.io
           resources:
-          - tokenreviews
+          - leases
           verbs:
           - create
-        - apiGroups:
-          - authorization.k8s.io
-          resources:
-          - subjectaccessreviews
-          verbs:
-          - create
+          - get
+          - list
+          - update
         serviceAccountName: default
       deployments:
       - name: aiven-kubernetes-operator-controller-manager
@@ -548,18 +531,6 @@ spec:
             spec:
               containers:
               - args:
-                - --secure-listen-address=0.0.0.0:8443
-                - --upstream=http://127.0.0.1:8080/
-                - --logtostderr=true
-                - --v=10
-                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.5.0
-                name: kube-rbac-proxy
-                ports:
-                - containerPort: 8443
-                  name: https
-                resources: {}
-              - args:
-                - --metrics-addr=127.0.0.1:8080
                 - --enable-leader-election
                 command:
                 - /manager
@@ -644,6 +615,27 @@ spec:
     containerPort: 443
     deploymentName: aiven-kubernetes-operator-controller-manager
     failurePolicy: Fail
+    generateName: vconnectionpool.kb.io
+    rules:
+    - apiGroups:
+      - aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      - DELETE
+      resources:
+      - connectionpools
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-aiven-io-v1alpha1-connectionpool
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-kubernetes-operator-controller-manager
+    failurePolicy: Fail
     generateName: vdatabase.kb.io
     rules:
     - apiGroups:
@@ -660,6 +652,109 @@ spec:
     targetPort: 9443
     type: ValidatingAdmissionWebhook
     webhookPath: /validate-aiven-io-v1alpha1-database
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-kubernetes-operator-controller-manager
+    failurePolicy: Fail
+    generateName: vkafka.kb.io
+    rules:
+    - apiGroups:
+      - aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      - DELETE
+      resources:
+      - kafkas
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-aiven-io-v1alpha1-kafka
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-kubernetes-operator-controller-manager
+    failurePolicy: Fail
+    generateName: vkafkaacl.kb.io
+    rules:
+    - apiGroups:
+      - aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - kafkaacls
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-aiven-io-v1alpha1-kafkaacl
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-kubernetes-operator-controller-manager
+    failurePolicy: Fail
+    generateName: vkafkaconnect.kb.io
+    rules:
+    - apiGroups:
+      - aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      - DELETE
+      resources:
+      - kafkaconnects
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-aiven-io-v1alpha1-kafkaconnect
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-kubernetes-operator-controller-manager
+    failurePolicy: Fail
+    generateName: vkafkaschema.kb.io
+    rules:
+    - apiGroups:
+      - aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - kafkaschemas
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-aiven-io-v1alpha1-kafkaschema
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-kubernetes-operator-controller-manager
+    failurePolicy: Fail
+    generateName: vkafkatopic.kb.io
+    rules:
+    - apiGroups:
+      - aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      - DELETE
+      resources:
+      - kafkatopics
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-aiven-io-v1alpha1-kafkatopic
   - admissionReviewVersions:
     - v1
     containerPort: 443
@@ -707,6 +802,86 @@ spec:
     containerPort: 443
     deploymentName: aiven-kubernetes-operator-controller-manager
     failurePolicy: Fail
+    generateName: vprojectvpc.kb.io
+    rules:
+    - apiGroups:
+      - aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - projectvpcs
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-aiven-io-v1alpha1-projectvpc
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-kubernetes-operator-controller-manager
+    failurePolicy: Fail
+    generateName: vserviceintegration.kb.io
+    rules:
+    - apiGroups:
+      - aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - serviceintegrations
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-aiven-io-v1alpha1-serviceintegration
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-kubernetes-operator-controller-manager
+    failurePolicy: Fail
+    generateName: vserviceuser.kb.io
+    rules:
+    - apiGroups:
+      - aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - serviceusers
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-aiven-io-v1alpha1-serviceuser
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-kubernetes-operator-controller-manager
+    failurePolicy: Fail
+    generateName: mconnectionpool.kb.io
+    rules:
+    - apiGroups:
+      - aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - connectionpools
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-aiven-io-v1alpha1-connectionpool
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-kubernetes-operator-controller-manager
+    failurePolicy: Fail
     generateName: mdatabase.kb.io
     rules:
     - apiGroups:
@@ -722,6 +897,106 @@ spec:
     targetPort: 9443
     type: MutatingAdmissionWebhook
     webhookPath: /mutate-aiven-io-v1alpha1-database
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-kubernetes-operator-controller-manager
+    failurePolicy: Fail
+    generateName: mkafka.kb.io
+    rules:
+    - apiGroups:
+      - aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - kafkas
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-aiven-io-v1alpha1-kafka
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-kubernetes-operator-controller-manager
+    failurePolicy: Fail
+    generateName: mkafkaacl.kb.io
+    rules:
+    - apiGroups:
+      - aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - kafkaacls
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-aiven-io-v1alpha1-kafkaacl
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-kubernetes-operator-controller-manager
+    failurePolicy: Fail
+    generateName: mkafkaconnect.kb.io
+    rules:
+    - apiGroups:
+      - aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - kafkaconnects
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-aiven-io-v1alpha1-kafkaconnect
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-kubernetes-operator-controller-manager
+    failurePolicy: Fail
+    generateName: mkafkaschema.kb.io
+    rules:
+    - apiGroups:
+      - aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - kafkaschemas
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-aiven-io-v1alpha1-kafkaschema
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-kubernetes-operator-controller-manager
+    failurePolicy: Fail
+    generateName: mkafkatopic.kb.io
+    rules:
+    - apiGroups:
+      - aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - kafkatopics
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-aiven-io-v1alpha1-kafkatopic
   - admissionReviewVersions:
     - v1
     containerPort: 443
@@ -762,3 +1037,63 @@ spec:
     targetPort: 9443
     type: MutatingAdmissionWebhook
     webhookPath: /mutate-aiven-io-v1alpha1-project
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-kubernetes-operator-controller-manager
+    failurePolicy: Fail
+    generateName: mprojectvpc.kb.io
+    rules:
+    - apiGroups:
+      - aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - projectvpcs
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-aiven-io-v1alpha1-projectvpc
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-kubernetes-operator-controller-manager
+    failurePolicy: Fail
+    generateName: mserviceintegration.kb.io
+    rules:
+    - apiGroups:
+      - aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - serviceintegrations
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-aiven-io-v1alpha1-serviceintegration
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: aiven-kubernetes-operator-controller-manager
+    failurePolicy: Fail
+    generateName: mserviceuser.kb.io
+    rules:
+    - apiGroups:
+      - aiven.io
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - serviceusers
+    sideEffects: None
+    targetPort: 9443
+    type: MutatingAdmissionWebhook
+    webhookPath: /mutate-aiven-io-v1alpha1-serviceuser

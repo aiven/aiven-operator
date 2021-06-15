@@ -2,10 +2,23 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
   name: kafkaacls.aiven.io
 spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
   group: aiven.io
   names:
     kind: KafkaACL
@@ -20,16 +33,31 @@ spec:
         description: KafkaACL is the Schema for the kafkaacls API
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
           spec:
             description: KafkaACLSpec defines the desired state of KafkaACL
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               permission:
                 description: Kafka permission to grant (admin, read, readwrite, write)
                 enum:
@@ -48,12 +76,13 @@ spec:
                 maxLength: 63
                 type: string
               topic:
-                description: 'x-kubernetes-immutable: true Topic name pattern for the ACL entry'
+                description: Topic name pattern for the ACL entry
                 type: string
               username:
-                description: 'x-kubernetes-immutable: true Username pattern for the ACL entry'
+                description: Username pattern for the ACL entry
                 type: string
             required:
+            - authSecretRef
             - permission
             - project
             - serviceName
@@ -63,6 +92,17 @@ spec:
           status:
             description: KafkaACLStatus defines the observed state of KafkaACL
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               id:
                 description: Kafka ACL ID
                 type: string
@@ -84,12 +124,13 @@ spec:
                 maxLength: 63
                 type: string
               topic:
-                description: 'x-kubernetes-immutable: true Topic name pattern for the ACL entry'
+                description: Topic name pattern for the ACL entry
                 type: string
               username:
-                description: 'x-kubernetes-immutable: true Username pattern for the ACL entry'
+                description: Username pattern for the ACL entry
                 type: string
             required:
+            - authSecretRef
             - id
             - permission
             - project

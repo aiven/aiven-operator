@@ -72,7 +72,8 @@ spec:
       kind: ServiceUser
       name: serviceusers.aiven.io
       version: v1alpha1
-  description: A Kubernetes operator for provisioning and managing Aiven Databases and other resources
+  description: A Kubernetes operator for provisioning and managing Aiven Databases
+    and other resources
   displayName: Aiven Kubernetes Operator
   icon:
   - base64data: ""

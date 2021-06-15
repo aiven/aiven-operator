@@ -2,10 +2,23 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
   name: connectionpools.aiven.io
 spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
   group: aiven.io
   names:
     kind: ConnectionPool
@@ -20,23 +33,43 @@ spec:
         description: ConnectionPool is the Schema for the connectionpools API
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
           spec:
             description: ConnectionPoolSpec defines the desired state of ConnectionPool
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
               databaseName:
                 description: Name of the database the pool connects to
                 maxLength: 40
-                type: string
-              pool_name:
-                description: Name of the pool
-                maxLength: 60
                 type: string
               poolMode:
                 description: Mode the pool operates in (session, transaction, statement)
@@ -46,7 +79,8 @@ spec:
                 - statement
                 type: string
               poolSize:
-                description: Number of connections the pool may create towards the backend server
+                description: Number of connections the pool may create towards the
+                  backend server
                 type: integer
               project:
                 description: Target project.
@@ -62,8 +96,8 @@ spec:
                 maxLength: 64
                 type: string
             required:
+            - authSecretRef
             - databaseName
-            - pool_name
             - project
             - serviceName
             - username
@@ -71,16 +105,29 @@ spec:
           status:
             description: ConnectionPoolStatus defines the observed state of ConnectionPool
             properties:
-              connectionUri:
-                description: URI for connecting to the pool
-                type: string
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
               databaseName:
                 description: Name of the database the pool connects to
                 maxLength: 40
-                type: string
-              pool_name:
-                description: Name of the pool
-                maxLength: 60
                 type: string
               poolMode:
                 description: Mode the pool operates in (session, transaction, statement)
@@ -90,7 +137,8 @@ spec:
                 - statement
                 type: string
               poolSize:
-                description: Number of connections the pool may create towards the backend server
+                description: Number of connections the pool may create towards the
+                  backend server
                 type: integer
               project:
                 description: Target project.
@@ -106,8 +154,8 @@ spec:
                 maxLength: 64
                 type: string
             required:
+            - authSecretRef
             - databaseName
-            - pool_name
             - project
             - serviceName
             - username

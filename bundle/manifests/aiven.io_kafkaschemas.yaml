@@ -2,10 +2,23 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
   name: kafkaschemas.aiven.io
 spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
   group: aiven.io
   names:
     kind: KafkaSchema
@@ -20,16 +33,31 @@ spec:
         description: KafkaSchema is the Schema for the kafkaschemas API
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
           spec:
             description: KafkaSchemaSpec defines the desired state of KafkaSchema
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               compatibilityLevel:
                 description: Kafka Schemas compatibility level
                 enum:
@@ -47,7 +75,8 @@ spec:
                 maxLength: 63
                 type: string
               schema:
-                description: Kafka Schema configuration should be a valid Avro Schema JSON format
+                description: Kafka Schema configuration should be a valid Avro Schema
+                  JSON format
                 type: string
               serviceName:
                 description: Service to link the Kafka Schema to
@@ -58,6 +87,7 @@ spec:
                 maxLength: 63
                 type: string
             required:
+            - authSecretRef
             - project
             - schema
             - serviceName
@@ -66,6 +96,17 @@ spec:
           status:
             description: KafkaSchemaStatus defines the observed state of KafkaSchema
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               compatibilityLevel:
                 description: Kafka Schemas compatibility level
                 enum:
@@ -83,7 +124,8 @@ spec:
                 maxLength: 63
                 type: string
               schema:
-                description: Kafka Schema configuration should be a valid Avro Schema JSON format
+                description: Kafka Schema configuration should be a valid Avro Schema
+                  JSON format
                 type: string
               serviceName:
                 description: Service to link the Kafka Schema to
@@ -97,6 +139,7 @@ spec:
                 description: Kafka Schema configuration version
                 type: integer
             required:
+            - authSecretRef
             - project
             - schema
             - serviceName

@@ -2,10 +2,23 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
   name: serviceintegrations.aiven.io
 spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
   group: aiven.io
   names:
     kind: ServiceIntegration
@@ -17,19 +30,35 @@ spec:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: ServiceIntegration is the Schema for the serviceintegrations API
+        description: ServiceIntegration is the Schema for the serviceintegrations
+          API
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
           spec:
             description: ServiceIntegrationSpec defines the desired state of ServiceIntegration
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               datadog:
                 description: Datadog specific user configuration options
                 properties:
@@ -88,19 +117,26 @@ spec:
                   kafka_connect:
                     properties:
                       config_storage_topic:
-                        description: The name of the topic where connector and task configuration data are stored. This must be the same for all workers with the same group_id.
+                        description: The name of the topic where connector and task
+                          configuration data are stored. This must be the same for
+                          all workers with the same group_id.
                         maxLength: 249
                         type: string
                       group_id:
-                        description: A unique string that identifies the Connect cluster group this worker belongs to.
+                        description: A unique string that identifies the Connect cluster
+                          group this worker belongs to.
                         maxLength: 249
                         type: string
                       offset_storage_topic:
-                        description: The name of the topic where connector and task configuration offsets are stored. This must be the same for all workers with the same group_id.
+                        description: The name of the topic where connector and task
+                          configuration offsets are stored. This must be the same
+                          for all workers with the same group_id.
                         maxLength: 249
                         type: string
                       status_storage_topic:
-                        description: The name of the topic where connector and task configuration status updates are stored.This must be the same for all workers with the same group_id.
+                        description: The name of the topic where connector and task
+                          configuration status updates are stored.This must be the
+                          same for all workers with the same group_id.
                         maxLength: 249
                         type: string
                     type: object
@@ -118,20 +154,31 @@ spec:
                 description: Metrics configuration values
                 properties:
                   database:
-                    description: Name of the database where to store metric datapoints. Only affects PostgreSQL destinations
+                    description: Name of the database where to store metric datapoints.
+                      Only affects PostgreSQL destinations
                     format: ^[_A-Za-z0-9][-_A-Za-z0-9]{0,39}$
                     maxLength: 40
                     type: string
                   retention_days:
-                    description: Number of days to keep old metrics. Only affects PostgreSQL destinations. Set to 0 for no automatic cleanup. Defaults to 30 days.
+                    description: Number of days to keep old metrics. Only affects
+                      PostgreSQL destinations. Set to 0 for no automatic cleanup.
+                      Defaults to 30 days.
                     type: integer
                   ro_username:
-                    description: Name of a user that can be used to read metrics. This will be used for Grafana integration (if enabled) to prevent Grafana users from making undesired changes. Only affects PostgreSQL destinations. Defaults to 'metrics_reader'. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.
+                    description: Name of a user that can be used to read metrics.
+                      This will be used for Grafana integration (if enabled) to prevent
+                      Grafana users from making undesired changes. Only affects PostgreSQL
+                      destinations. Defaults to 'metrics_reader'. Note that this must
+                      be the same for all metrics integrations that write data to
+                      the same PostgreSQL service.
                     format: ^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$
                     maxLength: 40
                     type: string
                   username:
-                    description: Name of the user used to write metrics. Only affects PostgreSQL destinations. Defaults to 'metrics_writer'. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.
+                    description: Name of the user used to write metrics. Only affects
+                      PostgreSQL destinations. Defaults to 'metrics_writer'. Note
+                      that this must be the same for all metrics integrations that
+                      write data to the same PostgreSQL service.
                     format: ^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$
                     maxLength: 40
                     type: string
@@ -148,12 +195,24 @@ spec:
                 description: Source service for the integration (if any)
                 type: string
             required:
+            - authSecretRef
             - integrationType
             - project
             type: object
           status:
             description: ServiceIntegrationStatus defines the observed state of ServiceIntegration
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               datadog:
                 description: Datadog specific user configuration options
                 properties:
@@ -215,19 +274,26 @@ spec:
                   kafka_connect:
                     properties:
                       config_storage_topic:
-                        description: The name of the topic where connector and task configuration data are stored. This must be the same for all workers with the same group_id.
+                        description: The name of the topic where connector and task
+                          configuration data are stored. This must be the same for
+                          all workers with the same group_id.
                         maxLength: 249
                         type: string
                       group_id:
-                        description: A unique string that identifies the Connect cluster group this worker belongs to.
+                        description: A unique string that identifies the Connect cluster
+                          group this worker belongs to.
                         maxLength: 249
                         type: string
                       offset_storage_topic:
-                        description: The name of the topic where connector and task configuration offsets are stored. This must be the same for all workers with the same group_id.
+                        description: The name of the topic where connector and task
+                          configuration offsets are stored. This must be the same
+                          for all workers with the same group_id.
                         maxLength: 249
                         type: string
                       status_storage_topic:
-                        description: The name of the topic where connector and task configuration status updates are stored.This must be the same for all workers with the same group_id.
+                        description: The name of the topic where connector and task
+                          configuration status updates are stored.This must be the
+                          same for all workers with the same group_id.
                         maxLength: 249
                         type: string
                     type: object
@@ -245,20 +311,31 @@ spec:
                 description: Metrics configuration values
                 properties:
                   database:
-                    description: Name of the database where to store metric datapoints. Only affects PostgreSQL destinations
+                    description: Name of the database where to store metric datapoints.
+                      Only affects PostgreSQL destinations
                     format: ^[_A-Za-z0-9][-_A-Za-z0-9]{0,39}$
                     maxLength: 40
                     type: string
                   retention_days:
-                    description: Number of days to keep old metrics. Only affects PostgreSQL destinations. Set to 0 for no automatic cleanup. Defaults to 30 days.
+                    description: Number of days to keep old metrics. Only affects
+                      PostgreSQL destinations. Set to 0 for no automatic cleanup.
+                      Defaults to 30 days.
                     type: integer
                   ro_username:
-                    description: Name of a user that can be used to read metrics. This will be used for Grafana integration (if enabled) to prevent Grafana users from making undesired changes. Only affects PostgreSQL destinations. Defaults to 'metrics_reader'. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.
+                    description: Name of a user that can be used to read metrics.
+                      This will be used for Grafana integration (if enabled) to prevent
+                      Grafana users from making undesired changes. Only affects PostgreSQL
+                      destinations. Defaults to 'metrics_reader'. Note that this must
+                      be the same for all metrics integrations that write data to
+                      the same PostgreSQL service.
                     format: ^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$
                     maxLength: 40
                     type: string
                   username:
-                    description: Name of the user used to write metrics. Only affects PostgreSQL destinations. Defaults to 'metrics_writer'. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.
+                    description: Name of the user used to write metrics. Only affects
+                      PostgreSQL destinations. Defaults to 'metrics_writer'. Note
+                      that this must be the same for all metrics integrations that
+                      write data to the same PostgreSQL service.
                     format: ^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$
                     maxLength: 40
                     type: string
@@ -275,6 +352,7 @@ spec:
                 description: Source service for the integration (if any)
                 type: string
             required:
+            - authSecretRef
             - id
             - integrationType
             - project
