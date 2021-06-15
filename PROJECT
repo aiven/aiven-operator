@@ -1,4 +1,4 @@
-domain: aiven.io
+
 layout:
 - go.kubebuilder.io/v2
 plugins:
@@ -9,8 +9,7 @@ projectName: aiven-operator
 repo: github.com/aiven/aiven-kubernetes-operator
 resources:
 - controller: true
-  domain: aiven.io
-  group: k8s-operator
+  group: aiven.io
   kind: Project
   path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
   version: v1alpha1
@@ -19,8 +18,7 @@ resources:
     validation: true
     webhookVersion: v1beta1
 - controller: true
-  domain: aiven.io
-  group: k8s-operator
+  group: aiven.io
   kind: PG
   path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
   version: v1alpha1
@@ -29,8 +27,7 @@ resources:
     validation: true
     webhookVersion: v1beta1
 - controller: true
-  domain: aiven.io
-  group: k8s-operator
+  group: aiven.io
   kind: ConnectionPool
   path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
   version: v1alpha1
@@ -39,8 +36,7 @@ resources:
     validation: true
     webhookVersion: v1beta1
 - controller: true
-  domain: aiven.io
-  group: k8s-operator
+  group: aiven.io
   kind: Database
   path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
   version: v1alpha1
@@ -49,8 +45,7 @@ resources:
     validation: true
     webhookVersion: v1beta1
 - controller: true
-  domain: aiven.io
-  group: k8s-operator
+  group: aiven.io
   kind: ServiceUser
   path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
   version: v1alpha1
@@ -59,8 +54,7 @@ resources:
     validation: true
     webhookVersion: v1beta1
 - controller: true
-  domain: aiven.io
-  group: k8s-operator
+  group: aiven.io
   kind: ProjectVPC
   path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
   version: v1alpha1
@@ -69,8 +63,7 @@ resources:
     validation: true
     webhookVersion: v1beta1
 - controller: true
-  domain: aiven.io
-  group: k8s-operator
+  group: aiven.io
   kind: Kafka
   path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
   version: v1alpha1
@@ -79,8 +72,7 @@ resources:
     validation: true
     webhookVersion: v1beta1
 - controller: true
-  domain: aiven.io
-  group: k8s-operator
+  group: aiven.io
   kind: KafkaConnect
   path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
   version: v1alpha1
@@ -89,8 +81,7 @@ resources:
     validation: true
     webhookVersion: v1beta1
 - controller: true
-  domain: aiven.io
-  group: k8s-operator
+  group: aiven.io
   kind: KafkaTopic
   path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
   version: v1alpha1
@@ -99,8 +90,7 @@ resources:
     validation: true
     webhookVersion: v1beta1
 - controller: true
-  domain: aiven.io
-  group: k8s-operator
+  group: aiven.io
   kind: ServiceIntegration
   path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
   version: v1alpha1
@@ -109,8 +99,7 @@ resources:
     validation: true
     webhookVersion: v1beta1
 - controller: true
-  domain: aiven.io
-  group: k8s-operator
+  group: aiven.io
   kind: KafkaSchema
   path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
   version: v1alpha1
@@ -119,8 +108,7 @@ resources:
     validation: true
     webhookVersion: v1beta1
 - controller: true
-  domain: aiven.io
-  group: k8s-operator
+  group: aiven.io
   kind: KafkaACL
   path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
   version: v1alpha1
