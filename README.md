@@ -11,7 +11,7 @@ $ cd aiven-kubernetes-operator
 ```
 
 Install the `cert-manager` Operator:
-> cert-manager is needed to correctly deploy the Operator [webhooks](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/).
+> cert-manager is used to manage the Operator [webhooks](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/) TLS certificates.
 ```bash
 $ make install-cert-manager
 ```
@@ -31,8 +31,7 @@ Sign in or create an account at [Aiven](https://console.aiven.io/signup?utm_sour
 
 Create a [Kubernetes Secret](https://kubernetes.io/docs/concepts/configuration/secret/) to store the generated token:
 ```bash
-$ export AIVEN_TOKEN="<your-token-here>"
-$ kubectl create secret generic aiven-token --from-literal=token="$AIVEN_TOKEN"
+$ kubectl create secret generic aiven-token --from-literal=token="<your-token-here>"
 ```
 
 Now let's create a `PG` resource with the following YAML – please fill in your project name under in the `project` field:
@@ -40,8 +39,18 @@ Now let's create a `PG` resource with the following YAML – please fill in your
 apiVersion: aiven.io/v1alpha1
 kind: PG
 metadata:
-  name: pg-sample
+  name: aiven-pg
 spec:
+
+  # reads the authentication token created previously
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  # stores the PostgreSQL connection information on the specified Secret
+  connInfoSecretTarget:
+    name: pg-connection
+
   project: <project>
   cloudName: google-europe-west1
   plan: hobbyist
@@ -53,39 +62,44 @@ spec:
 
 Watch the resource being created and wait until its status is `RUNNING`:
 ```bash
-$ watch kubectl get pg.aiven.io pg-sample
+$ watch kubectl get pg.aiven.io aiven-pg
 ```
 
 After created, the Operator will create a Kubernetes Secret containing the PostgreSQL connection information:
 ```bash
-$ kubectl describe secret pg-sample-pg-secret
+$ kubectl describe secret pg-connection
 ```
 
 Use the following [jq](https://github.com/stedolan/jq) command to decode the Secret:
 ```bash
-$ kubectl get secret pg-sample-pg-secret -o json | jq '.data | map_values(@base64d)'
+$ kubectl get secret pg-connection -o json | jq '.data | map_values(@base64d)'
 ```
 
-## Sample App ✨
-Let's deploy a [simple Golang application](https://github.com/jonatasbaldin/simple-golang-postgres) to test the database connection using the generated Secret:
+## Connecting to PostgreSQL
+Let's run a `psql` command to test the database connection using the generated Secret:
 ```yaml
 apiVersion: v1
 kind: Pod
 metadata:
-  name: simple-golang-application
+  name: psql-test-connection
 spec:
+  restartPolicy: Never
   containers:
-    - image: jonatasbaldin/simple-golang-postgres
-      name: simple-golang-postgres
+    - image: postgres:11
+      name: postgres
+      command: ['psql', '$(DATABASE_URI)', '-c', 'SELECT version();']
       envFrom:
       - secretRef:
-          name: pg-sample-pg-secret
+          name: pg-connection
 ```
 
-After deploying, let's see if the application run:
+The Pod should the PostgreSQL version. You can verify with the following command:
 ```bash
-$ kubectl logs simple-golang-application
-2021/06/09 08:00:51 Connection to PostgreSQL successful!
+$ kubectl logs psql-test-connection
+                                           version                                           
+---------------------------------------------------------------------------------------------
+ PostgreSQL 11.12 on x86_64-pc-linux-gnu, compiled by gcc, a 68c5366192 p 6b9244f01a, 64-bit
+(1 row)
 ```
 
 ## Contributing
