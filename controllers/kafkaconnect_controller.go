@@ -156,11 +156,11 @@ func (h KafkaConnectHandler) get(i client.Object) (client.Object, *corev1.Secret
 		return nil, nil, err
 	}
 
-	meta.SetStatusCondition(&kc.Status.Conditions,
-		getRunningCondition(metav1.ConditionTrue, "Get",
-			"Instance is running on Aiven side"))
-
 	if checkServiceIsRunning(h.client, kc.Spec.Project, kc.Name) {
+		meta.SetStatusCondition(&kc.Status.Conditions,
+			getRunningCondition(metav1.ConditionTrue, "Get",
+				"Instance is running on Aiven side"))
+
 		metav1.SetMetaDataAnnotation(&kc.ObjectMeta, isRunning, "1")
 	}
 
