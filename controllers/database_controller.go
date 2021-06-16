@@ -137,6 +137,8 @@ func (h DatabaseHandler) get(i client.Object) (client.Object, *corev1.Secret, er
 		getRunningCondition(metav1.ConditionTrue, "Get",
 			"Instance is running on Aiven side"))
 
+	metav1.SetMetaDataAnnotation(&db.ObjectMeta, isRunning, "1")
+
 	return db, nil, nil
 }
 

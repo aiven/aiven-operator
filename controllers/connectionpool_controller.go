@@ -158,6 +158,8 @@ func (h ConnectionPoolHandler) get(i client.Object) (client.Object, *corev1.Secr
 		return nil, nil, fmt.Errorf("cannot get user: %w", err)
 	}
 
+	metav1.SetMetaDataAnnotation(&connPool.ObjectMeta, isRunning, "1")
+
 	meta.SetStatusCondition(&connPool.Status.Conditions,
 		getRunningCondition(metav1.ConditionTrue, "Get",
 			"Instance is running on Aiven side"))

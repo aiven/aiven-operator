@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"os"
 	"time"
 
@@ -15,7 +17,7 @@ import (
 var _ = Describe("Kafka Controller", func() {
 	// Define utility constants for object names and testing timeouts/durations and intervals.
 	const (
-		kafkaNamespace = "default"
+		namespace = "default"
 
 		timeout  = time.Minute * 20
 		interval = time.Second * 10
@@ -30,12 +32,12 @@ var _ = Describe("Kafka Controller", func() {
 	BeforeEach(func() {
 		ctx = context.Background()
 		serviceName = "k8s-test-kafka-acc-" + generateRandomID()
-		kafka = kafkaSpec(serviceName, kafkaNamespace)
+		kafka = kafkaSpec(serviceName, namespace)
 
 		By("Creating a new Kafka CR instance")
 		Expect(k8sClient.Create(ctx, kafka)).Should(Succeed())
 
-		kafkaLookupKey := types.NamespacedName{Name: serviceName, Namespace: kafkaNamespace}
+		kafkaLookupKey := types.NamespacedName{Name: serviceName, Namespace: namespace}
 		createdKafka := &v1alpha1.Kafka{}
 		// We'll need to retry getting this newly created Kafka,
 		// given that creation may not immediately happen.
@@ -47,14 +49,14 @@ var _ = Describe("Kafka Controller", func() {
 		}, timeout, interval).Should(BeTrue())
 
 		By("by waiting Kafka service status to become RUNNING")
-		Eventually(func() string {
+		Eventually(func() bool {
 			err := k8sClient.Get(ctx, kafkaLookupKey, createdKafka)
 			if err == nil {
-				return createdKafka.Status.State
+				return meta.IsStatusConditionTrue(createdKafka.Status.Conditions, conditionTypeRunning)
 			}
 
-			return ""
-		}, timeout, interval).Should(Equal("RUNNING"))
+			return false
+		}, timeout, interval).Should(BeTrue())
 
 		By("by checking finalizers")
 		Expect(createdKafka.GetFinalizers()).ToNot(BeEmpty())
@@ -63,17 +65,20 @@ var _ = Describe("Kafka Controller", func() {
 	Context("Validating Kafka reconciler behaviour", func() {
 		It("should createOrUpdate a new Kafka service", func() {
 			createdKafka := &v1alpha1.Kafka{}
-			kafkaLookupKey := types.NamespacedName{Name: serviceName, Namespace: kafkaNamespace}
+			kafkaLookupKey := types.NamespacedName{Name: serviceName, Namespace: namespace}
 
 			Expect(k8sClient.Get(ctx, kafkaLookupKey, createdKafka)).Should(Succeed())
 
-			// Let's make sure our Kafka status was properly populated.
-			By("by checking that after creation Kafka service status fields were properly populated")
-			Expect(createdKafka.Status.State).Should(Equal("RUNNING"))
-			Expect(createdKafka.Status.Plan).Should(Equal("business-4"))
-			Expect(createdKafka.Status.CloudName).Should(Equal("google-europe-west1"))
-			Expect(createdKafka.Status.MaintenanceWindowDow).NotTo(BeEmpty())
-			Expect(createdKafka.Status.MaintenanceWindowTime).NotTo(BeEmpty())
+			By("by checking that after creation of a Kafka service secret is created")
+			createdSecret := &corev1.Secret{}
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: serviceName, Namespace: namespace}, createdSecret))
+
+			Expect(createdSecret.StringData["HOST"]).NotTo(BeEmpty())
+			Expect(createdSecret.StringData["DATABASE"]).NotTo(BeEmpty())
+			Expect(createdSecret.StringData["PASSWORD"]).NotTo(BeEmpty())
+			Expect(createdSecret.StringData["USERNAME"]).NotTo(BeEmpty())
+			Expect(createdSecret.StringData["ACCESS_CERT"]).NotTo(BeEmpty())
+			Expect(createdSecret.StringData["ACCESS_KEY"]).NotTo(BeEmpty())
 		})
 	})
 
