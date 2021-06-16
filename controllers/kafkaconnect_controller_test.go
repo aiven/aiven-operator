@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"os"
 	"time"
 
@@ -47,14 +48,13 @@ var _ = Describe("KafkaConnect Controller", func() {
 		}, timeout, interval).Should(BeTrue())
 
 		By("by waiting Kafka Connect service status to become RUNNING")
-		Eventually(func() string {
+		Eventually(func() bool {
 			err := k8sClient.Get(ctx, kcLookupKey, createdKafkaConnect)
 			if err == nil {
-				return createdKafkaConnect.Status.State
+				return meta.IsStatusConditionTrue(createdKafkaConnect.Status.Conditions, conditionTypeRunning)
 			}
-
-			return ""
-		}, timeout, interval).Should(Equal("RUNNING"))
+			return false
+		}, timeout, interval).Should(BeTrue())
 
 		By("by checking finalizers")
 		Expect(createdKafkaConnect.GetFinalizers()).ToNot(BeEmpty())
@@ -67,13 +67,8 @@ var _ = Describe("KafkaConnect Controller", func() {
 
 			Expect(k8sClient.Get(ctx, kcLookupKey, createdKafkaConnect)).Should(Succeed())
 
-			// Let's make sure our KafkaConnect status was properly populated.
-			By("by checking that after creation KafkaConnect service status fields were properly populated")
-			Expect(createdKafkaConnect.Status.State).Should(Equal("RUNNING"))
-			Expect(createdKafkaConnect.Status.Plan).Should(Equal("business-4"))
-			Expect(createdKafkaConnect.Status.CloudName).Should(Equal("google-europe-west1"))
-			Expect(createdKafkaConnect.Status.MaintenanceWindowDow).NotTo(BeEmpty())
-			Expect(createdKafkaConnect.Status.MaintenanceWindowTime).NotTo(BeEmpty())
+			By("by checking that after KafkaConnect service was created")
+			Expect(meta.IsStatusConditionTrue(createdKafkaConnect.Status.Conditions, conditionTypeRunning)).Should(BeTrue())
 		})
 	})
 
