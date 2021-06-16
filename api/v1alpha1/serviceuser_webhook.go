@@ -45,11 +45,11 @@ func (r *ServiceUser) ValidateCreate() error {
 func (r *ServiceUser) ValidateUpdate(old runtime.Object) error {
 	serviceuserlog.Info("validate update", "name", r.Name)
 
-	if r.Spec.Project != old.(*ConnectionPool).Spec.Project {
+	if r.Spec.Project != old.(*ServiceUser).Spec.Project {
 		return errors.New("cannot update a Service User, project field is immutable and cannot be updated")
 	}
 
-	if r.Spec.ServiceName != old.(*ConnectionPool).Spec.ServiceName {
+	if r.Spec.ServiceName != old.(*ServiceUser).Spec.ServiceName {
 		return errors.New("cannot update a Service User, serviceName field is immutable and cannot be updated")
 	}
 
