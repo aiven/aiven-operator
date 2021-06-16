@@ -26,7 +26,7 @@ type ProjectHandler struct {
 	Handlers
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=projects,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=projects,verbs=get;list;watch;createOrUpdate;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=projects/status,verbs=get;update;patch
 
 func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -35,7 +35,7 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	const projectFinalizer = "project-finalize.aiven.io"
 	project := &k8soperatorv1alpha1.Project{}
-	return r.reconcileInstance(&ProjectHandler{}, ctx, log, req, project, projectFinalizer)
+	return r.reconcileInstance(ctx, req, &ProjectHandler{}, project)
 }
 
 func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -46,10 +46,10 @@ func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 // create creates a project on Aiven side
-func (h ProjectHandler) create(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
+func (h ProjectHandler) createOrUpdate(i client.Object) error {
 	project, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	log.Info("creating a new project")
@@ -78,12 +78,12 @@ func (h ProjectHandler) create(c *aiven.Client, log logr.Logger, i client.Object
 		BillingCurrency:  project.Spec.BillingCurrency,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to create Project on Aiven side: %w", err)
+		return fmt.Errorf("failed to createOrUpdate Project on Aiven side: %w", err)
 	}
 
 	h.setStatus(project, p)
 
-	return project, nil
+	return nil
 }
 
 func (*ProjectHandler) setStatus(project *k8soperatorv1alpha1.Project, p *aiven.Project) {
@@ -101,7 +101,7 @@ func (*ProjectHandler) setStatus(project *k8soperatorv1alpha1.Project, p *aiven.
 	project.Status.EstimatedBalance = p.EstimatedBalance
 }
 
-func (h ProjectHandler) getSecret(c *aiven.Client, log logr.Logger, i client.Object) (*corev1.Secret, error) {
+func (h ProjectHandler) get(i client.Object) (*corev1.Secret, error) {
 	project, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -185,7 +185,7 @@ func (h ProjectHandler) exists(c *aiven.Client, log logr.Logger, i client.Object
 }
 
 // delete deletes Aiven project
-func (h ProjectHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
+func (h ProjectHandler) delete(i client.Object) (bool, error) {
 	project, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -240,7 +240,7 @@ func (h ProjectHandler) isActive(*aiven.Client, logr.Logger, client.Object) (boo
 	return true, nil
 }
 
-func (h ProjectHandler) checkPreconditions(*aiven.Client, logr.Logger, client.Object) bool {
+func (h ProjectHandler) checkPreconditions(client.Object) bool {
 	return true
 }
 

@@ -23,7 +23,7 @@ type KafkaACLHandler struct {
 	Handlers
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=kafkaacls,verbs=get;list;watch;create;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=kafkaacls,verbs=get;list;watch;createOrUpdate;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkaacls/status,verbs=get
 
 func (r *KafkaACLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -33,7 +33,7 @@ func (r *KafkaACLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 
 	const finalizer = "kafka-acl-finalizer.aiven.io"
 	acl := &k8soperatorv1alpha1.KafkaACL{}
-	return r.reconcileInstance(&KafkaACLHandler{}, ctx, log, req, acl, finalizer)
+	return r.reconcileInstance(ctx, req, &KafkaACLHandler{}, acl)
 }
 
 func (r *KafkaACLReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -42,10 +42,10 @@ func (r *KafkaACLReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaACLHandler) create(c *aiven.Client, _ logr.Logger, i client.Object) (client.Object, error) {
+func (h KafkaACLHandler) createOrUpdate(i client.Object) error {
 	acl, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	a, err := c.KafkaACLs.Create(
@@ -58,15 +58,15 @@ func (h KafkaACLHandler) create(c *aiven.Client, _ logr.Logger, i client.Object)
 		},
 	)
 	if err != nil && !aiven.IsAlreadyExists(err) {
-		return nil, err
+		return err
 	}
 
 	h.setStatus(acl, a)
 
-	return acl, nil
+	return nil
 }
 
-func (h KafkaACLHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
+func (h KafkaACLHandler) delete(i client.Object) (bool, error) {
 	acl, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -115,11 +115,11 @@ func (h KafkaACLHandler) update(_ *aiven.Client, _ logr.Logger, _ client.Object)
 	return nil, nil
 }
 
-func (h KafkaACLHandler) getSecret(_ *aiven.Client, _ logr.Logger, _ client.Object) (*corev1.Secret, error) {
+func (h KafkaACLHandler) get(_ client.Object) (*corev1.Secret, error) {
 	return nil, nil
 }
 
-func (h KafkaACLHandler) checkPreconditions(c *aiven.Client, _ logr.Logger, i client.Object) bool {
+func (h KafkaACLHandler) checkPreconditions(i client.Object) bool {
 	acl, err := h.convert(i)
 	if err != nil {
 		return false

@@ -23,7 +23,7 @@ type KafkaConnectHandler struct {
 	Handlers
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=kafkaconnects,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=kafkaconnects,verbs=get;list;watch;createOrUpdate;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkaconnects/status,verbs=get;update;patch
 
 func (r *KafkaConnectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -32,7 +32,7 @@ func (r *KafkaConnectReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	const finalizer = "kafkaconnect-service-finalizer.aiven.io"
 	kc := &k8soperatorv1alpha1.KafkaConnect{}
-	return r.reconcileInstance(&KafkaConnectHandler{}, ctx, log, req, kc, finalizer)
+	return r.reconcileInstance(ctx, req, &KafkaConnectHandler{}, kc)
 }
 
 func (r *KafkaConnectReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -57,10 +57,10 @@ func (h KafkaConnectHandler) exists(c *aiven.Client, log logr.Logger, i client.O
 	return s != nil, nil
 }
 
-func (h KafkaConnectHandler) create(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
+func (h KafkaConnectHandler) createOrUpdate(i client.Object) error {
 	kc, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	log.Info("creating a new kafkaConnect service")
@@ -83,12 +83,12 @@ func (h KafkaConnectHandler) create(c *aiven.Client, log logr.Logger, i client.O
 		ServiceIntegrations: nil,
 	})
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	h.setStatus(kc, s)
 
-	return kc, err
+	return err
 }
 
 func (h KafkaConnectHandler) update(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
@@ -138,7 +138,7 @@ func (h KafkaConnectHandler) setStatus(kc *k8soperatorv1alpha1.KafkaConnect, s *
 	kc.Status.CloudName = s.CloudName
 }
 
-func (h KafkaConnectHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
+func (h KafkaConnectHandler) delete(i client.Object) (bool, error) {
 	kc, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -156,7 +156,7 @@ func (h KafkaConnectHandler) delete(c *aiven.Client, log logr.Logger, i client.O
 	return true, nil
 }
 
-func (h KafkaConnectHandler) getSecret(*aiven.Client, logr.Logger, client.Object) (*corev1.Secret, error) {
+func (h KafkaConnectHandler) get(client.Object) (*corev1.Secret, error) {
 	return nil, nil
 }
 
@@ -180,7 +180,7 @@ func (h KafkaConnectHandler) convert(i client.Object) (*k8soperatorv1alpha1.Kafk
 	return kc, nil
 }
 
-func (h KafkaConnectHandler) checkPreconditions(*aiven.Client, logr.Logger, client.Object) bool {
+func (h KafkaConnectHandler) checkPreconditions(client.Object) bool {
 	return true
 }
 

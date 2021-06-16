@@ -25,7 +25,7 @@ type ConnectionPoolHandler struct {
 	Handlers
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=connectionpools,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=connectionpools,verbs=get;list;watch;createOrUpdate;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=connectionpools/status,verbs=get;update;patch
 
 func (r *ConnectionPoolReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -34,7 +34,7 @@ func (r *ConnectionPoolReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 
 	const finalizer = "connectionpool-finalizer.aiven.io"
 	cp := &k8soperatorv1alpha1.ConnectionPool{}
-	return r.reconcileInstance(&ConnectionPoolHandler{}, ctx, log, req, cp, finalizer)
+	return r.reconcileInstance(ctx, req, &ConnectionPoolHandler{}, cp)
 }
 
 func (r *ConnectionPoolReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -44,10 +44,10 @@ func (r *ConnectionPoolReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ConnectionPoolHandler) create(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
+func (h ConnectionPoolHandler) createOrUpdate(i client.Object) error {
 	cp, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	log.Info("creating a connection pool on aiven side")
@@ -61,15 +61,15 @@ func (h ConnectionPoolHandler) create(c *aiven.Client, log logr.Logger, i client
 			Username: cp.Spec.Username,
 		})
 	if err != nil && !aiven.IsAlreadyExists(err) {
-		return nil, err
+		return err
 	}
 
 	h.setStatus(cp, conPool)
 
-	return cp, nil
+	return nil
 }
 
-func (h ConnectionPoolHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
+func (h ConnectionPoolHandler) delete(i client.Object) (bool, error) {
 	cp, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -127,7 +127,7 @@ func (h ConnectionPoolHandler) update(c *aiven.Client, log logr.Logger, i client
 	return cp, nil
 }
 
-func (h ConnectionPoolHandler) getSecret(c *aiven.Client, log logr.Logger, i client.Object) (*corev1.Secret, error) {
+func (h ConnectionPoolHandler) get(i client.Object) (*corev1.Secret, error) {
 	connPool, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -170,7 +170,7 @@ func (h ConnectionPoolHandler) getSecret(c *aiven.Client, log logr.Logger, i cli
 	}, nil
 }
 
-func (h ConnectionPoolHandler) checkPreconditions(c *aiven.Client, log logr.Logger, i client.Object) bool {
+func (h ConnectionPoolHandler) checkPreconditions(i client.Object) bool {
 	cp, err := h.convert(i)
 	if err != nil {
 		return false

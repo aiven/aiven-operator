@@ -61,7 +61,7 @@ var _ = Describe("PG Controller", func() {
 	})
 
 	Context("Validating PG reconciler behaviour", func() {
-		It("should create a new PG service", func() {
+		It("should createOrUpdate a new PG service", func() {
 			createdPG := &v1alpha1.PG{}
 			pgLookupKey := types.NamespacedName{Name: serviceName, Namespace: pgNamespace}
 

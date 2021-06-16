@@ -23,7 +23,7 @@ type KafkaSchemaHandler struct {
 	Handlers
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=kafkaschemas,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=kafkaschemas,verbs=get;list;watch;createOrUpdate;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkaschemas/status,verbs=get;update;patch
 
 func (r *KafkaSchemaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -32,7 +32,7 @@ func (r *KafkaSchemaReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 
 	const finalizer = "kafkaschema-finalizer.aiven.io"
 	schema := &k8soperatorv1alpha1.KafkaSchema{}
-	return r.reconcileInstance(&KafkaSchemaHandler{}, ctx, log, req, schema, finalizer)
+	return r.reconcileInstance(ctx, req, &KafkaSchemaHandler{}, schema)
 }
 
 func (r *KafkaSchemaReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -41,13 +41,13 @@ func (r *KafkaSchemaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaSchemaHandler) create(c *aiven.Client, _ logr.Logger, i client.Object) (client.Object, error) {
+func (h KafkaSchemaHandler) createOrUpdate(i client.Object) error {
 	schema, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	// create Kafka Schema Subject
+	// createOrUpdate Kafka Schema Subject
 	_, err = c.KafkaSubjectSchemas.Add(
 		schema.Spec.Project,
 		schema.Spec.ServiceName,
@@ -57,7 +57,7 @@ func (h KafkaSchemaHandler) create(c *aiven.Client, _ logr.Logger, i client.Obje
 		},
 	)
 	if err != nil {
-		return nil, fmt.Errorf("cannot add Kafka Schema Subject: %w", err)
+		return fmt.Errorf("cannot add Kafka Schema Subject: %w", err)
 	}
 
 	// set compatibility level if defined for a newly created Kafka Schema Subject
@@ -69,22 +69,22 @@ func (h KafkaSchemaHandler) create(c *aiven.Client, _ logr.Logger, i client.Obje
 			schema.Spec.CompatibilityLevel,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("cannot update Kafka Schema Configuration: %w", err)
+			return fmt.Errorf("cannot update Kafka Schema Configuration: %w", err)
 		}
 	}
 
 	// get last version
 	version, err := h.getLastVersion(c, schema)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get Kafka Schema Subject version: %w", err)
+		return fmt.Errorf("cannot get Kafka Schema Subject version: %w", err)
 	}
 
 	h.setStatus(schema, version)
 
-	return schema, nil
+	return nil
 }
 
-func (h KafkaSchemaHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
+func (h KafkaSchemaHandler) delete(i client.Object) (bool, error) {
 	schema, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -110,14 +110,14 @@ func (h KafkaSchemaHandler) exists(_ *aiven.Client, _ logr.Logger, i client.Obje
 }
 
 func (h KafkaSchemaHandler) update(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
-	return h.create(c, log, i)
+	return h.createOrUpdate(i)
 }
 
-func (h KafkaSchemaHandler) getSecret(_ *aiven.Client, _ logr.Logger, _ client.Object) (*corev1.Secret, error) {
+func (h KafkaSchemaHandler) get(_ client.Object) (*corev1.Secret, error) {
 	return nil, nil
 }
 
-func (h KafkaSchemaHandler) checkPreconditions(c *aiven.Client, _ logr.Logger, i client.Object) bool {
+func (h KafkaSchemaHandler) checkPreconditions(i client.Object) bool {
 	schema, err := h.convert(i)
 	if err != nil {
 		return false

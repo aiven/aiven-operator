@@ -30,7 +30,8 @@ type ServiceUserSpec struct {
 
 // ServiceUserStatus defines the observed state of ServiceUser
 type ServiceUserStatus struct {
-	ServiceUserSpec `json:",inline"`
+	// Conditions represent the latest available observations of an ServiceUser state
+	Conditions []metav1.Condition `json:"conditions"`
 
 	// Type of the user account
 	Type string `json:"type,omitempty"`

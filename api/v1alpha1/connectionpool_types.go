@@ -43,7 +43,8 @@ type ConnectionPoolSpec struct {
 
 // ConnectionPoolStatus defines the observed state of ConnectionPool
 type ConnectionPoolStatus struct {
-	ConnectionPoolSpec `json:",inline"`
+	// Conditions represent the latest available observations of an ConnectionPool state
+	Conditions []metav1.Condition `json:"conditions"`
 }
 
 // +kubebuilder:object:root=true

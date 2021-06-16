@@ -27,10 +27,8 @@ type ProjectVPCSpec struct {
 
 // ProjectVPCStatus defines the observed state of ProjectVPC
 type ProjectVPCStatus struct {
-	ProjectVPCSpec `json:",inline"`
-
-	// State of the VPC (APPROVED, ACTIVE, DELETING, DELETED)
-	State string `json:"state"`
+	// Conditions represent the latest available observations of an ProjectVPC state
+	Conditions []metav1.Condition `json:"conditions"`
 
 	// Project VPC id
 	ID string `json:"id"`

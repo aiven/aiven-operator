@@ -79,7 +79,7 @@ var _ = Describe("Kafka ACL Controller", func() {
 	})
 
 	Context("Validating Kafka ACL reconciler behaviour", func() {
-		It("should create a new Kafka ACL", func() {
+		It("should createOrUpdate a new Kafka ACL", func() {
 			createdACL := &v1alpha1.KafkaACL{}
 			lookupKey := types.NamespacedName{Name: userName, Namespace: namespace}
 

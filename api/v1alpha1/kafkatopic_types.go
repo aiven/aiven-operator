@@ -133,9 +133,8 @@ type KafkaTopicConfig struct {
 
 // KafkaTopicStatus defines the observed state of KafkaTopic
 type KafkaTopicStatus struct {
-	KafkaTopicSpec `json:",inline"`
-
-	State string `json:"state"`
+	// Conditions represent the latest available observations of an KafkaTopic state
+	Conditions []metav1.Condition `json:"conditions"`
 }
 
 // +kubebuilder:object:root=true

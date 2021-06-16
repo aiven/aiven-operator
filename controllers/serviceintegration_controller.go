@@ -23,7 +23,7 @@ type ServiceIntegrationReconciler struct {
 type ServiceIntegrationHandler struct {
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations,verbs=get;list;watch;createOrUpdate;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations/status,verbs=get;update;patch
 
 func (r *ServiceIntegrationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -32,7 +32,7 @@ func (r *ServiceIntegrationReconciler) Reconcile(ctx context.Context, req ctrl.R
 
 	const finalizer = "serviceintegration-finalizer.aiven.io"
 	si := &k8soperatorv1alpha1.ServiceIntegration{}
-	return r.reconcileInstance(&ServiceIntegrationHandler{}, ctx, log, req, si, finalizer)
+	return r.reconcileInstance(ctx, req, &ServiceIntegrationHandler{}, si)
 }
 
 func (r *ServiceIntegrationReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -41,10 +41,10 @@ func (r *ServiceIntegrationReconciler) SetupWithManager(mgr ctrl.Manager) error 
 		Complete(r)
 }
 
-func (h ServiceIntegrationHandler) create(c *aiven.Client, _ logr.Logger, i client.Object) (client.Object, error) {
+func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) error {
 	si, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	integration, err := c.ServiceIntegrations.Create(
@@ -59,15 +59,15 @@ func (h ServiceIntegrationHandler) create(c *aiven.Client, _ logr.Logger, i clie
 		},
 	)
 	if err != nil {
-		return nil, fmt.Errorf("cannot create service integration: %w", err)
+		return fmt.Errorf("cannot createOrUpdate service integration: %w", err)
 	}
 
 	h.setStatus(si, integration)
 
-	return si, nil
+	return nil
 }
 
-func (h ServiceIntegrationHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
+func (h ServiceIntegrationHandler) delete(i client.Object) (bool, error) {
 	si, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -118,11 +118,11 @@ func (h ServiceIntegrationHandler) update(c *aiven.Client, _ logr.Logger, i clie
 	return si, nil
 }
 
-func (h ServiceIntegrationHandler) getSecret(*aiven.Client, logr.Logger, client.Object) (secret *corev1.Secret, error error) {
+func (h ServiceIntegrationHandler) get(client.Object) (secret *corev1.Secret, error error) {
 	return nil, nil
 }
 
-func (h ServiceIntegrationHandler) checkPreconditions(c *aiven.Client, _ logr.Logger, i client.Object) bool {
+func (h ServiceIntegrationHandler) checkPreconditions(i client.Object) bool {
 	si, err := h.convert(i)
 	if err != nil {
 		return false

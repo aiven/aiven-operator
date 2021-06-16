@@ -88,7 +88,7 @@ var _ = Describe("Service Integration Controller", func() {
 	})
 
 	Context("Validating ServiceIntegration reconciler behaviour", func() {
-		It("should create a new ServiceIntegration service", func() {
+		It("should createOrUpdate a new ServiceIntegration service", func() {
 			si := &v1alpha1.ServiceIntegration{}
 			lookupKey := types.NamespacedName{Name: siName, Namespace: namespace}
 

@@ -81,7 +81,7 @@ var _ = Describe("ConnectionPool Controller", func() {
 	})
 
 	Context("Validating ConnectionPool reconciler behaviour", func() {
-		It("should create a new ConnectionPoll instance", func() {
+		It("should createOrUpdate a new ConnectionPoll instance", func() {
 			createdPool := &v1alpha1.ConnectionPool{}
 			lookupKey := types.NamespacedName{Name: poolName, Namespace: namespace}
 

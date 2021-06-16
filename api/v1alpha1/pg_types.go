@@ -50,14 +50,6 @@ type PGSpec struct {
 	PGUserConfig PGUserConfig `json:"pgUserConfig,omitempty"`
 }
 
-// PGStatus defines the observed state of PG
-type PGStatus struct {
-	PGSpec `json:",inline"`
-
-	// Service state
-	State string `json:"state"`
-}
-
 type PgLookoutUserConfig struct {
 	// +kubebuilder:validation:Minimum=10
 	// max_failover_replication_time_lag Number of seconds of master unavailability before triggering database failover to standby
@@ -400,8 +392,8 @@ type PG struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   PGSpec   `json:"spec,omitempty"`
-	Status PGStatus `json:"status,omitempty"`
+	Spec   PGSpec        `json:"spec,omitempty"`
+	Status ServiceStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true

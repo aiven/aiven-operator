@@ -23,7 +23,7 @@ type ProjectVPCHandler struct {
 	Handlers
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=projectvpcs,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=projectvpcs,verbs=get;list;watch;createOrUpdate;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=projectvpcs/status,verbs=get;update;patch
 
 func (r *ProjectVPCReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -32,7 +32,7 @@ func (r *ProjectVPCReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 	const finalizer = "projectvpc-finalizer.aiven.io"
 	vpc := &k8soperatorv1alpha1.ProjectVPC{}
-	return r.reconcileInstance(&ProjectVPCHandler{}, ctx, log, req, vpc, finalizer)
+	return r.reconcileInstance(ctx, req, &ProjectVPCHandler{}, vpc)
 }
 
 func (r *ProjectVPCReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -41,10 +41,10 @@ func (r *ProjectVPCReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ProjectVPCHandler) create(c *aiven.Client, _ logr.Logger, i client.Object) (createdObj client.Object, error error) {
+func (h ProjectVPCHandler) createOrUpdate(i client.Object) (error error) {
 	projectVPC, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	vpc, err := c.VPCs.Create(projectVPC.Spec.Project, aiven.CreateVPCRequest{
@@ -52,15 +52,15 @@ func (h ProjectVPCHandler) create(c *aiven.Client, _ logr.Logger, i client.Objec
 		NetworkCIDR: projectVPC.Spec.NetworkCidr,
 	})
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	h.setStatus(projectVPC, vpc)
 
-	return projectVPC, nil
+	return nil
 }
 
-func (h ProjectVPCHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
+func (h ProjectVPCHandler) delete(i client.Object) (bool, error) {
 	projectVPC, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -124,11 +124,11 @@ func (h ProjectVPCHandler) update(*aiven.Client, logr.Logger, client.Object) (cl
 	return nil, nil
 }
 
-func (h ProjectVPCHandler) getSecret(*aiven.Client, logr.Logger, client.Object) (*corev1.Secret, error) {
+func (h ProjectVPCHandler) get(client.Object) (*corev1.Secret, error) {
 	return nil, nil
 }
 
-func (h ProjectVPCHandler) checkPreconditions(*aiven.Client, logr.Logger, client.Object) bool {
+func (h ProjectVPCHandler) checkPreconditions(client.Object) bool {
 	return true
 }
 

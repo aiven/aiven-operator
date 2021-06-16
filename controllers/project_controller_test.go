@@ -73,7 +73,7 @@ var _ = Describe("Project Controller", func() {
 	})
 
 	Context("Validating Project reconciler behaviour", func() {
-		It("should create a new Project", func() {
+		It("should createOrUpdate a new Project", func() {
 			createdProject := &v1alpha1.Project{}
 			projectLookupKey := types.NamespacedName{Name: projectName, Namespace: projectNamespace}
 

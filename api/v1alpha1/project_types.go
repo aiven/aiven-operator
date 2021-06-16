@@ -58,7 +58,8 @@ type ProjectSpec struct {
 
 // ProjectStatus defines the observed state of Project
 type ProjectStatus struct {
-	ProjectSpec `json:",inline"`
+	// Conditions represent the latest available observations of an Project state
+	Conditions []metav1.Condition `json:"conditions"`
 
 	// +kubebuilder:validation:MaxLength=64
 	// EU VAT Identification Number

@@ -61,7 +61,7 @@ var _ = Describe("Kafka Controller", func() {
 	})
 
 	Context("Validating Kafka reconciler behaviour", func() {
-		It("should create a new Kafka service", func() {
+		It("should createOrUpdate a new Kafka service", func() {
 			createdKafka := &v1alpha1.Kafka{}
 			kafkaLookupKey := types.NamespacedName{Name: serviceName, Namespace: kafkaNamespace}
 

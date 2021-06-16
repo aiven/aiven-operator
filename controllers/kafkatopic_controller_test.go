@@ -77,7 +77,7 @@ var _ = Describe("Kafka Topic Controller", func() {
 	})
 
 	Context("Validating Kafka reconciler behaviour", func() {
-		It("should create a new Kafka Topic", func() {
+		It("should createOrUpdate a new Kafka Topic", func() {
 			createdTopic := &v1alpha1.KafkaTopic{}
 			lookupKey := types.NamespacedName{Name: topicName, Namespace: namespace}
 

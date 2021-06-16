@@ -25,7 +25,7 @@ type PGHandler struct {
 	Handlers
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=pgs,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=pgs,verbs=get;list;watch;createOrUpdate;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=pgs/status,verbs=get;update;patch
 
 func (r *PGReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -34,7 +34,7 @@ func (r *PGReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Re
 
 	const pgServiceFinalizer = "pg-service-finalizer.aiven.io"
 	pg := &k8soperatorv1alpha1.PG{}
-	return r.reconcileInstance(&PGHandler{}, ctx, log, req, pg, pgServiceFinalizer)
+	return r.reconcileInstance(ctx, req, &PGHandler{}, pg)
 }
 
 func (r *PGReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -61,10 +61,10 @@ func (h PGHandler) exists(c *aiven.Client, log logr.Logger, i client.Object) (bo
 }
 
 // create creates PG service and update CR status and creates secrets
-func (h PGHandler) create(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
+func (h PGHandler) createOrUpdate(i client.Object) error {
 	pg, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	log.Info("creating a new pg service")
@@ -87,12 +87,12 @@ func (h PGHandler) create(c *aiven.Client, log logr.Logger, i client.Object) (cl
 		ServiceIntegrations: nil,
 	})
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	h.setStatus(pg, s)
 
-	return pg, err
+	return err
 }
 
 // update updates PG service and updates CR status
@@ -145,7 +145,7 @@ func (h PGHandler) setStatus(pg *k8soperatorv1alpha1.PG, s *aiven.Service) {
 }
 
 // delete deletes Aiven PG service
-func (h PGHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
+func (h PGHandler) delete(i client.Object) (bool, error) {
 	pg, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -164,7 +164,7 @@ func (h PGHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bo
 }
 
 // getSecret retrieves a PG service secret
-func (h PGHandler) getSecret(c *aiven.Client, log logr.Logger, i client.Object) (*corev1.Secret, error) {
+func (h PGHandler) get(i client.Object) (*corev1.Secret, error) {
 	pg, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -225,7 +225,7 @@ func (h PGHandler) convert(i client.Object) (*k8soperatorv1alpha1.PG, error) {
 	return pg, nil
 }
 
-func (h PGHandler) checkPreconditions(*aiven.Client, logr.Logger, client.Object) bool {
+func (h PGHandler) checkPreconditions(client.Object) bool {
 	return true
 }
 

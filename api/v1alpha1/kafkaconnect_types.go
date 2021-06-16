@@ -17,14 +17,6 @@ type KafkaConnectSpec struct {
 	KafkaConnectUserConfig KafkaConnectUserConfig `json:"KafkaConnectUserConfig,omitempty"`
 }
 
-// KafkaConnectStatus defines the observed state of KafkaConnect
-type KafkaConnectStatus struct {
-	KafkaConnectSpec `json:",inline"`
-
-	// Service state
-	State string `json:"state,omitempty"`
-}
-
 type KafkaConnectUserConfig struct {
 	// Defines what client configurations can be overridden by the connector. Default is None
 	ConnectorClientConfigOverridePolicy string `json:"connector_client_config_override_policy,omitempty"`
@@ -88,8 +80,8 @@ type KafkaConnect struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   KafkaConnectSpec   `json:"spec,omitempty"`
-	Status KafkaConnectStatus `json:"status,omitempty"`
+	Spec   KafkaConnectSpec `json:"spec,omitempty"`
+	Status ServiceStatus    `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true

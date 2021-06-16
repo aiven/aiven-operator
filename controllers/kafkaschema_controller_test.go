@@ -67,7 +67,7 @@ var _ = Describe("Kafka Schema Controller", func() {
 	})
 
 	Context("Validating Kafka ACL reconciler behaviour", func() {
-		It("should create a new Kafka Schema", func() {
+		It("should createOrUpdate a new Kafka Schema", func() {
 			createdSchema := &v1alpha1.KafkaSchema{}
 			lookupKey := types.NamespacedName{Name: schemaSubject, Namespace: namespace}
 

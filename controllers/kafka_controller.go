@@ -25,7 +25,7 @@ type KafkaHandler struct {
 	Handlers
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=kafkas,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=kafkas,verbs=get;list;watch;createOrUpdate;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkas/status,verbs=get;update;patch
 
 func (r *KafkaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -44,10 +44,10 @@ func (r *KafkaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h *KafkaHandler) create(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
+func (h *KafkaHandler) createOrUpdate(i client.Object) error {
 	kafka, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	log.Info("creating kafka service")
@@ -70,15 +70,15 @@ func (h *KafkaHandler) create(c *aiven.Client, log logr.Logger, i client.Object)
 		ServiceIntegrations: nil,
 	})
 	if err != nil && !aiven.IsAlreadyExists(err) {
-		return nil, err
+		return err
 	}
 
 	h.setStatus(kafka, s)
 
-	return kafka, nil
+	return nil
 }
 
-func (h KafkaHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
+func (h KafkaHandler) delete(i client.Object) (bool, error) {
 	kafka, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -143,7 +143,7 @@ func (h KafkaHandler) update(c *aiven.Client, _ logr.Logger, i client.Object) (c
 	return kafka, nil
 }
 
-func (h KafkaHandler) getSecret(c *aiven.Client, _ logr.Logger, i client.Object) (*corev1.Secret, error) {
+func (h KafkaHandler) get(i client.Object) (*corev1.Secret, error) {
 	kafka, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -180,7 +180,7 @@ func (h KafkaHandler) getSecret(c *aiven.Client, _ logr.Logger, i client.Object)
 	}, nil
 }
 
-func (h KafkaHandler) checkPreconditions(_ *aiven.Client, _ logr.Logger, _ client.Object) bool {
+func (h KafkaHandler) checkPreconditions(_ client.Object) bool {
 	return true
 }
 

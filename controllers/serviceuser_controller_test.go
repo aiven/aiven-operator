@@ -69,7 +69,7 @@ var _ = Describe("ServiceUser Controller", func() {
 	})
 
 	Context("Validating ServiceUser reconciler behaviour", func() {
-		It("should create a new ServiceUser instance", func() {
+		It("should createOrUpdate a new ServiceUser instance", func() {
 			createdUser := &v1alpha1.ServiceUser{}
 			lookupKey := types.NamespacedName{Name: userName, Namespace: namespace}
 

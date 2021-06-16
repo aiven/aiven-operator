@@ -36,7 +36,8 @@ type DatabaseSpec struct {
 
 // DatabaseStatus defines the observed state of Database
 type DatabaseStatus struct {
-	DatabaseSpec `json:",inline"`
+	// Conditions represent the latest available observations of an Database state
+	Conditions []metav1.Condition `json:"conditions"`
 }
 
 // +kubebuilder:object:root=true

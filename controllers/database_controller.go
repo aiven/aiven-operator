@@ -24,7 +24,7 @@ type DatabaseHandler struct {
 	Handlers
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=databases,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=databases,verbs=get;list;watch;createOrUpdate;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=databases/status,verbs=get;update;patch
 
 func (r *DatabaseReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -33,7 +33,7 @@ func (r *DatabaseReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 
 	const dbFinalizer = "database-finalizer.aiven.io"
 	db := &k8soperatorv1alpha1.Database{}
-	return r.reconcileInstance(&DatabaseHandler{}, ctx, log, req, db, dbFinalizer)
+	return r.reconcileInstance(ctx, req, &DatabaseHandler{}, db)
 }
 
 func (r *DatabaseReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -42,10 +42,10 @@ func (r *DatabaseReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h DatabaseHandler) create(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
+func (h DatabaseHandler) createOrUpdate(i client.Object) error {
 	db, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	log.Info("creating a new database on aiven side")
@@ -56,15 +56,15 @@ func (h DatabaseHandler) create(c *aiven.Client, log logr.Logger, i client.Objec
 		LcType:    db.Spec.LcType,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("cannot create database on Aiven side: %w", err)
+		return fmt.Errorf("cannot createOrUpdate database on Aiven side: %w", err)
 	}
 
 	h.setStatus(db, database)
 
-	return db, nil
+	return nil
 }
 
-func (h DatabaseHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
+func (h DatabaseHandler) delete(i client.Object) (bool, error) {
 	db, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -103,12 +103,12 @@ func (h DatabaseHandler) update(_ *aiven.Client, log logr.Logger, _ client.Objec
 	return nil, nil
 }
 
-func (h DatabaseHandler) getSecret(_ *aiven.Client, log logr.Logger, _ client.Object) (*corev1.Secret, error) {
+func (h DatabaseHandler) get(_ client.Object) (*corev1.Secret, error) {
 	log.Info("aiven database has no secrets, skipping this handler")
 	return nil, nil
 }
 
-func (h DatabaseHandler) checkPreconditions(c *aiven.Client, log logr.Logger, i client.Object) bool {
+func (h DatabaseHandler) checkPreconditions(i client.Object) bool {
 	db, err := h.convert(i)
 	if err != nil {
 		return false

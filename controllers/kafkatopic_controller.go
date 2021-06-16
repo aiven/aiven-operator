@@ -23,7 +23,7 @@ type KafkaTopicHandler struct {
 	Handlers
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=kafkatopics,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=kafkatopics,verbs=get;list;watch;createOrUpdate;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkatopics/status,verbs=get;update;patch
 
 func (r *KafkaTopicReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -33,7 +33,7 @@ func (r *KafkaTopicReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 	const finalizer = "kafkatopic-finalizer.aiven.io"
 	topic := &k8soperatorv1alpha1.KafkaTopic{}
-	return r.reconcileInstance(&KafkaTopicHandler{}, ctx, log, req, topic, finalizer)
+	return r.reconcileInstance(ctx, req, &KafkaTopicHandler{}, topic)
 }
 
 func (r *KafkaTopicReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -42,10 +42,10 @@ func (r *KafkaTopicReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaTopicHandler) create(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
+func (h KafkaTopicHandler) createOrUpdate(i client.Object) error {
 	topic, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	log.Info("creating a new kafka topic")
@@ -66,20 +66,20 @@ func (h KafkaTopicHandler) create(c *aiven.Client, log logr.Logger, i client.Obj
 		Config:      convertKafkaTopicConfig(topic),
 	})
 	if err != nil && !aiven.IsAlreadyExists(err) {
-		return nil, err
+		return err
 	}
 
 	t, err := c.KafkaTopics.Get(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	h.setStatus(topic, t)
 
-	return topic, nil
+	return nil
 }
 
-func (h KafkaTopicHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
+func (h KafkaTopicHandler) delete(i client.Object) (bool, error) {
 	topic, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -155,11 +155,11 @@ func (h KafkaTopicHandler) update(c *aiven.Client, log logr.Logger, i client.Obj
 	return topic, nil
 }
 
-func (h KafkaTopicHandler) getSecret(_ *aiven.Client, _ logr.Logger, _ client.Object) (*corev1.Secret, error) {
+func (h KafkaTopicHandler) get(_ client.Object) (*corev1.Secret, error) {
 	return nil, nil
 }
 
-func (h KafkaTopicHandler) checkPreconditions(c *aiven.Client, _ logr.Logger, i client.Object) bool {
+func (h KafkaTopicHandler) checkPreconditions(i client.Object) bool {
 	topic, err := h.convert(i)
 	if err != nil {
 		return false

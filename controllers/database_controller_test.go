@@ -69,7 +69,7 @@ var _ = Describe("Database Controller", func() {
 	})
 
 	Context("Validating Database reconciler behaviour", func() {
-		It("should create a new Database instance", func() {
+		It("should createOrUpdate a new Database instance", func() {
 			createdDB := &v1alpha1.Database{}
 			lookupKey := types.NamespacedName{Name: dbName, Namespace: namespace}
 

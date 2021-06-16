@@ -33,7 +33,7 @@ func (r *ServiceUserReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 
 	const finalizer = "serviceuser-finalizer.aiven.io"
 	su := &k8soperatorv1alpha1.ServiceUser{}
-	return r.reconcileInstance(&ServiceUserHandler{}, ctx, log, req, su, finalizer)
+	return r.reconcileInstance(ctx, req, &ServiceUserHandler{}, su)
 }
 
 func (r *ServiceUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -42,10 +42,10 @@ func (r *ServiceUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h *ServiceUserHandler) create(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
+func (h *ServiceUserHandler) createOrUpdate(i client.Object) error {
 	user, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	log.Info("creating service user")
@@ -61,18 +61,18 @@ func (h *ServiceUserHandler) create(c *aiven.Client, log logr.Logger, i client.O
 		})
 	if err != nil {
 		if aiven.IsAlreadyExists(err) {
-			return user, nil
+			return nil
 		}
-		return nil, fmt.Errorf("cannot create service user on aiven side: %w", err)
+		return fmt.Errorf("cannot createOrUpdate service user on aiven side: %w", err)
 	}
 
 	h.setStatus(user, u)
 
-	return user, nil
+	return nil
 
 }
 
-func (h ServiceUserHandler) delete(c *aiven.Client, _ logr.Logger, i client.Object) (bool, error) {
+func (h ServiceUserHandler) delete(i client.Object) (bool, error) {
 	user, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -104,7 +104,7 @@ func (h ServiceUserHandler) update(_ *aiven.Client, _ logr.Logger, _ client.Obje
 	return nil, nil
 }
 
-func (h ServiceUserHandler) getSecret(c *aiven.Client, _ logr.Logger, i client.Object) (secret *corev1.Secret, error error) {
+func (h ServiceUserHandler) get(i client.Object) (secret *corev1.Secret, error error) {
 	user, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -139,7 +139,7 @@ func (h ServiceUserHandler) getSecretName(user *k8soperatorv1alpha1.ServiceUser)
 	return user.Name
 }
 
-func (h ServiceUserHandler) checkPreconditions(c *aiven.Client, log logr.Logger, i client.Object) bool {
+func (h ServiceUserHandler) checkPreconditions(i client.Object) bool {
 	user, err := h.convert(i)
 	if err != nil {
 		return false
