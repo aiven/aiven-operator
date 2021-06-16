@@ -11,12 +11,12 @@ With Aiven Kubernetes Operator, you can manage Aiven for PostgreSQL through the 
 > Before going through this guide, make sure to have a [Kubernetes Cluster](../installation/prerequisites/) with the [Operator installed](../installation/) and a [Kubernetes Secret with an Aiven authentication token](../authentication/).
 
 ## Create a PostgreSQL instance
-Create a file named `aiven-pg.yaml` with the following content:
+Create a file named `pg-sample.yaml` with the following content:
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: PG
 metadata:
-  name: aiven-pg
+  name: pg-sample
 spec:
 
   # gets the authentication token from the `aiven-token` Secret
@@ -29,7 +29,7 @@ spec:
     name: pg-connection
 
   # add your Project name here
-  project: <your-project-name-here> 
+  project: <your-project-name> 
 
   # cloud provider and plan of your choice
   # you can check all of the possibilities here https://aiven.io/pricing
@@ -47,15 +47,15 @@ spec:
 
 Let's create the service by applying the configuration:
 ```bash
-$ kubectl apply -f aiven-pg.yaml
+$ kubectl apply -f pg-sample.yaml
 ```
 
 Take a look at the resource created with the following:
 ```bash
-$ kubectl get pgs.aiven.io aiven-pg
+$ kubectl get pgs.aiven.io pg-sample
 
-NAME        PROJECT         REGION                PLAN       STATE
-aiven-pg    dev-advocates   google-europe-west1   hobbyist   RUNNING
+NAME         PROJECT         REGION                PLAN       STATE
+pg-sample    dev-advocates   google-europe-west1   hobbyist   RUNNING
 ```
 
 The resource might stay in the `BUILDING` state for a couple of minutes, enough to grab a quick coffee! Once the state becomes `RUNNING`, we are ready to access it.
@@ -67,7 +67,7 @@ For your convenience, we automatically store the PostgreSQL connection informati
 $ kubectl describe secret pg-connection 
 Name:         pg-connection
 Namespace:    default
-Labels:       app=aiven-pg
+Labels:       app=pg-sample
 Annotations:  <none>
 
 Type:  Opaque
@@ -88,9 +88,9 @@ You can use [jq](https://github.com/stedolan/jq) to quickly decode the Secret:
 $ kubectl get secret pg-connection -o json | jq '.data | map_values(@base64d)'
 
 {
-  "DATABASE_URI": "postgres://avnadmin:<secret-password>@aiven-pg-your-project.aivencloud.com:13039/defaultdb?sslmode=require",
+  "DATABASE_URI": "postgres://avnadmin:<secret-password>@pg-sample-your-project.aivencloud.com:13039/defaultdb?sslmode=require",
   "PGDATABASE": "defaultdb",
-  "PGHOST": "aiven-pg-your-project.aivencloud.com",
+  "PGHOST": "pg-sample-your-project.aivencloud.com",
   "PGPASSWORD": "<secret-password>",
   "PGPORT": "13039",
   "PGSSLMODE": "require",
@@ -98,7 +98,7 @@ $ kubectl get secret pg-connection -o json | jq '.data | map_values(@base64d)'
 }
 ```
 
-To test the PostgreSQL connection from a Kubernetes workload, you can deploy a Pod with a `psql` command. Create a file named `pod-psql.yaml`
+Let's test the PostgreSQL connection from a Kubernetes workload by deploying a Pod running a `psql` command. Create a file named `pod-psql.yaml`
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -110,7 +110,65 @@ spec:
     - image: postgres:11-alpine
       name: postgres
       command: ['psql', '$(DATABASE_URI)', '-c', 'SELECT version();']
+      
+      # the pg-connection Secret becomes environment variables 
       envFrom:
       - secretRef:
           name: pg-connection
+```
+
+It will run once and stop, due the `restartPolicy: Never` flag. Let's inspect its log:
+```bash
+$ kubectl logs psql-test-connection
+                                           version                                           
+---------------------------------------------------------------------------------------------
+ PostgreSQL 11.12 on x86_64-pc-linux-gnu, compiled by gcc, a 68c5366192 p 6b9244f01a, 64-bit
+(1 row)
+```
+
+We were able to connect to the PostgreSQL and execute the `SELECT version();` query. Cool, right!?
+
+## Create a PostgreSQL Database
+The next Kubernetes resource we will explore is the `Database`. It allows you to create a logical database within the PostgreSQL instance.
+
+Create the `pg-database-sample.yaml` file with the following content:
+```yaml
+apiVersion: aiven.io/v1alpha1
+kind: Database
+metadata:
+  name: pg-database-sample
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  # the name of the previously created PostgreSQL instance
+  serviceName: pg-sample 
+
+  project: <your-project-name>
+  lcCollate: en_US.UTF-8
+  lcCtype: en_US.UTF-8
+```
+
+Now you can connect to the `pg-database-sample` using the same credentials stored in the `pg-connection` Secret.
+
+## Create a PostgreSQL User
+Aiven has a concept called Service User, allowing us to create users for different services. Let's create one for the PostgreSQL instance.
+
+Create a file named `pg-database-sample.y
+```yaml
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUser
+metadata:
+  name: service-user-sample
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+  
+  connInfoSecretTarget:
+    name: service-user-sample
+
+  project: dev-advocates
+  serviceName: pg-sample
 ```
