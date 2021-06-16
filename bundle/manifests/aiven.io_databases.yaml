@@ -1,25 +1,36 @@
-
----
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: kafkaacls.k8s-operator.aiven.io
+  name: databases.aiven.io
 spec:
-  group: k8s-operator.aiven.io
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
+  group: aiven.io
   names:
-    kind: KafkaACL
-    listKind: KafkaACLList
-    plural: kafkaacls
-    singular: kafkaacl
+    kind: Database
+    listKind: DatabaseList
+    plural: databases
+    singular: database
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: KafkaACL is the Schema for the kafkaacls API
+        description: Database is the Schema for the databases API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -34,7 +45,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: KafkaACLSpec defines the desired state of KafkaACL
+            description: DatabaseSpec defines the desired state of Database
             properties:
               authSecretRef:
                 description: Authentication reference to Aiven token in a secret
@@ -47,39 +58,38 @@ spec:
                 - key
                 - name
                 type: object
-              permission:
-                description: Kafka permission to grant (admin, read, readwrite, write)
-                enum:
-                - admin
-                - read
-                - readwrite
-                - write
+              lcCollate:
+                description: 'Default string sort order (LC_COLLATE) of the database.
+                  Default value: en_US.UTF-8'
+                maxLength: 128
+                type: string
+              lcCtype:
+                description: 'Default character classification (LC_CTYPE) of the database.
+                  Default value: en_US.UTF-8'
+                maxLength: 128
                 type: string
               project:
-                description: Project to link the Kafka ACL to
+                description: Project to link the database to
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
               serviceName:
-                description: Service to link the Kafka ACL to
+                description: PostgreSQL service to link the database to
                 maxLength: 63
                 type: string
-              topic:
-                description: Topic name pattern for the ACL entry
-                type: string
-              username:
-                description: Username pattern for the ACL entry
-                type: string
+              terminationProtection:
+                description: It is a Kubernetes side deletion protections, which prevents
+                  the database from being deleted by Kubernetes. It is recommended
+                  to enable this for any production databases containing critical
+                  data.
+                type: boolean
             required:
             - authSecretRef
-            - permission
             - project
             - serviceName
-            - topic
-            - username
             type: object
           status:
-            description: KafkaACLStatus defines the observed state of KafkaACL
+            description: DatabaseStatus defines the observed state of Database
             properties:
               authSecretRef:
                 description: Authentication reference to Aiven token in a secret
@@ -92,40 +102,35 @@ spec:
                 - key
                 - name
                 type: object
-              id:
-                description: Kafka ACL ID
+              lcCollate:
+                description: 'Default string sort order (LC_COLLATE) of the database.
+                  Default value: en_US.UTF-8'
+                maxLength: 128
                 type: string
-              permission:
-                description: Kafka permission to grant (admin, read, readwrite, write)
-                enum:
-                - admin
-                - read
-                - readwrite
-                - write
+              lcCtype:
+                description: 'Default character classification (LC_CTYPE) of the database.
+                  Default value: en_US.UTF-8'
+                maxLength: 128
                 type: string
               project:
-                description: Project to link the Kafka ACL to
+                description: Project to link the database to
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
               serviceName:
-                description: Service to link the Kafka ACL to
+                description: PostgreSQL service to link the database to
                 maxLength: 63
                 type: string
-              topic:
-                description: Topic name pattern for the ACL entry
-                type: string
-              username:
-                description: Username pattern for the ACL entry
-                type: string
+              terminationProtection:
+                description: It is a Kubernetes side deletion protections, which prevents
+                  the database from being deleted by Kubernetes. It is recommended
+                  to enable this for any production databases containing critical
+                  data.
+                type: boolean
             required:
             - authSecretRef
-            - id
-            - permission
             - project
             - serviceName
-            - topic
-            - username
             type: object
         type: object
     served: true

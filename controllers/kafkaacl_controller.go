@@ -5,8 +5,9 @@ package controllers
 import (
 	"context"
 	"fmt"
+
 	"github.com/aiven/aiven-go-client"
-	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
+	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -22,15 +23,15 @@ type KafkaACLHandler struct {
 	Handlers
 }
 
-// +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=kafkaacls,verbs=get;list;watch;create;delete
-// +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=kafkaacls/status,verbs=get
+// +kubebuilder:rbac:groups=aiven.io,resources=kafkaacls,verbs=get;list;watch;create;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=kafkaacls/status,verbs=get
 
 func (r *KafkaACLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("kafkaacl", req.NamespacedName)
 
 	log.Info("reconciling aiven kafka acl")
 
-	const finalizer = "kafka-acl-finalizer.k8s-operator.aiven.io"
+	const finalizer = "kafka-acl-finalizer.aiven.io"
 	acl := &k8soperatorv1alpha1.KafkaACL{}
 	return r.reconcileInstance(&KafkaACLHandler{}, ctx, log, req, acl, finalizer)
 }

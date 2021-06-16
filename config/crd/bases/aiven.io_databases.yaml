@@ -1,0 +1,134 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: databases.aiven.io
+spec:
+  group: aiven.io
+  names:
+    kind: Database
+    listKind: DatabaseList
+    plural: databases
+    singular: database
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Database is the Schema for the databases API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: DatabaseSpec defines the desired state of Database
+            properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              lcCollate:
+                description: 'Default string sort order (LC_COLLATE) of the database.
+                  Default value: en_US.UTF-8'
+                maxLength: 128
+                type: string
+              lcCtype:
+                description: 'Default character classification (LC_CTYPE) of the database.
+                  Default value: en_US.UTF-8'
+                maxLength: 128
+                type: string
+              project:
+                description: Project to link the database to
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              serviceName:
+                description: PostgreSQL service to link the database to
+                maxLength: 63
+                type: string
+              terminationProtection:
+                description: It is a Kubernetes side deletion protections, which prevents
+                  the database from being deleted by Kubernetes. It is recommended
+                  to enable this for any production databases containing critical
+                  data.
+                type: boolean
+            required:
+            - authSecretRef
+            - project
+            - serviceName
+            type: object
+          status:
+            description: DatabaseStatus defines the observed state of Database
+            properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              lcCollate:
+                description: 'Default string sort order (LC_COLLATE) of the database.
+                  Default value: en_US.UTF-8'
+                maxLength: 128
+                type: string
+              lcCtype:
+                description: 'Default character classification (LC_CTYPE) of the database.
+                  Default value: en_US.UTF-8'
+                maxLength: 128
+                type: string
+              project:
+                description: Project to link the database to
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              serviceName:
+                description: PostgreSQL service to link the database to
+                maxLength: 63
+                type: string
+              terminationProtection:
+                description: It is a Kubernetes side deletion protections, which prevents
+                  the database from being deleted by Kubernetes. It is recommended
+                  to enable this for any production databases containing critical
+                  data.
+                type: boolean
+            required:
+            - authSecretRef
+            - project
+            - serviceName
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

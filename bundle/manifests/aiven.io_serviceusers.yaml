@@ -1,25 +1,36 @@
-
----
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: databases.k8s-operator.aiven.io
+  name: serviceusers.aiven.io
 spec:
-  group: k8s-operator.aiven.io
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
+  group: aiven.io
   names:
-    kind: Database
-    listKind: DatabaseList
-    plural: databases
-    singular: database
+    kind: ServiceUser
+    listKind: ServiceUserList
+    plural: serviceusers
+    singular: serviceuser
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: Database is the Schema for the databases API
+        description: ServiceUser is the Schema for the serviceusers API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -34,7 +45,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: DatabaseSpec defines the desired state of Database
+            description: ServiceUserSpec defines the desired state of ServiceUser
             properties:
               authSecretRef:
                 description: Authentication reference to Aiven token in a secret
@@ -47,38 +58,37 @@ spec:
                 - key
                 - name
                 type: object
-              lcCollate:
-                description: 'Default string sort order (LC_COLLATE) of the database.
-                  Default value: en_US.UTF-8'
-                maxLength: 128
+              authentication:
+                description: Authentication details
+                enum:
+                - caching_sha2_password
+                - mysql_native_password
                 type: string
-              lcCtype:
-                description: 'Default character classification (LC_CTYPE) of the database.
-                  Default value: en_US.UTF-8'
-                maxLength: 128
-                type: string
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
               project:
-                description: Project to link the database to
+                description: Project to link the user to
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
               serviceName:
-                description: PostgreSQL service to link the database to
+                description: Service to link the user to
                 maxLength: 63
                 type: string
-              terminationProtection:
-                description: It is a Kubernetes side deletion protections, which prevents
-                  the database from being deleted by Kubernetes. It is recommended
-                  to enable this for any production databases containing critical
-                  data.
-                type: boolean
             required:
             - authSecretRef
             - project
             - serviceName
             type: object
           status:
-            description: DatabaseStatus defines the observed state of Database
+            description: ServiceUserStatus defines the observed state of ServiceUser
             properties:
               authSecretRef:
                 description: Authentication reference to Aiven token in a secret
@@ -91,31 +101,33 @@ spec:
                 - key
                 - name
                 type: object
-              lcCollate:
-                description: 'Default string sort order (LC_COLLATE) of the database.
-                  Default value: en_US.UTF-8'
-                maxLength: 128
+              authentication:
+                description: Authentication details
+                enum:
+                - caching_sha2_password
+                - mysql_native_password
                 type: string
-              lcCtype:
-                description: 'Default character classification (LC_CTYPE) of the database.
-                  Default value: en_US.UTF-8'
-                maxLength: 128
-                type: string
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
               project:
-                description: Project to link the database to
+                description: Project to link the user to
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
               serviceName:
-                description: PostgreSQL service to link the database to
+                description: Service to link the user to
                 maxLength: 63
                 type: string
-              terminationProtection:
-                description: It is a Kubernetes side deletion protections, which prevents
-                  the database from being deleted by Kubernetes. It is recommended
-                  to enable this for any production databases containing critical
-                  data.
-                type: boolean
+              type:
+                description: Type of the user account
+                type: string
             required:
             - authSecretRef
             - project

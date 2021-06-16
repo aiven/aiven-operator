@@ -3,7 +3,7 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: kafkatopics.k8s-operator.aiven.io
+  name: kafkatopics.aiven.io
 spec:
   conversion:
     strategy: Webhook

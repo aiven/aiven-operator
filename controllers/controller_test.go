@@ -1,9 +1,10 @@
 package controllers
 
 import (
-	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestUserConfigurationToAPI(t *testing.T) {

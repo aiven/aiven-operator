@@ -2,7 +2,7 @@
 
 // Package v1alpha1 contains API Schema definitions for the k8s-operator v1alpha1 API group
 // +kubebuilder:object:generate=true
-// +groupName=k8s-operator.aiven.io
+// +groupName=aiven.io
 package v1alpha1
 
 import (
@@ -12,7 +12,7 @@ import (
 
 var (
 	// GroupVersion is group version used to register these objects
-	GroupVersion = schema.GroupVersion{Group: "k8s-operator.aiven.io", Version: "v1alpha1"}
+	GroupVersion = schema.GroupVersion{Group: "aiven.io", Version: "v1alpha1"}
 
 	// SchemeBuilder is used to add go types to the GroupVersionKind scheme
 	SchemeBuilder = &scheme.Builder{GroupVersion: GroupVersion}

@@ -1,29 +1,36 @@
-
----
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: projectvpcs.k8s-operator.aiven.io
+  name: kafkaacls.aiven.io
 spec:
-  group: k8s-operator.aiven.io
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
+  group: aiven.io
   names:
-    kind: ProjectVPC
-    listKind: ProjectVPCList
-    plural: projectvpcs
-    singular: projectvpc
+    kind: KafkaACL
+    listKind: KafkaACLList
+    plural: kafkaacls
+    singular: kafkaacl
   scope: Namespaced
   versions:
-  - additionalPrinterColumns:
-    - jsonPath: .status.state
-      name: State
-      type: string
-    name: v1alpha1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: ProjectVPC is the Schema for the projectvpcs API
+        description: KafkaACL is the Schema for the kafkaacls API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -38,7 +45,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: ProjectVPCSpec defines the desired state of ProjectVPC
+            description: KafkaACLSpec defines the desired state of KafkaACL
             properties:
               authSecretRef:
                 description: Authentication reference to Aiven token in a secret
@@ -51,27 +58,39 @@ spec:
                 - key
                 - name
                 type: object
-              cloudName:
-                description: Cloud the VPC is in
-                maxLength: 256
-                type: string
-              networkCidr:
-                description: Network address range used by the VPC like 192.168.0.0/24
-                maxLength: 36
+              permission:
+                description: Kafka permission to grant (admin, read, readwrite, write)
+                enum:
+                - admin
+                - read
+                - readwrite
+                - write
                 type: string
               project:
-                description: The project the VPC belongs to
+                description: Project to link the Kafka ACL to
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
+              serviceName:
+                description: Service to link the Kafka ACL to
+                maxLength: 63
+                type: string
+              topic:
+                description: Topic name pattern for the ACL entry
+                type: string
+              username:
+                description: Username pattern for the ACL entry
+                type: string
             required:
             - authSecretRef
-            - cloudName
-            - networkCidr
+            - permission
             - project
+            - serviceName
+            - topic
+            - username
             type: object
           status:
-            description: ProjectVPCStatus defines the observed state of ProjectVPC
+            description: KafkaACLStatus defines the observed state of KafkaACL
             properties:
               authSecretRef:
                 description: Authentication reference to Aiven token in a secret
@@ -84,32 +103,40 @@ spec:
                 - key
                 - name
                 type: object
-              cloudName:
-                description: Cloud the VPC is in
-                maxLength: 256
-                type: string
               id:
-                description: Project VPC id
+                description: Kafka ACL ID
                 type: string
-              networkCidr:
-                description: Network address range used by the VPC like 192.168.0.0/24
-                maxLength: 36
+              permission:
+                description: Kafka permission to grant (admin, read, readwrite, write)
+                enum:
+                - admin
+                - read
+                - readwrite
+                - write
                 type: string
               project:
-                description: The project the VPC belongs to
+                description: Project to link the Kafka ACL to
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
-              state:
-                description: State of the VPC (APPROVED, ACTIVE, DELETING, DELETED)
+              serviceName:
+                description: Service to link the Kafka ACL to
+                maxLength: 63
+                type: string
+              topic:
+                description: Topic name pattern for the ACL entry
+                type: string
+              username:
+                description: Username pattern for the ACL entry
                 type: string
             required:
             - authSecretRef
-            - cloudName
             - id
-            - networkCidr
+            - permission
             - project
-            - state
+            - serviceName
+            - topic
+            - username
             type: object
         type: object
     served: true

@@ -13,9 +13,9 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	k8soperatoraiveniov1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
-	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
-	"github.com/aiven/aiven-k8s-operator/controllers"
+	k8soperatoraiveniov1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
+	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
+	"github.com/aiven/aiven-kubernetes-operator/controllers"
 	// +kubebuilder:scaffold:imports
 )
 

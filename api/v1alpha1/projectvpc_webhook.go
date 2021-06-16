@@ -4,6 +4,7 @@ package v1alpha1
 
 import (
 	"errors"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -19,7 +20,7 @@ func (r *ProjectVPC) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		Complete()
 }
 
-//+kubebuilder:webhook:path=/mutate-k8s-operator-aiven-io-v1alpha1-projectvpc,mutating=true,failurePolicy=fail,groups=k8s-operator.aiven.io,resources=projectvpcs,verbs=create;update,versions=v1alpha1,name=mprojectvpc.kb.io,sideEffects=none,admissionReviewVersions=v1
+//+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-projectvpc,mutating=true,failurePolicy=fail,groups=aiven.io,resources=projectvpcs,verbs=create;update,versions=v1alpha1,name=mprojectvpc.kb.io,sideEffects=none,admissionReviewVersions=v1
 
 var _ webhook.Defaulter = &ProjectVPC{}
 
@@ -29,7 +30,7 @@ func (r *ProjectVPC) Default() {
 
 }
 
-//+kubebuilder:webhook:verbs=create;update,path=/validate-k8s-operator-aiven-io-v1alpha1-projectvpc,mutating=false,failurePolicy=fail,groups=k8s-operator.aiven.io,resources=projectvpcs,versions=v1alpha1,name=vprojectvpc.kb.io,sideEffects=none,admissionReviewVersions=v1
+//+kubebuilder:webhook:verbs=create;update,path=/validate-aiven-io-v1alpha1-projectvpc,mutating=false,failurePolicy=fail,groups=aiven.io,resources=projectvpcs,versions=v1alpha1,name=vprojectvpc.kb.io,sideEffects=none,admissionReviewVersions=v1
 
 var _ webhook.Validator = &ProjectVPC{}
 

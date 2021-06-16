@@ -2,13 +2,14 @@ package controllers
 
 import (
 	"context"
-	"github.com/aiven/aiven-k8s-operator/api/v1alpha1"
+	"os"
+	"time"
+
+	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"os"
-	"time"
 )
 
 var _ = Describe("Kafka ACL Controller", func() {
@@ -105,7 +106,7 @@ var _ = Describe("Kafka ACL Controller", func() {
 func kafkaACLSpec(service, topic, userName, namespace string) *v1alpha1.KafkaACL {
 	return &v1alpha1.KafkaACL{
 		TypeMeta: metav1.TypeMeta{
-			APIVersion: "k8s-operator.aiven.io/v1alpha1",
+			APIVersion: "aiven.io/v1alpha1",
 			Kind:       "KafkaACL",
 		},
 		ObjectMeta: metav1.ObjectMeta{

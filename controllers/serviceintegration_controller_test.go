@@ -2,13 +2,14 @@ package controllers
 
 import (
 	"context"
-	"github.com/aiven/aiven-k8s-operator/api/v1alpha1"
+	"os"
+	"time"
+
+	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"os"
-	"time"
 )
 
 var _ = Describe("Service Integration Controller", func() {
@@ -118,7 +119,7 @@ var _ = Describe("Service Integration Controller", func() {
 func serviceIntegrationSpec(siName, source, destination, namespace string) *v1alpha1.ServiceIntegration {
 	return &v1alpha1.ServiceIntegration{
 		TypeMeta: metav1.TypeMeta{
-			APIVersion: "k8s-operator.aiven.io/v1alpha1",
+			APIVersion: "aiven.io/v1alpha1",
 			Kind:       "ServiceIntegration",
 		},
 		ObjectMeta: metav1.ObjectMeta{

@@ -1,14 +1,25 @@
-
----
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: connectionpools.k8s-operator.aiven.io
+  name: connectionpools.aiven.io
 spec:
-  group: k8s-operator.aiven.io
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
+  group: aiven.io
   names:
     kind: ConnectionPool
     listKind: ConnectionPoolList

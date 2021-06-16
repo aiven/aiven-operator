@@ -4,6 +4,7 @@ package v1alpha1
 
 import (
 	"errors"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -19,7 +20,7 @@ func (r *ConnectionPool) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		Complete()
 }
 
-//+kubebuilder:webhook:path=/mutate-k8s-operator-aiven-io-v1alpha1-connectionpool,mutating=true,failurePolicy=fail,groups=k8s-operator.aiven.io,resources=connectionpools,verbs=create;update,versions=v1alpha1,name=mconnectionpool.kb.io,sideEffects=none,admissionReviewVersions=v1
+//+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-connectionpool,mutating=true,failurePolicy=fail,groups=aiven.io,resources=connectionpools,verbs=create;update,versions=v1alpha1,name=mconnectionpool.kb.io,sideEffects=none,admissionReviewVersions=v1
 
 var _ webhook.Defaulter = &ConnectionPool{}
 
@@ -32,7 +33,7 @@ func (r *ConnectionPool) Default() {
 	}
 }
 
-//+kubebuilder:webhook:verbs=create;update;delete,path=/validate-k8s-operator-aiven-io-v1alpha1-connectionpool,mutating=false,failurePolicy=fail,groups=k8s-operator.aiven.io,resources=connectionpools,versions=v1alpha1,name=vconnectionpool.kb.io,sideEffects=none,admissionReviewVersions=v1
+//+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-connectionpool,mutating=false,failurePolicy=fail,groups=aiven.io,resources=connectionpools,versions=v1alpha1,name=vconnectionpool.kb.io,sideEffects=none,admissionReviewVersions=v1
 
 var _ webhook.Validator = &ConnectionPool{}
 

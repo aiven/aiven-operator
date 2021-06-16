@@ -5,8 +5,9 @@ package controllers
 import (
 	"context"
 	"fmt"
+
 	"github.com/aiven/aiven-go-client"
-	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
+	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -24,14 +25,14 @@ type ConnectionPoolHandler struct {
 	Handlers
 }
 
-// +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=connectionpools,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=connectionpools/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=aiven.io,resources=connectionpools,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=connectionpools/status,verbs=get;update;patch
 
 func (r *ConnectionPoolReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("connectionpool", req.NamespacedName)
 	log.Info("reconciling aiven connection pool")
 
-	const finalizer = "connectionpool-finalizer.k8s-operator.aiven.io"
+	const finalizer = "connectionpool-finalizer.aiven.io"
 	cp := &k8soperatorv1alpha1.ConnectionPool{}
 	return r.reconcileInstance(&ConnectionPoolHandler{}, ctx, log, req, cp, finalizer)
 }

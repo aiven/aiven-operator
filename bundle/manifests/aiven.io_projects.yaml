@@ -2,10 +2,10 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: aiven-k8s-operator-system/aiven-k8s-operator-serving-cert
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: projects.k8s-operator.aiven.io
+  name: projects.aiven.io
 spec:
   conversion:
     strategy: Webhook
@@ -19,7 +19,7 @@ spec:
       conversionReviewVersions:
       - v1
       - v1beta1
-  group: k8s-operator.aiven.io
+  group: aiven.io
   names:
     kind: Project
     listKind: ProjectList
@@ -33,10 +33,14 @@ spec:
         description: Project is the Schema for the projects API
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -47,6 +51,17 @@ spec:
                 description: Account ID
                 maxLength: 32
                 type: string
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               billingAddress:
                 description: Billing name and address of the project
                 maxLength: 1000
@@ -71,7 +86,8 @@ spec:
                 maxItems: 10
                 type: array
               billingExtraText:
-                description: Extra text to be included in all project invoices, e.g. purchase order or cost center number
+                description: Extra text to be included in all project invoices, e.g.
+                  purchase order or cost center number
                 maxLength: 1000
                 type: string
               cardId:
@@ -82,6 +98,15 @@ spec:
                 description: 'Target cloud, example: aws-eu-central-1'
                 maxLength: 256
                 type: string
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
               copyFromProject:
                 description: Project name from which to copy settings to the new project
                 maxLength: 63
@@ -97,6 +122,8 @@ spec:
                   type: string
                 maxItems: 10
                 type: array
+            required:
+            - authSecretRef
             type: object
           status:
             description: ProjectStatus defines the observed state of Project
@@ -105,6 +132,17 @@ spec:
                 description: Account ID
                 maxLength: 32
                 type: string
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               availableCredits:
                 description: Available credirs
                 type: string
@@ -132,7 +170,8 @@ spec:
                 maxItems: 10
                 type: array
               billingExtraText:
-                description: Extra text to be included in all project invoices, e.g. purchase order or cost center number
+                description: Extra text to be included in all project invoices, e.g.
+                  purchase order or cost center number
                 maxLength: 1000
                 type: string
               cardId:
@@ -143,6 +182,15 @@ spec:
                 description: 'Target cloud, example: aws-eu-central-1'
                 maxLength: 256
                 type: string
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
               copyFromProject:
                 description: Project name from which to copy settings to the new project
                 maxLength: 63
@@ -171,6 +219,8 @@ spec:
                 description: EU VAT Identification Number
                 maxLength: 64
                 type: string
+            required:
+            - authSecretRef
             type: object
         type: object
     served: true

@@ -6,20 +6,20 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: kafkaschemas.k8s-operator.aiven.io
+  name: connectionpools.aiven.io
 spec:
-  group: k8s-operator.aiven.io
+  group: aiven.io
   names:
-    kind: KafkaSchema
-    listKind: KafkaSchemaList
-    plural: kafkaschemas
-    singular: kafkaschema
+    kind: ConnectionPool
+    listKind: ConnectionPoolList
+    plural: connectionpools
+    singular: connectionpool
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: KafkaSchema is the Schema for the kafkaschemas API
+        description: ConnectionPool is the Schema for the connectionpools API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -34,7 +34,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: KafkaSchemaSpec defines the desired state of KafkaSchema
+            description: ConnectionPoolSpec defines the desired state of ConnectionPool
             properties:
               authSecretRef:
                 description: Authentication reference to Aiven token in a secret
@@ -47,43 +47,52 @@ spec:
                 - key
                 - name
                 type: object
-              compatibilityLevel:
-                description: Kafka Schemas compatibility level
-                enum:
-                - BACKWARD
-                - BACKWARD_TRANSITIVE
-                - FORWARD
-                - FORWARD_TRANSITIVE
-                - FULL
-                - FULL_TRANSITIVE
-                - NONE
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
+              databaseName:
+                description: Name of the database the pool connects to
+                maxLength: 40
                 type: string
+              poolMode:
+                description: Mode the pool operates in (session, transaction, statement)
+                enum:
+                - session
+                - transaction
+                - statement
+                type: string
+              poolSize:
+                description: Number of connections the pool may create towards the
+                  backend server
+                type: integer
               project:
-                description: Project to link the Kafka Schema to
+                description: Target project.
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
-              schema:
-                description: Kafka Schema configuration should be a valid Avro Schema
-                  JSON format
-                type: string
               serviceName:
-                description: Service to link the Kafka Schema to
+                description: Service name.
                 maxLength: 63
                 type: string
-              subjectName:
-                description: Kafka Schema Subject name
-                maxLength: 63
+              username:
+                description: Name of the service user used to connect to the database
+                maxLength: 64
                 type: string
             required:
             - authSecretRef
+            - databaseName
             - project
-            - schema
             - serviceName
-            - subjectName
+            - username
             type: object
           status:
-            description: KafkaSchemaStatus defines the observed state of KafkaSchema
+            description: ConnectionPoolStatus defines the observed state of ConnectionPool
             properties:
               authSecretRef:
                 description: Authentication reference to Aiven token in a secret
@@ -96,44 +105,49 @@ spec:
                 - key
                 - name
                 type: object
-              compatibilityLevel:
-                description: Kafka Schemas compatibility level
-                enum:
-                - BACKWARD
-                - BACKWARD_TRANSITIVE
-                - FORWARD
-                - FORWARD_TRANSITIVE
-                - FULL
-                - FULL_TRANSITIVE
-                - NONE
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
+              databaseName:
+                description: Name of the database the pool connects to
+                maxLength: 40
                 type: string
+              poolMode:
+                description: Mode the pool operates in (session, transaction, statement)
+                enum:
+                - session
+                - transaction
+                - statement
+                type: string
+              poolSize:
+                description: Number of connections the pool may create towards the
+                  backend server
+                type: integer
               project:
-                description: Project to link the Kafka Schema to
+                description: Target project.
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
-              schema:
-                description: Kafka Schema configuration should be a valid Avro Schema
-                  JSON format
-                type: string
               serviceName:
-                description: Service to link the Kafka Schema to
+                description: Service name.
                 maxLength: 63
                 type: string
-              subjectName:
-                description: Kafka Schema Subject name
-                maxLength: 63
+              username:
+                description: Name of the service user used to connect to the database
+                maxLength: 64
                 type: string
-              version:
-                description: Kafka Schema configuration version
-                type: integer
             required:
             - authSecretRef
+            - databaseName
             - project
-            - schema
             - serviceName
-            - subjectName
-            - version
+            - username
             type: object
         type: object
     served: true

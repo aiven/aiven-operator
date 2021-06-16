@@ -1,4 +1,4 @@
-apiVersion: k8s-operator.aiven.io/v1alpha1
+apiVersion: aiven.io/v1alpha1
 kind: ServiceIntegration
 metadata:
   name: serviceintegration-sample

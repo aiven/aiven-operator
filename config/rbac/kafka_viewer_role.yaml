@@ -5,7 +5,7 @@ metadata:
   name: kafka-viewer-role
 rules:
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - kafkas
   verbs:
@@ -13,7 +13,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - kafkas/status
   verbs:

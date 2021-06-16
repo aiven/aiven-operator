@@ -2,18 +2,18 @@
 # since it depends on service name and namespace that are out of this kustomize package.
 # It should be run by config/default
 resources:
-- bases/k8s-operator.aiven.io_projects.yaml
-- bases/k8s-operator.aiven.io_pgs.yaml
-- bases/k8s-operator.aiven.io_connectionpools.yaml
-- bases/k8s-operator.aiven.io_databases.yaml
-- bases/k8s-operator.aiven.io_kafkas.yaml
-- bases/k8s-operator.aiven.io_serviceusers.yaml
-- bases/k8s-operator.aiven.io_projectvpcs.yaml
-- bases/k8s-operator.aiven.io_kafkaschemas.yaml
-- bases/k8s-operator.aiven.io_kafkaacls.yaml
-- bases/k8s-operator.aiven.io_kafkatopics.yaml
-- bases/k8s-operator.aiven.io_serviceintegrations.yaml
-- bases/k8s-operator.aiven.io_kafkaconnects.yaml
+- bases/aiven.io_projects.yaml
+- bases/aiven.io_pgs.yaml
+- bases/aiven.io_connectionpools.yaml
+- bases/aiven.io_databases.yaml
+- bases/aiven.io_kafkas.yaml
+- bases/aiven.io_serviceusers.yaml
+- bases/aiven.io_projectvpcs.yaml
+- bases/aiven.io_kafkaschemas.yaml
+- bases/aiven.io_kafkaacls.yaml
+- bases/aiven.io_kafkatopics.yaml
+- bases/aiven.io_serviceintegrations.yaml
+- bases/aiven.io_kafkaconnects.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:

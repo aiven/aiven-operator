@@ -4,6 +4,7 @@ package v1alpha1
 
 import (
 	"errors"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -19,7 +20,7 @@ func (r *KafkaSchema) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		Complete()
 }
 
-//+kubebuilder:webhook:path=/mutate-k8s-operator-aiven-io-v1alpha1-kafkaschema,mutating=true,failurePolicy=fail,groups=k8s-operator.aiven.io,resources=kafkaschemas,verbs=create;update,versions=v1alpha1,name=mkafkaschema.kb.io,sideEffects=none,admissionReviewVersions=v1
+//+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-kafkaschema,mutating=true,failurePolicy=fail,groups=aiven.io,resources=kafkaschemas,verbs=create;update,versions=v1alpha1,name=mkafkaschema.kb.io,sideEffects=none,admissionReviewVersions=v1
 
 var _ webhook.Defaulter = &KafkaSchema{}
 
@@ -28,7 +29,7 @@ func (r *KafkaSchema) Default() {
 	kafkaschemalog.Info("default", "name", r.Name)
 }
 
-//+kubebuilder:webhook:verbs=create;update,path=/validate-k8s-operator-aiven-io-v1alpha1-kafkaschema,mutating=false,failurePolicy=fail,groups=k8s-operator.aiven.io,resources=kafkaschemas,versions=v1alpha1,name=vkafkaschema.kb.io,sideEffects=none,admissionReviewVersions=v1
+//+kubebuilder:webhook:verbs=create;update,path=/validate-aiven-io-v1alpha1-kafkaschema,mutating=false,failurePolicy=fail,groups=aiven.io,resources=kafkaschemas,versions=v1alpha1,name=vkafkaschema.kb.io,sideEffects=none,admissionReviewVersions=v1
 
 var _ webhook.Validator = &KafkaSchema{}
 

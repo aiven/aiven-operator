@@ -12,12 +12,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-k8s-operator-aiven-io-v1alpha1-connectionpool
+      path: /mutate-aiven-io-v1alpha1-connectionpool
   failurePolicy: Fail
   name: mconnectionpool.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -32,12 +32,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-k8s-operator-aiven-io-v1alpha1-database
+      path: /mutate-aiven-io-v1alpha1-database
   failurePolicy: Fail
   name: mdatabase.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -52,12 +52,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-k8s-operator-aiven-io-v1alpha1-kafka
+      path: /mutate-aiven-io-v1alpha1-kafka
   failurePolicy: Fail
   name: mkafka.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -72,12 +72,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-k8s-operator-aiven-io-v1alpha1-kafkaacl
+      path: /mutate-aiven-io-v1alpha1-kafkaacl
   failurePolicy: Fail
   name: mkafkaacl.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -92,12 +92,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-k8s-operator-aiven-io-v1alpha1-kafkaconnect
+      path: /mutate-aiven-io-v1alpha1-kafkaconnect
   failurePolicy: Fail
   name: mkafkaconnect.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -112,12 +112,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-k8s-operator-aiven-io-v1alpha1-kafkaschema
+      path: /mutate-aiven-io-v1alpha1-kafkaschema
   failurePolicy: Fail
   name: mkafkaschema.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -132,12 +132,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-k8s-operator-aiven-io-v1alpha1-kafkatopic
+      path: /mutate-aiven-io-v1alpha1-kafkatopic
   failurePolicy: Fail
   name: mkafkatopic.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -152,12 +152,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-k8s-operator-aiven-io-v1alpha1-pg
+      path: /mutate-aiven-io-v1alpha1-pg
   failurePolicy: Fail
   name: mpg.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -172,12 +172,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-k8s-operator-aiven-io-v1alpha1-project
+      path: /mutate-aiven-io-v1alpha1-project
   failurePolicy: Fail
   name: mproject.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -192,12 +192,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-k8s-operator-aiven-io-v1alpha1-projectvpc
+      path: /mutate-aiven-io-v1alpha1-projectvpc
   failurePolicy: Fail
   name: mprojectvpc.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -212,12 +212,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-k8s-operator-aiven-io-v1alpha1-serviceintegration
+      path: /mutate-aiven-io-v1alpha1-serviceintegration
   failurePolicy: Fail
   name: mserviceintegration.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -232,12 +232,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-k8s-operator-aiven-io-v1alpha1-serviceuser
+      path: /mutate-aiven-io-v1alpha1-serviceuser
   failurePolicy: Fail
   name: mserviceuser.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -260,12 +260,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-k8s-operator-aiven-io-v1alpha1-connectionpool
+      path: /validate-aiven-io-v1alpha1-connectionpool
   failurePolicy: Fail
   name: vconnectionpool.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -281,12 +281,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-k8s-operator-aiven-io-v1alpha1-database
+      path: /validate-aiven-io-v1alpha1-database
   failurePolicy: Fail
   name: vdatabase.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -302,12 +302,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-k8s-operator-aiven-io-v1alpha1-kafka
+      path: /validate-aiven-io-v1alpha1-kafka
   failurePolicy: Fail
   name: vkafka.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -323,12 +323,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-k8s-operator-aiven-io-v1alpha1-kafkaacl
+      path: /validate-aiven-io-v1alpha1-kafkaacl
   failurePolicy: Fail
   name: vkafkaacl.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -343,12 +343,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-k8s-operator-aiven-io-v1alpha1-kafkaconnect
+      path: /validate-aiven-io-v1alpha1-kafkaconnect
   failurePolicy: Fail
   name: vkafkaconnect.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -364,12 +364,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-k8s-operator-aiven-io-v1alpha1-kafkaschema
+      path: /validate-aiven-io-v1alpha1-kafkaschema
   failurePolicy: Fail
   name: vkafkaschema.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -384,12 +384,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-k8s-operator-aiven-io-v1alpha1-kafkatopic
+      path: /validate-aiven-io-v1alpha1-kafkatopic
   failurePolicy: Fail
   name: vkafkatopic.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -405,12 +405,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-k8s-operator-aiven-io-v1alpha1-pg
+      path: /validate-aiven-io-v1alpha1-pg
   failurePolicy: Fail
   name: vpg.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -426,12 +426,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-k8s-operator-aiven-io-v1alpha1-project
+      path: /validate-aiven-io-v1alpha1-project
   failurePolicy: Fail
   name: vproject.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -447,12 +447,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-k8s-operator-aiven-io-v1alpha1-projectvpc
+      path: /validate-aiven-io-v1alpha1-projectvpc
   failurePolicy: Fail
   name: vprojectvpc.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -467,12 +467,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-k8s-operator-aiven-io-v1alpha1-serviceintegration
+      path: /validate-aiven-io-v1alpha1-serviceintegration
   failurePolicy: Fail
   name: vserviceintegration.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:
@@ -487,12 +487,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-k8s-operator-aiven-io-v1alpha1-serviceuser
+      path: /validate-aiven-io-v1alpha1-serviceuser
   failurePolicy: Fail
   name: vserviceuser.kb.io
   rules:
   - apiGroups:
-    - k8s-operator.aiven.io
+    - aiven.io
     apiVersions:
     - v1alpha1
     operations:

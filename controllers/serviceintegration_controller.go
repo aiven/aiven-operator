@@ -5,13 +5,14 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/aiven/aiven-go-client"
-	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
+	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strings"
 )
 
 // ServiceIntegrationReconciler reconciles a ServiceIntegration object
@@ -22,14 +23,14 @@ type ServiceIntegrationReconciler struct {
 type ServiceIntegrationHandler struct {
 }
 
-// +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=serviceintegrations,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=serviceintegrations/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations/status,verbs=get;update;patch
 
 func (r *ServiceIntegrationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("serviceintegration", req.NamespacedName)
 	log.Info("reconciling aiven service integration")
 
-	const finalizer = "serviceintegration-finalizer.k8s-operator.aiven.io"
+	const finalizer = "serviceintegration-finalizer.aiven.io"
 	si := &k8soperatorv1alpha1.ServiceIntegration{}
 	return r.reconcileInstance(&ServiceIntegrationHandler{}, ctx, log, req, si, finalizer)
 }

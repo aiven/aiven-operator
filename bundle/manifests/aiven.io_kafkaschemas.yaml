@@ -1,25 +1,36 @@
-
----
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: serviceusers.k8s-operator.aiven.io
+  name: kafkaschemas.aiven.io
 spec:
-  group: k8s-operator.aiven.io
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
+  group: aiven.io
   names:
-    kind: ServiceUser
-    listKind: ServiceUserList
-    plural: serviceusers
-    singular: serviceuser
+    kind: KafkaSchema
+    listKind: KafkaSchemaList
+    plural: kafkaschemas
+    singular: kafkaschema
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: ServiceUser is the Schema for the serviceusers API
+        description: KafkaSchema is the Schema for the kafkaschemas API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -34,7 +45,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: ServiceUserSpec defines the desired state of ServiceUser
+            description: KafkaSchemaSpec defines the desired state of KafkaSchema
             properties:
               authSecretRef:
                 description: Authentication reference to Aiven token in a secret
@@ -47,37 +58,43 @@ spec:
                 - key
                 - name
                 type: object
-              authentication:
-                description: Authentication details
+              compatibilityLevel:
+                description: Kafka Schemas compatibility level
                 enum:
-                - caching_sha2_password
-                - mysql_native_password
+                - BACKWARD
+                - BACKWARD_TRANSITIVE
+                - FORWARD
+                - FORWARD_TRANSITIVE
+                - FULL
+                - FULL_TRANSITIVE
+                - NONE
                 type: string
-              connInfoSecretTarget:
-                description: Information regarding secret creation
-                properties:
-                  name:
-                    description: Name of the Secret resource to be created
-                    type: string
-                required:
-                - name
-                type: object
               project:
-                description: Project to link the user to
+                description: Project to link the Kafka Schema to
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
+              schema:
+                description: Kafka Schema configuration should be a valid Avro Schema
+                  JSON format
+                type: string
               serviceName:
-                description: Service to link the user to
+                description: Service to link the Kafka Schema to
+                maxLength: 63
+                type: string
+              subjectName:
+                description: Kafka Schema Subject name
                 maxLength: 63
                 type: string
             required:
             - authSecretRef
             - project
+            - schema
             - serviceName
+            - subjectName
             type: object
           status:
-            description: ServiceUserStatus defines the observed state of ServiceUser
+            description: KafkaSchemaStatus defines the observed state of KafkaSchema
             properties:
               authSecretRef:
                 description: Authentication reference to Aiven token in a secret
@@ -90,37 +107,44 @@ spec:
                 - key
                 - name
                 type: object
-              authentication:
-                description: Authentication details
+              compatibilityLevel:
+                description: Kafka Schemas compatibility level
                 enum:
-                - caching_sha2_password
-                - mysql_native_password
+                - BACKWARD
+                - BACKWARD_TRANSITIVE
+                - FORWARD
+                - FORWARD_TRANSITIVE
+                - FULL
+                - FULL_TRANSITIVE
+                - NONE
                 type: string
-              connInfoSecretTarget:
-                description: Information regarding secret creation
-                properties:
-                  name:
-                    description: Name of the Secret resource to be created
-                    type: string
-                required:
-                - name
-                type: object
               project:
-                description: Project to link the user to
+                description: Project to link the Kafka Schema to
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
+              schema:
+                description: Kafka Schema configuration should be a valid Avro Schema
+                  JSON format
+                type: string
               serviceName:
-                description: Service to link the user to
+                description: Service to link the Kafka Schema to
                 maxLength: 63
                 type: string
-              type:
-                description: Type of the user account
+              subjectName:
+                description: Kafka Schema Subject name
+                maxLength: 63
                 type: string
+              version:
+                description: Kafka Schema configuration version
+                type: integer
             required:
             - authSecretRef
             - project
+            - schema
             - serviceName
+            - subjectName
+            - version
             type: object
         type: object
     served: true

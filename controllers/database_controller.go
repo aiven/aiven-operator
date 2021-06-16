@@ -5,8 +5,9 @@ package controllers
 import (
 	"context"
 	"fmt"
+
 	"github.com/aiven/aiven-go-client"
-	k8soperatorv1alpha1 "github.com/aiven/aiven-k8s-operator/api/v1alpha1"
+	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -23,14 +24,14 @@ type DatabaseHandler struct {
 	Handlers
 }
 
-// +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=databases,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=k8s-operator.aiven.io,resources=databases/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=aiven.io,resources=databases,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=databases/status,verbs=get;update;patch
 
 func (r *DatabaseReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("database", req.NamespacedName)
 	log.Info("reconciling aiven database")
 
-	const dbFinalizer = "database-finalizer.k8s-operator.aiven.io"
+	const dbFinalizer = "database-finalizer.aiven.io"
 	db := &k8soperatorv1alpha1.Database{}
 	return r.reconcileInstance(&DatabaseHandler{}, ctx, log, req, db, dbFinalizer)
 }

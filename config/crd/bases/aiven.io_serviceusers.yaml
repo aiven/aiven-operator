@@ -1,12 +1,14 @@
+
+---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: serviceusers.k8s-operator.aiven.io
+  name: serviceusers.aiven.io
 spec:
-  group: k8s-operator.aiven.io
+  group: aiven.io
   names:
     kind: ServiceUser
     listKind: ServiceUserList
@@ -20,22 +22,46 @@ spec:
         description: ServiceUser is the Schema for the serviceusers API
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
           spec:
             description: ServiceUserSpec defines the desired state of ServiceUser
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               authentication:
                 description: Authentication details
                 enum:
                 - caching_sha2_password
                 - mysql_native_password
                 type: string
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
               project:
                 description: Project to link the user to
                 format: ^[a-zA-Z0-9_-]*$
@@ -45,24 +71,40 @@ spec:
                 description: Service to link the user to
                 maxLength: 63
                 type: string
-              username:
-                description: Name of the user account
-                maxLength: 63
-                type: string
             required:
+            - authSecretRef
             - project
             - serviceName
-            - username
             type: object
           status:
             description: ServiceUserStatus defines the observed state of ServiceUser
             properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
               authentication:
                 description: Authentication details
                 enum:
                 - caching_sha2_password
                 - mysql_native_password
                 type: string
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
               project:
                 description: Project to link the user to
                 format: ^[a-zA-Z0-9_-]*$
@@ -75,14 +117,10 @@ spec:
               type:
                 description: Type of the user account
                 type: string
-              username:
-                description: Name of the user account
-                maxLength: 63
-                type: string
             required:
+            - authSecretRef
             - project
             - serviceName
-            - username
             type: object
         type: object
     served: true

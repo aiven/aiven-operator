@@ -6,9 +6,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: projects.k8s-operator.aiven.io
+  name: projects.aiven.io
 spec:
-  group: k8s-operator.aiven.io
+  group: aiven.io
   names:
     kind: Project
     listKind: ProjectList

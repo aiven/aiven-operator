@@ -4,6 +4,7 @@ package v1alpha1
 
 import (
 	"errors"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -19,7 +20,7 @@ func (r *ServiceIntegration) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		Complete()
 }
 
-//+kubebuilder:webhook:path=/mutate-k8s-operator-aiven-io-v1alpha1-serviceintegration,mutating=true,failurePolicy=fail,groups=k8s-operator.aiven.io,resources=serviceintegrations,verbs=create;update,versions=v1alpha1,name=mserviceintegration.kb.io,sideEffects=none,admissionReviewVersions=v1
+//+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-serviceintegration,mutating=true,failurePolicy=fail,groups=aiven.io,resources=serviceintegrations,verbs=create;update,versions=v1alpha1,name=mserviceintegration.kb.io,sideEffects=none,admissionReviewVersions=v1
 
 var _ webhook.Defaulter = &ServiceIntegration{}
 
@@ -28,7 +29,7 @@ func (r *ServiceIntegration) Default() {
 	serviceintegrationlog.Info("default", "name", r.Name)
 }
 
-//+kubebuilder:webhook:verbs=create;update,path=/validate-k8s-operator-aiven-io-v1alpha1-serviceintegration,mutating=false,failurePolicy=fail,groups=k8s-operator.aiven.io,resources=serviceintegrations,versions=v1alpha1,name=vserviceintegration.kb.io,sideEffects=none,admissionReviewVersions=v1
+//+kubebuilder:webhook:verbs=create;update,path=/validate-aiven-io-v1alpha1-serviceintegration,mutating=false,failurePolicy=fail,groups=aiven.io,resources=serviceintegrations,versions=v1alpha1,name=vserviceintegration.kb.io,sideEffects=none,admissionReviewVersions=v1
 
 var _ webhook.Validator = &ServiceIntegration{}
 

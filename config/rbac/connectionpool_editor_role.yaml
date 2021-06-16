@@ -5,7 +5,7 @@ metadata:
   name: connectionpool-editor-role
 rules:
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - connectionpools
   verbs:
@@ -17,7 +17,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - connectionpools/status
   verbs:

@@ -5,7 +5,7 @@ metadata:
   name: kafkatopic-editor-role
 rules:
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - kafkatopics
   verbs:
@@ -17,7 +17,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - k8s-operator.aiven.io
+  - aiven.io
   resources:
   - kafkatopics/status
   verbs:
