@@ -5,10 +5,13 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"strconv"
 
 	"github.com/aiven/aiven-go-client"
 	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
-	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -21,6 +24,7 @@ type KafkaACLReconciler struct {
 
 type KafkaACLHandler struct {
 	Handlers
+	client *aiven.Client
 }
 
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkaacls,verbs=get;list;watch;createOrUpdate;delete
@@ -28,12 +32,25 @@ type KafkaACLHandler struct {
 
 func (r *KafkaACLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("kafkaacl", req.NamespacedName)
-
 	log.Info("reconciling aiven kafka acl")
 
-	const finalizer = "kafka-acl-finalizer.aiven.io"
 	acl := &k8soperatorv1alpha1.KafkaACL{}
-	return r.reconcileInstance(ctx, req, &KafkaACLHandler{}, acl)
+	err := r.Get(ctx, req.NamespacedName, acl)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return ctrl.Result{}, nil
+		}
+		return ctrl.Result{}, err
+	}
+
+	c, err := r.InitAivenClient(ctx, req, acl.Spec.AuthSecretRef)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	return r.reconcileInstance(ctx, &KafkaACLHandler{
+		client: c,
+	}, acl)
 }
 
 func (r *KafkaACLReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -42,28 +59,44 @@ func (r *KafkaACLReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaACLHandler) createOrUpdate(i client.Object) error {
+func (h KafkaACLHandler) createOrUpdate(i client.Object) (client.Object, error) {
 	acl, err := h.convert(i)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	a, err := c.KafkaACLs.Create(
-		acl.Spec.Project,
-		acl.Spec.ServiceName,
-		aiven.CreateKafkaACLRequest{
-			Permission: acl.Spec.Permission,
-			Topic:      acl.Spec.Topic,
-			Username:   acl.Spec.Username,
-		},
-	)
-	if err != nil && !aiven.IsAlreadyExists(err) {
-		return err
+	exists, err := h.exists(acl)
+	if err != nil {
+		return nil, err
 	}
 
-	h.setStatus(acl, a)
+	if !exists {
+		_, err = h.client.KafkaACLs.Create(
+			acl.Spec.Project,
+			acl.Spec.ServiceName,
+			aiven.CreateKafkaACLRequest{
+				Permission: acl.Spec.Permission,
+				Topic:      acl.Spec.Topic,
+				Username:   acl.Spec.Username,
+			},
+		)
+		if err != nil && !aiven.IsAlreadyExists(err) {
+			return nil, err
+		}
+	}
 
-	return nil
+	meta.SetStatusCondition(&acl.Status.Conditions,
+		getInitializedCondition("CreatedOrUpdate",
+			"Instance was created or update on Aiven side"))
+
+	meta.SetStatusCondition(&acl.Status.Conditions,
+		getRunningCondition(metav1.ConditionUnknown, "CreatedOrUpdate",
+			"Instance was created or update on Aiven side, status remains unknown"))
+
+	metav1.SetMetaDataAnnotation(&acl.ObjectMeta,
+		processedGeneration, strconv.FormatInt(acl.GetGeneration(), 10))
+
+	return acl, nil
 }
 
 func (h KafkaACLHandler) delete(i client.Object) (bool, error) {
@@ -72,31 +105,24 @@ func (h KafkaACLHandler) delete(i client.Object) (bool, error) {
 		return false, err
 	}
 
-	err = c.KafkaACLs.Delete(acl.Status.Project, acl.Status.ServiceName, acl.Status.ID)
+	err = h.client.KafkaACLs.Delete(acl.Spec.Project, acl.Spec.ServiceName, acl.Status.ID)
 	if err != nil && !aiven.IsNotFound(err) {
-		log.Error(err, "Cannot delete Kafka ACL")
 		return false, fmt.Errorf("aiven client delete Kafka ACL error: %w", err)
 	}
-
-	log.Info("successfully finalized kafka acl service on aiven side")
 
 	return true, nil
 }
 
-func (h KafkaACLHandler) exists(c *aiven.Client, _ logr.Logger, i client.Object) (exists bool, error error) {
-	acl, err := h.convert(i)
-	if err != nil {
-		return false, err
-	}
-
+func (h KafkaACLHandler) exists(acl *k8soperatorv1alpha1.KafkaACL) (bool, error) {
 	var aivenACL *aiven.KafkaACL
+	var err error
 	if acl.Status.ID != "" {
-		aivenACL, err = c.KafkaACLs.Get(acl.Spec.Project, acl.Spec.ServiceName, acl.Status.ID)
+		aivenACL, err = h.client.KafkaACLs.Get(acl.Spec.Project, acl.Spec.ServiceName, acl.Status.ID)
 		if err != nil {
 			return false, err
 		}
 	} else {
-		list, err := c.KafkaACLs.List(acl.Spec.Project, acl.Spec.ServiceName)
+		list, err := h.client.KafkaACLs.List(acl.Spec.Project, acl.Spec.ServiceName)
 		if err != nil {
 			return false, err
 		}
@@ -111,12 +137,19 @@ func (h KafkaACLHandler) exists(c *aiven.Client, _ logr.Logger, i client.Object)
 	return aivenACL != nil, nil
 }
 
-func (h KafkaACLHandler) update(_ *aiven.Client, _ logr.Logger, _ client.Object) (client.Object, error) {
-	return nil, nil
-}
+func (h KafkaACLHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
+	acl, err := h.convert(i)
+	if err != nil {
+		return nil, nil, err
+	}
 
-func (h KafkaACLHandler) get(_ client.Object) (*corev1.Secret, error) {
-	return nil, nil
+	meta.SetStatusCondition(&acl.Status.Conditions,
+		getRunningCondition(metav1.ConditionTrue, "Get",
+			"Instance is running on Aiven side"))
+
+	metav1.SetMetaDataAnnotation(&acl.ObjectMeta, isRunning, "1")
+
+	return acl, nil, nil
 }
 
 func (h KafkaACLHandler) checkPreconditions(i client.Object) bool {
@@ -125,11 +158,7 @@ func (h KafkaACLHandler) checkPreconditions(i client.Object) bool {
 		return false
 	}
 
-	return checkServiceIsRunning(c, acl.Spec.Project, acl.Spec.ServiceName)
-}
-
-func (h KafkaACLHandler) isActive(_ *aiven.Client, _ logr.Logger, _ client.Object) (bool, error) {
-	return true, nil
+	return checkServiceIsRunning(h.client, acl.Spec.Project, acl.Spec.ServiceName)
 }
 
 func (h KafkaACLHandler) convert(i client.Object) (*k8soperatorv1alpha1.KafkaACL, error) {
@@ -139,22 +168,4 @@ func (h KafkaACLHandler) convert(i client.Object) (*k8soperatorv1alpha1.KafkaACL
 	}
 
 	return acl, nil
-}
-
-func (h KafkaACLHandler) setStatus(acl *k8soperatorv1alpha1.KafkaACL, a *aiven.KafkaACL) {
-	acl.Status.Project = acl.Spec.Project
-	acl.Status.ServiceName = acl.Spec.ServiceName
-	acl.Status.Username = a.Username
-	acl.Status.Permission = a.Permission
-	acl.Status.Topic = a.Topic
-	acl.Status.ID = a.ID
-}
-
-func (h KafkaACLHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {
-	acl, err := h.convert(i)
-	if err != nil {
-		return nil
-	}
-
-	return &acl.Spec.AuthSecretRef
 }

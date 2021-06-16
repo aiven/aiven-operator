@@ -53,7 +53,6 @@ var _ = Describe("Database Controller", func() {
 			if err == nil {
 				return meta.IsStatusConditionTrue(createdDB.Status.Conditions, conditionTypeRunning)
 			}
-
 			return false
 		}, timeout, interval).Should(BeTrue())
 	})
