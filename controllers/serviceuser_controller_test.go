@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"os"
 	"time"
 
@@ -39,18 +41,6 @@ var _ = Describe("ServiceUser Controller", func() {
 		By("Creating a new PG CR instance")
 		Expect(k8sClient.Create(ctx, pg)).Should(Succeed())
 
-		By("Waiting PG service status to become RUNNING")
-		Eventually(func() string {
-			pgLookupKey := types.NamespacedName{Name: serviceName, Namespace: namespace}
-			createdPG := &v1alpha1.PG{}
-			err := k8sClient.Get(ctx, pgLookupKey, createdPG)
-			if err == nil {
-				return createdPG.Status.State
-			}
-
-			return ""
-		}, timeout, interval).Should(Equal("RUNNING"))
-
 		By("Creating a new ServiceUser CR instance")
 		Expect(k8sClient.Create(ctx, su)).Should(Succeed())
 
@@ -61,8 +51,10 @@ var _ = Describe("ServiceUser Controller", func() {
 			suLookupKey := types.NamespacedName{Name: userName, Namespace: namespace}
 			createdUser := &v1alpha1.ServiceUser{}
 			err := k8sClient.Get(ctx, suLookupKey, createdUser)
-
-			return err == nil && createdUser.Status.Type != ""
+			if err == nil {
+				return meta.IsStatusConditionTrue(createdUser.Status.Conditions, conditionTypeRunning)
+			}
+			return false
 		}, timeout, interval).Should(BeTrue())
 
 		time.Sleep(10 * time.Second)
@@ -75,12 +67,15 @@ var _ = Describe("ServiceUser Controller", func() {
 
 			Expect(k8sClient.Get(ctx, lookupKey, createdUser)).Should(Succeed())
 
-			// Let's make sure our instance status was properly populated.
 			By("by checking that after creation ServiceUser status fields were properly populated")
-			Expect(createdUser.Status.Project).Should(Equal(os.Getenv("AIVEN_PROJECT_NAME")))
-			Expect(createdUser.Status.Authentication).Should(Equal("caching_sha2_password"))
 			Expect(createdUser.Status.Type).ToNot(BeEmpty())
-			Expect(createdUser.Status.ServiceName).Should(Equal(serviceName))
+
+			createdSecret := &corev1.Secret{}
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: userName, Namespace: namespace}, createdSecret))
+			Expect(createdSecret.StringData["USERNAME"]).NotTo(BeEmpty())
+			Expect(createdSecret.StringData["PASSWORD"]).NotTo(BeEmpty())
+			Expect(createdSecret.StringData["ACCESS_CERT"]).NotTo(BeEmpty())
+			Expect(createdSecret.StringData["ACCESS_KEY"]).NotTo(BeEmpty())
 		})
 	})
 
