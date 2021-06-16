@@ -24,8 +24,8 @@ type ServiceUserHandler struct {
 	Handlers
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers,verbs=get;list;watch;create;delete
-// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers/status,verbs=get
+// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers/status,verbs=get;update;patch
 
 func (r *ServiceUserReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("serviceuser", req.NamespacedName)
