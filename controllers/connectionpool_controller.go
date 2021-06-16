@@ -5,16 +5,15 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
-	"strconv"
-
 	"github.com/aiven/aiven-go-client"
 	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"strconv"
 )
 
 // ConnectionPoolReconciler reconciles a ConnectionPool object
@@ -28,13 +27,10 @@ type ConnectionPoolHandler struct {
 	client *aiven.Client
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=connectionpools,verbs=get;list;watch;createOrUpdate;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=connectionpools,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=connectionpools/status,verbs=get;update;patch
 
 func (r *ConnectionPoolReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := r.Log.WithValues("connectionpool", req.NamespacedName)
-	log.Info("reconciling aiven connection pool")
-
 	cp := &k8soperatorv1alpha1.ConnectionPool{}
 	err := r.Get(ctx, req.NamespacedName, cp)
 	if err != nil {
@@ -118,7 +114,7 @@ func (h ConnectionPoolHandler) delete(i client.Object) (bool, error) {
 
 	err = h.client.ConnectionPools.Delete(
 		cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
-	if !aiven.IsNotFound(err) {
+	if err != nil && !aiven.IsNotFound(err) {
 		return false, err
 	}
 

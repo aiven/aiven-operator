@@ -24,9 +24,9 @@ var _ = Describe("ConnectionPool Controller", func() {
 	)
 
 	var (
-		db          *v1alpha1.Database
 		pg          *v1alpha1.PG
 		user        *v1alpha1.ServiceUser
+		db          *v1alpha1.Database
 		pool        *v1alpha1.ConnectionPool
 		serviceName string
 		dbName      string
@@ -58,8 +58,6 @@ var _ = Describe("ConnectionPool Controller", func() {
 		By("Creating a new ConnectionPool CR instance")
 		Expect(k8sClient.Create(ctx, pool)).Should(Succeed())
 
-		time.Sleep(10 * time.Second)
-
 		By("by retrieving ConnectionPool instance from k8s")
 		Eventually(func() bool {
 			lookupKey := types.NamespacedName{Name: poolName, Namespace: namespace}
@@ -68,7 +66,6 @@ var _ = Describe("ConnectionPool Controller", func() {
 			if err == nil {
 				return meta.IsStatusConditionTrue(createdPool.Status.Conditions, conditionTypeRunning)
 			}
-
 			return false
 		}, timeout, interval).Should(BeTrue())
 	})
@@ -82,18 +79,27 @@ var _ = Describe("ConnectionPool Controller", func() {
 
 			By("by checking ConnectionPool secret and status fields")
 			createdSecret := &corev1.Secret{}
-			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: poolName, Namespace: namespace}, createdSecret))
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: poolName, Namespace: namespace}, createdSecret)).Should(Succeed())
 
-			Expect(createdSecret.StringData["PGHOST"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["PGDATABASE"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["PGUSER"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["PGPASSWORD"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["PGSSLMODE"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["DATABASE_URI"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PGHOST"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PGDATABASE"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PGUSER"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PGPASSWORD"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PGSSLMODE"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["DATABASE_URI"]).NotTo(BeEmpty())
 		})
 	})
 
 	AfterEach(func() {
+		By("Ensures that ConnectionPool instance was deleted")
+		ensureDelete(ctx, pool)
+
+		By("Ensures that ServiceUser instance was deleted")
+		ensureDelete(ctx, user)
+
+		By("Ensures that Database instance was deleted")
+		ensureDelete(ctx, db)
+
 		By("Ensures that PG instance was deleted")
 		ensureDelete(ctx, pg)
 	})

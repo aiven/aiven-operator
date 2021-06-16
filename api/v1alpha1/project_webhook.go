@@ -61,7 +61,7 @@ func (r *Project) ValidateUpdate(old runtime.Object) error {
 func (r *Project) ValidateDelete() error {
 	projectlog.Info("validate delete", "name", r.Name)
 
-	if r.Status.AccountID == "" && r.Status.EstimatedBalance != "0.00" {
+	if r.Spec.AccountID == "" && r.Status.EstimatedBalance != "0.00" {
 		return errors.New("project with an open balance cannot be deleted")
 	}
 

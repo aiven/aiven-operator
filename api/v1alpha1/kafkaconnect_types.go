@@ -14,7 +14,7 @@ type KafkaConnectSpec struct {
 	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
 
 	// PostgreSQL specific user configuration options
-	KafkaConnectUserConfig KafkaConnectUserConfig `json:"KafkaConnectUserConfig,omitempty"`
+	KafkaConnectUserConfig KafkaConnectUserConfig `json:"kafkaConnectUserConfig,omitempty"`
 }
 
 type KafkaConnectUserConfig struct {

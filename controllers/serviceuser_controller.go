@@ -5,16 +5,15 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
-	"strconv"
-
 	"github.com/aiven/aiven-go-client"
 	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"strconv"
 )
 
 // ServiceUserReconciler reconciles a ServiceUser object
@@ -27,13 +26,10 @@ type ServiceUserHandler struct {
 	client *aiven.Client
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers,verbs=get;list;watch;create;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers/status,verbs=get
 
 func (r *ServiceUserReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := r.Log.WithValues("serviceuser", req.NamespacedName)
-	log.Info("reconciling aiven service user")
-
 	su := &k8soperatorv1alpha1.ServiceUser{}
 	err := r.Get(ctx, req.NamespacedName, su)
 	if err != nil {
@@ -76,7 +72,9 @@ func (h *ServiceUserHandler) createOrUpdate(i client.Object) (client.Object, err
 		return nil, fmt.Errorf("cannot createOrUpdate service user on aiven side: %w", err)
 	}
 
-	user.Status.Type = u.Type
+	if u != nil {
+		user.Status.Type = u.Type
+	}
 
 	meta.SetStatusCondition(&user.Status.Conditions,
 		getInitializedCondition("CreatedOrUpdate",

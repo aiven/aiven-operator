@@ -40,7 +40,22 @@ spec:
           spec:
             description: KafkaConnectSpec defines the desired state of KafkaConnect
             properties:
-              KafkaConnectUserConfig:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              cloudName:
+                description: Cloud the service runs in.
+                maxLength: 256
+                type: string
+              kafkaConnectUserConfig:
                 description: PostgreSQL specific user configuration options
                 properties:
                   connector_client_config_override_policy:
@@ -131,21 +146,6 @@ spec:
                     format: int64
                     type: integer
                 type: object
-              authSecretRef:
-                description: Authentication reference to Aiven token in a secret
-                properties:
-                  key:
-                    type: string
-                  name:
-                    type: string
-                required:
-                - key
-                - name
-                type: object
-              cloudName:
-                description: Cloud the service runs in.
-                maxLength: 256
-                type: string
               maintenanceWindowDow:
                 description: Day of week when maintenance operations should be performed.
                   One monday, tuesday, wednesday, etc.

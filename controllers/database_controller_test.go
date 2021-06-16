@@ -70,6 +70,9 @@ var _ = Describe("Database Controller", func() {
 	})
 
 	AfterEach(func() {
+		By("Ensures that Database instance was deleted")
+		ensureDelete(ctx, db)
+
 		By("Ensures that PG instance was deleted")
 		ensureDelete(ctx, pg)
 	})

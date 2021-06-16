@@ -5,16 +5,15 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"strconv"
-
 	"github.com/aiven/aiven-go-client"
 	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"strconv"
 )
 
 // DatabaseReconciler reconciles a Database object
@@ -28,13 +27,10 @@ type DatabaseHandler struct {
 	client *aiven.Client
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=databases,verbs=get;list;watch;createOrUpdate;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=databases,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=databases/status,verbs=get;update;patch
 
 func (r *DatabaseReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := r.Log.WithValues("database", req.NamespacedName)
-	log.Info("reconciling aiven database")
-
 	db := &k8soperatorv1alpha1.Database{}
 	err := r.Get(ctx, req.NamespacedName, db)
 	if err != nil {
@@ -67,6 +63,7 @@ func (h DatabaseHandler) createOrUpdate(i client.Object) (client.Object, error) 
 	}
 
 	exists, err := h.exists(db)
+
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +90,7 @@ func (h DatabaseHandler) createOrUpdate(i client.Object) (client.Object, error) 
 	metav1.SetMetaDataAnnotation(&db.ObjectMeta,
 		processedGeneration, strconv.FormatInt(db.GetGeneration(), 10))
 
-	return nil, err
+	return db, nil
 }
 
 func (h DatabaseHandler) delete(i client.Object) (bool, error) {

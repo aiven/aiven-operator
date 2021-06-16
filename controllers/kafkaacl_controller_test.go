@@ -58,7 +58,7 @@ var _ = Describe("Kafka ACL Controller", func() {
 				return meta.IsStatusConditionTrue(createdACL.Status.Conditions, conditionTypeRunning)
 			}
 			return false
-		}, timeout, interval).Should(Equal("RUNNING"))
+		}, timeout, interval).Should(BeTrue())
 	})
 
 	Context("Validating Kafka ACL reconciler behaviour", func() {
@@ -74,8 +74,12 @@ var _ = Describe("Kafka ACL Controller", func() {
 	})
 
 	AfterEach(func() {
+		By("Ensures that Kafka ACL instance was deleted")
+		ensureDelete(ctx, acl)
+
 		By("Ensures that Kafka Topic instance was deleted")
 		ensureDelete(ctx, kafkaTopic)
+
 		By("Ensures that Kafka instance was deleted")
 		ensureDelete(ctx, kafka)
 	})

@@ -85,11 +85,11 @@ var _ = Describe("Project Controller", func() {
 
 			By("by checking that after creation of a Project is created with a sercret")
 			createdSecret := &corev1.Secret{}
-			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: projectName, Namespace: namespace}, createdSecret))
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: projectName, Namespace: namespace}, createdSecret)).Should(Succeed())
 
-			Expect(createdSecret.StringData["CA_CERT"]).NotTo(BeEmpty())
 			Expect(createdProject.Status.AvailableCredits).NotTo(BeEmpty())
 			Expect(createdProject.Status.EstimatedBalance).NotTo(BeEmpty())
+			Expect(createdSecret.Data["CA_CERT"]).NotTo(BeEmpty())
 		})
 	})
 

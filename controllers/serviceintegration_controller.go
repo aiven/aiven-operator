@@ -28,13 +28,10 @@ type ServiceIntegrationHandler struct {
 	client *aiven.Client
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations,verbs=get;list;watch;createOrUpdate;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations/status,verbs=get;update;patch
 
 func (r *ServiceIntegrationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := r.Log.WithValues("serviceintegration", req.NamespacedName)
-	log.Info("reconciling aiven service integration")
-
 	si := &k8soperatorv1alpha1.ServiceIntegration{}
 	err := r.Get(ctx, req.NamespacedName, si)
 	if err != nil {
@@ -69,7 +66,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) (client.Objec
 	var integration *aiven.ServiceIntegration
 
 	if si.Status.ID == "" {
-		_, err = h.client.ServiceIntegrations.Create(
+		integration, err = h.client.ServiceIntegrations.Create(
 			si.Spec.Project,
 			aiven.CreateServiceIntegrationRequest{
 				DestinationEndpointID: toOptionalStringPointer(si.Spec.DestinationEndpointID),

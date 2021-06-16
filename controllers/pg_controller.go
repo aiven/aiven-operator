@@ -5,16 +5,15 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
-	"strconv"
-
 	"github.com/aiven/aiven-go-client"
 	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"strconv"
 )
 
 // PGReconciler reconciles a PG object
@@ -28,13 +27,10 @@ type PGHandler struct {
 	client *aiven.Client
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=pgs,verbs=get;list;watch;createOrUpdate;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=pgs,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=pgs/status,verbs=get;update;patch
 
 func (r *PGReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := r.Log.WithValues("pg", req.NamespacedName)
-	log.Info("reconciling aiven pg")
-
 	pg := &k8soperatorv1alpha1.PG{}
 	err := r.Get(ctx, req.NamespacedName, pg)
 	if err != nil {

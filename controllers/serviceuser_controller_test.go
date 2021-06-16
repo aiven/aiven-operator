@@ -56,8 +56,6 @@ var _ = Describe("ServiceUser Controller", func() {
 			}
 			return false
 		}, timeout, interval).Should(BeTrue())
-
-		time.Sleep(10 * time.Second)
 	})
 
 	Context("Validating ServiceUser reconciler behaviour", func() {
@@ -71,15 +69,16 @@ var _ = Describe("ServiceUser Controller", func() {
 			Expect(createdUser.Status.Type).ToNot(BeEmpty())
 
 			createdSecret := &corev1.Secret{}
-			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: userName, Namespace: namespace}, createdSecret))
-			Expect(createdSecret.StringData["USERNAME"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["PASSWORD"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["ACCESS_CERT"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["ACCESS_KEY"]).NotTo(BeEmpty())
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: userName, Namespace: namespace}, createdSecret)).Should(Succeed())
+			Expect(createdSecret.Data["USERNAME"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PASSWORD"]).NotTo(BeEmpty())
 		})
 	})
 
 	AfterEach(func() {
+		By("Ensures that ServiceUser instance was deleted")
+		ensureDelete(ctx, su)
+
 		By("Ensures that PG instance was deleted")
 		ensureDelete(ctx, pg)
 	})

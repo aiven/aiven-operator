@@ -55,7 +55,7 @@ var _ = Describe("PG Controller", func() {
 				return meta.IsStatusConditionTrue(createdPG.Status.Conditions, conditionTypeRunning)
 			}
 			return false
-		}, timeout, interval).Should(Equal("RUNNING"))
+		}, timeout, interval).Should(BeTrue())
 
 		By("by checking finalizers")
 		Expect(createdPG.GetFinalizers()).ToNot(BeEmpty())
@@ -70,15 +70,15 @@ var _ = Describe("PG Controller", func() {
 
 			By("by checking that after creation of a PG service secret is created")
 			createdSecret := &corev1.Secret{}
-			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: serviceName, Namespace: namespace}, createdSecret))
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: serviceName, Namespace: namespace}, createdSecret)).Should(Succeed())
 
-			Expect(createdSecret.StringData["PGHOST"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["PGPORT"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["PGDATABASE"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["PGUSER"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["PGPASSWORD"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["PGSSLMODE"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["DATABASE_URI"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PGHOST"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PGPORT"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PGDATABASE"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PGUSER"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PGPASSWORD"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PGSSLMODE"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["DATABASE_URI"]).NotTo(BeEmpty())
 		})
 	})
 

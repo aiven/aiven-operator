@@ -71,14 +71,14 @@ var _ = Describe("Kafka Controller", func() {
 
 			By("by checking that after creation of a Kafka service secret is created")
 			createdSecret := &corev1.Secret{}
-			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: serviceName, Namespace: namespace}, createdSecret))
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: serviceName, Namespace: namespace}, createdSecret)).Should(Succeed())
 
-			Expect(createdSecret.StringData["HOST"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["DATABASE"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["PASSWORD"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["USERNAME"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["ACCESS_CERT"]).NotTo(BeEmpty())
-			Expect(createdSecret.StringData["ACCESS_KEY"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["HOST"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PORT"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PASSWORD"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["USERNAME"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["ACCESS_CERT"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["ACCESS_KEY"]).NotTo(BeEmpty())
 		})
 	})
 

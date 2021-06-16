@@ -5,17 +5,16 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
-	"regexp"
-	"strconv"
-
 	"github.com/aiven/aiven-go-client"
 	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"regexp"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"strconv"
 )
 
 // ProjectReconciler reconciles a Project object
@@ -29,13 +28,10 @@ type ProjectHandler struct {
 	client *aiven.Client
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=projects,verbs=get;list;watch;createOrUpdate;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=projects,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=projects/status,verbs=get;update;patch
 
 func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := r.Log.WithValues("project", req.NamespacedName)
-	log.Info("reconciling aiven project")
-
 	project := &k8soperatorv1alpha1.Project{}
 	err := r.Get(ctx, req.NamespacedName, project)
 	if err != nil {
@@ -103,7 +99,7 @@ func (h ProjectHandler) createOrUpdate(i client.Object) (client.Object, error) {
 			return nil, fmt.Errorf("failed to createOrUpdate Project on Aiven side: %w", err)
 		}
 	} else {
-		_, err = h.client.Projects.Update(project.Name, aiven.UpdateProjectRequest{
+		p, err = h.client.Projects.Update(project.Name, aiven.UpdateProjectRequest{
 			BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
 			BillingEmails:    billingEmails,
 			BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),

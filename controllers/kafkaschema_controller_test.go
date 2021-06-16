@@ -70,6 +70,7 @@ var _ = Describe("Kafka Schema Controller", func() {
 	AfterEach(func() {
 		By("Ensures that Kafka Schema instance was deleted")
 		ensureDelete(ctx, schema)
+
 		By("Ensures that Kafka instance was deleted")
 		ensureDelete(ctx, kafka)
 	})
