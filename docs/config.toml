@@ -30,6 +30,9 @@ github_subdir = "docs"
 # TODO: Configure search
 gcs_engine_id = ""
 
+[params.ui]
+breadcrumb_disable = true
+
 [params.links]
 [[params.links.user]]
 	name = "Aiven Website"

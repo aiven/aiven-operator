@@ -34,7 +34,7 @@ spec:
   # cloud provider and plan of your choice
   # you can check all of the possibilities here https://aiven.io/pricing
   cloudName: google-europe-west1
-  plan: hobbyist
+  plan: startup-4
 
   # general Aiven configuration
   maintenanceWindowDow: friday
@@ -155,20 +155,79 @@ Now you can connect to the `pg-database-sample` using the same credentials store
 ## Create a PostgreSQL User
 Aiven has a concept called Service User, allowing us to create users for different services. Let's create one for the PostgreSQL instance.
 
-Create a file named `pg-database-sample.y
+Create a file named `pg-service-user.yaml`
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: ServiceUser
 metadata:
-  name: service-user-sample
+  name: pg-service-user
 spec:
   authSecretRef:
     name: aiven-token
     key: token
   
   connInfoSecretTarget:
-    name: service-user-sample
+    name: pg-service-user-connection
 
   project: dev-advocates
   serviceName: pg-sample
+```
+
+Apply the configuration with:
+```bash
+$ kubectl apply -f pg-service-user.yaml
+```
+
+The `ServiceUser` resource also generates a Secret with connection information, in this case named `pg-service-user-connection`:
+```bash
+$ kubectl get secret pg-service-user-connection -o json | jq '.data | map_values(@base64d)'
+
+{
+  "PASSWORD": "<secret-password>",
+  "USERNAME": "pg-service-user"
+}
+```
+
+You can go ahead and connect to the PostgreSQL instance using the credentials above and the host information from the `pg-connection` Secret.
+
+## Create a PostgreSQL Connection Pool
+Connection pooling allows ou to maintain very large numbers of connections to a database while minimizing the consumption of server resources. See more information [here](https://help.aiven.io/en/articles/964730-postgresql-connection-pooling).
+
+Under the hood, PostgreSQL for Aiven uses PGBouncer. Let's create one with the `ConnectionPool` resource combining the previously created `Database` and `ServiceUser`.
+
+Create a new file named `pg-connection-pool.yaml` with the following content:
+```yaml
+apiVersion: aiven.io/v1alpha1
+kind: ConnectionPool
+metadata:
+  name: pg-connection-pool
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: pg-connection-pool-connection
+
+  project: <your-project-name>
+  serviceName: pg-sample
+  databaseName: pg-database-sample
+  username: pg-service-user
+  poolSize: 10
+  poolMode: transaction
+```
+
+As the previous examples, the `ConnectionPool` will generate a Secret with the connection info using the name from the `connInfoSecretTarget.Name` field:
+```bash
+$ kubectl get secret pg-connection-pool-connection -o json | jq '.data | map_values(@base64d)' 
+
+{
+  "DATABASE_URI": "postgres://pg-service-user:<secret-password>@pg-sample-you-project.aivencloud.com:13040/pg-connection-pool?sslmode=require",
+  "PGDATABASE": "pg-database-sample",
+  "PGHOST": "pg-sample-your-project.aivencloud.com",
+  "PGPASSWORD": "<secret-password>",
+  "PGPORT": "13040",
+  "PGSSLMODE": "require",
+  "PGUSER": "pg-service-user"
+}
 ```
