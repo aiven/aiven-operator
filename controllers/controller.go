@@ -28,9 +28,8 @@ type (
 	// Controller reconciles the Aiven objects
 	Controller struct {
 		client.Client
-		Log         logr.Logger
-		Scheme      *runtime.Scheme
-		AivenClient *aiven.Client
+		Log    logr.Logger
+		Scheme *runtime.Scheme
 	}
 
 	// Handlers represents Aiven API handlers
@@ -38,7 +37,7 @@ type (
 	// of the Aiven services lifecycle.
 	Handlers interface {
 		// create or updates an instance on the Aiven side.
-		createOrUpdate(client.Object) (error error)
+		createOrUpdate(client.Object) (client.Object, error)
 
 		// delete removes an instance on Aiven side.
 		// If an object is already deleted and cannot be found, it should not be an error. For other deletion
@@ -58,27 +57,7 @@ type (
 // +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;list;createOrUpdate;update
 // +kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;createOrUpdate;update;patch;delete
 
-func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h Handlers, o client.Object) (ctrl.Result, error) {
-	// Fetch an instance
-	err := c.Get(ctx, req.NamespacedName, o)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			// Request object not found, could have been deleted after reconcile request.
-			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-			// Return and don't requeue
-			c.Log.Info("instance resource not found. ignoring since object must be deleted")
-			return ctrl.Result{}, nil
-		}
-		// Error reading the object - requeue the request.
-		c.Log.Error(err, "failed to get instance")
-		return ctrl.Result{}, err
-	}
-
-	// Initiating Aiven client, secret with a token is required
-	if err := c.InitAivenClient(h, o, req, ctx, log); err != nil {
-		return ctrl.Result{}, err
-	}
-
+func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client.Object) (ctrl.Result, error) {
 	// Check if the instance is marked to be deleted, which is
 	// indicated by the deletion timestamp being set.
 	isInstanceMarkedToBeDeleted := o.GetDeletionTimestamp() != nil
@@ -128,8 +107,8 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 	}
 
 	if !c.processed(o) {
-		// If instance does not exist, createOrUpdate a new one
-		err := h.createOrUpdate(o)
+		o.SetAnnotations(nil)
+		obj, err := h.createOrUpdate(o)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -137,7 +116,7 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 		return ctrl.Result{
 			Requeue:      true,
 			RequeueAfter: 10 * time.Second,
-		}, nil
+		}, c.Status().Update(ctx, obj)
 	}
 
 	obj, s, err := h.get(o)
@@ -165,7 +144,7 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 		}
 	}
 
-	if !c.isRunning(o) {
+	if !c.isRunning(obj) {
 		return ctrl.Result{
 			Requeue:      true,
 			RequeueAfter: 10 * time.Second,
@@ -186,17 +165,6 @@ func (c *Controller) processed(o client.Object) bool {
 		}
 	}
 	return false
-}
-
-func (c *Controller) markAsProcessed(o client.Object) error {
-	ann := o.GetAnnotations()
-	if ann == nil {
-		ann = make(map[string]string)
-	}
-
-	ann[processedGeneration] = strconv.FormatInt(o.GetGeneration(), 10)
-
-	return c.Client.Update(context.Background(), o)
 }
 
 func (c *Controller) isRunning(o client.Object) bool {
@@ -233,39 +201,35 @@ func (c *Controller) manageSecret(ctx context.Context, o client.Object, s *corev
 }
 
 // InitAivenClient retrieves an Aiven client
-func (c *Controller) InitAivenClient(ctx context.Context, req ctrl.Request, secretRef v1alpha1.AuthSecretReference) error {
-	if c.AivenClient != nil {
-		return nil
-	}
-
+func (c *Controller) InitAivenClient(ctx context.Context, req ctrl.Request, secretRef v1alpha1.AuthSecretReference) (*aiven.Client, error) {
 	// Check if aiven-token secret exists
 	var token string
 	secret := &corev1.Secret{}
 	if secretRef.Name == "" || secretRef.Key == "" {
-		return fmt.Errorf("secret ref  key or secret is empty, cannot createOrUpdate an aiven client")
+		return nil, fmt.Errorf("secret ref  key or secret is empty, cannot createOrUpdate an aiven client")
 	}
 
 	err := c.Get(ctx, types.NamespacedName{Name: secretRef.Name, Namespace: req.Namespace}, secret)
 	if err != nil {
-		return fmt.Errorf("cannot get %q secret: %w", secretRef.Name, err)
+		return nil, fmt.Errorf("cannot get %q secret: %w", secretRef.Name, err)
 	}
 
 	if v, ok := secret.Data[secretRef.Key]; ok {
 		token = string(v)
 	} else {
-		return fmt.Errorf("cannot initialize aiven client, kubernetes secret has no %q key", secretRef.Key)
+		return nil, fmt.Errorf("cannot initialize aiven client, kubernetes secret has no %q key", secretRef.Key)
 	}
 
 	if len(token) == 0 {
-		return fmt.Errorf("cannot initialize aiven client, %q key in a secret is empty", secretRef.Key)
+		return nil, fmt.Errorf("cannot initialize aiven client, %q key in a secret is empty", secretRef.Key)
 	}
 
-	c.AivenClient, err = aiven.NewTokenClient(token, "k8s-operator/")
+	con, err := aiven.NewTokenClient(token, "k8s-operator/")
 	if err != nil {
-		return fmt.Errorf("cannot createOrUpdate an aiven client: %w", err)
+		return nil, fmt.Errorf("cannot createOrUpdate an aiven client: %w", err)
 	}
 
-	return nil
+	return con, nil
 }
 
 func (c *Controller) addFinalizer(o client.Object, f string) error {

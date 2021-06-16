@@ -5,10 +5,12 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
+	"strconv"
 
 	"github.com/aiven/aiven-go-client"
 	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
-	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -23,6 +25,7 @@ type ConnectionPoolReconciler struct {
 // ConnectionPoolHandler handles an Aiven ConnectionPool
 type ConnectionPoolHandler struct {
 	Handlers
+	client *aiven.Client
 }
 
 // +kubebuilder:rbac:groups=aiven.io,resources=connectionpools,verbs=get;list;watch;createOrUpdate;update;patch;delete
@@ -32,9 +35,23 @@ func (r *ConnectionPoolReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 	log := r.Log.WithValues("connectionpool", req.NamespacedName)
 	log.Info("reconciling aiven connection pool")
 
-	const finalizer = "connectionpool-finalizer.aiven.io"
 	cp := &k8soperatorv1alpha1.ConnectionPool{}
-	return r.reconcileInstance(ctx, req, &ConnectionPoolHandler{}, cp)
+	err := r.Get(ctx, req.NamespacedName, cp)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return ctrl.Result{}, nil
+		}
+		return ctrl.Result{}, err
+	}
+
+	c, err := r.InitAivenClient(ctx, req, cp.Spec.AuthSecretRef)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	return r.reconcileInstance(ctx, &ConnectionPoolHandler{
+		client: c,
+	}, cp)
 }
 
 func (r *ConnectionPoolReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -44,29 +61,53 @@ func (r *ConnectionPoolReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ConnectionPoolHandler) createOrUpdate(i client.Object) error {
+func (h ConnectionPoolHandler) createOrUpdate(i client.Object) (client.Object, error) {
 	cp, err := h.convert(i)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	log.Info("creating a connection pool on aiven side")
-
-	conPool, err := c.ConnectionPools.Create(cp.Spec.Project, cp.Spec.ServiceName,
-		aiven.CreateConnectionPoolRequest{
-			Database: cp.Spec.DatabaseName,
-			PoolMode: cp.Spec.PoolMode,
-			PoolName: cp.Name,
-			PoolSize: cp.Spec.PoolSize,
-			Username: cp.Spec.Username,
-		})
-	if err != nil && !aiven.IsAlreadyExists(err) {
-		return err
+	exists, err := h.exists(cp)
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		_, err := h.client.ConnectionPools.Create(cp.Spec.Project, cp.Spec.ServiceName,
+			aiven.CreateConnectionPoolRequest{
+				Database: cp.Spec.DatabaseName,
+				PoolMode: cp.Spec.PoolMode,
+				PoolName: cp.Name,
+				PoolSize: cp.Spec.PoolSize,
+				Username: cp.Spec.Username,
+			})
+		if err != nil && !aiven.IsAlreadyExists(err) {
+			return nil, err
+		}
+	} else {
+		_, err := h.client.ConnectionPools.Update(cp.Spec.Project, cp.Spec.ServiceName, cp.Name,
+			aiven.UpdateConnectionPoolRequest{
+				Database: cp.Spec.DatabaseName,
+				PoolMode: cp.Spec.PoolMode,
+				PoolSize: cp.Spec.PoolSize,
+				Username: cp.Spec.Username,
+			})
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	h.setStatus(cp, conPool)
+	meta.SetStatusCondition(&cp.Status.Conditions,
+		getInitializedCondition("CreatedOrUpdate",
+			"Instance was created or update on Aiven side"))
 
-	return nil
+	meta.SetStatusCondition(&cp.Status.Conditions,
+		getRunningCondition(metav1.ConditionUnknown, "CreatedOrUpdate",
+			"Instance was created or update on Aiven side, status remains unknown"))
+
+	metav1.SetMetaDataAnnotation(&cp.ObjectMeta,
+		processedGeneration, strconv.FormatInt(cp.GetGeneration(), 10))
+
+	return cp, nil
 }
 
 func (h ConnectionPoolHandler) delete(i client.Object) (bool, error) {
@@ -75,9 +116,7 @@ func (h ConnectionPoolHandler) delete(i client.Object) (bool, error) {
 		return false, err
 	}
 
-	log.Info("deleting a connection pool on aiven side")
-
-	err = c.ConnectionPools.Delete(
+	err = h.client.ConnectionPools.Delete(
 		cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
 	if !aiven.IsNotFound(err) {
 		return false, err
@@ -86,13 +125,8 @@ func (h ConnectionPoolHandler) delete(i client.Object) (bool, error) {
 	return true, nil
 }
 
-func (h ConnectionPoolHandler) exists(c *aiven.Client, _ logr.Logger, i client.Object) (bool, error) {
-	cp, err := h.convert(i)
-	if err != nil {
-		return false, err
-	}
-
-	conPool, err := c.ConnectionPools.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
+func (h ConnectionPoolHandler) exists(cp *k8soperatorv1alpha1.ConnectionPool) (bool, error) {
+	conPool, err := h.client.ConnectionPools.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
 	if err != nil {
 		if aiven.IsNotFound(err) {
 			return false, nil
@@ -103,54 +137,32 @@ func (h ConnectionPoolHandler) exists(c *aiven.Client, _ logr.Logger, i client.O
 	return conPool != nil, nil
 }
 
-func (h ConnectionPoolHandler) update(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
-	cp, err := h.convert(i)
-	if err != nil {
-		return nil, err
-	}
-
-	log.Info("updating a connection pool on aiven side")
-
-	conPool, err := c.ConnectionPools.Update(cp.Spec.Project, cp.Spec.ServiceName, cp.Name,
-		aiven.UpdateConnectionPoolRequest{
-			Database: cp.Spec.DatabaseName,
-			PoolMode: cp.Spec.PoolMode,
-			PoolSize: cp.Spec.PoolSize,
-			Username: cp.Spec.Username,
-		})
-	if err != nil {
-		return nil, err
-	}
-
-	h.setStatus(cp, conPool)
-
-	return cp, nil
-}
-
-func (h ConnectionPoolHandler) get(i client.Object) (*corev1.Secret, error) {
+func (h ConnectionPoolHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
 	connPool, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	log.Info("getting connection pool secret")
-
-	cp, err := c.ConnectionPools.Get(connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Name)
+	cp, err := h.client.ConnectionPools.Get(connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Name)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get ConnectionPool: %w", err)
+		return nil, nil, fmt.Errorf("cannot get ConnectionPool: %w", err)
 	}
 
-	s, err := c.Services.Get(connPool.Spec.Project, connPool.Spec.ServiceName)
+	s, err := h.client.Services.Get(connPool.Spec.Project, connPool.Spec.ServiceName)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get service: %w", err)
+		return nil, nil, fmt.Errorf("cannot get service: %w", err)
 	}
 
-	u, err := c.ServiceUsers.Get(connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Spec.Username)
+	u, err := h.client.ServiceUsers.Get(connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Spec.Username)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get user: %w", err)
+		return nil, nil, fmt.Errorf("cannot get user: %w", err)
 	}
 
-	return &corev1.Secret{
+	meta.SetStatusCondition(&connPool.Status.Conditions,
+		getRunningCondition(metav1.ConditionTrue, "Get",
+			"Instance is running on Aiven side"))
+
+	return connPool, &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      h.getSecretName(connPool),
 			Namespace: connPool.Namespace,
@@ -176,16 +188,13 @@ func (h ConnectionPoolHandler) checkPreconditions(i client.Object) bool {
 		return false
 	}
 
-	log.Info("checking connection pool preconditions")
-
-	if checkServiceIsRunning(c, cp.Spec.Project, cp.Spec.ServiceName) {
-		log.Info("checking if database exists")
-		db, err := c.Databases.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.DatabaseName)
+	if checkServiceIsRunning(h.client, cp.Spec.Project, cp.Spec.ServiceName) {
+		db, err := h.client.Databases.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.DatabaseName)
 		if err != nil {
 			return false
 		}
 
-		user, err := c.ServiceUsers.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.Username)
+		user, err := h.client.ServiceUsers.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.Username)
 		if err != nil {
 			return false
 		}
@@ -196,10 +205,6 @@ func (h ConnectionPoolHandler) checkPreconditions(i client.Object) bool {
 	return false
 }
 
-func (h ConnectionPoolHandler) isActive(_ *aiven.Client, _ logr.Logger, _ client.Object) (bool, error) {
-	return true, nil
-}
-
 func (h *ConnectionPoolHandler) convert(i client.Object) (*k8soperatorv1alpha1.ConnectionPool, error) {
 	cp, ok := i.(*k8soperatorv1alpha1.ConnectionPool)
 	if !ok {
@@ -207,25 +212,6 @@ func (h *ConnectionPoolHandler) convert(i client.Object) (*k8soperatorv1alpha1.C
 	}
 
 	return cp, nil
-}
-
-// updateCRStatus updates Kubernetes Custom Resource status
-func (h ConnectionPoolHandler) setStatus(cp *k8soperatorv1alpha1.ConnectionPool, conPool *aiven.ConnectionPool) {
-	cp.Status.Username = conPool.Username
-	cp.Status.PoolMode = conPool.PoolMode
-	cp.Status.DatabaseName = conPool.Database
-	cp.Status.PoolSize = conPool.PoolSize
-	cp.Status.ServiceName = cp.Spec.ServiceName
-	cp.Status.Project = cp.Spec.Project
-}
-
-func (h ConnectionPoolHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {
-	cp, err := h.convert(i)
-	if err != nil {
-		return nil
-	}
-
-	return &cp.Spec.AuthSecretRef
 }
 
 func (h ConnectionPoolHandler) getSecretName(cp *k8soperatorv1alpha1.ConnectionPool) string {
