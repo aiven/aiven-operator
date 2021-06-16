@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"os"
 	"time"
 
@@ -39,30 +40,18 @@ var _ = Describe("Kafka Schema Controller", func() {
 		By("Creating a new Kafka instance")
 		Expect(k8sClient.Create(ctx, kafka)).Should(Succeed())
 
-		By("by waiting Kafka service status to become RUNNING")
-		Eventually(func() string {
-			kafkaLookupKey := types.NamespacedName{Name: serviceName, Namespace: namespace}
-			createdKafka := &v1alpha1.Kafka{}
-			err := k8sClient.Get(ctx, kafkaLookupKey, createdKafka)
-			if err == nil {
-				return createdKafka.Status.State
-			}
-
-			return ""
-		}, timeout, interval).Should(Equal("RUNNING"))
-
 		By("Creating a new KafkaSchema instance")
 		Expect(k8sClient.Create(ctx, schema)).Should(Succeed())
-
-		time.Sleep(5 * time.Second)
 
 		By("by retrieving KafkaSchema instance from k8s")
 		Eventually(func() bool {
 			lookupKey := types.NamespacedName{Name: schemaSubject, Namespace: namespace}
 			createdSchema := &v1alpha1.KafkaSchema{}
 			err := k8sClient.Get(ctx, lookupKey, createdSchema)
-
-			return err == nil
+			if err == nil {
+				return meta.IsStatusConditionTrue(createdSchema.Status.Conditions, conditionTypeRunning)
+			}
+			return false
 		}, timeout, interval).Should(BeTrue())
 	})
 
@@ -74,10 +63,6 @@ var _ = Describe("Kafka Schema Controller", func() {
 			Expect(k8sClient.Get(ctx, lookupKey, createdSchema)).Should(Succeed())
 
 			By("by checking that after creation KafkaSchema status fields were properly populated")
-			Expect(createdSchema.Status.ServiceName).Should(Equal(serviceName))
-			Expect(createdSchema.Status.Project).Should(Equal(os.Getenv("AIVEN_PROJECT_NAME")))
-			Expect(createdSchema.Status.CompatibilityLevel).Should(Equal("BACKWARD"))
-			Expect(createdSchema.Status.Schema).NotTo(BeEmpty())
 			Expect(createdSchema.Status.Version).Should(Equal(1))
 		})
 	})
