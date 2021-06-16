@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"os"
 	"time"
 
@@ -39,22 +40,8 @@ var _ = Describe("Database Controller", func() {
 		By("Creating a new PG CR instance")
 		Expect(k8sClient.Create(ctx, pg)).Should(Succeed())
 
-		By("Waiting PG service status to become RUNNING")
-		Eventually(func() string {
-			pgLookupKey := types.NamespacedName{Name: serviceName, Namespace: namespace}
-			createdPG := &v1alpha1.PG{}
-			err := k8sClient.Get(ctx, pgLookupKey, createdPG)
-			if err == nil {
-				return createdPG.Status.State
-			}
-
-			return ""
-		}, timeout, interval).Should(Equal("RUNNING"))
-
 		By("Creating a new Database CR instance")
 		Expect(k8sClient.Create(ctx, db)).Should(Succeed())
-
-		time.Sleep(5 * time.Second)
 
 		// We'll need to retry getting this newly created instance,
 		// given that creation may not immediately happen.
@@ -63,8 +50,11 @@ var _ = Describe("Database Controller", func() {
 			dbLookupKey := types.NamespacedName{Name: dbName, Namespace: namespace}
 			createdDB := &v1alpha1.Database{}
 			err := k8sClient.Get(ctx, dbLookupKey, createdDB)
+			if err == nil {
+				return meta.IsStatusConditionTrue(createdDB.Status.Conditions, conditionTypeRunning)
+			}
 
-			return err == nil
+			return false
 		}, timeout, interval).Should(BeTrue())
 	})
 
@@ -75,12 +65,8 @@ var _ = Describe("Database Controller", func() {
 
 			Expect(k8sClient.Get(ctx, lookupKey, createdDB)).Should(Succeed())
 
-			// Let's make sure our Database status was properly populated.
-			By("by checking that after creation Database status fields were properly populated")
-			Expect(createdDB.Status.ServiceName).Should(Equal(serviceName))
-			Expect(createdDB.Status.Project).Should(Equal(os.Getenv("AIVEN_PROJECT_NAME")))
-			Expect(createdDB.Status.LcType).Should(Equal("en_US.UTF-8"))
-			Expect(createdDB.Status.LcCollate).Should(Equal("en_US.UTF-8"))
+			By("by checking that after Database was created")
+			Expect(meta.IsStatusConditionTrue(createdDB.Status.Conditions, conditionTypeRunning)).Should(BeTrue())
 		})
 	})
 
