@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"os"
 	"time"
 
@@ -15,7 +17,7 @@ import (
 var _ = Describe("PG Controller", func() {
 	// Define utility constants for object names and testing timeouts/durations and intervals.
 	const (
-		pgNamespace = "default"
+		namespace = "default"
 
 		timeout  = time.Minute * 20
 		interval = time.Second * 10
@@ -30,12 +32,12 @@ var _ = Describe("PG Controller", func() {
 	BeforeEach(func() {
 		ctx = context.Background()
 		serviceName = "k8s-test-pg-acc-" + generateRandomID()
-		pg = pgSpec(serviceName, pgNamespace)
+		pg = pgSpec(serviceName, namespace)
 
 		By("Creating a new PG CR instance")
 		Expect(k8sClient.Create(ctx, pg)).Should(Succeed())
 
-		pgLookupKey := types.NamespacedName{Name: serviceName, Namespace: pgNamespace}
+		pgLookupKey := types.NamespacedName{Name: serviceName, Namespace: namespace}
 		createdPG := &v1alpha1.PG{}
 		// We'll need to retry getting this newly created PG,
 		// given that creation may not immediately happen.
@@ -47,13 +49,12 @@ var _ = Describe("PG Controller", func() {
 		}, timeout, interval).Should(BeTrue())
 
 		By("by waiting PG service status to become RUNNING")
-		Eventually(func() string {
+		Eventually(func() bool {
 			err := k8sClient.Get(ctx, pgLookupKey, createdPG)
 			if err == nil {
-				return createdPG.Status.State
+				return meta.IsStatusConditionTrue(createdPG.Status.Conditions, conditionTypeRunning)
 			}
-
-			return ""
+			return false
 		}, timeout, interval).Should(Equal("RUNNING"))
 
 		By("by checking finalizers")
@@ -63,17 +64,21 @@ var _ = Describe("PG Controller", func() {
 	Context("Validating PG reconciler behaviour", func() {
 		It("should createOrUpdate a new PG service", func() {
 			createdPG := &v1alpha1.PG{}
-			pgLookupKey := types.NamespacedName{Name: serviceName, Namespace: pgNamespace}
+			pgLookupKey := types.NamespacedName{Name: serviceName, Namespace: namespace}
 
 			Expect(k8sClient.Get(ctx, pgLookupKey, createdPG)).Should(Succeed())
 
-			// Let's make sure our PG status was properly populated.
-			By("by checking that after creation PG service status fields were properly populated")
-			Expect(createdPG.Status.State).Should(Equal("RUNNING"))
-			Expect(createdPG.Status.Plan).Should(Equal("business-4"))
-			Expect(createdPG.Status.CloudName).Should(Equal("google-europe-west1"))
-			Expect(createdPG.Status.MaintenanceWindowDow).NotTo(BeEmpty())
-			Expect(createdPG.Status.MaintenanceWindowTime).NotTo(BeEmpty())
+			By("by checking that after creation of a PG service secret is created")
+			createdSecret := &corev1.Secret{}
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: serviceName, Namespace: namespace}, createdSecret))
+
+			Expect(createdSecret.StringData["PGHOST"]).NotTo(BeEmpty())
+			Expect(createdSecret.StringData["PGPORT"]).NotTo(BeEmpty())
+			Expect(createdSecret.StringData["PGDATABASE"]).NotTo(BeEmpty())
+			Expect(createdSecret.StringData["PGUSER"]).NotTo(BeEmpty())
+			Expect(createdSecret.StringData["PGPASSWORD"]).NotTo(BeEmpty())
+			Expect(createdSecret.StringData["PGSSLMODE"]).NotTo(BeEmpty())
+			Expect(createdSecret.StringData["DATABASE_URI"]).NotTo(BeEmpty())
 		})
 	})
 
