@@ -8,6 +8,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"strconv"
 
 	"github.com/aiven/aiven-go-client"
 	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
@@ -81,6 +82,9 @@ func (h ProjectVPCHandler) createOrUpdate(i client.Object) (client.Object, error
 	meta.SetStatusCondition(&projectVPC.Status.Conditions,
 		getRunningCondition(metav1.ConditionUnknown, "CreatedOrUpdate",
 			"Instance was created or update on Aiven side, status remains unknown"))
+
+	metav1.SetMetaDataAnnotation(&projectVPC.ObjectMeta,
+		processedGeneration, strconv.FormatInt(projectVPC.GetGeneration(), 10))
 
 	return projectVPC, nil
 }

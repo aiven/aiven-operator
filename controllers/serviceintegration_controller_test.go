@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"os"
 	"time"
 
@@ -46,34 +47,8 @@ var _ = Describe("Service Integration Controller", func() {
 		By("Creating a new KafkaConnect CR instance")
 		Expect(k8sClient.Create(ctx, kafkaConnect)).Should(Succeed())
 
-		By("by waiting Kafka service status to become RUNNING")
-		Eventually(func() string {
-			lookupKey := types.NamespacedName{Name: kafkaName, Namespace: namespace}
-			createdKafka := &v1alpha1.Kafka{}
-			err := k8sClient.Get(ctx, lookupKey, createdKafka)
-			if err == nil {
-				return createdKafka.Status.State
-			}
-
-			return ""
-		}, timeout, interval).Should(Equal("RUNNING"))
-
-		By("by waiting KafkaConnect service status to become RUNNING")
-		Eventually(func() string {
-			lookupKey := types.NamespacedName{Name: kafkaConnectName, Namespace: namespace}
-			createdKafkaConnect := &v1alpha1.KafkaConnect{}
-			err := k8sClient.Get(ctx, lookupKey, createdKafkaConnect)
-			if err == nil {
-				return createdKafkaConnect.Status.State
-			}
-
-			return ""
-		}, timeout, interval).Should(Equal("RUNNING"))
-
 		By("Creating a new ServiceIntegration CR instance")
 		Expect(k8sClient.Create(ctx, si)).Should(Succeed())
-
-		time.Sleep(10 * time.Second)
 
 		// We'll need to retry getting this newly created instance,
 		// given that creation may not immediately happen.
@@ -82,8 +57,10 @@ var _ = Describe("Service Integration Controller", func() {
 			lookupKey := types.NamespacedName{Name: siName, Namespace: namespace}
 			createdSI := &v1alpha1.ServiceIntegration{}
 			err := k8sClient.Get(ctx, lookupKey, createdSI)
-
-			return err == nil
+			if err == nil {
+				return meta.IsStatusConditionTrue(createdSI.Status.Conditions, conditionTypeRunning)
+			}
+			return false
 		}, timeout, interval).Should(BeTrue())
 	})
 
@@ -94,11 +71,7 @@ var _ = Describe("Service Integration Controller", func() {
 
 			Expect(k8sClient.Get(ctx, lookupKey, si)).Should(Succeed())
 
-			// Let's make sure our Kafka status was properly populated.
-			By("by checking that after creation Kafka service status fields were properly populated")
-			Expect(si.Status.IntegrationType).Should(Equal("kafka_connect"))
-			Expect(si.Status.SourceServiceName).Should(Equal(kafkaName))
-			Expect(si.Status.DestinationServiceName).Should(Equal(kafkaConnectName))
+			By("by checking that after creation ServiceIntegration status fields were properly populated")
 			Expect(si.Status.ID).ShouldNot(BeEmpty())
 
 			By("by checking finalizers")
