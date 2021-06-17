@@ -72,7 +72,7 @@ func (h DatabaseHandler) createOrUpdate(i client.Object) (client.Object, error) 
 		_, err := h.client.Databases.Create(db.Spec.Project, db.Spec.ServiceName, aiven.CreateDatabaseRequest{
 			Database:  db.Name,
 			LcCollate: db.Spec.LcCollate,
-			LcType:    db.Spec.LcType,
+			LcType:    db.Spec.LcCtype,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("cannot create database on Aiven side: %w", err)

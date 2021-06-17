@@ -91,7 +91,7 @@ func databaseSpec(service, database, namespace string) *v1alpha1.Database {
 		Spec: v1alpha1.DatabaseSpec{
 			Project:     os.Getenv("AIVEN_PROJECT_NAME"),
 			ServiceName: service,
-			LcType:      "en_US.UTF-8",
+			LcCtype:     "en_US.UTF-8",
 			LcCollate:   "en_US.UTF-8",
 			AuthSecretRef: v1alpha1.AuthSecretReference{
 				Name: secretRefName,
