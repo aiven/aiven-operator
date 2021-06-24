@@ -160,7 +160,7 @@ func (h ConnectionPoolHandler) get(i client.Object) (client.Object, *corev1.Secr
 	metav1.SetMetaDataAnnotation(&connPool.ObjectMeta, isRunning, "true")
 
 	meta.SetStatusCondition(&connPool.Status.Conditions,
-		getRunningCondition(metav1.ConditionTrue, "Get",
+		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 			"Instance is running on Aiven side"))
 
 	return connPool, &corev1.Secret{

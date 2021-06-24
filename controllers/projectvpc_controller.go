@@ -142,7 +142,7 @@ func (h ProjectVPCHandler) get(i client.Object) (client.Object, *corev1.Secret, 
 
 	if vpc.State == "ACTIVE" {
 		meta.SetStatusCondition(&projectVPC.Status.Conditions,
-			getRunningCondition(metav1.ConditionTrue, "Get",
+			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 				"Instance is running on Aiven side"))
 
 		metav1.SetMetaDataAnnotation(&projectVPC.ObjectMeta, isRunning, "true")

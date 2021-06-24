@@ -162,7 +162,7 @@ func (h KafkaTopicHandler) get(i client.Object) (client.Object, *corev1.Secret, 
 
 	if isActive {
 		meta.SetStatusCondition(&topic.Status.Conditions,
-			getRunningCondition(metav1.ConditionTrue, "Get",
+			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 				"Instance is running on Aiven side"))
 
 		metav1.SetMetaDataAnnotation(&topic.ObjectMeta, isRunning, "true")

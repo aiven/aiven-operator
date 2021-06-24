@@ -137,7 +137,7 @@ func (h ServiceIntegrationHandler) get(i client.Object) (client.Object, *corev1.
 	}
 
 	meta.SetStatusCondition(&si.Status.Conditions,
-		getRunningCondition(metav1.ConditionTrue, "Get",
+		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 			"Instance is running on Aiven side"))
 
 	metav1.SetMetaDataAnnotation(&si.ObjectMeta, isRunning, "true")

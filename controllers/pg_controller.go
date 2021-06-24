@@ -162,7 +162,7 @@ func (h PGHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
 
 	if checkServiceIsRunning(h.client, pg.Spec.Project, pg.Name) {
 		meta.SetStatusCondition(&pg.Status.Conditions,
-			getRunningCondition(metav1.ConditionTrue, "Get",
+			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 				"Instance is running on Aiven side"))
 
 		metav1.SetMetaDataAnnotation(&pg.ObjectMeta, isRunning, "true")

@@ -152,7 +152,7 @@ func (h ProjectHandler) get(i client.Object) (client.Object, *corev1.Secret, err
 	}
 
 	meta.SetStatusCondition(&project.Status.Conditions,
-		getRunningCondition(metav1.ConditionTrue, "Get",
+		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 			"Instance is running on Aiven side"))
 
 	metav1.SetMetaDataAnnotation(&project.ObjectMeta, isRunning, "true")
