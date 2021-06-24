@@ -20,8 +20,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
+// requeueTimeout sets timeout to requeue controller
 const requeueTimeout = 10 * time.Second
+
+// processedGeneration annotations key that holds value of processed generation
 const processedGeneration = "processed"
+
+// isRunning annotations key which is set when resource is running on Aiven side
 const isRunning = "running"
 
 type (
@@ -117,7 +122,7 @@ func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client
 	log.Info("checking if generation was processed")
 	if !c.processed(o) {
 		log.Info("generation wasn't processed, creation or updating instance on aiven side")
-		o.SetAnnotations(map[string]string{})
+		c.resetAnnotations(o)
 		obj, err := h.createOrUpdate(o)
 		if err != nil {
 			return ctrl.Result{}, err
@@ -180,10 +185,25 @@ func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client
 	return ctrl.Result{}, nil
 }
 
+func (c *Controller) resetAnnotations(o client.Object) {
+	a := o.GetAnnotations()
+	delete(a, processedGeneration)
+	delete(a, isRunning)
+}
+
 func (c *Controller) initLog(o client.Object) logr.Logger {
+	a := make(map[string]string)
+	if r, ok := o.GetAnnotations()[isRunning]; ok {
+		a[isRunning] = r
+	}
+
+	if g, ok := o.GetAnnotations()[processedGeneration]; ok {
+		a[processedGeneration] = g
+	}
+
 	return c.Log.WithValues(strings.ToLower(o.GetObjectKind().GroupVersionKind().Kind),
 		types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()},
-		"annotations", o.GetAnnotations())
+		"annotations", a)
 }
 
 func (c *Controller) getFinalizerName(o client.Object) string {

@@ -73,6 +73,8 @@ func (h KafkaTopicHandler) createOrUpdate(i client.Object) (client.Object, error
 	if err != nil {
 		return nil, err
 	}
+
+	var reason string
 	if !exists {
 		err = h.client.KafkaTopics.Create(topic.Spec.Project, topic.Spec.ServiceName, aiven.CreateKafkaTopicRequest{
 			Partitions:  &topic.Spec.Partitions,
@@ -84,6 +86,8 @@ func (h KafkaTopicHandler) createOrUpdate(i client.Object) (client.Object, error
 		if err != nil && !aiven.IsAlreadyExists(err) {
 			return nil, err
 		}
+
+		reason = "Created"
 	} else {
 		err = h.client.KafkaTopics.Update(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName,
 			aiven.UpdateKafkaTopicRequest{
@@ -95,14 +99,16 @@ func (h KafkaTopicHandler) createOrUpdate(i client.Object) (client.Object, error
 		if err != nil {
 			return nil, fmt.Errorf("cannot update Kafka Topic: %w", err)
 		}
+
+		reason = "Updated"
 	}
 
 	meta.SetStatusCondition(&topic.Status.Conditions,
-		getInitializedCondition("CreatedOrUpdate",
+		getInitializedCondition(reason,
 			"Instance was created or update on Aiven side"))
 
 	meta.SetStatusCondition(&topic.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "CreatedOrUpdate",
+		getRunningCondition(metav1.ConditionUnknown, reason,
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&topic.ObjectMeta,
@@ -159,7 +165,7 @@ func (h KafkaTopicHandler) get(i client.Object) (client.Object, *corev1.Secret, 
 			getRunningCondition(metav1.ConditionTrue, "Get",
 				"Instance is running on Aiven side"))
 
-		metav1.SetMetaDataAnnotation(&topic.ObjectMeta, isRunning, "1")
+		metav1.SetMetaDataAnnotation(&topic.ObjectMeta, isRunning, "true")
 	}
 
 	return topic, nil, err

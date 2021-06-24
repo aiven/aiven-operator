@@ -72,11 +72,11 @@ func (h ProjectVPCHandler) createOrUpdate(i client.Object) (client.Object, error
 	projectVPC.Status.ID = vpc.ProjectVPCID
 
 	meta.SetStatusCondition(&projectVPC.Status.Conditions,
-		getInitializedCondition("CreatedOrUpdate",
+		getInitializedCondition("Created",
 			"Instance was created or update on Aiven side"))
 
 	meta.SetStatusCondition(&projectVPC.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "CreatedOrUpdate",
+		getRunningCondition(metav1.ConditionUnknown, "Created",
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&projectVPC.ObjectMeta,
@@ -145,7 +145,7 @@ func (h ProjectVPCHandler) get(i client.Object) (client.Object, *corev1.Secret, 
 			getRunningCondition(metav1.ConditionTrue, "Get",
 				"Instance is running on Aiven side"))
 
-		metav1.SetMetaDataAnnotation(&projectVPC.ObjectMeta, isRunning, "1")
+		metav1.SetMetaDataAnnotation(&projectVPC.ObjectMeta, isRunning, "true")
 	}
 
 	return projectVPC, nil, nil

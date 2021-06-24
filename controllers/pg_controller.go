@@ -82,6 +82,7 @@ func (h PGHandler) createOrUpdate(i client.Object) (client.Object, error) {
 		return nil, err
 	}
 
+	var reason string
 	if !exists {
 		_, err := h.client.Services.Create(pg.Spec.Project, aiven.CreateServiceRequest{
 			Cloud: pg.Spec.CloudName,
@@ -98,6 +99,8 @@ func (h PGHandler) createOrUpdate(i client.Object) (client.Object, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		reason = "Created"
 	} else {
 		_, err := h.client.Services.Update(pg.Spec.Project, pg.Name, aiven.UpdateServiceRequest{
 			Cloud: pg.Spec.CloudName,
@@ -112,14 +115,16 @@ func (h PGHandler) createOrUpdate(i client.Object) (client.Object, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		reason = "Updated"
 	}
 
 	meta.SetStatusCondition(&pg.Status.Conditions,
-		getInitializedCondition("CreatedOrUpdate",
+		getInitializedCondition(reason,
 			"Instance was created or update on Aiven side"))
 
 	meta.SetStatusCondition(&pg.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "CreatedOrUpdate",
+		getRunningCondition(metav1.ConditionUnknown, reason,
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&pg.ObjectMeta,
@@ -160,7 +165,7 @@ func (h PGHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
 			getRunningCondition(metav1.ConditionTrue, "Get",
 				"Instance is running on Aiven side"))
 
-		metav1.SetMetaDataAnnotation(&pg.ObjectMeta, isRunning, "1")
+		metav1.SetMetaDataAnnotation(&pg.ObjectMeta, isRunning, "true")
 	}
 
 	return pg, &corev1.Secret{

@@ -80,11 +80,11 @@ func (h DatabaseHandler) createOrUpdate(i client.Object) (client.Object, error) 
 	}
 
 	meta.SetStatusCondition(&db.Status.Conditions,
-		getInitializedCondition("CreatedOrUpdate",
+		getInitializedCondition("Created",
 			"Instance was created or update on Aiven side"))
 
 	meta.SetStatusCondition(&db.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "CreatedOrUpdate",
+		getRunningCondition(metav1.ConditionUnknown, "Created",
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&db.ObjectMeta,
@@ -134,7 +134,7 @@ func (h DatabaseHandler) get(i client.Object) (client.Object, *corev1.Secret, er
 		getRunningCondition(metav1.ConditionTrue, "Get",
 			"Instance is running on Aiven side"))
 
-	metav1.SetMetaDataAnnotation(&db.ObjectMeta, isRunning, "1")
+	metav1.SetMetaDataAnnotation(&db.ObjectMeta, isRunning, "true")
 
 	return db, nil, nil
 }

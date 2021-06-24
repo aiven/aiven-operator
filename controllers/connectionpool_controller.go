@@ -67,6 +67,7 @@ func (h ConnectionPoolHandler) createOrUpdate(i client.Object) (client.Object, e
 	if err != nil {
 		return nil, err
 	}
+	var reason string
 	if !exists {
 		_, err := h.client.ConnectionPools.Create(cp.Spec.Project, cp.Spec.ServiceName,
 			aiven.CreateConnectionPoolRequest{
@@ -79,6 +80,7 @@ func (h ConnectionPoolHandler) createOrUpdate(i client.Object) (client.Object, e
 		if err != nil && !aiven.IsAlreadyExists(err) {
 			return nil, err
 		}
+		reason = "Created"
 	} else {
 		_, err := h.client.ConnectionPools.Update(cp.Spec.Project, cp.Spec.ServiceName, cp.Name,
 			aiven.UpdateConnectionPoolRequest{
@@ -90,14 +92,15 @@ func (h ConnectionPoolHandler) createOrUpdate(i client.Object) (client.Object, e
 		if err != nil {
 			return nil, err
 		}
+		reason = "Updated"
 	}
 
 	meta.SetStatusCondition(&cp.Status.Conditions,
-		getInitializedCondition("CreatedOrUpdate",
+		getInitializedCondition(reason,
 			"Instance was created or update on Aiven side"))
 
 	meta.SetStatusCondition(&cp.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "CreatedOrUpdate",
+		getRunningCondition(metav1.ConditionUnknown, reason,
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&cp.ObjectMeta,
@@ -154,7 +157,7 @@ func (h ConnectionPoolHandler) get(i client.Object) (client.Object, *corev1.Secr
 		return nil, nil, fmt.Errorf("cannot get user: %w", err)
 	}
 
-	metav1.SetMetaDataAnnotation(&connPool.ObjectMeta, isRunning, "1")
+	metav1.SetMetaDataAnnotation(&connPool.ObjectMeta, isRunning, "true")
 
 	meta.SetStatusCondition(&connPool.Status.Conditions,
 		getRunningCondition(metav1.ConditionTrue, "Get",

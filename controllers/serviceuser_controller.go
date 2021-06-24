@@ -77,11 +77,11 @@ func (h *ServiceUserHandler) createOrUpdate(i client.Object) (client.Object, err
 	}
 
 	meta.SetStatusCondition(&user.Status.Conditions,
-		getInitializedCondition("CreatedOrUpdate",
+		getInitializedCondition("Created",
 			"Instance was created or update on Aiven side"))
 
 	meta.SetStatusCondition(&user.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "CreatedOrUpdate",
+		getRunningCondition(metav1.ConditionUnknown, "Created",
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&user.ObjectMeta,
@@ -119,7 +119,7 @@ func (h ServiceUserHandler) get(i client.Object) (client.Object, *corev1.Secret,
 		getRunningCondition(metav1.ConditionTrue, "Get",
 			"Instance is running on Aiven side"))
 
-	metav1.SetMetaDataAnnotation(&user.ObjectMeta, isRunning, "1")
+	metav1.SetMetaDataAnnotation(&user.ObjectMeta, isRunning, "true")
 
 	return user, &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{

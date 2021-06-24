@@ -80,6 +80,7 @@ func (h ProjectHandler) createOrUpdate(i client.Object) (client.Object, error) {
 		return nil, err
 	}
 
+	var reason string
 	var p *aiven.Project
 	if !exists {
 		p, err = h.client.Projects.Create(aiven.CreateProjectRequest{
@@ -98,6 +99,8 @@ func (h ProjectHandler) createOrUpdate(i client.Object) (client.Object, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to createOrUpdate Project on Aiven side: %w", err)
 		}
+
+		reason = "Created"
 	} else {
 		p, err = h.client.Projects.Update(project.Name, aiven.UpdateProjectRequest{
 			BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
@@ -113,6 +116,8 @@ func (h ProjectHandler) createOrUpdate(i client.Object) (client.Object, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to update project on aiven side: %w", err)
 		}
+
+		reason = "Updated"
 	}
 
 	project.Status.VatID = p.VatID
@@ -122,11 +127,11 @@ func (h ProjectHandler) createOrUpdate(i client.Object) (client.Object, error) {
 	project.Status.PaymentMethod = p.PaymentMethod
 
 	meta.SetStatusCondition(&project.Status.Conditions,
-		getInitializedCondition("CreatedOrUpdate",
+		getInitializedCondition(reason,
 			"Instance was created or update on Aiven side"))
 
 	meta.SetStatusCondition(&project.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "CreatedOrUpdate",
+		getRunningCondition(metav1.ConditionUnknown, reason,
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&project.ObjectMeta,
@@ -150,7 +155,7 @@ func (h ProjectHandler) get(i client.Object) (client.Object, *corev1.Secret, err
 		getRunningCondition(metav1.ConditionTrue, "Get",
 			"Instance is running on Aiven side"))
 
-	metav1.SetMetaDataAnnotation(&project.ObjectMeta, isRunning, "1")
+	metav1.SetMetaDataAnnotation(&project.ObjectMeta, isRunning, "true")
 
 	return project, &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{

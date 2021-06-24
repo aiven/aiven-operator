@@ -84,7 +84,7 @@ func (h KafkaConnectHandler) createOrUpdate(i client.Object) (client.Object, err
 	if err != nil {
 		return nil, err
 	}
-
+	var reason string
 	if !exits {
 		_, err := h.client.Services.Create(kc.Spec.Project, aiven.CreateServiceRequest{
 			Cloud: kc.Spec.CloudName,
@@ -101,6 +101,8 @@ func (h KafkaConnectHandler) createOrUpdate(i client.Object) (client.Object, err
 		if err != nil {
 			return nil, err
 		}
+
+		reason = "Created"
 	} else {
 		_, err := h.client.Services.Update(kc.Spec.Project, kc.Name, aiven.UpdateServiceRequest{
 			Cloud: kc.Spec.CloudName,
@@ -115,14 +117,16 @@ func (h KafkaConnectHandler) createOrUpdate(i client.Object) (client.Object, err
 		if err != nil {
 			return nil, err
 		}
+
+		reason = "Updated"
 	}
 
 	meta.SetStatusCondition(&kc.Status.Conditions,
-		getInitializedCondition("CreatedOrUpdate",
+		getInitializedCondition(reason,
 			"Instance was created or update on Aiven side"))
 
 	meta.SetStatusCondition(&kc.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "CreatedOrUpdate",
+		getRunningCondition(metav1.ConditionUnknown, reason,
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&kc.ObjectMeta,
@@ -157,7 +161,7 @@ func (h KafkaConnectHandler) get(i client.Object) (client.Object, *corev1.Secret
 			getRunningCondition(metav1.ConditionTrue, "Get",
 				"Instance is running on Aiven side"))
 
-		metav1.SetMetaDataAnnotation(&kc.ObjectMeta, isRunning, "1")
+		metav1.SetMetaDataAnnotation(&kc.ObjectMeta, isRunning, "true")
 	}
 
 	return kc, nil, nil

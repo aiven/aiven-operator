@@ -97,11 +97,11 @@ func (h KafkaSchemaHandler) createOrUpdate(i client.Object) (client.Object, erro
 	schema.Status.Version = version
 
 	meta.SetStatusCondition(&schema.Status.Conditions,
-		getInitializedCondition("CreatedOrUpdate",
+		getInitializedCondition("Added",
 			"Instance was created or update on Aiven side"))
 
 	meta.SetStatusCondition(&schema.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "CreatedOrUpdate",
+		getRunningCondition(metav1.ConditionUnknown, "Added",
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&schema.ObjectMeta,
@@ -143,7 +143,7 @@ func (h KafkaSchemaHandler) get(i client.Object) (client.Object, *corev1.Secret,
 		getRunningCondition(metav1.ConditionTrue, "Get",
 			"Instance is running on Aiven side"))
 
-	metav1.SetMetaDataAnnotation(&schema.ObjectMeta, isRunning, "1")
+	metav1.SetMetaDataAnnotation(&schema.ObjectMeta, isRunning, "true")
 
 	return schema, nil, nil
 }

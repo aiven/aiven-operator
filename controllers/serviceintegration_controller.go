@@ -65,6 +65,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) (client.Objec
 
 	var integration *aiven.ServiceIntegration
 
+	var reason string
 	if si.Status.ID == "" {
 		integration, err = h.client.ServiceIntegrations.Create(
 			si.Spec.Project,
@@ -80,6 +81,8 @@ func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) (client.Objec
 		if err != nil {
 			return nil, fmt.Errorf("cannot createOrUpdate service integration: %w", err)
 		}
+
+		reason = "Created"
 	} else {
 		integration, err = h.client.ServiceIntegrations.Update(
 			si.Spec.Project,
@@ -88,6 +91,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) (client.Objec
 				UserConfig: h.getUserConfig(si),
 			},
 		)
+		reason = "Updated"
 		if err != nil {
 			if strings.Contains(err.Error(), "user config not changed") {
 				return nil, nil
@@ -99,11 +103,11 @@ func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) (client.Objec
 	si.Status.ID = integration.ServiceIntegrationID
 
 	meta.SetStatusCondition(&si.Status.Conditions,
-		getInitializedCondition("CreatedOrUpdate",
+		getInitializedCondition(reason,
 			"Instance was created or update on Aiven side"))
 
 	meta.SetStatusCondition(&si.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "CreatedOrUpdate",
+		getRunningCondition(metav1.ConditionUnknown, reason,
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&si.ObjectMeta,
@@ -136,7 +140,7 @@ func (h ServiceIntegrationHandler) get(i client.Object) (client.Object, *corev1.
 		getRunningCondition(metav1.ConditionTrue, "Get",
 			"Instance is running on Aiven side"))
 
-	metav1.SetMetaDataAnnotation(&si.ObjectMeta, isRunning, "1")
+	metav1.SetMetaDataAnnotation(&si.ObjectMeta, isRunning, "true")
 
 	return si, nil, nil
 }

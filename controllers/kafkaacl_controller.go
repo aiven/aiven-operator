@@ -143,7 +143,7 @@ func (h KafkaACLHandler) get(i client.Object) (client.Object, *corev1.Secret, er
 		getRunningCondition(metav1.ConditionTrue, "Get",
 			"Instance is running on Aiven side"))
 
-	metav1.SetMetaDataAnnotation(&acl.ObjectMeta, isRunning, "1")
+	metav1.SetMetaDataAnnotation(&acl.ObjectMeta, isRunning, "true")
 
 	return acl, nil, nil
 }
