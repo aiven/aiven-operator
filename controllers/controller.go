@@ -174,7 +174,7 @@ func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client
 
 	log.Info("checking if instance is running")
 	if !c.isRunning(obj) {
-		log.Info("instance is not yeat running, triggering requeue")
+		log.Info("instance is not yet running, triggering requeue")
 		return ctrl.Result{
 			Requeue:      true,
 			RequeueAfter: 10 * time.Second,
