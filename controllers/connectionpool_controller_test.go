@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"os"
 	"time"
 
@@ -22,9 +24,9 @@ var _ = Describe("ConnectionPool Controller", func() {
 	)
 
 	var (
-		db          *v1alpha1.Database
 		pg          *v1alpha1.PG
 		user        *v1alpha1.ServiceUser
+		db          *v1alpha1.Database
 		pool        *v1alpha1.ConnectionPool
 		serviceName string
 		dbName      string
@@ -47,18 +49,6 @@ var _ = Describe("ConnectionPool Controller", func() {
 		By("Creating a new PG CR instance")
 		Expect(k8sClient.Create(ctx, pg)).Should(Succeed())
 
-		By("Waiting PG service status to become RUNNING")
-		Eventually(func() string {
-			pgLookupKey := types.NamespacedName{Name: serviceName, Namespace: namespace}
-			createdPG := &v1alpha1.PG{}
-			err := k8sClient.Get(ctx, pgLookupKey, createdPG)
-			if err == nil {
-				return createdPG.Status.State
-			}
-
-			return ""
-		}, timeout, interval).Should(Equal("RUNNING"))
-
 		By("Creating a new Database CR instance")
 		Expect(k8sClient.Create(ctx, db)).Should(Succeed())
 
@@ -68,37 +58,48 @@ var _ = Describe("ConnectionPool Controller", func() {
 		By("Creating a new ConnectionPool CR instance")
 		Expect(k8sClient.Create(ctx, pool)).Should(Succeed())
 
-		time.Sleep(10 * time.Second)
-
 		By("by retrieving ConnectionPool instance from k8s")
 		Eventually(func() bool {
 			lookupKey := types.NamespacedName{Name: poolName, Namespace: namespace}
 			createdPool := &v1alpha1.ConnectionPool{}
 			err := k8sClient.Get(ctx, lookupKey, createdPool)
-
-			return err == nil
+			if err == nil {
+				return meta.IsStatusConditionTrue(createdPool.Status.Conditions, conditionTypeRunning)
+			}
+			return false
 		}, timeout, interval).Should(BeTrue())
 	})
 
 	Context("Validating ConnectionPool reconciler behaviour", func() {
-		It("should create a new ConnectionPoll instance", func() {
+		It("should createOrUpdate a new ConnectionPoll instance", func() {
 			createdPool := &v1alpha1.ConnectionPool{}
 			lookupKey := types.NamespacedName{Name: poolName, Namespace: namespace}
 
 			Expect(k8sClient.Get(ctx, lookupKey, createdPool)).Should(Succeed())
 
-			// Let's make sure our ConnectionPool status was properly populated.
-			By("by checking that after creation ConnectionPool status fields were properly populated")
-			Expect(createdPool.Status.ServiceName).Should(Equal(serviceName))
-			Expect(createdPool.Status.Project).Should(Equal(os.Getenv("AIVEN_PROJECT_NAME")))
-			Expect(createdPool.Status.DatabaseName).Should(Equal(dbName))
-			Expect(createdPool.Status.Username).Should(Equal(userName))
-			Expect(createdPool.Status.PoolSize).Should(Equal(25))
-			Expect(createdPool.Status.PoolMode).Should(Equal("transaction"))
+			By("by checking ConnectionPool secret and status fields")
+			createdSecret := &corev1.Secret{}
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: poolName, Namespace: namespace}, createdSecret)).Should(Succeed())
+
+			Expect(createdSecret.Data["PGHOST"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PGDATABASE"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PGUSER"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PGPASSWORD"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PGSSLMODE"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["DATABASE_URI"]).NotTo(BeEmpty())
 		})
 	})
 
 	AfterEach(func() {
+		By("Ensures that ConnectionPool instance was deleted")
+		ensureDelete(ctx, pool)
+
+		By("Ensures that ServiceUser instance was deleted")
+		ensureDelete(ctx, user)
+
+		By("Ensures that Database instance was deleted")
+		ensureDelete(ctx, db)
+
 		By("Ensures that PG instance was deleted")
 		ensureDelete(ctx, pg)
 	})

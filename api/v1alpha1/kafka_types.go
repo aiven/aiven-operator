@@ -20,14 +20,6 @@ type KafkaSpec struct {
 	KafkaUserConfig KafkaUserConfig `json:"kafkaUserConfig,omitempty"`
 }
 
-// KafkaStatus defines the observed state of Kafka
-type KafkaStatus struct {
-	KafkaSpec `json:",inline"`
-
-	// Service state
-	State string `json:"state"`
-}
-
 type KafkaUserConfig struct {
 	// +kubebuilder:validation:Enum="1.0";"1.1";"2.0";"2.1";"2.2";"2.3";"2.4";"2.5";"2.6";"2.7";"2.8"
 	// Kafka major version
@@ -362,8 +354,8 @@ type Kafka struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   KafkaSpec   `json:"spec,omitempty"`
-	Status KafkaStatus `json:"status,omitempty"`
+	Spec   KafkaSpec     `json:"spec,omitempty"`
+	Status ServiceStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true

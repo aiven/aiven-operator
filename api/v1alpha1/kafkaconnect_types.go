@@ -14,15 +14,7 @@ type KafkaConnectSpec struct {
 	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
 
 	// PostgreSQL specific user configuration options
-	KafkaConnectUserConfig KafkaConnectUserConfig `json:"KafkaConnectUserConfig,omitempty"`
-}
-
-// KafkaConnectStatus defines the observed state of KafkaConnect
-type KafkaConnectStatus struct {
-	KafkaConnectSpec `json:",inline"`
-
-	// Service state
-	State string `json:"state,omitempty"`
+	KafkaConnectUserConfig KafkaConnectUserConfig `json:"kafkaConnectUserConfig,omitempty"`
 }
 
 type KafkaConnectUserConfig struct {
@@ -88,8 +80,8 @@ type KafkaConnect struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   KafkaConnectSpec   `json:"spec,omitempty"`
-	Status KafkaConnectStatus `json:"status,omitempty"`
+	Spec   KafkaConnectSpec `json:"spec,omitempty"`
+	Status ServiceStatus    `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true

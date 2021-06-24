@@ -47,7 +47,8 @@ type ServiceIntegrationSpec struct {
 
 // ServiceIntegrationStatus defines the observed state of ServiceIntegration
 type ServiceIntegrationStatus struct {
-	ServiceIntegrationSpec `json:",inline"`
+	// Conditions represent the latest available observations of an ServiceIntegration state
+	Conditions []metav1.Condition `json:"conditions"`
 
 	// Service integration ID
 	ID string `json:"id"`

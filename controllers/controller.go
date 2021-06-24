@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,95 +20,69 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
+// requeueTimeout sets timeout to requeue controller
 const requeueTimeout = 10 * time.Second
+
+// processedGeneration annotations key that holds value of processed generation
+const processedGeneration = "processed"
+
+// isRunning annotations key which is set when resource is running on Aiven side
+const isRunning = "running"
 
 type (
 	// Controller reconciles the Aiven objects
 	Controller struct {
 		client.Client
-		Log         logr.Logger
-		Scheme      *runtime.Scheme
-		AivenClient *aiven.Client
+		Log    logr.Logger
+		Scheme *runtime.Scheme
 	}
 
 	// Handlers represents Aiven API handlers
 	// It intended to be a layer between Kubernetes and Aiven API that handles all aspects
 	// of the Aiven services lifecycle.
 	Handlers interface {
-		// create an instance on the Aiven side.
-		// If the entity already exists, it should not be an error, but if it impossible to create it by any
-		// other reason, it should return an error
-		create(*aiven.Client, logr.Logger, client.Object) (createdObj client.Object, error error)
+		// create or updates an instance on the Aiven side.
+		createOrUpdate(client.Object) (client.Object, error)
 
 		// delete removes an instance on Aiven side.
 		// If an object is already deleted and cannot be found, it should not be an error. For other deletion
 		// errors, return an error.
-		delete(*aiven.Client, logr.Logger, client.Object) (isDeleted bool, error error)
+		delete(client.Object) (bool, error)
 
-		// exists checks if an instance already exists on the Aiven side.
-		exists(*aiven.Client, logr.Logger, client.Object) (exists bool, error error)
-
-		// update an instance on the Aiven side, assuming it was previously created.
-		// Should return the updated object, if the update was successful.
-		update(*aiven.Client, logr.Logger, client.Object) (updatedObj client.Object, error error)
-
-		// getSecret retrieve a secret (for example, connection credentials) that is generated on the fly based on data
-		// from Aiven API.  When not applicable to service, it should return nil.
-		getSecret(*aiven.Client, logr.Logger, client.Object) (secret *corev1.Secret, error error)
+		// get retrieve an obejct and a secret (for example, connection credentials) that is generated on the
+		// fly based on data from Aiven API.  When not applicable to service, it should return nil.
+		get(client.Object) (client.Object, *corev1.Secret, error)
 
 		// checkPreconditions check whether all preconditions for creating (or updating) the resource are in place.
 		// For example, it is applicable when a service needs to be running before this resource can be created.
-		checkPreconditions(*aiven.Client, logr.Logger, client.Object) bool
-
-		// isActive checks if an instance is ready for use on the Aiven side. Applicable for services that have multiple
-		// states and start in a transition state. When a service reaches a target state, return true.
-		isActive(*aiven.Client, logr.Logger, client.Object) (bool, error)
-
-		// getSecretReference retrieves a secret reference that contains name of the
-		// secret and key where Aiven API token is located
-		getSecretReference(client.Object) *v1alpha1.AuthSecretReference
+		checkPreconditions(client.Object) bool
 	}
 )
 
 // +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;list;create;update
 // +kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;create;update;patch;delete
 
-func (c *Controller) reconcileInstance(h Handlers, ctx context.Context, log logr.Logger, req ctrl.Request, o client.Object, finalizerName string) (ctrl.Result, error) {
-	// Fetch an instance
-	err := c.Get(ctx, req.NamespacedName, o)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			// Request object not found, could have been deleted after reconcile request.
-			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-			// Return and don't requeue
-			c.Log.Info("instance resource not found. ignoring since object must be deleted")
-			return ctrl.Result{}, nil
-		}
-		// Error reading the object - requeue the request.
-		c.Log.Error(err, "failed to get instance")
-		return ctrl.Result{}, err
-	}
+func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client.Object) (ctrl.Result, error) {
+	log := c.initLog(o)
 
-	// Initiating Aiven client, secret with a token is required
-	if err := c.InitAivenClient(h, o, req, ctx, log); err != nil {
-		return ctrl.Result{}, err
-	}
-
+	log.Info("reconciling instance")
 	// Check if the instance is marked to be deleted, which is
 	// indicated by the deletion timestamp being set.
 	isInstanceMarkedToBeDeleted := o.GetDeletionTimestamp() != nil
 	if isInstanceMarkedToBeDeleted {
-		if contains(o.GetFinalizers(), finalizerName) {
+		if contains(o.GetFinalizers(), c.getFinalizerName(o)) {
 			// Run finalization logic for finalizer. If the
 			// finalization logic fails, don't remove the finalize so
 			// that we can retry during the next reconciliation.
 			// When applicable, it retrieves an associated object that
 			// has to be deleted from Kubernetes, and it could be a
 			// secret associated with an instance.
-			finalised, err := h.delete(c.AivenClient, log, o)
+			finalised, err := h.delete(o)
 			if err != nil {
 				return ctrl.Result{}, err
 			}
+
+			log.Info("instance was successfully finalized")
 
 			// Checking if instance was finalized, if not triggering a requeue
 			if !finalised {
@@ -119,8 +94,8 @@ func (c *Controller) reconcileInstance(h Handlers, ctx context.Context, log logr
 
 			// Remove finalizer. Once all finalizers have been
 			// removed, the object will be deleted.
-			c.Log.Info("removing finalizer from instance")
-			controllerutil.RemoveFinalizer(o, finalizerName)
+			log.Info("removing finalizer from instance")
+			controllerutil.RemoveFinalizer(o, c.getFinalizerName(o))
 			err = c.Update(ctx, o)
 			if err != nil {
 				return ctrl.Result{}, err
@@ -130,99 +105,143 @@ func (c *Controller) reconcileInstance(h Handlers, ctx context.Context, log logr
 	}
 
 	// Add finalizer for this CR
-	if !contains(o.GetFinalizers(), finalizerName) {
-		if err := c.addFinalizer(o, finalizerName); err != nil {
+	if !contains(o.GetFinalizers(), c.getFinalizerName(o)) {
+		log.Info("add finalizer")
+		if err := c.addFinalizer(o, c.getFinalizerName(o)); err != nil {
 			return ctrl.Result{}, err
 		}
 	}
 
 	// Check preconditions
-	if !h.checkPreconditions(c.AivenClient, log, o) {
+	log.Info("checking preconditions")
+	if !h.checkPreconditions(o) {
+		log.Info("preconditions are not met, requeue")
 		return ctrl.Result{Requeue: true, RequeueAfter: requeueTimeout}, nil
 	}
 
-	// Check if instance already exists on Aiven side
-	exists, err := h.exists(c.AivenClient, log, o)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	if !exists {
-		// If instance does not exist, create a new one
-		obj, err := h.create(c.AivenClient, log, o)
+	log.Info("checking if generation was processed")
+	if !c.processed(o) {
+		log.Info("generation wasn't processed, creation or updating instance on aiven side")
+		c.resetAnnotations(o)
+		obj, err := h.createOrUpdate(o)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
 
-		err = c.manageSecret(log, ctx, h, o)
+		err = c.Update(ctx, obj)
 		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("managing secret %w", err)
+			return ctrl.Result{}, err
 		}
 
-		return ctrl.Result{}, c.Status().Update(ctx, obj)
+		log.Info(fmt.Sprintf("generation %q was processed, setting annotations: %+v",
+			o.GetGeneration(), o.GetAnnotations()))
+		return ctrl.Result{
+			Requeue:      true,
+			RequeueAfter: 10 * time.Second,
+		}, c.Status().Update(ctx, obj)
 	}
 
-	// Check if instance is already active
-	isActive, err := h.isActive(c.AivenClient, log, o)
+	log.Info("getting an instance")
+	obj, s, err := h.get(o)
 	if err != nil {
+		if aiven.IsNotFound(err) {
+			return ctrl.Result{
+				Requeue:      true,
+				RequeueAfter: 10 * time.Second,
+			}, nil
+		}
 		return ctrl.Result{}, err
 	}
 
-	// If instance is not yet active wait and try again
-	if !isActive {
+	if obj != nil {
+		err = c.Status().Update(ctx, obj)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+
+		err = c.Update(ctx, obj)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+	}
+
+	if s != nil {
+		err = c.manageSecret(ctx, obj, s)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+	}
+
+	log.Info("checking if instance is running")
+	if !c.isRunning(obj) {
+		log.Info("instance is not yet running, triggering requeue")
 		return ctrl.Result{
 			Requeue:      true,
 			RequeueAfter: 10 * time.Second,
 		}, nil
 	}
 
-	// Updating instance on the Aiven side
-	obj, err := h.update(c.AivenClient, log, o)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	if obj != nil { // If object was updated
-		// Updating a secret if available
-		err = c.manageSecret(log, ctx, h, o)
-		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("managing secret %w", err)
-		}
-
-		return ctrl.Result{}, c.Status().Update(ctx, obj)
-	}
-
+	log.Info("instance is successfully reconciled")
 	return ctrl.Result{}, nil
 }
 
-func (c *Controller) manageSecret(log logr.Logger, ctx context.Context, h Handlers, o client.Object) error {
-	// Get a secret if available
-	s, err := h.getSecret(c.AivenClient, log, o)
+func (c *Controller) resetAnnotations(o client.Object) {
+	a := o.GetAnnotations()
+	delete(a, processedGeneration)
+	delete(a, isRunning)
+}
+
+func (c *Controller) initLog(o client.Object) logr.Logger {
+	a := make(map[string]string)
+	if r, ok := o.GetAnnotations()[isRunning]; ok {
+		a[isRunning] = r
+	}
+
+	if g, ok := o.GetAnnotations()[processedGeneration]; ok {
+		a[processedGeneration] = g
+	}
+
+	return c.Log.WithValues(strings.ToLower(o.GetObjectKind().GroupVersionKind().Kind),
+		types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()},
+		"annotations", a)
+}
+
+func (c *Controller) getFinalizerName(o client.Object) string {
+	return fmt.Sprintf("%s-finalizer.aiven.io", o.GetObjectKind().GroupVersionKind().Kind)
+}
+
+func (c *Controller) processed(o client.Object) bool {
+	for k, v := range o.GetAnnotations() {
+		if processedGeneration == k && v == strconv.FormatInt(o.GetGeneration(), 10) {
+			return true
+		}
+	}
+	return false
+}
+
+func (c *Controller) isRunning(o client.Object) bool {
+	_, found := o.GetAnnotations()[isRunning]
+	return found
+}
+
+func (c *Controller) manageSecret(ctx context.Context, o client.Object, s *corev1.Secret) error {
+	createdSecret := &corev1.Secret{}
+	err := c.Get(ctx, types.NamespacedName{Name: s.Name, Namespace: s.Namespace}, createdSecret)
+	if err != nil && !errors.IsNotFound(err) {
+		return err
+	}
+	err = ctrl.SetControllerReference(o, s, c.Scheme)
 	if err != nil {
 		return err
 	}
 
-	// Creating or updating a secret if available
-	if s != nil {
-		createdSecret := &corev1.Secret{}
-		err := c.Get(ctx, types.NamespacedName{Name: s.Name, Namespace: s.Namespace}, createdSecret)
-		if err != nil && !errors.IsNotFound(err) {
+	if len(createdSecret.Data) != 0 {
+		if err := c.Update(ctx, s); err != nil {
 			return err
 		}
-
-		if len(createdSecret.Data) != 0 {
-			if err := c.Update(ctx, s); err != nil {
-				return err
-			}
-		} else {
-			err = ctrl.SetControllerReference(o, s, c.Scheme)
-			if err != nil {
-				return err
-			}
-
-			if err := c.Create(ctx, s); err != nil {
-				return err
-			}
+	} else {
+		if err := c.Create(ctx, s); err != nil {
+			return err
 		}
 	}
 
@@ -230,55 +249,38 @@ func (c *Controller) manageSecret(log logr.Logger, ctx context.Context, h Handle
 }
 
 // InitAivenClient retrieves an Aiven client
-func (c *Controller) InitAivenClient(h Handlers, o client.Object, req ctrl.Request, ctx context.Context, log logr.Logger) error {
-	if c.AivenClient != nil {
-		return nil
-	}
-	log.Info("initializing an aiven client")
-
+func (c *Controller) InitAivenClient(ctx context.Context, req ctrl.Request, secretRef v1alpha1.AuthSecretReference) (*aiven.Client, error) {
 	// Check if aiven-token secret exists
 	var token string
 	secret := &corev1.Secret{}
-	secretRef := h.getSecretReference(o)
-	if secretRef == nil {
-		return fmt.Errorf("secret ref is nil, cannot create an aiven client")
-	}
-
 	if secretRef.Name == "" || secretRef.Key == "" {
-		return fmt.Errorf("secret ref  key or secret is empty, cannot create an aiven client")
+		return nil, fmt.Errorf("secret ref  key or secret is empty, cannot createOrUpdate an aiven client")
 	}
 
 	err := c.Get(ctx, types.NamespacedName{Name: secretRef.Name, Namespace: req.Namespace}, secret)
 	if err != nil {
-		if errors.IsNotFound(err) {
-			log.Error(err, "secret is missing, it is required by the aiven client", secretRef.Name, "secretName")
-		}
-		return fmt.Errorf("cannot get %q secret: %w", secretRef.Name, err)
+		return nil, fmt.Errorf("cannot get %q secret: %w", secretRef.Name, err)
 	}
 
 	if v, ok := secret.Data[secretRef.Key]; ok {
 		token = string(v)
 	} else {
-		return fmt.Errorf("cannot initialize aiven client, kubernetes secret has no %q key", secretRef.Key)
+		return nil, fmt.Errorf("cannot initialize aiven client, kubernetes secret has no %q key", secretRef.Key)
 	}
 
 	if len(token) == 0 {
-		return fmt.Errorf("cannot initialize aiven client, %q key in a secret is empty", secretRef.Key)
+		return nil, fmt.Errorf("cannot initialize aiven client, %q key in a secret is empty", secretRef.Key)
 	}
 
-	log.Info("creating an aiven client")
-	c.AivenClient, err = aiven.NewTokenClient(token, "k8s-operator/")
+	con, err := aiven.NewTokenClient(token, "k8s-operator/")
 	if err != nil {
-		return fmt.Errorf("cannot create an aiven client: %w", err)
+		return nil, fmt.Errorf("cannot createOrUpdate an aiven client: %w", err)
 	}
 
-	log.Info("aiven client was successfully initialized")
-
-	return nil
+	return con, nil
 }
 
 func (c *Controller) addFinalizer(o client.Object, f string) error {
-	c.Log.Info("adding finalizer for the instance")
 	controllerutil.AddFinalizer(o, f)
 
 	// Update CR

@@ -34,7 +34,8 @@ type KafkaSchemaSpec struct {
 
 // KafkaSchemaStatus defines the observed state of KafkaSchema
 type KafkaSchemaStatus struct {
-	KafkaSchemaSpec `json:",inline"`
+	// Conditions represent the latest available observations of an KafkaSchema state
+	Conditions []metav1.Condition `json:"conditions"`
 
 	// Kafka Schema configuration version
 	Version int `json:"version"`

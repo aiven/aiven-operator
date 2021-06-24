@@ -30,8 +30,8 @@ func (r *Database) Default() {
 
 	const defaultLC = "en_US.UTF-8"
 
-	if r.Spec.LcType == "" {
-		r.Spec.LcType = defaultLC
+	if r.Spec.LcCtype == "" {
+		r.Spec.LcCtype = defaultLC
 	}
 
 	if r.Spec.LcCollate == "" {
@@ -66,7 +66,7 @@ func (r *Database) ValidateUpdate(old runtime.Object) error {
 		return errors.New("cannot update a Database, lc_collate field is immutable and cannot be updated")
 	}
 
-	if r.Spec.LcType != old.(*Database).Spec.LcType {
+	if r.Spec.LcCtype != old.(*Database).Spec.LcCtype {
 		return errors.New("cannot update a Database, lc_ctype field is immutable and cannot be updated")
 	}
 

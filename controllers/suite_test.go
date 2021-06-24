@@ -61,7 +61,7 @@ var _ = BeforeSuite(func(done Done) {
 
 	token := os.Getenv("AIVEN_TOKEN")
 	if token == "" {
-		Fail("cannot create Aiven API client, `AIVEN_TOKEN` is required")
+		Fail("cannot createOrUpdate Aiven API client, `AIVEN_TOKEN` is required")
 	}
 
 	if os.Getenv("AIVEN_PROJECT_NAME") == "" {

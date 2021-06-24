@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"os"
 	"time"
 
@@ -39,18 +41,6 @@ var _ = Describe("ServiceUser Controller", func() {
 		By("Creating a new PG CR instance")
 		Expect(k8sClient.Create(ctx, pg)).Should(Succeed())
 
-		By("Waiting PG service status to become RUNNING")
-		Eventually(func() string {
-			pgLookupKey := types.NamespacedName{Name: serviceName, Namespace: namespace}
-			createdPG := &v1alpha1.PG{}
-			err := k8sClient.Get(ctx, pgLookupKey, createdPG)
-			if err == nil {
-				return createdPG.Status.State
-			}
-
-			return ""
-		}, timeout, interval).Should(Equal("RUNNING"))
-
 		By("Creating a new ServiceUser CR instance")
 		Expect(k8sClient.Create(ctx, su)).Should(Succeed())
 
@@ -61,30 +51,34 @@ var _ = Describe("ServiceUser Controller", func() {
 			suLookupKey := types.NamespacedName{Name: userName, Namespace: namespace}
 			createdUser := &v1alpha1.ServiceUser{}
 			err := k8sClient.Get(ctx, suLookupKey, createdUser)
-
-			return err == nil && createdUser.Status.Type != ""
+			if err == nil {
+				return meta.IsStatusConditionTrue(createdUser.Status.Conditions, conditionTypeRunning)
+			}
+			return false
 		}, timeout, interval).Should(BeTrue())
-
-		time.Sleep(10 * time.Second)
 	})
 
 	Context("Validating ServiceUser reconciler behaviour", func() {
-		It("should create a new ServiceUser instance", func() {
+		It("should createOrUpdate a new ServiceUser instance", func() {
 			createdUser := &v1alpha1.ServiceUser{}
 			lookupKey := types.NamespacedName{Name: userName, Namespace: namespace}
 
 			Expect(k8sClient.Get(ctx, lookupKey, createdUser)).Should(Succeed())
 
-			// Let's make sure our instance status was properly populated.
 			By("by checking that after creation ServiceUser status fields were properly populated")
-			Expect(createdUser.Status.Project).Should(Equal(os.Getenv("AIVEN_PROJECT_NAME")))
-			Expect(createdUser.Status.Authentication).Should(Equal("caching_sha2_password"))
 			Expect(createdUser.Status.Type).ToNot(BeEmpty())
-			Expect(createdUser.Status.ServiceName).Should(Equal(serviceName))
+
+			createdSecret := &corev1.Secret{}
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: userName, Namespace: namespace}, createdSecret)).Should(Succeed())
+			Expect(createdSecret.Data["USERNAME"]).NotTo(BeEmpty())
+			Expect(createdSecret.Data["PASSWORD"]).NotTo(BeEmpty())
 		})
 	})
 
 	AfterEach(func() {
+		By("Ensures that ServiceUser instance was deleted")
+		ensureDelete(ctx, su)
+
 		By("Ensures that PG instance was deleted")
 		ensureDelete(ctx, pg)
 	})

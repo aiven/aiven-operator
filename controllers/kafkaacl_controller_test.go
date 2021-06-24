@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"os"
 	"time"
 
@@ -43,61 +44,42 @@ var _ = Describe("Kafka ACL Controller", func() {
 		By("Creating a new Kafka instance")
 		Expect(k8sClient.Create(ctx, kafka)).Should(Succeed())
 
-		By("by waiting Kafka service status to become RUNNING")
-		Eventually(func() string {
-			kafkaLookupKey := types.NamespacedName{Name: serviceName, Namespace: namespace}
-			createdKafka := &v1alpha1.Kafka{}
-			err := k8sClient.Get(ctx, kafkaLookupKey, createdKafka)
-			if err == nil {
-				return createdKafka.Status.State
-			}
-
-			return ""
-		}, timeout, interval).Should(Equal("RUNNING"))
-
 		By("Creating a new KafkaTopic instance")
 		Expect(k8sClient.Create(ctx, kafkaTopic)).Should(Succeed())
-
-		By("by waiting Kafka Topic to become ACTIVE")
-		Eventually(func() string {
-			lookupKey := types.NamespacedName{Name: topicName, Namespace: namespace}
-			createdTopic := &v1alpha1.KafkaTopic{}
-			err := k8sClient.Get(ctx, lookupKey, createdTopic)
-			if err == nil {
-				return createdTopic.Status.State
-			}
-
-			return ""
-		}, timeout, interval).Should(Equal("ACTIVE"))
-
-		time.Sleep(5 * time.Second)
 
 		By("Creating a new KafkaACL instance")
 		Expect(k8sClient.Create(ctx, acl)).Should(Succeed())
 
-		time.Sleep(5 * time.Second)
+		Eventually(func() bool {
+			createdACL := &v1alpha1.KafkaACL{}
+			lookupKey := types.NamespacedName{Name: userName, Namespace: namespace}
+			err := k8sClient.Get(ctx, lookupKey, createdACL)
+			if err == nil {
+				return meta.IsStatusConditionTrue(createdACL.Status.Conditions, conditionTypeRunning)
+			}
+			return false
+		}, timeout, interval).Should(BeTrue())
 	})
 
 	Context("Validating Kafka ACL reconciler behaviour", func() {
-		It("should create a new Kafka ACL", func() {
+		It("should createOrUpdate a new Kafka ACL", func() {
 			createdACL := &v1alpha1.KafkaACL{}
 			lookupKey := types.NamespacedName{Name: userName, Namespace: namespace}
 
 			Expect(k8sClient.Get(ctx, lookupKey, createdACL)).Should(Succeed())
 
-			By("by checking that after creation KafkaACL status fields were properly populated")
-			Expect(createdACL.Status.ServiceName).Should(Equal(serviceName))
-			Expect(createdACL.Status.Project).Should(Equal(os.Getenv("AIVEN_PROJECT_NAME")))
-			Expect(createdACL.Status.Permission).Should(Equal("admin"))
-			Expect(createdACL.Status.Topic).Should(Equal(topicName))
-			Expect(createdACL.Status.Username).Should(Equal(userName))
-
+			By("by checking that after KafkaACL was created")
+			Expect(meta.IsStatusConditionTrue(createdACL.Status.Conditions, conditionTypeRunning)).Should(BeTrue())
 		})
 	})
 
 	AfterEach(func() {
+		By("Ensures that Kafka ACL instance was deleted")
+		ensureDelete(ctx, acl)
+
 		By("Ensures that Kafka Topic instance was deleted")
 		ensureDelete(ctx, kafkaTopic)
+
 		By("Ensures that Kafka instance was deleted")
 		ensureDelete(ctx, kafka)
 	})

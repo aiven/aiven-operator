@@ -5,13 +5,16 @@ package controllers
 import (
 	"context"
 	"fmt"
-
 	"github.com/aiven/aiven-go-client"
 	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"strconv"
 )
 
 // KafkaSchemaReconciler reconciles a KafkaSchema object
@@ -21,18 +24,30 @@ type KafkaSchemaReconciler struct {
 
 type KafkaSchemaHandler struct {
 	Handlers
+	client *aiven.Client
 }
 
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkaschemas,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkaschemas/status,verbs=get;update;patch
 
 func (r *KafkaSchemaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := r.Log.WithValues("kafkaschema", req.NamespacedName)
-	log.Info("reconciling aiven kafka schema")
-
-	const finalizer = "kafkaschema-finalizer.aiven.io"
 	schema := &k8soperatorv1alpha1.KafkaSchema{}
-	return r.reconcileInstance(&KafkaSchemaHandler{}, ctx, log, req, schema, finalizer)
+	err := r.Get(ctx, req.NamespacedName, schema)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return ctrl.Result{}, nil
+		}
+		return ctrl.Result{}, err
+	}
+
+	c, err := r.InitAivenClient(ctx, req, schema.Spec.AuthSecretRef)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	return r.reconcileInstance(ctx, &KafkaSchemaHandler{
+		client: c,
+	}, schema)
 }
 
 func (r *KafkaSchemaReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -41,14 +56,14 @@ func (r *KafkaSchemaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaSchemaHandler) create(c *aiven.Client, _ logr.Logger, i client.Object) (client.Object, error) {
+func (h KafkaSchemaHandler) createOrUpdate(i client.Object) (client.Object, error) {
 	schema, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
-	// create Kafka Schema Subject
-	_, err = c.KafkaSubjectSchemas.Add(
+	// createOrUpdate Kafka Schema Subject
+	_, err = h.client.KafkaSubjectSchemas.Add(
 		schema.Spec.Project,
 		schema.Spec.ServiceName,
 		schema.Spec.SubjectName,
@@ -62,7 +77,7 @@ func (h KafkaSchemaHandler) create(c *aiven.Client, _ logr.Logger, i client.Obje
 
 	// set compatibility level if defined for a newly created Kafka Schema Subject
 	if schema.Spec.CompatibilityLevel != "" {
-		_, err := c.KafkaSubjectSchemas.UpdateConfiguration(
+		_, err := h.client.KafkaSubjectSchemas.UpdateConfiguration(
 			schema.Spec.Project,
 			schema.Spec.ServiceName,
 			schema.Spec.SubjectName,
@@ -74,28 +89,37 @@ func (h KafkaSchemaHandler) create(c *aiven.Client, _ logr.Logger, i client.Obje
 	}
 
 	// get last version
-	version, err := h.getLastVersion(c, schema)
+	version, err := h.getLastVersion(schema)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get Kafka Schema Subject version: %w", err)
 	}
 
-	h.setStatus(schema, version)
+	schema.Status.Version = version
+
+	meta.SetStatusCondition(&schema.Status.Conditions,
+		getInitializedCondition("Added",
+			"Instance was created or update on Aiven side"))
+
+	meta.SetStatusCondition(&schema.Status.Conditions,
+		getRunningCondition(metav1.ConditionUnknown, "Added",
+			"Instance was created or update on Aiven side, status remains unknown"))
+
+	metav1.SetMetaDataAnnotation(&schema.ObjectMeta,
+		processedGeneration, strconv.FormatInt(schema.GetGeneration(), 10))
 
 	return schema, nil
 }
 
-func (h KafkaSchemaHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
+func (h KafkaSchemaHandler) delete(i client.Object) (bool, error) {
 	schema, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	err = c.KafkaSubjectSchemas.Delete(schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.Schema)
+	err = h.client.KafkaSubjectSchemas.Delete(schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.Schema)
 	if err != nil && !aiven.IsNotFound(err) {
 		return false, fmt.Errorf("aiven client delete Kafka Schema error: %w", err)
 	}
-
-	log.Info("successfully finalized kafka schema")
 
 	return true, nil
 }
@@ -109,34 +133,28 @@ func (h KafkaSchemaHandler) exists(_ *aiven.Client, _ logr.Logger, i client.Obje
 	return schema.Status.Version != 0, nil
 }
 
-func (h KafkaSchemaHandler) update(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
-	return h.create(c, log, i)
+func (h KafkaSchemaHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
+	schema, err := h.convert(i)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	meta.SetStatusCondition(&schema.Status.Conditions,
+		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
+			"Instance is running on Aiven side"))
+
+	metav1.SetMetaDataAnnotation(&schema.ObjectMeta, isRunning, "true")
+
+	return schema, nil, nil
 }
 
-func (h KafkaSchemaHandler) getSecret(_ *aiven.Client, _ logr.Logger, _ client.Object) (*corev1.Secret, error) {
-	return nil, nil
-}
-
-func (h KafkaSchemaHandler) checkPreconditions(c *aiven.Client, _ logr.Logger, i client.Object) bool {
+func (h KafkaSchemaHandler) checkPreconditions(i client.Object) bool {
 	schema, err := h.convert(i)
 	if err != nil {
 		return false
 	}
 
-	return checkServiceIsRunning(c, schema.Spec.Project, schema.Spec.ServiceName)
-}
-
-func (h KafkaSchemaHandler) isActive(_ *aiven.Client, _ logr.Logger, _ client.Object) (bool, error) {
-	return true, nil
-}
-
-func (h KafkaSchemaHandler) setStatus(schema *k8soperatorv1alpha1.KafkaSchema, v int) {
-	schema.Status.Project = schema.Spec.Project
-	schema.Status.ServiceName = schema.Spec.ServiceName
-	schema.Status.SubjectName = schema.Spec.SubjectName
-	schema.Status.Schema = schema.Spec.Schema
-	schema.Status.CompatibilityLevel = schema.Spec.CompatibilityLevel
-	schema.Status.Version = v
+	return checkServiceIsRunning(h.client, schema.Spec.Project, schema.Spec.ServiceName)
 }
 
 func (h KafkaSchemaHandler) convert(i client.Object) (*k8soperatorv1alpha1.KafkaSchema, error) {
@@ -148,8 +166,8 @@ func (h KafkaSchemaHandler) convert(i client.Object) (*k8soperatorv1alpha1.Kafka
 	return schema, nil
 }
 
-func (h KafkaSchemaHandler) getLastVersion(c *aiven.Client, schema *k8soperatorv1alpha1.KafkaSchema) (int, error) {
-	ver, err := c.KafkaSubjectSchemas.GetVersions(
+func (h KafkaSchemaHandler) getLastVersion(schema *k8soperatorv1alpha1.KafkaSchema) (int, error) {
+	ver, err := h.client.KafkaSubjectSchemas.GetVersions(
 		schema.Spec.Project,
 		schema.Spec.ServiceName,
 		schema.Spec.SubjectName)
@@ -165,13 +183,4 @@ func (h KafkaSchemaHandler) getLastVersion(c *aiven.Client, schema *k8soperatorv
 	}
 
 	return latestVersion, nil
-}
-
-func (h KafkaSchemaHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {
-	schema, err := h.convert(i)
-	if err != nil {
-		return nil
-	}
-
-	return &schema.Spec.AuthSecretRef
 }

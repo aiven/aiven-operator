@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"os"
 	"time"
 
@@ -39,18 +40,6 @@ var _ = Describe("Kafka Topic Controller", func() {
 		By("Creating a new Kafka instance")
 		Expect(k8sClient.Create(ctx, kafka)).Should(Succeed())
 
-		By("by waiting Kafka service status to become RUNNING")
-		Eventually(func() string {
-			kafkaLookupKey := types.NamespacedName{Name: serviceName, Namespace: namespace}
-			createdKafka := &v1alpha1.Kafka{}
-			err := k8sClient.Get(ctx, kafkaLookupKey, createdKafka)
-			if err == nil {
-				return createdKafka.Status.State
-			}
-
-			return ""
-		}, timeout, interval).Should(Equal("RUNNING"))
-
 		By("Creating a new KafkaTopic instance")
 		Expect(k8sClient.Create(ctx, topic)).Should(Succeed())
 
@@ -66,34 +55,24 @@ var _ = Describe("Kafka Topic Controller", func() {
 		}, timeout, interval).Should(BeTrue())
 
 		By("by waiting Kafka Topic to become ACTIVE")
-		Eventually(func() string {
+		Eventually(func() bool {
 			err := k8sClient.Get(ctx, lookupKey, createdTopic)
 			if err == nil {
-				return createdTopic.Status.State
+				return meta.IsStatusConditionTrue(createdTopic.Status.Conditions, conditionTypeRunning)
 			}
-
-			return ""
-		}, timeout, interval).Should(Equal("ACTIVE"))
+			return false
+		}, timeout, interval).Should(BeTrue())
 	})
 
 	Context("Validating Kafka reconciler behaviour", func() {
-		It("should create a new Kafka Topic", func() {
+		It("should createOrUpdate a new Kafka Topic", func() {
 			createdTopic := &v1alpha1.KafkaTopic{}
 			lookupKey := types.NamespacedName{Name: topicName, Namespace: namespace}
 
 			Expect(k8sClient.Get(ctx, lookupKey, createdTopic)).Should(Succeed())
 
-			// Let's make sure our Kafka Topic status was properly populated.
-			By("by checking that after creation KafkaTopic status fields were properly populated")
-			Expect(createdTopic.Status.ServiceName).Should(Equal(serviceName))
-			Expect(createdTopic.Status.State).Should(Equal("ACTIVE"))
-			Expect(createdTopic.Status.Project).Should(Equal(os.Getenv("AIVEN_PROJECT_NAME")))
-			Expect(createdTopic.Status.TopicName).Should(Equal(topicName))
-			Expect(createdTopic.Status.Partitions).Should(Equal(3))
-			Expect(createdTopic.Status.Replication).Should(Equal(2))
-			Expect(len(createdTopic.Status.Tags)).Should(Equal(1))
-			Expect(createdTopic.Status.Tags[0].Key).Should(Equal("key1"))
-			Expect(createdTopic.Status.Tags[0].Value).Should(Equal("val1"))
+			By("by checking that after KafkaTopic was created")
+			Expect(meta.IsStatusConditionTrue(createdTopic.Status.Conditions, conditionTypeRunning)).Should(BeTrue())
 
 			By("by checking finalizers")
 			Expect(createdTopic.GetFinalizers()).ToNot(BeEmpty())

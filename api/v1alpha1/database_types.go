@@ -23,7 +23,7 @@ type DatabaseSpec struct {
 
 	// +kubebuilder:validation:MaxLength=128
 	// Default character classification (LC_CTYPE) of the database. Default value: en_US.UTF-8
-	LcType string `json:"lcCtype,omitempty"`
+	LcCtype string `json:"lcCtype,omitempty"`
 
 	// It is a Kubernetes side deletion protections, which prevents the database
 	// from being deleted by Kubernetes. It is recommended to enable this for any production
@@ -36,7 +36,8 @@ type DatabaseSpec struct {
 
 // DatabaseStatus defines the observed state of Database
 type DatabaseStatus struct {
-	DatabaseSpec `json:",inline"`
+	// Conditions represent the latest available observations of an Database state
+	Conditions []metav1.Condition `json:"conditions"`
 }
 
 // +kubebuilder:object:root=true

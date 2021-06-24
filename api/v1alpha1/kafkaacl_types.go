@@ -33,7 +33,8 @@ type KafkaACLSpec struct {
 
 // KafkaACLStatus defines the observed state of KafkaACL
 type KafkaACLStatus struct {
-	KafkaACLSpec `json:",inline"`
+	// Conditions represent the latest available observations of an KafkaACL state
+	Conditions []metav1.Condition `json:"conditions"`
 
 	// Kafka ACL ID
 	ID string `json:"id"`

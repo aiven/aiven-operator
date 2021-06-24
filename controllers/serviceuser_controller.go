@@ -5,14 +5,15 @@ package controllers
 import (
 	"context"
 	"fmt"
-
 	"github.com/aiven/aiven-go-client"
 	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
-	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"strconv"
 )
 
 // ServiceUserReconciler reconciles a ServiceUser object
@@ -22,18 +23,28 @@ type ServiceUserReconciler struct {
 
 type ServiceUserHandler struct {
 	Handlers
+	client *aiven.Client
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers,verbs=get;list;watch;create;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers/status,verbs=get
 
 func (r *ServiceUserReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := r.Log.WithValues("serviceuser", req.NamespacedName)
-	log.Info("reconciling aiven service user")
-
-	const finalizer = "serviceuser-finalizer.aiven.io"
 	su := &k8soperatorv1alpha1.ServiceUser{}
-	return r.reconcileInstance(&ServiceUserHandler{}, ctx, log, req, su, finalizer)
+	err := r.Get(ctx, req.NamespacedName, su)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return ctrl.Result{}, nil
+		}
+		return ctrl.Result{}, err
+	}
+
+	c, err := r.InitAivenClient(ctx, req, su.Spec.AuthSecretRef)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	return r.reconcileInstance(ctx, &ServiceUserHandler{client: c}, su)
 }
 
 func (r *ServiceUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -42,15 +53,13 @@ func (r *ServiceUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h *ServiceUserHandler) create(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
+func (h *ServiceUserHandler) createOrUpdate(i client.Object) (client.Object, error) {
 	user, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Info("creating service user")
-
-	u, err := c.ServiceUsers.Create(user.Spec.Project, user.Spec.ServiceName,
+	u, err := h.client.ServiceUsers.Create(user.Spec.Project, user.Spec.ServiceName,
 		aiven.CreateServiceUserRequest{
 			Username: user.Name,
 			AccessControl: aiven.AccessControl{
@@ -59,26 +68,35 @@ func (h *ServiceUserHandler) create(c *aiven.Client, log logr.Logger, i client.O
 				RedisACLKeys:       []string{},
 			},
 		})
-	if err != nil {
-		if aiven.IsAlreadyExists(err) {
-			return user, nil
-		}
-		return nil, fmt.Errorf("cannot create service user on aiven side: %w", err)
+	if err != nil && !aiven.IsAlreadyExists(err) {
+		return nil, fmt.Errorf("cannot createOrUpdate service user on aiven side: %w", err)
 	}
 
-	h.setStatus(user, u)
+	if u != nil {
+		user.Status.Type = u.Type
+	}
+
+	meta.SetStatusCondition(&user.Status.Conditions,
+		getInitializedCondition("Created",
+			"Instance was created or update on Aiven side"))
+
+	meta.SetStatusCondition(&user.Status.Conditions,
+		getRunningCondition(metav1.ConditionUnknown, "Created",
+			"Instance was created or update on Aiven side, status remains unknown"))
+
+	metav1.SetMetaDataAnnotation(&user.ObjectMeta,
+		processedGeneration, strconv.FormatInt(user.GetGeneration(), 10))
 
 	return user, nil
-
 }
 
-func (h ServiceUserHandler) delete(c *aiven.Client, _ logr.Logger, i client.Object) (bool, error) {
+func (h ServiceUserHandler) delete(i client.Object) (bool, error) {
 	user, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	err = c.ServiceUsers.Delete(user.Spec.Project, user.Spec.ServiceName, user.Name)
+	err = h.client.ServiceUsers.Delete(user.Spec.Project, user.Spec.ServiceName, user.Name)
 	if !aiven.IsNotFound(err) {
 		return false, err
 	}
@@ -86,36 +104,24 @@ func (h ServiceUserHandler) delete(c *aiven.Client, _ logr.Logger, i client.Obje
 	return true, nil
 }
 
-func (h ServiceUserHandler) exists(c *aiven.Client, _ logr.Logger, i client.Object) (exists bool, error error) {
+func (h ServiceUserHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
 	user, err := h.convert(i)
 	if err != nil {
-		return false, err
+		return nil, nil, err
 	}
 
-	u, err := c.ServiceUsers.Get(user.Spec.Project, user.Spec.ServiceName, user.Name)
-	if !aiven.IsNotFound(err) {
-		return false, err
-	}
-
-	return u != nil, nil
-}
-
-func (h ServiceUserHandler) update(_ *aiven.Client, _ logr.Logger, _ client.Object) (updatedObj client.Object, error error) {
-	return nil, nil
-}
-
-func (h ServiceUserHandler) getSecret(c *aiven.Client, _ logr.Logger, i client.Object) (secret *corev1.Secret, error error) {
-	user, err := h.convert(i)
+	u, err := h.client.ServiceUsers.Get(user.Spec.Project, user.Spec.ServiceName, user.Name)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	u, err := c.ServiceUsers.Get(user.Spec.Project, user.Spec.ServiceName, user.Name)
-	if err != nil {
-		return nil, err
-	}
+	meta.SetStatusCondition(&user.Status.Conditions,
+		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
+			"Instance is running on Aiven side"))
 
-	return &corev1.Secret{
+	metav1.SetMetaDataAnnotation(&user.ObjectMeta, isRunning, "true")
+
+	return user, &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      h.getSecretName(user),
 			Namespace: user.Namespace,
@@ -139,19 +145,13 @@ func (h ServiceUserHandler) getSecretName(user *k8soperatorv1alpha1.ServiceUser)
 	return user.Name
 }
 
-func (h ServiceUserHandler) checkPreconditions(c *aiven.Client, log logr.Logger, i client.Object) bool {
+func (h ServiceUserHandler) checkPreconditions(i client.Object) bool {
 	user, err := h.convert(i)
 	if err != nil {
 		return false
 	}
 
-	log.Info("checking service user preconditions")
-
-	return checkServiceIsRunning(c, user.Spec.Project, user.Spec.ServiceName)
-}
-
-func (h ServiceUserHandler) isActive(_ *aiven.Client, _ logr.Logger, _ client.Object) (bool, error) {
-	return true, nil
+	return checkServiceIsRunning(h.client, user.Spec.Project, user.Spec.ServiceName)
 }
 
 func (h ServiceUserHandler) convert(i client.Object) (*k8soperatorv1alpha1.ServiceUser, error) {
@@ -161,20 +161,4 @@ func (h ServiceUserHandler) convert(i client.Object) (*k8soperatorv1alpha1.Servi
 	}
 
 	return db, nil
-}
-
-func (h ServiceUserHandler) setStatus(user *k8soperatorv1alpha1.ServiceUser, u *aiven.ServiceUser) {
-	user.Status.ServiceName = user.Spec.ServiceName
-	user.Status.Project = user.Spec.Project
-	user.Status.Type = u.Type
-	user.Status.Authentication = user.Spec.Authentication
-}
-
-func (h ServiceUserHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {
-	user, err := h.convert(i)
-	if err != nil {
-		return nil
-	}
-
-	return &user.Spec.AuthSecretRef
 }

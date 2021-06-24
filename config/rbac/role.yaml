@@ -243,8 +243,6 @@ rules:
   - delete
   - get
   - list
-  - patch
-  - update
   - watch
 - apiGroups:
   - aiven.io
@@ -252,8 +250,6 @@ rules:
   - serviceusers/status
   verbs:
   - get
-  - patch
-  - update
 - apiGroups:
   - coordination.k8s.io
   resources:

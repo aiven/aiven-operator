@@ -5,14 +5,15 @@ package controllers
 import (
 	"context"
 	"fmt"
-
 	"github.com/aiven/aiven-go-client"
 	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
-	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"strconv"
 )
 
 // KafkaReconciler reconciles a Kafka object
@@ -23,18 +24,30 @@ type KafkaReconciler struct {
 // KafkaHandler handles an Aiven Kafka service
 type KafkaHandler struct {
 	Handlers
+	client *aiven.Client
 }
 
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkas,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkas/status,verbs=get;update;patch
 
 func (r *KafkaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := r.Log.WithValues("kafka", req.NamespacedName)
-	log.Info("reconciling aiven kafka")
-
-	const finalizer = "kafka-service-finalizer.aiven.io"
 	kafka := &k8soperatorv1alpha1.Kafka{}
-	return r.reconcileInstance(&KafkaHandler{}, ctx, log, req, kafka, finalizer)
+	err := r.Get(ctx, req.NamespacedName, kafka)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return ctrl.Result{}, nil
+		}
+		return ctrl.Result{}, err
+	}
+
+	c, err := r.InitAivenClient(ctx, req, kafka.Spec.AuthSecretRef)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	return r.reconcileInstance(ctx, &KafkaHandler{
+		client: c,
+	}, kafka)
 }
 
 func (r *KafkaReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -44,68 +57,91 @@ func (r *KafkaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h *KafkaHandler) create(c *aiven.Client, log logr.Logger, i client.Object) (client.Object, error) {
+func (h *KafkaHandler) createOrUpdate(i client.Object) (client.Object, error) {
 	kafka, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
-
-	log.Info("creating kafka service")
 
 	var prVPCID *string
 	if kafka.Spec.ProjectVPCID != "" {
 		prVPCID = &kafka.Spec.ProjectVPCID
 	}
 
-	s, err := c.Services.Create(kafka.Spec.Project, aiven.CreateServiceRequest{
-		Cloud: kafka.Spec.CloudName,
-		MaintenanceWindow: getMaintenanceWindow(
-			kafka.Spec.MaintenanceWindowDow,
-			kafka.Spec.MaintenanceWindowTime),
-		Plan:                kafka.Spec.Plan,
-		ProjectVPCID:        prVPCID,
-		ServiceName:         kafka.Name,
-		ServiceType:         "kafka",
-		UserConfig:          UserConfigurationToAPI(kafka.Spec.KafkaUserConfig).(map[string]interface{}),
-		ServiceIntegrations: nil,
-	})
-	if err != nil && !aiven.IsAlreadyExists(err) {
+	exists, err := h.exists(kafka)
+	if err != nil {
 		return nil, err
 	}
 
-	h.setStatus(kafka, s)
+	var reason string
+	if !exists {
+		_, err = h.client.Services.Create(kafka.Spec.Project, aiven.CreateServiceRequest{
+			Cloud: kafka.Spec.CloudName,
+			MaintenanceWindow: getMaintenanceWindow(
+				kafka.Spec.MaintenanceWindowDow,
+				kafka.Spec.MaintenanceWindowTime),
+			Plan:                kafka.Spec.Plan,
+			ProjectVPCID:        prVPCID,
+			ServiceName:         kafka.Name,
+			ServiceType:         "kafka",
+			UserConfig:          UserConfigurationToAPI(kafka.Spec.KafkaUserConfig).(map[string]interface{}),
+			ServiceIntegrations: nil,
+		})
+		if err != nil && !aiven.IsAlreadyExists(err) {
+			return nil, err
+		}
+
+		reason = "Created"
+	} else {
+		_, err := h.client.Services.Update(kafka.Spec.Project, kafka.Name, aiven.UpdateServiceRequest{
+			Cloud: kafka.Spec.CloudName,
+			MaintenanceWindow: getMaintenanceWindow(
+				kafka.Spec.MaintenanceWindowDow,
+				kafka.Spec.MaintenanceWindowTime),
+			Plan:         kafka.Spec.Plan,
+			ProjectVPCID: prVPCID,
+			UserConfig:   UserConfigurationToAPI(kafka.Spec.KafkaUserConfig).(map[string]interface{}),
+			Powered:      true,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		reason = "Updated"
+	}
+
+	meta.SetStatusCondition(&kafka.Status.Conditions,
+		getInitializedCondition(reason,
+			"Instance was created or update on Aiven side"))
+
+	meta.SetStatusCondition(&kafka.Status.Conditions,
+		getRunningCondition(metav1.ConditionUnknown, reason,
+			"Instance was created or update on Aiven side, status remains unknown"))
+
+	metav1.SetMetaDataAnnotation(&kafka.ObjectMeta,
+		processedGeneration, strconv.FormatInt(kafka.GetGeneration(), 10))
 
 	return kafka, nil
 }
 
-func (h KafkaHandler) delete(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
+func (h KafkaHandler) delete(i client.Object) (bool, error) {
 	kafka, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
 	// Delete project on Aiven side
-	if err := c.Services.Delete(kafka.Spec.Project, kafka.Name); err != nil {
+	if err := h.client.Services.Delete(kafka.Spec.Project, kafka.Name); err != nil {
 		if !aiven.IsNotFound(err) {
-			log.Error(err, "cannot delete aiven kafka service")
 			return false, fmt.Errorf("aiven client delete Kafka error: %w", err)
 		}
 	}
 
-	log.Info("successfully finalized kafka service on aiven side")
-
 	return true, nil
 }
 
-func (h KafkaHandler) exists(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
-	kafka, err := h.convert(i)
-	if err != nil {
-		return false, err
-	}
-
-	log.Info("checking if kafka service already exists")
-
-	s, err := c.Services.Get(kafka.Spec.Project, kafka.Name)
+func (h KafkaHandler) exists(kafka *k8soperatorv1alpha1.Kafka) (bool, error) {
+	s, err := h.client.Services.Get(kafka.Spec.Project, kafka.Name)
 	if aiven.IsNotFound(err) {
 		return false, nil
 	}
@@ -113,45 +149,15 @@ func (h KafkaHandler) exists(c *aiven.Client, log logr.Logger, i client.Object) 
 	return s != nil, nil
 }
 
-func (h KafkaHandler) update(c *aiven.Client, _ logr.Logger, i client.Object) (client.Object, error) {
+func (h KafkaHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
 	kafka, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	var prVPCID *string
-	if kafka.Spec.ProjectVPCID != "" {
-		prVPCID = &kafka.Spec.ProjectVPCID
-	}
-
-	s, err := c.Services.Update(kafka.Spec.Project, kafka.Name, aiven.UpdateServiceRequest{
-		Cloud: kafka.Spec.CloudName,
-		MaintenanceWindow: getMaintenanceWindow(
-			kafka.Spec.MaintenanceWindowDow,
-			kafka.Spec.MaintenanceWindowTime),
-		Plan:         kafka.Spec.Plan,
-		ProjectVPCID: prVPCID,
-		UserConfig:   UserConfigurationToAPI(kafka.Spec.KafkaUserConfig).(map[string]interface{}),
-		Powered:      true,
-	})
+	s, err := h.client.Services.Get(kafka.Spec.Project, kafka.Name)
 	if err != nil {
-		return nil, err
-	}
-
-	h.setStatus(kafka, s)
-
-	return kafka, nil
-}
-
-func (h KafkaHandler) getSecret(c *aiven.Client, _ logr.Logger, i client.Object) (*corev1.Secret, error) {
-	kafka, err := h.convert(i)
-	if err != nil {
-		return nil, err
-	}
-
-	s, err := c.Services.Get(kafka.Spec.Project, kafka.Name)
-	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var userName, password string
@@ -161,7 +167,16 @@ func (h KafkaHandler) getSecret(c *aiven.Client, _ logr.Logger, i client.Object)
 	}
 
 	params := s.URIParams
-	return &corev1.Secret{
+
+	if checkServiceIsRunning(h.client, kafka.Spec.Project, kafka.Name) {
+		meta.SetStatusCondition(&kafka.Status.Conditions,
+			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
+				"Instance is running on Aiven side"))
+
+		metav1.SetMetaDataAnnotation(&kafka.ObjectMeta, isRunning, "true")
+	}
+
+	return kafka, &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      h.getSecretName(kafka),
 			Namespace: kafka.Namespace,
@@ -180,19 +195,8 @@ func (h KafkaHandler) getSecret(c *aiven.Client, _ logr.Logger, i client.Object)
 	}, nil
 }
 
-func (h KafkaHandler) checkPreconditions(_ *aiven.Client, _ logr.Logger, _ client.Object) bool {
+func (h KafkaHandler) checkPreconditions(_ client.Object) bool {
 	return true
-}
-
-func (h KafkaHandler) isActive(c *aiven.Client, log logr.Logger, i client.Object) (bool, error) {
-	kafka, err := h.convert(i)
-	if err != nil {
-		return false, err
-	}
-
-	log.Info("checking if kafka service is active")
-
-	return checkServiceIsRunning(c, kafka.Spec.Project, kafka.Name), nil
 }
 
 func (h KafkaHandler) convert(i client.Object) (*k8soperatorv1alpha1.Kafka, error) {
@@ -204,33 +208,9 @@ func (h KafkaHandler) convert(i client.Object) (*k8soperatorv1alpha1.Kafka, erro
 	return kafka, nil
 }
 
-func (h KafkaHandler) setStatus(kafka *k8soperatorv1alpha1.Kafka, s *aiven.Service) {
-	var prVPCID string
-
-	if s.ProjectVPCID != nil {
-		prVPCID = *s.ProjectVPCID
-	}
-
-	kafka.Status.State = s.State
-	kafka.Status.ProjectVPCID = prVPCID
-	kafka.Status.Plan = s.Plan
-	kafka.Status.MaintenanceWindowTime = s.MaintenanceWindow.TimeOfDay
-	kafka.Status.MaintenanceWindowDow = s.MaintenanceWindow.DayOfWeek
-	kafka.Status.CloudName = s.CloudName
-}
-
 func (h KafkaHandler) getSecretName(kafka *k8soperatorv1alpha1.Kafka) string {
 	if kafka.Spec.ConnInfoSecretTarget.Name != "" {
 		return kafka.Spec.ConnInfoSecretTarget.Name
 	}
 	return kafka.Name
-}
-
-func (h KafkaHandler) getSecretReference(i client.Object) *k8soperatorv1alpha1.AuthSecretReference {
-	kafka, err := h.convert(i)
-	if err != nil {
-		return nil
-	}
-
-	return &kafka.Spec.AuthSecretRef
 }
