@@ -177,17 +177,12 @@ spec:
                   to enable this for any production databases containing critical
                   data.
                 type: boolean
-              topicName:
-                description: Topic name.
-                maxLength: 63
-                type: string
             required:
             - authSecretRef
             - partitions
             - project
             - replication
             - serviceName
-            - topicName
             type: object
           status:
             description: KafkaTopicStatus defines the observed state of KafkaTopic

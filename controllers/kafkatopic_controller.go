@@ -79,7 +79,7 @@ func (h KafkaTopicHandler) createOrUpdate(i client.Object) (client.Object, error
 		err = h.client.KafkaTopics.Create(topic.Spec.Project, topic.Spec.ServiceName, aiven.CreateKafkaTopicRequest{
 			Partitions:  &topic.Spec.Partitions,
 			Replication: &topic.Spec.Replication,
-			TopicName:   topic.Spec.TopicName,
+			TopicName:   topic.Name,
 			Tags:        tags,
 			Config:      convertKafkaTopicConfig(topic),
 		})
@@ -89,7 +89,7 @@ func (h KafkaTopicHandler) createOrUpdate(i client.Object) (client.Object, error
 
 		reason = "Created"
 	} else {
-		err = h.client.KafkaTopics.Update(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName,
+		err = h.client.KafkaTopics.Update(topic.Spec.Project, topic.Spec.ServiceName, topic.Name,
 			aiven.UpdateKafkaTopicRequest{
 				Partitions:  &topic.Spec.Partitions,
 				Replication: &topic.Spec.Replication,
@@ -124,7 +124,7 @@ func (h KafkaTopicHandler) delete(i client.Object) (bool, error) {
 	}
 
 	// Delete project on Aiven side
-	err = h.client.KafkaTopics.Delete(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName)
+	err = h.client.KafkaTopics.Delete(topic.Spec.Project, topic.Spec.ServiceName, topic.Name)
 	if err != nil && !aiven.IsNotFound(err) {
 		return false, err
 	}
@@ -133,7 +133,7 @@ func (h KafkaTopicHandler) delete(i client.Object) (bool, error) {
 }
 
 func (h KafkaTopicHandler) exists(topic *k8soperatorv1alpha1.KafkaTopic) (bool, error) {
-	t, err := h.client.KafkaTopics.Get(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName)
+	t, err := h.client.KafkaTopics.Get(topic.Spec.Project, topic.Spec.ServiceName, topic.Name)
 	if err != nil && !aiven.IsNotFound(err) {
 		if aivenError, ok := err.(aiven.Error); ok {
 			// Getting topic info can sometimes temporarily fail with 501 and 502. Don't
@@ -181,7 +181,7 @@ func (h KafkaTopicHandler) checkPreconditions(i client.Object) bool {
 }
 
 func (h KafkaTopicHandler) isActive(topic *k8soperatorv1alpha1.KafkaTopic) (bool, error) {
-	t, err := h.client.KafkaTopics.Get(topic.Spec.Project, topic.Spec.ServiceName, topic.Spec.TopicName)
+	t, err := h.client.KafkaTopics.Get(topic.Spec.Project, topic.Spec.ServiceName, topic.Name)
 	if err != nil && !aiven.IsNotFound(err) {
 		if aivenError, ok := err.(aiven.Error); ok {
 			// Getting topic info can sometimes temporarily fail with 501 and 502. Don't
