@@ -41,6 +41,9 @@ type ServiceUserStatus struct {
 // +kubebuilder:subresource:status
 
 // ServiceUser is the Schema for the serviceusers API
+// +kubebuilder:printcolumn:name="Service Name",type="string",JSONPath=".spec.serviceName"
+// +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
+// +kubebuilder:printcolumn:name="Connection Information Secret",type="string",JSONPath=".spec.connInfoSecretTarget.name"
 type ServiceUser struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

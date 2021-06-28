@@ -16,7 +16,17 @@ spec:
     singular: serviceuser
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.serviceName
+      name: Service Name
+      type: string
+    - jsonPath: .spec.project
+      name: Project
+      type: string
+    - jsonPath: .spec.connInfoSecretTarget.name
+      name: Connection Information Secret
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: ServiceUser is the Schema for the serviceusers API

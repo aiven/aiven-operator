@@ -141,6 +141,10 @@ type KafkaTopicStatus struct {
 // +kubebuilder:subresource:status
 
 // KafkaTopic is the Schema for the kafkatopics API
+// +kubebuilder:printcolumn:name="Service Name",type="string",JSONPath=".spec.serviceName"
+// +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
+// +kubebuilder:printcolumn:name="Partitions",type="string",JSONPath=".spec.partitions"
+// +kubebuilder:printcolumn:name="Replication",type="string",JSONPath=".spec.replication"
 type KafkaTopic struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

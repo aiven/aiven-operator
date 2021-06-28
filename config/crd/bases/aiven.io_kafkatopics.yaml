@@ -16,7 +16,20 @@ spec:
     singular: kafkatopic
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.serviceName
+      name: Service Name
+      type: string
+    - jsonPath: .spec.project
+      name: Project
+      type: string
+    - jsonPath: .spec.partitions
+      name: Partitions
+      type: string
+    - jsonPath: .spec.replication
+      name: Replication
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: KafkaTopic is the Schema for the kafkatopics API
