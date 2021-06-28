@@ -5,6 +5,8 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"strconv"
+
 	"github.com/aiven/aiven-go-client"
 	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -13,7 +15,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strconv"
 )
 
 // ServiceUserReconciler reconciles a ServiceUser object
@@ -115,6 +116,18 @@ func (h ServiceUserHandler) get(i client.Object) (client.Object, *corev1.Secret,
 		return nil, nil, err
 	}
 
+	s, err := h.client.Services.Get(user.Spec.Project, user.Spec.ServiceName)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	params := s.URIParams
+
+	caCert, err := h.client.CA.Get(user.Spec.Project)
+	if err != nil {
+		return nil, nil, fmt.Errorf("aiven client error %w", err)
+	}
+
 	meta.SetStatusCondition(&user.Status.Conditions,
 		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 			"Instance is running on Aiven side"))
@@ -127,10 +140,13 @@ func (h ServiceUserHandler) get(i client.Object) (client.Object, *corev1.Secret,
 			Namespace: user.Namespace,
 		},
 		StringData: map[string]string{
+			"HOST":        params["host"],
+			"PORT":        params["port"],
 			"USERNAME":    u.Username,
 			"PASSWORD":    u.Password,
 			"ACCESS_CERT": u.AccessCert,
 			"ACCESS_KEY":  u.AccessKey,
+			"CA_CERT":     caCert,
 		},
 	}, nil
 }

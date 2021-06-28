@@ -5,6 +5,8 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"strconv"
+
 	"github.com/aiven/aiven-go-client"
 	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -13,7 +15,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strconv"
 )
 
 // KafkaReconciler reconciles a Kafka object
@@ -176,6 +177,11 @@ func (h KafkaHandler) get(i client.Object) (client.Object, *corev1.Secret, error
 		metav1.SetMetaDataAnnotation(&kafka.ObjectMeta, isRunning, "true")
 	}
 
+	caCert, err := h.client.CA.Get(kafka.Spec.Project)
+	if err != nil {
+		return nil, nil, fmt.Errorf("aiven client error %w", err)
+	}
+
 	return kafka, &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      h.getSecretName(kafka),
@@ -188,6 +194,7 @@ func (h KafkaHandler) get(i client.Object) (client.Object, *corev1.Secret, error
 			"USERNAME":    userName,
 			"ACCESS_CERT": s.ConnectionInfo.KafkaAccessCert,
 			"ACCESS_KEY":  s.ConnectionInfo.KafkaAccessKey,
+			"CA_CERT":     caCert,
 		},
 	}, nil
 }

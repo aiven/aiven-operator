@@ -44,6 +44,11 @@ type KafkaACLStatus struct {
 // +kubebuilder:subresource:status
 
 // KafkaACL is the Schema for the kafkaacls API
+// +kubebuilder:printcolumn:name="Service Name",type="string",JSONPath=".spec.serviceName"
+// +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
+// +kubebuilder:printcolumn:name="Username",type="string",JSONPath=".spec.username"
+// +kubebuilder:printcolumn:name="Permission",type="string",JSONPath=".spec.permission"
+// +kubebuilder:printcolumn:name="Topic",type="string",JSONPath=".spec.topic"
 type KafkaACL struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
