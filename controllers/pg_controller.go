@@ -172,9 +172,6 @@ func (h PGHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      h.getSecretName(pg),
 			Namespace: pg.Namespace,
-			Labels: map[string]string{
-				"app": pg.Name,
-			},
 		},
 		StringData: map[string]string{
 			"PGHOST":       s.URIParams["host"],

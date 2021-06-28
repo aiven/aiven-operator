@@ -180,9 +180,6 @@ func (h KafkaHandler) get(i client.Object) (client.Object, *corev1.Secret, error
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      h.getSecretName(kafka),
 			Namespace: kafka.Namespace,
-			Labels: map[string]string{
-				"app": kafka.Name,
-			},
 		},
 		StringData: map[string]string{
 			"HOST":        params["host"],

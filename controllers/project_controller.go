@@ -161,9 +161,6 @@ func (h ProjectHandler) get(i client.Object) (client.Object, *corev1.Secret, err
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      h.getSecretName(project),
 			Namespace: project.Namespace,
-			Labels: map[string]string{
-				"app": project.Name,
-			},
 		},
 		StringData: map[string]string{
 			"CA_CERT": cert,

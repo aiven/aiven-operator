@@ -167,9 +167,6 @@ func (h ConnectionPoolHandler) get(i client.Object) (client.Object, *corev1.Secr
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      h.getSecretName(connPool),
 			Namespace: connPool.Namespace,
-			Labels: map[string]string{
-				"app": connPool.Name,
-			},
 		},
 		StringData: map[string]string{
 			"PGHOST":       s.URIParams["host"],

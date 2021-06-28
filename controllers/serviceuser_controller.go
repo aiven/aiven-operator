@@ -125,9 +125,6 @@ func (h ServiceUserHandler) get(i client.Object) (client.Object, *corev1.Secret,
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      h.getSecretName(user),
 			Namespace: user.Namespace,
-			Labels: map[string]string{
-				"app": user.Name,
-			},
 		},
 		StringData: map[string]string{
 			"USERNAME":    u.Username,
