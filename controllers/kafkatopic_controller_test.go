@@ -100,7 +100,6 @@ func kafkaTopicSpec(service, topic, namespace string) *v1alpha1.KafkaTopic {
 		Spec: v1alpha1.KafkaTopicSpec{
 			Project:     os.Getenv("AIVEN_PROJECT_NAME"),
 			ServiceName: service,
-			TopicName:   topic,
 			Partitions:  3,
 			Replication: 2,
 			Tags: []v1alpha1.KafkaTopicTag{
