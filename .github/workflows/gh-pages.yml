@@ -40,6 +40,17 @@ jobs:
 
       - run: npm ci
 
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.16.5'
+
+      - name: Install gen-crd-api-reference-docs
+        run: go get github.com/ahmetb/gen-crd-api-reference-docs
+
+      - name: Generate API Reference
+        run:  gen-crd-api-reference-docs -config api-reference-hack/config.json -api-dir ../api/v1alpha1 -out-file content/en/docs/api-reference/_index.html
+
       - run: hugo --minify
 
       - name: Deploy
