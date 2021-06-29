@@ -49,7 +49,7 @@ jobs:
         run: go get github.com/ahmetb/gen-crd-api-reference-docs
 
       - name: Generate API Reference
-        run:  gen-crd-api-reference-docs -config api-reference-hack/config.json -api-dir ../api/v1alpha1 -out-file content/en/docs/api-reference/_index.html
+        run:  gen-crd-api-reference-docs -config api-reference-hack/config.json -template-dir api-reference-hack/template -api-dir ../api/v1alpha1 -out-file content/en/docs/api-reference/_index.html
 
       - run: hugo --minify
 
