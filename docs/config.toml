@@ -20,11 +20,10 @@ languageName = "English"
 id = ""
 
 [params]
-copyright = "Aiven"
+copyright = "Aiven Team, "
 
 # Repository configuration (URLs for in-page links to opening issues and suggesting changes)
-github_repo = "https://github.com/aiven/aiven-kubernetes-operator"
-github_subdir = "docs"
+github_repo = ""
 
 # Search
 # TODO: Configure search
@@ -32,6 +31,8 @@ gcs_engine_id = ""
 
 [params.ui]
 breadcrumb_disable = true
+navbar_logo = true
+
 
 [params.links]
 [[params.links.user]]

@@ -1,6 +1,6 @@
 ---
-title: "PostgreSQL"
-linkTitle: "PostgreSQL"
+title: "Aiven for PostgreSQL"
+linkTitle: "Aiven for PostgreSQL"
 weight: 20 
 ---
 
