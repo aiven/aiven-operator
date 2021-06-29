@@ -1,6 +1,6 @@
 ---
-title: "Kafka"
-linkTitle: "Kafka"
+title: "Aiven for Kafka"
+linkTitle: "Aiven for Kafka"
 weight: 30 
 ---
 
