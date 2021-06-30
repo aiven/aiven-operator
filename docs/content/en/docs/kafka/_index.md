@@ -4,12 +4,13 @@ linkTitle: "Aiven for Kafka"
 weight: 30 
 ---
 
-Aiven for Apache Kafka is an excellent option if you need to run Apache Kafka at scale - or even if you don’t. Get up and running with a suitably sized Apache Kafka service in a few minutes.
+Aiven for Kafka is an excellent option if you need to run Apache Kafka at scale.
+With Aiven Kubernetes Operator you can get up and running with a suitably sized Apache Kafka service in a few minutes.
 
-> Before going through this guide, make sure to have a [Kubernetes Cluster](../installation/prerequisites/) with the [Operator installed](../installation/) and a [Kubernetes Secret with an Aiven authentication token](../authentication/).
+> Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites/) with the [operator installed](../installation/) and a [Kubernetes secret with an Aiven authentication token](../authentication/).
 
-## Create a Kafka instance
-Create a file named `kafka-sample.yaml` and add the following content:
+## Creating a Kafka instance
+1. Create a file named `kafka-sample.yaml`, and add the following content:
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: Kafka
@@ -42,12 +43,12 @@ spec:
     kafka_version: '2.7'
 ```
 
-Let's create this resource on Kubernetes by running the following command:
+2. Create the following resource on Kubernetes:
 ```bash
 $ kubectl apply -f kafka-sample.yaml 
 ```
 
-You can inspect the created service with the command below. After a couple of minutes, the `STATE` field should be `RUNNING` and ready to be used.
+3. Inspect the service created using the command below. After a couple of minutes, the `STATE` field is changed to `RUNNING`, and is ready to be used.
 ```bash
 $ kubectl get kafka.aiven.io kafka-sample
 
@@ -55,8 +56,8 @@ NAME           PROJECT         REGION                PLAN        STATE
 kafka-sample   dev-advocates   google-europe-west1   startup-2   RUNNING
 ```
 
-## Connection Information Secret
-For your convenience, we automatically store the Kafka connection information on a Secret created with the name specified on the `connInfoSecretTarget` field.
+## Using the connection secret
+For your convenience, the operator automatically stores the Kafka connection information in a secret created with the name specified on the `connInfoSecretTarget` field.
 ```bash
 $ kubectl describe secret kafka-auth 
 
@@ -77,7 +78,7 @@ ACCESS_CERT:  1533 bytes
 ACCESS_KEY:   2484 bytes
 ```
 
-You can use [jq](https://github.com/stedolan/jq) to quickly decode the Secret:
+You can use the [jq](https://github.com/stedolan/jq) to quickly decode the secret:
 ```bash
 kubectl get secret kafka-auth -o json | jq '.data | map_values(@base64d)'
 {
@@ -91,10 +92,11 @@ kubectl get secret kafka-auth -o json | jq '.data | map_values(@base64d)'
 }
 ```
 
-## Test the Connection
-Let's verify if we can access the Kafka cluster from a Pod using the authentication data from the `kafka-auth` Secret. We will be using [kafkacat](https://github.com/edenhill/kafkacat) for our examples.
+## Testing the connection
+You can verify your access to the Kafka cluster from a pod using the authentication data from the `kafka-auth` secret. 
+[kafkacat](https://github.com/edenhill/kafkacat) is used for our examples below.
 
-Create a file named `kafka-test-connection.yaml` and add the following content:
+1. Create a file named `kafka-test-connection.yaml`, and add the following content:
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -136,12 +138,12 @@ spec:
       secretName: kafka-auth
 ```
 
-Let's apply the file with:
+2. Apply the file.
 ```bash
 $ kubectl apply -f kafka-test-connection.yaml
 ```
 
-If everything went fine, we should have a log with some metadata information about the Kafka cluster. Let's check it:
+Once successfully aplied, you have a log with the metadata information about the Kafka cluster.
 ```bash
 $ kubectl logs kafka-test-connection 
 
@@ -153,12 +155,12 @@ Metadata for all topics (from broker -1: ssl://kafka-sample-dev-advocates.aivenc
  0 topics:
 ```
 
-## Kafka Topic and ACL
-To properly produce and consume content on Kafka, we will need Topics and ACLs. Luckily, the Operator supports them with the `KafkaTopic` and `KafkaACL` resources.
+## Creating a Kafka topic and and ACL
+To properly produce and consume content on Kafka, you need topics and ACLs. The operator supports both with the `KafkaTopic` and `KafkaACL` resources.
 
-We will create a Kafka Topic named `random-strings` to send random string messages.
+Below, here is how to create a Kafka topic named `random-strings` where random string messages will be sent.
 
-Create a file named `kafka-topic-random-strings.yaml` with the content below:
+1. Create a file named `kafka-topic-random-strings.yaml` with the content below:
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: KafkaTopic
@@ -182,14 +184,15 @@ spec:
     flush_ms: 100
 ```
 
-Create the resource on Kubernetes:
+2. Create the resource on Kubernetes:
 ```bash
 $ kubectl apply -f kafka-topic-random-strings.yaml
 ```
 
-To use the Kafka Topic, we need to create a new user with the `ServiceUser` resource (to avoid using the `avnadmin` super user!) and the `KafkaACL` to allow the user access to the Topic.
+3. Create a user and an ACL.
+To use the Kafka topic, create a new user with the `ServiceUser` resource (in order to avoid using the `avnadmin` super user), and the `KafkaACL` to allow the user access to the topic.
 
-In a file named `kafka-acl-user-crab.yaml`, add the following two resources:
+..1. In a file named `kafka-acl-user-crab.yaml`, add the following two resources:
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: ServiceUser
@@ -237,17 +240,19 @@ spec:
   topic: random-strings
 ```
 
-To create the `crab` user and its permissions, execute the following command:
+..2. To create the `crab` user and its permissions, execute the following command:
 ```bash
 $ kubectl apply -f kafka-acl-user-crab.yaml
 ```
 
-## Produce and Consume Events
-Using the previously created `KafkaTopic`, `ServiceUser`, `KafkaACL`, let's produce and consume events!
+## Producing and consuming events
+Using the previously created `KafkaTopic`, `ServiceUser`, `KafkaACL`, you can produce and consume events.
 
-We will use once again Kafkacat to produce a message into Kafka. We will be using the `-t random-strings` argument to select the desired Topic and the use content of the `/etc/issue` file as the message's body.
+You can use Kafkacat to produce a message into Kafka, and the `-t random-strings` argument to select the desired topic, and use the content of the `/etc/issue` file as the message's body.
 
-Create a `kafka-crab-produce.yaml` file with the content below:
+**-> To produce an event**
+
+1. Create a `kafka-crab-produce.yaml` file with the content below:
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -288,14 +293,18 @@ spec:
       secretName: kafka-crab-connection
 ```
 
-And create the Pod with:
+2. Create the pod with the following content:
 ```bash
 $ kubectl apply -f kafka-crab-produce.yaml
 ```
 
-Cool, our event should be stored in Kafka! To _consume_ the message, we will be using a very nice graphical interface called [Kowl](https://github.com/cloudhut/kowl). It allows us to explore information about our Kafka cluster, like Brokers, Topics, Consumer Groups and more.
+Now your event is stored in Kafka.
 
-If you are still not tired of YAML, let's create yet another Kubernetes Pod and Service to deploy and access Kowl. Create a file named `kafka-crab-consume.yaml` with the content below:
+**-> To consume**
+
+To _consume_ a message, you can use a graphical interface called [Kowl](https://github.com/cloudhut/kowl). It allows you to explore information about our Kafka cluster, such as brokers, topics, or consumer groups.
+
+1. Create a Kubernetes pod and service to deploy and access Kowl. Create a file named `kafka-crab-consume.yaml` with the content below:
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -356,18 +365,20 @@ spec:
     targetPort: 8080
 ```
 
-Create the resources with:
+2. Create the resources with:
 ```bash
 $ kubectl apply -f kafka-crab-consume.yaml
 ```
 
-And, in another terminal, let's create a port-forward tunnel to our Pod:
+3. In another terminal create a port-forward tunnel to your pod:
 ```bash
 $ kubectl port-forward kafka-crab-consume 8080:8080
 ```
 
-In your favorite browser, access the [http://localhost:8080]() address. You should see a page with the `random-strings` topic listed:
+4. In the browser of your choice, access the [http://localhost:8080]() address. You now see a page with the `random-strings` topic listed:
 ![Kowl graphical interface on the topic listing page](./kowl-topics.png)
 
-And, when clicking in the Topic name, you will see the message.
+5. Click the topic name to see the message.
 ![Kowl graphical interface on the random-strings topic page](./kowl-random-strings.png)
+
+You have now consumed the message. 
