@@ -44,6 +44,8 @@ type DatabaseStatus struct {
 // +kubebuilder:subresource:status
 
 // Database is the Schema for the databases API
+// +kubebuilder:printcolumn:name="Service Name",type="string",JSONPath=".spec.serviceName"
+// +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
 type Database struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
