@@ -36,7 +36,6 @@ kafka-sample   dev-advocates   google-europe-west1   startup-2   RUNNING
 
 Name:         kafka-auth
 Namespace:    default
-Labels:       app<span style=color:#f92672>=</span>kafka-sample
 Annotations:  &lt;none&gt;
 
 Type:  Opaque
@@ -56,7 +55,7 @@ ACCESS_KEY:   <span style=color:#ae81ff>2484</span> bytes
   <span style=color:#e6db74>&#34;ACCESS_CERT&#34;</span>: <span style=color:#e6db74>&#34;&lt;secret-cert&gt;&#34;</span>,
   <span style=color:#e6db74>&#34;ACCESS_KEY&#34;</span>: <span style=color:#e6db74>&#34;&lt;secret-access-key&gt;&#34;</span>,
   <span style=color:#e6db74>&#34;HOST&#34;</span>: <span style=color:#e6db74>&#34;kafka-sample-your-project.aivencloud.com&#34;</span>,
-  <span style=color:#e6db74>&#34;PASSWORD&#34;</span>: <span style=color:#e6db74>&#34;&lt;secret-password&lt;&#34;</span>,
+  <span style=color:#e6db74>&#34;PASSWORD&#34;</span>: <span style=color:#e6db74>&#34;&lt;secret-password&gt;&#34;</span>,
   <span style=color:#e6db74>&#34;PORT&#34;</span>: <span style=color:#e6db74>&#34;13041&#34;</span>,
   <span style=color:#e6db74>&#34;USERNAME&#34;</span>: <span style=color:#e6db74>&#34;avnadmin&#34;</span>
 <span style=color:#f92672>}</span>
@@ -116,10 +115,8 @@ Metadata <span style=color:#66d9ef>for</span> all topics <span style=color:#f926
     <span style=color:#f92672>name</span>: <span style=color:#ae81ff>aiven-token</span>
     <span style=color:#f92672>key</span>: <span style=color:#ae81ff>token</span>
   
-  <span style=color:#f92672>project</span>: <span style=color:#ae81ff>dev-advocates</span>
+  <span style=color:#f92672>project</span>: <span style=color:#ae81ff>&lt;your-project-name&gt;</span>
   <span style=color:#f92672>serviceName</span>: <span style=color:#ae81ff>kafka-sample</span>
-
-  <span style=color:#f92672>topicName</span>: <span style=color:#ae81ff>random-strings</span>
 
   <span style=color:#75715e># here we can specify how many partitions the topic should have</span>
   <span style=color:#f92672>partitions</span>: <span style=color:#ae81ff>3</span>
@@ -147,7 +144,7 @@ Metadata <span style=color:#66d9ef>for</span> all topics <span style=color:#f926
     <span style=color:#f92672>name</span>: <span style=color:#ae81ff>kafka-crab-connection</span>
 
   <span style=color:#75715e># the Aiven project the user is related to</span>
-  <span style=color:#f92672>project</span>: <span style=color:#ae81ff>dev-advocates</span>
+  <span style=color:#f92672>project</span>: <span style=color:#ae81ff>&lt;your-project-name&gt;</span>
 
   <span style=color:#75715e># the name of our Kafka Service</span>
   <span style=color:#f92672>serviceName</span>: <span style=color:#ae81ff>kafka-sample</span>
@@ -163,7 +160,7 @@ Metadata <span style=color:#66d9ef>for</span> all topics <span style=color:#f926
     <span style=color:#f92672>name</span>: <span style=color:#ae81ff>aiven-token</span>
     <span style=color:#f92672>key</span>: <span style=color:#ae81ff>token</span>
 
-  <span style=color:#f92672>project</span>: <span style=color:#ae81ff>dev-advocates</span>
+  <span style=color:#f92672>project</span>: <span style=color:#ae81ff>&lt;your-project-name&gt;</span>
   <span style=color:#f92672>serviceName</span>: <span style=color:#ae81ff>kafka-sample</span>
 
   <span style=color:#75715e># the username from the ServiceUser above</span>

@@ -34,9 +34,9 @@
 NAME         PROJECT         REGION                PLAN       STATE
 pg-sample    dev-advocates   google-europe-west1   hobbyist   RUNNING
 </code></pre></div><p>The resource might stay in the <code>BUILDING</code> state for a couple of minutes, enough to grab a quick coffee! Once the state becomes <code>RUNNING</code>, we are ready to access it.</p><h2 id=connection-information-secret>Connection Information Secret</h2><p>For your convenience, we automatically store the PostgreSQL connection information on a Secret created with the name specified on the <code>connInfoSecretTarget</code> field.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>$ kubectl describe secret pg-connection 
+
 Name:         pg-connection
 Namespace:    default
-Labels:       app<span style=color:#f92672>=</span>pg-sample
 Annotations:  &lt;none&gt;
 
 Type:  Opaque
@@ -108,7 +108,7 @@ PGUSER:        <span style=color:#ae81ff>8</span> bytes
   <span style=color:#f92672>connInfoSecretTarget</span>:
     <span style=color:#f92672>name</span>: <span style=color:#ae81ff>pg-service-user-connection</span>
 
-  <span style=color:#f92672>project</span>: <span style=color:#ae81ff>dev-advocates</span>
+  <span style=color:#f92672>project</span>: <span style=color:#ae81ff>&lt;your-project-name&gt;</span>
   <span style=color:#f92672>serviceName</span>: <span style=color:#ae81ff>pg-sample</span>
 </code></pre></div><p>Apply the configuration with:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>$ kubectl apply -f pg-service-user.yaml
 </code></pre></div><p>The <code>ServiceUser</code> resource also generates a Secret with connection information, in this case named <code>pg-service-user-connection</code>:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>$ kubectl get secret pg-service-user-connection -o json | jq <span style=color:#e6db74>&#39;.data | map_values(@base64d)&#39;</span>
@@ -117,7 +117,7 @@ PGUSER:        <span style=color:#ae81ff>8</span> bytes
   <span style=color:#e6db74>&#34;PASSWORD&#34;</span>: <span style=color:#e6db74>&#34;&lt;secret-password&gt;&#34;</span>,
   <span style=color:#e6db74>&#34;USERNAME&#34;</span>: <span style=color:#e6db74>&#34;pg-service-user&#34;</span>
 <span style=color:#f92672>}</span>
-</code></pre></div><p>You can go ahead and connect to the PostgreSQL instance using the credentials above and the host information from the <code>pg-connection</code> Secret.</p><h2 id=create-a-postgresql-connection-pool>Create a PostgreSQL Connection Pool</h2><p>Connection pooling allows ou to maintain very large numbers of connections to a database while minimizing the consumption of server resources. See more information <a href=https://help.aiven.io/en/articles/964730-postgresql-connection-pooling>here</a>.</p><p>Under the hood, PostgreSQL for Aiven uses PGBouncer. Let&rsquo;s create one with the <code>ConnectionPool</code> resource combining the previously created <code>Database</code> and <code>ServiceUser</code>.</p><p>Create a new file named <code>pg-connection-pool.yaml</code> with the following content:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>aiven.io/v1alpha1</span>
+</code></pre></div><p>You can go ahead and connect to the PostgreSQL instance using the credentials above and the host information from the <code>pg-connection</code> Secret.</p><h2 id=create-a-postgresql-connection-pool>Create a PostgreSQL Connection Pool</h2><p>Connection pooling allows you to maintain very large numbers of connections to a database while minimizing the consumption of server resources. See more information <a href=https://help.aiven.io/en/articles/964730-postgresql-connection-pooling>here</a>.</p><p>Under the hood, PostgreSQL for Aiven uses PGBouncer. Let&rsquo;s create one with the <code>ConnectionPool</code> resource combining the previously created <code>Database</code> and <code>ServiceUser</code>.</p><p>Create a new file named <code>pg-connection-pool.yaml</code> with the following content:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>aiven.io/v1alpha1</span>
 <span style=color:#f92672>kind</span>: <span style=color:#ae81ff>ConnectionPool</span>
 <span style=color:#f92672>metadata</span>:
   <span style=color:#f92672>name</span>: <span style=color:#ae81ff>pg-connection-pool</span>
