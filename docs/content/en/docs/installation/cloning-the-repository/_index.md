@@ -1,24 +1,27 @@
 ---
-title: "Cloning the GitHub Repository"
-linkTitle: "Cloning the GitHub Repository"
+title: "Cloning the GitHub repository"
+linkTitle: "Cloning the GitHub repository"
 weight: 20
 ---
 
-Let's install the Operator from the GitHub repository.
+The Aiven Kubernetes Operator can be installed from the following GitHub repository:
+[aiven/aiven-kubernetes-operator.git](https://github.com/aiven/aiven-kubernetes-operator)
 
-First, clone this repository:
+**-> To perfrom the installation:**
+
+1. Clone this repository.
 ```bash
 $ git clone git@github.com:aiven/aiven-kubernetes-operator.git
 $ cd aiven-kubernetes-operator
 ```
 
-Install the `cert-manager` Operator:
+2. Install the `cert-manager` operator.
 > cert-manager is used to manage the Operator [webhooks](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/) TLS certificates.
 ```bash
 $ make install-cert-manager
 ```
 
-Verify if the `cert-manager` was installed correctly by checking its namespace for running pods:
+3. Verify that the `cert-manager` is installed correctly by checking its namespace for running pods.
 ```bash
 $ kubectl get pods --namespace cert-manager
 
@@ -28,20 +31,22 @@ cert-manager-cainjector-64c949654c-99z6k   1/1     Running   0          3m
 cert-manager-webhook-6bdffc7c9d-dd4m5      1/1     Running   0          3m
 ```
 
-Install the Custom Resources Definitions:
+4. Install the Custom Resources Definitions.
 ```bash
 $ make install
 ```
 
-Deploy the Operator:
+5. Deploy the operator.
 ```bash
 $ make deploy
 ```
 
-Verify the deployment by checking the Operator running pod:
+6. Verify the deployment by checking the operator running pod.
 ```bash
 kubectl get pods --namespace aiven-kubernetes-operator-system 
 
 NAME                                                           READY   STATUS    RESTARTS   AGE
 aiven-kubernetes-operator-controller-manager-b5487dff7-2pzb8   1/1     Running   0          5m55s
 ```
+
+You've now installed the Aiven Kubernetes Operator. [Verify your installation](./verifying).
