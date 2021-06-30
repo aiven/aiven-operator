@@ -1,12 +1,12 @@
 ---
-title: "Verifying the Installation"
-linkTitle: "Verifying the Installation"
+title: "Verifying the installation"
+linkTitle: "Verifying the installation"
 weight: 30
 ---
 
-You can use the following commands to ensure a successful installation.
+Use the following commands to ensure your installation was successful.
 
-Verify if all the Operator Pods are `READY` and the `STATUS` is `Running`.
+* Verify that all the operator pods are `READY`, and their `STATUS` is `Running`.
 ```bash
 $ kubectl get pod -n aiven-kubernetes-operator-system 
 
@@ -14,7 +14,7 @@ NAME                                                            READY   STATUS  
 aiven-kubernetes-operator-controller-manager-576d944499-ggttj   1/1     Running   0          12m
 ```
 
-Verify if the cert-manager Pods are also running:
+* Verify that the `cert-manager` pods are running:
 ```bash
 $ kubectl get pod --namespace cert-manager
 
@@ -24,7 +24,7 @@ cert-manager-cainjector-64c949654c-n2z8l   1/1     Running   0          77s
 cert-manager-webhook-6bdffc7c9d-47w6z      1/1     Running   0          76
 ```
 
-Verify the Operator startup logs. It should look like the code below (output trimmed):
+* Verify the operator startup logs. These should look like the code below (output trimmed):
 ```bash
 $ kubectl logs -n aiven-kubernetes-operator-system -l control-plane=controller-manager -f
 
@@ -52,3 +52,5 @@ I0616 17:05:40.017691       1 leaderelection.go:253] successfully acquired lease
 2021-06-16T17:05:40.999Z	INFO	controller-runtime.manager.controller.connectionpool	Starting workers	{"reconciler group": "aiven.io", "reconciler kind": "ConnectionPool", "worker count": 1}
 2021-06-16T17:05:40.999Z	INFO	controller-runtime.manager.controller.kafkaacl	Starting workers	{"reconciler group": "aiven.io", "reconciler kind": "KafkaACL", "worker count": 1}
 ```
+
+You have now verified that your installation was successful.
