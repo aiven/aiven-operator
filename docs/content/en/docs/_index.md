@@ -5,7 +5,11 @@ url: /
 ---
 
 # Welcome to Aiven Kubernetes Operator
-Provision and manage [Aiven Services](https://aiven.io) from your Kubernetes cluster.
+Provision and manage [Aiven services](https://aiven.io) from your Kubernetes cluster.
+
+Currently, the operator supports [Aiven for PostgreSQL](./postgresql/) and [Aiven for Kafka](./kafka) services.
+
+# What is Aiven?
 
 Aiven offers managed services for the best open source data technologies, on a cloud of your choice.
 
