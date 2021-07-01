@@ -730,8 +730,12 @@ spec:
                   - type
                   type: object
                 type: array
+              state:
+                description: Service state
+                type: string
             required:
             - conditions
+            - state
             type: object
         type: object
     served: true

@@ -156,7 +156,14 @@ func (h KafkaConnectHandler) get(i client.Object) (client.Object, *corev1.Secret
 		return nil, nil, err
 	}
 
-	if checkServiceIsRunning(h.client, kc.Spec.Project, kc.Name) {
+	s, err := h.client.Services.Get(kc.Spec.Project, kc.Name)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	kc.Status.State = s.State
+
+	if s.State == "RUNNING" {
 		meta.SetStatusCondition(&kc.Status.Conditions,
 			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 				"Instance is running on Aiven side"))
