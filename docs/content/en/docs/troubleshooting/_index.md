@@ -47,7 +47,7 @@ The following event appears on the operator pod:
 MountVolume.SetUp failed for volume "cert" : secret "webhook-server-cert" not found
 ```
 #### Impact
-(can we add impact??)
+You cannot run the operator. 
 
 #### Solution
 Make sure that cert-manager is up and running.
