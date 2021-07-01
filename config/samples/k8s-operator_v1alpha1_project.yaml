@@ -1,6 +1,0 @@
-apiVersion: aiven.io/v1alpha1
-kind: Project
-metadata:
-  name: project-sample1
-spec:
-  billingAddress: NYC

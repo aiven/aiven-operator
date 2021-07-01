@@ -1,8 +1,0 @@
-apiVersion: aiven.io/v1alpha1
-kind: ServiceUser
-metadata:
-  name: serviceuser-sample
-spec:
-  project: dev-sandbox
-  serviceName: service-pg-or-kafka-sample
-  authentication: caching_sha2_password

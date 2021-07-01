@@ -62,7 +62,6 @@ $ kubectl describe secret kafka-auth
 
 Name:         kafka-auth
 Namespace:    default
-Labels:       app=kafka-sample
 Annotations:  <none>
 
 Type:  Opaque
@@ -86,7 +85,7 @@ kubectl get secret kafka-auth -o json | jq '.data | map_values(@base64d)'
   "ACCESS_CERT": "<secret-cert>",
   "ACCESS_KEY": "<secret-access-key>",
   "HOST": "kafka-sample-your-project.aivencloud.com",
-  "PASSWORD": "<secret-password<",
+  "PASSWORD": "<secret-password>",
   "PORT": "13041",
   "USERNAME": "avnadmin"
 }
@@ -170,10 +169,8 @@ spec:
     name: aiven-token
     key: token
   
-  project: dev-advocates
+  project: <your-project-name>
   serviceName: kafka-sample
-
-  topicName: random-strings
 
   # here we can specify how many partitions the topic should have
   partitions: 3
@@ -211,7 +208,7 @@ spec:
     name: kafka-crab-connection
 
   # the Aiven project the user is related to
-  project: dev-advocates
+  project: <your-project-name>
 
   # the name of our Kafka Service
   serviceName: kafka-sample
@@ -227,7 +224,7 @@ spec:
     name: aiven-token
     key: token
 
-  project: dev-advocates
+  project: <your-project-name>
   serviceName: kafka-sample
 
   # the username from the ServiceUser above

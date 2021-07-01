@@ -38,9 +38,11 @@ Deploy the Operator:
 $ make deploy
 ```
 
+> Alternatively, you can execute `make run` to run the Operator directly from your local machine, without deploying it to the Kubernetes cluster. This method is recommended for local development.
+
 Verify the deployment by checking the Operator running pod:
 ```bash
-kubectl get pods --namespace aiven-kubernetes-operator-system 
+$ kubectl get pods --namespace aiven-kubernetes-operator-system 
 
 NAME                                                           READY   STATUS    RESTARTS   AGE
 aiven-kubernetes-operator-controller-manager-b5487dff7-2pzb8   1/1     Running   0          5m55s

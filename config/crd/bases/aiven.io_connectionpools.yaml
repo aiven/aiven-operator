@@ -16,7 +16,26 @@ spec:
     singular: connectionpool
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.serviceName
+      name: Service Name
+      type: string
+    - jsonPath: .spec.project
+      name: Project
+      type: string
+    - jsonPath: .spec.databaseName
+      name: Database
+      type: string
+    - jsonPath: .spec.username
+      name: Username
+      type: string
+    - jsonPath: .spec.poolSize
+      name: Pool Size
+      type: string
+    - jsonPath: .spec.poolMode
+      name: Pool Mode
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: ConnectionPool is the Schema for the connectionpools API

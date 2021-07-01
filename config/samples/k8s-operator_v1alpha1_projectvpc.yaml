@@ -1,8 +1,0 @@
-apiVersion: aiven.io/v1alpha1
-kind: ProjectVPC
-metadata:
-  name: projectvpc-sample
-spec:
-  project: sample-project
-  cloudName: aws-eu-west-1
-  networkCidr: 192.168.0.0/24

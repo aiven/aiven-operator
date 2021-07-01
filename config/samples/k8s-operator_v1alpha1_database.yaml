@@ -1,9 +1,0 @@
-apiVersion: aiven.io/v1alpha1
-kind: Database
-metadata:
-  name: database-sample
-spec:
-  project: dev-sandbox
-  serviceName: kafka-sample
-  lcCollate: en_US.UTF-8
-  lcCtype: en_US.UTF-8
