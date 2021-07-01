@@ -160,7 +160,9 @@ func (h PGHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
 		return nil, nil, fmt.Errorf("cannot get pg: %w", err)
 	}
 
-	if checkServiceIsRunning(h.client, pg.Spec.Project, pg.Name) {
+	pg.Status.State = s.State
+
+	if s.State == "RUNNING" {
 		meta.SetStatusCondition(&pg.Status.Conditions,
 			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 				"Instance is running on Aiven side"))

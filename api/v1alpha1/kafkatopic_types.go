@@ -131,6 +131,9 @@ type KafkaTopicConfig struct {
 type KafkaTopicStatus struct {
 	// Conditions represent the latest available observations of an KafkaTopic state
 	Conditions []metav1.Condition `json:"conditions"`
+
+	// State kafka topic state
+	State string `json:"state"`
 }
 
 // +kubebuilder:object:root=true

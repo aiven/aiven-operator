@@ -62,6 +62,9 @@ var _ = Describe("Kafka Topic Controller", func() {
 			}
 			return false
 		}, timeout, interval).Should(BeTrue())
+
+		By("by checking finalizers")
+		Expect(createdTopic.GetFinalizers()).ToNot(BeEmpty())
 	})
 
 	Context("Validating Kafka reconciler behaviour", func() {
@@ -73,9 +76,7 @@ var _ = Describe("Kafka Topic Controller", func() {
 
 			By("by checking that after KafkaTopic was created")
 			Expect(meta.IsStatusConditionTrue(createdTopic.Status.Conditions, conditionTypeRunning)).Should(BeTrue())
-
-			By("by checking finalizers")
-			Expect(createdTopic.GetFinalizers()).ToNot(BeEmpty())
+			Expect(createdTopic.Status.State).Should(Equal("ACTIVE"))
 		})
 	})
 

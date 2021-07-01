@@ -79,6 +79,8 @@ var _ = Describe("Kafka Controller", func() {
 			Expect(createdSecret.Data["USERNAME"]).NotTo(BeEmpty())
 			Expect(createdSecret.Data["ACCESS_CERT"]).NotTo(BeEmpty())
 			Expect(createdSecret.Data["ACCESS_KEY"]).NotTo(BeEmpty())
+
+			Expect(createdKafka.Status.State).Should(Equal("RUNNING"))
 		})
 	})
 
