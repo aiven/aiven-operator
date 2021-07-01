@@ -155,12 +155,14 @@ func (h KafkaTopicHandler) get(i client.Object) (client.Object, *corev1.Secret, 
 		return nil, nil, err
 	}
 
-	isActive, err := h.isActive(topic)
+	state, err := h.getState(topic)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	if isActive {
+	topic.Status.State = state
+
+	if state == "ACTIVE" {
 		meta.SetStatusCondition(&topic.Status.Conditions,
 			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 				"Instance is running on Aiven side"))
@@ -180,21 +182,21 @@ func (h KafkaTopicHandler) checkPreconditions(i client.Object) bool {
 	return checkServiceIsRunning(h.client, topic.Spec.Project, topic.Spec.ServiceName)
 }
 
-func (h KafkaTopicHandler) isActive(topic *k8soperatorv1alpha1.KafkaTopic) (bool, error) {
+func (h KafkaTopicHandler) getState(topic *k8soperatorv1alpha1.KafkaTopic) (string, error) {
 	t, err := h.client.KafkaTopics.Get(topic.Spec.Project, topic.Spec.ServiceName, topic.Name)
 	if err != nil && !aiven.IsNotFound(err) {
 		if aivenError, ok := err.(aiven.Error); ok {
 			// Getting topic info can sometimes temporarily fail with 501 and 502. Don't
 			// treat that as fatal error but keep on retrying instead.
 			if aivenError.Status == 501 || aivenError.Status == 502 {
-				return false, nil
+				return "", nil
 			}
 		}
 
-		return false, err
+		return "", err
 	}
 
-	return t.State == "ACTIVE", nil
+	return t.State, nil
 }
 
 func (h KafkaTopicHandler) convert(i client.Object) (*k8soperatorv1alpha1.KafkaTopic, error) {

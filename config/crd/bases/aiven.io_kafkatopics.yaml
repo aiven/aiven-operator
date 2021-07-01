@@ -271,8 +271,12 @@ spec:
                   - type
                   type: object
                 type: array
+              state:
+                description: State kafka topic state
+                type: string
             required:
             - conditions
+            - state
             type: object
         type: object
     served: true
