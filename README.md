@@ -106,4 +106,4 @@ $ kubectl logs psql-test-connection
 We welcome and encourage contributions to this project. Please take a look at our [Contribution guide line](https://aiven.github.io/aiven-kubernetes-operator/docs/contributing/).
 
 ## License
-[MIT](LICENSE).
+[Apache 2](LICENSE).
