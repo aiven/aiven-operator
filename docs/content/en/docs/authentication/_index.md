@@ -9,8 +9,6 @@ You can then refer to the secret name on every custom resource in the `authSecre
 
 **If you don't have an Aiven account yet, sign up [here](https://console.aiven.io/signup?utm_source=github&utm_medium=organic&utm_campaign=k8s-operator&utm_content=signup) for a free trial. 🦀**
 
-**-> To authenticate**
-
 1. Generate an authentication token
 Refer to [our documentation article](https://help.aiven.io/en/articles/2059201-authentication-tokens) to generate your authentication token.
 
