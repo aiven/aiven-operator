@@ -7,7 +7,7 @@ weight: 30
 Aiven for Kafka is an excellent option if you need to run Apache Kafka at scale.
 With Aiven Kubernetes Operator you can get up and running with a suitably sized Apache Kafka service in a few minutes.
 
-> Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites/) with the [operator installed](../installation/) and a [Kubernetes secret with an Aiven authentication token](../authentication/).
+> Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites/) with the [operator installed](../installation/) and a [Kubernetes Secret with an Aiven authentication token](../authentication/).
 
 ## Creating a Kafka instance
 1. Create a file named `kafka-sample.yaml`, and add the following content:
@@ -56,8 +56,8 @@ NAME           PROJECT         REGION                PLAN        STATE
 kafka-sample   dev-advocates   google-europe-west1   startup-2   RUNNING
 ```
 
-## Using the connection secret
-For your convenience, the operator automatically stores the Kafka connection information in a secret created with the name specified on the `connInfoSecretTarget` field.
+## Using the connection Secret
+For your convenience, the operator automatically stores the Kafka connection information in a Secret created with the name specified on the `connInfoSecretTarget` field.
 ```bash
 $ kubectl describe secret kafka-auth 
 
@@ -78,7 +78,7 @@ ACCESS_CERT:  1533 bytes
 ACCESS_KEY:   2484 bytes
 ```
 
-You can use the [jq](https://github.com/stedolan/jq) to quickly decode the secret:
+You can use the [jq](https://github.com/stedolan/jq) to quickly decode the Secret:
 ```bash
 kubectl get secret kafka-auth -o json | jq '.data | map_values(@base64d)'
 {
@@ -93,7 +93,7 @@ kubectl get secret kafka-auth -o json | jq '.data | map_values(@base64d)'
 ```
 
 ## Testing the connection
-You can verify your access to the Kafka cluster from a pod using the authentication data from the `kafka-auth` secret. 
+You can verify your access to the Kafka cluster from a Pod using the authentication data from the `kafka-auth` Secret. 
 [kafkacat](https://github.com/edenhill/kafkacat) is used for our examples below.
 
 1. Create a file named `kafka-test-connection.yaml`, and add the following content:
@@ -293,7 +293,7 @@ spec:
       secretName: kafka-crab-connection
 ```
 
-2. Create the pod with the following content:
+2. Create the Pod with the following content:
 ```bash
 $ kubectl apply -f kafka-crab-produce.yaml
 ```
@@ -304,7 +304,7 @@ Now your event is stored in Kafka.
 
 To _consume_ a message, you can use a graphical interface called [Kowl](https://github.com/cloudhut/kowl). It allows you to explore information about our Kafka cluster, such as brokers, topics, or consumer groups.
 
-1. Create a Kubernetes pod and service to deploy and access Kowl. Create a file named `kafka-crab-consume.yaml` with the content below:
+1. Create a Kubernetes Pod and service to deploy and access Kowl. Create a file named `kafka-crab-consume.yaml` with the content below:
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -370,7 +370,7 @@ spec:
 $ kubectl apply -f kafka-crab-consume.yaml
 ```
 
-3. In another terminal create a port-forward tunnel to your pod:
+3. In another terminal create a port-forward tunnel to your Pod:
 ```bash
 $ kubectl port-forward kafka-crab-consume 8080:8080
 ```
