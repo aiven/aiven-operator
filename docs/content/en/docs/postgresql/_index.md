@@ -8,7 +8,7 @@ PostgreSQL is an open source, relational database. It's ideal for organisations 
 
 With Aiven Kubernetes Operator, you can manage Aiven for PostgreSQL through the well defined Kubernetes API.
 
-> Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites/) with the [operator installed](../installation/), and a [Kubernetes secret with an Aiven authentication token](../authentication/).
+> Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites/) with the [operator installed](../installation/), and a [Kubernetes Secret with an Aiven authentication token](../authentication/).
 
 ## Creating a PostgreSQL instance
 1. Create a file named `pg-sample.yaml` with the following content:
@@ -61,8 +61,8 @@ pg-sample    dev-advocates   google-europe-west1   hobbyist   RUNNING
 The resource can stay in the `BUILDING` state for a couple of minutes. 
 Once the state changes to `RUNNING`, you are ready to access it.
 
-## Using the connection secret 
-For your convenience, the operator automatically stores the PostgreSQL connection information in a secret created with the name specified on the `connInfoSecretTarget` field.
+## Using the connection Secret 
+For your convenience, the operator automatically stores the PostgreSQL connection information in a Secret created with the name specified on the `connInfoSecretTarget` field.
 
 ```bash
 $ kubectl describe secret pg-connection 
@@ -84,7 +84,7 @@ PGSSLMODE:     7 bytes
 PGUSER:        8 bytes
 ```
 
-You can use the [jq](https://github.com/stedolan/jq) to quickly decode the secret:
+You can use the [jq](https://github.com/stedolan/jq) to quickly decode the Secret:
 ```bash
 $ kubectl get secret pg-connection -o json | jq '.data | map_values(@base64d)'
 
@@ -100,7 +100,7 @@ $ kubectl get secret pg-connection -o json | jq '.data | map_values(@base64d)'
 ```
 
 ## Testing the connection
-You can verify your PostgreSQL connection from a Kubernetes workload by deploying a pod that runs the `psql` command. 
+You can verify your PostgreSQL connection from a Kubernetes workload by deploying a Pod that runs the `psql` command. 
 
 1. Create a file named `pod-psql.yaml`
 ```yaml
@@ -156,7 +156,7 @@ spec:
   lcCtype: en_US.UTF-8
 ```
 
-You can now connect to the `pg-database-sample` using the credentials stored in the `pg-connection` secret.
+You can now connect to the `pg-database-sample` using the credentials stored in the `pg-connection` Secret.
 
 ## Creating a PostgreSQL user
 Aiven uses the concept of *service user* that allows you to create users for different services. You can create one for the PostgreSQL instance.
@@ -194,7 +194,7 @@ $ kubectl get secret pg-service-user-connection -o json | jq '.data | map_values
 }
 ```
 
-You can now connect to the PostgreSQL instance using the credentials generated above, and the host information from the `pg-connection` secret.
+You can now connect to the PostgreSQL instance using the credentials generated above, and the host information from the `pg-connection` Secret.
 
 ## Creating a PostgreSQL connection pool
 Connection pooling allows you to maintain very large numbers of connections to a database while minimizing the consumption of server resources. See more information [here](https://help.aiven.io/en/articles/964730-postgresql-connection-pooling). Aiven for PostgreSQL uses PGBouncer for connection pooling.
@@ -223,7 +223,7 @@ spec:
   poolMode: transaction
 ```
 
-The `ConnectionPool` generates a secret with the connection info using the name from the `connInfoSecretTarget.Name` field:
+The `ConnectionPool` generates a Secret with the connection info using the name from the `connInfoSecretTarget.Name` field:
 ```bash
 $ kubectl get secret pg-connection-pool-connection -o json | jq '.data | map_values(@base64d)' 
 
