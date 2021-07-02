@@ -6,7 +6,7 @@ weight: 30
 
 Use the following commands to ensure your installation was successful.
 
-* Verify that all the operator pods are `READY`, and their `STATUS` is `Running`.
+* Verify that all the operator Pods are `READY`, and their `STATUS` is `Running`.
 ```bash
 $ kubectl get pod -n aiven-kubernetes-operator-system 
 
@@ -14,7 +14,7 @@ NAME                                                            READY   STATUS  
 aiven-kubernetes-operator-controller-manager-576d944499-ggttj   1/1     Running   0          12m
 ```
 
-* Verify that the `cert-manager` pods are running:
+* Verify that the `cert-manager` Pods are running:
 ```bash
 $ kubectl get pod --namespace cert-manager
 
