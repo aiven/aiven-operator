@@ -250,8 +250,6 @@ Using the previously created `KafkaTopic`, `ServiceUser`, `KafkaACL`, you can pr
 
 You can use Kafkacat to produce a message into Kafka, and the `-t random-strings` argument to select the desired topic, and use the content of the `/etc/issue` file as the message's body.
 
-**-> To produce an event**
-
 1. Create a `kafka-crab-produce.yaml` file with the content below:
 ```yaml
 apiVersion: v1
@@ -299,8 +297,6 @@ $ kubectl apply -f kafka-crab-produce.yaml
 ```
 
 Now your event is stored in Kafka.
-
-**-> To consume**
 
 To _consume_ a message, you can use a graphical interface called [Kowl](https://github.com/cloudhut/kowl). It allows you to explore information about our Kafka cluster, such as brokers, topics, or consumer groups.
 
