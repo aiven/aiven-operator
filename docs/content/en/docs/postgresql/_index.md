@@ -137,7 +137,7 @@ You have now connected to the PostgreSQL, and executed the `SELECT version();` q
 ## Creating a PostgreSQL database
 The `Database` Kubernetes resource allows you to create a logical database within the PostgreSQL instance.
 
--> Create the `pg-database-sample.yaml` file with the following content:
+Create the `pg-database-sample.yaml` file with the following content:
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: Database
@@ -184,7 +184,7 @@ spec:
 $ kubectl apply -f pg-service-user.yaml
 ```
 
-The `ServiceUser` resource generates a secret with connection information, in this case named `pg-service-user-connection`:
+The `ServiceUser` resource generates a Secret with connection information, in this case named `pg-service-user-connection`:
 ```bash
 $ kubectl get secret pg-service-user-connection -o json | jq '.data | map_values(@base64d)'
 
@@ -201,7 +201,7 @@ Connection pooling allows you to maintain very large numbers of connections to a
 
 You can create  a connection pool with the `ConnectionPool` resource using the previously created `Database` and `ServiceUser`.
 
--> Create a new file named `pg-connection-pool.yaml` with the following content:
+Create a new file named `pg-connection-pool.yaml` with the following content:
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: ConnectionPool
