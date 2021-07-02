@@ -4,10 +4,9 @@
 &lt;ul>
 &lt;li>To use the operator, you need admin access to a Kubernetes cluster.&lt;/li>
 &lt;li>To run it locally, you can use the following &lt;a href="https://kind.sigs.k8s.io/">kind&lt;/a>.&lt;/li>
-&lt;/ul></description></item><item><title>Docs: Cloning the GitHub repository</title><link>https://aiven.github.io/aiven-kubernetes-operator/docs/installation/cloning-the-repository/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-kubernetes-operator/docs/installation/cloning-the-repository/</guid><description>
+&lt;/ul></description></item><item><title>Docs: Installing from the source code</title><link>https://aiven.github.io/aiven-kubernetes-operator/docs/installation/source-code/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-kubernetes-operator/docs/installation/source-code/</guid><description>
 &lt;p>The Aiven Kubernetes Operator can be installed from the following GitHub repository:
-&lt;a href="https://github.com/aiven/aiven-kubernetes-operator">aiven/aiven-kubernetes-operator.git&lt;/a>&lt;/p>
-&lt;p>&lt;strong>-&amp;gt; To perfrom the installation:&lt;/strong>&lt;/p>
+&lt;a href="https://github.com/aiven/aiven-kubernetes-operator">aiven/aiven-kubernetes-operator&lt;/a>.&lt;/p>
 &lt;ol>
 &lt;li>Clone this repository.&lt;/li>
 &lt;/ol>
@@ -39,9 +38,46 @@ cert-manager-webhook-6bdffc7c9d-dd4m5 1/1 Running &lt;span style="color:#ae81ff"
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="6">
 &lt;li>Verify the deployment by checking the operator running Pod.&lt;/li>
 &lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get pods --namespace aiven-kubernetes-operator-system
+NAME READY STATUS RESTARTS AGE
+aiven-kubernetes-operator-controller-manager-b5487dff7-2pzb8 1/1 Running &lt;span style="color:#ae81ff">0&lt;/span> 5m55s
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You&amp;rsquo;ve now installed the Aiven Kubernetes Operator. &lt;a href="./verifying">Verify your installation&lt;/a>.&lt;/p></description></item><item><title>Docs: Running locally</title><link>https://aiven.github.io/aiven-kubernetes-operator/docs/installation/running-locally/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-kubernetes-operator/docs/installation/running-locally/</guid><description>
+&lt;p>The Aiven Kubernetes Operator can be installed from the following GitHub repository:
+&lt;a href="https://github.com/aiven/aiven-kubernetes-operator">aiven/aiven-kubernetes-operator&lt;/a>.&lt;/p>
+&lt;ol>
+&lt;li>Clone this repository.&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ git clone git@github.com:aiven/aiven-kubernetes-operator.git
+$ cd aiven-kubernetes-operator
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
+&lt;li>Install the &lt;code>cert-manager&lt;/code> operator. &lt;strong>This and the next step are only required if you want to run the webhooks, since they are not mandatory when running locally&lt;/strong>.&lt;/li>
+&lt;/ol>
 &lt;blockquote>
-&lt;p>Alternatively, you can execute &lt;code>make run&lt;/code> to run the Operator directly from your local machine, without deploying it to the Kubernetes cluster. This method is recommended for local development.&lt;/p>
+&lt;p>cert-manager is used to manage the Operator &lt;a href="https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/">webhooks&lt;/a> TLS certificates&lt;/p>
 &lt;/blockquote>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ make install-cert-manager
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
+&lt;li>Verify that the &lt;code>cert-manager&lt;/code> is installed correctly by checking its namespace for running Pods.&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get pods --namespace cert-manager
+NAME READY STATUS RESTARTS AGE
+cert-manager-7dd5854bb4-vcg7f 1/1 Running &lt;span style="color:#ae81ff">0&lt;/span> 3m
+cert-manager-cainjector-64c949654c-99z6k 1/1 Running &lt;span style="color:#ae81ff">0&lt;/span> 3m
+cert-manager-webhook-6bdffc7c9d-dd4m5 1/1 Running &lt;span style="color:#ae81ff">0&lt;/span> 3m
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="4">
+&lt;li>Install the Custom Resources Definitions.&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ make install
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="5">
+&lt;li>Run the operator locally:&lt;/li>
+&lt;/ol>
+&lt;blockquote>
+&lt;p>Alternatively, you can execute &lt;code>make run ENABLE_WEBHOOKS=false&lt;/code> to disable the webhooks, not requiring the cert-manager operator.&lt;/p>
+&lt;/blockquote>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ make run
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="6">
+&lt;li>Verify the deployment by checking the operator running Pod.&lt;/li>
+&lt;/ol>
 &lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get pods --namespace aiven-kubernetes-operator-system
 NAME READY STATUS RESTARTS AGE
 aiven-kubernetes-operator-controller-manager-b5487dff7-2pzb8 1/1 Running &lt;span style="color:#ae81ff">0&lt;/span> 5m55s
@@ -90,6 +126,6 @@ I0616 17:05:40.017691 &lt;span style="color:#ae81ff">1&lt;/span> leaderelection.
 &lt;h2 id="-warning-">🚨 Warning 🚨&lt;/h2>
 &lt;p>Uninstalling the Aiven Kubernetes Operator can remove the resources created in Aiven, possibly resulting in data loss.&lt;/p>
 &lt;h2 id="uninstalling-a-github-based-installation">Uninstalling a GitHub-based installation&lt;/h2>
-&lt;p>If you installed by &lt;a href="../cloning-the-repository/">cloning the GitHub repository&lt;/a>, you can use the following command to remove the operator:&lt;/p>
+&lt;p>If you installed &lt;a href="../source-code">from the source code&lt;/a>, you can use the following command to remove the operator:&lt;/p>
 &lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ make undeploy
 &lt;/code>&lt;/pre>&lt;/div></description></item></channel></rss>
