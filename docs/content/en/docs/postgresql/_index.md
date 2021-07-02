@@ -8,10 +8,10 @@ PostgreSQL is an open source, relational database. It's ideal for organisations 
 
 With Aiven Kubernetes Operator, you can manage Aiven for PostgreSQL through the well defined Kubernetes API.
 
-> Before going through this guide, make sure to have a [Kubernetes Cluster](../installation/prerequisites/) with the [Operator installed](../installation/) and a [Kubernetes Secret with an Aiven authentication token](../authentication/).
+> Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites/) with the [operator installed](../installation/), and a [Kubernetes Secret with an Aiven authentication token](../authentication/).
 
-## Create a PostgreSQL instance
-Create a file named `pg-sample.yaml` with the following content:
+## Creating a PostgreSQL instance
+1. Create a file named `pg-sample.yaml` with the following content:
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: PG
@@ -45,12 +45,12 @@ spec:
     pg_version: '11'
 ```
 
-Let's create the service by applying the configuration:
+2. Create the service by applying the configuration:
 ```bash
 $ kubectl apply -f pg-sample.yaml
 ```
 
-Take a look at the resource created with the following:
+3. Review the resource you created with the following command:
 ```bash
 $ kubectl get pgs.aiven.io pg-sample
 
@@ -58,10 +58,11 @@ NAME         PROJECT         REGION                PLAN       STATE
 pg-sample    dev-advocates   google-europe-west1   hobbyist   RUNNING
 ```
 
-The resource might stay in the `BUILDING` state for a couple of minutes, enough to grab a quick coffee! Once the state becomes `RUNNING`, we are ready to access it.
+The resource can stay in the `BUILDING` state for a couple of minutes. 
+Once the state changes to `RUNNING`, you are ready to access it.
 
-## Connection Information Secret 
-For your convenience, we automatically store the PostgreSQL connection information on a Secret created with the name specified on the `connInfoSecretTarget` field.
+## Using the connection Secret 
+For your convenience, the operator automatically stores the PostgreSQL connection information in a Secret created with the name specified on the `connInfoSecretTarget` field.
 
 ```bash
 $ kubectl describe secret pg-connection 
@@ -83,7 +84,7 @@ PGSSLMODE:     7 bytes
 PGUSER:        8 bytes
 ```
 
-You can use [jq](https://github.com/stedolan/jq) to quickly decode the Secret:
+You can use the [jq](https://github.com/stedolan/jq) to quickly decode the Secret:
 ```bash
 $ kubectl get secret pg-connection -o json | jq '.data | map_values(@base64d)'
 
@@ -98,7 +99,10 @@ $ kubectl get secret pg-connection -o json | jq '.data | map_values(@base64d)'
 }
 ```
 
-Let's test the PostgreSQL connection from a Kubernetes workload by deploying a Pod running a `psql` command. Create a file named `pod-psql.yaml`
+## Testing the connection
+You can verify your PostgreSQL connection from a Kubernetes workload by deploying a Pod that runs the `psql` command. 
+
+1. Create a file named `pod-psql.yaml`
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -117,7 +121,9 @@ spec:
           name: pg-connection
 ```
 
-It will run once and stop, due the `restartPolicy: Never` flag. Let's inspect its log:
+It runs once and stops, due to the `restartPolicy: Never` flag.
+
+2. Inspect the log:
 ```bash
 $ kubectl logs psql-test-connection
                                            version                                           
@@ -126,12 +132,12 @@ $ kubectl logs psql-test-connection
 (1 row)
 ```
 
-We were able to connect to the PostgreSQL and execute the `SELECT version();` query. Cool, right!?
+You have now connected to the PostgreSQL, and executed the `SELECT version();` query. 
 
-## Create a PostgreSQL Database
-The next Kubernetes resource we will explore is the `Database`. It allows you to create a logical database within the PostgreSQL instance.
+## Creating a PostgreSQL database
+The `Database` Kubernetes resource allows you to create a logical database within the PostgreSQL instance.
 
-Create the `pg-database-sample.yaml` file with the following content:
+-> Create the `pg-database-sample.yaml` file with the following content:
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: Database
@@ -150,12 +156,12 @@ spec:
   lcCtype: en_US.UTF-8
 ```
 
-Now you can connect to the `pg-database-sample` using the same credentials stored in the `pg-connection` Secret.
+You can now connect to the `pg-database-sample` using the credentials stored in the `pg-connection` Secret.
 
-## Create a PostgreSQL User
-Aiven has a concept called Service User, allowing us to create users for different services. Let's create one for the PostgreSQL instance.
+## Creating a PostgreSQL user
+Aiven uses the concept of *service user* that allows you to create users for different services. You can create one for the PostgreSQL instance.
 
-Create a file named `pg-service-user.yaml`
+1. Create a file named `pg-service-user.yaml`.
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: ServiceUser
@@ -173,12 +179,12 @@ spec:
   serviceName: pg-sample
 ```
 
-Apply the configuration with:
+2. Apply the configuration with the following command.
 ```bash
 $ kubectl apply -f pg-service-user.yaml
 ```
 
-The `ServiceUser` resource also generates a Secret with connection information, in this case named `pg-service-user-connection`:
+The `ServiceUser` resource generates a secret with connection information, in this case named `pg-service-user-connection`:
 ```bash
 $ kubectl get secret pg-service-user-connection -o json | jq '.data | map_values(@base64d)'
 
@@ -188,14 +194,14 @@ $ kubectl get secret pg-service-user-connection -o json | jq '.data | map_values
 }
 ```
 
-You can go ahead and connect to the PostgreSQL instance using the credentials above and the host information from the `pg-connection` Secret.
+You can now connect to the PostgreSQL instance using the credentials generated above, and the host information from the `pg-connection` Secret.
 
-## Create a PostgreSQL Connection Pool
-Connection pooling allows you to maintain very large numbers of connections to a database while minimizing the consumption of server resources. See more information [here](https://help.aiven.io/en/articles/964730-postgresql-connection-pooling).
+## Creating a PostgreSQL connection pool
+Connection pooling allows you to maintain very large numbers of connections to a database while minimizing the consumption of server resources. See more information [here](https://help.aiven.io/en/articles/964730-postgresql-connection-pooling). Aiven for PostgreSQL uses PGBouncer for connection pooling.
 
-Under the hood, PostgreSQL for Aiven uses PGBouncer. Let's create one with the `ConnectionPool` resource combining the previously created `Database` and `ServiceUser`.
+You can create  a connection pool with the `ConnectionPool` resource using the previously created `Database` and `ServiceUser`.
 
-Create a new file named `pg-connection-pool.yaml` with the following content:
+-> Create a new file named `pg-connection-pool.yaml` with the following content:
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: ConnectionPool
@@ -217,7 +223,7 @@ spec:
   poolMode: transaction
 ```
 
-As the previous examples, the `ConnectionPool` will generate a Secret with the connection info using the name from the `connInfoSecretTarget.Name` field:
+The `ConnectionPool` generates a Secret with the connection info using the name from the `connInfoSecretTarget.Name` field:
 ```bash
 $ kubectl get secret pg-connection-pool-connection -o json | jq '.data | map_values(@base64d)' 
 
