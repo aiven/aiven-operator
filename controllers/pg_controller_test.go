@@ -79,6 +79,8 @@ var _ = Describe("PG Controller", func() {
 			Expect(createdSecret.Data["PGPASSWORD"]).NotTo(BeEmpty())
 			Expect(createdSecret.Data["PGSSLMODE"]).NotTo(BeEmpty())
 			Expect(createdSecret.Data["DATABASE_URI"]).NotTo(BeEmpty())
+
+			Expect(createdPG.Status.State).Should(Equal("RUNNING"))
 		})
 	})
 

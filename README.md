@@ -51,7 +51,7 @@ spec:
   connInfoSecretTarget:
     name: pg-connection
 
-  project: <project>
+  project: <your-project-name>
   cloudName: google-europe-west1
   plan: hobbyist
   maintenanceWindowDow: friday

@@ -18,4 +18,7 @@ type ConnInfoSecretTarget struct {
 type ServiceStatus struct {
 	// Conditions represent the latest available observations of a service state
 	Conditions []metav1.Condition `json:"conditions"`
+
+	// Service state
+	State string `json:"state"`
 }

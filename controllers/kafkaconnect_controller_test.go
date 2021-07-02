@@ -69,6 +69,7 @@ var _ = Describe("KafkaConnect Controller", func() {
 
 			By("by checking that after KafkaConnect service was created")
 			Expect(meta.IsStatusConditionTrue(createdKafkaConnect.Status.Conditions, conditionTypeRunning)).Should(BeTrue())
+			Expect(createdKafkaConnect.Status.State).Should(Equal("RUNNING"))
 		})
 	})
 

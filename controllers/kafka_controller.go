@@ -168,8 +168,9 @@ func (h KafkaHandler) get(i client.Object) (client.Object, *corev1.Secret, error
 	}
 
 	params := s.URIParams
+	kafka.Status.State = s.State
 
-	if checkServiceIsRunning(h.client, kafka.Spec.Project, kafka.Name) {
+	if s.State == "RUNNING" {
 		meta.SetStatusCondition(&kafka.Status.Conditions,
 			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 				"Instance is running on Aiven side"))

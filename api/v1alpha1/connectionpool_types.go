@@ -51,6 +51,12 @@ type ConnectionPoolStatus struct {
 // +kubebuilder:subresource:status
 
 // ConnectionPool is the Schema for the connectionpools API
+// +kubebuilder:printcolumn:name="Service Name",type="string",JSONPath=".spec.serviceName"
+// +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
+// +kubebuilder:printcolumn:name="Database",type="string",JSONPath=".spec.databaseName"
+// +kubebuilder:printcolumn:name="Username",type="string",JSONPath=".spec.username"
+// +kubebuilder:printcolumn:name="Pool Size",type="string",JSONPath=".spec.poolSize"
+// +kubebuilder:printcolumn:name="Pool Mode",type="string",JSONPath=".spec.poolMode"
 type ConnectionPool struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

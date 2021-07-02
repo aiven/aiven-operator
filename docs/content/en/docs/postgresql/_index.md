@@ -65,9 +65,9 @@ For your convenience, we automatically store the PostgreSQL connection informati
 
 ```bash
 $ kubectl describe secret pg-connection 
+
 Name:         pg-connection
 Namespace:    default
-Labels:       app=pg-sample
 Annotations:  <none>
 
 Type:  Opaque
@@ -169,7 +169,7 @@ spec:
   connInfoSecretTarget:
     name: pg-service-user-connection
 
-  project: dev-advocates
+  project: <your-project-name>
   serviceName: pg-sample
 ```
 
@@ -191,7 +191,7 @@ $ kubectl get secret pg-service-user-connection -o json | jq '.data | map_values
 You can go ahead and connect to the PostgreSQL instance using the credentials above and the host information from the `pg-connection` Secret.
 
 ## Create a PostgreSQL Connection Pool
-Connection pooling allows ou to maintain very large numbers of connections to a database while minimizing the consumption of server resources. See more information [here](https://help.aiven.io/en/articles/964730-postgresql-connection-pooling).
+Connection pooling allows you to maintain very large numbers of connections to a database while minimizing the consumption of server resources. See more information [here](https://help.aiven.io/en/articles/964730-postgresql-connection-pooling).
 
 Under the hood, PostgreSQL for Aiven uses PGBouncer. Let's create one with the `ConnectionPool` resource combining the previously created `Database` and `ServiceUser`.
 
