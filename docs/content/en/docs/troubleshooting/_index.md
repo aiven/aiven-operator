@@ -7,7 +7,7 @@ weight: 85
 Use the following checks to help you troubleshoot the Aiven Kubernetes Operator.
 
 ### Checking the Pods
-Verify that all the operator pods are `READY`, and the `STATUS` is `Running`.
+Verify that all the operator Pods are `READY`, and the `STATUS` is `Running`.
 ```bash
 $ kubectl get pod -n aiven-kubernetes-operator-system 
 
@@ -15,7 +15,7 @@ NAME                                                            READY   STATUS  
 aiven-kubernetes-operator-controller-manager-576d944499-ggttj   1/1     Running   0          12m
 ```
 
-Verify that the `cert-manager` pods are also running.
+Verify that the `cert-manager` Pods are also running.
 ```bash
 $ kubectl get pod -n cert-manager
 
@@ -42,10 +42,11 @@ If your problem is listed below, we know about it and are working to fix it. If 
 
 ### cert-manager
 #### Issue
-The following event appears on the operator pod:
+The following event appears on the operator Pod:
 ```bash
 MountVolume.SetUp failed for volume "cert" : secret "webhook-server-cert" not found
 ```
+
 #### Impact
 You cannot run the operator. 
 
