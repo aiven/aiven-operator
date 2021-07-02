@@ -1,13 +1,11 @@
 ---
-title: "Cloning the GitHub repository"
-linkTitle: "Cloning the GitHub repository"
-weight: 20
+title: "Running locally"
+linkTitle: "Running locally"
+weight: 30
 ---
 
 The Aiven Kubernetes Operator can be installed from the following GitHub repository:
-[aiven/aiven-kubernetes-operator.git](https://github.com/aiven/aiven-kubernetes-operator)
-
-**-> To perfrom the installation:**
+[aiven/aiven-kubernetes-operator](https://github.com/aiven/aiven-kubernetes-operator).
 
 1. Clone this repository.
 ```bash
@@ -15,8 +13,8 @@ $ git clone git@github.com:aiven/aiven-kubernetes-operator.git
 $ cd aiven-kubernetes-operator
 ```
 
-2. Install the `cert-manager` operator.
-> cert-manager is used to manage the Operator [webhooks](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/) TLS certificates.
+2. Install the `cert-manager` operator. **This and the next step are only required if you want to run the webhooks, since they are not mandatory when running locally**.
+> cert-manager is used to manage the Operator [webhooks](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/) TLS certificates
 ```bash
 $ make install-cert-manager
 ```
@@ -36,14 +34,13 @@ cert-manager-webhook-6bdffc7c9d-dd4m5      1/1     Running   0          3m
 $ make install
 ```
 
-5. Deploy the operator.
+5. Run the operator locally:
+> Alternatively, you can execute `make run ENABLE_WEBHOOKS=false` to disable the webhooks, not requiring the cert-manager operator.
 ```bash
-$ make deploy
+$ make run
 ```
 
 6. Verify the deployment by checking the operator running Pod.
-
-> Alternatively, you can execute `make run` to run the Operator directly from your local machine, without deploying it to the Kubernetes cluster. This method is recommended for local development.
 
 ```bash
 $ kubectl get pods --namespace aiven-kubernetes-operator-system 

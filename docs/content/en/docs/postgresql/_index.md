@@ -184,7 +184,7 @@ spec:
 $ kubectl apply -f pg-service-user.yaml
 ```
 
-The `ServiceUser` resource generates a secret with connection information, in this case named `pg-service-user-connection`:
+The `ServiceUser` resource generates a Secret with connection information, in this case named `pg-service-user-connection`:
 ```bash
 $ kubectl get secret pg-service-user-connection -o json | jq '.data | map_values(@base64d)'
 
