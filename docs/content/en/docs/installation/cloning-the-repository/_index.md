@@ -21,7 +21,7 @@ $ cd aiven-kubernetes-operator
 $ make install-cert-manager
 ```
 
-3. Verify that the `cert-manager` is installed correctly by checking its namespace for running pods.
+3. Verify that the `cert-manager` is installed correctly by checking its namespace for running Pods.
 ```bash
 $ kubectl get pods --namespace cert-manager
 
@@ -41,7 +41,7 @@ $ make install
 $ make deploy
 ```
 
-6. Verify the deployment by checking the operator running pod.
+6. Verify the deployment by checking the operator running Pod.
 ```bash
 kubectl get pods --namespace aiven-kubernetes-operator-system 
 
