@@ -1,0 +1,3952 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    control-plane: controller-manager
+  name: aiven-kubernetes-operator-system
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
+    controller-gen.kubebuilder.io/version: v0.4.1
+  name: connectionpools.aiven.io
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
+  group: aiven.io
+  names:
+    kind: ConnectionPool
+    listKind: ConnectionPoolList
+    plural: connectionpools
+    singular: connectionpool
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.serviceName
+      name: Service Name
+      type: string
+    - jsonPath: .spec.project
+      name: Project
+      type: string
+    - jsonPath: .spec.databaseName
+      name: Database
+      type: string
+    - jsonPath: .spec.username
+      name: Username
+      type: string
+    - jsonPath: .spec.poolSize
+      name: Pool Size
+      type: string
+    - jsonPath: .spec.poolMode
+      name: Pool Mode
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ConnectionPool is the Schema for the connectionpools API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ConnectionPoolSpec defines the desired state of ConnectionPool
+            properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
+              databaseName:
+                description: Name of the database the pool connects to
+                maxLength: 40
+                type: string
+              poolMode:
+                description: Mode the pool operates in (session, transaction, statement)
+                enum:
+                - session
+                - transaction
+                - statement
+                type: string
+              poolSize:
+                description: Number of connections the pool may create towards the backend server
+                type: integer
+              project:
+                description: Target project.
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              serviceName:
+                description: Service name.
+                maxLength: 63
+                type: string
+              username:
+                description: Name of the service user used to connect to the database
+                maxLength: 64
+                type: string
+            required:
+            - authSecretRef
+            - databaseName
+            - project
+            - serviceName
+            - username
+            type: object
+          status:
+            description: ConnectionPoolStatus defines the observed state of ConnectionPool
+            properties:
+              conditions:
+                description: Conditions represent the latest available observations of an ConnectionPool state
+                items:
+                  description: "Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, type FooStatus struct{     // Represents the observations of a foo's current state.     // Known .status.conditions.type are: \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type     // +patchStrategy=merge     // +listType=map     // +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"` \n     // other fields }"
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+            required:
+            - conditions
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
+    controller-gen.kubebuilder.io/version: v0.4.1
+  name: databases.aiven.io
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
+  group: aiven.io
+  names:
+    kind: Database
+    listKind: DatabaseList
+    plural: databases
+    singular: database
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.serviceName
+      name: Service Name
+      type: string
+    - jsonPath: .spec.project
+      name: Project
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Database is the Schema for the databases API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: DatabaseSpec defines the desired state of Database
+            properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              lcCollate:
+                description: 'Default string sort order (LC_COLLATE) of the database. Default value: en_US.UTF-8'
+                maxLength: 128
+                type: string
+              lcCtype:
+                description: 'Default character classification (LC_CTYPE) of the database. Default value: en_US.UTF-8'
+                maxLength: 128
+                type: string
+              project:
+                description: Project to link the database to
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              serviceName:
+                description: PostgreSQL service to link the database to
+                maxLength: 63
+                type: string
+              terminationProtection:
+                description: It is a Kubernetes side deletion protections, which prevents the database from being deleted by Kubernetes. It is recommended to enable this for any production databases containing critical data.
+                type: boolean
+            required:
+            - authSecretRef
+            - project
+            - serviceName
+            type: object
+          status:
+            description: DatabaseStatus defines the observed state of Database
+            properties:
+              conditions:
+                description: Conditions represent the latest available observations of an Database state
+                items:
+                  description: "Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, type FooStatus struct{     // Represents the observations of a foo's current state.     // Known .status.conditions.type are: \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type     // +patchStrategy=merge     // +listType=map     // +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"` \n     // other fields }"
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+            required:
+            - conditions
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
+    controller-gen.kubebuilder.io/version: v0.4.1
+  name: kafkaacls.aiven.io
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
+  group: aiven.io
+  names:
+    kind: KafkaACL
+    listKind: KafkaACLList
+    plural: kafkaacls
+    singular: kafkaacl
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.serviceName
+      name: Service Name
+      type: string
+    - jsonPath: .spec.project
+      name: Project
+      type: string
+    - jsonPath: .spec.username
+      name: Username
+      type: string
+    - jsonPath: .spec.permission
+      name: Permission
+      type: string
+    - jsonPath: .spec.topic
+      name: Topic
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: KafkaACL is the Schema for the kafkaacls API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: KafkaACLSpec defines the desired state of KafkaACL
+            properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              permission:
+                description: Kafka permission to grant (admin, read, readwrite, write)
+                enum:
+                - admin
+                - read
+                - readwrite
+                - write
+                type: string
+              project:
+                description: Project to link the Kafka ACL to
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              serviceName:
+                description: Service to link the Kafka ACL to
+                maxLength: 63
+                type: string
+              topic:
+                description: Topic name pattern for the ACL entry
+                type: string
+              username:
+                description: Username pattern for the ACL entry
+                type: string
+            required:
+            - authSecretRef
+            - permission
+            - project
+            - serviceName
+            - topic
+            - username
+            type: object
+          status:
+            description: KafkaACLStatus defines the observed state of KafkaACL
+            properties:
+              conditions:
+                description: Conditions represent the latest available observations of an KafkaACL state
+                items:
+                  description: "Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, type FooStatus struct{     // Represents the observations of a foo's current state.     // Known .status.conditions.type are: \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type     // +patchStrategy=merge     // +listType=map     // +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"` \n     // other fields }"
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              id:
+                description: Kafka ACL ID
+                type: string
+            required:
+            - conditions
+            - id
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
+    controller-gen.kubebuilder.io/version: v0.4.1
+  name: kafkaconnects.aiven.io
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
+  group: aiven.io
+  names:
+    kind: KafkaConnect
+    listKind: KafkaConnectList
+    plural: kafkaconnects
+    singular: kafkaconnect
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.state
+      name: State
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: KafkaConnect is the Schema for the kafkaconnects API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: KafkaConnectSpec defines the desired state of KafkaConnect
+            properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              cloudName:
+                description: Cloud the service runs in.
+                maxLength: 256
+                type: string
+              kafkaConnectUserConfig:
+                description: PostgreSQL specific user configuration options
+                properties:
+                  connector_client_config_override_policy:
+                    description: Defines what client configurations can be overridden by the connector. Default is None
+                    type: string
+                  consumer_auto_offset_reset:
+                    description: What to do when there is no initial offset in Kafka or if the current offset does not exist any more on the server. Default is earliest
+                    type: string
+                  consumer_fetch_max_bytes:
+                    description: Records are fetched in batches by the consumer, and if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that the consumer can make progress. As such, this is not a absolute maximum.
+                    format: int64
+                    type: integer
+                  consumer_isolation_level:
+                    description: Transaction read isolation level. read_uncommitted is the default, but read_committed can be used if consume-exactly-once behavior is desired.
+                    type: string
+                  consumer_max_partition_fetch_bytes:
+                    description: Records are fetched in batches by the consumer.If the first record batch in the first non-empty partition of the fetch is larger than this limit, the batch will still be returned to ensure that the consumer can make progress.
+                    format: int64
+                    type: integer
+                  consumer_max_poll_interval_ms:
+                    description: The maximum delay in milliseconds between invocations of poll() when using consumer group management (defaults to 300000).
+                    format: int64
+                    type: integer
+                  consumer_max_poll_records:
+                    description: The maximum number of records returned in a single call to poll() (defaults to 500).
+                    format: int64
+                    type: integer
+                  offset_flush_interval_ms:
+                    description: The interval at which to try committing offsets for tasks (defaults to 60000).
+                    format: int64
+                    type: integer
+                  private_access:
+                    description: Allow access to selected service ports from private networks
+                    properties:
+                      kafka_connect:
+                        description: Allow clients to connect to kafka_connect with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
+                        type: boolean
+                      prometheus:
+                        description: Allow clients to connect to prometheus with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
+                        type: boolean
+                    type: object
+                  producer_max_request_size:
+                    description: This setting will limit the number of record batches the producer will send in a single request to avoid sending huge requests.
+                    format: int64
+                    type: integer
+                  public_access:
+                    description: Allow access to selected service ports from the public Internet
+                    properties:
+                      kafka_connect:
+                        description: Allow clients to connect to kafka_connect from the public internet for service nodes that are in a project VPC or another type of private network
+                        type: boolean
+                      prometheus:
+                        description: Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network
+                        type: boolean
+                    type: object
+                  session_timeout_ms:
+                    description: The timeout in milliseconds used to detect failures when using Kafka’s group management facilities (defaults to 10000).
+                    format: int64
+                    type: integer
+                type: object
+              maintenanceWindowDow:
+                description: Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.
+                enum:
+                - monday
+                - tuesday
+                - wednesday
+                - thursday
+                - friday
+                - saturday
+                - sunday
+                - never
+                type: string
+              maintenanceWindowTime:
+                description: Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
+                maxLength: 8
+                type: string
+              plan:
+                description: Subscription plan.
+                maxLength: 128
+                type: string
+              project:
+                description: Target project.
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              projectVpcId:
+                description: Identifier of the VPC the service should be in, if any.
+                maxLength: 36
+                type: string
+              terminationProtection:
+                description: Prevent service from being deleted. It is recommended to have this enabled for all services.
+                type: boolean
+            required:
+            - authSecretRef
+            - project
+            type: object
+          status:
+            description: ServiceStatus defines the observed state of service
+            properties:
+              conditions:
+                description: Conditions represent the latest available observations of a service state
+                items:
+                  description: "Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, type FooStatus struct{     // Represents the observations of a foo's current state.     // Known .status.conditions.type are: \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type     // +patchStrategy=merge     // +listType=map     // +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"` \n     // other fields }"
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              state:
+                description: Service state
+                type: string
+            required:
+            - conditions
+            - state
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
+    controller-gen.kubebuilder.io/version: v0.4.1
+  name: kafkas.aiven.io
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
+  group: aiven.io
+  names:
+    kind: Kafka
+    listKind: KafkaList
+    plural: kafkas
+    singular: kafka
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.project
+      name: Project
+      type: string
+    - jsonPath: .spec.cloudName
+      name: Region
+      type: string
+    - jsonPath: .spec.plan
+      name: Plan
+      type: string
+    - jsonPath: .status.state
+      name: State
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Kafka is the Schema for the kafkas API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: KafkaSpec defines the desired state of Kafka
+            properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              cloudName:
+                description: Cloud the service runs in.
+                maxLength: 256
+                type: string
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
+              kafkaUserConfig:
+                description: Kafka specific user configuration options
+                properties:
+                  ip_filter:
+                    description: IP filter Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
+                    items:
+                      type: string
+                    type: array
+                  kafka:
+                    description: Kafka broker configuration values
+                    properties:
+                      auto_create_topics_enable:
+                        description: auto.create.topics.enable Enable auto creation of topics
+                        type: boolean
+                      compression_type:
+                        description: compression.type Specify the final compression type for a given topic. This configuration accepts the standard compression codecs ('gzip', 'snappy', 'lz4', 'zstd'). It additionally accepts 'uncompressed' which is equivalent to no compression; and 'producer' which means retain the original compression codec set by the producer.
+                        enum:
+                        - gzip
+                        - snappy
+                        - lz4
+                        - zstd
+                        - uncompressed
+                        - producer
+                        type: string
+                      connections_max_idle_ms:
+                        description: 'connections.max.idle.ms Idle connections timeout: the server socket processor threads close the connections that idle for longer than this.'
+                        format: int64
+                        maximum: 3600000
+                        minimum: 1000
+                        type: integer
+                      default_replication_factor:
+                        description: default.replication.factor Replication factor for autocreated topics
+                        format: int64
+                        maximum: 10
+                        minimum: 1
+                        type: integer
+                      group_max_session_timeout_ms:
+                        description: group.max.session.timeout.ms The maximum allowed session timeout for registered consumers. Longer timeouts give consumers more time to process messages in between heartbeats at the cost of a longer time to detect failures.
+                        format: int64
+                        maximum: 1800000
+                        minimum: 0
+                        type: integer
+                      group_min_session_timeout_ms:
+                        description: group.min.session.timeout.ms The minimum allowed session timeout for registered consumers. Longer timeouts give consumers more time to process messages in between heartbeats at the cost of a longer time to detect failures.
+                        format: int64
+                        maximum: 60000
+                        minimum: 0
+                        type: integer
+                      log_cleaner_delete_retention_ms:
+                        description: log.cleaner.delete.retention.ms How long are delete records retained?
+                        format: int64
+                        maximum: 315569260000
+                        minimum: 0
+                        type: integer
+                      log_cleaner_max_compaction_lag_ms:
+                        description: log.cleaner.max.compaction.lag.ms The maximum amount of time message will remain uncompacted. Only applicable for logs that are being compacted
+                        format: int64
+                        minimum: 30000
+                        type: integer
+                      log_cleaner_min_cleanable_ratio:
+                        description: log.cleaner.min.cleanable.ratio Controls log compactor frequency. Larger value means more frequent compactions but also more space wasted for logs. Consider setting log.cleaner.max.compaction.lag.ms to enforce compactions sooner, instead of setting a very high value for this option.
+                        format: int64
+                        maximum: 1
+                        minimum: 0
+                        type: integer
+                      log_cleaner_min_compaction_lag_ms:
+                        description: log.cleaner.min.compaction.lag.ms The minimum time a message will remain uncompacted in the log. Only applicable for logs that are being compacted.
+                        format: int64
+                        minimum: 0
+                        type: integer
+                      log_cleanup_policy:
+                        description: log.cleanup.policy The default cleanup policy for segments beyond the retention window
+                        enum:
+                        - compact
+                        - delete
+                        type: string
+                      log_flush_interval_messages:
+                        description: log.flush.interval.messages The number of messages accumulated on a log partition before messages are flushed to disk
+                        format: int64
+                        minimum: 1
+                        type: integer
+                      log_flush_interval_ms:
+                        description: log.flush.interval.ms The maximum time in ms that a message in any topic is kept in memory before flushed to disk. If not set, the value in log.flush.scheduler.interval.ms is used
+                        format: int64
+                        minimum: 0
+                        type: integer
+                      log_index_interval_bytes:
+                        description: log.index.interval.bytes The interval with which Kafka adds an entry to the offset index
+                        format: int64
+                        maximum: 104857600
+                        minimum: 0
+                        type: integer
+                      log_index_size_max_bytes:
+                        description: log.index.size.max.bytes The maximum size in bytes of the offset index
+                        format: int64
+                        maximum: 104857600
+                        minimum: 1048576
+                        type: integer
+                      log_message_downconversion_enable:
+                        description: log.message.downconversion.enable This configuration controls whether down-conversion of message formats is enabled to satisfy consume requests.
+                        type: boolean
+                      log_message_timestamp_difference_max_ms:
+                        description: log.message.timestamp.difference.max.ms The maximum difference allowed between the timestamp when a broker receives a message and the timestamp specified in the message
+                        format: int64
+                        minimum: 0
+                        type: integer
+                      log_message_timestamp_type:
+                        description: log.message.timestamp.type Define whether the timestamp in the message is message create time or log append time.
+                        enum:
+                        - CreateTime
+                        - LogAppendTime
+                        type: string
+                      log_preallocate:
+                        description: log.preallocate Should pre allocate file when create new segment?
+                        type: boolean
+                      log_retention_bytes:
+                        description: log.retention.bytes The maximum size of the log before deleting messages
+                        format: int64
+                        type: integer
+                      log_retention_hours:
+                        description: log.retention.hours The number of hours to keep a log file before deleting it
+                        format: int64
+                        maximum: 2147483647
+                        type: integer
+                      log_retention_ms:
+                        description: log.retention.ms The number of milliseconds to keep a log file before deleting it (in milliseconds), If not set, the value in log.retention.minutes is used. If set to -1, no time limit is applied.
+                        format: int64
+                        type: integer
+                      log_roll_jitter_ms:
+                        description: log.roll.jitter.ms The maximum jitter to subtract from logRollTimeMillis (in milliseconds). If not set, the value in log.roll.jitter.hours is used
+                        format: int64
+                        minimum: 0
+                        type: integer
+                      log_roll_ms:
+                        description: log.roll.ms The maximum time before a new log segment is rolled out (in milliseconds).
+                        format: int64
+                        minimum: 1
+                        type: integer
+                      log_segment_bytes:
+                        description: log.segment.bytes The maximum size of a single log file
+                        format: int64
+                        maximum: 1073741824
+                        minimum: 10485760
+                        type: integer
+                      log_segment_delete_delay_ms:
+                        description: log.segment.delete.delay.ms The amount of time to wait before deleting a file from the filesystem
+                        format: int64
+                        maximum: 3600000
+                        minimum: 0
+                        type: integer
+                      max_connections_per_ip:
+                        description: max.connections.per.ip The maximum number of connections allowed from each ip address (defaults to 2147483647).
+                        format: int64
+                        maximum: 2147483647
+                        minimum: 256
+                        type: integer
+                      max_incremental_fetch_session_cache_slots:
+                        description: max.incremental.fetch.session.cache.slots The maximum number of incremental fetch sessions that the broker will maintain.
+                        format: int64
+                        maximum: 10000
+                        minimum: 1000
+                        type: integer
+                      message_max_bytes:
+                        description: message.max.bytes The maximum size of message that the server can receive.
+                        format: int64
+                        maximum: 100001200
+                        minimum: 0
+                        type: integer
+                      min_insync_replicas:
+                        description: min.insync.replicas When a producer sets acks to 'all' (or '-1'), min.insync.replicas specifies the minimum number of replicas that must acknowledge a write for the write to be considered successful.
+                        format: int64
+                        maximum: 7
+                        minimum: 1
+                        type: integer
+                      num_partitions:
+                        description: num.partitions Number of partitions for autocreated topics
+                        format: int64
+                        maximum: 1000
+                        minimum: 1
+                        type: integer
+                      offsets_retention_minutes:
+                        description: offsets.retention.minutes Log retention window in minutes for offsets topic
+                        format: int64
+                        maximum: 2147483647
+                        minimum: 1
+                        type: integer
+                      producer_purgatory_purge_interval_requests:
+                        description: producer.purgatory.purge.interval.requests The purge interval (in number of requests) of the producer request purgatory(defaults to 1000).
+                        format: int64
+                        maximum: 10000
+                        minimum: 10
+                        type: integer
+                      replica_fetch_max_bytes:
+                        description: replica.fetch.max.bytes The number of bytes of messages to attempt to fetch for each partition (defaults to 1048576). This is not an absolute maximum, if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that progress can be made.
+                        format: int64
+                        maximum: 104857600
+                        minimum: 1048576
+                        type: integer
+                      replica_fetch_response_max_bytes:
+                        description: replica.fetch.response.max.bytes Maximum bytes expected for the entire fetch response (defaults to 10485760). Records are fetched in batches, and if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that progress can be made. As such, this is not an absolute maximum.
+                        format: int64
+                        maximum: 1048576000
+                        minimum: 10485760
+                        type: integer
+                      socket_request_max_bytes:
+                        description: socket.request.max.bytes The maximum number of bytes in a socket request (defaults to 104857600).
+                        format: int64
+                        maximum: 209715200
+                        minimum: 10485760
+                        type: integer
+                    type: object
+                  kafka_authentication_methods:
+                    description: Kafka authentication methods
+                    properties:
+                      certificate:
+                        description: Enable certificate/SSL authentication
+                        type: boolean
+                      sasl:
+                        description: Enable SASL authentication
+                        type: boolean
+                    type: object
+                  kafka_connect:
+                    description: Enable Kafka Connect service
+                    type: boolean
+                  kafka_connect_user_config:
+                    description: Kafka Connect configuration values
+                    properties:
+                      connector_client_config_override_policy:
+                        description: Client config override policy Defines what client configurations can be overridden by the connector. Default is None
+                        enum:
+                        - None
+                        - All
+                        type: string
+                      consumer_auto_offset_reset:
+                        description: Consumer auto offset reset What to do when there is no initial offset in Kafka or if the current offset does not exist any more on the server. Default is earliest
+                        enum:
+                        - earliest
+                        - latest
+                        type: string
+                      consumer_fetch_max_bytes:
+                        description: The maximum amount of data the server should return for a fetch request Records are fetched in batches by the consumer, and if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that the consumer can make progress. As such, this is not a absolute maximum.
+                        format: int64
+                        maximum: 104857600
+                        minimum: 1048576
+                        type: integer
+                      consumer_isolation_level:
+                        description: Consumer isolation level Transaction read isolation level. read_uncommitted is the default, but read_committed can be used if consume-exactly-once behavior is desired.
+                        enum:
+                        - read_uncommitted
+                        - read_committed
+                        type: string
+                      consumer_max_partition_fetch_bytes:
+                        description: The maximum amount of data per-partition the server will return. Records are fetched in batches by the consumer.If the first record batch in the first non-empty partition of the fetch is larger than this limit, the batch will still be returned to ensure that the consumer can make progress.
+                        format: int64
+                        maximum: 104857600
+                        minimum: 1048576
+                        type: integer
+                      consumer_max_poll_interval_ms:
+                        description: The maximum delay between polls when using consumer group management The maximum delay in milliseconds between invocations of poll() when using consumer group management (defaults to 300000).
+                        format: int64
+                        maximum: 2147483647
+                        minimum: 1
+                        type: integer
+                      consumer_max_poll_records:
+                        description: The maximum number of records returned by a single poll The maximum number of records returned in a single call to poll() (defaults to 500).
+                        format: int64
+                        maximum: 10000
+                        minimum: 1
+                        type: integer
+                      offset_flush_interval_ms:
+                        description: The interval at which to try committing offsets for tasks The interval at which to try committing offsets for tasks (defaults to 60000).
+                        format: int64
+                        maximum: 100000000
+                        minimum: 1
+                        type: integer
+                      offset_flush_timeout_ms:
+                        description: Offset flush timeout Maximum number of milliseconds to wait for records to flush and partition offset data to be committed to offset storage before cancelling the process and restoring the offset data to be committed in a future attempt (defaults to 5000).
+                        format: int64
+                        maximum: 2147483647
+                        minimum: 1
+                        type: integer
+                      producer_max_request_size:
+                        description: The maximum size of a request in bytes This setting will limit the number of record batches the producer will send in a single request to avoid sending huge requests.
+                        format: int64
+                        maximum: 10485760
+                        minimum: 131072
+                        type: integer
+                      session_timeout_ms:
+                        description: The timeout used to detect failures when using Kafka’s group management facilities The timeout in milliseconds used to detect failures when using Kafka’s group management facilities (defaults to 10000).
+                        format: int64
+                        maximum: 2147483647
+                        minimum: 1
+                        type: integer
+                    type: object
+                  kafka_rest:
+                    description: Enable Kafka-REST service
+                    type: boolean
+                  kafka_rest_config:
+                    description: Kafka REST configuration
+                    properties:
+                      consumer_enable_auto_commit:
+                        description: consumer.enable.auto.commit If true the consumer's offset will be periodically committed to Kafka in the background
+                        type: boolean
+                      consumer_request_max_bytes:
+                        description: consumer.request.max.bytes Maximum number of bytes in unencoded message keys and values by a single request
+                        format: int64
+                        maximum: 671088640
+                        minimum: 0
+                        type: integer
+                      consumer_request_timeout_ms:
+                        description: consumer.request.timeout.ms The maximum total time to wait for messages for a request if the maximum number of messages has not yet been reached
+                        enum:
+                        - 1000
+                        - 15000
+                        - 30000
+                        format: int64
+                        maximum: 30000
+                        minimum: 1000
+                        type: integer
+                      custom_domain:
+                        description: Custom domain Serve the web frontend using a custom CNAME pointing to the Aiven DNS name
+                        maxLength: 255
+                        type: string
+                      producer_acks:
+                        description: producer.acks The number of acknowledgments the producer requires the leader to have received before considering a request complete. If set to 'all' or '-1', the leader will wait for the full set of in-sync replicas to acknowledge the record.
+                        enum:
+                        - all
+                        - -1
+                        - 0
+                        - 1
+                        type: string
+                      producer_linger_ms:
+                        description: producer.linger.ms Wait for up to the given delay to allow batching records together
+                        format: int64
+                        maximum: 5000
+                        minimum: 0
+                        type: integer
+                      public_access:
+                        description: Allow access to selected service ports from the public Internet
+                        properties:
+                          kafka:
+                            description: Allow clients to connect to kafka from the public internet for service nodes that are in a project VPC or another type of private network
+                            type: boolean
+                          kafka_connect:
+                            description: Allow clients to connect to kafka_connect from the public internet for service nodes that are in a project VPC or another type of private network
+                            type: boolean
+                          kafka_rest:
+                            description: Allow clients to connect to kafka_rest from the public internet for service nodes that are in a project VPC or another type of private network
+                            type: boolean
+                          prometheus:
+                            description: Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network
+                            type: boolean
+                          schema_registry:
+                            description: Allow clients to connect to schema_registry from the public internet for service nodes that are in a project VPC or another type of private network
+                            type: boolean
+                        type: object
+                      simpleconsumer_pool_size_max:
+                        description: simpleconsumer.pool.size.max Maximum number of SimpleConsumers that can be instantiated per broker
+                        format: int64
+                        maximum: 250
+                        minimum: 10
+                        type: integer
+                    type: object
+                  kafka_version:
+                    description: Kafka major version
+                    enum:
+                    - "1.0"
+                    - "1.1"
+                    - "2.0"
+                    - "2.1"
+                    - "2.2"
+                    - "2.3"
+                    - "2.4"
+                    - "2.5"
+                    - "2.6"
+                    - "2.7"
+                    - "2.8"
+                    type: string
+                  private_access:
+                    description: Allow access to selected service ports from private networks
+                    properties:
+                      prometheus:
+                        description: Allow clients to connect to prometheus with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
+                        type: boolean
+                    type: object
+                  schema_registry:
+                    description: Enable Schema-Registry service
+                    type: boolean
+                  schema_registry_config:
+                    description: Schema Registry configuration
+                    properties:
+                      leader_eligibility:
+                        description: leader_eligibility If true, Karapace / Schema Registry on the service nodes can participate in leader election. It might be needed to disable this when the schemas topic is replicated to a secondary cluster and Karapace / Schema Registry there must not participate in leader election. Defaults to 'true'.
+                        type: boolean
+                      topic_name:
+                        description: topic_name The durable single partition topic that acts as the durable log for the data. This topic must be compacted to avoid losing data due to retention policy. Please note that changing this configuration in an existing Schema Registry / Karapace setup leads to previous schemas being inaccessible, data encoded with them potentially unreadable and schema ID sequence put out of order. It's only possible to do the switch while Schema Registry / Karapace is disabled. Defaults to '_schemas'.
+                        maxLength: 249
+                        type: string
+                    type: object
+                type: object
+              maintenanceWindowDow:
+                description: Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.
+                enum:
+                - monday
+                - tuesday
+                - wednesday
+                - thursday
+                - friday
+                - saturday
+                - sunday
+                - never
+                type: string
+              maintenanceWindowTime:
+                description: Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
+                maxLength: 8
+                type: string
+              plan:
+                description: Subscription plan.
+                maxLength: 128
+                type: string
+              project:
+                description: Target project.
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              projectVpcId:
+                description: Identifier of the VPC the service should be in, if any.
+                maxLength: 36
+                type: string
+              terminationProtection:
+                description: Prevent service from being deleted. It is recommended to have this enabled for all services.
+                type: boolean
+            required:
+            - authSecretRef
+            - project
+            type: object
+          status:
+            description: ServiceStatus defines the observed state of service
+            properties:
+              conditions:
+                description: Conditions represent the latest available observations of a service state
+                items:
+                  description: "Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, type FooStatus struct{     // Represents the observations of a foo's current state.     // Known .status.conditions.type are: \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type     // +patchStrategy=merge     // +listType=map     // +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"` \n     // other fields }"
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              state:
+                description: Service state
+                type: string
+            required:
+            - conditions
+            - state
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
+    controller-gen.kubebuilder.io/version: v0.4.1
+  name: kafkaschemas.aiven.io
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
+  group: aiven.io
+  names:
+    kind: KafkaSchema
+    listKind: KafkaSchemaList
+    plural: kafkaschemas
+    singular: kafkaschema
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: KafkaSchema is the Schema for the kafkaschemas API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: KafkaSchemaSpec defines the desired state of KafkaSchema
+            properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              compatibilityLevel:
+                description: Kafka Schemas compatibility level
+                enum:
+                - BACKWARD
+                - BACKWARD_TRANSITIVE
+                - FORWARD
+                - FORWARD_TRANSITIVE
+                - FULL
+                - FULL_TRANSITIVE
+                - NONE
+                type: string
+              project:
+                description: Project to link the Kafka Schema to
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              schema:
+                description: Kafka Schema configuration should be a valid Avro Schema JSON format
+                type: string
+              serviceName:
+                description: Service to link the Kafka Schema to
+                maxLength: 63
+                type: string
+              subjectName:
+                description: Kafka Schema Subject name
+                maxLength: 63
+                type: string
+            required:
+            - authSecretRef
+            - project
+            - schema
+            - serviceName
+            - subjectName
+            type: object
+          status:
+            description: KafkaSchemaStatus defines the observed state of KafkaSchema
+            properties:
+              conditions:
+                description: Conditions represent the latest available observations of an KafkaSchema state
+                items:
+                  description: "Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, type FooStatus struct{     // Represents the observations of a foo's current state.     // Known .status.conditions.type are: \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type     // +patchStrategy=merge     // +listType=map     // +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"` \n     // other fields }"
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              version:
+                description: Kafka Schema configuration version
+                type: integer
+            required:
+            - conditions
+            - version
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
+    controller-gen.kubebuilder.io/version: v0.4.1
+  name: kafkatopics.aiven.io
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
+  group: aiven.io
+  names:
+    kind: KafkaTopic
+    listKind: KafkaTopicList
+    plural: kafkatopics
+    singular: kafkatopic
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.serviceName
+      name: Service Name
+      type: string
+    - jsonPath: .spec.project
+      name: Project
+      type: string
+    - jsonPath: .spec.partitions
+      name: Partitions
+      type: string
+    - jsonPath: .spec.replication
+      name: Replication
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: KafkaTopic is the Schema for the kafkatopics API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: KafkaTopicSpec defines the desired state of KafkaTopic
+            properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              config:
+                description: Kafka topic configuration
+                properties:
+                  cleanup_policy:
+                    description: cleanup.policy value
+                    type: string
+                  compression_type:
+                    description: compression.type value
+                    type: string
+                  delete_retention_ms:
+                    description: delete.retention.ms value
+                    format: int64
+                    type: integer
+                  file_delete_delay_ms:
+                    description: file.delete.delay.ms value
+                    format: int64
+                    type: integer
+                  flush_messages:
+                    description: flush.messages value
+                    format: int64
+                    type: integer
+                  flush_ms:
+                    description: flush.ms value
+                    format: int64
+                    type: integer
+                  index_interval_bytes:
+                    description: index.interval.bytes value
+                    format: int64
+                    type: integer
+                  max_compaction_lag_ms:
+                    description: max.compaction.lag.ms value
+                    format: int64
+                    type: integer
+                  max_message_bytes:
+                    description: max.message.bytes value
+                    format: int64
+                    type: integer
+                  message_downconversion_enable:
+                    description: message.downconversion.enable value
+                    type: boolean
+                  message_format_version:
+                    description: message.format.version value
+                    type: string
+                  message_timestamp_difference_max_ms:
+                    description: message.timestamp.difference.max.ms value
+                    format: int64
+                    type: integer
+                  message_timestamp_type:
+                    description: message.timestamp.type value
+                    type: string
+                  min_compaction_lag_ms:
+                    description: min.compaction.lag.ms value
+                    format: int64
+                    type: integer
+                  min_insync_replicas:
+                    description: min.insync.replicas value
+                    format: int64
+                    type: integer
+                  preallocate:
+                    description: preallocate value
+                    type: boolean
+                  retention_bytes:
+                    description: retention.bytes value
+                    format: int64
+                    type: integer
+                  retention_ms:
+                    description: retention.ms value
+                    format: int64
+                    type: integer
+                  segment_bytes:
+                    description: segment.bytes value
+                    format: int64
+                    type: integer
+                  segment_index_bytes:
+                    description: segment.index.bytes value
+                    format: int64
+                    type: integer
+                  segment_jitter_ms:
+                    description: segment.jitter.ms value
+                    format: int64
+                    type: integer
+                  segment_ms:
+                    description: segment.ms value
+                    format: int64
+                    type: integer
+                  unclean_leader_election_enable:
+                    description: unclean.leader.election.enable value
+                    type: boolean
+                type: object
+              partitions:
+                description: Number of partitions to create in the topic
+                maximum: 1000000
+                minimum: 1
+                type: integer
+              project:
+                description: Target project.
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              replication:
+                description: Replication factor for the topic
+                minimum: 2
+                type: integer
+              serviceName:
+                description: Service name.
+                maxLength: 63
+                type: string
+              tags:
+                description: Kafka topic tags
+                items:
+                  properties:
+                    key:
+                      format: ^[a-zA-Z0-9_-]*$
+                      maxLength: 64
+                      minLength: 1
+                      type: string
+                    value:
+                      format: ^[a-zA-Z0-9_-]*$
+                      maxLength: 256
+                      type: string
+                  required:
+                  - key
+                  type: object
+                type: array
+              termination_protection:
+                description: It is a Kubernetes side deletion protections, which prevents the kafka topic from being deleted by Kubernetes. It is recommended to enable this for any production databases containing critical data.
+                type: boolean
+            required:
+            - authSecretRef
+            - partitions
+            - project
+            - replication
+            - serviceName
+            type: object
+          status:
+            description: KafkaTopicStatus defines the observed state of KafkaTopic
+            properties:
+              conditions:
+                description: Conditions represent the latest available observations of an KafkaTopic state
+                items:
+                  description: "Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, type FooStatus struct{     // Represents the observations of a foo's current state.     // Known .status.conditions.type are: \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type     // +patchStrategy=merge     // +listType=map     // +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"` \n     // other fields }"
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              state:
+                description: State kafka topic state
+                type: string
+            required:
+            - conditions
+            - state
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
+    controller-gen.kubebuilder.io/version: v0.4.1
+  name: pgs.aiven.io
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
+  group: aiven.io
+  names:
+    kind: PG
+    listKind: PGList
+    plural: pgs
+    singular: pg
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.project
+      name: Project
+      type: string
+    - jsonPath: .spec.cloudName
+      name: Region
+      type: string
+    - jsonPath: .spec.plan
+      name: Plan
+      type: string
+    - jsonPath: .status.state
+      name: State
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: PG is the Schema for the pgs API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: PGSpec defines the desired state of PG
+            properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              cloudName:
+                description: Cloud the service runs in.
+                maxLength: 256
+                type: string
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
+              maintenanceWindowDow:
+                description: Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.
+                enum:
+                - monday
+                - tuesday
+                - wednesday
+                - thursday
+                - friday
+                - saturday
+                - sunday
+                - never
+                type: string
+              maintenanceWindowTime:
+                description: Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
+                maxLength: 8
+                type: string
+              pgUserConfig:
+                description: PostgreSQL specific user configuration options
+                properties:
+                  admin_password:
+                    description: Custom password for admin user. Defaults to random string. This must be set only when a new service is being created.
+                    format: ^[a-zA-Z0-9-_]+$
+                    maxLength: 256
+                    type: string
+                  admin_username:
+                    description: Custom username for admin user. This must be set only when a new service is being created.
+                    format: ^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$
+                    maxLength: 64
+                    type: string
+                  backup_hour:
+                    description: The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.
+                    format: int64
+                    maximum: 23
+                    minimum: 0
+                    type: integer
+                  backup_minute:
+                    description: The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
+                    format: int64
+                    maximum: 59
+                    minimum: 0
+                    type: integer
+                  ip_filter:
+                    description: IP filter Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
+                    items:
+                      type: string
+                    type: array
+                  migration:
+                    description: Migrate data from existing server
+                    properties:
+                      dbname:
+                        description: Database name for bootstrapping the initial connection
+                        maxLength: 63
+                        type: string
+                      host:
+                        description: Hostname or IP address of the server where to migrate data from
+                        maxLength: 255
+                        type: string
+                      password:
+                        description: Password for authentication with the server where to migrate data from
+                        maxLength: 256
+                        type: string
+                      port:
+                        description: Port number of the server where to migrate data from
+                        format: int64
+                        maximum: 65535
+                        minimum: 1
+                        type: integer
+                      ssl:
+                        description: The server where to migrate data from is secured with SSL
+                        type: boolean
+                      username:
+                        description: User name for authentication with the server where to migrate data from
+                        maxLength: 256
+                        type: string
+                    type: object
+                  pg:
+                    description: postgresql.conf configuration values
+                    properties:
+                      autovacuum_analyze_scale_factor:
+                        description: autovacuum_analyze_scale_factor Specifies a fraction of the table size to add to autovacuum_analyze_threshold when deciding whether to trigger an ANALYZE. The default is 0.2 (20% of table size)
+                        format: int64
+                        maximum: 1
+                        minimum: 0
+                        type: integer
+                      autovacuum_analyze_threshold:
+                        description: autovacuum_analyze_threshold Specifies the minimum number of inserted, updated or deleted tuples needed to trigger an  ANALYZE in any one table. The default is 50 tuples.
+                        format: int64
+                        maximum: 2147483647
+                        minimum: 0
+                        type: integer
+                      autovacuum_freeze_max_age:
+                        description: autovacuum_freeze_max_age Specifies the maximum age (in transactions) that a table's pg_class.relfrozenxid field can attain before a VACUUM operation is forced to prevent transaction ID wraparound within the table. Note that the system will launch autovacuum processes to prevent wraparound even when autovacuum is otherwise disabled. This parameter will cause the server to be restarted.
+                        format: int64
+                        maximum: 1500000000
+                        minimum: 200000000
+                        type: integer
+                      autovacuum_max_workers:
+                        description: autovacuum_max_workers Specifies the maximum number of autovacuum processes (other than the autovacuum launcher) that may be running at any one time. The default is three. This parameter can only be set at server start.
+                        format: int64
+                        maximum: 20
+                        minimum: 1
+                        type: integer
+                      autovacuum_naptime:
+                        description: autovacuum_naptime Specifies the minimum delay between autovacuum runs on any given database. The delay is measured in seconds, and the default is one minute
+                        format: int64
+                        maximum: 86400
+                        minimum: 0
+                        type: integer
+                      autovacuum_vacuum_cost_delay:
+                        description: autovacuum_vacuum_cost_delay Specifies the cost delay value that will be used in automatic VACUUM operations. If -1 is specified, the regular vacuum_cost_delay value will be used. The default value is 20 milliseconds
+                        format: int64
+                        maximum: 100
+                        type: integer
+                      autovacuum_vacuum_cost_limit:
+                        description: autovacuum_vacuum_cost_limit Specifies the cost limit value that will be used in automatic VACUUM operations. If -1 is specified (which is the default), the regular vacuum_cost_limit value will be used.
+                        format: int64
+                        maximum: 10000
+                        type: integer
+                      autovacuum_vacuum_scale_factor:
+                        description: autovacuum_vacuum_scale_factor Specifies a fraction of the table size to add to autovacuum_vacuum_threshold when deciding whether to trigger a VACUUM. The default is 0.2 (20% of table size)
+                        format: int64
+                        maximum: 1
+                        minimum: 0
+                        type: integer
+                      autovacuum_vacuum_threshold:
+                        description: autovacuum_vacuum_threshold Specifies the minimum number of updated or deleted tuples needed to trigger a VACUUM in any one table. The default is 50 tuples
+                        format: int64
+                        maximum: 2147483647
+                        minimum: 0
+                        type: integer
+                      deadlock_timeout:
+                        description: deadlock_timeout This is the amount of time, in milliseconds, to wait on a lock before checking to see if there is a deadlock condition.
+                        format: int64
+                        maximum: 1800000
+                        minimum: 500
+                        type: integer
+                      idle_in_transaction_session_timeout:
+                        description: idle_in_transaction_session_timeout Time out sessions with open transactions after this number of milliseconds
+                        format: int64
+                        maximum: 604800000
+                        minimum: 0
+                        type: integer
+                      jit:
+                        description: jit Controls system-wide use of Just-in-Time Compilation (JIT).
+                        type: boolean
+                      log_autovacuum_min_duration:
+                        description: log_autovacuum_min_duration Causes each action executed by autovacuum to be logged if it ran for at least the specified number of milliseconds. Setting this to zero logs all autovacuum actions. Minus-one (the default) disables logging autovacuum actions.
+                        format: int64
+                        maximum: 2147483647
+                        type: integer
+                      log_error_verbosity:
+                        description: log_error_verbosity Controls the amount of detail written in the server log for each message that is logged.
+                        enum:
+                        - TERSE
+                        - DEFAULT
+                        - VERBOSE
+                        type: string
+                      log_min_duration_statement:
+                        description: log_min_duration_statement Log statements that take more than this number of milliseconds to run, -1 disables
+                        format: int64
+                        maximum: 86400000
+                        type: integer
+                      max_files_per_process:
+                        description: max_files_per_process PostgreSQL maximum number of files that can be open per process
+                        format: int64
+                        maximum: 4096
+                        minimum: 1000
+                        type: integer
+                      max_locks_per_transaction:
+                        description: max_locks_per_transaction PostgreSQL maximum locks per transaction
+                        format: int64
+                        maximum: 640
+                        minimum: 64
+                        type: integer
+                      max_logical_replication_workers:
+                        description: max_logical_replication_workers PostgreSQL maximum logical replication workers (taken from the pool of max_parallel_workers)
+                        format: int64
+                        maximum: 64
+                        minimum: 4
+                        type: integer
+                      max_parallel_workers:
+                        description: max_parallel_workers Sets the maximum number of workers that the system can support for parallel queries
+                        format: int64
+                        maximum: 96
+                        minimum: 0
+                        type: integer
+                      max_parallel_workers_per_gather:
+                        description: max_parallel_workers_per_gather Sets the maximum number of workers that can be started by a single Gather or Gather Merge node
+                        format: int64
+                        maximum: 96
+                        minimum: 0
+                        type: integer
+                      max_pred_locks_per_transaction:
+                        description: max_pred_locks_per_transaction PostgreSQL maximum predicate locks per transaction
+                        format: int64
+                        maximum: 640
+                        minimum: 64
+                        type: integer
+                      max_prepared_transactions:
+                        description: max_prepared_transactions PostgreSQL maximum prepared transactions
+                        format: int64
+                        maximum: 10000
+                        minimum: 0
+                        type: integer
+                      max_replication_slots:
+                        description: max_replication_slots PostgreSQL maximum replication slots
+                        format: int64
+                        maximum: 64
+                        minimum: 8
+                        type: integer
+                      max_stack_depth:
+                        description: max_stack_depth Maximum depth of the stack in bytes
+                        format: int64
+                        maximum: 6291456
+                        minimum: 2097152
+                        type: integer
+                      max_standby_archive_delay:
+                        description: max_standby_archive_delay Max standby archive delay in milliseconds
+                        format: int64
+                        maximum: 43200000
+                        minimum: 1
+                        type: integer
+                      max_standby_streaming_delay:
+                        description: max_standby_streaming_delay Max standby streaming delay in milliseconds
+                        format: int64
+                        maximum: 43200000
+                        minimum: 1
+                        type: integer
+                      max_wal_senders:
+                        description: max_wal_senders PostgreSQL maximum WAL senders
+                        format: int64
+                        maximum: 64
+                        minimum: 8
+                        type: integer
+                      max_worker_processes:
+                        description: max_worker_processes Sets the maximum number of background processes that the system can support
+                        format: int64
+                        maximum: 96
+                        minimum: 8
+                        type: integer
+                      pg_partman_bgw.interval:
+                        description: pg_partman_bgw.interval Sets the time interval to run pg_partman's scheduled tasks
+                        format: int64
+                        maximum: 604800
+                        minimum: 3600
+                        type: integer
+                      pg_partman_bgw.role:
+                        description: pg_partman_bgw.role Controls which role to use for pg_partman's scheduled background tasks.
+                        format: ^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$
+                        maxLength: 64
+                        type: string
+                      pg_stat_statements.track:
+                        description: pg_stat_statements.track Controls which statements are counted. Specify top to track top-level statements (those issued directly by clients), all to also track nested statements (such as statements invoked within functions), or none to disable statement statistics collection. The default value is top.
+                        enum:
+                        - all
+                        - top
+                        - none
+                        type: string
+                      temp_file_limit:
+                        description: temp_file_limit PostgreSQL temporary file limit in KiB, -1 for unlimited
+                        format: int64
+                        maximum: 2147483647
+                        type: integer
+                      timezone:
+                        description: timezone PostgreSQL service timezone
+                        maxLength: 64
+                        type: string
+                      track_activity_query_size:
+                        description: track_activity_query_size Specifies the number of bytes reserved to track the currently executing command for each active session.
+                        format: int64
+                        maximum: 10240
+                        minimum: 1024
+                        type: integer
+                      track_commit_timestamp:
+                        description: track_commit_timestamp Record commit time of transactions.
+                        enum:
+                        - "off"
+                        - "on"
+                        type: string
+                      track_functions:
+                        description: track_functions Enables tracking of function call counts and time used.
+                        enum:
+                        - all
+                        - pl
+                        - none
+                        type: string
+                      wal_sender_timeout:
+                        description: wal_sender_timeout Terminate replication connections that are inactive for longer than this amount of time, in milliseconds.
+                        format: int64
+                        maximum: 600000
+                        minimum: 5000
+                        type: integer
+                      wal_writer_delay:
+                        description: wal_writer_delay WAL flush interval in milliseconds. Note that setting this value to lower than the default 200ms may negatively impact performance
+                        format: int64
+                        maximum: 200
+                        minimum: 10
+                        type: integer
+                    type: object
+                  pg_service_to_fork_from:
+                    description: Name of the PG Service from which to fork (deprecated, use service_to_fork_from). This has effect only when a new service is being created.
+                    maxLength: 63
+                    type: string
+                  pg_version:
+                    description: PostgreSQL major version
+                    enum:
+                    - "9.5"
+                    - "9.6"
+                    - "10"
+                    - "11"
+                    - "12"
+                    type: string
+                  pgbouncer:
+                    description: PGBouncer connection pooling settings
+                    properties:
+                      ignore_startup_parameters:
+                        description: List of parameters to ignore when given in startup packet
+                        items:
+                          type: string
+                        type: array
+                      server_reset_query_always:
+                        description: Run server_reset_query (DISCARD ALL) in all pooling modes
+                        type: boolean
+                    type: object
+                  pglookout:
+                    description: PGLookout settings
+                    properties:
+                      max_failover_replication_time_lag:
+                        description: max_failover_replication_time_lag Number of seconds of master unavailability before triggering database failover to standby
+                        format: int64
+                        minimum: 10
+                        type: integer
+                    type: object
+                  private_access:
+                    description: Allow access to selected service ports from private networks
+                    properties:
+                      pg:
+                        description: Allow clients to connect to pg with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
+                        type: boolean
+                      pgbouncer:
+                        description: Allow clients to connect to pgbouncer with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
+                        type: boolean
+                      prometheus:
+                        description: Allow clients to connect to prometheus with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
+                        type: boolean
+                    type: object
+                  public_access:
+                    description: Allow access to selected service ports from the public Internet
+                    properties:
+                      pg:
+                        description: Allow clients to connect to pg from the public internet for service nodes that are in a project VPC or another type of private network
+                        type: boolean
+                      pgbouncer:
+                        description: Allow clients to connect to pgbouncer from the public internet for service nodes that are in a project VPC or another type of private network
+                        type: boolean
+                      prometheus:
+                        description: Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network
+                        type: boolean
+                    type: object
+                  recovery_target_time:
+                    description: Recovery target time when forking a service. This has effect only when a new service is being created.
+                    maxLength: 32
+                    type: string
+                  service_to_fork_from:
+                    description: Name of another service to fork from. This has effect only when a new service is being created.
+                    maxLength: 63
+                    type: string
+                  shared_buffers_percentage:
+                    description: shared_buffers_percentage Percentage of total RAM that the database server uses for shared memory buffers. Valid range is 20-60 (float), which corresponds to 20% - 60%. This setting adjusts the shared_buffers configuration value. The absolute maximum is 12 GB.
+                    format: int64
+                    maximum: 60
+                    minimum: 20
+                    type: integer
+                  synchronous_replication:
+                    description: Synchronous replication type. Note that the service plan also needs to support synchronous replication.
+                    enum:
+                    - quorum
+                    - "off"
+                    type: string
+                  timescaledb:
+                    description: TimescaleDB extension configuration values
+                    properties:
+                      max_background_workers:
+                        description: timescaledb.max_background_workers The number of background workers for timescaledb operations. You should configure this setting to the sum of your number of databases and the total number of concurrent background workers you want running at any given point in time.
+                        format: int64
+                        maximum: 4096
+                        minimum: 1
+                        type: integer
+                    type: object
+                  variant:
+                    description: Variant of the PostgreSQL service, may affect the features that are exposed by default
+                    enum:
+                    - aiven
+                    - timescale
+                    type: string
+                  work_mem:
+                    description: work_mem Sets the maximum amount of memory to be used by a query operation (such as a sort or hash table) before writing to temporary disk files, in MB. Default is 1MB + 0.075% of total RAM (up to 32MB).
+                    format: int64
+                    maximum: 1024
+                    minimum: 1
+                    type: integer
+                type: object
+              plan:
+                description: Subscription plan.
+                maxLength: 128
+                type: string
+              project:
+                description: Target project.
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              projectVpcId:
+                description: Identifier of the VPC the service should be in, if any.
+                maxLength: 36
+                type: string
+              terminationProtection:
+                description: Prevent service from being deleted. It is recommended to have this enabled for all services.
+                type: boolean
+            required:
+            - authSecretRef
+            - project
+            type: object
+          status:
+            description: ServiceStatus defines the observed state of service
+            properties:
+              conditions:
+                description: Conditions represent the latest available observations of a service state
+                items:
+                  description: "Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, type FooStatus struct{     // Represents the observations of a foo's current state.     // Known .status.conditions.type are: \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type     // +patchStrategy=merge     // +listType=map     // +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"` \n     // other fields }"
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              state:
+                description: Service state
+                type: string
+            required:
+            - conditions
+            - state
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
+    controller-gen.kubebuilder.io/version: v0.4.1
+  name: projects.aiven.io
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
+  group: aiven.io
+  names:
+    kind: Project
+    listKind: ProjectList
+    plural: projects
+    singular: project
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Project is the Schema for the projects API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ProjectSpec defines the desired state of Project
+            properties:
+              accountId:
+                description: Account ID
+                maxLength: 32
+                type: string
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              billingAddress:
+                description: Billing name and address of the project
+                maxLength: 1000
+                type: string
+              billingCurrency:
+                description: Billing currency
+                enum:
+                - AUD
+                - CAD
+                - CHF
+                - DKK
+                - EUR
+                - GBP
+                - NOK
+                - SEK
+                - USD
+                type: string
+              billingEmails:
+                description: Billing contact emails of the project
+                items:
+                  type: string
+                maxItems: 10
+                type: array
+              billingExtraText:
+                description: Extra text to be included in all project invoices, e.g. purchase order or cost center number
+                maxLength: 1000
+                type: string
+              cardId:
+                description: Credit card ID
+                maxLength: 64
+                type: string
+              cloud:
+                description: 'Target cloud, example: aws-eu-central-1'
+                maxLength: 256
+                type: string
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
+              copyFromProject:
+                description: Project name from which to copy settings to the new project
+                maxLength: 63
+                type: string
+              countryCode:
+                description: Billing country code of the project
+                maxLength: 2
+                minLength: 2
+                type: string
+              technicalEmails:
+                description: Technical contact emails of the project
+                items:
+                  type: string
+                maxItems: 10
+                type: array
+            required:
+            - authSecretRef
+            type: object
+          status:
+            description: ProjectStatus defines the observed state of Project
+            properties:
+              availableCredits:
+                description: Available credirs
+                type: string
+              conditions:
+                description: Conditions represent the latest available observations of an Project state
+                items:
+                  description: "Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, type FooStatus struct{     // Represents the observations of a foo's current state.     // Known .status.conditions.type are: \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type     // +patchStrategy=merge     // +listType=map     // +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"` \n     // other fields }"
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              country:
+                description: Country name
+                type: string
+              estimatedBalance:
+                description: Estimated balance
+                type: string
+              paymentMethod:
+                description: Payment method name
+                type: string
+              vatId:
+                description: EU VAT Identification Number
+                maxLength: 64
+                type: string
+            required:
+            - conditions
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
+    controller-gen.kubebuilder.io/version: v0.4.1
+  name: projectvpcs.aiven.io
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
+  group: aiven.io
+  names:
+    kind: ProjectVPC
+    listKind: ProjectVPCList
+    plural: projectvpcs
+    singular: projectvpc
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.state
+      name: State
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ProjectVPC is the Schema for the projectvpcs API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ProjectVPCSpec defines the desired state of ProjectVPC
+            properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              cloudName:
+                description: Cloud the VPC is in
+                maxLength: 256
+                type: string
+              networkCidr:
+                description: Network address range used by the VPC like 192.168.0.0/24
+                maxLength: 36
+                type: string
+              project:
+                description: The project the VPC belongs to
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+            required:
+            - authSecretRef
+            - cloudName
+            - networkCidr
+            - project
+            type: object
+          status:
+            description: ProjectVPCStatus defines the observed state of ProjectVPC
+            properties:
+              conditions:
+                description: Conditions represent the latest available observations of an ProjectVPC state
+                items:
+                  description: "Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, type FooStatus struct{     // Represents the observations of a foo's current state.     // Known .status.conditions.type are: \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type     // +patchStrategy=merge     // +listType=map     // +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"` \n     // other fields }"
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              id:
+                description: Project VPC id
+                type: string
+            required:
+            - conditions
+            - id
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
+    controller-gen.kubebuilder.io/version: v0.4.1
+  name: serviceintegrations.aiven.io
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
+  group: aiven.io
+  names:
+    kind: ServiceIntegration
+    listKind: ServiceIntegrationList
+    plural: serviceintegrations
+    singular: serviceintegration
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ServiceIntegration is the Schema for the serviceintegrations API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ServiceIntegrationSpec defines the desired state of ServiceIntegration
+            properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              datadog:
+                description: Datadog specific user configuration options
+                properties:
+                  exclude_consumer_groups:
+                    description: Consumer groups to exclude
+                    items:
+                      type: string
+                    type: array
+                  exclude_topics:
+                    description: List of topics to exclude
+                    items:
+                      type: string
+                    type: array
+                  include_consumer_groups:
+                    description: Consumer groups to include
+                    items:
+                      type: string
+                    type: array
+                  include_topics:
+                    description: Topics to include
+                    items:
+                      type: string
+                    type: array
+                  kafka_custom_metrics:
+                    description: List of custom metrics
+                    items:
+                      type: string
+                    type: array
+                type: object
+              destinationEndpointId:
+                description: Destination endpoint for the integration (if any)
+                type: string
+              destinationServiceName:
+                description: Destination service for the integration (if any)
+                type: string
+              integrationType:
+                description: Type of the service integration
+                enum:
+                - datadog
+                - kafka_logs
+                - kafka_connect
+                - metrics
+                - dashboard
+                - rsyslog
+                - read_replica
+                - schema_registry_proxy
+                - signalfx
+                - jolokia
+                - internal_connectivity
+                - external_google_cloud_logging
+                - datasource
+                type: string
+              kafkaConnect:
+                description: Kafka Connect service configuration values
+                properties:
+                  kafka_connect:
+                    properties:
+                      config_storage_topic:
+                        description: The name of the topic where connector and task configuration data are stored. This must be the same for all workers with the same group_id.
+                        maxLength: 249
+                        type: string
+                      group_id:
+                        description: A unique string that identifies the Connect cluster group this worker belongs to.
+                        maxLength: 249
+                        type: string
+                      offset_storage_topic:
+                        description: The name of the topic where connector and task configuration offsets are stored. This must be the same for all workers with the same group_id.
+                        maxLength: 249
+                        type: string
+                      status_storage_topic:
+                        description: The name of the topic where connector and task configuration status updates are stored.This must be the same for all workers with the same group_id.
+                        maxLength: 249
+                        type: string
+                    type: object
+                type: object
+              kafkaLogs:
+                description: Kafka logs configuration values
+                properties:
+                  kafka_topic:
+                    description: Topic name
+                    maxLength: 63
+                    minLength: 1
+                    type: string
+                type: object
+              metrics:
+                description: Metrics configuration values
+                properties:
+                  database:
+                    description: Name of the database where to store metric datapoints. Only affects PostgreSQL destinations
+                    format: ^[_A-Za-z0-9][-_A-Za-z0-9]{0,39}$
+                    maxLength: 40
+                    type: string
+                  retention_days:
+                    description: Number of days to keep old metrics. Only affects PostgreSQL destinations. Set to 0 for no automatic cleanup. Defaults to 30 days.
+                    type: integer
+                  ro_username:
+                    description: Name of a user that can be used to read metrics. This will be used for Grafana integration (if enabled) to prevent Grafana users from making undesired changes. Only affects PostgreSQL destinations. Defaults to 'metrics_reader'. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.
+                    format: ^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$
+                    maxLength: 40
+                    type: string
+                  username:
+                    description: Name of the user used to write metrics. Only affects PostgreSQL destinations. Defaults to 'metrics_writer'. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.
+                    format: ^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$
+                    maxLength: 40
+                    type: string
+                type: object
+              project:
+                description: Project the integration belongs to
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              sourceEndpointID:
+                description: Source endpoint for the integration (if any)
+                type: string
+              sourceServiceName:
+                description: Source service for the integration (if any)
+                type: string
+            required:
+            - authSecretRef
+            - integrationType
+            - project
+            type: object
+          status:
+            description: ServiceIntegrationStatus defines the observed state of ServiceIntegration
+            properties:
+              conditions:
+                description: Conditions represent the latest available observations of an ServiceIntegration state
+                items:
+                  description: "Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, type FooStatus struct{     // Represents the observations of a foo's current state.     // Known .status.conditions.type are: \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type     // +patchStrategy=merge     // +listType=map     // +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"` \n     // other fields }"
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              id:
+                description: Service integration ID
+                type: string
+            required:
+            - conditions
+            - id
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
+    controller-gen.kubebuilder.io/version: v0.4.1
+  name: serviceusers.aiven.io
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: webhook-service
+          namespace: system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
+  group: aiven.io
+  names:
+    kind: ServiceUser
+    listKind: ServiceUserList
+    plural: serviceusers
+    singular: serviceuser
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.serviceName
+      name: Service Name
+      type: string
+    - jsonPath: .spec.project
+      name: Project
+      type: string
+    - jsonPath: .spec.connInfoSecretTarget.name
+      name: Connection Information Secret
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ServiceUser is the Schema for the serviceusers API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ServiceUserSpec defines the desired state of ServiceUser
+            properties:
+              authSecretRef:
+                description: Authentication reference to Aiven token in a secret
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              authentication:
+                description: Authentication details
+                enum:
+                - caching_sha2_password
+                - mysql_native_password
+                type: string
+              connInfoSecretTarget:
+                description: Information regarding secret creation
+                properties:
+                  name:
+                    description: Name of the Secret resource to be created
+                    type: string
+                required:
+                - name
+                type: object
+              project:
+                description: Project to link the user to
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              serviceName:
+                description: Service to link the user to
+                maxLength: 63
+                type: string
+            required:
+            - authSecretRef
+            - project
+            - serviceName
+            type: object
+          status:
+            description: ServiceUserStatus defines the observed state of ServiceUser
+            properties:
+              conditions:
+                description: Conditions represent the latest available observations of an ServiceUser state
+                items:
+                  description: "Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, type FooStatus struct{     // Represents the observations of a foo's current state.     // Known .status.conditions.type are: \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type     // +patchStrategy=merge     // +listType=map     // +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"` \n     // other fields }"
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating details about the transition. This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              type:
+                description: Type of the user account
+                type: string
+            required:
+            - conditions
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: aiven-kubernetes-operator-leader-election-role
+  namespace: aiven-kubernetes-operator-system
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - configmaps/status
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: aiven-kubernetes-operator-manager-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - connectionpools
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - connectionpools/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
+  - databases
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - databases/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
+  - kafkaacls
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - kafkaacls/status
+  verbs:
+  - get
+- apiGroups:
+  - aiven.io
+  resources:
+  - kafkaconnects
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - kafkaconnects/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
+  - kafkas
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - kafkas/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
+  - kafkaschemas
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - kafkaschemas/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
+  - kafkatopics
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - kafkatopics/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
+  - pgs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - pgs/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
+  - projects
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - projects/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
+  - projectvpcs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - projectvpcs/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
+  - serviceintegrations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - serviceintegrations/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
+  - serviceusers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - serviceusers/status
+  verbs:
+  - get
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - get
+  - list
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: aiven-kubernetes-operator-leader-election-rolebinding
+  namespace: aiven-kubernetes-operator-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: aiven-kubernetes-operator-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: aiven-kubernetes-operator-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: aiven-kubernetes-operator-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: aiven-kubernetes-operator-manager-role
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: aiven-kubernetes-operator-system
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aiven-kubernetes-operator-webhook-service
+  namespace: aiven-kubernetes-operator-system
+spec:
+  ports:
+  - port: 443
+    targetPort: 9443
+  selector:
+    control-plane: controller-manager
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    control-plane: controller-manager
+  name: aiven-kubernetes-operator-controller-manager
+  namespace: aiven-kubernetes-operator-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+  template:
+    metadata:
+      labels:
+        control-plane: controller-manager
+    spec:
+      containers:
+      - args:
+        - --enable-leader-election
+        command:
+        - /manager
+        image: eu.gcr.io/integral-magnet-301414/aiven-operator:v0.1.0
+        name: manager
+        ports:
+        - containerPort: 9443
+          name: webhook-server
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 100m
+            memory: 30Mi
+          requests:
+            cpu: 100m
+            memory: 20Mi
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: cert
+        secret:
+          defaultMode: 420
+          secretName: webhook-server-cert
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: aiven-kubernetes-operator-serving-cert
+  namespace: aiven-kubernetes-operator-system
+spec:
+  dnsNames:
+  - aiven-kubernetes-operator-webhook-service.aiven-kubernetes-operator-system.svc
+  - aiven-kubernetes-operator-webhook-service.aiven-kubernetes-operator-system.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: aiven-kubernetes-operator-selfsigned-issuer
+  secretName: webhook-server-cert
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: aiven-kubernetes-operator-selfsigned-issuer
+  namespace: aiven-kubernetes-operator-system
+spec:
+  selfSigned: {}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
+  name: aiven-kubernetes-operator-mutating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /mutate-aiven-io-v1alpha1-connectionpool
+  failurePolicy: Fail
+  name: mconnectionpool.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - connectionpools
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /mutate-aiven-io-v1alpha1-database
+  failurePolicy: Fail
+  name: mdatabase.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - databases
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /mutate-aiven-io-v1alpha1-kafka
+  failurePolicy: Fail
+  name: mkafka.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - kafkas
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /mutate-aiven-io-v1alpha1-kafkaacl
+  failurePolicy: Fail
+  name: mkafkaacl.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - kafkaacls
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /mutate-aiven-io-v1alpha1-kafkaconnect
+  failurePolicy: Fail
+  name: mkafkaconnect.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - kafkaconnects
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /mutate-aiven-io-v1alpha1-kafkaschema
+  failurePolicy: Fail
+  name: mkafkaschema.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - kafkaschemas
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /mutate-aiven-io-v1alpha1-kafkatopic
+  failurePolicy: Fail
+  name: mkafkatopic.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - kafkatopics
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /mutate-aiven-io-v1alpha1-pg
+  failurePolicy: Fail
+  name: mpg.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - pgs
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /mutate-aiven-io-v1alpha1-project
+  failurePolicy: Fail
+  name: mproject.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - projects
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /mutate-aiven-io-v1alpha1-projectvpc
+  failurePolicy: Fail
+  name: mprojectvpc.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - projectvpcs
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /mutate-aiven-io-v1alpha1-serviceintegration
+  failurePolicy: Fail
+  name: mserviceintegration.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - serviceintegrations
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /mutate-aiven-io-v1alpha1-serviceuser
+  failurePolicy: Fail
+  name: mserviceuser.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - serviceusers
+  sideEffects: None
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
+  name: aiven-kubernetes-operator-validating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /validate-aiven-io-v1alpha1-connectionpool
+  failurePolicy: Fail
+  name: vconnectionpool.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - connectionpools
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /validate-aiven-io-v1alpha1-database
+  failurePolicy: Fail
+  name: vdatabase.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - databases
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /validate-aiven-io-v1alpha1-kafka
+  failurePolicy: Fail
+  name: vkafka.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - kafkas
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /validate-aiven-io-v1alpha1-kafkaacl
+  failurePolicy: Fail
+  name: vkafkaacl.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - kafkaacls
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /validate-aiven-io-v1alpha1-kafkaconnect
+  failurePolicy: Fail
+  name: vkafkaconnect.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - kafkaconnects
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /validate-aiven-io-v1alpha1-kafkaschema
+  failurePolicy: Fail
+  name: vkafkaschema.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - kafkaschemas
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /validate-aiven-io-v1alpha1-kafkatopic
+  failurePolicy: Fail
+  name: vkafkatopic.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - kafkatopics
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /validate-aiven-io-v1alpha1-pg
+  failurePolicy: Fail
+  name: vpg.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - pgs
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /validate-aiven-io-v1alpha1-project
+  failurePolicy: Fail
+  name: vproject.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - projects
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /validate-aiven-io-v1alpha1-projectvpc
+  failurePolicy: Fail
+  name: vprojectvpc.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - projectvpcs
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /validate-aiven-io-v1alpha1-serviceintegration
+  failurePolicy: Fail
+  name: vserviceintegration.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - serviceintegrations
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: aiven-kubernetes-operator-webhook-service
+      namespace: aiven-kubernetes-operator-system
+      path: /validate-aiven-io-v1alpha1-serviceuser
+  failurePolicy: Fail
+  name: vserviceuser.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - serviceusers
+  sideEffects: None
