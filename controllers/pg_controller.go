@@ -46,7 +46,7 @@ func (r *PGReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Re
 		return ctrl.Result{}, err
 	}
 
-	return r.reconcileInstance(ctx, &PGHandler{
+	return r.reconcileInstance(ctx, PGHandler{
 		client: c,
 	}, pg)
 }

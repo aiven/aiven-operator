@@ -45,7 +45,7 @@ func (r *ServiceUserReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		return ctrl.Result{}, err
 	}
 
-	return r.reconcileInstance(ctx, &ServiceUserHandler{client: c}, su)
+	return r.reconcileInstance(ctx, ServiceUserHandler{client: c}, su)
 }
 
 func (r *ServiceUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -54,7 +54,7 @@ func (r *ServiceUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h *ServiceUserHandler) createOrUpdate(i client.Object) (client.Object, error) {
+func (h ServiceUserHandler) createOrUpdate(i client.Object) (client.Object, error) {
 	user, err := h.convert(i)
 	if err != nil {
 		return nil, err

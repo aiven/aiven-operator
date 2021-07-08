@@ -46,7 +46,7 @@ func (r *ConnectionPoolReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 		return ctrl.Result{}, err
 	}
 
-	return r.reconcileInstance(ctx, &ConnectionPoolHandler{
+	return r.reconcileInstance(ctx, ConnectionPoolHandler{
 		client: c,
 	}, cp)
 }

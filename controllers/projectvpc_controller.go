@@ -45,7 +45,7 @@ func (r *ProjectVPCReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, err
 	}
 
-	return r.reconcileInstance(ctx, &ProjectVPCHandler{
+	return r.reconcileInstance(ctx, ProjectVPCHandler{
 		client: c,
 	}, vpc)
 }
