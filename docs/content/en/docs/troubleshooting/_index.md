@@ -1,8 +1,9 @@
 ---
 title: "Troubleshooting"
 linkTitle: "Troubleshooting"
-weight: 85
+weight: 80
 ---
+
 ## Verifying operator status
 Use the following checks to help you troubleshoot the Aiven Kubernetes Operator.
 

@@ -39,13 +39,4 @@ $ make install
 $ make deploy
 ```
 
-6. Verify the deployment by checking the operator running Pod.
-
-```bash
-$ kubectl get pods --namespace aiven-kubernetes-operator-system 
-
-NAME                                                           READY   STATUS    RESTARTS   AGE
-aiven-kubernetes-operator-controller-manager-b5487dff7-2pzb8   1/1     Running   0          5m55s
-```
-
 You've now installed the Aiven Kubernetes Operator. [Verify your installation](./verifying).
