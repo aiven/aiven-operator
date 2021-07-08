@@ -47,7 +47,7 @@ func (r *ServiceIntegrationReconciler) Reconcile(ctx context.Context, req ctrl.R
 		return ctrl.Result{}, err
 	}
 
-	return r.reconcileInstance(ctx, &ServiceIntegrationHandler{
+	return r.reconcileInstance(ctx, ServiceIntegrationHandler{
 		client: c,
 	}, si)
 }

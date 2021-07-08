@@ -45,7 +45,7 @@ func (r *KafkaTopicReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, err
 	}
 
-	return r.reconcileInstance(ctx, &KafkaTopicHandler{
+	return r.reconcileInstance(ctx, KafkaTopicHandler{
 		client: c,
 	}, topic)
 }

@@ -46,7 +46,7 @@ func (r *DatabaseReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return ctrl.Result{}, err
 	}
 
-	return r.reconcileInstance(ctx, &DatabaseHandler{
+	return r.reconcileInstance(ctx, DatabaseHandler{
 		client: c,
 	}, db)
 }

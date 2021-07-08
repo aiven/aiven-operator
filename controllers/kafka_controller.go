@@ -46,7 +46,7 @@ func (r *KafkaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		return ctrl.Result{}, err
 	}
 
-	return r.reconcileInstance(ctx, &KafkaHandler{
+	return r.reconcileInstance(ctx, KafkaHandler{
 		client: c,
 	}, kafka)
 }
@@ -58,7 +58,7 @@ func (r *KafkaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h *KafkaHandler) createOrUpdate(i client.Object) (client.Object, error) {
+func (h KafkaHandler) createOrUpdate(i client.Object) (client.Object, error) {
 	kafka, err := h.convert(i)
 	if err != nil {
 		return nil, err

@@ -47,7 +47,7 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, err
 	}
 
-	return r.reconcileInstance(ctx, &ProjectHandler{
+	return r.reconcileInstance(ctx, ProjectHandler{
 		client: c,
 	}, project)
 }
