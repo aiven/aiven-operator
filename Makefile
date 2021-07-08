@@ -197,3 +197,22 @@ catalog-build: opm ## Build a catalog image.
 .PHONY: catalog-push
 catalog-push: ## Push a catalog image.
 	$(MAKE) docker-push IMG=$(CATALOG_IMG)
+
+##@ Docs
+.PHONY: serve-docs generate-api-reference
+# Run Hugo live preview.
+serve-docs:
+	hugo serve docs -s docs
+
+# Generate the documentation website locally.
+generate-docs:
+	hugo --minify -s docs
+
+# Generate API Reference for CRDs.
+generate-api-reference:
+	go install github.com/ahmetb/gen-crd-api-reference-docs@latest
+	gen-crd-api-reference-docs \
+		-config docs/api-reference-hack/config.json \
+		-template-dir docs/api-reference-hack/template \
+		-api-dir ./api/v1alpha1 \
+		-out-file docs/content/en/docs/api-reference/_index.html
