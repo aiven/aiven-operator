@@ -58,15 +58,15 @@ func (r *ConnectionPoolReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ConnectionPoolHandler) createOrUpdate(i client.Object) (client.Object, error) {
+func (h ConnectionPoolHandler) createOrUpdate(i client.Object) error {
 	cp, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	exists, err := h.exists(cp)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	var reason string
 	if !exists {
@@ -79,7 +79,7 @@ func (h ConnectionPoolHandler) createOrUpdate(i client.Object) (client.Object, e
 				Username: cp.Spec.Username,
 			})
 		if err != nil && !aiven.IsAlreadyExists(err) {
-			return nil, err
+			return err
 		}
 		reason = "Created"
 	} else {
@@ -91,7 +91,7 @@ func (h ConnectionPoolHandler) createOrUpdate(i client.Object) (client.Object, e
 				Username: cp.Spec.Username,
 			})
 		if err != nil {
-			return nil, err
+			return err
 		}
 		reason = "Updated"
 	}
@@ -107,7 +107,7 @@ func (h ConnectionPoolHandler) createOrUpdate(i client.Object) (client.Object, e
 	metav1.SetMetaDataAnnotation(&cp.ObjectMeta,
 		processedGeneration, strconv.FormatInt(cp.GetGeneration(), formatIntBaseDecimal))
 
-	return cp, nil
+	return nil
 }
 
 func (h ConnectionPoolHandler) delete(i client.Object) (bool, error) {
@@ -137,25 +137,25 @@ func (h ConnectionPoolHandler) exists(cp *k8soperatorv1alpha1.ConnectionPool) (b
 	return conPool != nil, nil
 }
 
-func (h ConnectionPoolHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
+func (h ConnectionPoolHandler) get(i client.Object) (*corev1.Secret, error) {
 	connPool, err := h.convert(i)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	cp, err := h.client.ConnectionPools.Get(connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Name)
 	if err != nil {
-		return nil, nil, fmt.Errorf("cannot get ConnectionPool: %w", err)
+		return nil, fmt.Errorf("cannot get ConnectionPool: %w", err)
 	}
 
 	s, err := h.client.Services.Get(connPool.Spec.Project, connPool.Spec.ServiceName)
 	if err != nil {
-		return nil, nil, fmt.Errorf("cannot get service: %w", err)
+		return nil, fmt.Errorf("cannot get service: %w", err)
 	}
 
 	u, err := h.client.ServiceUsers.Get(connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Spec.Username)
 	if err != nil {
-		return nil, nil, fmt.Errorf("cannot get user: %w", err)
+		return nil, fmt.Errorf("cannot get user: %w", err)
 	}
 
 	metav1.SetMetaDataAnnotation(&connPool.ObjectMeta, isRunning, "true")
@@ -164,7 +164,7 @@ func (h ConnectionPoolHandler) get(i client.Object) (client.Object, *corev1.Secr
 		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 			"Instance is running on Aiven side"))
 
-	return connPool, &corev1.Secret{
+	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      h.getSecretName(connPool),
 			Namespace: connPool.Namespace,
@@ -186,6 +186,9 @@ func (h ConnectionPoolHandler) checkPreconditions(i client.Object) (bool, error)
 	if err != nil {
 		return false, err
 	}
+
+	meta.SetStatusCondition(&cp.Status.Conditions,
+		getInitializedCondition("Preconditions", "Checking preconditions"))
 
 	check, err := checkServiceIsRunning(h.client, cp.Spec.Project, cp.Spec.ServiceName)
 	if err != nil {

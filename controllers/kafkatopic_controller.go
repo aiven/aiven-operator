@@ -56,10 +56,10 @@ func (r *KafkaTopicReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaTopicHandler) createOrUpdate(i client.Object) (client.Object, error) {
+func (h KafkaTopicHandler) createOrUpdate(i client.Object) error {
 	topic, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	var tags []aiven.KafkaTopicTag
@@ -72,7 +72,7 @@ func (h KafkaTopicHandler) createOrUpdate(i client.Object) (client.Object, error
 
 	exists, err := h.exists(topic)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	var reason string
@@ -85,7 +85,7 @@ func (h KafkaTopicHandler) createOrUpdate(i client.Object) (client.Object, error
 			Config:      convertKafkaTopicConfig(topic),
 		})
 		if err != nil && !aiven.IsAlreadyExists(err) {
-			return nil, err
+			return err
 		}
 
 		reason = "Created"
@@ -98,7 +98,7 @@ func (h KafkaTopicHandler) createOrUpdate(i client.Object) (client.Object, error
 				Config:      convertKafkaTopicConfig(topic),
 			})
 		if err != nil {
-			return nil, fmt.Errorf("cannot update Kafka Topic: %w", err)
+			return fmt.Errorf("cannot update Kafka Topic: %w", err)
 		}
 
 		reason = "Updated"
@@ -115,7 +115,7 @@ func (h KafkaTopicHandler) createOrUpdate(i client.Object) (client.Object, error
 	metav1.SetMetaDataAnnotation(&topic.ObjectMeta,
 		processedGeneration, strconv.FormatInt(topic.GetGeneration(), formatIntBaseDecimal))
 
-	return topic, nil
+	return nil
 }
 
 func (h KafkaTopicHandler) delete(i client.Object) (bool, error) {
@@ -150,15 +150,15 @@ func (h KafkaTopicHandler) exists(topic *k8soperatorv1alpha1.KafkaTopic) (bool, 
 	return t != nil, nil
 }
 
-func (h KafkaTopicHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
+func (h KafkaTopicHandler) get(i client.Object) (*corev1.Secret, error) {
 	topic, err := h.convert(i)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	state, err := h.getState(topic)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	topic.Status.State = state
@@ -171,7 +171,7 @@ func (h KafkaTopicHandler) get(i client.Object) (client.Object, *corev1.Secret, 
 		metav1.SetMetaDataAnnotation(&topic.ObjectMeta, isRunning, "true")
 	}
 
-	return topic, nil, err
+	return nil, err
 }
 
 func (h KafkaTopicHandler) checkPreconditions(i client.Object) (bool, error) {
@@ -179,6 +179,9 @@ func (h KafkaTopicHandler) checkPreconditions(i client.Object) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
+	meta.SetStatusCondition(&topic.Status.Conditions,
+		getInitializedCondition("Preconditions", "Checking preconditions"))
 
 	return checkServiceIsRunning(h.client, topic.Spec.Project, topic.Spec.ServiceName)
 }

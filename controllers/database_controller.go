@@ -57,16 +57,16 @@ func (r *DatabaseReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h DatabaseHandler) createOrUpdate(i client.Object) (client.Object, error) {
+func (h DatabaseHandler) createOrUpdate(i client.Object) error {
 	db, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	exists, err := h.exists(db)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if !exists {
@@ -76,7 +76,7 @@ func (h DatabaseHandler) createOrUpdate(i client.Object) (client.Object, error) 
 			LcType:    db.Spec.LcCtype,
 		})
 		if err != nil {
-			return nil, fmt.Errorf("cannot create database on Aiven side: %w", err)
+			return fmt.Errorf("cannot create database on Aiven side: %w", err)
 		}
 	}
 
@@ -91,7 +91,7 @@ func (h DatabaseHandler) createOrUpdate(i client.Object) (client.Object, error) 
 	metav1.SetMetaDataAnnotation(&db.ObjectMeta,
 		processedGeneration, strconv.FormatInt(db.GetGeneration(), formatIntBaseDecimal))
 
-	return db, nil
+	return nil
 }
 
 func (h DatabaseHandler) delete(i client.Object) (bool, error) {
@@ -120,15 +120,15 @@ func (h DatabaseHandler) exists(db *k8soperatorv1alpha1.Database) (bool, error) 
 	return d != nil, nil
 }
 
-func (h DatabaseHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
+func (h DatabaseHandler) get(i client.Object) (*corev1.Secret, error) {
 	db, err := h.convert(i)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	_, err = h.client.Databases.Get(db.Spec.Project, db.Spec.ServiceName, db.Name)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	meta.SetStatusCondition(&db.Status.Conditions,
@@ -137,7 +137,7 @@ func (h DatabaseHandler) get(i client.Object) (client.Object, *corev1.Secret, er
 
 	metav1.SetMetaDataAnnotation(&db.ObjectMeta, isRunning, "true")
 
-	return db, nil, nil
+	return nil, nil
 }
 
 func (h DatabaseHandler) checkPreconditions(i client.Object) (bool, error) {
@@ -145,6 +145,9 @@ func (h DatabaseHandler) checkPreconditions(i client.Object) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
+	meta.SetStatusCondition(&db.Status.Conditions,
+		getInitializedCondition("Preconditions", "Checking preconditions"))
 
 	return checkServiceIsRunning(h.client, db.Spec.Project, db.Spec.ServiceName)
 }

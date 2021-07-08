@@ -54,10 +54,10 @@ func (r *ServiceUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ServiceUserHandler) createOrUpdate(i client.Object) (client.Object, error) {
+func (h ServiceUserHandler) createOrUpdate(i client.Object) error {
 	user, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	u, err := h.client.ServiceUsers.Create(user.Spec.Project, user.Spec.ServiceName,
@@ -70,7 +70,7 @@ func (h ServiceUserHandler) createOrUpdate(i client.Object) (client.Object, erro
 			},
 		})
 	if err != nil && !aiven.IsAlreadyExists(err) {
-		return nil, fmt.Errorf("cannot createOrUpdate service user on aiven side: %w", err)
+		return fmt.Errorf("cannot createOrUpdate service user on aiven side: %w", err)
 	}
 
 	if u != nil {
@@ -88,7 +88,7 @@ func (h ServiceUserHandler) createOrUpdate(i client.Object) (client.Object, erro
 	metav1.SetMetaDataAnnotation(&user.ObjectMeta,
 		processedGeneration, strconv.FormatInt(user.GetGeneration(), formatIntBaseDecimal))
 
-	return user, nil
+	return nil
 }
 
 func (h ServiceUserHandler) delete(i client.Object) (bool, error) {
@@ -105,27 +105,27 @@ func (h ServiceUserHandler) delete(i client.Object) (bool, error) {
 	return true, nil
 }
 
-func (h ServiceUserHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
+func (h ServiceUserHandler) get(i client.Object) (*corev1.Secret, error) {
 	user, err := h.convert(i)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	u, err := h.client.ServiceUsers.Get(user.Spec.Project, user.Spec.ServiceName, user.Name)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	s, err := h.client.Services.Get(user.Spec.Project, user.Spec.ServiceName)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	params := s.URIParams
 
 	caCert, err := h.client.CA.Get(user.Spec.Project)
 	if err != nil {
-		return nil, nil, fmt.Errorf("aiven client error %w", err)
+		return nil, fmt.Errorf("aiven client error %w", err)
 	}
 
 	meta.SetStatusCondition(&user.Status.Conditions,
@@ -134,7 +134,7 @@ func (h ServiceUserHandler) get(i client.Object) (client.Object, *corev1.Secret,
 
 	metav1.SetMetaDataAnnotation(&user.ObjectMeta, isRunning, "true")
 
-	return user, &corev1.Secret{
+	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      h.getSecretName(user),
 			Namespace: user.Namespace,
@@ -163,6 +163,9 @@ func (h ServiceUserHandler) checkPreconditions(i client.Object) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
+	meta.SetStatusCondition(&user.Status.Conditions,
+		getInitializedCondition("Preconditions", "Checking preconditions"))
 
 	return checkServiceIsRunning(h.client, user.Spec.Project, user.Spec.ServiceName)
 }
