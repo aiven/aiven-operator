@@ -4,36 +4,10 @@ Provision and manage [Aiven Services](https://aiven.io/) from your Kubernetes cl
 See the full documentation [here](https://aiven.github.io/aiven-kubernetes-operator/).
 
 ## Installation
-Clone this repository:
-```bash
-$ git clone git@github.com:aiven/aiven-kubernetes-operator.git
-$ cd aiven-kubernetes-operator
-```
+To install the Operator, please follow the [installation instructions](https://aiven.github.io/aiven-kubernetes-operator/docs/installation/).
 
-Install the `cert-manager` Operator:
-> cert-manager is used to manage the Operator [webhooks](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/) TLS certificates.
-```bash
-$ make install-cert-manager
-```
-
-Install the CRDs:
-```bash
-$ make install
-```
-
-Install the Operator:
-```bash
-$ make deploy
-```
 
 ## Deploying PostgreSQL at Aiven
-Sign in or create an account at [Aiven](https://console.aiven.io/signup?utm_source=github&utm_medium=organic&utm_campaign=k8s-operator&utm_content=signup), generate an [authentication token](https://help.aiven.io/en/articles/2059201-authentication-tokens) and take note of your Aiven project name.
-
-Create a [Kubernetes Secret](https://kubernetes.io/docs/concepts/configuration/secret/) to store the generated token:
-```bash
-$ kubectl create secret generic aiven-token --from-literal=token="<your-token-here>"
-```
-
 Now let's create a `PG` resource with the following YAML – please fill in your project name under in the `project` field:
 ```yaml
 apiVersion: aiven.io/v1alpha1
@@ -42,7 +16,7 @@ metadata:
   name: aiven-pg
 spec:
 
-  # reads the authentication token created previously
+  # reads the authentication token
   authSecretRef:
     name: aiven-token
     key: token
