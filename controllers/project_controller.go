@@ -78,6 +78,7 @@ func (h ProjectHandler) createOrUpdate(i client.Object) error {
 
 	exists, err := h.exists(project)
 	if err != nil {
+		meta.SetStatusCondition(&project.Status.Conditions, getErrorCondition("CheckExists", err))
 		return err
 	}
 
@@ -98,6 +99,7 @@ func (h ProjectHandler) createOrUpdate(i client.Object) error {
 			BillingCurrency:  project.Spec.BillingCurrency,
 		})
 		if err != nil {
+			meta.SetStatusCondition(&project.Status.Conditions, getErrorCondition("Creating", err))
 			return fmt.Errorf("failed to createOrUpdate Project on Aiven side: %w", err)
 		}
 
@@ -115,6 +117,7 @@ func (h ProjectHandler) createOrUpdate(i client.Object) error {
 			BillingCurrency:  project.Spec.BillingCurrency,
 		})
 		if err != nil {
+			meta.SetStatusCondition(&project.Status.Conditions, getErrorCondition("Updating", err))
 			return fmt.Errorf("failed to update project on aiven side: %w", err)
 		}
 
@@ -137,6 +140,8 @@ func (h ProjectHandler) createOrUpdate(i client.Object) error {
 
 	metav1.SetMetaDataAnnotation(&project.ObjectMeta,
 		processedGeneration, strconv.FormatInt(project.GetGeneration(), formatIntBaseDecimal))
+
+	meta.RemoveStatusCondition(&project.Status.Conditions, conditionTypeError)
 
 	return nil
 }

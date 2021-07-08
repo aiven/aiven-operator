@@ -80,6 +80,7 @@ func (h PGHandler) createOrUpdate(i client.Object) error {
 
 	exists, err := h.exists(pg)
 	if err != nil {
+		meta.SetStatusCondition(&pg.Status.Conditions, getErrorCondition("CheckExists", err))
 		return err
 	}
 
@@ -98,6 +99,7 @@ func (h PGHandler) createOrUpdate(i client.Object) error {
 			ServiceIntegrations: nil,
 		})
 		if err != nil {
+			meta.SetStatusCondition(&pg.Status.Conditions, getErrorCondition("Creating", err))
 			return err
 		}
 
@@ -114,6 +116,7 @@ func (h PGHandler) createOrUpdate(i client.Object) error {
 			Powered:      true,
 		})
 		if err != nil {
+			meta.SetStatusCondition(&pg.Status.Conditions, getErrorCondition("Updating", err))
 			return err
 		}
 
@@ -130,6 +133,8 @@ func (h PGHandler) createOrUpdate(i client.Object) error {
 
 	metav1.SetMetaDataAnnotation(&pg.ObjectMeta,
 		processedGeneration, strconv.FormatInt(pg.GetGeneration(), formatIntBaseDecimal))
+
+	meta.RemoveStatusCondition(&pg.Status.Conditions, conditionTypeError)
 
 	return nil
 }

@@ -80,6 +80,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) error {
 			},
 		)
 		if err != nil {
+			meta.SetStatusCondition(&si.Status.Conditions, getErrorCondition("Creating", err))
 			return fmt.Errorf("cannot createOrUpdate service integration: %w", err)
 		}
 
@@ -97,6 +98,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) error {
 			if strings.Contains(err.Error(), "user config not changed") {
 				return nil
 			}
+			meta.SetStatusCondition(&si.Status.Conditions, getErrorCondition("Updating", err))
 			return err
 		}
 	}
@@ -113,6 +115,8 @@ func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) error {
 
 	metav1.SetMetaDataAnnotation(&si.ObjectMeta,
 		processedGeneration, strconv.FormatInt(si.GetGeneration(), formatIntBaseDecimal))
+
+	meta.RemoveStatusCondition(&si.Status.Conditions, conditionTypeError)
 
 	return nil
 }

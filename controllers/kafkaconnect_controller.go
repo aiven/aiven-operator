@@ -56,12 +56,7 @@ func (r *KafkaConnectReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaConnectHandler) exists(i client.Object) (bool, error) {
-	kc, err := h.convert(i)
-	if err != nil {
-		return false, err
-	}
-
+func (h KafkaConnectHandler) exists(kc *k8soperatorv1alpha1.KafkaConnect) (bool, error) {
 	s, err := h.client.Services.Get(kc.Spec.Project, kc.Name)
 	if aiven.IsNotFound(err) {
 		return false, nil
@@ -81,10 +76,12 @@ func (h KafkaConnectHandler) createOrUpdate(i client.Object) error {
 		prVPCID = &kc.Spec.ProjectVPCID
 	}
 
-	exits, err := h.exists(i)
+	exits, err := h.exists(kc)
 	if err != nil {
+		meta.SetStatusCondition(&kc.Status.Conditions, getErrorCondition("CheckExists", err))
 		return err
 	}
+
 	var reason string
 	if !exits {
 		_, err := h.client.Services.Create(kc.Spec.Project, aiven.CreateServiceRequest{
@@ -100,6 +97,7 @@ func (h KafkaConnectHandler) createOrUpdate(i client.Object) error {
 			ServiceIntegrations: nil,
 		})
 		if err != nil {
+			meta.SetStatusCondition(&kc.Status.Conditions, getErrorCondition("Creating", err))
 			return err
 		}
 
@@ -116,6 +114,7 @@ func (h KafkaConnectHandler) createOrUpdate(i client.Object) error {
 			Powered:      true,
 		})
 		if err != nil {
+			meta.SetStatusCondition(&kc.Status.Conditions, getErrorCondition("Updating", err))
 			return err
 		}
 
@@ -132,6 +131,8 @@ func (h KafkaConnectHandler) createOrUpdate(i client.Object) error {
 
 	metav1.SetMetaDataAnnotation(&kc.ObjectMeta,
 		processedGeneration, strconv.FormatInt(kc.GetGeneration(), formatIntBaseDecimal))
+
+	meta.RemoveStatusCondition(&kc.Status.Conditions, conditionTypeError)
 
 	return nil
 }

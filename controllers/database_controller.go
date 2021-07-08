@@ -64,8 +64,8 @@ func (h DatabaseHandler) createOrUpdate(i client.Object) error {
 	}
 
 	exists, err := h.exists(db)
-
 	if err != nil {
+		meta.SetStatusCondition(&db.Status.Conditions, getErrorCondition("CheckExists", err))
 		return err
 	}
 
@@ -76,6 +76,7 @@ func (h DatabaseHandler) createOrUpdate(i client.Object) error {
 			LcType:    db.Spec.LcCtype,
 		})
 		if err != nil {
+			meta.SetStatusCondition(&db.Status.Conditions, getErrorCondition("Creating", err))
 			return fmt.Errorf("cannot create database on Aiven side: %w", err)
 		}
 	}
@@ -90,6 +91,8 @@ func (h DatabaseHandler) createOrUpdate(i client.Object) error {
 
 	metav1.SetMetaDataAnnotation(&db.ObjectMeta,
 		processedGeneration, strconv.FormatInt(db.GetGeneration(), formatIntBaseDecimal))
+
+	meta.RemoveStatusCondition(&db.Status.Conditions, conditionTypeError)
 
 	return nil
 }

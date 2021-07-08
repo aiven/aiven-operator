@@ -66,8 +66,10 @@ func (h ConnectionPoolHandler) createOrUpdate(i client.Object) error {
 
 	exists, err := h.exists(cp)
 	if err != nil {
+		meta.SetStatusCondition(&cp.Status.Conditions, getErrorCondition("CheckExists", err))
 		return err
 	}
+
 	var reason string
 	if !exists {
 		_, err := h.client.ConnectionPools.Create(cp.Spec.Project, cp.Spec.ServiceName,
@@ -79,6 +81,7 @@ func (h ConnectionPoolHandler) createOrUpdate(i client.Object) error {
 				Username: cp.Spec.Username,
 			})
 		if err != nil && !aiven.IsAlreadyExists(err) {
+			meta.SetStatusCondition(&cp.Status.Conditions, getErrorCondition("Creating", err))
 			return err
 		}
 		reason = "Created"
@@ -91,6 +94,7 @@ func (h ConnectionPoolHandler) createOrUpdate(i client.Object) error {
 				Username: cp.Spec.Username,
 			})
 		if err != nil {
+			meta.SetStatusCondition(&cp.Status.Conditions, getErrorCondition("Updating", err))
 			return err
 		}
 		reason = "Updated"
@@ -106,6 +110,8 @@ func (h ConnectionPoolHandler) createOrUpdate(i client.Object) error {
 
 	metav1.SetMetaDataAnnotation(&cp.ObjectMeta,
 		processedGeneration, strconv.FormatInt(cp.GetGeneration(), formatIntBaseDecimal))
+
+	meta.RemoveStatusCondition(&cp.Status.Conditions, conditionTypeError)
 
 	return nil
 }

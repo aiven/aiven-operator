@@ -70,6 +70,7 @@ func (h ServiceUserHandler) createOrUpdate(i client.Object) error {
 			},
 		})
 	if err != nil && !aiven.IsAlreadyExists(err) {
+		meta.SetStatusCondition(&user.Status.Conditions, getErrorCondition("Creating", err))
 		return fmt.Errorf("cannot createOrUpdate service user on aiven side: %w", err)
 	}
 
@@ -87,6 +88,8 @@ func (h ServiceUserHandler) createOrUpdate(i client.Object) error {
 
 	metav1.SetMetaDataAnnotation(&user.ObjectMeta,
 		processedGeneration, strconv.FormatInt(user.GetGeneration(), formatIntBaseDecimal))
+
+	meta.RemoveStatusCondition(&user.Status.Conditions, conditionTypeError)
 
 	return nil
 }

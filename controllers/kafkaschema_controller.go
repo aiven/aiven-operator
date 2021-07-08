@@ -72,6 +72,7 @@ func (h KafkaSchemaHandler) createOrUpdate(i client.Object) error {
 		},
 	)
 	if err != nil {
+		meta.SetStatusCondition(&schema.Status.Conditions, getErrorCondition("Adding", err))
 		return fmt.Errorf("cannot add Kafka Schema Subject: %w", err)
 	}
 
@@ -84,6 +85,7 @@ func (h KafkaSchemaHandler) createOrUpdate(i client.Object) error {
 			schema.Spec.CompatibilityLevel,
 		)
 		if err != nil {
+			meta.SetStatusCondition(&schema.Status.Conditions, getErrorCondition("UpdatingConfiguration", err))
 			return fmt.Errorf("cannot update Kafka Schema Configuration: %w", err)
 		}
 	}
@@ -91,6 +93,7 @@ func (h KafkaSchemaHandler) createOrUpdate(i client.Object) error {
 	// get last version
 	version, err := h.getLastVersion(schema)
 	if err != nil {
+		meta.SetStatusCondition(&schema.Status.Conditions, getErrorCondition("GettingLastVersion", err))
 		return fmt.Errorf("cannot get Kafka Schema Subject version: %w", err)
 	}
 
@@ -107,6 +110,8 @@ func (h KafkaSchemaHandler) createOrUpdate(i client.Object) error {
 	metav1.SetMetaDataAnnotation(&schema.ObjectMeta,
 		processedGeneration, strconv.FormatInt(schema.GetGeneration(), formatIntBaseDecimal))
 
+	meta.RemoveStatusCondition(&schema.Status.Conditions, conditionTypeError)
+
 	return nil
 }
 
@@ -122,15 +127,6 @@ func (h KafkaSchemaHandler) delete(i client.Object) (bool, error) {
 	}
 
 	return true, nil
-}
-
-func (h KafkaSchemaHandler) exists(_ *aiven.Client, _ logr.Logger, i client.Object) (bool, error) {
-	schema, err := h.convert(i)
-	if err != nil {
-		return false, err
-	}
-
-	return schema.Status.Version != 0, nil
 }
 
 func (h KafkaSchemaHandler) get(i client.Object) (*corev1.Secret, error) {

@@ -71,6 +71,7 @@ func (h KafkaHandler) createOrUpdate(i client.Object) error {
 
 	exists, err := h.exists(kafka)
 	if err != nil {
+		meta.SetStatusCondition(&kafka.Status.Conditions, getErrorCondition("CheckExists", err))
 		return err
 	}
 
@@ -89,6 +90,7 @@ func (h KafkaHandler) createOrUpdate(i client.Object) error {
 			ServiceIntegrations: nil,
 		})
 		if err != nil && !aiven.IsAlreadyExists(err) {
+			meta.SetStatusCondition(&kafka.Status.Conditions, getErrorCondition("Creating", err))
 			return err
 		}
 
@@ -105,6 +107,7 @@ func (h KafkaHandler) createOrUpdate(i client.Object) error {
 			Powered:      true,
 		})
 		if err != nil {
+			meta.SetStatusCondition(&kafka.Status.Conditions, getErrorCondition("Updating", err))
 			return err
 		}
 
@@ -121,6 +124,8 @@ func (h KafkaHandler) createOrUpdate(i client.Object) error {
 
 	metav1.SetMetaDataAnnotation(&kafka.ObjectMeta,
 		processedGeneration, strconv.FormatInt(kafka.GetGeneration(), formatIntBaseDecimal))
+
+	meta.RemoveStatusCondition(&kafka.Status.Conditions, conditionTypeError)
 
 	return nil
 }

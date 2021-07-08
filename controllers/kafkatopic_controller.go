@@ -72,6 +72,7 @@ func (h KafkaTopicHandler) createOrUpdate(i client.Object) error {
 
 	exists, err := h.exists(topic)
 	if err != nil {
+		meta.SetStatusCondition(&topic.Status.Conditions, getErrorCondition("CheckExists", err))
 		return err
 	}
 
@@ -85,6 +86,7 @@ func (h KafkaTopicHandler) createOrUpdate(i client.Object) error {
 			Config:      convertKafkaTopicConfig(topic),
 		})
 		if err != nil && !aiven.IsAlreadyExists(err) {
+			meta.SetStatusCondition(&topic.Status.Conditions, getErrorCondition("Creating", err))
 			return err
 		}
 
@@ -98,6 +100,7 @@ func (h KafkaTopicHandler) createOrUpdate(i client.Object) error {
 				Config:      convertKafkaTopicConfig(topic),
 			})
 		if err != nil {
+			meta.SetStatusCondition(&topic.Status.Conditions, getErrorCondition("Updating", err))
 			return fmt.Errorf("cannot update Kafka Topic: %w", err)
 		}
 
@@ -114,6 +117,8 @@ func (h KafkaTopicHandler) createOrUpdate(i client.Object) error {
 
 	metav1.SetMetaDataAnnotation(&topic.ObjectMeta,
 		processedGeneration, strconv.FormatInt(topic.GetGeneration(), formatIntBaseDecimal))
+
+	meta.RemoveStatusCondition(&topic.Status.Conditions, conditionTypeError)
 
 	return nil
 }

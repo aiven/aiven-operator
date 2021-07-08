@@ -64,6 +64,7 @@ func (h KafkaACLHandler) createOrUpdate(i client.Object) error {
 
 	exists, err := h.exists(acl)
 	if err != nil {
+		meta.SetStatusCondition(&acl.Status.Conditions, getErrorCondition("CheckExists", err))
 		return err
 	}
 
@@ -78,6 +79,7 @@ func (h KafkaACLHandler) createOrUpdate(i client.Object) error {
 			},
 		)
 		if err != nil && !aiven.IsAlreadyExists(err) {
+			meta.SetStatusCondition(&acl.Status.Conditions, getErrorCondition("Creating", err))
 			return err
 		}
 	}
@@ -92,6 +94,8 @@ func (h KafkaACLHandler) createOrUpdate(i client.Object) error {
 
 	metav1.SetMetaDataAnnotation(&acl.ObjectMeta,
 		processedGeneration, strconv.FormatInt(acl.GetGeneration(), formatIntBaseDecimal))
+
+	meta.RemoveStatusCondition(&acl.Status.Conditions, conditionTypeError)
 
 	return nil
 }

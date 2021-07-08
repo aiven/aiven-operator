@@ -67,6 +67,7 @@ func (h ProjectVPCHandler) createOrUpdate(i client.Object) error {
 		NetworkCIDR: projectVPC.Spec.NetworkCidr,
 	})
 	if err != nil {
+		meta.SetStatusCondition(&projectVPC.Status.Conditions, getErrorCondition("Creating", err))
 		return err
 	}
 
@@ -82,6 +83,8 @@ func (h ProjectVPCHandler) createOrUpdate(i client.Object) error {
 
 	metav1.SetMetaDataAnnotation(&projectVPC.ObjectMeta,
 		processedGeneration, strconv.FormatInt(projectVPC.GetGeneration(), formatIntBaseDecimal))
+
+	meta.RemoveStatusCondition(&projectVPC.Status.Conditions, conditionTypeError)
 
 	return nil
 }
