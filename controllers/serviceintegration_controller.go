@@ -58,10 +58,10 @@ func (r *ServiceIntegrationReconciler) SetupWithManager(mgr ctrl.Manager) error 
 		Complete(r)
 }
 
-func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) (client.Object, error) {
+func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) error {
 	si, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	var integration *aiven.ServiceIntegration
@@ -80,7 +80,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) (client.Objec
 			},
 		)
 		if err != nil {
-			return nil, fmt.Errorf("cannot createOrUpdate service integration: %w", err)
+			return fmt.Errorf("cannot createOrUpdate service integration: %w", err)
 		}
 
 		reason = "Created"
@@ -95,9 +95,9 @@ func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) (client.Objec
 		reason = "Updated"
 		if err != nil {
 			if strings.Contains(err.Error(), "user config not changed") {
-				return nil, nil
+				return nil
 			}
-			return nil, err
+			return err
 		}
 	}
 
@@ -114,7 +114,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) (client.Objec
 	metav1.SetMetaDataAnnotation(&si.ObjectMeta,
 		processedGeneration, strconv.FormatInt(si.GetGeneration(), formatIntBaseDecimal))
 
-	return si, nil
+	return nil
 }
 
 func (h ServiceIntegrationHandler) delete(i client.Object) (bool, error) {
@@ -131,10 +131,10 @@ func (h ServiceIntegrationHandler) delete(i client.Object) (bool, error) {
 	return true, nil
 }
 
-func (h ServiceIntegrationHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
+func (h ServiceIntegrationHandler) get(i client.Object) (*corev1.Secret, error) {
 	si, err := h.convert(i)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	meta.SetStatusCondition(&si.Status.Conditions,
@@ -143,7 +143,7 @@ func (h ServiceIntegrationHandler) get(i client.Object) (client.Object, *corev1.
 
 	metav1.SetMetaDataAnnotation(&si.ObjectMeta, isRunning, "true")
 
-	return si, nil, nil
+	return nil, nil
 }
 
 func (h ServiceIntegrationHandler) checkPreconditions(i client.Object) (bool, error) {

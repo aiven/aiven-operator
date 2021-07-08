@@ -60,10 +60,10 @@ func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 // create creates a project on Aiven side
-func (h ProjectHandler) createOrUpdate(i client.Object) (client.Object, error) {
+func (h ProjectHandler) createOrUpdate(i client.Object) error {
 	project, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	var billingEmails *[]*aiven.ContactEmail
@@ -78,7 +78,7 @@ func (h ProjectHandler) createOrUpdate(i client.Object) (client.Object, error) {
 
 	exists, err := h.exists(project)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	var reason string
@@ -98,7 +98,7 @@ func (h ProjectHandler) createOrUpdate(i client.Object) (client.Object, error) {
 			BillingCurrency:  project.Spec.BillingCurrency,
 		})
 		if err != nil {
-			return nil, fmt.Errorf("failed to createOrUpdate Project on Aiven side: %w", err)
+			return fmt.Errorf("failed to createOrUpdate Project on Aiven side: %w", err)
 		}
 
 		reason = "Created"
@@ -115,7 +115,7 @@ func (h ProjectHandler) createOrUpdate(i client.Object) (client.Object, error) {
 			BillingCurrency:  project.Spec.BillingCurrency,
 		})
 		if err != nil {
-			return nil, fmt.Errorf("failed to update project on aiven side: %w", err)
+			return fmt.Errorf("failed to update project on aiven side: %w", err)
 		}
 
 		reason = "Updated"
@@ -138,18 +138,18 @@ func (h ProjectHandler) createOrUpdate(i client.Object) (client.Object, error) {
 	metav1.SetMetaDataAnnotation(&project.ObjectMeta,
 		processedGeneration, strconv.FormatInt(project.GetGeneration(), formatIntBaseDecimal))
 
-	return project, nil
+	return nil
 }
 
-func (h ProjectHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
+func (h ProjectHandler) get(i client.Object) (*corev1.Secret, error) {
 	project, err := h.convert(i)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	cert, err := h.client.CA.Get(project.Name)
 	if err != nil {
-		return nil, nil, fmt.Errorf("aiven client error %w", err)
+		return nil, fmt.Errorf("aiven client error %w", err)
 	}
 
 	meta.SetStatusCondition(&project.Status.Conditions,
@@ -158,7 +158,7 @@ func (h ProjectHandler) get(i client.Object) (client.Object, *corev1.Secret, err
 
 	metav1.SetMetaDataAnnotation(&project.ObjectMeta, isRunning, "true")
 
-	return project, &corev1.Secret{
+	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      h.getSecretName(project),
 			Namespace: project.Namespace,

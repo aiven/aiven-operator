@@ -70,10 +70,10 @@ func (h KafkaConnectHandler) exists(i client.Object) (bool, error) {
 	return s != nil, nil
 }
 
-func (h KafkaConnectHandler) createOrUpdate(i client.Object) (client.Object, error) {
+func (h KafkaConnectHandler) createOrUpdate(i client.Object) error {
 	kc, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	var prVPCID *string
@@ -83,7 +83,7 @@ func (h KafkaConnectHandler) createOrUpdate(i client.Object) (client.Object, err
 
 	exits, err := h.exists(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	var reason string
 	if !exits {
@@ -100,7 +100,7 @@ func (h KafkaConnectHandler) createOrUpdate(i client.Object) (client.Object, err
 			ServiceIntegrations: nil,
 		})
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		reason = "Created"
@@ -116,7 +116,7 @@ func (h KafkaConnectHandler) createOrUpdate(i client.Object) (client.Object, err
 			Powered:      true,
 		})
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		reason = "Updated"
@@ -133,7 +133,7 @@ func (h KafkaConnectHandler) createOrUpdate(i client.Object) (client.Object, err
 	metav1.SetMetaDataAnnotation(&kc.ObjectMeta,
 		processedGeneration, strconv.FormatInt(kc.GetGeneration(), formatIntBaseDecimal))
 
-	return kc, nil
+	return nil
 }
 
 func (h KafkaConnectHandler) delete(i client.Object) (bool, error) {
@@ -151,15 +151,15 @@ func (h KafkaConnectHandler) delete(i client.Object) (bool, error) {
 	return true, nil
 }
 
-func (h KafkaConnectHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
+func (h KafkaConnectHandler) get(i client.Object) (*corev1.Secret, error) {
 	kc, err := h.convert(i)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	s, err := h.client.Services.Get(kc.Spec.Project, kc.Name)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	kc.Status.State = s.State
@@ -172,7 +172,7 @@ func (h KafkaConnectHandler) get(i client.Object) (client.Object, *corev1.Secret
 		metav1.SetMetaDataAnnotation(&kc.ObjectMeta, isRunning, "true")
 	}
 
-	return kc, nil, nil
+	return nil, nil
 }
 
 func (h KafkaConnectHandler) convert(i client.Object) (*k8soperatorv1alpha1.KafkaConnect, error) {
