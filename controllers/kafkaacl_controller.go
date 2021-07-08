@@ -56,15 +56,15 @@ func (r *KafkaACLReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaACLHandler) createOrUpdate(i client.Object) (client.Object, error) {
+func (h KafkaACLHandler) createOrUpdate(i client.Object) error {
 	acl, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	exists, err := h.exists(acl)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if !exists {
@@ -78,7 +78,7 @@ func (h KafkaACLHandler) createOrUpdate(i client.Object) (client.Object, error) 
 			},
 		)
 		if err != nil && !aiven.IsAlreadyExists(err) {
-			return nil, err
+			return err
 		}
 	}
 
@@ -93,7 +93,7 @@ func (h KafkaACLHandler) createOrUpdate(i client.Object) (client.Object, error) 
 	metav1.SetMetaDataAnnotation(&acl.ObjectMeta,
 		processedGeneration, strconv.FormatInt(acl.GetGeneration(), formatIntBaseDecimal))
 
-	return acl, nil
+	return nil
 }
 
 func (h KafkaACLHandler) delete(i client.Object) (bool, error) {
@@ -134,10 +134,10 @@ func (h KafkaACLHandler) exists(acl *k8soperatorv1alpha1.KafkaACL) (bool, error)
 	return aivenACL != nil, nil
 }
 
-func (h KafkaACLHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
+func (h KafkaACLHandler) get(i client.Object) (*corev1.Secret, error) {
 	acl, err := h.convert(i)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	meta.SetStatusCondition(&acl.Status.Conditions,
@@ -146,7 +146,7 @@ func (h KafkaACLHandler) get(i client.Object) (client.Object, *corev1.Secret, er
 
 	metav1.SetMetaDataAnnotation(&acl.ObjectMeta, isRunning, "true")
 
-	return acl, nil, nil
+	return nil, nil
 }
 
 func (h KafkaACLHandler) checkPreconditions(i client.Object) (bool, error) {
