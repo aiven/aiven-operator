@@ -158,10 +158,10 @@ func (h ServiceUserHandler) getSecretName(user *k8soperatorv1alpha1.ServiceUser)
 	return user.Name
 }
 
-func (h ServiceUserHandler) checkPreconditions(i client.Object) bool {
+func (h ServiceUserHandler) checkPreconditions(i client.Object) (bool, error) {
 	user, err := h.convert(i)
 	if err != nil {
-		return false
+		return false, err
 	}
 
 	return checkServiceIsRunning(h.client, user.Spec.Project, user.Spec.ServiceName)

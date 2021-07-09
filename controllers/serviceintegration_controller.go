@@ -146,14 +146,23 @@ func (h ServiceIntegrationHandler) get(i client.Object) (client.Object, *corev1.
 	return si, nil, nil
 }
 
-func (h ServiceIntegrationHandler) checkPreconditions(i client.Object) bool {
+func (h ServiceIntegrationHandler) checkPreconditions(i client.Object) (bool, error) {
 	si, err := h.convert(i)
 	if err != nil {
-		return false
+		return false, err
 	}
 
-	return checkServiceIsRunning(h.client, si.Spec.Project, si.Spec.SourceServiceName) &&
-		checkServiceIsRunning(h.client, si.Spec.Project, si.Spec.DestinationServiceName)
+	sourceCheck, err := checkServiceIsRunning(h.client, si.Spec.Project, si.Spec.SourceServiceName)
+	if err != nil {
+		return false, err
+	}
+
+	destinationCheck, err := checkServiceIsRunning(h.client, si.Spec.Project, si.Spec.DestinationServiceName)
+	if err != nil {
+		return false, err
+	}
+
+	return sourceCheck && destinationCheck, nil
 }
 
 func (h ServiceIntegrationHandler) convert(i client.Object) (*k8soperatorv1alpha1.ServiceIntegration, error) {

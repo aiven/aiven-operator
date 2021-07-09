@@ -140,10 +140,10 @@ func (h DatabaseHandler) get(i client.Object) (client.Object, *corev1.Secret, er
 	return db, nil, nil
 }
 
-func (h DatabaseHandler) checkPreconditions(i client.Object) bool {
+func (h DatabaseHandler) checkPreconditions(i client.Object) (bool, error) {
 	db, err := h.convert(i)
 	if err != nil {
-		return false
+		return false, err
 	}
 
 	return checkServiceIsRunning(h.client, db.Spec.Project, db.Spec.ServiceName)

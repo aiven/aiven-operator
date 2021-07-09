@@ -200,8 +200,8 @@ func (h KafkaHandler) get(i client.Object) (client.Object, *corev1.Secret, error
 	}, nil
 }
 
-func (h KafkaHandler) checkPreconditions(_ client.Object) bool {
-	return true
+func (h KafkaHandler) checkPreconditions(_ client.Object) (bool, error) {
+	return true, nil
 }
 
 func (h KafkaHandler) convert(i client.Object) (*k8soperatorv1alpha1.Kafka, error) {

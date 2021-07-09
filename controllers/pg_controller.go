@@ -204,6 +204,6 @@ func (h PGHandler) convert(i client.Object) (*k8soperatorv1alpha1.PG, error) {
 	return pg, nil
 }
 
-func (h PGHandler) checkPreconditions(client.Object) bool {
-	return true
+func (h PGHandler) checkPreconditions(client.Object) (bool, error) {
+	return true, nil
 }

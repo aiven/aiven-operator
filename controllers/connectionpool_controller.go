@@ -181,27 +181,32 @@ func (h ConnectionPoolHandler) get(i client.Object) (client.Object, *corev1.Secr
 	}, nil
 }
 
-func (h ConnectionPoolHandler) checkPreconditions(i client.Object) bool {
+func (h ConnectionPoolHandler) checkPreconditions(i client.Object) (bool, error) {
 	cp, err := h.convert(i)
 	if err != nil {
-		return false
+		return false, err
 	}
 
-	if checkServiceIsRunning(h.client, cp.Spec.Project, cp.Spec.ServiceName) {
+	check, err := checkServiceIsRunning(h.client, cp.Spec.Project, cp.Spec.ServiceName)
+	if err != nil {
+		return false, err
+	}
+
+	if check {
 		db, err := h.client.Databases.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.DatabaseName)
 		if err != nil {
-			return false
+			return false, err
 		}
 
 		user, err := h.client.ServiceUsers.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.Username)
 		if err != nil {
-			return false
+			return false, err
 		}
 
-		return db != nil && user != nil
+		return db != nil && user != nil, nil
 	}
 
-	return false
+	return false, nil
 }
 
 func (h *ConnectionPoolHandler) convert(i client.Object) (*k8soperatorv1alpha1.ConnectionPool, error) {

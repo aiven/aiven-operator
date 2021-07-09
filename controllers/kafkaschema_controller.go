@@ -139,10 +139,10 @@ func (h KafkaSchemaHandler) get(i client.Object) (client.Object, *corev1.Secret,
 	return schema, nil, nil
 }
 
-func (h KafkaSchemaHandler) checkPreconditions(i client.Object) bool {
+func (h KafkaSchemaHandler) checkPreconditions(i client.Object) (bool, error) {
 	schema, err := h.convert(i)
 	if err != nil {
-		return false
+		return false, err
 	}
 
 	return checkServiceIsRunning(h.client, schema.Spec.Project, schema.Spec.ServiceName)
