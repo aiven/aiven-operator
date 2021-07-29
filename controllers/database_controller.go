@@ -88,7 +88,7 @@ func (h DatabaseHandler) createOrUpdate(i client.Object) (client.Object, error) 
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&db.ObjectMeta,
-		processedGeneration, strconv.FormatInt(db.GetGeneration(), 10))
+		processedGeneration, strconv.FormatInt(db.GetGeneration(), formatIntBaseDecimal))
 
 	return db, nil
 }

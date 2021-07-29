@@ -128,7 +128,7 @@ func (h PGHandler) createOrUpdate(i client.Object) (client.Object, error) {
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&pg.ObjectMeta,
-		processedGeneration, strconv.FormatInt(pg.GetGeneration(), 10))
+		processedGeneration, strconv.FormatInt(pg.GetGeneration(), formatIntBaseDecimal))
 
 	return pg, nil
 }

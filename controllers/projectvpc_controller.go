@@ -80,7 +80,7 @@ func (h ProjectVPCHandler) createOrUpdate(i client.Object) (client.Object, error
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&projectVPC.ObjectMeta,
-		processedGeneration, strconv.FormatInt(projectVPC.GetGeneration(), 10))
+		processedGeneration, strconv.FormatInt(projectVPC.GetGeneration(), formatIntBaseDecimal))
 
 	return projectVPC, nil
 }

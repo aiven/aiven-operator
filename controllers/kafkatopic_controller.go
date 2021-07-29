@@ -112,7 +112,7 @@ func (h KafkaTopicHandler) createOrUpdate(i client.Object) (client.Object, error
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&topic.ObjectMeta,
-		processedGeneration, strconv.FormatInt(topic.GetGeneration(), 10))
+		processedGeneration, strconv.FormatInt(topic.GetGeneration(), formatIntBaseDecimal))
 
 	return topic, nil
 }

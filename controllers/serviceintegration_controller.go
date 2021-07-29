@@ -111,7 +111,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) (client.Objec
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&si.ObjectMeta,
-		processedGeneration, strconv.FormatInt(si.GetGeneration(), 10))
+		processedGeneration, strconv.FormatInt(si.GetGeneration(), formatIntBaseDecimal))
 
 	return si, nil
 }
