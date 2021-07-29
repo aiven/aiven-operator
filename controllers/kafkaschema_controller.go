@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/aiven/aiven-go-client"
 	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
-	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -122,15 +121,6 @@ func (h KafkaSchemaHandler) delete(i client.Object) (bool, error) {
 	}
 
 	return true, nil
-}
-
-func (h KafkaSchemaHandler) exists(_ *aiven.Client, _ logr.Logger, i client.Object) (bool, error) {
-	schema, err := h.convert(i)
-	if err != nil {
-		return false, err
-	}
-
-	return schema.Status.Version != 0, nil
 }
 
 func (h KafkaSchemaHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
