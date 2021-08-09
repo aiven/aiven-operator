@@ -135,7 +135,7 @@ func (h ProjectHandler) createOrUpdate(i client.Object) (client.Object, error) {
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&project.ObjectMeta,
-		processedGeneration, strconv.FormatInt(project.GetGeneration(), 10))
+		processedGeneration, strconv.FormatInt(project.GetGeneration(), formatIntBaseDecimal))
 
 	return project, nil
 }

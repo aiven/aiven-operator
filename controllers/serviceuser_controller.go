@@ -86,7 +86,7 @@ func (h *ServiceUserHandler) createOrUpdate(i client.Object) (client.Object, err
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&user.ObjectMeta,
-		processedGeneration, strconv.FormatInt(user.GetGeneration(), 10))
+		processedGeneration, strconv.FormatInt(user.GetGeneration(), formatIntBaseDecimal))
 
 	return user, nil
 }

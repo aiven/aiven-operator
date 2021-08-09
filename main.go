@@ -32,6 +32,8 @@ func init() {
 	// +kubebuilder:scaffold:scheme
 }
 
+const port = 9443
+
 func main() {
 	var metricsAddr string
 	var enableLeaderElection bool
@@ -46,7 +48,7 @@ func main() {
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:             scheme,
 		MetricsBindAddress: metricsAddr,
-		Port:               9443,
+		Port:               port,
 		LeaderElection:     enableLeaderElection,
 		LeaderElectionID:   "00272a53.aiven.io",
 	})

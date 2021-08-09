@@ -29,6 +29,12 @@ const processedGeneration = "processed"
 // isRunning annotations key which is set when resource is running on Aiven side
 const isRunning = "running"
 
+// requeueAfterTimeout set the timeout for reconciler when to requeue
+const requeueAfterTimeout = 10 * time.Second
+
+// formatIntBaseDecimal it is a base to format int64 to string
+const formatIntBaseDecimal = 10
+
 type (
 	// Controller reconciles the Aiven objects
 	Controller struct {
@@ -137,7 +143,7 @@ func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client
 			o.GetGeneration(), o.GetAnnotations()))
 		return ctrl.Result{
 			Requeue:      true,
-			RequeueAfter: 10 * time.Second,
+			RequeueAfter: requeueAfterTimeout,
 		}, c.Status().Update(ctx, obj)
 	}
 
@@ -147,7 +153,7 @@ func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client
 		if aiven.IsNotFound(err) {
 			return ctrl.Result{
 				Requeue:      true,
-				RequeueAfter: 10 * time.Second,
+				RequeueAfter: requeueAfterTimeout,
 			}, nil
 		}
 		return ctrl.Result{}, err
@@ -177,7 +183,7 @@ func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client
 		log.Info("instance is not yet running, triggering requeue")
 		return ctrl.Result{
 			Requeue:      true,
-			RequeueAfter: 10 * time.Second,
+			RequeueAfter: requeueAfterTimeout,
 		}, nil
 	}
 
@@ -212,7 +218,7 @@ func (c *Controller) getFinalizerName(o client.Object) string {
 
 func (c *Controller) processed(o client.Object) bool {
 	for k, v := range o.GetAnnotations() {
-		if processedGeneration == k && v == strconv.FormatInt(o.GetGeneration(), 10) {
+		if processedGeneration == k && v == strconv.FormatInt(o.GetGeneration(), formatIntBaseDecimal) {
 			return true
 		}
 	}

@@ -90,7 +90,7 @@ func (h KafkaACLHandler) createOrUpdate(i client.Object) (client.Object, error) 
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&acl.ObjectMeta,
-		processedGeneration, strconv.FormatInt(acl.GetGeneration(), 10))
+		processedGeneration, strconv.FormatInt(acl.GetGeneration(), formatIntBaseDecimal))
 
 	return acl, nil
 }

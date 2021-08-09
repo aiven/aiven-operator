@@ -105,7 +105,7 @@ func (h KafkaSchemaHandler) createOrUpdate(i client.Object) (client.Object, erro
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&schema.ObjectMeta,
-		processedGeneration, strconv.FormatInt(schema.GetGeneration(), 10))
+		processedGeneration, strconv.FormatInt(schema.GetGeneration(), formatIntBaseDecimal))
 
 	return schema, nil
 }

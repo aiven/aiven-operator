@@ -104,7 +104,7 @@ func (h ConnectionPoolHandler) createOrUpdate(i client.Object) (client.Object, e
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&cp.ObjectMeta,
-		processedGeneration, strconv.FormatInt(cp.GetGeneration(), 10))
+		processedGeneration, strconv.FormatInt(cp.GetGeneration(), formatIntBaseDecimal))
 
 	return cp, nil
 }
