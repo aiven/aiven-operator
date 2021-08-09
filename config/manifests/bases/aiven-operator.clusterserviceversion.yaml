@@ -6,17 +6,12 @@ metadata:
     capabilities: Basic Install
     operators.operatorframework.io/builder: operator-sdk-v1.2.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
-  name: aiven-operator.v0.0.0
+  name: aiven-operator.v0.1.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
-    - description: Kafka Connect is the Schema for the kafkas API
-      displayName: KafkaConnect
-      kind: KafkaConnect
-      name: kafkaconnects.aiven.io
-      version: v1alpha1
     - description: ConnectionPool is the Schema for the connectionpools API
       displayName: Connection Pool
       kind: ConnectionPool
@@ -31,6 +26,11 @@ spec:
       displayName: Kafka ACL
       kind: KafkaACL
       name: kafkaacls.aiven.io
+      version: v1alpha1
+    - description: KafkaConnect is the Schema for the kafkaconnects API
+      displayName: Kafka Connect
+      kind: KafkaConnect
+      name: kafkaconnects.aiven.io
       version: v1alpha1
     - description: Kafka is the Schema for the kafkas API
       displayName: Kafka

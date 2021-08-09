@@ -217,3 +217,7 @@ generate-api-reference:
 		-template-dir docs/api-reference-hack/template \
 		-api-dir ./api/v1alpha1 \
 		-out-file docs/content/en/docs/api-reference/_index.html
+
+# Scorecard configuration docs: https://sdk.operatorframework.io/docs/advanced-topics/scorecard/scorecard/#configuration
+test-scorecard: bundle
+	operator-sdk scorecard bundle -w 30m
