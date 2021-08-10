@@ -38,7 +38,9 @@ type ProjectVPCStatus struct {
 // +kubebuilder:subresource:status
 
 // ProjectVPC is the Schema for the projectvpcs API
-// +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state"
+// +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
+// +kubebuilder:printcolumn:name="Cloud",type="string",JSONPath=".spec.cloudName"
+// +kubebuilder:printcolumn:name="Network CIDR",type="string",JSONPath=".spec.networkCidr"
 type ProjectVPC struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
