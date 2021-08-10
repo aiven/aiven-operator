@@ -45,6 +45,11 @@ type KafkaSchemaStatus struct {
 // +kubebuilder:subresource:status
 
 // KafkaSchema is the Schema for the kafkaschemas API
+// +kubebuilder:printcolumn:name="Service Name",type="string",JSONPath=".spec.serviceName"
+// +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
+// +kubebuilder:printcolumn:name="Subject",type="string",JSONPath=".spec.subjectName"
+// +kubebuilder:printcolumn:name="Compatibility Level",type="string",JSONPath=".spec.compatibilityLevel"
+// +kubebuilder:printcolumn:name="Version",type="number",JSONPath=".status.version"
 type KafkaSchema struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
