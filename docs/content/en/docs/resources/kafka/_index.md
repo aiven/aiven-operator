@@ -1,6 +1,6 @@
 ---
-title: "Aiven for Kafka"
-linkTitle: "Aiven for Kafka"
+title: "Kafka"
+linkTitle: "Kafka"
 weight: 30 
 ---
 
@@ -52,8 +52,8 @@ $ kubectl apply -f kafka-sample.yaml
 ```bash
 $ kubectl get kafka.aiven.io kafka-sample
 
-NAME           PROJECT         REGION                PLAN        STATE
-kafka-sample   dev-advocates   google-europe-west1   startup-2   RUNNING
+NAME           PROJECT          REGION                PLAN        STATE
+kafka-sample   <your-project>   google-europe-west1   startup-2   RUNNING
 ```
 
 ## Using the connection Secret
@@ -143,11 +143,11 @@ spec:
 $ kubectl apply -f kafka-test-connection.yaml
 ```
 
-Once successfully aplied, you have a log with the metadata information about the Kafka cluster.
+Once successfully applied, you have a log with the metadata information about the Kafka cluster.
 ```bash
 $ kubectl logs kafka-test-connection 
 
-Metadata for all topics (from broker -1: ssl://kafka-sample-dev-advocates.aivencloud.com:13041/bootstrap):
+Metadata for all topics (from broker -1: ssl://kafka-sample-your-project.aivencloud.com:13041/bootstrap):
  3 brokers:
   broker 2 at 35.205.234.70:13041
   broker 3 at 34.77.127.70:13041 (controller)
@@ -192,7 +192,7 @@ $ kubectl apply -f kafka-topic-random-strings.yaml
 3. Create a user and an ACL.
 To use the Kafka topic, create a new user with the `ServiceUser` resource (in order to avoid using the `avnadmin` super user), and the `KafkaACL` to allow the user access to the topic.
 
-..1. In a file named `kafka-acl-user-crab.yaml`, add the following two resources:
+In a file named `kafka-acl-user-crab.yaml`, add the following two resources:
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: ServiceUser
@@ -240,7 +240,7 @@ spec:
   topic: random-strings
 ```
 
-..2. To create the `crab` user and its permissions, execute the following command:
+To create the `crab` user and its permissions, execute the following command:
 ```bash
 $ kubectl apply -f kafka-acl-user-crab.yaml
 ```
