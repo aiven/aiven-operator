@@ -16,7 +16,23 @@ spec:
     singular: kafkaschema
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.serviceName
+      name: Service Name
+      type: string
+    - jsonPath: .spec.project
+      name: Project
+      type: string
+    - jsonPath: .spec.subjectName
+      name: Subject
+      type: string
+    - jsonPath: .spec.compatibilityLevel
+      name: Compatibility Level
+      type: string
+    - jsonPath: .status.version
+      name: Version
+      type: number
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: KafkaSchema is the Schema for the kafkaschemas API
