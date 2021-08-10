@@ -2,9 +2,10 @@ package controllers
 
 import (
 	"context"
-	"k8s.io/apimachinery/pkg/api/meta"
 	"os"
 	"time"
+
+	"k8s.io/apimachinery/pkg/api/meta"
 
 	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	. "github.com/onsi/ginkgo"

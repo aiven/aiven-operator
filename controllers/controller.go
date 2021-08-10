@@ -380,14 +380,6 @@ func toOptionalStringPointer(s string) *string {
 	return &s
 }
 
-func stringPointerToString(s *string) string {
-	if s == nil {
-		return ""
-	}
-
-	return *s
-}
-
 func getMaintenanceWindow(dow, time string) *aiven.MaintenanceWindow {
 	if dow != "" || time != "" {
 		return &aiven.MaintenanceWindow{
