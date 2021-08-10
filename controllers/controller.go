@@ -8,8 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aiven/aiven-go-client"
-	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -18,22 +16,31 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+
+	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 )
 
-// requeueTimeout sets timeout to requeue controller
-const requeueTimeout = 10 * time.Second
+const (
+	// requeueTimeout sets timeout to requeue controller
+	requeueTimeout = 10 * time.Second
 
-// processedGeneration annotations key that holds value of processed generation
-const processedGeneration = "processed"
+	// processedGeneration annotations key that holds value of processed generation
+	processedGeneration = "processed"
 
-// isRunning annotations key which is set when resource is running on Aiven side
-const isRunning = "running"
+	// isRunning annotations key which is set when resource is running on Aiven side
+	isRunning = "running"
 
-// requeueAfterTimeout set the timeout for reconciler when to requeue
-const requeueAfterTimeout = 10 * time.Second
+	// requeueAfterTimeout set the timeout for reconciler when to requeue
+	requeueAfterTimeout = 10 * time.Second
 
-// formatIntBaseDecimal it is a base to format int64 to string
-const formatIntBaseDecimal = 10
+	// formatIntBaseDecimal it is a base to format int64 to string
+	formatIntBaseDecimal = 10
+)
+
+var (
+	requeueResult = ctrl.Result{Requeue: true, RequeueAfter: requeueTimeout}
+)
 
 type (
 	// Controller reconciles the Aiven objects
@@ -70,131 +77,123 @@ type (
 
 func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client.Object) (ctrl.Result, error) {
 	log := c.initLog(o)
-
 	log.Info("reconciling instance")
-	// Check if the instance is marked to be deleted, which is
-	// indicated by the deletion timestamp being set.
-	isInstanceMarkedToBeDeleted := o.GetDeletionTimestamp() != nil
-	if isInstanceMarkedToBeDeleted {
-		if contains(o.GetFinalizers(), c.getFinalizerName(o)) {
-			// Run finalization logic for finalizer. If the
-			// finalization logic fails, don't remove the finalize so
-			// that we can retry during the next reconciliation.
-			// When applicable, it retrieves an associated object that
-			// has to be deleted from Kubernetes, and it could be a
-			// secret associated with an instance.
-			finalised, err := h.delete(o)
-			if err != nil {
-				return ctrl.Result{}, err
+
+	// handle finalizer logic
+
+	controllerFinalizer := c.getFinalizerName(o)
+	if o.GetDeletionTimestamp().IsZero() {
+		if !controllerutil.ContainsFinalizer(o, controllerFinalizer) {
+			log.Info("adding finalizer", "finalizer", controllerFinalizer)
+
+			if err := c.addFinalizer(ctx, o, controllerFinalizer); err != nil {
+				return ctrl.Result{}, fmt.Errorf("unable to register finalizer: %w", err)
+			}
+		}
+
+	} else {
+		if controllerutil.ContainsFinalizer(o, controllerFinalizer) {
+			log.Info("running finalizer", "finalizer", controllerFinalizer)
+
+			if deleted, err := h.delete(o); err != nil {
+				return ctrl.Result{}, fmt.Errorf("unable to delete object: %w", err)
+			} else if !deleted {
+				return requeueResult, nil
+			}
+			if err := c.removeFinalizer(ctx, o, controllerFinalizer); err != nil {
+				return ctrl.Result{}, fmt.Errorf("unable to remove finalizer: %w", err)
 			}
 
 			log.Info("instance was successfully finalized")
-
-			// Checking if instance was finalized, if not triggering a requeue
-			if !finalised {
-				return ctrl.Result{
-					Requeue:      true,
-					RequeueAfter: requeueTimeout,
-				}, nil
-			}
-
-			// Remove finalizer. Once all finalizers have been
-			// removed, the object will be deleted.
-			log.Info("removing finalizer from instance")
-			controllerutil.RemoveFinalizer(o, c.getFinalizerName(o))
-			err = c.Update(ctx, o)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-		}
-		return ctrl.Result{}, nil
-	}
-
-	// Add finalizer for this CR
-	if !contains(o.GetFinalizers(), c.getFinalizerName(o)) {
-		log.Info("add finalizer")
-		if err := c.addFinalizer(o, c.getFinalizerName(o)); err != nil {
-			return ctrl.Result{}, err
+			return ctrl.Result{}, nil
 		}
 	}
 
-	// Check preconditions
+	// handle reconcile logic
+	//
+	// TODO: writeup logic here
+
 	log.Info("checking preconditions")
 	if !h.checkPreconditions(o) {
 		log.Info("preconditions are not met, requeue")
-		return ctrl.Result{Requeue: true, RequeueAfter: requeueTimeout}, nil
+		return requeueResult, nil
 	}
 
 	log.Info("checking if generation was processed")
-	if !c.processed(o) {
-		log.Info("generation wasn't processed, creation or updating instance on aiven side")
-		c.resetAnnotations(o)
-		obj, err := h.createOrUpdate(o)
+	if !c.generationAlreadyProcessed(o) {
+		log.Info("generation wasn't processed yet, creating/updating instance on aiven side")
+
+		newObj, err := h.createOrUpdate(o)
 		if err != nil {
-			return ctrl.Result{}, err
+			return ctrl.Result{}, fmt.Errorf("unable to create or update object: %w", err)
 		}
+		log.Info("object was created/updated setting annotations",
+			"generation", newObj.GetGeneration(),
+			"annotation", newObj.GetAnnotations(),
+		)
+		if err = c.updateStatusAndState(ctx, newObj); err != nil {
+			return ctrl.Result{}, fmt.Errorf("unable to update status and state: %w", err)
+		}
+		return requeueResult, nil
+	} else {
+		log.Info("generation was already processed, checking for readyness")
 
-		err = c.Update(ctx, obj)
+		curObj, secret, err := h.get(o)
 		if err != nil {
-			return ctrl.Result{}, err
+			if aiven.IsNotFound(err) {
+				log.Info("instance is not yet found")
+				return requeueResult, nil
+			}
+			return ctrl.Result{}, fmt.Errorf("unable to get object: %w", err)
 		}
-
-		log.Info(fmt.Sprintf("generation %q was processed, setting annotations: %+v",
-			o.GetGeneration(), o.GetAnnotations()))
-		return ctrl.Result{
-			Requeue:      true,
-			RequeueAfter: requeueAfterTimeout,
-		}, c.Status().Update(ctx, obj)
-	}
-
-	log.Info("getting an instance")
-	obj, s, err := h.get(o)
-	if err != nil {
-		if aiven.IsNotFound(err) {
-			return ctrl.Result{
-				Requeue:      true,
-				RequeueAfter: requeueAfterTimeout,
-			}, nil
+		if curObj != nil {
+			if err = c.updateStatusAndState(ctx, curObj); err != nil {
+				return ctrl.Result{}, fmt.Errorf("unable to update status and state: %w", err)
+			}
 		}
-		return ctrl.Result{}, err
-	}
-
-	if obj != nil {
-		err = c.Status().Update(ctx, obj)
-		if err != nil {
-			return ctrl.Result{}, err
+		if secret != nil {
+			if err = c.manageSecret(ctx, curObj, secret); err != nil {
+				return ctrl.Result{}, fmt.Errorf("unable to manage secret: %w", err)
+			}
 		}
-
-		err = c.Update(ctx, obj)
-		if err != nil {
-			return ctrl.Result{}, err
+		if !c.isRunning(curObj) {
+			log.Info("instance is not yet running")
+			return requeueResult, nil
 		}
-	}
-
-	if s != nil {
-		err = c.manageSecret(ctx, obj, s)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-	}
-
-	log.Info("checking if instance is running")
-	if !c.isRunning(obj) {
-		log.Info("instance is not yet running, triggering requeue")
-		return ctrl.Result{
-			Requeue:      true,
-			RequeueAfter: requeueAfterTimeout,
-		}, nil
 	}
 
 	log.Info("instance is successfully reconciled")
 	return ctrl.Result{}, nil
 }
 
-func (c *Controller) resetAnnotations(o client.Object) {
-	a := o.GetAnnotations()
-	delete(a, processedGeneration)
-	delete(a, isRunning)
+func (c *Controller) getFinalizerName(o client.Object) string {
+	return fmt.Sprintf("%s-finalizer.aiven.io", o.GetObjectKind().GroupVersionKind().Kind)
+}
+
+func (c *Controller) addFinalizer(ctx context.Context, o client.Object, f string) error {
+	controllerutil.AddFinalizer(o, f)
+	if err := c.Client.Update(ctx, o); err != nil {
+		return fmt.Errorf("unable to update instance: %w", err)
+	}
+	return nil
+}
+
+func (c *Controller) removeFinalizer(ctx context.Context, o client.Object, f string) error {
+	controllerutil.RemoveFinalizer(o, f)
+	if err := c.Client.Update(ctx, o); err != nil {
+		return fmt.Errorf("unable to update instance: %w", err)
+	}
+	return nil
+}
+
+func (c *Controller) updateStatusAndState(ctx context.Context, obj client.Object) error {
+	if err := c.Status().Update(ctx, obj); err != nil {
+		return fmt.Errorf("unable to update status: %w", err)
+	}
+	if err := c.Update(ctx, obj); err != nil {
+		return fmt.Errorf("unable to update state: %w", err)
+	}
+	return nil
 }
 
 func (c *Controller) initLog(o client.Object) logr.Logger {
@@ -207,22 +206,14 @@ func (c *Controller) initLog(o client.Object) logr.Logger {
 		a[processedGeneration] = g
 	}
 
-	return c.Log.WithValues(strings.ToLower(o.GetObjectKind().GroupVersionKind().Kind),
+	return c.Log.WithValues(
+		strings.ToLower(o.GetObjectKind().GroupVersionKind().Kind),
 		types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()},
 		"annotations", a)
 }
 
-func (c *Controller) getFinalizerName(o client.Object) string {
-	return fmt.Sprintf("%s-finalizer.aiven.io", o.GetObjectKind().GroupVersionKind().Kind)
-}
-
-func (c *Controller) processed(o client.Object) bool {
-	for k, v := range o.GetAnnotations() {
-		if processedGeneration == k && v == strconv.FormatInt(o.GetGeneration(), formatIntBaseDecimal) {
-			return true
-		}
-	}
-	return false
+func (c *Controller) generationAlreadyProcessed(o client.Object) bool {
+	return o.GetAnnotations()[processedGeneration] == strconv.FormatInt(o.GetGeneration(), formatIntBaseDecimal)
 }
 
 func (c *Controller) isRunning(o client.Object) bool {
@@ -231,23 +222,23 @@ func (c *Controller) isRunning(o client.Object) bool {
 }
 
 func (c *Controller) manageSecret(ctx context.Context, o client.Object, s *corev1.Secret) error {
-	createdSecret := &corev1.Secret{}
+	var createdSecret *corev1.Secret
+
 	err := c.Get(ctx, types.NamespacedName{Name: s.Name, Namespace: s.Namespace}, createdSecret)
 	if err != nil && !errors.IsNotFound(err) {
-		return err
+		return fmt.Errorf("unable to get secret: %w", err)
 	}
-	err = ctrl.SetControllerReference(o, s, c.Scheme)
-	if err != nil {
-		return err
+	if err = ctrl.SetControllerReference(o, s, c.Scheme); err != nil {
+		return fmt.Errorf("unable to set controller reference in secret: %w", err)
 	}
 
 	if len(createdSecret.Data) != 0 {
 		if err := c.Update(ctx, s); err != nil {
-			return err
+			return fmt.Errorf("unable to update secret: %w", err)
 		}
 	} else {
 		if err := c.Create(ctx, s); err != nil {
-			return err
+			return fmt.Errorf("unable to create secret: %w", err)
 		}
 	}
 
@@ -257,23 +248,17 @@ func (c *Controller) manageSecret(ctx context.Context, o client.Object, s *corev
 // InitAivenClient retrieves an Aiven client
 func (c *Controller) InitAivenClient(ctx context.Context, req ctrl.Request, secretRef v1alpha1.AuthSecretReference) (*aiven.Client, error) {
 	// Check if aiven-token secret exists
-	var token string
-	secret := &corev1.Secret{}
-	if secretRef.Name == "" || secretRef.Key == "" {
-		return nil, fmt.Errorf("secret ref  key or secret is empty, cannot createOrUpdate an aiven client")
-	}
-
-	err := c.Get(ctx, types.NamespacedName{Name: secretRef.Name, Namespace: req.Namespace}, secret)
-	if err != nil {
+	var secret *corev1.Secret
+	if err := c.Get(ctx, types.NamespacedName{Name: secretRef.Name, Namespace: req.Namespace}, secret); err != nil {
 		return nil, fmt.Errorf("cannot get %q secret: %w", secretRef.Name, err)
 	}
 
+	var token string
 	if v, ok := secret.Data[secretRef.Key]; ok {
 		token = string(v)
 	} else {
 		return nil, fmt.Errorf("cannot initialize aiven client, kubernetes secret has no %q key", secretRef.Key)
 	}
-
 	if len(token) == 0 {
 		return nil, fmt.Errorf("cannot initialize aiven client, %q key in a secret is empty", secretRef.Key)
 	}
@@ -282,31 +267,7 @@ func (c *Controller) InitAivenClient(ctx context.Context, req ctrl.Request, secr
 	if err != nil {
 		return nil, fmt.Errorf("cannot createOrUpdate an aiven client: %w", err)
 	}
-
 	return con, nil
-}
-
-func (c *Controller) addFinalizer(o client.Object, f string) error {
-	controllerutil.AddFinalizer(o, f)
-
-	// Update CR
-	err := c.Client.Update(context.Background(), o)
-	if err != nil {
-		c.Log.Error(err, "failed to update instance with finalize")
-		return err
-	}
-
-	return nil
-}
-
-// contains checks if string slice contains an element
-func contains(list []string, s string) bool {
-	for _, v := range list {
-		if v == s {
-			return true
-		}
-	}
-	return false
 }
 
 // UserConfigurationToAPI converts UserConfiguration options structure

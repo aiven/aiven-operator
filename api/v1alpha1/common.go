@@ -4,8 +4,10 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 // AuthSecretReference references a Secret containing an Aiven authentication token
 type AuthSecretReference struct {
+	// +kubebuilder:validation:MinLength=1
 	Name string `json:"name"`
-	Key  string `json:"key"`
+	// +kubebuilder:validation:MinLength=1
+	Key string `json:"key"`
 }
 
 // ConnInfoSecretTarget contains information secret name
