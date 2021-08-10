@@ -1,0 +1,521 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Aiven Kubernetes Operator – Resources</title><link>https://aiven.github.io/aiven-kubernetes-operator/docs/resources/</link><description>Recent content in Resources on Aiven Kubernetes Operator</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://aiven.github.io/aiven-kubernetes-operator/docs/resources/index.xml" rel="self" type="application/rss+xml"/><item><title>Docs: Aiven Project VPC</title><link>https://aiven.github.io/aiven-kubernetes-operator/docs/resources/project-vpc/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-kubernetes-operator/docs/resources/project-vpc/</guid><description>
+&lt;p>Virtual Private Cloud (VPC) peering is a method of connecting separate AWS, Google Cloud or Microsoft Azure private networks to each other. It makes it possible for the virtual machines in the different VPCs to talk to each other directly without going through the public internet.&lt;/p>
+&lt;p>Within the Aiven Kubernetes Operator, you can create a &lt;code>ProjectVPC&lt;/code> on Aiven&amp;rsquo;s side to connect to your cloud provider.&lt;/p>
+&lt;blockquote>
+&lt;p>Before going through this guide, make sure you have a &lt;a href="../installation/prerequisites/">Kubernetes cluster&lt;/a> with the &lt;a href="../installation/">operator installed&lt;/a>, and a &lt;a href="../authentication/">Kubernetes Secret with an Aiven authentication token&lt;/a>.&lt;/p>
+&lt;/blockquote>
+&lt;h1 id="creating-an-aiven-vpc">Creating an Aiven VPC&lt;/h1>
+&lt;ol>
+&lt;li>Create a file named &lt;code>vpc-sample.yaml&lt;/code> with the following content:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">ProjectVPC&lt;/span>
+&lt;span style="color:#f92672">metadata&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">vpc-sample&lt;/span>
+&lt;span style="color:#f92672">spec&lt;/span>:
+&lt;span style="color:#75715e"># gets the authentication token from the `aiven-token` Secret&lt;/span>
+&lt;span style="color:#f92672">authSecretRef&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">aiven-token&lt;/span>
+&lt;span style="color:#f92672">key&lt;/span>: &lt;span style="color:#ae81ff">token&lt;/span>
+&lt;span style="color:#f92672">project&lt;/span>: &lt;span style="color:#ae81ff">&amp;lt;your-project-name&amp;gt; &lt;/span>
+&lt;span style="color:#75715e"># creates a VPC to link an AWS account on the South Africa region&lt;/span>
+&lt;span style="color:#f92672">cloudName&lt;/span>: &lt;span style="color:#ae81ff">aws-af-south-1&lt;/span>
+&lt;span style="color:#75715e"># the network range used by the VPC&lt;/span>
+&lt;span style="color:#f92672">networkCidr&lt;/span>: &lt;span style="color:#ae81ff">192.168.0.0&lt;/span>&lt;span style="color:#ae81ff">/24&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
+&lt;li>Create the Project by applying the configuration:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f vpc-sample.yaml
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
+&lt;li>Review the resource you created with the following command:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get projects.aiven.io vpc-sample
+NAME PROJECT CLOUD NETWORK CIDR
+vpc-sample &amp;lt;your-project&amp;gt; aws-af-south-1 192.168.0.0/24
+&lt;/code>&lt;/pre>&lt;/div>&lt;h1 id="using-the-aiven-vpc">Using the Aiven VPC&lt;/h1>
+&lt;p>Follow the official &lt;a href="https://help.aiven.io/en/articles/778836-using-virtual-private-cloud-vpc-peering">VPC documentation&lt;/a> to complete the VPC peering on your cloud of choice.&lt;/p></description></item><item><title>Docs: Kafka</title><link>https://aiven.github.io/aiven-kubernetes-operator/docs/resources/kafka/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-kubernetes-operator/docs/resources/kafka/</guid><description>
+&lt;p>Aiven for Kafka is an excellent option if you need to run Apache Kafka at scale.
+With Aiven Kubernetes Operator you can get up and running with a suitably sized Apache Kafka service in a few minutes.&lt;/p>
+&lt;blockquote>
+&lt;p>Before going through this guide, make sure you have a &lt;a href="../installation/prerequisites/">Kubernetes cluster&lt;/a> with the &lt;a href="../installation/">operator installed&lt;/a> and a &lt;a href="../authentication/">Kubernetes Secret with an Aiven authentication token&lt;/a>.&lt;/p>
+&lt;/blockquote>
+&lt;h2 id="creating-a-kafka-instance">Creating a Kafka instance&lt;/h2>
+&lt;ol>
+&lt;li>Create a file named &lt;code>kafka-sample.yaml&lt;/code>, and add the following content:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">Kafka&lt;/span>
+&lt;span style="color:#f92672">metadata&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-sample&lt;/span>
+&lt;span style="color:#f92672">spec&lt;/span>:
+&lt;span style="color:#75715e"># gets the authentication token from the `aiven-token` Secret&lt;/span>
+&lt;span style="color:#f92672">authSecretRef&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">aiven-token&lt;/span>
+&lt;span style="color:#f92672">key&lt;/span>: &lt;span style="color:#ae81ff">token&lt;/span>
+&lt;span style="color:#75715e"># outputs the Kafka connection on the `kafka-connection` Secret&lt;/span>
+&lt;span style="color:#f92672">connInfoSecretTarget&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-auth&lt;/span>
+&lt;span style="color:#75715e"># add your Project name here&lt;/span>
+&lt;span style="color:#f92672">project&lt;/span>: &lt;span style="color:#ae81ff">&amp;lt;your-project-name&amp;gt;&lt;/span>
+&lt;span style="color:#75715e"># cloud provider and plan of your choice&lt;/span>
+&lt;span style="color:#75715e"># you can check all of the possibilities here https://aiven.io/pricing&lt;/span>
+&lt;span style="color:#f92672">cloudName&lt;/span>: &lt;span style="color:#ae81ff">google-europe-west1&lt;/span>
+&lt;span style="color:#f92672">plan&lt;/span>: &lt;span style="color:#ae81ff">startup-2&lt;/span>
+&lt;span style="color:#75715e"># general Aiven configuration&lt;/span>
+&lt;span style="color:#f92672">maintenanceWindowDow&lt;/span>: &lt;span style="color:#ae81ff">friday&lt;/span>
+&lt;span style="color:#f92672">maintenanceWindowTime&lt;/span>: &lt;span style="color:#ae81ff">23&lt;/span>:&lt;span style="color:#ae81ff">00&lt;/span>:&lt;span style="color:#ae81ff">00&lt;/span>
+&lt;span style="color:#75715e"># specific Kafka configuration&lt;/span>
+&lt;span style="color:#f92672">kafkaUserConfig&lt;/span>:
+&lt;span style="color:#f92672">kafka_version&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;2.7&amp;#39;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
+&lt;li>Create the following resource on Kubernetes:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-sample.yaml
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
+&lt;li>Inspect the service created using the command below. After a couple of minutes, the &lt;code>STATE&lt;/code> field is changed to &lt;code>RUNNING&lt;/code>, and is ready to be used.&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get kafka.aiven.io kafka-sample
+NAME PROJECT REGION PLAN STATE
+kafka-sample &amp;lt;your-project&amp;gt; google-europe-west1 startup-2 RUNNING
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="using-the-connection-secret">Using the connection Secret&lt;/h2>
+&lt;p>For your convenience, the operator automatically stores the Kafka connection information in a Secret created with the name specified on the &lt;code>connInfoSecretTarget&lt;/code> field.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl describe secret kafka-auth
+Name: kafka-auth
+Namespace: default
+Annotations: &amp;lt;none&amp;gt;
+Type: Opaque
+Data
+&lt;span style="color:#f92672">====&lt;/span>
+CA_CERT: &lt;span style="color:#ae81ff">1537&lt;/span> bytes
+HOST: &lt;span style="color:#ae81ff">41&lt;/span> bytes
+PASSWORD: &lt;span style="color:#ae81ff">16&lt;/span> bytes
+PORT: &lt;span style="color:#ae81ff">5&lt;/span> bytes
+USERNAME: &lt;span style="color:#ae81ff">8&lt;/span> bytes
+ACCESS_CERT: &lt;span style="color:#ae81ff">1533&lt;/span> bytes
+ACCESS_KEY: &lt;span style="color:#ae81ff">2484&lt;/span> bytes
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can use the &lt;a href="https://github.com/stedolan/jq">jq&lt;/a> to quickly decode the Secret:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">kubectl get secret kafka-auth -o json | jq &lt;span style="color:#e6db74">&amp;#39;.data | map_values(@base64d)&amp;#39;&lt;/span>
+&lt;span style="color:#f92672">{&lt;/span>
+&lt;span style="color:#e6db74">&amp;#34;CA_CERT&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;&amp;lt;secret-ca-cert&amp;gt;&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;ACCESS_CERT&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;&amp;lt;secret-cert&amp;gt;&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;ACCESS_KEY&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;&amp;lt;secret-access-key&amp;gt;&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;HOST&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;kafka-sample-your-project.aivencloud.com&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;PASSWORD&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;&amp;lt;secret-password&amp;gt;&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;PORT&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;13041&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;USERNAME&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;avnadmin&amp;#34;&lt;/span>
+&lt;span style="color:#f92672">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="testing-the-connection">Testing the connection&lt;/h2>
+&lt;p>You can verify your access to the Kafka cluster from a Pod using the authentication data from the &lt;code>kafka-auth&lt;/code> Secret.
+&lt;a href="https://github.com/edenhill/kafkacat">kafkacat&lt;/a> is used for our examples below.&lt;/p>
+&lt;ol>
+&lt;li>Create a file named &lt;code>kafka-test-connection.yaml&lt;/code>, and add the following content:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">v1&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">Pod&lt;/span>
+&lt;span style="color:#f92672">metadata&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-test-connection&lt;/span>
+&lt;span style="color:#f92672">spec&lt;/span>:
+&lt;span style="color:#f92672">restartPolicy&lt;/span>: &lt;span style="color:#ae81ff">Never&lt;/span>
+&lt;span style="color:#f92672">containers&lt;/span>:
+- &lt;span style="color:#f92672">image&lt;/span>: &lt;span style="color:#ae81ff">edenhill/kafkacat:1.6.0&lt;/span>
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafkacat&lt;/span>
+&lt;span style="color:#75715e"># the command below will connect to the Kafka cluster&lt;/span>
+&lt;span style="color:#75715e"># and output its metadata&lt;/span>
+&lt;span style="color:#f92672">command&lt;/span>: [
+&lt;span style="color:#e6db74">&amp;#39;kafkacat&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;-b&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;$(HOST):$(PORT)&amp;#39;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#39;-X&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;security.protocol=SSL&amp;#39;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#39;-X&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;ssl.key.location=/kafka-auth/ACCESS_KEY&amp;#39;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#39;-X&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;ssl.key.password=$(PASSWORD)&amp;#39;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#39;-X&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;ssl.certificate.location=/kafka-auth/ACCESS_CERT&amp;#39;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#39;-X&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;ssl.ca.location=/kafka-auth/CA_CERT&amp;#39;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#39;-L&amp;#39;&lt;/span>
+]
+&lt;span style="color:#75715e"># loading the data from the Secret as environment variables&lt;/span>
+&lt;span style="color:#75715e"># useful to access the Kafka information, like hostname and port&lt;/span>
+&lt;span style="color:#f92672">envFrom&lt;/span>:
+- &lt;span style="color:#f92672">secretRef&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-auth&lt;/span>
+&lt;span style="color:#f92672">volumeMounts&lt;/span>:
+- &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-auth&lt;/span>
+&lt;span style="color:#f92672">mountPath&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;/kafka-auth&amp;#34;&lt;/span>
+&lt;span style="color:#75715e"># loading the data from the Secret as files in a volume&lt;/span>
+&lt;span style="color:#75715e"># useful to access the Kafka certificates &lt;/span>
+&lt;span style="color:#f92672">volumes&lt;/span>:
+- &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-auth&lt;/span>
+&lt;span style="color:#f92672">secret&lt;/span>:
+&lt;span style="color:#f92672">secretName&lt;/span>: &lt;span style="color:#ae81ff">kafka-auth&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
+&lt;li>Apply the file.&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-test-connection.yaml
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Once successfully applied, you have a log with the metadata information about the Kafka cluster.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl logs kafka-test-connection
+Metadata &lt;span style="color:#66d9ef">for&lt;/span> all topics &lt;span style="color:#f92672">(&lt;/span>from broker -1: ssl://kafka-sample-your-project.aivencloud.com:13041/bootstrap&lt;span style="color:#f92672">)&lt;/span>:
+&lt;span style="color:#ae81ff">3&lt;/span> brokers:
+broker &lt;span style="color:#ae81ff">2&lt;/span> at 35.205.234.70:13041
+broker &lt;span style="color:#ae81ff">3&lt;/span> at 34.77.127.70:13041 &lt;span style="color:#f92672">(&lt;/span>controller&lt;span style="color:#f92672">)&lt;/span>
+broker &lt;span style="color:#ae81ff">1&lt;/span> at 34.78.146.156:13041
+&lt;span style="color:#ae81ff">0&lt;/span> topics:
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="creating-a-kafka-topic-and-and-acl">Creating a Kafka topic and and ACL&lt;/h2>
+&lt;p>To properly produce and consume content on Kafka, you need topics and ACLs. The operator supports both with the &lt;code>KafkaTopic&lt;/code> and &lt;code>KafkaACL&lt;/code> resources.&lt;/p>
+&lt;p>Below, here is how to create a Kafka topic named &lt;code>random-strings&lt;/code> where random string messages will be sent.&lt;/p>
+&lt;ol>
+&lt;li>Create a file named &lt;code>kafka-topic-random-strings.yaml&lt;/code> with the content below:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">KafkaTopic&lt;/span>
+&lt;span style="color:#f92672">metadata&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">random-strings&lt;/span>
+&lt;span style="color:#f92672">spec&lt;/span>:
+&lt;span style="color:#f92672">authSecretRef&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">aiven-token&lt;/span>
+&lt;span style="color:#f92672">key&lt;/span>: &lt;span style="color:#ae81ff">token&lt;/span>
+&lt;span style="color:#f92672">project&lt;/span>: &lt;span style="color:#ae81ff">&amp;lt;your-project-name&amp;gt;&lt;/span>
+&lt;span style="color:#f92672">serviceName&lt;/span>: &lt;span style="color:#ae81ff">kafka-sample&lt;/span>
+&lt;span style="color:#75715e"># here we can specify how many partitions the topic should have&lt;/span>
+&lt;span style="color:#f92672">partitions&lt;/span>: &lt;span style="color:#ae81ff">3&lt;/span>
+&lt;span style="color:#75715e"># and the topic replication factor&lt;/span>
+&lt;span style="color:#f92672">replication&lt;/span>: &lt;span style="color:#ae81ff">2&lt;/span>
+&lt;span style="color:#75715e"># we also support various topic-specific configurations&lt;/span>
+&lt;span style="color:#f92672">config&lt;/span>:
+&lt;span style="color:#f92672">flush_ms&lt;/span>: &lt;span style="color:#ae81ff">100&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
+&lt;li>Create the resource on Kubernetes:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-topic-random-strings.yaml
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
+&lt;li>Create a user and an ACL.
+To use the Kafka topic, create a new user with the &lt;code>ServiceUser&lt;/code> resource (in order to avoid using the &lt;code>avnadmin&lt;/code> super user), and the &lt;code>KafkaACL&lt;/code> to allow the user access to the topic.&lt;/li>
+&lt;/ol>
+&lt;p>In a file named &lt;code>kafka-acl-user-crab.yaml&lt;/code>, add the following two resources:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">ServiceUser&lt;/span>
+&lt;span style="color:#f92672">metadata&lt;/span>:
+&lt;span style="color:#75715e"># the name of our user 🦀&lt;/span>
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">crab&lt;/span>
+&lt;span style="color:#f92672">spec&lt;/span>:
+&lt;span style="color:#f92672">authSecretRef&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">aiven-token&lt;/span>
+&lt;span style="color:#f92672">key&lt;/span>: &lt;span style="color:#ae81ff">token&lt;/span>
+&lt;span style="color:#75715e"># the Secret name we will store the users&amp;#39; connection information&lt;/span>
+&lt;span style="color:#75715e"># looks exactly the same as the Secret generated when creating the Kafka cluster&lt;/span>
+&lt;span style="color:#75715e"># we will use this Secret to produce and consume events later!&lt;/span>
+&lt;span style="color:#f92672">connInfoSecretTarget&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-crab-connection&lt;/span>
+&lt;span style="color:#75715e"># the Aiven project the user is related to&lt;/span>
+&lt;span style="color:#f92672">project&lt;/span>: &lt;span style="color:#ae81ff">&amp;lt;your-project-name&amp;gt;&lt;/span>
+&lt;span style="color:#75715e"># the name of our Kafka Service&lt;/span>
+&lt;span style="color:#f92672">serviceName&lt;/span>: &lt;span style="color:#ae81ff">kafka-sample&lt;/span>
+---
+&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">KafkaACL&lt;/span>
+&lt;span style="color:#f92672">metadata&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">crab&lt;/span>
+&lt;span style="color:#f92672">spec&lt;/span>:
+&lt;span style="color:#f92672">authSecretRef&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">aiven-token&lt;/span>
+&lt;span style="color:#f92672">key&lt;/span>: &lt;span style="color:#ae81ff">token&lt;/span>
+&lt;span style="color:#f92672">project&lt;/span>: &lt;span style="color:#ae81ff">&amp;lt;your-project-name&amp;gt;&lt;/span>
+&lt;span style="color:#f92672">serviceName&lt;/span>: &lt;span style="color:#ae81ff">kafka-sample&lt;/span>
+&lt;span style="color:#75715e"># the username from the ServiceUser above&lt;/span>
+&lt;span style="color:#f92672">username&lt;/span>: &lt;span style="color:#ae81ff">crab&lt;/span>
+&lt;span style="color:#75715e"># the ACL allows to produce and consume on the topic&lt;/span>
+&lt;span style="color:#f92672">permission&lt;/span>: &lt;span style="color:#ae81ff">readwrite&lt;/span>
+&lt;span style="color:#75715e"># specify the topic we created before&lt;/span>
+&lt;span style="color:#f92672">topic&lt;/span>: &lt;span style="color:#ae81ff">random-strings&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>To create the &lt;code>crab&lt;/code> user and its permissions, execute the following command:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-acl-user-crab.yaml
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="producing-and-consuming-events">Producing and consuming events&lt;/h2>
+&lt;p>Using the previously created &lt;code>KafkaTopic&lt;/code>, &lt;code>ServiceUser&lt;/code>, &lt;code>KafkaACL&lt;/code>, you can produce and consume events.&lt;/p>
+&lt;p>You can use Kafkacat to produce a message into Kafka, and the &lt;code>-t random-strings&lt;/code> argument to select the desired topic, and use the content of the &lt;code>/etc/issue&lt;/code> file as the message&amp;rsquo;s body.&lt;/p>
+&lt;ol>
+&lt;li>Create a &lt;code>kafka-crab-produce.yaml&lt;/code> file with the content below:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">v1&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">Pod&lt;/span>
+&lt;span style="color:#f92672">metadata&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-crab-produce&lt;/span>
+&lt;span style="color:#f92672">spec&lt;/span>:
+&lt;span style="color:#f92672">restartPolicy&lt;/span>: &lt;span style="color:#ae81ff">Never&lt;/span>
+&lt;span style="color:#f92672">containers&lt;/span>:
+- &lt;span style="color:#f92672">image&lt;/span>: &lt;span style="color:#ae81ff">edenhill/kafkacat:1.6.0&lt;/span>
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafkacat&lt;/span>
+&lt;span style="color:#75715e"># the command below will produce a message with the /etc/issue file content&lt;/span>
+&lt;span style="color:#f92672">command&lt;/span>: [
+&lt;span style="color:#e6db74">&amp;#39;kafkacat&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;-b&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;$(HOST):$(PORT)&amp;#39;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#39;-X&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;security.protocol=SSL&amp;#39;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#39;-X&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;ssl.key.location=/crab-auth/ACCESS_KEY&amp;#39;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#39;-X&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;ssl.key.password=$(PASSWORD)&amp;#39;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#39;-X&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;ssl.certificate.location=/crab-auth/ACCESS_CERT&amp;#39;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#39;-X&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;ssl.ca.location=/crab-auth/CA_CERT&amp;#39;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#39;-P&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;-t&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;random-strings&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;/etc/issue&amp;#39;&lt;/span>,
+]
+&lt;span style="color:#75715e"># loading the crab user data from the Secret as environment variables&lt;/span>
+&lt;span style="color:#75715e"># useful to access the Kafka information, like hostname and port&lt;/span>
+&lt;span style="color:#f92672">envFrom&lt;/span>:
+- &lt;span style="color:#f92672">secretRef&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-crab-connection&lt;/span>
+&lt;span style="color:#f92672">volumeMounts&lt;/span>:
+- &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">crab-auth&lt;/span>
+&lt;span style="color:#f92672">mountPath&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;/crab-auth&amp;#34;&lt;/span>
+&lt;span style="color:#75715e"># loading the crab user information from the Secret as files in a volume&lt;/span>
+&lt;span style="color:#75715e"># useful to access the Kafka certificates &lt;/span>
+&lt;span style="color:#f92672">volumes&lt;/span>:
+- &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">crab-auth&lt;/span>
+&lt;span style="color:#f92672">secret&lt;/span>:
+&lt;span style="color:#f92672">secretName&lt;/span>: &lt;span style="color:#ae81ff">kafka-crab-connection&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
+&lt;li>Create the Pod with the following content:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-crab-produce.yaml
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Now your event is stored in Kafka.&lt;/p>
+&lt;p>To &lt;em>consume&lt;/em> a message, you can use a graphical interface called &lt;a href="https://github.com/cloudhut/kowl">Kowl&lt;/a>. It allows you to explore information about our Kafka cluster, such as brokers, topics, or consumer groups.&lt;/p>
+&lt;ol>
+&lt;li>Create a Kubernetes Pod and service to deploy and access Kowl. Create a file named &lt;code>kafka-crab-consume.yaml&lt;/code> with the content below:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">v1&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">Pod&lt;/span>
+&lt;span style="color:#f92672">metadata&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-crab-consume&lt;/span>
+&lt;span style="color:#f92672">labels&lt;/span>:
+&lt;span style="color:#f92672">app&lt;/span>: &lt;span style="color:#ae81ff">kafka-crab-consume&lt;/span>
+&lt;span style="color:#f92672">spec&lt;/span>:
+&lt;span style="color:#f92672">containers&lt;/span>:
+- &lt;span style="color:#f92672">image&lt;/span>: &lt;span style="color:#ae81ff">quay.io/cloudhut/kowl:v1.4.0&lt;/span>
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kowl&lt;/span>
+&lt;span style="color:#75715e"># kowl configuration values&lt;/span>
+&lt;span style="color:#f92672">env&lt;/span>:
+- &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">KAFKA_TLS_ENABLED&lt;/span>
+&lt;span style="color:#f92672">value&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;true&amp;#39;&lt;/span>
+- &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">KAFKA_BROKERS&lt;/span>
+&lt;span style="color:#f92672">value&lt;/span>: &lt;span style="color:#ae81ff">$(HOST):$(PORT)&lt;/span>
+- &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">KAFKA_TLS_PASSPHRASE&lt;/span>
+&lt;span style="color:#f92672">value&lt;/span>: &lt;span style="color:#ae81ff">$(PASSWORD)&lt;/span>
+- &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">KAFKA_TLS_CAFILEPATH&lt;/span>
+&lt;span style="color:#f92672">value&lt;/span>: &lt;span style="color:#ae81ff">/crab-auth/CA_CERT&lt;/span>
+- &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">KAFKA_TLS_CERTFILEPATH&lt;/span>
+&lt;span style="color:#f92672">value&lt;/span>: &lt;span style="color:#ae81ff">/crab-auth/ACCESS_CERT&lt;/span>
+- &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">KAFKA_TLS_KEYFILEPATH&lt;/span>
+&lt;span style="color:#f92672">value&lt;/span>: &lt;span style="color:#ae81ff">/crab-auth/ACCESS_KEY&lt;/span>
+&lt;span style="color:#75715e"># inject all connection information as environment variables&lt;/span>
+&lt;span style="color:#f92672">envFrom&lt;/span>:
+- &lt;span style="color:#f92672">secretRef&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-crab-connection&lt;/span>
+&lt;span style="color:#f92672">volumeMounts&lt;/span>:
+- &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">crab-auth&lt;/span>
+&lt;span style="color:#f92672">mountPath&lt;/span>: &lt;span style="color:#ae81ff">/crab-auth&lt;/span>
+&lt;span style="color:#75715e"># loading the crab user information from the Secret as files in a volume&lt;/span>
+&lt;span style="color:#75715e"># useful to access the Kafka certificates &lt;/span>
+&lt;span style="color:#f92672">volumes&lt;/span>:
+- &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">crab-auth&lt;/span>
+&lt;span style="color:#f92672">secret&lt;/span>:
+&lt;span style="color:#f92672">secretName&lt;/span>: &lt;span style="color:#ae81ff">kafka-crab-connection&lt;/span>
+---
+&lt;span style="color:#75715e"># we will be using a simple service to access Kowl on port 8080&lt;/span>
+&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">v1&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">Service&lt;/span>
+&lt;span style="color:#f92672">metadata&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-crab-consume&lt;/span>
+&lt;span style="color:#f92672">spec&lt;/span>:
+&lt;span style="color:#f92672">selector&lt;/span>:
+&lt;span style="color:#f92672">app&lt;/span>: &lt;span style="color:#ae81ff">kafka-crab-consume&lt;/span>
+&lt;span style="color:#f92672">ports&lt;/span>:
+- &lt;span style="color:#f92672">port&lt;/span>: &lt;span style="color:#ae81ff">8080&lt;/span>
+&lt;span style="color:#f92672">targetPort&lt;/span>: &lt;span style="color:#ae81ff">8080&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
+&lt;li>Create the resources with:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-crab-consume.yaml
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
+&lt;li>In another terminal create a port-forward tunnel to your Pod:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl port-forward kafka-crab-consume 8080:8080
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="4">
+&lt;li>
+&lt;p>In the browser of your choice, access the &lt;a href="">http://localhost:8080&lt;/a> address. You now see a page with the &lt;code>random-strings&lt;/code> topic listed:
+&lt;img src="./kowl-topics.png" alt="Kowl graphical interface on the topic listing page">&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Click the topic name to see the message.
+&lt;img src="./kowl-random-strings.png" alt="Kowl graphical interface on the random-strings topic page">&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;p>You have now consumed the message.&lt;/p></description></item><item><title>Docs: PostgreSQL</title><link>https://aiven.github.io/aiven-kubernetes-operator/docs/resources/postgresql/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-kubernetes-operator/docs/resources/postgresql/</guid><description>
+&lt;p>PostgreSQL is an open source, relational database. It&amp;rsquo;s ideal for organisations that need a well organised tabular datastore. On top of the strict table and columns formats, PostgreSQL also offers solutions for nested datasets with the native &lt;code>jsonb&lt;/code> format and advanced set of extensions including &lt;a href="https://postgis.net/">PostGIS&lt;/a>, a spatial database extender for location queries. Aiven for PostgreSQL is the perfect fit for your relational data.&lt;/p>
+&lt;p>With Aiven Kubernetes Operator, you can manage Aiven for PostgreSQL through the well defined Kubernetes API.&lt;/p>
+&lt;blockquote>
+&lt;p>Before going through this guide, make sure you have a &lt;a href="../installation/prerequisites/">Kubernetes cluster&lt;/a> with the &lt;a href="../installation/">operator installed&lt;/a>, and a &lt;a href="../authentication/">Kubernetes Secret with an Aiven authentication token&lt;/a>.&lt;/p>
+&lt;/blockquote>
+&lt;h2 id="creating-a-postgresql-instance">Creating a PostgreSQL instance&lt;/h2>
+&lt;ol>
+&lt;li>Create a file named &lt;code>pg-sample.yaml&lt;/code> with the following content:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">PG&lt;/span>
+&lt;span style="color:#f92672">metadata&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">pg-sample&lt;/span>
+&lt;span style="color:#f92672">spec&lt;/span>:
+&lt;span style="color:#75715e"># gets the authentication token from the `aiven-token` Secret&lt;/span>
+&lt;span style="color:#f92672">authSecretRef&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">aiven-token&lt;/span>
+&lt;span style="color:#f92672">key&lt;/span>: &lt;span style="color:#ae81ff">token&lt;/span>
+&lt;span style="color:#75715e"># outputs the PostgreSQL connection on the `pg-connection` Secret&lt;/span>
+&lt;span style="color:#f92672">connInfoSecretTarget&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">pg-connection&lt;/span>
+&lt;span style="color:#75715e"># add your Project name here&lt;/span>
+&lt;span style="color:#f92672">project&lt;/span>: &lt;span style="color:#ae81ff">&amp;lt;your-project-name&amp;gt; &lt;/span>
+&lt;span style="color:#75715e"># cloud provider and plan of your choice&lt;/span>
+&lt;span style="color:#75715e"># you can check all of the possibilities here https://aiven.io/pricing&lt;/span>
+&lt;span style="color:#f92672">cloudName&lt;/span>: &lt;span style="color:#ae81ff">google-europe-west1&lt;/span>
+&lt;span style="color:#f92672">plan&lt;/span>: &lt;span style="color:#ae81ff">startup-4&lt;/span>
+&lt;span style="color:#75715e"># general Aiven configuration&lt;/span>
+&lt;span style="color:#f92672">maintenanceWindowDow&lt;/span>: &lt;span style="color:#ae81ff">friday&lt;/span>
+&lt;span style="color:#f92672">maintenanceWindowTime&lt;/span>: &lt;span style="color:#ae81ff">23&lt;/span>:&lt;span style="color:#ae81ff">00&lt;/span>:&lt;span style="color:#ae81ff">00&lt;/span>
+&lt;span style="color:#75715e"># specific PostgreSQL configuration&lt;/span>
+&lt;span style="color:#f92672">pgUserConfig&lt;/span>:
+&lt;span style="color:#f92672">pg_version&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;11&amp;#39;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
+&lt;li>Create the service by applying the configuration:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f pg-sample.yaml
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
+&lt;li>Review the resource you created with the following command:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get pgs.aiven.io pg-sample
+NAME PROJECT REGION PLAN STATE
+pg-sample dev-advocates google-europe-west1 hobbyist RUNNING
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The resource can stay in the &lt;code>BUILDING&lt;/code> state for a couple of minutes.
+Once the state changes to &lt;code>RUNNING&lt;/code>, you are ready to access it.&lt;/p>
+&lt;h2 id="using-the-connection-secret">Using the connection Secret&lt;/h2>
+&lt;p>For your convenience, the operator automatically stores the PostgreSQL connection information in a Secret created with the name specified on the &lt;code>connInfoSecretTarget&lt;/code> field.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl describe secret pg-connection
+Name: pg-connection
+Namespace: default
+Annotations: &amp;lt;none&amp;gt;
+Type: Opaque
+Data
+&lt;span style="color:#f92672">====&lt;/span>
+DATABASE_URI: &lt;span style="color:#ae81ff">107&lt;/span> bytes
+PGDATABASE: &lt;span style="color:#ae81ff">9&lt;/span> bytes
+PGHOST: &lt;span style="color:#ae81ff">38&lt;/span> bytes
+PGPASSWORD: &lt;span style="color:#ae81ff">16&lt;/span> bytes
+PGPORT: &lt;span style="color:#ae81ff">5&lt;/span> bytes
+PGSSLMODE: &lt;span style="color:#ae81ff">7&lt;/span> bytes
+PGUSER: &lt;span style="color:#ae81ff">8&lt;/span> bytes
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can use the &lt;a href="https://github.com/stedolan/jq">jq&lt;/a> to quickly decode the Secret:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get secret pg-connection -o json | jq &lt;span style="color:#e6db74">&amp;#39;.data | map_values(@base64d)&amp;#39;&lt;/span>
+&lt;span style="color:#f92672">{&lt;/span>
+&lt;span style="color:#e6db74">&amp;#34;DATABASE_URI&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;postgres://avnadmin:&amp;lt;secret-password&amp;gt;@pg-sample-your-project.aivencloud.com:13039/defaultdb?sslmode=require&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;PGDATABASE&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;defaultdb&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;PGHOST&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;pg-sample-your-project.aivencloud.com&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;PGPASSWORD&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;&amp;lt;secret-password&amp;gt;&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;PGPORT&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;13039&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;PGSSLMODE&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;require&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;PGUSER&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;avnadmin&amp;#34;&lt;/span>
+&lt;span style="color:#f92672">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="testing-the-connection">Testing the connection&lt;/h2>
+&lt;p>You can verify your PostgreSQL connection from a Kubernetes workload by deploying a Pod that runs the &lt;code>psql&lt;/code> command.&lt;/p>
+&lt;ol>
+&lt;li>Create a file named &lt;code>pod-psql.yaml&lt;/code>&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">v1&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">Pod&lt;/span>
+&lt;span style="color:#f92672">metadata&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">psql-test-connection&lt;/span>
+&lt;span style="color:#f92672">spec&lt;/span>:
+&lt;span style="color:#f92672">restartPolicy&lt;/span>: &lt;span style="color:#ae81ff">Never&lt;/span>
+&lt;span style="color:#f92672">containers&lt;/span>:
+- &lt;span style="color:#f92672">image&lt;/span>: &lt;span style="color:#ae81ff">postgres:11-alpine&lt;/span>
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">postgres&lt;/span>
+&lt;span style="color:#f92672">command&lt;/span>: [&lt;span style="color:#e6db74">&amp;#39;psql&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;$(DATABASE_URI)&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;-c&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;SELECT version();&amp;#39;&lt;/span>]
+&lt;span style="color:#75715e"># the pg-connection Secret becomes environment variables &lt;/span>
+&lt;span style="color:#f92672">envFrom&lt;/span>:
+- &lt;span style="color:#f92672">secretRef&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">pg-connection&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>It runs once and stops, due to the &lt;code>restartPolicy: Never&lt;/code> flag.&lt;/p>
+&lt;ol start="2">
+&lt;li>Inspect the log:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl logs psql-test-connection
+version
+---------------------------------------------------------------------------------------------
+PostgreSQL 11.12 on x86_64-pc-linux-gnu, compiled by gcc, a 68c5366192 p 6b9244f01a, 64-bit
+&lt;span style="color:#f92672">(&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span> row&lt;span style="color:#f92672">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You have now connected to the PostgreSQL, and executed the &lt;code>SELECT version();&lt;/code> query.&lt;/p>
+&lt;h2 id="creating-a-postgresql-database">Creating a PostgreSQL database&lt;/h2>
+&lt;p>The &lt;code>Database&lt;/code> Kubernetes resource allows you to create a logical database within the PostgreSQL instance.&lt;/p>
+&lt;p>Create the &lt;code>pg-database-sample.yaml&lt;/code> file with the following content:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">Database&lt;/span>
+&lt;span style="color:#f92672">metadata&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">pg-database-sample&lt;/span>
+&lt;span style="color:#f92672">spec&lt;/span>:
+&lt;span style="color:#f92672">authSecretRef&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">aiven-token&lt;/span>
+&lt;span style="color:#f92672">key&lt;/span>: &lt;span style="color:#ae81ff">token&lt;/span>
+&lt;span style="color:#75715e"># the name of the previously created PostgreSQL instance&lt;/span>
+&lt;span style="color:#f92672">serviceName&lt;/span>: &lt;span style="color:#ae81ff">pg-sample &lt;/span>
+&lt;span style="color:#f92672">project&lt;/span>: &lt;span style="color:#ae81ff">&amp;lt;your-project-name&amp;gt;&lt;/span>
+&lt;span style="color:#f92672">lcCollate&lt;/span>: &lt;span style="color:#ae81ff">en_US.UTF-8&lt;/span>
+&lt;span style="color:#f92672">lcCtype&lt;/span>: &lt;span style="color:#ae81ff">en_US.UTF-8&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can now connect to the &lt;code>pg-database-sample&lt;/code> using the credentials stored in the &lt;code>pg-connection&lt;/code> Secret.&lt;/p>
+&lt;h2 id="creating-a-postgresql-user">Creating a PostgreSQL user&lt;/h2>
+&lt;p>Aiven uses the concept of &lt;em>service user&lt;/em> that allows you to create users for different services. You can create one for the PostgreSQL instance.&lt;/p>
+&lt;ol>
+&lt;li>Create a file named &lt;code>pg-service-user.yaml&lt;/code>.&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">ServiceUser&lt;/span>
+&lt;span style="color:#f92672">metadata&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">pg-service-user&lt;/span>
+&lt;span style="color:#f92672">spec&lt;/span>:
+&lt;span style="color:#f92672">authSecretRef&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">aiven-token&lt;/span>
+&lt;span style="color:#f92672">key&lt;/span>: &lt;span style="color:#ae81ff">token&lt;/span>
+&lt;span style="color:#f92672">connInfoSecretTarget&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">pg-service-user-connection&lt;/span>
+&lt;span style="color:#f92672">project&lt;/span>: &lt;span style="color:#ae81ff">&amp;lt;your-project-name&amp;gt;&lt;/span>
+&lt;span style="color:#f92672">serviceName&lt;/span>: &lt;span style="color:#ae81ff">pg-sample&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
+&lt;li>Apply the configuration with the following command.&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f pg-service-user.yaml
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;code>ServiceUser&lt;/code> resource generates a Secret with connection information, in this case named &lt;code>pg-service-user-connection&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get secret pg-service-user-connection -o json | jq &lt;span style="color:#e6db74">&amp;#39;.data | map_values(@base64d)&amp;#39;&lt;/span>
+&lt;span style="color:#f92672">{&lt;/span>
+&lt;span style="color:#e6db74">&amp;#34;PASSWORD&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;&amp;lt;secret-password&amp;gt;&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;USERNAME&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;pg-service-user&amp;#34;&lt;/span>
+&lt;span style="color:#f92672">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can now connect to the PostgreSQL instance using the credentials generated above, and the host information from the &lt;code>pg-connection&lt;/code> Secret.&lt;/p>
+&lt;h2 id="creating-a-postgresql-connection-pool">Creating a PostgreSQL connection pool&lt;/h2>
+&lt;p>Connection pooling allows you to maintain very large numbers of connections to a database while minimizing the consumption of server resources. See more information &lt;a href="https://help.aiven.io/en/articles/964730-postgresql-connection-pooling">here&lt;/a>. Aiven for PostgreSQL uses PGBouncer for connection pooling.&lt;/p>
+&lt;p>You can create a connection pool with the &lt;code>ConnectionPool&lt;/code> resource using the previously created &lt;code>Database&lt;/code> and &lt;code>ServiceUser&lt;/code>.&lt;/p>
+&lt;p>Create a new file named &lt;code>pg-connection-pool.yaml&lt;/code> with the following content:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">ConnectionPool&lt;/span>
+&lt;span style="color:#f92672">metadata&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">pg-connection-pool&lt;/span>
+&lt;span style="color:#f92672">spec&lt;/span>:
+&lt;span style="color:#f92672">authSecretRef&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">aiven-token&lt;/span>
+&lt;span style="color:#f92672">key&lt;/span>: &lt;span style="color:#ae81ff">token&lt;/span>
+&lt;span style="color:#f92672">connInfoSecretTarget&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">pg-connection-pool-connection&lt;/span>
+&lt;span style="color:#f92672">project&lt;/span>: &lt;span style="color:#ae81ff">&amp;lt;your-project-name&amp;gt;&lt;/span>
+&lt;span style="color:#f92672">serviceName&lt;/span>: &lt;span style="color:#ae81ff">pg-sample&lt;/span>
+&lt;span style="color:#f92672">databaseName&lt;/span>: &lt;span style="color:#ae81ff">pg-database-sample&lt;/span>
+&lt;span style="color:#f92672">username&lt;/span>: &lt;span style="color:#ae81ff">pg-service-user&lt;/span>
+&lt;span style="color:#f92672">poolSize&lt;/span>: &lt;span style="color:#ae81ff">10&lt;/span>
+&lt;span style="color:#f92672">poolMode&lt;/span>: &lt;span style="color:#ae81ff">transaction&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;code>ConnectionPool&lt;/code> generates a Secret with the connection info using the name from the &lt;code>connInfoSecretTarget.Name&lt;/code> field:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get secret pg-connection-pool-connection -o json | jq &lt;span style="color:#e6db74">&amp;#39;.data | map_values(@base64d)&amp;#39;&lt;/span>
+&lt;span style="color:#f92672">{&lt;/span>
+&lt;span style="color:#e6db74">&amp;#34;DATABASE_URI&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;postgres://pg-service-user:&amp;lt;secret-password&amp;gt;@pg-sample-you-project.aivencloud.com:13040/pg-connection-pool?sslmode=require&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;PGDATABASE&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;pg-database-sample&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;PGHOST&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;pg-sample-your-project.aivencloud.com&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;PGPASSWORD&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;&amp;lt;secret-password&amp;gt;&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;PGPORT&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;13040&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;PGSSLMODE&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;require&amp;#34;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#34;PGUSER&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;pg-service-user&amp;#34;&lt;/span>
+&lt;span style="color:#f92672">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div></description></item></channel></rss>
