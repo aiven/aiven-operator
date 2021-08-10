@@ -176,7 +176,7 @@ func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client
 		}
 	}
 
-	if s != nil {
+	if ensureSecretDataIsNotEmpty(log, s) != nil {
 		err = c.manageSecret(ctx, obj, s)
 		if err != nil {
 			return ctrl.Result{}, err
@@ -403,4 +403,23 @@ func checkServiceIsRunning(c *aiven.Client, project, serviceName string) (bool, 
 	}
 
 	return s.State == "RUNNING", nil
+}
+
+func ensureSecretDataIsNotEmpty(log logr.Logger, s *corev1.Secret) *corev1.Secret {
+	if s == nil {
+		return nil
+	}
+
+	for i, v := range s.StringData {
+		if len(v) == 0 {
+			if log != nil {
+				log.Info("secret field is empty, deleting it from the secret",
+					"field", v,
+					"secret name", s.Name)
+			}
+			delete(s.StringData, i)
+		}
+	}
+
+	return s
 }
