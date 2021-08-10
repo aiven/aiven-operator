@@ -149,10 +149,10 @@ func (h KafkaACLHandler) get(i client.Object) (client.Object, *corev1.Secret, er
 	return acl, nil, nil
 }
 
-func (h KafkaACLHandler) checkPreconditions(i client.Object) bool {
+func (h KafkaACLHandler) checkPreconditions(i client.Object) (bool, error) {
 	acl, err := h.convert(i)
 	if err != nil {
-		return false
+		return false, err
 	}
 
 	return checkServiceIsRunning(h.client, acl.Spec.Project, acl.Spec.ServiceName)

@@ -174,10 +174,10 @@ func (h KafkaTopicHandler) get(i client.Object) (client.Object, *corev1.Secret, 
 	return topic, nil, err
 }
 
-func (h KafkaTopicHandler) checkPreconditions(i client.Object) bool {
+func (h KafkaTopicHandler) checkPreconditions(i client.Object) (bool, error) {
 	topic, err := h.convert(i)
 	if err != nil {
-		return false
+		return false, err
 	}
 
 	return checkServiceIsRunning(h.client, topic.Spec.Project, topic.Spec.ServiceName)

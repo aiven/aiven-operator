@@ -227,6 +227,6 @@ func (h ProjectHandler) convert(i client.Object) (*k8soperatorv1alpha1.Project, 
 	return p, nil
 }
 
-func (h ProjectHandler) checkPreconditions(client.Object) bool {
-	return true
+func (h ProjectHandler) checkPreconditions(client.Object) (bool, error) {
+	return true, nil
 }

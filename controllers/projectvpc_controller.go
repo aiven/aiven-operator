@@ -152,8 +152,8 @@ func (h ProjectVPCHandler) get(i client.Object) (client.Object, *corev1.Secret, 
 	return projectVPC, nil, nil
 }
 
-func (h ProjectVPCHandler) checkPreconditions(client.Object) bool {
-	return true
+func (h ProjectVPCHandler) checkPreconditions(client.Object) (bool, error) {
+	return true, nil
 }
 
 func (h *ProjectVPCHandler) convert(i client.Object) (*k8soperatorv1alpha1.ProjectVPC, error) {

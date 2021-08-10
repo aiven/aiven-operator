@@ -184,6 +184,6 @@ func (h KafkaConnectHandler) convert(i client.Object) (*k8soperatorv1alpha1.Kafk
 	return kc, nil
 }
 
-func (h KafkaConnectHandler) checkPreconditions(client.Object) bool {
-	return true
+func (h KafkaConnectHandler) checkPreconditions(client.Object) (bool, error) {
+	return true, nil
 }

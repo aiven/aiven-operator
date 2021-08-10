@@ -61,7 +61,7 @@ type (
 
 		// checkPreconditions check whether all preconditions for creating (or updating) the resource are in place.
 		// For example, it is applicable when a service needs to be running before this resource can be created.
-		checkPreconditions(client.Object) bool
+		checkPreconditions(client.Object) (bool, error)
 	}
 )
 
@@ -120,7 +120,12 @@ func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client
 
 	// Check preconditions
 	log.Info("checking preconditions")
-	if !h.checkPreconditions(o) {
+	check, err := h.checkPreconditions(o)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	if !check {
 		log.Info("preconditions are not met, requeue")
 		return ctrl.Result{Requeue: true, RequeueAfter: requeueTimeout}, nil
 	}
@@ -391,11 +396,11 @@ func getMaintenanceWindow(dow, time string) *aiven.MaintenanceWindow {
 	return nil
 }
 
-func checkServiceIsRunning(c *aiven.Client, project, serviceName string) bool {
+func checkServiceIsRunning(c *aiven.Client, project, serviceName string) (bool, error) {
 	s, err := c.Services.Get(project, serviceName)
 	if err != nil {
-		return false
+		return false, err
 	}
 
-	return s.State == "RUNNING"
+	return s.State == "RUNNING", nil
 }
