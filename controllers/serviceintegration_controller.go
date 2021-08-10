@@ -152,6 +152,9 @@ func (h ServiceIntegrationHandler) checkPreconditions(i client.Object) (bool, er
 		return false, err
 	}
 
+	meta.SetStatusCondition(&si.Status.Conditions,
+		getInitializedCondition("Preconditions", "Checking preconditions"))
+
 	sourceCheck, err := checkServiceIsRunning(h.client, si.Spec.Project, si.Spec.SourceServiceName)
 	if err != nil {
 		return false, err

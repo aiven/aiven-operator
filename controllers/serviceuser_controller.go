@@ -164,6 +164,9 @@ func (h ServiceUserHandler) checkPreconditions(i client.Object) (bool, error) {
 		return false, err
 	}
 
+	meta.SetStatusCondition(&user.Status.Conditions,
+		getInitializedCondition("Preconditions", "Checking preconditions"))
+
 	return checkServiceIsRunning(h.client, user.Spec.Project, user.Spec.ServiceName)
 }
 

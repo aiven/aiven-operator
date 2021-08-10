@@ -187,6 +187,9 @@ func (h ConnectionPoolHandler) checkPreconditions(i client.Object) (bool, error)
 		return false, err
 	}
 
+	meta.SetStatusCondition(&cp.Status.Conditions,
+		getInitializedCondition("Preconditions", "Checking preconditions"))
+
 	check, err := checkServiceIsRunning(h.client, cp.Spec.Project, cp.Spec.ServiceName)
 	if err != nil {
 		return false, err

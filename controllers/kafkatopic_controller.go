@@ -180,6 +180,9 @@ func (h KafkaTopicHandler) checkPreconditions(i client.Object) (bool, error) {
 		return false, err
 	}
 
+	meta.SetStatusCondition(&topic.Status.Conditions,
+		getInitializedCondition("Preconditions", "Checking preconditions"))
+
 	return checkServiceIsRunning(h.client, topic.Spec.Project, topic.Spec.ServiceName)
 }
 

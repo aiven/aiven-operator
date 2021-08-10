@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/go-multierror"
 	"reflect"
 	"strconv"
 	"strings"
@@ -68,7 +69,7 @@ type (
 // +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;list;create;update
 // +kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;create;update;patch;delete
 
-func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client.Object) (ctrl.Result, error) {
+func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client.Object) (_ ctrl.Result, rErr error) {
 	log := c.initLog(o)
 
 	log.Info("reconciling instance")
@@ -118,18 +119,6 @@ func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client
 		}
 	}
 
-	defer func() {
-		err := c.Status().Update(ctx, o)
-		if err != nil {
-			log.Error(err, "cannot update CR status")
-		}
-
-		err = c.Update(ctx, o)
-		if err != nil {
-			log.Error(err, "cannot update CR")
-		}
-	}()
-
 	// Check preconditions
 	log.Info("checking preconditions")
 	check, err := h.checkPreconditions(o)
@@ -141,6 +130,24 @@ func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client
 		log.Info("preconditions are not met, requeue")
 		return ctrl.Result{Requeue: true, RequeueAfter: requeueTimeout}, nil
 	}
+
+	defer func() {
+		var result error
+
+		err := c.Status().Update(ctx, o)
+		if err != nil {
+			log.Error(err, "cannot update CR status")
+			result = multierror.Append(result, err)
+		}
+
+		err = c.Update(ctx, o)
+		if err != nil {
+			log.Error(err, "cannot update CR")
+			result = multierror.Append(result, err)
+		}
+
+		rErr = multierror.Append(rErr, result)
+	}()
 
 	log.Info("checking if generation was processed")
 	if !c.processed(o) {

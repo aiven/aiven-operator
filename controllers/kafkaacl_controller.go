@@ -155,6 +155,9 @@ func (h KafkaACLHandler) checkPreconditions(i client.Object) (bool, error) {
 		return false, err
 	}
 
+	meta.SetStatusCondition(&acl.Status.Conditions,
+		getInitializedCondition("Preconditions", "Checking preconditions"))
+
 	return checkServiceIsRunning(h.client, acl.Spec.Project, acl.Spec.ServiceName)
 }
 

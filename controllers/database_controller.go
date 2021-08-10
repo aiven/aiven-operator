@@ -146,6 +146,9 @@ func (h DatabaseHandler) checkPreconditions(i client.Object) (bool, error) {
 		return false, err
 	}
 
+	meta.SetStatusCondition(&db.Status.Conditions,
+		getInitializedCondition("Preconditions", "Checking preconditions"))
+
 	return checkServiceIsRunning(h.client, db.Spec.Project, db.Spec.ServiceName)
 }
 
