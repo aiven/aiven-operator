@@ -133,6 +133,10 @@ type ServiceIntegration struct {
 	Status ServiceIntegrationStatus `json:"status,omitempty"`
 }
 
+func (svcint ServiceIntegration) AuthSecretRef() AuthSecretReference {
+	return svcint.Spec.AuthSecretRef
+}
+
 // +kubebuilder:object:root=true
 
 // ServiceIntegrationList contains a list of ServiceIntegration

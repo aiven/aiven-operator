@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Aiven, Helsinki, Finland. https://aiven.io/
+// Copyright (c) 2021 Aiven, Helsinki, Finland. https://aiven.io/
 
 package controllers
 
@@ -7,14 +7,14 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client"
-	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 )
 
 // ServiceUserReconciler reconciles a ServiceUser object
@@ -22,45 +22,28 @@ type ServiceUserReconciler struct {
 	Controller
 }
 
-type ServiceUserHandler struct {
-	Handlers
-	client *aiven.Client
-}
+type ServiceUserHandler struct{}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=serviceusers,verbs=get;list;watch;create;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=serviceusers/status,verbs=get
 
 func (r *ServiceUserReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	su := &k8soperatorv1alpha1.ServiceUser{}
-	err := r.Get(ctx, req.NamespacedName, su)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			return ctrl.Result{}, nil
-		}
-		return ctrl.Result{}, err
-	}
-
-	c, err := r.InitAivenClient(ctx, req, su.Spec.AuthSecretRef)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	return r.reconcileInstance(ctx, ServiceUserHandler{client: c}, su)
+	return r.reconcileInstance(ctx, req, ServiceUserHandler{}, &v1alpha1.ServiceUser{})
 }
 
 func (r *ServiceUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&k8soperatorv1alpha1.ServiceUser{}).
+		For(&v1alpha1.ServiceUser{}).
 		Complete(r)
 }
 
-func (h ServiceUserHandler) createOrUpdate(i client.Object) error {
+func (h ServiceUserHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 	user, err := h.convert(i)
 	if err != nil {
 		return err
 	}
 
-	u, err := h.client.ServiceUsers.Create(user.Spec.Project, user.Spec.ServiceName,
+	u, err := avn.ServiceUsers.Create(user.Spec.Project, user.Spec.ServiceName,
 		aiven.CreateServiceUserRequest{
 			Username: user.Name,
 			AccessControl: aiven.AccessControl{
@@ -86,18 +69,18 @@ func (h ServiceUserHandler) createOrUpdate(i client.Object) error {
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&user.ObjectMeta,
-		processedGeneration, strconv.FormatInt(user.GetGeneration(), formatIntBaseDecimal))
+		processedGenerationAnnotation, strconv.FormatInt(user.GetGeneration(), formatIntBaseDecimal))
 
 	return nil
 }
 
-func (h ServiceUserHandler) delete(i client.Object) (bool, error) {
+func (h ServiceUserHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
 	user, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	err = h.client.ServiceUsers.Delete(user.Spec.Project, user.Spec.ServiceName, user.Name)
+	err = avn.ServiceUsers.Delete(user.Spec.Project, user.Spec.ServiceName, user.Name)
 	if !aiven.IsNotFound(err) {
 		return false, err
 	}
@@ -105,25 +88,25 @@ func (h ServiceUserHandler) delete(i client.Object) (bool, error) {
 	return true, nil
 }
 
-func (h ServiceUserHandler) get(i client.Object) (*corev1.Secret, error) {
+func (h ServiceUserHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, error) {
 	user, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
-	u, err := h.client.ServiceUsers.Get(user.Spec.Project, user.Spec.ServiceName, user.Name)
+	u, err := avn.ServiceUsers.Get(user.Spec.Project, user.Spec.ServiceName, user.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	s, err := h.client.Services.Get(user.Spec.Project, user.Spec.ServiceName)
+	s, err := avn.Services.Get(user.Spec.Project, user.Spec.ServiceName)
 	if err != nil {
 		return nil, err
 	}
 
 	params := s.URIParams
 
-	caCert, err := h.client.CA.Get(user.Spec.Project)
+	caCert, err := avn.CA.Get(user.Spec.Project)
 	if err != nil {
 		return nil, fmt.Errorf("aiven client error %w", err)
 	}
@@ -132,7 +115,7 @@ func (h ServiceUserHandler) get(i client.Object) (*corev1.Secret, error) {
 		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 			"Instance is running on Aiven side"))
 
-	metav1.SetMetaDataAnnotation(&user.ObjectMeta, isRunning, "true")
+	metav1.SetMetaDataAnnotation(&user.ObjectMeta, instanceIsRunningAnnotation, "true")
 
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -151,14 +134,14 @@ func (h ServiceUserHandler) get(i client.Object) (*corev1.Secret, error) {
 	}, nil
 }
 
-func (h ServiceUserHandler) getSecretName(user *k8soperatorv1alpha1.ServiceUser) string {
+func (h ServiceUserHandler) getSecretName(user *v1alpha1.ServiceUser) string {
 	if user.Spec.ConnInfoSecretTarget.Name != "" {
 		return user.Spec.ConnInfoSecretTarget.Name
 	}
 	return user.Name
 }
 
-func (h ServiceUserHandler) checkPreconditions(i client.Object) (bool, error) {
+func (h ServiceUserHandler) checkPreconditions(avn *aiven.Client, i client.Object) (bool, error) {
 	user, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -167,11 +150,11 @@ func (h ServiceUserHandler) checkPreconditions(i client.Object) (bool, error) {
 	meta.SetStatusCondition(&user.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsRunning(h.client, user.Spec.Project, user.Spec.ServiceName)
+	return checkServiceIsRunning(avn, user.Spec.Project, user.Spec.ServiceName)
 }
 
-func (h ServiceUserHandler) convert(i client.Object) (*k8soperatorv1alpha1.ServiceUser, error) {
-	db, ok := i.(*k8soperatorv1alpha1.ServiceUser)
+func (h ServiceUserHandler) convert(i client.Object) (*v1alpha1.ServiceUser, error) {
+	db, ok := i.(*v1alpha1.ServiceUser)
 	if !ok {
 		return nil, fmt.Errorf("cannot convert object to ServiceUser")
 	}

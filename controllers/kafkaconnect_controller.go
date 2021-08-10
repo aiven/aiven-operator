@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Aiven, Helsinki, Finland. https://aiven.io/
+// Copyright (c) 2021 Aiven, Helsinki, Finland. https://aiven.io/
 
 package controllers
 
@@ -7,14 +7,14 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client"
-	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 )
 
 // KafkaConnectReconciler reconciles a KafkaConnect object
@@ -22,47 +22,28 @@ type KafkaConnectReconciler struct {
 	Controller
 }
 
-type KafkaConnectHandler struct {
-	Handlers
-	client *aiven.Client
-}
+type KafkaConnectHandler struct{}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkaconnects,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkaconnects/status,verbs=get;update;patch
 
 func (r *KafkaConnectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	kc := &k8soperatorv1alpha1.KafkaConnect{}
-	err := r.Get(ctx, req.NamespacedName, kc)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			return ctrl.Result{}, nil
-		}
-		return ctrl.Result{}, err
-	}
-
-	c, err := r.InitAivenClient(ctx, req, kc.Spec.AuthSecretRef)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	return r.reconcileInstance(ctx, KafkaConnectHandler{
-		client: c,
-	}, kc)
+	return r.reconcileInstance(ctx, req, KafkaConnectHandler{}, &v1alpha1.KafkaConnect{})
 }
 
 func (r *KafkaConnectReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&k8soperatorv1alpha1.KafkaConnect{}).
+		For(&v1alpha1.KafkaConnect{}).
 		Complete(r)
 }
 
-func (h KafkaConnectHandler) exists(i client.Object) (bool, error) {
+func (h KafkaConnectHandler) exists(avn *aiven.Client, i client.Object) (bool, error) {
 	kc, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	s, err := h.client.Services.Get(kc.Spec.Project, kc.Name)
+	s, err := avn.Services.Get(kc.Spec.Project, kc.Name)
 	if aiven.IsNotFound(err) {
 		return false, nil
 	}
@@ -70,7 +51,7 @@ func (h KafkaConnectHandler) exists(i client.Object) (bool, error) {
 	return s != nil, nil
 }
 
-func (h KafkaConnectHandler) createOrUpdate(i client.Object) error {
+func (h KafkaConnectHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 	kc, err := h.convert(i)
 	if err != nil {
 		return err
@@ -81,13 +62,13 @@ func (h KafkaConnectHandler) createOrUpdate(i client.Object) error {
 		prVPCID = &kc.Spec.ProjectVPCID
 	}
 
-	exits, err := h.exists(i)
+	exits, err := h.exists(avn, i)
 	if err != nil {
 		return err
 	}
 	var reason string
 	if !exits {
-		_, err := h.client.Services.Create(kc.Spec.Project, aiven.CreateServiceRequest{
+		_, err := avn.Services.Create(kc.Spec.Project, aiven.CreateServiceRequest{
 			Cloud: kc.Spec.CloudName,
 			MaintenanceWindow: getMaintenanceWindow(
 				kc.Spec.MaintenanceWindowDow,
@@ -105,7 +86,7 @@ func (h KafkaConnectHandler) createOrUpdate(i client.Object) error {
 
 		reason = "Created"
 	} else {
-		_, err := h.client.Services.Update(kc.Spec.Project, kc.Name, aiven.UpdateServiceRequest{
+		_, err := avn.Services.Update(kc.Spec.Project, kc.Name, aiven.UpdateServiceRequest{
 			Cloud: kc.Spec.CloudName,
 			MaintenanceWindow: getMaintenanceWindow(
 				kc.Spec.MaintenanceWindowDow,
@@ -131,18 +112,18 @@ func (h KafkaConnectHandler) createOrUpdate(i client.Object) error {
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&kc.ObjectMeta,
-		processedGeneration, strconv.FormatInt(kc.GetGeneration(), formatIntBaseDecimal))
+		processedGenerationAnnotation, strconv.FormatInt(kc.GetGeneration(), formatIntBaseDecimal))
 
 	return nil
 }
 
-func (h KafkaConnectHandler) delete(i client.Object) (bool, error) {
+func (h KafkaConnectHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
 	kc, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	if err := h.client.Services.Delete(kc.Spec.Project, kc.Name); err != nil {
+	if err := avn.Services.Delete(kc.Spec.Project, kc.Name); err != nil {
 		if !aiven.IsNotFound(err) {
 			return false, fmt.Errorf("aiven client delete KafkaConnect error: %w", err)
 		}
@@ -151,13 +132,13 @@ func (h KafkaConnectHandler) delete(i client.Object) (bool, error) {
 	return true, nil
 }
 
-func (h KafkaConnectHandler) get(i client.Object) (*corev1.Secret, error) {
+func (h KafkaConnectHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, error) {
 	kc, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
-	s, err := h.client.Services.Get(kc.Spec.Project, kc.Name)
+	s, err := avn.Services.Get(kc.Spec.Project, kc.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -169,14 +150,14 @@ func (h KafkaConnectHandler) get(i client.Object) (*corev1.Secret, error) {
 			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 				"Instance is running on Aiven side"))
 
-		metav1.SetMetaDataAnnotation(&kc.ObjectMeta, isRunning, "true")
+		metav1.SetMetaDataAnnotation(&kc.ObjectMeta, instanceIsRunningAnnotation, "true")
 	}
 
 	return nil, nil
 }
 
-func (h KafkaConnectHandler) convert(i client.Object) (*k8soperatorv1alpha1.KafkaConnect, error) {
-	kc, ok := i.(*k8soperatorv1alpha1.KafkaConnect)
+func (h KafkaConnectHandler) convert(i client.Object) (*v1alpha1.KafkaConnect, error) {
+	kc, ok := i.(*v1alpha1.KafkaConnect)
 	if !ok {
 		return nil, fmt.Errorf("cannot convert object to KafkaConnect")
 	}
@@ -184,6 +165,6 @@ func (h KafkaConnectHandler) convert(i client.Object) (*k8soperatorv1alpha1.Kafk
 	return kc, nil
 }
 
-func (h KafkaConnectHandler) checkPreconditions(client.Object) (bool, error) {
+func (h KafkaConnectHandler) checkPreconditions(_ *aiven.Client, _ client.Object) (bool, error) {
 	return true, nil
 }

@@ -396,6 +396,10 @@ type PG struct {
 	Status ServiceStatus `json:"status,omitempty"`
 }
 
+func (pg PG) AuthSecretRef() AuthSecretReference {
+	return pg.Spec.AuthSecretRef
+}
+
 // +kubebuilder:object:root=true
 
 // PGList contains a list of PG

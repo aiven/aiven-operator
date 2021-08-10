@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Aiven, Helsinki, Finland. https://aiven.io/
+// Copyright (c) 2021 Aiven, Helsinki, Finland. https://aiven.io/
 
 package controllers
 
@@ -7,14 +7,14 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client"
-	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 )
 
 // KafkaReconciler reconciles a Kafka object
@@ -23,66 +23,42 @@ type KafkaReconciler struct {
 }
 
 // KafkaHandler handles an Aiven Kafka service
-type KafkaHandler struct {
-	Handlers
-	client *aiven.Client
-}
+type KafkaHandler struct{}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkas,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkas/status,verbs=get;update;patch
 
 func (r *KafkaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	kafka := &k8soperatorv1alpha1.Kafka{}
-	err := r.Get(ctx, req.NamespacedName, kafka)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			return ctrl.Result{}, nil
-		}
-		return ctrl.Result{}, err
-	}
-
-	c, err := r.InitAivenClient(ctx, req, kafka.Spec.AuthSecretRef)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	return r.reconcileInstance(ctx, KafkaHandler{
-		client: c,
-	}, kafka)
+	return r.reconcileInstance(ctx, req, KafkaHandler{}, &v1alpha1.Kafka{})
 }
 
 func (r *KafkaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&k8soperatorv1alpha1.Kafka{}).
+		For(&v1alpha1.Kafka{}).
 		Owns(&corev1.Secret{}).
 		Complete(r)
 }
 
-func (h KafkaHandler) createOrUpdate(i client.Object) error {
+func (h KafkaHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 	kafka, err := h.convert(i)
 	if err != nil {
 		return err
 	}
 
-	var prVPCID *string
-	if kafka.Spec.ProjectVPCID != "" {
-		prVPCID = &kafka.Spec.ProjectVPCID
-	}
-
-	exists, err := h.exists(kafka)
+	exists, err := h.exists(avn, kafka)
 	if err != nil {
 		return err
 	}
 
 	var reason string
 	if !exists {
-		_, err = h.client.Services.Create(kafka.Spec.Project, aiven.CreateServiceRequest{
+		_, err = avn.Services.Create(kafka.Spec.Project, aiven.CreateServiceRequest{
 			Cloud: kafka.Spec.CloudName,
 			MaintenanceWindow: getMaintenanceWindow(
 				kafka.Spec.MaintenanceWindowDow,
 				kafka.Spec.MaintenanceWindowTime),
 			Plan:                kafka.Spec.Plan,
-			ProjectVPCID:        prVPCID,
+			ProjectVPCID:        toOptionalStringPointer(kafka.Spec.ProjectVPCID),
 			ServiceName:         kafka.Name,
 			ServiceType:         "kafka",
 			UserConfig:          UserConfigurationToAPI(kafka.Spec.KafkaUserConfig).(map[string]interface{}),
@@ -94,13 +70,13 @@ func (h KafkaHandler) createOrUpdate(i client.Object) error {
 
 		reason = "Created"
 	} else {
-		_, err := h.client.Services.Update(kafka.Spec.Project, kafka.Name, aiven.UpdateServiceRequest{
+		_, err := avn.Services.Update(kafka.Spec.Project, kafka.Name, aiven.UpdateServiceRequest{
 			Cloud: kafka.Spec.CloudName,
 			MaintenanceWindow: getMaintenanceWindow(
 				kafka.Spec.MaintenanceWindowDow,
 				kafka.Spec.MaintenanceWindowTime),
 			Plan:         kafka.Spec.Plan,
-			ProjectVPCID: prVPCID,
+			ProjectVPCID: toOptionalStringPointer(kafka.Spec.ProjectVPCID),
 			UserConfig:   UserConfigurationToAPI(kafka.Spec.KafkaUserConfig).(map[string]interface{}),
 			Powered:      true,
 		})
@@ -120,19 +96,19 @@ func (h KafkaHandler) createOrUpdate(i client.Object) error {
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&kafka.ObjectMeta,
-		processedGeneration, strconv.FormatInt(kafka.GetGeneration(), formatIntBaseDecimal))
+		processedGenerationAnnotation, strconv.FormatInt(kafka.GetGeneration(), formatIntBaseDecimal))
 
 	return nil
 }
 
-func (h KafkaHandler) delete(i client.Object) (bool, error) {
+func (h KafkaHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
 	kafka, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
 	// Delete project on Aiven side
-	if err := h.client.Services.Delete(kafka.Spec.Project, kafka.Name); err != nil {
+	if err := avn.Services.Delete(kafka.Spec.Project, kafka.Name); err != nil {
 		if !aiven.IsNotFound(err) {
 			return false, fmt.Errorf("aiven client delete Kafka error: %w", err)
 		}
@@ -141,8 +117,8 @@ func (h KafkaHandler) delete(i client.Object) (bool, error) {
 	return true, nil
 }
 
-func (h KafkaHandler) exists(kafka *k8soperatorv1alpha1.Kafka) (bool, error) {
-	s, err := h.client.Services.Get(kafka.Spec.Project, kafka.Name)
+func (h KafkaHandler) exists(avn *aiven.Client, kafka *v1alpha1.Kafka) (bool, error) {
+	s, err := avn.Services.Get(kafka.Spec.Project, kafka.Name)
 	if aiven.IsNotFound(err) {
 		return false, nil
 	}
@@ -150,13 +126,13 @@ func (h KafkaHandler) exists(kafka *k8soperatorv1alpha1.Kafka) (bool, error) {
 	return s != nil, nil
 }
 
-func (h KafkaHandler) get(i client.Object) (*corev1.Secret, error) {
+func (h KafkaHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, error) {
 	kafka, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
-	s, err := h.client.Services.Get(kafka.Spec.Project, kafka.Name)
+	s, err := avn.Services.Get(kafka.Spec.Project, kafka.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -175,10 +151,10 @@ func (h KafkaHandler) get(i client.Object) (*corev1.Secret, error) {
 			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 				"Instance is running on Aiven side"))
 
-		metav1.SetMetaDataAnnotation(&kafka.ObjectMeta, isRunning, "true")
+		metav1.SetMetaDataAnnotation(&kafka.ObjectMeta, instanceIsRunningAnnotation, "true")
 	}
 
-	caCert, err := h.client.CA.Get(kafka.Spec.Project)
+	caCert, err := avn.CA.Get(kafka.Spec.Project)
 	if err != nil {
 		return nil, fmt.Errorf("aiven client error %w", err)
 	}
@@ -200,12 +176,12 @@ func (h KafkaHandler) get(i client.Object) (*corev1.Secret, error) {
 	}, nil
 }
 
-func (h KafkaHandler) checkPreconditions(_ client.Object) (bool, error) {
+func (h KafkaHandler) checkPreconditions(_ *aiven.Client, _ client.Object) (bool, error) {
 	return true, nil
 }
 
-func (h KafkaHandler) convert(i client.Object) (*k8soperatorv1alpha1.Kafka, error) {
-	kafka, ok := i.(*k8soperatorv1alpha1.Kafka)
+func (h KafkaHandler) convert(i client.Object) (*v1alpha1.Kafka, error) {
+	kafka, ok := i.(*v1alpha1.Kafka)
 	if !ok {
 		return nil, fmt.Errorf("cannot convert object to Kafka")
 	}
@@ -213,7 +189,7 @@ func (h KafkaHandler) convert(i client.Object) (*k8soperatorv1alpha1.Kafka, erro
 	return kafka, nil
 }
 
-func (h KafkaHandler) getSecretName(kafka *k8soperatorv1alpha1.Kafka) string {
+func (h KafkaHandler) getSecretName(kafka *v1alpha1.Kafka) string {
 	if kafka.Spec.ConnInfoSecretTarget.Name != "" {
 		return kafka.Spec.ConnInfoSecretTarget.Name
 	}

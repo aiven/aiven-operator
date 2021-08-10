@@ -7,14 +7,14 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client"
-	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 )
 
 // PGReconciler reconciles a PG object
@@ -23,43 +23,24 @@ type PGReconciler struct {
 }
 
 // PGHandler handles an Aiven PG service
-type PGHandler struct {
-	Handlers
-	client *aiven.Client
-}
+type PGHandler struct{}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=pgs,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=pgs/status,verbs=get;update;patch
 
 func (r *PGReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	pg := &k8soperatorv1alpha1.PG{}
-	err := r.Get(ctx, req.NamespacedName, pg)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			return ctrl.Result{}, nil
-		}
-		return ctrl.Result{}, err
-	}
-
-	c, err := r.InitAivenClient(ctx, req, pg.Spec.AuthSecretRef)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	return r.reconcileInstance(ctx, PGHandler{
-		client: c,
-	}, pg)
+	return r.reconcileInstance(ctx, req, PGHandler{}, &v1alpha1.PG{})
 }
 
 func (r *PGReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&k8soperatorv1alpha1.PG{}).
+		For(&v1alpha1.PG{}).
 		Owns(&corev1.Secret{}).
 		Complete(r)
 }
 
-func (h PGHandler) exists(pg *k8soperatorv1alpha1.PG) (bool, error) {
-	s, err := h.client.Services.Get(pg.Spec.Project, pg.Name)
+func (h PGHandler) exists(avn *aiven.Client, pg *v1alpha1.PG) (bool, error) {
+	s, err := avn.Services.Get(pg.Spec.Project, pg.Name)
 	if aiven.IsNotFound(err) {
 		return false, nil
 	}
@@ -67,7 +48,7 @@ func (h PGHandler) exists(pg *k8soperatorv1alpha1.PG) (bool, error) {
 	return s != nil, nil
 }
 
-func (h PGHandler) createOrUpdate(i client.Object) error {
+func (h PGHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 	pg, err := h.convert(i)
 	if err != nil {
 		return err
@@ -78,14 +59,14 @@ func (h PGHandler) createOrUpdate(i client.Object) error {
 		prVPCID = &pg.Spec.ProjectVPCID
 	}
 
-	exists, err := h.exists(pg)
+	exists, err := h.exists(avn, pg)
 	if err != nil {
 		return err
 	}
 
 	var reason string
 	if !exists {
-		_, err := h.client.Services.Create(pg.Spec.Project, aiven.CreateServiceRequest{
+		_, err := avn.Services.Create(pg.Spec.Project, aiven.CreateServiceRequest{
 			Cloud: pg.Spec.CloudName,
 			MaintenanceWindow: getMaintenanceWindow(
 				pg.Spec.MaintenanceWindowDow,
@@ -103,7 +84,7 @@ func (h PGHandler) createOrUpdate(i client.Object) error {
 
 		reason = "Created"
 	} else {
-		_, err := h.client.Services.Update(pg.Spec.Project, pg.Name, aiven.UpdateServiceRequest{
+		_, err := avn.Services.Update(pg.Spec.Project, pg.Name, aiven.UpdateServiceRequest{
 			Cloud: pg.Spec.CloudName,
 			MaintenanceWindow: getMaintenanceWindow(
 				pg.Spec.MaintenanceWindowDow,
@@ -129,34 +110,33 @@ func (h PGHandler) createOrUpdate(i client.Object) error {
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&pg.ObjectMeta,
-		processedGeneration, strconv.FormatInt(pg.GetGeneration(), formatIntBaseDecimal))
+		processedGenerationAnnotation, strconv.FormatInt(pg.GetGeneration(), formatIntBaseDecimal))
 
 	return nil
 }
 
 // delete deletes Aiven PG service
-func (h PGHandler) delete(i client.Object) (bool, error) {
+func (h PGHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
 	pg, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
 	// Delete PG on Aiven side
-	if err := h.client.Services.Delete(pg.Spec.Project, pg.Name); err != nil && !aiven.IsNotFound(err) {
+	if err := avn.Services.Delete(pg.Spec.Project, pg.Name); err != nil && !aiven.IsNotFound(err) {
 		return false, fmt.Errorf("aiven client delete pg error: %w", err)
 	}
 
 	return true, nil
 }
 
-// getSecret retrieves a PG service secret
-func (h PGHandler) get(i client.Object) (*corev1.Secret, error) {
+func (h PGHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, error) {
 	pg, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
-	s, err := h.client.Services.Get(pg.Spec.Project, pg.Name)
+	s, err := avn.Services.Get(pg.Spec.Project, pg.Name)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get pg: %w", err)
 	}
@@ -168,7 +148,7 @@ func (h PGHandler) get(i client.Object) (*corev1.Secret, error) {
 			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 				"Instance is running on Aiven side"))
 
-		metav1.SetMetaDataAnnotation(&pg.ObjectMeta, isRunning, "true")
+		metav1.SetMetaDataAnnotation(&pg.ObjectMeta, instanceIsRunningAnnotation, "true")
 	}
 
 	return &corev1.Secret{
@@ -188,15 +168,15 @@ func (h PGHandler) get(i client.Object) (*corev1.Secret, error) {
 	}, nil
 }
 
-func (h PGHandler) getSecretName(pg *k8soperatorv1alpha1.PG) string {
+func (h PGHandler) getSecretName(pg *v1alpha1.PG) string {
 	if pg.Spec.ConnInfoSecretTarget.Name != "" {
 		return pg.Spec.ConnInfoSecretTarget.Name
 	}
 	return pg.Name
 }
 
-func (h PGHandler) convert(i client.Object) (*k8soperatorv1alpha1.PG, error) {
-	pg, ok := i.(*k8soperatorv1alpha1.PG)
+func (h PGHandler) convert(i client.Object) (*v1alpha1.PG, error) {
+	pg, ok := i.(*v1alpha1.PG)
 	if !ok {
 		return nil, fmt.Errorf("cannot convert object to PG")
 	}
@@ -204,6 +184,6 @@ func (h PGHandler) convert(i client.Object) (*k8soperatorv1alpha1.PG, error) {
 	return pg, nil
 }
 
-func (h PGHandler) checkPreconditions(client.Object) (bool, error) {
+func (h PGHandler) checkPreconditions(_ *aiven.Client, _ client.Object) (bool, error) {
 	return true, nil
 }

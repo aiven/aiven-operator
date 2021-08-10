@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Aiven, Helsinki, Finland. https://aiven.io/
+// Copyright (c) 2021 Aiven, Helsinki, Finland. https://aiven.io/
 
 package v1alpha1
 
@@ -56,6 +56,10 @@ type KafkaSchema struct {
 
 	Spec   KafkaSchemaSpec   `json:"spec,omitempty"`
 	Status KafkaSchemaStatus `json:"status,omitempty"`
+}
+
+func (kfks KafkaSchema) AuthSecretRef() AuthSecretReference {
+	return kfks.Spec.AuthSecretRef
 }
 
 // +kubebuilder:object:root=true

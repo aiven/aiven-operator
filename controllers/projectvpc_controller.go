@@ -7,14 +7,14 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client"
-	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 )
 
 // ProjectVPCReconciler reconciles a ProjectVPC object
@@ -22,47 +22,28 @@ type ProjectVPCReconciler struct {
 	Controller
 }
 
-type ProjectVPCHandler struct {
-	Handlers
-	client *aiven.Client
-}
+type ProjectVPCHandler struct{}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=projectvpcs,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=projectvpcs/status,verbs=get;update;patch
 
 func (r *ProjectVPCReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	vpc := &k8soperatorv1alpha1.ProjectVPC{}
-	err := r.Get(ctx, req.NamespacedName, vpc)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			return ctrl.Result{}, nil
-		}
-		return ctrl.Result{}, err
-	}
-
-	c, err := r.InitAivenClient(ctx, req, vpc.Spec.AuthSecretRef)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	return r.reconcileInstance(ctx, ProjectVPCHandler{
-		client: c,
-	}, vpc)
+	return r.reconcileInstance(ctx, req, ProjectVPCHandler{}, &v1alpha1.ProjectVPC{})
 }
 
 func (r *ProjectVPCReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&k8soperatorv1alpha1.ProjectVPC{}).
+		For(&v1alpha1.ProjectVPC{}).
 		Complete(r)
 }
 
-func (h ProjectVPCHandler) createOrUpdate(i client.Object) error {
+func (h ProjectVPCHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 	projectVPC, err := h.convert(i)
 	if err != nil {
 		return err
 	}
 
-	vpc, err := h.client.VPCs.Create(projectVPC.Spec.Project, aiven.CreateVPCRequest{
+	vpc, err := avn.VPCs.Create(projectVPC.Spec.Project, aiven.CreateVPCRequest{
 		CloudName:   projectVPC.Spec.CloudName,
 		NetworkCIDR: projectVPC.Spec.NetworkCidr,
 	})
@@ -81,18 +62,18 @@ func (h ProjectVPCHandler) createOrUpdate(i client.Object) error {
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&projectVPC.ObjectMeta,
-		processedGeneration, strconv.FormatInt(projectVPC.GetGeneration(), formatIntBaseDecimal))
+		processedGenerationAnnotation, strconv.FormatInt(projectVPC.GetGeneration(), formatIntBaseDecimal))
 
 	return nil
 }
 
-func (h ProjectVPCHandler) delete(i client.Object) (bool, error) {
+func (h ProjectVPCHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
 	projectVPC, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	vpc, err := h.getVPC(projectVPC)
+	vpc, err := h.getVPC(avn, projectVPC)
 	if err != nil {
 		return false, err
 	}
@@ -103,7 +84,7 @@ func (h ProjectVPCHandler) delete(i client.Object) (bool, error) {
 
 	if vpc.State != "DELETING" && vpc.State != "DELETED" {
 		// Delete project VPC on Aiven side
-		if err := h.client.VPCs.Delete(projectVPC.Spec.Project, projectVPC.Status.ID); err != nil && !aiven.IsNotFound(err) {
+		if err := avn.VPCs.Delete(projectVPC.Spec.Project, projectVPC.Status.ID); err != nil && !aiven.IsNotFound(err) {
 			return false, err
 		}
 	}
@@ -115,8 +96,8 @@ func (h ProjectVPCHandler) delete(i client.Object) (bool, error) {
 	return false, nil
 }
 
-func (h ProjectVPCHandler) getVPC(projectVPC *k8soperatorv1alpha1.ProjectVPC) (*aiven.VPC, error) {
-	vpcs, err := h.client.VPCs.List(projectVPC.Spec.Project)
+func (h ProjectVPCHandler) getVPC(avn *aiven.Client, projectVPC *v1alpha1.ProjectVPC) (*aiven.VPC, error) {
+	vpcs, err := avn.VPCs.List(projectVPC.Spec.Project)
 	if err != nil {
 		return nil, err
 	}
@@ -130,13 +111,13 @@ func (h ProjectVPCHandler) getVPC(projectVPC *k8soperatorv1alpha1.ProjectVPC) (*
 	return nil, nil
 }
 
-func (h ProjectVPCHandler) get(i client.Object) (*corev1.Secret, error) {
+func (h ProjectVPCHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, error) {
 	projectVPC, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
-	vpc, err := h.getVPC(projectVPC)
+	vpc, err := h.getVPC(avn, projectVPC)
 	if err != nil {
 		return nil, err
 	}
@@ -146,18 +127,18 @@ func (h ProjectVPCHandler) get(i client.Object) (*corev1.Secret, error) {
 			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 				"Instance is running on Aiven side"))
 
-		metav1.SetMetaDataAnnotation(&projectVPC.ObjectMeta, isRunning, "true")
+		metav1.SetMetaDataAnnotation(&projectVPC.ObjectMeta, instanceIsRunningAnnotation, "true")
 	}
 
 	return nil, nil
 }
 
-func (h ProjectVPCHandler) checkPreconditions(client.Object) (bool, error) {
+func (h ProjectVPCHandler) checkPreconditions(_ *aiven.Client, _ client.Object) (bool, error) {
 	return true, nil
 }
 
-func (h *ProjectVPCHandler) convert(i client.Object) (*k8soperatorv1alpha1.ProjectVPC, error) {
-	vpc, ok := i.(*k8soperatorv1alpha1.ProjectVPC)
+func (h *ProjectVPCHandler) convert(i client.Object) (*v1alpha1.ProjectVPC, error) {
+	vpc, ok := i.(*v1alpha1.ProjectVPC)
 	if !ok {
 		return nil, fmt.Errorf("cannot convert object to ProjectVPC")
 	}
