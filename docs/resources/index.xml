@@ -4,7 +4,7 @@
 &lt;blockquote>
 &lt;p>Before going through this guide, make sure you have a &lt;a href="../installation/prerequisites/">Kubernetes cluster&lt;/a> with the &lt;a href="../installation/">operator installed&lt;/a>, and a &lt;a href="../authentication/">Kubernetes Secret with an Aiven authentication token&lt;/a>.&lt;/p>
 &lt;/blockquote>
-&lt;h1 id="creating-an-aiven-vpc">Creating an Aiven VPC&lt;/h1>
+&lt;h2 id="creating-an-aiven-vpc">Creating an Aiven VPC&lt;/h2>
 &lt;ol>
 &lt;li>Create a file named &lt;code>vpc-sample.yaml&lt;/code> with the following content:&lt;/li>
 &lt;/ol>
@@ -32,7 +32,7 @@
 &lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get projects.aiven.io vpc-sample
 NAME PROJECT CLOUD NETWORK CIDR
 vpc-sample &amp;lt;your-project&amp;gt; aws-af-south-1 192.168.0.0/24
-&lt;/code>&lt;/pre>&lt;/div>&lt;h1 id="using-the-aiven-vpc">Using the Aiven VPC&lt;/h1>
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="using-the-aiven-vpc">Using the Aiven VPC&lt;/h2>
 &lt;p>Follow the official &lt;a href="https://help.aiven.io/en/articles/778836-using-virtual-private-cloud-vpc-peering">VPC documentation&lt;/a> to complete the VPC peering on your cloud of choice.&lt;/p></description></item><item><title>Docs: Kafka</title><link>https://aiven.github.io/aiven-kubernetes-operator/docs/resources/kafka/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-kubernetes-operator/docs/resources/kafka/</guid><description>
 &lt;p>Aiven for Kafka is an excellent option if you need to run Apache Kafka at scale.
 With Aiven Kubernetes Operator you can get up and running with a suitably sized Apache Kafka service in a few minutes.&lt;/p>
@@ -590,4 +590,94 @@ PostgreSQL 11.12 on x86_64-pc-linux-gnu, compiled by gcc, a 68c5366192 p 6b9244f
 &lt;span style="color:#e6db74">&amp;#34;PGSSLMODE&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;require&amp;#34;&lt;/span>,
 &lt;span style="color:#e6db74">&amp;#34;PGUSER&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;pg-service-user&amp;#34;&lt;/span>
 &lt;span style="color:#f92672">}&lt;/span>
-&lt;/code>&lt;/pre>&lt;/div></description></item></channel></rss>
+&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Docs: Service Integrations</title><link>https://aiven.github.io/aiven-kubernetes-operator/docs/resources/service-integrations/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-kubernetes-operator/docs/resources/service-integrations/</guid><description>
+&lt;p>Service Integrations provide additional functionality and features by connecting different Aiven services together.&lt;/p>
+&lt;p>See our &lt;a href="https://help.aiven.io/en/articles/1456441-getting-started-with-service-integrations">Getting Started with Service Integrations guide&lt;/a> for more information.&lt;/p>
+&lt;blockquote>
+&lt;p>Before going through this guide, make sure you have a &lt;a href="../installation/prerequisites/">Kubernetes cluster&lt;/a> with the &lt;a href="../installation/">operator installed&lt;/a>, and a &lt;a href="../authentication/">Kubernetes Secret with an Aiven authentication token&lt;/a>.&lt;/p>
+&lt;/blockquote>
+&lt;h2 id="send-kafka-logs-to-a-kafka-topic">Send Kafka logs to a Kafka Topic&lt;/h2>
+&lt;p>This integration allows you to send Kafka service logs to a specific Kafka Topic.&lt;/p>
+&lt;p>First, let&amp;rsquo;s create a Kafka service and a topic.&lt;/p>
+&lt;ol>
+&lt;li>Create a new file named &lt;code>kafka-sample-topic.yaml&lt;/code> with the following content:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">Kafka&lt;/span>
+&lt;span style="color:#f92672">metadata&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-sample&lt;/span>
+&lt;span style="color:#f92672">spec&lt;/span>:
+&lt;span style="color:#75715e"># gets the authentication token from the `aiven-token` Secret&lt;/span>
+&lt;span style="color:#f92672">authSecretRef&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">aiven-token&lt;/span>
+&lt;span style="color:#f92672">key&lt;/span>: &lt;span style="color:#ae81ff">token&lt;/span>
+&lt;span style="color:#75715e"># outputs the Kafka connection on the `kafka-connection` Secret&lt;/span>
+&lt;span style="color:#f92672">connInfoSecretTarget&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-auth&lt;/span>
+&lt;span style="color:#75715e"># add your Project name here&lt;/span>
+&lt;span style="color:#f92672">project&lt;/span>: &lt;span style="color:#ae81ff">&amp;lt;your-project-name&amp;gt;&lt;/span>
+&lt;span style="color:#75715e"># cloud provider and plan of your choice&lt;/span>
+&lt;span style="color:#75715e"># you can check all of the possibilities here https://aiven.io/pricing&lt;/span>
+&lt;span style="color:#f92672">cloudName&lt;/span>: &lt;span style="color:#ae81ff">google-europe-west1&lt;/span>
+&lt;span style="color:#f92672">plan&lt;/span>: &lt;span style="color:#ae81ff">startup-2&lt;/span>
+&lt;span style="color:#75715e"># general Aiven configuration&lt;/span>
+&lt;span style="color:#f92672">maintenanceWindowDow&lt;/span>: &lt;span style="color:#ae81ff">friday&lt;/span>
+&lt;span style="color:#f92672">maintenanceWindowTime&lt;/span>: &lt;span style="color:#ae81ff">23&lt;/span>:&lt;span style="color:#ae81ff">00&lt;/span>:&lt;span style="color:#ae81ff">00&lt;/span>
+&lt;span style="color:#75715e"># specific Kafka configuration&lt;/span>
+&lt;span style="color:#f92672">kafkaUserConfig&lt;/span>:
+&lt;span style="color:#f92672">kafka_version&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;2.7&amp;#39;&lt;/span>
+---
+&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">KafkaTopic&lt;/span>
+&lt;span style="color:#f92672">metadata&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">logs&lt;/span>
+&lt;span style="color:#f92672">spec&lt;/span>:
+&lt;span style="color:#f92672">authSecretRef&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">aiven-token&lt;/span>
+&lt;span style="color:#f92672">key&lt;/span>: &lt;span style="color:#ae81ff">token&lt;/span>
+&lt;span style="color:#f92672">project&lt;/span>: &lt;span style="color:#ae81ff">&amp;lt;your-project-name&amp;gt;&lt;/span>
+&lt;span style="color:#f92672">serviceName&lt;/span>: &lt;span style="color:#ae81ff">kafka-sample&lt;/span>
+&lt;span style="color:#75715e"># here we can specify how many partitions the topic should have&lt;/span>
+&lt;span style="color:#f92672">partitions&lt;/span>: &lt;span style="color:#ae81ff">3&lt;/span>
+&lt;span style="color:#75715e"># and the topic replication factor&lt;/span>
+&lt;span style="color:#f92672">replication&lt;/span>: &lt;span style="color:#ae81ff">2&lt;/span>
+&lt;span style="color:#75715e"># we also support various topic-specific configurations&lt;/span>
+&lt;span style="color:#f92672">config&lt;/span>:
+&lt;span style="color:#f92672">flush_ms&lt;/span>: &lt;span style="color:#ae81ff">100&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
+&lt;li>Create the resource on Kubernetes:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-sample-topic.yaml
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
+&lt;li>Now, create a &lt;code>ServiceIntegration&lt;/code> resource to send the Kafka logs to the created topic. In the same file, add the following YAML:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">ServiceIntegration&lt;/span>
+&lt;span style="color:#f92672">metadata&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">service-integration-kafka-logs&lt;/span>
+&lt;span style="color:#f92672">spec&lt;/span>:
+&lt;span style="color:#75715e"># gets the authentication token from the `aiven-token` Secret&lt;/span>
+&lt;span style="color:#f92672">authSecretRef&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">aiven-token&lt;/span>
+&lt;span style="color:#f92672">key&lt;/span>: &lt;span style="color:#ae81ff">token&lt;/span>
+&lt;span style="color:#f92672">project&lt;/span>: &lt;span style="color:#ae81ff">dev-advocates&lt;/span>
+&lt;span style="color:#75715e"># indicates the type of the integration&lt;/span>
+&lt;span style="color:#f92672">integrationType&lt;/span>: &lt;span style="color:#ae81ff">kafka_logs&lt;/span>
+&lt;span style="color:#75715e"># we will send the logs to the same kafka-sample instance&lt;/span>
+&lt;span style="color:#75715e"># the source and destination are the same&lt;/span>
+&lt;span style="color:#f92672">sourceServiceName&lt;/span>: &lt;span style="color:#ae81ff">kafka-sample&lt;/span>
+&lt;span style="color:#f92672">destinationServiceName&lt;/span>: &lt;span style="color:#ae81ff">kafka-sample&lt;/span>
+&lt;span style="color:#75715e"># the topic name we will send to&lt;/span>
+&lt;span style="color:#f92672">kafkaLogs&lt;/span>:
+&lt;span style="color:#f92672">kafka_topic&lt;/span>: &lt;span style="color:#ae81ff">logs&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="4">
+&lt;li>Reapply the resource on Kubernetes:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-sample-topic.yaml
+&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="5">
+&lt;li>Let&amp;rsquo;s check the created service integration:&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get serviceintegrations.aiven.io service-integration-kafka-logs
+NAME PROJECT TYPE SOURCE SERVICE NAME DESTINATION SERVICE NAME SOURCE ENDPOINT ID DESTINATION ENDPOINT ID
+service-integration-kafka-logs dev-advocates kafka_logs kafka-sample kafka-sample
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Your Kafka service logs are now being streamed to the &lt;code>logs&lt;/code> Kafka topic.&lt;/p></description></item></channel></rss>
