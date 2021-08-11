@@ -10,8 +10,7 @@ Within the Aiven Kubernetes Operator, you can create a `ProjectVPC` on Aiven's s
 
 > Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites/) with the [operator installed](../installation/), and a [Kubernetes Secret with an Aiven authentication token](../authentication/).
 
-# Creating an Aiven VPC
-
+## Creating an Aiven VPC
 1. Create a file named `vpc-sample.yaml` with the following content:
 ```yaml
 apiVersion: aiven.io/v1alpha1
@@ -46,5 +45,5 @@ NAME         PROJECT          CLOUD            NETWORK CIDR
 vpc-sample   <your-project>   aws-af-south-1   192.168.0.0/24
 ```
 
-# Using the Aiven VPC
+## Using the Aiven VPC
 Follow the official [VPC documentation](https://help.aiven.io/en/articles/778836-using-virtual-private-cloud-vpc-peering) to complete the VPC peering on your cloud of choice.
