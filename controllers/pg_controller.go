@@ -46,7 +46,7 @@ func (r *PGReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Re
 		return ctrl.Result{}, err
 	}
 
-	return r.reconcileInstance(ctx, &PGHandler{
+	return r.reconcileInstance(ctx, PGHandler{
 		client: c,
 	}, pg)
 }
@@ -67,10 +67,10 @@ func (h PGHandler) exists(pg *k8soperatorv1alpha1.PG) (bool, error) {
 	return s != nil, nil
 }
 
-func (h PGHandler) createOrUpdate(i client.Object) (client.Object, error) {
+func (h PGHandler) createOrUpdate(i client.Object) error {
 	pg, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	var prVPCID *string
@@ -80,7 +80,7 @@ func (h PGHandler) createOrUpdate(i client.Object) (client.Object, error) {
 
 	exists, err := h.exists(pg)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	var reason string
@@ -98,7 +98,7 @@ func (h PGHandler) createOrUpdate(i client.Object) (client.Object, error) {
 			ServiceIntegrations: nil,
 		})
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		reason = "Created"
@@ -114,7 +114,7 @@ func (h PGHandler) createOrUpdate(i client.Object) (client.Object, error) {
 			Powered:      true,
 		})
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		reason = "Updated"
@@ -131,7 +131,7 @@ func (h PGHandler) createOrUpdate(i client.Object) (client.Object, error) {
 	metav1.SetMetaDataAnnotation(&pg.ObjectMeta,
 		processedGeneration, strconv.FormatInt(pg.GetGeneration(), formatIntBaseDecimal))
 
-	return pg, nil
+	return nil
 }
 
 // delete deletes Aiven PG service
@@ -150,15 +150,15 @@ func (h PGHandler) delete(i client.Object) (bool, error) {
 }
 
 // getSecret retrieves a PG service secret
-func (h PGHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
+func (h PGHandler) get(i client.Object) (*corev1.Secret, error) {
 	pg, err := h.convert(i)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	s, err := h.client.Services.Get(pg.Spec.Project, pg.Name)
 	if err != nil {
-		return nil, nil, fmt.Errorf("cannot get pg: %w", err)
+		return nil, fmt.Errorf("cannot get pg: %w", err)
 	}
 
 	pg.Status.State = s.State
@@ -171,7 +171,7 @@ func (h PGHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
 		metav1.SetMetaDataAnnotation(&pg.ObjectMeta, isRunning, "true")
 	}
 
-	return pg, &corev1.Secret{
+	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      h.getSecretName(pg),
 			Namespace: pg.Namespace,

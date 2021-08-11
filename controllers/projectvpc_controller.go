@@ -45,7 +45,7 @@ func (r *ProjectVPCReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, err
 	}
 
-	return r.reconcileInstance(ctx, &ProjectVPCHandler{
+	return r.reconcileInstance(ctx, ProjectVPCHandler{
 		client: c,
 	}, vpc)
 }
@@ -56,10 +56,10 @@ func (r *ProjectVPCReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ProjectVPCHandler) createOrUpdate(i client.Object) (client.Object, error) {
+func (h ProjectVPCHandler) createOrUpdate(i client.Object) error {
 	projectVPC, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	vpc, err := h.client.VPCs.Create(projectVPC.Spec.Project, aiven.CreateVPCRequest{
@@ -67,7 +67,7 @@ func (h ProjectVPCHandler) createOrUpdate(i client.Object) (client.Object, error
 		NetworkCIDR: projectVPC.Spec.NetworkCidr,
 	})
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	projectVPC.Status.ID = vpc.ProjectVPCID
@@ -83,7 +83,7 @@ func (h ProjectVPCHandler) createOrUpdate(i client.Object) (client.Object, error
 	metav1.SetMetaDataAnnotation(&projectVPC.ObjectMeta,
 		processedGeneration, strconv.FormatInt(projectVPC.GetGeneration(), formatIntBaseDecimal))
 
-	return projectVPC, nil
+	return nil
 }
 
 func (h ProjectVPCHandler) delete(i client.Object) (bool, error) {
@@ -130,15 +130,15 @@ func (h ProjectVPCHandler) getVPC(projectVPC *k8soperatorv1alpha1.ProjectVPC) (*
 	return nil, nil
 }
 
-func (h ProjectVPCHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
+func (h ProjectVPCHandler) get(i client.Object) (*corev1.Secret, error) {
 	projectVPC, err := h.convert(i)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	vpc, err := h.getVPC(projectVPC)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	if vpc.State == "ACTIVE" {
@@ -149,7 +149,7 @@ func (h ProjectVPCHandler) get(i client.Object) (client.Object, *corev1.Secret, 
 		metav1.SetMetaDataAnnotation(&projectVPC.ObjectMeta, isRunning, "true")
 	}
 
-	return projectVPC, nil, nil
+	return nil, nil
 }
 
 func (h ProjectVPCHandler) checkPreconditions(client.Object) (bool, error) {

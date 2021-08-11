@@ -46,7 +46,7 @@ func (r *KafkaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		return ctrl.Result{}, err
 	}
 
-	return r.reconcileInstance(ctx, &KafkaHandler{
+	return r.reconcileInstance(ctx, KafkaHandler{
 		client: c,
 	}, kafka)
 }
@@ -58,10 +58,10 @@ func (r *KafkaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h *KafkaHandler) createOrUpdate(i client.Object) (client.Object, error) {
+func (h KafkaHandler) createOrUpdate(i client.Object) error {
 	kafka, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	var prVPCID *string
@@ -71,7 +71,7 @@ func (h *KafkaHandler) createOrUpdate(i client.Object) (client.Object, error) {
 
 	exists, err := h.exists(kafka)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	var reason string
@@ -89,7 +89,7 @@ func (h *KafkaHandler) createOrUpdate(i client.Object) (client.Object, error) {
 			ServiceIntegrations: nil,
 		})
 		if err != nil && !aiven.IsAlreadyExists(err) {
-			return nil, err
+			return err
 		}
 
 		reason = "Created"
@@ -105,7 +105,7 @@ func (h *KafkaHandler) createOrUpdate(i client.Object) (client.Object, error) {
 			Powered:      true,
 		})
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		reason = "Updated"
@@ -122,7 +122,7 @@ func (h *KafkaHandler) createOrUpdate(i client.Object) (client.Object, error) {
 	metav1.SetMetaDataAnnotation(&kafka.ObjectMeta,
 		processedGeneration, strconv.FormatInt(kafka.GetGeneration(), formatIntBaseDecimal))
 
-	return kafka, nil
+	return nil
 }
 
 func (h KafkaHandler) delete(i client.Object) (bool, error) {
@@ -150,15 +150,15 @@ func (h KafkaHandler) exists(kafka *k8soperatorv1alpha1.Kafka) (bool, error) {
 	return s != nil, nil
 }
 
-func (h KafkaHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
+func (h KafkaHandler) get(i client.Object) (*corev1.Secret, error) {
 	kafka, err := h.convert(i)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	s, err := h.client.Services.Get(kafka.Spec.Project, kafka.Name)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	var userName, password string
@@ -180,10 +180,10 @@ func (h KafkaHandler) get(i client.Object) (client.Object, *corev1.Secret, error
 
 	caCert, err := h.client.CA.Get(kafka.Spec.Project)
 	if err != nil {
-		return nil, nil, fmt.Errorf("aiven client error %w", err)
+		return nil, fmt.Errorf("aiven client error %w", err)
 	}
 
-	return kafka, &corev1.Secret{
+	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      h.getSecretName(kafka),
 			Namespace: kafka.Namespace,

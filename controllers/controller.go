@@ -11,6 +11,7 @@ import (
 	"github.com/aiven/aiven-go-client"
 	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	"github.com/go-logr/logr"
+	"github.com/hashicorp/go-multierror"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -48,16 +49,16 @@ type (
 	// of the Aiven services lifecycle.
 	Handlers interface {
 		// create or updates an instance on the Aiven side.
-		createOrUpdate(client.Object) (client.Object, error)
+		createOrUpdate(client.Object) error
 
 		// delete removes an instance on Aiven side.
 		// If an object is already deleted and cannot be found, it should not be an error. For other deletion
 		// errors, return an error.
 		delete(client.Object) (bool, error)
 
-		// get retrieve an obejct and a secret (for example, connection credentials) that is generated on the
+		// get retrieve an object and a secret (for example, connection credentials) that is generated on the
 		// fly based on data from Aiven API.  When not applicable to service, it should return nil.
-		get(client.Object) (client.Object, *corev1.Secret, error)
+		get(client.Object) (*corev1.Secret, error)
 
 		// checkPreconditions check whether all preconditions for creating (or updating) the resource are in place.
 		// For example, it is applicable when a service needs to be running before this resource can be created.
@@ -68,7 +69,7 @@ type (
 // +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;list;create;update
 // +kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;create;update;patch;delete
 
-func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client.Object) (ctrl.Result, error) {
+func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client.Object) (_ ctrl.Result, rErr error) {
 	log := c.initLog(o)
 
 	log.Info("reconciling instance")
@@ -130,16 +131,29 @@ func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client
 		return ctrl.Result{Requeue: true, RequeueAfter: requeueTimeout}, nil
 	}
 
+	defer func() {
+		var result error
+
+		err := c.Status().Update(ctx, o)
+		if err != nil {
+			log.Error(err, "cannot update CR status")
+			result = multierror.Append(result, err)
+		}
+
+		err = c.Update(ctx, o)
+		if err != nil {
+			log.Error(err, "cannot update CR")
+			result = multierror.Append(result, err)
+		}
+
+		rErr = multierror.Append(rErr, result)
+	}()
+
 	log.Info("checking if generation was processed")
 	if !c.processed(o) {
 		log.Info("generation wasn't processed, creation or updating instance on aiven side")
 		c.resetAnnotations(o)
-		obj, err := h.createOrUpdate(o)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-
-		err = c.Update(ctx, obj)
+		err := h.createOrUpdate(o)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -149,11 +163,11 @@ func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client
 		return ctrl.Result{
 			Requeue:      true,
 			RequeueAfter: requeueAfterTimeout,
-		}, c.Status().Update(ctx, obj)
+		}, nil
 	}
 
 	log.Info("getting an instance")
-	obj, s, err := h.get(o)
+	s, err := h.get(o)
 	if err != nil {
 		if aiven.IsNotFound(err) {
 			return ctrl.Result{
@@ -164,27 +178,15 @@ func (c *Controller) reconcileInstance(ctx context.Context, h Handlers, o client
 		return ctrl.Result{}, err
 	}
 
-	if obj != nil {
-		err = c.Status().Update(ctx, obj)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-
-		err = c.Update(ctx, obj)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-	}
-
-	if ensureSecretDataIsNotEmpty(log, s) != nil {
-		err = c.manageSecret(ctx, obj, s)
+	if s != nil {
+		err = c.manageSecret(ctx, o, s)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
 	}
 
 	log.Info("checking if instance is running")
-	if !c.isRunning(obj) {
+	if !c.isRunning(o) {
 		log.Info("instance is not yet running, triggering requeue")
 		return ctrl.Result{
 			Requeue:      true,

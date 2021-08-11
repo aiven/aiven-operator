@@ -45,7 +45,7 @@ func (r *KafkaSchemaReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		return ctrl.Result{}, err
 	}
 
-	return r.reconcileInstance(ctx, &KafkaSchemaHandler{
+	return r.reconcileInstance(ctx, KafkaSchemaHandler{
 		client: c,
 	}, schema)
 }
@@ -56,10 +56,10 @@ func (r *KafkaSchemaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaSchemaHandler) createOrUpdate(i client.Object) (client.Object, error) {
+func (h KafkaSchemaHandler) createOrUpdate(i client.Object) error {
 	schema, err := h.convert(i)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// createOrUpdate Kafka Schema Subject
@@ -72,7 +72,7 @@ func (h KafkaSchemaHandler) createOrUpdate(i client.Object) (client.Object, erro
 		},
 	)
 	if err != nil {
-		return nil, fmt.Errorf("cannot add Kafka Schema Subject: %w", err)
+		return fmt.Errorf("cannot add Kafka Schema Subject: %w", err)
 	}
 
 	// set compatibility level if defined for a newly created Kafka Schema Subject
@@ -84,14 +84,14 @@ func (h KafkaSchemaHandler) createOrUpdate(i client.Object) (client.Object, erro
 			schema.Spec.CompatibilityLevel,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("cannot update Kafka Schema Configuration: %w", err)
+			return fmt.Errorf("cannot update Kafka Schema Configuration: %w", err)
 		}
 	}
 
 	// get last version
 	version, err := h.getLastVersion(schema)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get Kafka Schema Subject version: %w", err)
+		return fmt.Errorf("cannot get Kafka Schema Subject version: %w", err)
 	}
 
 	schema.Status.Version = version
@@ -107,7 +107,7 @@ func (h KafkaSchemaHandler) createOrUpdate(i client.Object) (client.Object, erro
 	metav1.SetMetaDataAnnotation(&schema.ObjectMeta,
 		processedGeneration, strconv.FormatInt(schema.GetGeneration(), formatIntBaseDecimal))
 
-	return schema, nil
+	return nil
 }
 
 func (h KafkaSchemaHandler) delete(i client.Object) (bool, error) {
@@ -124,10 +124,10 @@ func (h KafkaSchemaHandler) delete(i client.Object) (bool, error) {
 	return true, nil
 }
 
-func (h KafkaSchemaHandler) get(i client.Object) (client.Object, *corev1.Secret, error) {
+func (h KafkaSchemaHandler) get(i client.Object) (*corev1.Secret, error) {
 	schema, err := h.convert(i)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	meta.SetStatusCondition(&schema.Status.Conditions,
@@ -136,7 +136,7 @@ func (h KafkaSchemaHandler) get(i client.Object) (client.Object, *corev1.Secret,
 
 	metav1.SetMetaDataAnnotation(&schema.ObjectMeta, isRunning, "true")
 
-	return schema, nil, nil
+	return nil, nil
 }
 
 func (h KafkaSchemaHandler) checkPreconditions(i client.Object) (bool, error) {
