@@ -8,15 +8,14 @@ import (
 	"strconv"
 	"strings"
 
-	"k8s.io/apimachinery/pkg/api/errors"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	"github.com/aiven/aiven-go-client"
-	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
-	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 )
 
 // ServiceIntegrationReconciler reconciles a ServiceIntegration object
@@ -24,41 +23,22 @@ type ServiceIntegrationReconciler struct {
 	Controller
 }
 
-type ServiceIntegrationHandler struct {
-	Handlers
-	client *aiven.Client
-}
+type ServiceIntegrationHandler struct{}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations/status,verbs=get;update;patch
 
 func (r *ServiceIntegrationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	si := &k8soperatorv1alpha1.ServiceIntegration{}
-	err := r.Get(ctx, req.NamespacedName, si)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			return ctrl.Result{}, nil
-		}
-		return ctrl.Result{}, err
-	}
-
-	c, err := r.InitAivenClient(ctx, req, si.Spec.AuthSecretRef)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	return r.reconcileInstance(ctx, ServiceIntegrationHandler{
-		client: c,
-	}, si)
+	return r.reconcileInstance(ctx, req, ServiceIntegrationHandler{}, &v1alpha1.ServiceIntegration{})
 }
 
 func (r *ServiceIntegrationReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&k8soperatorv1alpha1.ServiceIntegration{}).
+		For(&v1alpha1.ServiceIntegration{}).
 		Complete(r)
 }
 
-func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) error {
+func (h ServiceIntegrationHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 	si, err := h.convert(i)
 	if err != nil {
 		return err
@@ -68,7 +48,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) error {
 
 	var reason string
 	if si.Status.ID == "" {
-		integration, err = h.client.ServiceIntegrations.Create(
+		integration, err = avn.ServiceIntegrations.Create(
 			si.Spec.Project,
 			aiven.CreateServiceIntegrationRequest{
 				DestinationEndpointID: toOptionalStringPointer(si.Spec.DestinationEndpointID),
@@ -85,7 +65,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) error {
 
 		reason = "Created"
 	} else {
-		integration, err = h.client.ServiceIntegrations.Update(
+		integration, err = avn.ServiceIntegrations.Update(
 			si.Spec.Project,
 			si.Status.ID,
 			aiven.UpdateServiceIntegrationRequest{
@@ -112,18 +92,18 @@ func (h ServiceIntegrationHandler) createOrUpdate(i client.Object) error {
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&si.ObjectMeta,
-		processedGeneration, strconv.FormatInt(si.GetGeneration(), formatIntBaseDecimal))
+		processedGenerationAnnotation, strconv.FormatInt(si.GetGeneration(), formatIntBaseDecimal))
 
 	return nil
 }
 
-func (h ServiceIntegrationHandler) delete(i client.Object) (bool, error) {
+func (h ServiceIntegrationHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
 	si, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	err = h.client.ServiceIntegrations.Delete(si.Spec.Project, si.Status.ID)
+	err = avn.ServiceIntegrations.Delete(si.Spec.Project, si.Status.ID)
 	if err != nil && !aiven.IsNotFound(err) {
 		return false, fmt.Errorf("aiven client delete service ingtegration error: %w", err)
 	}
@@ -131,7 +111,7 @@ func (h ServiceIntegrationHandler) delete(i client.Object) (bool, error) {
 	return true, nil
 }
 
-func (h ServiceIntegrationHandler) get(i client.Object) (*corev1.Secret, error) {
+func (h ServiceIntegrationHandler) get(_ *aiven.Client, i client.Object) (*corev1.Secret, error) {
 	si, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -141,12 +121,12 @@ func (h ServiceIntegrationHandler) get(i client.Object) (*corev1.Secret, error) 
 		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 			"Instance is running on Aiven side"))
 
-	metav1.SetMetaDataAnnotation(&si.ObjectMeta, isRunning, "true")
+	metav1.SetMetaDataAnnotation(&si.ObjectMeta, instanceIsRunningAnnotation, "true")
 
 	return nil, nil
 }
 
-func (h ServiceIntegrationHandler) checkPreconditions(i client.Object) (bool, error) {
+func (h ServiceIntegrationHandler) checkPreconditions(avn *aiven.Client, i client.Object) (bool, error) {
 	si, err := h.convert(i)
 	if err != nil {
 		return false, err
@@ -155,12 +135,12 @@ func (h ServiceIntegrationHandler) checkPreconditions(i client.Object) (bool, er
 	meta.SetStatusCondition(&si.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	sourceCheck, err := checkServiceIsRunning(h.client, si.Spec.Project, si.Spec.SourceServiceName)
+	sourceCheck, err := checkServiceIsRunning(avn, si.Spec.Project, si.Spec.SourceServiceName)
 	if err != nil {
 		return false, err
 	}
 
-	destinationCheck, err := checkServiceIsRunning(h.client, si.Spec.Project, si.Spec.DestinationServiceName)
+	destinationCheck, err := checkServiceIsRunning(avn, si.Spec.Project, si.Spec.DestinationServiceName)
 	if err != nil {
 		return false, err
 	}
@@ -168,8 +148,8 @@ func (h ServiceIntegrationHandler) checkPreconditions(i client.Object) (bool, er
 	return sourceCheck && destinationCheck, nil
 }
 
-func (h ServiceIntegrationHandler) convert(i client.Object) (*k8soperatorv1alpha1.ServiceIntegration, error) {
-	si, ok := i.(*k8soperatorv1alpha1.ServiceIntegration)
+func (h ServiceIntegrationHandler) convert(i client.Object) (*v1alpha1.ServiceIntegration, error) {
+	si, ok := i.(*v1alpha1.ServiceIntegration)
 	if !ok {
 		return nil, fmt.Errorf("cannot convert object to ServiceIntegration")
 	}
@@ -177,7 +157,7 @@ func (h ServiceIntegrationHandler) convert(i client.Object) (*k8soperatorv1alpha
 	return si, nil
 }
 
-func (h ServiceIntegrationHandler) getUserConfig(int *k8soperatorv1alpha1.ServiceIntegration) map[string]interface{} {
+func (h ServiceIntegrationHandler) getUserConfig(int *v1alpha1.ServiceIntegration) map[string]interface{} {
 	if int.Spec.IntegrationType == "datadog" {
 		return UserConfigurationToAPI(int.Spec.DatadogUserConfig).(map[string]interface{})
 	}

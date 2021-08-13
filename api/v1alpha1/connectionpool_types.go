@@ -65,6 +65,10 @@ type ConnectionPool struct {
 	Status ConnectionPoolStatus `json:"status,omitempty"`
 }
 
+func (cp ConnectionPool) AuthSecretRef() AuthSecretReference {
+	return cp.Spec.AuthSecretRef
+}
+
 // +kubebuilder:object:root=true
 
 // ConnectionPoolList contains a list of ConnectionPool

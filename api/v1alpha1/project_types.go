@@ -90,6 +90,10 @@ type Project struct {
 	Status ProjectStatus `json:"status,omitempty"`
 }
 
+func (proj Project) AuthSecretRef() AuthSecretReference {
+	return proj.Spec.AuthSecretRef
+}
+
 // +kubebuilder:object:root=true
 
 // ProjectList contains a list of Project

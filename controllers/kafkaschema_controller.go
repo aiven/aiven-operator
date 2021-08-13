@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Aiven, Helsinki, Finland. https://aiven.io/
+// Copyright (c) 2021 Aiven, Helsinki, Finland. https://aiven.io/
 
 package controllers
 
@@ -7,14 +7,14 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client"
-	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 )
 
 // KafkaSchemaReconciler reconciles a KafkaSchema object
@@ -22,48 +22,29 @@ type KafkaSchemaReconciler struct {
 	Controller
 }
 
-type KafkaSchemaHandler struct {
-	Handlers
-	client *aiven.Client
-}
+type KafkaSchemaHandler struct{}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkaschemas,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkaschemas/status,verbs=get;update;patch
 
 func (r *KafkaSchemaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	schema := &k8soperatorv1alpha1.KafkaSchema{}
-	err := r.Get(ctx, req.NamespacedName, schema)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			return ctrl.Result{}, nil
-		}
-		return ctrl.Result{}, err
-	}
-
-	c, err := r.InitAivenClient(ctx, req, schema.Spec.AuthSecretRef)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	return r.reconcileInstance(ctx, KafkaSchemaHandler{
-		client: c,
-	}, schema)
+	return r.reconcileInstance(ctx, req, KafkaSchemaHandler{}, &v1alpha1.KafkaSchema{})
 }
 
 func (r *KafkaSchemaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&k8soperatorv1alpha1.KafkaSchema{}).
+		For(&v1alpha1.KafkaSchema{}).
 		Complete(r)
 }
 
-func (h KafkaSchemaHandler) createOrUpdate(i client.Object) error {
+func (h KafkaSchemaHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 	schema, err := h.convert(i)
 	if err != nil {
 		return err
 	}
 
 	// createOrUpdate Kafka Schema Subject
-	_, err = h.client.KafkaSubjectSchemas.Add(
+	_, err = avn.KafkaSubjectSchemas.Add(
 		schema.Spec.Project,
 		schema.Spec.ServiceName,
 		schema.Spec.SubjectName,
@@ -77,7 +58,7 @@ func (h KafkaSchemaHandler) createOrUpdate(i client.Object) error {
 
 	// set compatibility level if defined for a newly created Kafka Schema Subject
 	if schema.Spec.CompatibilityLevel != "" {
-		_, err := h.client.KafkaSubjectSchemas.UpdateConfiguration(
+		_, err := avn.KafkaSubjectSchemas.UpdateConfiguration(
 			schema.Spec.Project,
 			schema.Spec.ServiceName,
 			schema.Spec.SubjectName,
@@ -89,7 +70,7 @@ func (h KafkaSchemaHandler) createOrUpdate(i client.Object) error {
 	}
 
 	// get last version
-	version, err := h.getLastVersion(schema)
+	version, err := h.getLastVersion(avn, schema)
 	if err != nil {
 		return fmt.Errorf("cannot get Kafka Schema Subject version: %w", err)
 	}
@@ -105,18 +86,18 @@ func (h KafkaSchemaHandler) createOrUpdate(i client.Object) error {
 			"Instance was created or update on Aiven side, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&schema.ObjectMeta,
-		processedGeneration, strconv.FormatInt(schema.GetGeneration(), formatIntBaseDecimal))
+		processedGenerationAnnotation, strconv.FormatInt(schema.GetGeneration(), formatIntBaseDecimal))
 
 	return nil
 }
 
-func (h KafkaSchemaHandler) delete(i client.Object) (bool, error) {
+func (h KafkaSchemaHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
 	schema, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	err = h.client.KafkaSubjectSchemas.Delete(schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.Schema)
+	err = avn.KafkaSubjectSchemas.Delete(schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.Schema)
 	if err != nil && !aiven.IsNotFound(err) {
 		return false, fmt.Errorf("aiven client delete Kafka Schema error: %w", err)
 	}
@@ -124,7 +105,7 @@ func (h KafkaSchemaHandler) delete(i client.Object) (bool, error) {
 	return true, nil
 }
 
-func (h KafkaSchemaHandler) get(i client.Object) (*corev1.Secret, error) {
+func (h KafkaSchemaHandler) get(_ *aiven.Client, i client.Object) (*corev1.Secret, error) {
 	schema, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -134,22 +115,22 @@ func (h KafkaSchemaHandler) get(i client.Object) (*corev1.Secret, error) {
 		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 			"Instance is running on Aiven side"))
 
-	metav1.SetMetaDataAnnotation(&schema.ObjectMeta, isRunning, "true")
+	metav1.SetMetaDataAnnotation(&schema.ObjectMeta, instanceIsRunningAnnotation, "true")
 
 	return nil, nil
 }
 
-func (h KafkaSchemaHandler) checkPreconditions(i client.Object) (bool, error) {
+func (h KafkaSchemaHandler) checkPreconditions(avn *aiven.Client, i client.Object) (bool, error) {
 	schema, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	return checkServiceIsRunning(h.client, schema.Spec.Project, schema.Spec.ServiceName)
+	return checkServiceIsRunning(avn, schema.Spec.Project, schema.Spec.ServiceName)
 }
 
-func (h KafkaSchemaHandler) convert(i client.Object) (*k8soperatorv1alpha1.KafkaSchema, error) {
-	schema, ok := i.(*k8soperatorv1alpha1.KafkaSchema)
+func (h KafkaSchemaHandler) convert(i client.Object) (*v1alpha1.KafkaSchema, error) {
+	schema, ok := i.(*v1alpha1.KafkaSchema)
 	if !ok {
 		return nil, fmt.Errorf("cannot convert object to KafkaSchema")
 	}
@@ -157,8 +138,8 @@ func (h KafkaSchemaHandler) convert(i client.Object) (*k8soperatorv1alpha1.Kafka
 	return schema, nil
 }
 
-func (h KafkaSchemaHandler) getLastVersion(schema *k8soperatorv1alpha1.KafkaSchema) (int, error) {
-	ver, err := h.client.KafkaSubjectSchemas.GetVersions(
+func (h KafkaSchemaHandler) getLastVersion(avn *aiven.Client, schema *v1alpha1.KafkaSchema) (int, error) {
+	ver, err := avn.KafkaSubjectSchemas.GetVersions(
 		schema.Spec.Project,
 		schema.Spec.ServiceName,
 		schema.Spec.SubjectName)

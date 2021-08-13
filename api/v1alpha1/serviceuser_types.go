@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Aiven, Helsinki, Finland. https://aiven.io/
+// Copyright (c) 2021 Aiven, Helsinki, Finland. https://aiven.io/
 
 package v1alpha1
 
@@ -50,6 +50,10 @@ type ServiceUser struct {
 
 	Spec   ServiceUserSpec   `json:"spec,omitempty"`
 	Status ServiceUserStatus `json:"status,omitempty"`
+}
+
+func (svcusr ServiceUser) AuthSecretRef() AuthSecretReference {
+	return svcusr.Spec.AuthSecretRef
 }
 
 // +kubebuilder:object:root=true

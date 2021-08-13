@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	k8soperatorv1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
+	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
@@ -29,13 +29,13 @@ func TestUserConfigurationToAPI(t *testing.T) {
 		{
 			name: "basic",
 			args: args{
-				c: k8soperatorv1alpha1.PGUserConfig{
+				c: v1alpha1.PGUserConfig{
 					PgVersion: "12",
-					Pg: k8soperatorv1alpha1.PGSubPGUserConfig{
+					Pg: v1alpha1.PGSubPGUserConfig{
 						Timezone:      "CEST",
 						TempFileLimit: &tempFileLimit,
 					},
-					PublicAccess: k8soperatorv1alpha1.PublicAccessUserConfig{
+					PublicAccess: v1alpha1.PublicAccessUserConfig{
 						Pg: &publicAccessPg,
 					},
 				},

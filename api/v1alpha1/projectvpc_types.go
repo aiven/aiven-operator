@@ -49,6 +49,10 @@ type ProjectVPC struct {
 	Status ProjectVPCStatus `json:"status,omitempty"`
 }
 
+func (pvpc ProjectVPC) AuthSecretRef() AuthSecretReference {
+	return pvpc.Spec.AuthSecretRef
+}
+
 // +kubebuilder:object:root=true
 
 // ProjectVPCList contains a list of ProjectVPC
