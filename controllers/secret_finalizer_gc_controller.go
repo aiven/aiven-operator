@@ -5,6 +5,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
@@ -60,38 +61,36 @@ func (c *SecretFinalizerGCController) Reconcile(ctx context.Context, req ctrl.Re
 }
 
 func (c *SecretFinalizerGCController) SetupWithManager(mgr ctrl.Manager) error {
-	if err := indexClientSecretRefFields(context.Background(), mgr,
-		&v1alpha1.Kafka{},
-		&v1alpha1.KafkaACL{},
-		&v1alpha1.KafkaTopic{},
-		&v1alpha1.KafkaSchema{},
-		&v1alpha1.Project{},
-		&v1alpha1.ProjectVPC{},
-		&v1alpha1.ServiceIntegration{},
-		&v1alpha1.ServiceUser{},
-		&v1alpha1.PG{},
-		&v1alpha1.Database{},
-		&v1alpha1.ConnectionPool{},
-	); err != nil {
+	if err := indexClientSecretRefFields(context.Background(), mgr, c.knownInstanceTypes()...); err != nil {
 		return fmt.Errorf("unable to add index for secret ref fields: %w", err)
 	}
 	return ctrl.NewControllerManagedBy(mgr).For(&corev1.Secret{}).Complete(c)
 }
 
+func (c *SecretFinalizerGCController) knownListTypes() []client.ObjectList {
+	res := make([]client.ObjectList, 0)
+
+	for _, t := range c.Scheme().KnownTypes(v1alpha1.GroupVersion) {
+		if list, ok := reflect.New(t).Interface().(client.ObjectList); ok {
+			res = append(res, list)
+		}
+	}
+	return res
+}
+
+func (c *SecretFinalizerGCController) knownInstanceTypes() []aivenManagedObject {
+	res := make([]aivenManagedObject, 0)
+
+	for _, t := range c.Scheme().KnownTypes(v1alpha1.GroupVersion) {
+		if obj, ok := reflect.New(t).Interface().(aivenManagedObject); ok {
+			res = append(res, obj)
+		}
+	}
+	return res
+}
+
 func (c *SecretFinalizerGCController) secretIsStillNeeded(ctx context.Context, secret *corev1.Secret) (bool, error) {
-	for _, listType := range []client.ObjectList{
-		&v1alpha1.KafkaList{},
-		&v1alpha1.KafkaACLList{},
-		&v1alpha1.KafkaTopicList{},
-		&v1alpha1.KafkaSchemaList{},
-		&v1alpha1.ProjectList{},
-		&v1alpha1.ProjectVPCList{},
-		&v1alpha1.ServiceIntegrationList{},
-		&v1alpha1.ServiceUserList{},
-		&v1alpha1.PGList{},
-		&v1alpha1.DatabaseList{},
-		&v1alpha1.ConnectionPoolList{},
-	} {
+	for _, listType := range c.knownListTypes() {
 		if needed, err := c.secretIsStillNeededBy(ctx, secret, listType); err != nil {
 			return false, fmt.Errorf("unable to decide if secret is still used by some aiven resource: %w", err)
 		} else if needed {
@@ -109,11 +108,10 @@ const (
 
 // secretRefIndexFunc indexes the client token secret names of aiven managed objects
 func secretRefIndexFunc(o client.Object) []string {
-	aivenObj, ok := o.(aivenManagedObject)
-	if !ok {
-		return nil
+	if aivenObj, ok := o.(aivenManagedObject); ok {
+		return []string{aivenObj.AuthSecretRef().Name}
 	}
-	return []string{aivenObj.AuthSecretRef().Name}
+	return nil
 }
 
 func indexClientSecretRefFields(ctx context.Context, mgr ctrl.Manager, objs ...aivenManagedObject) error {
