@@ -11,6 +11,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -63,41 +64,41 @@ type (
 
 const (
 	// Lifecycle event types we expose to the user
-	eventReconciliationStarted               = "ReconcilationStarted"
-	eventBadAuthSecretRef                    = "BadAuthSecretRef"
-	eventUnableToCreateClient                = "UnableToCreateClient"
-	eventNotYetDeletedAtAiven                = "NotYetDeletedAtAiven"
-	eventUnableToDeleteAtAiven               = "UnableToDeleteAtAiven"
-	eventSuccessfullyDeletedAtAiven          = "SuccessfullyDeletedAtAiven"
-	eventAddedFinalizer                      = "InstanceFinalizerAdded"
-	eventUnableToAddFinalizer                = "UnableToAddFinalizer"
-	eventUnableToCheckPreconditions          = "UnableToCheckPreconditions"
-	eventPreconditionsAreNotMet              = "PreconditionsAreNotMet"
-	eventUnableToCreateOrUpdateAtAiven       = "UnableToCreateOrUpdateAtAiven"
-	eventCreatedOrUpdatedAtAiven             = "CreatedOrUpdatedAtAiven"
-	eventInstanceNotFoundYetAtAiven          = "InstanceWasNotFoundYetAtAiven"
-	eventUnableToGetInstanceAtAiven          = "UnableToGetInstanceAtAiven"
-	eventUnableToCreateOrUpdateServiceSecret = "UnableToCreateOrUpdateServiceSecret"
-	eventCreatedOrUpdatedServiceSecret       = "CreatedOrUpdatedServiceSecret"
-	eventNotYetRunning                       = "NotYetRunning"
-	eventRunning                             = "Running"
+	eventUnableToGetAuthSecret              = "UnableToGetAuthSecret"
+	eventUnableToCreateClient               = "UnableToCreateClient"
+	eventReconciliationStarted              = "ReconcilationStarted"
+	eventTryingToDeleteAtAiven              = "TryingToDeleteAtAiven"
+	eventUnableToDeleteAtAiven              = "UnableToDeleteAtAiven"
+	eventUnableToDeleteFinalizer            = "UnableToDeleteFinalizer"
+	eventSuccessfullyDeletedAtAiven         = "SuccessfullyDeletedAtAiven"
+	eventAddedFinalizer                     = "InstanceFinalizerAdded"
+	eventUnableToAddFinalizer               = "UnableToAddFinalizer"
+	eventWaitingforPreconditions            = "WaitingForPreconditions"
+	eventUnableToWaitForPreconditions       = "UnableToWaitForPreconditions"
+	eventPreconditionsAreMet                = "PreconditionsAreMet"
+	eventUnableToCreateOrUpdateAtAiven      = "UnableToCreateOrUpdateAtAiven"
+	eventCreateOrUpdatedAtAiven             = "CreateOrUpdatedAtAiven"
+	eventCreatedOrUpdatedAtAiven            = "CreatedOrUpdatedAtAiven"
+	eventWaitingForTheInstanceToBeRunning   = "WaitingForInstanceToBeRunning"
+	eventUnableToWaitForInstanceToBeRunning = "UnableToWaitForInstanceToBeRunning"
+	eventInstanceIsRunning                  = "InstanceIsRunning"
 )
 
 // +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;list;create;update
 // +kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups="",resources=events,verbs=create;patch
 
-func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h Handlers, o aivenManagedObject) (_ ctrl.Result, rErr error) {
+func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h Handlers, o aivenManagedObject) (ctrl.Result, error) {
 	if err := c.Get(ctx, req.NamespacedName, o); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
-	log := c.loggerForInstance(o)
-	log.Info("reconciling instance")
-	c.Recorder.Event(o, corev1.EventTypeNormal, eventReconciliationStarted, "starting reconciliation")
+
+	instanceLogger := setupLogger(c.Log, o)
+	instanceLogger.Info("setting up aiven client with instance secret")
 
 	clientAuthSecret := &corev1.Secret{}
 	if err := c.Get(ctx, types.NamespacedName{Name: o.AuthSecretRef().Name, Namespace: req.Namespace}, clientAuthSecret); err != nil {
-		c.Recorder.Eventf(o, corev1.EventTypeWarning, eventBadAuthSecretRef, "aiven client secret '%s' in namespace '%s' was not found.", o.AuthSecretRef().Name, req.Namespace)
+		c.Recorder.Eventf(o, corev1.EventTypeWarning, eventUnableToGetAuthSecret, err.Error())
 		return ctrl.Result{}, fmt.Errorf("cannot get secret %q: %w", o.AuthSecretRef().Name, err)
 	}
 	avn, err := aiven.NewTokenClient(string(clientAuthSecret.Data[o.AuthSecretRef().Key]), "k8s-operator/")
@@ -106,109 +107,168 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 		return ctrl.Result{}, fmt.Errorf("cannot initialize aiven client: %w", err)
 	}
 
-	log.Info("handling finalizers")
+	return instanceReconcilerHelper{
+		avn:  avn,
+		k8s:  c.Client,
+		hnd:  h,
+		log:  instanceLogger,
+		scrt: clientAuthSecret,
+		rec:  c.Recorder,
+	}.reconcileInstance(ctx, o)
+}
+
+// a helper that closes over all instance specific fields
+// to make reconciliation a little more ergonomic
+type instanceReconcilerHelper struct {
+	k8s client.Client
+
+	// aiven client that is authorized with the instance token
+	avn *aiven.Client
+	// instance specific handler implementation
+	hnd Handlers
+	// secret that contains the aiven token for the instance
+	scrt *corev1.Secret
+
+	// logger setup with structured fields for the instance
+	log logr.Logger
+	// recprder to record events for the object
+	rec record.EventRecorder
+}
+
+func (ir instanceReconcilerHelper) reconcileInstance(ctx context.Context, o client.Object) (ctrl.Result, error) {
+	ir.log.Info("reconciling instance")
+	ir.rec.Event(o, corev1.EventTypeNormal, eventReconciliationStarted, "starting reconciliation")
+
+	ir.log.Info("handling finalizers")
+
 	if markedForDeletion(o) {
 		if controllerutil.ContainsFinalizer(o, instanceDeletionFinalizer) {
-			log.Info("deleting instance at aiven")
-
-			if deleted, err := h.delete(avn, o); err != nil {
-				c.Recorder.Event(o, corev1.EventTypeWarning, eventUnableToDeleteAtAiven, err.Error())
-				return ctrl.Result{}, err
-			} else if !deleted {
-				log.Info("instance was not deleted, requeue")
-				c.Recorder.Event(o, corev1.EventTypeNormal, eventNotYetDeletedAtAiven, "instance deletion may take some time")
-				return requeueCtrlResult(), nil
+			ir.rec.Event(o, corev1.EventTypeNormal, eventTryingToDeleteAtAiven, "trying to delete instance at aiven")
+			if err := ir.deleteSync(o); err != nil {
+				ir.rec.Event(o, corev1.EventTypeWarning, eventUnableToDeleteAtAiven, err.Error())
+				return ctrl.Result{}, fmt.Errorf("unable to delete instance at aiven: %w", err)
 			}
-			log.Info("instance was successfully deleted at aiven, removing finalizer")
-			c.Recorder.Event(o, corev1.EventTypeNormal, eventSuccessfullyDeletedAtAiven, "instance is gone now")
-			if err = removeFinalizer(ctx, c.Client, o, instanceDeletionFinalizer); err != nil {
+			ir.log.Info("instance was successfully deleted at aiven, removing finalizer")
+			ir.rec.Event(o, corev1.EventTypeNormal, eventSuccessfullyDeletedAtAiven, "instance is gone at aiven now")
+			if err := removeFinalizer(ctx, ir.k8s, o, instanceDeletionFinalizer); err != nil {
+				ir.rec.Event(o, corev1.EventTypeWarning, eventUnableToDeleteFinalizer, err.Error())
 				return ctrl.Result{}, fmt.Errorf("unable to remove finalizer: %w", err)
 			}
 		}
 		return ctrl.Result{}, nil
 	} else {
-		if !controllerutil.ContainsFinalizer(clientAuthSecret, secretProtectionFinalizer) {
-			log.Info("adding finalizer to secret")
-			if err := addFinalizer(ctx, c.Client, clientAuthSecret, secretProtectionFinalizer); err != nil {
+		if !controllerutil.ContainsFinalizer(ir.scrt, secretProtectionFinalizer) {
+			ir.log.Info("adding finalizer to secret")
+			if err := addFinalizer(ctx, ir.k8s, ir.scrt, secretProtectionFinalizer); err != nil {
 				return ctrl.Result{}, fmt.Errorf("unable to add finalizer to secret: %w", err)
 			}
 		}
 		if !controllerutil.ContainsFinalizer(o, instanceDeletionFinalizer) {
-			log.Info("adding finalizer to instance")
-			if err := addFinalizer(ctx, c.Client, o, instanceDeletionFinalizer); err != nil {
-				c.Recorder.Eventf(o, corev1.EventTypeWarning, eventUnableToAddFinalizer, err.Error())
+			ir.log.Info("adding finalizer to instance")
+			if err := addFinalizer(ctx, ir.k8s, o, instanceDeletionFinalizer); err != nil {
+				ir.rec.Eventf(o, corev1.EventTypeWarning, eventUnableToAddFinalizer, err.Error())
 				return ctrl.Result{}, fmt.Errorf("unable to add finalizer to instance: %w", err)
 			}
-			c.Recorder.Event(o, corev1.EventTypeNormal, eventAddedFinalizer, "instance finalizer added")
+			ir.rec.Event(o, corev1.EventTypeNormal, eventAddedFinalizer, "instance finalizer added")
 		}
 	}
+	ir.log.Info("handling service update/creation")
 
-	log.Info("handling service update/creation")
-	log.Info("checking preconditions")
-	if check, err := h.checkPreconditions(avn, o); err != nil {
-		c.Recorder.Event(o, corev1.EventTypeWarning, eventUnableToCheckPreconditions, err.Error())
-		return ctrl.Result{}, fmt.Errorf("unable to check preconditions: %w", err)
-	} else if !check {
-		log.Info("preconditions are not met, requeue")
-		c.Recorder.Event(o, corev1.EventTypeNormal, eventPreconditionsAreNotMet, "preconditions for this service are not met yet")
-		return requeueCtrlResult(), nil
+	ir.rec.Event(o, corev1.EventTypeNormal, eventWaitingforPreconditions, "waiting for preconditions of the instance")
+	if err := ir.waitForPreconditions(o); err != nil {
+		ir.rec.Event(o, corev1.EventTypeWarning, eventUnableToWaitForPreconditions, err.Error())
+		return ctrl.Result{}, fmt.Errorf("unable to wait for preconditions: %w", err)
 	}
+	ir.rec.Event(o, corev1.EventTypeNormal, eventPreconditionsAreMet, "preconditions are met, proceeding to create or update")
 
-	defer func() {
-		rErr = multierror.Append(rErr, c.Status().Update(ctx, o))
-		rErr = multierror.Append(rErr, c.Update(ctx, o))
-		rErr = rErr.(*multierror.Error).ErrorOrNil()
-	}()
-
-	log.Info("checking if generation was processed")
-	if !isAlreadyProcessed(o) {
-		log.Info("generation wasn't processed, creation or updating instance on aiven side")
-		c.resetAnnotations(o)
-		if err := h.createOrUpdate(avn, o); err != nil {
-			c.Recorder.Event(o, corev1.EventTypeWarning, eventUnableToCreateOrUpdateAtAiven, err.Error())
-			return ctrl.Result{}, fmt.Errorf("unable to create or update aiven instance: %w", err)
-		}
-		log.Info("processed instance, updating annotations", "generation", o.GetGeneration(), "annotations", o.GetAnnotations())
-		c.Recorder.Event(o, corev1.EventTypeNormal, eventCreatedOrUpdatedAtAiven, "instance was created at aiven but may not be running yet")
-		return requeueCtrlResult(), nil
+	ir.rec.Event(o, corev1.EventTypeNormal, eventCreateOrUpdatedAtAiven, "about to create instance at aiven")
+	if err := ir.createOrUpdateInstance(o); err != nil {
+		ir.rec.Event(o, corev1.EventTypeWarning, eventUnableToCreateOrUpdateAtAiven, err.Error())
+		return ctrl.Result{}, fmt.Errorf("unable to create or update instance at aiven: %w", err)
 	}
+	ir.rec.Event(o, corev1.EventTypeNormal, eventCreatedOrUpdatedAtAiven, "instance was created at aiven but may not be running yet")
 
-	log.Info("managing instance secret")
-	if serviceSecret, err := h.get(avn, o); err != nil {
-		if aiven.IsNotFound(err) {
-			log.Info("instance not found, requeue")
-			c.Recorder.Event(o, corev1.EventTypeNormal, eventInstanceNotFoundYetAtAiven, "instance was created but is not yet found via the api")
-			return requeueCtrlResult(), nil
-		}
-		c.Recorder.Event(o, corev1.EventTypeWarning, eventUnableToGetInstanceAtAiven, err.Error())
-		return ctrl.Result{}, fmt.Errorf("unable to get aiven instance: %w", err)
-	} else if serviceSecret != nil {
-		if err = c.createOrUpdateSecret(ctx, o, serviceSecret); err != nil {
-			c.Recorder.Event(o, corev1.EventTypeWarning, eventUnableToCreateOrUpdateServiceSecret, err.Error())
-			return ctrl.Result{}, fmt.Errorf("unable to manage aiven secret: %w", err)
-		}
-		c.Recorder.Eventf(o, corev1.EventTypeNormal, eventCreatedOrUpdatedServiceSecret, "%s/%s", serviceSecret.GetNamespace(), serviceSecret.GetName())
+	ir.rec.Event(o, corev1.EventTypeNormal, eventWaitingForTheInstanceToBeRunning, "waiting for the instance to be running")
+	if err := ir.updateInstanceStateAndSecretUntilRunning(ctx, o); err != nil {
+		ir.rec.Event(o, corev1.EventTypeWarning, eventUnableToWaitForInstanceToBeRunning, err.Error())
+		return ctrl.Result{}, fmt.Errorf("unable to wait until instance is running: %w", err)
 	}
+	ir.rec.Event(o, corev1.EventTypeNormal, eventInstanceIsRunning, "instance is in a RUNNING state")
 
-	log.Info("checking if instance is running")
-	if !isAlreadyRunning(o) {
-		log.Info("instance is not yet running, requeue")
-		c.Recorder.Event(o, corev1.EventTypeNormal, eventNotYetRunning, "instance is not yet running")
-		return requeueCtrlResult(), nil
-	}
-
-	log.Info("instance was successfully reconciled")
-	c.Recorder.Event(o, corev1.EventTypeNormal, eventRunning, "instance is running")
+	ir.log.Info("instance was successfully reconciled")
 	return ctrl.Result{}, nil
 }
 
-func (c *Controller) resetAnnotations(o client.Object) {
+func (ir instanceReconcilerHelper) deleteSync(o client.Object) error {
+	return wait.PollImmediate(pollInterval, pollTimeout, func() (bool, error) {
+		ir.log.Info("trying to delete aiven instance")
+		return ir.hnd.delete(ir.avn, o)
+	})
+}
+
+func (ir instanceReconcilerHelper) waitForPreconditions(o client.Object) error {
+	return wait.PollImmediate(pollInterval, pollTimeout, func() (bool, error) {
+		ir.log.Info("checking preconditions")
+		return ir.hnd.checkPreconditions(ir.avn, o)
+	})
+}
+
+func (ir instanceReconcilerHelper) createOrUpdateInstance(o client.Object) error {
+	ir.log.Info("checking if generation was processed")
+
+	if isAlreadyProcessed(o) {
+		return nil
+	}
+
+	ir.log.Info("generation wasn't processed, creation or updating instance on aiven side")
 	a := o.GetAnnotations()
 	delete(a, processedGenerationAnnotation)
 	delete(a, instanceIsRunningAnnotation)
+
+	if err := ir.hnd.createOrUpdate(ir.avn, o); err != nil {
+		return fmt.Errorf("unable to create or update aiven instance: %w", err)
+	}
+	ir.log.Info(
+		"processed instance, updating annotations",
+		"generation", o.GetGeneration(),
+		"annotations", o.GetAnnotations(),
+	)
+	return nil
 }
 
-func (c *Controller) loggerForInstance(o client.Object) logr.Logger {
+func (ir instanceReconcilerHelper) updateInstanceStateAndSecretUntilRunning(ctx context.Context, o client.Object) (err error) {
+	return wait.PollImmediate(pollInterval, pollTimeout, func() (bool, error) {
+		ir.log.Info("checking if instance is ready")
+
+		defer func() {
+			err = multierror.Append(err, ir.k8s.Status().Update(ctx, o))
+			err = multierror.Append(err, ir.k8s.Update(ctx, o))
+			err = err.(*multierror.Error).ErrorOrNil()
+		}()
+
+		serviceSecret, err := ir.hnd.get(ir.avn, o)
+		if err != nil {
+			if aiven.IsNotFound(err) {
+				return false, nil
+			}
+			return false, fmt.Errorf("unable to get aiven instance: %w", err)
+		} else if serviceSecret != nil {
+			if err = ir.createOrUpdateSecret(ctx, o, serviceSecret); err != nil {
+				return false, fmt.Errorf("unable to create or update aiven secret: %w", err)
+			}
+		}
+		return isAlreadyRunning(o), nil
+	})
+}
+
+func (ir instanceReconcilerHelper) createOrUpdateSecret(ctx context.Context, owner client.Object, want *corev1.Secret) error {
+	_, err := controllerutil.CreateOrUpdate(ctx, ir.k8s, want, func() error {
+		return ctrl.SetControllerReference(owner, want, ir.k8s.Scheme())
+	})
+	return err
+}
+
+func setupLogger(log logr.Logger, o client.Object) logr.Logger {
 	a := make(map[string]string)
 	if r, ok := o.GetAnnotations()[instanceIsRunningAnnotation]; ok {
 		a[instanceIsRunningAnnotation] = r
@@ -220,14 +280,7 @@ func (c *Controller) loggerForInstance(o client.Object) logr.Logger {
 	kind := strings.ToLower(o.GetObjectKind().GroupVersionKind().Kind)
 	name := types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()}
 
-	return c.Log.WithValues("kind", kind, "name", name, "annotations", a)
-}
-
-func (c *Controller) createOrUpdateSecret(ctx context.Context, owner client.Object, want *corev1.Secret) error {
-	_, err := controllerutil.CreateOrUpdate(ctx, c.Client, want, func() error {
-		return ctrl.SetControllerReference(owner, want, c.Scheme)
-	})
-	return err
+	return log.WithValues("kind", kind, "name", name, "annotations", a)
 }
 
 // UserConfigurationToAPI converts UserConfiguration options structure
