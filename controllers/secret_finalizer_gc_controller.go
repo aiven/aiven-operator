@@ -9,6 +9,7 @@ import (
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/fields"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -78,23 +79,21 @@ func (c *SecretFinalizerGCController) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 func (c *SecretFinalizerGCController) secretIsStillNeeded(ctx context.Context, secret *corev1.Secret) (bool, error) {
-	type stillNeededByFunc func(context.Context, *corev1.Secret) (bool, error)
-
-	for _, stillNeededBy := range []stillNeededByFunc{
-		c.secretIsStillNeededByKafka,
-		c.secretIsStillNeededByKafkaACL,
-		c.secretIsStillNeededByKafkaTopic,
-		c.secretIsStillNeededByKafkaSchema,
-		c.secretIsStillNeededByProject,
-		c.secretIsStillNeededByProjectVPC,
-		c.secretIsStillNeededByServiceIntegration,
-		c.secretIsStillNeededByServiceUser,
-		c.secretIsStillNeededByPG,
-		c.secretIsStillNeededByDatabase,
-		c.secretIsStillNeededByConnectionPool,
+	for _, listType := range []client.ObjectList{
+		&v1alpha1.KafkaList{},
+		&v1alpha1.KafkaACLList{},
+		&v1alpha1.KafkaTopicList{},
+		&v1alpha1.KafkaSchemaList{},
+		&v1alpha1.ProjectList{},
+		&v1alpha1.ProjectVPCList{},
+		&v1alpha1.ServiceIntegrationList{},
+		&v1alpha1.ServiceUserList{},
+		&v1alpha1.PGList{},
+		&v1alpha1.DatabaseList{},
+		&v1alpha1.ConnectionPoolList{},
 	} {
-		if needed, err := stillNeededBy(ctx, secret); err != nil {
-			return false, err
+		if needed, err := c.secretIsStillNeededBy(ctx, secret, listType); err != nil {
+			return false, fmt.Errorf("unable to decide if secret is still used by some aiven resource: %w", err)
 		} else if needed {
 			return true, nil
 		}
@@ -135,92 +134,9 @@ func instancesThatUseThisSecret(secret *corev1.Secret) *client.ListOptions {
 	}
 }
 
-// TODO: find out how to iterate *client.ObjectList so that we can take the list type as parameter
-
-func (c *SecretFinalizerGCController) secretIsStillNeededByKafka(ctx context.Context, secret *corev1.Secret) (bool, error) {
-	instanceList := &v1alpha1.KafkaList{}
-	if err := c.List(ctx, instanceList, instancesThatUseThisSecret(secret)); err != nil {
+func (c *SecretFinalizerGCController) secretIsStillNeededBy(ctx context.Context, secret *corev1.Secret, list client.ObjectList) (bool, error) {
+	if err := c.List(ctx, list, instancesThatUseThisSecret(secret)); err != nil {
 		return false, client.IgnoreNotFound(err)
 	}
-	return len(instanceList.Items) > 0, nil
-}
-
-func (c *SecretFinalizerGCController) secretIsStillNeededByKafkaACL(ctx context.Context, secret *corev1.Secret) (bool, error) {
-	instanceList := &v1alpha1.KafkaACLList{}
-	if err := c.List(ctx, instanceList, instancesThatUseThisSecret(secret)); err != nil {
-		return false, client.IgnoreNotFound(err)
-	}
-	return len(instanceList.Items) > 0, nil
-}
-
-func (c *SecretFinalizerGCController) secretIsStillNeededByKafkaTopic(ctx context.Context, secret *corev1.Secret) (bool, error) {
-	instanceList := &v1alpha1.KafkaTopicList{}
-	if err := c.List(ctx, instanceList, instancesThatUseThisSecret(secret)); err != nil {
-		return false, client.IgnoreNotFound(err)
-	}
-	return len(instanceList.Items) > 0, nil
-}
-
-func (c *SecretFinalizerGCController) secretIsStillNeededByKafkaSchema(ctx context.Context, secret *corev1.Secret) (bool, error) {
-	instanceList := &v1alpha1.KafkaTopicList{}
-	if err := c.List(ctx, instanceList, instancesThatUseThisSecret(secret)); err != nil {
-		return false, client.IgnoreNotFound(err)
-	}
-	return len(instanceList.Items) > 0, nil
-}
-
-func (c *SecretFinalizerGCController) secretIsStillNeededByProject(ctx context.Context, secret *corev1.Secret) (bool, error) {
-	instanceList := &v1alpha1.ProjectList{}
-	if err := c.List(ctx, instanceList, instancesThatUseThisSecret(secret)); err != nil {
-		return false, client.IgnoreNotFound(err)
-	}
-	return len(instanceList.Items) > 0, nil
-}
-
-func (c *SecretFinalizerGCController) secretIsStillNeededByProjectVPC(ctx context.Context, secret *corev1.Secret) (bool, error) {
-	instanceList := &v1alpha1.ProjectVPCList{}
-	if err := c.List(ctx, instanceList, instancesThatUseThisSecret(secret)); err != nil {
-		return false, client.IgnoreNotFound(err)
-	}
-	return len(instanceList.Items) > 0, nil
-}
-
-func (c *SecretFinalizerGCController) secretIsStillNeededByServiceIntegration(ctx context.Context, secret *corev1.Secret) (bool, error) {
-	instanceList := &v1alpha1.ServiceIntegrationList{}
-	if err := c.List(ctx, instanceList, instancesThatUseThisSecret(secret)); err != nil {
-		return false, client.IgnoreNotFound(err)
-	}
-	return len(instanceList.Items) > 0, nil
-}
-
-func (c *SecretFinalizerGCController) secretIsStillNeededByServiceUser(ctx context.Context, secret *corev1.Secret) (bool, error) {
-	instanceList := &v1alpha1.ServiceUserList{}
-	if err := c.List(ctx, instanceList, instancesThatUseThisSecret(secret)); err != nil {
-		return false, client.IgnoreNotFound(err)
-	}
-	return len(instanceList.Items) > 0, nil
-}
-
-func (c *SecretFinalizerGCController) secretIsStillNeededByPG(ctx context.Context, secret *corev1.Secret) (bool, error) {
-	instanceList := &v1alpha1.PGList{}
-	if err := c.List(ctx, instanceList, instancesThatUseThisSecret(secret)); err != nil {
-		return false, client.IgnoreNotFound(err)
-	}
-	return len(instanceList.Items) > 0, nil
-}
-
-func (c *SecretFinalizerGCController) secretIsStillNeededByDatabase(ctx context.Context, secret *corev1.Secret) (bool, error) {
-	instanceList := &v1alpha1.DatabaseList{}
-	if err := c.List(ctx, instanceList, instancesThatUseThisSecret(secret)); err != nil {
-		return false, client.IgnoreNotFound(err)
-	}
-	return len(instanceList.Items) > 0, nil
-}
-
-func (c *SecretFinalizerGCController) secretIsStillNeededByConnectionPool(ctx context.Context, secret *corev1.Secret) (bool, error) {
-	instanceList := &v1alpha1.ConnectionPoolList{}
-	if err := c.List(ctx, instanceList, instancesThatUseThisSecret(secret)); err != nil {
-		return false, client.IgnoreNotFound(err)
-	}
-	return len(instanceList.Items) > 0, nil
+	return meta.LenList(list) > 0, nil
 }
