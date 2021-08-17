@@ -4,7 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    operators.operatorframework.io/builder: operator-sdk-v1.9.0
+    operators.operatorframework.io/builder: operator-sdk-v1.10.0+git
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
   name: aiven-operator.v0.0.1
   namespace: placeholder
@@ -47,10 +47,10 @@ spec:
       kind: KafkaTopic
       name: kafkatopics.aiven.io
       version: v1alpha1
-    - description: PG is the Schema for the pgs API
-      displayName: PG
-      kind: PG
-      name: pgs.aiven.io
+    - description: PostgreSQL is the Schema for the postgresql API
+      displayName: Postgre SQL
+      kind: PostgreSQL
+      name: postgresqls.aiven.io
       version: v1alpha1
     - description: Project is the Schema for the projects API
       displayName: Project
@@ -233,7 +233,7 @@ spec:
         - apiGroups:
           - aiven.io
           resources:
-          - pgs
+          - postgresqls
           verbs:
           - create
           - delete
@@ -245,7 +245,7 @@ spec:
         - apiGroups:
           - aiven.io
           resources:
-          - pgs/status
+          - postgresqls/status
           verbs:
           - get
           - patch
@@ -319,6 +319,7 @@ spec:
           - delete
           - get
           - list
+          - update
           - watch
         - apiGroups:
           - aiven.io
@@ -326,6 +327,7 @@ spec:
           - serviceusers/status
           verbs:
           - get
+          - update
         - apiGroups:
           - coordination.k8s.io
           resources:
@@ -355,6 +357,7 @@ spec:
                 command:
                 - /manager
                 image: controller:latest
+                imagePullPolicy: IfNotPresent
                 name: manager
                 ports:
                 - containerPort: 9443
@@ -591,11 +594,11 @@ spec:
       - UPDATE
       - DELETE
       resources:
-      - pgs
+      - postgresqls
     sideEffects: None
     targetPort: 9443
     type: ValidatingAdmissionWebhook
-    webhookPath: /validate-aiven-io-v1alpha1-pg
+    webhookPath: /validate-aiven-io-v1alpha1-postgresql
   - admissionReviewVersions:
     - v1
     containerPort: 443
@@ -832,11 +835,11 @@ spec:
       - CREATE
       - UPDATE
       resources:
-      - pgs
+      - postgresqls
     sideEffects: None
     targetPort: 9443
     type: MutatingAdmissionWebhook
-    webhookPath: /mutate-aiven-io-v1alpha1-pg
+    webhookPath: /mutate-aiven-io-v1alpha1-postgresql
   - admissionReviewVersions:
     - v1
     containerPort: 443

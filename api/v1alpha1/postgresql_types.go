@@ -6,38 +6,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-type ServiceCommonSpec struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// Target project.
-	Project string `json:"project"`
-
-	// +kubebuilder:validation:MaxLength=128
-	// Subscription plan.
-	Plan string `json:"plan,omitempty"`
-
-	// +kubebuilder:validation:MaxLength=256
-	// Cloud the service runs in.
-	CloudName string `json:"cloudName,omitempty"`
-
-	// +kubebuilder:validation:MaxLength=36
-	// Identifier of the VPC the service should be in, if any.
-	ProjectVPCID string `json:"projectVpcId,omitempty"`
-
-	// +kubebuilder:validation:Enum=monday;tuesday;wednesday;thursday;friday;saturday;sunday;never
-	// Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.
-	MaintenanceWindowDow string `json:"maintenanceWindowDow,omitempty"`
-
-	// +kubebuilder:validation:MaxLength=8
-	// Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
-	MaintenanceWindowTime string `json:"maintenanceWindowTime,omitempty"`
-
-	// Prevent service from being deleted. It is recommended to have this enabled for all services.
-	TerminationProtection bool `json:"terminationProtection,omitempty"`
-}
-
-// PGSpec defines the desired state of PG
-type PGSpec struct {
+// PostgreSQLSpec defines the desired state of postgres instance
+type PostgreSQLSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
 	// Authentication reference to Aiven token in a secret
@@ -47,23 +17,90 @@ type PGSpec struct {
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
 	// PostgreSQL specific user configuration options
-	PGUserConfig PGUserConfig `json:"pgUserConfig,omitempty"`
+	UserConfig PostgreSQLUserconfig `json:"userConfig,omitempty"`
 }
 
-type PgLookoutUserConfig struct {
-	// +kubebuilder:validation:Minimum=10
-	// max_failover_replication_time_lag Number of seconds of master unavailability before triggering database failover to standby
-	MaxFailoverReplicationTimeLag *int64 `json:"max_failover_replication_time_lag,omitempty"`
-}
+type PostgreSQLUserconfig struct {
+	// +kubebuilder:validation:Enum="9.5";"9.6";"10";"11";"12"
+	// PostgreSQL major version
+	PgVersion string `json:"pg_version,omitempty"`
 
-type TimescaledbUserConfig struct {
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=59
+	// The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
+	BackupMinute *int64 `json:"backup_minute,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=63
+	// Name of the PostgreSQL Service from which to fork (deprecated, use service_to_fork_from). This has effect only when a new service is being created.
+	PgServiceToForkFrom string `json:"pg_service_to_fork_from,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=23
+	// The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.
+	BackupHour *int64 `json:"backup_hour,omitempty"`
+
+	// PGLookout settings
+	Pglookout PgLookoutUserConfig `json:"pglookout,omitempty"`
+
+	// +kubebuilder:validation:Minimum=20
+	// +kubebuilder:validation:Maximum=60
+	// shared_buffers_percentage Percentage of total RAM that the database server uses for shared memory buffers. Valid range is 20-60 (float), which corresponds to 20% - 60%. This setting adjusts the shared_buffers configuration value. The absolute maximum is 12 GB.
+	SharedBuffersPercentage *int64 `json:"shared_buffers_percentage,omitempty"`
+
+	// +kubebuilder:validation:Enum=quorum;off
+	// Synchronous replication type. Note that the service plan also needs to support synchronous replication.
+	SynchronousReplication string `json:"synchronous_replication,omitempty"`
+
+	// TimescaleDB extension configuration values
+	Timescaledb TimescaledbUserConfig `json:"timescaledb,omitempty"`
+
+	// +kubebuilder:validation:Format="^[a-zA-Z0-9-_]+$"
+	// +kubebuilder:validation:MaxLength=256
+	// Custom password for admin user. Defaults to random string. This must be set only when a new service is being created.
+	AdminPassword string `json:"admin_password,omitempty"`
+
+	// IP filter Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
+	IPFilter []string `json:"ip_filter,omitempty"`
+
+	// PGBouncer connection pooling settings
+	Pgbouncer PgbouncerUserConfig `json:"pgbouncer,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=32
+	// Recovery target time when forking a service. This has effect only when a new service is being created.
+	RecoveryTargetTime string `json:"recovery_target_time,omitempty"`
+
+	// +kubebuilder:validation:Format="^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$"
+	// +kubebuilder:validation:MaxLength=64
+	// Custom username for admin user. This must be set only when a new service is being created.
+	AdminUsername string `json:"admin_username,omitempty"`
+
+	// Migrate data from existing server
+	Migration MigrationUserConfig `json:"migration,omitempty"`
+
+	// Allow access to selected service ports from private networks
+	PrivateAccess PrivateAccessUserConfig `json:"private_access,omitempty"`
+
+	// Allow access to selected service ports from the public Internet
+	PublicAccess PublicAccessUserConfig `json:"public_access,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=63
+	// Name of another service to fork from. This has effect only when a new service is being created.
+	ServiceToForkFrom string `json:"service_to_fork_from,omitempty"`
+
+	// +kubebuilder:validation:Enum=aiven;timescale
+	// Variant of the PostgreSQL service, may affect the features that are exposed by default
+	Variant string `json:"variant,omitempty"`
+
 	// +kubebuilder:validation:Minimum=1
-	// +kubebuilder:validation:Maximum=4096
-	// timescaledb.max_background_workers The number of background workers for timescaledb operations. You should configure this setting to the sum of your number of databases and the total number of concurrent background workers you want running at any given point in time.
-	MaxBackgroundWorkers *int64 `json:"max_background_workers,omitempty"`
+	// +kubebuilder:validation:Maximum=1024
+	// work_mem Sets the maximum amount of memory to be used by a query operation (such as a sort or hash table) before writing to temporary disk files, in MB. Default is 1MB + 0.075% of total RAM (up to 32MB).
+	WorkMem *int64 `json:"work_mem,omitempty"`
+
+	// postgresql.conf configuration values
+	Pg PostgreSQLSubUserConfig `json:"pg,omitempty"`
 }
 
-type PGSubPGUserConfig struct {
+type PostgreSQLSubUserConfig struct {
 	// +kubebuilder:validation:Maximum=86400000
 	// log_min_duration_statement Log statements that take more than this number of milliseconds to run, -1 disables
 	LogMinDurationStatement *int64 `json:"log_min_duration_statement,omitempty"`
@@ -251,6 +288,19 @@ type PgbouncerUserConfig struct {
 	ServerResetQueryAlways *bool `json:"server_reset_query_always,omitempty"`
 }
 
+type PgLookoutUserConfig struct {
+	// +kubebuilder:validation:Minimum=10
+	// max_failover_replication_time_lag Number of seconds of master unavailability before triggering database failover to standby
+	MaxFailoverReplicationTimeLag *int64 `json:"max_failover_replication_time_lag,omitempty"`
+}
+
+type TimescaledbUserConfig struct {
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=4096
+	// timescaledb.max_background_workers The number of background workers for timescaledb operations. You should configure this setting to the sum of your number of databases and the total number of concurrent background workers you want running at any given point in time.
+	MaxBackgroundWorkers *int64 `json:"max_background_workers,omitempty"`
+}
+
 type MigrationUserConfig struct {
 	// +kubebuilder:validation:MaxLength=255
 	// Hostname or IP address of the server where to migrate data from
@@ -299,116 +349,36 @@ type PublicAccessUserConfig struct {
 	Prometheus *bool `json:"prometheus,omitempty"`
 }
 
-type PGUserConfig struct {
-	// +kubebuilder:validation:Enum="9.5";"9.6";"10";"11";"12"
-	// PostgreSQL major version
-	PgVersion string `json:"pg_version,omitempty"`
-
-	// +kubebuilder:validation:Minimum=0
-	// +kubebuilder:validation:Maximum=59
-	// The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
-	BackupMinute *int64 `json:"backup_minute,omitempty"`
-
-	// +kubebuilder:validation:MaxLength=63
-	// Name of the PG Service from which to fork (deprecated, use service_to_fork_from). This has effect only when a new service is being created.
-	PgServiceToForkFrom string `json:"pg_service_to_fork_from,omitempty"`
-
-	// +kubebuilder:validation:Minimum=0
-	// +kubebuilder:validation:Maximum=23
-	// The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.
-	BackupHour *int64 `json:"backup_hour,omitempty"`
-
-	// PGLookout settings
-	Pglookout PgLookoutUserConfig `json:"pglookout,omitempty"`
-
-	// +kubebuilder:validation:Minimum=20
-	// +kubebuilder:validation:Maximum=60
-	// shared_buffers_percentage Percentage of total RAM that the database server uses for shared memory buffers. Valid range is 20-60 (float), which corresponds to 20% - 60%. This setting adjusts the shared_buffers configuration value. The absolute maximum is 12 GB.
-	SharedBuffersPercentage *int64 `json:"shared_buffers_percentage,omitempty"`
-
-	// +kubebuilder:validation:Enum=quorum;off
-	// Synchronous replication type. Note that the service plan also needs to support synchronous replication.
-	SynchronousReplication string `json:"synchronous_replication,omitempty"`
-
-	// TimescaleDB extension configuration values
-	Timescaledb TimescaledbUserConfig `json:"timescaledb,omitempty"`
-
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9-_]+$"
-	// +kubebuilder:validation:MaxLength=256
-	// Custom password for admin user. Defaults to random string. This must be set only when a new service is being created.
-	AdminPassword string `json:"admin_password,omitempty"`
-
-	// postgresql.conf configuration values
-	Pg PGSubPGUserConfig `json:"pg,omitempty"`
-
-	// IP filter Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
-	IPFilter []string `json:"ip_filter,omitempty"`
-
-	// PGBouncer connection pooling settings
-	Pgbouncer PgbouncerUserConfig `json:"pgbouncer,omitempty"`
-
-	// +kubebuilder:validation:MaxLength=32
-	// Recovery target time when forking a service. This has effect only when a new service is being created.
-	RecoveryTargetTime string `json:"recovery_target_time,omitempty"`
-
-	// +kubebuilder:validation:Format="^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$"
-	// +kubebuilder:validation:MaxLength=64
-	// Custom username for admin user. This must be set only when a new service is being created.
-	AdminUsername string `json:"admin_username,omitempty"`
-
-	// Migrate data from existing server
-	Migration MigrationUserConfig `json:"migration,omitempty"`
-
-	// Allow access to selected service ports from private networks
-	PrivateAccess PrivateAccessUserConfig `json:"private_access,omitempty"`
-
-	// Allow access to selected service ports from the public Internet
-	PublicAccess PublicAccessUserConfig `json:"public_access,omitempty"`
-
-	// +kubebuilder:validation:MaxLength=63
-	// Name of another service to fork from. This has effect only when a new service is being created.
-	ServiceToForkFrom string `json:"service_to_fork_from,omitempty"`
-
-	// +kubebuilder:validation:Enum=aiven;timescale
-	// Variant of the PostgreSQL service, may affect the features that are exposed by default
-	Variant string `json:"variant,omitempty"`
-
-	// +kubebuilder:validation:Minimum=1
-	// +kubebuilder:validation:Maximum=1024
-	// work_mem Sets the maximum amount of memory to be used by a query operation (such as a sort or hash table) before writing to temporary disk files, in MB. Default is 1MB + 0.075% of total RAM (up to 32MB).
-	WorkMem *int64 `json:"work_mem,omitempty"`
-}
-
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 
-// PG is the Schema for the pgs API
+// PostgreSQL is the Schema for the postgresql API
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
 // +kubebuilder:printcolumn:name="Region",type="string",JSONPath=".spec.cloudName"
 // +kubebuilder:printcolumn:name="Plan",type="string",JSONPath=".spec.plan"
 // +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state"
-type PG struct {
+type PostgreSQL struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   PGSpec        `json:"spec,omitempty"`
-	Status ServiceStatus `json:"status,omitempty"`
+	Spec   PostgreSQLSpec `json:"spec,omitempty"`
+	Status ServiceStatus  `json:"status,omitempty"`
 }
 
-func (pg PG) AuthSecretRef() AuthSecretReference {
+func (pg PostgreSQL) AuthSecretRef() AuthSecretReference {
 	return pg.Spec.AuthSecretRef
 }
 
 // +kubebuilder:object:root=true
 
-// PGList contains a list of PG
-type PGList struct {
+// PostgreSQLList contains a list of PostgreSQL instances
+type PostgreSQLList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []PG `json:"items"`
+	Items           []PostgreSQL `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&PG{}, &PGList{})
+	SchemeBuilder.Register(&PostgreSQL{}, &PostgreSQLList{})
 }

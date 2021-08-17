@@ -24,8 +24,8 @@ type ServiceUserReconciler struct {
 
 type ServiceUserHandler struct{}
 
-// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers,verbs=get;list;watch;create;delete
-// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers/status,verbs=get
+// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers,verbs=update;get;list;watch;create;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers/status,verbs=get;update
 
 func (r *ServiceUserReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, ServiceUserHandler{}, &v1alpha1.ServiceUser{})

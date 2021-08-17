@@ -14,7 +14,7 @@ With Aiven Kubernetes Operator, you can manage Aiven for PostgreSQL through the 
 1. Create a file named `pg-sample.yaml` with the following content:
 ```yaml
 apiVersion: aiven.io/v1alpha1
-kind: PG
+kind: PostgreSQL
 metadata:
   name: pg-sample
 spec:
@@ -41,7 +41,7 @@ spec:
   maintenanceWindowTime: 23:00:00
 
   # specific PostgreSQL configuration
-  pgUserConfig:
+  userConfig:
     pg_version: '11'
 ```
 

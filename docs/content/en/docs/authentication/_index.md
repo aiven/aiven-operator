@@ -23,7 +23,7 @@ $ kubectl create secret generic aiven-token --from-literal=token="<your-token-he
 When managing your Aiven resources, we will be using the created Secret in the `authSecretRef` field. It will look like the example below:
 ```yaml
 apiVersion: aiven.io/v1alpha1
-kind: PG
+kind: PostgreSQL
 metadata:
   name: pg-sample
 spec:
@@ -38,7 +38,7 @@ Also, note that within Aiven, all resources are conceptually inside a _Project_.
 The Project name is required in most of the resources. It will look like the example below:
 ```yaml
 apiVersion: aiven.io/v1alpha1
-kind: PG
+kind: PostgreSQL
 metadata:
   name: pg-sample
 spec:

@@ -4,11 +4,12 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 )
 
 func TestUserConfigurationToAPI(t *testing.T) {
@@ -29,9 +30,9 @@ func TestUserConfigurationToAPI(t *testing.T) {
 		{
 			name: "basic",
 			args: args{
-				c: v1alpha1.PGUserConfig{
+				c: v1alpha1.PostgreSQLUserconfig{
 					PgVersion: "12",
-					Pg: v1alpha1.PGSubPGUserConfig{
+					Pg: v1alpha1.PostgreSQLSubUserConfig{
 						Timezone:      "CEST",
 						TempFileLimit: &tempFileLimit,
 					},

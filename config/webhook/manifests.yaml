@@ -152,7 +152,7 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-aiven-io-v1alpha1-pg
+      path: /mutate-aiven-io-v1alpha1-postgresql
   failurePolicy: Fail
   name: mpg.kb.io
   rules:
@@ -164,7 +164,7 @@ webhooks:
     - CREATE
     - UPDATE
     resources:
-    - pgs
+    - postgresqls
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -405,7 +405,7 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-aiven-io-v1alpha1-pg
+      path: /validate-aiven-io-v1alpha1-postgresql
   failurePolicy: Fail
   name: vpg.kb.io
   rules:
@@ -418,7 +418,7 @@ webhooks:
     - UPDATE
     - DELETE
     resources:
-    - pgs
+    - postgresqls
   sideEffects: None
 - admissionReviewVersions:
   - v1

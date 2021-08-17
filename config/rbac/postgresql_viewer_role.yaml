@@ -1,13 +1,13 @@
-# permissions for end users to view pgs.
+# permissions for end users to view postgresqls.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: pg-viewer-role
+  name: postgresql-viewer-role
 rules:
 - apiGroups:
   - aiven.io
   resources:
-  - pgs
+  - postgresqls
   verbs:
   - get
   - list
@@ -15,6 +15,6 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
-  - pgs/status
+  - postgresqls/status
   verbs:
   - get

@@ -7,12 +7,13 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
-
-	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("ServiceUser Controller", func() {
@@ -25,7 +26,7 @@ var _ = Describe("ServiceUser Controller", func() {
 	)
 
 	var (
-		pg          *v1alpha1.PG
+		pg          *v1alpha1.PostgreSQL
 		su          *v1alpha1.ServiceUser
 		serviceName string
 		userName    string
@@ -39,7 +40,7 @@ var _ = Describe("ServiceUser Controller", func() {
 		pg = pgSpec(serviceName, namespace)
 		su = serviceUserSpec(serviceName, userName, namespace)
 
-		By("Creating a new PG CR instance")
+		By("Creating a new PostgreSQL CR instance")
 		Expect(k8sClient.Create(ctx, pg)).Should(Succeed())
 
 		By("Creating a new ServiceUser CR instance")
@@ -80,7 +81,7 @@ var _ = Describe("ServiceUser Controller", func() {
 		By("Ensures that ServiceUser instance was deleted")
 		ensureDelete(ctx, su)
 
-		By("Ensures that PG instance was deleted")
+		By("Ensures that PostgreSQL instance was deleted")
 		ensureDelete(ctx, pg)
 	})
 })

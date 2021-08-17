@@ -5,7 +5,7 @@ metadata:
     cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: pgs.aiven.io
+  name: postgresqls.aiven.io
 spec:
   conversion:
     strategy: Webhook
@@ -22,10 +22,10 @@ spec:
       - v1beta1
   group: aiven.io
   names:
-    kind: PG
-    listKind: PGList
-    plural: pgs
-    singular: pg
+    kind: PostgreSQL
+    listKind: PostgreSQLList
+    plural: postgresqls
+    singular: postgresql
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
@@ -44,7 +44,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: PG is the Schema for the pgs API
+        description: PostgreSQL is the Schema for the postgresql API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -59,14 +59,16 @@ spec:
           metadata:
             type: object
           spec:
-            description: PGSpec defines the desired state of PG
+            description: PostgreSQLSpec defines the desired state of postgres instance
             properties:
               authSecretRef:
                 description: Authentication reference to Aiven token in a secret
                 properties:
                   key:
+                    minLength: 1
                     type: string
                   name:
+                    minLength: 1
                     type: string
                 required:
                 - key
@@ -103,7 +105,24 @@ spec:
                   UTC time in HH:mm:ss format.
                 maxLength: 8
                 type: string
-              pgUserConfig:
+              plan:
+                description: Subscription plan.
+                maxLength: 128
+                type: string
+              project:
+                description: Target project.
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              projectVpcId:
+                description: Identifier of the VPC the service should be in, if any.
+                maxLength: 36
+                type: string
+              terminationProtection:
+                description: Prevent service from being deleted. It is recommended
+                  to have this enabled for all services.
+                type: boolean
+              userConfig:
                 description: PostgreSQL specific user configuration options
                 properties:
                   admin_password:
@@ -466,9 +485,9 @@ spec:
                         type: integer
                     type: object
                   pg_service_to_fork_from:
-                    description: Name of the PG Service from which to fork (deprecated,
-                      use service_to_fork_from). This has effect only when a new service
-                      is being created.
+                    description: Name of the PostgreSQL Service from which to fork
+                      (deprecated, use service_to_fork_from). This has effect only
+                      when a new service is being created.
                     maxLength: 63
                     type: string
                   pg_version:
@@ -603,23 +622,6 @@ spec:
                     minimum: 1
                     type: integer
                 type: object
-              plan:
-                description: Subscription plan.
-                maxLength: 128
-                type: string
-              project:
-                description: Target project.
-                format: ^[a-zA-Z0-9_-]*$
-                maxLength: 63
-                type: string
-              projectVpcId:
-                description: Identifier of the VPC the service should be in, if any.
-                maxLength: 36
-                type: string
-              terminationProtection:
-                description: Prevent service from being deleted. It is recommended
-                  to have this enabled for all services.
-                type: boolean
             required:
             - authSecretRef
             - project

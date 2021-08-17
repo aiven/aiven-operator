@@ -13,7 +13,7 @@ operator-sdk version: "v1.6.1-19-xxx", commit: "9b92c439354c090cdf9f178a210e1645
 
 ## Usage
 
-After the local environment is ready - create a `Secret` containing your Adyen API token:
+After the local environment is ready - create a `Secret` containing your Aiven API token:
 
 ```shell script
 kubectl create secret generic aiven-token --from-literal='token=${AIVEN_TOKEN}'
@@ -29,8 +29,8 @@ Run aiven-operator without webhooks enabled. If you have enabled webhooks in you
 cert-manager already installed in the cluster, and it isn't easy to get it running and properly configured on the local
 env. Therefore we disable webhooks and will have an opportunity to validate these features on a public cloud Kubernetes
 cluster. Webhooks are responsible for validating whether depended entities are already created, and it is safe to
-execute reconciler of a CR. Therefore with webhooks disabled, a user has to, for example, wait until PG service is
-created before attempting to create a PG database.
+execute reconciler of a CR. Therefore with webhooks disabled, a user has to, for example, wait until PostgreSQL service is
+created before attempting to create a PostgreSQL database.
 
 ```shell script
 make run ENABLE_WEBHOOKS=false 

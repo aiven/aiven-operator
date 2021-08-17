@@ -129,11 +129,11 @@ var _ = BeforeSuite(func(done Done) {
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
-	// set-up PG reconciler
-	err = (&PGReconciler{
+	// set-up PostgreSQL reconciler
+	err = (&PostgreSQLReconciler{
 		Controller{
 			Client: k8sManager.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("PG"),
+			Log:    ctrl.Log.WithName("controllers").WithName("PostgreSQL"),
 			Scheme: k8sManager.GetScheme(),
 		},
 	}).SetupWithManager(k8sManager)

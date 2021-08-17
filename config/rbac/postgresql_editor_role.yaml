@@ -1,13 +1,13 @@
-# permissions for end users to edit pgs.
+# permissions for end users to edit postgresqls.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: pg-editor-role
+  name: postgresql-editor-role
 rules:
 - apiGroups:
   - aiven.io
   resources:
-  - pgs
+  - postgresqls
   verbs:
   - create
   - delete
@@ -19,6 +19,6 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
-  - pgs/status
+  - postgresqls/status
   verbs:
   - get

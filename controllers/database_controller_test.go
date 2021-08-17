@@ -6,12 +6,13 @@ import (
 	"time"
 
 	"k8s.io/apimachinery/pkg/api/meta"
-
-	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Database Controller", func() {
@@ -24,8 +25,8 @@ var _ = Describe("Database Controller", func() {
 	)
 
 	var (
-		db          *v1alpha1.Database = nil
-		pg          *v1alpha1.PG
+		db          *v1alpha1.Database
+		pg          *v1alpha1.PostgreSQL
 		serviceName string
 		dbName      string
 		ctx         context.Context
@@ -38,7 +39,7 @@ var _ = Describe("Database Controller", func() {
 		pg = pgSpec(serviceName, namespace)
 		db = databaseSpec(serviceName, dbName, namespace)
 
-		By("Creating a new PG CR instance")
+		By("Creating a new PostgreSQL CR instance")
 		Expect(k8sClient.Create(ctx, pg)).Should(Succeed())
 
 		By("Creating a new Database CR instance")
@@ -74,7 +75,7 @@ var _ = Describe("Database Controller", func() {
 		By("Ensures that Database instance was deleted")
 		ensureDelete(ctx, db)
 
-		By("Ensures that PG instance was deleted")
+		By("Ensures that PostgreSQL instance was deleted")
 		ensureDelete(ctx, pg)
 	})
 })

@@ -74,14 +74,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.PGReconciler{
+	if err = (&controllers.PostgreSQLReconciler{
 		Controller: controllers.Controller{
 			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("PG"),
+			Log:    ctrl.Log.WithName("controllers").WithName("PostgreSQL"),
 			Scheme: mgr.GetScheme(),
 		},
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "PG")
+		setupLog.Error(err, "unable to create controller", "controller", "PostgreSQL")
 		os.Exit(1)
 	}
 
@@ -200,8 +200,8 @@ func main() {
 			setupLog.Error(err, "unable to create webhook", "webhook", "Project")
 			os.Exit(1)
 		}
-		if err = (&v1alpha1.PG{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "PG")
+		if err = (&v1alpha1.PostgreSQL{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "PostgreSQL")
 			os.Exit(1)
 		}
 		if err = (&v1alpha1.Database{}).SetupWebhookWithManager(mgr); err != nil {
