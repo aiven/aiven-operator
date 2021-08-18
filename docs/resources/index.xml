@@ -423,7 +423,7 @@ kafka-schema kafka-sample &amp;lt;your-project&amp;gt; MySchema BACKWARD &lt;spa
 &lt;li>Create a file named &lt;code>pg-sample.yaml&lt;/code> with the following content:&lt;/li>
 &lt;/ol>
 &lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
-&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">PG&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">PostgreSQL&lt;/span>
 &lt;span style="color:#f92672">metadata&lt;/span>:
 &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">pg-sample&lt;/span>
 &lt;span style="color:#f92672">spec&lt;/span>:
@@ -444,7 +444,7 @@ kafka-schema kafka-sample &amp;lt;your-project&amp;gt; MySchema BACKWARD &lt;spa
 &lt;span style="color:#f92672">maintenanceWindowDow&lt;/span>: &lt;span style="color:#ae81ff">friday&lt;/span>
 &lt;span style="color:#f92672">maintenanceWindowTime&lt;/span>: &lt;span style="color:#ae81ff">23&lt;/span>:&lt;span style="color:#ae81ff">00&lt;/span>:&lt;span style="color:#ae81ff">00&lt;/span>
 &lt;span style="color:#75715e"># specific PostgreSQL configuration&lt;/span>
-&lt;span style="color:#f92672">pgUserConfig&lt;/span>:
+&lt;span style="color:#f92672">userConfig&lt;/span>:
 &lt;span style="color:#f92672">pg_version&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;11&amp;#39;&lt;/span>
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
 &lt;li>Create the service by applying the configuration:&lt;/li>
