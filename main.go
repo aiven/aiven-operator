@@ -65,9 +65,10 @@ func main() {
 
 	if err = (&controllers.ProjectReconciler{
 		Controller: controllers.Controller{
-			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("Project"),
-			Scheme: mgr.GetScheme(),
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Project"),
+			Scheme:   mgr.GetScheme(),
+			Recorder: mgr.GetEventRecorderFor("project-reconciler"),
 		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Project")
@@ -76,9 +77,10 @@ func main() {
 
 	if err = (&controllers.PostgreSQLReconciler{
 		Controller: controllers.Controller{
-			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("PostgreSQL"),
-			Scheme: mgr.GetScheme(),
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("PostgreSQL"),
+			Scheme:   mgr.GetScheme(),
+			Recorder: mgr.GetEventRecorderFor("postgresql-reconciler"),
 		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "PostgreSQL")
@@ -87,9 +89,10 @@ func main() {
 
 	if err = (&controllers.ConnectionPoolReconciler{
 		Controller: controllers.Controller{
-			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("ConnectionPool"),
-			Scheme: mgr.GetScheme(),
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("ConnectionPool"),
+			Scheme:   mgr.GetScheme(),
+			Recorder: mgr.GetEventRecorderFor("connection-pool-reconciler"),
 		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ConnectionPool")
@@ -98,9 +101,10 @@ func main() {
 
 	if err = (&controllers.DatabaseReconciler{
 		Controller: controllers.Controller{
-			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("Database"),
-			Scheme: mgr.GetScheme(),
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Database"),
+			Scheme:   mgr.GetScheme(),
+			Recorder: mgr.GetEventRecorderFor("database-reconciler"),
 		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Database")
@@ -109,9 +113,10 @@ func main() {
 
 	if err = (&controllers.KafkaReconciler{
 		Controller: controllers.Controller{
-			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("Kafka"),
-			Scheme: mgr.GetScheme(),
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Kafka"),
+			Scheme:   mgr.GetScheme(),
+			Recorder: mgr.GetEventRecorderFor("kafka-reconciler"),
 		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Kafka")
@@ -120,9 +125,10 @@ func main() {
 
 	if err = (&controllers.ProjectVPCReconciler{
 		Controller: controllers.Controller{
-			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("ProjectVPC"),
-			Scheme: mgr.GetScheme(),
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("ProjectVPC"),
+			Scheme:   mgr.GetScheme(),
+			Recorder: mgr.GetEventRecorderFor("project-vpc-reconciler"),
 		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ProjectVPC")
@@ -131,9 +137,10 @@ func main() {
 
 	if err = (&controllers.KafkaTopicReconciler{
 		Controller: controllers.Controller{
-			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("KafkaTopic"),
-			Scheme: mgr.GetScheme(),
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("KafkaTopic"),
+			Scheme:   mgr.GetScheme(),
+			Recorder: mgr.GetEventRecorderFor("kafka-topic-reconciler"),
 		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "KafkaTopic")
@@ -142,9 +149,10 @@ func main() {
 
 	if err = (&controllers.KafkaACLReconciler{
 		Controller: controllers.Controller{
-			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("KafkaACL"),
-			Scheme: mgr.GetScheme(),
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("KafkaACL"),
+			Scheme:   mgr.GetScheme(),
+			Recorder: mgr.GetEventRecorderFor("kafka-acl-reconciler"),
 		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "KafkaACL")
@@ -153,9 +161,10 @@ func main() {
 
 	if err = (&controllers.KafkaConnectReconciler{
 		Controller: controllers.Controller{
-			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("KafkaConnect"),
-			Scheme: mgr.GetScheme(),
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("KafkaConnect"),
+			Recorder: mgr.GetEventRecorderFor("kafka-connect-reconciler"),
+			Scheme:   mgr.GetScheme(),
 		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "KafkaConnect")
@@ -164,9 +173,10 @@ func main() {
 
 	if err = (&controllers.ServiceUserReconciler{
 		Controller: controllers.Controller{
-			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("ServiceUser"),
-			Scheme: mgr.GetScheme(),
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("ServiceUser"),
+			Scheme:   mgr.GetScheme(),
+			Recorder: mgr.GetEventRecorderFor("service-user-reconciler"),
 		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ServiceUser")
@@ -175,9 +185,10 @@ func main() {
 
 	if err = (&controllers.KafkaSchemaReconciler{
 		Controller: controllers.Controller{
-			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("KafkaSchema"),
-			Scheme: mgr.GetScheme(),
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("KafkaSchema"),
+			Scheme:   mgr.GetScheme(),
+			Recorder: mgr.GetEventRecorderFor("kafka-schema-reconciler"),
 		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "KafkaSchema")
@@ -186,9 +197,10 @@ func main() {
 
 	if err = (&controllers.ServiceIntegrationReconciler{
 		Controller: controllers.Controller{
-			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("ServiceIntegration"),
-			Scheme: mgr.GetScheme(),
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("ServiceIntegration"),
+			Scheme:   mgr.GetScheme(),
+			Recorder: mgr.GetEventRecorderFor("service-integration-reconciler"),
 		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ServiceIntegration")
