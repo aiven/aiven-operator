@@ -23,8 +23,9 @@ bin
 *.swo
 *~
 
-# k8s test bin
+# k8s test residues
 testbin/*
+kubeconfig
 
 # Aiven internal
 hack/tmp/*
