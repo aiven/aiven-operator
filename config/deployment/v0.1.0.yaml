@@ -22,6 +22,7 @@ spec:
           name: webhook-service
           namespace: system
           path: /convert
+          port: 443
       conversionReviewVersions:
       - v1
       - v1beta1
@@ -72,8 +73,10 @@ spec:
                 description: Authentication reference to Aiven token in a secret
                 properties:
                   key:
+                    minLength: 1
                     type: string
                   name:
+                    minLength: 1
                     type: string
                 required:
                 - key
@@ -201,6 +204,7 @@ spec:
           name: webhook-service
           namespace: system
           path: /convert
+          port: 443
       conversionReviewVersions:
       - v1
       - v1beta1
@@ -239,8 +243,10 @@ spec:
                 description: Authentication reference to Aiven token in a secret
                 properties:
                   key:
+                    minLength: 1
                     type: string
                   name:
+                    minLength: 1
                     type: string
                 required:
                 - key
@@ -350,6 +356,7 @@ spec:
           name: webhook-service
           namespace: system
           path: /convert
+          port: 443
       conversionReviewVersions:
       - v1
       - v1beta1
@@ -397,8 +404,10 @@ spec:
                 description: Authentication reference to Aiven token in a secret
                 properties:
                   key:
+                    minLength: 1
                     type: string
                   name:
+                    minLength: 1
                     type: string
                 required:
                 - key
@@ -518,6 +527,7 @@ spec:
           name: webhook-service
           namespace: system
           path: /convert
+          port: 443
       conversionReviewVersions:
       - v1
       - v1beta1
@@ -553,8 +563,10 @@ spec:
                 description: Authentication reference to Aiven token in a secret
                 properties:
                   key:
+                    minLength: 1
                     type: string
                   name:
+                    minLength: 1
                     type: string
                 required:
                 - key
@@ -744,6 +756,7 @@ spec:
           name: webhook-service
           namespace: system
           path: /convert
+          port: 443
       conversionReviewVersions:
       - v1
       - v1beta1
@@ -788,8 +801,10 @@ spec:
                 description: Authentication reference to Aiven token in a secret
                 properties:
                   key:
+                    minLength: 1
                     type: string
                   name:
+                    minLength: 1
                     type: string
                 required:
                 - key
@@ -1327,6 +1342,7 @@ spec:
           name: webhook-service
           namespace: system
           path: /convert
+          port: 443
       conversionReviewVersions:
       - v1
       - v1beta1
@@ -1338,7 +1354,23 @@ spec:
     singular: kafkaschema
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.serviceName
+      name: Service Name
+      type: string
+    - jsonPath: .spec.project
+      name: Project
+      type: string
+    - jsonPath: .spec.subjectName
+      name: Subject
+      type: string
+    - jsonPath: .spec.compatibilityLevel
+      name: Compatibility Level
+      type: string
+    - jsonPath: .status.version
+      name: Version
+      type: number
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: KafkaSchema is the Schema for the kafkaschemas API
@@ -1358,8 +1390,10 @@ spec:
                 description: Authentication reference to Aiven token in a secret
                 properties:
                   key:
+                    minLength: 1
                     type: string
                   name:
+                    minLength: 1
                     type: string
                 required:
                 - key
@@ -1482,6 +1516,7 @@ spec:
           name: webhook-service
           namespace: system
           path: /convert
+          port: 443
       conversionReviewVersions:
       - v1
       - v1beta1
@@ -1526,8 +1561,10 @@ spec:
                 description: Authentication reference to Aiven token in a secret
                 properties:
                   key:
+                    minLength: 1
                     type: string
                   name:
+                    minLength: 1
                     type: string
                 required:
                 - key
@@ -1739,7 +1776,7 @@ metadata:
   annotations:
     cert-manager.io/inject-ca-from: aiven-kubernetes-operator-system/aiven-kubernetes-operator-serving-cert
     controller-gen.kubebuilder.io/version: v0.4.1
-  name: pgs.aiven.io
+  name: postgresqls.aiven.io
 spec:
   conversion:
     strategy: Webhook
@@ -1750,15 +1787,16 @@ spec:
           name: webhook-service
           namespace: system
           path: /convert
+          port: 443
       conversionReviewVersions:
       - v1
       - v1beta1
   group: aiven.io
   names:
-    kind: PG
-    listKind: PGList
-    plural: pgs
-    singular: pg
+    kind: PostgreSQL
+    listKind: PostgreSQLList
+    plural: postgresqls
+    singular: postgresql
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
@@ -1777,7 +1815,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: PG is the Schema for the pgs API
+        description: PostgreSQL is the Schema for the postgresql API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
@@ -1788,14 +1826,16 @@ spec:
           metadata:
             type: object
           spec:
-            description: PGSpec defines the desired state of PG
+            description: PostgreSQLSpec defines the desired state of postgres instance
             properties:
               authSecretRef:
                 description: Authentication reference to Aiven token in a secret
                 properties:
                   key:
+                    minLength: 1
                     type: string
                   name:
+                    minLength: 1
                     type: string
                 required:
                 - key
@@ -1830,7 +1870,23 @@ spec:
                 description: Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
                 maxLength: 8
                 type: string
-              pgUserConfig:
+              plan:
+                description: Subscription plan.
+                maxLength: 128
+                type: string
+              project:
+                description: Target project.
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              projectVpcId:
+                description: Identifier of the VPC the service should be in, if any.
+                maxLength: 36
+                type: string
+              terminationProtection:
+                description: Prevent service from being deleted. It is recommended to have this enabled for all services.
+                type: boolean
+              userConfig:
                 description: PostgreSQL specific user configuration options
                 properties:
                   admin_password:
@@ -2114,7 +2170,7 @@ spec:
                         type: integer
                     type: object
                   pg_service_to_fork_from:
-                    description: Name of the PG Service from which to fork (deprecated, use service_to_fork_from). This has effect only when a new service is being created.
+                    description: Name of the PostgreSQL Service from which to fork (deprecated, use service_to_fork_from). This has effect only when a new service is being created.
                     maxLength: 63
                     type: string
                   pg_version:
@@ -2216,22 +2272,6 @@ spec:
                     minimum: 1
                     type: integer
                 type: object
-              plan:
-                description: Subscription plan.
-                maxLength: 128
-                type: string
-              project:
-                description: Target project.
-                format: ^[a-zA-Z0-9_-]*$
-                maxLength: 63
-                type: string
-              projectVpcId:
-                description: Identifier of the VPC the service should be in, if any.
-                maxLength: 36
-                type: string
-              terminationProtection:
-                description: Prevent service from being deleted. It is recommended to have this enabled for all services.
-                type: boolean
             required:
             - authSecretRef
             - project
@@ -2319,6 +2359,7 @@ spec:
           name: webhook-service
           namespace: system
           path: /convert
+          port: 443
       conversionReviewVersions:
       - v1
       - v1beta1
@@ -2354,8 +2395,10 @@ spec:
                 description: Authentication reference to Aiven token in a secret
                 properties:
                   key:
+                    minLength: 1
                     type: string
                   name:
+                    minLength: 1
                     type: string
                 required:
                 - key
@@ -2518,6 +2561,7 @@ spec:
           name: webhook-service
           namespace: system
           path: /convert
+          port: 443
       conversionReviewVersions:
       - v1
       - v1beta1
@@ -2530,8 +2574,14 @@ spec:
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .status.state
-      name: State
+    - jsonPath: .spec.project
+      name: Project
+      type: string
+    - jsonPath: .spec.cloudName
+      name: Cloud
+      type: string
+    - jsonPath: .spec.networkCidr
+      name: Network CIDR
       type: string
     name: v1alpha1
     schema:
@@ -2553,8 +2603,10 @@ spec:
                 description: Authentication reference to Aiven token in a secret
                 properties:
                   key:
+                    minLength: 1
                     type: string
                   name:
+                    minLength: 1
                     type: string
                 required:
                 - key
@@ -2662,6 +2714,7 @@ spec:
           name: webhook-service
           namespace: system
           path: /convert
+          port: 443
       conversionReviewVersions:
       - v1
       - v1beta1
@@ -2673,7 +2726,26 @@ spec:
     singular: serviceintegration
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.project
+      name: Project
+      type: string
+    - jsonPath: .spec.integrationType
+      name: Type
+      type: string
+    - jsonPath: .spec.sourceServiceName
+      name: Source Service Name
+      type: string
+    - jsonPath: .spec.destinationServiceName
+      name: Destination Service Name
+      type: string
+    - jsonPath: .spec.sourceEndpointId
+      name: Source Endpoint ID
+      type: string
+    - jsonPath: .spec.destinationEndpointId
+      name: Destination Endpoint ID
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: ServiceIntegration is the Schema for the serviceintegrations API
@@ -2693,8 +2765,10 @@ spec:
                 description: Authentication reference to Aiven token in a secret
                 properties:
                   key:
+                    minLength: 1
                     type: string
                   name:
+                    minLength: 1
                     type: string
                 required:
                 - key
@@ -2905,6 +2979,7 @@ spec:
           name: webhook-service
           namespace: system
           path: /convert
+          port: 443
       conversionReviewVersions:
       - v1
       - v1beta1
@@ -2946,8 +3021,10 @@ spec:
                 description: Authentication reference to Aiven token in a secret
                 properties:
                   key:
+                    minLength: 1
                     type: string
                   name:
+                    minLength: 1
                     type: string
                 required:
                 - key
@@ -3238,7 +3315,7 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
-  - pgs
+  - postgresqls
   verbs:
   - create
   - delete
@@ -3250,7 +3327,7 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
-  - pgs/status
+  - postgresqls/status
   verbs:
   - get
   - patch
@@ -3324,6 +3401,7 @@ rules:
   - delete
   - get
   - list
+  - update
   - watch
 - apiGroups:
   - aiven.io
@@ -3331,6 +3409,7 @@ rules:
   - serviceusers/status
   verbs:
   - get
+  - update
 - apiGroups:
   - coordination.k8s.io
   resources:
@@ -3402,7 +3481,8 @@ spec:
         - --enable-leader-election
         command:
         - /manager
-        image: eu.gcr.io/integral-magnet-301414/aiven-operator:v0.1.0
+        image: controller:latest
+        imagePullPolicy: IfNotPresent
         name: manager
         ports:
         - containerPort: 9443
@@ -3601,7 +3681,7 @@ webhooks:
     service:
       name: aiven-kubernetes-operator-webhook-service
       namespace: aiven-kubernetes-operator-system
-      path: /mutate-aiven-io-v1alpha1-pg
+      path: /mutate-aiven-io-v1alpha1-postgresql
   failurePolicy: Fail
   name: mpg.kb.io
   rules:
@@ -3613,7 +3693,7 @@ webhooks:
     - CREATE
     - UPDATE
     resources:
-    - pgs
+    - postgresqls
   sideEffects: None
 - admissionReviewVersions:
   - v1
@@ -3854,7 +3934,7 @@ webhooks:
     service:
       name: aiven-kubernetes-operator-webhook-service
       namespace: aiven-kubernetes-operator-system
-      path: /validate-aiven-io-v1alpha1-pg
+      path: /validate-aiven-io-v1alpha1-postgresql
   failurePolicy: Fail
   name: vpg.kb.io
   rules:
@@ -3867,7 +3947,7 @@ webhooks:
     - UPDATE
     - DELETE
     resources:
-    - pgs
+    - postgresqls
   sideEffects: None
 - admissionReviewVersions:
   - v1

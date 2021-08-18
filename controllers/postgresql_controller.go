@@ -17,29 +17,29 @@ import (
 	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 )
 
-// PGReconciler reconciles a PG object
-type PGReconciler struct {
+// PostgreSQLReconciler reconciles a PostgreSQL object
+type PostgreSQLReconciler struct {
 	Controller
 }
 
-// PGHandler handles an Aiven PG service
-type PGHandler struct{}
+// PostgreSQLHandler handles an Aiven PostgreSQL service
+type PostgreSQLHandler struct{}
 
-// +kubebuilder:rbac:groups=aiven.io,resources=pgs,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=aiven.io,resources=pgs/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=aiven.io,resources=postgresqls,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=postgresqls/status,verbs=get;update;patch
 
-func (r *PGReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, PGHandler{}, &v1alpha1.PG{})
+func (r *PostgreSQLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	return r.reconcileInstance(ctx, req, PostgreSQLHandler{}, &v1alpha1.PostgreSQL{})
 }
 
-func (r *PGReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *PostgreSQLReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.PG{}).
+		For(&v1alpha1.PostgreSQL{}).
 		Owns(&corev1.Secret{}).
 		Complete(r)
 }
 
-func (h PGHandler) exists(avn *aiven.Client, pg *v1alpha1.PG) (bool, error) {
+func (h PostgreSQLHandler) exists(avn *aiven.Client, pg *v1alpha1.PostgreSQL) (bool, error) {
 	s, err := avn.Services.Get(pg.Spec.Project, pg.Name)
 	if aiven.IsNotFound(err) {
 		return false, nil
@@ -48,7 +48,7 @@ func (h PGHandler) exists(avn *aiven.Client, pg *v1alpha1.PG) (bool, error) {
 	return s != nil, nil
 }
 
-func (h PGHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
+func (h PostgreSQLHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 	pg, err := h.convert(i)
 	if err != nil {
 		return err
@@ -75,7 +75,7 @@ func (h PGHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 			ProjectVPCID:        prVPCID,
 			ServiceName:         pg.Name,
 			ServiceType:         "pg",
-			UserConfig:          UserConfigurationToAPI(pg.Spec.PGUserConfig).(map[string]interface{}),
+			UserConfig:          UserConfigurationToAPI(pg.Spec.UserConfig).(map[string]interface{}),
 			ServiceIntegrations: nil,
 		})
 		if err != nil {
@@ -91,7 +91,7 @@ func (h PGHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 				pg.Spec.MaintenanceWindowTime),
 			Plan:         pg.Spec.Plan,
 			ProjectVPCID: prVPCID,
-			UserConfig:   UserConfigurationToAPI(pg.Spec.PGUserConfig).(map[string]interface{}),
+			UserConfig:   UserConfigurationToAPI(pg.Spec.UserConfig).(map[string]interface{}),
 			Powered:      true,
 		})
 		if err != nil {
@@ -115,14 +115,14 @@ func (h PGHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 	return nil
 }
 
-// delete deletes Aiven PG service
-func (h PGHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
+// delete deletes Aiven PostgreSQL service
+func (h PostgreSQLHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
 	pg, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	// Delete PG on Aiven side
+	// Delete PostgreSQL on Aiven side
 	if err := avn.Services.Delete(pg.Spec.Project, pg.Name); err != nil && !aiven.IsNotFound(err) {
 		return false, fmt.Errorf("aiven client delete pg error: %w", err)
 	}
@@ -130,7 +130,7 @@ func (h PGHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
 	return true, nil
 }
 
-func (h PGHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, error) {
+func (h PostgreSQLHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, error) {
 	pg, err := h.convert(i)
 	if err != nil {
 		return nil, err
@@ -168,22 +168,22 @@ func (h PGHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, erro
 	}, nil
 }
 
-func (h PGHandler) getSecretName(pg *v1alpha1.PG) string {
+func (h PostgreSQLHandler) getSecretName(pg *v1alpha1.PostgreSQL) string {
 	if pg.Spec.ConnInfoSecretTarget.Name != "" {
 		return pg.Spec.ConnInfoSecretTarget.Name
 	}
 	return pg.Name
 }
 
-func (h PGHandler) convert(i client.Object) (*v1alpha1.PG, error) {
-	pg, ok := i.(*v1alpha1.PG)
+func (h PostgreSQLHandler) convert(i client.Object) (*v1alpha1.PostgreSQL, error) {
+	pg, ok := i.(*v1alpha1.PostgreSQL)
 	if !ok {
-		return nil, fmt.Errorf("cannot convert object to PG")
+		return nil, fmt.Errorf("cannot convert object to PostgreSQL")
 	}
 
 	return pg, nil
 }
 
-func (h PGHandler) checkPreconditions(_ *aiven.Client, _ client.Object) (bool, error) {
+func (h PostgreSQLHandler) checkPreconditions(_ *aiven.Client, _ client.Object) (bool, error) {
 	return true, nil
 }

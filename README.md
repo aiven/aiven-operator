@@ -8,10 +8,10 @@ To install the Operator, please follow the [installation instructions](https://a
 
 
 ## Deploying PostgreSQL at Aiven
-Now let's create a `PG` resource with the following YAML – please fill in your project name under in the `project` field:
+Now let's create a `PostgreSQL` resource with the following YAML – please fill in your project name under in the `project` field:
 ```yaml
 apiVersion: aiven.io/v1alpha1
-kind: PG
+kind: PostgreSQL
 metadata:
   name: aiven-pg
 spec:
@@ -30,13 +30,13 @@ spec:
   plan: hobbyist
   maintenanceWindowDow: friday
   maintenanceWindowTime: 23:00:00
-  pgUserConfig:
+  userConfig:
     pg_version: '11'
 ```
 
 Watch the resource being created and wait until its status is `RUNNING`:
 ```bash
-$ watch kubectl get pg.aiven.io aiven-pg
+$ watch kubectl get postgresql.aiven.io aiven-pg
 ```
 
 After created, the Operator will create a Kubernetes Secret containing the PostgreSQL connection information:

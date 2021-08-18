@@ -28,7 +28,26 @@ spec:
     singular: serviceintegration
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.project
+      name: Project
+      type: string
+    - jsonPath: .spec.integrationType
+      name: Type
+      type: string
+    - jsonPath: .spec.sourceServiceName
+      name: Source Service Name
+      type: string
+    - jsonPath: .spec.destinationServiceName
+      name: Destination Service Name
+      type: string
+    - jsonPath: .spec.sourceEndpointId
+      name: Source Endpoint ID
+      type: string
+    - jsonPath: .spec.destinationEndpointId
+      name: Destination Endpoint ID
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: ServiceIntegration is the Schema for the serviceintegrations
@@ -53,8 +72,10 @@ spec:
                 description: Authentication reference to Aiven token in a secret
                 properties:
                   key:
+                    minLength: 1
                     type: string
                   name:
+                    minLength: 1
                     type: string
                 required:
                 - key

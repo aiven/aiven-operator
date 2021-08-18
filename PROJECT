@@ -19,7 +19,7 @@ resources:
     webhookVersion: v1beta1
 - controller: true
   group: aiven.io
-  kind: PG
+  kind: PostgreSQL
   path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
   version: v1alpha1
   webhooks:

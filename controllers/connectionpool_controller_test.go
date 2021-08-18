@@ -25,7 +25,7 @@ var _ = Describe("ConnectionPool Controller", func() {
 	)
 
 	var (
-		pg          *v1alpha1.PG
+		pg          *v1alpha1.PostgreSQL
 		user        *v1alpha1.ServiceUser
 		db          *v1alpha1.Database
 		pool        *v1alpha1.ConnectionPool
@@ -47,7 +47,7 @@ var _ = Describe("ConnectionPool Controller", func() {
 		user = serviceUserSpec(serviceName, userName, namespace)
 		pool = connectionPoolSpec(serviceName, dbName, poolName, userName, namespace)
 
-		By("Creating a new PG CR instance")
+		By("Creating a new PostgreSQL CR instance")
 		Expect(k8sClient.Create(ctx, pg)).Should(Succeed())
 
 		By("Creating a new Database CR instance")
@@ -101,7 +101,7 @@ var _ = Describe("ConnectionPool Controller", func() {
 		By("Ensures that Database instance was deleted")
 		ensureDelete(ctx, db)
 
-		By("Ensures that PG instance was deleted")
+		By("Ensures that PostgreSQL instance was deleted")
 		ensureDelete(ctx, pg)
 	})
 })

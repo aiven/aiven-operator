@@ -157,7 +157,7 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
-  - pgs
+  - postgresqls
   verbs:
   - create
   - delete
@@ -169,7 +169,7 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
-  - pgs/status
+  - postgresqls/status
   verbs:
   - get
   - patch
@@ -243,6 +243,7 @@ rules:
   - delete
   - get
   - list
+  - update
   - watch
 - apiGroups:
   - aiven.io
@@ -250,6 +251,7 @@ rules:
   - serviceusers/status
   verbs:
   - get
+  - update
 - apiGroups:
   - coordination.k8s.io
   resources:
