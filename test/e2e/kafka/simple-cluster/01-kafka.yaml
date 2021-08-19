@@ -1,0 +1,22 @@
+apiVersion: aiven.io/v1alpha1
+kind: Kafka
+metadata:
+  name: kafka-sample
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: kafka-token
+
+  project: aiven-ci-kubernetes-operator
+
+  cloudName: google-europe-west1
+  plan: startup-2
+
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00
+
+  userConfig:
+    kafka_version: '2.7'
