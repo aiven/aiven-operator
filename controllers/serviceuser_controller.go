@@ -46,7 +46,7 @@ func (h ServiceUserHandler) createOrUpdate(avn *aiven.Client, i client.Object) e
 	u, err := avn.ServiceUsers.Create(user.Spec.Project, user.Spec.ServiceName,
 		aiven.CreateServiceUserRequest{
 			Username: user.Name,
-			AccessControl: aiven.AccessControl{
+			AccessControl: &aiven.AccessControl{
 				RedisACLCategories: []string{},
 				RedisACLCommands:   []string{},
 				RedisACLKeys:       []string{},

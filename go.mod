@@ -3,7 +3,7 @@ module github.com/aiven/aiven-kubernetes-operator
 go 1.15
 
 require (
-	github.com/aiven/aiven-go-client v1.5.12-0.20210401064156-3594908646c8
+	github.com/aiven/aiven-go-client v1.5.13
 	github.com/go-logr/logr v0.4.0
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/onsi/ginkgo v1.16.4

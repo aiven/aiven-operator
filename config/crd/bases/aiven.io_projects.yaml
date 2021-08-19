@@ -81,6 +81,11 @@ spec:
                   purchase order or cost center number
                 maxLength: 1000
                 type: string
+              billingGroupId:
+                description: BillingGroup ID
+                maxLength: 36
+                minLength: 36
+                type: string
               cardId:
                 description: Credit card ID
                 maxLength: 64

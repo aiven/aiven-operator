@@ -71,12 +71,15 @@ func (h ProjectHandler) createOrUpdate(avn *aiven.Client, i client.Object) error
 			BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
 			CardID:           toOptionalStringPointer(project.Spec.CardID),
 			Cloud:            toOptionalStringPointer(project.Spec.Cloud),
-			CopyFromProject:  project.Spec.CopyFromProject,
 			CountryCode:      toOptionalStringPointer(project.Spec.CountryCode),
-			Project:          project.Name,
 			AccountId:        toOptionalStringPointer(project.Spec.AccountID),
 			TechnicalEmails:  technicalEmails,
 			BillingCurrency:  project.Spec.BillingCurrency,
+			Project:          project.Name,
+
+			// only set during creation
+			BillingGroupId:  project.Spec.BillingGroupID,
+			CopyFromProject: project.Spec.CopyFromProject,
 		})
 		if err != nil {
 			return fmt.Errorf("failed to createOrUpdate Project on Aiven side: %w", err)
