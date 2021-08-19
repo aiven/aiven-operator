@@ -32,6 +32,11 @@ type ProjectSpec struct {
 	// Extra text to be included in all project invoices, e.g. purchase order or cost center number
 	BillingExtraText string `json:"billingExtraText,omitempty"`
 
+	// +kubebuilder:validation:MaxLength=36
+	// +kubebuilder:validation:MinLength=36
+	// BillingGroup ID
+	BillingGroupID string `json:"billingGroupId,omitempty"`
+
 	// +kubebuilder:validation:MinLength=2
 	// +kubebuilder:validation:MaxLength=2
 	// Billing country code of the project

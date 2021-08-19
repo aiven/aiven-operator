@@ -54,6 +54,10 @@ func (r *Project) ValidateUpdate(old runtime.Object) error {
 		return errors.New("cannot update a Project, connInfoSecretTarget.name field is immutable and cannot be updated")
 	}
 
+	if r.Spec.BillingGroupID != old.(*Project).Spec.BillingGroupID {
+		return errors.New("'billingGroupId' can only be set during creation of a project")
+	}
+
 	return nil
 }
 
