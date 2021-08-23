@@ -9,7 +9,7 @@ import (
 // ProjectSpec defines the desired state of Project
 type ProjectSpec struct {
 	// +kubebuilder:validation:MaxLength=64
-	// Credit card ID
+	// Credit card ID; The ID may be either last 4 digits of the card or the actual ID
 	CardID string `json:"cardId,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=32
