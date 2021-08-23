@@ -87,7 +87,8 @@ spec:
                 minLength: 36
                 type: string
               cardId:
-                description: Credit card ID
+                description: Credit card ID; The ID may be either last 4 digits of
+                  the card or the actual ID
                 maxLength: 64
                 type: string
               cloud:

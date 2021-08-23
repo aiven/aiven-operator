@@ -40,6 +40,23 @@ func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
+func (h ProjectHandler) getLongCardID(client *aiven.Client, cardID string) (*string, error) {
+	if cardID == "" {
+		return nil, nil
+	}
+
+	card, err := client.CardsHandler.Get(cardID)
+	if err != nil {
+		return nil, err
+	}
+
+	if card == nil {
+		return nil, nil
+	}
+
+	return &card.CardID, nil
+}
+
 // create creates a project on Aiven side
 func (h ProjectHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 	project, err := h.convert(i)
@@ -59,7 +76,12 @@ func (h ProjectHandler) createOrUpdate(avn *aiven.Client, i client.Object) error
 
 	exists, err := h.exists(avn, project)
 	if err != nil {
-		return err
+		return fmt.Errorf("project does not exists: %w", err)
+	}
+
+	cardID, err := h.getLongCardID(avn, project.Spec.CardID)
+	if err != nil {
+		return fmt.Errorf("cannot get long card id: %w", err)
 	}
 
 	var reason string
@@ -69,7 +91,7 @@ func (h ProjectHandler) createOrUpdate(avn *aiven.Client, i client.Object) error
 			BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
 			BillingEmails:    billingEmails,
 			BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
-			CardID:           toOptionalStringPointer(project.Spec.CardID),
+			CardID:           cardID,
 			Cloud:            toOptionalStringPointer(project.Spec.Cloud),
 			CountryCode:      toOptionalStringPointer(project.Spec.CountryCode),
 			AccountId:        toOptionalStringPointer(project.Spec.AccountID),
@@ -82,7 +104,7 @@ func (h ProjectHandler) createOrUpdate(avn *aiven.Client, i client.Object) error
 			CopyFromProject: project.Spec.CopyFromProject,
 		})
 		if err != nil {
-			return fmt.Errorf("failed to createOrUpdate Project on Aiven side: %w", err)
+			return fmt.Errorf("failed to create project on aiven side: %w", err)
 		}
 
 		reason = "Created"
@@ -91,7 +113,7 @@ func (h ProjectHandler) createOrUpdate(avn *aiven.Client, i client.Object) error
 			BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
 			BillingEmails:    billingEmails,
 			BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
-			CardID:           toOptionalStringPointer(project.Spec.CardID),
+			CardID:           cardID,
 			Cloud:            toOptionalStringPointer(project.Spec.Cloud),
 			CountryCode:      toOptionalStringPointer(project.Spec.CountryCode),
 			AccountId:        toOptionalStringPointer(project.Spec.AccountID),
