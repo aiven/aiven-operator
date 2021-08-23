@@ -112,6 +112,26 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
+      path: /mutate-aiven-io-v1alpha1-kafkaconnector
+  failurePolicy: Fail
+  name: mkafkaconnector.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - kafkaconnectors
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
       path: /mutate-aiven-io-v1alpha1-kafkaschema
   failurePolicy: Fail
   name: mkafkaschema.kb.io
@@ -357,6 +377,27 @@ webhooks:
     - DELETE
     resources:
     - kafkaconnects
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-aiven-io-v1alpha1-kafkatopic
+  failurePolicy: Fail
+  name: vkafkatopic.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - kafkatopics
   sideEffects: None
 - admissionReviewVersions:
   - v1

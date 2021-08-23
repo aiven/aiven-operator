@@ -206,6 +206,17 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "ServiceIntegration")
 		os.Exit(1)
 	}
+	if err = (&controllers.KafkaConnectorReconciler{
+		Controller: controllers.Controller{
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("KafkaConnector"),
+			Scheme:   mgr.GetScheme(),
+			Recorder: mgr.GetEventRecorderFor("kafka-connector-reconciler"),
+		},
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "KafkaConnector")
+		os.Exit(1)
+	}
 
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
 		if err = (&v1alpha1.Project{}).SetupWebhookWithManager(mgr); err != nil {
@@ -263,6 +274,10 @@ func main() {
 
 		if err = (&v1alpha1.ServiceIntegration{}).SetupWebhookWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create webhook", "webhook", "ServiceIntegration")
+			os.Exit(1)
+		}
+		if err = (&v1alpha1.KafkaConnector{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "KafkaConnector")
 			os.Exit(1)
 		}
 	}

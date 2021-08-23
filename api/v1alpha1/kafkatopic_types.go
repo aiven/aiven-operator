@@ -132,7 +132,7 @@ type KafkaTopicStatus struct {
 	// Conditions represent the latest available observations of an KafkaTopic state
 	Conditions []metav1.Condition `json:"conditions"`
 
-	// State kafka topic state
+	// State represents the state of the kafka topic
 	State string `json:"state"`
 }
 

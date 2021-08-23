@@ -4,3 +4,4 @@ timeout: 600
 crdDir: config/crd/bases
 testDirs:
 - test/e2e/kafka
+- test/e2e/kafka-connector

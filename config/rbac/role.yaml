@@ -84,6 +84,26 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
+  - kafkaconnectors
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - kafkaconnectors/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
   - kafkaconnects
   verbs:
   - create

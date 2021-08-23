@@ -9,6 +9,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+
+	"github.com/aiven/aiven-go-client"
 )
 
 const (
@@ -33,6 +35,15 @@ func requeueCtrlResult() ctrl.Result {
 		Requeue:      true,
 		RequeueAfter: requeueTimeout,
 	}
+}
+
+func checkServiceIsRunning(c *aiven.Client, project, serviceName string) (bool, error) {
+	s, err := c.Services.Get(project, serviceName)
+	if err != nil {
+		return false, err
+	}
+
+	return s.State == "RUNNING", nil
 }
 
 func getInitializedCondition(reason, message string) metav1.Condition {
@@ -74,4 +85,11 @@ func isAlreadyProcessed(o client.Object) bool {
 func isAlreadyRunning(o client.Object) bool {
 	_, found := o.GetAnnotations()[instanceIsRunningAnnotation]
 	return found
+}
+
+func ignoreAivenNotFound(err error) error {
+	if aiven.IsNotFound(err) {
+		return nil
+	}
+	return err
 }

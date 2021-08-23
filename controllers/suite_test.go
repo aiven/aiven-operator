@@ -19,8 +19,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -30,6 +28,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -219,9 +220,16 @@ var _ = BeforeSuite(func(done Done) {
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
+	Expect((&KafkaConnectorReconciler{
+		Controller{
+			Client: k8sManager.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("KafkaConnector"),
+			Scheme: k8sManager.GetScheme(),
+		},
+	}).SetupWithManager(k8sManager)).To(Succeed())
+
 	go func() {
-		err = k8sManager.Start(ctrl.SetupSignalHandler())
-		Expect(err).ToNot(HaveOccurred())
+		Expect(k8sManager.Start(ctrl.SetupSignalHandler())).To(Succeed())
 	}()
 
 	close(done)
