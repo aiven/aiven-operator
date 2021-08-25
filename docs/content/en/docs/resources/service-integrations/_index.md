@@ -89,7 +89,7 @@ spec:
     name: aiven-token
     key: token
 
-  project: dev-advocates
+  project: <your-project-name>
 
   # indicates the type of the integration
   integrationType: kafka_logs
@@ -113,8 +113,8 @@ $ kubectl apply -f kafka-sample-topic.yaml
 ```bash
 $ kubectl get serviceintegrations.aiven.io service-integration-kafka-logs
 
-NAME                             PROJECT         TYPE         SOURCE SERVICE NAME   DESTINATION SERVICE NAME   SOURCE ENDPOINT ID   DESTINATION ENDPOINT ID
-service-integration-kafka-logs   dev-advocates   kafka_logs   kafka-sample          kafka-sample                                    
+NAME                             PROJECT        TYPE         SOURCE SERVICE NAME   DESTINATION SERVICE NAME   SOURCE ENDPOINT ID   DESTINATION ENDPOINT ID
+service-integration-kafka-logs   your-project   kafka_logs   kafka-sample          kafka-sample                                    
 ```
 
 Your Kafka service logs are now being streamed to the `logs` Kafka topic.
