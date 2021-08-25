@@ -1,0 +1,35 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+- script: |
+    HOST=$(kubectl --namespace $NAMESPACE get secret pg-secret -ojson | jq .data.PGHOST -r | base64 -d)
+    PORT=$(kubectl --namespace $NAMESPACE get secret pg-secret -ojson | jq .data.PGPORT -r | base64 -d)
+    DB=$(kubectl --namespace $NAMESPACE get secret pg-secret -ojson | jq .data.PGDATABASE -r | base64 -d)
+    cat <<EOF | kubectl --namespace $NAMESPACE apply -f -
+
+    apiVersion: aiven.io/v1alpha1
+    kind: KafkaConnector
+    metadata:
+      name: k8s-test-kafka-connector-connect-kafka-to-postgres-connector
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+
+      project: aiven-ci-kubernetes-operator
+
+      serviceName: k8s-test-kafka-connector-connect-kafka-to-postgres-kafka
+
+      connectorClass: io.aiven.connect.jdbc.JdbcSinkConnector
+
+      connectorSpecificConfig:
+        auto.create: "true"
+        connection.url: jdbc:postgresql://$HOST:$PORT/$DB
+        connection.user: secretRef:pg-secret:PGUSER
+        connection.password: secretRef:pg-secret:PGPASSWORD
+        topics: k8s-test-kafka-connector-connect-kafka-to-postgres-topic
+        key.converter: org.apache.kafka.connect.json.JsonConverter
+        value.converter: org.apache.kafka.connect.json.JsonConverter
+        value.converter.schemas.enable: "true"
+    EOF
+

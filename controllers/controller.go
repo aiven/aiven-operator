@@ -365,15 +365,6 @@ func getMaintenanceWindow(dow, time string) *aiven.MaintenanceWindow {
 	return nil
 }
 
-func checkServiceIsRunning(c *aiven.Client, project, serviceName string) (bool, error) {
-	s, err := c.Services.Get(project, serviceName)
-	if err != nil {
-		return false, err
-	}
-
-	return s.State == "RUNNING", nil
-}
-
 func ensureSecretDataIsNotEmpty(log logr.Logger, s *corev1.Secret) *corev1.Secret {
 	if s == nil {
 		return nil

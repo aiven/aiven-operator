@@ -6,14 +6,14 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: kafkatopics.aiven.io
+  name: kafkaconnectors.aiven.io
 spec:
   group: aiven.io
   names:
-    kind: KafkaTopic
-    listKind: KafkaTopicList
-    plural: kafkatopics
-    singular: kafkatopic
+    kind: KafkaConnector
+    listKind: KafkaConnectorList
+    plural: kafkaconnectors
+    singular: kafkaconnector
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
@@ -23,16 +23,13 @@ spec:
     - jsonPath: .spec.project
       name: Project
       type: string
-    - jsonPath: .spec.partitions
-      name: Partitions
-      type: string
-    - jsonPath: .spec.replication
-      name: Replication
+    - jsonPath: .spec.ConnectorClass
+      name: Connector Class
       type: string
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: KafkaTopic is the Schema for the kafkatopics API
+        description: KafkaConnector is the Schema for the kafkaconnectors API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -47,7 +44,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: KafkaTopicSpec defines the desired state of KafkaTopic
+            description: KafkaConnectorSpec defines the desired state of KafkaConnector
             properties:
               authSecretRef:
                 description: Authentication reference to Aiven token in a secret
@@ -62,149 +59,38 @@ spec:
                 - key
                 - name
                 type: object
-              config:
-                description: Kafka topic configuration
-                properties:
-                  cleanup_policy:
-                    description: cleanup.policy value
-                    type: string
-                  compression_type:
-                    description: compression.type value
-                    type: string
-                  delete_retention_ms:
-                    description: delete.retention.ms value
-                    format: int64
-                    type: integer
-                  file_delete_delay_ms:
-                    description: file.delete.delay.ms value
-                    format: int64
-                    type: integer
-                  flush_messages:
-                    description: flush.messages value
-                    format: int64
-                    type: integer
-                  flush_ms:
-                    description: flush.ms value
-                    format: int64
-                    type: integer
-                  index_interval_bytes:
-                    description: index.interval.bytes value
-                    format: int64
-                    type: integer
-                  max_compaction_lag_ms:
-                    description: max.compaction.lag.ms value
-                    format: int64
-                    type: integer
-                  max_message_bytes:
-                    description: max.message.bytes value
-                    format: int64
-                    type: integer
-                  message_downconversion_enable:
-                    description: message.downconversion.enable value
-                    type: boolean
-                  message_format_version:
-                    description: message.format.version value
-                    type: string
-                  message_timestamp_difference_max_ms:
-                    description: message.timestamp.difference.max.ms value
-                    format: int64
-                    type: integer
-                  message_timestamp_type:
-                    description: message.timestamp.type value
-                    type: string
-                  min_compaction_lag_ms:
-                    description: min.compaction.lag.ms value
-                    format: int64
-                    type: integer
-                  min_insync_replicas:
-                    description: min.insync.replicas value
-                    format: int64
-                    type: integer
-                  preallocate:
-                    description: preallocate value
-                    type: boolean
-                  retention_bytes:
-                    description: retention.bytes value
-                    format: int64
-                    type: integer
-                  retention_ms:
-                    description: retention.ms value
-                    format: int64
-                    type: integer
-                  segment_bytes:
-                    description: segment.bytes value
-                    format: int64
-                    type: integer
-                  segment_index_bytes:
-                    description: segment.index.bytes value
-                    format: int64
-                    type: integer
-                  segment_jitter_ms:
-                    description: segment.jitter.ms value
-                    format: int64
-                    type: integer
-                  segment_ms:
-                    description: segment.ms value
-                    format: int64
-                    type: integer
-                  unclean_leader_election_enable:
-                    description: unclean.leader.election.enable value
-                    type: boolean
+              connectorClass:
+                description: The Java class of the connector.
+                maxLength: 1024
+                type: string
+              connectorSpecificConfig:
+                additionalProperties:
+                  type: string
+                description: 'The connector specific configuration To use secrets
+                  as sources for values you should write `configOption: secretRef:key:value`'
                 type: object
-              partitions:
-                description: Number of partitions to create in the topic
-                maximum: 1000000
-                minimum: 1
-                type: integer
               project:
                 description: Target project.
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
-              replication:
-                description: Replication factor for the topic
-                minimum: 2
-                type: integer
               serviceName:
                 description: Service name.
                 maxLength: 63
                 type: string
-              tags:
-                description: Kafka topic tags
-                items:
-                  properties:
-                    key:
-                      format: ^[a-zA-Z0-9_-]*$
-                      maxLength: 64
-                      minLength: 1
-                      type: string
-                    value:
-                      format: ^[a-zA-Z0-9_-]*$
-                      maxLength: 256
-                      type: string
-                  required:
-                  - key
-                  type: object
-                type: array
-              termination_protection:
-                description: It is a Kubernetes side deletion protections, which prevents
-                  the kafka topic from being deleted by Kubernetes. It is recommended
-                  to enable this for any production databases containing critical
-                  data.
-                type: boolean
             required:
             - authSecretRef
-            - partitions
+            - connectorClass
+            - connectorSpecificConfig
             - project
-            - replication
             - serviceName
             type: object
           status:
-            description: KafkaTopicStatus defines the observed state of KafkaTopic
+            description: KafkaConnectorStatus defines the observed state of KafkaConnector
             properties:
               conditions:
                 description: Conditions represent the latest available observations
-                  of an KafkaTopic state
+                  of an kafka connector state
                 items:
                   description: "Condition contains details for one aspect of the current
                     state of this API Resource. --- This struct is intended for direct
@@ -274,7 +160,7 @@ spec:
                   type: object
                 type: array
               state:
-                description: State represents the state of the kafka topic
+                description: State represents the state of the kafka connector
                 type: string
             required:
             - conditions

@@ -27,6 +27,11 @@ spec:
       kind: KafkaACL
       name: kafkaacls.aiven.io
       version: v1alpha1
+    - description: KafkaConnector is the Schema for the kafkaconnectors API
+      displayName: Kafka Connector
+      kind: KafkaConnector
+      name: kafkaconnectors.aiven.io
+      version: v1alpha1
     - description: KafkaConnect is the Schema for the kafkaconnects API
       displayName: Kafka Connect
       kind: KafkaConnect
