@@ -29,10 +29,10 @@
   <span style=color:#f92672>userConfig</span>:
     <span style=color:#f92672>pg_version</span>: <span style=color:#e6db74>&#39;11&#39;</span>
 </code></pre></div><ol start=2><li>Create the service by applying the configuration:</li></ol><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>$ kubectl apply -f pg-sample.yaml
-</code></pre></div><ol start=3><li>Review the resource you created with the following command:</li></ol><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>$ kubectl get pgs.aiven.io pg-sample
+</code></pre></div><ol start=3><li>Review the resource you created with the following command:</li></ol><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>$ kubectl get postgresqls.aiven.io pg-sample
 
-NAME         PROJECT         REGION                PLAN       STATE
-pg-sample    dev-advocates   google-europe-west1   hobbyist   RUNNING
+NAME        PROJECT        REGION                PLAN        STATE
+pg-sample   your-project   google-europe-west1   startup-4   RUNNING
 </code></pre></div><p>The resource can stay in the <code>BUILDING</code> state for a couple of minutes.
 Once the state changes to <code>RUNNING</code>, you are ready to access it.</p><h2 id=using-the-connection-secret>Using the connection Secret</h2><p>For your convenience, the operator automatically stores the PostgreSQL connection information in a Secret created with the name specified on the <code>connInfoSecretTarget</code> field.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>$ kubectl describe secret pg-connection 
 

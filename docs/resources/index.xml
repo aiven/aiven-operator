@@ -453,9 +453,9 @@ kafka-schema kafka-sample &amp;lt;your-project&amp;gt; MySchema BACKWARD &lt;spa
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
 &lt;li>Review the resource you created with the following command:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get pgs.aiven.io pg-sample
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get postgresqls.aiven.io pg-sample
 NAME PROJECT REGION PLAN STATE
-pg-sample dev-advocates google-europe-west1 hobbyist RUNNING
+pg-sample your-project google-europe-west1 startup-4 RUNNING
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>The resource can stay in the &lt;code>BUILDING&lt;/code> state for a couple of minutes.
 Once the state changes to &lt;code>RUNNING&lt;/code>, you are ready to access it.&lt;/p>
 &lt;h2 id="using-the-connection-secret">Using the connection Secret&lt;/h2>
@@ -660,7 +660,7 @@ PostgreSQL 11.12 on x86_64-pc-linux-gnu, compiled by gcc, a 68c5366192 p 6b9244f
 &lt;span style="color:#f92672">authSecretRef&lt;/span>:
 &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">aiven-token&lt;/span>
 &lt;span style="color:#f92672">key&lt;/span>: &lt;span style="color:#ae81ff">token&lt;/span>
-&lt;span style="color:#f92672">project&lt;/span>: &lt;span style="color:#ae81ff">dev-advocates&lt;/span>
+&lt;span style="color:#f92672">project&lt;/span>: &lt;span style="color:#ae81ff">&amp;lt;your-project-name&amp;gt;&lt;/span>
 &lt;span style="color:#75715e"># indicates the type of the integration&lt;/span>
 &lt;span style="color:#f92672">integrationType&lt;/span>: &lt;span style="color:#ae81ff">kafka_logs&lt;/span>
 &lt;span style="color:#75715e"># we will send the logs to the same kafka-sample instance&lt;/span>
@@ -679,5 +679,5 @@ PostgreSQL 11.12 on x86_64-pc-linux-gnu, compiled by gcc, a 68c5366192 p 6b9244f
 &lt;/ol>
 &lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get serviceintegrations.aiven.io service-integration-kafka-logs
 NAME PROJECT TYPE SOURCE SERVICE NAME DESTINATION SERVICE NAME SOURCE ENDPOINT ID DESTINATION ENDPOINT ID
-service-integration-kafka-logs dev-advocates kafka_logs kafka-sample kafka-sample
+service-integration-kafka-logs your-project kafka_logs kafka-sample kafka-sample
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>Your Kafka service logs are now being streamed to the &lt;code>logs&lt;/code> Kafka topic.&lt;/p></description></item></channel></rss>
