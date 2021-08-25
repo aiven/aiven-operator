@@ -122,6 +122,7 @@ func (h ProjectVPCHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secr
 		return nil, err
 	}
 
+	projectVPC.Status.State = vpc.State
 	if vpc.State == "ACTIVE" {
 		meta.SetStatusCondition(&projectVPC.Status.Conditions,
 			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
