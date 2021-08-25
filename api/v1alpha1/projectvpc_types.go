@@ -30,6 +30,9 @@ type ProjectVPCStatus struct {
 	// Conditions represent the latest available observations of an ProjectVPC state
 	Conditions []metav1.Condition `json:"conditions"`
 
+	// State of VPC
+	State string `json:"state"`
+
 	// Project VPC id
 	ID string `json:"id"`
 }
@@ -41,6 +44,7 @@ type ProjectVPCStatus struct {
 // +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
 // +kubebuilder:printcolumn:name="Cloud",type="string",JSONPath=".spec.cloudName"
 // +kubebuilder:printcolumn:name="Network CIDR",type="string",JSONPath=".spec.networkCidr"
+// +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state"
 type ProjectVPC struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

@@ -26,6 +26,9 @@ spec:
     - jsonPath: .spec.networkCidr
       name: Network CIDR
       type: string
+    - jsonPath: .status.state
+      name: State
+      type: string
     name: v1alpha1
     schema:
       openAPIV3Schema:
@@ -155,9 +158,13 @@ spec:
               id:
                 description: Project VPC id
                 type: string
+              state:
+                description: State of VPC
+                type: string
             required:
             - conditions
             - id
+            - state
             type: object
         type: object
     served: true
