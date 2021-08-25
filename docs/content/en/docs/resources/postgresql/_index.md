@@ -52,10 +52,10 @@ $ kubectl apply -f pg-sample.yaml
 
 3. Review the resource you created with the following command:
 ```bash
-$ kubectl get pgs.aiven.io pg-sample
+$ kubectl get postgresqls.aiven.io pg-sample
 
-NAME         PROJECT         REGION                PLAN       STATE
-pg-sample    dev-advocates   google-europe-west1   hobbyist   RUNNING
+NAME        PROJECT        REGION                PLAN        STATE
+pg-sample   your-project   google-europe-west1   startup-4   RUNNING
 ```
 
 The resource can stay in the `BUILDING` state for a couple of minutes. 

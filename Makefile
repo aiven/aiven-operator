@@ -106,7 +106,7 @@ docker-push: ## Push docker image with the manager.
 ##@ Deployment
 
 install-cert-manager: ## Deploy cert-manager to the cluster
-	kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.3.1/cert-manager.yaml
+	kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml
 
 install: manifests kustomize ## Install CRDs into the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/crd | kubectl apply -f -

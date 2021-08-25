@@ -9,7 +9,7 @@ The Aiven Kubernetes Operator can be installed by applying the manifests present
 1. Install the `cert-manager` operator.
 > cert-manager is used to manage the Operator [webhooks](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/) TLS certificates.
 ```bash
-$ kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.3.1/cert-manager.yaml
+$ kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml
 ```
 
 2. Install the Aiven Kubernetes Operator:
