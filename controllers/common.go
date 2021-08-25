@@ -86,10 +86,3 @@ func isAlreadyRunning(o client.Object) bool {
 	_, found := o.GetAnnotations()[instanceIsRunningAnnotation]
 	return found
 }
-
-func ignoreAivenNotFound(err error) error {
-	if aiven.IsNotFound(err) {
-		return nil
-	}
-	return err
-}

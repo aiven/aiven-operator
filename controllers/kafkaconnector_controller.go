@@ -128,26 +128,26 @@ func (h KafkaConnectorHandler) delete(avn *aiven.Client, o client.Object) (bool,
 	if err != nil {
 		return false, err
 	}
-	if err := avn.KafkaConnectors.Delete(conn.Spec.Project, conn.Spec.ServiceName, conn.Name); err != nil {
-		if !aiven.IsNotFound(err) {
-			return false, fmt.Errorf("unable to delete kafka connector: %w", err)
-		}
+	err = avn.KafkaConnectors.Delete(conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
+	if err != nil && !aiven.IsNotFound(err) {
+		return false, fmt.Errorf("unable to delete kafka connector: %w", err)
 	}
 	return true, nil
 }
 
 func (h KafkaConnectorHandler) exists(avn *aiven.Client, conn *v1alpha1.KafkaConnector) (bool, error) {
 	connectorsAtAiven, err := avn.KafkaConnectors.List(conn.Spec.Project, conn.Spec.ServiceName)
-	if err != nil {
-		return false, ignoreAivenNotFound(err)
+	if err != nil && !aiven.IsNotFound(err) {
+		return false, err
 	}
-
+	if connectorsAtAiven == nil {
+		return false, nil
+	}
 	for i := range connectorsAtAiven.Connectors {
 		if connectorsAtAiven.Connectors[i].Name == conn.Name {
 			return true, nil
 		}
 	}
-
 	return false, nil
 }
 
@@ -173,9 +173,6 @@ func (h KafkaConnectorHandler) get(avn *aiven.Client, o client.Object) (*corev1.
 }
 
 func (h KafkaConnectorHandler) checkPreconditions(avn *aiven.Client, o client.Object) (bool, error) {
-	const (
-		configKeyKafkaConnect = "kafka_connect"
-	)
 	conn, err := h.convert(o)
 	if err != nil {
 		return false, err
@@ -184,22 +181,7 @@ func (h KafkaConnectorHandler) checkPreconditions(avn *aiven.Client, o client.Ob
 	meta.SetStatusCondition(&conn.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	kafka, err := avn.Services.Get(conn.Spec.Project, conn.Spec.ServiceName)
-	if err != nil {
-		return false, err
-	}
-	if kafka.State != "RUNNING" {
-		return false, nil
-	}
-	hasConnectEnabledMapVal, ok := kafka.UserConfig[configKeyKafkaConnect]
-	if !ok {
-		return false, nil
-	}
-	hasConnectEnabled, ok := hasConnectEnabledMapVal.(bool)
-	if !ok {
-		return false, nil
-	}
-	return hasConnectEnabled, nil
+	return checkServiceIsRunning(avn, conn.Spec.Project, conn.Spec.ServiceName)
 }
 
 func (h KafkaConnectorHandler) convert(o client.Object) (*v1alpha1.KafkaConnector, error) {
