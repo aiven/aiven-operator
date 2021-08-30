@@ -39,8 +39,11 @@ func requeueCtrlResult() ctrl.Result {
 
 func checkServiceIsRunning(c *aiven.Client, project, serviceName string) (bool, error) {
 	s, err := c.Services.Get(project, serviceName)
-	if err != nil {
+	if err != nil && !aiven.IsNotFound(err) {
 		return false, err
+	}
+	if s == nil {
+		return false, nil
 	}
 
 	return s.State == "RUNNING", nil

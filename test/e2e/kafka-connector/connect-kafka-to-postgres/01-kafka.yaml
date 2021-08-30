@@ -17,5 +17,3 @@ spec:
 
   kafkaUserConfig:
     kafka_connect: true
-    kafka_authentication_methods:
-      sasl: true
