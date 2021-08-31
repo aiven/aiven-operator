@@ -5,3 +5,7 @@ crdDir: config/crd/bases
 testDirs:
 - test/e2e/kafka
 - test/e2e/kafka-connector
+commands:
+- script: ENABLE_WEBHOOKS=false ./bin/manager
+  background: true
+  skipLogOutput: true
