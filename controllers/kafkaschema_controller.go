@@ -10,6 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -22,13 +23,15 @@ type KafkaSchemaReconciler struct {
 	Controller
 }
 
-type KafkaSchemaHandler struct{}
+type KafkaSchemaHandler struct {
+	k8s client.Client
+}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkaschemas,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkaschemas/status,verbs=get;update;patch
 
 func (r *KafkaSchemaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, KafkaSchemaHandler{}, &v1alpha1.KafkaSchema{})
+	return r.reconcileInstance(ctx, req, KafkaSchemaHandler{r.Client}, &v1alpha1.KafkaSchema{})
 }
 
 func (r *KafkaSchemaReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -127,6 +130,16 @@ func (h KafkaSchemaHandler) checkPreconditions(avn *aiven.Client, i client.Objec
 	}
 
 	return checkServiceIsRunning(avn, schema.Spec.Project, schema.Spec.ServiceName)
+}
+
+func (h KafkaSchemaHandler) fetchOwners(ctx context.Context, i client.Object) ([]client.Object, error) {
+	schema, err := h.convert(i)
+	if err != nil {
+		return nil, err
+	}
+	ownerKey := types.NamespacedName{Name: schema.Spec.ServiceName, Namespace: schema.GetNamespace()}
+
+	return findSingleOwner(ctx, h.k8s, ownerKey, &v1alpha1.Kafka{})
 }
 
 func (h KafkaSchemaHandler) convert(i client.Object) (*v1alpha1.KafkaSchema, error) {

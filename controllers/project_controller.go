@@ -217,6 +217,10 @@ func (h ProjectHandler) delete(avn *aiven.Client, i client.Object) (bool, error)
 	return true, nil
 }
 
+func (h ProjectHandler) fetchOwners(ctx context.Context, i client.Object) ([]client.Object, error) {
+	return nil, nil
+}
+
 func (h ProjectHandler) getSecretName(project *v1alpha1.Project) string {
 	if project.Spec.ConnInfoSecretTarget.Name != "" {
 		return project.Spec.ConnInfoSecretTarget.Name

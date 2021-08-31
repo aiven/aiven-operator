@@ -7,12 +7,14 @@ import (
 	"strconv"
 	"time"
 
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 )
 
 const (
@@ -88,4 +90,35 @@ func isAlreadyProcessed(o client.Object) bool {
 func isAlreadyRunning(o client.Object) bool {
 	_, found := o.GetAnnotations()[instanceIsRunningAnnotation]
 	return found
+}
+
+func findTypedResource(ctx context.Context, k8s client.Client, key client.ObjectKey, types ...client.Object) (client.Object, error) {
+	for i := range types {
+		rtype := types[i]
+		if err := k8s.Get(ctx, key, rtype); err != nil {
+			if errors.IsNotFound(err) {
+				continue
+			}
+			return nil, err
+		}
+		return rtype, nil
+	}
+	return nil, nil
+}
+
+// convenience function to find named services
+func findService(ctx context.Context, k8s client.Client, key client.ObjectKey) (client.Object, error) {
+	return findTypedResource(ctx, k8s, key, &v1alpha1.PostgreSQL{}, &v1alpha1.Kafka{})
+}
+
+// convenience for resource that are owned by a single resource
+func findSingleOwner(ctx context.Context, k8s client.Client, key client.ObjectKey, types ...client.Object) ([]client.Object, error) {
+	owner, err := findTypedResource(ctx, k8s, key, types...)
+	if err != nil {
+		return nil, err
+	}
+	if owner != nil {
+		return []client.Object{owner}, nil
+	}
+	return nil, nil
 }

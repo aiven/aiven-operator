@@ -10,6 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -23,13 +24,15 @@ type DatabaseReconciler struct {
 }
 
 // DatabaseHandler handles an Aiven Database
-type DatabaseHandler struct{}
+type DatabaseHandler struct {
+	k8s client.Client
+}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=databases,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=databases/status,verbs=get;update;patch
 
 func (r *DatabaseReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, DatabaseHandler{}, &v1alpha1.Database{})
+	return r.reconcileInstance(ctx, req, DatabaseHandler{r.Client}, &v1alpha1.Database{})
 }
 
 func (r *DatabaseReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -131,6 +134,17 @@ func (h DatabaseHandler) checkPreconditions(avn *aiven.Client, i client.Object) 
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
 	return checkServiceIsRunning(avn, db.Spec.Project, db.Spec.ServiceName)
+}
+
+func (h DatabaseHandler) fetchOwners(ctx context.Context, i client.Object) ([]client.Object, error) {
+	cp, err := h.convert(i)
+	if err != nil {
+		return nil, err
+	}
+	ownerKey := types.NamespacedName{Name: cp.Spec.ServiceName, Namespace: cp.GetNamespace()}
+
+	// can be owned by influxdb, mysql or postgresql, at the moment we only have pg though
+	return findSingleOwner(ctx, h.k8s, ownerKey, &v1alpha1.PostgreSQL{})
 }
 
 func (h DatabaseHandler) convert(i client.Object) (*v1alpha1.Database, error) {

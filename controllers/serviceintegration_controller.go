@@ -11,6 +11,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -23,13 +24,15 @@ type ServiceIntegrationReconciler struct {
 	Controller
 }
 
-type ServiceIntegrationHandler struct{}
+type ServiceIntegrationHandler struct {
+	k8s client.Client
+}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations/status,verbs=get;update;patch
 
 func (r *ServiceIntegrationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, ServiceIntegrationHandler{}, &v1alpha1.ServiceIntegration{})
+	return r.reconcileInstance(ctx, req, ServiceIntegrationHandler{r.Client}, &v1alpha1.ServiceIntegration{})
 }
 
 func (r *ServiceIntegrationReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -146,6 +149,36 @@ func (h ServiceIntegrationHandler) checkPreconditions(avn *aiven.Client, i clien
 	}
 
 	return sourceCheck && destinationCheck, nil
+}
+
+func (h ServiceIntegrationHandler) fetchOwners(ctx context.Context, i client.Object) ([]client.Object, error) {
+	si, err := h.convert(i)
+	if err != nil {
+		return nil, err
+	}
+
+	owners := make([]client.Object, 0)
+
+	// find source
+	sourceOwnerKey := types.NamespacedName{Name: si.Spec.SourceServiceName, Namespace: si.GetNamespace()}
+	sourceOwner, err := findService(ctx, h.k8s, sourceOwnerKey)
+	if err != nil {
+		return nil, err
+	}
+	if sourceOwner != nil {
+		owners = append(owners, sourceOwner)
+	}
+
+	// find destination
+	destinationOwnerKey := types.NamespacedName{Name: si.Spec.DestinationServiceName, Namespace: si.GetNamespace()}
+	destinationOwner, err := findService(ctx, h.k8s, destinationOwnerKey)
+	if err != nil {
+		return nil, err
+	}
+	if destinationOwner != nil {
+		owners = append(owners, destinationOwner)
+	}
+	return owners, nil
 }
 
 func (h ServiceIntegrationHandler) convert(i client.Object) (*v1alpha1.ServiceIntegration, error) {

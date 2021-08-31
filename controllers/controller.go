@@ -39,7 +39,7 @@ type (
 		// fetches the resources that is expected to own this resource
 		// it is not expected that all owners can be found as k8s objects since there may be
 		// resources that were manually created so "not-found" errors should be ignored
-		fetchOwners(client.Object) ([]client.Object, error)
+		fetchOwners(context.Context, client.Object) ([]client.Object, error)
 
 		// delete removes an instance on Aiven side.
 		// If an object is already deleted and cannot be found, it should not be an error. For other deletion
@@ -187,7 +187,7 @@ func (ir instanceReconcilerHelper) reconcileInstance(ctx context.Context, o clie
 
 	// add owner references
 	ir.rec.Event(o, corev1.EventTypeNormal, eventAddOwnerReferences, "adding owner references")
-	if err := ir.addOwnerReferences(o); err != nil {
+	if err := ir.addOwnerReferences(ctx, o); err != nil {
 		ir.rec.Event(o, corev1.EventTypeWarning, eventUnableToAddOwnerReferences, err.Error())
 		return ctrl.Result{}, fmt.Errorf("unable to add owner references: %w", err)
 	}
@@ -227,8 +227,8 @@ func (ir instanceReconcilerHelper) waitForPreconditions(o client.Object) error {
 	})
 }
 
-func (ir instanceReconcilerHelper) addOwnerReference(ctx context.Context, o client.Object) error {
-	owners, err := ir.hnd.fetchOwners(o)
+func (ir instanceReconcilerHelper) addOwnerReferences(ctx context.Context, o client.Object) error {
+	owners, err := ir.hnd.fetchOwners(ctx, o)
 	if err != nil {
 		return fmt.Errorf("unable to fetch owners: %w", err)
 	}

@@ -10,6 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -22,13 +23,15 @@ type ServiceUserReconciler struct {
 	Controller
 }
 
-type ServiceUserHandler struct{}
+type ServiceUserHandler struct {
+	k8s client.Client
+}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=serviceusers,verbs=update;get;list;watch;create;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=serviceusers/status,verbs=get;update
 
 func (r *ServiceUserReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, ServiceUserHandler{}, &v1alpha1.ServiceUser{})
+	return r.reconcileInstance(ctx, req, ServiceUserHandler{r.Client}, &v1alpha1.ServiceUser{})
 }
 
 func (r *ServiceUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -132,6 +135,24 @@ func (h ServiceUserHandler) get(avn *aiven.Client, i client.Object) (*corev1.Sec
 			"CA_CERT":     caCert,
 		},
 	}, nil
+}
+
+func (h ServiceUserHandler) fetchOwners(ctx context.Context, i client.Object) ([]client.Object, error) {
+	si, err := h.convert(i)
+	if err != nil {
+		return nil, err
+	}
+
+	ownerKey := types.NamespacedName{Name: si.Spec.ServiceName, Namespace: si.GetNamespace()}
+
+	owner, err := findService(ctx, h.k8s, ownerKey)
+	if err != nil {
+		return nil, err
+	}
+	if owner != nil {
+		return []client.Object{owner}, nil
+	}
+	return nil, nil
 }
 
 func (h ServiceUserHandler) getSecretName(user *v1alpha1.ServiceUser) string {

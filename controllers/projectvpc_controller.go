@@ -10,6 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -22,13 +23,15 @@ type ProjectVPCReconciler struct {
 	Controller
 }
 
-type ProjectVPCHandler struct{}
+type ProjectVPCHandler struct {
+	k8s client.Client
+}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=projectvpcs,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=projectvpcs/status,verbs=get;update;patch
 
 func (r *ProjectVPCReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, ProjectVPCHandler{}, &v1alpha1.ProjectVPC{})
+	return r.reconcileInstance(ctx, req, ProjectVPCHandler{r.Client}, &v1alpha1.ProjectVPC{})
 }
 
 func (r *ProjectVPCReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -132,6 +135,20 @@ func (h ProjectVPCHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secr
 	}
 
 	return nil, nil
+}
+
+func (h ProjectVPCHandler) fetchOwners(ctx context.Context, i client.Object) ([]client.Object, error) {
+	projectVPC, err := h.convert(i)
+	if err != nil {
+		return nil, err
+	}
+	ownerKey := types.NamespacedName{Name: projectVPC.Spec.Project, Namespace: projectVPC.GetNamespace()}
+
+	project := &v1alpha1.Project{}
+	if err := h.k8s.Get(ctx, ownerKey, project); err != nil {
+		return nil, client.IgnoreNotFound(err)
+	}
+	return []client.Object{project}, nil
 }
 
 func (h ProjectVPCHandler) checkPreconditions(_ *aiven.Client, _ client.Object) (bool, error) {

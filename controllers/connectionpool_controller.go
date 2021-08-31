@@ -196,18 +196,14 @@ func (h ConnectionPoolHandler) checkPreconditions(avn *aiven.Client, i client.Ob
 	return false, nil
 }
 
-func (h ConnectionPoolHandler) fetchOwners(i client.Object) ([]client.Object, error) {
+func (h ConnectionPoolHandler) fetchOwners(ctx context.Context, i client.Object) ([]client.Object, error) {
 	cp, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 	ownerKey := types.NamespacedName{Name: cp.Spec.DatabaseName, Namespace: cp.GetNamespace()}
 
-	db := &v1alpha1.Database{}
-	if err := h.k8s.Get(context.TODO(), ownerKey, db); err != nil {
-		return nil, client.IgnoreNotFound(err)
-	}
-	return []client.Object{db}, nil
+	return findSingleOwner(ctx, h.k8s, ownerKey, &v1alpha1.Database{})
 }
 
 func (h ConnectionPoolHandler) convert(i client.Object) (*v1alpha1.ConnectionPool, error) {

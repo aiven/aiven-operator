@@ -217,6 +217,16 @@ func (h KafkaConnectorHandler) checkPreconditions(avn *aiven.Client, o client.Ob
 	return checkServiceIsRunning(avn, conn.Spec.Project, conn.Spec.ServiceName)
 }
 
+func (h KafkaConnectorHandler) fetchOwners(ctx context.Context, i client.Object) ([]client.Object, error) {
+	conn, err := h.convert(i)
+	if err != nil {
+		return nil, err
+	}
+	ownerKey := types.NamespacedName{Name: conn.Spec.ServiceName, Namespace: conn.GetNamespace()}
+
+	return findSingleOwner(ctx, h.k8s, ownerKey, &v1alpha1.Kafka{})
+}
+
 func (h KafkaConnectorHandler) convert(o client.Object) (*v1alpha1.KafkaConnector, error) {
 	conn, ok := o.(*v1alpha1.KafkaConnector)
 	if !ok {

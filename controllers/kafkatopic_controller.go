@@ -10,6 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -22,13 +23,15 @@ type KafkaTopicReconciler struct {
 	Controller
 }
 
-type KafkaTopicHandler struct{}
+type KafkaTopicHandler struct {
+	k8s client.Client
+}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkatopics,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkatopics/status,verbs=get;update;patch
 
 func (r *KafkaTopicReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, KafkaTopicHandler{}, &v1alpha1.KafkaTopic{})
+	return r.reconcileInstance(ctx, req, KafkaTopicHandler{r.Client}, &v1alpha1.KafkaTopic{})
 }
 
 func (r *KafkaTopicReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -165,6 +168,16 @@ func (h KafkaTopicHandler) checkPreconditions(avn *aiven.Client, i client.Object
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
 	return checkServiceIsRunning(avn, topic.Spec.Project, topic.Spec.ServiceName)
+}
+
+func (h KafkaTopicHandler) fetchOwners(ctx context.Context, i client.Object) ([]client.Object, error) {
+	topic, err := h.convert(i)
+	if err != nil {
+		return nil, err
+	}
+	ownerKey := types.NamespacedName{Name: topic.Spec.ServiceName, Namespace: topic.GetNamespace()}
+
+	return findSingleOwner(ctx, h.k8s, ownerKey, &v1alpha1.Kafka{})
 }
 
 func (h KafkaTopicHandler) getState(avn *aiven.Client, topic *v1alpha1.KafkaTopic) (string, error) {

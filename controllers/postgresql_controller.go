@@ -10,6 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -23,13 +24,15 @@ type PostgreSQLReconciler struct {
 }
 
 // PostgreSQLHandler handles an Aiven PostgreSQL service
-type PostgreSQLHandler struct{}
+type PostgreSQLHandler struct {
+	k8s client.Client
+}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=postgresqls,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=postgresqls/status,verbs=get;update;patch
 
 func (r *PostgreSQLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, PostgreSQLHandler{}, &v1alpha1.PostgreSQL{})
+	return r.reconcileInstance(ctx, req, PostgreSQLHandler{r.Client}, &v1alpha1.PostgreSQL{})
 }
 
 func (r *PostgreSQLReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -166,6 +169,16 @@ func (h PostgreSQLHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secr
 			"DATABASE_URI": s.URI,
 		},
 	}, nil
+}
+
+func (h PostgreSQLHandler) fetchOwners(ctx context.Context, i client.Object) ([]client.Object, error) {
+	pg, err := h.convert(i)
+	if err != nil {
+		return nil, err
+	}
+	ownerKey := types.NamespacedName{Name: pg.Spec.Project, Namespace: pg.GetNamespace()}
+
+	return findSingleOwner(ctx, h.k8s, ownerKey, &v1alpha1.Project{})
 }
 
 func (h PostgreSQLHandler) getSecretName(pg *v1alpha1.PostgreSQL) string {

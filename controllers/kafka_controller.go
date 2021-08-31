@@ -70,7 +70,6 @@ func (h KafkaHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 		if err != nil && !aiven.IsAlreadyExists(err) {
 			return err
 		}
-		h.setOwnerReferences(kafka)
 
 		reason = "Created"
 	} else {
@@ -103,12 +102,6 @@ func (h KafkaHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 		processedGenerationAnnotation, strconv.FormatInt(kafka.GetGeneration(), formatIntBaseDecimal))
 
 	return nil
-}
-
-// kafka is owned by the project
-func (h KafkaHandler) setOwnerReferences(kafka *v1alpha1.Kafka) {
-	proj := &v1alpha1.Project
-
 }
 
 func (h KafkaHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
@@ -190,12 +183,14 @@ func (h KafkaHandler) checkPreconditions(_ *aiven.Client, _ client.Object) (bool
 	return true, nil
 }
 
-func (h KafkaHandler) fetchOwners(o client.Object) ([]client.Object, error) {
-	project := &v1alpha1.Project{}
-	if err := h.k8s.Get(context.TODO(), types.NamespacedName{}, project); err != nil {
-		return nil, client.IgnoreNotFound(err)
+func (h KafkaHandler) fetchOwners(ctx context.Context, i client.Object) ([]client.Object, error) {
+	kafka, err := h.convert(i)
+	if err != nil {
+		return nil, err
 	}
-	return []client.Object{project}, nil
+	ownerKey := types.NamespacedName{Name: kafka.Spec.Project, Namespace: kafka.GetNamespace()}
+
+	return findSingleOwner(ctx, h.k8s, ownerKey, &v1alpha1.Project{})
 }
 
 func (h KafkaHandler) convert(i client.Object) (*v1alpha1.Kafka, error) {
