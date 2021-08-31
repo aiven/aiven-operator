@@ -23,9 +23,18 @@ spec:
     - jsonPath: .spec.project
       name: Project
       type: string
-    - jsonPath: .spec.ConnectorClass
+    - jsonPath: .spec.connectorClass
       name: Connector Class
       type: string
+    - jsonPath: .status.state
+      name: State
+      type: string
+    - jsonPath: .status.tasksStatus.total
+      name: Tasks Total
+      type: integer
+    - jsonPath: .status.tasksStatus.running
+      name: Tasks Running
+      type: integer
     name: v1alpha1
     schema:
       openAPIV3Schema:
@@ -63,11 +72,12 @@ spec:
                 description: The Java class of the connector.
                 maxLength: 1024
                 type: string
-              connectorSpecificConfig:
+              connectorUserConfig:
                 additionalProperties:
                   type: string
-                description: 'The connector specific configuration To use secrets
-                  as sources for values you should write `configOption: secretRef:key:value`'
+                description: The connector specific configuration To build config
+                  values from secret the template function `{{ fromSecret "name" "key"
+                  }}` is provided when interpreting the keys
                 type: object
               project:
                 description: Target project.
@@ -81,7 +91,7 @@ spec:
             required:
             - authSecretRef
             - connectorClass
-            - connectorSpecificConfig
+            - connectorUserConfig
             - project
             - serviceName
             type: object
@@ -159,12 +169,58 @@ spec:
                   - type
                   type: object
                 type: array
+              pluginStatus:
+                description: PluginStatus contains metadata about the configured connector
+                  plugin
+                properties:
+                  author:
+                    type: string
+                  class:
+                    type: string
+                  docUrl:
+                    type: string
+                  title:
+                    type: string
+                  type:
+                    type: string
+                  version:
+                    type: string
+                required:
+                - author
+                - class
+                - docUrl
+                - title
+                - type
+                - version
+                type: object
               state:
-                description: State represents the state of the kafka connector
+                description: Connector state
                 type: string
+              tasksStatus:
+                description: TasksStatus contains metadata about the running tasks
+                properties:
+                  failed:
+                    type: integer
+                  paused:
+                    type: integer
+                  running:
+                    type: integer
+                  stackTrace:
+                    type: string
+                  total:
+                    type: integer
+                  unassigned:
+                    type: integer
+                  unknown:
+                    type: integer
+                required:
+                - total
+                type: object
             required:
             - conditions
+            - pluginStatus
             - state
+            - tasksStatus
             type: object
         type: object
     served: true

@@ -42,7 +42,6 @@ func checkServiceIsRunning(c *aiven.Client, project, serviceName string) (bool, 
 	if err != nil {
 		return false, err
 	}
-
 	return s.State == "RUNNING", nil
 }
 

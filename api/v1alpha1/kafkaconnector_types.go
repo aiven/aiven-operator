@@ -17,28 +17,53 @@ type KafkaConnectorSpec struct {
 	// Service name.
 	ServiceName string `json:"serviceName"`
 
+	// Authentication reference to Aiven token in a secret
+	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
+
 	// +kubebuilder:validation:MaxLength=1024
 	// The Java class of the connector.
 	ConnectorClass string `json:"connectorClass"`
 
 	// The connector specific configuration
-	// To use secrets as sources for values you should write
-	// `configOption: secretRef:key:value`
-	ConnectorSpecificConfig map[string]string `json:"connectorSpecificConfig"`
-
-	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
+	// To build config values from secret the template function `{{ fromSecret "name" "key" }}`
+	// is provided when interpreting the keys
+	ConnectorUserConfig map[string]string `json:"connectorUserConfig"`
 }
-
-type KafkaConnectorConnectorSpecificConfig map[string]string
 
 // KafkaConnectorStatus defines the observed state of KafkaConnector
 type KafkaConnectorStatus struct {
 	// Conditions represent the latest available observations of an kafka connector state
 	Conditions []metav1.Condition `json:"conditions"`
 
-	// State represents the state of the kafka connector
+	// Connector state
 	State string `json:"state"`
+
+	// PluginStatus contains metadata about the configured connector plugin
+	PluginStatus KafkaConnectorPluginStatus `json:"pluginStatus"`
+
+	// TasksStatus contains metadata about the running tasks
+	TasksStatus KafkaConnectorTasksStatus `json:"tasksStatus"`
+}
+
+// KafkaConnectorPluginStatus describes the observed state of a Kafka Connector Plugin
+type KafkaConnectorPluginStatus struct {
+	Author  string `json:"author"`
+	Class   string `json:"class"`
+	DocURL  string `json:"docUrl"`
+	Title   string `json:"title"`
+	Type    string `json:"type"`
+	Version string `json:"version"`
+}
+
+// KafkaConnectorPluginStatus describes the observed state of the Kafka Connector Tasks
+type KafkaConnectorTasksStatus struct {
+	Total      uint   `json:"total"`
+	Running    uint   `json:"running,omitempty"`
+	Failed     uint   `json:"failed,omitempty"`
+	Paused     uint   `json:"paused,omitempty"`
+	Unassigned uint   `json:"unassigned,omitempty"`
+	Unknown    uint   `json:"unknown,omitempty"`
+	StackTrace string `json:"stackTrace,omitempty"`
 }
 
 //+kubebuilder:object:root=true
@@ -47,7 +72,10 @@ type KafkaConnectorStatus struct {
 // KafkaConnector is the Schema for the kafkaconnectors API
 // +kubebuilder:printcolumn:name="Service Name",type="string",JSONPath=".spec.serviceName"
 // +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
-// +kubebuilder:printcolumn:name="Connector Class",type="string",JSONPath=".spec.ConnectorClass"
+// +kubebuilder:printcolumn:name="Connector Class",type="string",JSONPath=".spec.connectorClass"
+// +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state"
+// +kubebuilder:printcolumn:name="Tasks Total",type="integer",JSONPath=".status.tasksStatus.total"
+// +kubebuilder:printcolumn:name="Tasks Running",type="integer",JSONPath=".status.tasksStatus.running"
 type KafkaConnector struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
