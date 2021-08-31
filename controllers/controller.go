@@ -233,7 +233,9 @@ func (ir instanceReconcilerHelper) addOwnerReferences(ctx context.Context, o cli
 		return fmt.Errorf("unable to fetch owners: %w", err)
 	}
 	for i := range owners {
-		controllerutil.SetOwnerReference(owners[i], o, ir.k8s.Scheme())
+		if err := controllerutil.SetOwnerReference(owners[i], o, ir.k8s.Scheme()); err != nil {
+			return fmt.Errorf("unable to set owner reference to '%s': %w", owners[i].GetName(), err)
+		}
 	}
 	return nil
 }
