@@ -10,6 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -23,13 +24,15 @@ type ConnectionPoolReconciler struct {
 }
 
 // ConnectionPoolHandler handles an Aiven ConnectionPool
-type ConnectionPoolHandler struct{}
+type ConnectionPoolHandler struct {
+	k8s client.Client
+}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=connectionpools,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=connectionpools/status,verbs=get;update;patch
 
 func (r *ConnectionPoolReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, ConnectionPoolHandler{}, &v1alpha1.ConnectionPool{})
+	return r.reconcileInstance(ctx, req, ConnectionPoolHandler{r.Client}, &v1alpha1.ConnectionPool{})
 }
 
 func (r *ConnectionPoolReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -191,6 +194,20 @@ func (h ConnectionPoolHandler) checkPreconditions(avn *aiven.Client, i client.Ob
 	}
 
 	return false, nil
+}
+
+func (h ConnectionPoolHandler) fetchOwners(i client.Object) ([]client.Object, error) {
+	cp, err := h.convert(i)
+	if err != nil {
+		return nil, err
+	}
+	ownerKey := types.NamespacedName{Name: cp.Spec.DatabaseName, Namespace: cp.GetNamespace()}
+
+	db := &v1alpha1.Database{}
+	if err := h.k8s.Get(context.TODO(), ownerKey, db); err != nil {
+		return nil, client.IgnoreNotFound(err)
+	}
+	return []client.Object{db}, nil
 }
 
 func (h ConnectionPoolHandler) convert(i client.Object) (*v1alpha1.ConnectionPool, error) {

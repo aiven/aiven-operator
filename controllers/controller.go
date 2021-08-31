@@ -21,9 +21,6 @@ import (
 	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
 )
 
-// formatIntBaseDecimal it is a base to format int64 to string
-const formatIntBaseDecimal = 10
-
 type (
 	// Controller reconciles the Aiven objects
 	Controller struct {
@@ -34,12 +31,15 @@ type (
 		Recorder record.EventRecorder
 	}
 
-	// Handlers represents Aiven API handlers
-	// It intended to be a layer between Kubernetes and Aiven API that handles all aspects
-	// of the Aiven services lifecycle.
+	// handlers handle all CRD specific logic
 	Handlers interface {
 		// create or updates an instance on the Aiven side.
 		createOrUpdate(*aiven.Client, client.Object) error
+
+		// fetches the resources that is expected to own this resource
+		// it is not expected that all owners can be found as k8s objects since there may be
+		// resources that were manually created so "not-found" errors should be ignored
+		fetchOwners(client.Object) ([]client.Object, error)
 
 		// delete removes an instance on Aiven side.
 		// If an object is already deleted and cannot be found, it should not be an error. For other deletion
@@ -76,6 +76,9 @@ const (
 	eventWaitingforPreconditions            = "WaitingForPreconditions"
 	eventUnableToWaitForPreconditions       = "UnableToWaitForPreconditions"
 	eventPreconditionsAreMet                = "PreconditionsAreMet"
+	eventAddOwnerReferences                 = "AddOwnerReferences"
+	eventUnableToAddOwnerReferences         = "UnableToAddOwnerReferences"
+	eventAddedOwnerReferences               = "AddedOwnerReferences"
 	eventUnableToCreateOrUpdateAtAiven      = "UnableToCreateOrUpdateAtAiven"
 	eventCreateOrUpdatedAtAiven             = "CreateOrUpdatedAtAiven"
 	eventCreatedOrUpdatedAtAiven            = "CreatedOrUpdatedAtAiven"
@@ -174,6 +177,7 @@ func (ir instanceReconcilerHelper) reconcileInstance(ctx context.Context, o clie
 	}
 	ir.log.Info("handling service update/creation")
 
+	// wait for preconditions
 	ir.rec.Event(o, corev1.EventTypeNormal, eventWaitingforPreconditions, "waiting for preconditions of the instance")
 	if err := ir.waitForPreconditions(o); err != nil {
 		ir.rec.Event(o, corev1.EventTypeWarning, eventUnableToWaitForPreconditions, err.Error())
@@ -181,6 +185,15 @@ func (ir instanceReconcilerHelper) reconcileInstance(ctx context.Context, o clie
 	}
 	ir.rec.Event(o, corev1.EventTypeNormal, eventPreconditionsAreMet, "preconditions are met, proceeding to create or update")
 
+	// add owner references
+	ir.rec.Event(o, corev1.EventTypeNormal, eventAddOwnerReferences, "adding owner references")
+	if err := ir.addOwnerReferences(o); err != nil {
+		ir.rec.Event(o, corev1.EventTypeWarning, eventUnableToAddOwnerReferences, err.Error())
+		return ctrl.Result{}, fmt.Errorf("unable to add owner references: %w", err)
+	}
+	ir.rec.Event(o, corev1.EventTypeNormal, eventAddedOwnerReferences, "instance is properly owned now")
+
+	// create or update
 	ir.rec.Event(o, corev1.EventTypeNormal, eventCreateOrUpdatedAtAiven, "about to create instance at aiven")
 	if err := ir.createOrUpdateInstance(o); err != nil {
 		ir.rec.Event(o, corev1.EventTypeWarning, eventUnableToCreateOrUpdateAtAiven, err.Error())
@@ -188,6 +201,7 @@ func (ir instanceReconcilerHelper) reconcileInstance(ctx context.Context, o clie
 	}
 	ir.rec.Event(o, corev1.EventTypeNormal, eventCreatedOrUpdatedAtAiven, "instance was created at aiven but may not be running yet")
 
+	// wait for the service to be running
 	ir.rec.Event(o, corev1.EventTypeNormal, eventWaitingForTheInstanceToBeRunning, "waiting for the instance to be running")
 	if err := ir.updateInstanceStateAndSecretUntilRunning(ctx, o); err != nil {
 		ir.rec.Event(o, corev1.EventTypeWarning, eventUnableToWaitForInstanceToBeRunning, err.Error())
@@ -211,6 +225,17 @@ func (ir instanceReconcilerHelper) waitForPreconditions(o client.Object) error {
 		ir.log.Info("checking preconditions")
 		return ir.hnd.checkPreconditions(ir.avn, o)
 	})
+}
+
+func (ir instanceReconcilerHelper) addOwnerReference(ctx context.Context, o client.Object) error {
+	owners, err := ir.hnd.fetchOwners(o)
+	if err != nil {
+		return fmt.Errorf("unable to fetch owners: %w", err)
+	}
+	for i := range owners {
+		controllerutil.SetOwnerReference(owners[i], o, ir.k8s.Scheme())
+	}
+	return nil
 }
 
 func (ir instanceReconcilerHelper) createOrUpdateInstance(o client.Object) error {

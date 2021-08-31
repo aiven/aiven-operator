@@ -1,3 +1,5 @@
+// Copyright (c) 2021 Aiven, Helsinki, Finland. https://aiven.io/
+
 package controllers
 
 import (
@@ -25,6 +27,8 @@ const (
 
 	pollTimeout  = 6 * time.Minute
 	pollInterval = 20 * time.Second
+
+	formatIntBaseDecimal = 10
 )
 
 func requeueCtrlResult() ctrl.Result {

@@ -10,6 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -23,13 +24,15 @@ type KafkaReconciler struct {
 }
 
 // KafkaHandler handles an Aiven Kafka service
-type KafkaHandler struct{}
+type KafkaHandler struct {
+	k8s client.Client
+}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkas,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkas/status,verbs=get;update;patch
 
 func (r *KafkaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, KafkaHandler{}, &v1alpha1.Kafka{})
+	return r.reconcileInstance(ctx, req, KafkaHandler{r.Client}, &v1alpha1.Kafka{})
 }
 
 func (r *KafkaReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -67,6 +70,7 @@ func (h KafkaHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 		if err != nil && !aiven.IsAlreadyExists(err) {
 			return err
 		}
+		h.setOwnerReferences(kafka)
 
 		reason = "Created"
 	} else {
@@ -99,6 +103,12 @@ func (h KafkaHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 		processedGenerationAnnotation, strconv.FormatInt(kafka.GetGeneration(), formatIntBaseDecimal))
 
 	return nil
+}
+
+// kafka is owned by the project
+func (h KafkaHandler) setOwnerReferences(kafka *v1alpha1.Kafka) {
+	proj := &v1alpha1.Project
+
 }
 
 func (h KafkaHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
@@ -178,6 +188,14 @@ func (h KafkaHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, e
 
 func (h KafkaHandler) checkPreconditions(_ *aiven.Client, _ client.Object) (bool, error) {
 	return true, nil
+}
+
+func (h KafkaHandler) fetchOwners(o client.Object) ([]client.Object, error) {
+	project := &v1alpha1.Project{}
+	if err := h.k8s.Get(context.TODO(), types.NamespacedName{}, project); err != nil {
+		return nil, client.IgnoreNotFound(err)
+	}
+	return []client.Object{project}, nil
 }
 
 func (h KafkaHandler) convert(i client.Object) (*v1alpha1.Kafka, error) {
