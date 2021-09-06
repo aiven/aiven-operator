@@ -49,6 +49,7 @@ func (h ServiceUserHandler) createOrUpdate(avn *aiven.Client, i client.Object) e
 			AccessControl: &aiven.AccessControl{
 				RedisACLCategories: []string{},
 				RedisACLCommands:   []string{},
+				RedisACLChannels:   []string{},
 				RedisACLKeys:       []string{},
 			},
 		})

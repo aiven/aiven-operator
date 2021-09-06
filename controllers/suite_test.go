@@ -113,9 +113,10 @@ var _ = BeforeSuite(func(done Done) {
 	// set-up roject
 	err = (&ProjectReconciler{
 		Controller: Controller{
-			Client: k8sManager.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("Project"),
-			Scheme: k8sManager.GetScheme(),
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Project"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("project-reconciler"),
 		},
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
@@ -123,9 +124,10 @@ var _ = BeforeSuite(func(done Done) {
 	// set-up Kafka reconciler
 	err = (&KafkaReconciler{
 		Controller{
-			Client: k8sManager.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("Kafka"),
-			Scheme: k8sManager.GetScheme(),
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Kafka"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("kafka-reconciler"),
 		},
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
@@ -133,9 +135,10 @@ var _ = BeforeSuite(func(done Done) {
 	// set-up PostgreSQL reconciler
 	err = (&PostgreSQLReconciler{
 		Controller{
-			Client: k8sManager.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("PostgreSQL"),
-			Scheme: k8sManager.GetScheme(),
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("PostgreSQL"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("postgresql-reconciler"),
 		},
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
@@ -143,9 +146,10 @@ var _ = BeforeSuite(func(done Done) {
 	// set-up KafkaConnect reconciler
 	err = (&KafkaConnectReconciler{
 		Controller{
-			Client: k8sManager.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("KafkaConnect"),
-			Scheme: k8sManager.GetScheme(),
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("KafkaConnect"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("kafka-connect-reconciler"),
 		},
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
@@ -153,9 +157,10 @@ var _ = BeforeSuite(func(done Done) {
 	// set-up Database reconciler
 	err = (&DatabaseReconciler{
 		Controller{
-			Client: k8sManager.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("Database"),
-			Scheme: k8sManager.GetScheme(),
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Database"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("database-reconciler"),
 		},
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
@@ -163,9 +168,10 @@ var _ = BeforeSuite(func(done Done) {
 	// set-up ConnectionPool reconciler
 	err = (&ConnectionPoolReconciler{
 		Controller{
-			Client: k8sManager.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("ConnectionPool"),
-			Scheme: k8sManager.GetScheme(),
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("ConnectionPool"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("connection-pool-reconciler"),
 		},
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
@@ -173,9 +179,10 @@ var _ = BeforeSuite(func(done Done) {
 	// set-up ServiceUser reconciler
 	err = (&ServiceUserReconciler{
 		Controller{
-			Client: k8sManager.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("ServiceUser"),
-			Scheme: k8sManager.GetScheme(),
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("ServiceUser"),
+			Recorder: k8sManager.GetEventRecorderFor("service-user-reconciler"),
+			Scheme:   k8sManager.GetScheme(),
 		},
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
@@ -183,9 +190,10 @@ var _ = BeforeSuite(func(done Done) {
 	// set-up KafkaTopic reconciler
 	err = (&KafkaTopicReconciler{
 		Controller{
-			Client: k8sManager.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("KafkaTopic"),
-			Scheme: k8sManager.GetScheme(),
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("KafkaTopic"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("kafka-topic-reconciler"),
 		},
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
@@ -193,9 +201,10 @@ var _ = BeforeSuite(func(done Done) {
 	// set-up KafkaACL reconciler
 	err = (&KafkaACLReconciler{
 		Controller{
-			Client: k8sManager.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("KafkaACL"),
-			Scheme: k8sManager.GetScheme(),
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("KafkaACL"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("kafka-acl-reconciler"),
 		},
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
@@ -203,9 +212,10 @@ var _ = BeforeSuite(func(done Done) {
 	// set-up KafkaSchema reconciler
 	err = (&KafkaSchemaReconciler{
 		Controller{
-			Client: k8sManager.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("KafkaSchema"),
-			Scheme: k8sManager.GetScheme(),
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("KafkaSchema"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("kafka-schema-reconciler"),
 		},
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
@@ -213,18 +223,20 @@ var _ = BeforeSuite(func(done Done) {
 	// set-up ServiceIntegration reconciler
 	err = (&ServiceIntegrationReconciler{
 		Controller{
-			Client: k8sManager.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("ServiceIntegration"),
-			Scheme: k8sManager.GetScheme(),
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("ServiceIntegration"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("service-integration-reconciler"),
 		},
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
 	Expect((&KafkaConnectorReconciler{
 		Controller{
-			Client: k8sManager.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("KafkaConnector"),
-			Scheme: k8sManager.GetScheme(),
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("KafkaConnector"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("kafka-connector-reconciler"),
 		},
 	}).SetupWithManager(k8sManager)).To(Succeed())
 
@@ -254,8 +266,7 @@ func ensureDelete(ctx context.Context, instance client.Object) {
 		err := k8sClient.Get(ctx, names, instance)
 
 		return apierrors.IsNotFound(err)
-	}, time.Minute*1, time.Second*5, "wait for instance to be gone from k8s").Should(BeTrue())
-
+	}, time.Minute*5, time.Second*5, "wait for instance to be gone from k8s").Should(BeTrue())
 }
 
 // boolPointer converts boolean to *bool

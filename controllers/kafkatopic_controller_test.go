@@ -28,11 +28,10 @@ var _ = Describe("Kafka Topic Controller", func() {
 		topic       *v1alpha1.KafkaTopic
 		serviceName string
 		topicName   string
-		ctx         context.Context
+		ctx         = context.Background()
 	)
 
 	BeforeEach(func() {
-		ctx = context.Background()
 		serviceName = "k8s-test-kafka-topic-acc-" + generateRandomID()
 		topicName = "k8s-test-topic-acc-" + generateRandomID()
 		kafka = kafkaSpec(serviceName, namespace)
@@ -68,7 +67,7 @@ var _ = Describe("Kafka Topic Controller", func() {
 		Expect(createdTopic.GetFinalizers()).ToNot(BeEmpty())
 	})
 
-	Context("Validating Kafka reconciler behaviour", func() {
+	Context("Validating Kafka Topic reconciler behaviour", func() {
 		It("should createOrUpdate a new Kafka Topic", func() {
 			createdTopic := &v1alpha1.KafkaTopic{}
 			lookupKey := types.NamespacedName{Name: topicName, Namespace: namespace}

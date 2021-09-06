@@ -26,6 +26,8 @@ bin
 # k8s test residues
 testbin/*
 kubeconfig
+*.coverprofile
+
 
 # Aiven internal
 hack/tmp/*
