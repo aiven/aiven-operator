@@ -23,7 +23,7 @@ const (
 	processedGenerationAnnotation = "controllers.aiven.io/generation-was-processed"
 	instanceIsRunningAnnotation   = "controllers.aiven.io/instance-is-running"
 
-	pollTimeout  = 6 * time.Minute
+	pollTimeout  = 10 * time.Minute
 	pollInterval = 20 * time.Second
 )
 
