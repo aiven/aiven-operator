@@ -5,7 +5,6 @@ on:
     tags:
       - 'v*'
 
-
 jobs:
   build_default_release_manifest:
     runs-on: ubuntu-latest
