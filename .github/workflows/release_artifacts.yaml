@@ -1,0 +1,34 @@
+name: release_artifacts
+
+on:
+ push:
+    tags:
+      - 'v*'
+
+
+jobs:
+  build_default_release_manifest:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: Build artifacts
+      uses: karancode/kustomize-github-action@master
+      with:
+        kustomize_version: 4.3.0
+        kustomize_build_dir: config/default
+        kustomize_output_file: deployment.yaml
+      env:
+        GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+
+    - name: Upload artifacts
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: deployment.yaml
+        asset_name: deployment.yaml
+        tag: ${{ github.ref }}
+
+

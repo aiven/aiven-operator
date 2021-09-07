@@ -1,6 +1,6 @@
 module github.com/aiven/aiven-kubernetes-operator
 
-go 1.15
+go 1.17
 
 require (
 	github.com/aiven/aiven-go-client v1.6.0
