@@ -6,12 +6,13 @@ import (
 	"time"
 
 	"k8s.io/apimachinery/pkg/api/meta"
-
-	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Service Integration Controller", func() {

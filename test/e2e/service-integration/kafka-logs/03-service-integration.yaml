@@ -1,0 +1,18 @@
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: k8s-test-service-integration-kafka-logs-service-integration
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-ci-kubernetes-operator
+
+  integrationType: kafka_logs
+
+  sourceServiceName: k8s-test-service-integration-kafka-logs-kafka
+  destinationServiceName: k8s-test-service-integration-kafka-logs-kafka
+
+  kafkaLogs:
+    kafka_topic: k8s-test-service-integration-kafka-logs-topic

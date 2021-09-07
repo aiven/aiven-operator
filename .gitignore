@@ -27,6 +27,7 @@ bin
 testbin/*
 kubeconfig
 *.coverprofile
+kind-logs*
 
 
 # Aiven internal
