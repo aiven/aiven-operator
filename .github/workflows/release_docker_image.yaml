@@ -28,4 +28,4 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: aivenoy/aiven-kubernetes-operator:${{ steps.action_vars.output.TAG }}
+        tags: aivenoy/aiven-kubernetes-operator:${{ steps.action_vars.outputs.TAG }}
