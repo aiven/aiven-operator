@@ -1,0 +1,19 @@
+apiVersion: aiven.io/v1alpha1
+kind: Kafka
+metadata:
+  name: k8s-test-kafka-topic-simple-kafka-topic-kafka
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: kafka-secret
+
+  project: aiven-ci-kubernetes-operator
+
+  cloudName: google-europe-west1
+  plan: business-4
+
+  kafkaUserConfig:
+    kafka_connect: true
