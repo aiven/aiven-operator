@@ -90,10 +90,10 @@ INFO[0035] OLM has successfully installed "aiven-operator.v0.0.1"
 
 It should deploy Aiven Operator bundle to the `default` namespace, to validate this please run `kubectl get pods`, which
 should print all run pods in the `default` namespace, look for something with the
-name `aiven-kubernetes-operator-controller-manager`. To see what is happening inside read logs from `manager` container:
+name `aiven-operator-controller-manager`. To see what is happening inside read logs from `manager` container:
 
 ```shell
-$ kubectl logs aiven-kubernetes-operator-controller-manager-5c9459844b-fmsk6 -c manager -f
+$ kubectl logs aiven-operator-controller-manager-5c9459844b-fmsk6 -c manager -f
 ```
 
 Uninstall the operator:

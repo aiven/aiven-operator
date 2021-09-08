@@ -8,8 +8,8 @@ weight: 10
 You must have a working [Go environment](https://golang.org/doc/install) and then clone the repository:
 
 ```bash
-$ git clone git@github.com:aiven/aiven-kubernetes-operator.git
-$ cd aiven-kubernetes-operator
+$ git clone git@github.com:aiven/aiven-operator.git
+$ cd aiven-operator
 ```
 
 ## Building
@@ -18,8 +18,8 @@ The project uses the `make` build system.
 Building the operator binary and Docker image:
 ```bash
 $ make build
-$ make docker-build IMG=aiven-kubernetes-operator:latest
-$ make docker-push IMG=aiven-kubernetes-operator:latest
+$ make docker-build IMG=aiven-operator:latest
+$ make docker-push IMG=aiven-operator:latest
 ```
 
 ## Testing
@@ -37,9 +37,9 @@ To run the documentation live preview:
 $ make serve-docs
 ```
 
-And open the `http://localhost:1313/aiven-kubernetes-operator/` page in your web browser.
+And open the `http://localhost:1313/aiven-operator/` page in your web browser.
 
-The [API Reference](https://aiven.github.io/aiven-kubernetes-operator/docs/api-reference/) section is generated automatically from the source code during the documentation deployment. To generate it locally, run the following command:
+The [API Reference](https://aiven.github.io/aiven-operator/docs/api-reference/) section is generated automatically from the source code during the documentation deployment. To generate it locally, run the following command:
 ```bash
 $ make generate-api-reference
 ```
@@ -56,7 +56,7 @@ Install the `cert-manager` operator. **This and the next step are only required 
 $ make install-cert-manager
 ```
 
-Install the Aiven Kubernetes Operator CRDs by running:
+Install the Aiven Operator CRDs by running:
 ```bash
 $ make install
 ```

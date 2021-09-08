@@ -1,4 +1,4 @@
-module github.com/aiven/aiven-kubernetes-operator
+module github.com/aiven/aiven-operator
 
 go 1.16
 

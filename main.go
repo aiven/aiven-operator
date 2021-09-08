@@ -13,8 +13,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	v1alpha1 "github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
-	"github.com/aiven/aiven-kubernetes-operator/controllers"
+	v1alpha1 "github.com/aiven/aiven-operator/api/v1alpha1"
+	"github.com/aiven/aiven-operator/controllers"
 	// +kubebuilder:scaffold:imports
 )
 

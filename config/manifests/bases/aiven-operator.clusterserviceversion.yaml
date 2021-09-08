@@ -79,7 +79,7 @@ spec:
       version: v1alpha1
   description: A Kubernetes operator for provisioning and managing Aiven Databases
     and other resources
-  displayName: Aiven Kubernetes Operator
+  displayName: Aiven Operator
   icon:
   - base64data: ""
     mediatype: ""
