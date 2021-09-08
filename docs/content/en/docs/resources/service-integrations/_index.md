@@ -6,16 +6,20 @@ weight: 60
 
 Service Integrations provide additional functionality and features by connecting different Aiven services together.
 
-See our [Getting Started with Service Integrations guide](https://help.aiven.io/en/articles/1456441-getting-started-with-service-integrations) for more information.
+See
+our [Getting Started with Service Integrations guide](https://help.aiven.io/en/articles/1456441-getting-started-with-service-integrations)
+for more information.
 
 > Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites/) with the [operator installed](../installation/), and a [Kubernetes Secret with an Aiven authentication token](../authentication/).
 
 ## Send Kafka logs to a Kafka Topic
+
 This integration allows you to send Kafka service logs to a specific Kafka Topic.
 
 First, let's create a Kafka service and a topic.
 
 1. Create a new file named `kafka-sample-topic.yaml` with the following content:
+
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: Kafka
@@ -26,7 +30,7 @@ spec:
   authSecretRef:
     name: aiven-token
     key: token
-  
+
   # outputs the Kafka connection on the `kafka-connection` Secret
   connInfoSecretTarget:
     name: kafka-auth
@@ -57,7 +61,7 @@ spec:
   authSecretRef:
     name: aiven-token
     key: token
-  
+
   project: <your-project-name>
   serviceName: kafka-sample
 
@@ -72,11 +76,14 @@ spec:
 ```
 
 2. Create the resource on Kubernetes:
+
 ```bash
 $ kubectl apply -f kafka-sample-topic.yaml 
 ```
 
-3. Now, create a `ServiceIntegration` resource to send the Kafka logs to the created topic. In the same file, add the following YAML:
+3. Now, create a `ServiceIntegration` resource to send the Kafka logs to the created topic. In the same file, add the
+   following YAML:
+
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: ServiceIntegration
@@ -105,11 +112,13 @@ spec:
 ```
 
 4. Reapply the resource on Kubernetes:
+
 ```bash
 $ kubectl apply -f kafka-sample-topic.yaml 
 ```
 
 5. Let's check the created service integration:
+
 ```bash
 $ kubectl get serviceintegrations.aiven.io service-integration-kafka-logs
 
