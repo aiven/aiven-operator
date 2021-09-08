@@ -1,0 +1,117 @@
+name: release
+
+on:
+ push:
+    tags:
+      - 'v*'
+
+jobs:
+  build_default_release_manifest:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: Set up variables
+      id: action_vars
+      run: echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
+
+    - name: Add manager image kustomization
+      shell: bash
+      run: |
+        echo "apiVersion: kustomize.config.k8s.io/v1beta1
+        kind: Kustomization
+        images:
+        - name: controller
+          newName: aivenoy/aiven-kubernetes-operator
+          newTag: ${{ steps.action_vars.outputs.TAG }}
+        " > config/manager/kustomization.yaml
+
+    - name: Build artifacts
+      uses: karancode/kustomize-github-action@master
+      with:
+        kustomize_version: 4.3.0
+        kustomize_build_dir: config/default
+        kustomize_output_file: deployment.yaml
+      env:
+        GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+
+    - name: Upload artifacts
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: deployment.yaml
+        asset_name: deployment.yaml
+        tag: ${{ github.ref }}
+
+  build_and_push_docker_image:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up variables
+      id: action_vars
+      run: echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1 
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: aivenoy/aiven-kubernetes-operator:${{ steps.action_vars.outputs.TAG }}
+
+  pages:
+    runs-on: ubuntu-18.04
+    release_pages:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: '0.83.1'
+          extended: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - run: npm ci --prefix ./docs
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.16.5'
+
+      - name: Generate API Reference
+        run:  make generate-api-reference
+
+      - name: Generate docs
+        run: make generate-docs
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/public
