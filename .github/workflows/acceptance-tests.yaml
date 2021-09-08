@@ -1,0 +1,24 @@
+name: tests
+
+on: [workflow_dispatch]
+
+jobs:
+
+  acceptance_tests:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.16.5'
+
+      - name: Run acceptance tests
+        run: make test
+        env:
+          AIVEN_TOKEN: ${{ secrets.AIVEN_TOKEN }}
+          AIVEN_PROJECT_NAME: ${{ secrets.AIVEN_PROJECT_NAME }}

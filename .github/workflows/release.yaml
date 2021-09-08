@@ -69,9 +69,10 @@ jobs:
         push: true
         tags: aivenoy/aiven-kubernetes-operator:${{ steps.action_vars.outputs.TAG }}
 
-  pages:
+  release_pages:
     runs-on: ubuntu-18.04
-    release_pages:
+    steps:
+
       - uses: actions/checkout@v2
         with:
           submodules: recursive
