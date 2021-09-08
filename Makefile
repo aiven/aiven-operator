@@ -218,10 +218,6 @@ generate-api-reference:
 		-api-dir ./api/v1alpha1 \
 		-out-file docs/content/en/docs/api-reference/_index.html
 
-# Scorecard configuration docs: https://sdk.operatorframework.io/docs/advanced-topics/scorecard/scorecard/#configuration
-test-scorecard: bundle
-	operator-sdk scorecard bundle -w 30m
-
 # e2e tests using kuttl: https://kuttl.dev/
 .PHONY: test-e2e
 test-e2e:
