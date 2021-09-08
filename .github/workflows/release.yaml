@@ -20,7 +20,8 @@ jobs:
     - name: Add manager image kustomization
       shell: bash
       run: |
-        echo "apiVersion: kustomize.config.k8s.io/v1beta1
+        echo "resources: [manager.yaml]
+        apiVersion: kustomize.config.k8s.io/v1beta1
         kind: Kustomization
         images:
         - name: controller
