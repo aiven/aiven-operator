@@ -5,15 +5,15 @@ weight: 80
 ---
 
 ## Verifying operator status
-Use the following checks to help you troubleshoot the Aiven Kubernetes Operator.
+Use the following checks to help you troubleshoot the Aiven Operator.
 
 ### Checking the Pods
 Verify that all the operator Pods are `READY`, and the `STATUS` is `Running`.
 ```bash
-$ kubectl get pod -n aiven-kubernetes-operator-system 
+$ kubectl get pod -n aiven-operator-system 
 
 NAME                                                            READY   STATUS    RESTARTS   AGE
-aiven-kubernetes-operator-controller-manager-576d944499-ggttj   1/1     Running   0          12m
+aiven-operator-controller-manager-576d944499-ggttj   1/1     Running   0          12m
 ```
 
 Verify that the `cert-manager` Pods are also running.
@@ -29,12 +29,12 @@ cert-manager-webhook-6bdffc7c9d-47w6z      1/1     Running   0          76s
 ### Visualizing the operator logs
 Use the following command to visualize all the logs from the operator.
 ```bash
-$ kubectl logs -n aiven-kubernetes-operator-system -l control-plane=controller-manager
+$ kubectl logs -n aiven-operator-system -l control-plane=controller-manager
 ```
 
 ### Verifing the operator version
 ```bash
-$ kubectl get pod -n aiven-kubernetes-operator-system -l control-plane=controller-manager -o jsonpath="{.items[0].spec.containers[0].image}"
+$ kubectl get pod -n aiven-operator-system -l control-plane=controller-manager -o jsonpath="{.items[0].spec.containers[0].image}"
 ```
 
 ## Known issues and limitations

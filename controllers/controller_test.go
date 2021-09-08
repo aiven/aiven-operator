@@ -9,7 +9,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 func TestUserConfigurationToAPI(t *testing.T) {

@@ -18,7 +18,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/aiven/aiven-go-client"
-	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 // formatIntBaseDecimal it is a base to format int64 to string

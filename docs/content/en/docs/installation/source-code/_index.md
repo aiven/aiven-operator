@@ -4,13 +4,13 @@ linkTitle: "Installing from the source code"
 weight: 20
 ---
 
-The Aiven Kubernetes Operator can be installed from the following GitHub repository:
-[aiven/aiven-kubernetes-operator](https://github.com/aiven/aiven-kubernetes-operator).
+The Aiven Operator can be installed from the following GitHub repository:
+[aiven/aiven-operator](https://github.com/aiven/aiven-operator).
 
 1. Clone this repository.
 ```bash
-$ git clone git@github.com:aiven/aiven-kubernetes-operator.git
-$ cd aiven-kubernetes-operator
+$ git clone git@github.com:aiven/aiven-operator.git
+$ cd aiven-operator
 ```
 
 2. Install the `cert-manager` operator.
@@ -39,4 +39,4 @@ $ make install
 $ make deploy
 ```
 
-You've now installed the Aiven Kubernetes Operator. [Verify your installation](./verifying).
+You've now installed the Aiven Operator. [Verify your installation](./verifying).

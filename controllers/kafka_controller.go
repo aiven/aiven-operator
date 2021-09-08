@@ -14,7 +14,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-go-client"
-	"github.com/aiven/aiven-kubernetes-operator/api/v1alpha1"
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 // KafkaReconciler reconciles a Kafka object

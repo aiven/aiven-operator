@@ -4,7 +4,7 @@ linkTitle: "Prerequisites"
 weight: 1
 ---
 
-The Aiven Kubernetes Operator supports all major Kubernetes distributions, both locally and in the cloud.
+The Aiven Operator supports all major Kubernetes distributions, both locally and in the cloud.
 
 Make sure you have the following:
 - To use the operator, you need admin access to a Kubernetes cluster. 

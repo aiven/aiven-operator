@@ -24,7 +24,7 @@ jobs:
         kind: Kustomization
         images:
         - name: controller
-          newName: aivenoy/aiven-kubernetes-operator
+          newName: aivenoy/aiven-operator
           newTag: ${{ steps.action_vars.outputs.TAG }}
         " > config/manager/kustomization.yaml
 
@@ -67,7 +67,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: aivenoy/aiven-kubernetes-operator:${{ steps.action_vars.outputs.TAG }}
+        tags: aivenoy/aiven-operator:${{ steps.action_vars.outputs.TAG }}
 
   release_pages:
     runs-on: ubuntu-18.04

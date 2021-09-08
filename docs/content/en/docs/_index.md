@@ -4,7 +4,7 @@ linkTitle: ""
 url: /
 ---
 
-# Welcome to Aiven Kubernetes Operator
+# Welcome to Aiven Operator
 Provision and manage [Aiven services](https://aiven.io) from your Kubernetes cluster.
 
 Currently, the operator supports [Aiven for PostgreSQL](./postgresql/) and [Aiven for Kafka](./kafka) services.
@@ -19,4 +19,4 @@ Currently, the Operator supports [Aiven for PostgreSQL](./postgresql/) and [Aive
 
 # Contributing
 
-The [contribution guide](./contributing/) covers everything you need to know about how you can contribute to Aiven Kubernetes Operators. The [developer guide](./contributing/developer-guide) will help you onboard as a developer.
+The [contribution guide](./contributing/) covers everything you need to know about how you can contribute to Aiven Operators. The [developer guide](./contributing/developer-guide) will help you onboard as a developer.

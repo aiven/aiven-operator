@@ -1,5 +1,5 @@
-baseURL = "https://aiven.github.io/aiven-kubernetes-operator/"
-title = "Aiven Kubernetes Operator"
+baseURL = "https://aiven.github.io/aiven-operator/"
+title = "Aiven Operator"
 
 theme = "docsy"
 
@@ -10,8 +10,8 @@ defaultContentLanguageInSubdir = false
 
 [languages]
 [languages.en]
-title = "Aiven Kubernetes Operator"
-description = "Aiven Kubernetes Operator"
+title = "Aiven Operator"
+description = "Aiven Operator"
 languageName = "English"
 
 [services]
@@ -48,6 +48,6 @@ navbar_logo = true
         desc = "Follow us on Twitter"
 [[params.links.user]]
 	name = "GitHub"
-	url = "https://github.com/aiven/aiven-kubernetes-operator"
+	url = "https://github.com/aiven/aiven-operator"
 	icon = "fab fa-github"
         desc = "Find us on GitHub"

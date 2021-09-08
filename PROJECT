@@ -5,12 +5,12 @@ plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
 projectName: aiven-operator
-repo: github.com/aiven/aiven-kubernetes-operator
+repo: github.com/aiven/aiven-operator
 resources:
 - controller: true
   group: aiven.io
   kind: Project
-  path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
+  path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true
@@ -19,7 +19,7 @@ resources:
 - controller: true
   group: aiven.io
   kind: PostgreSQL
-  path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
+  path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true
@@ -28,7 +28,7 @@ resources:
 - controller: true
   group: aiven.io
   kind: ConnectionPool
-  path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
+  path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true
@@ -37,7 +37,7 @@ resources:
 - controller: true
   group: aiven.io
   kind: Database
-  path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
+  path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true
@@ -46,7 +46,7 @@ resources:
 - controller: true
   group: aiven.io
   kind: ServiceUser
-  path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
+  path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true
@@ -55,7 +55,7 @@ resources:
 - controller: true
   group: aiven.io
   kind: ProjectVPC
-  path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
+  path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true
@@ -64,7 +64,7 @@ resources:
 - controller: true
   group: aiven.io
   kind: Kafka
-  path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
+  path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true
@@ -73,7 +73,7 @@ resources:
 - controller: true
   group: aiven.io
   kind: KafkaConnect
-  path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
+  path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true
@@ -82,7 +82,7 @@ resources:
 - controller: true
   group: aiven.io
   kind: KafkaTopic
-  path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
+  path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true
@@ -91,7 +91,7 @@ resources:
 - controller: true
   group: aiven.io
   kind: ServiceIntegration
-  path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
+  path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true
@@ -100,7 +100,7 @@ resources:
 - controller: true
   group: aiven.io
   kind: KafkaSchema
-  path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
+  path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true
@@ -109,7 +109,7 @@ resources:
 - controller: true
   group: aiven.io
   kind: KafkaACL
-  path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
+  path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true
@@ -121,7 +121,7 @@ resources:
   controller: true
   group: aiven.io
   kind: KafkaConnector
-  path: github.com/aiven/aiven-kubernetes-operator/api/v1alpha1
+  path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true

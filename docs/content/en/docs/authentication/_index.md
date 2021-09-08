@@ -4,7 +4,7 @@ linkTitle: "Authenticating"
 weight: 10
 ---
 
-To get authenticated and authorized, set up the communication between the Aiven Kubernetes Operator and Aiven by using a token stored in a Kubernetes secret. 
+To get authenticated and authorized, set up the communication between the Aiven Operator and Aiven by using a token stored in a Kubernetes secret. 
 You can then refer to the secret name on every custom resource in the `authSecretRef` field.
 
 **If you don't have an Aiven account yet, sign up [here](https://console.aiven.io/signup?utm_source=github&utm_medium=organic&utm_campaign=k8s-operator&utm_content=signup) for a free trial. 🦀**
