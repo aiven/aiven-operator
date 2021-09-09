@@ -9,4 +9,4 @@ The Aiven Operator for Kubernetes supports all major Kubernetes distributions, b
 Make sure you have the following:
 
 - To use the operator, you need admin access to a Kubernetes cluster.
-- To run it locally, you can use the following [kind](https://kind.sigs.k8s.io/).
+- For playground usage you can use [kind](https://kind.sigs.k8s.io/) for example.
