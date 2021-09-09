@@ -57,7 +57,42 @@ spec:
                 description: Cloud the service runs in.
                 maxLength: 256
                 type: string
-              kafkaConnectUserConfig:
+              maintenanceWindowDow:
+                description: Day of week when maintenance operations should be performed.
+                  One monday, tuesday, wednesday, etc.
+                enum:
+                - monday
+                - tuesday
+                - wednesday
+                - thursday
+                - friday
+                - saturday
+                - sunday
+                - never
+                type: string
+              maintenanceWindowTime:
+                description: Time of day when maintenance operations should be performed.
+                  UTC time in HH:mm:ss format.
+                maxLength: 8
+                type: string
+              plan:
+                description: Subscription plan.
+                maxLength: 128
+                type: string
+              project:
+                description: Target project.
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              projectVpcId:
+                description: Identifier of the VPC the service should be in, if any.
+                maxLength: 36
+                type: string
+              terminationProtection:
+                description: Prevent service from being deleted. It is recommended
+                  to have this enabled for all services.
+                type: boolean
+              userConfig:
                 description: PostgreSQL specific user configuration options
                 properties:
                   connector_client_config_override_policy:
@@ -148,41 +183,6 @@ spec:
                     format: int64
                     type: integer
                 type: object
-              maintenanceWindowDow:
-                description: Day of week when maintenance operations should be performed.
-                  One monday, tuesday, wednesday, etc.
-                enum:
-                - monday
-                - tuesday
-                - wednesday
-                - thursday
-                - friday
-                - saturday
-                - sunday
-                - never
-                type: string
-              maintenanceWindowTime:
-                description: Time of day when maintenance operations should be performed.
-                  UTC time in HH:mm:ss format.
-                maxLength: 8
-                type: string
-              plan:
-                description: Subscription plan.
-                maxLength: 128
-                type: string
-              project:
-                description: Target project.
-                format: ^[a-zA-Z0-9_-]*$
-                maxLength: 63
-                type: string
-              projectVpcId:
-                description: Identifier of the VPC the service should be in, if any.
-                maxLength: 36
-                type: string
-              terminationProtection:
-                description: Prevent service from being deleted. It is recommended
-                  to have this enabled for all services.
-                type: boolean
             required:
             - authSecretRef
             - project

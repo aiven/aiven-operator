@@ -41,7 +41,7 @@ spec:
   maintenanceWindowTime: 23:00:00
 
   # specific Kafka configuration
-  kafkaUserConfig:
+  userConfig:
     kafka_version: '2.7'
 ```
 
@@ -417,7 +417,7 @@ and schema registry. Is is available out of the box for our managed Kafka servic
 
 First, let's enable the schema registry in our previously created `kafka-sample`.
 
-1. Open the `kafka-sample.yaml` file and add the `schema_registry: true` field under `kafkaUserConfig`. If will look
+1. Open the `kafka-sample.yaml` file and add the `schema_registry: true` field under `userConfig`. If will look
    like this:
 
 ```yaml
@@ -439,7 +439,7 @@ spec:
   maintenanceWindowDow: friday
   maintenanceWindowTime: 23:00:00
 
-  kafkaUserConfig:
+  userConfig:
     kafka_version: '2.7'
     schema_registry: true
 ```

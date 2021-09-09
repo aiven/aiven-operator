@@ -48,7 +48,7 @@ spec:
   maintenanceWindowTime: 23:00:00
 
   # specific Kafka configuration
-  kafkaUserConfig:
+  userConfig:
     kafka_version: '2.7'
 
 ---

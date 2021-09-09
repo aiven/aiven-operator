@@ -108,7 +108,7 @@ func kafkaSpec(serviceName, namespace string) *v1alpha1.Kafka {
 				Plan:      "business-4",
 				CloudName: "google-europe-west1",
 			},
-			KafkaUserConfig: v1alpha1.KafkaUserConfig{
+			UserConfig: v1alpha1.KafkaUserConfig{
 				KafkaRest:      boolPointer(true),
 				KafkaConnect:   boolPointer(true),
 				SchemaRegistry: boolPointer(true),

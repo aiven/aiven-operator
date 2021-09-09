@@ -77,7 +77,7 @@ func (h KafkaConnectHandler) createOrUpdate(avn *aiven.Client, i client.Object) 
 			ProjectVPCID:        prVPCID,
 			ServiceName:         kc.Name,
 			ServiceType:         "kafka_connect",
-			UserConfig:          UserConfigurationToAPI(kc.Spec.KafkaConnectUserConfig).(map[string]interface{}),
+			UserConfig:          UserConfigurationToAPI(kc.Spec.UserConfig).(map[string]interface{}),
 			ServiceIntegrations: nil,
 		})
 		if err != nil {
@@ -93,7 +93,7 @@ func (h KafkaConnectHandler) createOrUpdate(avn *aiven.Client, i client.Object) 
 				kc.Spec.MaintenanceWindowTime),
 			Plan:         kc.Spec.Plan,
 			ProjectVPCID: prVPCID,
-			UserConfig:   UserConfigurationToAPI(kc.Spec.KafkaConnectUserConfig).(map[string]interface{}),
+			UserConfig:   UserConfigurationToAPI(kc.Spec.UserConfig).(map[string]interface{}),
 			Powered:      true,
 		})
 		if err != nil {

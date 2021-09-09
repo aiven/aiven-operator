@@ -75,7 +75,42 @@ spec:
                 required:
                 - name
                 type: object
-              kafkaUserConfig:
+              maintenanceWindowDow:
+                description: Day of week when maintenance operations should be performed.
+                  One monday, tuesday, wednesday, etc.
+                enum:
+                - monday
+                - tuesday
+                - wednesday
+                - thursday
+                - friday
+                - saturday
+                - sunday
+                - never
+                type: string
+              maintenanceWindowTime:
+                description: Time of day when maintenance operations should be performed.
+                  UTC time in HH:mm:ss format.
+                maxLength: 8
+                type: string
+              plan:
+                description: Subscription plan.
+                maxLength: 128
+                type: string
+              project:
+                description: Target project.
+                format: ^[a-zA-Z0-9_-]*$
+                maxLength: 63
+                type: string
+              projectVpcId:
+                description: Identifier of the VPC the service should be in, if any.
+                maxLength: 36
+                type: string
+              terminationProtection:
+                description: Prevent service from being deleted. It is recommended
+                  to have this enabled for all services.
+                type: boolean
+              userConfig:
                 description: Kafka specific user configuration options
                 properties:
                   ip_filter:
@@ -619,41 +654,6 @@ spec:
                         type: string
                     type: object
                 type: object
-              maintenanceWindowDow:
-                description: Day of week when maintenance operations should be performed.
-                  One monday, tuesday, wednesday, etc.
-                enum:
-                - monday
-                - tuesday
-                - wednesday
-                - thursday
-                - friday
-                - saturday
-                - sunday
-                - never
-                type: string
-              maintenanceWindowTime:
-                description: Time of day when maintenance operations should be performed.
-                  UTC time in HH:mm:ss format.
-                maxLength: 8
-                type: string
-              plan:
-                description: Subscription plan.
-                maxLength: 128
-                type: string
-              project:
-                description: Target project.
-                format: ^[a-zA-Z0-9_-]*$
-                maxLength: 63
-                type: string
-              projectVpcId:
-                description: Identifier of the VPC the service should be in, if any.
-                maxLength: 36
-                type: string
-              terminationProtection:
-                description: Prevent service from being deleted. It is recommended
-                  to have this enabled for all services.
-                type: boolean
             required:
             - authSecretRef
             - project

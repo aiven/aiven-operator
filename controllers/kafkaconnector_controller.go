@@ -119,7 +119,7 @@ func (h KafkaConnectorHandler) buildConnectorConfig(conn *v1alpha1.KafkaConnecto
 	m[configFieldConnectorName] = conn.GetName()
 	m[configFieldConnectorClass] = conn.Spec.ConnectorClass
 
-	for k, v := range conn.Spec.ConnectorUserConfig {
+	for k, v := range conn.Spec.UserConfig {
 		t, err := template.New(k).Funcs(funcMap).Parse(v)
 		if err != nil {
 			return nil, fmt.Errorf("unable to parse template for key '%s': '%w'", k, err)

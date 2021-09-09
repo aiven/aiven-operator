@@ -72,13 +72,6 @@ spec:
                 description: The Java class of the connector.
                 maxLength: 1024
                 type: string
-              connectorUserConfig:
-                additionalProperties:
-                  type: string
-                description: The connector specific configuration To build config
-                  values from secret the template function `{{ fromSecret "name" "key"
-                  }}` is provided when interpreting the keys
-                type: object
               project:
                 description: Target project.
                 format: ^[a-zA-Z0-9_-]*$
@@ -88,12 +81,19 @@ spec:
                 description: Service name.
                 maxLength: 63
                 type: string
+              userConfig:
+                additionalProperties:
+                  type: string
+                description: The connector specific configuration To build config
+                  values from secret the template function `{{ fromSecret "name" "key"
+                  }}` is provided when interpreting the keys
+                type: object
             required:
             - authSecretRef
             - connectorClass
-            - connectorUserConfig
             - project
             - serviceName
+            - userConfig
             type: object
           status:
             description: KafkaConnectorStatus defines the observed state of KafkaConnector

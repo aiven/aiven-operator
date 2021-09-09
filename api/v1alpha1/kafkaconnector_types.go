@@ -27,7 +27,7 @@ type KafkaConnectorSpec struct {
 	// The connector specific configuration
 	// To build config values from secret the template function `{{ fromSecret "name" "key" }}`
 	// is provided when interpreting the keys
-	ConnectorUserConfig map[string]string `json:"connectorUserConfig"`
+	UserConfig map[string]string `json:"userConfig"`
 }
 
 // KafkaConnectorStatus defines the observed state of KafkaConnector
