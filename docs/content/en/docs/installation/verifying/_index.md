@@ -7,6 +7,7 @@ weight: 30
 Use the following commands to ensure your installation was successful.
 
 * Verify that all the operator Pods are `READY`, and their `STATUS` is `Running`.
+
 ```bash
 $ kubectl get pod -n aiven-operator-system 
 
@@ -15,6 +16,7 @@ aiven-operator-controller-manager-576d944499-ggttj   1/1     Running   0        
 ```
 
 * Verify that the `cert-manager` Pods are running:
+
 ```bash
 $ kubectl get pod --namespace cert-manager
 
@@ -25,6 +27,7 @@ cert-manager-webhook-6bdffc7c9d-47w6z      1/1     Running   0          76
 ```
 
 * Verify the operator startup logs. These should look like the code below (output trimmed):
+
 ```bash
 $ kubectl logs -n aiven-operator-system -l control-plane=controller-manager -f
 

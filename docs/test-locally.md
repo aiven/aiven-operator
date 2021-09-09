@@ -29,8 +29,8 @@ Run aiven-operator without webhooks enabled. If you have enabled webhooks in you
 cert-manager already installed in the cluster, and it isn't easy to get it running and properly configured on the local
 env. Therefore we disable webhooks and will have an opportunity to validate these features on a public cloud Kubernetes
 cluster. Webhooks are responsible for validating whether depended entities are already created, and it is safe to
-execute reconciler of a CR. Therefore with webhooks disabled, a user has to, for example, wait until PostgreSQL service is
-created before attempting to create a PostgreSQL database.
+execute reconciler of a CR. Therefore with webhooks disabled, a user has to, for example, wait until PostgreSQL service
+is created before attempting to create a PostgreSQL database.
 
 ```shell script
 make run ENABLE_WEBHOOKS=false 
@@ -42,6 +42,7 @@ Aiven customer resource. It is useful to have it running in a separate terminal 
 Looks for example of usage here: [config/samples folder](../config/samples)
 
 To run it with the web-hooks:
+
 ```shell script
 make install-cert-manager # install cert manager to the cluster 
 make docker-build docker-push IMG="example.com/aiven-operator:v0.0.1"         

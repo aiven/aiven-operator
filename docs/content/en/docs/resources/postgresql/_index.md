@@ -1,17 +1,22 @@
 ---
 title: "PostgreSQL"
 linkTitle: "PostgreSQL"
-weight: 40 
+weight: 40
 ---
 
-PostgreSQL is an open source, relational database. It's ideal for organisations that need a well organised tabular datastore. On top of the strict table and columns formats, PostgreSQL also offers solutions for nested datasets with the native `jsonb` format and advanced set of extensions including [PostGIS](https://postgis.net/), a spatial database extender for location queries. Aiven for PostgreSQL is the perfect fit for your relational data.
+PostgreSQL is an open source, relational database. It's ideal for organisations that need a well organised tabular
+datastore. On top of the strict table and columns formats, PostgreSQL also offers solutions for nested datasets with the
+native `jsonb` format and advanced set of extensions including [PostGIS](https://postgis.net/), a spatial database
+extender for location queries. Aiven for PostgreSQL is the perfect fit for your relational data.
 
 With Aiven Kubernetes Operator, you can manage Aiven for PostgreSQL through the well defined Kubernetes API.
 
 > Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites/) with the [operator installed](../installation/), and a [Kubernetes Secret with an Aiven authentication token](../authentication/).
 
 ## Creating a PostgreSQL instance
+
 1. Create a file named `pg-sample.yaml` with the following content:
+
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: PostgreSQL
@@ -29,7 +34,7 @@ spec:
     name: pg-connection
 
   # add your Project name here
-  project: <your-project-name> 
+  project: <your-project-name>
 
   # cloud provider and plan of your choice
   # you can check all of the possibilities here https://aiven.io/pricing
@@ -46,11 +51,13 @@ spec:
 ```
 
 2. Create the service by applying the configuration:
+
 ```bash
 $ kubectl apply -f pg-sample.yaml
 ```
 
 3. Review the resource you created with the following command:
+
 ```bash
 $ kubectl get postgresqls.aiven.io pg-sample
 
@@ -58,11 +65,13 @@ NAME        PROJECT        REGION                PLAN        STATE
 pg-sample   your-project   google-europe-west1   startup-4   RUNNING
 ```
 
-The resource can stay in the `BUILDING` state for a couple of minutes. 
-Once the state changes to `RUNNING`, you are ready to access it.
+The resource can stay in the `BUILDING` state for a couple of minutes. Once the state changes to `RUNNING`, you are
+ready to access it.
 
-## Using the connection Secret 
-For your convenience, the operator automatically stores the PostgreSQL connection information in a Secret created with the name specified on the `connInfoSecretTarget` field.
+## Using the connection Secret
+
+For your convenience, the operator automatically stores the PostgreSQL connection information in a Secret created with
+the name specified on the `connInfoSecretTarget` field.
 
 ```bash
 $ kubectl describe secret pg-connection 
@@ -85,6 +94,7 @@ PGUSER:        8 bytes
 ```
 
 You can use the [jq](https://github.com/stedolan/jq) to quickly decode the Secret:
+
 ```bash
 $ kubectl get secret pg-connection -o json | jq '.data | map_values(@base64d)'
 
@@ -100,9 +110,11 @@ $ kubectl get secret pg-connection -o json | jq '.data | map_values(@base64d)'
 ```
 
 ## Testing the connection
-You can verify your PostgreSQL connection from a Kubernetes workload by deploying a Pod that runs the `psql` command. 
+
+You can verify your PostgreSQL connection from a Kubernetes workload by deploying a Pod that runs the `psql` command.
 
 1. Create a file named `pod-psql.yaml`
+
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -113,17 +125,18 @@ spec:
   containers:
     - image: postgres:11-alpine
       name: postgres
-      command: ['psql', '$(DATABASE_URI)', '-c', 'SELECT version();']
-      
+      command: [ 'psql', '$(DATABASE_URI)', '-c', 'SELECT version();' ]
+
       # the pg-connection Secret becomes environment variables 
       envFrom:
-      - secretRef:
-          name: pg-connection
+        - secretRef:
+            name: pg-connection
 ```
 
 It runs once and stops, due to the `restartPolicy: Never` flag.
 
 2. Inspect the log:
+
 ```bash
 $ kubectl logs psql-test-connection
                                            version                                           
@@ -132,12 +145,14 @@ $ kubectl logs psql-test-connection
 (1 row)
 ```
 
-You have now connected to the PostgreSQL, and executed the `SELECT version();` query. 
+You have now connected to the PostgreSQL, and executed the `SELECT version();` query.
 
 ## Creating a PostgreSQL database
+
 The `Database` Kubernetes resource allows you to create a logical database within the PostgreSQL instance.
 
 Create the `pg-database-sample.yaml` file with the following content:
+
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: Database
@@ -149,7 +164,7 @@ spec:
     key: token
 
   # the name of the previously created PostgreSQL instance
-  serviceName: pg-sample 
+  serviceName: pg-sample
 
   project: <your-project-name>
   lcCollate: en_US.UTF-8
@@ -159,9 +174,12 @@ spec:
 You can now connect to the `pg-database-sample` using the credentials stored in the `pg-connection` Secret.
 
 ## Creating a PostgreSQL user
-Aiven uses the concept of *service user* that allows you to create users for different services. You can create one for the PostgreSQL instance.
+
+Aiven uses the concept of *service user* that allows you to create users for different services. You can create one for
+the PostgreSQL instance.
 
 1. Create a file named `pg-service-user.yaml`.
+
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: ServiceUser
@@ -171,7 +189,7 @@ spec:
   authSecretRef:
     name: aiven-token
     key: token
-  
+
   connInfoSecretTarget:
     name: pg-service-user-connection
 
@@ -180,11 +198,14 @@ spec:
 ```
 
 2. Apply the configuration with the following command.
+
 ```bash
 $ kubectl apply -f pg-service-user.yaml
 ```
 
-The `ServiceUser` resource generates a Secret with connection information, in this case named `pg-service-user-connection`:
+The `ServiceUser` resource generates a Secret with connection information, in this case
+named `pg-service-user-connection`:
+
 ```bash
 $ kubectl get secret pg-service-user-connection -o json | jq '.data | map_values(@base64d)'
 
@@ -194,14 +215,21 @@ $ kubectl get secret pg-service-user-connection -o json | jq '.data | map_values
 }
 ```
 
-You can now connect to the PostgreSQL instance using the credentials generated above, and the host information from the `pg-connection` Secret.
+You can now connect to the PostgreSQL instance using the credentials generated above, and the host information from
+the `pg-connection` Secret.
 
 ## Creating a PostgreSQL connection pool
-Connection pooling allows you to maintain very large numbers of connections to a database while minimizing the consumption of server resources. See more information [here](https://help.aiven.io/en/articles/964730-postgresql-connection-pooling). Aiven for PostgreSQL uses PGBouncer for connection pooling.
 
-You can create  a connection pool with the `ConnectionPool` resource using the previously created `Database` and `ServiceUser`.
+Connection pooling allows you to maintain very large numbers of connections to a database while minimizing the
+consumption of server resources. See more
+information [here](https://help.aiven.io/en/articles/964730-postgresql-connection-pooling). Aiven for PostgreSQL uses
+PGBouncer for connection pooling.
+
+You can create a connection pool with the `ConnectionPool` resource using the previously created `Database`
+and `ServiceUser`.
 
 Create a new file named `pg-connection-pool.yaml` with the following content:
+
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: ConnectionPool
@@ -223,7 +251,9 @@ spec:
   poolMode: transaction
 ```
 
-The `ConnectionPool` generates a Secret with the connection info using the name from the `connInfoSecretTarget.Name` field:
+The `ConnectionPool` generates a Secret with the connection info using the name from the `connInfoSecretTarget.Name`
+field:
+
 ```bash
 $ kubectl get secret pg-connection-pool-connection -o json | jq '.data | map_values(@base64d)' 
 
