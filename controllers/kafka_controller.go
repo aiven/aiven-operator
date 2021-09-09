@@ -61,7 +61,7 @@ func (h KafkaHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 			ProjectVPCID:        toOptionalStringPointer(kafka.Spec.ProjectVPCID),
 			ServiceName:         kafka.Name,
 			ServiceType:         "kafka",
-			UserConfig:          UserConfigurationToAPI(kafka.Spec.KafkaUserConfig).(map[string]interface{}),
+			UserConfig:          UserConfigurationToAPI(kafka.Spec.UserConfig).(map[string]interface{}),
 			ServiceIntegrations: nil,
 		})
 		if err != nil && !aiven.IsAlreadyExists(err) {
@@ -77,7 +77,7 @@ func (h KafkaHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 				kafka.Spec.MaintenanceWindowTime),
 			Plan:         kafka.Spec.Plan,
 			ProjectVPCID: toOptionalStringPointer(kafka.Spec.ProjectVPCID),
-			UserConfig:   UserConfigurationToAPI(kafka.Spec.KafkaUserConfig).(map[string]interface{}),
+			UserConfig:   UserConfigurationToAPI(kafka.Spec.UserConfig).(map[string]interface{}),
 			Powered:      true,
 		})
 		if err != nil {

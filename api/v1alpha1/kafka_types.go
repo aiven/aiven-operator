@@ -17,7 +17,7 @@ type KafkaSpec struct {
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
 	// Kafka specific user configuration options
-	KafkaUserConfig KafkaUserConfig `json:"kafkaUserConfig,omitempty"`
+	UserConfig KafkaUserConfig `json:"userConfig,omitempty"`
 }
 
 type KafkaUserConfig struct {

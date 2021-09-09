@@ -15,5 +15,5 @@ spec:
   cloudName: google-europe-west1
   plan: business-4
 
-  kafkaUserConfig:
+  userConfig:
     kafka_connect: true
