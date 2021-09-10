@@ -1,54 +1,26 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Aiven Operator – Installation</title><link>https://aiven.github.io/aiven-operator/docs/installation/</link><description>Recent content in Installation on Aiven Operator</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://aiven.github.io/aiven-operator/docs/installation/index.xml" rel="self" type="application/rss+xml"/><item><title>Docs: Prerequisites</title><link>https://aiven.github.io/aiven-operator/docs/installation/prerequisites/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/installation/prerequisites/</guid><description>
-&lt;p>The Aiven Operator supports all major Kubernetes distributions, both locally and in the cloud.&lt;/p>
+&lt;p>The Aiven Operator for Kubernetes supports all major Kubernetes distributions, both locally and in the cloud.&lt;/p>
 &lt;p>Make sure you have the following:&lt;/p>
 &lt;ul>
 &lt;li>To use the operator, you need admin access to a Kubernetes cluster.&lt;/li>
-&lt;li>To run it locally, you can use the following &lt;a href="https://kind.sigs.k8s.io/">kind&lt;/a>.&lt;/li>
-&lt;/ul></description></item><item><title>Docs: Installing from manifests (recommended)</title><link>https://aiven.github.io/aiven-operator/docs/installation/manifests/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/installation/manifests/</guid><description>
-&lt;p>The Aiven Operator can be installed by applying the manifests present in the GitHub repository.&lt;/p>
+&lt;li>For playground usage you can use &lt;a href="https://kind.sigs.k8s.io/">kind&lt;/a> for example.&lt;/li>
+&lt;/ul></description></item><item><title>Docs: Installing from manifests</title><link>https://aiven.github.io/aiven-operator/docs/installation/manifests/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/installation/manifests/</guid><description>
+&lt;p>The Aiven Operator for Kubernetes can be installed by applying the manifests present in the GitHub repository.&lt;/p>
 &lt;ol>
 &lt;li>Install the &lt;code>cert-manager&lt;/code> operator.&lt;/li>
 &lt;/ol>
 &lt;blockquote>
-&lt;p>cert-manager is used to manage the Operator &lt;a href="https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/">webhooks&lt;/a> TLS certificates.&lt;/p>
+&lt;p>&lt;a href="https://cert-manager.io/">cert-manager&lt;/a> is used to manage the Operator &lt;a href="https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/">webhooks&lt;/a> TLS certificates.&lt;/p>
 &lt;/blockquote>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f https://github.com/jetstack/cert-manager/releases/latest/download/cert-manager.yaml
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
-&lt;li>Install the Aiven Operator:&lt;/li>
+&lt;li>Install the operator:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f https://raw.githubusercontent.com/aiven/aiven-operator/main/config/deployment/v0.1.0.yaml
-&lt;/code>&lt;/pre>&lt;/div>&lt;p>You&amp;rsquo;ve now installed the Aiven Operator. &lt;a href="./verifying">Verify your installation&lt;/a>.&lt;/p></description></item><item><title>Docs: Installing from the source code</title><link>https://aiven.github.io/aiven-operator/docs/installation/source-code/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/installation/source-code/</guid><description>
-&lt;p>The Aiven Operator can be installed from the following GitHub repository:
-&lt;a href="https://github.com/aiven/aiven-operator">aiven/aiven-operator&lt;/a>.&lt;/p>
-&lt;ol>
-&lt;li>Clone this repository.&lt;/li>
-&lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ git clone git@github.com:aiven/aiven-operator.git
-$ cd aiven-operator
-&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
-&lt;li>Install the &lt;code>cert-manager&lt;/code> operator.&lt;/li>
-&lt;/ol>
-&lt;blockquote>
-&lt;p>cert-manager is used to manage the Operator &lt;a href="https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/">webhooks&lt;/a> TLS certificates.&lt;/p>
-&lt;/blockquote>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ make install-cert-manager
-&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
-&lt;li>Verify that the &lt;code>cert-manager&lt;/code> is installed correctly by checking its namespace for running Pods.&lt;/li>
-&lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get pods --namespace cert-manager
-NAME READY STATUS RESTARTS AGE
-cert-manager-7dd5854bb4-vcg7f 1/1 Running &lt;span style="color:#ae81ff">0&lt;/span> 3m
-cert-manager-cainjector-64c949654c-99z6k 1/1 Running &lt;span style="color:#ae81ff">0&lt;/span> 3m
-cert-manager-webhook-6bdffc7c9d-dd4m5 1/1 Running &lt;span style="color:#ae81ff">0&lt;/span> 3m
-&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="4">
-&lt;li>Install the Custom Resources Definitions.&lt;/li>
-&lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ make install
-&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="5">
-&lt;li>Deploy the operator.&lt;/li>
-&lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ make deploy
-&lt;/code>&lt;/pre>&lt;/div>&lt;p>You&amp;rsquo;ve now installed the Aiven Operator. &lt;a href="./verifying">Verify your installation&lt;/a>.&lt;/p></description></item><item><title>Docs: Verifying the installation</title><link>https://aiven.github.io/aiven-operator/docs/installation/verifying/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/installation/verifying/</guid><description>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f https://github.com/aiven/aiven-operator/releases/latest/download/deployment.yaml
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You&amp;rsquo;ve now installed the Aiven Operator for Kubernetes. &lt;a href="https://aiven.github.io/aiven-operator/aiven-operator/docs/installation/verifying/">Verify your installation&lt;/a>.&lt;/p></description></item><item><title>Docs: Installing with Helm</title><link>https://aiven.github.io/aiven-operator/docs/installation/helm/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/installation/helm/</guid><description>
+&lt;p>The Aiven Operator for Kubernetes can be installed via &lt;a href="https://helm.sh/">Helm&lt;/a>.
+Please follow The instruction in the &lt;a href="https://github.com/aiven/aiven-charts">aiven-charts&lt;/a> GitHub repository.&lt;/p>
+&lt;p>Once you installed the Aiven Operator for Kubernetes you can &lt;a href="https://aiven.github.io/aiven-operator/aiven-operator/docs/installation/verifying/">verify your installation&lt;/a>.&lt;/p></description></item><item><title>Docs: Verifying the installation</title><link>https://aiven.github.io/aiven-operator/docs/installation/verifying/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/installation/verifying/</guid><description>
 &lt;p>Use the following commands to ensure your installation was successful.&lt;/p>
 &lt;ul>
 &lt;li>Verify that all the operator Pods are &lt;code>READY&lt;/code>, and their &lt;code>STATUS&lt;/code> is &lt;code>Running&lt;/code>.&lt;/li>
@@ -91,8 +63,27 @@ I0616 17:05:40.017691 &lt;span style="color:#ae81ff">1&lt;/span> leaderelection.
 2021-06-16T17:05:40.999Z INFO controller-runtime.manager.controller.kafkaacl Starting workers &lt;span style="color:#f92672">{&lt;/span>&lt;span style="color:#e6db74">&amp;#34;reconciler group&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;aiven.io&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;reconciler kind&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;KafkaACL&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;worker count&amp;#34;&lt;/span>: 1&lt;span style="color:#f92672">}&lt;/span>
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>You have now verified that your installation was successful.&lt;/p></description></item><item><title>Docs: Uninstalling</title><link>https://aiven.github.io/aiven-operator/docs/installation/uninstalling/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/installation/uninstalling/</guid><description>
 &lt;h2 id="-warning-">🚨 Warning 🚨&lt;/h2>
-&lt;p>Uninstalling the Aiven Operator can remove the resources created in Aiven, possibly resulting in data loss.&lt;/p>
-&lt;h2 id="uninstalling-a-github-based-installation">Uninstalling a GitHub-based installation&lt;/h2>
-&lt;p>If you installed &lt;a href="../source-code">from the source code&lt;/a>, you can use the following command to remove the operator:&lt;/p>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ make undeploy
-&lt;/code>&lt;/pre>&lt;/div></description></item></channel></rss>
+&lt;p>Uninstalling the Aiven Operator for Kubernetes can remove the resources created in Aiven, possibly resulting in data loss.&lt;/p>
+&lt;h2 id="helmhttpshelmsh-based-installation">&lt;a href="https://helm.sh">Helm&lt;/a> based installation&lt;/h2>
+&lt;p>Find out the name of your deployment:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ helm list
+NAME NAMESPACE REVISION UPDATED STATUS CHART APP VERSION
+aiven-operator default &lt;span style="color:#ae81ff">1&lt;/span> 2021-09-09 10:56:14.623700249 +0200 CEST deployed aiven-operator-v0.1.0 v0.1.0
+aiven-operator-crds default &lt;span style="color:#ae81ff">1&lt;/span> 2021-09-09 10:56:05.736411868 +0200 CEST deployed aiven-operator-crds-v0.1.0 v0.1.0
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Remove the CRDs:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ helm uninstall aiven-operator-crds
+release &lt;span style="color:#e6db74">&amp;#34;aiven-operator-crds&amp;#34;&lt;/span> uninstalled
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Remove the operator:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ helm uninstall aiven-operator
+release &lt;span style="color:#e6db74">&amp;#34;aiven-operator&amp;#34;&lt;/span> uninstalled
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="dealing-with-expired-tokens">Dealing with expired tokens&lt;/h2>
+&lt;p>Aiven resources need to have an accompanying secret that contains the token that is used to authorize the manipulation of that resource.
+If that token expired then you will not be able to delete the custom resource and deletion will also hang until the situation is resolved.
+The recommended approach to deal with that situation is to patch a valid token into the secret again so that proper cleanup of aiven resources can take place.&lt;/p>
+&lt;h2 id="hanging-deletions">Hanging deletions&lt;/h2>
+&lt;p>To protect the secrets that the operator is using from deletion, it adds the &lt;a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/finalizers/">finalizer&lt;/a> &lt;code>finalizers.aiven.io/needed-to-delete-services&lt;/code> to the secret.
+This solves a race condition that happens when deleting a namespace, where there is a possibility of the secret getting deleted before the resource that uses it.
+When the controller is deleted it may not cleanup the finalizers from all secrets.
+If there is a secret with this finalizer blocking deletion of a namespace, for now please do&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">kubectl patch secret &amp;lt;offending-secret&amp;gt; -p &lt;span style="color:#e6db74">&amp;#39;{&amp;#34;metadata&amp;#34;:{&amp;#34;finalizers&amp;#34;:null}}&amp;#39;&lt;/span> --type&lt;span style="color:#f92672">=&lt;/span>merge
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>to remove the finalizer.&lt;/p></description></item></channel></rss>
