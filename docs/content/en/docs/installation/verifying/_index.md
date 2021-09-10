@@ -11,7 +11,7 @@ Use the following commands to ensure your installation was successful.
 ```bash
 $ kubectl get pod -n aiven-operator-system 
 
-NAME                                                            READY   STATUS    RESTARTS   AGE
+NAME                                                 READY   STATUS    RESTARTS   AGE
 aiven-operator-controller-manager-576d944499-ggttj   1/1     Running   0          12m
 ```
 
