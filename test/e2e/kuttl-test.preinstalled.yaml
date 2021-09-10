@@ -1,0 +1,7 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestSuite
+timeout: 600
+testDirs:
+- test/e2e/kafka
+- test/e2e/kafka-connector
+- test/e2e/service-integration

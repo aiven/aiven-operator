@@ -13,7 +13,7 @@ spec:
 
   connectorClass: io.aiven.connect.jdbc.JdbcSinkConnector
 
-  connectorUserConfig:
+  userConfig:
     auto.create: "true"
     connection.url: 'jdbc:postgresql://{{ fromSecret "pg-secret" "PGHOST"}}:{{ fromSecret "pg-secret" "PGPORT" }}/{{ fromSecret "pg-secret" "PGDATABASE" }}'
     connection.user: '{{ fromSecret "pg-secret" "PGUSER" }}'

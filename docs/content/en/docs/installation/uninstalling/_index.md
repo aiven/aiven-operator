@@ -8,33 +8,10 @@ weight: 90
 
 Uninstalling the Aiven Operator for Kubernetes can remove the resources created in Aiven, possibly resulting in data loss.
 
-## [Helm](https://helm.sh) based installation
+Depending on your installation, please follow one of:
 
-Find out the name of your deployment:
-
-```bash
-$ helm list
-
-NAME               	NAMESPACE	REVISION	UPDATED                                 	STATUS  	CHART                     	APP VERSION
-aiven-operator     	default  	1       	2021-09-09 10:56:14.623700249 +0200 CEST	deployed	aiven-operator-v0.1.0     	v0.1.0     
-aiven-operator-crds	default  	1       	2021-09-09 10:56:05.736411868 +0200 CEST	deployed	aiven-operator-crds-v0.1.0	v0.1.0
-```
-
-Remove the CRDs:
-
-```bash
-$ helm uninstall aiven-operator-crds
-
-release "aiven-operator-crds" uninstalled
-```
-
-Remove the operator:
-
-```bash
-$ helm uninstall aiven-operator
-
-release "aiven-operator" uninstalled
-```
+* [Helm]({{< relref "/docs/installation/helm" >}}#uninstalling)
+* [kubectl]({{< relref "/docs/installation/kubectl" >}}#uninstalling)
 
 ## Dealing with expired tokens
 
