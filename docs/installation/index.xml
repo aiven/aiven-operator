@@ -4,67 +4,44 @@
 &lt;ul>
 &lt;li>To use the operator, you need admin access to a Kubernetes cluster.&lt;/li>
 &lt;li>For playground usage you can use &lt;a href="https://kind.sigs.k8s.io/">kind&lt;/a> for example.&lt;/li>
-&lt;/ul></description></item><item><title>Docs: Installing from manifests</title><link>https://aiven.github.io/aiven-operator/docs/installation/manifests/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/installation/manifests/</guid><description>
-&lt;p>The Aiven Operator for Kubernetes can be installed by applying the manifests present in the GitHub repository.&lt;/p>
-&lt;ol>
-&lt;li>Install the &lt;code>cert-manager&lt;/code> operator.&lt;/li>
-&lt;/ol>
+&lt;li>For productive usage &lt;a href="https://helm.sh">Helm&lt;/a> is recommended.&lt;/li>
+&lt;/ul>
+&lt;h2 id="cert-managerhttpscert-managerio">&lt;a href="https://cert-manager.io/">Cert Manager&lt;/a>&lt;/h2>
+&lt;p>The Aiven Operator for Kubernetes uses &lt;code>cert-manager&lt;/code> to configure the &lt;a href="https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#service-reference">service reference&lt;/a> of our webhooks.&lt;/p>
+&lt;p>Please follow the &lt;a href="https://cert-manager.io/docs/installation/helm/">installation instructions&lt;/a> on their website.&lt;/p>
 &lt;blockquote>
-&lt;p>&lt;a href="https://cert-manager.io/">cert-manager&lt;/a> is used to manage the Operator &lt;a href="https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/">webhooks&lt;/a> TLS certificates.&lt;/p>
+&lt;p>Note: this is not required in the Helm installation if you select to disable webhooks, but that is not recommended outside of playground use. The Aiven Operator for Kubernetes uses webhooks for setting defaults and enforcing invariants that are expected by the aiven API and will lead to errors if ignored. In the future webhooks will also be used for conversion and supporting multiple CRD versions.&lt;/p>
+&lt;/blockquote></description></item><item><title>Docs: Installing with Helm (recommended)</title><link>https://aiven.github.io/aiven-operator/docs/installation/helm/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/installation/helm/</guid><description>
+&lt;h2 id="installing">Installing&lt;/h2>
+&lt;p>The Aiven Operator for Kubernetes can be installed via &lt;a href="https://helm.sh/">Helm&lt;/a>.&lt;/p>
+&lt;p>First add the &lt;a href="https://github.com/aiven/aiven-charts">Aiven Helm repository&lt;/a>:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ helm repo add aiven https://aiven.github.io/aiven-charts &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> helm repo update
+&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="installing-custom-resource-definitions">Installing Custom Resource Definitions&lt;/h3>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ helm install aiven-operator-crds aiven/aiven-operator-crds
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Verify the installation:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl api-resources --api-group&lt;span style="color:#f92672">=&lt;/span>aiven.io
+NAME SHORTNAMES APIVERSION NAMESPACED KIND
+connectionpools aiven.io/v1alpha1 true ConnectionPool
+databases aiven.io/v1alpha1 true Database
+... &amp;lt; several omitted lines &amp;gt;
+&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="installing-the-operator">Installing the Operator&lt;/h3>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ helm install aiven-operator aiven/aiven-operator
+&lt;/code>&lt;/pre>&lt;/div>&lt;blockquote>
+&lt;p>Note: Installation will fail if webhooks are enabled and the CRDs for the cert-manager are not installed.&lt;/p>
 &lt;/blockquote>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f https://github.com/jetstack/cert-manager/releases/latest/download/cert-manager.yaml
-&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
-&lt;li>Install the operator:&lt;/li>
-&lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f https://github.com/aiven/aiven-operator/releases/latest/download/deployment.yaml
-&lt;/code>&lt;/pre>&lt;/div>&lt;p>You&amp;rsquo;ve now installed the Aiven Operator for Kubernetes. &lt;a href="https://aiven.github.io/aiven-operator/aiven-operator/docs/installation/verifying/">Verify your installation&lt;/a>.&lt;/p></description></item><item><title>Docs: Installing with Helm</title><link>https://aiven.github.io/aiven-operator/docs/installation/helm/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/installation/helm/</guid><description>
-&lt;p>The Aiven Operator for Kubernetes can be installed via &lt;a href="https://helm.sh/">Helm&lt;/a>.
-Please follow The instruction in the &lt;a href="https://github.com/aiven/aiven-charts">aiven-charts&lt;/a> GitHub repository.&lt;/p>
-&lt;p>Once you installed the Aiven Operator for Kubernetes you can &lt;a href="https://aiven.github.io/aiven-operator/aiven-operator/docs/installation/verifying/">verify your installation&lt;/a>.&lt;/p></description></item><item><title>Docs: Verifying the installation</title><link>https://aiven.github.io/aiven-operator/docs/installation/verifying/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/installation/verifying/</guid><description>
-&lt;p>Use the following commands to ensure your installation was successful.&lt;/p>
-&lt;ul>
-&lt;li>Verify that all the operator Pods are &lt;code>READY&lt;/code>, and their &lt;code>STATUS&lt;/code> is &lt;code>Running&lt;/code>.&lt;/li>
-&lt;/ul>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get pod -n aiven-operator-system
-NAME READY STATUS RESTARTS AGE
-aiven-operator-controller-manager-576d944499-ggttj 1/1 Running &lt;span style="color:#ae81ff">0&lt;/span> 12m
-&lt;/code>&lt;/pre>&lt;/div>&lt;ul>
-&lt;li>Verify that the &lt;code>cert-manager&lt;/code> Pods are running:&lt;/li>
-&lt;/ul>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get pod --namespace cert-manager
-NAME READY STATUS RESTARTS AGE
-cert-manager-7dd5854bb4-85cpv 1/1 Running &lt;span style="color:#ae81ff">0&lt;/span> 76s
-cert-manager-cainjector-64c949654c-n2z8l 1/1 Running &lt;span style="color:#ae81ff">0&lt;/span> 77s
-cert-manager-webhook-6bdffc7c9d-47w6z 1/1 Running &lt;span style="color:#ae81ff">0&lt;/span> &lt;span style="color:#ae81ff">76&lt;/span>
-&lt;/code>&lt;/pre>&lt;/div>&lt;ul>
-&lt;li>Verify the operator startup logs. These should look like the code below (output trimmed):&lt;/li>
-&lt;/ul>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl logs -n aiven-operator-system -l control-plane&lt;span style="color:#f92672">=&lt;/span>controller-manager -f
-2021-06-16T17:05:39.661Z INFO controller-runtime.metrics metrics server is starting to listen &lt;span style="color:#f92672">{&lt;/span>&lt;span style="color:#e6db74">&amp;#34;addr&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;:8080&amp;#34;&lt;/span>&lt;span style="color:#f92672">}&lt;/span>
-2021-06-16T17:05:39.699Z INFO controller-runtime.builder Registering a mutating webhook &lt;span style="color:#f92672">{&lt;/span>&lt;span style="color:#e6db74">&amp;#34;GVK&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;aiven.io/v1alpha1, Kind=Project&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;path&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;/mutate-aiven-io-v1alpha1-project&amp;#34;&lt;/span>&lt;span style="color:#f92672">}&lt;/span>
-2021-06-16T17:05:39.699Z INFO controller-runtime.webhook registering webhook &lt;span style="color:#f92672">{&lt;/span>&lt;span style="color:#e6db74">&amp;#34;path&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;/mutate-aiven-io-v1alpha1-project&amp;#34;&lt;/span>&lt;span style="color:#f92672">}&lt;/span>
-&lt;span style="color:#f92672">[&lt;/span>...&lt;span style="color:#f92672">]&lt;/span>
-2021-06-16T17:05:39.901Z INFO setup starting manager
-I0616 17:05:39.902448 &lt;span style="color:#ae81ff">1&lt;/span> leaderelection.go:243&lt;span style="color:#f92672">]&lt;/span> attempting to acquire leader lease aiven-operator-system/00272a53.aiven.io...
-2021-06-16T17:05:39.902Z INFO controller-runtime.webhook.webhooks starting webhook server
-2021-06-16T17:05:39.903Z INFO controller-runtime.certwatcher Updated current TLS certificate
-2021-06-16T17:05:39.903Z INFO controller-runtime.webhook serving webhook server &lt;span style="color:#f92672">{&lt;/span>&lt;span style="color:#e6db74">&amp;#34;host&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;port&amp;#34;&lt;/span>: 9443&lt;span style="color:#f92672">}&lt;/span>
-2021-06-16T17:05:39.903Z INFO controller-runtime.certwatcher Starting certificate watcher
-2021-06-16T17:05:39.902Z INFO controller-runtime.manager starting metrics server &lt;span style="color:#f92672">{&lt;/span>&lt;span style="color:#e6db74">&amp;#34;path&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;/metrics&amp;#34;&lt;/span>&lt;span style="color:#f92672">}&lt;/span>
-I0616 17:05:40.017691 &lt;span style="color:#ae81ff">1&lt;/span> leaderelection.go:253&lt;span style="color:#f92672">]&lt;/span> successfully acquired lease aiven-operator-system/00272a53.aiven.io
-2021-06-16T17:05:40.018Z DEBUG controller-runtime.manager.events Normal &lt;span style="color:#f92672">{&lt;/span>&lt;span style="color:#e6db74">&amp;#34;object&amp;#34;&lt;/span>: &lt;span style="color:#f92672">{&lt;/span>&lt;span style="color:#e6db74">&amp;#34;kind&amp;#34;&lt;/span>:&lt;span style="color:#e6db74">&amp;#34;ConfigMap&amp;#34;&lt;/span>,&lt;span style="color:#e6db74">&amp;#34;namespace&amp;#34;&lt;/span>:&lt;span style="color:#e6db74">&amp;#34;aiven-operator-system&amp;#34;&lt;/span>,&lt;span style="color:#e6db74">&amp;#34;name&amp;#34;&lt;/span>:&lt;span style="color:#e6db74">&amp;#34;00272a53.aiven.io&amp;#34;&lt;/span>,&lt;span style="color:#e6db74">&amp;#34;uid&amp;#34;&lt;/span>:&lt;span style="color:#e6db74">&amp;#34;63bc05df-3df5-44d1-8344-41b05a6a3a4f&amp;#34;&lt;/span>,&lt;span style="color:#e6db74">&amp;#34;apiVersion&amp;#34;&lt;/span>:&lt;span style="color:#e6db74">&amp;#34;v1&amp;#34;&lt;/span>,&lt;span style="color:#e6db74">&amp;#34;resourceVersion&amp;#34;&lt;/span>:&lt;span style="color:#e6db74">&amp;#34;2073&amp;#34;&lt;/span>&lt;span style="color:#f92672">}&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;reason&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;LeaderElection&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;message&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;aiven-operator-controller-manager-6d68c4d6d7-5s5kj_64fd1a06-44b6-4690-95e1-17ec8adf7ffe became leader&amp;#34;&lt;/span>&lt;span style="color:#f92672">}&lt;/span>
-2021-06-16T17:05:40.098Z INFO controller-runtime.manager.controller.kafkatopic Starting EventSource &lt;span style="color:#f92672">{&lt;/span>&lt;span style="color:#e6db74">&amp;#34;reconciler group&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;aiven.io&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;reconciler kind&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;KafkaTopic&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;source&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;kind source: /, Kind=&amp;#34;&lt;/span>&lt;span style="color:#f92672">}&lt;/span>
-2021-06-16T17:05:40.018Z INFO controller-runtime.manager.controller.projectvpc Starting EventSource &lt;span style="color:#f92672">{&lt;/span>&lt;span style="color:#e6db74">&amp;#34;reconciler group&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;aiven.io&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;reconciler kind&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;ProjectVPC&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;source&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;kind source: /, Kind=&amp;#34;&lt;/span>&lt;span style="color:#f92672">}&lt;/span>
-&lt;span style="color:#f92672">[&lt;/span>...&lt;span style="color:#f92672">]&lt;/span>
-2021-06-16T17:05:40.097Z DEBUG controller-runtime.manager.events Normal &lt;span style="color:#f92672">{&lt;/span>&lt;span style="color:#e6db74">&amp;#34;object&amp;#34;&lt;/span>: &lt;span style="color:#f92672">{&lt;/span>&lt;span style="color:#e6db74">&amp;#34;kind&amp;#34;&lt;/span>:&lt;span style="color:#e6db74">&amp;#34;Lease&amp;#34;&lt;/span>,&lt;span style="color:#e6db74">&amp;#34;namespace&amp;#34;&lt;/span>:&lt;span style="color:#e6db74">&amp;#34;aiven-operator-system&amp;#34;&lt;/span>,&lt;span style="color:#e6db74">&amp;#34;name&amp;#34;&lt;/span>:&lt;span style="color:#e6db74">&amp;#34;00272a53.aiven.io&amp;#34;&lt;/span>,&lt;span style="color:#e6db74">&amp;#34;uid&amp;#34;&lt;/span>:&lt;span style="color:#e6db74">&amp;#34;a81127e0-7293-4b0f-b4f9-8fc78adba8e0&amp;#34;&lt;/span>,&lt;span style="color:#e6db74">&amp;#34;apiVersion&amp;#34;&lt;/span>:&lt;span style="color:#e6db74">&amp;#34;coordination.k8s.io/v1&amp;#34;&lt;/span>,&lt;span style="color:#e6db74">&amp;#34;resourceVersion&amp;#34;&lt;/span>:&lt;span style="color:#e6db74">&amp;#34;2074&amp;#34;&lt;/span>&lt;span style="color:#f92672">}&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;reason&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;LeaderElection&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;message&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;aiven-operator-controller-manager-6d68c4d6d7-5s5kj_64fd1a06-44b6-4690-95e1-17ec8adf7ffe became leader&amp;#34;&lt;/span>&lt;span style="color:#f92672">}&lt;/span>
-2021-06-16T17:05:40.998Z INFO controller-runtime.manager.controller.kafka Starting workers &lt;span style="color:#f92672">{&lt;/span>&lt;span style="color:#e6db74">&amp;#34;reconciler group&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;aiven.io&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;reconciler kind&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;Kafka&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;worker count&amp;#34;&lt;/span>: 1&lt;span style="color:#f92672">}&lt;/span>
-2021-06-16T17:05:40.999Z INFO controller-runtime.manager.controller.serviceuser Starting workers &lt;span style="color:#f92672">{&lt;/span>&lt;span style="color:#e6db74">&amp;#34;reconciler group&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;aiven.io&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;reconciler kind&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;ServiceUser&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;worker count&amp;#34;&lt;/span>: 1&lt;span style="color:#f92672">}&lt;/span>
-2021-06-16T17:05:40.999Z INFO controller-runtime.manager.controller.connectionpool Starting workers &lt;span style="color:#f92672">{&lt;/span>&lt;span style="color:#e6db74">&amp;#34;reconciler group&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;aiven.io&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;reconciler kind&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;ConnectionPool&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;worker count&amp;#34;&lt;/span>: 1&lt;span style="color:#f92672">}&lt;/span>
-2021-06-16T17:05:40.999Z INFO controller-runtime.manager.controller.kafkaacl Starting workers &lt;span style="color:#f92672">{&lt;/span>&lt;span style="color:#e6db74">&amp;#34;reconciler group&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;aiven.io&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;reconciler kind&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;KafkaACL&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;worker count&amp;#34;&lt;/span>: 1&lt;span style="color:#f92672">}&lt;/span>
-&lt;/code>&lt;/pre>&lt;/div>&lt;p>You have now verified that your installation was successful.&lt;/p></description></item><item><title>Docs: Uninstalling</title><link>https://aiven.github.io/aiven-operator/docs/installation/uninstalling/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/installation/uninstalling/</guid><description>
-&lt;h2 id="-warning-">🚨 Warning 🚨&lt;/h2>
-&lt;p>Uninstalling the Aiven Operator for Kubernetes can remove the resources created in Aiven, possibly resulting in data loss.&lt;/p>
-&lt;h2 id="helmhttpshelmsh-based-installation">&lt;a href="https://helm.sh">Helm&lt;/a> based installation&lt;/h2>
+&lt;p>Verify the installation:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ helm status aiven-operator
+NAME: aiven-operator
+LAST DEPLOYED: Fri Sep &lt;span style="color:#ae81ff">10&lt;/span> 15:23:26 &lt;span style="color:#ae81ff">2021&lt;/span>
+NAMESPACE: default
+STATUS: deployed
+REVISION: &lt;span style="color:#ae81ff">1&lt;/span>
+TEST SUITE: None
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>It is also possible to install the operator without webhooks enabled:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ helm install aiven-operator aiven/aiven-operator --set webhooks.enabled&lt;span style="color:#f92672">=&lt;/span>false
+&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="configuration-options">Configuration Options&lt;/h3>
+&lt;p>Please refer to the &lt;a href="https://github.com/aiven/aiven-charts/blob/main/charts/aiven-operator/values.yaml">values.yaml&lt;/a> of the chart.&lt;/p>
+&lt;h2 id="uninstalling">Uninstalling&lt;/h2>
 &lt;p>Find out the name of your deployment:&lt;/p>
 &lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ helm list
 NAME NAMESPACE REVISION UPDATED STATUS CHART APP VERSION
@@ -76,7 +53,23 @@ release &lt;span style="color:#e6db74">&amp;#34;aiven-operator-crds&amp;#34;&lt;
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>Remove the operator:&lt;/p>
 &lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ helm uninstall aiven-operator
 release &lt;span style="color:#e6db74">&amp;#34;aiven-operator&amp;#34;&lt;/span> uninstalled
-&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="dealing-with-expired-tokens">Dealing with expired tokens&lt;/h2>
+&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Docs: Installing with kubectl</title><link>https://aiven.github.io/aiven-operator/docs/installation/kubectl/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/installation/kubectl/</guid><description>
+&lt;h2 id="installing">Installing&lt;/h2>
+&lt;p>All Aiven Operator for Kubernetes components can be installed from one YAML file that is uploaded for every release:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f https://github.com/aiven/aiven-operator/releases/latest/download/deployment.yaml
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>By default the Deployment is installed into the &lt;code>aiven-operator-system&lt;/code> namespace.&lt;/p>
+&lt;h2 id="uninstalling">Uninstalling&lt;/h2>
+&lt;p>Assuming you installed version &lt;code>vX.Y.Z&lt;/code> of the operator it can be uninstalled via&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl delete -f https://github.com/aiven/aiven-operator/releases/download/vX.Y.Z/deployment.yaml
+&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Docs: Uninstalling</title><link>https://aiven.github.io/aiven-operator/docs/installation/uninstalling/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/installation/uninstalling/</guid><description>
+&lt;h2 id="-warning-">🚨 Warning 🚨&lt;/h2>
+&lt;p>Uninstalling the Aiven Operator for Kubernetes can remove the resources created in Aiven, possibly resulting in data loss.&lt;/p>
+&lt;p>Depending on your installation, please follow one of:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://aiven.github.io/aiven-operator/aiven-operator/docs/installation/helm/#uninstalling">Helm&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://aiven.github.io/aiven-operator/aiven-operator/docs/installation/kubectl/#uninstalling">kubectl&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="dealing-with-expired-tokens">Dealing with expired tokens&lt;/h2>
 &lt;p>Aiven resources need to have an accompanying secret that contains the token that is used to authorize the manipulation of that resource.
 If that token expired then you will not be able to delete the custom resource and deletion will also hang until the situation is resolved.
 The recommended approach to deal with that situation is to patch a valid token into the secret again so that proper cleanup of aiven resources can take place.&lt;/p>
