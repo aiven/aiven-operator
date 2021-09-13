@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.1.1 - not yet released
+## v0.1.1 - 2021-09-13
 * fix typo in a kafka-connector kuttl test
 * update helm installation docs
 
