@@ -105,9 +105,6 @@ jobs:
         with:
           go-version: '1.16.5'
 
-      - name: Generate API Reference
-        run:  make generate-api-reference
-
       - name: Generate docs
         run: make generate-docs
 
