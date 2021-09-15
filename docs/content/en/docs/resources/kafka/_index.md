@@ -103,8 +103,7 @@ kubectl get secret kafka-auth -o json | jq '.data | map_values(@base64d)'
 
 ## Testing the connection
 
-You can verify your access to the Kafka cluster from a Pod using the authentication data from the `kafka-auth` Secret.
-[kafkacat](https://github.com/edenhill/kafkacat) is used for our examples below.
+You can verify your access to the Kafka cluster from a Pod using the authentication data from the `kafka-auth` Secret. [kcat](https://github.com/edenhill/kcat) is used for our examples below.
 
 1. Create a file named `kafka-test-connection.yaml`, and add the following content:
 
@@ -116,13 +115,13 @@ metadata:
 spec:
   restartPolicy: Never
   containers:
-    - image: edenhill/kafkacat:1.6.0
-      name: kafkacat
+    - image: edenhill/kcat:1.7.0
+      name: kcat
 
       # the command below will connect to the Kafka cluster
       # and output its metadata
       command: [
-          'kafkacat', '-b', '$(HOST):$(PORT)',
+          'kcat', '-b', '$(HOST):$(PORT)',
           '-X', 'security.protocol=SSL',
           '-X', 'ssl.key.location=/kafka-auth/ACCESS_KEY',
           '-X', 'ssl.key.password=$(PASSWORD)',
@@ -168,8 +167,7 @@ Metadata for all topics (from broker -1: ssl://kafka-sample-your-project.aivencl
  0 topics:
 ```
 
-## Creating a `KafkaTopic` and and `KafkaACL`
-
+## Creating a `KafkaTopic` and `KafkaACL`
 To properly produce and consume content on Kafka, you need topics and ACLs. The operator supports both with
 the `KafkaTopic` and `KafkaACL` resources.
 
@@ -207,7 +205,7 @@ $ kubectl apply -f kafka-topic-random-strings.yaml
 ```
 
 3. Create a user and an ACL. To use the Kafka topic, create a new user with the `ServiceUser` resource (in order to
-   avoid using the `avnadmin` super user), and the `KafkaACL` to allow the user access to the topic.
+   avoid using the `avnadmin` superuser), and the `KafkaACL` to allow the user access to the topic.
 
 In a file named `kafka-acl-user-crab.yaml`, add the following two resources:
 
@@ -268,7 +266,7 @@ $ kubectl apply -f kafka-acl-user-crab.yaml
 
 Using the previously created `KafkaTopic`, `ServiceUser`, `KafkaACL`, you can produce and consume events.
 
-You can use Kafkacat to produce a message into Kafka, and the `-t random-strings` argument to select the desired topic,
+You can use [kcat](https://github.com/edenhill/kcat) to produce a message into Kafka, and the `-t random-strings` argument to select the desired topic,
 and use the content of the `/etc/issue` file as the message's body.
 
 1. Create a `kafka-crab-produce.yaml` file with the content below:
@@ -281,12 +279,12 @@ metadata:
 spec:
   restartPolicy: Never
   containers:
-    - image: edenhill/kafkacat:1.6.0
-      name: kafkacat
+    - image: edenhill/kcat:1.7.0
+      name: kcat
 
       # the command below will produce a message with the /etc/issue file content
       command: [
-          'kafkacat', '-b', '$(HOST):$(PORT)',
+          'kcat', '-b', '$(HOST):$(PORT)',
           '-X', 'security.protocol=SSL',
           '-X', 'ssl.key.location=/crab-auth/ACCESS_KEY',
           '-X', 'ssl.key.password=$(PASSWORD)',
@@ -407,101 +405,3 @@ $ kubectl port-forward kafka-crab-consume 8080:8080
    ![Kowl graphical interface on the random-strings topic page](./kowl-random-strings.png)
 
 You have now consumed the message.
-
-## Creating a `KafkaSchema`
-
-Aiven develops and maintain [Karapace](https://github.com/aiven/karapace), an open source implementation of Kafka REST
-and schema registry. Is is available out of the box for our managed Kafka service.
-
-> The schema registry address and authentication is the same as the Kafka broker, the only different is the usage of the port 13044.
-
-First, let's enable the schema registry in our previously created `kafka-sample`.
-
-1. Open the `kafka-sample.yaml` file and add the `schema_registry: true` field under `userConfig`. If will look
-   like this:
-
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: Kafka
-metadata:
-  name: kafka-sample
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  connInfoSecretTarget:
-    name: kafka-auth
-
-  project: <your-project-name>
-  cloudName: google-europe-west1
-  plan: startup-2
-  maintenanceWindowDow: friday
-  maintenanceWindowTime: 23:00:00
-
-  userConfig:
-    kafka_version: '2.7'
-    schema_registry: true
-```
-
-2. Apply the changes with the following command:
-
-```bash
-$ kubectl apply -f kafka-sample.yaml 
-```
-
-Now, let's create the schema itself.
-
-1. Create a new file named `kafka-schema.yaml` and add the YAML content below:
-
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: KafkaSchema
-metadata:
-  name: kafka-schema
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: <your-project-name>
-  serviceName: kafka-sample
-
-  # the name of the Schema
-  subjectName: MySchema
-
-  # the schema itself, in JSON format
-  schema: |
-    {
-      "type": "record",
-      "name": "MySchema",
-      "fields": [
-        {
-          "name": "field",
-          "type": "string"
-        }
-      ]
-    }
-
-  # sets the schema compatibility level 
-  compatibilityLevel: BACKWARD
-```
-
-2. Create the schema with the command:
-
-```bash
-$ kubectl apply -f kafka-schema.yaml
-```
-
-3. Review the resource you created with the following command:
-
-```bash
-$ kubectl get kafkaschemas.aiven.io kafka-schema
-
-NAME           SERVICE NAME   PROJECT          SUBJECT    COMPATIBILITY LEVEL   VERSION
-kafka-schema   kafka-sample   <your-project>   MySchema   BACKWARD              1
-```
-
-Now you can
-follow [our official documentation](https://help.aiven.io/en/articles/2302613-using-schema-registry-with-aiven-for-apache-kafka)
-on how to use the schema created.
