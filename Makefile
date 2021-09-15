@@ -117,7 +117,6 @@ test-acc: $(GINKGO) $(ENVTEST_TOOLS) ## Run acceptance tests.
 		--randomizeAllSpecs \
 		--trace \
 		--failFast \
-		--test.count 1 \
 		--progress \
 		./controllers
 
@@ -133,7 +132,7 @@ serve-docs: $(HUGO) ## Run Hugo live preview.
 
 .PHONY: generate-docs
 generate-docs: $(HUGO) $(GEN_CRD_API_REF_DOCS) ## Generate the documentation website locally.
-	$(GO) generate hack/genrefs/gen.go
+	$(GO) run hack/genrefs/main.go
 	$(HUGO) --minify -s docs
 
 
