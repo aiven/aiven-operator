@@ -122,8 +122,10 @@ lint: $(GOLANGCILINT) ## Run acceptance linter.
 .PHONY: test-acc
 test-acc: $(GINKGO) $(ENVTEST_TOOLS) ## Run acceptance tests.
 	KUBEBUILDER_CONTROLPLANE_START_TIMEOUT=120s \
+	KUBEBUILDER_CONTROLPLANE_STOP_TIMEOUT=120s \
+	KUBEBUILDER_ATTACH_CONTROL_PLANE_OUTPUT=true \
 	KUBEBUILDER_ASSETS=$(abspath $(ENVTEST_TOOLS_DIR)) \
-	$(GINKGO) -p --race --randomizeAllSpecs --cover cover.out --trace --failFast --test.count 1 --progress ./controllers
+	$(GINKGO) --nodes=12 --race --randomizeAllSpecs --cover cover.out --trace --failFast --test.count 1 --progress ./controllers
 
 .PHONY: test-e2e
 test-e2e: manifests generate ## Run end-to-end tests using kuttl (https://kuttl.dev/)
