@@ -10,7 +10,7 @@ directly without going through the public internet.&lt;/p>
 &lt;ol>
 &lt;li>Create a file named &lt;code>vpc-sample.yaml&lt;/code> with the following content:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
 &lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">ProjectVPC&lt;/span>
 &lt;span style="color:#f92672">metadata&lt;/span>:
 &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">vpc-sample&lt;/span>
@@ -27,11 +27,11 @@ directly without going through the public internet.&lt;/p>
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
 &lt;li>Create the Project by applying the configuration:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f vpc-sample.yaml
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f vpc-sample.yaml
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
 &lt;li>Review the resource you created with the following command:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get projects.aiven.io vpc-sample
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get projects.aiven.io vpc-sample
 NAME PROJECT CLOUD NETWORK CIDR
 vpc-sample &amp;lt;your-project&amp;gt; aws-af-south-1 192.168.0.0/24
 &lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="using-the-aiven-vpc">Using the Aiven VPC&lt;/h2>
@@ -47,7 +47,7 @@ you can get up and running with a suitably sized Apache Kafka service in a few m
 &lt;ol>
 &lt;li>Create a file named &lt;code>kafka-sample.yaml&lt;/code>, and add the following content:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
 &lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">Kafka&lt;/span>
 &lt;span style="color:#f92672">metadata&lt;/span>:
 &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-sample&lt;/span>
@@ -74,18 +74,18 @@ you can get up and running with a suitably sized Apache Kafka service in a few m
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
 &lt;li>Create the following resource on Kubernetes:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-sample.yaml
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-sample.yaml
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
 &lt;li>Inspect the service created using the command below. After a couple of minutes, the &lt;code>STATE&lt;/code> field is changed
 to &lt;code>RUNNING&lt;/code>, and is ready to be used.&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get kafka.aiven.io kafka-sample
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get kafka.aiven.io kafka-sample
 NAME PROJECT REGION PLAN STATE
 kafka-sample &amp;lt;your-project&amp;gt; google-europe-west1 startup-2 RUNNING
 &lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="using-the-connection-secret">Using the connection Secret&lt;/h2>
 &lt;p>For your convenience, the operator automatically stores the Kafka connection information in a Secret created with the
 name specified on the &lt;code>connInfoSecretTarget&lt;/code> field.&lt;/p>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl describe secret kafka-auth
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl describe secret kafka-auth
 Name: kafka-auth
 Namespace: default
 Annotations: &amp;lt;none&amp;gt;
@@ -100,7 +100,7 @@ USERNAME: &lt;span style="color:#ae81ff">8&lt;/span> bytes
 ACCESS_CERT: &lt;span style="color:#ae81ff">1533&lt;/span> bytes
 ACCESS_KEY: &lt;span style="color:#ae81ff">2484&lt;/span> bytes
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>You can use the &lt;a href="https://github.com/stedolan/jq">jq&lt;/a> to quickly decode the Secret:&lt;/p>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">kubectl get secret kafka-auth -o json | jq &lt;span style="color:#e6db74">&amp;#39;.data | map_values(@base64d)&amp;#39;&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">kubectl get secret kafka-auth -o json | jq &lt;span style="color:#e6db74">&amp;#39;.data | map_values(@base64d)&amp;#39;&lt;/span>
 &lt;span style="color:#f92672">{&lt;/span>
 &lt;span style="color:#e6db74">&amp;#34;CA_CERT&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;&amp;lt;secret-ca-cert&amp;gt;&amp;#34;&lt;/span>,
 &lt;span style="color:#e6db74">&amp;#34;ACCESS_CERT&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;&amp;lt;secret-cert&amp;gt;&amp;#34;&lt;/span>,
@@ -116,7 +116,7 @@ ACCESS_KEY: &lt;span style="color:#ae81ff">2484&lt;/span> bytes
 &lt;ol>
 &lt;li>Create a file named &lt;code>kafka-test-connection.yaml&lt;/code>, and add the following content:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">v1&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">v1&lt;/span>
 &lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">Pod&lt;/span>
 &lt;span style="color:#f92672">metadata&lt;/span>:
 &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-test-connection&lt;/span>
@@ -153,9 +153,9 @@ ACCESS_KEY: &lt;span style="color:#ae81ff">2484&lt;/span> bytes
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
 &lt;li>Apply the file.&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-test-connection.yaml
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-test-connection.yaml
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>Once successfully applied, you have a log with the metadata information about the Kafka cluster.&lt;/p>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl logs kafka-test-connection
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl logs kafka-test-connection
 Metadata &lt;span style="color:#66d9ef">for&lt;/span> all topics &lt;span style="color:#f92672">(&lt;/span>from broker -1: ssl://kafka-sample-your-project.aivencloud.com:13041/bootstrap&lt;span style="color:#f92672">)&lt;/span>:
 &lt;span style="color:#ae81ff">3&lt;/span> brokers:
 broker &lt;span style="color:#ae81ff">2&lt;/span> at 35.205.234.70:13041
@@ -169,7 +169,7 @@ the &lt;code>KafkaTopic&lt;/code> and &lt;code>KafkaACL&lt;/code> resources.&lt;
 &lt;ol>
 &lt;li>Create a file named &lt;code>kafka-topic-random-strings.yaml&lt;/code> with the content below:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
 &lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">KafkaTopic&lt;/span>
 &lt;span style="color:#f92672">metadata&lt;/span>:
 &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">random-strings&lt;/span>
@@ -189,13 +189,13 @@ the &lt;code>KafkaTopic&lt;/code> and &lt;code>KafkaACL&lt;/code> resources.&lt;
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
 &lt;li>Create the resource on Kubernetes:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-topic-random-strings.yaml
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-topic-random-strings.yaml
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
 &lt;li>Create a user and an ACL. To use the Kafka topic, create a new user with the &lt;code>ServiceUser&lt;/code> resource (in order to
 avoid using the &lt;code>avnadmin&lt;/code> super user), and the &lt;code>KafkaACL&lt;/code> to allow the user access to the topic.&lt;/li>
 &lt;/ol>
 &lt;p>In a file named &lt;code>kafka-acl-user-crab.yaml&lt;/code>, add the following two resources:&lt;/p>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
 &lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">ServiceUser&lt;/span>
 &lt;span style="color:#f92672">metadata&lt;/span>:
 &lt;span style="color:#75715e"># the name of our user 🦀&lt;/span>
@@ -231,7 +231,7 @@ avoid using the &lt;code>avnadmin&lt;/code> super user), and the &lt;code>KafkaA
 &lt;span style="color:#75715e"># specify the topic we created before&lt;/span>
 &lt;span style="color:#f92672">topic&lt;/span>: &lt;span style="color:#ae81ff">random-strings&lt;/span>
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>To create the &lt;code>crab&lt;/code> user and its permissions, execute the following command:&lt;/p>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-acl-user-crab.yaml
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-acl-user-crab.yaml
 &lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="producing-and-consuming-events">Producing and consuming events&lt;/h2>
 &lt;p>Using the previously created &lt;code>KafkaTopic&lt;/code>, &lt;code>ServiceUser&lt;/code>, &lt;code>KafkaACL&lt;/code>, you can produce and consume events.&lt;/p>
 &lt;p>You can use Kafkacat to produce a message into Kafka, and the &lt;code>-t random-strings&lt;/code> argument to select the desired topic,
@@ -239,7 +239,7 @@ and use the content of the &lt;code>/etc/issue&lt;/code> file as the message&amp
 &lt;ol>
 &lt;li>Create a &lt;code>kafka-crab-produce.yaml&lt;/code> file with the content below:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">v1&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">v1&lt;/span>
 &lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">Pod&lt;/span>
 &lt;span style="color:#f92672">metadata&lt;/span>:
 &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-crab-produce&lt;/span>
@@ -275,7 +275,7 @@ and use the content of the &lt;code>/etc/issue&lt;/code> file as the message&amp
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
 &lt;li>Create the Pod with the following content:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-crab-produce.yaml
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-crab-produce.yaml
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>Now your event is stored in Kafka.&lt;/p>
 &lt;p>To &lt;em>consume&lt;/em> a message, you can use a graphical interface called &lt;a href="https://github.com/cloudhut/kowl">Kowl&lt;/a>. It allows you
 to explore information about our Kafka cluster, such as brokers, topics, or consumer groups.&lt;/p>
@@ -283,7 +283,7 @@ to explore information about our Kafka cluster, such as brokers, topics, or cons
 &lt;li>Create a Kubernetes Pod and service to deploy and access Kowl. Create a file named &lt;code>kafka-crab-consume.yaml&lt;/code> with the
 content below:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">v1&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">v1&lt;/span>
 &lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">Pod&lt;/span>
 &lt;span style="color:#f92672">metadata&lt;/span>:
 &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-crab-consume&lt;/span>
@@ -335,11 +335,11 @@ content below:&lt;/li>
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
 &lt;li>Create the resources with:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-crab-consume.yaml
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-crab-consume.yaml
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
 &lt;li>In another terminal create a port-forward tunnel to your Pod:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl port-forward kafka-crab-consume 8080:8080
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl port-forward kafka-crab-consume 8080:8080
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="4">
 &lt;li>
 &lt;p>In the browser of your choice, access the &lt;a href="">http://localhost:8080&lt;/a> address. You now see a page with
@@ -363,7 +363,7 @@ and schema registry. Is is available out of the box for our managed Kafka servic
 &lt;li>Open the &lt;code>kafka-sample.yaml&lt;/code> file and add the &lt;code>schema_registry: true&lt;/code> field under &lt;code>userConfig&lt;/code>. If will look
 like this:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
 &lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">Kafka&lt;/span>
 &lt;span style="color:#f92672">metadata&lt;/span>:
 &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-sample&lt;/span>
@@ -384,12 +384,12 @@ like this:&lt;/li>
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
 &lt;li>Apply the changes with the following command:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-sample.yaml
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-sample.yaml
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>Now, let&amp;rsquo;s create the schema itself.&lt;/p>
 &lt;ol>
 &lt;li>Create a new file named &lt;code>kafka-schema.yaml&lt;/code> and add the YAML content below:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
 &lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">KafkaSchema&lt;/span>
 &lt;span style="color:#f92672">metadata&lt;/span>:
 &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-schema&lt;/span>
@@ -418,11 +418,11 @@ like this:&lt;/li>
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
 &lt;li>Create the schema with the command:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-schema.yaml
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-schema.yaml
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
 &lt;li>Review the resource you created with the following command:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get kafkaschemas.aiven.io kafka-schema
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get kafkaschemas.aiven.io kafka-schema
 NAME SERVICE NAME PROJECT SUBJECT COMPATIBILITY LEVEL VERSION
 kafka-schema kafka-sample &amp;lt;your-project&amp;gt; MySchema BACKWARD &lt;span style="color:#ae81ff">1&lt;/span>
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>Now you can
@@ -440,7 +440,7 @@ extender for location queries. Aiven for PostgreSQL is the perfect fit for your 
 &lt;ol>
 &lt;li>Create a file named &lt;code>pg-sample.yaml&lt;/code> with the following content:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
 &lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">PostgreSQL&lt;/span>
 &lt;span style="color:#f92672">metadata&lt;/span>:
 &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">pg-sample&lt;/span>
@@ -467,11 +467,11 @@ extender for location queries. Aiven for PostgreSQL is the perfect fit for your 
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
 &lt;li>Create the service by applying the configuration:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f pg-sample.yaml
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f pg-sample.yaml
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
 &lt;li>Review the resource you created with the following command:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get postgresqls.aiven.io pg-sample
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get postgresqls.aiven.io pg-sample
 NAME PROJECT REGION PLAN STATE
 pg-sample your-project google-europe-west1 startup-4 RUNNING
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>The resource can stay in the &lt;code>BUILDING&lt;/code> state for a couple of minutes. Once the state changes to &lt;code>RUNNING&lt;/code>, you are
@@ -479,7 +479,7 @@ ready to access it.&lt;/p>
 &lt;h2 id="using-the-connection-secret">Using the connection Secret&lt;/h2>
 &lt;p>For your convenience, the operator automatically stores the PostgreSQL connection information in a Secret created with
 the name specified on the &lt;code>connInfoSecretTarget&lt;/code> field.&lt;/p>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl describe secret pg-connection
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl describe secret pg-connection
 Name: pg-connection
 Namespace: default
 Annotations: &amp;lt;none&amp;gt;
@@ -494,7 +494,7 @@ PGPORT: &lt;span style="color:#ae81ff">5&lt;/span> bytes
 PGSSLMODE: &lt;span style="color:#ae81ff">7&lt;/span> bytes
 PGUSER: &lt;span style="color:#ae81ff">8&lt;/span> bytes
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>You can use the &lt;a href="https://github.com/stedolan/jq">jq&lt;/a> to quickly decode the Secret:&lt;/p>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get secret pg-connection -o json | jq &lt;span style="color:#e6db74">&amp;#39;.data | map_values(@base64d)&amp;#39;&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get secret pg-connection -o json | jq &lt;span style="color:#e6db74">&amp;#39;.data | map_values(@base64d)&amp;#39;&lt;/span>
 &lt;span style="color:#f92672">{&lt;/span>
 &lt;span style="color:#e6db74">&amp;#34;DATABASE_URI&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;postgres://avnadmin:&amp;lt;secret-password&amp;gt;@pg-sample-your-project.aivencloud.com:13039/defaultdb?sslmode=require&amp;#34;&lt;/span>,
 &lt;span style="color:#e6db74">&amp;#34;PGDATABASE&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;defaultdb&amp;#34;&lt;/span>,
@@ -509,7 +509,7 @@ PGUSER: &lt;span style="color:#ae81ff">8&lt;/span> bytes
 &lt;ol>
 &lt;li>Create a file named &lt;code>pod-psql.yaml&lt;/code>&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">v1&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">v1&lt;/span>
 &lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">Pod&lt;/span>
 &lt;span style="color:#f92672">metadata&lt;/span>:
 &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">psql-test-connection&lt;/span>
@@ -527,7 +527,7 @@ PGUSER: &lt;span style="color:#ae81ff">8&lt;/span> bytes
 &lt;ol start="2">
 &lt;li>Inspect the log:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl logs psql-test-connection
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl logs psql-test-connection
 version
 ---------------------------------------------------------------------------------------------
 PostgreSQL 11.12 on x86_64-pc-linux-gnu, compiled by gcc, a 68c5366192 p 6b9244f01a, 64-bit
@@ -536,7 +536,7 @@ PostgreSQL 11.12 on x86_64-pc-linux-gnu, compiled by gcc, a 68c5366192 p 6b9244f
 &lt;h2 id="creating-a-postgresql-database">Creating a PostgreSQL database&lt;/h2>
 &lt;p>The &lt;code>Database&lt;/code> Kubernetes resource allows you to create a logical database within the PostgreSQL instance.&lt;/p>
 &lt;p>Create the &lt;code>pg-database-sample.yaml&lt;/code> file with the following content:&lt;/p>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
 &lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">Database&lt;/span>
 &lt;span style="color:#f92672">metadata&lt;/span>:
 &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">pg-database-sample&lt;/span>
@@ -556,7 +556,7 @@ the PostgreSQL instance.&lt;/p>
 &lt;ol>
 &lt;li>Create a file named &lt;code>pg-service-user.yaml&lt;/code>.&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
 &lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">ServiceUser&lt;/span>
 &lt;span style="color:#f92672">metadata&lt;/span>:
 &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">pg-service-user&lt;/span>
@@ -571,10 +571,10 @@ the PostgreSQL instance.&lt;/p>
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
 &lt;li>Apply the configuration with the following command.&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f pg-service-user.yaml
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f pg-service-user.yaml
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;code>ServiceUser&lt;/code> resource generates a Secret with connection information, in this case
 named &lt;code>pg-service-user-connection&lt;/code>:&lt;/p>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get secret pg-service-user-connection -o json | jq &lt;span style="color:#e6db74">&amp;#39;.data | map_values(@base64d)&amp;#39;&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get secret pg-service-user-connection -o json | jq &lt;span style="color:#e6db74">&amp;#39;.data | map_values(@base64d)&amp;#39;&lt;/span>
 &lt;span style="color:#f92672">{&lt;/span>
 &lt;span style="color:#e6db74">&amp;#34;PASSWORD&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;&amp;lt;secret-password&amp;gt;&amp;#34;&lt;/span>,
 &lt;span style="color:#e6db74">&amp;#34;USERNAME&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;pg-service-user&amp;#34;&lt;/span>
@@ -589,7 +589,7 @@ PGBouncer for connection pooling.&lt;/p>
 &lt;p>You can create a connection pool with the &lt;code>ConnectionPool&lt;/code> resource using the previously created &lt;code>Database&lt;/code>
 and &lt;code>ServiceUser&lt;/code>.&lt;/p>
 &lt;p>Create a new file named &lt;code>pg-connection-pool.yaml&lt;/code> with the following content:&lt;/p>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
 &lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">ConnectionPool&lt;/span>
 &lt;span style="color:#f92672">metadata&lt;/span>:
 &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">pg-connection-pool&lt;/span>
@@ -607,7 +607,7 @@ and &lt;code>ServiceUser&lt;/code>.&lt;/p>
 &lt;span style="color:#f92672">poolMode&lt;/span>: &lt;span style="color:#ae81ff">transaction&lt;/span>
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;code>ConnectionPool&lt;/code> generates a Secret with the connection info using the name from the &lt;code>connInfoSecretTarget.Name&lt;/code>
 field:&lt;/p>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get secret pg-connection-pool-connection -o json | jq &lt;span style="color:#e6db74">&amp;#39;.data | map_values(@base64d)&amp;#39;&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get secret pg-connection-pool-connection -o json | jq &lt;span style="color:#e6db74">&amp;#39;.data | map_values(@base64d)&amp;#39;&lt;/span>
 &lt;span style="color:#f92672">{&lt;/span>
 &lt;span style="color:#e6db74">&amp;#34;DATABASE_URI&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;postgres://pg-service-user:&amp;lt;secret-password&amp;gt;@pg-sample-you-project.aivencloud.com:13040/pg-connection-pool?sslmode=require&amp;#34;&lt;/span>,
 &lt;span style="color:#e6db74">&amp;#34;PGDATABASE&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;pg-database-sample&amp;#34;&lt;/span>,
@@ -631,7 +631,7 @@ for more information.&lt;/p>
 &lt;ol>
 &lt;li>Create a new file named &lt;code>kafka-sample-topic.yaml&lt;/code> with the following content:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
 &lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">Kafka&lt;/span>
 &lt;span style="color:#f92672">metadata&lt;/span>:
 &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-sample&lt;/span>
@@ -676,12 +676,12 @@ for more information.&lt;/p>
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
 &lt;li>Create the resource on Kubernetes:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-sample-topic.yaml
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-sample-topic.yaml
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
 &lt;li>Now, create a &lt;code>ServiceIntegration&lt;/code> resource to send the Kafka logs to the created topic. In the same file, add the
 following YAML:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
 &lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">ServiceIntegration&lt;/span>
 &lt;span style="color:#f92672">metadata&lt;/span>:
 &lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">service-integration-kafka-logs&lt;/span>
@@ -703,11 +703,11 @@ following YAML:&lt;/li>
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="4">
 &lt;li>Reapply the resource on Kubernetes:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-sample-topic.yaml
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-sample-topic.yaml
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="5">
 &lt;li>Let&amp;rsquo;s check the created service integration:&lt;/li>
 &lt;/ol>
-&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get serviceintegrations.aiven.io service-integration-kafka-logs
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get serviceintegrations.aiven.io service-integration-kafka-logs
 NAME PROJECT TYPE SOURCE SERVICE NAME DESTINATION SERVICE NAME SOURCE ENDPOINT ID DESTINATION ENDPOINT ID
 service-integration-kafka-logs your-project kafka_logs kafka-sample kafka-sample
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>Your Kafka service logs are now being streamed to the &lt;code>logs&lt;/code> Kafka topic.&lt;/p></description></item></channel></rss>
