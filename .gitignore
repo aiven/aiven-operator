@@ -29,7 +29,6 @@ kubeconfig
 *.coverprofile
 kind-logs*
 
-
 # Internal Tools
 hack/tools/bin/*
 
@@ -38,3 +37,6 @@ docs/node_modules
 docs/public
 docs/resources
 docs/content/en/docs/api-reference/_index.md
+
+# Distribution
+dist
