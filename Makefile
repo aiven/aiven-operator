@@ -42,14 +42,53 @@ IMG ?= controller:latest
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true,preserveUnknownFields=false"
 
-# Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
-ifeq (,$(shell go env GOBIN))
-GOBIN=$(shell go env GOPATH)/bin
-else
-GOBIN=$(shell go env GOBIN)
-endif
+GO = go
+GOOS = $(shell $(GO) env GOOS)
+GOARCH = $(shell $(GO) env GOARCH)
 
 all: build
+
+TOOLS_DIR := hack/tools
+TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
+
+HUGO=$(TOOLS_BIN_DIR)/hugo
+CONTROLLER_GEN=$(TOOLS_BIN_DIR)/controller-gen
+SETUP_ENVTEST=$(TOOLS_BIN_DIR)/setup-envtest
+KUSTOMIZE=$(TOOLS_BIN_DIR)/kustomize
+GINKGO=$(TOOLS_BIN_DIR)/ginkgo
+GOLANGCILINT=$(TOOLS_BIN_DIR)/golangci-lint
+GEN_CRD_API_REF_DOCS=$(TOOLS_BIN_DIR)/gen-crd-api-reference-docs
+
+$(HUGO): $(TOOLS_DIR)/go.mod ## Build hugo from tools folder.
+	cd $(TOOLS_DIR) && $(GO) build -tags=tools,extended -o bin/hugo github.com/gohugoio/hugo
+
+$(CONTROLLER_GEN): $(TOOLS_DIR)/go.mod ## Build controller-gen from tools folder.
+	cd $(TOOLS_DIR) && $(GO) build -tags=tools -o bin/controller-gen sigs.k8s.io/controller-tools/cmd/controller-gen
+
+$(SETUP_ENVTEST): $(TOOLS_DIR)/go.mod ## Build kustomize from tools folder.
+	cd $(TOOLS_DIR) && $(GO) build -tags=tools -o bin/setup-envtest sigs.k8s.io/controller-runtime/tools/setup-envtest
+
+$(KUSTOMIZE): $(TOOLS_DIR)/go.mod ## Build kustomize from tools folder.
+	cd $(TOOLS_DIR) && $(GO) build -tags=tools -o bin/kustomize sigs.k8s.io/kustomize/kustomize/v3
+
+$(GINKGO): $(TOOLS_DIR)/go.mod ## Build ginkgo from tools folder.
+	cd $(TOOLS_DIR) && $(GO) build -tags=tools -o bin/ginkgo github.com/onsi/ginkgo/ginkgo
+
+$(GOLANGCILINT): $(TOOLS_DIR)/go.mod ## Build golangci-lint from tools folder.
+	cd $(TOOLS_DIR) && $(GO) build -tags=tools -o bin/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint
+
+$(GEN_CRD_API_REF_DOCS): $(TOOLS_DIR)/go.mod ## Build gen-crd-api-ref-docs from tools folder.
+	cd $(TOOLS_DIR) && $(GO) build -tags=tools -o bin/gen-crd-api-ref-docs github.com/ahmetb/gen-crd-api-reference-docs
+
+ENVTEST_K8S_VERSION=1.22.0
+ENVTEST_TOOLS_DIR=$(TOOLS_BIN_DIR)/k8s/$(ENVTEST_K8S_VERSION)-$(GOOS)-$(GOARCH)
+ENVTEST_TOOLS_ETCD=$(ENVTEST_TOOLS_DIR)/etcd
+ENVTEST_TOOLS_KUBE_APISERVER=$(ENVTEST_TOOLS_DIR)/kube-apiserver
+ENVTEST_TOOLS_KUBECTL=$(ENVTEST_TOOLS_DIR)/kubectl
+ENVTEST_TOOLS= $(ENVTEST_TOOLS_ETCD) $(ENVTEST_TOOLS_KUBE_APISERVER) $(ENVTEST_TOOLS_KUBECTL)
+
+$(ENVTEST_TOOLS): $(SETUP_ENVTEST)
+	$(SETUP_ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(TOOLS_BIN_DIR)
 
 ##@ General
 
@@ -69,33 +108,36 @@ help: ## Display this help.
 
 ##@ Development
 
-manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
-	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+manifests: $(CONTROLLER_GEN) ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
+	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="api/..." output:crd:artifacts:config=config/crd/bases
 
-generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
-	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
+generate: $(CONTROLLER_GEN) ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
+	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="api/..."
 
-fmt: ## Run go fmt against code.
-	go fmt ./...
+# linting
+.PHONY: lint
+lint: $(GOLANGCILINT) ## Run acceptance linter.
+	$(GOLANGCILINT) run --verbose
 
-vet: ## Run go vet against code.
-	go vet ./...
+.PHONY: test-acc
+test-acc: $(GINKGO) $(ENVTEST_TOOLS) ## Run acceptance tests.
+	KUBEBUILDER_CONTROLPLANE_START_TIMEOUT=120s \
+	KUBEBUILDER_CONTROLPLANE_STOP_TIMEOUT=120s \
+	KUBEBUILDER_ATTACH_CONTROL_PLANE_OUTPUT=true \
+	KUBEBUILDER_ASSETS=$(abspath $(ENVTEST_TOOLS_DIR)) \
+	$(GINKGO) --nodes=4 --race --randomizeAllSpecs --cover cover.out --trace --failFast --test.count 1 --progress ./controllers
 
-ENVTEST_ASSETS_DIR=$(shell pwd)/testbin
-test: export KUBEBUILDER_CONTROLPLANE_START_TIMEOUT=120s
-test: manifests generate fmt vet ## Run tests.
-	go install github.com/onsi/ginkgo/ginkgo@latest
-	mkdir -p ${ENVTEST_ASSETS_DIR}
-	test -f ${ENVTEST_ASSETS_DIR}/setup-envtest.sh || curl -sSLo ${ENVTEST_ASSETS_DIR}/setup-envtest.sh https://raw.githubusercontent.com/kubernetes-sigs/controller-runtime/v0.7.2/hack/setup-envtest.sh
-	source ${ENVTEST_ASSETS_DIR}/setup-envtest.sh; fetch_envtest_tools $(ENVTEST_ASSETS_DIR); setup_envtest_env $(ENVTEST_ASSETS_DIR); ginkgo -p -nodes=8 --race --randomizeAllSpecs --cover cover.out --trace --failFast --test.count 1 --progress ./controllers
+.PHONY: test-e2e
+test-e2e: manifests generate ## Run end-to-end tests using kuttl (https://kuttl.dev/)
+	kubectl kuttl test --config test/e2e/kuttl-test.yaml
 
 ##@ Build
 
-build: generate fmt vet ## Build manager binary.
-	go build -o bin/manager main.go
+build: generate ## Build manager binary.
+	$(GO) build -o bin/manager main.go
 
 run: manifests generate fmt vet ## Run a controller from your host.
-	go run ./main.go
+	$(GO) run ./main.go
 
 docker-build: ## Build docker image with the manager.
 	docker build -t ${IMG} .
@@ -108,43 +150,20 @@ docker-push: ## Push docker image with the manager.
 install-cert-manager: ## Deploy cert-manager to the cluster
 	kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml
 
-install: manifests kustomize ## Install CRDs into the K8s cluster specified in ~/.kube/config.
+install: $(KUSTOMIZE) manifests ## Install CRDs into the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/crd | kubectl apply -f -
 
-uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified in ~/.kube/config.
+uninstall: $(KUSTOMIZE) manifests ## Uninstall CRDs from the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/crd | kubectl delete -f -
 
-deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
+deploy: $(KUSTOMIZE) manifests ## Deploy controller to the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/default | kubectl apply -f -
 
-undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
+undeploy: $(KUSTOMIZE) ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/default | kubectl delete -f -
 
-
-CONTROLLER_GEN = $(shell pwd)/bin/controller-gen
-controller-gen: ## Download controller-gen locally if necessary.
-	$(call go-get-tool,$(CONTROLLER_GEN),sigs.k8s.io/controller-tools/cmd/controller-gen@v0.4.1)
-
-KUSTOMIZE = $(shell pwd)/bin/kustomize
-kustomize: ## Download kustomize locally if necessary.
-	$(call go-get-tool,$(KUSTOMIZE),sigs.k8s.io/kustomize/kustomize/v3@v3.8.7)
-
-# go-get-tool will 'go get' any package $2 and install it to $1.
-PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
-define go-get-tool
-@[ -f $(1) ] || { \
-set -e ;\
-TMP_DIR=$$(mktemp -d) ;\
-cd $$TMP_DIR ;\
-go mod init tmp ;\
-echo "Downloading $(2)" ;\
-GOBIN=$(PROJECT_DIR)/bin go get $(2) ;\
-rm -rf $$TMP_DIR ;\
-}
-endef
-
 .PHONY: bundle
-bundle: manifests kustomize ## Generate bundle manifests and metadata, then validate generated files.
+bundle: $(KUSTOMIZE) manifests ## Generate bundle manifests and metadata, then validate generated files.
 	operator-sdk generate kustomize manifests -q
 	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG)
 	$(KUSTOMIZE) build config/manifests | operator-sdk generate bundle -q --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
@@ -166,7 +185,7 @@ ifeq (,$(shell which opm 2>/dev/null))
 	@{ \
 	set -e ;\
 	mkdir -p $(dir $(OPM)) ;\
-	OS=$(shell go env GOOS) && ARCH=$(shell go env GOARCH) && \
+	OS=$(shell go env GOOS) && ARCH=$(shell $ env GOARCH) && \
 	curl -sSLo $(OPM) https://github.com/operator-framework/operator-registry/releases/download/v1.15.1/$${OS}-$${ARCH}-opm ;\
 	chmod +x $(OPM) ;\
 	}
@@ -200,25 +219,12 @@ catalog-push: ## Push a catalog image.
 	$(MAKE) docker-push IMG=$(CATALOG_IMG)
 
 ##@ Docs
-.PHONY: serve-docs generate-api-reference
+.PHONY: serve-docs
 # Run Hugo live preview.
-serve-docs:
-	hugo serve docs -s docs
+serve-docs: $(HUGO) ## serves docs
+	$(HUGO) serve docs -s docs
 
-# Generate the documentation website locally.
-generate-docs:
-	hugo --minify -s docs
+generate-docs: $(HUGO) $(GEN_CRD_API_REF_DOCS) ## Generate the documentation website locally.
+	$(GO) generate hack/genrefs/gen.go
+	$(HUGO) --minify -s docs
 
-# Generate API Reference for CRDs.
-generate-api-reference:
-	go install github.com/ahmetb/gen-crd-api-reference-docs@latest
-	gen-crd-api-reference-docs \
-		-config docs/api-reference-hack/config.json \
-		-template-dir docs/api-reference-hack/template \
-		-api-dir ./api/v1alpha1 \
-		-out-file docs/content/en/docs/api-reference/_index.html
-
-# e2e tests using kuttl: https://kuttl.dev/
-.PHONY: test-e2e
-test-e2e:
-	kubectl kuttl test --config test/e2e/kuttl-test.yaml
