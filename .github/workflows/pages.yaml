@@ -1,4 +1,4 @@
-name: release
+name: pages
 
 on:
   workflow_dispatch:
