@@ -78,11 +78,22 @@
 <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id=m-aiven-operatordocsresources-li>
 <a href=/aiven-operator/docs/resources/ class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id=m-aiven-operatordocsresources><span>Resources</span></a>
 <ul class="ul-2 foldable">
+<li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id=m-aiven-operatordocsresourcesproject-li>
+<a href=/aiven-operator/docs/resources/project/ class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id=m-aiven-operatordocsresourcesproject><span>Aiven Project</span></a>
+</li>
 <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id=m-aiven-operatordocsresourcesproject-vpc-li>
 <a href=/aiven-operator/docs/resources/project-vpc/ class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id=m-aiven-operatordocsresourcesproject-vpc><span>Aiven Project VPC</span></a>
 </li>
-<li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child active-path" id=m-aiven-operatordocsresourceskafka-li>
+<li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id=m-aiven-operatordocsresourceskafka-li>
 <a href=/aiven-operator/docs/resources/kafka/ class="align-left pl-0 active td-sidebar-link td-sidebar-link__section" id=m-aiven-operatordocsresourceskafka><span class=td-sidebar-nav-active-item>Kafka</span></a>
+<ul class="ul-3 foldable">
+<li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id=m-aiven-operatordocsresourceskafkaschema-li>
+<a href=/aiven-operator/docs/resources/kafka/schema/ class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id=m-aiven-operatordocsresourceskafkaschema><span>Kafka Schema</span></a>
+</li>
+<li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id=m-aiven-operatordocsresourceskafkaconnect-li>
+<a href=/aiven-operator/docs/resources/kafka/connect/ class="align-left pl-0 td-sidebar-link td-sidebar-link__page" id=m-aiven-operatordocsresourceskafkaconnect><span>Kafka Connect</span></a>
+</li>
+</ul>
 </li>
 <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id=m-aiven-operatordocsresourcespostgresql-li>
 <a href=/aiven-operator/docs/resources/postgresql/ class="align-left pl-0 td-sidebar-link td-sidebar-link__section" id=m-aiven-operatordocsresourcespostgresql><span>PostgreSQL</span></a>
@@ -120,9 +131,8 @@
 <li><a href=#creating-a-kafka-instance>Creating a <code>Kafka</code> instance</a></li>
 <li><a href=#using-the-connection-secret>Using the connection Secret</a></li>
 <li><a href=#testing-the-connection>Testing the connection</a></li>
-<li><a href=#creating-a-kafkatopic-and-and-kafkaacl>Creating a <code>KafkaTopic</code> and and <code>KafkaACL</code></a></li>
+<li><a href=#creating-a-kafkatopic-and-kafkaacl>Creating a <code>KafkaTopic</code> and <code>KafkaACL</code></a></li>
 <li><a href=#producing-and-consuming-events>Producing and consuming events</a></li>
-<li><a href=#creating-a-kafkaschema>Creating a <code>KafkaSchema</code></a></li>
 </ul>
 </nav></div>
 </aside>
@@ -213,8 +223,7 @@ ACCESS_KEY:   <span style=color:#ae81ff>2484</span> bytes
   <span style=color:#e6db74>&#34;USERNAME&#34;</span>: <span style=color:#e6db74>&#34;avnadmin&#34;</span>
 <span style=color:#f92672>}</span>
 </code></pre></div><h2 id=testing-the-connection>Testing the connection</h2>
-<p>You can verify your access to the Kafka cluster from a Pod using the authentication data from the <code>kafka-auth</code> Secret.
-<a href=https://github.com/edenhill/kafkacat>kafkacat</a> is used for our examples below.</p>
+<p>You can verify your access to the Kafka cluster from a Pod using the authentication data from the <code>kafka-auth</code> Secret. <a href=https://github.com/edenhill/kcat>kcat</a> is used for our examples below.</p>
 <ol>
 <li>Create a file named <code>kafka-test-connection.yaml</code>, and add the following content:</li>
 </ol>
@@ -225,13 +234,13 @@ ACCESS_KEY:   <span style=color:#ae81ff>2484</span> bytes
 <span style=color:#f92672>spec</span>:
   <span style=color:#f92672>restartPolicy</span>: <span style=color:#ae81ff>Never</span>
   <span style=color:#f92672>containers</span>:
-    - <span style=color:#f92672>image</span>: <span style=color:#ae81ff>edenhill/kafkacat:1.6.0</span>
-      <span style=color:#f92672>name</span>: <span style=color:#ae81ff>kafkacat</span>
+    - <span style=color:#f92672>image</span>: <span style=color:#ae81ff>edenhill/kcat:1.7.0</span>
+      <span style=color:#f92672>name</span>: <span style=color:#ae81ff>kcat</span>
 
       <span style=color:#75715e># the command below will connect to the Kafka cluster</span>
       <span style=color:#75715e># and output its metadata</span>
       <span style=color:#f92672>command</span>: [
-          <span style=color:#e6db74>&#39;kafkacat&#39;</span>, <span style=color:#e6db74>&#39;-b&#39;</span>, <span style=color:#e6db74>&#39;$(HOST):$(PORT)&#39;</span>,
+          <span style=color:#e6db74>&#39;kcat&#39;</span>, <span style=color:#e6db74>&#39;-b&#39;</span>, <span style=color:#e6db74>&#39;$(HOST):$(PORT)&#39;</span>,
           <span style=color:#e6db74>&#39;-X&#39;</span>, <span style=color:#e6db74>&#39;security.protocol=SSL&#39;</span>,
           <span style=color:#e6db74>&#39;-X&#39;</span>, <span style=color:#e6db74>&#39;ssl.key.location=/kafka-auth/ACCESS_KEY&#39;</span>,
           <span style=color:#e6db74>&#39;-X&#39;</span>, <span style=color:#e6db74>&#39;ssl.key.password=$(PASSWORD)&#39;</span>,
@@ -269,7 +278,7 @@ Metadata <span style=color:#66d9ef>for</span> all topics <span style=color:#f926
   broker <span style=color:#ae81ff>3</span> at 34.77.127.70:13041 <span style=color:#f92672>(</span>controller<span style=color:#f92672>)</span>
   broker <span style=color:#ae81ff>1</span> at 34.78.146.156:13041
  <span style=color:#ae81ff>0</span> topics:
-</code></pre></div><h2 id=creating-a-kafkatopic-and-and-kafkaacl>Creating a <code>KafkaTopic</code> and and <code>KafkaACL</code></h2>
+</code></pre></div><h2 id=creating-a-kafkatopic-and-kafkaacl>Creating a <code>KafkaTopic</code> and <code>KafkaACL</code></h2>
 <p>To properly produce and consume content on Kafka, you need topics and ACLs. The operator supports both with
 the <code>KafkaTopic</code> and <code>KafkaACL</code> resources.</p>
 <p>Below, here is how to create a Kafka topic named <code>random-strings</code> where random string messages will be sent.</p>
@@ -302,7 +311,7 @@ the <code>KafkaTopic</code> and <code>KafkaACL</code> resources.</p>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>$ kubectl apply -f kafka-topic-random-strings.yaml
 </code></pre></div><ol start=3>
 <li>Create a user and an ACL. To use the Kafka topic, create a new user with the <code>ServiceUser</code> resource (in order to
-avoid using the <code>avnadmin</code> super user), and the <code>KafkaACL</code> to allow the user access to the topic.</li>
+avoid using the <code>avnadmin</code> superuser), and the <code>KafkaACL</code> to allow the user access to the topic.</li>
 </ol>
 <p>In a file named <code>kafka-acl-user-crab.yaml</code>, add the following two resources:</p>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>aiven.io/v1alpha1</span>
@@ -353,7 +362,7 @@ avoid using the <code>avnadmin</code> super user), and the <code>KafkaACL</code>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>$ kubectl apply -f kafka-acl-user-crab.yaml
 </code></pre></div><h2 id=producing-and-consuming-events>Producing and consuming events</h2>
 <p>Using the previously created <code>KafkaTopic</code>, <code>ServiceUser</code>, <code>KafkaACL</code>, you can produce and consume events.</p>
-<p>You can use Kafkacat to produce a message into Kafka, and the <code>-t random-strings</code> argument to select the desired topic,
+<p>You can use <a href=https://github.com/edenhill/kcat>kcat</a> to produce a message into Kafka, and the <code>-t random-strings</code> argument to select the desired topic,
 and use the content of the <code>/etc/issue</code> file as the message&rsquo;s body.</p>
 <ol>
 <li>Create a <code>kafka-crab-produce.yaml</code> file with the content below:</li>
@@ -365,12 +374,12 @@ and use the content of the <code>/etc/issue</code> file as the message&rsquo;s b
 <span style=color:#f92672>spec</span>:
   <span style=color:#f92672>restartPolicy</span>: <span style=color:#ae81ff>Never</span>
   <span style=color:#f92672>containers</span>:
-    - <span style=color:#f92672>image</span>: <span style=color:#ae81ff>edenhill/kafkacat:1.6.0</span>
-      <span style=color:#f92672>name</span>: <span style=color:#ae81ff>kafkacat</span>
+    - <span style=color:#f92672>image</span>: <span style=color:#ae81ff>edenhill/kcat:1.7.0</span>
+      <span style=color:#f92672>name</span>: <span style=color:#ae81ff>kcat</span>
 
       <span style=color:#75715e># the command below will produce a message with the /etc/issue file content</span>
       <span style=color:#f92672>command</span>: [
-          <span style=color:#e6db74>&#39;kafkacat&#39;</span>, <span style=color:#e6db74>&#39;-b&#39;</span>, <span style=color:#e6db74>&#39;$(HOST):$(PORT)&#39;</span>,
+          <span style=color:#e6db74>&#39;kcat&#39;</span>, <span style=color:#e6db74>&#39;-b&#39;</span>, <span style=color:#e6db74>&#39;$(HOST):$(PORT)&#39;</span>,
           <span style=color:#e6db74>&#39;-X&#39;</span>, <span style=color:#e6db74>&#39;security.protocol=SSL&#39;</span>,
           <span style=color:#e6db74>&#39;-X&#39;</span>, <span style=color:#e6db74>&#39;ssl.key.location=/crab-auth/ACCESS_KEY&#39;</span>,
           <span style=color:#e6db74>&#39;-X&#39;</span>, <span style=color:#e6db74>&#39;ssl.key.password=$(PASSWORD)&#39;</span>,
@@ -483,92 +492,20 @@ the <code>random-strings</code> topic listed:
 </li>
 </ol>
 <p>You have now consumed the message.</p>
-<h2 id=creating-a-kafkaschema>Creating a <code>KafkaSchema</code></h2>
-<p>Aiven develops and maintain <a href=https://github.com/aiven/karapace>Karapace</a>, an open source implementation of Kafka REST
-and schema registry. Is is available out of the box for our managed Kafka service.</p>
-<blockquote>
-<p>The schema registry address and authentication is the same as the Kafka broker, the only different is the usage of the port 13044.</p>
-</blockquote>
-<p>First, let&rsquo;s enable the schema registry in our previously created <code>kafka-sample</code>.</p>
-<ol>
-<li>Open the <code>kafka-sample.yaml</code> file and add the <code>schema_registry: true</code> field under <code>userConfig</code>. If will look
-like this:</li>
-</ol>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>aiven.io/v1alpha1</span>
-<span style=color:#f92672>kind</span>: <span style=color:#ae81ff>Kafka</span>
-<span style=color:#f92672>metadata</span>:
-  <span style=color:#f92672>name</span>: <span style=color:#ae81ff>kafka-sample</span>
-<span style=color:#f92672>spec</span>:
-  <span style=color:#f92672>authSecretRef</span>:
-    <span style=color:#f92672>name</span>: <span style=color:#ae81ff>aiven-token</span>
-    <span style=color:#f92672>key</span>: <span style=color:#ae81ff>token</span>
-
-  <span style=color:#f92672>connInfoSecretTarget</span>:
-    <span style=color:#f92672>name</span>: <span style=color:#ae81ff>kafka-auth</span>
-
-  <span style=color:#f92672>project</span>: <span style=color:#ae81ff>&lt;your-project-name&gt;</span>
-  <span style=color:#f92672>cloudName</span>: <span style=color:#ae81ff>google-europe-west1</span>
-  <span style=color:#f92672>plan</span>: <span style=color:#ae81ff>startup-2</span>
-  <span style=color:#f92672>maintenanceWindowDow</span>: <span style=color:#ae81ff>friday</span>
-  <span style=color:#f92672>maintenanceWindowTime</span>: <span style=color:#ae81ff>23</span>:<span style=color:#ae81ff>00</span>:<span style=color:#ae81ff>00</span>
-
-  <span style=color:#f92672>userConfig</span>:
-    <span style=color:#f92672>kafka_version</span>: <span style=color:#e6db74>&#39;2.7&#39;</span>
-    <span style=color:#f92672>schema_registry</span>: <span style=color:#66d9ef>true</span>
-</code></pre></div><ol start=2>
-<li>Apply the changes with the following command:</li>
-</ol>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>$ kubectl apply -f kafka-sample.yaml 
-</code></pre></div><p>Now, let&rsquo;s create the schema itself.</p>
-<ol>
-<li>Create a new file named <code>kafka-schema.yaml</code> and add the YAML content below:</li>
-</ol>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>aiven.io/v1alpha1</span>
-<span style=color:#f92672>kind</span>: <span style=color:#ae81ff>KafkaSchema</span>
-<span style=color:#f92672>metadata</span>:
-  <span style=color:#f92672>name</span>: <span style=color:#ae81ff>kafka-schema</span>
-<span style=color:#f92672>spec</span>:
-  <span style=color:#f92672>authSecretRef</span>:
-    <span style=color:#f92672>name</span>: <span style=color:#ae81ff>aiven-token</span>
-    <span style=color:#f92672>key</span>: <span style=color:#ae81ff>token</span>
-
-  <span style=color:#f92672>project</span>: <span style=color:#ae81ff>&lt;your-project-name&gt;</span>
-  <span style=color:#f92672>serviceName</span>: <span style=color:#ae81ff>kafka-sample</span>
-
-  <span style=color:#75715e># the name of the Schema</span>
-  <span style=color:#f92672>subjectName</span>: <span style=color:#ae81ff>MySchema</span>
-
-  <span style=color:#75715e># the schema itself, in JSON format</span>
-  <span style=color:#f92672>schema</span>: |<span style=color:#e6db74>
-</span><span style=color:#e6db74>    {
-</span><span style=color:#e6db74>      &#34;type&#34;: &#34;record&#34;,
-</span><span style=color:#e6db74>      &#34;name&#34;: &#34;MySchema&#34;,
-</span><span style=color:#e6db74>      &#34;fields&#34;: [
-</span><span style=color:#e6db74>        {
-</span><span style=color:#e6db74>          &#34;name&#34;: &#34;field&#34;,
-</span><span style=color:#e6db74>          &#34;type&#34;: &#34;string&#34;
-</span><span style=color:#e6db74>        }
-</span><span style=color:#e6db74>      ]
-</span><span style=color:#e6db74>    }</span>    
-
-  <span style=color:#75715e># sets the schema compatibility level </span>
-  <span style=color:#f92672>compatibilityLevel</span>: <span style=color:#ae81ff>BACKWARD</span>
-</code></pre></div><ol start=2>
-<li>Create the schema with the command:</li>
-</ol>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>$ kubectl apply -f kafka-schema.yaml
-</code></pre></div><ol start=3>
-<li>Review the resource you created with the following command:</li>
-</ol>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>$ kubectl get kafkaschemas.aiven.io kafka-schema
-
-NAME           SERVICE NAME   PROJECT          SUBJECT    COMPATIBILITY LEVEL   VERSION
-kafka-schema   kafka-sample   &lt;your-project&gt;   MySchema   BACKWARD              <span style=color:#ae81ff>1</span>
-</code></pre></div><p>Now you can
-follow <a href=https://help.aiven.io/en/articles/2302613-using-schema-registry-with-aiven-for-apache-kafka>our official documentation</a>
-on how to use the schema created.</p>
 <div class=section-index>
 <hr class=panel-line>
+<div class=entry>
+<h5>
+<a href=/aiven-operator/docs/resources/kafka/schema/>Kafka Schema</a>
+</h5>
+<p></p>
+</div>
+<div class=entry>
+<h5>
+<a href=/aiven-operator/docs/resources/kafka/connect/>Kafka Connect</a>
+</h5>
+<p></p>
+</div>
 </div>
 <div class="text-muted mt-5 pt-3 border-top">
 </div>

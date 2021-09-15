@@ -1,4 +1,29 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Aiven Operator – Resources</title><link>https://aiven.github.io/aiven-operator/docs/resources/</link><description>Recent content in Resources on Aiven Operator</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://aiven.github.io/aiven-operator/docs/resources/index.xml" rel="self" type="application/rss+xml"/><item><title>Docs: Aiven Project VPC</title><link>https://aiven.github.io/aiven-operator/docs/resources/project-vpc/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/resources/project-vpc/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Aiven Operator – Resources</title><link>https://aiven.github.io/aiven-operator/docs/resources/</link><description>Recent content in Resources on Aiven Operator</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://aiven.github.io/aiven-operator/docs/resources/index.xml" rel="self" type="application/rss+xml"/><item><title>Docs: Aiven Project</title><link>https://aiven.github.io/aiven-operator/docs/resources/project/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/resources/project/</guid><description>
+&lt;blockquote>
+&lt;p>Before going through this guide, make sure you have a &lt;a href="../installation/prerequisites/">Kubernetes cluster&lt;/a> with the &lt;a href="../installation/">operator installed&lt;/a> and a &lt;a href="../authentication/">Kubernetes Secret with an Aiven authentication token&lt;/a>.&lt;/p>
+&lt;/blockquote>
+&lt;p>The &lt;code>Project&lt;/code> CRD allows you to create Aiven Projects, where your resources can be located.&lt;/p>
+&lt;p>To create a fully working Aiven Project with the Aiven Operator you need a source Aiven Project already created with a working billing configuration, like a credit card.&lt;/p>
+&lt;p>Create a file named &lt;code>project-sample.yaml&lt;/code> with the following content:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
+&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">Project&lt;/span>
+&lt;span style="color:#f92672">metadata&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">project-sample&lt;/span>
+&lt;span style="color:#f92672">spec&lt;/span>:
+&lt;span style="color:#75715e"># the source Project to copy the billing information from&lt;/span>
+&lt;span style="color:#f92672">copyFromProject&lt;/span>: &lt;span style="color:#ae81ff">&amp;lt;your-source-project&amp;gt;&lt;/span>
+&lt;span style="color:#f92672">authSecretRef&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">aiven-token&lt;/span>
+&lt;span style="color:#f92672">key&lt;/span>: &lt;span style="color:#ae81ff">token&lt;/span>
+&lt;span style="color:#f92672">connInfoSecretTarget&lt;/span>:
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">project-sample&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Apply the resource with:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f project-sample.yaml
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Verify the newly created Project:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get projects.aiven.io project-sample
+NAME AGE
+project-sample 22s
+&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Docs: Aiven Project VPC</title><link>https://aiven.github.io/aiven-operator/docs/resources/project-vpc/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/resources/project-vpc/</guid><description>
 &lt;p>Virtual Private Cloud (VPC) peering is a method of connecting separate AWS, Google Cloud or Microsoft Azure private
 networks to each other. It makes it possible for the virtual machines in the different VPCs to talk to each other
 directly without going through the public internet.&lt;/p>
@@ -111,8 +136,7 @@ ACCESS_KEY: &lt;span style="color:#ae81ff">2484&lt;/span> bytes
 &lt;span style="color:#e6db74">&amp;#34;USERNAME&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;avnadmin&amp;#34;&lt;/span>
 &lt;span style="color:#f92672">}&lt;/span>
 &lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="testing-the-connection">Testing the connection&lt;/h2>
-&lt;p>You can verify your access to the Kafka cluster from a Pod using the authentication data from the &lt;code>kafka-auth&lt;/code> Secret.
-&lt;a href="https://github.com/edenhill/kafkacat">kafkacat&lt;/a> is used for our examples below.&lt;/p>
+&lt;p>You can verify your access to the Kafka cluster from a Pod using the authentication data from the &lt;code>kafka-auth&lt;/code> Secret. &lt;a href="https://github.com/edenhill/kcat">kcat&lt;/a> is used for our examples below.&lt;/p>
 &lt;ol>
 &lt;li>Create a file named &lt;code>kafka-test-connection.yaml&lt;/code>, and add the following content:&lt;/li>
 &lt;/ol>
@@ -123,12 +147,12 @@ ACCESS_KEY: &lt;span style="color:#ae81ff">2484&lt;/span> bytes
 &lt;span style="color:#f92672">spec&lt;/span>:
 &lt;span style="color:#f92672">restartPolicy&lt;/span>: &lt;span style="color:#ae81ff">Never&lt;/span>
 &lt;span style="color:#f92672">containers&lt;/span>:
-- &lt;span style="color:#f92672">image&lt;/span>: &lt;span style="color:#ae81ff">edenhill/kafkacat:1.6.0&lt;/span>
-&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafkacat&lt;/span>
+- &lt;span style="color:#f92672">image&lt;/span>: &lt;span style="color:#ae81ff">edenhill/kcat:1.7.0&lt;/span>
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kcat&lt;/span>
 &lt;span style="color:#75715e"># the command below will connect to the Kafka cluster&lt;/span>
 &lt;span style="color:#75715e"># and output its metadata&lt;/span>
 &lt;span style="color:#f92672">command&lt;/span>: [
-&lt;span style="color:#e6db74">&amp;#39;kafkacat&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;-b&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;$(HOST):$(PORT)&amp;#39;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#39;kcat&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;-b&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;$(HOST):$(PORT)&amp;#39;&lt;/span>,
 &lt;span style="color:#e6db74">&amp;#39;-X&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;security.protocol=SSL&amp;#39;&lt;/span>,
 &lt;span style="color:#e6db74">&amp;#39;-X&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;ssl.key.location=/kafka-auth/ACCESS_KEY&amp;#39;&lt;/span>,
 &lt;span style="color:#e6db74">&amp;#39;-X&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;ssl.key.password=$(PASSWORD)&amp;#39;&lt;/span>,
@@ -162,7 +186,7 @@ broker &lt;span style="color:#ae81ff">2&lt;/span> at 35.205.234.70:13041
 broker &lt;span style="color:#ae81ff">3&lt;/span> at 34.77.127.70:13041 &lt;span style="color:#f92672">(&lt;/span>controller&lt;span style="color:#f92672">)&lt;/span>
 broker &lt;span style="color:#ae81ff">1&lt;/span> at 34.78.146.156:13041
 &lt;span style="color:#ae81ff">0&lt;/span> topics:
-&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="creating-a-kafkatopic-and-and-kafkaacl">Creating a &lt;code>KafkaTopic&lt;/code> and and &lt;code>KafkaACL&lt;/code>&lt;/h2>
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="creating-a-kafkatopic-and-kafkaacl">Creating a &lt;code>KafkaTopic&lt;/code> and &lt;code>KafkaACL&lt;/code>&lt;/h2>
 &lt;p>To properly produce and consume content on Kafka, you need topics and ACLs. The operator supports both with
 the &lt;code>KafkaTopic&lt;/code> and &lt;code>KafkaACL&lt;/code> resources.&lt;/p>
 &lt;p>Below, here is how to create a Kafka topic named &lt;code>random-strings&lt;/code> where random string messages will be sent.&lt;/p>
@@ -192,7 +216,7 @@ the &lt;code>KafkaTopic&lt;/code> and &lt;code>KafkaACL&lt;/code> resources.&lt;
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-topic-random-strings.yaml
 &lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
 &lt;li>Create a user and an ACL. To use the Kafka topic, create a new user with the &lt;code>ServiceUser&lt;/code> resource (in order to
-avoid using the &lt;code>avnadmin&lt;/code> super user), and the &lt;code>KafkaACL&lt;/code> to allow the user access to the topic.&lt;/li>
+avoid using the &lt;code>avnadmin&lt;/code> superuser), and the &lt;code>KafkaACL&lt;/code> to allow the user access to the topic.&lt;/li>
 &lt;/ol>
 &lt;p>In a file named &lt;code>kafka-acl-user-crab.yaml&lt;/code>, add the following two resources:&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
@@ -234,7 +258,7 @@ avoid using the &lt;code>avnadmin&lt;/code> super user), and the &lt;code>KafkaA
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-acl-user-crab.yaml
 &lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="producing-and-consuming-events">Producing and consuming events&lt;/h2>
 &lt;p>Using the previously created &lt;code>KafkaTopic&lt;/code>, &lt;code>ServiceUser&lt;/code>, &lt;code>KafkaACL&lt;/code>, you can produce and consume events.&lt;/p>
-&lt;p>You can use Kafkacat to produce a message into Kafka, and the &lt;code>-t random-strings&lt;/code> argument to select the desired topic,
+&lt;p>You can use &lt;a href="https://github.com/edenhill/kcat">kcat&lt;/a> to produce a message into Kafka, and the &lt;code>-t random-strings&lt;/code> argument to select the desired topic,
 and use the content of the &lt;code>/etc/issue&lt;/code> file as the message&amp;rsquo;s body.&lt;/p>
 &lt;ol>
 &lt;li>Create a &lt;code>kafka-crab-produce.yaml&lt;/code> file with the content below:&lt;/li>
@@ -246,11 +270,11 @@ and use the content of the &lt;code>/etc/issue&lt;/code> file as the message&amp
 &lt;span style="color:#f92672">spec&lt;/span>:
 &lt;span style="color:#f92672">restartPolicy&lt;/span>: &lt;span style="color:#ae81ff">Never&lt;/span>
 &lt;span style="color:#f92672">containers&lt;/span>:
-- &lt;span style="color:#f92672">image&lt;/span>: &lt;span style="color:#ae81ff">edenhill/kafkacat:1.6.0&lt;/span>
-&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafkacat&lt;/span>
+- &lt;span style="color:#f92672">image&lt;/span>: &lt;span style="color:#ae81ff">edenhill/kcat:1.7.0&lt;/span>
+&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kcat&lt;/span>
 &lt;span style="color:#75715e"># the command below will produce a message with the /etc/issue file content&lt;/span>
 &lt;span style="color:#f92672">command&lt;/span>: [
-&lt;span style="color:#e6db74">&amp;#39;kafkacat&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;-b&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;$(HOST):$(PORT)&amp;#39;&lt;/span>,
+&lt;span style="color:#e6db74">&amp;#39;kcat&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;-b&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;$(HOST):$(PORT)&amp;#39;&lt;/span>,
 &lt;span style="color:#e6db74">&amp;#39;-X&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;security.protocol=SSL&amp;#39;&lt;/span>,
 &lt;span style="color:#e6db74">&amp;#39;-X&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;ssl.key.location=/crab-auth/ACCESS_KEY&amp;#39;&lt;/span>,
 &lt;span style="color:#e6db74">&amp;#39;-X&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;ssl.key.password=$(PASSWORD)&amp;#39;&lt;/span>,
@@ -351,83 +375,7 @@ the &lt;code>random-strings&lt;/code> topic listed:
 &lt;img src="./kowl-random-strings.png" alt="Kowl graphical interface on the random-strings topic page">&lt;/p>
 &lt;/li>
 &lt;/ol>
-&lt;p>You have now consumed the message.&lt;/p>
-&lt;h2 id="creating-a-kafkaschema">Creating a &lt;code>KafkaSchema&lt;/code>&lt;/h2>
-&lt;p>Aiven develops and maintain &lt;a href="https://github.com/aiven/karapace">Karapace&lt;/a>, an open source implementation of Kafka REST
-and schema registry. Is is available out of the box for our managed Kafka service.&lt;/p>
-&lt;blockquote>
-&lt;p>The schema registry address and authentication is the same as the Kafka broker, the only different is the usage of the port 13044.&lt;/p>
-&lt;/blockquote>
-&lt;p>First, let&amp;rsquo;s enable the schema registry in our previously created &lt;code>kafka-sample&lt;/code>.&lt;/p>
-&lt;ol>
-&lt;li>Open the &lt;code>kafka-sample.yaml&lt;/code> file and add the &lt;code>schema_registry: true&lt;/code> field under &lt;code>userConfig&lt;/code>. If will look
-like this:&lt;/li>
-&lt;/ol>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
-&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">Kafka&lt;/span>
-&lt;span style="color:#f92672">metadata&lt;/span>:
-&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-sample&lt;/span>
-&lt;span style="color:#f92672">spec&lt;/span>:
-&lt;span style="color:#f92672">authSecretRef&lt;/span>:
-&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">aiven-token&lt;/span>
-&lt;span style="color:#f92672">key&lt;/span>: &lt;span style="color:#ae81ff">token&lt;/span>
-&lt;span style="color:#f92672">connInfoSecretTarget&lt;/span>:
-&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-auth&lt;/span>
-&lt;span style="color:#f92672">project&lt;/span>: &lt;span style="color:#ae81ff">&amp;lt;your-project-name&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">cloudName&lt;/span>: &lt;span style="color:#ae81ff">google-europe-west1&lt;/span>
-&lt;span style="color:#f92672">plan&lt;/span>: &lt;span style="color:#ae81ff">startup-2&lt;/span>
-&lt;span style="color:#f92672">maintenanceWindowDow&lt;/span>: &lt;span style="color:#ae81ff">friday&lt;/span>
-&lt;span style="color:#f92672">maintenanceWindowTime&lt;/span>: &lt;span style="color:#ae81ff">23&lt;/span>:&lt;span style="color:#ae81ff">00&lt;/span>:&lt;span style="color:#ae81ff">00&lt;/span>
-&lt;span style="color:#f92672">userConfig&lt;/span>:
-&lt;span style="color:#f92672">kafka_version&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;2.7&amp;#39;&lt;/span>
-&lt;span style="color:#f92672">schema_registry&lt;/span>: &lt;span style="color:#66d9ef">true&lt;/span>
-&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
-&lt;li>Apply the changes with the following command:&lt;/li>
-&lt;/ol>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-sample.yaml
-&lt;/code>&lt;/pre>&lt;/div>&lt;p>Now, let&amp;rsquo;s create the schema itself.&lt;/p>
-&lt;ol>
-&lt;li>Create a new file named &lt;code>kafka-schema.yaml&lt;/code> and add the YAML content below:&lt;/li>
-&lt;/ol>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">apiVersion&lt;/span>: &lt;span style="color:#ae81ff">aiven.io/v1alpha1&lt;/span>
-&lt;span style="color:#f92672">kind&lt;/span>: &lt;span style="color:#ae81ff">KafkaSchema&lt;/span>
-&lt;span style="color:#f92672">metadata&lt;/span>:
-&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">kafka-schema&lt;/span>
-&lt;span style="color:#f92672">spec&lt;/span>:
-&lt;span style="color:#f92672">authSecretRef&lt;/span>:
-&lt;span style="color:#f92672">name&lt;/span>: &lt;span style="color:#ae81ff">aiven-token&lt;/span>
-&lt;span style="color:#f92672">key&lt;/span>: &lt;span style="color:#ae81ff">token&lt;/span>
-&lt;span style="color:#f92672">project&lt;/span>: &lt;span style="color:#ae81ff">&amp;lt;your-project-name&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">serviceName&lt;/span>: &lt;span style="color:#ae81ff">kafka-sample&lt;/span>
-&lt;span style="color:#75715e"># the name of the Schema&lt;/span>
-&lt;span style="color:#f92672">subjectName&lt;/span>: &lt;span style="color:#ae81ff">MySchema&lt;/span>
-&lt;span style="color:#75715e"># the schema itself, in JSON format&lt;/span>
-&lt;span style="color:#f92672">schema&lt;/span>: |&lt;span style="color:#e6db74">
-&lt;/span>&lt;span style="color:#e6db74"> {
-&lt;/span>&lt;span style="color:#e6db74"> &amp;#34;type&amp;#34;: &amp;#34;record&amp;#34;,
-&lt;/span>&lt;span style="color:#e6db74"> &amp;#34;name&amp;#34;: &amp;#34;MySchema&amp;#34;,
-&lt;/span>&lt;span style="color:#e6db74"> &amp;#34;fields&amp;#34;: [
-&lt;/span>&lt;span style="color:#e6db74"> {
-&lt;/span>&lt;span style="color:#e6db74"> &amp;#34;name&amp;#34;: &amp;#34;field&amp;#34;,
-&lt;/span>&lt;span style="color:#e6db74"> &amp;#34;type&amp;#34;: &amp;#34;string&amp;#34;
-&lt;/span>&lt;span style="color:#e6db74"> }
-&lt;/span>&lt;span style="color:#e6db74"> ]
-&lt;/span>&lt;span style="color:#e6db74"> }&lt;/span>
-&lt;span style="color:#75715e"># sets the schema compatibility level &lt;/span>
-&lt;span style="color:#f92672">compatibilityLevel&lt;/span>: &lt;span style="color:#ae81ff">BACKWARD&lt;/span>
-&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="2">
-&lt;li>Create the schema with the command:&lt;/li>
-&lt;/ol>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl apply -f kafka-schema.yaml
-&lt;/code>&lt;/pre>&lt;/div>&lt;ol start="3">
-&lt;li>Review the resource you created with the following command:&lt;/li>
-&lt;/ol>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ kubectl get kafkaschemas.aiven.io kafka-schema
-NAME SERVICE NAME PROJECT SUBJECT COMPATIBILITY LEVEL VERSION
-kafka-schema kafka-sample &amp;lt;your-project&amp;gt; MySchema BACKWARD &lt;span style="color:#ae81ff">1&lt;/span>
-&lt;/code>&lt;/pre>&lt;/div>&lt;p>Now you can
-follow &lt;a href="https://help.aiven.io/en/articles/2302613-using-schema-registry-with-aiven-for-apache-kafka">our official documentation&lt;/a>
-on how to use the schema created.&lt;/p></description></item><item><title>Docs: PostgreSQL</title><link>https://aiven.github.io/aiven-operator/docs/resources/postgresql/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/resources/postgresql/</guid><description>
+&lt;p>You have now consumed the message.&lt;/p></description></item><item><title>Docs: PostgreSQL</title><link>https://aiven.github.io/aiven-operator/docs/resources/postgresql/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://aiven.github.io/aiven-operator/docs/resources/postgresql/</guid><description>
 &lt;p>PostgreSQL is an open source, relational database. It&amp;rsquo;s ideal for organisations that need a well organised tabular
 datastore. On top of the strict table and columns formats, PostgreSQL also offers solutions for nested datasets with the
 native &lt;code>jsonb&lt;/code> format and advanced set of extensions including &lt;a href="https://postgis.net/">PostGIS&lt;/a>, a spatial database
