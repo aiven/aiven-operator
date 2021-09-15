@@ -30,12 +30,11 @@ kubeconfig
 kind-logs*
 
 
-# Aiven internal
-hack/tmp/*
+# Internal Tools
+hack/tools/bin/*
 
 # Docs
 docs/node_modules
 docs/public
 docs/resources
-# API Reference is dynamically generated during the CI build
-docs/content/en/docs/api-reference/_index.html
+docs/content/en/docs/api-reference/_index.md
