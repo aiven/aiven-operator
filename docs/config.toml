@@ -51,3 +51,10 @@ navbar_logo = true
 	url = "https://github.com/aiven/aiven-operator"
 	icon = "fab fa-github"
         desc = "Find us on GitHub"
+
+[markup]
+    defaultMarkdownHandler = "goldmark"
+	
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
