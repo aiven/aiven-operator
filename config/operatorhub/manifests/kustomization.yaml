@@ -1,0 +1,5 @@
+resources:
+- ../../default
+- ../samples
+- ../scorecard
+- bases/aiven-operator.clusterserviceversion.yaml

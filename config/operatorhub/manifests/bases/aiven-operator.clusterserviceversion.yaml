@@ -4,9 +4,10 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    operators.operatorframework.io/builder: operator-sdk-v1.2.0
-    operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
-  name: aiven-operator.v0.1.0
+    categories: Cloud Provider
+    repository: https://github.com/aiven/aiven-operator
+    support: aiven
+  name: aiven-operator
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -99,12 +100,14 @@ spec:
   keywords:
   - aiven
   links:
-  - name: Aiven Operator
-    url: https://aiven-operator.domain
+  - name: Aiven Operator for Kubernetes
+    url: https://aiven.github.io/aiven-operator/
   maintainers:
   - email: ivan.savciuc@gmail.com
     name: Ivan Savciuc
+  - email: michael.hoffmann@aiven.io
+    name: Michael Hoffmann
   maturity: alpha
   provider:
-    name: as Custom Resources in your cluster.aiven-operator
+    name: aiven
   version: 0.0.0
