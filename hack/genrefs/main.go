@@ -1,4 +1,3 @@
-// +build ignore
 package main
 
 import (
@@ -18,7 +17,7 @@ const (
 
 func main() {
 	const (
-		apiReferenceTargetFile = "../../docs/content/en/docs/api-reference/_index.md"
+		apiReferenceTargetFile = "docs/content/en/docs/api-reference/_index.md"
 	)
 	f, err := os.OpenFile(apiReferenceTargetFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {
@@ -49,10 +48,10 @@ func initialRenderApiDocs() ([]byte, error) {
 	defer os.Remove(tmpFile.Name())
 
 	genCmd := exec.Command(
-		"../tools/bin/gen-crd-api-ref-docs",
-		"-config", "config.json",
-		"-template-dir", "template",
-		"-api-dir", fmt.Sprintf("../../api/%s", apiVersionShort),
+		"hack/tools/bin/gen-crd-api-ref-docs",
+		"-config", "hack/genrefs/config.json",
+		"-template-dir", "hack/genrefs/template",
+		"-api-dir", fmt.Sprintf("./api/%s", apiVersionShort),
 		"-out-file", tmpFile.Name(),
 	)
 
