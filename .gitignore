@@ -28,6 +28,7 @@ testbin/*
 kubeconfig
 *.coverprofile
 kind-logs*
+bundle-*
 
 # Internal Tools
 hack/tools/bin/*

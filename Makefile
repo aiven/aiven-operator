@@ -1,4 +1,5 @@
 SHELL := /bin/bash
+ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 all: build
 
@@ -41,16 +42,21 @@ $(GEN_CRD_API_REF_DOCS): $(TOOLS_DIR)/go.mod ## Build gen-crd-api-ref-docs from 
 
 # I would like to also manage this in tools.go but there are issues with the grpc version
 # TODO: Check again later if we can migrate this there
-OPERATOR_SDK_DL_URL=https://github.com/operator-framework/operator-sdk/releases/download/v1.12.0
-$(OPERATOR_SDK): ## Build operator-sdk from tools folder.
-	curl -LO ${OPERATOR_SDK_DL_URL}/operator-sdk_${GOOS}_${GOARCH}
-	gpg --keyserver keyserver.ubuntu.com --recv-keys 052996E2A20B5C7E
-	curl -LO ${OPERATOR_SDK_DL_URL}/checksums.txt
-	curl -LO ${OPERATOR_SDK_DL_URL}/checksums.txt.asc
-	gpg -u "Operator SDK (release) <cncf-operator-sdk@cncf.io>" --verify checksums.txt.asc
-	grep operator-sdk_${GOOS}_${GOARCH} checksums.txt | sha256sum -c -
-	chmod +x operator-sdk_${GOOS}_${GOARCH} && sudo mv operator-sdk_${GOOS}_${GOARCH} ${OPERATOR_SDK}
-	rm checksums.txt checksums.txt.asc
+OPERATOR_SDK_DL_URL=https://github.com/operator-framework/operator-sdk/releases/download/v1.11.0
+$(OPERATOR_SDK):
+	mkdir -p $(TOOLS_BIN_DIR)
+	bash -c "set +x; \
+		$(eval TMPDIR=$(shell mktemp -d)) \
+		trap 'rm -rf $(TMPDIR)' EXIT \
+		&& cd $(TMPDIR) \
+		&& wget ${OPERATOR_SDK_DL_URL}/operator-sdk_$(GOOS)_$(GOARCH) \
+		&& wget ${OPERATOR_SDK_DL_URL}/checksums.txt \
+		&& wget ${OPERATOR_SDK_DL_URL}/checksums.txt.asc \
+		&& gpg --keyserver keyserver.ubuntu.com --recv-keys 052996E2A20B5C7E \
+		&& gpg -u 'Operator SDK (release) <cncf-operator-sdk@cncf.io>' --verify $(TMPDIR)/checksums.txt.asc \
+		&& grep operator-sdk_${GOOS}_${GOARCH} checksums.txt | sha256sum -c - \
+		&& chmod 750 operator-sdk_$(GOOS)_$(GOARCH) \
+		&& mv operator-sdk_$(GOOS)_$(GOARCH) $(ROOT_DIR)/${OPERATOR_SDK}"
 
 ENVTEST_K8S_VERSION=1.22.0
 ENVTEST_TOOLS_DIR=$(TOOLS_BIN_DIR)/k8s/$(ENVTEST_K8S_VERSION)-$(GOOS)-$(GOARCH)
@@ -59,8 +65,9 @@ ENVTEST_TOOLS_KUBE_APISERVER=$(ENVTEST_TOOLS_DIR)/kube-apiserver
 ENVTEST_TOOLS_KUBECTL=$(ENVTEST_TOOLS_DIR)/kubectl
 ENVTEST_TOOLS= $(ENVTEST_TOOLS_ETCD) $(ENVTEST_TOOLS_KUBE_APISERVER) $(ENVTEST_TOOLS_KUBECTL)
 
-$(ENVTEST_TOOLS): $(SETUP_ENVTEST)
+$(ENVTEST_TOOLS) &: $(SETUP_ENVTEST)
 	$(SETUP_ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(TOOLS_BIN_DIR)
+	chmod 750 -R $(ENVTEST_TOOLS_DIR)
 
 ##@ General
 
@@ -79,6 +86,7 @@ $(ENVTEST_TOOLS): $(SETUP_ENVTEST)
 help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
+
 ##@ Development
 
 # Actions to aid in development ( generation, building, testing )
@@ -87,9 +95,16 @@ help: ## Display this help.
 build: generate ## Build manager binary.
 	$(GO) build -o bin/manager main.go
 
-.PHONY: run
-run: manifests generate fmt vet ## Run a controller from your host.
-	$(GO) run ./main.go
+.PHONY: clean-dist
+clean-dist:
+	rm -rf $(DIST_DIR)
+
+.PHONY: clean-tools
+clean-tools:
+	rm -rf $(TOOLS_BIN_DIR)
+
+.PHONY: clean-all
+clean-all: clean-dist clean-tools
 
 CRD_OPTIONS = "crd:trivialVersions=true,preserveUnknownFields=false"
 
@@ -124,6 +139,7 @@ test-acc: $(GINKGO) $(ENVTEST_TOOLS) ## Run acceptance tests.
 test-e2e: manifests generate ## Run end-to-end tests using kuttl (https://kuttl.dev/)
 	kubectl kuttl test --config test/e2e/kuttl-test.yaml
 
+
 ##@ Docs
 
 .PHONY: serve-docs
@@ -140,20 +156,51 @@ generate-docs: $(HUGO) $(GEN_CRD_API_REF_DOCS) ## Generate the documentation web
 
 # Actions to generate distributions ( operatorhub, helm, etc. )
 
+VERSION=$(shell git describe --tags $(shell git rev-list --tags --max-count=1))
+SHORT_VERSION=$(shell echo $(VERSION) | tr -d v)
+IMG=aivenoy/aiven-operator:$(VERSION)
+
 DIST_DIR=dist
 
 $(DIST_DIR):
-	mkdir $(DIST_DIR)
+	mkdir -p $(DIST_DIR)
 
-# The latest released version
-VERSION=$(shell git describe --tags $(shell git rev-list --tags --max-count=1))
-IMG=aivenoy/aiven-operator:$(VERSION)
+DIST_CONFIG_DIR=$(DIST_DIR)/config
 
-bundle: $(DIST_DIR) $(KUSTOMIZE) $(OPERATOR_SDK) manifests ## Generate bundle manifests and metadata, then validate generated files.
-	$(OPERATOR_SDK) generate kustomize manifests -q
-	cd config/manager && $(abspath $(KUSTOMIZE)) edit set image controller=$(IMG)
-	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle -q --overwrite --version $(shell echo $(VERSION) | tr -d v)
-	$(OPERATOR_SDK) bundle validate ./bundle
-	mv bundle $(DIST_DIR)
-	mv bundle.Dockerfile $(DIST_DIR)
+$(DIST_CONFIG_DIR): $(DIST_DIR) config
+	cp -r config $(DIST_CONFIG_DIR)
 
+# Build operatorhub bundle
+
+DIST_DIR_BUNDLE=$(DIST_DIR)/bundle
+
+$(DIST_DIR_BUNDLE): $(DIST_DIR)
+	mkdir -p $(DIST_DIR_BUNDLE)
+
+DIST_BUNDLE=$(DIST_DIR_BUNDLE)/bundle
+DIST_BUNDLE_DOCKERFILE=$(DIST_DIR_BUNDLE)/bundle.Dockerfile
+
+$(DIST_BUNDLE) $(DIST_BUNDLE_DOCKERFILE) &: manifests $(DIST_DIR_BUNDLE) $(DIST_PROJECT) $(DIST_CONFIG_DIR) $(KUSTOMIZE) $(OPERATOR_SDK)
+	cd $(DIST_CONFIG_DIR)/manager && $(abspath $(KUSTOMIZE)) edit set image controller=$(IMG)
+	$(abspath $(KUSTOMIZE)) build $(DIST_CONFIG_DIR)/operatorhub/manifests | $(abspath $(OPERATOR_SDK)) generate bundle --package aiven-operator --version $(SHORT_VERSION)
+	mv bundle $(DIST_BUNDLE)
+	mv bundle.Dockerfile $(DIST_BUNDLE_DOCKERFILE)
+	$(OPERATOR_SDK) bundle validate $(DIST_BUNDLE)
+
+.PHONY: bundle
+bundle: clean-dist $(DIST_BUNDLE) $(DIST_BUNDLE_DOCKERFILE) ## Generate bundle manifests and metadata, then validate generated files.
+
+.PHONY: bundle-docker-build
+bundle-docker-build: bundle
+	@[ "${BUNDLE_IMG}" ] || ( echo ">> variable BUNDLE_IMG is not set"; exit 1 )
+	docker build -f $(DIST_BUNDLE_DOCKERFILE) $(DIST_DIR_BUNDLE) -t $(BUNDLE_IMG)
+
+.PHONY: bundle-docker-push
+bundle-docker-push: bundle-docker-build
+	docker push $(BUNDLE_IMG)
+
+.PHONY: bundle-run
+bundle-test-run: bundle-docker-push $(OPERATOR_SDK) ## Run the bundle against your cluster ( this will reinstall OLM, use on disposable clusters like KIND )
+	$(OPERATOR_SDK) olm uninstall
+	$(OPERATOR_SDK) olm install
+	$(OPERATOR_SDK) run bundle $(BUNDLE_IMG)
