@@ -42,8 +42,9 @@ $(GEN_CRD_API_REF_DOCS): $(TOOLS_DIR)/go.mod ## Build gen-crd-api-ref-docs from 
 
 # I would like to also manage this in tools.go but there are issues with the grpc version
 # TODO: Check again later if we can migrate this there
-OPERATOR_SDK_DL_URL=https://github.com/operator-framework/operator-sdk/releases/download/v1.12.0
-$(OPERATOR_SDK): ## Build operator-sdk from tools folder.
+OPERATOR_SDK_DL_URL=https://github.com/operator-framework/operator-sdk/releases/download/v1.11.0
+$(OPERATOR_SDK):
+	mkdir -p $(TOOLS_BIN_DIR)
 	bash -c "set +x; \
 		$(eval TMPDIR=$(shell mktemp -d)) \
 		trap 'rm -rf $(TMPDIR)' EXIT \
@@ -155,6 +156,10 @@ generate-docs: $(HUGO) $(GEN_CRD_API_REF_DOCS) ## Generate the documentation web
 
 # Actions to generate distributions ( operatorhub, helm, etc. )
 
+VERSION=$(shell git describe --tags $(shell git rev-list --tags --max-count=1))
+SHORT_VERSION=$(shell echo $(VERSION) | tr -d v)
+IMG=aivenoy/aiven-operator:$(VERSION)
+
 DIST_DIR=dist
 
 $(DIST_DIR):
@@ -165,6 +170,8 @@ DIST_CONFIG_DIR=$(DIST_DIR)/config
 $(DIST_CONFIG_DIR): $(DIST_DIR) config
 	cp -r config $(DIST_CONFIG_DIR)
 
+# Build operatorhub bundle
+
 DIST_DIR_BUNDLE=$(DIST_DIR)/bundle
 
 $(DIST_DIR_BUNDLE): $(DIST_DIR)
@@ -173,10 +180,7 @@ $(DIST_DIR_BUNDLE): $(DIST_DIR)
 DIST_BUNDLE=$(DIST_DIR_BUNDLE)/bundle
 DIST_BUNDLE_DOCKERFILE=$(DIST_DIR_BUNDLE)/bundle.Dockerfile
 
-$(DIST_BUNDLE) $(DIST_BUNDLE_DOCKERFILE) &: manifests $(DIST_DIR) $(DIST_DIR_BUNDLE) $(DIST_PROJECT) $(DIST_CONFIG_DIR) $(KUSTOMIZE) $(OPERATOR_SDK)
-	$(eval VERSION=$(shell git describe --tags $(shell git rev-list --tags --max-count=1)))
-	$(eval SHORT_VERSION=$(shell echo $(VERSION) | tr -d v))
-	$(eval IMG=aivenoy/aiven-operator:$(VERSION))
+$(DIST_BUNDLE) $(DIST_BUNDLE_DOCKERFILE) &: manifests $(DIST_DIR_BUNDLE) $(DIST_PROJECT) $(DIST_CONFIG_DIR) $(KUSTOMIZE) $(OPERATOR_SDK)
 	cd $(DIST_CONFIG_DIR)/manager && $(abspath $(KUSTOMIZE)) edit set image controller=$(IMG)
 	$(abspath $(KUSTOMIZE)) build $(DIST_CONFIG_DIR)/operatorhub/manifests | $(abspath $(OPERATOR_SDK)) generate bundle --package aiven-operator --version $(SHORT_VERSION)
 	mv bundle $(DIST_BUNDLE)
@@ -185,3 +189,17 @@ $(DIST_BUNDLE) $(DIST_BUNDLE_DOCKERFILE) &: manifests $(DIST_DIR) $(DIST_DIR_BUN
 
 .PHONY: bundle
 bundle: clean-dist $(DIST_BUNDLE) $(DIST_BUNDLE_DOCKERFILE) ## Generate bundle manifests and metadata, then validate generated files.
+
+.PHONY: bundle-docker-build
+bundle-docker-build: bundle
+	@[ "${BUNDLE_IMG}" ] || ( echo ">> variable BUNDLE_IMG is not set"; exit 1 )
+	docker build -f $(DIST_BUNDLE_DOCKERFILE) $(DIST_DIR_BUNDLE) -t $(BUNDLE_IMG)
+
+.PHONY: bundle-docker-push
+bundle-docker-push: bundle-docker-build
+	docker push $(BUNDLE_IMG)
+
+.PHONY: bundle-run
+bundle-run: bundle-docker-push $(OPERATOR_SDK)
+	$(OPERATOR_SDK) olm install
+	$(OPERATOR_SDK) run bundle $(BUNDLE_IMG)
