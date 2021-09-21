@@ -12,8 +12,13 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/fields"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/controller-runtime/pkg/source"
+
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -26,6 +31,36 @@ type SecretFinalizerGCController struct {
 	client.Client
 
 	Log logr.Logger
+}
+
+func (c *SecretFinalizerGCController) SetupWithManager(mgr ctrl.Manager) error {
+	aivenManagedTypes := c.knownInstanceTypes()
+
+	if err := indexClientSecretRefFields(context.Background(), mgr, aivenManagedTypes...); err != nil {
+		return fmt.Errorf("unable to add index for secret ref fields: %w", err)
+	}
+	builder := ctrl.NewControllerManagedBy(mgr)
+	builder.For(&corev1.Secret{})
+
+	// queue reconcile requests for changes in known aiven types to manage the secrets
+	for i := range aivenManagedTypes {
+		builder.Watches(
+			&source.Kind{Type: aivenManagedTypes[i]},
+			handler.EnqueueRequestsFromMapFunc(func(a client.Object) []reconcile.Request {
+				ao := a.(aivenManagedObject)
+				return []reconcile.Request{
+					{
+						NamespacedName: types.NamespacedName{
+							Name:      ao.AuthSecretRef().Name,
+							Namespace: ao.GetNamespace(),
+						},
+					},
+				}
+			}),
+		)
+	}
+
+	return builder.Complete(c)
 }
 
 func (c *SecretFinalizerGCController) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -58,13 +93,6 @@ func (c *SecretFinalizerGCController) Reconcile(ctx context.Context, req ctrl.Re
 	}
 
 	return ctrl.Result{}, nil
-}
-
-func (c *SecretFinalizerGCController) SetupWithManager(mgr ctrl.Manager) error {
-	if err := indexClientSecretRefFields(context.Background(), mgr, c.knownInstanceTypes()...); err != nil {
-		return fmt.Errorf("unable to add index for secret ref fields: %w", err)
-	}
-	return ctrl.NewControllerManagedBy(mgr).For(&corev1.Secret{}).Complete(c)
 }
 
 func (c *SecretFinalizerGCController) knownListTypes() []client.ObjectList {
