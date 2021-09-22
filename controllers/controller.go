@@ -144,7 +144,7 @@ func (ir instanceReconcilerHelper) reconcileInstance(ctx context.Context, o clie
 	if markedForDeletion(o) {
 		if controllerutil.ContainsFinalizer(o, instanceDeletionFinalizer) {
 			ir.rec.Event(o, corev1.EventTypeNormal, eventTryingToDeleteAtAiven, "trying to delete instance at aiven")
-			if err := ir.deleteSync(o); err != nil {
+			if err := ir.deleteSync(o); err != nil && !ir.canBeDeleted(o, err) {
 				ir.rec.Event(o, corev1.EventTypeWarning, eventUnableToDeleteAtAiven, err.Error())
 				return ctrl.Result{}, fmt.Errorf("unable to delete instance at aiven: %w", err)
 			}
@@ -197,6 +197,18 @@ func (ir instanceReconcilerHelper) reconcileInstance(ctx context.Context, o clie
 
 	ir.log.Info("instance was successfully reconciled")
 	return ctrl.Result{}, nil
+}
+
+// canBeDeleted checks if an instance can be deleted despite error
+func (ir instanceReconcilerHelper) canBeDeleted(o client.Object, err error) bool {
+	if err == nil {
+		return true
+	}
+
+	// When an instance was created but pointing to an invalid API token
+	// and no generation was ever processed, allow deleting such instance
+	return !isAlreadyProcessed(o) && !isAlreadyRunning(o) &&
+		strings.Contains(err.Error(), "Invalid token")
 }
 
 func (ir instanceReconcilerHelper) deleteSync(o client.Object) error {
