@@ -207,3 +207,12 @@ bundle-scorecard: bundle-docker-push $(OPERATOR_SDK) ## Run scorecard tests agai
 bundle-test-run: bundle-docker-push $(OPERATOR_SDK) ## Run the bundle against your cluster ( this will reinstall OLM, use on disposable clusters like KIND )
 	$(OPERATOR_SDK) olm uninstall || $(OPERATOR_SDK) olm install
 	$(OPERATOR_SDK) run bundle $(BUNDLE_IMG)
+
+install: manifests ## Install CRDs into the K8s cluster specified in ~/.kube/config.
+	$(KUSTOMIZE) build config/crd | kubectl apply -f -
+
+uninstall: manifests ## Uninstall CRDs from the K8s cluster specified in ~/.kube/config.
+	$(KUSTOMIZE) build config/crd | kubectl delete -f -
+
+run: manifests generate install ## Run a controller from your host.
+	$(GO) run ./main.go
