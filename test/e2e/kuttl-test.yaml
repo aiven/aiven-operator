@@ -11,3 +11,4 @@ commands:
 - script: ENABLE_WEBHOOKS=false ./bin/manager
   background: true
   skipLogOutput: true
+blockOnNamespaceDelete: true

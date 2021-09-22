@@ -5,3 +5,4 @@ testDirs:
 - test/e2e/kafka
 - test/e2e/kafka-connector
 - test/e2e/service-integration
+blockOnNamespaceDelete: true

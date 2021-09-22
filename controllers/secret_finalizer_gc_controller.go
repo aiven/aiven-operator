@@ -12,8 +12,15 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/fields"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/event"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/controller-runtime/pkg/source"
+
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -28,6 +35,44 @@ type SecretFinalizerGCController struct {
 	Log logr.Logger
 }
 
+func (c *SecretFinalizerGCController) SetupWithManager(mgr ctrl.Manager) error {
+	aivenManagedTypes := c.knownInstanceTypes()
+
+	if err := indexClientSecretRefFields(context.Background(), mgr, aivenManagedTypes...); err != nil {
+		return fmt.Errorf("unable to add index for secret ref fields: %w", err)
+	}
+	builder := ctrl.NewControllerManagedBy(mgr)
+	builder.For(&corev1.Secret{})
+
+	// only watch for delete events
+	builder.WithEventFilter(predicate.Funcs{
+		CreateFunc:  func(e event.CreateEvent) bool { return false },
+		UpdateFunc:  func(e event.UpdateEvent) bool { return false },
+		DeleteFunc:  func(e event.DeleteEvent) bool { return true },
+		GenericFunc: func(e event.GenericEvent) bool { return false },
+	})
+
+	// watch aiven CRDs to queue secret reconciliations
+	for i := range aivenManagedTypes {
+		builder.Watches(
+			&source.Kind{Type: aivenManagedTypes[i]},
+			handler.EnqueueRequestsFromMapFunc(func(a client.Object) []reconcile.Request {
+				ao := a.(aivenManagedObject)
+				return []reconcile.Request{
+					{
+						NamespacedName: types.NamespacedName{
+							Name:      ao.AuthSecretRef().Name,
+							Namespace: ao.GetNamespace(),
+						},
+					},
+				}
+			}),
+		)
+	}
+
+	return builder.Complete(c)
+}
+
 func (c *SecretFinalizerGCController) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	secret := &corev1.Secret{}
 	if err := c.Get(ctx, req.NamespacedName, secret); err != nil {
@@ -37,17 +82,18 @@ func (c *SecretFinalizerGCController) Reconcile(ctx context.Context, req ctrl.Re
 		return ctrl.Result{}, err
 	}
 
-	// we only care about secrets that are about to be deleted and have our finalizer
-	if !markedForDeletion(secret) || !controllerutil.ContainsFinalizer(secret, secretProtectionFinalizer) {
+	// we only care about secrets that have our finalizer
+	if !controllerutil.ContainsFinalizer(secret, secretProtectionFinalizer) {
 		return ctrl.Result{}, nil
 	}
+	c.Log.Info("handling reconciliation request", "request", req)
 
 	// check for dangeling instances that still need the secret for deletion
 	if isStillNeeded, err := c.secretIsStillNeeded(ctx, secret); err != nil {
 		return ctrl.Result{}, fmt.Errorf("unable to check if secret is still needed: %w", err)
 	} else if isStillNeeded {
-		c.Log.Info("secret is still needed, requeueing deletion")
-		return requeueCtrlResult(), nil
+		c.Log.Info("secret is still needed, waiting for next reconciliation")
+		return ctrl.Result{}, nil
 	}
 
 	c.Log.Info("removing secret protection finalizer")
@@ -58,13 +104,6 @@ func (c *SecretFinalizerGCController) Reconcile(ctx context.Context, req ctrl.Re
 	}
 
 	return ctrl.Result{}, nil
-}
-
-func (c *SecretFinalizerGCController) SetupWithManager(mgr ctrl.Manager) error {
-	if err := indexClientSecretRefFields(context.Background(), mgr, c.knownInstanceTypes()...); err != nil {
-		return fmt.Errorf("unable to add index for secret ref fields: %w", err)
-	}
-	return ctrl.NewControllerManagedBy(mgr).For(&corev1.Secret{}).Complete(c)
 }
 
 func (c *SecretFinalizerGCController) knownListTypes() []client.ObjectList {

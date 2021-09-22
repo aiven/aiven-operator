@@ -6,7 +6,6 @@ import (
 	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -26,16 +25,6 @@ const (
 	pollTimeout  = 10 * time.Minute
 	pollInterval = 20 * time.Second
 )
-
-func requeueCtrlResult() ctrl.Result {
-	// nolint: gomnd
-	requeueTimeout := 10 * time.Second
-
-	return ctrl.Result{
-		Requeue:      true,
-		RequeueAfter: requeueTimeout,
-	}
-}
 
 func checkServiceIsRunning(c *aiven.Client, project, serviceName string) (bool, error) {
 	s, err := c.Services.Get(project, serviceName)
