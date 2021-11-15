@@ -244,6 +244,26 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
+  - redis
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - redis/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
   - serviceintegrations
   verbs:
   - create
