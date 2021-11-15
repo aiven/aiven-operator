@@ -128,7 +128,7 @@ func (h RedisHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
 		return false, err
 	}
 
-	// Delete PostgreSQL on Aiven side
+	// Delete Redis on Aiven side
 	if err := avn.Services.Delete(redis.Spec.Project, redis.Name); err != nil && !aiven.IsNotFound(err) {
 		return false, fmt.Errorf("aiven client delete redis error: %w", err)
 	}

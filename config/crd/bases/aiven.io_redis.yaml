@@ -176,17 +176,17 @@ spec:
                     type: string
                   public_access:
                     description: Allow access to selected service ports from the public
-                      *int64ernet
+                      internet
                     properties:
                       prometheus:
                         description: Allow clients to connect to prometheus from the
-                          public *int64ernet for service nodes that are in a project
+                          public internet for service nodes that are in a project
                           VPC or another type of private network
                         type: boolean
                       redis:
                         description: Allow clients to connect to redis from the public
-                          *int64ernet for service nodes that are in a project VPC
-                          or another type of private network
+                          internet for service nodes that are in a project VPC or
+                          another type of private network
                         type: boolean
                     type: object
                   recovery_basebackup_name:

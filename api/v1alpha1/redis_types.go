@@ -26,10 +26,10 @@ type RedisPrivatelinkAccess struct {
 }
 
 type RedisPublicAccess struct {
-	// Allow clients to connect to prometheus from the public *int64ernet for service nodes that are in a project VPC or another type of private network
+	// Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network
 	Prometheus *bool `json:"prometheus,omitempty"`
 
-	// Allow clients to connect to redis from the public *int64ernet for service nodes that are in a project VPC or another type of private network
+	// Allow clients to connect to redis from the public internet for service nodes that are in a project VPC or another type of private network
 	Redis *bool `json:"redis,omitempty"`
 }
 
@@ -75,7 +75,7 @@ type RedisUserConfig struct {
 	// Migrate data from existing server
 	Migration RedisMigration `json:"migration,omitempty"`
 
-	// Allow access to selected service ports from the public *int64ernet
+	// Allow access to selected service ports from the public internet
 	PublicAccess RedisPublicAccess `json:"public_access,omitempty"`
 
 	// Allow access to selected service ports from private networks
