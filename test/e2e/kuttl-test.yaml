@@ -7,6 +7,7 @@ testDirs:
 - test/e2e/kafka
 - test/e2e/kafka-connector
 - test/e2e/service-integration
+- test/e2e/redis
 commands:
 - script: ENABLE_WEBHOOKS=false ./bin/manager
   background: true

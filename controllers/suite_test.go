@@ -230,6 +230,18 @@ var _ = BeforeSuite(func() {
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
+	// set-up Redis reconciler
+	err = (&RedisReconciler{
+		Controller{
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Redis"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("redis-reconciler"),
+		},
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	// set-up KafkaConnector reconciler
 	Expect((&KafkaConnectorReconciler{
 		Controller{
 			Client:   k8sManager.GetClient(),
