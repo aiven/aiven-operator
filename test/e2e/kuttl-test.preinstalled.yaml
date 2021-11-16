@@ -3,6 +3,8 @@ kind: TestSuite
 timeout: 600
 testDirs:
 - test/e2e/kafka
+- test/e2e/kafka-topic
 - test/e2e/kafka-connector
 - test/e2e/service-integration
+- test/e2e/redis
 blockOnNamespaceDelete: true

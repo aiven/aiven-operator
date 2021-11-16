@@ -55,7 +55,7 @@ type KafkaConnectorPluginStatus struct {
 	Version string `json:"version"`
 }
 
-// KafkaConnectorPluginStatus describes the observed state of the Kafka Connector Tasks
+// KafkaConnectorTasksStatus describes the observed state of the Kafka Connector Tasks
 type KafkaConnectorTasksStatus struct {
 	Total      uint   `json:"total"`
 	Running    uint   `json:"running,omitempty"`

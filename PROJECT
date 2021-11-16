@@ -15,7 +15,7 @@ resources:
   webhooks:
     defaulting: true
     validation: true
-    webhookVersion: v1beta1
+    webhookVersion: v1
 - controller: true
   group: aiven.io
   kind: PostgreSQL
@@ -24,7 +24,7 @@ resources:
   webhooks:
     defaulting: true
     validation: true
-    webhookVersion: v1beta1
+    webhookVersion: v1
 - controller: true
   group: aiven.io
   kind: ConnectionPool
@@ -33,7 +33,7 @@ resources:
   webhooks:
     defaulting: true
     validation: true
-    webhookVersion: v1beta1
+    webhookVersion: v1
 - controller: true
   group: aiven.io
   kind: Database
@@ -42,7 +42,7 @@ resources:
   webhooks:
     defaulting: true
     validation: true
-    webhookVersion: v1beta1
+    webhookVersion: v1
 - controller: true
   group: aiven.io
   kind: ServiceUser
@@ -51,7 +51,7 @@ resources:
   webhooks:
     defaulting: true
     validation: true
-    webhookVersion: v1beta1
+    webhookVersion: v1
 - controller: true
   group: aiven.io
   kind: ProjectVPC
@@ -60,7 +60,7 @@ resources:
   webhooks:
     defaulting: true
     validation: true
-    webhookVersion: v1beta1
+    webhookVersion: v1
 - controller: true
   group: aiven.io
   kind: Kafka
@@ -69,7 +69,7 @@ resources:
   webhooks:
     defaulting: true
     validation: true
-    webhookVersion: v1beta1
+    webhookVersion: v1
 - controller: true
   group: aiven.io
   kind: KafkaConnect
@@ -78,7 +78,7 @@ resources:
   webhooks:
     defaulting: true
     validation: true
-    webhookVersion: v1beta1
+    webhookVersion: v1
 - controller: true
   group: aiven.io
   kind: KafkaTopic
@@ -87,7 +87,7 @@ resources:
   webhooks:
     defaulting: true
     validation: true
-    webhookVersion: v1beta1
+    webhookVersion: v1
 - controller: true
   group: aiven.io
   kind: ServiceIntegration
@@ -96,7 +96,7 @@ resources:
   webhooks:
     defaulting: true
     validation: true
-    webhookVersion: v1beta1
+    webhookVersion: v1
 - controller: true
   group: aiven.io
   kind: KafkaSchema
@@ -105,7 +105,7 @@ resources:
   webhooks:
     defaulting: true
     validation: true
-    webhookVersion: v1beta1
+    webhookVersion: v1
 - controller: true
   group: aiven.io
   kind: KafkaACL
@@ -114,24 +114,23 @@ resources:
   webhooks:
     defaulting: true
     validation: true
-    webhookVersion: v1beta1
-- api:
-    crdVersion: v1beta1
-    namespaced: true
-  controller: true
+    webhookVersion: v1
+- controller: true
   group: aiven.io
   kind: KafkaConnector
   path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true
-    webhookVersion: v1beta1
-- api:
-    crdVersion: v1beta1
-    namespaced: true
-  controller: true
+    validation: true
+    webhookVersion: v1
+- controller: true
   group: aiven.io
   kind: Redis
   path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
 version: "3"

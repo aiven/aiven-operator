@@ -17,6 +17,3 @@ spec:
 
   maintenanceWindowDow: friday
   maintenanceWindowTime: 23:00:00
-
-  userConfig:
-    kafka_version: '2.7'

@@ -27,7 +27,7 @@ func (r *KafkaConnector) Default() {
 	kafkaconnectorlog.Info("default", "name", r.Name)
 }
 
-//+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-kafkatopic,mutating=false,failurePolicy=fail,groups=aiven.io,resources=kafkatopics,versions=v1alpha1,name=vkafkatopic.kb.io,sideEffects=none,admissionReviewVersions=v1
+//+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-kafkaconnector,mutating=false,failurePolicy=fail,groups=aiven.io,resources=kafkaconnectors,versions=v1alpha1,name=vkafkaconnector.kb.io,sideEffects=none,admissionReviewVersions=v1
 
 var _ webhook.Validator = &KafkaConnector{}
 
