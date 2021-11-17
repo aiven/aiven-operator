@@ -2,7 +2,7 @@
 <head>
 <meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no">
-<meta name=generator content="Hugo 0.88.1"><link rel=alternate type=application/rss+xml href=https://aiven.github.io/aiven-operator/docs/api-reference/index.xml>
+<meta name=generator content="Hugo 0.89.4"><link rel=alternate type=application/rss+xml href=https://aiven.github.io/aiven-operator/docs/api-reference/index.xml>
 <meta name=ROBOTS content="NOINDEX, NOFOLLOW">
 <link rel="shortcut icon" href=/aiven-operator/favicons/favicon.ico>
 <link rel=apple-touch-icon href=/aiven-operator/favicons/apple-touch-icon-180x180.png sizes=180x180>
@@ -184,6 +184,13 @@
 <li><a href=#projectvpcspec>ProjectVPCSpec</a></li>
 <li><a href=#projectvpcstatus>ProjectVPCStatus</a></li>
 <li><a href=#publicaccessuserconfig>PublicAccessUserConfig</a></li>
+<li><a href=#redis>Redis</a></li>
+<li><a href=#redismigration>RedisMigration</a></li>
+<li><a href=#redisprivateaccess>RedisPrivateAccess</a></li>
+<li><a href=#redisprivatelinkaccess>RedisPrivatelinkAccess</a></li>
+<li><a href=#redispublicaccess>RedisPublicAccess</a></li>
+<li><a href=#redisspec>RedisSpec</a></li>
+<li><a href=#redisuserconfig>RedisUserConfig</a></li>
 <li><a href=#servicecommonspec>ServiceCommonSpec</a></li>
 <li><a href=#serviceintegration>ServiceIntegration</a></li>
 <li><a href=#serviceintegrationdatadoguserconfig>ServiceIntegrationDatadogUserConfig</a></li>
@@ -850,7 +857,7 @@
 </tbody>
 </table>
 <h3 id=kafkaconnectortasksstatus>KafkaConnectorTasksStatus</h3>
-<p>KafkaConnectorPluginStatus describes the observed state of the Kafka Connector Tasks </p>
+<p>KafkaConnectorTasksStatus describes the observed state of the Kafka Connector Tasks </p>
 <table>
 <thead>
 <tr>
@@ -2146,6 +2153,241 @@
 </tr>
 </tbody>
 </table>
+<h3 id=redis>Redis</h3>
+<p>Redis is the Schema for the redis API </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href=https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta>Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href=#redisspec>RedisSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href=#servicestatus>ServiceStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id=redismigration>RedisMigration</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ignore_dbs</code> <br>string</td>
+<td>Comma-separated list of databases, which should be ignored during migration (supported by MySQL only at the moment)</td>
+</tr>
+<tr>
+<td><code>password</code> <br>string</td>
+<td>Password for authentication with the server where to migrate data from</td>
+</tr>
+<tr>
+<td><code>port</code> <br>int64</td>
+<td>Port number of the server where to migrate data from</td>
+</tr>
+<tr>
+<td><code>ssl</code> <br>bool</td>
+<td>The server where to migrate data from is secured with SSL</td>
+</tr>
+<tr>
+<td><code>username</code> <br>string</td>
+<td>User name for authentication with the server where to migrate data from</td>
+</tr>
+<tr>
+<td><code>dbname</code> <br>string</td>
+<td>Database name for bootstrapping the initial connection</td>
+</tr>
+<tr>
+<td><code>host</code> <br>string</td>
+<td>Hostname or IP address of the server where to migrate data from</td>
+</tr>
+</tbody>
+</table>
+<h3 id=redisprivateaccess>RedisPrivateAccess</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>prometheus</code> <br>bool</td>
+<td>Allow clients to connect to prometheus with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations</td>
+</tr>
+<tr>
+<td><code>redis</code> <br>bool</td>
+<td>Allow clients to connect to redis with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations</td>
+</tr>
+</tbody>
+</table>
+<h3 id=redisprivatelinkaccess>RedisPrivatelinkAccess</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>redis</code> <br>bool</td>
+<td>Enable redis</td>
+</tr>
+</tbody>
+</table>
+<h3 id=redispublicaccess>RedisPublicAccess</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>prometheus</code> <br>bool</td>
+<td>Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network</td>
+</tr>
+<tr>
+<td><code>redis</code> <br>bool</td>
+<td>Allow clients to connect to redis from the public internet for service nodes that are in a project VPC or another type of private network</td>
+</tr>
+</tbody>
+</table>
+<h3 id=redisspec>RedisSpec</h3>
+<p>RedisSpec defines the desired state of Redis </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ServiceCommonSpec</code> <br><a href=#servicecommonspec>ServiceCommonSpec</a></td>
+<td>(Members of <code>ServiceCommonSpec</code>are embedded into this type.)</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href=#authsecretreference>AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+<tr>
+<td><code>connInfoSecretTarget</code> <br><a href=#conninfosecrettarget>ConnInfoSecretTarget</a></td>
+<td>Information regarding secret creation</td>
+</tr>
+<tr>
+<td><code>userConfig</code> <br><a href=#redisuserconfig>RedisUserConfig</a></td>
+<td>Redis specific user configuration options</td>
+</tr>
+</tbody>
+</table>
+<h3 id=redisuserconfig>RedisUserConfig</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>migration</code> <br><a href=#redismigration>RedisMigration</a></td>
+<td>Migrate data from existing server</td>
+</tr>
+<tr>
+<td><code>public_access</code> <br><a href=#redispublicaccess>RedisPublicAccess</a></td>
+<td>Allow access to selected service ports from the public internet</td>
+</tr>
+<tr>
+<td><code>private_access</code> <br><a href=#redisprivateaccess>RedisPrivateAccess</a></td>
+<td>Allow access to selected service ports from private networks</td>
+</tr>
+<tr>
+<td><code>privatelink_access</code> <br><a href=#redisprivatelinkaccess>RedisPrivatelinkAccess</a></td>
+<td>Allow access to selected service components through Privatelink</td>
+</tr>
+<tr>
+<td><code>service_to_fork_from</code> <br>string</td>
+<td>Name of another service to fork from. This has effect only when a new service is being created.</td>
+</tr>
+<tr>
+<td><code>ip_filter</code> <br>[]string</td>
+<td>IP filter Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'</td>
+</tr>
+<tr>
+<td><code>project_to_fork_from</code> <br>string</td>
+<td>Name of another project to fork a service from. This has effect only when a new service is being created.</td>
+</tr>
+<tr>
+<td><code>redis_acl_channels_default</code> <br>string</td>
+<td>Default ACL for pub/sub channels used when Redis user is created Determines default pub/sub channels' ACL for new users if ACL is not supplied. When this option is not defined, all_channels is assumed to keep backward compatibility. This option doesn't affect Redis configuration acl-pubsub-default.</td>
+</tr>
+<tr>
+<td><code>redis_lfu_decay_time</code> <br>int64</td>
+<td>LFU maxmemory-policy counter decay time in minutes</td>
+</tr>
+<tr>
+<td><code>redis_lfu_log_factor</code> <br>int64</td>
+<td>Counter logarithm factor for volatile-lfu and allkeys-lfu maxmemory-policies</td>
+</tr>
+<tr>
+<td><code>redis_persistence</code> <br>string</td>
+<td>Redis persistence When persistence is 'rdb', Redis does RDB dumps each 10 minutes if any key is changed. Also RDB dumps are done according to backup schedule for backup purposes. When persistence is 'off', no RDB dumps and backups are done, so data can be lost at any moment if service is restarted for any reason, or if service is powered off. Also service can't be forked.</td>
+</tr>
+<tr>
+<td><code>redis_pubsub_client_output_buffer_limit</code> <br>int64</td>
+<td>Pub/sub client output buffer hard limit in MB Set output buffer limit for pub / sub clients in MB. The value is the hard limit, the soft limit is 1/4 of the hard limit. When setting the limit, be mindful of the available memory in the selected service plan.</td>
+</tr>
+<tr>
+<td><code>static_ips</code> <br>bool</td>
+<td>Static IP addresses Use static public IP addresses</td>
+</tr>
+<tr>
+<td><code>redis_io_threads</code> <br>int64</td>
+<td>Redis IO thread count</td>
+</tr>
+<tr>
+<td><code>redis_timeout</code> <br>int64</td>
+<td>Redis idle connection timeout</td>
+</tr>
+<tr>
+<td><code>recovery_basebackup_name</code> <br>string</td>
+<td>Name of the basebackup to restore in forked service</td>
+</tr>
+<tr>
+<td><code>redis_maxmemory_policy</code> <br>string</td>
+<td>Redis maxmemory-policy</td>
+</tr>
+<tr>
+<td><code>redis_notify_keyspace_events</code> <br>string</td>
+<td>Set notify-keyspace-events option</td>
+</tr>
+<tr>
+<td><code>redis_number_of_databases</code> <br>int64</td>
+<td>Number of redis databases Set number of redis databases. Changing this will cause a restart of redis service.</td>
+</tr>
+<tr>
+<td><code>redis_ssl</code> <br>bool</td>
+<td>Require SSL to access Redis</td>
+</tr>
+</tbody>
+</table>
 <h3 id=servicecommonspec>ServiceCommonSpec</h3>
 <table>
 <thead>
@@ -2512,7 +2754,7 @@
 </tbody>
 </table>
 <h2 id=references>References</h2>
-<p>Generated with <a href=https://github.com/ahmetb/gen-crd-api-reference-docs>gen-crd-api-reference-docs</a> on git commit <code>b00ed11</code>.</p>
+<p>Generated with <a href=https://github.com/ahmetb/gen-crd-api-reference-docs>gen-crd-api-reference-docs</a> on git commit <code>7f93721</code>.</p>
 <div class=section-index>
 <hr class=panel-line>
 </div>
