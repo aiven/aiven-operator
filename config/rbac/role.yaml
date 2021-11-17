@@ -190,6 +190,26 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
+  - opensearches
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - opensearches/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
   - postgresqls
   verbs:
   - create

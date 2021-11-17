@@ -1,0 +1,7 @@
+apiVersion: aiven.io/v1alpha1
+kind: OpenSearch
+metadata:
+  name: opensearch-sample
+spec:
+  # Add fields here
+  foo: bar
