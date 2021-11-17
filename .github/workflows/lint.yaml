@@ -11,13 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
       - uses: actions/setup-go@v2
         with:
-          go-version: '1.16.5'
-
-      - name: Run Linter
-        run: make lint
+          go-version: '1.17.3'
+      - run: make lint
 
   codeql_analysis:
     runs-on: ubuntu-latest
@@ -28,11 +25,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-
     - uses: github/codeql-action/init@v1
       with:
         languages: 'go'
-
     - uses: github/codeql-action/autobuild@v1
-
     - uses: github/codeql-action/analyze@v1
+
+  kustomize_can_build_deployment:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@master
+      - uses: karancode/kustomize-github-action@master
+        with:
+          kustomize_version: 4.3.0
+          kustomize_build_dir: config/default
+          kustomize_output_file: deployment.yaml
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}

@@ -3,7 +3,8 @@ ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 all: build
 
-GO = go
+GOFLAGS = -mod=mod
+GO = GOFLAGS=$(GOFLAGS) go
 GOOS = $(shell $(GO) env GOOS)
 GOARCH = $(shell $(GO) env GOARCH)
 
@@ -19,44 +20,29 @@ GOLANGCILINT=$(TOOLS_BIN_DIR)/golangci-lint
 GEN_CRD_API_REF_DOCS=$(TOOLS_BIN_DIR)/gen-crd-api-reference-docs
 OPERATOR_SDK=$(TOOLS_BIN_DIR)/operator-sdk
 
-$(HUGO): $(TOOLS_DIR)/go.mod ## Build hugo from tools folder.
-	cd $(TOOLS_DIR) && $(GO) build -tags=tools,extended -o bin/hugo github.com/gohugoio/hugo
+$(HUGO): $(TOOLS_DIR)/hugo/go.mod ## Build hugo from tools folder.
+	cd $(TOOLS_DIR)/hugo && $(GO) build -tags=tools,extended -o $(ROOT_DIR)/$(TOOLS_BIN_DIR)/hugo github.com/gohugoio/hugo
 
-$(CONTROLLER_GEN): $(TOOLS_DIR)/go.mod ## Build controller-gen from tools folder.
-	cd $(TOOLS_DIR) && $(GO) build -tags=tools -o bin/controller-gen sigs.k8s.io/controller-tools/cmd/controller-gen
+$(CONTROLLER_GEN): $(TOOLS_DIR)/controller-gen/go.mod ## Build controller-gen from tools folder.
+	cd $(TOOLS_DIR)/controller-gen && $(GO) build -tags=tools -o $(ROOT_DIR)/$(TOOLS_BIN_DIR)/controller-gen sigs.k8s.io/controller-tools/cmd/controller-gen
 
-$(SETUP_ENVTEST): $(TOOLS_DIR)/go.mod ## Build kustomize from tools folder.
-	cd $(TOOLS_DIR) && $(GO) build -tags=tools -o bin/setup-envtest sigs.k8s.io/controller-runtime/tools/setup-envtest
+$(SETUP_ENVTEST): $(TOOLS_DIR)/setup-env-test/go.mod ## Build setup-env-test from tools folder.
+	cd $(TOOLS_DIR)/setup-env-test && $(GO) build -tags=tools -o $(ROOT_DIR)/$(TOOLS_BIN_DIR)/setup-envtest sigs.k8s.io/controller-runtime/tools/setup-envtest
 
-$(KUSTOMIZE): $(TOOLS_DIR)/go.mod ## Build kustomize from tools folder.
-	cd $(TOOLS_DIR) && $(GO) build -tags=tools -o bin/kustomize sigs.k8s.io/kustomize/kustomize/v3
+$(KUSTOMIZE): $(TOOLS_DIR)/kustomize/go.mod ## Build kustomize from tools folder.
+	cd $(TOOLS_DIR)/kustomize && $(GO) build -tags=tools -o $(ROOT_DIR)/$(TOOLS_BIN_DIR)/kustomize sigs.k8s.io/kustomize/kustomize/v4
 
-$(GINKGO): $(TOOLS_DIR)/go.mod ## Build ginkgo from tools folder.
-	cd $(TOOLS_DIR) && $(GO) build -tags=tools -o bin/ginkgo github.com/onsi/ginkgo/ginkgo
+$(GINKGO): $(TOOLS_DIR)/ginkgo/go.mod ## Build ginkgo from tools folder.
+	cd $(TOOLS_DIR)/ginkgo && $(GO) build -tags=tools -o $(ROOT_DIR)/$(TOOLS_BIN_DIR)/ginkgo github.com/onsi/ginkgo/ginkgo
 
-$(GOLANGCILINT): $(TOOLS_DIR)/go.mod ## Build golangci-lint from tools folder.
-	cd $(TOOLS_DIR) && $(GO) build -tags=tools -o bin/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint
+$(GOLANGCILINT): $(TOOLS_DIR)/golangci-lint/go.mod ## Build golangci-lint from tools folder.
+	cd $(TOOLS_DIR)/golangci-lint && $(GO) build -tags=tools -o $(ROOT_DIR)/$(TOOLS_BIN_DIR)/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint
 
-$(GEN_CRD_API_REF_DOCS): $(TOOLS_DIR)/go.mod ## Build gen-crd-api-ref-docs from tools folder.
-	cd $(TOOLS_DIR) && $(GO) build -tags=tools -o bin/gen-crd-api-ref-docs github.com/ahmetb/gen-crd-api-reference-docs
+$(GEN_CRD_API_REF_DOCS): $(TOOLS_DIR)/gen-crd-api-ref-docs/go.mod ## Build gen-crd-api-ref-docs from tools folder.
+	cd $(TOOLS_DIR)/gen-crd-api-ref-docs && $(GO) build -tags=tools -o $(ROOT_DIR)/$(TOOLS_BIN_DIR)/gen-crd-api-ref-docs github.com/ahmetb/gen-crd-api-reference-docs
 
-# I would like to also manage this in tools.go but there are issues with the grpc version
-# TODO: Check again later if we can migrate this there
-OPERATOR_SDK_DL_URL=https://github.com/operator-framework/operator-sdk/releases/download/v1.11.0
-$(OPERATOR_SDK):
-	mkdir -p $(TOOLS_BIN_DIR)
-	bash -c "set +x; \
-		$(eval TMPDIR=$(shell mktemp -d)) \
-		trap 'rm -rf $(TMPDIR)' EXIT \
-		&& cd $(TMPDIR) \
-		&& wget ${OPERATOR_SDK_DL_URL}/operator-sdk_$(GOOS)_$(GOARCH) \
-		&& wget ${OPERATOR_SDK_DL_URL}/checksums.txt \
-		&& wget ${OPERATOR_SDK_DL_URL}/checksums.txt.asc \
-		&& gpg --keyserver keyserver.ubuntu.com --recv-keys 052996E2A20B5C7E \
-		&& gpg -u 'Operator SDK (release) <cncf-operator-sdk@cncf.io>' --verify $(TMPDIR)/checksums.txt.asc \
-		&& grep operator-sdk_${GOOS}_${GOARCH} checksums.txt | sha256sum -c - \
-		&& chmod 750 operator-sdk_$(GOOS)_$(GOARCH) \
-		&& mv operator-sdk_$(GOOS)_$(GOARCH) $(ROOT_DIR)/${OPERATOR_SDK}"
+$(OPERATOR_SDK): $(TOOLS_DIR)/operator-sdk/go.mod ## Build operator-sdk from tools folder.
+	cd $(TOOLS_DIR)/operator-sdk && $(GO) build -tags=tools -o $(ROOT_DIR)/$(TOOLS_BIN_DIR)/operator-sdk github.com/operator-framework/operator-sdk/cmd/operator-sdk
 
 ENVTEST_K8S_VERSION=1.22.0
 ENVTEST_TOOLS_DIR=$(TOOLS_BIN_DIR)/k8s/$(ENVTEST_K8S_VERSION)-$(GOOS)-$(GOARCH)
@@ -79,8 +65,7 @@ $(ENVTEST_TOOLS) &: $(SETUP_ENVTEST)
 # if there's a line with ##@ something, that gets pretty-printed as a category.
 # More info on the usage of ANSI control characters for terminal formatting:
 # https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters
-# More info on the awk command:
-# http://linuxcommand.org/lc3_adv_awk.php
+# More info on the awk command: http://linuxcommand.org/lc3_adv_awk.php
 
 .PHONY: help
 help: ## Display this help.
@@ -106,11 +91,9 @@ clean-tools:
 .PHONY: clean-all
 clean-all: clean-dist clean-tools
 
-CRD_OPTIONS = "crd:trivialVersions=true,preserveUnknownFields=false"
-
 .PHONY: manifests
 manifests: $(CONTROLLER_GEN) ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
-	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+	$(CONTROLLER_GEN) crd rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
 .PHONY: generate
 generate: $(CONTROLLER_GEN) ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
@@ -121,7 +104,7 @@ lint: $(GOLANGCILINT) ## Run linter.
 	$(GOLANGCILINT) run --verbose
 
 .PHONY: test-acc
-test-acc: $(GINKGO) $(ENVTEST_TOOLS) ## Run acceptance tests.
+test-acc: test-check-project-env test-check-token-env $(GINKGO) $(ENVTEST_TOOLS) ## Run acceptance tests.
 	KUBEBUILDER_CONTROLPLANE_START_TIMEOUT=120s \
 	KUBEBUILDER_CONTROLPLANE_STOP_TIMEOUT=120s \
 	KUBEBUILDER_ATTACH_CONTROL_PLANE_OUTPUT=true \
@@ -135,10 +118,22 @@ test-acc: $(GINKGO) $(ENVTEST_TOOLS) ## Run acceptance tests.
 		--progress \
 		./controllers
 
+test-e2e-tools := kubectl kafkacat avn
+
+$(test-e2e-tools):
+	@which $@ > /dev/null
+
 .PHONY: test-e2e
-test-e2e: manifests generate ## Run end-to-end tests using kuttl (https://kuttl.dev/)
+test-e2e: $(test-e2e-tools) test-check-token-env ## Run end-to-end tests using kuttl (https://kuttl.dev/)
 	kubectl kuttl test --config test/e2e/kuttl-test.yaml
 
+.PHONY: test-check-token-env
+test-check-token-env:
+	@[ "${AIVEN_TOKEN}" ] || ( echo ">> variable AIVEN_TOKEN is not set"; exit 1 )
+
+.PHONY: test-check-project-env
+test-check-project-env:
+	@[ "${AIVEN_PROJECT_NAME}" ] || ( echo ">> variable AIVEN_PROJECT_NAME is not set"; exit 1 )
 
 ##@ Docs
 

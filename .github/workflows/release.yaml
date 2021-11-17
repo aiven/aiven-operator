@@ -10,15 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Checkout
-      uses: actions/checkout@master
-
-    - name: Set up variables
-      id: action_vars
+    - uses: actions/checkout@master
+    - id: action_vars
       run: echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
-
-    - name: Add manager image kustomization
-      shell: bash
+    - shell: bash
       run: |
         echo "resources: [manager.yaml]
         apiVersion: kustomize.config.k8s.io/v1beta1
@@ -28,18 +23,14 @@ jobs:
           newName: aivenoy/aiven-operator
           newTag: ${{ steps.action_vars.outputs.TAG }}
         " > config/manager/kustomization.yaml
-
-    - name: Build artifacts
-      uses: karancode/kustomize-github-action@master
+    - uses: karancode/kustomize-github-action@master
       with:
         kustomize_version: 4.3.0
         kustomize_build_dir: config/default
         kustomize_output_file: deployment.yaml
       env:
         GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
-
-    - name: Upload artifacts
-      uses: svenstaro/upload-release-action@v2
+    - uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: deployment.yaml
@@ -50,21 +41,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Set up variables
-      id: action_vars
+    - id: action_vars
       run: echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-
-    - name: Login to DockerHub
-      uses: docker/login-action@v1 
+    - uses: docker/setup-buildx-action@v1
+    - uses: docker/login-action@v1
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-    - name: Build and push
-      id: docker_build
+    - id: docker_build
       uses: docker/build-push-action@v2
       with:
         push: true

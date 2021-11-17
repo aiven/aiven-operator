@@ -10,7 +10,7 @@ spec:
   connInfoSecretTarget:
     name: redis-token
 
-  project: aiven-ci-kubernetes-operator
+  project: my-project
 
   cloudName: google-europe-west1
   plan: startup-2
