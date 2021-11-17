@@ -74,13 +74,19 @@ rules:
   - delete
   - get
   - list
+  - patch
+  - update
   - watch
 - apiGroups:
   - aiven.io
   resources:
   - kafkaacls/status
   verbs:
+  - create
+  - delete
   - get
+  - list
+  - watch
 - apiGroups:
   - aiven.io
   resources:

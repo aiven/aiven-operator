@@ -1,0 +1,15 @@
+apiVersion: aiven.io/v1alpha1
+kind: KafkaACL
+metadata:
+  name: k8s-test-kafka-topic-simple-kafka-topic-acl
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-ci-kubernetes-operator
+  serviceName: k8s-test-kafka-topic-simple-kafka-topic-kafka
+
+  topic: k8s-test-kafka-topic-simple-kafka-topic-topic
+  permission: readwrite
+  username: avnadmin

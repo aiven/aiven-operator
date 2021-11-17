@@ -3,8 +3,6 @@
 package v1alpha1
 
 import (
-	"errors"
-
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -44,7 +42,9 @@ func (r *KafkaACL) ValidateCreate() error {
 func (r *KafkaACL) ValidateUpdate(old runtime.Object) error {
 	kafkaacllog.Info("validate update", "name", r.Name)
 
-	return errors.New("cannot update a KafkaACL, it can only be created or deleted")
+	// TODO: validate that the spec does not get updated; this will fail on the aiven api
+
+	return nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type

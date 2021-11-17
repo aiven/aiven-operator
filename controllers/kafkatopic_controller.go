@@ -169,7 +169,7 @@ func (h KafkaTopicHandler) checkPreconditions(avn *aiven.Client, i client.Object
 
 func (h KafkaTopicHandler) getState(avn *aiven.Client, topic *v1alpha1.KafkaTopic) (string, error) {
 	t, err := avn.KafkaTopics.Get(topic.Spec.Project, topic.Spec.ServiceName, topic.Name)
-	if err != nil && !aiven.IsNotFound(err) {
+	if err != nil {
 		if aivenError, ok := err.(aiven.Error); ok {
 			// Getting topic info can sometimes temporarily fail with 501 and 502. Don't
 			// treat that as fatal error but keep on retrying instead.
@@ -177,10 +177,8 @@ func (h KafkaTopicHandler) getState(avn *aiven.Client, topic *v1alpha1.KafkaTopi
 				return "", nil
 			}
 		}
-
 		return "", err
 	}
-
 	return t.State, nil
 }
 

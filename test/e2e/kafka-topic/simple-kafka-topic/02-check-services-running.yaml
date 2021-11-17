@@ -14,3 +14,10 @@ commands:
     do
       sleep 10
     done
+- script: |
+      SERVICE=k8s-test-kafka-topic-simple-kafka-topic-kafka
+      ACLTARGET=k8s-test-kafka-topic-simple-kafka-topic-topic
+      while ! ( avn --auth-token $AIVEN_TOKEN service acl-list $SERVICE --project aiven-ci-kubernetes-operator | grep -q $ACLTARGET );
+      do
+        sleep 10
+      done
