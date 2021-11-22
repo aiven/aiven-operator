@@ -10,7 +10,7 @@ spec:
   connInfoSecretTarget:
     name: os-token
 
-  project: my-project
+  project: aiven-ci-kubernetes-operator
 
   cloudName: google-europe-west1
   plan: startup-4

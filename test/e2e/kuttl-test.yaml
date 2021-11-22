@@ -1,6 +1,6 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestSuite
-timeout: 600
+timeout: 9999
 startKIND: true
 crdDir: config/crd/bases
 testDirs:
@@ -9,6 +9,7 @@ testDirs:
 - test/e2e/kafka-connector
 - test/e2e/service-integration
 - test/e2e/redis
+- test/e2e/opensearch
 commands:
 - script: ENABLE_WEBHOOKS=false ./bin/manager
   background: true

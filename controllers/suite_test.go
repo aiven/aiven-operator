@@ -241,6 +241,17 @@ var _ = BeforeSuite(func() {
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
+	// set-up OpenSearch reconciler
+	err = (&OpenSearchReconciler{
+		Controller{
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("OpenSearch"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("opensearch-reconciler"),
+		},
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
 	// set-up KafkaConnector reconciler
 	Expect((&KafkaConnectorReconciler{
 		Controller{

@@ -290,6 +290,10 @@ type OpenSearchList struct {
 	Items           []OpenSearch `json:"items"`
 }
 
+func (o OpenSearch) AuthSecretRef() AuthSecretReference {
+	return o.Spec.AuthSecretRef
+}
+
 func init() {
 	SchemeBuilder.Register(&OpenSearch{}, &OpenSearchList{})
 }
