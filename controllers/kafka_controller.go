@@ -79,6 +79,7 @@ func (h KafkaHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 			ProjectVPCID: toOptionalStringPointer(kafka.Spec.ProjectVPCID),
 			UserConfig:   UserConfigurationToAPI(kafka.Spec.UserConfig).(map[string]interface{}),
 			Powered:      true,
+			Karapace:     kafka.Spec.Karapace,
 		})
 		if err != nil {
 			return err
