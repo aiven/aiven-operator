@@ -3,7 +3,7 @@ module github.com/aiven/aiven-operator
 go 1.17
 
 require (
-	github.com/aiven/aiven-go-client v1.6.0
+	github.com/aiven/aiven-go-client v1.7.1-0.20211129122741-e4a6194eb33e
 	github.com/go-logr/logr v0.4.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/onsi/ginkgo v1.16.4

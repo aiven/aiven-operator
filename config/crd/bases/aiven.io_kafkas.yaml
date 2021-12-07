@@ -75,6 +75,10 @@ spec:
                 required:
                 - name
                 type: object
+              karapace:
+                description: Switch the service to use Karapace for schema registry
+                  and REST proxy
+                type: boolean
               maintenanceWindowDow:
                 description: Day of week when maintenance operations should be performed.
                   One monday, tuesday, wednesday, etc.

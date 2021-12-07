@@ -57,7 +57,7 @@ func (h ConnectionPoolHandler) createOrUpdate(avn *aiven.Client, i client.Object
 				PoolMode: cp.Spec.PoolMode,
 				PoolName: cp.Name,
 				PoolSize: cp.Spec.PoolSize,
-				Username: cp.Spec.Username,
+				Username: &cp.Spec.Username,
 			})
 		if err != nil && !aiven.IsAlreadyExists(err) {
 			return err
@@ -69,7 +69,7 @@ func (h ConnectionPoolHandler) createOrUpdate(avn *aiven.Client, i client.Object
 				Database: cp.Spec.DatabaseName,
 				PoolMode: cp.Spec.PoolMode,
 				PoolSize: cp.Spec.PoolSize,
-				Username: cp.Spec.Username,
+				Username: &cp.Spec.Username,
 			})
 		if err != nil {
 			return err

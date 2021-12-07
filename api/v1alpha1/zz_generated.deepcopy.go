@@ -1011,6 +1011,11 @@ func (in *KafkaSpec) DeepCopyInto(out *KafkaSpec) {
 	out.ServiceCommonSpec = in.ServiceCommonSpec
 	out.AuthSecretRef = in.AuthSecretRef
 	out.ConnInfoSecretTarget = in.ConnInfoSecretTarget
+	if in.Karapace != nil {
+		in, out := &in.Karapace, &out.Karapace
+		*out = new(bool)
+		**out = **in
+	}
 	in.UserConfig.DeepCopyInto(&out.UserConfig)
 }
 
