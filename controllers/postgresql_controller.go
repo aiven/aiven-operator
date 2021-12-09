@@ -77,6 +77,7 @@ func (h PostgreSQLHandler) createOrUpdate(avn *aiven.Client, i client.Object) er
 			ServiceType:         "pg",
 			UserConfig:          UserConfigurationToAPI(pg.Spec.UserConfig).(map[string]interface{}),
 			ServiceIntegrations: nil,
+			DiskSpaceMB:         v1alpha1.ConvertDiscSpace(pg.Spec.DiskSpace),
 		})
 		if err != nil {
 			return err
@@ -93,6 +94,7 @@ func (h PostgreSQLHandler) createOrUpdate(avn *aiven.Client, i client.Object) er
 			ProjectVPCID: prVPCID,
 			UserConfig:   UserConfigurationToAPI(pg.Spec.UserConfig).(map[string]interface{}),
 			Powered:      true,
+			DiskSpaceMB:  v1alpha1.ConvertDiscSpace(pg.Spec.DiskSpace),
 		})
 		if err != nil {
 			return err

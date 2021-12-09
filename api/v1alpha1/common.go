@@ -1,6 +1,9 @@
 package v1alpha1
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import (
+	"github.com/docker/go-units"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
 
 // AuthSecretReference references a Secret containing an Aiven authentication token
 type AuthSecretReference struct {
@@ -53,4 +56,9 @@ type ServiceCommonSpec struct {
 
 	// Prevent service from being deleted. It is recommended to have this enabled for all services.
 	TerminationProtection bool `json:"terminationProtection,omitempty"`
+}
+
+func ConvertDiscSpace(v string) int {
+	diskSizeMB, _ := units.RAMInBytes(v)
+	return int(diskSizeMB / units.MiB)
 }
