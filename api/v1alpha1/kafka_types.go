@@ -16,12 +16,15 @@ type KafkaSpec struct {
 	// Information regarding secret creation
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
+	// Switch the service to use Karapace for schema registry and REST proxy
+	Karapace *bool `json:"karapace,omitempty"`
+
 	// Kafka specific user configuration options
 	UserConfig KafkaUserConfig `json:"userConfig,omitempty"`
 }
 
 type KafkaUserConfig struct {
-	// +kubebuilder:validation:Enum="1.0";"1.1";"2.0";"2.1";"2.2";"2.3";"2.4";"2.5";"2.6";"2.7";"2.8"
+	// +kubebuilder:validation:Enum="1.0";"1.1";"2.0";"2.1";"2.2";"2.3";"2.4";"2.5";"2.6";"2.7";"2.8";"3.0
 	// Kafka major version
 	KafkaVersion string `json:"kafka_version,omitempty"`
 
