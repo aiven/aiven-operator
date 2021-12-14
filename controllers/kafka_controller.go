@@ -63,6 +63,7 @@ func (h KafkaHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 			ServiceType:         "kafka",
 			UserConfig:          UserConfigurationToAPI(kafka.Spec.UserConfig).(map[string]interface{}),
 			ServiceIntegrations: nil,
+			DiskSpaceMB:         v1alpha1.ConvertDiscSpace(kafka.Spec.DiskSpace),
 		})
 		if err != nil && !aiven.IsAlreadyExists(err) {
 			return err
@@ -78,6 +79,7 @@ func (h KafkaHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 			Plan:         kafka.Spec.Plan,
 			ProjectVPCID: toOptionalStringPointer(kafka.Spec.ProjectVPCID),
 			UserConfig:   UserConfigurationToAPI(kafka.Spec.UserConfig).(map[string]interface{}),
+			DiskSpaceMB:  v1alpha1.ConvertDiscSpace(kafka.Spec.DiskSpace),
 			Powered:      true,
 			Karapace:     kafka.Spec.Karapace,
 		})

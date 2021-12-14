@@ -62,6 +62,11 @@ spec:
                 required:
                 - name
                 type: object
+              disk_space:
+                description: The disk space of the service, possible values depend
+                  on the service type, the cloud provider and the project. Reducing
+                  will result in the service re-balancing.
+                type: string
               maintenanceWindowDow:
                 description: Day of week when maintenance operations should be performed.
                   One monday, tuesday, wednesday, etc.

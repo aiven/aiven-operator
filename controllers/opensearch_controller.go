@@ -52,6 +52,7 @@ func (h OpenSearchHandler) createOrUpdate(avn *aiven.Client, i client.Object) er
 			ServiceType:         "opensearch",
 			UserConfig:          UserConfigurationToAPI(os.Spec.UserConfig).(map[string]interface{}),
 			ServiceIntegrations: nil,
+			DiskSpaceMB:         v1alpha1.ConvertDiscSpace(os.Spec.DiskSpace),
 		})
 		if err != nil {
 			return err
@@ -68,6 +69,7 @@ func (h OpenSearchHandler) createOrUpdate(avn *aiven.Client, i client.Object) er
 			ProjectVPCID: prVPCID,
 			UserConfig:   UserConfigurationToAPI(os.Spec.UserConfig).(map[string]interface{}),
 			Powered:      true,
+			DiskSpaceMB:  v1alpha1.ConvertDiscSpace(os.Spec.DiskSpace),
 		})
 		if err != nil {
 			return err

@@ -103,13 +103,13 @@ func pgSpec(serviceName, namespace string) *v1alpha1.PostgreSQL {
 			Namespace: namespace,
 		},
 		Spec: v1alpha1.PostgreSQLSpec{
+			DiskSpace: "100Gib",
 			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
 				Project:   os.Getenv("AIVEN_PROJECT_NAME"),
 				Plan:      "business-4",
 				CloudName: "google-europe-west1",
 			},
 			UserConfig: v1alpha1.PostgreSQLUserconfig{
-				PgVersion: "12",
 				PublicAccess: v1alpha1.PublicAccessUserConfig{
 					Pg:         boolPointer(true),
 					Prometheus: boolPointer(true),

@@ -103,6 +103,7 @@ func kafkaSpec(serviceName, namespace string) *v1alpha1.Kafka {
 			Namespace: namespace,
 		},
 		Spec: v1alpha1.KafkaSpec{
+			DiskSpace: "600Gib",
 			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
 				Project:   os.Getenv("AIVEN_PROJECT_NAME"),
 				Plan:      "business-4",
@@ -112,7 +113,6 @@ func kafkaSpec(serviceName, namespace string) *v1alpha1.Kafka {
 				KafkaRest:      boolPointer(true),
 				KafkaConnect:   boolPointer(true),
 				SchemaRegistry: boolPointer(true),
-				KafkaVersion:   "2.8",
 				Kafka: v1alpha1.KafkaSubKafkaUserConfig{
 					GroupMaxSessionTimeoutMs: int64Pointer(70000),
 					LogRetentionBytes:        int64Pointer(1000000000),

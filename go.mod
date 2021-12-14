@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/aiven/aiven-go-client v1.7.1-0.20211129122741-e4a6194eb33e
+	github.com/docker/go-units v0.4.0
 	github.com/go-logr/logr v0.4.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/onsi/ginkgo v1.16.4
@@ -47,7 +48,6 @@ require (
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.19.0 // indirect
-	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 // indirect
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
 	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914 // indirect
 	golang.org/x/sys v0.0.0-20210817190340-bfb29a6856f2 // indirect

@@ -10,6 +10,9 @@ import (
 type RedisSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
+	// The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.
+	DiskSpace string `json:"disk_space,omitempty"`
+
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
 

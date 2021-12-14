@@ -100,6 +100,7 @@ func osSpec(serviceName, namespace string) *v1alpha1.OpenSearch {
 			Namespace: namespace,
 		},
 		Spec: v1alpha1.OpenSearchSpec{
+			DiskSpace: "240Gib",
 			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
 				Project:   os.Getenv("AIVEN_PROJECT_NAME"),
 				Plan:      "business-4",

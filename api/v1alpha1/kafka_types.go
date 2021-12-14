@@ -10,6 +10,10 @@ import (
 type KafkaSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
+	// +kubebuilder:validation:Format="^[1-9][0-9]*(GiB|G)*"
+	// The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.
+	DiskSpace string `json:"disk_space,omitempty"`
+
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
 
@@ -24,7 +28,7 @@ type KafkaSpec struct {
 }
 
 type KafkaUserConfig struct {
-	// +kubebuilder:validation:Enum="1.0";"1.1";"2.0";"2.1";"2.2";"2.3";"2.4";"2.5";"2.6";"2.7";"2.8";"3.0
+	// +kubebuilder:validation:Enum="1.0";"1.1";"2.0";"2.1";"2.2";"2.3";"2.4";"2.5";"2.6";"2.7";"2.8";"3.0"
 	// Kafka major version
 	KafkaVersion string `json:"kafka_version,omitempty"`
 
