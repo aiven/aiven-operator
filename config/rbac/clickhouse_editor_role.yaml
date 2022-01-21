@@ -1,0 +1,24 @@
+# permissions for end users to edit clickhouses.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: clickhouse-editor-role
+rules:
+- apiGroups:
+  - aiven.io
+  resources:
+  - clickhouses
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - clickhouses/status
+  verbs:
+  - get

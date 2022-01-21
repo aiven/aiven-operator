@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Aiven, Helsinki, Finland. https://aiven.io/
+// Copyright (c) 2022 Aiven, Helsinki, Finland. https://aiven.io/
 
 package controllers
 
@@ -259,6 +259,16 @@ var _ = BeforeSuite(func() {
 			Log:      ctrl.Log.WithName("controllers").WithName("KafkaConnector"),
 			Scheme:   k8sManager.GetScheme(),
 			Recorder: k8sManager.GetEventRecorderFor("kafka-connector-reconciler"),
+		},
+	}).SetupWithManager(k8sManager)).To(Succeed())
+
+	// set-up Clickhouse reconciler
+	Expect((&ClickhouseReconciler{
+		Controller{
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Clickhouse"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("clickhouse-reconciler"),
 		},
 	}).SetupWithManager(k8sManager)).To(Succeed())
 

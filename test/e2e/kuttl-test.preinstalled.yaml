@@ -7,4 +7,5 @@ testDirs:
 - test/e2e/kafka-connector
 - test/e2e/service-integration
 - test/e2e/redis
+- test/e2e/clickhouse
 blockOnNamespaceDelete: true

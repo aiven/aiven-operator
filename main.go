@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Aiven, Helsinki, Finland. https://aiven.io/
+// Copyright (c) 2022 Aiven, Helsinki, Finland. https://aiven.io/
 
 package main
 
@@ -14,6 +14,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
+	aiveniov1alpha1 "github.com/aiven/aiven-operator/api/v1alpha1"
 	"github.com/aiven/aiven-operator/controllers"
 	// +kubebuilder:scaffold:imports
 )
@@ -29,6 +30,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 	utilruntime.Must(v1alpha1.AddToScheme(scheme))
+	utilruntime.Must(aiveniov1alpha1.AddToScheme(scheme))
 	// +kubebuilder:scaffold:scheme
 }
 
@@ -240,6 +242,18 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err = (&controllers.ClickhouseReconciler{
+		Controller: controllers.Controller{
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Clickhouse"),
+			Scheme:   mgr.GetScheme(),
+			Recorder: mgr.GetEventRecorderFor("clickhouse-reconciler"),
+		},
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Clickhouse")
+		os.Exit(1)
+	}
+
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
 		if err = (&v1alpha1.Project{}).SetupWebhookWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create webhook", "webhook", "Project")
@@ -311,6 +325,11 @@ func main() {
 
 		if err = (&v1alpha1.OpenSearch{}).SetupWebhookWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create webhook", "webhook", "OpenSearch")
+			os.Exit(1)
+		}
+
+		if err = (&aiveniov1alpha1.Clickhouse{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Clickhouse")
 			os.Exit(1)
 		}
 	}
