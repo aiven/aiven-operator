@@ -28,6 +28,26 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
+  - clickhouses
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - clickhouses/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
   - connectionpools
   verbs:
   - create

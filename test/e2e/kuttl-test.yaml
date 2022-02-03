@@ -10,8 +10,9 @@ testDirs:
 - test/e2e/service-integration
 - test/e2e/redis
 - test/e2e/opensearch
+- test/e2e/clickhouse
 commands:
 - script: ENABLE_WEBHOOKS=false ./bin/manager
-  background: true
+  background: false
   skipLogOutput: true
 blockOnNamespaceDelete: true

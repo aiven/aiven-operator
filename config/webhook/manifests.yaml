@@ -12,6 +12,26 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
+      path: /mutate-aiven-io-v1alpha1-clickhouse
+  failurePolicy: Fail
+  name: mclickhouse.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - clickhouses
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
       path: /mutate-aiven-io-v1alpha1-connectionpool
   failurePolicy: Fail
   name: mconnectionpool.kb.io
@@ -314,6 +334,27 @@ metadata:
   creationTimestamp: null
   name: validating-webhook-configuration
 webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-aiven-io-v1alpha1-clickhouse
+  failurePolicy: Fail
+  name: vclickhouse.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - clickhouses
+  sideEffects: None
 - admissionReviewVersions:
   - v1
   clientConfig:

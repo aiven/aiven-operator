@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Aiven, Helsinki, Finland. https://aiven.io/
+// Copyright (c) 2022 Aiven, Helsinki, Finland. https://aiven.io/
 
 package v1alpha1
 

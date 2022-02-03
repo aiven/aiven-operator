@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Aiven, Helsinki, Finland. https://aiven.io/
+// Copyright (c) 2022 Aiven, Helsinki, Finland. https://aiven.io/
 
 package v1alpha1
 
@@ -19,8 +19,6 @@ func (r *OpenSearch) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		For(r).
 		Complete()
 }
-
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 
 //+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-opensearch,mutating=true,failurePolicy=fail,groups=aiven.io,resources=opensearches,verbs=create;update,versions=v1alpha1,name=mopensearch.kb.io,sideEffects=none,admissionReviewVersions=v1
 
