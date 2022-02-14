@@ -48,6 +48,26 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
+  - clickhouseusers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - clickhouseusers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
   - connectionpools
   verbs:
   - create

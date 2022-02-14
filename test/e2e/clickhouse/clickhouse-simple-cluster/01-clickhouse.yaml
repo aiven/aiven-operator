@@ -13,7 +13,7 @@ spec:
   project: dev-sandbox
 
   cloudName: google-europe-west1
-  plan: business-8
+  plan: business-beta-8
 
   maintenanceWindowDow: friday
   maintenanceWindowTime: 23:00:00

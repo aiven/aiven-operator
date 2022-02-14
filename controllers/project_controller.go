@@ -116,7 +116,7 @@ func (h ProjectHandler) createOrUpdate(avn *aiven.Client, i client.Object) error
 			CardID:           cardID,
 			Cloud:            toOptionalStringPointer(project.Spec.Cloud),
 			CountryCode:      toOptionalStringPointer(project.Spec.CountryCode),
-			AccountId:        toOptionalStringPointer(project.Spec.AccountID),
+			AccountId:        project.Spec.AccountID,
 			TechnicalEmails:  technicalEmails,
 			BillingCurrency:  project.Spec.BillingCurrency,
 		})
