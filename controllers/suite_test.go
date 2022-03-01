@@ -28,6 +28,7 @@ import (
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 
+	aiveniov1alpha1 "github.com/aiven/aiven-operator/api/v1alpha1"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	// +kubebuilder:scaffold:imports
@@ -74,6 +75,9 @@ var _ = BeforeSuite(func() {
 	Expect(cfg).ToNot(BeNil())
 
 	err = v1alpha1.AddToScheme(scheme.Scheme)
+	Expect(err).NotTo(HaveOccurred())
+
+	err = aiveniov1alpha1.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	// +kubebuilder:scaffold:scheme
@@ -269,6 +273,16 @@ var _ = BeforeSuite(func() {
 			Log:      ctrl.Log.WithName("controllers").WithName("Clickhouse"),
 			Scheme:   k8sManager.GetScheme(),
 			Recorder: k8sManager.GetEventRecorderFor("clickhouse-reconciler"),
+		},
+	}).SetupWithManager(k8sManager)).To(Succeed())
+
+	// set-up ClickhouseUser reconciler
+	Expect((&ClickhouseUserReconciler{
+		Controller{
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("ClickhouseUser"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("clickhouseuser-reconciler"),
 		},
 	}).SetupWithManager(k8sManager)).To(Succeed())
 

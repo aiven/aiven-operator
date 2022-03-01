@@ -3,4 +3,5 @@ resources:
 - aiven.io_v1alpha1_redis.yaml
 - aiven.io_v1alpha1_opensearch.yaml
 - aiven.io_v1alpha1_clickhouse.yaml
+- aiven.io_v1alpha1_clickhouseuser.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

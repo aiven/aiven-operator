@@ -1,0 +1,14 @@
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseUser
+metadata:
+  name: ch-user-sample
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: ch-user-token
+
+  project: my-project
+  serviceName: ch-sample
