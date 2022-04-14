@@ -18,7 +18,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = FDescribe("PostgreSQL Controller", func() {
+var _ = Describe("PostgreSQL Controller", func() {
 	// Define utility constants for object names and testing timeouts/durations and intervals.
 	const (
 		namespace = "default"
