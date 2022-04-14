@@ -71,6 +71,7 @@ var _ = Describe("PostgreSQL Controller", func() {
 			pgLookupKey := types.NamespacedName{Name: serviceName, Namespace: namespace}
 
 			Expect(k8sClient.Get(ctx, pgLookupKey, createdPostgreSQL)).Should(Succeed())
+
 			By("by checking that after creation of a PostreSQL service secret is created")
 			createdSecret := &corev1.Secret{}
 			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: serviceName, Namespace: namespace}, createdSecret)).Should(Succeed())
@@ -82,6 +83,7 @@ var _ = Describe("PostgreSQL Controller", func() {
 			Expect(createdSecret.Data["PGPASSWORD"]).NotTo(BeEmpty())
 			Expect(createdSecret.Data["PGSSLMODE"]).NotTo(BeEmpty())
 			Expect(createdSecret.Data["DATABASE_URI"]).NotTo(BeEmpty())
+
 			Expect(createdPostgreSQL.Status.State).Should(Equal("RUNNING"))
 		})
 	})
