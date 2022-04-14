@@ -109,7 +109,7 @@ test-acc: test-check-project-env test-check-token-env $(GINKGO) $(ENVTEST_TOOLS)
 	KUBEBUILDER_CONTROLPLANE_STOP_TIMEOUT=120s \
 	KUBEBUILDER_ATTACH_CONTROL_PLANE_OUTPUT=true \
 	KUBEBUILDER_ASSETS=$(abspath $(ENVTEST_TOOLS_DIR)) \
-	$(GINKGO) \
+	$(GINKGO) focus \
 		--nodes=4 \
 		--race \
 		--randomizeAllSpecs \

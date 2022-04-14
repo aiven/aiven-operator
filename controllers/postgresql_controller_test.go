@@ -4,6 +4,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"time"
 
@@ -18,7 +19,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("PostgreSQL Controller", func() {
+var _ = FDescribe("PostgreSQL Controller", func() {
 	// Define utility constants for object names and testing timeouts/durations and intervals.
 	const (
 		namespace = "default"
@@ -71,11 +72,14 @@ var _ = Describe("PostgreSQL Controller", func() {
 			pgLookupKey := types.NamespacedName{Name: serviceName, Namespace: namespace}
 
 			Expect(k8sClient.Get(ctx, pgLookupKey, createdPostgreSQL)).Should(Succeed())
-
+			//pgSpec := k8sClient.Get(ctx, pgLookupKey, createdPostgreSQL)
 			By("by checking that after creation of a PostreSQL service secret is created")
 			createdSecret := &corev1.Secret{}
 			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: serviceName, Namespace: namespace}, createdSecret)).Should(Succeed())
 
+			fmt.Println("fnord")
+			fmt.Printf("%#v", createdPostgreSQL)
+			fmt.Printf("%#v", createdSecret)
 			Expect(createdSecret.Data["PGHOST"]).NotTo(BeEmpty())
 			Expect(createdSecret.Data["PGPORT"]).NotTo(BeEmpty())
 			Expect(createdSecret.Data["PGDATABASE"]).NotTo(BeEmpty())
@@ -83,7 +87,7 @@ var _ = Describe("PostgreSQL Controller", func() {
 			Expect(createdSecret.Data["PGPASSWORD"]).NotTo(BeEmpty())
 			Expect(createdSecret.Data["PGSSLMODE"]).NotTo(BeEmpty())
 			Expect(createdSecret.Data["DATABASE_URI"]).NotTo(BeEmpty())
-
+			Expect(createdPostgreSQL.Spec.TerminationProtection).Should(Equal(true))
 			Expect(createdPostgreSQL.Status.State).Should(Equal("RUNNING"))
 		})
 	})
@@ -107,9 +111,10 @@ func pgSpec(serviceName, namespace string) *v1alpha1.PostgreSQL {
 		Spec: v1alpha1.PostgreSQLSpec{
 			DiskSpace: "100Gib",
 			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
-				Project:   os.Getenv("AIVEN_PROJECT_NAME"),
-				Plan:      "business-4",
-				CloudName: "google-europe-west1",
+				Project:               os.Getenv("AIVEN_PROJECT_NAME"),
+				Plan:                  "business-4",
+				CloudName:             "google-europe-west1",
+				TerminationProtection: true,
 			},
 			UserConfig: v1alpha1.PostgreSQLUserconfig{
 				PublicAccess: v1alpha1.PublicAccessUserConfig{
