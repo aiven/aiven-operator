@@ -59,10 +59,8 @@ spec:
                 description: Authentication reference to Aiven token in a secret
                 properties:
                   key:
-                    minLength: 1
                     type: string
                   name:
-                    minLength: 1
                     type: string
                 required:
                 - key
@@ -89,7 +87,6 @@ spec:
                   }}` is provided when interpreting the keys
                 type: object
             required:
-            - authSecretRef
             - connectorClass
             - project
             - serviceName

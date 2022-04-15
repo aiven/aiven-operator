@@ -44,10 +44,8 @@ spec:
                 description: Authentication reference to Aiven token in a secret
                 properties:
                   key:
-                    minLength: 1
                     type: string
                   name:
-                    minLength: 1
                     type: string
                 required:
                 - key
@@ -119,8 +117,6 @@ spec:
                   type: string
                 maxItems: 10
                 type: array
-            required:
-            - authSecretRef
             type: object
           status:
             description: ProjectStatus defines the observed state of Project

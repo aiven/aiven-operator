@@ -11,7 +11,7 @@ type ClickhouseSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
+	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
 
 	// Information regarding secret creation
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`

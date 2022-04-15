@@ -31,7 +31,7 @@ type DatabaseSpec struct {
 	TerminationProtection bool `json:"terminationProtection,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
+	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // DatabaseStatus defines the observed state of Database

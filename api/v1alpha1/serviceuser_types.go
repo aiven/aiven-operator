@@ -25,7 +25,7 @@ type ServiceUserSpec struct {
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
+	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // ServiceUserStatus defines the observed state of ServiceUser

@@ -38,7 +38,7 @@ type KafkaTopicSpec struct {
 	TerminationProtection bool `json:"termination_protection,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
+	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 type KafkaTopicTag struct {

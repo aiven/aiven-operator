@@ -38,7 +38,7 @@ type ConnectionPoolSpec struct {
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
+	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // ConnectionPoolStatus defines the observed state of ConnectionPool

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"io/ioutil"
+	"os"
 
 	"github.com/go-logr/logr"
 	"github.com/hashicorp/go-multierror"
@@ -97,11 +99,29 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 	instanceLogger.Info("setting up aiven client with instance secret")
 
 	clientAuthSecret := &corev1.Secret{}
-	if err := c.Get(ctx, types.NamespacedName{Name: o.AuthSecretRef().Name, Namespace: req.Namespace}, clientAuthSecret); err != nil {
-		c.Recorder.Eventf(o, corev1.EventTypeWarning, eventUnableToGetAuthSecret, err.Error())
-		return ctrl.Result{}, fmt.Errorf("cannot get secret %q: %w", o.AuthSecretRef().Name, err)
+	if (v1alpha1.AuthSecretReference{} != o.AuthSecretRef()) {
+		if err := c.Get(ctx, types.NamespacedName{Name: o.AuthSecretRef().Name, Namespace: req.Namespace}, clientAuthSecret); err != nil {
+			c.Recorder.Eventf(o, corev1.EventTypeWarning, eventUnableToGetAuthSecret, err.Error())
+			return ctrl.Result{}, fmt.Errorf("cannot get secret %q: %w", o.AuthSecretRef().Name, err)
+		}
+		instanceLogger.V(1).Info("Using CR Secret", "Secret Name", o.AuthSecretRef().Name)
+	} else {
+		namespace, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("error reading namespace file: %w", err)
+		}
+		operatorSecret := os.Getenv("TOKEN_SECRET")
+		if len(operatorSecret) == 0 {
+			return ctrl.Result{}, fmt.Errorf("no aiven token secret set in CR or operator")
+		}
+		if err := c.Get(ctx, types.NamespacedName{Name: operatorSecret, Namespace: string(namespace)}, clientAuthSecret); err != nil {
+			c.Recorder.Eventf(o, corev1.EventTypeWarning, eventUnableToGetAuthSecret, err.Error())
+			return ctrl.Result{}, fmt.Errorf("cannot get secret %q: %w", operatorSecret, err)
+		}
+		instanceLogger.V(1).Info("Using Operator Level Secret", "Secret Name", operatorSecret)
 	}
-	avn, err := aiven.NewTokenClient(string(clientAuthSecret.Data[o.AuthSecretRef().Key]), "k8s-operator/")
+
+	avn, err := aiven.NewTokenClient(string(clientAuthSecret.Data["token"]), "k8s-operator/")
 	if err != nil {
 		c.Recorder.Event(o, corev1.EventTypeWarning, eventUnableToCreateClient, err.Error())
 		return ctrl.Result{}, fmt.Errorf("cannot initialize aiven client: %w", err)

@@ -50,10 +50,8 @@ spec:
                 description: Authentication reference to Aiven token in a secret
                 properties:
                   key:
-                    minLength: 1
                     type: string
                   name:
-                    minLength: 1
                     type: string
                 required:
                 - key
@@ -84,7 +82,6 @@ spec:
                 maxLength: 63
                 type: string
             required:
-            - authSecretRef
             - project
             - serviceName
             type: object

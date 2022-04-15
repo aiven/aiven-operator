@@ -22,7 +22,7 @@ type ProjectVPCSpec struct {
 	NetworkCidr string `json:"networkCidr"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
+	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // ProjectVPCStatus defines the observed state of ProjectVPC

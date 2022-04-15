@@ -7,9 +7,7 @@ import (
 
 // AuthSecretReference references a Secret containing an Aiven authentication token
 type AuthSecretReference struct {
-	// +kubebuilder:validation:MinLength=1
 	Name string `json:"name"`
-	// +kubebuilder:validation:MinLength=1
 	Key string `json:"key"`
 }
 

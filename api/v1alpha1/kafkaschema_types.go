@@ -29,7 +29,7 @@ type KafkaSchemaSpec struct {
 	CompatibilityLevel string `json:"compatibilityLevel,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
+	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // KafkaSchemaStatus defines the observed state of KafkaSchema
