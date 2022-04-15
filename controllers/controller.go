@@ -3,10 +3,10 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"reflect"
-	"strings"
 	"io/ioutil"
 	"os"
+	"reflect"
+	"strings"
 
 	"github.com/go-logr/logr"
 	"github.com/hashicorp/go-multierror"
