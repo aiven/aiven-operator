@@ -213,7 +213,6 @@ type OpenSearchPrivatelinkAccess struct {
 }
 
 type OpenSearchUserConfig struct {
-	// +kubebuilder:validation:Enum=1
 	// OpenSearch major version
 	OpensearchVersion string `json:"opensearch_version,omitempty"`
 
