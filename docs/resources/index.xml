@@ -66,7 +66,7 @@ complete the VPC peering on your cloud of choice.&lt;/p></description></item><it
 &lt;p>Aiven for Apache Kafka is an excellent option if you need to run Apache Kafka at scale. With Aiven Kubernetes Operator
 you can get up and running with a suitably sized Apache Kafka service in a few minutes.&lt;/p>
 &lt;blockquote>
-&lt;p>Before going through this guide, make sure you have a &lt;a href="../installation/prerequisites/">Kubernetes cluster&lt;/a> with the &lt;a href="../installation/">operator installed&lt;/a> and a &lt;a href="../authentication/">Kubernetes Secret with an Aiven authentication token&lt;/a>.&lt;/p>
+&lt;p>Before going through this guide, make sure you have a &lt;a href="../../installation/prerequisites/">Kubernetes cluster&lt;/a> with the &lt;a href="../../installation/">operator installed&lt;/a> and a &lt;a href="../../authentication/">Kubernetes Secret with an Aiven authentication token&lt;/a>.&lt;/p>
 &lt;/blockquote>
 &lt;h2 id="creating-a-kafka-instance">Creating a &lt;code>Kafka&lt;/code> instance&lt;/h2>
 &lt;ol>

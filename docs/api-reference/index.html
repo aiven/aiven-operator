@@ -131,6 +131,12 @@
 <li><a href=#aiveniov1alpha1>aiven.io/v1alpha1</a>
 <ul>
 <li><a href=#authsecretreference>AuthSecretReference</a></li>
+<li><a href=#clickhouse>Clickhouse</a></li>
+<li><a href=#clickhousespec>ClickhouseSpec</a></li>
+<li><a href=#clickhouseuser>ClickhouseUser</a></li>
+<li><a href=#clickhouseuserconfig>ClickhouseUserConfig</a></li>
+<li><a href=#clickhouseuserspec>ClickhouseUserSpec</a></li>
+<li><a href=#clickhouseuserstatus>ClickhouseUserStatus</a></li>
 <li><a href=#conninfosecrettarget>ConnInfoSecretTarget</a></li>
 <li><a href=#connectionpool>ConnectionPool</a></li>
 <li><a href=#connectionpoolspec>ConnectionPoolSpec</a></li>
@@ -170,6 +176,16 @@
 <li><a href=#kafkatopictag>KafkaTopicTag</a></li>
 <li><a href=#kafkauserconfig>KafkaUserConfig</a></li>
 <li><a href=#migrationuserconfig>MigrationUserConfig</a></li>
+<li><a href=#opensearch>OpenSearch</a></li>
+<li><a href=#opensearchindexpatterns>OpenSearchIndexPatterns</a></li>
+<li><a href=#opensearchindextemplate>OpenSearchIndexTemplate</a></li>
+<li><a href=#opensearchprivateaccess>OpenSearchPrivateAccess</a></li>
+<li><a href=#opensearchprivatelinkaccess>OpenSearchPrivatelinkAccess</a></li>
+<li><a href=#opensearchpublicaccess>OpenSearchPublicAccess</a></li>
+<li><a href=#opensearchspec>OpenSearchSpec</a></li>
+<li><a href=#opensearchuserconfig>OpenSearchUserConfig</a></li>
+<li><a href=#opensearchuserconfigopensearch>OpenSearchUserConfigOpenSearch</a></li>
+<li><a href=#opensearchdashboards>OpensearchDashboards</a></li>
 <li><a href=#pglookoutuserconfig>PgLookoutUserConfig</a></li>
 <li><a href=#pgbounceruserconfig>PgbouncerUserConfig</a></li>
 <li><a href=#postgresql>PostgreSQL</a></li>
@@ -234,6 +250,157 @@
 <tr>
 <td><code>key</code> <br>string</td>
 <td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id=clickhouse>Clickhouse</h3>
+<p>Clickhouse is the Schema for the clickhouses API </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href=https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta>Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href=#clickhousespec>ClickhouseSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href=#servicestatus>ServiceStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id=clickhousespec>ClickhouseSpec</h3>
+<p>ClickhouseSpec defines the desired state of Clickhouse </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ServiceCommonSpec</code> <br><a href=#servicecommonspec>ServiceCommonSpec</a></td>
+<td>(Members of <code>ServiceCommonSpec</code>are embedded into this type.)</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href=#authsecretreference>AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+<tr>
+<td><code>connInfoSecretTarget</code> <br><a href=#conninfosecrettarget>ConnInfoSecretTarget</a></td>
+<td>Information regarding secret creation</td>
+</tr>
+<tr>
+<td><code>userConfig</code> <br><a href=#clickhouseuserconfig>ClickhouseUserConfig</a></td>
+<td>OpenSearch specific user configuration options</td>
+</tr>
+</tbody>
+</table>
+<h3 id=clickhouseuser>ClickhouseUser</h3>
+<p>ClickhouseUser is the Schema for the clickhouseusers API </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href=https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta>Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href=#clickhouseuserspec>ClickhouseUserSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href=#clickhouseuserstatus>ClickhouseUserStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id=clickhouseuserconfig>ClickhouseUserConfig</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ip_filter</code> <br>[]string</td>
+<td>Glob pattern and number of indexes matching that pattern to be kept Allows you to create glob style patterns and set a max number of indexes matching this pattern you want to keep. Creating indexes exceeding this value will cause the oldest one to get deleted. You could for example create a pattern looking like 'logs.?' and then create index logs.1, logs.2 etc, it will delete logs.1 once you create logs.6. Do note 'logs.?' does not apply to logs.10. Note: Setting max_index_count to 0 will do nothing and the pattern gets ignored.IP filter Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'</td>
+</tr>
+<tr>
+<td><code>project_to_fork_from</code> <br>string</td>
+<td>Name of another project to fork a service from. This has effect only when a new service is being created.</td>
+</tr>
+<tr>
+<td><code>service_to_fork_from</code> <br>string</td>
+<td>Name of another service to fork from. This has effect only when a new service is being created.</td>
+</tr>
+</tbody>
+</table>
+<h3 id=clickhouseuserspec>ClickhouseUserSpec</h3>
+<p>ClickhouseUserSpec defines the desired state of ClickhouseUser </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>project</code> <br>string</td>
+<td>Project to link the user to</td>
+</tr>
+<tr>
+<td><code>serviceName</code> <br>string</td>
+<td>Service to link the user to</td>
+</tr>
+<tr>
+<td><code>authentication</code> <br>string</td>
+<td>Authentication details</td>
+</tr>
+<tr>
+<td><code>connInfoSecretTarget</code> <br><a href=#conninfosecrettarget>ConnInfoSecretTarget</a></td>
+<td>Information regarding secret creation</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href=#authsecretreference>AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+</tbody>
+</table>
+<h3 id=clickhouseuserstatus>ClickhouseUserStatus</h3>
+<p>ClickhouseUserStatus defines the observed state of ClickhouseUser </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>uuid</code> <br>string</td>
+<td>Clickhouse user UUID</td>
+</tr>
+<tr>
+<td><code>conditions</code> <br><a href=https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#condition-v1-meta>[]Kubernetes meta/v1.Condition</a></td>
+<td>Conditions represent the latest available observations of an ClickhouseUser state</td>
 </tr>
 </tbody>
 </table>
@@ -1099,12 +1266,20 @@
 <td>(Members of <code>ServiceCommonSpec</code>are embedded into this type.)</td>
 </tr>
 <tr>
+<td><code>disk_space</code> <br>string</td>
+<td>The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</td>
+</tr>
+<tr>
 <td><code>authSecretRef</code> <br><a href=#authsecretreference>AuthSecretReference</a></td>
 <td>Authentication reference to Aiven token in a secret</td>
 </tr>
 <tr>
 <td><code>connInfoSecretTarget</code> <br><a href=#conninfosecrettarget>ConnInfoSecretTarget</a></td>
 <td>Information regarding secret creation</td>
+</tr>
+<tr>
+<td><code>karapace</code> <br>bool</td>
+<td>Switch the service to use Karapace for schema registry and REST proxy</td>
 </tr>
 <tr>
 <td><code>userConfig</code> <br><a href=#kafkauserconfig>KafkaUserConfig</a></td>
@@ -1567,6 +1742,378 @@
 </tr>
 </tbody>
 </table>
+<h3 id=opensearch>OpenSearch</h3>
+<p>OpenSearch is the Schema for the opensearches API </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href=https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta>Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href=#opensearchspec>OpenSearchSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href=#servicestatus>ServiceStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id=opensearchindexpatterns>OpenSearchIndexPatterns</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>max_index_count</code> <br>int64</td>
+<td>Maximum number of indexes to keep</td>
+</tr>
+<tr>
+<td><code>pattern</code> <br>string</td>
+<td>Must consist of alpha-numeric characters, dashes, underscores, dots and glob characters (* and ?)</td>
+</tr>
+</tbody>
+</table>
+<h3 id=opensearchindextemplate>OpenSearchIndexTemplate</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>number_of_replicas</code> <br>int64</td>
+<td>index.number_of_replicas The number of replicas each primary shard has.</td>
+</tr>
+<tr>
+<td><code>number_of_shards</code> <br>int64</td>
+<td>index.number_of_shards The number of primary shards that an index should have.</td>
+</tr>
+<tr>
+<td><code>mapping_nested_objects_limit</code> <br>int64</td>
+<td>index.mapping.nested_objects.limit The maximum number of nested JSON objects that a single document can contain across all nested types. This limit helps to prevent out of memory errors when a document contains too many nested objects. Default is 10000.</td>
+</tr>
+</tbody>
+</table>
+<h3 id=opensearchprivateaccess>OpenSearchPrivateAccess</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>opensearch</code> <br>bool</td>
+<td>Allow clients to connect to opensearch with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations</td>
+</tr>
+<tr>
+<td><code>opensearch_dashboards</code> <br>bool</td>
+<td>Allow clients to connect to opensearch_dashboards with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations</td>
+</tr>
+<tr>
+<td><code>prometheus</code> <br>bool</td>
+<td>Allow clients to connect to prometheus with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations</td>
+</tr>
+</tbody>
+</table>
+<h3 id=opensearchprivatelinkaccess>OpenSearchPrivatelinkAccess</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>opensearch</code> <br>bool</td>
+<td>Enable opensearch</td>
+</tr>
+<tr>
+<td><code>opensearch_dashboards</code> <br>bool</td>
+<td>Enable opensearch_dashboards</td>
+</tr>
+</tbody>
+</table>
+<h3 id=opensearchpublicaccess>OpenSearchPublicAccess</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>opensearch_dashboards</code> <br>bool</td>
+<td>Allow clients to connect to opensearch_dashboards from the public internet for service nodes that are in a project VPC or another type of private network</td>
+</tr>
+<tr>
+<td><code>prometheus</code> <br>bool</td>
+<td>Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network</td>
+</tr>
+<tr>
+<td><code>opensearch</code> <br>bool</td>
+<td>Allow clients to connect to opensearch from the public internet for service nodes that are in a project VPC or another type of private network</td>
+</tr>
+</tbody>
+</table>
+<h3 id=opensearchspec>OpenSearchSpec</h3>
+<p>OpenSearchSpec defines the desired state of OpenSearch </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ServiceCommonSpec</code> <br><a href=#servicecommonspec>ServiceCommonSpec</a></td>
+<td>(Members of <code>ServiceCommonSpec</code>are embedded into this type.)</td>
+</tr>
+<tr>
+<td><code>disk_space</code> <br>string</td>
+<td>The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href=#authsecretreference>AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+<tr>
+<td><code>connInfoSecretTarget</code> <br><a href=#conninfosecrettarget>ConnInfoSecretTarget</a></td>
+<td>Information regarding secret creation</td>
+</tr>
+<tr>
+<td><code>userConfig</code> <br><a href=#opensearchuserconfig>OpenSearchUserConfig</a></td>
+<td>OpenSearch specific user configuration options</td>
+</tr>
+</tbody>
+</table>
+<h3 id=opensearchuserconfig>OpenSearchUserConfig</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>opensearch_version</code> <br>string</td>
+<td>OpenSearch major version</td>
+</tr>
+<tr>
+<td><code>opensearch_dashboards</code> <br><a href=#opensearchdashboards>OpensearchDashboards</a></td>
+<td>OpenSearch Dashboards settings</td>
+</tr>
+<tr>
+<td><code>recovery_basebackup_name</code> <br>string</td>
+<td>Name of the basebackup to restore in forked service</td>
+</tr>
+<tr>
+<td><code>privatelink_access</code> <br><a href=#opensearchprivatelinkaccess>OpenSearchPrivatelinkAccess</a></td>
+<td>Allow access to selected service components through Privatelink</td>
+</tr>
+<tr>
+<td><code>static_ips</code> <br>bool</td>
+<td>Static IP addresses Use static public IP addresses</td>
+</tr>
+<tr>
+<td><code>public_access</code> <br><a href=#opensearchpublicaccess>OpenSearchPublicAccess</a></td>
+<td>Allow access to selected service ports from the public Internet</td>
+</tr>
+<tr>
+<td><code>custom_domain</code> <br>string</td>
+<td>Custom domain Serve the web frontend using a custom CNAME pointing to the Aiven DNS name</td>
+</tr>
+<tr>
+<td><code>index_patterns</code> <br><a href=#opensearchindexpatterns>[]OpenSearchIndexPatterns</a></td>
+<td>Allows you to create glob style patterns and set a max number of indexes matching this pattern you want to keep. Creating indexes exceeding this value will cause the oldest one to get deleted. You could for example create a pattern looking like 'logs.?' and then create index logs.1, logs.2 etc, it will delete logs.1 once you create logs.6. Do note 'logs.?' does not apply to logs.10. Note: Setting max_index_count to 0 will do nothing and the pattern gets ignored.</td>
+</tr>
+<tr>
+<td><code>ip_filter</code> <br>[]string</td>
+<td>Glob pattern and number of indexes matching that pattern to be kept Allows you to create glob style patterns and set a max number of indexes matching this pattern you want to keep. Creating indexes exceeding this value will cause the oldest one to get deleted. You could for example create a pattern looking like 'logs.?' and then create index logs.1, logs.2 etc, it will delete logs.1 once you create logs.6. Do note 'logs.?' does not apply to logs.10. Note: Setting max_index_count to 0 will do nothing and the pattern gets ignored.IP filter Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'</td>
+</tr>
+<tr>
+<td><code>private_access</code> <br><a href=#opensearchprivateaccess>OpenSearchPrivateAccess</a></td>
+<td>Allow access to selected service ports from private networks</td>
+</tr>
+<tr>
+<td><code>index_template</code> <br><a href=#opensearchindextemplate>OpenSearchIndexTemplate</a></td>
+<td>Template settings for all new indexes</td>
+</tr>
+<tr>
+<td><code>opensearch</code> <br><a href=#opensearchuserconfigopensearch>OpenSearchUserConfigOpenSearch</a></td>
+<td>OpenSearch settings</td>
+</tr>
+<tr>
+<td><code>max_index_count</code> <br>int64</td>
+<td>Maximum index count Maximum number of indexes to keep before deleting the oldest one</td>
+</tr>
+<tr>
+<td><code>project_to_fork_from</code> <br>string</td>
+<td>Name of another project to fork a service from. This has effect only when a new service is being created.</td>
+</tr>
+<tr>
+<td><code>service_to_fork_from</code> <br>string</td>
+<td>Name of another service to fork from. This has effect only when a new service is being created.</td>
+</tr>
+<tr>
+<td><code>disable_replication_factor_adjustment</code> <br>bool</td>
+<td>Disable replication factor adjustment DEPRECATED: Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can no longer be activated.</td>
+</tr>
+<tr>
+<td><code>keep_index_refresh_interval</code> <br>bool</td>
+<td>Don't reset index.refresh_interval to the default value Aiven automation resets index.refresh_interval to default value for every index to be sure that indices are always visible to search. If it doesn't fit your case, you can disable this by setting up this flag to true.</td>
+</tr>
+</tbody>
+</table>
+<h3 id=opensearchuserconfigopensearch>OpenSearchUserConfigOpenSearch</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>thread_pool_analyze_queue_size</code> <br>int64</td>
+<td>analyze thread pool queue size for the thread pool queue. See documentation for exact details.</td>
+</tr>
+<tr>
+<td><code>thread_pool_analyze_size</code> <br>int64</td>
+<td>analyze thread pool size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value.</td>
+</tr>
+<tr>
+<td><code>thread_pool_force_merge_size</code> <br>int64</td>
+<td>force_merge thread pool size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value.</td>
+</tr>
+<tr>
+<td><code>thread_pool_get_size</code> <br>int64</td>
+<td>get thread pool size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value.</td>
+</tr>
+<tr>
+<td><code>thread_pool_search_throttled_queue_size</code> <br>int64</td>
+<td>search_throttled thread pool queue size for the thread pool queue. See documentation for exact details.</td>
+</tr>
+<tr>
+<td><code>thread_pool_write_queue_size</code> <br>int64</td>
+<td>write thread pool queue size for the thread pool queue. See documentation for exact details.</td>
+</tr>
+<tr>
+<td><code>reindex_remote_whitelist</code> <br>[]string</td>
+<td>reindex_remote_whitelist Whitelisted addresses for reindexing. Changing this value will cause all OpenSearch instances to restart.Address (hostname:port or IP:port)</td>
+</tr>
+<tr>
+<td><code>indices_fielddata_cache_size</code> <br>int64</td>
+<td>indices.fielddata.cache.size Relative amount. Maximum amount of heap memory used for field data cache. This is an expert setting; decreasing the value too much will increase overhead of loading field data; too much memory used for field data cache will decrease amount of heap available for other operations.</td>
+</tr>
+<tr>
+<td><code>indices_query_bool_max_clause_count</code> <br>int64</td>
+<td>indices.query.bool.max_clause_count Maximum number of clauses Lucene BooleanQuery can have. The default value (1024) is relatively high, and increasing it may cause performance issues. Investigate other approaches first before increasing this value.</td>
+</tr>
+<tr>
+<td><code>thread_pool_get_queue_size</code> <br>int64</td>
+<td>get thread pool queue size for the thread pool queue. See documentation for exact details.</td>
+</tr>
+<tr>
+<td><code>thread_pool_index_size</code> <br>int64</td>
+<td>index thread pool size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value.</td>
+</tr>
+<tr>
+<td><code>thread_pool_search_queue_size</code> <br>int64</td>
+<td>search thread pool queue size for the thread pool queue. See documentation for exact details.</td>
+</tr>
+<tr>
+<td><code>thread_pool_write_size</code> <br>int64</td>
+<td>write thread pool size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value.</td>
+</tr>
+<tr>
+<td><code>http_max_header_size</code> <br>int64</td>
+<td>http.max_header_size The max size of allowed headers, in bytes</td>
+</tr>
+<tr>
+<td><code>indices_memory_index_buffer_size</code> <br>int64</td>
+<td>indices.memory.index_buffer_size Percentage value. Default is 10%. Total amount of heap used for indexing buffer, before writing segments to disk. This is an expert setting. Too low value will slow down indexing; too high value will increase indexing performance but causes performance issues for query performance.</td>
+</tr>
+<tr>
+<td><code>indices_queries_cache_size</code> <br>int64</td>
+<td>indices.queries.cache.size Percentage value. Default is 10%. Maximum amount of heap used for query cache. This is an expert setting. Too low value will decrease query performance and increase performance for other operations; too high value will cause issues with other OpenSearch functionality.</td>
+</tr>
+<tr>
+<td><code>thread_pool_search_size</code> <br>int64</td>
+<td>search thread pool size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value.</td>
+</tr>
+<tr>
+<td><code>thread_pool_search_throttled_size</code> <br>int64</td>
+<td>search_throttled thread pool size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value.</td>
+</tr>
+<tr>
+<td><code>http_max_initial_line_length</code> <br>int64</td>
+<td>http.max_initial_line_length The max length of an HTTP URL, in bytes</td>
+</tr>
+<tr>
+<td><code>action_destructive_requires_name</code> <br>bool</td>
+<td>Require explicit index names when deleting</td>
+</tr>
+<tr>
+<td><code>cluster_max_shards_per_node</code> <br>int64</td>
+<td>cluster.max_shards_per_node Controls the number of shards allowed in the cluster per data node</td>
+</tr>
+<tr>
+<td><code>http_max_content_length</code> <br>int64</td>
+<td>http.max_content_length Maximum content length for HTTP requests to the OpenSearch HTTP API, in bytes.</td>
+</tr>
+<tr>
+<td><code>search_max_buckets</code> <br>int64</td>
+<td>search.max_buckets Maximum number of aggregation buckets allowed in a single response. OpenSearch default value is used when this is not defined.</td>
+</tr>
+<tr>
+<td><code>action_auto_create_index_enabled</code> <br>bool</td>
+<td>action.auto_create_index Explicitly allow or block automatic creation of indices. Defaults to true</td>
+</tr>
+</tbody>
+</table>
+<h3 id=opensearchdashboards>OpensearchDashboards</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code> <br>bool</td>
+<td>Enable or disable OpenSearch Dashboards</td>
+</tr>
+<tr>
+<td><code>max_old_space_size</code> <br>int64</td>
+<td>max_old_space_size Limits the maximum amount of memory (in MiB) the OpenSearch Dashboards process can use. This sets the max_old_space_size option of the nodejs running the OpenSearch Dashboards. Note: the memory reserved by OpenSearch Dashboards is not available for OpenSearch.</td>
+</tr>
+<tr>
+<td><code>opensearch_request_timeout</code> <br>int64</td>
+<td>Timeout in milliseconds for requests made by OpenSearch Dashboards towards OpenSearch</td>
+</tr>
+</tbody>
+</table>
 <h3 id=pglookoutuserconfig>PgLookoutUserConfig</h3>
 <table>
 <thead>
@@ -1638,6 +2185,10 @@
 <tr>
 <td><code>ServiceCommonSpec</code> <br><a href=#servicecommonspec>ServiceCommonSpec</a></td>
 <td>(Members of <code>ServiceCommonSpec</code>are embedded into this type.)</td>
+</tr>
+<tr>
+<td><code>disk_space</code> <br>string</td>
+<td>The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</td>
 </tr>
 <tr>
 <td><code>authSecretRef</code> <br><a href=#authsecretreference>AuthSecretReference</a></td>
@@ -2284,6 +2835,10 @@
 <td>(Members of <code>ServiceCommonSpec</code>are embedded into this type.)</td>
 </tr>
 <tr>
+<td><code>disk_space</code> <br>string</td>
+<td>The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</td>
+</tr>
+<tr>
 <td><code>authSecretRef</code> <br><a href=#authsecretreference>AuthSecretReference</a></td>
 <td>Authentication reference to Aiven token in a secret</td>
 </tr>
@@ -2754,7 +3309,7 @@
 </tbody>
 </table>
 <h2 id=references>References</h2>
-<p>Generated with <a href=https://github.com/ahmetb/gen-crd-api-reference-docs>gen-crd-api-reference-docs</a> on git commit <code>7f93721</code>.</p>
+<p>Generated with <a href=https://github.com/ahmetb/gen-crd-api-reference-docs>gen-crd-api-reference-docs</a> on git commit <code>972b1a7</code>.</p>
 <div class=section-index>
 <hr class=panel-line>
 </div>
@@ -2789,7 +3344,7 @@
 <div class="col-6 col-sm-4 text-right text-xs-center order-sm-3">
 </div>
 <div class="col-12 col-sm-4 text-center py-2 order-sm-2">
-<small class=text-white>&copy; 2021 Aiven Team, All Rights Reserved</small>
+<small class=text-white>&copy; 2022 Aiven Team, All Rights Reserved</small>
 </div>
 </div>
 </div>
