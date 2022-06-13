@@ -56,6 +56,9 @@ type ServiceCommonSpec struct {
 
 	// Prevent service from being deleted. It is recommended to have this enabled for all services.
 	TerminationProtection bool `json:"terminationProtection,omitempty"`
+
+	// Tags are key-value pairs that allow you to categorize services.
+	Tags map[string]string `json:"tags,omitempty"`
 }
 
 func ConvertDiscSpace(v string) int {

@@ -113,6 +113,12 @@ spec:
                 maxLength: 2
                 minLength: 2
                 type: string
+              tags:
+                additionalProperties:
+                  type: string
+                description: Tags are key-value pairs that allow you to categorize
+                  projects
+                type: object
               technicalEmails:
                 description: Technical contact emails of the project
                 items:

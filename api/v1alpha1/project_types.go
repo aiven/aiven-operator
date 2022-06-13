@@ -57,6 +57,9 @@ type ProjectSpec struct {
 	// Information regarding secret creation
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
+	// Tags are key-value pairs that allow you to categorize projects
+	Tags map[string]string `json:"tags,omitempty"`
+
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
 }

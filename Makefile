@@ -116,6 +116,7 @@ test-acc: test-check-project-env test-check-token-env $(GINKGO) $(ENVTEST_TOOLS)
 		--trace \
 		--failFast \
 		--progress \
+		--focus=$(FOCUS) \
 		./controllers
 
 test-e2e-tools := kubectl kafkacat avn

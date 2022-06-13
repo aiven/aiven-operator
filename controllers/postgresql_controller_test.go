@@ -110,6 +110,7 @@ func pgSpec(serviceName, namespace string) *v1alpha1.PostgreSQL {
 				Project:   os.Getenv("AIVEN_PROJECT_NAME"),
 				Plan:      "business-4",
 				CloudName: "google-europe-west1",
+				Tags:      map[string]string{"key1": "value1"},
 			},
 			UserConfig: v1alpha1.PostgreSQLUserconfig{
 				PublicAccess: v1alpha1.PublicAccessUserConfig{

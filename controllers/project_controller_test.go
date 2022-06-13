@@ -55,6 +55,7 @@ var _ = Describe("Project Controller", func() {
 					Name: secretRefName,
 					Key:  secretRefKey,
 				},
+				Tags: map[string]string{"key1": "value1"},
 			},
 		}
 		ctx = context.Background()
