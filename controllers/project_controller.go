@@ -98,6 +98,7 @@ func (h ProjectHandler) createOrUpdate(avn *aiven.Client, i client.Object) error
 			TechnicalEmails:  technicalEmails,
 			BillingCurrency:  project.Spec.BillingCurrency,
 			Project:          project.Name,
+			Tags:             project.Spec.Tags,
 
 			// only set during creation
 			BillingGroupId:  project.Spec.BillingGroupID,
@@ -119,6 +120,7 @@ func (h ProjectHandler) createOrUpdate(avn *aiven.Client, i client.Object) error
 			AccountId:        project.Spec.AccountID,
 			TechnicalEmails:  technicalEmails,
 			BillingCurrency:  project.Spec.BillingCurrency,
+			Tags:             project.Spec.Tags,
 		})
 		if err != nil {
 			return fmt.Errorf("failed to update project on aiven side: %w", err)

@@ -93,6 +93,12 @@ spec:
                 description: Identifier of the VPC the service should be in, if any.
                 maxLength: 36
                 type: string
+              tags:
+                additionalProperties:
+                  type: string
+                description: Tags are key-value pairs that allow you to categorize
+                  services.
+                type: object
               terminationProtection:
                 description: Prevent service from being deleted. It is recommended
                   to have this enabled for all services.
