@@ -377,7 +377,7 @@ func getMaintenanceWindow(dow, time string) *aiven.MaintenanceWindow {
 	return nil
 }
 
-func ensureSecretDataIsNotEmpty(log logr.Logger, s *corev1.Secret) *corev1.Secret {
+func ensureSecretDataIsNotEmpty(log *logr.Logger, s *corev1.Secret) *corev1.Secret {
 	if s == nil {
 		return nil
 	}

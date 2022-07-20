@@ -65,7 +65,7 @@ func TestUserConfigurationToAPI(t *testing.T) {
 
 func Test_ensureSecretDataIsNotEmpty(t *testing.T) {
 	type args struct {
-		log logr.Logger
+		log *logr.Logger
 		s   *corev1.Secret
 	}
 	tests := []struct {
