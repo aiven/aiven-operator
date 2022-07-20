@@ -74,3 +74,11 @@ func isAlreadyRunning(o client.Object) bool {
 	_, found := o.GetAnnotations()[instanceIsRunningAnnotation]
 	return found
 }
+
+func optionalStringPointer(u string) *string {
+	if len(u) == 0 {
+		return nil
+	}
+
+	return &u
+}
