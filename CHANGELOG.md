@@ -1,5 +1,9 @@
 # Changelog
 
+## vX.X.X - 2022-XX-XX
+
+- Upgrade to Go 1.18
+
 ## v0.2.0 - 2021-11-17
 
 features:
