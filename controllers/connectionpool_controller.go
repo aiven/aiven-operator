@@ -57,7 +57,7 @@ func (h ConnectionPoolHandler) createOrUpdate(avn *aiven.Client, i client.Object
 				PoolMode: cp.Spec.PoolMode,
 				PoolName: cp.Name,
 				PoolSize: cp.Spec.PoolSize,
-				Username: &cp.Spec.Username,
+				Username: optionalStringPointer(cp.Spec.Username),
 			})
 		if err != nil && !aiven.IsAlreadyExists(err) {
 			return err
@@ -69,7 +69,7 @@ func (h ConnectionPoolHandler) createOrUpdate(avn *aiven.Client, i client.Object
 				Database: cp.Spec.DatabaseName,
 				PoolMode: cp.Spec.PoolMode,
 				PoolSize: cp.Spec.PoolSize,
-				Username: &cp.Spec.Username,
+				Username: optionalStringPointer(cp.Spec.Username),
 			})
 		if err != nil {
 			return err
@@ -134,16 +134,34 @@ func (h ConnectionPoolHandler) get(avn *aiven.Client, i client.Object) (*corev1.
 		return nil, fmt.Errorf("cannot get service: %w", err)
 	}
 
-	u, err := avn.ServiceUsers.Get(connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Spec.Username)
-	if err != nil {
-		return nil, fmt.Errorf("cannot get user: %w", err)
-	}
-
 	metav1.SetMetaDataAnnotation(&connPool.ObjectMeta, instanceIsRunningAnnotation, "true")
 
 	meta.SetStatusCondition(&connPool.Status.Conditions,
 		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 			"Instance is running on Aiven side"))
+
+	if len(connPool.Spec.Username) == 0 {
+		return &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      h.getSecretName(connPool),
+				Namespace: connPool.Namespace,
+			},
+			StringData: map[string]string{
+				"PGHOST":       s.URIParams["host"],
+				"PGPORT":       s.URIParams["port"],
+				"PGDATABASE":   cp.Database,
+				"PGUSER":       s.URIParams["user"],
+				"PGPASSWORD":   s.URIParams["password"],
+				"PGSSLMODE":    s.URIParams["sslmode"],
+				"DATABASE_URI": cp.ConnectionURI,
+			},
+		}, nil
+	}
+
+	u, err := avn.ServiceUsers.Get(connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Spec.Username)
+	if err != nil {
+		return nil, fmt.Errorf("cannot get user: %w", err)
+	}
 
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -182,12 +200,7 @@ func (h ConnectionPoolHandler) checkPreconditions(avn *aiven.Client, i client.Ob
 			return false, err
 		}
 
-		user, err := avn.ServiceUsers.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.Username)
-		if err != nil {
-			return false, err
-		}
-
-		return db != nil && user != nil, nil
+		return db != nil, nil
 	}
 
 	return false, nil
