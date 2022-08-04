@@ -1,8 +1,12 @@
 # Changelog
 
-## vX.X.X - 2022-XX-XX
+## v0.4.0 - 2022-08-04
 
 - Upgrade to Go 1.18
+- Add support for connection pull incoming user
+- Fix typo on config/samples/kafka disk_space
+- Add tags support for project and service resources
+- Enable termination protection
 
 ## v0.2.0 - 2021-11-17
 
