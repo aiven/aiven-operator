@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"context"
+
 	"strconv"
-	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -21,9 +21,6 @@ const (
 
 	processedGenerationAnnotation = "controllers.aiven.io/generation-was-processed"
 	instanceIsRunningAnnotation   = "controllers.aiven.io/instance-is-running"
-
-	pollTimeout  = 10 * time.Minute
-	pollInterval = 20 * time.Second
 )
 
 func checkServiceIsRunning(c *aiven.Client, project, serviceName string) (bool, error) {
@@ -52,7 +49,7 @@ func getRunningCondition(status metav1.ConditionStatus, reason, message string) 
 	}
 }
 
-func markedForDeletion(o client.Object) bool {
+func isMarkedForDeletion(o client.Object) bool {
 	return !o.GetDeletionTimestamp().IsZero()
 }
 
