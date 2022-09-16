@@ -18,7 +18,7 @@ type KafkaConnectorSpec struct {
 	ServiceName string `json:"serviceName"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
+	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=1024
 	// The Java class of the connector.

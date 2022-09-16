@@ -60,8 +60,8 @@ var _ = BeforeSuite(func() {
 		CRDDirectoryPaths: []string{filepath.Join("..", "config", "crd", "bases")},
 	}
 
-	token := os.Getenv("AIVEN_TOKEN")
-	if token == "" {
+	aivenToken := os.Getenv("AIVEN_TOKEN")
+	if aivenToken == "" {
 		Fail("cannot createOrUpdate Aiven API client, `AIVEN_TOKEN` is required")
 	}
 
@@ -102,7 +102,7 @@ var _ = BeforeSuite(func() {
 			Namespace: "default",
 		},
 		StringData: map[string]string{
-			secretRefKey: os.Getenv("AIVEN_TOKEN"),
+			secretRefKey: aivenToken,
 		},
 	}
 
@@ -237,10 +237,11 @@ var _ = BeforeSuite(func() {
 	// set-up Redis reconciler
 	err = (&RedisReconciler{
 		Controller{
-			Client:   k8sManager.GetClient(),
-			Log:      ctrl.Log.WithName("controllers").WithName("Redis"),
-			Scheme:   k8sManager.GetScheme(),
-			Recorder: k8sManager.GetEventRecorderFor("redis-reconciler"),
+			Client:       k8sManager.GetClient(),
+			Log:          ctrl.Log.WithName("controllers").WithName("Redis"),
+			Scheme:       k8sManager.GetScheme(),
+			Recorder:     k8sManager.GetEventRecorderFor("redis-reconciler"),
+			DefaultToken: aivenToken,
 		},
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())

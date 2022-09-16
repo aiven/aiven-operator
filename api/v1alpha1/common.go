@@ -8,9 +8,13 @@ import (
 // AuthSecretReference references a Secret containing an Aiven authentication token
 type AuthSecretReference struct {
 	// +kubebuilder:validation:MinLength=1
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
 	// +kubebuilder:validation:MinLength=1
-	Key string `json:"key"`
+	Key string `json:"key,omitempty"`
+}
+
+func (r AuthSecretReference) IsValid() bool {
+	return len(r.Name) > 0 && len(r.Key) > 0
 }
 
 // ConnInfoSecretTarget contains information secret name

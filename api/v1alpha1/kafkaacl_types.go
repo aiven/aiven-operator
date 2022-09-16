@@ -28,7 +28,7 @@ type KafkaACLSpec struct {
 	Username string `json:"username"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
+	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // KafkaACLStatus defines the observed state of KafkaACL

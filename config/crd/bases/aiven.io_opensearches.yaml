@@ -44,9 +44,6 @@ spec:
                   name:
                     minLength: 1
                     type: string
-                required:
-                - key
-                - name
                 type: object
               cloudName:
                 description: Cloud the service runs in.
@@ -493,7 +490,6 @@ spec:
                     type: boolean
                 type: object
             required:
-            - authSecretRef
             - project
             type: object
           status:

@@ -54,9 +54,6 @@ spec:
                   name:
                     minLength: 1
                     type: string
-                required:
-                - key
-                - name
                 type: object
               authentication:
                 description: Authentication details
@@ -83,7 +80,6 @@ spec:
                 maxLength: 63
                 type: string
             required:
-            - authSecretRef
             - project
             - serviceName
             type: object

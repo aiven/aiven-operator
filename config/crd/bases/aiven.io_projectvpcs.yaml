@@ -57,9 +57,6 @@ spec:
                   name:
                     minLength: 1
                     type: string
-                required:
-                - key
-                - name
                 type: object
               cloudName:
                 description: Cloud the VPC is in
@@ -75,7 +72,6 @@ spec:
                 maxLength: 63
                 type: string
             required:
-            - authSecretRef
             - cloudName
             - networkCidr
             - project
