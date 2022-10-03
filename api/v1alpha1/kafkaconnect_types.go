@@ -11,7 +11,7 @@ type KafkaConnectSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef"`
+	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
 
 	// PostgreSQL specific user configuration options
 	UserConfig KafkaConnectUserConfig `json:"userConfig,omitempty"`

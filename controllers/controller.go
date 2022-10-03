@@ -32,9 +32,10 @@ type (
 	Controller struct {
 		client.Client
 
-		Log      logr.Logger
-		Scheme   *runtime.Scheme
-		Recorder record.EventRecorder
+		Log          logr.Logger
+		Scheme       *runtime.Scheme
+		Recorder     record.EventRecorder
+		DefaultToken string
 	}
 
 	// Handlers represents Aiven API handlers
@@ -99,12 +100,20 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 	instanceLogger := setupLogger(c.Log, o)
 	instanceLogger.Info("setting up aiven client with instance secret")
 
-	clientAuthSecret := &corev1.Secret{}
-	if err := c.Get(ctx, types.NamespacedName{Name: o.AuthSecretRef().Name, Namespace: req.Namespace}, clientAuthSecret); err != nil {
-		c.Recorder.Eventf(o, corev1.EventTypeWarning, eventUnableToGetAuthSecret, err.Error())
-		return ctrl.Result{}, fmt.Errorf("cannot get secret %q: %w", o.AuthSecretRef().Name, err)
+	var token string
+	var clientAuthSecret *corev1.Secret
+	if len(c.DefaultToken) > 0 {
+		token = c.DefaultToken
+	} else {
+		clientAuthSecret = &corev1.Secret{}
+		if err := c.Get(ctx, types.NamespacedName{Name: o.AuthSecretRef().Name, Namespace: req.Namespace}, clientAuthSecret); err != nil {
+			c.Recorder.Eventf(o, corev1.EventTypeWarning, eventUnableToGetAuthSecret, err.Error())
+			return ctrl.Result{}, fmt.Errorf("cannot get secret %q: %w", o.AuthSecretRef().Name, err)
+		}
+		token = string(clientAuthSecret.Data[o.AuthSecretRef().Key])
 	}
-	avn, err := aiven.NewTokenClient(string(clientAuthSecret.Data[o.AuthSecretRef().Key]), "k8s-operator/")
+
+	avn, err := aiven.NewTokenClient(token, "k8s-operator/")
 	if err != nil {
 		c.Recorder.Event(o, corev1.EventTypeWarning, eventUnableToCreateClient, err.Error())
 		return ctrl.Result{}, fmt.Errorf("cannot initialize aiven client: %w", err)
@@ -154,10 +163,12 @@ func (i instanceReconcilerHelper) reconcileInstance(ctx context.Context, o clien
 
 	// Add finalizers to an instance and associated secret, only if they haven't
 	// been added in the previous reconciliation loops
-	if !controllerutil.ContainsFinalizer(i.s, secretProtectionFinalizer) {
-		i.log.Info("adding finalizer to secret")
-		if err := addFinalizer(ctx, i.k8s, i.s, secretProtectionFinalizer); err != nil {
-			return ctrl.Result{}, fmt.Errorf("unable to add finalizer to secret: %w", err)
+	if i.s != nil {
+		if !controllerutil.ContainsFinalizer(i.s, secretProtectionFinalizer) {
+			i.log.Info("adding finalizer to secret")
+			if err := addFinalizer(ctx, i.k8s, i.s, secretProtectionFinalizer); err != nil {
+				return ctrl.Result{}, fmt.Errorf("unable to add finalizer to secret: %w", err)
+			}
 		}
 	}
 	if !controllerutil.ContainsFinalizer(o, instanceDeletionFinalizer) {

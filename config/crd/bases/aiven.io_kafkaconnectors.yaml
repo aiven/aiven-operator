@@ -63,9 +63,6 @@ spec:
                   name:
                     minLength: 1
                     type: string
-                required:
-                - key
-                - name
                 type: object
               connectorClass:
                 description: The Java class of the connector.
@@ -88,7 +85,6 @@ spec:
                   }}` is provided when interpreting the keys
                 type: object
             required:
-            - authSecretRef
             - connectorClass
             - project
             - serviceName

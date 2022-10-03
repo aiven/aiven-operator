@@ -63,9 +63,6 @@ spec:
                   name:
                     minLength: 1
                     type: string
-                required:
-                - key
-                - name
                 type: object
               connInfoSecretTarget:
                 description: Information regarding secret creation
@@ -105,7 +102,6 @@ spec:
                 maxLength: 64
                 type: string
             required:
-            - authSecretRef
             - databaseName
             - project
             - serviceName

@@ -64,9 +64,6 @@ spec:
                   name:
                     minLength: 1
                     type: string
-                required:
-                - key
-                - name
                 type: object
               datadog:
                 description: Datadog specific user configuration options
@@ -204,7 +201,6 @@ spec:
                 description: Source service for the integration (if any)
                 type: string
             required:
-            - authSecretRef
             - integrationType
             - project
             type: object

@@ -48,9 +48,6 @@ spec:
                   name:
                     minLength: 1
                     type: string
-                required:
-                - key
-                - name
                 type: object
               billingAddress:
                 description: Billing name and address of the project
@@ -124,8 +121,6 @@ spec:
                   type: string
                 maxItems: 10
                 type: array
-            required:
-            - authSecretRef
             type: object
           status:
             description: ProjectStatus defines the observed state of Project

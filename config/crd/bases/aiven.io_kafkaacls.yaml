@@ -60,9 +60,6 @@ spec:
                   name:
                     minLength: 1
                     type: string
-                required:
-                - key
-                - name
                 type: object
               permission:
                 description: Kafka permission to grant (admin, read, readwrite, write)
@@ -88,7 +85,6 @@ spec:
                 description: Username pattern for the ACL entry
                 type: string
             required:
-            - authSecretRef
             - permission
             - project
             - serviceName

@@ -35,7 +35,7 @@ type SecretFinalizerGCController struct {
 	Log logr.Logger
 }
 
-func (c *SecretFinalizerGCController) SetupWithManager(mgr ctrl.Manager) error {
+func (c *SecretFinalizerGCController) SetupWithManager(mgr ctrl.Manager, hasDefaultToken bool) error {
 	aivenManagedTypes := c.knownInstanceTypes()
 
 	if err := indexClientSecretRefFields(context.Background(), mgr, aivenManagedTypes...); err != nil {
@@ -58,14 +58,24 @@ func (c *SecretFinalizerGCController) SetupWithManager(mgr ctrl.Manager) error {
 			&source.Kind{Type: aivenManagedTypes[i]},
 			handler.EnqueueRequestsFromMapFunc(func(a client.Object) []reconcile.Request {
 				ao := a.(aivenManagedObject)
-				return []reconcile.Request{
-					{
-						NamespacedName: types.NamespacedName{
-							Name:      ao.AuthSecretRef().Name,
-							Namespace: ao.GetNamespace(),
+				if ao.AuthSecretRef().IsValid() {
+					return []reconcile.Request{
+						{
+							NamespacedName: types.NamespacedName{
+								Name:      ao.AuthSecretRef().Name,
+								Namespace: ao.GetNamespace(),
+							},
 						},
-					},
+					}
+				} else if !hasDefaultToken {
+					gvk := ao.GetObjectKind().GroupVersionKind().String()
+					namespacedName := types.NamespacedName{
+						Name:      ao.GetName(),
+						Namespace: ao.GetNamespace(),
+					}
+					c.Log.Error(fmt.Errorf("resource %s %s has no AuthSecretReference and no default token provided", gvk, namespacedName), "")
 				}
+				return nil
 			}),
 		)
 	}
