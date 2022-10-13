@@ -7,13 +7,13 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/aiven/aiven-go-client"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/aiven/aiven-go-client"
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
@@ -39,7 +39,7 @@ func (r *KafkaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
+func (h KafkaHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs []client.Object) error {
 	kafka, err := h.convert(i)
 	if err != nil {
 		return err
@@ -50,6 +50,13 @@ func (h KafkaHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 		return err
 	}
 
+	projectVPCID := kafka.Spec.ProjectVPCID
+	if projectVPCID == "" {
+		if p := v1alpha1.FindProjectVPC(refs); p != nil {
+			projectVPCID = p.Status.ID
+		}
+	}
+
 	var reason string
 	if !exists {
 		_, err = avn.Services.Create(kafka.Spec.Project, aiven.CreateServiceRequest{
@@ -58,7 +65,7 @@ func (h KafkaHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 				kafka.Spec.MaintenanceWindowDow,
 				kafka.Spec.MaintenanceWindowTime),
 			Plan:                kafka.Spec.Plan,
-			ProjectVPCID:        toOptionalStringPointer(kafka.Spec.ProjectVPCID),
+			ProjectVPCID:        toOptionalStringPointer(projectVPCID),
 			ServiceName:         kafka.Name,
 			ServiceType:         "kafka",
 			UserConfig:          UserConfigurationToAPI(kafka.Spec.UserConfig).(map[string]interface{}),
@@ -77,7 +84,7 @@ func (h KafkaHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
 				kafka.Spec.MaintenanceWindowDow,
 				kafka.Spec.MaintenanceWindowTime),
 			Plan:         kafka.Spec.Plan,
-			ProjectVPCID: toOptionalStringPointer(kafka.Spec.ProjectVPCID),
+			ProjectVPCID: toOptionalStringPointer(projectVPCID),
 			UserConfig:   UserConfigurationToAPI(kafka.Spec.UserConfig).(map[string]interface{}),
 			DiskSpaceMB:  v1alpha1.ConvertDiscSpace(kafka.Spec.DiskSpace),
 			Powered:      true,

@@ -8,12 +8,13 @@ import (
 	"strconv"
 
 	"github.com/aiven/aiven-go-client"
-	"github.com/aiven/aiven-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 // ClickhouseReconciler reconciles a Clickhouse object
@@ -39,15 +40,17 @@ func (r *ClickhouseReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ClickhouseHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
+func (h ClickhouseHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs []client.Object) error {
 	os, err := h.convert(i)
 	if err != nil {
 		return err
 	}
 
-	var prVPCID *string
-	if os.Spec.ProjectVPCID != "" {
-		prVPCID = &os.Spec.ProjectVPCID
+	projectVPCID := os.Spec.ProjectVPCID
+	if projectVPCID == "" {
+		if p := v1alpha1.FindProjectVPC(refs); p != nil {
+			projectVPCID = p.Status.ID
+		}
 	}
 
 	exists, err := h.exists(avn, os)
@@ -63,7 +66,7 @@ func (h ClickhouseHandler) createOrUpdate(avn *aiven.Client, i client.Object) er
 				os.Spec.MaintenanceWindowDow,
 				os.Spec.MaintenanceWindowTime),
 			Plan:                os.Spec.Plan,
-			ProjectVPCID:        prVPCID,
+			ProjectVPCID:        toOptionalStringPointer(projectVPCID),
 			ServiceName:         os.Name,
 			ServiceType:         "clickhouse",
 			UserConfig:          UserConfigurationToAPI(os.Spec.UserConfig).(map[string]interface{}),
@@ -81,7 +84,7 @@ func (h ClickhouseHandler) createOrUpdate(avn *aiven.Client, i client.Object) er
 				os.Spec.MaintenanceWindowDow,
 				os.Spec.MaintenanceWindowTime),
 			Plan:         os.Spec.Plan,
-			ProjectVPCID: prVPCID,
+			ProjectVPCID: toOptionalStringPointer(projectVPCID),
 			UserConfig:   UserConfigurationToAPI(os.Spec.UserConfig).(map[string]interface{}),
 			Powered:      true,
 		})

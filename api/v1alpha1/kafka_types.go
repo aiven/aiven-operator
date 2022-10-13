@@ -367,8 +367,12 @@ type Kafka struct {
 	Status ServiceStatus `json:"status,omitempty"`
 }
 
-func (kfk Kafka) AuthSecretRef() AuthSecretReference {
-	return kfk.Spec.AuthSecretRef
+func (in *Kafka) AuthSecretRef() AuthSecretReference {
+	return in.Spec.AuthSecretRef
+}
+
+func (in *Kafka) GetRefs() []*ResourceReferenceObject {
+	return in.Spec.GetRefs(in.GetNamespace())
 }
 
 // +kubebuilder:object:root=true

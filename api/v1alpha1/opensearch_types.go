@@ -293,8 +293,12 @@ type OpenSearchList struct {
 	Items           []OpenSearch `json:"items"`
 }
 
-func (o OpenSearch) AuthSecretRef() AuthSecretReference {
-	return o.Spec.AuthSecretRef
+func (in *OpenSearch) AuthSecretRef() AuthSecretReference {
+	return in.Spec.AuthSecretRef
+}
+
+func (in *OpenSearch) GetRefs() []*ResourceReferenceObject {
+	return in.Spec.GetRefs(in.GetNamespace())
 }
 
 func init() {

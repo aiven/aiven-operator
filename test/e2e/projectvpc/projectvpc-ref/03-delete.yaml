@@ -1,0 +1,15 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+delete:
+  - apiVersion: aiven.io/v1alpha1
+    kind: Kafka
+    name: k8s-e2e-projectvpc-ref-kafka
+  - apiVersion: aiven.io/v1alpha1
+    kind: Redis
+    name: k8s-e2e-projectvpc-ref-redis
+  - apiVersion: aiven.io/v1alpha1
+    kind: OpenSearch
+    name: k8s-e2e-projectvpc-ref-os
+  - apiVersion: aiven.io/v1alpha1
+    kind: ProjectVPC
+    name: k8s-e2e-projectvpc-ref

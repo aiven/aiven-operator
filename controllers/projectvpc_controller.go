@@ -7,14 +7,19 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/aiven/aiven-go-client"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/aiven/aiven-go-client"
 	"github.com/aiven/aiven-operator/api/v1alpha1"
+)
+
+var isDependencyError = v1alpha1.ErrorSubstrChecker(
+	"VPC cannot be deleted while there are services in it",
+	"VPC cannot be deleted while there are services migrating from it",
 )
 
 // ProjectVPCReconciler reconciles a ProjectVPC object
@@ -37,7 +42,7 @@ func (r *ProjectVPCReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ProjectVPCHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
+func (h ProjectVPCHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs []client.Object) error {
 	projectVPC, err := h.convert(i)
 	if err != nil {
 		return err
@@ -84,7 +89,18 @@ func (h ProjectVPCHandler) delete(avn *aiven.Client, i client.Object) (bool, err
 
 	if vpc.State != "DELETING" && vpc.State != "DELETED" {
 		// Delete project VPC on Aiven side
-		if err := avn.VPCs.Delete(projectVPC.Spec.Project, projectVPC.Status.ID); err != nil && !aiven.IsNotFound(err) {
+		// ProjectVPC doesn't have ID initially from spec, it comes later with CREATE.
+		vpcID := projectVPC.Status.ID
+		if vpcID == "" {
+			vpcID = vpc.ProjectVPCID
+		}
+
+		err := avn.VPCs.Delete(projectVPC.Spec.Project, vpcID)
+		if isDependencyError(err) {
+			return false, fmt.Errorf("%w: %s", v1alpha1.ErrDeleteDependencies, err)
+		}
+
+		if !(err == nil || aiven.IsNotFound(err)) {
 			return false, err
 		}
 	}
