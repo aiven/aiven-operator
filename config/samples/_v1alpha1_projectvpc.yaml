@@ -1,0 +1,6 @@
+apiVersion: aiven.io/v1alpha1
+kind: ProjectVPC
+metadata:
+  name: projectvpc-sample
+spec:
+  # TODO(user): Add fields here

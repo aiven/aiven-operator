@@ -1,7 +1,7 @@
 apiVersion: aiven.io/v1alpha1
 kind: Redis
 metadata:
-  name: redis-sample
+  name: k8s-redis-simple
 spec:
   authSecretRef:
     name: aiven-token

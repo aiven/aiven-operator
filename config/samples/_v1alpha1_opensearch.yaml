@@ -1,0 +1,6 @@
+apiVersion: aiven.io/v1alpha1
+kind: OpenSearch
+metadata:
+  name: opensearch-sample
+spec:
+  # TODO(user): Add fields here

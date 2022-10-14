@@ -39,6 +39,12 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
+  - clickhouses/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
   - clickhouses/status
   verbs:
   - get

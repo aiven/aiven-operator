@@ -1,7 +1,7 @@
 apiVersion: aiven.io/v1alpha1
 kind: OpenSearch
 metadata:
-  name: os-sample
+  name: k8s-e2e-os-simple
 spec:
   authSecretRef:
     name: aiven-token

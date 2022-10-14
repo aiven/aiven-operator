@@ -1,32 +1,41 @@
+domain: aiven.io
 layout:
-- go.kubebuilder.io/v2
+- go.kubebuilder.io/v3
 plugins:
-  go.operator-sdk.io/v2-alpha: {}
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
 projectName: aiven-operator
 repo: github.com/aiven/aiven-operator
 resources:
-- controller: true
-  group: aiven.io
-  kind: Project
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
+  kind: Clickhouse
   path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true
     validation: true
     webhookVersion: v1
-- controller: true
-  group: aiven.io
-  kind: PostgreSQL
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
+  kind: ClickhouseUser
   path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true
     validation: true
     webhookVersion: v1
-- controller: true
-  group: aiven.io
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
   kind: ConnectionPool
   path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
@@ -34,8 +43,11 @@ resources:
     defaulting: true
     validation: true
     webhookVersion: v1
-- controller: true
-  group: aiven.io
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
   kind: Database
   path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
@@ -43,26 +55,11 @@ resources:
     defaulting: true
     validation: true
     webhookVersion: v1
-- controller: true
-  group: aiven.io
-  kind: ServiceUser
-  path: github.com/aiven/aiven-operator/api/v1alpha1
-  version: v1alpha1
-  webhooks:
-    defaulting: true
-    validation: true
-    webhookVersion: v1
-- controller: true
-  group: aiven.io
-  kind: ProjectVPC
-  path: github.com/aiven/aiven-operator/api/v1alpha1
-  version: v1alpha1
-  webhooks:
-    defaulting: true
-    validation: true
-    webhookVersion: v1
-- controller: true
-  group: aiven.io
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
   kind: Kafka
   path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
@@ -70,44 +67,11 @@ resources:
     defaulting: true
     validation: true
     webhookVersion: v1
-- controller: true
-  group: aiven.io
-  kind: KafkaConnect
-  path: github.com/aiven/aiven-operator/api/v1alpha1
-  version: v1alpha1
-  webhooks:
-    defaulting: true
-    validation: true
-    webhookVersion: v1
-- controller: true
-  group: aiven.io
-  kind: KafkaTopic
-  path: github.com/aiven/aiven-operator/api/v1alpha1
-  version: v1alpha1
-  webhooks:
-    defaulting: true
-    validation: true
-    webhookVersion: v1
-- controller: true
-  group: aiven.io
-  kind: ServiceIntegration
-  path: github.com/aiven/aiven-operator/api/v1alpha1
-  version: v1alpha1
-  webhooks:
-    defaulting: true
-    validation: true
-    webhookVersion: v1
-- controller: true
-  group: aiven.io
-  kind: KafkaSchema
-  path: github.com/aiven/aiven-operator/api/v1alpha1
-  version: v1alpha1
-  webhooks:
-    defaulting: true
-    validation: true
-    webhookVersion: v1
-- controller: true
-  group: aiven.io
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
   kind: KafkaACL
   path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
@@ -115,8 +79,23 @@ resources:
     defaulting: true
     validation: true
     webhookVersion: v1
-- controller: true
-  group: aiven.io
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
+  kind: KafkaConnect
+  path: github.com/aiven/aiven-operator/api/v1alpha1
+  version: v1alpha1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
   kind: KafkaConnector
   path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
@@ -124,38 +103,110 @@ resources:
     defaulting: true
     validation: true
     webhookVersion: v1
-- controller: true
-  group: aiven.io
-  kind: Redis
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
+  kind: KafkaSchema
   path: github.com/aiven/aiven-operator/api/v1alpha1
-  version: v1
+  version: v1alpha1
   webhooks:
     defaulting: true
     validation: true
     webhookVersion: v1
-- controller: true
-  group: aiven.io
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
+  kind: KafkaTopic
+  path: github.com/aiven/aiven-operator/api/v1alpha1
+  version: v1alpha1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
   kind: OpenSearch
   path: github.com/aiven/aiven-operator/api/v1alpha1
-  version: v1
+  version: v1alpha1
   webhooks:
     defaulting: true
     validation: true
     webhookVersion: v1
-- controller: true
-  group: aiven.io
-  kind: Clickhouse
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
+  kind: PostgreSQL
   path: github.com/aiven/aiven-operator/api/v1alpha1
-  version: v1
+  version: v1alpha1
   webhooks:
     defaulting: true
     validation: true
     webhookVersion: v1
-- controller: true
-  group: aiven.io
-  kind: ClickhouseUser
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
+  kind: Project
   path: github.com/aiven/aiven-operator/api/v1alpha1
-  version: v1
+  version: v1alpha1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
+  kind: ProjectVPC
+  path: github.com/aiven/aiven-operator/api/v1alpha1
+  version: v1alpha1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
+  kind: Redis
+  path: github.com/aiven/aiven-operator/api/v1alpha1
+  version: v1alpha1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
+  kind: ServiceIntegration
+  path: github.com/aiven/aiven-operator/api/v1alpha1
+  version: v1alpha1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
+  kind: ServiceUser
+  path: github.com/aiven/aiven-operator/api/v1alpha1
+  version: v1alpha1
   webhooks:
     defaulting: true
     validation: true

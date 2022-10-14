@@ -48,7 +48,7 @@ func initialRenderApiDocs() ([]byte, error) {
 	defer os.Remove(tmpFile.Name())
 
 	genCmd := exec.Command(
-		"hack/tools/bin/gen-crd-api-ref-docs",
+		"bin/gen-crd-api-reference-docs",
 		"-config", "hack/genrefs/config.json",
 		"-template-dir", "hack/genrefs/template",
 		"-api-dir", fmt.Sprintf("./api/%s", apiVersionShort),

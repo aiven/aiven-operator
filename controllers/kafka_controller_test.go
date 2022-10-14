@@ -14,7 +14,7 @@ import (
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
