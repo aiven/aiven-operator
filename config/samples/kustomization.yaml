@@ -1,7 +1,20 @@
 ## Append samples you want in your CSV to this file as resources ##
 resources:
-- aiven.io_v1alpha1_redis.yaml
-- aiven.io_v1alpha1_opensearch.yaml
-- aiven.io_v1alpha1_clickhouse.yaml
-- aiven.io_v1alpha1_clickhouseuser.yaml
+- _v1alpha1_clickhouse.yaml
+- _v1alpha1_clickhouseuser.yaml
+- _v1alpha1_connectionpool.yaml
+- _v1alpha1_database.yaml
+- _v1alpha1_kafka.yaml
+- _v1alpha1_kafkaacl.yaml
+- _v1alpha1_kafkaconnect.yaml
+- _v1alpha1_kafkaconnector.yaml
+- _v1alpha1_kafkaschema.yaml
+- _v1alpha1_kafkatopic.yaml
+- _v1alpha1_opensearch.yaml
+- _v1alpha1_postgresql.yaml
+- _v1alpha1_project.yaml
+- _v1alpha1_projectvpc.yaml
+- _v1alpha1_redis.yaml
+- _v1alpha1_serviceintegration.yaml
+- _v1alpha1_serviceuser.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

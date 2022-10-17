@@ -1,0 +1,6 @@
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: postgresql-sample
+spec:
+  # TODO(user): Add fields here

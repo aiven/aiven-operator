@@ -1,0 +1,6 @@
+apiVersion: aiven.io/v1alpha1
+kind: KafkaACL
+metadata:
+  name: kafkaacl-sample
+spec:
+  # TODO(user): Add fields here

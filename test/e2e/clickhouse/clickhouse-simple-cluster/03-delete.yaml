@@ -1,0 +1,6 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+delete:
+  - apiVersion: aiven.io/v1alpha1
+    kind: Clickhouse
+    name: k8s-e2e-test-ch-sample

@@ -7,12 +7,11 @@ testDirs:
 - test/e2e/kafka
 - test/e2e/kafka-topic
 - test/e2e/kafka-connector
-- test/e2e/service-integration
 - test/e2e/redis
 - test/e2e/opensearch
 - test/e2e/clickhouse
+#- test/e2e/service-integration
 commands:
-- script: ENABLE_WEBHOOKS=false ./bin/manager
-  background: false
-  skipLogOutput: true
-blockOnNamespaceDelete: true
+- script: ENABLE_WEBHOOKS=false ./bin/manager --metrics-bind-address=0 --health-probe-bind-address=0
+  background: true
+blockOnNamespaceDelete: false

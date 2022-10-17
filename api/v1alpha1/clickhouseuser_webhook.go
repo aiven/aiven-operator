@@ -18,29 +18,22 @@ func (r *ClickhouseUser) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		Complete()
 }
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-
-//+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-clickhouseuser,mutating=true,failurePolicy=fail,groups=aiven.io,resources=clickhouseusers,verbs=create;update,versions=v1alpha1,name=mclickhouseuser.kb.io,sideEffects=none,admissionReviewVersions=v1
+//+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-clickhouseuser,mutating=true,failurePolicy=fail,sideEffects=None,groups=aiven.io,resources=clickhouseusers,verbs=create;update,versions=v1alpha1,name=mclickhouseuser.kb.io,admissionReviewVersions=v1
 
 var _ webhook.Defaulter = &ClickhouseUser{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (r *ClickhouseUser) Default() {
 	clickhouseuserlog.Info("default", "name", r.Name)
-
-	// TODO(user): fill in your defaulting logic.
 }
 
-// TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
-//+kubebuilder:webhook:verbs=create;update,path=/validate-aiven-io-v1alpha1-clickhouseuser,mutating=false,failurePolicy=fail,groups=aiven.io,resources=clickhouseusers,versions=v1alpha1,name=vclickhouseuser.kb.io,sideEffects=none,admissionReviewVersions=v1
+//+kubebuilder:webhook:path=/validate-aiven-io-v1alpha1-clickhouseuser,mutating=false,failurePolicy=fail,sideEffects=None,groups=aiven.io,resources=clickhouseusers,verbs=create;update,versions=v1alpha1,name=vclickhouseuser.kb.io,admissionReviewVersions=v1
 
 var _ webhook.Validator = &ClickhouseUser{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (r *ClickhouseUser) ValidateCreate() error {
 	clickhouseuserlog.Info("validate create", "name", r.Name)
-
-	// TODO(user): fill in your validation logic upon object creation.
 	return nil
 }
 
@@ -48,7 +41,6 @@ func (r *ClickhouseUser) ValidateCreate() error {
 func (r *ClickhouseUser) ValidateUpdate(old runtime.Object) error {
 	clickhouseuserlog.Info("validate update", "name", r.Name)
 
-	// TODO(user): fill in your validation logic upon object update.
 	return nil
 }
 
@@ -56,6 +48,5 @@ func (r *ClickhouseUser) ValidateUpdate(old runtime.Object) error {
 func (r *ClickhouseUser) ValidateDelete() error {
 	clickhouseuserlog.Info("validate delete", "name", r.Name)
 
-	// TODO(user): fill in your validation logic upon object deletion.
 	return nil
 }

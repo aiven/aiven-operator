@@ -1,0 +1,6 @@
+apiVersion: aiven.io/v1alpha1
+kind: KafkaSchema
+metadata:
+  name: kafkaschema-sample
+spec:
+  # TODO(user): Add fields here
