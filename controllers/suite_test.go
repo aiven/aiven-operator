@@ -116,6 +116,17 @@ var _ = BeforeSuite(func() {
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
+	// set-up ProjectVPC reconciler
+	err = (&ProjectVPCReconciler{
+		Controller: Controller{
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("ProjectVPC"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("projectvpc-reconciler"),
+		},
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
 	// set-up Kafka reconciler
 	err = (&KafkaReconciler{
 		Controller{
@@ -304,7 +315,7 @@ func ensureDelete(ctx context.Context, instance client.Object) {
 		err := k8sClient.Get(ctx, names, instance)
 
 		return apierrors.IsNotFound(err)
-	}, time.Minute*5, time.Second*5, "wait for instance to be gone from k8s").Should(BeTrue())
+	}, time.Minute*10, time.Second*5, "wait for instance to be gone from k8s").Should(BeTrue())
 }
 
 // boolPointer converts boolean to *bool

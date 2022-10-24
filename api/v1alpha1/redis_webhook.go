@@ -37,7 +37,7 @@ var _ webhook.Validator = &Redis{}
 func (r *Redis) ValidateCreate() error {
 	redislog.Info("validate create", "name", r.Name)
 
-	return nil
+	return r.Spec.Validate()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
@@ -52,7 +52,7 @@ func (r *Redis) ValidateUpdate(old runtime.Object) error {
 		return errors.New("cannot update a Redis service, connInfoSecretTarget.name field is immutable and cannot be updated")
 	}
 
-	return nil
+	return r.Spec.Validate()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type

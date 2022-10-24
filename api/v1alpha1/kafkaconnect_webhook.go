@@ -37,7 +37,7 @@ var _ webhook.Validator = &KafkaConnect{}
 func (r *KafkaConnect) ValidateCreate() error {
 	kafkaconnectlog.Info("validate create", "name", r.Name)
 
-	return nil
+	return r.Spec.Validate()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
@@ -48,7 +48,7 @@ func (r *KafkaConnect) ValidateUpdate(old runtime.Object) error {
 		return errors.New("cannot update a KafkaConnect service, project field is immutable and cannot be updated")
 	}
 
-	return nil
+	return r.Spec.Validate()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type

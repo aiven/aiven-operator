@@ -8,13 +8,13 @@ import (
 	"regexp"
 	"strconv"
 
+	"github.com/aiven/aiven-go-client"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/aiven/aiven-go-client"
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
@@ -58,7 +58,7 @@ func (h ProjectHandler) getLongCardID(client *aiven.Client, cardID string) (*str
 }
 
 // create creates a project on Aiven side
-func (h ProjectHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
+func (h ProjectHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs []client.Object) error {
 	project, err := h.convert(i)
 	if err != nil {
 		return err

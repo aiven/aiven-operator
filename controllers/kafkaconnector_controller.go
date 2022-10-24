@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"text/template"
 
+	"github.com/aiven/aiven-go-client"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -16,7 +17,6 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/aiven/aiven-go-client"
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
@@ -43,7 +43,7 @@ func (r *KafkaConnectorReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaConnectorHandler) createOrUpdate(avn *aiven.Client, o client.Object) error {
+func (h KafkaConnectorHandler) createOrUpdate(avn *aiven.Client, o client.Object, refs []client.Object) error {
 	conn, err := h.convert(o)
 	if err != nil {
 		return err

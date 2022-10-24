@@ -55,8 +55,12 @@ type ClickhouseList struct {
 	Items           []Clickhouse `json:"items"`
 }
 
-func (o Clickhouse) AuthSecretRef() AuthSecretReference {
-	return o.Spec.AuthSecretRef
+func (in *Clickhouse) AuthSecretRef() AuthSecretReference {
+	return in.Spec.AuthSecretRef
+}
+
+func (in *Clickhouse) GetRefs() []*ResourceReferenceObject {
+	return in.Spec.GetRefs(in.GetNamespace())
 }
 
 func init() {

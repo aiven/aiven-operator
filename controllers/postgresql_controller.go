@@ -7,13 +7,13 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/aiven/aiven-go-client"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/aiven/aiven-go-client"
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
@@ -48,15 +48,17 @@ func (h PostgreSQLHandler) exists(avn *aiven.Client, pg *v1alpha1.PostgreSQL) (b
 	return s != nil, nil
 }
 
-func (h PostgreSQLHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
+func (h PostgreSQLHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs []client.Object) error {
 	pg, err := h.convert(i)
 	if err != nil {
 		return err
 	}
 
-	var prVPCID *string
-	if pg.Spec.ProjectVPCID != "" {
-		prVPCID = &pg.Spec.ProjectVPCID
+	projectVPCID := pg.Spec.ProjectVPCID
+	if projectVPCID == "" {
+		if p := v1alpha1.FindProjectVPC(refs); p != nil {
+			projectVPCID = p.Status.ID
+		}
 	}
 
 	exists, err := h.exists(avn, pg)
@@ -73,7 +75,7 @@ func (h PostgreSQLHandler) createOrUpdate(avn *aiven.Client, i client.Object) er
 				pg.Spec.MaintenanceWindowTime),
 			Plan:                  pg.Spec.Plan,
 			TerminationProtection: pg.Spec.TerminationProtection,
-			ProjectVPCID:          prVPCID,
+			ProjectVPCID:          toOptionalStringPointer(projectVPCID),
 			ServiceName:           pg.Name,
 			ServiceType:           "pg",
 			UserConfig:            UserConfigurationToAPI(pg.Spec.UserConfig).(map[string]interface{}),
@@ -93,7 +95,7 @@ func (h PostgreSQLHandler) createOrUpdate(avn *aiven.Client, i client.Object) er
 				pg.Spec.MaintenanceWindowTime),
 			Plan:                  pg.Spec.Plan,
 			TerminationProtection: pg.Spec.TerminationProtection,
-			ProjectVPCID:          prVPCID,
+			ProjectVPCID:          toOptionalStringPointer(projectVPCID),
 			UserConfig:            UserConfigurationToAPI(pg.Spec.UserConfig).(map[string]interface{}),
 			Powered:               true,
 			DiskSpaceMB:           v1alpha1.ConvertDiscSpace(pg.Spec.DiskSpace),

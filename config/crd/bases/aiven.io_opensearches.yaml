@@ -91,6 +91,19 @@ spec:
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
+              projectVPCRef:
+                description: ProjectVPCRef reference to ProjectVPC resource to use
+                  its ID as ProjectVPCID automatically
+                properties:
+                  name:
+                    minLength: 1
+                    type: string
+                  namespace:
+                    minLength: 1
+                    type: string
+                required:
+                - name
+                type: object
               projectVpcId:
                 description: Identifier of the VPC the service should be in, if any.
                 maxLength: 36

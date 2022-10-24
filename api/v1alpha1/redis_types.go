@@ -169,8 +169,12 @@ type Redis struct {
 	Status ServiceStatus `json:"status,omitempty"`
 }
 
-func (r Redis) AuthSecretRef() AuthSecretReference {
-	return r.Spec.AuthSecretRef
+func (in *Redis) AuthSecretRef() AuthSecretReference {
+	return in.Spec.AuthSecretRef
+}
+
+func (in *Redis) GetRefs() []*ResourceReferenceObject {
+	return in.Spec.GetRefs(in.GetNamespace())
 }
 
 //+kubebuilder:object:root=true

@@ -7,8 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aiven/aiven-go-client"
 	"github.com/go-logr/logr"
 	"github.com/hashicorp/go-multierror"
+	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -17,7 +19,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	"github.com/aiven/aiven-go-client"
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
@@ -43,7 +44,7 @@ type (
 	// of the Aiven services lifecycle.
 	Handlers interface {
 		// create or updates an instance on the Aiven side.
-		createOrUpdate(*aiven.Client, client.Object) error
+		createOrUpdate(*aiven.Client, client.Object, []client.Object) error
 
 		// delete removes an instance on Aiven side.
 		// If an object is already deleted and cannot be found, it should not be an error. For other deletion
@@ -64,6 +65,13 @@ type (
 
 		AuthSecretRef() v1alpha1.AuthSecretReference
 	}
+
+	// refsObject returns references to dependent resources
+	refsObject interface {
+		client.Object
+
+		GetRefs() []*v1alpha1.ResourceReferenceObject
+	}
 )
 
 const (
@@ -77,7 +85,7 @@ const (
 	eventSuccessfullyDeletedAtAiven         = "SuccessfullyDeletedAtAiven"
 	eventAddedFinalizer                     = "InstanceFinalizerAdded"
 	eventUnableToAddFinalizer               = "UnableToAddFinalizer"
-	eventWaitingforPreconditions            = "WaitingForPreconditions"
+	eventWaitingForPreconditions            = "WaitingForPreconditions"
 	eventUnableToWaitForPreconditions       = "UnableToWaitForPreconditions"
 	eventPreconditionsAreMet                = "PreconditionsAreMet"
 	eventUnableToCreateOrUpdateAtAiven      = "UnableToCreateOrUpdateAtAiven"
@@ -182,13 +190,25 @@ func (i instanceReconcilerHelper) reconcileInstance(ctx context.Context, o clien
 
 	// check instance preconditions, if not met - requeue
 	i.log.Info("handling service update/creation")
-	if requeue, result, err := i.checkPreconditions(o); requeue {
-		return result, err
+	refs, err := i.getObjectRefs(ctx, o)
+	if err != nil {
+		i.log.Info(fmt.Sprintf("one or more references can't be found yet: %s", err))
+		return ctrl.Result{Requeue: true, RequeueAfter: requeueTimeout}, nil
+	}
+
+	requeue, err := i.checkPreconditions(ctx, o, refs)
+	if requeue {
+		// It must be possible to return requeue and error by design.
+		// By the time this comment created, there is no such case in checkPreconditions()
+		return ctrl.Result{Requeue: true, RequeueAfter: requeueTimeout}, err
+	}
+	if err != nil {
+		return ctrl.Result{}, err
 	}
 
 	if !isAlreadyProcessed(o) {
 		i.rec.Event(o, corev1.EventTypeNormal, eventCreateOrUpdatedAtAiven, "about to create instance at aiven")
-		if err := i.createOrUpdateInstance(o); err != nil {
+		if err := i.createOrUpdateInstance(o, refs); err != nil {
 			i.rec.Event(o, corev1.EventTypeWarning, eventUnableToCreateOrUpdateAtAiven, err.Error())
 			return ctrl.Result{}, fmt.Errorf("unable to create or update instance at aiven: %w", err)
 		}
@@ -224,23 +244,67 @@ func (i instanceReconcilerHelper) reconcileInstance(ctx context.Context, o clien
 	return ctrl.Result{}, nil
 }
 
-func (i instanceReconcilerHelper) checkPreconditions(o client.Object) (bool, ctrl.Result, error) {
-	i.rec.Event(o, corev1.EventTypeNormal, eventWaitingforPreconditions, "waiting for preconditions of the instance")
+func (i instanceReconcilerHelper) checkPreconditions(ctx context.Context, o client.Object, refs []client.Object) (bool, error) {
+	i.rec.Event(o, corev1.EventTypeNormal, eventWaitingForPreconditions, "waiting for preconditions of the instance")
+
+	// Checks references
+	if len(refs) > 0 {
+		for _, r := range refs {
+			if !(isAlreadyProcessed(r) && isAlreadyRunning(r)) {
+				i.log.Info("references are in progress")
+				return true, nil
+			}
+		}
+		i.log.Info("all references are good")
+	}
 
 	check, err := i.h.checkPreconditions(i.avn, o)
 	if err != nil {
 		i.rec.Event(o, corev1.EventTypeWarning, eventUnableToWaitForPreconditions, err.Error())
-		return true, ctrl.Result{}, fmt.Errorf("unable to wait for preconditions: %w", err)
+		return false, fmt.Errorf("unable to wait for preconditions: %w", err)
 	}
 
 	if !check {
 		i.log.Info("preconditions are not met, requeue")
-		return true, ctrl.Result{Requeue: true, RequeueAfter: requeueTimeout}, nil
+		return true, nil
 	}
 
 	i.rec.Event(o, corev1.EventTypeNormal, eventPreconditionsAreMet, "preconditions are met, proceeding to create or update")
+	return false, nil
+}
 
-	return false, ctrl.Result{}, nil
+func (i instanceReconcilerHelper) getObjectRefs(ctx context.Context, o client.Object) ([]client.Object, error) {
+	refsObj, ok := o.(refsObject)
+	if !ok {
+		return nil, nil
+	}
+
+	refs := refsObj.GetRefs()
+	if len(refs) == 0 {
+		return nil, nil
+	}
+
+	schema := i.k8s.Scheme()
+	objs := make([]client.Object, 0, len(refs))
+	for _, r := range refs {
+		runtimeObj, err := schema.New(r.GroupVersionKind)
+		if err != nil {
+			return nil, fmt.Errorf("unknown GroupVersionKind %s: %w", r.GroupVersionKind, err)
+		}
+
+		obj, ok := runtimeObj.(client.Object)
+		if !ok {
+			return nil, fmt.Errorf("gvk %s is not client.Object", r.GroupVersionKind)
+		}
+
+		err = i.k8s.Get(ctx, r.NamespacedName, obj)
+		if err != nil {
+			return nil, fmt.Errorf("cannot get client obj %+v: %w", r, err)
+		}
+		objs = append(objs, obj)
+	}
+
+	return objs, nil
 }
 
 // finalize runs finalization logic. If the finalization logic fails, don't remove the finalizer so
@@ -250,6 +314,14 @@ func (i instanceReconcilerHelper) finalize(ctx context.Context, o client.Object)
 	i.rec.Event(o, corev1.EventTypeNormal, eventTryingToDeleteAtAiven, "trying to delete instance at aiven")
 
 	finalised, err := i.h.delete(i.avn, o)
+
+	// There are dependencies on Aiven side, resets error, so it goes for requeue
+	// Handlers does not have logger, it goes here
+	if errors.Is(err, v1alpha1.ErrDeleteDependencies) {
+		i.log.Info("object has dependencies", "apiError", err)
+		err = nil
+	}
+
 	if err != nil && !i.canBeDeleted(o, err) {
 		i.rec.Event(o, corev1.EventTypeWarning, eventUnableToDeleteAtAiven, err.Error())
 		return ctrl.Result{}, fmt.Errorf("unable to delete instance at aiven: %w", err)
@@ -286,15 +358,16 @@ func (i instanceReconcilerHelper) canBeDeleted(o client.Object, err error) bool 
 		strings.Contains(err.Error(), "Invalid token")
 }
 
-func (i instanceReconcilerHelper) createOrUpdateInstance(o client.Object) error {
+func (i instanceReconcilerHelper) createOrUpdateInstance(o client.Object, refs []client.Object) error {
 	i.log.Info("generation wasn't processed, creation or updating instance on aiven side")
 	a := o.GetAnnotations()
 	delete(a, processedGenerationAnnotation)
 	delete(a, instanceIsRunningAnnotation)
 
-	if err := i.h.createOrUpdate(i.avn, o); err != nil {
+	if err := i.h.createOrUpdate(i.avn, o, refs); err != nil {
 		return fmt.Errorf("unable to create or update aiven instance: %w", err)
 	}
+
 	i.log.Info(
 		"processed instance, updating annotations",
 		"generation", o.GetGeneration(),
@@ -309,8 +382,18 @@ func (i instanceReconcilerHelper) updateInstanceStateAndSecretUntilRunning(ctx c
 	i.log.Info("checking if instance is ready")
 
 	defer func() {
+		// Order matters.
+		// First need to update the object, and then update the status.
+		// So dependent resources won't see READY before it has been updated with new values
+		// Clone is used so update won't overwrite in-memory values
+		clone := o.DeepCopyObject().(client.Object)
+		err = multierror.Append(err, i.k8s.Update(ctx, clone))
+
+		// Original object has been updated
+		o.SetResourceVersion(clone.GetResourceVersion())
+
+		// It's ready to cast its status
 		err = multierror.Append(err, i.k8s.Status().Update(ctx, o))
-		err = multierror.Append(err, i.k8s.Update(ctx, o))
 		err = err.(*multierror.Error).ErrorOrNil()
 	}()
 

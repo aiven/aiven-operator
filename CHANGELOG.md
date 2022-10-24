@@ -1,5 +1,13 @@
 # Changelog
 
+## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
+
+- Add ability to link resources through the references
+- Add `ProjectVPCRef` property to `Kafka`, `OpenSearch`, `Clickhouse` and `Redis` kinds
+  to get `ProjectVPC` ID when resource is ready
+- Improve `ProjectVPC` deletion, deletes by ID first if possible, then tries by name
+- Fix `client.Object` storage update data loss
+
 ## v0.4.0 - 2022-08-04
 
 - Upgrade to Go 1.18

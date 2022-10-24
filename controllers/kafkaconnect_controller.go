@@ -7,13 +7,13 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/aiven/aiven-go-client"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/aiven/aiven-go-client"
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
@@ -51,15 +51,17 @@ func (h KafkaConnectHandler) exists(avn *aiven.Client, i client.Object) (bool, e
 	return s != nil, nil
 }
 
-func (h KafkaConnectHandler) createOrUpdate(avn *aiven.Client, i client.Object) error {
+func (h KafkaConnectHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs []client.Object) error {
 	kc, err := h.convert(i)
 	if err != nil {
 		return err
 	}
 
-	var prVPCID *string
-	if kc.Spec.ProjectVPCID != "" {
-		prVPCID = &kc.Spec.ProjectVPCID
+	projectVPCID := kc.Spec.ProjectVPCID
+	if projectVPCID == "" {
+		if p := v1alpha1.FindProjectVPC(refs); p != nil {
+			projectVPCID = p.Status.ID
+		}
 	}
 
 	exits, err := h.exists(avn, i)
@@ -74,7 +76,7 @@ func (h KafkaConnectHandler) createOrUpdate(avn *aiven.Client, i client.Object) 
 				kc.Spec.MaintenanceWindowDow,
 				kc.Spec.MaintenanceWindowTime),
 			Plan:                kc.Spec.Plan,
-			ProjectVPCID:        prVPCID,
+			ProjectVPCID:        toOptionalStringPointer(projectVPCID),
 			ServiceName:         kc.Name,
 			ServiceType:         "kafka_connect",
 			UserConfig:          UserConfigurationToAPI(kc.Spec.UserConfig).(map[string]interface{}),
@@ -92,7 +94,7 @@ func (h KafkaConnectHandler) createOrUpdate(avn *aiven.Client, i client.Object) 
 				kc.Spec.MaintenanceWindowDow,
 				kc.Spec.MaintenanceWindowTime),
 			Plan:         kc.Spec.Plan,
-			ProjectVPCID: prVPCID,
+			ProjectVPCID: toOptionalStringPointer(projectVPCID),
 			UserConfig:   UserConfigurationToAPI(kc.Spec.UserConfig).(map[string]interface{}),
 			Powered:      true,
 		})

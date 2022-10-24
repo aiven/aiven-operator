@@ -369,8 +369,12 @@ type PostgreSQL struct {
 	Status ServiceStatus  `json:"status,omitempty"`
 }
 
-func (pg PostgreSQL) AuthSecretRef() AuthSecretReference {
-	return pg.Spec.AuthSecretRef
+func (in *PostgreSQL) AuthSecretRef() AuthSecretReference {
+	return in.Spec.AuthSecretRef
+}
+
+func (in *PostgreSQL) GetRefs() []*ResourceReferenceObject {
+	return in.Spec.GetRefs(in.GetNamespace())
 }
 
 // +kubebuilder:object:root=true
