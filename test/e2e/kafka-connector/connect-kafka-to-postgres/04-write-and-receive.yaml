@@ -27,8 +27,8 @@ commands:
       }
     }
     EOF
-
-    kafkacat \
+      
+    kcat \
         -b $HOST:$PORT \
         -X security.protocol=SSL \
         -X ssl.ca.location=/tmp/kafkacat/ca.crt \
