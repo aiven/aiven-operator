@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.5.0 - 2022-11-27
+
 - Add ability to link resources through the references
 - Add `ProjectVPCRef` property to `Kafka`, `OpenSearch`, `Clickhouse` and `Redis` kinds
   to get `ProjectVPC` ID when resource is ready
