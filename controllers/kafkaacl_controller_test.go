@@ -7,13 +7,14 @@ import (
 	"os"
 	"time"
 
-	"k8s.io/apimachinery/pkg/api/meta"
-
-	"github.com/aiven/aiven-operator/api/v1alpha1"
+	"github.com/aiven/aiven-go-client"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 var _ = Describe("Kafka ACL Controller", func() {
@@ -32,17 +33,19 @@ var _ = Describe("Kafka ACL Controller", func() {
 		serviceName string
 		topicName   string
 		userName    string
+		projectName string
 		ctx         context.Context
 	)
 
 	BeforeEach(func() {
 		ctx = context.Background()
+		projectName = os.Getenv("AIVEN_PROJECT_NAME")
 		serviceName = "k8s-test-kafka-acl-acc-" + generateRandomID()
 		topicName = "k8s-test-kafka-acl-acc-" + generateRandomID()
 		userName = "k9s-acl1"
 		kafka = kafkaSpec(serviceName, namespace)
 		kafkaTopic = kafkaTopicSpec(serviceName, topicName, namespace)
-		acl = kafkaACLSpec(serviceName, topicName, userName, namespace)
+		acl = kafkaACLSpec(projectName, serviceName, topicName, userName, namespace)
 
 		By("Creating a new Kafka instance")
 		Expect(k8sClient.Create(ctx, kafka)).Should(Succeed())
@@ -77,8 +80,22 @@ var _ = Describe("Kafka ACL Controller", func() {
 	})
 
 	AfterEach(func() {
+		By("Ensures that Kafka ACL exists in Aiven")
+		createdACL := &v1alpha1.KafkaACL{}
+		lookupKey := types.NamespacedName{Name: userName, Namespace: namespace}
+		err := k8sClient.Get(ctx, lookupKey, createdACL)
+		Expect(err).To(BeNil())
+		a, err := aivenClient.KafkaACLs.Get(projectName, createdACL.Spec.ServiceName, createdACL.Status.ID)
+		Expect(err).To(BeNil())
+		Expect(a).NotTo(BeNil())
+
 		By("Ensures that Kafka ACL instance was deleted")
 		ensureDelete(ctx, acl)
+
+		By("Ensures that Kafka ACL is deleted on Aiven side")
+		a, err = aivenClient.KafkaACLs.Get(projectName, createdACL.Spec.ServiceName, createdACL.Status.ID)
+		Expect(a).To(BeNil())
+		Expect(aiven.IsNotFound(err)).To(BeTrue())
 
 		By("Ensures that Kafka Topic instance was deleted")
 		ensureDelete(ctx, kafkaTopic)
@@ -88,7 +105,7 @@ var _ = Describe("Kafka ACL Controller", func() {
 	})
 })
 
-func kafkaACLSpec(service, topic, userName, namespace string) *v1alpha1.KafkaACL {
+func kafkaACLSpec(project, service, topic, userName, namespace string) *v1alpha1.KafkaACL {
 	return &v1alpha1.KafkaACL{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "aiven.io/v1alpha1",
@@ -99,7 +116,7 @@ func kafkaACLSpec(service, topic, userName, namespace string) *v1alpha1.KafkaACL
 			Namespace: namespace,
 		},
 		Spec: v1alpha1.KafkaACLSpec{
-			Project:     os.Getenv("AIVEN_PROJECT_NAME"),
+			Project:     project,
 			ServiceName: service,
 			Permission:  "admin",
 			Topic:       topic,

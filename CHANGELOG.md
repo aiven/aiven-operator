@@ -9,6 +9,7 @@
   to get `ProjectVPC` ID when resource is ready
 - Improve `ProjectVPC` deletion, deletes by ID first if possible, then tries by name
 - Fix `client.Object` storage update data loss
+- Fix `KafkaACL` deletion
 
 ## v0.4.0 - 2022-08-04
 

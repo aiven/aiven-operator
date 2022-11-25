@@ -15,11 +15,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/aiven/aiven-go-client"
-	"github.com/aiven/aiven-operator/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 // ClickhouseUserReconciler reconciles a ClickhouseUser object
@@ -57,7 +58,7 @@ func (r *ClickhouseUserReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 		return ctrl.Result{}, fmt.Errorf("cannot get secret %q: %w", user.AuthSecretRef().Name, err)
 	}
 
-	avn, err := aiven.NewTokenClient(string(clientAuthSecret.Data[user.AuthSecretRef().Key]), "k8s-operator/")
+	avn, err := aiven.NewTokenClient(string(clientAuthSecret.Data[user.AuthSecretRef().Key]), operatorUserAgent)
 	if err != nil {
 		r.Controller.Recorder.Event(user, corev1.EventTypeWarning, eventUnableToCreateClient, err.Error())
 		return ctrl.Result{}, fmt.Errorf("cannot initialize aiven client: %w", err)

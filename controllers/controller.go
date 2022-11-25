@@ -121,7 +121,7 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 		token = string(clientAuthSecret.Data[o.AuthSecretRef().Key])
 	}
 
-	avn, err := aiven.NewTokenClient(token, "k8s-operator/")
+	avn, err := aiven.NewTokenClient(token, operatorUserAgent)
 	if err != nil {
 		c.Recorder.Event(o, corev1.EventTypeWarning, eventUnableToCreateClient, err.Error())
 		return ctrl.Result{}, fmt.Errorf("cannot initialize aiven client: %w", err)
