@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-
 	"strconv"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -21,6 +20,7 @@ const (
 
 	processedGenerationAnnotation = "controllers.aiven.io/generation-was-processed"
 	instanceIsRunningAnnotation   = "controllers.aiven.io/instance-is-running"
+	operatorUserAgent             = "k8s-operator/"
 )
 
 func checkServiceIsRunning(c *aiven.Client, project, serviceName string) (bool, error) {

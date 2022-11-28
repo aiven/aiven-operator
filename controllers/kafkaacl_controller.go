@@ -5,6 +5,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strconv"
 
 	"github.com/aiven/aiven-go-client"
@@ -83,7 +84,18 @@ func (h KafkaACLHandler) delete(avn *aiven.Client, i client.Object) (bool, error
 		return false, err
 	}
 
-	err = avn.KafkaACLs.Delete(acl.Spec.Project, acl.Spec.ServiceName, acl.Status.ID)
+	// Server returns 404 if resource doesn't exist OR it's just an invalid URL, so having ID is mandatory
+	// This workaround fixes existing ACLs created without ID
+	id := acl.Status.ID
+	if id == "" {
+		aivenACL, err := h.getAivenACL(avn, acl)
+		if err != nil {
+			return false, err
+		}
+		id = aivenACL.ID
+	}
+
+	err = avn.KafkaACLs.Delete(acl.Spec.Project, acl.Spec.ServiceName, id)
 	if err != nil && !aiven.IsNotFound(err) {
 		return false, fmt.Errorf("aiven client delete Kafka ACL error: %w", err)
 	}
@@ -92,35 +104,48 @@ func (h KafkaACLHandler) delete(avn *aiven.Client, i client.Object) (bool, error
 }
 
 func (h KafkaACLHandler) exists(avn *aiven.Client, acl *v1alpha1.KafkaACL) (bool, error) {
-	var aivenACL *aiven.KafkaACL
-	var err error
-	if acl.Status.ID != "" {
-		aivenACL, err = avn.KafkaACLs.Get(acl.Spec.Project, acl.Spec.ServiceName, acl.Status.ID)
-		if err != nil {
-			return false, err
-		}
-	} else {
-		list, err := avn.KafkaACLs.List(acl.Spec.Project, acl.Spec.ServiceName)
-		if err != nil {
-			return false, err
-		}
+	a, err := h.getAivenACL(avn, acl)
+	if aiven.IsNotFound(err) {
+		return false, nil
+	}
 
-		for _, a := range list {
-			if acl.Spec.Topic == a.Topic && acl.Spec.Username == a.Username && acl.Spec.Permission == a.Permission {
-				aivenACL = a
-			}
+	return a != nil, err
+}
+
+func (h KafkaACLHandler) getAivenACL(avn *aiven.Client, acl *v1alpha1.KafkaACL) (*aiven.KafkaACL, error) {
+	// This object already has ID
+	if acl.Status.ID != "" {
+		return avn.KafkaACLs.Get(acl.Spec.Project, acl.Spec.ServiceName, acl.Status.ID)
+	}
+
+	// First time lookup
+	list, err := avn.KafkaACLs.List(acl.Spec.Project, acl.Spec.ServiceName)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, a := range list {
+		if acl.Spec.Topic == a.Topic && acl.Spec.Username == a.Username && acl.Spec.Permission == a.Permission {
+			return a, nil
 		}
 	}
 
-	return aivenACL != nil, nil
+	// Error should mimic client error to play well with aiven.IsNotFound(err)
+	return nil, aiven.Error{Status: http.StatusNotFound, Message: "Kafka ACL not found"}
 }
 
-func (h KafkaACLHandler) get(_ *aiven.Client, i client.Object) (*corev1.Secret, error) {
+func (h KafkaACLHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, error) {
 	acl, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
+	aivenACL, err := h.getAivenACL(avn, acl)
+	if err != nil {
+		return nil, err
+	}
+
+	acl.Status.ID = aivenACL.ID
 	meta.SetStatusCondition(&acl.Status.Conditions,
 		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 			"Instance is running on Aiven side"))

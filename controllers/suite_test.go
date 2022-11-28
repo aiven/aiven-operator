@@ -12,18 +12,17 @@ import (
 	"testing"
 	"time"
 
+	"github.com/aiven/aiven-go-client"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	ctrl "sigs.k8s.io/controller-runtime"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -35,6 +34,7 @@ import (
 
 var cfg *rest.Config
 var k8sClient client.Client
+var aivenClient *aiven.Client
 var testEnv *envtest.Environment
 
 const secretRefName = "aiven-token"
@@ -77,6 +77,10 @@ var _ = BeforeSuite(func() {
 	k8sClient, err = client.New(cfg, client.Options{Scheme: scheme.Scheme})
 	Expect(err).NotTo(HaveOccurred())
 	Expect(k8sClient).NotTo(BeNil())
+
+	aivenClient, err = aiven.NewTokenClient(aivenToken, operatorUserAgent)
+	Expect(err).NotTo(HaveOccurred())
+	Expect(aivenClient).NotTo(BeNil())
 
 	k8sManager, err := ctrl.NewManager(cfg, ctrl.Options{
 		Scheme:             scheme.Scheme,
