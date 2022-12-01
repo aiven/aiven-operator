@@ -10,7 +10,7 @@ See
 our [Getting Started with Service Integrations guide](https://help.aiven.io/en/articles/1456441-getting-started-with-service-integrations)
 for more information.
 
-> Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites/) with the [operator installed](../installation/), and a [Kubernetes Secret with an Aiven authentication token](../authentication/).
+> Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/), and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
 
 ## Send Kafka logs to a Kafka Topic
 

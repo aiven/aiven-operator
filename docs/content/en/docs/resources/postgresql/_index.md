@@ -11,7 +11,7 @@ extender for location queries. Aiven for PostgreSQL is the perfect fit for your 
 
 With Aiven Kubernetes Operator, you can manage Aiven for PostgreSQL through the well defined Kubernetes API.
 
-> Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites/) with the [operator installed](../installation/), and a [Kubernetes Secret with an Aiven authentication token](../authentication/).
+> Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/), and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
 
 ## Creating a PostgreSQL instance
 
