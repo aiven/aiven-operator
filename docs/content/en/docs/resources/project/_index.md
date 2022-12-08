@@ -4,7 +4,7 @@ linkTitle: "Aiven Project"
 weight: 5
 ---
 
-> Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites/) with the [operator installed](../installation/) and a [Kubernetes Secret with an Aiven authentication token](../authentication/).
+> Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/) and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
 
 The `Project` CRD allows you to create Aiven Projects, where your resources can be located.
 
