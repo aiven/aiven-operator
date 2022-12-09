@@ -2,6 +2,10 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.5.2 - 2022-12-09
+
+- Fix deployment release manifest generation
+
 ## v0.5.1 - 2022-11-28
 
 - Fix `KafkaACL` deletion
