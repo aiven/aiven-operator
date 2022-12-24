@@ -17,4 +17,5 @@ resources:
 - _v1alpha1_redis.yaml
 - _v1alpha1_serviceintegration.yaml
 - _v1alpha1_serviceuser.yaml
+- _v1alpha1_mysql.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

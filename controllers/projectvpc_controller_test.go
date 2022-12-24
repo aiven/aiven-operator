@@ -35,15 +35,15 @@ var _ = Describe("ProjectVPC can't be deleted while it has dependencies", func()
 		kafkaLookupKey := types.NamespacedName{Name: serviceName, Namespace: namespace}
 		projectVPLookupCKey := types.NamespacedName{Name: projectVPCName, Namespace: namespace}
 
-		It("ProjectVPC and Kafka are created", func() {
+		It("Deletes project VPC after dependent kafka deleted", func() {
+			// "ProjectVPC and Kafka are created"
 			By("Creating a new ProjectVPC CR instance")
 			Expect(k8sClient.Create(ctx, projectVPCObj)).Should(Succeed())
 
 			By("Creating a new Kafka CR instance")
 			Expect(k8sClient.Create(ctx, kafkaObj)).Should(Succeed())
-		})
 
-		It("Kafka is running", func() {
+			// "Kafka is running"
 			createdKafka := &v1alpha1.Kafka{}
 			// We'll need to retry getting this newly created Kafka,
 			// given that creation may not immediately happen.
@@ -63,9 +63,8 @@ var _ = Describe("ProjectVPC can't be deleted while it has dependencies", func()
 
 				return false
 			}, timeout, interval).Should(BeTrue())
-		})
 
-		It("Kafka deletion blocks ProjectVPC deletion", func() {
+			// "Kafka blocks ProjectVPC deletion"
 			By("Tries to delete ProjectVPC but fails")
 			Expect(k8sClient.Delete(ctx, projectVPCObj)).Should(Succeed())
 
@@ -73,9 +72,8 @@ var _ = Describe("ProjectVPC can't be deleted while it has dependencies", func()
 			createdProjectVPC := &v1alpha1.ProjectVPC{}
 			Expect(k8sClient.Get(ctx, projectVPLookupCKey, createdProjectVPC)).Should(Succeed())
 			Expect(createdProjectVPC.Status.State).Should(Equal("ACTIVE"))
-		})
 
-		It("Deletes Kafka, ProjectVPC deleted later automatically", func() {
+			// "Deletes Kafka, ProjectVPC deleted later automatically"
 			By("Ensures that Kafka instance was deleted")
 			ensureDelete(ctx, kafkaObj)
 

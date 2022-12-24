@@ -104,7 +104,7 @@ func chSpec(serviceName, namespace string) *v1alpha1.Clickhouse {
 		Spec: v1alpha1.ClickhouseSpec{
 			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
 				Project:   os.Getenv("AIVEN_PROJECT_NAME"),
-				Plan:      "business-beta-8",
+				Plan:      "business-16",
 				CloudName: "google-europe-west1",
 				Tags:      map[string]string{"key1": "value1"},
 			},

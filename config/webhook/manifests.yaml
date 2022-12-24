@@ -211,6 +211,26 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
+      path: /mutate-aiven-io-v1alpha1-mysql
+  failurePolicy: Fail
+  name: mpg.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - mysqls
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
       path: /mutate-aiven-io-v1alpha1-opensearch
   failurePolicy: Fail
   name: mopensearch.kb.io
@@ -558,6 +578,27 @@ webhooks:
     - DELETE
     resources:
     - kafkatopics
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-aiven-io-v1alpha1-mysql
+  failurePolicy: Fail
+  name: vpg.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - mysqls
   sideEffects: None
 - admissionReviewVersions:
   - v1

@@ -109,13 +109,14 @@ test: manifests generate fmt vet envtest ginkgo ## Run tests.
 	KUBEBUILDER_ATTACH_CONTROL_PLANE_OUTPUT=true \
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" \
 	$(GINKGO) \
-    		--nodes=6 \
-    		--race \
-    		--randomize-all \
-    		--trace \
-    		--fail-fast \
-    		--progress \
-    		./controllers
+			--output-interceptor-mode=none \
+			--nodes=6 \
+			--race \
+			--randomize-all \
+			--trace \
+			--fail-fast \
+			--progress \
+			./controllers
 
 test-e2e: build ## Run end-to-end tests using kuttl (https://kuttl.dev/)
 	@[ "${AIVEN_TOKEN}" ] || ( echo ">> variable AIVEN_TOKEN is not set"; exit 1 )
@@ -129,7 +130,7 @@ build: generate fmt vet ## Build manager binary.
 	go build -o bin/manager main.go
 
 .PHONY: run
-run: manifests generate fmt vet ## Run a controller from your host.
+run: manifests generate install fmt vet ## Run a controller from your host.
 	go run ./main.go
 
 .PHONY: docker-build

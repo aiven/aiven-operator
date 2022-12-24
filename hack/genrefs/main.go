@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -40,7 +40,7 @@ func main() {
 }
 
 func initialRenderApiDocs() ([]byte, error) {
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "gen-api-reference-*")
+	tmpFile, err := os.CreateTemp(os.TempDir(), "gen-api-reference-*")
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func initialRenderApiDocs() ([]byte, error) {
 		return nil, err
 	}
 
-	return ioutil.ReadAll(tmpFile)
+	return io.ReadAll(tmpFile)
 }
 
 func fixInternalTypeAnchors(renderedApiDocs []byte) ([]byte, error) {

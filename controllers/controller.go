@@ -10,6 +10,7 @@ import (
 	"github.com/aiven/aiven-go-client"
 	"github.com/go-logr/logr"
 	"github.com/hashicorp/go-multierror"
+	"github.com/liip/sheriff"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -481,6 +482,30 @@ func UserConfigurationToAPI(c interface{}) interface{} {
 	}
 
 	return result
+}
+
+// UserConfigurationToAPIV2 same as UserConfigurationToAPI but uses sheriff.Marshal
+// which can subset fields from create or update operation
+func UserConfigurationToAPIV2(c interface{}, groups []string) (map[string]interface{}, error) {
+	if c == nil {
+		return nil, nil
+	}
+
+	o := &sheriff.Options{
+		Groups: groups,
+	}
+
+	i, err := sheriff.Marshal(o, c)
+	if err != nil {
+		return nil, err
+	}
+
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("invalid user config type")
+	}
+
+	return m, nil
 }
 
 func isNil(i interface{}) bool {
