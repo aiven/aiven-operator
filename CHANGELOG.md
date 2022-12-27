@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Remove "never" from choices of maintenance dow
+
 ## v0.5.2 - 2022-12-09
 
 - Fix deployment release manifest generation
