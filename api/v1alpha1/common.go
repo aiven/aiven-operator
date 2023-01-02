@@ -62,7 +62,7 @@ type ServiceCommonSpec struct {
 	// ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically
 	ProjectVPCRef *ResourceReference `json:"projectVPCRef,omitempty"`
 
-	// +kubebuilder:validation:Enum=monday;tuesday;wednesday;thursday;friday;saturday;sunday;never
+	// +kubebuilder:validation:Enum=monday;tuesday;wednesday;thursday;friday;saturday;sunday
 	// Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.
 	MaintenanceWindowDow string `json:"maintenanceWindowDow,omitempty"`
 

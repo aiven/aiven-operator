@@ -75,7 +75,6 @@ spec:
                 - friday
                 - saturday
                 - sunday
-                - never
                 type: string
               maintenanceWindowTime:
                 description: Time of day when maintenance operations should be performed.
