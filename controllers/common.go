@@ -20,8 +20,9 @@ const (
 
 	processedGenerationAnnotation = "controllers.aiven.io/generation-was-processed"
 	instanceIsRunningAnnotation   = "controllers.aiven.io/instance-is-running"
-	operatorUserAgent             = "k8s-operator/"
 )
+
+var operatorUserAgent = "k8s-operator/" + aiven.Version()
 
 func checkServiceIsRunning(c *aiven.Client, project, serviceName string) (bool, error) {
 	s, err := c.Services.Get(project, serviceName)
