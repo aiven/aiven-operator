@@ -3,6 +3,7 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - Remove "never" from choices of maintenance dow
+- Add `development` flag to configure logger's behavior
 
 ## v0.5.2 - 2022-12-09
 
