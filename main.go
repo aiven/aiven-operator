@@ -20,6 +20,8 @@ import (
 	//+kubebuilder:scaffold:imports
 )
 
+//go:generate go run ./userconfigs_generator/... --services mysql
+
 var (
 	scheme   = runtime.NewScheme()
 	setupLog = ctrl.Log.WithName("setup")
@@ -29,7 +31,6 @@ const port = 9443
 
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
-
 	utilruntime.Must(v1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
@@ -307,6 +308,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err = (&controllers.MySQLReconciler{
+		Controller: controllers.Controller{
+			Client:       mgr.GetClient(),
+			Log:          ctrl.Log.WithName("controllers").WithName("MySQL"),
+			Scheme:       mgr.GetScheme(),
+			Recorder:     mgr.GetEventRecorderFor("mysql-reconciler"),
+			DefaultToken: defaultToken,
+		},
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "MySQL")
+		os.Exit(1)
+	}
+
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
 		if err = (&v1alpha1.Project{}).SetupWebhookWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create webhook", "webhook", "Project")
@@ -388,6 +402,10 @@ func main() {
 
 		if err = (&v1alpha1.ClickhouseUser{}).SetupWebhookWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create webhook", "webhook", "ClickhouseUser")
+			os.Exit(1)
+		}
+		if err = (&v1alpha1.MySQL{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "MySQL")
 			os.Exit(1)
 		}
 	}

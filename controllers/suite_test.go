@@ -294,6 +294,16 @@ var _ = BeforeSuite(func() {
 		},
 	}).SetupWithManager(k8sManager)).To(Succeed())
 
+	// set-up MySQL reconciler
+	Expect((&MySQLReconciler{
+		Controller{
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("MySQL"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("mysql-reconciler"),
+		},
+	}).SetupWithManager(k8sManager)).To(Succeed())
+
 	go func() {
 		Expect(k8sManager.Start(ctrl.SetupSignalHandler())).To(Succeed())
 	}()
@@ -319,7 +329,11 @@ func ensureDelete(ctx context.Context, instance client.Object) {
 		err := k8sClient.Get(ctx, names, instance)
 
 		return apierrors.IsNotFound(err)
-	}, time.Minute*10, time.Second*5, "wait for instance to be gone from k8s").Should(BeTrue())
+	}, time.Minute*20, time.Second*5, "wait for instance to be gone from k8s").Should(BeTrue())
+}
+
+func anyPointer[T any](v T) *T {
+	return &v
 }
 
 // boolPointer converts boolean to *bool

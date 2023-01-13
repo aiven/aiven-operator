@@ -1,0 +1,20 @@
+# permissions for end users to view mysqls.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mysql-viewer-role
+rules:
+- apiGroups:
+  - aiven.io
+  resources:
+  - mysqls
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - mysqls/status
+  verbs:
+  - get

@@ -1,0 +1,27 @@
+apiVersion: aiven.io/v1alpha1
+kind: MySQL
+metadata:
+  name: k8s-e2e-mysql-simple
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: mysql-secret
+
+  project: aiven-ci-kubernetes-operator
+
+  cloudName: google-europe-west1
+  plan: business-4
+
+  maintenanceWindowDow: sunday
+  maintenanceWindowTime: 11:00:00
+
+  userConfig:
+    backup_hour: 17
+    backup_minute: 11
+    ip_filter:
+      - network: 0.0.0.0
+        description: whatever
+      - network: 10.20.0.0/16

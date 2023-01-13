@@ -4,6 +4,9 @@
 
 - Remove "never" from choices of maintenance dow
 - Add `development` flag to configure logger's behavior
+- Add user config generator (see `make generate-user-configs`)
+- Add `genericServiceHandler` to generalize service management 
+- Add MySQL Kind
 
 ## v0.5.2 - 2022-12-09
 
