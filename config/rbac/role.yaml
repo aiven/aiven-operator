@@ -27,6 +27,32 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
+  - cassandras
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - cassandras/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
+  - cassandras/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
   - clickhouses
   verbs:
   - create

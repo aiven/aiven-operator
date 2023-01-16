@@ -304,6 +304,16 @@ var _ = BeforeSuite(func() {
 		},
 	}).SetupWithManager(k8sManager)).To(Succeed())
 
+	// set-up Cassandra reconciler
+	Expect((&CassandraReconciler{
+		Controller{
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Cassandra"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("cassandra-reconciler"),
+		},
+	}).SetupWithManager(k8sManager)).To(Succeed())
+
 	go func() {
 		Expect(k8sManager.Start(ctrl.SetupSignalHandler())).To(Succeed())
 	}()

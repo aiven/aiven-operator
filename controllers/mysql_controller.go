@@ -53,10 +53,6 @@ func (a *mySQLAdapter) getObjectMeta() *metav1.ObjectMeta {
 	return &a.ObjectMeta
 }
 
-func (a *mySQLAdapter) getServiceName() string {
-	return a.Name
-}
-
 func (a *mySQLAdapter) getServiceStatus() *v1alpha1.ServiceStatus {
 	return &a.Status
 }
