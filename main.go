@@ -20,7 +20,7 @@ import (
 	//+kubebuilder:scaffold:imports
 )
 
-//go:generate go run ./userconfigs_generator/... --services mysql,cassandra
+//go:generate go run ./userconfigs_generator/... --services mysql,cassandra,grafana
 
 var (
 	scheme   = runtime.NewScheme()
@@ -334,6 +334,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err = (&controllers.GrafanaReconciler{
+		Controller: controllers.Controller{
+			Client:       mgr.GetClient(),
+			Log:          ctrl.Log.WithName("controllers").WithName("Grafana"),
+			Scheme:       mgr.GetScheme(),
+			Recorder:     mgr.GetEventRecorderFor("grafana-reconciler"),
+			DefaultToken: defaultToken,
+		},
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Grafana")
+		os.Exit(1)
+	}
+
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
 		if err = (&v1alpha1.Project{}).SetupWebhookWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create webhook", "webhook", "Project")
@@ -423,6 +436,10 @@ func main() {
 		}
 		if err = (&v1alpha1.Cassandra{}).SetupWebhookWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create webhook", "webhook", "Cassandra")
+			os.Exit(1)
+		}
+		if err = (&v1alpha1.Grafana{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Grafana")
 			os.Exit(1)
 		}
 	}

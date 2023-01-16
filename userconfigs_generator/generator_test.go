@@ -22,8 +22,9 @@ func TestNewUserConfigFile(t *testing.T) {
 	file, err := newUserConfigFile("pg_user_config", obj)
 	assert.NoError(t, err)
 
-	// Result is a go file, but marked to be ignored
-	ignore := "//go:build exclude\n"
+	// Result is a go file, but marked to be ignored.
+	// Empty lines add to make IDE formatter be happy with that.
+	ignore := "//go:build exclude\n\n"
 	expectedStr := string(expected)[len(ignore):]
 
 	// Leave the var for debugging with a break point
