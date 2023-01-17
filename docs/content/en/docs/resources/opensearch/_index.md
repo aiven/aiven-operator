@@ -1,0 +1,153 @@
+---
+title: "OpenSearch"
+linkTitle: "OpenSearch"
+weight: 45
+---
+
+OpenSearch® is an open source search and analytics suite including search engine, NoSQL document database, and visualization interface. OpenSearch offers a distributed, full-text search engine based on Apache Lucene® with a RESTful API interface and support for JSON documents.
+
+> Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/) and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
+
+## Creating an OpenSearch instance
+
+1. Create a file named `os-sample.yaml`, and add the following content: 
+
+```yaml
+apiVersion: aiven.io/v1alpha1
+kind: OpenSearch
+metadata:
+  name: os-sample
+spec:
+  # gets the authentication token from the `aiven-token` Secret
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  # outputs the OpenSearch connection on the `opensearch-connection` Secret
+  connInfoSecretTarget:
+    name: os-token
+
+  # add your Project name here
+  project: <your-project-name>
+
+  # cloud provider and plan of your choice
+  # you can check all of the possibilities here https://aiven.io/pricing
+  cloudName: google-europe-west1
+  plan: startup-2
+
+  # general Aiven configuration
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00
+```
+
+2. Create the service by applying the configuration:
+
+```bash
+$ kubectl apply -f os-sample.yaml 
+```
+
+3. Review the resource you created with this command:
+
+```bash
+$ kubectl get opensearch.aiven.io os-sample
+```
+
+The output is similar to the following:
+
+```bash
+NAME           PROJECT          REGION                PLAN        STATE
+os-sample   <your-project>   google-europe-west1   startup-2     RUNNING
+```
+
+The resource will be in the `BUILDING` state for a few minutes. Once the state changes to `RUNNING`, you can access the resource.
+
+
+## Using the connection Secret
+
+For your convenience, the operator automatically stores the OpenSearch connection information in a Secret created with the
+name specified on the `connInfoSecretTarget` field.
+
+To view the details of the Secret, use the following command:
+
+```bash
+$ kubectl describe secret os-token 
+```
+
+The output is similar to the following:
+
+```bash
+
+
+
+```
+
+You can use the [jq](https://github.com/stedolan/jq) to quickly decode the Secret:
+
+```bash
+$ kubectl get secret os-token -o json | jq '.data | map_values(@base64d)'
+```
+
+The output is similar to the following:
+
+```bash
+{
+  "CA_CERT": "<secret-ca-cert>",
+  "ACCESS_CERT": "<secret-cert>",
+  "ACCESS_KEY": "<secret-access-key>",
+  "HOST": "os-sample-your-project.aivencloud.com",
+  "PASSWORD": "<secret-password>",
+  "PORT": "13041",
+  "USERNAME": "avnadmin"
+}
+```
+
+## Testing the connection
+
+## Creating an OpenSearch user
+
+You can create service users for your instance of Aiven for OpenSearch. Service users are unique to this instance and are not shared with any other services.
+
+1. Create a file named os-service-user.yaml:
+
+```yaml
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUser
+metadata:
+  name: os-service-user
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: os-service-user-connection
+
+  project: <your-project-name>
+  serviceName: os-sample
+```
+
+2. Create the user by applying the configuration:
+
+```bash
+$ kubectl apply -f os-service-user.yaml
+```
+
+The `ServiceUser` resource generates a Secret with connection information. 
+
+3. View the details of the Secret using the following command:
+
+```bash
+$ kubectl get secret os-service-user-connection -o json | jq '.data | map_values(@base64d)'
+```
+
+The output is similar to the following:
+
+```bash
+{
+  "PASSWORD": "<secret-password>",
+  "USERNAME": "os-service-user"
+}
+```
+
+You can connect to the OpenSearch instance using these credentials and the host information from the `os-token` Secret.
+
