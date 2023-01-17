@@ -30,6 +30,7 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 	}
 
 	spec := o.getServiceCommonSpec()
+	ometa := o.getObjectMeta()
 
 	// Project id reference
 	// Could be right in spec or referenced (has ref)
@@ -40,7 +41,7 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 		}
 	}
 
-	_, err = a.Services.Get(spec.Project, o.getServiceName())
+	_, err = a.Services.Get(spec.Project, ometa.Name)
 	exists := err == nil
 	if !exists && !aiven.IsNotFound(err) {
 		return fmt.Errorf("failed to fetch service: %w", err)
@@ -68,7 +69,7 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 		if err != nil {
 			return err
 		}
-		_, err = a.Services.Update(spec.Project, o.getServiceName(), req)
+		_, err = a.Services.Update(spec.Project, ometa.Name, req)
 		if err != nil {
 			return fmt.Errorf("failed to update service: %w", err)
 		}
@@ -94,7 +95,7 @@ func (h *genericServiceHandler) delete(a *aiven.Client, object client.Object) (b
 		return false, err
 	}
 
-	err = a.Services.Delete(o.getServiceCommonSpec().Project, o.getServiceName())
+	err = a.Services.Delete(o.getServiceCommonSpec().Project, o.getObjectMeta().Name)
 	if err == nil || aiven.IsNotFound(err) {
 		return true, nil
 	}
@@ -108,7 +109,7 @@ func (h *genericServiceHandler) get(a *aiven.Client, object client.Object) (*cor
 		return nil, err
 	}
 
-	s, err := a.Services.Get(o.getServiceCommonSpec().Project, o.getServiceName())
+	s, err := a.Services.Get(o.getServiceCommonSpec().Project, o.getObjectMeta().Name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get service from Aiven: %w", err)
 	}
@@ -120,9 +121,12 @@ func (h *genericServiceHandler) get(a *aiven.Client, object client.Object) (*cor
 			getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
 
 		metav1.SetMetaDataAnnotation(o.getObjectMeta(), instanceIsRunningAnnotation, "true")
-	}
 
-	return o.newSecret(s), nil
+		// Some services get secrets after they are running only,
+		// like ip addresses (hosts)
+		return o.newSecret(s), nil
+	}
+	return nil, nil
 }
 
 // checkPreconditions not required for now by services to be implemented
@@ -137,7 +141,6 @@ type serviceAdapterFabric func(client.Object) (serviceAdapter, error)
 type serviceAdapter interface {
 	// Getters
 	getObjectMeta() *metav1.ObjectMeta
-	getServiceName() string
 	getServiceStatus() *v1alpha1.ServiceStatus
 	getServiceCommonSpec() *v1alpha1.ServiceCommonSpec
 	getUserConfig() any

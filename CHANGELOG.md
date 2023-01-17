@@ -1,6 +1,7 @@
 # Changelog
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
+- Add Cassandra Kind
 
 ## v0.6.0 - 2023-01-16
 

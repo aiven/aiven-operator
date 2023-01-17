@@ -1,0 +1,8 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+- script: |
+    while ! avn --auth-token $AIVEN_TOKEN service wait k8s-e2e-cassandra-simple --project aiven-ci-kubernetes-operator;
+    do
+      sleep 10
+    done
