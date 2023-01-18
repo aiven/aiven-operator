@@ -142,6 +142,9 @@ var _ = BeforeSuite(func() {
 	err = (&Cassandra{}).SetupWebhookWithManager(mgr)
 	Expect(err).NotTo(HaveOccurred())
 
+	err = (&Grafana{}).SetupWebhookWithManager(mgr)
+	Expect(err).NotTo(HaveOccurred())
+
 	//+kubebuilder:scaffold:webhook
 
 	go func() {

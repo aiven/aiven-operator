@@ -139,6 +139,32 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
+  - grafanas
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - grafanas/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
+  - grafanas/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
   - kafkaacls
   verbs:
   - create

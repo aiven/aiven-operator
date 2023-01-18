@@ -19,4 +19,5 @@ resources:
 - _v1alpha1_serviceuser.yaml
 - _v1alpha1_mysql.yaml
 - _v1alpha1_cassandra.yaml
+- _v1alpha1_grafana.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

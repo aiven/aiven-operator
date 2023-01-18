@@ -314,6 +314,16 @@ var _ = BeforeSuite(func() {
 		},
 	}).SetupWithManager(k8sManager)).To(Succeed())
 
+	// set-up Grafana reconciler
+	Expect((&GrafanaReconciler{
+		Controller{
+			Client:   k8sManager.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Grafana"),
+			Scheme:   k8sManager.GetScheme(),
+			Recorder: k8sManager.GetEventRecorderFor("grafana-reconciler"),
+		},
+	}).SetupWithManager(k8sManager)).To(Succeed())
+
 	go func() {
 		Expect(k8sManager.Start(ctrl.SetupSignalHandler())).To(Succeed())
 	}()
