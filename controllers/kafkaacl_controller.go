@@ -44,26 +44,29 @@ func (h KafkaACLHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs
 		return err
 	}
 
-	exists, err := h.exists(avn, acl)
+	// ACL can't be really modified
+	// Tries to delete it instead
+	_, err = h.delete(avn, i)
 	if err != nil {
 		return err
 	}
 
-	if !exists {
-		_, err = avn.KafkaACLs.Create(
-			acl.Spec.Project,
-			acl.Spec.ServiceName,
-			aiven.CreateKafkaACLRequest{
-				Permission: acl.Spec.Permission,
-				Topic:      acl.Spec.Topic,
-				Username:   acl.Spec.Username,
-			},
-		)
-		if err != nil && !aiven.IsAlreadyExists(err) {
-			return err
-		}
+	// Creates it from scratch
+	r, err := avn.KafkaACLs.Create(
+		acl.Spec.Project,
+		acl.Spec.ServiceName,
+		aiven.CreateKafkaACLRequest{
+			Permission: acl.Spec.Permission,
+			Topic:      acl.Spec.Topic,
+			Username:   acl.Spec.Username,
+		},
+	)
+	if err != nil {
+		return err
 	}
 
+	// New created ACL id set
+	acl.Status.ID = r.ID
 	meta.SetStatusCondition(&acl.Status.Conditions,
 		getInitializedCondition("CreatedOrUpdate",
 			"Instance was created or update on Aiven side"))
@@ -84,18 +87,11 @@ func (h KafkaACLHandler) delete(avn *aiven.Client, i client.Object) (bool, error
 		return false, err
 	}
 
-	// Server returns 404 if resource doesn't exist OR it's just an invalid URL, so having ID is mandatory
-	// This workaround fixes existing ACLs created without ID
-	id := acl.Status.ID
-	if id == "" {
-		aivenACL, err := h.getAivenACL(avn, acl)
-		if err != nil {
-			return false, err
-		}
-		id = aivenACL.ID
+	id, err := h.getID(avn, acl)
+	if err == nil {
+		err = avn.KafkaACLs.Delete(acl.Spec.Project, acl.Spec.ServiceName, id)
 	}
 
-	err = avn.KafkaACLs.Delete(acl.Spec.Project, acl.Spec.ServiceName, id)
 	if err != nil && !aiven.IsNotFound(err) {
 		return false, fmt.Errorf("aiven client delete Kafka ACL error: %w", err)
 	}
@@ -103,35 +99,30 @@ func (h KafkaACLHandler) delete(avn *aiven.Client, i client.Object) (bool, error
 	return true, nil
 }
 
-func (h KafkaACLHandler) exists(avn *aiven.Client, acl *v1alpha1.KafkaACL) (bool, error) {
-	a, err := h.getAivenACL(avn, acl)
-	if aiven.IsNotFound(err) {
-		return false, nil
-	}
-
-	return a != nil, err
-}
-
-func (h KafkaACLHandler) getAivenACL(avn *aiven.Client, acl *v1alpha1.KafkaACL) (*aiven.KafkaACL, error) {
-	// This object already has ID
+// todo: remove in v1
+// getID returns ACL's ID in < v0.5.1 compatible mode
+func (h KafkaACLHandler) getID(avn *aiven.Client, acl *v1alpha1.KafkaACL) (string, error) {
+	// ACLs made prior to v0.5.1 doesn't have an ID.
+	// This block is for fresh made ACLs only
+	// The rest of this function tries to guess it filtering the list.
 	if acl.Status.ID != "" {
-		return avn.KafkaACLs.Get(acl.Spec.Project, acl.Spec.ServiceName, acl.Status.ID)
+		return acl.Status.ID, nil
 	}
 
-	// First time lookup
+	// For old ACLs only
 	list, err := avn.KafkaACLs.List(acl.Spec.Project, acl.Spec.ServiceName)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	for _, a := range list {
 		if acl.Spec.Topic == a.Topic && acl.Spec.Username == a.Username && acl.Spec.Permission == a.Permission {
-			return a, nil
+			return a.ID, nil
 		}
 	}
 
 	// Error should mimic client error to play well with aiven.IsNotFound(err)
-	return nil, aiven.Error{Status: http.StatusNotFound, Message: "Kafka ACL not found"}
+	return "", aiven.Error{Status: http.StatusNotFound, Message: fmt.Sprintf("Kafka ACL %q not found", acl.Name)}
 }
 
 func (h KafkaACLHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, error) {
@@ -140,12 +131,16 @@ func (h KafkaACLHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret
 		return nil, err
 	}
 
-	aivenACL, err := h.getAivenACL(avn, acl)
+	id, err := h.getID(avn, acl)
 	if err != nil {
 		return nil, err
 	}
 
-	acl.Status.ID = aivenACL.ID
+	_, err = avn.KafkaACLs.Get(acl.Spec.Project, acl.Spec.ServiceName, id)
+	if err != nil {
+		return nil, err
+	}
+
 	meta.SetStatusCondition(&acl.Status.Conditions,
 		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 			"Instance is running on Aiven side"))
