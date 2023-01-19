@@ -71,11 +71,42 @@ var _ = Describe("Kafka ACL Controller", func() {
 		It("should createOrUpdate a new Kafka ACL", func() {
 			createdACL := &v1alpha1.KafkaACL{}
 			lookupKey := types.NamespacedName{Name: userName, Namespace: namespace}
-
 			Expect(k8sClient.Get(ctx, lookupKey, createdACL)).Should(Succeed())
 
-			By("by checking that after KafkaACL was created")
+			By("checking that after KafkaACL was created")
 			Expect(meta.IsStatusConditionTrue(createdACL.Status.Conditions, conditionTypeRunning)).Should(BeTrue())
+
+			By("checking initial permission before update")
+			Expect(createdACL.Spec.Permission).Should(Equal("admin"))
+
+			By(`updating permission from "admin" to "write" and making sure it has a new ID`)
+			createdACL.Spec.Permission = "write"
+			Expect(k8sClient.Update(ctx, createdACL)).Should(Succeed())
+
+			// It takes time
+			var updatedACL *v1alpha1.KafkaACL
+			Eventually(func() bool {
+				updatedACL = &v1alpha1.KafkaACL{}
+				err := k8sClient.Get(ctx, lookupKey, updatedACL)
+				if err == nil {
+					return updatedACL.Status.ID != createdACL.Status.ID
+				}
+				return false
+			}, timeout, interval).Should(BeTrue())
+			Expect(updatedACL.Status.ID).ShouldNot(Equal(""))
+			Expect(updatedACL.Status.ID).ShouldNot(Equal(createdACL.Status.ID))
+			Expect(updatedACL.Spec.Permission).Should(Equal("write"))
+
+			By("checking that updated ACL exists at Aiven")
+			a, err := aivenClient.KafkaACLs.Get(projectName, updatedACL.Spec.ServiceName, updatedACL.Status.ID)
+			Expect(err).To(BeNil())
+			Expect(a.ID).Should(Equal(updatedACL.Status.ID))
+			Expect(a.Permission).Should(Equal("write"))
+
+			By("checking that old ACL removed at Aiven")
+			o, err := aivenClient.KafkaACLs.Get(projectName, updatedACL.Spec.ServiceName, createdACL.Status.ID)
+			Expect(o).To(BeNil())
+			Expect(aiven.IsNotFound(err)).To(BeTrue())
 		})
 	})
 
