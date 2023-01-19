@@ -23,9 +23,9 @@ spec:
     name: aiven-token
     key: token
 
-  # outputs the OpenSearch connection on the `opensearch-connection` Secret
+  # outputs the OpenSearch connection on the `os-secret` Secret
   connInfoSecretTarget:
-    name: os-token
+    name: os-secret
 
   # add your Project name here
   project: <your-project-name>
@@ -33,7 +33,7 @@ spec:
   # cloud provider and plan of your choice
   # you can check all of the possibilities here https://aiven.io/pricing
   cloudName: google-europe-west1
-  plan: startup-2
+  plan: startup-4
 
   # general Aiven configuration
   maintenanceWindowDow: friday
@@ -56,7 +56,7 @@ The output is similar to the following:
 
 ```bash
 NAME           PROJECT          REGION                PLAN        STATE
-os-sample   <your-project>   google-europe-west1   startup-2     RUNNING
+os-sample   <your-project>   google-europe-west1   startup-4     RUNNING
 ```
 
 The resource will be in the `BUILDING` state for a few minutes. Once the state changes to `RUNNING`, you can access the resource.
@@ -70,34 +70,41 @@ name specified on the `connInfoSecretTarget` field.
 To view the details of the Secret, use the following command:
 
 ```bash
-$ kubectl describe secret os-token 
+$ kubectl describe secret os-secret 
 ```
 
 The output is similar to the following:
 
 ```bash
+Name:         os-secret
+Namespace:    default
+Labels:       <none>
+Annotations:  <none>
 
+Type:  Opaque
 
-
+Data
+====
+HOST:      61 bytes
+PASSWORD:  24 bytes
+PORT:      5 bytes
+USER:      8 bytes
 ```
 
 You can use the [jq](https://github.com/stedolan/jq) to quickly decode the Secret:
 
 ```bash
-$ kubectl get secret os-token -o json | jq '.data | map_values(@base64d)'
+$ kubectl get secret os-secret -o json | jq '.data | map_values(@base64d)'
 ```
 
 The output is similar to the following:
 
-```bash
+```json
 {
-  "CA_CERT": "<secret-ca-cert>",
-  "ACCESS_CERT": "<secret-cert>",
-  "ACCESS_KEY": "<secret-access-key>",
   "HOST": "os-sample-your-project.aivencloud.com",
-  "PASSWORD": "<secret-password>",
+  "PASSWORD": "<secret>",
   "PORT": "13041",
-  "USERNAME": "avnadmin"
+  "USER": "avnadmin"
 }
 ```
 
@@ -120,7 +127,7 @@ spec:
     key: token
 
   connInfoSecretTarget:
-    name: os-service-user-connection
+    name: os-service-user-secret
 
   project: <your-project-name>
   serviceName: os-sample
@@ -137,17 +144,21 @@ The `ServiceUser` resource generates a Secret with connection information.
 3. View the details of the Secret using the following command:
 
 ```bash
-$ kubectl get secret os-service-user-connection -o json | jq '.data | map_values(@base64d)'
+$ kubectl get secret os-service-user-secret -o json | jq '.data | map_values(@base64d)'
 ```
 
 The output is similar to the following:
 
-```bash
+```json
 {
-  "PASSWORD": "<secret-password>",
+  "ACCESS_CERT": "<secret>",
+  "ACCESS_KEY": "<secret>",
+  "CA_CERT": "<secret>",
+  "HOST": "os-sample-your-project.aivencloud.com",
+  "PASSWORD": "<secret>",
+  "PORT": "14609",
   "USERNAME": "os-service-user"
 }
 ```
 
-You can connect to the OpenSearch instance using these credentials and the host information from the `os-token` Secret.
-
+You can connect to the OpenSearch instance using these credentials and the host information from the `os-secret` Secret.
