@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/dave/jennifer/jen"
+	"github.com/google/go-cmp/cmp"
 	"github.com/stoewer/go-strcase"
 	"golang.org/x/exp/slices"
 	"gopkg.in/yaml.v3"
@@ -23,8 +24,10 @@ func generate(dstDir string, serviceTypes []byte, serviceList []string) error {
 		return err
 	}
 
-	for k, v := range root {
-		if !slices.Contains(serviceList, k) {
+	done := make([]string, 0, len(serviceList))
+	for _, k := range serviceList {
+		v, ok := root[k]
+		if !ok {
 			continue
 		}
 
@@ -46,6 +49,12 @@ func generate(dstDir string, serviceTypes []byte, serviceList []string) error {
 		if err != nil {
 			return err
 		}
+
+		done = append(done, k)
+	}
+
+	if d := cmp.Diff(serviceList, done); d != "" {
+		return fmt.Errorf("not all services are generated: %s", d)
 	}
 
 	return nil
