@@ -49,17 +49,30 @@ $ kubectl apply -f os-sample.yaml
 3. Review the resource you created with this command:
 
 ```bash
-$ kubectl get opensearch.aiven.io os-sample
+$ kubectl describe opensearch.aiven.io os-sample
 ```
 
 The output is similar to the following:
 
 ```bash
-NAME           PROJECT          REGION                PLAN        STATE
-os-sample   <your-project>   google-europe-west1   startup-4     RUNNING
+...
+Status:
+  Conditions:
+    Last Transition Time:  2023-01-19T14:41:43Z
+    Message:               Instance was created or update on Aiven side
+    Reason:                Created
+    Status:                True
+    Type:                  Initialized
+    Last Transition Time:  2023-01-19T14:41:43Z
+    Message:               Instance was created or update on Aiven side, status remains unknown
+    Reason:                Created
+    Status:                Unknown
+    Type:                  Running
+  State:                   REBUILDING
+...
 ```
 
-The resource will be in the `BUILDING` state for a few minutes. Once the state changes to `RUNNING`, you can access the resource.
+The resource will be in the `REBUILDING` state for a few minutes. Once the state changes to `RUNNING`, you can access the resource.
 
 
 ## Using the connection Secret
