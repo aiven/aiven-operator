@@ -9,6 +9,7 @@
 - Recreate Kafka ACL if modified. 
   Note: Modification of ACL created prior to v0.5.1 won't delete existing instance at Aiven.
   It must be deleted manually.
+- Fix MySQL webhook
 
 ## v0.6.0 - 2023-01-16
 

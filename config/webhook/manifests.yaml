@@ -253,7 +253,7 @@ webhooks:
       namespace: system
       path: /mutate-aiven-io-v1alpha1-mysql
   failurePolicy: Fail
-  name: mpg.kb.io
+  name: mmysql.kb.io
   rules:
   - apiGroups:
     - aiven.io

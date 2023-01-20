@@ -20,7 +20,7 @@ func (in *MySQL) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		Complete()
 }
 
-//+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-mysql,mutating=true,failurePolicy=fail,groups=aiven.io,resources=mysqls,verbs=create;update,versions=v1alpha1,name=mpg.kb.io,sideEffects=none,admissionReviewVersions=v1
+//+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-mysql,mutating=true,failurePolicy=fail,sideEffects=None,groups=aiven.io,resources=mysqls,verbs=create;update,versions=v1alpha1,name=mmysql.kb.io,admissionReviewVersions=v1
 
 var _ webhook.Defaulter = &MySQL{}
 
