@@ -418,6 +418,27 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
+      path: /validate-aiven-io-v1alpha1-cassandra
+  failurePolicy: Fail
+  name: vpg.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - cassandras
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
       path: /validate-aiven-io-v1alpha1-clickhouse
   failurePolicy: Fail
   name: vclickhouse.kb.io
@@ -494,6 +515,27 @@ webhooks:
     - DELETE
     resources:
     - databases
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-aiven-io-v1alpha1-grafana
+  failurePolicy: Fail
+  name: vpg.kb.io
+  rules:
+  - apiGroups:
+    - aiven.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - grafanas
   sideEffects: None
 - admissionReviewVersions:
   - v1
