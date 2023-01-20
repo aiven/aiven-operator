@@ -9,7 +9,7 @@
 
 ## v0.6.0 - 2023-01-16
 
-- Remove "never" from choices of maintenance dow
+- Remove `never` from choices of maintenance dow
 - Add `development` flag to configure logger's behavior
 - Add user config generator (see `make generate-user-configs`)
 - Add `genericServiceHandler` to generalize service management 
