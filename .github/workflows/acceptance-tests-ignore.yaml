@@ -1,0 +1,14 @@
+# https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks
+name: acceptance tests
+
+on:
+  push:
+    paths-ignore:
+      - '**.go'
+  workflow_dispatch:
+
+jobs:
+  acceptance_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "No build required"'

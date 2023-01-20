@@ -1,12 +1,12 @@
 name: acceptance tests
 
 on:
-  pull_request:
-    branches: [main]
+  push:
+    paths:
+      - '**.go'
   workflow_dispatch:
 
 jobs:
-
   acceptance_tests:
     runs-on: ubuntu-latest
     steps:
@@ -14,6 +14,7 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: '1.18'
+          skipLabels: no test
 
       - run: make test
         env:
