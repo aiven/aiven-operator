@@ -28,6 +28,10 @@ func (in *Cassandra) Default() {
 	cassandralog.Info("default", "name", in.Name)
 }
 
+//+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-cassandra,mutating=false,failurePolicy=fail,groups=aiven.io,resources=cassandras,versions=v1alpha1,name=vpg.kb.io,sideEffects=none,admissionReviewVersions=v1
+
+var _ webhook.Validator = &Cassandra{}
+
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (in *Cassandra) ValidateCreate() error {
 	cassandralog.Info("validate create", "name", in.Name)
