@@ -1,9 +1,6 @@
 name: acceptance tests
 
 on:
-  push:
-    paths:
-      - '**.go'
   workflow_dispatch:
 
 jobs:
@@ -14,7 +11,6 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: '1.18'
-          skipLabels: no test
 
       - run: make test
         env:
