@@ -420,7 +420,7 @@ webhooks:
       namespace: system
       path: /validate-aiven-io-v1alpha1-cassandra
   failurePolicy: Fail
-  name: vpg.kb.io
+  name: vcassandra.kb.io
   rules:
   - apiGroups:
     - aiven.io
@@ -524,7 +524,7 @@ webhooks:
       namespace: system
       path: /validate-aiven-io-v1alpha1-grafana
   failurePolicy: Fail
-  name: vpg.kb.io
+  name: vgrafana.kb.io
   rules:
   - apiGroups:
     - aiven.io

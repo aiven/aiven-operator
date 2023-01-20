@@ -28,7 +28,7 @@ func (in *Grafana) Default() {
 	grafanalog.Info("default", "name", in.Name)
 }
 
-//+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-grafana,mutating=false,failurePolicy=fail,groups=aiven.io,resources=grafanas,versions=v1alpha1,name=vpg.kb.io,sideEffects=none,admissionReviewVersions=v1
+//+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-grafana,mutating=false,failurePolicy=fail,groups=aiven.io,resources=grafanas,versions=v1alpha1,name=vgrafana.kb.io,sideEffects=none,admissionReviewVersions=v1
 
 var _ webhook.Validator = &Grafana{}
 
