@@ -1,6 +1,9 @@
 # Changelog
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
+
+## v0.7.0 - 2023-01-20
+
 - Add Cassandra Kind
 - Add Grafana Kind
 - Recreate Kafka ACL if modified. 
