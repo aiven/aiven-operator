@@ -29,7 +29,7 @@ func (in *MySQL) Default() {
 	mysqllog.Info("default", "name", in.Name)
 }
 
-//+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-mysql,mutating=false,failurePolicy=fail,groups=aiven.io,resources=mysqls,versions=v1alpha1,name=vpg.kb.io,sideEffects=none,admissionReviewVersions=v1
+//+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-mysql,mutating=false,failurePolicy=fail,groups=aiven.io,resources=mysqls,versions=v1alpha1,name=vmysql.kb.io,sideEffects=none,admissionReviewVersions=v1
 
 var _ webhook.Validator = &MySQL{}
 

@@ -669,7 +669,7 @@ webhooks:
       namespace: system
       path: /validate-aiven-io-v1alpha1-mysql
   failurePolicy: Fail
-  name: vpg.kb.io
+  name: vmysql.kb.io
   rules:
   - apiGroups:
     - aiven.io
