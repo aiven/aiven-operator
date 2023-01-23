@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -30,4 +31,35 @@ func TestNewUserConfigFile(t *testing.T) {
 	// Leave the var for debugging with a break point
 	actual := file.GoString()
 	assert.Equal(t, expectedStr, actual)
+}
+
+func TestSafeEnumKeepsOriginal(t *testing.T) {
+	cases := []string{
+		"1",
+		"foo",
+		"foo_bar",
+		"foo-bar",
+		"Foo",
+		"foo123",
+	}
+	for _, s := range cases {
+		t.Run(s, func(t *testing.T) {
+			assert.Equal(t, s, safeEnum(s))
+		})
+	}
+}
+
+func TestSafeEnumAddsQuotes(t *testing.T) {
+	cases := []string{
+		"foo%p",
+		"foo{}",
+		"[foo]",
+		"foo bar",
+		"foo,bar",
+	}
+	for _, s := range cases {
+		t.Run(s, func(t *testing.T) {
+			assert.Equal(t, fmt.Sprintf("%q", s), safeEnum(s))
+		})
+	}
 }

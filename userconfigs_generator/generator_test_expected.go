@@ -144,7 +144,7 @@ type Pg struct {
 	// LogErrorVerbosity Controls the amount of detail written in the server log for each message that is logged.
 	LogErrorVerbosity *string `groups:"create,update" json:"log_error_verbosity,omitempty"`
 
-	// +kubebuilder:validation:Enum='pid=%p,user=%u,db=%d,app=%a,client=%h ';'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h ';'%m [%p] %q[user=%u,db=%d,app=%a] '
+	// +kubebuilder:validation:Enum="'pid=%p,user=%u,db=%d,app=%a,client=%h '";"'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '";"'%m [%p] %q[user=%u,db=%d,app=%a] '"
 	// LogLinePrefix Choose from one of the available log-formats. These can support popular log analyzers like pgbadger, pganalyze etc.
 	LogLinePrefix *string `groups:"create,update" json:"log_line_prefix,omitempty"`
 
