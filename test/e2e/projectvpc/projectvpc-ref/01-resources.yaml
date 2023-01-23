@@ -48,7 +48,7 @@ spec:
     key: token
 
   connInfoSecretTarget:
-    name: os-token
+    name: os-secret
 
   projectVPCRef:
     name: k8s-e2e-projectvpc-ref
