@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add CRD validation rules for immutable fields
+
 ## v0.7.1 - 2023-01-24
 
 - Add Cassandra Kind

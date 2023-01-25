@@ -236,11 +236,13 @@ type MysqlUserConfig struct {
 	// +kubebuilder:validation:MinLength=8
 	// +kubebuilder:validation:MaxLength=256
 	// +kubebuilder:validation:Pattern="^[a-zA-Z0-9-_]+$"
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// AdminPassword Custom password for admin user. Defaults to random string. This must be set only when a new service is being created.
 	AdminPassword *string `groups:"create" json:"admin_password,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=64
 	// +kubebuilder:validation:Pattern="^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$"
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// AdminUsername Custom username for admin user. This must be set only when a new service is being created.
 	AdminUsername *string `groups:"create" json:"admin_username,omitempty"`
 
@@ -280,6 +282,7 @@ type MysqlUserConfig struct {
 	PrivatelinkAccess *PrivatelinkAccess `groups:"create,update" json:"privatelink_access,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=63
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// ProjectToForkFrom Name of another project to fork a service from. This has effect only when a new service is being created.
 	ProjectToForkFrom *string `groups:"create" json:"project_to_fork_from,omitempty"`
 
@@ -287,10 +290,12 @@ type MysqlUserConfig struct {
 	PublicAccess *PublicAccess `groups:"create,update" json:"public_access,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=32
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// RecoveryTargetTime Recovery target time when forking a service. This has effect only when a new service is being created.
 	RecoveryTargetTime *string `groups:"create" json:"recovery_target_time,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=64
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// ServiceToForkFrom Name of another service to fork from. This has effect only when a new service is being created.
 	ServiceToForkFrom *string `groups:"create" json:"service_to_fork_from,omitempty"`
 

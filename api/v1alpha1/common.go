@@ -44,6 +44,7 @@ type ServiceStatus struct {
 type ServiceCommonSpec struct {
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Target project.
 	Project string `json:"project"`
 
@@ -52,13 +53,16 @@ type ServiceCommonSpec struct {
 	Plan string `json:"plan,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=256
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Cloud the service runs in.
 	CloudName string `json:"cloudName,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=36
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Identifier of the VPC the service should be in, if any.
 	ProjectVPCID string `json:"projectVpcId,omitempty"`
 
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically
 	ProjectVPCRef *ResourceReference `json:"projectVPCRef,omitempty"`
 
