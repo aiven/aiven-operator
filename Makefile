@@ -103,12 +103,14 @@ vet: ## Run go vet against code.
 	go vet ./...
 
 .PHONY: test
+FOCUS_FILE ?= "*"
 test: manifests generate fmt vet envtest ginkgo ## Run tests.
 	KUBEBUILDER_CONTROLPLANE_START_TIMEOUT=120s \
 	KUBEBUILDER_CONTROLPLANE_STOP_TIMEOUT=120s \
 	KUBEBUILDER_ATTACH_CONTROL_PLANE_OUTPUT=true \
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" \
 	$(GINKGO) \
+			--focus-file=$(FOCUS_FILE) \
 			--output-interceptor-mode=none \
 			--nodes=6 \
 			--race \
