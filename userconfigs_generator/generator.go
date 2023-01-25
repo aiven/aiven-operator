@@ -320,6 +320,9 @@ func addFieldComments(s *jen.Statement, obj *object) *jen.Statement {
 		}
 		c = append(c, fmt.Sprintf("// +kubebuilder:validation:Enum=%s", strings.Join(enum, ";")))
 	}
+	if obj.CreateOnly {
+		c = append(c, `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"`)
+	}
 
 	doc := fmtComment(obj)
 	if doc != "" {
