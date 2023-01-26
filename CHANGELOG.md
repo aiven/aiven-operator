@@ -3,6 +3,8 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - Add CRD validation rules for immutable fields
+- Breaking change: `ip_filter` field is now of `object` type.
+- Update user configs for following kinds: PostgreSQL
 
 ## v0.7.1 - 2023-01-24
 
