@@ -36,7 +36,7 @@ func (r *MySQLReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func newMySQLAdapter(object client.Object) (serviceAdapter, error) {
+func newMySQLAdapter(_ *aiven.Client, object client.Object) (serviceAdapter, error) {
 	mysql, ok := object.(*v1alpha1.MySQL)
 	if !ok {
 		return nil, fmt.Errorf("object is not of type v1alpha1.MySQL")
@@ -65,7 +65,7 @@ func (a *mySQLAdapter) getUserConfig() any {
 	return &a.Spec.UserConfig
 }
 
-func (a *mySQLAdapter) newSecret(s *aiven.Service) *corev1.Secret {
+func (a *mySQLAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
 	name := a.Spec.ConnInfoSecretTarget.Name
 	if name == "" {
 		name = a.Name
@@ -92,7 +92,7 @@ func (a *mySQLAdapter) newSecret(s *aiven.Service) *corev1.Secret {
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: a.Namespace},
 		StringData: stringData,
-	}
+	}, nil
 }
 
 func (a *mySQLAdapter) getServiceType() string {

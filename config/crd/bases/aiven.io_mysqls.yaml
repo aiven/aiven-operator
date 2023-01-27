@@ -282,7 +282,6 @@ spec:
                       group_concat_max_len:
                         description: GroupConcatMaxLen The maximum permitted result
                           length in bytes for the GROUP_CONCAT() function.
-                        maximum: 9223372036854776000
                         minimum: 4
                         type: integer
                       information_schema_stats_expiry:
@@ -392,9 +391,7 @@ spec:
                         description: LongQueryTime The slow_query_logs work as SQL
                           statements that take more than long_query_time seconds to
                           execute. Default is 10s
-                        maximum: 3600
-                        minimum: 0
-                        type: integer
+                        type: number
                       max_allowed_packet:
                         description: MaxAllowedPacket Size of the largest message
                           in bytes that can be received by the server. Default is

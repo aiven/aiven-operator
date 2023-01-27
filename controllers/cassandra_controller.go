@@ -37,7 +37,7 @@ func (r *CassandraReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func newCassandraAdapter(object client.Object) (serviceAdapter, error) {
+func newCassandraAdapter(_ *aiven.Client, object client.Object) (serviceAdapter, error) {
 	cassandra, ok := object.(*v1alpha1.Cassandra)
 	if !ok {
 		return nil, fmt.Errorf("object is not of type v1alpha1.Cassandra")
@@ -66,7 +66,7 @@ func (a *cassandraAdapter) getUserConfig() any {
 	return &a.Spec.UserConfig
 }
 
-func (a *cassandraAdapter) newSecret(s *aiven.Service) *corev1.Secret {
+func (a *cassandraAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
 	name := a.Spec.ConnInfoSecretTarget.Name
 	if name == "" {
 		name = a.Name
@@ -91,7 +91,7 @@ func (a *cassandraAdapter) newSecret(s *aiven.Service) *corev1.Secret {
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: a.Namespace},
 		StringData: stringData,
-	}
+	}, nil
 }
 
 func (a *cassandraAdapter) getServiceType() string {

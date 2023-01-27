@@ -24,7 +24,7 @@ type genericServiceHandler struct {
 }
 
 func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Object, refs []client.Object) error {
-	o, err := h.fabric(object)
+	o, err := h.fabric(a, object)
 	if err != nil {
 		return err
 	}
@@ -111,7 +111,7 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 }
 
 func (h *genericServiceHandler) delete(a *aiven.Client, object client.Object) (bool, error) {
-	o, err := h.fabric(object)
+	o, err := h.fabric(a, object)
 	if err != nil {
 		return false, err
 	}
@@ -125,7 +125,7 @@ func (h *genericServiceHandler) delete(a *aiven.Client, object client.Object) (b
 }
 
 func (h *genericServiceHandler) get(a *aiven.Client, object client.Object) (*corev1.Secret, error) {
-	o, err := h.fabric(object)
+	o, err := h.fabric(a, object)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func (h *genericServiceHandler) get(a *aiven.Client, object client.Object) (*cor
 
 		// Some services get secrets after they are running only,
 		// like ip addresses (hosts)
-		return o.newSecret(s), nil
+		return o.newSecret(s)
 	}
 	return nil, nil
 }
@@ -156,7 +156,7 @@ func (h *genericServiceHandler) checkPreconditions(a *aiven.Client, object clien
 }
 
 // serviceAdapterFabric returns serviceAdapter for specific service, like MySQL
-type serviceAdapterFabric func(client.Object) (serviceAdapter, error)
+type serviceAdapterFabric func(*aiven.Client, client.Object) (serviceAdapter, error)
 
 // serviceAdapter turns client.Object into a generic thing
 type serviceAdapter interface {
@@ -166,5 +166,5 @@ type serviceAdapter interface {
 	getServiceType() string
 	getDiskSpace() string
 	getUserConfig() any
-	newSecret(*aiven.Service) *corev1.Secret
+	newSecret(*aiven.Service) (*corev1.Secret, error)
 }

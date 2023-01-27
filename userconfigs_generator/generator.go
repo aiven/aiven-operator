@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -262,8 +263,10 @@ func addFieldType(file *jen.File, s *jen.Statement, obj *object) (*jen.Statement
 		s = s.String()
 	case objectTypeBoolean:
 		s = s.Bool()
-	case objectTypeInteger, objectTypeNumber:
+	case objectTypeInteger:
 		s = s.Int()
+	case objectTypeNumber:
+		s = s.Float64()
 	default:
 		return nil, fmt.Errorf("unknown type %q", obj.Type)
 	}
@@ -292,11 +295,14 @@ func addFieldTags(s *jen.Statement, obj *object) *jen.Statement {
 // addFieldComments add validation markers and doc string
 func addFieldComments(s *jen.Statement, obj *object) *jen.Statement {
 	c := make([]string, 0)
-	if obj.Minimum != nil {
-		c = append(c, fmt.Sprintf("// +kubebuilder:validation:Minimum=%d", int(*obj.Minimum)))
-	}
-	if obj.Maximum != nil {
-		c = append(c, fmt.Sprintf("// +kubebuilder:validation:Maximum=%d", int(*obj.Maximum)))
+	// We don't validate floats because of conversion problems (go, json, yaml)
+	if obj.Type == objectTypeInteger {
+		if obj.Minimum != nil {
+			c = append(c, fmt.Sprintf("// +kubebuilder:validation:Minimum=%d", int(*obj.Minimum)))
+		}
+		if m := objMaximum(obj); m != "" {
+			c = append(c, "// +kubebuilder:validation:Maximum="+m)
+		}
 	}
 	if obj.MinLength != nil {
 		c = append(c, fmt.Sprintf("// +kubebuilder:validation:MinLength=%d", int(*obj.MinLength)))
@@ -311,7 +317,12 @@ func addFieldComments(s *jen.Statement, obj *object) *jen.Statement {
 		c = append(c, fmt.Sprintf("// +kubebuilder:validation:MaxItems=%d", int(*obj.MaxItems)))
 	}
 	if obj.Pattern != "" {
-		c = append(c, fmt.Sprintf("// +kubebuilder:validation:Pattern=%q", obj.Pattern))
+		_, err := regexp.Compile(obj.Pattern)
+		if err != nil {
+			log.Printf("can't compile field %q regex `%s`: %s", obj.jsonName, obj.Pattern, err)
+		} else {
+			c = append(c, fmt.Sprintf("// +kubebuilder:validation:Pattern=`%s`", obj.Pattern))
+		}
 	}
 	if len(obj.Enum) != 0 {
 		enum := make([]string, len(obj.Enum))
@@ -374,4 +385,32 @@ func safeEnum(s string) string {
 		return fmt.Sprintf("%q", s)
 	}
 	return s
+}
+
+// objMaximum validates obj maximum
+func objMaximum(obj *object) string {
+	if obj.Maximum == nil || obj.Type != objectTypeInteger {
+		return ""
+	}
+
+	m := int(*obj.Maximum)
+	if obj.Minimum != nil && int(*obj.Minimum) >= m {
+		// Maximum must be bigger than minimum
+		log.Printf("field %q has minimum >= maximum: %d >= %d", obj.jsonName, int(*obj.Minimum), m)
+		return ""
+	}
+
+	// "Maximum" validator is a float64
+	// https://github.com/kubernetes-sigs/controller-tools/blob/cb13ac551a0599044e50ed756735a8f438a24631/pkg/crd/markers/validation.go#L128
+	// MaxInt (9223372036854775807) becomes float64=9.223372036854776e+18
+	// and turing it to int results overflow: -9223372036854775808
+	// Validation then fails with "should be less than or equal to -9223372036854775808"
+	// Unfortunately type conversion works different for AMD64 and ARM64.
+	// So we can't just check conversion here, because we do need this work the very same way on all platforms.
+	// We now this happens to big numbers, and the big number we have in API is MaxInt.
+	// Skips it, skips overflows.
+	if m < 1 || m == math.MaxInt {
+		return ""
+	}
+	return fmt.Sprint(m)
 }

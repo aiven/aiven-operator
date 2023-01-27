@@ -169,7 +169,7 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 	}
 	if in.LongQueryTime != nil {
 		in, out := &in.LongQueryTime, &out.LongQueryTime
-		*out = new(int)
+		*out = new(float64)
 		**out = **in
 	}
 	if in.MaxAllowedPacket != nil {
