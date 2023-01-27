@@ -2,7 +2,9 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
-## v0.7.0 - 2023-01-20
+- Add CRD validation rules for immutable fields
+
+## v0.7.1 - 2023-01-24
 
 - Add Cassandra Kind
 - Add Grafana Kind

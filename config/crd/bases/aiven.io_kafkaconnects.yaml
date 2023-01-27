@@ -53,6 +53,9 @@ spec:
                 description: Cloud the service runs in.
                 maxLength: 256
                 type: string
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
               maintenanceWindowDow:
                 description: Day of week when maintenance operations should be performed.
                   One monday, tuesday, wednesday, etc.
@@ -79,6 +82,9 @@ spec:
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
               projectVPCRef:
                 description: ProjectVPCRef reference to ProjectVPC resource to use
                   its ID as ProjectVPCID automatically
@@ -92,10 +98,16 @@ spec:
                 required:
                 - name
                 type: object
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
               projectVpcId:
                 description: Identifier of the VPC the service should be in, if any.
                 maxLength: 36
                 type: string
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
               tags:
                 additionalProperties:
                   type: string

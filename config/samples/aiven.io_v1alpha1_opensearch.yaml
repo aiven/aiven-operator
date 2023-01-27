@@ -8,7 +8,7 @@ spec:
     key: token
 
   connInfoSecretTarget:
-    name: os-token
+    name: os-secret
 
   project: my-project
 
