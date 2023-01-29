@@ -371,11 +371,6 @@ func main() {
 			os.Exit(1)
 		}
 
-		if err = (&v1alpha1.ProjectVPC{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "ProjectVPC")
-			os.Exit(1)
-		}
-
 		if err = (&v1alpha1.Kafka{}).SetupWebhookWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create webhook", "webhook", "Kafka")
 			os.Exit(1)

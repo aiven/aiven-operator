@@ -40,7 +40,6 @@ patchesStrategicMerge:
 - patches/webhook_in_opensearches.yaml
 - patches/webhook_in_postgresqls.yaml
 - patches/webhook_in_projects.yaml
-- patches/webhook_in_projectvpcs.yaml
 - patches/webhook_in_redis.yaml
 - patches/webhook_in_serviceintegrations.yaml
 - patches/webhook_in_serviceusers.yaml
@@ -64,7 +63,6 @@ patchesStrategicMerge:
 - patches/cainjection_in_opensearches.yaml
 - patches/cainjection_in_postgresqls.yaml
 - patches/cainjection_in_projects.yaml
-- patches/cainjection_in_projectvpcs.yaml
 - patches/cainjection_in_redis.yaml
 - patches/cainjection_in_serviceintegrations.yaml
 - patches/cainjection_in_serviceusers.yaml
