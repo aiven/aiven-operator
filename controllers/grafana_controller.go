@@ -94,32 +94,10 @@ func (a *grafanaAdapter) newSecret(s *aiven.Service) *corev1.Secret {
 	}
 }
 
-func (a *grafanaAdapter) newCreateRequest() aiven.CreateServiceRequest {
-	return aiven.CreateServiceRequest{
-		Cloud: a.Spec.CloudName,
-		MaintenanceWindow: getMaintenanceWindow(
-			a.Spec.MaintenanceWindowDow,
-			a.Spec.MaintenanceWindowTime,
-		),
-		Plan:                  a.Spec.Plan,
-		TerminationProtection: a.Spec.TerminationProtection,
-		ServiceName:           a.Name,
-		ServiceType:           "grafana",
-		ServiceIntegrations:   nil,
-		DiskSpaceMB:           v1alpha1.ConvertDiscSpace(a.Spec.DiskSpace),
-	}
+func (a *grafanaAdapter) getServiceType() string {
+	return "grafana"
 }
 
-func (a *grafanaAdapter) newUpdateRequest() aiven.UpdateServiceRequest {
-	return aiven.UpdateServiceRequest{
-		Cloud: a.Spec.CloudName,
-		MaintenanceWindow: getMaintenanceWindow(
-			a.Spec.MaintenanceWindowDow,
-			a.Spec.MaintenanceWindowTime,
-		),
-		Plan:                  a.Spec.Plan,
-		TerminationProtection: a.Spec.TerminationProtection,
-		Powered:               true,
-		DiskSpaceMB:           v1alpha1.ConvertDiscSpace(a.Spec.DiskSpace),
-	}
+func (a *grafanaAdapter) getDiskSpace() string {
+	return a.Spec.DiskSpace
 }

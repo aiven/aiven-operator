@@ -53,7 +53,6 @@ type ServiceCommonSpec struct {
 	Plan string `json:"plan,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=256
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Cloud the service runs in.
 	CloudName string `json:"cloudName,omitempty"`
 

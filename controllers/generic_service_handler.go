@@ -51,23 +51,44 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 	var reason string
 	if !exists {
 		reason = "Created"
-		req := o.newCreateRequest()
-		req.ProjectVPCID = toOptionalStringPointer(projectVPCID)
-		req.UserConfig, err = UserConfigurationToAPIV2(o.getUserConfig(), []string{"create", "update"})
+		userConfig, err := UserConfigurationToAPIV2(o.getUserConfig(), []string{"create", "update"})
 		if err != nil {
 			return err
 		}
+
+		req := aiven.CreateServiceRequest{
+			Cloud:                 spec.CloudName,
+			DiskSpaceMB:           v1alpha1.ConvertDiscSpace(o.getDiskSpace()),
+			MaintenanceWindow:     getMaintenanceWindow(spec.MaintenanceWindowDow, spec.MaintenanceWindowTime),
+			Plan:                  spec.Plan,
+			ProjectVPCID:          toOptionalStringPointer(projectVPCID),
+			ServiceIntegrations:   nil,
+			ServiceName:           ometa.Name,
+			ServiceType:           o.getServiceType(),
+			TerminationProtection: spec.TerminationProtection,
+			UserConfig:            userConfig,
+		}
+
 		_, err = a.Services.Create(spec.Project, req)
 		if err != nil {
 			return fmt.Errorf("failed to create service: %w", err)
 		}
 	} else {
 		reason = "Updated"
-		req := o.newUpdateRequest()
-		req.ProjectVPCID = toOptionalStringPointer(projectVPCID)
-		req.UserConfig, err = UserConfigurationToAPIV2(o.getUserConfig(), []string{"update"})
+		userConfig, err := UserConfigurationToAPIV2(o.getUserConfig(), []string{"update"})
 		if err != nil {
 			return err
+		}
+
+		req := aiven.UpdateServiceRequest{
+			Cloud:                 spec.CloudName,
+			DiskSpaceMB:           v1alpha1.ConvertDiscSpace(o.getDiskSpace()),
+			MaintenanceWindow:     getMaintenanceWindow(spec.MaintenanceWindowDow, spec.MaintenanceWindowTime),
+			Plan:                  spec.Plan,
+			Powered:               true,
+			ProjectVPCID:          toOptionalStringPointer(projectVPCID),
+			TerminationProtection: spec.TerminationProtection,
+			UserConfig:            userConfig,
 		}
 		_, err = a.Services.Update(spec.Project, ometa.Name, req)
 		if err != nil {
@@ -139,14 +160,11 @@ type serviceAdapterFabric func(client.Object) (serviceAdapter, error)
 
 // serviceAdapter turns client.Object into a generic thing
 type serviceAdapter interface {
-	// Getters
 	getObjectMeta() *metav1.ObjectMeta
 	getServiceStatus() *v1alpha1.ServiceStatus
 	getServiceCommonSpec() *v1alpha1.ServiceCommonSpec
+	getServiceType() string
+	getDiskSpace() string
 	getUserConfig() any
-
-	// Constructors for/from RPC calls
 	newSecret(*aiven.Service) *corev1.Secret
-	newCreateRequest() aiven.CreateServiceRequest
-	newUpdateRequest() aiven.UpdateServiceRequest
 }

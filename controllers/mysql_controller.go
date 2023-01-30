@@ -95,32 +95,10 @@ func (a *mySQLAdapter) newSecret(s *aiven.Service) *corev1.Secret {
 	}
 }
 
-func (a *mySQLAdapter) newCreateRequest() aiven.CreateServiceRequest {
-	return aiven.CreateServiceRequest{
-		Cloud: a.Spec.CloudName,
-		MaintenanceWindow: getMaintenanceWindow(
-			a.Spec.MaintenanceWindowDow,
-			a.Spec.MaintenanceWindowTime,
-		),
-		Plan:                  a.Spec.Plan,
-		TerminationProtection: a.Spec.TerminationProtection,
-		ServiceName:           a.Name,
-		ServiceType:           "mysql",
-		ServiceIntegrations:   nil,
-		DiskSpaceMB:           v1alpha1.ConvertDiscSpace(a.Spec.DiskSpace),
-	}
+func (a *mySQLAdapter) getServiceType() string {
+	return "mysql"
 }
 
-func (a *mySQLAdapter) newUpdateRequest() aiven.UpdateServiceRequest {
-	return aiven.UpdateServiceRequest{
-		Cloud: a.Spec.CloudName,
-		MaintenanceWindow: getMaintenanceWindow(
-			a.Spec.MaintenanceWindowDow,
-			a.Spec.MaintenanceWindowTime,
-		),
-		Plan:                  a.Spec.Plan,
-		TerminationProtection: a.Spec.TerminationProtection,
-		Powered:               true,
-		DiskSpaceMB:           v1alpha1.ConvertDiscSpace(a.Spec.DiskSpace),
-	}
+func (a *mySQLAdapter) getDiskSpace() string {
+	return a.Spec.DiskSpace
 }

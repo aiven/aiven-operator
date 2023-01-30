@@ -94,32 +94,10 @@ func (a *cassandraAdapter) newSecret(s *aiven.Service) *corev1.Secret {
 	}
 }
 
-func (a *cassandraAdapter) newCreateRequest() aiven.CreateServiceRequest {
-	return aiven.CreateServiceRequest{
-		Cloud: a.Spec.CloudName,
-		MaintenanceWindow: getMaintenanceWindow(
-			a.Spec.MaintenanceWindowDow,
-			a.Spec.MaintenanceWindowTime,
-		),
-		Plan:                  a.Spec.Plan,
-		TerminationProtection: a.Spec.TerminationProtection,
-		ServiceName:           a.Name,
-		ServiceType:           "cassandra",
-		ServiceIntegrations:   nil,
-		DiskSpaceMB:           v1alpha1.ConvertDiscSpace(a.Spec.DiskSpace),
-	}
+func (a *cassandraAdapter) getServiceType() string {
+	return "cassandra"
 }
 
-func (a *cassandraAdapter) newUpdateRequest() aiven.UpdateServiceRequest {
-	return aiven.UpdateServiceRequest{
-		Cloud: a.Spec.CloudName,
-		MaintenanceWindow: getMaintenanceWindow(
-			a.Spec.MaintenanceWindowDow,
-			a.Spec.MaintenanceWindowTime,
-		),
-		Plan:                  a.Spec.Plan,
-		TerminationProtection: a.Spec.TerminationProtection,
-		Powered:               true,
-		DiskSpaceMB:           v1alpha1.ConvertDiscSpace(a.Spec.DiskSpace),
-	}
+func (a *cassandraAdapter) getDiskSpace() string {
+	return a.Spec.DiskSpace
 }

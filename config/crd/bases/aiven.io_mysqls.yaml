@@ -62,9 +62,6 @@ spec:
                 description: Cloud the service runs in.
                 maxLength: 256
                 type: string
-                x-kubernetes-validations:
-                - message: Value is immutable
-                  rule: self == oldSelf
               connInfoSecretTarget:
                 description: Information regarding secret creation
                 properties:
