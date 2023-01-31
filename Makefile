@@ -202,7 +202,7 @@ GEN_CRD_API_REF_DOCS=$(LOCALBIN)/gen-crd-api-reference-docs
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v4.2.0
 CONTROLLER_TOOLS_VERSION ?= v0.9.2
-HUGO_VERSION ?= v0.104.3
+HUGO_VERSION ?= v0.110.0
 GINKGO_VERSION ?= v2.3.1
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
@@ -224,7 +224,7 @@ $(ENVTEST): $(LOCALBIN)
 .PHONY: hugo
 hugo: $(HUGO) ## Download hugo locally if necessary.
 $(HUGO): $(LOCALBIN)
-	test -s $(LOCALBIN)/hugo || GOBIN=$(LOCALBIN) go install github.com/gohugoio/hugo@$(HUGO_VERSION)
+	test -s $(LOCALBIN)/hugo || GOBIN=$(LOCALBIN) go install --tags extended github.com/gohugoio/hugo@$(HUGO_VERSION)
 
 .PHONY: gen-crd-api-ref-docs
 gen-crd-api-ref-docs: $(GEN_CRD_API_REF_DOCS)  ## Download gen-crd-api-ref-docs hugo locally if necessary.
