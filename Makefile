@@ -179,7 +179,7 @@ serve-docs: hugo ## Run Hugo live preview.
 .PHONY: generate-docs
 generate-docs: hugo gen-crd-api-ref-docs ## Generate the documentation website locally.
 	go run hack/genrefs/main.go
-	$(HUGO) --minify -s docs
+	cd docs && $(HUGO) --minify -s .
 
 ##@ Build Dependencies
 
