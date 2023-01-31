@@ -323,13 +323,21 @@ func (i instanceReconcilerHelper) finalize(ctx context.Context, o client.Object)
 		err = nil
 	}
 
-	if err != nil && !i.canBeDeleted(o, err) {
-		i.rec.Event(o, corev1.EventTypeWarning, eventUnableToDeleteAtAiven, err.Error())
-		return ctrl.Result{}, fmt.Errorf("unable to delete instance at aiven: %w", err)
+	// If the deletion failed, don't remove the finalizer so that we can retry during the next reconciliation.
+	// Unless the error is invalid token, in that case we remove the finalizer and let the instance be deleted.
+	if err != nil {
+		if i.isInvalidTokenError(err) {
+			i.log.Info("invalid token error on deletion, removing finalizer", "apiError", err)
+			finalised = true
+		} else if aiven.IsNotFound(err) {
+			i.rec.Event(o, corev1.EventTypeWarning, eventUnableToDeleteAtAiven, err.Error())
+			return ctrl.Result{}, fmt.Errorf("unable to delete instance at aiven: %w", err)
+		}
 	}
 
 	// checking if instance was finalized, if not triggering a requeue
 	if !finalised {
+		i.log.Info("instance is not yet deleted at aiven, triggering requeue")
 		return ctrl.Result{
 			Requeue:      true,
 			RequeueAfter: requeueTimeout,
@@ -344,19 +352,16 @@ func (i instanceReconcilerHelper) finalize(ctx context.Context, o client.Object)
 		i.rec.Event(o, corev1.EventTypeWarning, eventUnableToDeleteFinalizer, err.Error())
 		return ctrl.Result{}, fmt.Errorf("unable to remove finalizer: %w", err)
 	}
+
+	i.log.Info("finalizer was removed, instance is deleted")
 	return ctrl.Result{}, nil
 }
 
-// canBeDeleted checks if an instance can be deleted despite error
-func (i instanceReconcilerHelper) canBeDeleted(o client.Object, err error) bool {
-	if err == nil {
-		return true
-	}
-
+// isInvalidTokenError checks if the error is related to invalid token
+func (i instanceReconcilerHelper) isInvalidTokenError(err error) bool {
 	// When an instance was created but pointing to an invalid API token
 	// and no generation was ever processed, allow deleting such instance
-	return !isAlreadyProcessed(o) && !isAlreadyRunning(o) &&
-		strings.Contains(err.Error(), "Invalid token")
+	return strings.Contains(err.Error(), "Invalid token")
 }
 
 func (i instanceReconcilerHelper) createOrUpdateInstance(o client.Object, refs []client.Object) error {
