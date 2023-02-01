@@ -69,6 +69,16 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 			UserConfig:            userConfig,
 		}
 
+		for _, s := range spec.ServiceIntegrations {
+			i := aiven.NewServiceIntegration{
+				IntegrationType: s.IntegrationType,
+				SourceService:   &s.SourceServiceName,
+				// todo: fix in go client, sends None
+				UserConfig: make(map[string]interface{}),
+			}
+			req.ServiceIntegrations = append(req.ServiceIntegrations, i)
+		}
+
 		_, err = a.Services.Create(spec.Project, req)
 		if err != nil {
 			return fmt.Errorf("failed to create service: %w", err)
@@ -152,6 +162,22 @@ func (h *genericServiceHandler) get(a *aiven.Client, object client.Object) (*cor
 
 // checkPreconditions not required for now by services to be implemented
 func (h *genericServiceHandler) checkPreconditions(a *aiven.Client, object client.Object) (bool, error) {
+	o, err := h.fabric(a, object)
+	if err != nil {
+		return false, err
+	}
+
+	spec := o.getServiceCommonSpec()
+	for _, s := range spec.ServiceIntegrations {
+		// Validates that read_replica is running
+		// If not, the wrapper controller will try later
+		if s.IntegrationType == "read_replica" {
+			r, err := checkServiceIsRunning(a, spec.Project, s.SourceServiceName)
+			if !(r && err == nil) {
+				return false, nil
+			}
+		}
+	}
 	return true, nil
 }
 
