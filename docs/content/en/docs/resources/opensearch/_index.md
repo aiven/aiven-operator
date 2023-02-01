@@ -121,8 +121,6 @@ The output is similar to the following:
 }
 ```
 
-## Testing the connection
-
 ## Creating an OpenSearch user
 
 You can create service users for your instance of Aiven for OpenSearch. Service users are unique to this instance and are not shared with any other services.
