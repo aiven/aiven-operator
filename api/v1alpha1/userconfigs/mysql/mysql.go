@@ -3,6 +3,35 @@
 
 package mysqluserconfig
 
+import "encoding/json"
+
+func (ip *IpFilter) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" || string(data) == `""` {
+		return nil
+	}
+
+	var s string
+	err := json.Unmarshal(data, &s)
+	if err == nil {
+		ip.Network = s
+		return nil
+	}
+
+	type this struct {
+		Network     string  `json:"network"`
+		Description *string `json:"description,omitempty" `
+	}
+
+	var t *this
+	err = json.Unmarshal(data, &t)
+	if err != nil {
+		return err
+	}
+	ip.Network = t.Network
+	ip.Description = t.Description
+	return nil
+}
+
 // IpFilter CIDR address block, either as a string, or in a dict with an optional description field
 type IpFilter struct {
 	// +kubebuilder:validation:MaxLength=1024
@@ -62,7 +91,6 @@ type Mysql struct {
 	DefaultTimeZone *string `groups:"create,update" json:"default_time_zone,omitempty"`
 
 	// +kubebuilder:validation:Minimum=4
-	// +kubebuilder:validation:Maximum=9223372036854775807
 	// GroupConcatMaxLen The maximum permitted result length in bytes for the GROUP_CONCAT() function.
 	GroupConcatMaxLen *int `groups:"create,update" json:"group_concat_max_len,omitempty"`
 
@@ -87,7 +115,7 @@ type Mysql struct {
 	InnodbFtMinTokenSize *int `groups:"create,update" json:"innodb_ft_min_token_size,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=1024
-	// +kubebuilder:validation:Pattern="^.+/.+$"
+	// +kubebuilder:validation:Pattern=`^.+/.+$`
 	// InnodbFtServerStopwordTable This option is used to specify your own InnoDB FULLTEXT index stopword list for all InnoDB tables.
 	InnodbFtServerStopwordTable *string `groups:"create,update" json:"innodb_ft_server_stopword_table,omitempty"`
 
@@ -136,10 +164,8 @@ type Mysql struct {
 	// InternalTmpMemStorageEngine The storage engine for in-memory internal temporary tables.
 	InternalTmpMemStorageEngine *string `groups:"create,update" json:"internal_tmp_mem_storage_engine,omitempty"`
 
-	// +kubebuilder:validation:Minimum=0
-	// +kubebuilder:validation:Maximum=3600
 	// LongQueryTime The slow_query_logs work as SQL statements that take more than long_query_time seconds to execute. Default is 10s
-	LongQueryTime *int `groups:"create,update" json:"long_query_time,omitempty"`
+	LongQueryTime *float64 `groups:"create,update" json:"long_query_time,omitempty"`
 
 	// +kubebuilder:validation:Minimum=102400
 	// +kubebuilder:validation:Maximum=1073741824
@@ -175,7 +201,7 @@ type Mysql struct {
 	SortBufferSize *int `groups:"create,update" json:"sort_buffer_size,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=1024
-	// +kubebuilder:validation:Pattern="^[A-Z_]*(,[A-Z_]+)*$"
+	// +kubebuilder:validation:Pattern=`^[A-Z_]*(,[A-Z_]+)*$`
 	// SqlMode Global SQL mode. Set to empty to use MySQL server defaults. When creating a new service and not setting this field Aiven default SQL mode (strict, SQL standard compliant) will be assigned.
 	SqlMode *string `groups:"create,update" json:"sql_mode,omitempty"`
 
@@ -235,13 +261,13 @@ type MysqlUserConfig struct {
 
 	// +kubebuilder:validation:MinLength=8
 	// +kubebuilder:validation:MaxLength=256
-	// +kubebuilder:validation:Pattern="^[a-zA-Z0-9-_]+$"
+	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9-_]+$`
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// AdminPassword Custom password for admin user. Defaults to random string. This must be set only when a new service is being created.
 	AdminPassword *string `groups:"create" json:"admin_password,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=64
-	// +kubebuilder:validation:Pattern="^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$"
+	// +kubebuilder:validation:Pattern=`^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$`
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// AdminUsername Custom username for admin user. This must be set only when a new service is being created.
 	AdminUsername *string `groups:"create" json:"admin_username,omitempty"`

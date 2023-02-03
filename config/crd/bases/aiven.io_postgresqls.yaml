@@ -265,9 +265,7 @@ spec:
                           of the table size to add to autovacuum_analyze_threshold
                           when deciding whether to trigger an ANALYZE. The default
                           is 0.2 (20% of table size)
-                        maximum: 1
-                        minimum: 0
-                        type: integer
+                        type: number
                       autovacuum_analyze_threshold:
                         description: AutovacuumAnalyzeThreshold Specifies the minimum
                           number of inserted, updated or deleted tuples needed to
@@ -323,9 +321,7 @@ spec:
                           of the table size to add to autovacuum_vacuum_threshold
                           when deciding whether to trigger a VACUUM. The default is
                           0.2 (20% of table size)
-                        maximum: 1
-                        minimum: 0
-                        type: integer
+                        type: number
                       autovacuum_vacuum_threshold:
                         description: AutovacuumVacuumThreshold Specifies the minimum
                           number of updated or deleted tuples needed to trigger a
@@ -367,9 +363,7 @@ spec:
                           provide some cushion against spikes in demand, while smaller
                           values intentionally leave writes to be done by server processes.
                           The default is 2.0.
-                        maximum: 10
-                        minimum: 0
-                        type: integer
+                        type: number
                       deadlock_timeout:
                         description: DeadlockTimeout This is the amount of time, in
                           milliseconds, to wait on a lock before checking to see if
@@ -705,7 +699,6 @@ spec:
                         description: MaxFailoverReplicationTimeLag Number of seconds
                           of master unavailability before triggering database failover
                           to standby
-                        maximum: 9223372036854776000
                         minimum: 10
                         type: integer
                     type: object
@@ -794,9 +787,7 @@ spec:
                       the database server uses for shared memory buffers. Valid range
                       is 20-60 (float), which corresponds to 20% - 60%. This setting
                       adjusts the shared_buffers configuration value.
-                    maximum: 60
-                    minimum: 20
-                    type: integer
+                    type: number
                   static_ips:
                     description: StaticIps Use static public IP addresses
                     type: boolean

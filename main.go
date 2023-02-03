@@ -20,7 +20,7 @@ import (
 	//+kubebuilder:scaffold:imports
 )
 
-//go:generate go run ./userconfigs_generator/... --services mysql,cassandra,grafana,pg
+//go:generate go run ./userconfigs_generator/... --services mysql,cassandra,grafana,pg,kafka
 
 var (
 	scheme   = runtime.NewScheme()

@@ -492,8 +492,8 @@ func UserConfigurationToAPI(c interface{}) interface{} {
 
 // UserConfigurationToAPIV2 same as UserConfigurationToAPI but uses sheriff.Marshal
 // which can subset fields from create or update operation
-func UserConfigurationToAPIV2(c interface{}, groups []string) (map[string]interface{}, error) {
-	if c == nil {
+func UserConfigurationToAPIV2(userConfig interface{}, groups []string) (map[string]interface{}, error) {
+	if userConfig == nil {
 		return nil, nil
 	}
 
@@ -501,14 +501,16 @@ func UserConfigurationToAPIV2(c interface{}, groups []string) (map[string]interf
 		Groups: groups,
 	}
 
-	i, err := sheriff.Marshal(o, c)
+	i, err := sheriff.Marshal(o, userConfig)
 	if err != nil {
 		return nil, err
 	}
 
 	m, ok := i.(map[string]interface{})
 	if !ok {
-		return nil, fmt.Errorf("invalid user config type")
+		// It is an empty pointer
+		// sheriff just returned the very same object
+		return nil, nil
 	}
 
 	return m, nil

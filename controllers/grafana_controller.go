@@ -37,7 +37,7 @@ func (r *GrafanaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func newGrafanaAdapter(object client.Object) (serviceAdapter, error) {
+func newGrafanaAdapter(_ *aiven.Client, object client.Object) (serviceAdapter, error) {
 	grafana, ok := object.(*v1alpha1.Grafana)
 	if !ok {
 		return nil, fmt.Errorf("object is not of type v1alpha1.Grafana")
@@ -66,7 +66,7 @@ func (a *grafanaAdapter) getUserConfig() any {
 	return &a.Spec.UserConfig
 }
 
-func (a *grafanaAdapter) newSecret(s *aiven.Service) *corev1.Secret {
+func (a *grafanaAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
 	name := a.Spec.ConnInfoSecretTarget.Name
 	if name == "" {
 		name = a.Name
@@ -91,7 +91,7 @@ func (a *grafanaAdapter) newSecret(s *aiven.Service) *corev1.Secret {
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: a.Namespace},
 		StringData: stringData,
-	}
+	}, nil
 }
 
 func (a *grafanaAdapter) getServiceType() string {

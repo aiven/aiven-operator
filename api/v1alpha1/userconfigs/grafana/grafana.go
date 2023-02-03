@@ -3,6 +3,8 @@
 
 package grafanauserconfig
 
+import "encoding/json"
+
 // AuthAzuread Azure AD OAuth integration
 type AuthAzuread struct {
 	// AllowSignUp Automatically sign-up users on successful sign-in
@@ -21,12 +23,12 @@ type AuthAzuread struct {
 	AuthUrl string `groups:"create,update" json:"auth_url"`
 
 	// +kubebuilder:validation:MaxLength=1024
-	// +kubebuilder:validation:Pattern="^[\\040-\\176]+$"
+	// +kubebuilder:validation:Pattern=`^[\040-\176]+$`
 	// ClientId Client ID from provider
 	ClientId string `groups:"create,update" json:"client_id"`
 
 	// +kubebuilder:validation:MaxLength=1024
-	// +kubebuilder:validation:Pattern="^[\\040-\\176]+$"
+	// +kubebuilder:validation:Pattern=`^[\040-\176]+$`
 	// ClientSecret Client secret from provider
 	ClientSecret string `groups:"create,update" json:"client_secret"`
 
@@ -57,17 +59,17 @@ type AuthGenericOauth struct {
 	AuthUrl string `groups:"create,update" json:"auth_url"`
 
 	// +kubebuilder:validation:MaxLength=1024
-	// +kubebuilder:validation:Pattern="^[\\040-\\176]+$"
+	// +kubebuilder:validation:Pattern=`^[\040-\176]+$`
 	// ClientId Client ID from provider
 	ClientId string `groups:"create,update" json:"client_id"`
 
 	// +kubebuilder:validation:MaxLength=1024
-	// +kubebuilder:validation:Pattern="^[\\040-\\176]+$"
+	// +kubebuilder:validation:Pattern=`^[\040-\176]+$`
 	// ClientSecret Client secret from provider
 	ClientSecret string `groups:"create,update" json:"client_secret"`
 
 	// +kubebuilder:validation:MaxLength=128
-	// +kubebuilder:validation:Pattern="^[a-zA-Z0-9_\\- ]+$"
+	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9_\- ]+$`
 	// Name of the OAuth integration
 	Name *string `groups:"create,update" json:"name,omitempty"`
 
@@ -90,12 +92,12 @@ type AuthGithub struct {
 	AllowedOrganizations []string `groups:"create,update" json:"allowed_organizations,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=1024
-	// +kubebuilder:validation:Pattern="^[\\040-\\176]+$"
+	// +kubebuilder:validation:Pattern=`^[\040-\176]+$`
 	// ClientId Client ID from provider
 	ClientId string `groups:"create,update" json:"client_id"`
 
 	// +kubebuilder:validation:MaxLength=1024
-	// +kubebuilder:validation:Pattern="^[\\040-\\176]+$"
+	// +kubebuilder:validation:Pattern=`^[\040-\176]+$`
 	// ClientSecret Client secret from provider
 	ClientSecret string `groups:"create,update" json:"client_secret"`
 
@@ -122,12 +124,12 @@ type AuthGitlab struct {
 	AuthUrl *string `groups:"create,update" json:"auth_url,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=1024
-	// +kubebuilder:validation:Pattern="^[\\040-\\176]+$"
+	// +kubebuilder:validation:Pattern=`^[\040-\176]+$`
 	// ClientId Client ID from provider
 	ClientId string `groups:"create,update" json:"client_id"`
 
 	// +kubebuilder:validation:MaxLength=1024
-	// +kubebuilder:validation:Pattern="^[\\040-\\176]+$"
+	// +kubebuilder:validation:Pattern=`^[\040-\176]+$`
 	// ClientSecret Client secret from provider
 	ClientSecret string `groups:"create,update" json:"client_secret"`
 
@@ -146,12 +148,12 @@ type AuthGoogle struct {
 	AllowedDomains []string `groups:"create,update" json:"allowed_domains"`
 
 	// +kubebuilder:validation:MaxLength=1024
-	// +kubebuilder:validation:Pattern="^[\\040-\\176]+$"
+	// +kubebuilder:validation:Pattern=`^[\040-\176]+$`
 	// ClientId Client ID from provider
 	ClientId string `groups:"create,update" json:"client_id"`
 
 	// +kubebuilder:validation:MaxLength=1024
-	// +kubebuilder:validation:Pattern="^[\\040-\\176]+$"
+	// +kubebuilder:validation:Pattern=`^[\040-\176]+$`
 	// ClientSecret Client secret from provider
 	ClientSecret string `groups:"create,update" json:"client_secret"`
 }
@@ -159,42 +161,42 @@ type AuthGoogle struct {
 // DateFormats Grafana date format specifications
 type DateFormats struct {
 	// +kubebuilder:validation:MaxLength=64
-	// +kubebuilder:validation:Pattern="(?i)^([a-zA-Z_]+/){1,2}[a-zA-Z_-]+$|^(Etc/)?(UTC|GMT)([+-](\\d){1,2})?$|^(Factory)$|^(browser)$"
+	// +kubebuilder:validation:Pattern=`(?i)^([a-zA-Z_]+/){1,2}[a-zA-Z_-]+$|^(Etc/)?(UTC|GMT)([+-](\d){1,2})?$|^(Factory)$|^(browser)$`
 	// DefaultTimezone Default time zone for user preferences. Value 'browser' uses browser local time zone.
 	DefaultTimezone *string `groups:"create,update" json:"default_timezone,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=128
-	// +kubebuilder:validation:Pattern="^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.: ]?)*)$"
+	// +kubebuilder:validation:Pattern=`^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.: ]?)*)$`
 	// FullDate Moment.js style format string for cases where full date is shown
 	FullDate *string `groups:"create,update" json:"full_date,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=128
-	// +kubebuilder:validation:Pattern="^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.: ]?)*)$"
+	// +kubebuilder:validation:Pattern=`^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.: ]?)*)$`
 	// IntervalDay Moment.js style format string used when a time requiring day accuracy is shown
 	IntervalDay *string `groups:"create,update" json:"interval_day,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=128
-	// +kubebuilder:validation:Pattern="^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.: ]?)*)$"
+	// +kubebuilder:validation:Pattern=`^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.: ]?)*)$`
 	// IntervalHour Moment.js style format string used when a time requiring hour accuracy is shown
 	IntervalHour *string `groups:"create,update" json:"interval_hour,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=128
-	// +kubebuilder:validation:Pattern="^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.: ]?)*)$"
+	// +kubebuilder:validation:Pattern=`^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.: ]?)*)$`
 	// IntervalMinute Moment.js style format string used when a time requiring minute accuracy is shown
 	IntervalMinute *string `groups:"create,update" json:"interval_minute,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=128
-	// +kubebuilder:validation:Pattern="^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.: ]?)*)$"
+	// +kubebuilder:validation:Pattern=`^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.: ]?)*)$`
 	// IntervalMonth Moment.js style format string used when a time requiring month accuracy is shown
 	IntervalMonth *string `groups:"create,update" json:"interval_month,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=128
-	// +kubebuilder:validation:Pattern="^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.: ]?)*)$"
+	// +kubebuilder:validation:Pattern=`^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.: ]?)*)$`
 	// IntervalSecond Moment.js style format string used when a time requiring second accuracy is shown
 	IntervalSecond *string `groups:"create,update" json:"interval_second,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=128
-	// +kubebuilder:validation:Pattern="^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.: ]?)*)$"
+	// +kubebuilder:validation:Pattern=`^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.: ]?)*)$`
 	// IntervalYear Moment.js style format string used when a time requiring year accuracy is shown
 	IntervalYear *string `groups:"create,update" json:"interval_year,omitempty"`
 }
@@ -202,7 +204,7 @@ type DateFormats struct {
 // ExternalImageStorage External image store settings
 type ExternalImageStorage struct {
 	// +kubebuilder:validation:MaxLength=4096
-	// +kubebuilder:validation:Pattern="^[A-Z0-9]+$"
+	// +kubebuilder:validation:Pattern=`^[A-Z0-9]+$`
 	// AccessKey S3 access key. Requires permissions to the S3 bucket for the s3:PutObject and s3:PutObjectAcl actions
 	AccessKey string `groups:"create,update" json:"access_key"`
 
@@ -215,9 +217,36 @@ type ExternalImageStorage struct {
 	Provider string `groups:"create,update" json:"provider"`
 
 	// +kubebuilder:validation:MaxLength=4096
-	// +kubebuilder:validation:Pattern="^[A-Za-z0-9/+=]+$"
+	// +kubebuilder:validation:Pattern=`^[A-Za-z0-9/+=]+$`
 	// SecretKey S3 secret key
 	SecretKey string `groups:"create,update" json:"secret_key"`
+}
+
+func (ip *IpFilter) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" || string(data) == `""` {
+		return nil
+	}
+
+	var s string
+	err := json.Unmarshal(data, &s)
+	if err == nil {
+		ip.Network = s
+		return nil
+	}
+
+	type this struct {
+		Network     string  `json:"network"`
+		Description *string `json:"description,omitempty" `
+	}
+
+	var t *this
+	err = json.Unmarshal(data, &t)
+	if err != nil {
+		return err
+	}
+	ip.Network = t.Network
+	ip.Description = t.Description
+	return nil
 }
 
 // IpFilter CIDR address block, either as a string, or in a dict with an optional description field
@@ -252,12 +281,12 @@ type PublicAccess struct {
 // SmtpServer SMTP server settings
 type SmtpServer struct {
 	// +kubebuilder:validation:MaxLength=319
-	// +kubebuilder:validation:Pattern="^[A-Za-z0-9_\\-\\.+\\'&]+@(([\\da-zA-Z])([_\\w-]{,62})\\.){,127}(([\\da-zA-Z])[_\\w-]{,61})?([\\da-zA-Z]\\.((xn\\-\\-[a-zA-Z\\d]+)|([a-zA-Z\\d]{2,})))$"
+	// +kubebuilder:validation:Pattern=`^[A-Za-z0-9_\-\.+\'&]+@(([\da-zA-Z])([_\w-]{,62})\.){,127}(([\da-zA-Z])[_\w-]{,61})?([\da-zA-Z]\.((xn\-\-[a-zA-Z\d]+)|([a-zA-Z\d]{2,})))$`
 	// FromAddress Address used for sending emails
 	FromAddress string `groups:"create,update" json:"from_address"`
 
 	// +kubebuilder:validation:MaxLength=128
-	// +kubebuilder:validation:Pattern="^[^\\x00-\\x1F]+$"
+	// +kubebuilder:validation:Pattern=`^[^\x00-\x1F]+$`
 	// FromName Name used in outgoing emails, defaults to Grafana
 	FromName *string `groups:"create,update" json:"from_name,omitempty"`
 
@@ -266,7 +295,7 @@ type SmtpServer struct {
 	Host string `groups:"create,update" json:"host"`
 
 	// +kubebuilder:validation:MaxLength=255
-	// +kubebuilder:validation:Pattern="^[^\\x00-\\x1F]+$"
+	// +kubebuilder:validation:Pattern=`^[^\x00-\x1F]+$`
 	// Password for SMTP authentication
 	Password *string `groups:"create,update" json:"password,omitempty"`
 
@@ -283,7 +312,7 @@ type SmtpServer struct {
 	StarttlsPolicy *string `groups:"create,update" json:"starttls_policy,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=255
-	// +kubebuilder:validation:Pattern="^[^\\x00-\\x1F]+$"
+	// +kubebuilder:validation:Pattern=`^[^\x00-\x1F]+$`
 	// Username for SMTP authentication
 	Username *string `groups:"create,update" json:"username,omitempty"`
 }
@@ -341,7 +370,7 @@ type GrafanaUserConfig struct {
 	DashboardPreviewsEnabled *bool `groups:"create,update" json:"dashboard_previews_enabled,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=16
-	// +kubebuilder:validation:Pattern="^[0-9]+(ms|s|m|h|d)$"
+	// +kubebuilder:validation:Pattern=`^[0-9]+(ms|s|m|h|d)$`
 	// DashboardsMinRefreshInterval Signed sequence of decimal numbers, followed by a unit suffix (ms, s, m, h, d), e.g. 30s, 1h
 	DashboardsMinRefreshInterval *string `groups:"create,update" json:"dashboards_min_refresh_interval,omitempty"`
 
@@ -371,7 +400,7 @@ type GrafanaUserConfig struct {
 	ExternalImageStorage *ExternalImageStorage `groups:"create,update" json:"external_image_storage,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=64
-	// +kubebuilder:validation:Pattern="^(G|UA|YT|MO)-[a-zA-Z0-9-]+$"
+	// +kubebuilder:validation:Pattern=`^(G|UA|YT|MO)-[a-zA-Z0-9-]+$`
 	// GoogleAnalyticsUaId Google Analytics ID
 	GoogleAnalyticsUaId *string `groups:"create,update" json:"google_analytics_ua_id,omitempty"`
 
@@ -397,7 +426,7 @@ type GrafanaUserConfig struct {
 	PublicAccess *PublicAccess `groups:"create,update" json:"public_access,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=128
-	// +kubebuilder:validation:Pattern="^[a-zA-Z0-9-_:.]+$"
+	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9-_:.]+$`
 	// RecoveryBasebackupName Name of the basebackup to restore in forked service
 	RecoveryBasebackupName *string `groups:"create,update" json:"recovery_basebackup_name,omitempty"`
 

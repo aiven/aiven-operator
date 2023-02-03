@@ -3,6 +3,35 @@
 
 package pguserconfig
 
+import "encoding/json"
+
+func (ip *IpFilter) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" || string(data) == `""` {
+		return nil
+	}
+
+	var s string
+	err := json.Unmarshal(data, &s)
+	if err == nil {
+		ip.Network = s
+		return nil
+	}
+
+	type this struct {
+		Network     string  `json:"network"`
+		Description *string `json:"description,omitempty" `
+	}
+
+	var t *this
+	err = json.Unmarshal(data, &t)
+	if err != nil {
+		return err
+	}
+	ip.Network = t.Network
+	ip.Description = t.Description
+	return nil
+}
+
 // IpFilter CIDR address block, either as a string, or in a dict with an optional description field
 type IpFilter struct {
 	// +kubebuilder:validation:MaxLength=1024
@@ -51,10 +80,8 @@ type Migration struct {
 
 // Pg postgresql.conf configuration values
 type Pg struct {
-	// +kubebuilder:validation:Minimum=0
-	// +kubebuilder:validation:Maximum=1
 	// AutovacuumAnalyzeScaleFactor Specifies a fraction of the table size to add to autovacuum_analyze_threshold when deciding whether to trigger an ANALYZE. The default is 0.2 (20% of table size)
-	AutovacuumAnalyzeScaleFactor *int `groups:"create,update" json:"autovacuum_analyze_scale_factor,omitempty"`
+	AutovacuumAnalyzeScaleFactor *float64 `groups:"create,update" json:"autovacuum_analyze_scale_factor,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=2147483647
@@ -86,10 +113,8 @@ type Pg struct {
 	// AutovacuumVacuumCostLimit Specifies the cost limit value that will be used in automatic VACUUM operations. If -1 is specified (which is the default), the regular vacuum_cost_limit value will be used.
 	AutovacuumVacuumCostLimit *int `groups:"create,update" json:"autovacuum_vacuum_cost_limit,omitempty"`
 
-	// +kubebuilder:validation:Minimum=0
-	// +kubebuilder:validation:Maximum=1
 	// AutovacuumVacuumScaleFactor Specifies a fraction of the table size to add to autovacuum_vacuum_threshold when deciding whether to trigger a VACUUM. The default is 0.2 (20% of table size)
-	AutovacuumVacuumScaleFactor *int `groups:"create,update" json:"autovacuum_vacuum_scale_factor,omitempty"`
+	AutovacuumVacuumScaleFactor *float64 `groups:"create,update" json:"autovacuum_vacuum_scale_factor,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=2147483647
@@ -111,10 +136,8 @@ type Pg struct {
 	// BgwriterLruMaxpages In each round, no more than this many buffers will be written by the background writer. Setting this to zero disables background writing. Default is 100.
 	BgwriterLruMaxpages *int `groups:"create,update" json:"bgwriter_lru_maxpages,omitempty"`
 
-	// +kubebuilder:validation:Minimum=0
-	// +kubebuilder:validation:Maximum=10
 	// BgwriterLruMultiplier The average recent need for new buffers is multiplied by bgwriter_lru_multiplier to arrive at an estimate of the number that will be needed during the next round, (up to bgwriter_lru_maxpages). 1.0 represents a “just in time” policy of writing exactly the number of buffers predicted to be needed. Larger values provide some cushion against spikes in demand, while smaller values intentionally leave writes to be done by server processes. The default is 2.0.
-	BgwriterLruMultiplier *int `groups:"create,update" json:"bgwriter_lru_multiplier,omitempty"`
+	BgwriterLruMultiplier *float64 `groups:"create,update" json:"bgwriter_lru_multiplier,omitempty"`
 
 	// +kubebuilder:validation:Minimum=500
 	// +kubebuilder:validation:Maximum=1800000
@@ -232,7 +255,7 @@ type Pg struct {
 	PgPartmanBgwInterval *int `groups:"create,update" json:"pg_partman_bgw.interval,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=64
-	// +kubebuilder:validation:Pattern="^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$"
+	// +kubebuilder:validation:Pattern=`^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$`
 	// PgPartmanBgwRole Controls which role to use for pg_partman's scheduled background tasks.
 	PgPartmanBgwRole *string `groups:"create,update" json:"pg_partman_bgw.role,omitempty"`
 
@@ -330,7 +353,6 @@ type Pgbouncer struct {
 // Pglookout PGLookout settings
 type Pglookout struct {
 	// +kubebuilder:validation:Minimum=10
-	// +kubebuilder:validation:Maximum=9223372036854775807
 	// MaxFailoverReplicationTimeLag Number of seconds of master unavailability before triggering database failover to standby
 	MaxFailoverReplicationTimeLag *int `groups:"create,update" json:"max_failover_replication_time_lag,omitempty"`
 }
@@ -385,13 +407,13 @@ type PgUserConfig struct {
 
 	// +kubebuilder:validation:MinLength=8
 	// +kubebuilder:validation:MaxLength=256
-	// +kubebuilder:validation:Pattern="^[a-zA-Z0-9-_]+$"
+	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9-_]+$`
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// AdminPassword Custom password for admin user. Defaults to random string. This must be set only when a new service is being created.
 	AdminPassword *string `groups:"create" json:"admin_password,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=64
-	// +kubebuilder:validation:Pattern="^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$"
+	// +kubebuilder:validation:Pattern=`^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$`
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// AdminUsername Custom username for admin user. This must be set only when a new service is being created.
 	AdminUsername *string `groups:"create" json:"admin_username,omitempty"`
@@ -464,10 +486,8 @@ type PgUserConfig struct {
 	// ServiceToForkFrom Name of another service to fork from. This has effect only when a new service is being created.
 	ServiceToForkFrom *string `groups:"create" json:"service_to_fork_from,omitempty"`
 
-	// +kubebuilder:validation:Minimum=20
-	// +kubebuilder:validation:Maximum=60
 	// SharedBuffersPercentage Percentage of total RAM that the database server uses for shared memory buffers. Valid range is 20-60 (float), which corresponds to 20% - 60%. This setting adjusts the shared_buffers configuration value.
-	SharedBuffersPercentage *int `groups:"create,update" json:"shared_buffers_percentage,omitempty"`
+	SharedBuffersPercentage *float64 `groups:"create,update" json:"shared_buffers_percentage,omitempty"`
 
 	// StaticIps Use static public IP addresses
 	StaticIps *bool `groups:"create,update" json:"static_ips,omitempty"`

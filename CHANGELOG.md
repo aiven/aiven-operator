@@ -4,7 +4,7 @@
 
 - Add CRD validation rules for immutable fields
 - Breaking change: `ip_filter` field is now of `object` type.
-- Update user configs for following kinds: PostgreSQL
+- Update user configs for following kinds: PostgreSQL, Kafka
 
 ## v0.7.1 - 2023-01-24
 

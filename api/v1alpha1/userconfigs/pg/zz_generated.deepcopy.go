@@ -79,7 +79,7 @@ func (in *Pg) DeepCopyInto(out *Pg) {
 	*out = *in
 	if in.AutovacuumAnalyzeScaleFactor != nil {
 		in, out := &in.AutovacuumAnalyzeScaleFactor, &out.AutovacuumAnalyzeScaleFactor
-		*out = new(int)
+		*out = new(float64)
 		**out = **in
 	}
 	if in.AutovacuumAnalyzeThreshold != nil {
@@ -114,7 +114,7 @@ func (in *Pg) DeepCopyInto(out *Pg) {
 	}
 	if in.AutovacuumVacuumScaleFactor != nil {
 		in, out := &in.AutovacuumVacuumScaleFactor, &out.AutovacuumVacuumScaleFactor
-		*out = new(int)
+		*out = new(float64)
 		**out = **in
 	}
 	if in.AutovacuumVacuumThreshold != nil {
@@ -139,7 +139,7 @@ func (in *Pg) DeepCopyInto(out *Pg) {
 	}
 	if in.BgwriterLruMultiplier != nil {
 		in, out := &in.BgwriterLruMultiplier, &out.BgwriterLruMultiplier
-		*out = new(int)
+		*out = new(float64)
 		**out = **in
 	}
 	if in.DeadlockTimeout != nil {
@@ -450,7 +450,7 @@ func (in *PgUserConfig) DeepCopyInto(out *PgUserConfig) {
 	}
 	if in.SharedBuffersPercentage != nil {
 		in, out := &in.SharedBuffersPercentage, &out.SharedBuffersPercentage
-		*out = new(int)
+		*out = new(float64)
 		**out = **in
 	}
 	if in.StaticIps != nil {
