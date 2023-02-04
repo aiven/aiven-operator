@@ -29,6 +29,7 @@ jobs:
           connectionpool_controller_test.go,
           controller_test.go,
           database_controller_test.go,
+          generic_service_handler_test.go,
           grafana_controller_test.go,
           kafka_controller_test.go,
           kafka_controller_with_projectvpc_ref_test.go,

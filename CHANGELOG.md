@@ -2,6 +2,7 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `serviceIntegrations` on service types. Only `read_replica` type for now.
 - Add CRD validation rules for immutable fields
 - Breaking change: `ip_filter` field is now of `object` type.
 - Update user configs for following kinds: PostgreSQL, Kafka

@@ -78,6 +78,10 @@ type ServiceCommonSpec struct {
 
 	// Tags are key-value pairs that allow you to categorize services.
 	Tags map[string]string `json:"tags,omitempty"`
+
+	// +kubebuilder:validation:MaxItems=1
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	ServiceIntegrations []*ServiceIntegrationItem `json:"serviceIntegrations,omitempty"`
 }
 
 // Validate runs complex validation on ServiceCommonSpec
@@ -175,4 +179,13 @@ func ErrorSubstrChecker(substrings ...string) func(error) bool {
 		}
 		return false
 	}
+}
+
+// ServiceIntegrationItem Service integrations to specify when creating a service. Not applied after initial service creation
+type ServiceIntegrationItem struct {
+	// +kubebuilder:validation:Enum=read_replica
+	IntegrationType string `json:"integrationType"`
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=64
+	SourceServiceName string `json:"sourceServiceName"`
 }
