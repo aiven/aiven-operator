@@ -1273,6 +1273,11 @@ func (in *KafkaTopicConfig) DeepCopyInto(out *KafkaTopicConfig) {
 		*out = new(int64)
 		**out = **in
 	}
+	if in.MinCleanableDirtyRatio != nil {
+		in, out := &in.MinCleanableDirtyRatio, &out.MinCleanableDirtyRatio
+		*out = new(float64)
+		**out = **in
+	}
 	if in.MinCompactionLagMs != nil {
 		in, out := &in.MinCompactionLagMs, &out.MinCompactionLagMs
 		*out = new(int64)
