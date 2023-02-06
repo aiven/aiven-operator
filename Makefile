@@ -114,6 +114,7 @@ test: manifests generate fmt vet envtest ginkgo ## Run tests.
 	KUBEBUILDER_ATTACH_CONTROL_PLANE_OUTPUT=true \
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" \
 	$(GINKGO) \
+			-v \
 			--focus-file=$(FOCUS_FILE) \
 			--output-interceptor-mode=none \
 			--nodes=6 \
