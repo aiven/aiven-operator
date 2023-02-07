@@ -105,12 +105,16 @@ func kafkaSpec(serviceName, namespace string) *v1alpha1.Kafka {
 			Namespace: namespace,
 		},
 		Spec: v1alpha1.KafkaSpec{
-			DiskSpace: "600Gib",
 			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
+				DiskSpace: "600Gib",
 				Project:   os.Getenv("AIVEN_PROJECT_NAME"),
 				Plan:      "business-4",
 				CloudName: "google-europe-west1",
 				Tags:      map[string]string{"key1": "value1"},
+				AuthSecretRef: v1alpha1.AuthSecretReference{
+					Name: secretRefName,
+					Key:  secretRefKey,
+				},
 			},
 			UserConfig: &kafkauserconfig.KafkaUserConfig{
 				KafkaRest:      anyPointer(true),
@@ -120,10 +124,6 @@ func kafkaSpec(serviceName, namespace string) *v1alpha1.Kafka {
 					GroupMaxSessionTimeoutMs: anyPointer(70000),
 					LogRetentionBytes:        anyPointer(1000000000),
 				},
-			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
-				Name: secretRefName,
-				Key:  secretRefKey,
 			},
 		},
 	}

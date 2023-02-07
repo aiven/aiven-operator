@@ -82,6 +82,13 @@ type ServiceCommonSpec struct {
 	// +kubebuilder:validation:MaxItems=1
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	ServiceIntegrations []*ServiceIntegrationItem `json:"serviceIntegrations,omitempty"`
+
+	// +kubebuilder:validation:Format="^[1-9][0-9]*(GiB|G)*"
+	// The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.
+	DiskSpace string `json:"disk_space,omitempty"`
+
+	// Authentication reference to Aiven token in a secret
+	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // Validate runs complex validation on ServiceCommonSpec

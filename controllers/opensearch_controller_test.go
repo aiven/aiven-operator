@@ -114,12 +114,16 @@ func osSpec(serviceName, namespace string) *v1alpha1.OpenSearch {
 			Namespace: namespace,
 		},
 		Spec: v1alpha1.OpenSearchSpec{
-			DiskSpace: "240Gib",
 			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
+				DiskSpace: "240Gib",
 				Project:   os.Getenv("AIVEN_PROJECT_NAME"),
 				Plan:      "business-4",
 				CloudName: "google-europe-west1",
 				Tags:      map[string]string{"key1": "value1"},
+				AuthSecretRef: v1alpha1.AuthSecretReference{
+					Name: secretRefName,
+					Key:  secretRefKey,
+				},
 			},
 			UserConfig: &opensearchuserconfig.OpensearchUserConfig{
 				IpFilter: []*opensearchuserconfig.IpFilter{
@@ -131,10 +135,6 @@ func osSpec(serviceName, namespace string) *v1alpha1.OpenSearch {
 						Description: anyPointer("whatever"),
 					},
 				},
-			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
-				Name: secretRefName,
-				Key:  secretRefKey,
 			},
 		},
 	}

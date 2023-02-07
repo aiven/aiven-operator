@@ -105,12 +105,16 @@ func pgSpec(serviceName, namespace string) *v1alpha1.PostgreSQL {
 			Namespace: namespace,
 		},
 		Spec: v1alpha1.PostgreSQLSpec{
-			DiskSpace: "100Gib",
 			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
+				DiskSpace: "100Gib",
 				Project:   os.Getenv("AIVEN_PROJECT_NAME"),
 				Plan:      "business-4",
 				CloudName: "google-europe-west1",
 				Tags:      map[string]string{"key1": "value1"},
+				AuthSecretRef: v1alpha1.AuthSecretReference{
+					Name: secretRefName,
+					Key:  secretRefKey,
+				},
 			},
 			UserConfig: &pguserconfig.PgUserConfig{
 				PublicAccess: &pguserconfig.PublicAccess{
@@ -120,10 +124,6 @@ func pgSpec(serviceName, namespace string) *v1alpha1.PostgreSQL {
 				Pg: &pguserconfig.Pg{
 					IdleInTransactionSessionTimeout: anyPointer(900),
 				},
-			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
-				Name: secretRefName,
-				Key:  secretRefKey,
 			},
 		},
 	}

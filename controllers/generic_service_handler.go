@@ -58,7 +58,7 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 
 		req := aiven.CreateServiceRequest{
 			Cloud:                 spec.CloudName,
-			DiskSpaceMB:           v1alpha1.ConvertDiscSpace(o.getDiskSpace()),
+			DiskSpaceMB:           v1alpha1.ConvertDiscSpace(spec.DiskSpace),
 			MaintenanceWindow:     getMaintenanceWindow(spec.MaintenanceWindowDow, spec.MaintenanceWindowTime),
 			Plan:                  spec.Plan,
 			ProjectVPCID:          toOptionalStringPointer(projectVPCID),
@@ -92,7 +92,7 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 
 		req := aiven.UpdateServiceRequest{
 			Cloud:                 spec.CloudName,
-			DiskSpaceMB:           v1alpha1.ConvertDiscSpace(o.getDiskSpace()),
+			DiskSpaceMB:           v1alpha1.ConvertDiscSpace(spec.DiskSpace),
 			MaintenanceWindow:     getMaintenanceWindow(spec.MaintenanceWindowDow, spec.MaintenanceWindowTime),
 			Plan:                  spec.Plan,
 			Powered:               true,
@@ -140,7 +140,8 @@ func (h *genericServiceHandler) get(a *aiven.Client, object client.Object) (*cor
 		return nil, err
 	}
 
-	s, err := a.Services.Get(o.getServiceCommonSpec().Project, o.getObjectMeta().Name)
+	ometa := o.getObjectMeta()
+	s, err := a.Services.Get(o.getServiceCommonSpec().Project, ometa.Name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get service from Aiven: %w", err)
 	}
@@ -155,7 +156,31 @@ func (h *genericServiceHandler) get(a *aiven.Client, object client.Object) (*cor
 
 		// Some services get secrets after they are running only,
 		// like ip addresses (hosts)
-		return o.newSecret(s)
+		target, stringData, err := o.getSecretData(s)
+		if err != nil {
+			return nil, err
+		}
+
+		// Removes empties
+		for k, v := range stringData {
+			if v == "" {
+				delete(stringData, k)
+			}
+		}
+
+		if len(stringData) == 0 {
+			return nil, nil
+		}
+
+		// Target name is optional, uses resource name
+		if target == "" {
+			target = ometa.Name
+		}
+
+		return &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{Name: target, Namespace: ometa.Namespace},
+			StringData: stringData,
+		}, nil
 	}
 	return nil, nil
 }
@@ -190,7 +215,6 @@ type serviceAdapter interface {
 	getServiceStatus() *v1alpha1.ServiceStatus
 	getServiceCommonSpec() *v1alpha1.ServiceCommonSpec
 	getServiceType() string
-	getDiskSpace() string
 	getUserConfig() any
-	newSecret(*aiven.Service) (*corev1.Secret, error)
+	getSecretData(*aiven.Service) (string, map[string]string, error)
 }

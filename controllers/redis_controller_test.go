@@ -195,9 +195,10 @@ func redisSpec(serviceName, namespace string, useSecret bool) *v1alpha1.Redis {
 		},
 		Spec: v1alpha1.RedisSpec{
 			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
-				Project:   os.Getenv("AIVEN_PROJECT_NAME"),
-				Plan:      "business-4",
-				CloudName: "google-europe-west1",
+				Project:       os.Getenv("AIVEN_PROJECT_NAME"),
+				Plan:          "business-4",
+				CloudName:     "google-europe-west1",
+				AuthSecretRef: authSecretReference,
 			},
 			UserConfig: &redisuserconfig.RedisUserConfig{
 				IpFilter: []*redisuserconfig.IpFilter{
@@ -210,7 +211,6 @@ func redisSpec(serviceName, namespace string, useSecret bool) *v1alpha1.Redis {
 					},
 				},
 			},
-			AuthSecretRef: authSecretReference,
 		},
 	}
 }

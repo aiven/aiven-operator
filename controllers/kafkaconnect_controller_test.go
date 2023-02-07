@@ -7,13 +7,13 @@ import (
 	"os"
 	"time"
 
-	"k8s.io/apimachinery/pkg/api/meta"
-
-	"github.com/aiven/aiven-operator/api/v1alpha1"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 var _ = Describe("KafkaConnect Controller", func() {
@@ -98,10 +98,10 @@ func kafkaConnectSpec(serviceName, namespace string) *v1alpha1.KafkaConnect {
 				Plan:      "business-4",
 				CloudName: "google-europe-west1",
 				Tags:      map[string]string{"key1": "value1"},
-			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
-				Name: secretRefName,
-				Key:  secretRefKey,
+				AuthSecretRef: v1alpha1.AuthSecretReference{
+					Name: secretRefName,
+					Key:  secretRefKey,
+				},
 			},
 		},
 	}

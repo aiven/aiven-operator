@@ -129,10 +129,10 @@ func kafkaForProjectVPC(serviceName, namespace, projectName, projectVPCName stri
 					Name:      projectVPCName,
 					Namespace: namespace,
 				},
-			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
-				Name: secretRefName,
-				Key:  secretRefKey,
+				AuthSecretRef: v1alpha1.AuthSecretReference{
+					Name: secretRefName,
+					Key:  secretRefKey,
+				},
 			},
 		},
 	}

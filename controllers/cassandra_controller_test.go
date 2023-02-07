@@ -122,12 +122,16 @@ func cassandraSpec(serviceName, namespace string) *v1alpha1.Cassandra {
 			Namespace: namespace,
 		},
 		Spec: v1alpha1.CassandraSpec{
-			DiskSpace: "450Gib",
 			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
+				DiskSpace: "450Gib",
 				Project:   os.Getenv("AIVEN_PROJECT_NAME"),
 				Plan:      "startup-4",
 				CloudName: "google-europe-west1",
 				Tags:      map[string]string{"key1": "value1"},
+				AuthSecretRef: v1alpha1.AuthSecretReference{
+					Name: secretRefName,
+					Key:  secretRefKey,
+				},
 			},
 			UserConfig: &cassandrauserconfig.CassandraUserConfig{
 				MigrateSstableloader: anyPointer(true),
@@ -143,10 +147,6 @@ func cassandraSpec(serviceName, namespace string) *v1alpha1.Cassandra {
 						Description: anyPointer("whatever"),
 					},
 				},
-			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
-				Name: secretRefName,
-				Key:  secretRefKey,
 			},
 		},
 	}

@@ -124,12 +124,16 @@ func mysqlSpec(serviceName, namespace string) *v1alpha1.MySQL {
 			Namespace: namespace,
 		},
 		Spec: v1alpha1.MySQLSpec{
-			DiskSpace: "100Gib",
 			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
+				DiskSpace: "100Gib",
 				Project:   os.Getenv("AIVEN_PROJECT_NAME"),
 				Plan:      "business-4",
 				CloudName: "google-europe-west1",
 				Tags:      map[string]string{"key1": "value1"},
+				AuthSecretRef: v1alpha1.AuthSecretReference{
+					Name: secretRefName,
+					Key:  secretRefKey,
+				},
 			},
 			UserConfig: &mysqluserconfig.MysqlUserConfig{
 				BackupHour:   anyPointer(12),
@@ -143,10 +147,6 @@ func mysqlSpec(serviceName, namespace string) *v1alpha1.MySQL {
 						Description: anyPointer("whatever"),
 					},
 				},
-			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
-				Name: secretRefName,
-				Key:  secretRefKey,
 			},
 		},
 	}

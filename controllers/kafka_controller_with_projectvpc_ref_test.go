@@ -142,10 +142,10 @@ func kafkaServiceWithProjectVPC(serviceName, namespace, projectName, projectVPCN
 					Name: projectVPCName,
 					// it's expected it goes well with the same namespace
 				},
-			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
-				Name: secretRefName,
-				Key:  secretRefKey,
+				AuthSecretRef: v1alpha1.AuthSecretReference{
+					Name: secretRefName,
+					Key:  secretRefKey,
+				},
 			},
 		},
 	}

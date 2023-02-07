@@ -64,12 +64,7 @@ func (a *kafkaAdapter) getUserConfig() any {
 	return &a.Spec.UserConfig
 }
 
-func (a *kafkaAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
-	name := a.Spec.ConnInfoSecretTarget.Name
-	if name == "" {
-		name = a.Name
-	}
-
+func (a *kafkaAdapter) getSecretData(s *aiven.Service) (string, map[string]string, error) {
 	var userName, password string
 	if len(s.Users) > 0 {
 		userName = s.Users[0].Username
@@ -78,7 +73,7 @@ func (a *kafkaAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
 
 	caCert, err := a.avn.CA.Get(a.getServiceCommonSpec().Project)
 	if err != nil {
-		return nil, fmt.Errorf("aiven client error %w", err)
+		return "", nil, fmt.Errorf("aiven client error %w", err)
 	}
 
 	stringData := map[string]string{
@@ -90,24 +85,9 @@ func (a *kafkaAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
 		"ACCESS_KEY":  s.ConnectionInfo.KafkaAccessKey,
 		"CA_CERT":     caCert,
 	}
-
-	// Removes empties
-	for k, v := range stringData {
-		if v == "" {
-			delete(stringData, k)
-		}
-	}
-
-	return &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: a.Namespace},
-		StringData: stringData,
-	}, nil
+	return a.Spec.ConnInfoSecretTarget.Name, stringData, nil
 }
 
 func (a *kafkaAdapter) getServiceType() string {
 	return "kafka"
-}
-
-func (a *kafkaAdapter) getDiskSpace() string {
-	return a.Spec.DiskSpace
 }

@@ -65,12 +65,7 @@ func (a *mySQLAdapter) getUserConfig() any {
 	return &a.Spec.UserConfig
 }
 
-func (a *mySQLAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
-	name := a.Spec.ConnInfoSecretTarget.Name
-	if name == "" {
-		name = a.Name
-	}
-
+func (a *mySQLAdapter) getSecretData(s *aiven.Service) (string, map[string]string, error) {
 	stringData := map[string]string{
 		"MYSQL_HOST":        s.URIParams["host"],
 		"MYSQL_PORT":        s.URIParams["port"],
@@ -81,24 +76,9 @@ func (a *mySQLAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
 		"MYSQL_URI":         s.URI,
 		"MYSQL_REPLICA_URI": s.ConnectionInfo.MySQLReplicaURI,
 	}
-
-	// Removes empties
-	for k, v := range stringData {
-		if v == "" {
-			delete(stringData, k)
-		}
-	}
-
-	return &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: a.Namespace},
-		StringData: stringData,
-	}, nil
+	return a.Spec.ConnInfoSecretTarget.Name, stringData, nil
 }
 
 func (a *mySQLAdapter) getServiceType() string {
 	return "mysql"
-}
-
-func (a *mySQLAdapter) getDiskSpace() string {
-	return a.Spec.DiskSpace
 }

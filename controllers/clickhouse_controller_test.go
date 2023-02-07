@@ -119,6 +119,10 @@ func chSpec(serviceName, namespace string) *v1alpha1.Clickhouse {
 				Plan:      "business-16",
 				CloudName: "google-europe-west1",
 				Tags:      map[string]string{"key1": "value1"},
+				AuthSecretRef: v1alpha1.AuthSecretReference{
+					Name: secretRefName,
+					Key:  secretRefKey,
+				},
 			},
 			UserConfig: &clickhouseuserconfig.ClickhouseUserConfig{
 				IpFilter: []*clickhouseuserconfig.IpFilter{
@@ -130,10 +134,6 @@ func chSpec(serviceName, namespace string) *v1alpha1.Clickhouse {
 						Description: anyPointer("whatever"),
 					},
 				},
-			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
-				Name: secretRefName,
-				Key:  secretRefKey,
 			},
 		},
 	}

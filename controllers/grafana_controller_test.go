@@ -127,6 +127,10 @@ func grafanaSpec(serviceName, namespace string) *v1alpha1.Grafana {
 				Plan:      "startup-1",
 				CloudName: "google-europe-west1",
 				Tags:      map[string]string{"key1": "value1"},
+				AuthSecretRef: v1alpha1.AuthSecretReference{
+					Name: secretRefName,
+					Key:  secretRefKey,
+				},
 			},
 			UserConfig: &grafanauserconfig.GrafanaUserConfig{
 				AlertingEnabled: anyPointer(true),
@@ -142,10 +146,6 @@ func grafanaSpec(serviceName, namespace string) *v1alpha1.Grafana {
 						Description: anyPointer("whatever"),
 					},
 				},
-			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
-				Name: secretRefName,
-				Key:  secretRefKey,
 			},
 		},
 	}
