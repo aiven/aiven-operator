@@ -7,15 +7,15 @@ import (
 	"os"
 	"time"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	opensearchuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/opensearch"
 )
 
 var _ = Describe("OpenSearch Controller", func() {
@@ -82,6 +82,18 @@ var _ = Describe("OpenSearch Controller", func() {
 			Expect(createdSecret.Data["PASSWORD"]).NotTo(BeEmpty())
 
 			Expect(createdOs.Status.State).Should(Equal("RUNNING"))
+
+			// Userconfig test
+			expectedIPFilter := []*opensearchuserconfig.IpFilter{
+				{
+					Network: "10.20.0.0/16",
+				},
+				{
+					Network:     "0.0.0.0",
+					Description: anyPointer("whatever"),
+				},
+			}
+			Expect(createdOs.Spec.UserConfig.IpFilter).Should(Equal(expectedIPFilter))
 		})
 	})
 
@@ -109,7 +121,17 @@ func osSpec(serviceName, namespace string) *v1alpha1.OpenSearch {
 				CloudName: "google-europe-west1",
 				Tags:      map[string]string{"key1": "value1"},
 			},
-			UserConfig: v1alpha1.OpenSearchUserConfig{},
+			UserConfig: &opensearchuserconfig.OpensearchUserConfig{
+				IpFilter: []*opensearchuserconfig.IpFilter{
+					{
+						Network: "10.20.0.0/16",
+					},
+					{
+						Network:     "0.0.0.0",
+						Description: anyPointer("whatever"),
+					},
+				},
+			},
 			AuthSecretRef: v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
