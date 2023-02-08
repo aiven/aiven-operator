@@ -150,6 +150,9 @@ type ResourceReferenceObject struct {
 }
 
 func ConvertDiscSpace(v string) int {
+	if v == "" {
+		return 0
+	}
 	diskSizeMB, _ := units.RAMInBytes(v)
 	return int(diskSizeMB / units.MiB)
 }
