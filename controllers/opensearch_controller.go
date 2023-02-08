@@ -5,11 +5,9 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/aiven/aiven-go-client"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -24,159 +22,11 @@ type OpenSearchReconciler struct {
 
 type OpenSearchHandler struct{}
 
-func (h OpenSearchHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs []client.Object) error {
-	os, err := h.convert(i)
-	if err != nil {
-		return err
-	}
-
-	projectVPCID := os.Spec.ProjectVPCID
-	if projectVPCID == "" {
-		if p := v1alpha1.FindProjectVPC(refs); p != nil {
-			projectVPCID = p.Status.ID
-		}
-	}
-
-	exists, err := h.exists(avn, os)
-	if err != nil {
-		return err
-	}
-
-	var reason string
-	if !exists {
-		_, err := avn.Services.Create(os.Spec.Project, aiven.CreateServiceRequest{
-			Cloud: os.Spec.CloudName,
-			MaintenanceWindow: getMaintenanceWindow(
-				os.Spec.MaintenanceWindowDow,
-				os.Spec.MaintenanceWindowTime),
-			Plan:                os.Spec.Plan,
-			ProjectVPCID:        toOptionalStringPointer(projectVPCID),
-			ServiceName:         os.Name,
-			ServiceType:         "opensearch",
-			UserConfig:          UserConfigurationToAPI(os.Spec.UserConfig).(map[string]interface{}),
-			ServiceIntegrations: nil,
-			DiskSpaceMB:         v1alpha1.ConvertDiscSpace(os.Spec.DiskSpace),
-		})
-		if err != nil {
-			return err
-		}
-
-		reason = "Created"
-	} else {
-		_, err := avn.Services.Update(os.Spec.Project, os.Name, aiven.UpdateServiceRequest{
-			Cloud: os.Spec.CloudName,
-			MaintenanceWindow: getMaintenanceWindow(
-				os.Spec.MaintenanceWindowDow,
-				os.Spec.MaintenanceWindowTime),
-			Plan:         os.Spec.Plan,
-			ProjectVPCID: toOptionalStringPointer(projectVPCID),
-			UserConfig:   UserConfigurationToAPI(os.Spec.UserConfig).(map[string]interface{}),
-			Powered:      true,
-			DiskSpaceMB:  v1alpha1.ConvertDiscSpace(os.Spec.DiskSpace),
-		})
-		if err != nil {
-			return err
-		}
-
-		reason = "Updated"
-	}
-
-	meta.SetStatusCondition(&os.Status.Conditions,
-		getInitializedCondition(reason,
-			"Instance was created or update on Aiven side"))
-
-	meta.SetStatusCondition(&os.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, reason,
-			"Instance was created or update on Aiven side, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&os.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(os.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
-}
-
-func (h OpenSearchHandler) convert(o client.Object) (*v1alpha1.OpenSearch, error) {
-	r, ok := o.(*v1alpha1.OpenSearch)
-	if !ok {
-		return nil, fmt.Errorf("cannot convert object to OpenSearch")
-	}
-	return r, nil
-}
-
-func (h OpenSearchHandler) exists(avn *aiven.Client, os *v1alpha1.OpenSearch) (bool, error) {
-	s, err := avn.Services.Get(os.Spec.Project, os.Name)
-	if aiven.IsNotFound(err) {
-		return false, nil
-	}
-
-	return s != nil, nil
-}
-
-func (h OpenSearchHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
-	os, err := h.convert(i)
-	if err != nil {
-		return false, err
-	}
-
-	// Delete OpenSearch on Aiven side
-	if err := avn.Services.Delete(os.Spec.Project, os.Name); err != nil && !aiven.IsNotFound(err) {
-		return false, fmt.Errorf("aiven client delete opensearch error: %w", err)
-	}
-
-	return true, nil
-}
-
-func (h OpenSearchHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, error) {
-	os, err := h.convert(i)
-	if err != nil {
-		return nil, err
-	}
-
-	s, err := avn.Services.Get(os.Spec.Project, os.Name)
-	if err != nil {
-		return nil, fmt.Errorf("cannot get os: %w", err)
-	}
-
-	os.Status.State = s.State
-
-	if s.State == "RUNNING" {
-		meta.SetStatusCondition(&os.Status.Conditions,
-			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
-				"Instance is running on Aiven side"))
-
-		metav1.SetMetaDataAnnotation(&os.ObjectMeta, instanceIsRunningAnnotation, "true")
-	}
-
-	return &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      h.getSecretName(os),
-			Namespace: os.Namespace,
-		},
-		StringData: map[string]string{
-			"HOST":     s.URIParams["host"],
-			"PASSWORD": s.URIParams["password"],
-			"PORT":     s.URIParams["port"],
-			"USER":     s.URIParams["user"],
-		},
-	}, nil
-}
-
-func (h OpenSearchHandler) getSecretName(os *v1alpha1.OpenSearch) string {
-	if os.Spec.ConnInfoSecretTarget.Name != "" {
-		return os.Spec.ConnInfoSecretTarget.Name
-	}
-	return os.Name
-}
-
-func (h OpenSearchHandler) checkPreconditions(_ *aiven.Client, _ client.Object) (bool, error) {
-	return true, nil
-}
-
 //+kubebuilder:rbac:groups=aiven.io,resources=opensearches,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=opensearches/status,verbs=get;update;patch
 
 func (r *OpenSearchReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, OpenSearchHandler{}, &v1alpha1.OpenSearch{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newOpenSearchAdapter), &v1alpha1.OpenSearch{})
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -185,4 +35,67 @@ func (r *OpenSearchReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&v1alpha1.OpenSearch{}).
 		Owns(&corev1.Secret{}).
 		Complete(r)
+}
+
+func newOpenSearchAdapter(_ *aiven.Client, object client.Object) (serviceAdapter, error) {
+	opensearch, ok := object.(*v1alpha1.OpenSearch)
+	if !ok {
+		return nil, fmt.Errorf("object is not of type v1alpha1.OpenSearch")
+	}
+	return &opensearchAdapter{opensearch}, nil
+}
+
+// opensearchAdapter handles an Aiven OpenSearch service
+type opensearchAdapter struct {
+	*v1alpha1.OpenSearch
+}
+
+func (a *opensearchAdapter) getObjectMeta() *metav1.ObjectMeta {
+	return &a.ObjectMeta
+}
+
+func (a *opensearchAdapter) getServiceStatus() *v1alpha1.ServiceStatus {
+	return &a.Status
+}
+
+func (a *opensearchAdapter) getServiceCommonSpec() *v1alpha1.ServiceCommonSpec {
+	return &a.Spec.ServiceCommonSpec
+}
+
+func (a *opensearchAdapter) getUserConfig() any {
+	return &a.Spec.UserConfig
+}
+
+func (a *opensearchAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
+	name := a.Spec.ConnInfoSecretTarget.Name
+	if name == "" {
+		name = a.Name
+	}
+
+	stringData := map[string]string{
+		"HOST":     s.URIParams["host"],
+		"PASSWORD": s.URIParams["password"],
+		"PORT":     s.URIParams["port"],
+		"USER":     s.URIParams["user"],
+	}
+
+	// Removes empties
+	for k, v := range stringData {
+		if v == "" {
+			delete(stringData, k)
+		}
+	}
+
+	return &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: a.Namespace},
+		StringData: stringData,
+	}, nil
+}
+
+func (a *opensearchAdapter) getServiceType() string {
+	return "opensearch"
+}
+
+func (a *opensearchAdapter) getDiskSpace() string {
+	return a.Spec.DiskSpace
 }
