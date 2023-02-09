@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/aiven/aiven-go-client v1.7.1-0.20230109145511-e35ced14773c
-	github.com/aiven/aiven-go-client/tools/exp v0.0.0-20230109145511-e35ced14773c
+	github.com/aiven/aiven-go-client/tools/exp v0.0.0-20230208122034-270adff994ec
 	github.com/dave/jennifer v1.6.0
 	github.com/docker/go-units v0.5.0
 	github.com/go-logr/logr v1.2.0
@@ -38,7 +38,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/emicklei/go-restful v2.9.5+incompatible // indirect
+	github.com/emicklei/go-restful v2.16.0+incompatible // indirect
 	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
 	github.com/form3tech-oss/jwt-go v3.2.3+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
