@@ -165,33 +165,30 @@ spec:
                 description: Cassandra specific user configuration options
                 properties:
                   additional_backup_regions:
-                    description: AdditionalBackupRegions Additional Cloud Regions
-                      for Backup Replication
+                    description: Additional Cloud Regions for Backup Replication
                     items:
                       type: string
                     maxItems: 1
                     type: array
                   alerting_enabled:
-                    description: AlertingEnabled Enable or disable Grafana alerting
-                      functionality
+                    description: Enable or disable Grafana alerting functionality
                     type: boolean
                   alerting_error_or_timeout:
-                    description: AlertingErrorOrTimeout Default error or timeout setting
-                      for new alerting rules
+                    description: Default error or timeout setting for new alerting
+                      rules
                     enum:
                     - alerting
                     - keep_state
                     type: string
                   alerting_max_annotations_to_keep:
-                    description: AlertingMaxAnnotationsToKeep Max number of alert
-                      annotations that Grafana stores. 0 (default) keeps all alert
-                      annotations.
+                    description: Max number of alert annotations that Grafana stores.
+                      0 (default) keeps all alert annotations.
                     maximum: 1000000
                     minimum: 0
                     type: integer
                   alerting_nodata_or_nullvalues:
-                    description: AlertingNodataOrNullvalues Default value for 'no
-                      data or null values' for new alerting rules
+                    description: Default value for 'no data or null values' for new
+                      alerting rules
                     enum:
                     - alerting
                     - no_data
@@ -199,46 +196,43 @@ spec:
                     - ok
                     type: string
                   allow_embedding:
-                    description: AllowEmbedding Allow embedding Grafana dashboards
-                      with iframe/frame/object/embed tags. Disabled by default to
-                      limit impact of clickjacking
+                    description: Allow embedding Grafana dashboards with iframe/frame/object/embed
+                      tags. Disabled by default to limit impact of clickjacking
                     type: boolean
                   auth_azuread:
-                    description: AuthAzuread Azure AD OAuth integration
+                    description: Azure AD OAuth integration
                     properties:
                       allow_sign_up:
-                        description: AllowSignUp Automatically sign-up users on successful
-                          sign-in
+                        description: Automatically sign-up users on successful sign-in
                         type: boolean
                       allowed_domains:
-                        description: AllowedDomains Allowed domains
+                        description: Allowed domains
                         items:
                           type: string
                         maxItems: 50
                         type: array
                       allowed_groups:
-                        description: AllowedGroups Require users to belong to one
-                          of given groups
+                        description: Require users to belong to one of given groups
                         items:
                           type: string
                         maxItems: 50
                         type: array
                       auth_url:
-                        description: AuthUrl Authorization URL
+                        description: Authorization URL
                         maxLength: 2048
                         type: string
                       client_id:
-                        description: ClientId Client ID from provider
+                        description: Client ID from provider
                         maxLength: 1024
                         pattern: ^[\040-\176]+$
                         type: string
                       client_secret:
-                        description: ClientSecret Client secret from provider
+                        description: Client secret from provider
                         maxLength: 1024
                         pattern: ^[\040-\176]+$
                         type: string
                       token_url:
-                        description: TokenUrl Token URL
+                        description: Token URL
                         maxLength: 2048
                         type: string
                     required:
@@ -248,44 +242,43 @@ spec:
                     - token_url
                     type: object
                   auth_basic_enabled:
-                    description: AuthBasicEnabled Enable or disable basic authentication
-                      form, used by Grafana built-in login
+                    description: Enable or disable basic authentication form, used
+                      by Grafana built-in login
                     type: boolean
                   auth_generic_oauth:
-                    description: AuthGenericOauth Generic OAuth integration
+                    description: Generic OAuth integration
                     properties:
                       allow_sign_up:
-                        description: AllowSignUp Automatically sign-up users on successful
-                          sign-in
+                        description: Automatically sign-up users on successful sign-in
                         type: boolean
                       allowed_domains:
-                        description: AllowedDomains Allowed domains
+                        description: Allowed domains
                         items:
                           type: string
                         maxItems: 50
                         type: array
                       allowed_organizations:
-                        description: AllowedOrganizations Require user to be member
-                          of one of the listed organizations
+                        description: Require user to be member of one of the listed
+                          organizations
                         items:
                           type: string
                         maxItems: 50
                         type: array
                       api_url:
-                        description: ApiUrl API URL
+                        description: API URL
                         maxLength: 2048
                         type: string
                       auth_url:
-                        description: AuthUrl Authorization URL
+                        description: Authorization URL
                         maxLength: 2048
                         type: string
                       client_id:
-                        description: ClientId Client ID from provider
+                        description: Client ID from provider
                         maxLength: 1024
                         pattern: ^[\040-\176]+$
                         type: string
                       client_secret:
-                        description: ClientSecret Client secret from provider
+                        description: Client secret from provider
                         maxLength: 1024
                         pattern: ^[\040-\176]+$
                         type: string
@@ -295,13 +288,13 @@ spec:
                         pattern: ^[a-zA-Z0-9_\- ]+$
                         type: string
                       scopes:
-                        description: Scopes OAuth scopes
+                        description: OAuth scopes
                         items:
                           type: string
                         maxItems: 50
                         type: array
                       token_url:
-                        description: TokenUrl Token URL
+                        description: Token URL
                         maxLength: 2048
                         type: string
                     required:
@@ -312,32 +305,30 @@ spec:
                     - token_url
                     type: object
                   auth_github:
-                    description: AuthGithub Github Auth integration
+                    description: Github Auth integration
                     properties:
                       allow_sign_up:
-                        description: AllowSignUp Automatically sign-up users on successful
-                          sign-in
+                        description: Automatically sign-up users on successful sign-in
                         type: boolean
                       allowed_organizations:
-                        description: AllowedOrganizations Require users to belong
-                          to one of given organizations
+                        description: Require users to belong to one of given organizations
                         items:
                           type: string
                         maxItems: 50
                         type: array
                       client_id:
-                        description: ClientId Client ID from provider
+                        description: Client ID from provider
                         maxLength: 1024
                         pattern: ^[\040-\176]+$
                         type: string
                       client_secret:
-                        description: ClientSecret Client secret from provider
+                        description: Client secret from provider
                         maxLength: 1024
                         pattern: ^[\040-\176]+$
                         type: string
                       team_ids:
-                        description: TeamIds Require users to belong to one of given
-                          team IDs
+                        description: Require users to belong to one of given team
+                          IDs
                         items:
                           type: integer
                         maxItems: 50
@@ -347,42 +338,40 @@ spec:
                     - client_secret
                     type: object
                   auth_gitlab:
-                    description: AuthGitlab GitLab Auth integration
+                    description: GitLab Auth integration
                     properties:
                       allow_sign_up:
-                        description: AllowSignUp Automatically sign-up users on successful
-                          sign-in
+                        description: Automatically sign-up users on successful sign-in
                         type: boolean
                       allowed_groups:
-                        description: AllowedGroups Require users to belong to one
-                          of given groups
+                        description: Require users to belong to one of given groups
                         items:
                           type: string
                         maxItems: 50
                         type: array
                       api_url:
-                        description: ApiUrl API URL. This only needs to be set when
-                          using self hosted GitLab
+                        description: API URL. This only needs to be set when using
+                          self hosted GitLab
                         maxLength: 2048
                         type: string
                       auth_url:
-                        description: AuthUrl Authorization URL. This only needs to
-                          be set when using self hosted GitLab
+                        description: Authorization URL. This only needs to be set
+                          when using self hosted GitLab
                         maxLength: 2048
                         type: string
                       client_id:
-                        description: ClientId Client ID from provider
+                        description: Client ID from provider
                         maxLength: 1024
                         pattern: ^[\040-\176]+$
                         type: string
                       client_secret:
-                        description: ClientSecret Client secret from provider
+                        description: Client secret from provider
                         maxLength: 1024
                         pattern: ^[\040-\176]+$
                         type: string
                       token_url:
-                        description: TokenUrl Token URL. This only needs to be set
-                          when using self hosted GitLab
+                        description: Token URL. This only needs to be set when using
+                          self hosted GitLab
                         maxLength: 2048
                         type: string
                     required:
@@ -391,26 +380,24 @@ spec:
                     - client_secret
                     type: object
                   auth_google:
-                    description: AuthGoogle Google Auth integration
+                    description: Google Auth integration
                     properties:
                       allow_sign_up:
-                        description: AllowSignUp Automatically sign-up users on successful
-                          sign-in
+                        description: Automatically sign-up users on successful sign-in
                         type: boolean
                       allowed_domains:
-                        description: AllowedDomains Domains allowed to sign-in to
-                          this Grafana
+                        description: Domains allowed to sign-in to this Grafana
                         items:
                           type: string
                         maxItems: 64
                         type: array
                       client_id:
-                        description: ClientId Client ID from provider
+                        description: Client ID from provider
                         maxLength: 1024
                         pattern: ^[\040-\176]+$
                         type: string
                       client_secret:
-                        description: ClientSecret Client secret from provider
+                        description: Client secret from provider
                         maxLength: 1024
                         pattern: ^[\040-\176]+$
                         type: string
@@ -420,127 +407,122 @@ spec:
                     - client_secret
                     type: object
                   cookie_samesite:
-                    description: 'CookieSamesite Cookie SameSite attribute: ''strict''
-                      prevents sending cookie for cross-site requests, effectively
-                      disabling direct linking from other sites to Grafana. ''lax''
-                      is the default value.'
+                    description: 'Cookie SameSite attribute: ''strict'' prevents sending
+                      cookie for cross-site requests, effectively disabling direct
+                      linking from other sites to Grafana. ''lax'' is the default
+                      value.'
                     enum:
                     - lax
                     - strict
                     - none
                     type: string
                   custom_domain:
-                    description: CustomDomain Serve the web frontend using a custom
-                      CNAME pointing to the Aiven DNS name
+                    description: Serve the web frontend using a custom CNAME pointing
+                      to the Aiven DNS name
                     maxLength: 255
                     type: string
                   dashboard_previews_enabled:
-                    description: DashboardPreviewsEnabled This feature is new in Grafana
-                      9 and is quite resource intensive. It may cause low-end plans
-                      to work more slowly while the dashboard previews are rendering.
+                    description: This feature is new in Grafana 9 and is quite resource
+                      intensive. It may cause low-end plans to work more slowly while
+                      the dashboard previews are rendering.
                     type: boolean
                   dashboards_min_refresh_interval:
-                    description: DashboardsMinRefreshInterval Signed sequence of decimal
-                      numbers, followed by a unit suffix (ms, s, m, h, d), e.g. 30s,
-                      1h
+                    description: Signed sequence of decimal numbers, followed by a
+                      unit suffix (ms, s, m, h, d), e.g. 30s, 1h
                     maxLength: 16
                     pattern: ^[0-9]+(ms|s|m|h|d)$
                     type: string
                   dashboards_versions_to_keep:
-                    description: DashboardsVersionsToKeep Dashboard versions to keep
-                      per dashboard
+                    description: Dashboard versions to keep per dashboard
                     maximum: 100
                     minimum: 1
                     type: integer
                   dataproxy_send_user_header:
-                    description: DataproxySendUserHeader Send 'X-Grafana-User' header
-                      to data source
+                    description: Send 'X-Grafana-User' header to data source
                     type: boolean
                   dataproxy_timeout:
-                    description: DataproxyTimeout Timeout for data proxy requests
-                      in seconds
+                    description: Timeout for data proxy requests in seconds
                     maximum: 90
                     minimum: 15
                     type: integer
                   date_formats:
-                    description: DateFormats Grafana date format specifications
+                    description: Grafana date format specifications
                     properties:
                       default_timezone:
-                        description: DefaultTimezone Default time zone for user preferences.
-                          Value 'browser' uses browser local time zone.
+                        description: Default time zone for user preferences. Value
+                          'browser' uses browser local time zone.
                         maxLength: 64
                         pattern: (?i)^([a-zA-Z_]+/){1,2}[a-zA-Z_-]+$|^(Etc/)?(UTC|GMT)([+-](\d){1,2})?$|^(Factory)$|^(browser)$
                         type: string
                       full_date:
-                        description: FullDate Moment.js style format string for cases
-                          where full date is shown
+                        description: Moment.js style format string for cases where
+                          full date is shown
                         maxLength: 128
                         pattern: '^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.:
                           ]?)*)$'
                         type: string
                       interval_day:
-                        description: IntervalDay Moment.js style format string used
-                          when a time requiring day accuracy is shown
+                        description: Moment.js style format string used when a time
+                          requiring day accuracy is shown
                         maxLength: 128
                         pattern: '^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.:
                           ]?)*)$'
                         type: string
                       interval_hour:
-                        description: IntervalHour Moment.js style format string used
-                          when a time requiring hour accuracy is shown
+                        description: Moment.js style format string used when a time
+                          requiring hour accuracy is shown
                         maxLength: 128
                         pattern: '^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.:
                           ]?)*)$'
                         type: string
                       interval_minute:
-                        description: IntervalMinute Moment.js style format string
-                          used when a time requiring minute accuracy is shown
+                        description: Moment.js style format string used when a time
+                          requiring minute accuracy is shown
                         maxLength: 128
                         pattern: '^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.:
                           ]?)*)$'
                         type: string
                       interval_month:
-                        description: IntervalMonth Moment.js style format string used
-                          when a time requiring month accuracy is shown
+                        description: Moment.js style format string used when a time
+                          requiring month accuracy is shown
                         maxLength: 128
                         pattern: '^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.:
                           ]?)*)$'
                         type: string
                       interval_second:
-                        description: IntervalSecond Moment.js style format string
-                          used when a time requiring second accuracy is shown
+                        description: Moment.js style format string used when a time
+                          requiring second accuracy is shown
                         maxLength: 128
                         pattern: '^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.:
                           ]?)*)$'
                         type: string
                       interval_year:
-                        description: IntervalYear Moment.js style format string used
-                          when a time requiring year accuracy is shown
+                        description: Moment.js style format string used when a time
+                          requiring year accuracy is shown
                         maxLength: 128
                         pattern: '^(([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|LTS|LT|LL?L?L?|l{1,4}|[-+/T,;.:
                           ]?)*)$'
                         type: string
                     type: object
                   disable_gravatar:
-                    description: DisableGravatar Set to true to disable gravatar.
-                      Defaults to false (gravatar is enabled)
+                    description: Set to true to disable gravatar. Defaults to false
+                      (gravatar is enabled)
                     type: boolean
                   editors_can_admin:
-                    description: EditorsCanAdmin Editors can manage folders, teams
-                      and dashboards created by them
+                    description: Editors can manage folders, teams and dashboards
+                      created by them
                     type: boolean
                   external_image_storage:
-                    description: ExternalImageStorage External image store settings
+                    description: External image store settings
                     properties:
                       access_key:
-                        description: AccessKey S3 access key. Requires permissions
-                          to the S3 bucket for the s3:PutObject and s3:PutObjectAcl
-                          actions
+                        description: S3 access key. Requires permissions to the S3
+                          bucket for the s3:PutObject and s3:PutObjectAcl actions
                         maxLength: 4096
                         pattern: ^[A-Z0-9]+$
                         type: string
                       bucket_url:
-                        description: BucketUrl Bucket URL for S3
+                        description: Bucket URL for S3
                         maxLength: 2048
                         type: string
                       provider:
@@ -549,7 +531,7 @@ spec:
                         - s3
                         type: string
                       secret_key:
-                        description: SecretKey S3 secret key
+                        description: S3 secret key
                         maxLength: 4096
                         pattern: ^[A-Za-z0-9/+=]+$
                         type: string
@@ -560,23 +542,23 @@ spec:
                     - secret_key
                     type: object
                   google_analytics_ua_id:
-                    description: GoogleAnalyticsUaId Google Analytics ID
+                    description: Google Analytics ID
                     maxLength: 64
                     pattern: ^(G|UA|YT|MO)-[a-zA-Z0-9-]+$
                     type: string
                   ip_filter:
-                    description: IpFilter Allow incoming connections from CIDR address
-                      block, e.g. '10.20.0.0/16'
+                    description: Allow incoming connections from CIDR address block,
+                      e.g. '10.20.0.0/16'
                     items:
-                      description: IpFilter CIDR address block, either as a string,
-                        or in a dict with an optional description field
+                      description: CIDR address block, either as a string, or in a
+                        dict with an optional description field
                       properties:
                         description:
                           description: Description for IP filter list entry
                           maxLength: 1024
                           type: string
                         network:
-                          description: Network CIDR address block
+                          description: CIDR address block
                           maxLength: 43
                           type: string
                       required:
@@ -585,75 +567,72 @@ spec:
                     maxItems: 1024
                     type: array
                   metrics_enabled:
-                    description: MetricsEnabled Enable Grafana /metrics endpoint
+                    description: Enable Grafana /metrics endpoint
                     type: boolean
                   private_access:
-                    description: PrivateAccess Allow access to selected service ports
-                      from private networks
+                    description: Allow access to selected service ports from private
+                      networks
                     properties:
                       grafana:
-                        description: Grafana Allow clients to connect to grafana with
-                          a DNS name that always resolves to the service's private
-                          IP addresses. Only available in certain network locations
+                        description: Allow clients to connect to grafana with a DNS
+                          name that always resolves to the service's private IP addresses.
+                          Only available in certain network locations
                         type: boolean
                     type: object
                   privatelink_access:
-                    description: PrivatelinkAccess Allow access to selected service
-                      components through Privatelink
+                    description: Allow access to selected service components through
+                      Privatelink
                     properties:
                       grafana:
-                        description: Grafana Enable grafana
+                        description: Enable grafana
                         type: boolean
                     type: object
                   project_to_fork_from:
-                    description: ProjectToForkFrom Name of another project to fork
-                      a service from. This has effect only when a new service is being
-                      created.
+                    description: Name of another project to fork a service from. This
+                      has effect only when a new service is being created.
                     maxLength: 63
                     type: string
                     x-kubernetes-validations:
                     - message: Value is immutable
                       rule: self == oldSelf
                   public_access:
-                    description: PublicAccess Allow access to selected service ports
-                      from the public Internet
+                    description: Allow access to selected service ports from the public
+                      Internet
                     properties:
                       grafana:
-                        description: Grafana Allow clients to connect to grafana from
-                          the public internet for service nodes that are in a project
+                        description: Allow clients to connect to grafana from the
+                          public internet for service nodes that are in a project
                           VPC or another type of private network
                         type: boolean
                     type: object
                   recovery_basebackup_name:
-                    description: RecoveryBasebackupName Name of the basebackup to
-                      restore in forked service
+                    description: Name of the basebackup to restore in forked service
                     maxLength: 128
                     pattern: ^[a-zA-Z0-9-_:.]+$
                     type: string
                   service_to_fork_from:
-                    description: ServiceToForkFrom Name of another service to fork
-                      from. This has effect only when a new service is being created.
+                    description: Name of another service to fork from. This has effect
+                      only when a new service is being created.
                     maxLength: 64
                     type: string
                     x-kubernetes-validations:
                     - message: Value is immutable
                       rule: self == oldSelf
                   smtp_server:
-                    description: SmtpServer SMTP server settings
+                    description: SMTP server settings
                     properties:
                       from_address:
-                        description: FromAddress Address used for sending emails
+                        description: Address used for sending emails
                         maxLength: 319
                         pattern: ^[A-Za-z0-9_\-\.+\'&]+@(([\da-zA-Z])([_\w-]{,62})\.){,127}(([\da-zA-Z])[_\w-]{,61})?([\da-zA-Z]\.((xn\-\-[a-zA-Z\d]+)|([a-zA-Z\d]{2,})))$
                         type: string
                       from_name:
-                        description: FromName Name used in outgoing emails, defaults
-                          to Grafana
+                        description: Name used in outgoing emails, defaults to Grafana
                         maxLength: 128
                         pattern: ^[^\x00-\x1F]+$
                         type: string
                       host:
-                        description: Host Server hostname or IP
+                        description: Server hostname or IP
                         maxLength: 255
                         type: string
                       password:
@@ -662,17 +641,17 @@ spec:
                         pattern: ^[^\x00-\x1F]+$
                         type: string
                       port:
-                        description: Port SMTP server port
+                        description: SMTP server port
                         maximum: 65535
                         minimum: 1
                         type: integer
                       skip_verify:
-                        description: SkipVerify Skip verifying server certificate.
-                          Defaults to false
+                        description: Skip verifying server certificate. Defaults to
+                          false
                         type: boolean
                       starttls_policy:
-                        description: StarttlsPolicy Either OpportunisticStartTLS,
-                          MandatoryStartTLS or NoStartTLS. Default is OpportunisticStartTLS.
+                        description: Either OpportunisticStartTLS, MandatoryStartTLS
+                          or NoStartTLS. Default is OpportunisticStartTLS.
                         enum:
                         - OpportunisticStartTLS
                         - MandatoryStartTLS
@@ -689,23 +668,22 @@ spec:
                     - port
                     type: object
                   static_ips:
-                    description: StaticIps Use static public IP addresses
+                    description: Use static public IP addresses
                     type: boolean
                   user_auto_assign_org:
-                    description: UserAutoAssignOrg Auto-assign new users on signup
-                      to main organization. Defaults to false
+                    description: Auto-assign new users on signup to main organization.
+                      Defaults to false
                     type: boolean
                   user_auto_assign_org_role:
-                    description: UserAutoAssignOrgRole Set role for new signups. Defaults
-                      to Viewer
+                    description: Set role for new signups. Defaults to Viewer
                     enum:
                     - Viewer
                     - Admin
                     - Editor
                     type: string
                   viewers_can_edit:
-                    description: ViewersCanEdit Users with view-only permission can
-                      edit but not save dashboards
+                    description: Users with view-only permission can edit but not
+                      save dashboards
                     type: boolean
                 type: object
             required:

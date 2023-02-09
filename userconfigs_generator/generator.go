@@ -375,16 +375,9 @@ func fmtComment(obj *object) string {
 	if d == "" {
 		return d
 	}
-
-	// Some descriptions already has struct name
-	// So it ends up with "// foo foo does"
-	// Drops duplicate prefix
-	if strings.HasPrefix(d, obj.structName) {
-		return "// " + d
-	}
-
-	d = fmt.Sprintf("// %s %s", obj.structName, d)
-	return strings.ReplaceAll(d, "\n", " ")
+	// Do not add field/struct name into the comment.
+	// Otherwise, generated manifests and docs will have those as a part of the description
+	return strings.ReplaceAll("// "+d, "\n", " ")
 }
 
 // toCamelCase some fields has dots within, makes cleaner camelCase

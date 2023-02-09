@@ -152,25 +152,24 @@ spec:
                 description: OpenSearch specific user configuration options
                 properties:
                   additional_backup_regions:
-                    description: AdditionalBackupRegions Additional Cloud Regions
-                      for Backup Replication
+                    description: Additional Cloud Regions for Backup Replication
                     items:
                       type: string
                     maxItems: 1
                     type: array
                   ip_filter:
-                    description: IpFilter Allow incoming connections from CIDR address
-                      block, e.g. '10.20.0.0/16'
+                    description: Allow incoming connections from CIDR address block,
+                      e.g. '10.20.0.0/16'
                     items:
-                      description: IpFilter CIDR address block, either as a string,
-                        or in a dict with an optional description field
+                      description: CIDR address block, either as a string, or in a
+                        dict with an optional description field
                       properties:
                         description:
                           description: Description for IP filter list entry
                           maxLength: 1024
                           type: string
                         network:
-                          description: Network CIDR address block
+                          description: CIDR address block
                           maxLength: 43
                           type: string
                       required:
@@ -179,17 +178,16 @@ spec:
                     maxItems: 1024
                     type: array
                   project_to_fork_from:
-                    description: ProjectToForkFrom Name of another project to fork
-                      a service from. This has effect only when a new service is being
-                      created.
+                    description: Name of another project to fork a service from. This
+                      has effect only when a new service is being created.
                     maxLength: 63
                     type: string
                     x-kubernetes-validations:
                     - message: Value is immutable
                       rule: self == oldSelf
                   service_to_fork_from:
-                    description: ServiceToForkFrom Name of another service to fork
-                      from. This has effect only when a new service is being created.
+                    description: Name of another service to fork from. This has effect
+                      only when a new service is being created.
                     maxLength: 64
                     type: string
                     x-kubernetes-validations:
