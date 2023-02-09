@@ -152,25 +152,24 @@ spec:
                 description: Redis specific user configuration options
                 properties:
                   additional_backup_regions:
-                    description: AdditionalBackupRegions Additional Cloud Regions
-                      for Backup Replication
+                    description: Additional Cloud Regions for Backup Replication
                     items:
                       type: string
                     maxItems: 1
                     type: array
                   ip_filter:
-                    description: IpFilter Allow incoming connections from CIDR address
-                      block, e.g. '10.20.0.0/16'
+                    description: Allow incoming connections from CIDR address block,
+                      e.g. '10.20.0.0/16'
                     items:
-                      description: IpFilter CIDR address block, either as a string,
-                        or in a dict with an optional description field
+                      description: CIDR address block, either as a string, or in a
+                        dict with an optional description field
                       properties:
                         description:
                           description: Description for IP filter list entry
                           maxLength: 1024
                           type: string
                         network:
-                          description: Network CIDR address block
+                          description: CIDR address block
                           maxLength: 43
                           type: string
                       required:
@@ -179,11 +178,10 @@ spec:
                     maxItems: 1024
                     type: array
                   migration:
-                    description: Migration Migrate data from existing server
+                    description: Migrate data from existing server
                     properties:
                       dbname:
-                        description: Dbname Database name for bootstrapping the initial
-                          connection
+                        description: Database name for bootstrapping the initial connection
                         maxLength: 63
                         type: string
                       host:
@@ -192,14 +190,14 @@ spec:
                         maxLength: 255
                         type: string
                       ignore_dbs:
-                        description: IgnoreDbs Comma-separated list of databases,
-                          which should be ignored during migration (supported by MySQL
-                          only at the moment)
+                        description: Comma-separated list of databases, which should
+                          be ignored during migration (supported by MySQL only at
+                          the moment)
                         maxLength: 2048
                         type: string
                       method:
-                        description: Method The migration method to be used (currently
-                          supported only by Redis and MySQL service types)
+                        description: The migration method to be used (currently supported
+                          only by Redis and MySQL service types)
                         enum:
                         - dump
                         - replication
@@ -216,12 +214,12 @@ spec:
                         minimum: 1
                         type: integer
                       ssl:
-                        description: Ssl The server where to migrate data from is
-                          secured with SSL
+                        description: The server where to migrate data from is secured
+                          with SSL
                         type: boolean
                       username:
-                        description: Username User name for authentication with the
-                          server where to migrate data from
+                        description: User name for authentication with the server
+                          where to migrate data from
                         maxLength: 256
                         type: string
                     required:
@@ -229,90 +227,86 @@ spec:
                     - port
                     type: object
                   private_access:
-                    description: PrivateAccess Allow access to selected service ports
-                      from private networks
+                    description: Allow access to selected service ports from private
+                      networks
                     properties:
                       prometheus:
-                        description: Prometheus Allow clients to connect to prometheus
-                          with a DNS name that always resolves to the service's private
-                          IP addresses. Only available in certain network locations
+                        description: Allow clients to connect to prometheus with a
+                          DNS name that always resolves to the service's private IP
+                          addresses. Only available in certain network locations
                         type: boolean
                       redis:
-                        description: Redis Allow clients to connect to redis with
-                          a DNS name that always resolves to the service's private
-                          IP addresses. Only available in certain network locations
+                        description: Allow clients to connect to redis with a DNS
+                          name that always resolves to the service's private IP addresses.
+                          Only available in certain network locations
                         type: boolean
                     type: object
                   privatelink_access:
-                    description: PrivatelinkAccess Allow access to selected service
-                      components through Privatelink
+                    description: Allow access to selected service components through
+                      Privatelink
                     properties:
                       prometheus:
-                        description: Prometheus Enable prometheus
+                        description: Enable prometheus
                         type: boolean
                       redis:
-                        description: Redis Enable redis
+                        description: Enable redis
                         type: boolean
                     type: object
                   project_to_fork_from:
-                    description: ProjectToForkFrom Name of another project to fork
-                      a service from. This has effect only when a new service is being
-                      created.
+                    description: Name of another project to fork a service from. This
+                      has effect only when a new service is being created.
                     maxLength: 63
                     type: string
                     x-kubernetes-validations:
                     - message: Value is immutable
                       rule: self == oldSelf
                   public_access:
-                    description: PublicAccess Allow access to selected service ports
-                      from the public Internet
+                    description: Allow access to selected service ports from the public
+                      Internet
                     properties:
                       prometheus:
-                        description: Prometheus Allow clients to connect to prometheus
-                          from the public internet for service nodes that are in a
-                          project VPC or another type of private network
+                        description: Allow clients to connect to prometheus from the
+                          public internet for service nodes that are in a project
+                          VPC or another type of private network
                         type: boolean
                       redis:
-                        description: Redis Allow clients to connect to redis from
-                          the public internet for service nodes that are in a project
-                          VPC or another type of private network
+                        description: Allow clients to connect to redis from the public
+                          internet for service nodes that are in a project VPC or
+                          another type of private network
                         type: boolean
                     type: object
                   recovery_basebackup_name:
-                    description: RecoveryBasebackupName Name of the basebackup to
-                      restore in forked service
+                    description: Name of the basebackup to restore in forked service
                     maxLength: 128
                     pattern: ^[a-zA-Z0-9-_:.]+$
                     type: string
                   redis_acl_channels_default:
-                    description: RedisAclChannelsDefault Determines default pub/sub
-                      channels' ACL for new users if ACL is not supplied. When this
-                      option is not defined, all_channels is assumed to keep backward
-                      compatibility. This option doesn't affect Redis configuration
-                      acl-pubsub-default.
+                    description: Determines default pub/sub channels' ACL for new
+                      users if ACL is not supplied. When this option is not defined,
+                      all_channels is assumed to keep backward compatibility. This
+                      option doesn't affect Redis configuration acl-pubsub-default.
                     enum:
                     - allchannels
                     - resetchannels
                     type: string
                   redis_io_threads:
-                    description: RedisIoThreads Redis IO thread count
+                    description: Redis IO thread count
                     maximum: 32
                     minimum: 1
                     type: integer
                   redis_lfu_decay_time:
-                    description: RedisLfuDecayTime LFU maxmemory-policy counter decay
-                      time in minutes
+                    description: LFU maxmemory-policy counter decay time in minutes
                     maximum: 120
                     minimum: 1
                     type: integer
                   redis_lfu_log_factor:
-                    description: RedisLfuLogFactor Counter logarithm factor for volatile-lfu
-                      and allkeys-lfu maxmemory-policies
+                    description: Counter logarithm factor for volatile-lfu and allkeys-lfu
+                      maxmemory-policies
                     maximum: 100
                     minimum: 0
                     type: integer
                   redis_maxmemory_policy:
-                    description: RedisMaxmemoryPolicy Redis maxmemory-policy
+                    description: Redis maxmemory-policy
                     enum:
                     - noeviction
                     - allkeys-lru
@@ -324,55 +318,53 @@ spec:
                     - allkeys-lfu
                     type: string
                   redis_notify_keyspace_events:
-                    description: RedisNotifyKeyspaceEvents Set notify-keyspace-events
-                      option
+                    description: Set notify-keyspace-events option
                     maxLength: 32
                     pattern: ^[KEg\$lshzxeA]*$
                     type: string
                   redis_number_of_databases:
-                    description: RedisNumberOfDatabases Set number of redis databases.
-                      Changing this will cause a restart of redis service.
+                    description: Set number of redis databases. Changing this will
+                      cause a restart of redis service.
                     maximum: 128
                     minimum: 1
                     type: integer
                   redis_persistence:
-                    description: RedisPersistence When persistence is 'rdb', Redis
-                      does RDB dumps each 10 minutes if any key is changed. Also RDB
-                      dumps are done according to backup schedule for backup purposes.
-                      When persistence is 'off', no RDB dumps and backups are done,
-                      so data can be lost at any moment if service is restarted for
-                      any reason, or if service is powered off. Also service can't
-                      be forked.
+                    description: When persistence is 'rdb', Redis does RDB dumps each
+                      10 minutes if any key is changed. Also RDB dumps are done according
+                      to backup schedule for backup purposes. When persistence is
+                      'off', no RDB dumps and backups are done, so data can be lost
+                      at any moment if service is restarted for any reason, or if
+                      service is powered off. Also service can't be forked.
                     enum:
                     - "off"
                     - rdb
                     type: string
                   redis_pubsub_client_output_buffer_limit:
-                    description: RedisPubsubClientOutputBufferLimit Set output buffer
-                      limit for pub / sub clients in MB. The value is the hard limit,
-                      the soft limit is 1/4 of the hard limit. When setting the limit,
-                      be mindful of the available memory in the selected service plan.
+                    description: Set output buffer limit for pub / sub clients in
+                      MB. The value is the hard limit, the soft limit is 1/4 of the
+                      hard limit. When setting the limit, be mindful of the available
+                      memory in the selected service plan.
                     maximum: 512
                     minimum: 32
                     type: integer
                   redis_ssl:
-                    description: RedisSsl Require SSL to access Redis
+                    description: Require SSL to access Redis
                     type: boolean
                   redis_timeout:
-                    description: RedisTimeout Redis idle connection timeout in seconds
+                    description: Redis idle connection timeout in seconds
                     maximum: 31536000
                     minimum: 0
                     type: integer
                   service_to_fork_from:
-                    description: ServiceToForkFrom Name of another service to fork
-                      from. This has effect only when a new service is being created.
+                    description: Name of another service to fork from. This has effect
+                      only when a new service is being created.
                     maxLength: 64
                     type: string
                     x-kubernetes-validations:
                     - message: Value is immutable
                       rule: self == oldSelf
                   static_ips:
-                    description: StaticIps Use static public IP addresses
+                    description: Use static public IP addresses
                     type: boolean
                 type: object
             required:

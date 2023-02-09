@@ -32,32 +32,32 @@ func (ip *IpFilter) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// IpFilter CIDR address block, either as a string, or in a dict with an optional description field
+// CIDR address block, either as a string, or in a dict with an optional description field
 type IpFilter struct {
 	// +kubebuilder:validation:MaxLength=1024
 	// Description for IP filter list entry
 	Description *string `groups:"create,update" json:"description,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=43
-	// Network CIDR address block
+	// CIDR address block
 	Network string `groups:"create,update" json:"network"`
 }
 type ClickhouseUserConfig struct {
 	// +kubebuilder:validation:MaxItems=1
-	// AdditionalBackupRegions Additional Cloud Regions for Backup Replication
+	// Additional Cloud Regions for Backup Replication
 	AdditionalBackupRegions []string `groups:"create,update" json:"additional_backup_regions,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=1024
-	// IpFilter Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
+	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
 	IpFilter []*IpFilter `groups:"create,update" json:"ip_filter,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
-	// ProjectToForkFrom Name of another project to fork a service from. This has effect only when a new service is being created.
+	// Name of another project to fork a service from. This has effect only when a new service is being created.
 	ProjectToForkFrom *string `groups:"create" json:"project_to_fork_from,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=64
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
-	// ServiceToForkFrom Name of another service to fork from. This has effect only when a new service is being created.
+	// Name of another service to fork from. This has effect only when a new service is being created.
 	ServiceToForkFrom *string `groups:"create" json:"service_to_fork_from,omitempty"`
 }

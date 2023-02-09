@@ -141,25 +141,24 @@ spec:
                 description: PostgreSQL specific user configuration options
                 properties:
                   additional_backup_regions:
-                    description: AdditionalBackupRegions Additional Cloud Regions
-                      for Backup Replication
+                    description: Additional Cloud Regions for Backup Replication
                     items:
                       type: string
                     maxItems: 1
                     type: array
                   ip_filter:
-                    description: IpFilter Allow incoming connections from CIDR address
-                      block, e.g. '10.20.0.0/16'
+                    description: Allow incoming connections from CIDR address block,
+                      e.g. '10.20.0.0/16'
                     items:
-                      description: IpFilter CIDR address block, either as a string,
-                        or in a dict with an optional description field
+                      description: CIDR address block, either as a string, or in a
+                        dict with an optional description field
                       properties:
                         description:
                           description: Description for IP filter list entry
                           maxLength: 1024
                           type: string
                         network:
-                          description: Network CIDR address block
+                          description: CIDR address block
                           maxLength: 43
                           type: string
                       required:
@@ -168,103 +167,98 @@ spec:
                     maxItems: 1024
                     type: array
                   kafka_connect:
-                    description: KafkaConnect Kafka Connect configuration values
+                    description: Kafka Connect configuration values
                     properties:
                       connector_client_config_override_policy:
-                        description: ConnectorClientConfigOverridePolicy Defines what
-                          client configurations can be overridden by the connector.
-                          Default is None
+                        description: Defines what client configurations can be overridden
+                          by the connector. Default is None
                         enum:
                         - None
                         - All
                         type: string
                       consumer_auto_offset_reset:
-                        description: ConsumerAutoOffsetReset What to do when there
-                          is no initial offset in Kafka or if the current offset does
-                          not exist any more on the server. Default is earliest
+                        description: What to do when there is no initial offset in
+                          Kafka or if the current offset does not exist any more on
+                          the server. Default is earliest
                         enum:
                         - earliest
                         - latest
                         type: string
                       consumer_fetch_max_bytes:
-                        description: ConsumerFetchMaxBytes Records are fetched in
-                          batches by the consumer, and if the first record batch in
-                          the first non-empty partition of the fetch is larger than
-                          this value, the record batch will still be returned to ensure
-                          that the consumer can make progress. As such, this is not
-                          a absolute maximum.
+                        description: Records are fetched in batches by the consumer,
+                          and if the first record batch in the first non-empty partition
+                          of the fetch is larger than this value, the record batch
+                          will still be returned to ensure that the consumer can make
+                          progress. As such, this is not a absolute maximum.
                         maximum: 104857600
                         minimum: 1048576
                         type: integer
                       consumer_isolation_level:
-                        description: ConsumerIsolationLevel Transaction read isolation
-                          level. read_uncommitted is the default, but read_committed
-                          can be used if consume-exactly-once behavior is desired.
+                        description: Transaction read isolation level. read_uncommitted
+                          is the default, but read_committed can be used if consume-exactly-once
+                          behavior is desired.
                         enum:
                         - read_uncommitted
                         - read_committed
                         type: string
                       consumer_max_partition_fetch_bytes:
-                        description: ConsumerMaxPartitionFetchBytes Records are fetched
-                          in batches by the consumer.If the first record batch in
-                          the first non-empty partition of the fetch is larger than
-                          this limit, the batch will still be returned to ensure that
-                          the consumer can make progress.
+                        description: Records are fetched in batches by the consumer.If
+                          the first record batch in the first non-empty partition
+                          of the fetch is larger than this limit, the batch will still
+                          be returned to ensure that the consumer can make progress.
                         maximum: 104857600
                         minimum: 1048576
                         type: integer
                       consumer_max_poll_interval_ms:
-                        description: ConsumerMaxPollIntervalMs The maximum delay in
-                          milliseconds between invocations of poll() when using consumer
-                          group management (defaults to 300000).
+                        description: The maximum delay in milliseconds between invocations
+                          of poll() when using consumer group management (defaults
+                          to 300000).
                         maximum: 2147483647
                         minimum: 1
                         type: integer
                       consumer_max_poll_records:
-                        description: ConsumerMaxPollRecords The maximum number of
-                          records returned in a single call to poll() (defaults to
-                          500).
+                        description: The maximum number of records returned in a single
+                          call to poll() (defaults to 500).
                         maximum: 10000
                         minimum: 1
                         type: integer
                       offset_flush_interval_ms:
-                        description: OffsetFlushIntervalMs The interval at which to
-                          try committing offsets for tasks (defaults to 60000).
+                        description: The interval at which to try committing offsets
+                          for tasks (defaults to 60000).
                         maximum: 100000000
                         minimum: 1
                         type: integer
                       offset_flush_timeout_ms:
-                        description: OffsetFlushTimeoutMs Maximum number of milliseconds
-                          to wait for records to flush and partition offset data to
-                          be committed to offset storage before cancelling the process
-                          and restoring the offset data to be committed in a future
-                          attempt (defaults to 5000).
+                        description: Maximum number of milliseconds to wait for records
+                          to flush and partition offset data to be committed to offset
+                          storage before cancelling the process and restoring the
+                          offset data to be committed in a future attempt (defaults
+                          to 5000).
                         maximum: 2147483647
                         minimum: 1
                         type: integer
                       producer_batch_size:
-                        description: ProducerBatchSize This setting gives the upper
-                          bound of the batch size to be sent. If there are fewer than
-                          this many bytes accumulated for this partition, the producer
-                          will 'linger' for the linger.ms time waiting for more records
-                          to show up. A batch size of zero will disable batching entirely
+                        description: This setting gives the upper bound of the batch
+                          size to be sent. If there are fewer than this many bytes
+                          accumulated for this partition, the producer will 'linger'
+                          for the linger.ms time waiting for more records to show
+                          up. A batch size of zero will disable batching entirely
                           (defaults to 16384).
                         maximum: 5242880
                         minimum: 0
                         type: integer
                       producer_buffer_memory:
-                        description: ProducerBufferMemory The total bytes of memory
-                          the producer can use to buffer records waiting to be sent
-                          to the broker (defaults to 33554432).
+                        description: The total bytes of memory the producer can use
+                          to buffer records waiting to be sent to the broker (defaults
+                          to 33554432).
                         maximum: 134217728
                         minimum: 5242880
                         type: integer
                       producer_compression_type:
-                        description: ProducerCompressionType Specify the default compression
-                          type for producers. This configuration accepts the standard
-                          compression codecs ('gzip', 'snappy', 'lz4', 'zstd'). It
-                          additionally accepts 'none' which is the default and equivalent
-                          to no compression.
+                        description: Specify the default compression type for producers.
+                          This configuration accepts the standard compression codecs
+                          ('gzip', 'snappy', 'lz4', 'zstd'). It additionally accepts
+                          'none' which is the default and equivalent to no compression.
                         enum:
                         - gzip
                         - snappy
@@ -273,77 +267,77 @@ spec:
                         - none
                         type: string
                       producer_linger_ms:
-                        description: 'ProducerLingerMs This setting gives the upper
-                          bound on the delay for batching: once there is batch.size
-                          worth of records for a partition it will be sent immediately
-                          regardless of this setting, however if there are fewer than
-                          this many bytes accumulated for this partition the producer
-                          will ''linger'' for the specified time waiting for more
-                          records to show up. Defaults to 0.'
+                        description: 'This setting gives the upper bound on the delay
+                          for batching: once there is batch.size worth of records
+                          for a partition it will be sent immediately regardless of
+                          this setting, however if there are fewer than this many
+                          bytes accumulated for this partition the producer will ''linger''
+                          for the specified time waiting for more records to show
+                          up. Defaults to 0.'
                         maximum: 5000
                         minimum: 0
                         type: integer
                       producer_max_request_size:
-                        description: ProducerMaxRequestSize This setting will limit
-                          the number of record batches the producer will send in a
-                          single request to avoid sending huge requests.
+                        description: This setting will limit the number of record
+                          batches the producer will send in a single request to avoid
+                          sending huge requests.
                         maximum: 67108864
                         minimum: 131072
                         type: integer
                       session_timeout_ms:
-                        description: SessionTimeoutMs The timeout in milliseconds
-                          used to detect failures when using Kafka’s group management
-                          facilities (defaults to 10000).
+                        description: The timeout in milliseconds used to detect failures
+                          when using Kafka’s group management facilities (defaults
+                          to 10000).
                         maximum: 2147483647
                         minimum: 1
                         type: integer
                     type: object
                   private_access:
-                    description: PrivateAccess Allow access to selected service ports
-                      from private networks
+                    description: Allow access to selected service ports from private
+                      networks
                     properties:
                       kafka_connect:
-                        description: KafkaConnect Allow clients to connect to kafka_connect
-                          with a DNS name that always resolves to the service's private
+                        description: Allow clients to connect to kafka_connect with
+                          a DNS name that always resolves to the service's private
                           IP addresses. Only available in certain network locations
                         type: boolean
                       prometheus:
-                        description: Prometheus Allow clients to connect to prometheus
-                          with a DNS name that always resolves to the service's private
-                          IP addresses. Only available in certain network locations
+                        description: Allow clients to connect to prometheus with a
+                          DNS name that always resolves to the service's private IP
+                          addresses. Only available in certain network locations
                         type: boolean
                     type: object
                   privatelink_access:
-                    description: PrivatelinkAccess Allow access to selected service
-                      components through Privatelink
+                    description: Allow access to selected service components through
+                      Privatelink
                     properties:
                       jolokia:
-                        description: Jolokia Enable jolokia
+                        description: Enable jolokia
                         type: boolean
                       kafka_connect:
-                        description: KafkaConnect Enable kafka_connect
+                        description: Enable kafka_connect
                         type: boolean
                       prometheus:
-                        description: Prometheus Enable prometheus
+                        description: Enable prometheus
                         type: boolean
                     type: object
                   public_access:
-                    description: PublicAccess Allow access to selected service ports
-                      from the public Internet
+                    description: Allow access to selected service ports from the public
+                      Internet
                     properties:
                       kafka_connect:
-                        description: KafkaConnect Allow clients to connect to kafka_connect
-                          from the public internet for service nodes that are in a
-                          project VPC or another type of private network
+                        description: Allow clients to connect to kafka_connect from
+                          the public internet for service nodes that are in a project
+                          VPC or another type of private network
                         type: boolean
                       prometheus:
-                        description: Prometheus Allow clients to connect to prometheus
-                          from the public internet for service nodes that are in a
-                          project VPC or another type of private network
+                        description: Allow clients to connect to prometheus from the
+                          public internet for service nodes that are in a project
+                          VPC or another type of private network
                         type: boolean
                     type: object
                   static_ips:
-                    description: StaticIps Use static public IP addresses
+                    description: Use static public IP addresses
                     type: boolean
                 type: object
             required:

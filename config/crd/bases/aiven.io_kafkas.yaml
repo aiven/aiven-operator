@@ -169,30 +169,29 @@ spec:
                 description: Kafka specific user configuration options
                 properties:
                   additional_backup_regions:
-                    description: AdditionalBackupRegions Additional Cloud Regions
-                      for Backup Replication
+                    description: Additional Cloud Regions for Backup Replication
                     items:
                       type: string
                     maxItems: 1
                     type: array
                   custom_domain:
-                    description: CustomDomain Serve the web frontend using a custom
-                      CNAME pointing to the Aiven DNS name
+                    description: Serve the web frontend using a custom CNAME pointing
+                      to the Aiven DNS name
                     maxLength: 255
                     type: string
                   ip_filter:
-                    description: IpFilter Allow incoming connections from CIDR address
-                      block, e.g. '10.20.0.0/16'
+                    description: Allow incoming connections from CIDR address block,
+                      e.g. '10.20.0.0/16'
                     items:
-                      description: IpFilter CIDR address block, either as a string,
-                        or in a dict with an optional description field
+                      description: CIDR address block, either as a string, or in a
+                        dict with an optional description field
                       properties:
                         description:
                           description: Description for IP filter list entry
                           maxLength: 1024
                           type: string
                         network:
-                          description: Network CIDR address block
+                          description: CIDR address block
                           maxLength: 43
                           type: string
                       required:
@@ -204,16 +203,15 @@ spec:
                     description: Kafka broker configuration values
                     properties:
                       auto_create_topics_enable:
-                        description: AutoCreateTopicsEnable Enable auto creation of
-                          topics
+                        description: Enable auto creation of topics
                         type: boolean
                       compression_type:
-                        description: CompressionType Specify the final compression
-                          type for a given topic. This configuration accepts the standard
-                          compression codecs ('gzip', 'snappy', 'lz4', 'zstd'). It
-                          additionally accepts 'uncompressed' which is equivalent
-                          to no compression; and 'producer' which means retain the
-                          original compression codec set by the producer.
+                        description: Specify the final compression type for a given
+                          topic. This configuration accepts the standard compression
+                          codecs ('gzip', 'snappy', 'lz4', 'zstd'). It additionally
+                          accepts 'uncompressed' which is equivalent to no compression;
+                          and 'producer' which means retain the original compression
+                          codec set by the producer.
                         enum:
                         - gzip
                         - snappy
@@ -223,368 +221,344 @@ spec:
                         - producer
                         type: string
                       connections_max_idle_ms:
-                        description: 'ConnectionsMaxIdleMs Idle connections timeout:
-                          the server socket processor threads close the connections
-                          that idle for longer than this.'
+                        description: 'Idle connections timeout: the server socket
+                          processor threads close the connections that idle for longer
+                          than this.'
                         maximum: 3600000
                         minimum: 1000
                         type: integer
                       default_replication_factor:
-                        description: DefaultReplicationFactor Replication factor for
-                          autocreated topics
+                        description: Replication factor for autocreated topics
                         maximum: 10
                         minimum: 1
                         type: integer
                       group_initial_rebalance_delay_ms:
-                        description: GroupInitialRebalanceDelayMs The amount of time,
-                          in milliseconds, the group coordinator will wait for more
-                          consumers to join a new group before performing the first
-                          rebalance. A longer delay means potentially fewer rebalances,
-                          but increases the time until processing begins. The default
-                          value for this is 3 seconds. During development and testing
-                          it might be desirable to set this to 0 in order to not delay
-                          test execution time.
+                        description: The amount of time, in milliseconds, the group
+                          coordinator will wait for more consumers to join a new group
+                          before performing the first rebalance. A longer delay means
+                          potentially fewer rebalances, but increases the time until
+                          processing begins. The default value for this is 3 seconds.
+                          During development and testing it might be desirable to
+                          set this to 0 in order to not delay test execution time.
                         maximum: 300000
                         minimum: 0
                         type: integer
                       group_max_session_timeout_ms:
-                        description: GroupMaxSessionTimeoutMs The maximum allowed
-                          session timeout for registered consumers. Longer timeouts
-                          give consumers more time to process messages in between
-                          heartbeats at the cost of a longer time to detect failures.
+                        description: The maximum allowed session timeout for registered
+                          consumers. Longer timeouts give consumers more time to process
+                          messages in between heartbeats at the cost of a longer time
+                          to detect failures.
                         maximum: 1800000
                         minimum: 0
                         type: integer
                       group_min_session_timeout_ms:
-                        description: GroupMinSessionTimeoutMs The minimum allowed
-                          session timeout for registered consumers. Longer timeouts
-                          give consumers more time to process messages in between
-                          heartbeats at the cost of a longer time to detect failures.
+                        description: The minimum allowed session timeout for registered
+                          consumers. Longer timeouts give consumers more time to process
+                          messages in between heartbeats at the cost of a longer time
+                          to detect failures.
                         maximum: 60000
                         minimum: 0
                         type: integer
                       log_cleaner_delete_retention_ms:
-                        description: LogCleanerDeleteRetentionMs How long are delete
-                          records retained?
+                        description: How long are delete records retained?
                         maximum: 315569260000
                         minimum: 0
                         type: integer
                       log_cleaner_max_compaction_lag_ms:
-                        description: LogCleanerMaxCompactionLagMs The maximum amount
-                          of time message will remain uncompacted. Only applicable
-                          for logs that are being compacted
+                        description: The maximum amount of time message will remain
+                          uncompacted. Only applicable for logs that are being compacted
                         minimum: 30000
                         type: integer
                       log_cleaner_min_cleanable_ratio:
-                        description: LogCleanerMinCleanableRatio Controls log compactor
-                          frequency. Larger value means more frequent compactions
-                          but also more space wasted for logs. Consider setting log.cleaner.max.compaction.lag.ms
+                        description: Controls log compactor frequency. Larger value
+                          means more frequent compactions but also more space wasted
+                          for logs. Consider setting log.cleaner.max.compaction.lag.ms
                           to enforce compactions sooner, instead of setting a very
                           high value for this option.
                         type: number
                       log_cleaner_min_compaction_lag_ms:
-                        description: LogCleanerMinCompactionLagMs The minimum time
-                          a message will remain uncompacted in the log. Only applicable
-                          for logs that are being compacted.
+                        description: The minimum time a message will remain uncompacted
+                          in the log. Only applicable for logs that are being compacted.
                         minimum: 0
                         type: integer
                       log_cleanup_policy:
-                        description: LogCleanupPolicy The default cleanup policy for
-                          segments beyond the retention window
+                        description: The default cleanup policy for segments beyond
+                          the retention window
                         enum:
                         - delete
                         - compact
                         - compact,delete
                         type: string
                       log_flush_interval_messages:
-                        description: LogFlushIntervalMessages The number of messages
-                          accumulated on a log partition before messages are flushed
-                          to disk
+                        description: The number of messages accumulated on a log partition
+                          before messages are flushed to disk
                         minimum: 1
                         type: integer
                       log_flush_interval_ms:
-                        description: LogFlushIntervalMs The maximum time in ms that
-                          a message in any topic is kept in memory before flushed
-                          to disk. If not set, the value in log.flush.scheduler.interval.ms
-                          is used
+                        description: The maximum time in ms that a message in any
+                          topic is kept in memory before flushed to disk. If not set,
+                          the value in log.flush.scheduler.interval.ms is used
                         minimum: 0
                         type: integer
                       log_index_interval_bytes:
-                        description: LogIndexIntervalBytes The interval with which
-                          Kafka adds an entry to the offset index
+                        description: The interval with which Kafka adds an entry to
+                          the offset index
                         maximum: 104857600
                         minimum: 0
                         type: integer
                       log_index_size_max_bytes:
-                        description: LogIndexSizeMaxBytes The maximum size in bytes
-                          of the offset index
+                        description: The maximum size in bytes of the offset index
                         maximum: 104857600
                         minimum: 1048576
                         type: integer
                       log_message_downconversion_enable:
-                        description: LogMessageDownconversionEnable This configuration
-                          controls whether down-conversion of message formats is enabled
-                          to satisfy consume requests.
+                        description: This configuration controls whether down-conversion
+                          of message formats is enabled to satisfy consume requests.
                         type: boolean
                       log_message_timestamp_difference_max_ms:
-                        description: LogMessageTimestampDifferenceMaxMs The maximum
-                          difference allowed between the timestamp when a broker receives
-                          a message and the timestamp specified in the message
+                        description: The maximum difference allowed between the timestamp
+                          when a broker receives a message and the timestamp specified
+                          in the message
                         minimum: 0
                         type: integer
                       log_message_timestamp_type:
-                        description: LogMessageTimestampType Define whether the timestamp
-                          in the message is message create time or log append time.
+                        description: Define whether the timestamp in the message is
+                          message create time or log append time.
                         enum:
                         - CreateTime
                         - LogAppendTime
                         type: string
                       log_preallocate:
-                        description: LogPreallocate Should pre allocate file when
-                          create new segment?
+                        description: Should pre allocate file when create new segment?
                         type: boolean
                       log_retention_bytes:
-                        description: LogRetentionBytes The maximum size of the log
-                          before deleting messages
+                        description: The maximum size of the log before deleting messages
                         minimum: -1
                         type: integer
                       log_retention_hours:
-                        description: LogRetentionHours The number of hours to keep
-                          a log file before deleting it
+                        description: The number of hours to keep a log file before
+                          deleting it
                         maximum: 2147483647
                         minimum: -1
                         type: integer
                       log_retention_ms:
-                        description: LogRetentionMs The number of milliseconds to
-                          keep a log file before deleting it (in milliseconds), If
-                          not set, the value in log.retention.minutes is used. If
-                          set to -1, no time limit is applied.
+                        description: The number of milliseconds to keep a log file
+                          before deleting it (in milliseconds), If not set, the value
+                          in log.retention.minutes is used. If set to -1, no time
+                          limit is applied.
                         minimum: -1
                         type: integer
                       log_roll_jitter_ms:
-                        description: LogRollJitterMs The maximum jitter to subtract
-                          from logRollTimeMillis (in milliseconds). If not set, the
-                          value in log.roll.jitter.hours is used
+                        description: The maximum jitter to subtract from logRollTimeMillis
+                          (in milliseconds). If not set, the value in log.roll.jitter.hours
+                          is used
                         minimum: 0
                         type: integer
                       log_roll_ms:
-                        description: LogRollMs The maximum time before a new log segment
-                          is rolled out (in milliseconds).
+                        description: The maximum time before a new log segment is
+                          rolled out (in milliseconds).
                         minimum: 1
                         type: integer
                       log_segment_bytes:
-                        description: LogSegmentBytes The maximum size of a single
-                          log file
+                        description: The maximum size of a single log file
                         maximum: 1073741824
                         minimum: 10485760
                         type: integer
                       log_segment_delete_delay_ms:
-                        description: LogSegmentDeleteDelayMs The amount of time to
-                          wait before deleting a file from the filesystem
+                        description: The amount of time to wait before deleting a
+                          file from the filesystem
                         maximum: 3600000
                         minimum: 0
                         type: integer
                       max_connections_per_ip:
-                        description: MaxConnectionsPerIp The maximum number of connections
-                          allowed from each ip address (defaults to 2147483647).
+                        description: The maximum number of connections allowed from
+                          each ip address (defaults to 2147483647).
                         maximum: 2147483647
                         minimum: 256
                         type: integer
                       max_incremental_fetch_session_cache_slots:
-                        description: MaxIncrementalFetchSessionCacheSlots The maximum
-                          number of incremental fetch sessions that the broker will
-                          maintain.
+                        description: The maximum number of incremental fetch sessions
+                          that the broker will maintain.
                         maximum: 10000
                         minimum: 1000
                         type: integer
                       message_max_bytes:
-                        description: MessageMaxBytes The maximum size of message that
-                          the server can receive.
+                        description: The maximum size of message that the server can
+                          receive.
                         maximum: 100001200
                         minimum: 0
                         type: integer
                       min_insync_replicas:
-                        description: MinInsyncReplicas When a producer sets acks to
-                          'all' (or '-1'), min.insync.replicas specifies the minimum
-                          number of replicas that must acknowledge a write for the
-                          write to be considered successful.
+                        description: When a producer sets acks to 'all' (or '-1'),
+                          min.insync.replicas specifies the minimum number of replicas
+                          that must acknowledge a write for the write to be considered
+                          successful.
                         maximum: 7
                         minimum: 1
                         type: integer
                       num_partitions:
-                        description: NumPartitions Number of partitions for autocreated
-                          topics
+                        description: Number of partitions for autocreated topics
                         maximum: 1000
                         minimum: 1
                         type: integer
                       offsets_retention_minutes:
-                        description: OffsetsRetentionMinutes Log retention window
-                          in minutes for offsets topic
+                        description: Log retention window in minutes for offsets topic
                         maximum: 2147483647
                         minimum: 1
                         type: integer
                       producer_purgatory_purge_interval_requests:
-                        description: ProducerPurgatoryPurgeIntervalRequests The purge
-                          interval (in number of requests) of the producer request
-                          purgatory(defaults to 1000).
+                        description: The purge interval (in number of requests) of
+                          the producer request purgatory(defaults to 1000).
                         maximum: 10000
                         minimum: 10
                         type: integer
                       replica_fetch_max_bytes:
-                        description: ReplicaFetchMaxBytes The number of bytes of messages
-                          to attempt to fetch for each partition (defaults to 1048576).
-                          This is not an absolute maximum, if the first record batch
-                          in the first non-empty partition of the fetch is larger
-                          than this value, the record batch will still be returned
-                          to ensure that progress can be made.
+                        description: The number of bytes of messages to attempt to
+                          fetch for each partition (defaults to 1048576). This is
+                          not an absolute maximum, if the first record batch in the
+                          first non-empty partition of the fetch is larger than this
+                          value, the record batch will still be returned to ensure
+                          that progress can be made.
                         maximum: 104857600
                         minimum: 1048576
                         type: integer
                       replica_fetch_response_max_bytes:
-                        description: ReplicaFetchResponseMaxBytes Maximum bytes expected
-                          for the entire fetch response (defaults to 10485760). Records
-                          are fetched in batches, and if the first record batch in
-                          the first non-empty partition of the fetch is larger than
-                          this value, the record batch will still be returned to ensure
-                          that progress can be made. As such, this is not an absolute
-                          maximum.
+                        description: Maximum bytes expected for the entire fetch response
+                          (defaults to 10485760). Records are fetched in batches,
+                          and if the first record batch in the first non-empty partition
+                          of the fetch is larger than this value, the record batch
+                          will still be returned to ensure that progress can be made.
+                          As such, this is not an absolute maximum.
                         maximum: 1048576000
                         minimum: 10485760
                         type: integer
                       socket_request_max_bytes:
-                        description: SocketRequestMaxBytes The maximum number of bytes
-                          in a socket request (defaults to 104857600).
+                        description: The maximum number of bytes in a socket request
+                          (defaults to 104857600).
                         maximum: 209715200
                         minimum: 10485760
                         type: integer
                       transaction_remove_expired_transaction_cleanup_interval_ms:
-                        description: TransactionRemoveExpiredTransactionCleanupIntervalMs
-                          The interval at which to remove transactions that have expired
-                          due to transactional.id.expiration.ms passing (defaults
-                          to 3600000 (1 hour)).
+                        description: The interval at which to remove transactions
+                          that have expired due to transactional.id.expiration.ms
+                          passing (defaults to 3600000 (1 hour)).
                         maximum: 3600000
                         minimum: 600000
                         type: integer
                       transaction_state_log_segment_bytes:
-                        description: TransactionStateLogSegmentBytes The transaction
-                          topic segment bytes should be kept relatively small in order
-                          to facilitate faster log compaction and cache loads (defaults
-                          to 104857600 (100 mebibytes)).
+                        description: The transaction topic segment bytes should be
+                          kept relatively small in order to facilitate faster log
+                          compaction and cache loads (defaults to 104857600 (100 mebibytes)).
                         maximum: 2147483647
                         minimum: 1048576
                         type: integer
                     type: object
                   kafka_authentication_methods:
-                    description: KafkaAuthenticationMethods Kafka authentication methods
+                    description: Kafka authentication methods
                     properties:
                       certificate:
-                        description: Certificate Enable certificate/SSL authentication
+                        description: Enable certificate/SSL authentication
                         type: boolean
                       sasl:
-                        description: Sasl Enable SASL authentication
+                        description: Enable SASL authentication
                         type: boolean
                     type: object
                   kafka_connect:
-                    description: KafkaConnect Enable Kafka Connect service
+                    description: Enable Kafka Connect service
                     type: boolean
                   kafka_connect_config:
-                    description: KafkaConnectConfig Kafka Connect configuration values
+                    description: Kafka Connect configuration values
                     properties:
                       connector_client_config_override_policy:
-                        description: ConnectorClientConfigOverridePolicy Defines what
-                          client configurations can be overridden by the connector.
-                          Default is None
+                        description: Defines what client configurations can be overridden
+                          by the connector. Default is None
                         enum:
                         - None
                         - All
                         type: string
                       consumer_auto_offset_reset:
-                        description: ConsumerAutoOffsetReset What to do when there
-                          is no initial offset in Kafka or if the current offset does
-                          not exist any more on the server. Default is earliest
+                        description: What to do when there is no initial offset in
+                          Kafka or if the current offset does not exist any more on
+                          the server. Default is earliest
                         enum:
                         - earliest
                         - latest
                         type: string
                       consumer_fetch_max_bytes:
-                        description: ConsumerFetchMaxBytes Records are fetched in
-                          batches by the consumer, and if the first record batch in
-                          the first non-empty partition of the fetch is larger than
-                          this value, the record batch will still be returned to ensure
-                          that the consumer can make progress. As such, this is not
-                          a absolute maximum.
+                        description: Records are fetched in batches by the consumer,
+                          and if the first record batch in the first non-empty partition
+                          of the fetch is larger than this value, the record batch
+                          will still be returned to ensure that the consumer can make
+                          progress. As such, this is not a absolute maximum.
                         maximum: 104857600
                         minimum: 1048576
                         type: integer
                       consumer_isolation_level:
-                        description: ConsumerIsolationLevel Transaction read isolation
-                          level. read_uncommitted is the default, but read_committed
-                          can be used if consume-exactly-once behavior is desired.
+                        description: Transaction read isolation level. read_uncommitted
+                          is the default, but read_committed can be used if consume-exactly-once
+                          behavior is desired.
                         enum:
                         - read_uncommitted
                         - read_committed
                         type: string
                       consumer_max_partition_fetch_bytes:
-                        description: ConsumerMaxPartitionFetchBytes Records are fetched
-                          in batches by the consumer.If the first record batch in
-                          the first non-empty partition of the fetch is larger than
-                          this limit, the batch will still be returned to ensure that
-                          the consumer can make progress.
+                        description: Records are fetched in batches by the consumer.If
+                          the first record batch in the first non-empty partition
+                          of the fetch is larger than this limit, the batch will still
+                          be returned to ensure that the consumer can make progress.
                         maximum: 104857600
                         minimum: 1048576
                         type: integer
                       consumer_max_poll_interval_ms:
-                        description: ConsumerMaxPollIntervalMs The maximum delay in
-                          milliseconds between invocations of poll() when using consumer
-                          group management (defaults to 300000).
+                        description: The maximum delay in milliseconds between invocations
+                          of poll() when using consumer group management (defaults
+                          to 300000).
                         maximum: 2147483647
                         minimum: 1
                         type: integer
                       consumer_max_poll_records:
-                        description: ConsumerMaxPollRecords The maximum number of
-                          records returned in a single call to poll() (defaults to
-                          500).
+                        description: The maximum number of records returned in a single
+                          call to poll() (defaults to 500).
                         maximum: 10000
                         minimum: 1
                         type: integer
                       offset_flush_interval_ms:
-                        description: OffsetFlushIntervalMs The interval at which to
-                          try committing offsets for tasks (defaults to 60000).
+                        description: The interval at which to try committing offsets
+                          for tasks (defaults to 60000).
                         maximum: 100000000
                         minimum: 1
                         type: integer
                       offset_flush_timeout_ms:
-                        description: OffsetFlushTimeoutMs Maximum number of milliseconds
-                          to wait for records to flush and partition offset data to
-                          be committed to offset storage before cancelling the process
-                          and restoring the offset data to be committed in a future
-                          attempt (defaults to 5000).
+                        description: Maximum number of milliseconds to wait for records
+                          to flush and partition offset data to be committed to offset
+                          storage before cancelling the process and restoring the
+                          offset data to be committed in a future attempt (defaults
+                          to 5000).
                         maximum: 2147483647
                         minimum: 1
                         type: integer
                       producer_batch_size:
-                        description: ProducerBatchSize This setting gives the upper
-                          bound of the batch size to be sent. If there are fewer than
-                          this many bytes accumulated for this partition, the producer
-                          will 'linger' for the linger.ms time waiting for more records
-                          to show up. A batch size of zero will disable batching entirely
+                        description: This setting gives the upper bound of the batch
+                          size to be sent. If there are fewer than this many bytes
+                          accumulated for this partition, the producer will 'linger'
+                          for the linger.ms time waiting for more records to show
+                          up. A batch size of zero will disable batching entirely
                           (defaults to 16384).
                         maximum: 5242880
                         minimum: 0
                         type: integer
                       producer_buffer_memory:
-                        description: ProducerBufferMemory The total bytes of memory
-                          the producer can use to buffer records waiting to be sent
-                          to the broker (defaults to 33554432).
+                        description: The total bytes of memory the producer can use
+                          to buffer records waiting to be sent to the broker (defaults
+                          to 33554432).
                         maximum: 134217728
                         minimum: 5242880
                         type: integer
                       producer_compression_type:
-                        description: ProducerCompressionType Specify the default compression
-                          type for producers. This configuration accepts the standard
-                          compression codecs ('gzip', 'snappy', 'lz4', 'zstd'). It
-                          additionally accepts 'none' which is the default and equivalent
-                          to no compression.
+                        description: Specify the default compression type for producers.
+                          This configuration accepts the standard compression codecs
+                          ('gzip', 'snappy', 'lz4', 'zstd'). It additionally accepts
+                          'none' which is the default and equivalent to no compression.
                         enum:
                         - gzip
                         - snappy
@@ -593,55 +567,54 @@ spec:
                         - none
                         type: string
                       producer_linger_ms:
-                        description: 'ProducerLingerMs This setting gives the upper
-                          bound on the delay for batching: once there is batch.size
-                          worth of records for a partition it will be sent immediately
-                          regardless of this setting, however if there are fewer than
-                          this many bytes accumulated for this partition the producer
-                          will ''linger'' for the specified time waiting for more
-                          records to show up. Defaults to 0.'
+                        description: 'This setting gives the upper bound on the delay
+                          for batching: once there is batch.size worth of records
+                          for a partition it will be sent immediately regardless of
+                          this setting, however if there are fewer than this many
+                          bytes accumulated for this partition the producer will ''linger''
+                          for the specified time waiting for more records to show
+                          up. Defaults to 0.'
                         maximum: 5000
                         minimum: 0
                         type: integer
                       producer_max_request_size:
-                        description: ProducerMaxRequestSize This setting will limit
-                          the number of record batches the producer will send in a
-                          single request to avoid sending huge requests.
+                        description: This setting will limit the number of record
+                          batches the producer will send in a single request to avoid
+                          sending huge requests.
                         maximum: 67108864
                         minimum: 131072
                         type: integer
                       session_timeout_ms:
-                        description: SessionTimeoutMs The timeout in milliseconds
-                          used to detect failures when using Kafka’s group management
-                          facilities (defaults to 10000).
+                        description: The timeout in milliseconds used to detect failures
+                          when using Kafka’s group management facilities (defaults
+                          to 10000).
                         maximum: 2147483647
                         minimum: 1
                         type: integer
                     type: object
                   kafka_rest:
-                    description: KafkaRest Enable Kafka-REST service
+                    description: Enable Kafka-REST service
                     type: boolean
                   kafka_rest_authorization:
-                    description: KafkaRestAuthorization Enable authorization in Kafka-REST
-                      service
+                    description: Enable authorization in Kafka-REST service
                     type: boolean
                   kafka_rest_config:
-                    description: KafkaRestConfig Kafka REST configuration
+                    description: Kafka REST configuration
                     properties:
                       consumer_enable_auto_commit:
-                        description: ConsumerEnableAutoCommit If true the consumer's
-                          offset will be periodically committed to Kafka in the background
+                        description: If true the consumer's offset will be periodically
+                          committed to Kafka in the background
                         type: boolean
                       consumer_request_max_bytes:
-                        description: ConsumerRequestMaxBytes Maximum number of bytes
-                          in unencoded message keys and values by a single request
+                        description: Maximum number of bytes in unencoded message
+                          keys and values by a single request
                         maximum: 671088640
                         minimum: 0
                         type: integer
                       consumer_request_timeout_ms:
-                        description: ConsumerRequestTimeoutMs The maximum total time
-                          to wait for messages for a request if the maximum number
-                          of messages has not yet been reached
+                        description: The maximum total time to wait for messages for
+                          a request if the maximum number of messages has not yet
+                          been reached
                         enum:
                         - 1000
                         - 15000
@@ -650,11 +623,11 @@ spec:
                         minimum: 1000
                         type: integer
                       producer_acks:
-                        description: ProducerAcks The number of acknowledgments the
-                          producer requires the leader to have received before considering
-                          a request complete. If set to 'all' or '-1', the leader
-                          will wait for the full set of in-sync replicas to acknowledge
-                          the record.
+                        description: The number of acknowledgments the producer requires
+                          the leader to have received before considering a request
+                          complete. If set to 'all' or '-1', the leader will wait
+                          for the full set of in-sync replicas to acknowledge the
+                          record.
                         enum:
                         - all
                         - -1
@@ -662,11 +635,10 @@ spec:
                         - 1
                         type: string
                       producer_compression_type:
-                        description: ProducerCompressionType Specify the default compression
-                          type for producers. This configuration accepts the standard
-                          compression codecs ('gzip', 'snappy', 'lz4', 'zstd'). It
-                          additionally accepts 'none' which is the default and equivalent
-                          to no compression.
+                        description: Specify the default compression type for producers.
+                          This configuration accepts the standard compression codecs
+                          ('gzip', 'snappy', 'lz4', 'zstd'). It additionally accepts
+                          'none' which is the default and equivalent to no compression.
                         enum:
                         - gzip
                         - snappy
@@ -675,20 +647,20 @@ spec:
                         - none
                         type: string
                       producer_linger_ms:
-                        description: ProducerLingerMs Wait for up to the given delay
-                          to allow batching records together
+                        description: Wait for up to the given delay to allow batching
+                          records together
                         maximum: 5000
                         minimum: 0
                         type: integer
                       simpleconsumer_pool_size_max:
-                        description: SimpleconsumerPoolSizeMax Maximum number of SimpleConsumers
-                          that can be instantiated per broker
+                        description: Maximum number of SimpleConsumers that can be
+                          instantiated per broker
                         maximum: 250
                         minimum: 10
                         type: integer
                     type: object
                   kafka_version:
-                    description: KafkaVersion Kafka major version
+                    description: Kafka major version
                     enum:
                     - "2.8"
                     - "3.0"
@@ -697,118 +669,117 @@ spec:
                     - "3.3"
                     type: string
                   private_access:
-                    description: PrivateAccess Allow access to selected service ports
-                      from private networks
+                    description: Allow access to selected service ports from private
+                      networks
                     properties:
                       kafka:
-                        description: Kafka Allow clients to connect to kafka with
+                        description: Allow clients to connect to kafka with a DNS
+                          name that always resolves to the service's private IP addresses.
+                          Only available in certain network locations
+                        type: boolean
+                      kafka_connect:
+                        description: Allow clients to connect to kafka_connect with
                           a DNS name that always resolves to the service's private
                           IP addresses. Only available in certain network locations
                         type: boolean
-                      kafka_connect:
-                        description: KafkaConnect Allow clients to connect to kafka_connect
-                          with a DNS name that always resolves to the service's private
-                          IP addresses. Only available in certain network locations
-                        type: boolean
                       kafka_rest:
-                        description: KafkaRest Allow clients to connect to kafka_rest
-                          with a DNS name that always resolves to the service's private
-                          IP addresses. Only available in certain network locations
+                        description: Allow clients to connect to kafka_rest with a
+                          DNS name that always resolves to the service's private IP
+                          addresses. Only available in certain network locations
                         type: boolean
                       prometheus:
-                        description: Prometheus Allow clients to connect to prometheus
-                          with a DNS name that always resolves to the service's private
-                          IP addresses. Only available in certain network locations
+                        description: Allow clients to connect to prometheus with a
+                          DNS name that always resolves to the service's private IP
+                          addresses. Only available in certain network locations
                         type: boolean
                       schema_registry:
-                        description: SchemaRegistry Allow clients to connect to schema_registry
-                          with a DNS name that always resolves to the service's private
+                        description: Allow clients to connect to schema_registry with
+                          a DNS name that always resolves to the service's private
                           IP addresses. Only available in certain network locations
                         type: boolean
                     type: object
                   privatelink_access:
-                    description: PrivatelinkAccess Allow access to selected service
-                      components through Privatelink
+                    description: Allow access to selected service components through
+                      Privatelink
                     properties:
                       jolokia:
-                        description: Jolokia Enable jolokia
+                        description: Enable jolokia
                         type: boolean
                       kafka:
-                        description: Kafka Enable kafka
+                        description: Enable kafka
                         type: boolean
                       kafka_connect:
-                        description: KafkaConnect Enable kafka_connect
+                        description: Enable kafka_connect
                         type: boolean
                       kafka_rest:
-                        description: KafkaRest Enable kafka_rest
+                        description: Enable kafka_rest
                         type: boolean
                       prometheus:
-                        description: Prometheus Enable prometheus
+                        description: Enable prometheus
                         type: boolean
                       schema_registry:
-                        description: SchemaRegistry Enable schema_registry
+                        description: Enable schema_registry
                         type: boolean
                     type: object
                   public_access:
-                    description: PublicAccess Allow access to selected service ports
-                      from the public Internet
+                    description: Allow access to selected service ports from the public
+                      Internet
                     properties:
                       kafka:
-                        description: Kafka Allow clients to connect to kafka from
+                        description: Allow clients to connect to kafka from the public
+                          internet for service nodes that are in a project VPC or
+                          another type of private network
+                        type: boolean
+                      kafka_connect:
+                        description: Allow clients to connect to kafka_connect from
                           the public internet for service nodes that are in a project
                           VPC or another type of private network
                         type: boolean
-                      kafka_connect:
-                        description: KafkaConnect Allow clients to connect to kafka_connect
-                          from the public internet for service nodes that are in a
-                          project VPC or another type of private network
-                        type: boolean
                       kafka_rest:
-                        description: KafkaRest Allow clients to connect to kafka_rest
-                          from the public internet for service nodes that are in a
-                          project VPC or another type of private network
+                        description: Allow clients to connect to kafka_rest from the
+                          public internet for service nodes that are in a project
+                          VPC or another type of private network
                         type: boolean
                       prometheus:
-                        description: Prometheus Allow clients to connect to prometheus
-                          from the public internet for service nodes that are in a
-                          project VPC or another type of private network
+                        description: Allow clients to connect to prometheus from the
+                          public internet for service nodes that are in a project
+                          VPC or another type of private network
                         type: boolean
                       schema_registry:
-                        description: SchemaRegistry Allow clients to connect to schema_registry
-                          from the public internet for service nodes that are in a
-                          project VPC or another type of private network
+                        description: Allow clients to connect to schema_registry from
+                          the public internet for service nodes that are in a project
+                          VPC or another type of private network
                         type: boolean
                     type: object
                   schema_registry:
-                    description: SchemaRegistry Enable Schema-Registry service
+                    description: Enable Schema-Registry service
                     type: boolean
                   schema_registry_config:
-                    description: SchemaRegistryConfig Schema Registry configuration
+                    description: Schema Registry configuration
                     properties:
                       leader_eligibility:
-                        description: LeaderEligibility If true, Karapace / Schema
-                          Registry on the service nodes can participate in leader
-                          election. It might be needed to disable this when the schemas
-                          topic is replicated to a secondary cluster and Karapace
-                          / Schema Registry there must not participate in leader election.
-                          Defaults to `true`.
+                        description: If true, Karapace / Schema Registry on the service
+                          nodes can participate in leader election. It might be needed
+                          to disable this when the schemas topic is replicated to
+                          a secondary cluster and Karapace / Schema Registry there
+                          must not participate in leader election. Defaults to `true`.
                         type: boolean
                       topic_name:
-                        description: TopicName The durable single partition topic
-                          that acts as the durable log for the data. This topic must
-                          be compacted to avoid losing data due to retention policy.
-                          Please note that changing this configuration in an existing
-                          Schema Registry / Karapace setup leads to previous schemas
-                          being inaccessible, data encoded with them potentially unreadable
-                          and schema ID sequence put out of order. It's only possible
-                          to do the switch while Schema Registry / Karapace is disabled.
-                          Defaults to `_schemas`.
+                        description: The durable single partition topic that acts
+                          as the durable log for the data. This topic must be compacted
+                          to avoid losing data due to retention policy. Please note
+                          that changing this configuration in an existing Schema Registry
+                          / Karapace setup leads to previous schemas being inaccessible,
+                          data encoded with them potentially unreadable and schema
+                          ID sequence put out of order. It's only possible to do the
+                          switch while Schema Registry / Karapace is disabled. Defaults
+                          to `_schemas`.
                         maxLength: 249
                         minLength: 1
                         type: string
                     type: object
                   static_ips:
-                    description: StaticIps Use static public IP addresses
+                    description: Use static public IP addresses
                     type: boolean
                 type: object
             required:
