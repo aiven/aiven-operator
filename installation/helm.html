@@ -9,22 +9,24 @@
       
       
       
+        <link rel="prev" href="../contributing/developer-guide.html">
       
-        <link rel="next" href="api-reference.html">
       
-      <link rel="icon" href="assets/images/favicon.png">
+        <link rel="next" href="kubectl.html">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.11">
     
     
       
-        <title>Aiven Operator</title>
+        <title>Installing with Helm (recommended) - Aiven Operator</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.0d440cfe.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.0d440cfe.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.2505c338.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.2505c338.min.css">
       
       
 
@@ -40,7 +42,7 @@
       
     
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -69,7 +71,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#welcome-to-aiven-operator-for-kubernetes" class="md-skip">
+        <a href="#installing" class="md-skip">
           Skip to content
         </a>
       
@@ -83,9 +85,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="index.html" title="Aiven Operator" class="md-header__button md-logo" aria-label="Aiven Operator" data-md-component="logo">
+    <a href="../index.html" title="Aiven Operator" class="md-header__button md-logo" aria-label="Aiven Operator" data-md-component="logo">
       
-  <img src="assets/logo.svg" alt="logo">
+  <img src="../assets/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -101,7 +103,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              Installing with Helm (recommended)
             
           </span>
         </div>
@@ -188,9 +190,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="index.html" title="Aiven Operator" class="md-nav__button md-logo" aria-label="Aiven Operator" data-md-component="logo">
+    <a href="../index.html" title="Aiven Operator" class="md-nav__button md-logo" aria-label="Aiven Operator" data-md-component="logo">
       
-  <img src="assets/logo.svg" alt="logo">
+  <img src="../assets/logo.svg" alt="logo">
 
     </a>
     Aiven Operator
@@ -204,59 +206,11 @@
 
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="index.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
         
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#what-is-aiven" class="md-nav__link">
-    What is Aiven?
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#contributing" class="md-nav__link">
-    Contributing
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -269,7 +223,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api-reference.html" class="md-nav__link">
+      <a href="../api-reference.html" class="md-nav__link">
         API Reference
       </a>
     </li>
@@ -284,7 +238,7 @@
   
   
     <li class="md-nav__item">
-      <a href="authentication.html" class="md-nav__link">
+      <a href="../authentication.html" class="md-nav__link">
         Authenticating
       </a>
     </li>
@@ -299,7 +253,7 @@
   
   
     <li class="md-nav__item">
-      <a href="troubleshooting.html" class="md-nav__link">
+      <a href="../troubleshooting.html" class="md-nav__link">
         Troubleshooting
       </a>
     </li>
@@ -341,7 +295,7 @@
   
   
     <li class="md-nav__item">
-      <a href="contributing/index.html" class="md-nav__link">
+      <a href="../contributing/index.html" class="md-nav__link">
         Contributing
       </a>
     </li>
@@ -355,7 +309,7 @@
   
   
     <li class="md-nav__item">
-      <a href="contributing/developer-guide.html" class="md-nav__link">
+      <a href="../contributing/developer-guide.html" class="md-nav__link">
         Developer guide
       </a>
     </li>
@@ -375,14 +329,16 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
       
       
       
@@ -391,7 +347,7 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
         <label class="md-nav__title" for="__nav_6">
           <span class="md-nav__icon md-icon"></span>
           Installation
@@ -402,11 +358,82 @@
               
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="installation/helm.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Installing with Helm (recommended)
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="helm.html" class="md-nav__link md-nav__link--active">
         Installing with Helm (recommended)
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installing" class="md-nav__link">
+    Installing
+  </a>
+  
+    <nav class="md-nav" aria-label="Installing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installing-custom-resource-definitions" class="md-nav__link">
+    Installing Custom Resource Definitions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#installing-the-operator" class="md-nav__link">
+    Installing the Operator
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    Configuration Options
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uninstalling" class="md-nav__link">
+    Uninstalling
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -418,7 +445,7 @@
   
   
     <li class="md-nav__item">
-      <a href="installation/kubectl.html" class="md-nav__link">
+      <a href="kubectl.html" class="md-nav__link">
         Installing with kubectl
       </a>
     </li>
@@ -432,7 +459,7 @@
   
   
     <li class="md-nav__item">
-      <a href="installation/prerequisites.html" class="md-nav__link">
+      <a href="prerequisites.html" class="md-nav__link">
         Prerequisites
       </a>
     </li>
@@ -446,7 +473,7 @@
   
   
     <li class="md-nav__item">
-      <a href="installation/uninstalling.html" class="md-nav__link">
+      <a href="uninstalling.html" class="md-nav__link">
         Uninstalling
       </a>
     </li>
@@ -495,7 +522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="resources/opensearch.html" class="md-nav__link">
+      <a href="../resources/opensearch.html" class="md-nav__link">
         OpenSearch
       </a>
     </li>
@@ -509,7 +536,7 @@
   
   
     <li class="md-nav__item">
-      <a href="resources/postgresql.html" class="md-nav__link">
+      <a href="../resources/postgresql.html" class="md-nav__link">
         PostgreSQL
       </a>
     </li>
@@ -523,7 +550,7 @@
   
   
     <li class="md-nav__item">
-      <a href="resources/project-vpc.html" class="md-nav__link">
+      <a href="../resources/project-vpc.html" class="md-nav__link">
         Aiven Project VPC
       </a>
     </li>
@@ -537,7 +564,7 @@
   
   
     <li class="md-nav__item">
-      <a href="resources/project.html" class="md-nav__link">
+      <a href="../resources/project.html" class="md-nav__link">
         Aiven Project
       </a>
     </li>
@@ -551,7 +578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="resources/redis.html" class="md-nav__link">
+      <a href="../resources/redis.html" class="md-nav__link">
         Redis
       </a>
     </li>
@@ -565,7 +592,7 @@
   
   
     <li class="md-nav__item">
-      <a href="resources/service-integrations.html" class="md-nav__link">
+      <a href="../resources/service-integrations.html" class="md-nav__link">
         Service Integrations
       </a>
     </li>
@@ -606,7 +633,7 @@
   
   
     <li class="md-nav__item">
-      <a href="resources/kafka/index.html" class="md-nav__link">
+      <a href="../resources/kafka/index.html" class="md-nav__link">
         Kafka
       </a>
     </li>
@@ -620,7 +647,7 @@
   
   
     <li class="md-nav__item">
-      <a href="resources/kafka/connect.html" class="md-nav__link">
+      <a href="../resources/kafka/connect.html" class="md-nav__link">
         Kafka Connect
       </a>
     </li>
@@ -634,7 +661,7 @@
   
   
     <li class="md-nav__item">
-      <a href="resources/kafka/schema.html" class="md-nav__link">
+      <a href="../resources/kafka/schema.html" class="md-nav__link">
         Kafka Schema
       </a>
     </li>
@@ -672,8 +699,6 @@
   
   
   
-    
-  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -682,15 +707,42 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#what-is-aiven" class="md-nav__link">
-    What is Aiven?
+  <a href="#installing" class="md-nav__link">
+    Installing
   </a>
+  
+    <nav class="md-nav" aria-label="Installing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installing-custom-resource-definitions" class="md-nav__link">
+    Installing Custom Resource Definitions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#installing-the-operator" class="md-nav__link">
+    Installing the Operator
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    Configuration Options
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#contributing" class="md-nav__link">
-    Contributing
+  <a href="#uninstalling" class="md-nav__link">
+    Uninstalling
   </a>
   
 </li>
@@ -711,13 +763,63 @@
 
 
 
-<h1 id="welcome-to-aiven-operator-for-kubernetes">Welcome to Aiven Operator for Kubernetes</h1>
-<p>Provision and manage <a href="https://aiven.io">Aiven services</a> from your Kubernetes cluster.</p>
-<h2 id="what-is-aiven">What is Aiven?</h2>
-<p>Aiven offers managed services for the best open source data technologies, on a cloud of your choice.</p>
-<p>We offer multiple cloud options because we believe that everyone should have access to great data platforms wherever they host their applications. Our customers tell us they love it because they know that they aren’t locked in to one particular cloud platform for all their data needs.</p>
-<h2 id="contributing">Contributing</h2>
-<p>The <a href="./contributing">contribution guide</a> covers everything you need to know about how you can contribute to Aiven Operator for Kubernetes. The <a href="./contributing/developer-guide">developer guide</a> will help you onboard as a developer.</p>
+  <h1>Installing with Helm (recommended)</h1>
+
+<h2 id="installing">Installing</h2>
+<p>The Aiven Operator for Kubernetes can be installed via <a href="https://helm.sh/">Helm</a>. </p>
+<p>First add the <a href="https://github.com/aiven/aiven-charts">Aiven Helm repository</a>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$<span class="w"> </span>helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>aiven<span class="w"> </span>https://aiven.github.io/aiven-charts<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>helm<span class="w"> </span>repo<span class="w"> </span>update
+</code></pre></div>
+<h3 id="installing-custom-resource-definitions">Installing Custom Resource Definitions</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>$<span class="w"> </span>helm<span class="w"> </span>install<span class="w"> </span>aiven-operator-crds<span class="w"> </span>aiven/aiven-operator-crds
+</code></pre></div>
+<p>Verify the installation:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$<span class="w"> </span>kubectl<span class="w"> </span>api-resources<span class="w"> </span>--api-group<span class="o">=</span>aiven.io
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>NAME<span class="w">                  </span>SHORTNAMES<span class="w">   </span>APIVERSION<span class="w">          </span>NAMESPACED<span class="w">   </span>KIND
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>connectionpools<span class="w">                    </span>aiven.io/v1alpha1<span class="w">   </span><span class="nb">true</span><span class="w">         </span>ConnectionPool
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>databases<span class="w">                          </span>aiven.io/v1alpha1<span class="w">   </span><span class="nb">true</span><span class="w">         </span>Database
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>...<span class="w"> </span>&lt;<span class="w"> </span>several<span class="w"> </span>omitted<span class="w"> </span>lines<span class="w"> </span>&gt;
+</code></pre></div></p>
+<h3 id="installing-the-operator">Installing the Operator</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>$<span class="w"> </span>helm<span class="w"> </span>install<span class="w"> </span>aiven-operator<span class="w"> </span>aiven/aiven-operator
+</code></pre></div>
+<blockquote>
+<p>Note: Installation will fail if webhooks are enabled and the CRDs for the cert-manager are not installed.</p>
+</blockquote>
+<p>Verify the installation: 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>$<span class="w">  </span>helm<span class="w"> </span>status<span class="w"> </span>aiven-operator
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>NAME:<span class="w"> </span>aiven-operator
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>LAST<span class="w"> </span>DEPLOYED:<span class="w"> </span>Fri<span class="w"> </span>Sep<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">15</span>:23:26<span class="w"> </span><span class="m">2021</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>NAMESPACE:<span class="w"> </span>default
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>STATUS:<span class="w"> </span>deployed
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>REVISION:<span class="w"> </span><span class="m">1</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>TEST<span class="w"> </span>SUITE:<span class="w"> </span>None
+</code></pre></div></p>
+<p>It is also possible to install the operator without webhooks enabled:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>$<span class="w"> </span>helm<span class="w"> </span>install<span class="w"> </span>aiven-operator<span class="w"> </span>aiven/aiven-operator<span class="w"> </span>--set<span class="w"> </span>webhooks.enabled<span class="o">=</span><span class="nb">false</span>
+</code></pre></div></p>
+<h3 id="configuration-options">Configuration Options</h3>
+<p>Please refer to the <a href="https://github.com/aiven/aiven-charts/blob/main/charts/aiven-operator/values.yaml">values.yaml</a> of the chart.</p>
+<h2 id="uninstalling">Uninstalling</h2>
+<p>Find out the name of your deployment:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>$<span class="w"> </span>helm<span class="w"> </span>list
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>NAME<span class="w">                </span>NAMESPACE<span class="w">   </span>REVISION<span class="w">    </span>UPDATED<span class="w">                                     </span>STATUS<span class="w">      </span>CHART<span class="w">                       </span>APP<span class="w"> </span>VERSION
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>aiven-operator<span class="w">      </span>default<span class="w">     </span><span class="m">1</span><span class="w">           </span><span class="m">2021</span>-09-09<span class="w"> </span><span class="m">10</span>:56:14.623700249<span class="w"> </span>+0200<span class="w"> </span>CEST<span class="w">    </span>deployed<span class="w">    </span>aiven-operator-v0.1.0<span class="w">       </span>v0.1.0<span class="w">     </span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>aiven-operator-crds<span class="w"> </span>default<span class="w">     </span><span class="m">1</span><span class="w">           </span><span class="m">2021</span>-09-09<span class="w"> </span><span class="m">10</span>:56:05.736411868<span class="w"> </span>+0200<span class="w"> </span>CEST<span class="w">    </span>deployed<span class="w">    </span>aiven-operator-crds-v0.1.0<span class="w">  </span>v0.1.0
+</code></pre></div>
+<p>Remove the CRDs:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>$<span class="w"> </span>helm<span class="w"> </span>uninstall<span class="w"> </span>aiven-operator-crds
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>release<span class="w"> </span><span class="s2">&quot;aiven-operator-crds&quot;</span><span class="w"> </span>uninstalled
+</code></pre></div>
+<p>Remove the operator:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>$<span class="w"> </span>helm<span class="w"> </span>uninstall<span class="w"> </span>aiven-operator
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>release<span class="w"> </span><span class="s2">&quot;aiven-operator&quot;</span><span class="w"> </span>uninstalled
+</code></pre></div>
 
 
 
@@ -743,15 +845,30 @@
       
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
+          
+          <a href="../contributing/developer-guide.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Developer guide" rel="prev">
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <div class="md-ellipsis">
+                <span class="md-footer__direction">
+                  Previous
+                </span>
+                Developer guide
+              </div>
+            </div>
+          </a>
+        
         
           
-          <a href="api-reference.html" class="md-footer__link md-footer__link--next" aria-label="Next: API Reference" rel="next">
+          <a href="kubectl.html" class="md-footer__link md-footer__link--next" aria-label="Next: Installing with kubectl" rel="next">
             <div class="md-footer__title">
               <div class="md-ellipsis">
                 <span class="md-footer__direction">
                   Next
                 </span>
-                API Reference
+                Installing with kubectl
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -787,10 +904,10 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": ".", "features": ["navigation.top", "navigation.footer", "content.code.copy", "content.code.annotate"], "search": "assets/javascripts/workers/search.db81ec45.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.db81ec45.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="assets/javascripts/bundle.6df46069.min.js"></script>
+      <script src="../assets/javascripts/bundle.6df46069.min.js"></script>
       
     
   </body>

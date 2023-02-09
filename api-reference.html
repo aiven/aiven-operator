@@ -1,0 +1,3688 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="index.html">
+      
+      
+        <link rel="next" href="authentication.html">
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.11">
+    
+    
+      
+        <title>API Reference - Aiven Operator</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.0d440cfe.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#aiveniov1alpha1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="index.html" title="Aiven Operator" class="md-header__button md-logo" aria-label="Aiven Operator" data-md-component="logo">
+      
+  <img src="assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Aiven Operator
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              API Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="index.html" title="Aiven Operator" class="md-nav__button md-logo" aria-label="Aiven Operator" data-md-component="logo">
+      
+  <img src="assets/logo.svg" alt="logo">
+
+    </a>
+    Aiven Operator
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          API Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="api-reference.html" class="md-nav__link md-nav__link--active">
+        API Reference
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#aiveniov1alpha1" class="md-nav__link">
+    aiven.io/v1alpha1
+  </a>
+  
+    <nav class="md-nav" aria-label="aiven.io/v1alpha1">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#authsecretreference" class="md-nav__link">
+    AuthSecretReference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cassandra" class="md-nav__link">
+    Cassandra
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cassandraspec" class="md-nav__link">
+    CassandraSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouse" class="md-nav__link">
+    Clickhouse
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhousespec" class="md-nav__link">
+    ClickhouseSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouseuser" class="md-nav__link">
+    ClickhouseUser
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouseuserspec" class="md-nav__link">
+    ClickhouseUserSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouseuserstatus" class="md-nav__link">
+    ClickhouseUserStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conninfosecrettarget" class="md-nav__link">
+    ConnInfoSecretTarget
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connectionpool" class="md-nav__link">
+    ConnectionPool
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connectionpoolspec" class="md-nav__link">
+    ConnectionPoolSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connectionpoolstatus" class="md-nav__link">
+    ConnectionPoolStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database" class="md-nav__link">
+    Database
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#databasespec" class="md-nav__link">
+    DatabaseSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#databasestatus" class="md-nav__link">
+    DatabaseStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grafana" class="md-nav__link">
+    Grafana
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grafanaspec" class="md-nav__link">
+    GrafanaSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafka" class="md-nav__link">
+    Kafka
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaacl" class="md-nav__link">
+    KafkaACL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaaclspec" class="md-nav__link">
+    KafkaACLSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaaclstatus" class="md-nav__link">
+    KafkaACLStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaconnect" class="md-nav__link">
+    KafkaConnect
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaconnectspec" class="md-nav__link">
+    KafkaConnectSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaconnector" class="md-nav__link">
+    KafkaConnector
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaconnectorpluginstatus" class="md-nav__link">
+    KafkaConnectorPluginStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaconnectorspec" class="md-nav__link">
+    KafkaConnectorSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaconnectorstatus" class="md-nav__link">
+    KafkaConnectorStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaconnectortasksstatus" class="md-nav__link">
+    KafkaConnectorTasksStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaschema" class="md-nav__link">
+    KafkaSchema
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaschemaspec" class="md-nav__link">
+    KafkaSchemaSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaschemastatus" class="md-nav__link">
+    KafkaSchemaStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaspec" class="md-nav__link">
+    KafkaSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkatopic" class="md-nav__link">
+    KafkaTopic
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkatopicconfig" class="md-nav__link">
+    KafkaTopicConfig
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkatopicspec" class="md-nav__link">
+    KafkaTopicSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkatopicstatus" class="md-nav__link">
+    KafkaTopicStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkatopictag" class="md-nav__link">
+    KafkaTopicTag
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mysql" class="md-nav__link">
+    MySQL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mysqlspec" class="md-nav__link">
+    MySQLSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opensearch" class="md-nav__link">
+    OpenSearch
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opensearchspec" class="md-nav__link">
+    OpenSearchSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgresql" class="md-nav__link">
+    PostgreSQL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgresqlspec" class="md-nav__link">
+    PostgreSQLSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project" class="md-nav__link">
+    Project
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projectspec" class="md-nav__link">
+    ProjectSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projectstatus" class="md-nav__link">
+    ProjectStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projectvpc" class="md-nav__link">
+    ProjectVPC
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projectvpcspec" class="md-nav__link">
+    ProjectVPCSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projectvpcstatus" class="md-nav__link">
+    ProjectVPCStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#redis" class="md-nav__link">
+    Redis
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#redisspec" class="md-nav__link">
+    RedisSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resourcereference" class="md-nav__link">
+    ResourceReference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resourcereferenceobject" class="md-nav__link">
+    ResourceReferenceObject
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#servicecommonspec" class="md-nav__link">
+    ServiceCommonSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceintegration" class="md-nav__link">
+    ServiceIntegration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceintegrationdatadoguserconfig" class="md-nav__link">
+    ServiceIntegrationDatadogUserConfig
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceintegrationitem" class="md-nav__link">
+    ServiceIntegrationItem
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceintegrationkafkaconnect" class="md-nav__link">
+    ServiceIntegrationKafkaConnect
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceintegrationkafkaconnectuserconfig" class="md-nav__link">
+    ServiceIntegrationKafkaConnectUserConfig
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceintegrationkafkalogsuserconfig" class="md-nav__link">
+    ServiceIntegrationKafkaLogsUserConfig
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceintegrationmetricsuserconfig" class="md-nav__link">
+    ServiceIntegrationMetricsUserConfig
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceintegrationspec" class="md-nav__link">
+    ServiceIntegrationSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceintegrationstatus" class="md-nav__link">
+    ServiceIntegrationStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#servicestatus" class="md-nav__link">
+    ServiceStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceuser" class="md-nav__link">
+    ServiceUser
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceuserspec" class="md-nav__link">
+    ServiceUserSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceuserstatus" class="md-nav__link">
+    ServiceUserStatus
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    References
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="authentication.html" class="md-nav__link">
+        Authenticating
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="troubleshooting.html" class="md-nav__link">
+        Troubleshooting
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          Contributing
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Contributing
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="contributing/index.html" class="md-nav__link">
+        Contributing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="contributing/developer-guide.html" class="md-nav__link">
+        Developer guide
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          Installation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Installation
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="installation/helm.html" class="md-nav__link">
+        Installing with Helm (recommended)
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="installation/kubectl.html" class="md-nav__link">
+        Installing with kubectl
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="installation/prerequisites.html" class="md-nav__link">
+        Prerequisites
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="installation/uninstalling.html" class="md-nav__link">
+        Uninstalling
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Resources
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Resources
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="resources/opensearch.html" class="md-nav__link">
+        OpenSearch
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="resources/postgresql.html" class="md-nav__link">
+        PostgreSQL
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="resources/project-vpc.html" class="md-nav__link">
+        Aiven Project VPC
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="resources/project.html" class="md-nav__link">
+        Aiven Project
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="resources/redis.html" class="md-nav__link">
+        Redis
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="resources/service-integrations.html" class="md-nav__link">
+        Service Integrations
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_7" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7_7" id="__nav_7_7_label" tabindex="0">
+          Kafka
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_7_7">
+          <span class="md-nav__icon md-icon"></span>
+          Kafka
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="resources/kafka/index.html" class="md-nav__link">
+        Kafka
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="resources/kafka/connect.html" class="md-nav__link">
+        Kafka Connect
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="resources/kafka/schema.html" class="md-nav__link">
+        Kafka Schema
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#aiveniov1alpha1" class="md-nav__link">
+    aiven.io/v1alpha1
+  </a>
+  
+    <nav class="md-nav" aria-label="aiven.io/v1alpha1">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#authsecretreference" class="md-nav__link">
+    AuthSecretReference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cassandra" class="md-nav__link">
+    Cassandra
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cassandraspec" class="md-nav__link">
+    CassandraSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouse" class="md-nav__link">
+    Clickhouse
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhousespec" class="md-nav__link">
+    ClickhouseSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouseuser" class="md-nav__link">
+    ClickhouseUser
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouseuserspec" class="md-nav__link">
+    ClickhouseUserSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouseuserstatus" class="md-nav__link">
+    ClickhouseUserStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conninfosecrettarget" class="md-nav__link">
+    ConnInfoSecretTarget
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connectionpool" class="md-nav__link">
+    ConnectionPool
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connectionpoolspec" class="md-nav__link">
+    ConnectionPoolSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connectionpoolstatus" class="md-nav__link">
+    ConnectionPoolStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database" class="md-nav__link">
+    Database
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#databasespec" class="md-nav__link">
+    DatabaseSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#databasestatus" class="md-nav__link">
+    DatabaseStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grafana" class="md-nav__link">
+    Grafana
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grafanaspec" class="md-nav__link">
+    GrafanaSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafka" class="md-nav__link">
+    Kafka
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaacl" class="md-nav__link">
+    KafkaACL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaaclspec" class="md-nav__link">
+    KafkaACLSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaaclstatus" class="md-nav__link">
+    KafkaACLStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaconnect" class="md-nav__link">
+    KafkaConnect
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaconnectspec" class="md-nav__link">
+    KafkaConnectSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaconnector" class="md-nav__link">
+    KafkaConnector
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaconnectorpluginstatus" class="md-nav__link">
+    KafkaConnectorPluginStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaconnectorspec" class="md-nav__link">
+    KafkaConnectorSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaconnectorstatus" class="md-nav__link">
+    KafkaConnectorStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaconnectortasksstatus" class="md-nav__link">
+    KafkaConnectorTasksStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaschema" class="md-nav__link">
+    KafkaSchema
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaschemaspec" class="md-nav__link">
+    KafkaSchemaSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaschemastatus" class="md-nav__link">
+    KafkaSchemaStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkaspec" class="md-nav__link">
+    KafkaSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkatopic" class="md-nav__link">
+    KafkaTopic
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkatopicconfig" class="md-nav__link">
+    KafkaTopicConfig
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkatopicspec" class="md-nav__link">
+    KafkaTopicSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkatopicstatus" class="md-nav__link">
+    KafkaTopicStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafkatopictag" class="md-nav__link">
+    KafkaTopicTag
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mysql" class="md-nav__link">
+    MySQL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mysqlspec" class="md-nav__link">
+    MySQLSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opensearch" class="md-nav__link">
+    OpenSearch
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opensearchspec" class="md-nav__link">
+    OpenSearchSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgresql" class="md-nav__link">
+    PostgreSQL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgresqlspec" class="md-nav__link">
+    PostgreSQLSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project" class="md-nav__link">
+    Project
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projectspec" class="md-nav__link">
+    ProjectSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projectstatus" class="md-nav__link">
+    ProjectStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projectvpc" class="md-nav__link">
+    ProjectVPC
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projectvpcspec" class="md-nav__link">
+    ProjectVPCSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#projectvpcstatus" class="md-nav__link">
+    ProjectVPCStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#redis" class="md-nav__link">
+    Redis
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#redisspec" class="md-nav__link">
+    RedisSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resourcereference" class="md-nav__link">
+    ResourceReference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resourcereferenceobject" class="md-nav__link">
+    ResourceReferenceObject
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#servicecommonspec" class="md-nav__link">
+    ServiceCommonSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceintegration" class="md-nav__link">
+    ServiceIntegration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceintegrationdatadoguserconfig" class="md-nav__link">
+    ServiceIntegrationDatadogUserConfig
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceintegrationitem" class="md-nav__link">
+    ServiceIntegrationItem
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceintegrationkafkaconnect" class="md-nav__link">
+    ServiceIntegrationKafkaConnect
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceintegrationkafkaconnectuserconfig" class="md-nav__link">
+    ServiceIntegrationKafkaConnectUserConfig
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceintegrationkafkalogsuserconfig" class="md-nav__link">
+    ServiceIntegrationKafkaLogsUserConfig
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceintegrationmetricsuserconfig" class="md-nav__link">
+    ServiceIntegrationMetricsUserConfig
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceintegrationspec" class="md-nav__link">
+    ServiceIntegrationSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceintegrationstatus" class="md-nav__link">
+    ServiceIntegrationStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#servicestatus" class="md-nav__link">
+    ServiceStatus
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceuser" class="md-nav__link">
+    ServiceUser
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceuserspec" class="md-nav__link">
+    ServiceUserSpec
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceuserstatus" class="md-nav__link">
+    ServiceUserStatus
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    References
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+  <h1>API Reference</h1>
+
+<h2 id="aiveniov1alpha1">aiven.io/v1alpha1</h2>
+<h3 id="authsecretreference">AuthSecretReference</h3>
+<p>AuthSecretReference references a Secret containing an Aiven authentication token  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code> <br>string</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>key</code> <br>string</td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cassandra">Cassandra</h3>
+<p>Cassandra is the Schema for the cassandras API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#cassandraspec">CassandraSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#servicestatus">ServiceStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cassandraspec">CassandraSpec</h3>
+<p>CassandraSpec defines the desired state of Cassandra  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ServiceCommonSpec</code> <br><a href="#servicecommonspec">ServiceCommonSpec</a></td>
+<td>(Members of <code>ServiceCommonSpec</code>are embedded into this type.)</td>
+</tr>
+<tr>
+<td><code>disk_space</code> <br>string</td>
+<td>The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+<tr>
+<td><code>connInfoSecretTarget</code> <br><a href="#conninfosecrettarget">ConnInfoSecretTarget</a></td>
+<td>Information regarding secret creation</td>
+</tr>
+<tr>
+<td><code>userConfig</code> <br>github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/cassandra.CassandraUserConfig</td>
+<td>Cassandra specific user configuration options</td>
+</tr>
+</tbody>
+</table>
+<h3 id="clickhouse">Clickhouse</h3>
+<p>Clickhouse is the Schema for the clickhouses API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#clickhousespec">ClickhouseSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#servicestatus">ServiceStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="clickhousespec">ClickhouseSpec</h3>
+<p>ClickhouseSpec defines the desired state of Clickhouse  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ServiceCommonSpec</code> <br><a href="#servicecommonspec">ServiceCommonSpec</a></td>
+<td>(Members of <code>ServiceCommonSpec</code>are embedded into this type.)</td>
+</tr>
+<tr>
+<td><code>disk_space</code> <br>string</td>
+<td>The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+<tr>
+<td><code>connInfoSecretTarget</code> <br><a href="#conninfosecrettarget">ConnInfoSecretTarget</a></td>
+<td>Information regarding secret creation</td>
+</tr>
+<tr>
+<td><code>userConfig</code> <br>github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/clickhouse.ClickhouseUserConfig</td>
+<td>OpenSearch specific user configuration options</td>
+</tr>
+</tbody>
+</table>
+<h3 id="clickhouseuser">ClickhouseUser</h3>
+<p>ClickhouseUser is the Schema for the clickhouseusers API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#clickhouseuserspec">ClickhouseUserSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#clickhouseuserstatus">ClickhouseUserStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="clickhouseuserspec">ClickhouseUserSpec</h3>
+<p>ClickhouseUserSpec defines the desired state of ClickhouseUser  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>project</code> <br>string</td>
+<td>Project to link the user to</td>
+</tr>
+<tr>
+<td><code>serviceName</code> <br>string</td>
+<td>Service to link the user to</td>
+</tr>
+<tr>
+<td><code>authentication</code> <br>string</td>
+<td>Authentication details</td>
+</tr>
+<tr>
+<td><code>connInfoSecretTarget</code> <br><a href="#conninfosecrettarget">ConnInfoSecretTarget</a></td>
+<td>Information regarding secret creation</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+</tbody>
+</table>
+<h3 id="clickhouseuserstatus">ClickhouseUserStatus</h3>
+<p>ClickhouseUserStatus defines the observed state of ClickhouseUser  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>uuid</code> <br>string</td>
+<td>Clickhouse user UUID</td>
+</tr>
+<tr>
+<td><code>conditions</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#condition-v1-meta">[]Kubernetes meta/v1.Condition</a></td>
+<td>Conditions represent the latest available observations of an ClickhouseUser state</td>
+</tr>
+</tbody>
+</table>
+<h3 id="conninfosecrettarget">ConnInfoSecretTarget</h3>
+<p>ConnInfoSecretTarget contains information secret name  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code> <br>string</td>
+<td>Name of the Secret resource to be created</td>
+</tr>
+</tbody>
+</table>
+<h3 id="connectionpool">ConnectionPool</h3>
+<p>ConnectionPool is the Schema for the connectionpools API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#connectionpoolspec">ConnectionPoolSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#connectionpoolstatus">ConnectionPoolStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="connectionpoolspec">ConnectionPoolSpec</h3>
+<p>ConnectionPoolSpec defines the desired state of ConnectionPool  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>project</code> <br>string</td>
+<td>Target project.</td>
+</tr>
+<tr>
+<td><code>serviceName</code> <br>string</td>
+<td>Service name.</td>
+</tr>
+<tr>
+<td><code>databaseName</code> <br>string</td>
+<td>Name of the database the pool connects to</td>
+</tr>
+<tr>
+<td><code>username</code> <br>string</td>
+<td>Name of the service user used to connect to the database</td>
+</tr>
+<tr>
+<td><code>poolSize</code> <br>int</td>
+<td>Number of connections the pool may create towards the backend server</td>
+</tr>
+<tr>
+<td><code>poolMode</code> <br>string</td>
+<td>Mode the pool operates in (session, transaction, statement)</td>
+</tr>
+<tr>
+<td><code>connInfoSecretTarget</code> <br><a href="#conninfosecrettarget">ConnInfoSecretTarget</a></td>
+<td>Information regarding secret creation</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+</tbody>
+</table>
+<h3 id="connectionpoolstatus">ConnectionPoolStatus</h3>
+<p>ConnectionPoolStatus defines the observed state of ConnectionPool  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>conditions</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#condition-v1-meta">[]Kubernetes meta/v1.Condition</a></td>
+<td>Conditions represent the latest available observations of an ConnectionPool state</td>
+</tr>
+</tbody>
+</table>
+<h3 id="database">Database</h3>
+<p>Database is the Schema for the databases API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#databasespec">DatabaseSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#databasestatus">DatabaseStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="databasespec">DatabaseSpec</h3>
+<p>DatabaseSpec defines the desired state of Database  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>project</code> <br>string</td>
+<td>Project to link the database to</td>
+</tr>
+<tr>
+<td><code>serviceName</code> <br>string</td>
+<td>PostgreSQL service to link the database to</td>
+</tr>
+<tr>
+<td><code>lcCollate</code> <br>string</td>
+<td>Default string sort order (LC_COLLATE) of the database. Default value: en_US.UTF-8</td>
+</tr>
+<tr>
+<td><code>lcCtype</code> <br>string</td>
+<td>Default character classification (LC_CTYPE) of the database. Default value: en_US.UTF-8</td>
+</tr>
+<tr>
+<td><code>terminationProtection</code> <br>bool</td>
+<td>It is a Kubernetes side deletion protections, which prevents the databasefrom being deleted by Kubernetes. It is recommended to enable this for any production databases containing critical data.</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+</tbody>
+</table>
+<h3 id="databasestatus">DatabaseStatus</h3>
+<p>DatabaseStatus defines the observed state of Database  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>conditions</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#condition-v1-meta">[]Kubernetes meta/v1.Condition</a></td>
+<td>Conditions represent the latest available observations of an Database state</td>
+</tr>
+</tbody>
+</table>
+<h3 id="grafana">Grafana</h3>
+<p>Grafana is the Schema for the grafanas API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#grafanaspec">GrafanaSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#servicestatus">ServiceStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="grafanaspec">GrafanaSpec</h3>
+<p>GrafanaSpec defines the desired state of Grafana  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ServiceCommonSpec</code> <br><a href="#servicecommonspec">ServiceCommonSpec</a></td>
+<td>(Members of <code>ServiceCommonSpec</code>are embedded into this type.)</td>
+</tr>
+<tr>
+<td><code>disk_space</code> <br>string</td>
+<td>The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+<tr>
+<td><code>connInfoSecretTarget</code> <br><a href="#conninfosecrettarget">ConnInfoSecretTarget</a></td>
+<td>Information regarding secret creation</td>
+</tr>
+<tr>
+<td><code>userConfig</code> <br>github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/grafana.GrafanaUserConfig</td>
+<td>Cassandra specific user configuration options</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafka">Kafka</h3>
+<p>Kafka is the Schema for the kafkas API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#kafkaspec">KafkaSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#servicestatus">ServiceStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkaacl">KafkaACL</h3>
+<p>KafkaACL is the Schema for the kafkaacls API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#kafkaaclspec">KafkaACLSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#kafkaaclstatus">KafkaACLStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkaaclspec">KafkaACLSpec</h3>
+<p>KafkaACLSpec defines the desired state of KafkaACL  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>project</code> <br>string</td>
+<td>Project to link the Kafka ACL to</td>
+</tr>
+<tr>
+<td><code>serviceName</code> <br>string</td>
+<td>Service to link the Kafka ACL to</td>
+</tr>
+<tr>
+<td><code>permission</code> <br>string</td>
+<td>Kafka permission to grant (admin, read, readwrite, write)</td>
+</tr>
+<tr>
+<td><code>topic</code> <br>string</td>
+<td>Topic name pattern for the ACL entry</td>
+</tr>
+<tr>
+<td><code>username</code> <br>string</td>
+<td>Username pattern for the ACL entry</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkaaclstatus">KafkaACLStatus</h3>
+<p>KafkaACLStatus defines the observed state of KafkaACL  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>conditions</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#condition-v1-meta">[]Kubernetes meta/v1.Condition</a></td>
+<td>Conditions represent the latest available observations of an KafkaACL state</td>
+</tr>
+<tr>
+<td><code>id</code> <br>string</td>
+<td>Kafka ACL ID</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkaconnect">KafkaConnect</h3>
+<p>KafkaConnect is the Schema for the kafkaconnects API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#kafkaconnectspec">KafkaConnectSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#servicestatus">ServiceStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkaconnectspec">KafkaConnectSpec</h3>
+<p>KafkaConnectSpec defines the desired state of KafkaConnect  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ServiceCommonSpec</code> <br><a href="#servicecommonspec">ServiceCommonSpec</a></td>
+<td>(Members of <code>ServiceCommonSpec</code>are embedded into this type.)</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+<tr>
+<td><code>userConfig</code> <br>github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/kafka_connect.KafkaConnectUserConfig</td>
+<td>PostgreSQL specific user configuration options</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkaconnector">KafkaConnector</h3>
+<p>KafkaConnector is the Schema for the kafkaconnectors API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#kafkaconnectorspec">KafkaConnectorSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#kafkaconnectorstatus">KafkaConnectorStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkaconnectorpluginstatus">KafkaConnectorPluginStatus</h3>
+<p>KafkaConnectorPluginStatus describes the observed state of a Kafka Connector Plugin  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>author</code> <br>string</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>class</code> <br>string</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>docUrl</code> <br>string</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>title</code> <br>string</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>type</code> <br>string</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>version</code> <br>string</td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkaconnectorspec">KafkaConnectorSpec</h3>
+<p>KafkaConnectorSpec defines the desired state of KafkaConnector  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>project</code> <br>string</td>
+<td>Target project.</td>
+</tr>
+<tr>
+<td><code>serviceName</code> <br>string</td>
+<td>Service name.</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+<tr>
+<td><code>connectorClass</code> <br>string</td>
+<td>The Java class of the connector.</td>
+</tr>
+<tr>
+<td><code>userConfig</code> <br>map[string]string</td>
+<td>The connector specific configurationTo build config values from secret the template function <code>{{ fromSecret &amp;#34;name&amp;#34; &amp;#34;key&amp;#34; }}</code> is provided when interpreting the keys</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkaconnectorstatus">KafkaConnectorStatus</h3>
+<p>KafkaConnectorStatus defines the observed state of KafkaConnector  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>conditions</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#condition-v1-meta">[]Kubernetes meta/v1.Condition</a></td>
+<td>Conditions represent the latest available observations of an kafka connector state</td>
+</tr>
+<tr>
+<td><code>state</code> <br>string</td>
+<td>Connector state</td>
+</tr>
+<tr>
+<td><code>pluginStatus</code> <br><a href="#kafkaconnectorpluginstatus">KafkaConnectorPluginStatus</a></td>
+<td>PluginStatus contains metadata about the configured connector plugin</td>
+</tr>
+<tr>
+<td><code>tasksStatus</code> <br><a href="#kafkaconnectortasksstatus">KafkaConnectorTasksStatus</a></td>
+<td>TasksStatus contains metadata about the running tasks</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkaconnectortasksstatus">KafkaConnectorTasksStatus</h3>
+<p>KafkaConnectorTasksStatus describes the observed state of the Kafka Connector Tasks  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>total</code> <br>uint</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>running</code> <br>uint</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>failed</code> <br>uint</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>paused</code> <br>uint</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>unassigned</code> <br>uint</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>unknown</code> <br>uint</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>stackTrace</code> <br>string</td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkaschema">KafkaSchema</h3>
+<p>KafkaSchema is the Schema for the kafkaschemas API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#kafkaschemaspec">KafkaSchemaSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#kafkaschemastatus">KafkaSchemaStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkaschemaspec">KafkaSchemaSpec</h3>
+<p>KafkaSchemaSpec defines the desired state of KafkaSchema  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>project</code> <br>string</td>
+<td>Project to link the Kafka Schema to</td>
+</tr>
+<tr>
+<td><code>serviceName</code> <br>string</td>
+<td>Service to link the Kafka Schema to</td>
+</tr>
+<tr>
+<td><code>subjectName</code> <br>string</td>
+<td>Kafka Schema Subject name</td>
+</tr>
+<tr>
+<td><code>schema</code> <br>string</td>
+<td>Kafka Schema configuration should be a valid Avro Schema JSON format</td>
+</tr>
+<tr>
+<td><code>compatibilityLevel</code> <br>string</td>
+<td>Kafka Schemas compatibility level</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkaschemastatus">KafkaSchemaStatus</h3>
+<p>KafkaSchemaStatus defines the observed state of KafkaSchema  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>conditions</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#condition-v1-meta">[]Kubernetes meta/v1.Condition</a></td>
+<td>Conditions represent the latest available observations of an KafkaSchema state</td>
+</tr>
+<tr>
+<td><code>version</code> <br>int</td>
+<td>Kafka Schema configuration version</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkaspec">KafkaSpec</h3>
+<p>KafkaSpec defines the desired state of Kafka  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ServiceCommonSpec</code> <br><a href="#servicecommonspec">ServiceCommonSpec</a></td>
+<td>(Members of <code>ServiceCommonSpec</code>are embedded into this type.)</td>
+</tr>
+<tr>
+<td><code>disk_space</code> <br>string</td>
+<td>The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+<tr>
+<td><code>connInfoSecretTarget</code> <br><a href="#conninfosecrettarget">ConnInfoSecretTarget</a></td>
+<td>Information regarding secret creation</td>
+</tr>
+<tr>
+<td><code>karapace</code> <br>bool</td>
+<td>Switch the service to use Karapace for schema registry and REST proxy</td>
+</tr>
+<tr>
+<td><code>userConfig</code> <br>github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/kafka.KafkaUserConfig</td>
+<td>Kafka specific user configuration options</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkatopic">KafkaTopic</h3>
+<p>KafkaTopic is the Schema for the kafkatopics API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#kafkatopicspec">KafkaTopicSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#kafkatopicstatus">KafkaTopicStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkatopicconfig">KafkaTopicConfig</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cleanup_policy</code> <br>string</td>
+<td>cleanup.policy value</td>
+</tr>
+<tr>
+<td><code>compression_type</code> <br>string</td>
+<td>compression.type value</td>
+</tr>
+<tr>
+<td><code>delete_retention_ms</code> <br>int64</td>
+<td>delete.retention.ms value</td>
+</tr>
+<tr>
+<td><code>file_delete_delay_ms</code> <br>int64</td>
+<td>file.delete.delay.ms value</td>
+</tr>
+<tr>
+<td><code>flush_messages</code> <br>int64</td>
+<td>flush.messages value</td>
+</tr>
+<tr>
+<td><code>flush_ms</code> <br>int64</td>
+<td>flush.ms value</td>
+</tr>
+<tr>
+<td><code>index_interval_bytes</code> <br>int64</td>
+<td>index.interval.bytes value</td>
+</tr>
+<tr>
+<td><code>max_compaction_lag_ms</code> <br>int64</td>
+<td>max.compaction.lag.ms value</td>
+</tr>
+<tr>
+<td><code>max_message_bytes</code> <br>int64</td>
+<td>max.message.bytes value</td>
+</tr>
+<tr>
+<td><code>message_downconversion_enable</code> <br>bool</td>
+<td>message.downconversion.enable value</td>
+</tr>
+<tr>
+<td><code>message_format_version</code> <br>string</td>
+<td>message.format.version value</td>
+</tr>
+<tr>
+<td><code>message_timestamp_difference_max_ms</code> <br>int64</td>
+<td>message.timestamp.difference.max.ms value</td>
+</tr>
+<tr>
+<td><code>message_timestamp_type</code> <br>string</td>
+<td>message.timestamp.type value</td>
+</tr>
+<tr>
+<td><code>min_cleanable_dirty_ratio</code> <br>float64</td>
+<td>min.cleanable.dirty.ratio value</td>
+</tr>
+<tr>
+<td><code>min_compaction_lag_ms</code> <br>int64</td>
+<td>min.compaction.lag.ms value</td>
+</tr>
+<tr>
+<td><code>min_insync_replicas</code> <br>int64</td>
+<td>min.insync.replicas value</td>
+</tr>
+<tr>
+<td><code>preallocate</code> <br>bool</td>
+<td>preallocate value</td>
+</tr>
+<tr>
+<td><code>retention_bytes</code> <br>int64</td>
+<td>retention.bytes value</td>
+</tr>
+<tr>
+<td><code>retention_ms</code> <br>int64</td>
+<td>retention.ms value</td>
+</tr>
+<tr>
+<td><code>segment_bytes</code> <br>int64</td>
+<td>segment.bytes value</td>
+</tr>
+<tr>
+<td><code>segment_index_bytes</code> <br>int64</td>
+<td>segment.index.bytes value</td>
+</tr>
+<tr>
+<td><code>segment_jitter_ms</code> <br>int64</td>
+<td>segment.jitter.ms value</td>
+</tr>
+<tr>
+<td><code>segment_ms</code> <br>int64</td>
+<td>segment.ms value</td>
+</tr>
+<tr>
+<td><code>unclean_leader_election_enable</code> <br>bool</td>
+<td>unclean.leader.election.enable value</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkatopicspec">KafkaTopicSpec</h3>
+<p>KafkaTopicSpec defines the desired state of KafkaTopic  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>project</code> <br>string</td>
+<td>Target project.</td>
+</tr>
+<tr>
+<td><code>serviceName</code> <br>string</td>
+<td>Service name.</td>
+</tr>
+<tr>
+<td><code>partitions</code> <br>int</td>
+<td>Number of partitions to create in the topic</td>
+</tr>
+<tr>
+<td><code>replication</code> <br>int</td>
+<td>Replication factor for the topic</td>
+</tr>
+<tr>
+<td><code>tags</code> <br><a href="#kafkatopictag">[]KafkaTopicTag</a></td>
+<td>Kafka topic tags</td>
+</tr>
+<tr>
+<td><code>config</code> <br><a href="#kafkatopicconfig">KafkaTopicConfig</a></td>
+<td>Kafka topic configuration</td>
+</tr>
+<tr>
+<td><code>termination_protection</code> <br>bool</td>
+<td>It is a Kubernetes side deletion protections, which prevents the kafka topicfrom being deleted by Kubernetes. It is recommended to enable this for any production databases containing critical data.</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkatopicstatus">KafkaTopicStatus</h3>
+<p>KafkaTopicStatus defines the observed state of KafkaTopic  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>conditions</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#condition-v1-meta">[]Kubernetes meta/v1.Condition</a></td>
+<td>Conditions represent the latest available observations of an KafkaTopic state</td>
+</tr>
+<tr>
+<td><code>state</code> <br>string</td>
+<td>State represents the state of the kafka topic</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kafkatopictag">KafkaTopicTag</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>key</code> <br>string</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>value</code> <br>string</td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mysql">MySQL</h3>
+<p>MySQL is the Schema for the mysqls API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#mysqlspec">MySQLSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#servicestatus">ServiceStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mysqlspec">MySQLSpec</h3>
+<p>MySQLSpec defines the desired state of MySQL  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ServiceCommonSpec</code> <br><a href="#servicecommonspec">ServiceCommonSpec</a></td>
+<td>(Members of <code>ServiceCommonSpec</code>are embedded into this type.)</td>
+</tr>
+<tr>
+<td><code>disk_space</code> <br>string</td>
+<td>The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+<tr>
+<td><code>connInfoSecretTarget</code> <br><a href="#conninfosecrettarget">ConnInfoSecretTarget</a></td>
+<td>Information regarding secret creation</td>
+</tr>
+<tr>
+<td><code>userConfig</code> <br>github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/mysql.MysqlUserConfig</td>
+<td>MySQL specific user configuration options</td>
+</tr>
+</tbody>
+</table>
+<h3 id="opensearch">OpenSearch</h3>
+<p>OpenSearch is the Schema for the opensearches API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#opensearchspec">OpenSearchSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#servicestatus">ServiceStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="opensearchspec">OpenSearchSpec</h3>
+<p>OpenSearchSpec defines the desired state of OpenSearch  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ServiceCommonSpec</code> <br><a href="#servicecommonspec">ServiceCommonSpec</a></td>
+<td>(Members of <code>ServiceCommonSpec</code>are embedded into this type.)</td>
+</tr>
+<tr>
+<td><code>disk_space</code> <br>string</td>
+<td>The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+<tr>
+<td><code>connInfoSecretTarget</code> <br><a href="#conninfosecrettarget">ConnInfoSecretTarget</a></td>
+<td>Information regarding secret creation</td>
+</tr>
+<tr>
+<td><code>userConfig</code> <br>github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/opensearch.OpensearchUserConfig</td>
+<td>OpenSearch specific user configuration options</td>
+</tr>
+</tbody>
+</table>
+<h3 id="postgresql">PostgreSQL</h3>
+<p>PostgreSQL is the Schema for the postgresql API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#postgresqlspec">PostgreSQLSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#servicestatus">ServiceStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="postgresqlspec">PostgreSQLSpec</h3>
+<p>PostgreSQLSpec defines the desired state of postgres instance  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ServiceCommonSpec</code> <br><a href="#servicecommonspec">ServiceCommonSpec</a></td>
+<td>(Members of <code>ServiceCommonSpec</code>are embedded into this type.)</td>
+</tr>
+<tr>
+<td><code>disk_space</code> <br>string</td>
+<td>The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+<tr>
+<td><code>connInfoSecretTarget</code> <br><a href="#conninfosecrettarget">ConnInfoSecretTarget</a></td>
+<td>Information regarding secret creation</td>
+</tr>
+<tr>
+<td><code>userConfig</code> <br>github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/pg.PgUserConfig</td>
+<td>PostgreSQL specific user configuration options</td>
+</tr>
+</tbody>
+</table>
+<h3 id="project">Project</h3>
+<p>Project is the Schema for the projects API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#projectspec">ProjectSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#projectstatus">ProjectStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="projectspec">ProjectSpec</h3>
+<p>ProjectSpec defines the desired state of Project  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cardId</code> <br>string</td>
+<td>Credit card ID; The ID may be either last 4 digits of the card or the actual ID</td>
+</tr>
+<tr>
+<td><code>accountId</code> <br>string</td>
+<td>Account ID</td>
+</tr>
+<tr>
+<td><code>billingAddress</code> <br>string</td>
+<td>Billing name and address of the project</td>
+</tr>
+<tr>
+<td><code>billingEmails</code> <br>[]string</td>
+<td>Billing contact emails of the project</td>
+</tr>
+<tr>
+<td><code>billingCurrency</code> <br>string</td>
+<td>Billing currency</td>
+</tr>
+<tr>
+<td><code>billingExtraText</code> <br>string</td>
+<td>Extra text to be included in all project invoices, e.g. purchase order or cost center number</td>
+</tr>
+<tr>
+<td><code>billingGroupId</code> <br>string</td>
+<td>BillingGroup ID</td>
+</tr>
+<tr>
+<td><code>countryCode</code> <br>string</td>
+<td>Billing country code of the project</td>
+</tr>
+<tr>
+<td><code>cloud</code> <br>string</td>
+<td>Target cloud, example: aws-eu-central-1</td>
+</tr>
+<tr>
+<td><code>copyFromProject</code> <br>string</td>
+<td>Project name from which to copy settings to the new project</td>
+</tr>
+<tr>
+<td><code>technicalEmails</code> <br>[]string</td>
+<td>Technical contact emails of the project</td>
+</tr>
+<tr>
+<td><code>connInfoSecretTarget</code> <br><a href="#conninfosecrettarget">ConnInfoSecretTarget</a></td>
+<td>Information regarding secret creation</td>
+</tr>
+<tr>
+<td><code>tags</code> <br>map[string]string</td>
+<td>Tags are key-value pairs that allow you to categorize projects</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+</tbody>
+</table>
+<h3 id="projectstatus">ProjectStatus</h3>
+<p>ProjectStatus defines the observed state of Project  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>conditions</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#condition-v1-meta">[]Kubernetes meta/v1.Condition</a></td>
+<td>Conditions represent the latest available observations of an Project state</td>
+</tr>
+<tr>
+<td><code>vatId</code> <br>string</td>
+<td>EU VAT Identification Number</td>
+</tr>
+<tr>
+<td><code>availableCredits</code> <br>string</td>
+<td>Available credirs</td>
+</tr>
+<tr>
+<td><code>country</code> <br>string</td>
+<td>Country name</td>
+</tr>
+<tr>
+<td><code>estimatedBalance</code> <br>string</td>
+<td>Estimated balance</td>
+</tr>
+<tr>
+<td><code>paymentMethod</code> <br>string</td>
+<td>Payment method name</td>
+</tr>
+</tbody>
+</table>
+<h3 id="projectvpc">ProjectVPC</h3>
+<p>ProjectVPC is the Schema for the projectvpcs API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#projectvpcspec">ProjectVPCSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#projectvpcstatus">ProjectVPCStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="projectvpcspec">ProjectVPCSpec</h3>
+<p>ProjectVPCSpec defines the desired state of ProjectVPC  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>project</code> <br>string</td>
+<td>The project the VPC belongs to</td>
+</tr>
+<tr>
+<td><code>cloudName</code> <br>string</td>
+<td>Cloud the VPC is in</td>
+</tr>
+<tr>
+<td><code>networkCidr</code> <br>string</td>
+<td>Network address range used by the VPC like 192.168.0.0/24</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+</tbody>
+</table>
+<h3 id="projectvpcstatus">ProjectVPCStatus</h3>
+<p>ProjectVPCStatus defines the observed state of ProjectVPC  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>conditions</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#condition-v1-meta">[]Kubernetes meta/v1.Condition</a></td>
+<td>Conditions represent the latest available observations of an ProjectVPC state</td>
+</tr>
+<tr>
+<td><code>state</code> <br>string</td>
+<td>State of VPC</td>
+</tr>
+<tr>
+<td><code>id</code> <br>string</td>
+<td>Project VPC id</td>
+</tr>
+</tbody>
+</table>
+<h3 id="redis">Redis</h3>
+<p>Redis is the Schema for the redis API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#redisspec">RedisSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#servicestatus">ServiceStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="redisspec">RedisSpec</h3>
+<p>RedisSpec defines the desired state of Redis  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ServiceCommonSpec</code> <br><a href="#servicecommonspec">ServiceCommonSpec</a></td>
+<td>(Members of <code>ServiceCommonSpec</code>are embedded into this type.)</td>
+</tr>
+<tr>
+<td><code>disk_space</code> <br>string</td>
+<td>The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+<tr>
+<td><code>connInfoSecretTarget</code> <br><a href="#conninfosecrettarget">ConnInfoSecretTarget</a></td>
+<td>Information regarding secret creation</td>
+</tr>
+<tr>
+<td><code>userConfig</code> <br>github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/redis.RedisUserConfig</td>
+<td>Redis specific user configuration options</td>
+</tr>
+</tbody>
+</table>
+<h3 id="resourcereference">ResourceReference</h3>
+<p>ResourceReference is a generic reference to another resource.Resource referring to another (dependency) won&#39;t start reconciliation until dependency is not ready   </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code> <br>string</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>namespace</code> <br>string</td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="resourcereferenceobject">ResourceReferenceObject</h3>
+<p>ResourceReferenceObject is a composite &#34;key&#34; to resourceGroupVersionKind is for resource &#34;type&#34;: GroupVersionKind{Group: &#34;aiven.io&#34;, Version: &#34;v1alpha1&#34;, Kind: &#34;Kafka&#34;} NamespacedName is for specific instance: NamespacedName{Name: &#34;my-kafka&#34;, Namespace: &#34;default&#34;}   </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GroupVersionKind</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#groupversionkind-schema-runtime">k8s.io/apimachinery/pkg/runtime/schema.GroupVersionKind</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>NamespacedName</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#namespacedname-types-pkg">k8s.io/apimachinery/pkg/types.NamespacedName</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="servicecommonspec">ServiceCommonSpec</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>project</code> <br>string</td>
+<td>Target project.</td>
+</tr>
+<tr>
+<td><code>plan</code> <br>string</td>
+<td>Subscription plan.</td>
+</tr>
+<tr>
+<td><code>cloudName</code> <br>string</td>
+<td>Cloud the service runs in.</td>
+</tr>
+<tr>
+<td><code>projectVpcId</code> <br>string</td>
+<td>Identifier of the VPC the service should be in, if any.</td>
+</tr>
+<tr>
+<td><code>projectVPCRef</code> <br><a href="#resourcereference">ResourceReference</a></td>
+<td>ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically</td>
+</tr>
+<tr>
+<td><code>maintenanceWindowDow</code> <br>string</td>
+<td>Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.</td>
+</tr>
+<tr>
+<td><code>maintenanceWindowTime</code> <br>string</td>
+<td>Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.</td>
+</tr>
+<tr>
+<td><code>terminationProtection</code> <br>bool</td>
+<td>Prevent service from being deleted. It is recommended to have this enabled for all services.</td>
+</tr>
+<tr>
+<td><code>tags</code> <br>map[string]string</td>
+<td>Tags are key-value pairs that allow you to categorize services.</td>
+</tr>
+<tr>
+<td><code>serviceIntegrations</code> <br><a href="#aiven.io/v1alpha1.*./api/v1alpha1.ServiceIntegrationItem">[]*./api/v1alpha1.ServiceIntegrationItem</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="serviceintegration">ServiceIntegration</h3>
+<p>ServiceIntegration is the Schema for the serviceintegrations API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#serviceintegrationspec">ServiceIntegrationSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#serviceintegrationstatus">ServiceIntegrationStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="serviceintegrationdatadoguserconfig">ServiceIntegrationDatadogUserConfig</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>exclude_consumer_groups</code> <br>[]string</td>
+<td>Consumer groups to exclude</td>
+</tr>
+<tr>
+<td><code>exclude_topics</code> <br>[]string</td>
+<td>List of topics to exclude</td>
+</tr>
+<tr>
+<td><code>include_consumer_groups</code> <br>[]string</td>
+<td>Consumer groups to include</td>
+</tr>
+<tr>
+<td><code>include_topics</code> <br>[]string</td>
+<td>Topics to include</td>
+</tr>
+<tr>
+<td><code>kafka_custom_metrics</code> <br>[]string</td>
+<td>List of custom metrics</td>
+</tr>
+</tbody>
+</table>
+<h3 id="serviceintegrationitem">ServiceIntegrationItem</h3>
+<p>ServiceIntegrationItem Service integrations to specify when creating a service. Not applied after initial service creation  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>integrationType</code> <br>string</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>sourceServiceName</code> <br>string</td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="serviceintegrationkafkaconnect">ServiceIntegrationKafkaConnect</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>config_storage_topic</code> <br>string</td>
+<td>The name of the topic where connector and task configuration data are stored. This must be the same for all workers with the same group_id.</td>
+</tr>
+<tr>
+<td><code>group_id</code> <br>string</td>
+<td>A unique string that identifies the Connect cluster group this worker belongs to.</td>
+</tr>
+<tr>
+<td><code>offset_storage_topic</code> <br>string</td>
+<td>The name of the topic where connector and task configuration offsets are stored. This must be the same for all workers with the same group_id.</td>
+</tr>
+<tr>
+<td><code>status_storage_topic</code> <br>string</td>
+<td>The name of the topic where connector and task configuration status updates are stored.This must be the same for all workers with the same group_id.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="serviceintegrationkafkaconnectuserconfig">ServiceIntegrationKafkaConnectUserConfig</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kafka_connect</code> <br><a href="#serviceintegrationkafkaconnect">ServiceIntegrationKafkaConnect</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="serviceintegrationkafkalogsuserconfig">ServiceIntegrationKafkaLogsUserConfig</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kafka_topic</code> <br>string</td>
+<td>Topic name</td>
+</tr>
+</tbody>
+</table>
+<h3 id="serviceintegrationmetricsuserconfig">ServiceIntegrationMetricsUserConfig</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>database</code> <br>string</td>
+<td>Name of the database where to store metric datapoints. Only affects PostgreSQL destinations</td>
+</tr>
+<tr>
+<td><code>retention_days</code> <br>int</td>
+<td>Number of days to keep old metrics. Only affects PostgreSQL destinations. Set to 0 for no automatic cleanup. Defaults to 30 days.</td>
+</tr>
+<tr>
+<td><code>ro_username</code> <br>string</td>
+<td>Name of a user that can be used to read metrics. This will be used for Grafana integration (if enabled) to prevent Grafana users from making undesired changes. Only affects PostgreSQL destinations. Defaults to &#39;metrics_reader&#39;. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.</td>
+</tr>
+<tr>
+<td><code>username</code> <br>string</td>
+<td>Name of the user used to write metrics. Only affects PostgreSQL destinations. Defaults to &#39;metrics_writer&#39;. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="serviceintegrationspec">ServiceIntegrationSpec</h3>
+<p>ServiceIntegrationSpec defines the desired state of ServiceIntegration  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>project</code> <br>string</td>
+<td>Project the integration belongs to</td>
+</tr>
+<tr>
+<td><code>integrationType</code> <br>string</td>
+<td>Type of the service integration</td>
+</tr>
+<tr>
+<td><code>sourceEndpointID</code> <br>string</td>
+<td>Source endpoint for the integration (if any)</td>
+</tr>
+<tr>
+<td><code>sourceServiceName</code> <br>string</td>
+<td>Source service for the integration (if any)</td>
+</tr>
+<tr>
+<td><code>destinationEndpointId</code> <br>string</td>
+<td>Destination endpoint for the integration (if any)</td>
+</tr>
+<tr>
+<td><code>destinationServiceName</code> <br>string</td>
+<td>Destination service for the integration (if any)</td>
+</tr>
+<tr>
+<td><code>datadog</code> <br><a href="#serviceintegrationdatadoguserconfig">ServiceIntegrationDatadogUserConfig</a></td>
+<td>Datadog specific user configuration options</td>
+</tr>
+<tr>
+<td><code>kafkaConnect</code> <br><a href="#serviceintegrationkafkaconnectuserconfig">ServiceIntegrationKafkaConnectUserConfig</a></td>
+<td>Kafka Connect service configuration values</td>
+</tr>
+<tr>
+<td><code>kafkaLogs</code> <br><a href="#serviceintegrationkafkalogsuserconfig">ServiceIntegrationKafkaLogsUserConfig</a></td>
+<td>Kafka logs configuration values</td>
+</tr>
+<tr>
+<td><code>metrics</code> <br><a href="#serviceintegrationmetricsuserconfig">ServiceIntegrationMetricsUserConfig</a></td>
+<td>Metrics configuration values</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+</tbody>
+</table>
+<h3 id="serviceintegrationstatus">ServiceIntegrationStatus</h3>
+<p>ServiceIntegrationStatus defines the observed state of ServiceIntegration  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>conditions</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#condition-v1-meta">[]Kubernetes meta/v1.Condition</a></td>
+<td>Conditions represent the latest available observations of an ServiceIntegration state</td>
+</tr>
+<tr>
+<td><code>id</code> <br>string</td>
+<td>Service integration ID</td>
+</tr>
+</tbody>
+</table>
+<h3 id="servicestatus">ServiceStatus</h3>
+<p>ServiceStatus defines the observed state of service  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>conditions</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#condition-v1-meta">[]Kubernetes meta/v1.Condition</a></td>
+<td>Conditions represent the latest available observations of a service state</td>
+</tr>
+<tr>
+<td><code>state</code> <br>string</td>
+<td>Service state</td>
+</tr>
+</tbody>
+</table>
+<h3 id="serviceuser">ServiceUser</h3>
+<p>ServiceUser is the Schema for the serviceusers API  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta">Kubernetes meta/v1.ObjectMeta</a></td>
+<td>Refer to the Kubernetes API documentation for the fields of the <code>metadata</code> field.</td>
+</tr>
+<tr>
+<td><code>spec</code> <br><a href="#serviceuserspec">ServiceUserSpec</a></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>status</code> <br><a href="#serviceuserstatus">ServiceUserStatus</a></td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h3 id="serviceuserspec">ServiceUserSpec</h3>
+<p>ServiceUserSpec defines the desired state of ServiceUser  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>project</code> <br>string</td>
+<td>Project to link the user to</td>
+</tr>
+<tr>
+<td><code>serviceName</code> <br>string</td>
+<td>Service to link the user to</td>
+</tr>
+<tr>
+<td><code>authentication</code> <br>string</td>
+<td>Authentication details</td>
+</tr>
+<tr>
+<td><code>connInfoSecretTarget</code> <br><a href="#conninfosecrettarget">ConnInfoSecretTarget</a></td>
+<td>Information regarding secret creation</td>
+</tr>
+<tr>
+<td><code>authSecretRef</code> <br><a href="#authsecretreference">AuthSecretReference</a></td>
+<td>Authentication reference to Aiven token in a secret</td>
+</tr>
+</tbody>
+</table>
+<h3 id="serviceuserstatus">ServiceUserStatus</h3>
+<p>ServiceUserStatus defines the observed state of ServiceUser  </p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>conditions</code> <br><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#condition-v1-meta">[]Kubernetes meta/v1.Condition</a></td>
+<td>Conditions represent the latest available observations of an ServiceUser state</td>
+</tr>
+<tr>
+<td><code>type</code> <br>string</td>
+<td>Type of the user account</td>
+</tr>
+</tbody>
+</table>
+<h2 id="references">References</h2>
+<p>Generated with <a href="https://github.com/ahmetb/gen-crd-api-reference-docs">gen-crd-api-reference-docs</a>  on git commit <code>f7e2b8a</code>.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="index.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: " rel="prev">
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <div class="md-ellipsis">
+                <span class="md-footer__direction">
+                  Previous
+                </span>
+                
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="authentication.html" class="md-footer__link md-footer__link--next" aria-label="Next: Authenticating" rel="next">
+            <div class="md-footer__title">
+              <div class="md-ellipsis">
+                <span class="md-footer__direction">
+                  Next
+                </span>
+                Authenticating
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Aiven Team
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": ".", "features": ["navigation.top", "navigation.footer", "content.code.copy", "content.code.annotate"], "search": "assets/javascripts/workers/search.db81ec45.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="assets/javascripts/bundle.6df46069.min.js"></script>
+      
+    
+  </body>
+</html>
