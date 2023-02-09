@@ -173,14 +173,17 @@ undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/confi
 
 ##@ Docs
 
+.PHONY: generate-api-reference
+generate-api-reference: gen-crd-api-ref-docs  ## Generate CRDS api-reference
+	go run hack/genrefs/main.go
+
 .PHONY: serve-docs
-serve-docs: hugo ## Run Hugo live preview.
-	$(HUGO) serve docs -s docs
+serve-docs: ## Run live preview.
+	docker run --rm -it -p 8000:8000 -v ${PWD}/docs:/docs squidfunk/mkdocs-material
 
 .PHONY: generate-docs
-generate-docs: hugo gen-crd-api-ref-docs ## Generate the documentation website locally.
-	go run hack/genrefs/main.go
-	cd docs && $(HUGO) --minify -s .
+generate-docs: ## Generate the documentation website locally.
+	docker run --rm -it -v ${PWD}/docs:/docs squidfunk/mkdocs-material build
 
 ##@ Build Dependencies
 
@@ -195,7 +198,6 @@ KUSTOMIZE ?= $(LOCALBIN)/kustomize
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
 ENVTEST ?= $(LOCALBIN)/setup-envtest
 GINKGO=$(LOCALBIN)/ginkgo
-HUGO=$(LOCALBIN)/hugo
 GOLANGCILINT=$(LOCALBIN)/golangci-lint
 GEN_CRD_API_REF_DOCS=$(LOCALBIN)/gen-crd-api-reference-docs
 
@@ -203,7 +205,6 @@ GEN_CRD_API_REF_DOCS=$(LOCALBIN)/gen-crd-api-reference-docs
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v4.2.0
 CONTROLLER_TOOLS_VERSION ?= v0.9.2
-HUGO_VERSION ?= v0.110.0
 GINKGO_VERSION ?= v2.3.1
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
@@ -222,13 +223,8 @@ envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
 $(ENVTEST): $(LOCALBIN)
 	test -s $(LOCALBIN)/setup-envtest || GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
 
-.PHONY: hugo
-hugo: $(HUGO) ## Download hugo locally if necessary.
-$(HUGO): $(LOCALBIN)
-	test -s $(LOCALBIN)/hugo || GOBIN=$(LOCALBIN) go install --tags extended github.com/gohugoio/hugo@$(HUGO_VERSION)
-
 .PHONY: gen-crd-api-ref-docs
-gen-crd-api-ref-docs: $(GEN_CRD_API_REF_DOCS)  ## Download gen-crd-api-ref-docs hugo locally if necessary.
+gen-crd-api-ref-docs: $(GEN_CRD_API_REF_DOCS)  ## Download gen-crd-api-ref-docs locally if necessary.
 $(GEN_CRD_API_REF_DOCS): $(LOCALBIN)
 	test -s $(LOCALBIN)/gen-crd-api-reference-docs || GOBIN=$(LOCALBIN) go install github.com/ahmetb/gen-crd-api-reference-docs@latest
 

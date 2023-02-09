@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"strings"
 )
 
 const (
@@ -17,7 +18,7 @@ const (
 
 func main() {
 	const (
-		apiReferenceTargetFile = "docs/content/en/docs/api-reference/_index.md"
+		apiReferenceTargetFile = "docs/docs/api-reference.md"
 	)
 	f, err := os.OpenFile(apiReferenceTargetFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {
@@ -33,6 +34,8 @@ func main() {
 	if err != nil {
 		log.Fatal("unable to fix anchors: ", err)
 	}
+
+	renderedApiDocs = fixPadding(renderedApiDocs)
 
 	if _, err = f.Write(renderedApiDocs); err != nil {
 		log.Fatal("unable to write apid docs to file: ", err)
@@ -79,4 +82,32 @@ func fixInternalTypeAnchors(renderedApiDocs []byte) ([]byte, error) {
 
 		return builder.Bytes()
 	}), nil
+}
+
+// fixPadding headers, tables has to be padded with double new lines
+func fixPadding(src []byte) []byte {
+	isTable := false
+	lines := strings.Split(string(src), "\n")
+	for i, s := range lines {
+		// Headers management
+		if strings.HasPrefix(s, "#") {
+			lines[i] = "\n" + s + "\n"
+			continue
+		}
+
+		// Tables management
+		isRow := strings.HasPrefix(s, "|")
+		if isRow == isTable {
+			// no need extra line between table lines
+			continue
+		}
+
+		isTable = isRow && !isTable
+		lines[i] = "\n" + s
+	}
+
+	// Removes extra newlines
+	result := strings.Join(lines, "\n")
+	result = regexp.MustCompile("\n{2,}").ReplaceAllString(result, "\n\n")
+	return []byte(result)
 }
