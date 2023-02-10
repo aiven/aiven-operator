@@ -15,7 +15,7 @@
         <link rel="next" href="connect.html">
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.11">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.12">
     
     
       
@@ -733,9 +733,7 @@ and schema registry. Is available out of the box for our managed Kafka service.<
 <p>The schema registry address and authentication is the same as the Kafka broker, the only different is the usage of the port 13044.</p>
 </blockquote>
 <p>First, let's create an Aiven for Apache Kafka service.</p>
-<ol>
-<li>
-<p>Create a file named <code>kafka-sample-schema.yaml</code> and add the content below: 
+<p>1. Create a file named <code>kafka-sample-schema.yaml</code> and add the content below:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Kafka</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -759,18 +757,12 @@ and schema registry. Is available out of the box for our managed Kafka service.<
 <a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
 <a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">    </span><span class="c1"># this flag enables the Schema registry</span>
 <a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">    </span><span class="nt">schema_registry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>Apply the changes with the following command:</p>
-</li>
-</ol>
+</code></pre></div>
+<p>2. Apply the changes with the following command:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>kafka-schema.yaml<span class="w"> </span>
 </code></pre></div>
 <p>Now, let's create the schema itself.</p>
-<ol>
-<li>Create a new file named <code>kafka-sample-schema.yaml</code> and add the YAML content below:</li>
-</ol>
+<p>1. Create a new file named <code>kafka-sample-schema.yaml</code> and add the YAML content below:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KafkaSchema</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -802,14 +794,10 @@ and schema registry. Is available out of the box for our managed Kafka service.<
 <a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a><span class="w">  </span><span class="c1"># sets the schema compatibility level </span>
 <a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a><span class="w">  </span><span class="nt">compatibilityLevel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">BACKWARD</span>
 </code></pre></div>
-<ol>
-<li>Create the schema with the command:</li>
-</ol>
+<p>2. Create the schema with the command:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>kafka-schema.yaml
 </code></pre></div>
-<ol>
-<li>Review the resource you created with the following command:</li>
-</ol>
+<p>3. Review the resource you created with the following command:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>kafkaschemas.aiven.io<span class="w"> </span>kafka-schema
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>NAME<span class="w">           </span>SERVICE<span class="w"> </span>NAME<span class="w">   </span>PROJECT<span class="w">          </span>SUBJECT<span class="w">    </span>COMPATIBILITY<span class="w"> </span>LEVEL<span class="w">   </span>VERSION
@@ -904,7 +892,7 @@ on how to use the schema created.</p>
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.footer", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.db81ec45.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.6df46069.min.js"></script>
+      <script src="../../assets/javascripts/bundle.4b2c34cd.min.js"></script>
       
     
   </body>

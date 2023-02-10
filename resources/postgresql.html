@@ -15,7 +15,7 @@
         <link rel="next" href="opensearch.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.11">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.12">
     
     
       
@@ -799,13 +799,13 @@ datastore. On top of the strict table and columns formats, PostgreSQL also offer
 native <code>jsonb</code> format and advanced set of extensions including <a href="https://postgis.net/">PostGIS</a>, a spatial database
 extender for location queries. Aiven for PostgreSQL is the perfect fit for your relational data.</p>
 <p>With Aiven Kubernetes Operator, you can manage Aiven for PostgreSQL through the well defined Kubernetes API.</p>
-<blockquote>
-<p>Before going through this guide, make sure you have a <a href="../../installation/prerequisites/">Kubernetes cluster</a> with the <a href="../../installation/">operator installed</a>, and a <a href="../../authentication/">Kubernetes Secret with an Aiven authentication token</a>.</p>
-</blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Before going through this guide, make sure you have a <a href="../../installation/prerequisites/">Kubernetes cluster</a> with the <a href="../../installation/">operator installed</a>, 
+and a <a href="../../authentication/">Kubernetes Secret with an Aiven authentication token</a>.</p>
+</div>
 <h2 id="creating-a-postgresql-instance">Creating a PostgreSQL instance</h2>
-<ol>
-<li>Create a file named <code>pg-sample.yaml</code> with the following content:</li>
-</ol>
+<p>1. Create a file named <code>pg-sample.yaml</code> with the following content:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PostgreSQL</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -837,14 +837,10 @@ extender for location queries. Aiven for PostgreSQL is the perfect fit for your 
 <a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">  </span><span class="nt">userConfig</span><span class="p">:</span>
 <a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">    </span><span class="nt">pg_version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;11&#39;</span>
 </code></pre></div>
-<ol>
-<li>Create the service by applying the configuration:</li>
-</ol>
+<p>2. Create the service by applying the configuration:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>pg-sample.yaml
 </code></pre></div>
-<ol>
-<li>Review the resource you created with the following command:</li>
-</ol>
+<p>3. Review the resource you created with the following command:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>postgresqls.aiven.io<span class="w"> </span>pg-sample
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>NAME<span class="w">        </span>PROJECT<span class="w">        </span>REGION<span class="w">                </span>PLAN<span class="w">        </span>STATE
@@ -888,9 +884,7 @@ the name specified on the <code>connInfoSecretTarget</code> field.</p>
 </code></pre></div>
 <h2 id="testing-the-connection">Testing the connection</h2>
 <p>You can verify your PostgreSQL connection from a Kubernetes workload by deploying a Pod that runs the <code>psql</code> command.</p>
-<ol>
-<li>Create a file named <code>pod-psql.yaml</code></li>
-</ol>
+<p>1. Create a file named <code>pod-psql.yaml</code></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Pod</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -908,9 +902,7 @@ the name specified on the <code>connInfoSecretTarget</code> field.</p>
 <a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pg-connection</span>
 </code></pre></div>
 <p>It runs once and stops, due to the <code>restartPolicy: Never</code> flag.</p>
-<ol>
-<li>Inspect the log:</li>
-</ol>
+<p>2. Inspect the log:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>kubectl<span class="w"> </span>logs<span class="w"> </span>psql-test-connection
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">                                           </span>version<span class="w">                                           </span>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>---------------------------------------------------------------------------------------------
@@ -941,9 +933,7 @@ the name specified on the <code>connInfoSecretTarget</code> field.</p>
 <h2 id="creating-a-postgresql-user">Creating a PostgreSQL user</h2>
 <p>Aiven uses the concept of <em>service user</em> that allows you to create users for different services. You can create one for
 the PostgreSQL instance.</p>
-<ol>
-<li>Create a file named <code>pg-service-user.yaml</code>.</li>
-</ol>
+<p>1. Create a file named <code>pg-service-user.yaml</code>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceUser</span>
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -959,9 +949,7 @@ the PostgreSQL instance.</p>
 <a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;your-project-name&gt;</span>
 <a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pg-sample</span>
 </code></pre></div>
-<ol>
-<li>Apply the configuration with the following command.</li>
-</ol>
+<p>2. Apply the configuration with the following command.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>pg-service-user.yaml
 </code></pre></div>
 <p>The <code>ServiceUser</code> resource generates a Secret with connection information, in this case
@@ -1103,7 +1091,7 @@ field:</p>
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.db81ec45.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.6df46069.min.js"></script>
+      <script src="../assets/javascripts/bundle.4b2c34cd.min.js"></script>
       
     
   </body>

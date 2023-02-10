@@ -15,7 +15,7 @@
         <link rel="next" href="kafka/index.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.11">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.12">
     
     
       
@@ -742,13 +742,13 @@
 networks to each other. It makes it possible for the virtual machines in the different VPCs to talk to each other
 directly without going through the public internet.</p>
 <p>Within the Aiven Kubernetes Operator, you can create a <code>ProjectVPC</code> on Aiven's side to connect to your cloud provider.</p>
-<blockquote>
-<p>Before going through this guide, make sure you have a <a href="../../installation/prerequisites/">Kubernetes cluster</a> with the <a href="../../installation/">operator installed</a>, and a <a href="../../authentication/">Kubernetes Secret with an Aiven authentication token</a>.</p>
-</blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Before going through this guide, make sure you have a <a href="../../installation/prerequisites/">Kubernetes cluster</a> with the <a href="../../installation/">operator installed</a>, 
+and a <a href="../../authentication/">Kubernetes Secret with an Aiven authentication token</a>.</p>
+</div>
 <h2 id="creating-an-aiven-vpc">Creating an Aiven VPC</h2>
-<ol>
-<li>Create a file named <code>vpc-sample.yaml</code> with the following content:</li>
-</ol>
+<p>1. Create a file named <code>vpc-sample.yaml</code> with the following content:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ProjectVPC</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -767,14 +767,10 @@ directly without going through the public internet.</p>
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="c1"># the network range used by the VPC</span>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">  </span><span class="nt">networkCidr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">192.168.0.0/24</span>
 </code></pre></div>
-<ol>
-<li>Create the Project by applying the configuration:</li>
-</ol>
+<p>2. Create the Project by applying the configuration:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>vpc-sample.yaml
 </code></pre></div>
-<ol>
-<li>Review the resource you created with the following command:</li>
-</ol>
+<p>3. Review the resource you created with the following command:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>projects.aiven.io<span class="w"> </span>vpc-sample
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>NAME<span class="w">         </span>PROJECT<span class="w">          </span>CLOUD<span class="w">            </span>NETWORK<span class="w"> </span>CIDR
@@ -871,7 +867,7 @@ complete the VPC peering on your cloud of choice.</p>
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.db81ec45.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.6df46069.min.js"></script>
+      <script src="../assets/javascripts/bundle.4b2c34cd.min.js"></script>
       
     
   </body>
