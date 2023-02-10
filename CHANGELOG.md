@@ -8,6 +8,7 @@
 - Update user configs for following kinds: PostgreSQL, Kafka, Redis, Clickhouse, OpenSearch, KafkaConnect
 - Add KafkaTopic `min_cleanable_dirty_ratio` config field support
 - Add Clickhouse `spec.disk_space` property
+- Use updated aiven-go-client with retries
 
 ## v0.7.1 - 2023-01-24
 

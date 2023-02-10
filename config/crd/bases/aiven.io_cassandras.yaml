@@ -196,7 +196,6 @@ spec:
                   cassandra_version:
                     description: Cassandra major version
                     enum:
-                    - 3
                     - 4
                     type: string
                   ip_filter:
