@@ -174,11 +174,12 @@ undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/confi
 ##@ Docs
 
 .PHONY: generate-api-reference
-generate-api-reference: gen-crd-api-ref-docs  ## Generate CRDS api-reference
-	go run hack/genrefs/main.go
+generate-api-reference: ## Generate CRDS api-reference
+	go run ./docs_generator/...
+	sed 's/\[MAJOR\.MINOR\.PATCH\] - YYYY-MM-DD/🚧 Under development/g' ./CHANGELOG.md > ./docs/docs/CHANGELOG.md
 
 .PHONY: serve-docs
-serve-docs: ## Run live preview.
+serve-docs: generate-api-reference ## Run live preview.
 	docker run --rm -it -p 8000:8000 -v ${PWD}/docs:/docs squidfunk/mkdocs-material
 
 .PHONY: generate-docs
@@ -222,16 +223,6 @@ $(CONTROLLER_GEN): $(LOCALBIN)
 envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
 $(ENVTEST): $(LOCALBIN)
 	test -s $(LOCALBIN)/setup-envtest || GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
-
-.PHONY: gen-crd-api-ref-docs
-gen-crd-api-ref-docs: $(GEN_CRD_API_REF_DOCS)  ## Download gen-crd-api-ref-docs locally if necessary.
-$(GEN_CRD_API_REF_DOCS): $(LOCALBIN)
-	test -s $(LOCALBIN)/gen-crd-api-reference-docs || GOBIN=$(LOCALBIN) go install github.com/ahmetb/gen-crd-api-reference-docs@latest
-
-.PHONY: gen-crd-api-ref-docs
-gen-crd-api-ref-docs: $(GEN_CRD_API_REF_DOCS)  ## Download golang ci lint locally if necessary.
-$(GEN_CRD_API_REF_DOCS): $(LOCALBIN)
-	test -s $(LOCALBIN)/gen-crd-api-reference-docs || GOBIN=$(LOCALBIN) go install github.com/ahmetb/gen-crd-api-reference-docs@latest
 
 .PHONY: ginkgo
 ginkgo: $(GINKGO) ## Download envtest-setup locally if necessary.
