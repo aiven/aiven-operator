@@ -1,0 +1,1558 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="opensearch.html">
+      
+      
+        <link rel="next" href="project.html">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.12">
+    
+    
+      
+        <title>PostgreSQL - Aiven Operator</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.0d440cfe.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="red" data-md-color-accent="deep-orange">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#authSecretRef" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="Aiven Operator" class="md-header__button md-logo" aria-label="Aiven Operator" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Aiven Operator
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PostgreSQL
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="slate" data-md-color-primary="red" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="default" data-md-color-primary="deep-orange" data-md-color-accent="red"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/aiven/aiven-operator/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="Aiven Operator" class="md-nav__button md-logo" aria-label="Aiven Operator" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    Aiven Operator
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/aiven/aiven-operator/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CHANGELOG.html" class="md-nav__link">
+        Changelog
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Installation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Installation
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/prerequisites.html" class="md-nav__link">
+        Prerequisites
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/helm.html" class="md-nav__link">
+        Installing with Helm (recommended)
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/kubectl.html" class="md-nav__link">
+        Installing with kubectl
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/uninstalling.html" class="md-nav__link">
+        Uninstalling
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authentication.html" class="md-nav__link">
+        Authenticating
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          Resources
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Resources
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/project.html" class="md-nav__link">
+        Aiven Project
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/project-vpc.html" class="md-nav__link">
+        Aiven Project VPC
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
+          Kafka
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5_3">
+          <span class="md-nav__icon md-icon"></span>
+          Kafka
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/kafka/index.html" class="md-nav__link">
+        Kafka
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/kafka/schema.html" class="md-nav__link">
+        Kafka Schema
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/kafka/connect.html" class="md-nav__link">
+        Kafka Connect
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/postgresql.html" class="md-nav__link">
+        PostgreSQL
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/opensearch.html" class="md-nav__link">
+        OpenSearch
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/redis.html" class="md-nav__link">
+        Redis
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/service-integrations.html" class="md-nav__link">
+        Service Integrations
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting.html" class="md-nav__link">
+        Troubleshooting
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Contributing
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Contributing
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/index.html" class="md-nav__link">
+        Contributing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/developer-guide.html" class="md-nav__link">
+        Developer guide
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          API Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          API Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cassandra.html" class="md-nav__link">
+        Cassandra
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="clickhouse.html" class="md-nav__link">
+        Clickhouse
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="clickhouseuser.html" class="md-nav__link">
+        ClickhouseUser
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="connectionpool.html" class="md-nav__link">
+        ConnectionPool
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="database.html" class="md-nav__link">
+        Database
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="grafana.html" class="md-nav__link">
+        Grafana
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafka.html" class="md-nav__link">
+        Kafka
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafkaacl.html" class="md-nav__link">
+        KafkaACL
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafkaconnect.html" class="md-nav__link">
+        KafkaConnect
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafkaconnector.html" class="md-nav__link">
+        KafkaConnector
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafkaschema.html" class="md-nav__link">
+        KafkaSchema
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafkatopic.html" class="md-nav__link">
+        KafkaTopic
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mysql.html" class="md-nav__link">
+        MySQL
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="opensearch.html" class="md-nav__link">
+        OpenSearch
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          PostgreSQL
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="postgresql.html" class="md-nav__link md-nav__link--active">
+        PostgreSQL
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authSecretRef" class="md-nav__link">
+    authSecretRef
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connInfoSecretTarget" class="md-nav__link">
+    connInfoSecretTarget
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#projectVPCRef" class="md-nav__link">
+    projectVPCRef
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#serviceIntegrations" class="md-nav__link">
+    serviceIntegrations
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#userConfig" class="md-nav__link">
+    userConfig
+  </a>
+  
+    <nav class="md-nav" aria-label="userConfig">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ip_filter" class="md-nav__link">
+    ip_filter
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migration" class="md-nav__link">
+    migration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pg" class="md-nav__link">
+    pg
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pgbouncer" class="md-nav__link">
+    pgbouncer
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pglookout" class="md-nav__link">
+    pglookout
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#private_access" class="md-nav__link">
+    private_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#privatelink_access" class="md-nav__link">
+    privatelink_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#public_access" class="md-nav__link">
+    public_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timescaledb" class="md-nav__link">
+    timescaledb
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="project.html" class="md-nav__link">
+        Project
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="projectvpc.html" class="md-nav__link">
+        ProjectVPC
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="redis.html" class="md-nav__link">
+        Redis
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="serviceintegration.html" class="md-nav__link">
+        ServiceIntegration
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="serviceuser.html" class="md-nav__link">
+        ServiceUser
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authSecretRef" class="md-nav__link">
+    authSecretRef
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connInfoSecretTarget" class="md-nav__link">
+    connInfoSecretTarget
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#projectVPCRef" class="md-nav__link">
+    projectVPCRef
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#serviceIntegrations" class="md-nav__link">
+    serviceIntegrations
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#userConfig" class="md-nav__link">
+    userConfig
+  </a>
+  
+    <nav class="md-nav" aria-label="userConfig">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ip_filter" class="md-nav__link">
+    ip_filter
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migration" class="md-nav__link">
+    migration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pg" class="md-nav__link">
+    pg
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pgbouncer" class="md-nav__link">
+    pgbouncer
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pglookout" class="md-nav__link">
+    pglookout
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#private_access" class="md-nav__link">
+    private_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#privatelink_access" class="md-nav__link">
+    privatelink_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#public_access" class="md-nav__link">
+    public_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timescaledb" class="md-nav__link">
+    timescaledb
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+    
+      
+    
+    <a href="https://github.com/aiven/aiven-operator/raw/main/docs/api-reference/postgresql.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
+    </a>
+  
+
+
+
+  <h1>PostgreSQL</h1>
+
+<table>
+<thead>
+<tr>
+<th>ApiVersion</th>
+<th>Kind</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>aiven.io/v1alpha1</td>
+<td>PostgreSQL</td>
+</tr>
+</tbody>
+</table>
+<p>PostgreSQLSpec defines the desired state of postgres instance.</p>
+<ul>
+<li><a href="#authSecretRef" name="authSecretRef"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See <a href="#authSecretRef">below for nested schema</a>.</li>
+<li><a href="#cloudName" name="cloudName"><code>cloudName</code></a> (string, MaxLength: 256). Cloud the service runs in. </li>
+<li><a href="#connInfoSecretTarget" name="connInfoSecretTarget"><code>connInfoSecretTarget</code></a> (object). Information regarding secret creation. See <a href="#connInfoSecretTarget">below for nested schema</a>.</li>
+<li><a href="#disk_space" name="disk_space"><code>disk_space</code></a> (string). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing. </li>
+<li><a href="#maintenanceWindowDow" name="maintenanceWindowDow"><code>maintenanceWindowDow</code></a> (string, Enum: <code>monday</code>, <code>tuesday</code>, <code>wednesday</code>, <code>thursday</code>, <code>friday</code>, <code>saturday</code>, <code>sunday</code>). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc. </li>
+<li><a href="#maintenanceWindowTime" name="maintenanceWindowTime"><code>maintenanceWindowTime</code></a> (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format. </li>
+<li><a href="#plan" name="plan"><code>plan</code></a> (string, MaxLength: 128). Subscription plan. </li>
+<li><a href="#project" name="project"><code>project</code></a> (string, Immutable, MaxLength: 63). Target project. </li>
+<li><a href="#projectVPCRef" name="projectVPCRef"><code>projectVPCRef</code></a> (object, Immutable). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See <a href="#projectVPCRef">below for nested schema</a>.</li>
+<li><a href="#projectVpcId" name="projectVpcId"><code>projectVpcId</code></a> (string, Immutable, MaxLength: 36). Identifier of the VPC the service should be in, if any. </li>
+<li><a href="#serviceIntegrations" name="serviceIntegrations"><code>serviceIntegrations</code></a> (array, Immutable, MaxItems: 1). Service integrations to specify when creating a service. Not applied after initial service creation. See <a href="#serviceIntegrations">below for nested schema</a>.</li>
+<li><a href="#tags" name="tags"><code>tags</code></a> (object). Tags are key-value pairs that allow you to categorize services. </li>
+<li><a href="#terminationProtection" name="terminationProtection"><code>terminationProtection</code></a> (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services. </li>
+<li><a href="#userConfig" name="userConfig"><code>userConfig</code></a> (object). PostgreSQL specific user configuration options. See <a href="#userConfig">below for nested schema</a>.</li>
+</ul>
+<h2 id="authSecretRef">authSecretRef<a class="headerlink" href="#authSecretRef" title="Permanent link">&para;</a></h2>
+<p>Authentication reference to Aiven token in a secret.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#key" name="key"><code>key</code></a> (string, MinLength: 1).  </li>
+<li><a href="#name" name="name"><code>name</code></a> (string, MinLength: 1).  </li>
+</ul>
+<h2 id="connInfoSecretTarget">connInfoSecretTarget<a class="headerlink" href="#connInfoSecretTarget" title="Permanent link">&para;</a></h2>
+<p>Information regarding secret creation.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#name" name="name"><code>name</code></a> (string). Name of the Secret resource to be created. </li>
+</ul>
+<h2 id="projectVPCRef">projectVPCRef<a class="headerlink" href="#projectVPCRef" title="Permanent link">&para;</a></h2>
+<p>ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#name" name="name"><code>name</code></a> (string, MinLength: 1).  </li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#namespace" name="namespace"><code>namespace</code></a> (string, MinLength: 1).  </li>
+</ul>
+<h2 id="serviceIntegrations">serviceIntegrations<a class="headerlink" href="#serviceIntegrations" title="Permanent link">&para;</a></h2>
+<p>Service integrations to specify when creating a service. Not applied after initial service creation.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#integrationType" name="integrationType"><code>integrationType</code></a> (string, Enum: <code>read_replica</code>).  </li>
+<li><a href="#sourceServiceName" name="sourceServiceName"><code>sourceServiceName</code></a> (string, MinLength: 1, MaxLength: 64).  </li>
+</ul>
+<h2 id="userConfig">userConfig<a class="headerlink" href="#userConfig" title="Permanent link">&para;</a></h2>
+<p>PostgreSQL specific user configuration options.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#additional_backup_regions" name="additional_backup_regions"><code>additional_backup_regions</code></a> (array, MaxItems: 1). Additional Cloud Regions for Backup Replication. </li>
+<li><a href="#admin_password" name="admin_password"><code>admin_password</code></a> (string, Immutable, Pattern: <code>^[a-zA-Z0-9-_]+$</code>, MinLength: 8, MaxLength: 256). Custom password for admin user. Defaults to random string. This must be set only when a new service is being created. </li>
+<li><a href="#admin_username" name="admin_username"><code>admin_username</code></a> (string, Immutable, Pattern: <code>^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$</code>, MaxLength: 64). Custom username for admin user. This must be set only when a new service is being created. </li>
+<li><a href="#backup_hour" name="backup_hour"><code>backup_hour</code></a> (integer, Minimum: 0, Maximum: 23). The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed. </li>
+<li><a href="#backup_minute" name="backup_minute"><code>backup_minute</code></a> (integer, Minimum: 0, Maximum: 59). The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed. </li>
+<li><a href="#enable_ipv6" name="enable_ipv6"><code>enable_ipv6</code></a> (boolean). Register AAAA DNS records for the service, and allow IPv6 packets to service ports. </li>
+<li><a href="#ip_filter" name="ip_filter"><code>ip_filter</code></a> (array, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'. See <a href="#ip_filter">below for nested schema</a>.</li>
+<li><a href="#migration" name="migration"><code>migration</code></a> (object). Migrate data from existing server. See <a href="#migration">below for nested schema</a>.</li>
+<li><a href="#pg" name="pg"><code>pg</code></a> (object). postgresql.conf configuration values. See <a href="#pg">below for nested schema</a>.</li>
+<li><a href="#pg_read_replica" name="pg_read_replica"><code>pg_read_replica</code></a> (boolean). Should the service which is being forked be a read replica (deprecated, use read_replica service integration instead). </li>
+<li><a href="#pg_service_to_fork_from" name="pg_service_to_fork_from"><code>pg_service_to_fork_from</code></a> (string, Immutable, MaxLength: 64). Name of the PG Service from which to fork (deprecated, use service_to_fork_from). This has effect only when a new service is being created. </li>
+<li><a href="#pg_stat_monitor_enable" name="pg_stat_monitor_enable"><code>pg_stat_monitor_enable</code></a> (boolean). Enable the pg_stat_monitor extension. Enabling this extension will cause the cluster to be restarted.When this extension is enabled, pg_stat_statements results for utility commands are unreliable. </li>
+<li><a href="#pg_version" name="pg_version"><code>pg_version</code></a> (string, Enum: <code>11</code>, <code>12</code>, <code>13</code>, <code>14</code>, <code>15</code>). PostgreSQL major version. </li>
+<li><a href="#pgbouncer" name="pgbouncer"><code>pgbouncer</code></a> (object). PGBouncer connection pooling settings. See <a href="#pgbouncer">below for nested schema</a>.</li>
+<li><a href="#pglookout" name="pglookout"><code>pglookout</code></a> (object). PGLookout settings. See <a href="#pglookout">below for nested schema</a>.</li>
+<li><a href="#private_access" name="private_access"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See <a href="#private_access">below for nested schema</a>.</li>
+<li><a href="#privatelink_access" name="privatelink_access"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See <a href="#privatelink_access">below for nested schema</a>.</li>
+<li><a href="#project_to_fork_from" name="project_to_fork_from"><code>project_to_fork_from</code></a> (string, Immutable, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created. </li>
+<li><a href="#public_access" name="public_access"><code>public_access</code></a> (object). Allow access to selected service ports from the public Internet. See <a href="#public_access">below for nested schema</a>.</li>
+<li><a href="#recovery_target_time" name="recovery_target_time"><code>recovery_target_time</code></a> (string, Immutable, MaxLength: 32). Recovery target time when forking a service. This has effect only when a new service is being created. </li>
+<li><a href="#service_to_fork_from" name="service_to_fork_from"><code>service_to_fork_from</code></a> (string, Immutable, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created. </li>
+<li><a href="#shared_buffers_percentage" name="shared_buffers_percentage"><code>shared_buffers_percentage</code></a> (number). Percentage of total RAM that the database server uses for shared memory buffers. Valid range is 20-60 (float), which corresponds to 20% - 60%. This setting adjusts the shared_buffers configuration value. </li>
+<li><a href="#static_ips" name="static_ips"><code>static_ips</code></a> (boolean). Use static public IP addresses. </li>
+<li><a href="#synchronous_replication" name="synchronous_replication"><code>synchronous_replication</code></a> (string, Enum: <code>quorum</code>, <code>off</code>). Synchronous replication type. Note that the service plan also needs to support synchronous replication. </li>
+<li><a href="#timescaledb" name="timescaledb"><code>timescaledb</code></a> (object). TimescaleDB extension configuration values. See <a href="#timescaledb">below for nested schema</a>.</li>
+<li><a href="#variant" name="variant"><code>variant</code></a> (string, Enum: <code>aiven</code>, <code>timescale</code>). Variant of the PostgreSQL service, may affect the features that are exposed by default. </li>
+<li><a href="#work_mem" name="work_mem"><code>work_mem</code></a> (integer, Minimum: 1, Maximum: 1024). Sets the maximum amount of memory to be used by a query operation (such as a sort or hash table) before writing to temporary disk files, in MB. Default is 1MB + 0.075% of total RAM (up to 32MB). </li>
+</ul>
+<h3 id="ip_filter">ip_filter<a class="headerlink" href="#ip_filter" title="Permanent link">&para;</a></h3>
+<p>CIDR address block, either as a string, or in a dict with an optional description field.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#network" name="network"><code>network</code></a> (string, MaxLength: 43). CIDR address block. </li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#description" name="description"><code>description</code></a> (string, MaxLength: 1024). Description for IP filter list entry. </li>
+</ul>
+<h3 id="migration">migration<a class="headerlink" href="#migration" title="Permanent link">&para;</a></h3>
+<p>Migrate data from existing server.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#host" name="host"><code>host</code></a> (string, MaxLength: 255). Hostname or IP address of the server where to migrate data from. </li>
+<li><a href="#port" name="port"><code>port</code></a> (integer, Minimum: 1, Maximum: 65535). Port number of the server where to migrate data from. </li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#dbname" name="dbname"><code>dbname</code></a> (string, MaxLength: 63). Database name for bootstrapping the initial connection. </li>
+<li><a href="#ignore_dbs" name="ignore_dbs"><code>ignore_dbs</code></a> (string, MaxLength: 2048). Comma-separated list of databases, which should be ignored during migration (supported by MySQL only at the moment). </li>
+<li><a href="#method" name="method"><code>method</code></a> (string, Enum: <code>dump</code>, <code>replication</code>). The migration method to be used (currently supported only by Redis and MySQL service types). </li>
+<li><a href="#password" name="password"><code>password</code></a> (string, MaxLength: 256). Password for authentication with the server where to migrate data from. </li>
+<li><a href="#ssl" name="ssl"><code>ssl</code></a> (boolean). The server where to migrate data from is secured with SSL. </li>
+<li><a href="#username" name="username"><code>username</code></a> (string, MaxLength: 256). User name for authentication with the server where to migrate data from. </li>
+</ul>
+<h3 id="pg">pg<a class="headerlink" href="#pg" title="Permanent link">&para;</a></h3>
+<p>postgresql.conf configuration values.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#autovacuum_analyze_scale_factor" name="autovacuum_analyze_scale_factor"><code>autovacuum_analyze_scale_factor</code></a> (number). Specifies a fraction of the table size to add to autovacuum_analyze_threshold when deciding whether to trigger an ANALYZE. The default is 0.2 (20% of table size). </li>
+<li><a href="#autovacuum_analyze_threshold" name="autovacuum_analyze_threshold"><code>autovacuum_analyze_threshold</code></a> (integer, Minimum: 0, Maximum: 2147483647). Specifies the minimum number of inserted, updated or deleted tuples needed to trigger an  ANALYZE in any one table. The default is 50 tuples. </li>
+<li><a href="#autovacuum_freeze_max_age" name="autovacuum_freeze_max_age"><code>autovacuum_freeze_max_age</code></a> (integer, Minimum: 200000000, Maximum: 1500000000). Specifies the maximum age (in transactions) that a table's pg_class.relfrozenxid field can attain before a VACUUM operation is forced to prevent transaction ID wraparound within the table. Note that the system will launch autovacuum processes to prevent wraparound even when autovacuum is otherwise disabled. This parameter will cause the server to be restarted. </li>
+<li><a href="#autovacuum_max_workers" name="autovacuum_max_workers"><code>autovacuum_max_workers</code></a> (integer, Minimum: 1, Maximum: 20). Specifies the maximum number of autovacuum processes (other than the autovacuum launcher) that may be running at any one time. The default is three. This parameter can only be set at server start. </li>
+<li><a href="#autovacuum_naptime" name="autovacuum_naptime"><code>autovacuum_naptime</code></a> (integer, Minimum: 1, Maximum: 86400). Specifies the minimum delay between autovacuum runs on any given database. The delay is measured in seconds, and the default is one minute. </li>
+<li><a href="#autovacuum_vacuum_cost_delay" name="autovacuum_vacuum_cost_delay"><code>autovacuum_vacuum_cost_delay</code></a> (integer, Minimum: -1, Maximum: 100). Specifies the cost delay value that will be used in automatic VACUUM operations. If -1 is specified, the regular vacuum_cost_delay value will be used. The default value is 20 milliseconds. </li>
+<li><a href="#autovacuum_vacuum_cost_limit" name="autovacuum_vacuum_cost_limit"><code>autovacuum_vacuum_cost_limit</code></a> (integer, Minimum: -1, Maximum: 10000). Specifies the cost limit value that will be used in automatic VACUUM operations. If -1 is specified (which is the default), the regular vacuum_cost_limit value will be used. </li>
+<li><a href="#autovacuum_vacuum_scale_factor" name="autovacuum_vacuum_scale_factor"><code>autovacuum_vacuum_scale_factor</code></a> (number). Specifies a fraction of the table size to add to autovacuum_vacuum_threshold when deciding whether to trigger a VACUUM. The default is 0.2 (20% of table size). </li>
+<li><a href="#autovacuum_vacuum_threshold" name="autovacuum_vacuum_threshold"><code>autovacuum_vacuum_threshold</code></a> (integer, Minimum: 0, Maximum: 2147483647). Specifies the minimum number of updated or deleted tuples needed to trigger a VACUUM in any one table. The default is 50 tuples. </li>
+<li><a href="#bgwriter_delay" name="bgwriter_delay"><code>bgwriter_delay</code></a> (integer, Minimum: 10, Maximum: 10000). Specifies the delay between activity rounds for the background writer in milliseconds. Default is 200. </li>
+<li><a href="#bgwriter_flush_after" name="bgwriter_flush_after"><code>bgwriter_flush_after</code></a> (integer, Minimum: 0, Maximum: 2048). Whenever more than bgwriter_flush_after bytes have been written by the background writer, attempt to force the OS to issue these writes to the underlying storage. Specified in kilobytes, default is 512. Setting of 0 disables forced writeback. </li>
+<li><a href="#bgwriter_lru_maxpages" name="bgwriter_lru_maxpages"><code>bgwriter_lru_maxpages</code></a> (integer, Minimum: 0, Maximum: 1073741823). In each round, no more than this many buffers will be written by the background writer. Setting this to zero disables background writing. Default is 100. </li>
+<li><a href="#bgwriter_lru_multiplier" name="bgwriter_lru_multiplier"><code>bgwriter_lru_multiplier</code></a> (number). The average recent need for new buffers is multiplied by bgwriter_lru_multiplier to arrive at an estimate of the number that will be needed during the next round, (up to bgwriter_lru_maxpages). 1.0 represents a “just in time” policy of writing exactly the number of buffers predicted to be needed. Larger values provide some cushion against spikes in demand, while smaller values intentionally leave writes to be done by server processes. The default is 2.0. </li>
+<li><a href="#deadlock_timeout" name="deadlock_timeout"><code>deadlock_timeout</code></a> (integer, Minimum: 500, Maximum: 1800000). This is the amount of time, in milliseconds, to wait on a lock before checking to see if there is a deadlock condition. </li>
+<li><a href="#default_toast_compression" name="default_toast_compression"><code>default_toast_compression</code></a> (string, Enum: <code>lz4</code>, <code>pglz</code>). Specifies the default TOAST compression method for values of compressible columns (the default is lz4). </li>
+<li><a href="#idle_in_transaction_session_timeout" name="idle_in_transaction_session_timeout"><code>idle_in_transaction_session_timeout</code></a> (integer, Minimum: 0, Maximum: 604800000). Time out sessions with open transactions after this number of milliseconds. </li>
+<li><a href="#jit" name="jit"><code>jit</code></a> (boolean). Controls system-wide use of Just-in-Time Compilation (JIT). </li>
+<li><a href="#log_autovacuum_min_duration" name="log_autovacuum_min_duration"><code>log_autovacuum_min_duration</code></a> (integer, Minimum: -1, Maximum: 2147483647). Causes each action executed by autovacuum to be logged if it ran for at least the specified number of milliseconds. Setting this to zero logs all autovacuum actions. Minus-one (the default) disables logging autovacuum actions. </li>
+<li><a href="#log_error_verbosity" name="log_error_verbosity"><code>log_error_verbosity</code></a> (string, Enum: <code>TERSE</code>, <code>DEFAULT</code>, <code>VERBOSE</code>). Controls the amount of detail written in the server log for each message that is logged. </li>
+<li><a href="#log_line_prefix" name="log_line_prefix"><code>log_line_prefix</code></a> (string, Enum: <code>'pid=%p,user=%u,db=%d,app=%a,client=%h '</code>, <code>'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '</code>, <code>'%m [%p] %q[user=%u,db=%d,app=%a] '</code>). Choose from one of the available log-formats. These can support popular log analyzers like pgbadger, pganalyze etc. </li>
+<li><a href="#log_min_duration_statement" name="log_min_duration_statement"><code>log_min_duration_statement</code></a> (integer, Minimum: -1, Maximum: 86400000). Log statements that take more than this number of milliseconds to run, -1 disables. </li>
+<li><a href="#log_temp_files" name="log_temp_files"><code>log_temp_files</code></a> (integer, Minimum: -1, Maximum: 2147483647). Log statements for each temporary file created larger than this number of kilobytes, -1 disables. </li>
+<li><a href="#max_files_per_process" name="max_files_per_process"><code>max_files_per_process</code></a> (integer, Minimum: 1000, Maximum: 4096). PostgreSQL maximum number of files that can be open per process. </li>
+<li><a href="#max_locks_per_transaction" name="max_locks_per_transaction"><code>max_locks_per_transaction</code></a> (integer, Minimum: 64, Maximum: 6400). PostgreSQL maximum locks per transaction. </li>
+<li><a href="#max_logical_replication_workers" name="max_logical_replication_workers"><code>max_logical_replication_workers</code></a> (integer, Minimum: 4, Maximum: 64). PostgreSQL maximum logical replication workers (taken from the pool of max_parallel_workers). </li>
+<li><a href="#max_parallel_workers" name="max_parallel_workers"><code>max_parallel_workers</code></a> (integer, Minimum: 0, Maximum: 96). Sets the maximum number of workers that the system can support for parallel queries. </li>
+<li><a href="#max_parallel_workers_per_gather" name="max_parallel_workers_per_gather"><code>max_parallel_workers_per_gather</code></a> (integer, Minimum: 0, Maximum: 96). Sets the maximum number of workers that can be started by a single Gather or Gather Merge node. </li>
+<li><a href="#max_pred_locks_per_transaction" name="max_pred_locks_per_transaction"><code>max_pred_locks_per_transaction</code></a> (integer, Minimum: 64, Maximum: 5120). PostgreSQL maximum predicate locks per transaction. </li>
+<li><a href="#max_prepared_transactions" name="max_prepared_transactions"><code>max_prepared_transactions</code></a> (integer, Minimum: 0, Maximum: 10000). PostgreSQL maximum prepared transactions. </li>
+<li><a href="#max_replication_slots" name="max_replication_slots"><code>max_replication_slots</code></a> (integer, Minimum: 8, Maximum: 64). PostgreSQL maximum replication slots. </li>
+<li><a href="#max_slot_wal_keep_size" name="max_slot_wal_keep_size"><code>max_slot_wal_keep_size</code></a> (integer, Minimum: -1, Maximum: 2147483647). PostgreSQL maximum WAL size (MB) reserved for replication slots. Default is -1 (unlimited). wal_keep_size minimum WAL size setting takes precedence over this. </li>
+<li><a href="#max_stack_depth" name="max_stack_depth"><code>max_stack_depth</code></a> (integer, Minimum: 2097152, Maximum: 6291456). Maximum depth of the stack in bytes. </li>
+<li><a href="#max_standby_archive_delay" name="max_standby_archive_delay"><code>max_standby_archive_delay</code></a> (integer, Minimum: 1, Maximum: 43200000). Max standby archive delay in milliseconds. </li>
+<li><a href="#max_standby_streaming_delay" name="max_standby_streaming_delay"><code>max_standby_streaming_delay</code></a> (integer, Minimum: 1, Maximum: 43200000). Max standby streaming delay in milliseconds. </li>
+<li><a href="#max_wal_senders" name="max_wal_senders"><code>max_wal_senders</code></a> (integer, Minimum: 20, Maximum: 64). PostgreSQL maximum WAL senders. </li>
+<li><a href="#max_worker_processes" name="max_worker_processes"><code>max_worker_processes</code></a> (integer, Minimum: 8, Maximum: 96). Sets the maximum number of background processes that the system can support. </li>
+<li><a href="#pg_partman_bgw.interval" name="pg_partman_bgw.interval"><code>pg_partman_bgw.interval</code></a> (integer, Minimum: 3600, Maximum: 604800). Sets the time interval to run pg_partman's scheduled tasks. </li>
+<li><a href="#pg_partman_bgw.role" name="pg_partman_bgw.role"><code>pg_partman_bgw.role</code></a> (string, Pattern: <code>^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$</code>, MaxLength: 64). Controls which role to use for pg_partman's scheduled background tasks. </li>
+<li><a href="#pg_stat_monitor.pgsm_enable_query_plan" name="pg_stat_monitor.pgsm_enable_query_plan"><code>pg_stat_monitor.pgsm_enable_query_plan</code></a> (boolean). Enables or disables query plan monitoring. </li>
+<li><a href="#pg_stat_monitor.pgsm_max_buckets" name="pg_stat_monitor.pgsm_max_buckets"><code>pg_stat_monitor.pgsm_max_buckets</code></a> (integer, Minimum: 1, Maximum: 10). Sets the maximum number of buckets. </li>
+<li><a href="#pg_stat_statements.track" name="pg_stat_statements.track"><code>pg_stat_statements.track</code></a> (string, Enum: <code>all</code>, <code>top</code>, <code>none</code>). Controls which statements are counted. Specify top to track top-level statements (those issued directly by clients), all to also track nested statements (such as statements invoked within functions), or none to disable statement statistics collection. The default value is top. </li>
+<li><a href="#temp_file_limit" name="temp_file_limit"><code>temp_file_limit</code></a> (integer, Minimum: -1, Maximum: 2147483647). PostgreSQL temporary file limit in KiB, -1 for unlimited. </li>
+<li><a href="#timezone" name="timezone"><code>timezone</code></a> (string, MaxLength: 64). PostgreSQL service timezone. </li>
+<li><a href="#track_activity_query_size" name="track_activity_query_size"><code>track_activity_query_size</code></a> (integer, Minimum: 1024, Maximum: 10240). Specifies the number of bytes reserved to track the currently executing command for each active session. </li>
+<li><a href="#track_commit_timestamp" name="track_commit_timestamp"><code>track_commit_timestamp</code></a> (string, Enum: <code>off</code>, <code>on</code>). Record commit time of transactions. </li>
+<li><a href="#track_functions" name="track_functions"><code>track_functions</code></a> (string, Enum: <code>all</code>, <code>pl</code>, <code>none</code>). Enables tracking of function call counts and time used. </li>
+<li><a href="#track_io_timing" name="track_io_timing"><code>track_io_timing</code></a> (string, Enum: <code>off</code>, <code>on</code>). Enables timing of database I/O calls. This parameter is off by default, because it will repeatedly query the operating system for the current time, which may cause significant overhead on some platforms. </li>
+<li><a href="#wal_sender_timeout" name="wal_sender_timeout"><code>wal_sender_timeout</code></a> (integer). Terminate replication connections that are inactive for longer than this amount of time, in milliseconds. Setting this value to zero disables the timeout. </li>
+<li><a href="#wal_writer_delay" name="wal_writer_delay"><code>wal_writer_delay</code></a> (integer, Minimum: 10, Maximum: 200). WAL flush interval in milliseconds. Note that setting this value to lower than the default 200ms may negatively impact performance. </li>
+</ul>
+<h3 id="pgbouncer">pgbouncer<a class="headerlink" href="#pgbouncer" title="Permanent link">&para;</a></h3>
+<p>PGBouncer connection pooling settings.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#autodb_idle_timeout" name="autodb_idle_timeout"><code>autodb_idle_timeout</code></a> (integer, Minimum: 0, Maximum: 86400). If the automatically created database pools have been unused this many seconds, they are freed. If 0 then timeout is disabled. [seconds]. </li>
+<li><a href="#autodb_max_db_connections" name="autodb_max_db_connections"><code>autodb_max_db_connections</code></a> (integer, Minimum: 0, Maximum: 2147483647). Do not allow more than this many server connections per database (regardless of user). Setting it to 0 means unlimited. </li>
+<li><a href="#autodb_pool_mode" name="autodb_pool_mode"><code>autodb_pool_mode</code></a> (string, Enum: <code>session</code>, <code>transaction</code>, <code>statement</code>). PGBouncer pool mode. </li>
+<li><a href="#autodb_pool_size" name="autodb_pool_size"><code>autodb_pool_size</code></a> (integer, Minimum: 0, Maximum: 10000). If non-zero then create automatically a pool of that size per user when a pool doesn't exist. </li>
+<li><a href="#ignore_startup_parameters" name="ignore_startup_parameters"><code>ignore_startup_parameters</code></a> (array, MaxItems: 32). List of parameters to ignore when given in startup packet. </li>
+<li><a href="#min_pool_size" name="min_pool_size"><code>min_pool_size</code></a> (integer, Minimum: 0, Maximum: 10000). Add more server connections to pool if below this number. Improves behavior when usual load comes suddenly back after period of total inactivity. The value is effectively capped at the pool size. </li>
+<li><a href="#server_idle_timeout" name="server_idle_timeout"><code>server_idle_timeout</code></a> (integer, Minimum: 0, Maximum: 86400). If a server connection has been idle more than this many seconds it will be dropped. If 0 then timeout is disabled. [seconds]. </li>
+<li><a href="#server_lifetime" name="server_lifetime"><code>server_lifetime</code></a> (integer, Minimum: 60, Maximum: 86400). The pooler will close an unused server connection that has been connected longer than this. [seconds]. </li>
+<li><a href="#server_reset_query_always" name="server_reset_query_always"><code>server_reset_query_always</code></a> (boolean). Run server_reset_query (DISCARD ALL) in all pooling modes. </li>
+</ul>
+<h3 id="pglookout">pglookout<a class="headerlink" href="#pglookout" title="Permanent link">&para;</a></h3>
+<p>PGLookout settings.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#max_failover_replication_time_lag" name="max_failover_replication_time_lag"><code>max_failover_replication_time_lag</code></a> (integer, Minimum: 10). Number of seconds of master unavailability before triggering database failover to standby. </li>
+</ul>
+<h3 id="private_access">private_access<a class="headerlink" href="#private_access" title="Permanent link">&para;</a></h3>
+<p>Allow access to selected service ports from private networks.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#pg" name="pg"><code>pg</code></a> (boolean). Allow clients to connect to pg with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations. </li>
+<li><a href="#pgbouncer" name="pgbouncer"><code>pgbouncer</code></a> (boolean). Allow clients to connect to pgbouncer with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations. </li>
+<li><a href="#prometheus" name="prometheus"><code>prometheus</code></a> (boolean). Allow clients to connect to prometheus with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations. </li>
+</ul>
+<h3 id="privatelink_access">privatelink_access<a class="headerlink" href="#privatelink_access" title="Permanent link">&para;</a></h3>
+<p>Allow access to selected service components through Privatelink.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#pg" name="pg"><code>pg</code></a> (boolean). Enable pg. </li>
+<li><a href="#pgbouncer" name="pgbouncer"><code>pgbouncer</code></a> (boolean). Enable pgbouncer. </li>
+<li><a href="#prometheus" name="prometheus"><code>prometheus</code></a> (boolean). Enable prometheus. </li>
+</ul>
+<h3 id="public_access">public_access<a class="headerlink" href="#public_access" title="Permanent link">&para;</a></h3>
+<p>Allow access to selected service ports from the public Internet.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#pg" name="pg"><code>pg</code></a> (boolean). Allow clients to connect to pg from the public internet for service nodes that are in a project VPC or another type of private network. </li>
+<li><a href="#pgbouncer" name="pgbouncer"><code>pgbouncer</code></a> (boolean). Allow clients to connect to pgbouncer from the public internet for service nodes that are in a project VPC or another type of private network. </li>
+<li><a href="#prometheus" name="prometheus"><code>prometheus</code></a> (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network. </li>
+</ul>
+<h3 id="timescaledb">timescaledb<a class="headerlink" href="#timescaledb" title="Permanent link">&para;</a></h3>
+<p>TimescaleDB extension configuration values.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#max_background_workers" name="max_background_workers"><code>max_background_workers</code></a> (integer, Minimum: 1, Maximum: 4096). The number of background workers for timescaledb operations. You should configure this setting to the sum of your number of databases and the total number of concurrent background workers you want running at any given point in time. </li>
+</ul>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="opensearch.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: OpenSearch" rel="prev">
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <div class="md-ellipsis">
+                <span class="md-footer__direction">
+                  Previous
+                </span>
+                OpenSearch
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="project.html" class="md-footer__link md-footer__link--next" aria-label="Next: Project" rel="next">
+            <div class="md-footer__title">
+              <div class="md-ellipsis">
+                <span class="md-footer__direction">
+                  Next
+                </span>
+                Project
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Aiven Team
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.db81ec45.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.4b2c34cd.min.js"></script>
+      
+    
+  </body>
+</html>

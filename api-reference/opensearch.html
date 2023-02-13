@@ -1,0 +1,1502 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="mysql.html">
+      
+      
+        <link rel="next" href="postgresql.html">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.12">
+    
+    
+      
+        <title>OpenSearch - Aiven Operator</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.0d440cfe.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="red" data-md-color-accent="deep-orange">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#authSecretRef" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="Aiven Operator" class="md-header__button md-logo" aria-label="Aiven Operator" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Aiven Operator
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OpenSearch
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="slate" data-md-color-primary="red" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="default" data-md-color-primary="deep-orange" data-md-color-accent="red"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/aiven/aiven-operator/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="Aiven Operator" class="md-nav__button md-logo" aria-label="Aiven Operator" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    Aiven Operator
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/aiven/aiven-operator/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CHANGELOG.html" class="md-nav__link">
+        Changelog
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Installation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Installation
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/prerequisites.html" class="md-nav__link">
+        Prerequisites
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/helm.html" class="md-nav__link">
+        Installing with Helm (recommended)
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/kubectl.html" class="md-nav__link">
+        Installing with kubectl
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/uninstalling.html" class="md-nav__link">
+        Uninstalling
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authentication.html" class="md-nav__link">
+        Authenticating
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          Resources
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Resources
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/project.html" class="md-nav__link">
+        Aiven Project
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/project-vpc.html" class="md-nav__link">
+        Aiven Project VPC
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
+          Kafka
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5_3">
+          <span class="md-nav__icon md-icon"></span>
+          Kafka
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/kafka/index.html" class="md-nav__link">
+        Kafka
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/kafka/schema.html" class="md-nav__link">
+        Kafka Schema
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/kafka/connect.html" class="md-nav__link">
+        Kafka Connect
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/postgresql.html" class="md-nav__link">
+        PostgreSQL
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/opensearch.html" class="md-nav__link">
+        OpenSearch
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/redis.html" class="md-nav__link">
+        Redis
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/service-integrations.html" class="md-nav__link">
+        Service Integrations
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting.html" class="md-nav__link">
+        Troubleshooting
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Contributing
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Contributing
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/index.html" class="md-nav__link">
+        Contributing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/developer-guide.html" class="md-nav__link">
+        Developer guide
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          API Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          API Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cassandra.html" class="md-nav__link">
+        Cassandra
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="clickhouse.html" class="md-nav__link">
+        Clickhouse
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="clickhouseuser.html" class="md-nav__link">
+        ClickhouseUser
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="connectionpool.html" class="md-nav__link">
+        ConnectionPool
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="database.html" class="md-nav__link">
+        Database
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="grafana.html" class="md-nav__link">
+        Grafana
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafka.html" class="md-nav__link">
+        Kafka
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafkaacl.html" class="md-nav__link">
+        KafkaACL
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafkaconnect.html" class="md-nav__link">
+        KafkaConnect
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafkaconnector.html" class="md-nav__link">
+        KafkaConnector
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafkaschema.html" class="md-nav__link">
+        KafkaSchema
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafkatopic.html" class="md-nav__link">
+        KafkaTopic
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mysql.html" class="md-nav__link">
+        MySQL
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          OpenSearch
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="opensearch.html" class="md-nav__link md-nav__link--active">
+        OpenSearch
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authSecretRef" class="md-nav__link">
+    authSecretRef
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connInfoSecretTarget" class="md-nav__link">
+    connInfoSecretTarget
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#projectVPCRef" class="md-nav__link">
+    projectVPCRef
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#serviceIntegrations" class="md-nav__link">
+    serviceIntegrations
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#userConfig" class="md-nav__link">
+    userConfig
+  </a>
+  
+    <nav class="md-nav" aria-label="userConfig">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#index_patterns" class="md-nav__link">
+    index_patterns
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#index_template" class="md-nav__link">
+    index_template
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ip_filter" class="md-nav__link">
+    ip_filter
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opensearch" class="md-nav__link">
+    opensearch
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opensearch_dashboards" class="md-nav__link">
+    opensearch_dashboards
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#private_access" class="md-nav__link">
+    private_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#privatelink_access" class="md-nav__link">
+    privatelink_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#public_access" class="md-nav__link">
+    public_access
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="postgresql.html" class="md-nav__link">
+        PostgreSQL
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="project.html" class="md-nav__link">
+        Project
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="projectvpc.html" class="md-nav__link">
+        ProjectVPC
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="redis.html" class="md-nav__link">
+        Redis
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="serviceintegration.html" class="md-nav__link">
+        ServiceIntegration
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="serviceuser.html" class="md-nav__link">
+        ServiceUser
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authSecretRef" class="md-nav__link">
+    authSecretRef
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connInfoSecretTarget" class="md-nav__link">
+    connInfoSecretTarget
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#projectVPCRef" class="md-nav__link">
+    projectVPCRef
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#serviceIntegrations" class="md-nav__link">
+    serviceIntegrations
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#userConfig" class="md-nav__link">
+    userConfig
+  </a>
+  
+    <nav class="md-nav" aria-label="userConfig">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#index_patterns" class="md-nav__link">
+    index_patterns
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#index_template" class="md-nav__link">
+    index_template
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ip_filter" class="md-nav__link">
+    ip_filter
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opensearch" class="md-nav__link">
+    opensearch
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opensearch_dashboards" class="md-nav__link">
+    opensearch_dashboards
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#private_access" class="md-nav__link">
+    private_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#privatelink_access" class="md-nav__link">
+    privatelink_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#public_access" class="md-nav__link">
+    public_access
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+    
+      
+    
+    <a href="https://github.com/aiven/aiven-operator/raw/main/docs/api-reference/opensearch.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
+    </a>
+  
+
+
+
+  <h1>OpenSearch</h1>
+
+<table>
+<thead>
+<tr>
+<th>ApiVersion</th>
+<th>Kind</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>aiven.io/v1alpha1</td>
+<td>OpenSearch</td>
+</tr>
+</tbody>
+</table>
+<p>OpenSearchSpec defines the desired state of OpenSearch.</p>
+<ul>
+<li><a href="#authSecretRef" name="authSecretRef"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See <a href="#authSecretRef">below for nested schema</a>.</li>
+<li><a href="#cloudName" name="cloudName"><code>cloudName</code></a> (string, MaxLength: 256). Cloud the service runs in. </li>
+<li><a href="#connInfoSecretTarget" name="connInfoSecretTarget"><code>connInfoSecretTarget</code></a> (object). Information regarding secret creation. See <a href="#connInfoSecretTarget">below for nested schema</a>.</li>
+<li><a href="#disk_space" name="disk_space"><code>disk_space</code></a> (string). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing. </li>
+<li><a href="#maintenanceWindowDow" name="maintenanceWindowDow"><code>maintenanceWindowDow</code></a> (string, Enum: <code>monday</code>, <code>tuesday</code>, <code>wednesday</code>, <code>thursday</code>, <code>friday</code>, <code>saturday</code>, <code>sunday</code>). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc. </li>
+<li><a href="#maintenanceWindowTime" name="maintenanceWindowTime"><code>maintenanceWindowTime</code></a> (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format. </li>
+<li><a href="#plan" name="plan"><code>plan</code></a> (string, MaxLength: 128). Subscription plan. </li>
+<li><a href="#project" name="project"><code>project</code></a> (string, Immutable, MaxLength: 63). Target project. </li>
+<li><a href="#projectVPCRef" name="projectVPCRef"><code>projectVPCRef</code></a> (object, Immutable). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See <a href="#projectVPCRef">below for nested schema</a>.</li>
+<li><a href="#projectVpcId" name="projectVpcId"><code>projectVpcId</code></a> (string, Immutable, MaxLength: 36). Identifier of the VPC the service should be in, if any. </li>
+<li><a href="#serviceIntegrations" name="serviceIntegrations"><code>serviceIntegrations</code></a> (array, Immutable, MaxItems: 1). Service integrations to specify when creating a service. Not applied after initial service creation. See <a href="#serviceIntegrations">below for nested schema</a>.</li>
+<li><a href="#tags" name="tags"><code>tags</code></a> (object). Tags are key-value pairs that allow you to categorize services. </li>
+<li><a href="#terminationProtection" name="terminationProtection"><code>terminationProtection</code></a> (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services. </li>
+<li><a href="#userConfig" name="userConfig"><code>userConfig</code></a> (object). OpenSearch specific user configuration options. See <a href="#userConfig">below for nested schema</a>.</li>
+</ul>
+<h2 id="authSecretRef">authSecretRef<a class="headerlink" href="#authSecretRef" title="Permanent link">&para;</a></h2>
+<p>Authentication reference to Aiven token in a secret.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#key" name="key"><code>key</code></a> (string, MinLength: 1).  </li>
+<li><a href="#name" name="name"><code>name</code></a> (string, MinLength: 1).  </li>
+</ul>
+<h2 id="connInfoSecretTarget">connInfoSecretTarget<a class="headerlink" href="#connInfoSecretTarget" title="Permanent link">&para;</a></h2>
+<p>Information regarding secret creation.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#name" name="name"><code>name</code></a> (string). Name of the Secret resource to be created. </li>
+</ul>
+<h2 id="projectVPCRef">projectVPCRef<a class="headerlink" href="#projectVPCRef" title="Permanent link">&para;</a></h2>
+<p>ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#name" name="name"><code>name</code></a> (string, MinLength: 1).  </li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#namespace" name="namespace"><code>namespace</code></a> (string, MinLength: 1).  </li>
+</ul>
+<h2 id="serviceIntegrations">serviceIntegrations<a class="headerlink" href="#serviceIntegrations" title="Permanent link">&para;</a></h2>
+<p>Service integrations to specify when creating a service. Not applied after initial service creation.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#integrationType" name="integrationType"><code>integrationType</code></a> (string, Enum: <code>read_replica</code>).  </li>
+<li><a href="#sourceServiceName" name="sourceServiceName"><code>sourceServiceName</code></a> (string, MinLength: 1, MaxLength: 64).  </li>
+</ul>
+<h2 id="userConfig">userConfig<a class="headerlink" href="#userConfig" title="Permanent link">&para;</a></h2>
+<p>OpenSearch specific user configuration options.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#additional_backup_regions" name="additional_backup_regions"><code>additional_backup_regions</code></a> (array, MaxItems: 1). Additional Cloud Regions for Backup Replication. </li>
+<li><a href="#custom_domain" name="custom_domain"><code>custom_domain</code></a> (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name. </li>
+<li><a href="#disable_replication_factor_adjustment" name="disable_replication_factor_adjustment"><code>disable_replication_factor_adjustment</code></a> (boolean). DEPRECATED: Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can no longer be activated. </li>
+<li><a href="#index_patterns" name="index_patterns"><code>index_patterns</code></a> (array, MaxItems: 512). Index patterns. See <a href="#index_patterns">below for nested schema</a>.</li>
+<li><a href="#index_template" name="index_template"><code>index_template</code></a> (object). Template settings for all new indexes. See <a href="#index_template">below for nested schema</a>.</li>
+<li><a href="#ip_filter" name="ip_filter"><code>ip_filter</code></a> (array, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'. See <a href="#ip_filter">below for nested schema</a>.</li>
+<li><a href="#keep_index_refresh_interval" name="keep_index_refresh_interval"><code>keep_index_refresh_interval</code></a> (boolean). Aiven automation resets index.refresh_interval to default value for every index to be sure that indices are always visible to search. If it doesn't fit your case, you can disable this by setting up this flag to true. </li>
+<li><a href="#max_index_count" name="max_index_count"><code>max_index_count</code></a> (integer, Minimum: 0). DEPRECATED: use index_patterns instead. </li>
+<li><a href="#opensearch" name="opensearch"><code>opensearch</code></a> (object). OpenSearch settings. See <a href="#opensearch">below for nested schema</a>.</li>
+<li><a href="#opensearch_dashboards" name="opensearch_dashboards"><code>opensearch_dashboards</code></a> (object). OpenSearch Dashboards settings. See <a href="#opensearch_dashboards">below for nested schema</a>.</li>
+<li><a href="#opensearch_version" name="opensearch_version"><code>opensearch_version</code></a> (string, Enum: <code>1</code>, <code>2</code>). OpenSearch major version. </li>
+<li><a href="#private_access" name="private_access"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See <a href="#private_access">below for nested schema</a>.</li>
+<li><a href="#privatelink_access" name="privatelink_access"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See <a href="#privatelink_access">below for nested schema</a>.</li>
+<li><a href="#project_to_fork_from" name="project_to_fork_from"><code>project_to_fork_from</code></a> (string, Immutable, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created. </li>
+<li><a href="#public_access" name="public_access"><code>public_access</code></a> (object). Allow access to selected service ports from the public Internet. See <a href="#public_access">below for nested schema</a>.</li>
+<li><a href="#recovery_basebackup_name" name="recovery_basebackup_name"><code>recovery_basebackup_name</code></a> (string, Pattern: <code>^[a-zA-Z0-9-_:.]+$</code>, MaxLength: 128). Name of the basebackup to restore in forked service. </li>
+<li><a href="#service_to_fork_from" name="service_to_fork_from"><code>service_to_fork_from</code></a> (string, Immutable, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created. </li>
+<li><a href="#static_ips" name="static_ips"><code>static_ips</code></a> (boolean). Use static public IP addresses. </li>
+</ul>
+<h3 id="index_patterns">index_patterns<a class="headerlink" href="#index_patterns" title="Permanent link">&para;</a></h3>
+<p>Allows you to create glob style patterns and set a max number of indexes matching this pattern you want to keep. Creating indexes exceeding this value will cause the oldest one to get deleted. You could for example create a pattern looking like 'logs.?' and then create index logs.1, logs.2 etc, it will delete logs.1 once you create logs.6. Do note 'logs.?' does not apply to logs.10. Note: Setting max_index_count to 0 will do nothing and the pattern gets ignored.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#max_index_count" name="max_index_count"><code>max_index_count</code></a> (integer, Minimum: 0). Maximum number of indexes to keep. </li>
+<li><a href="#pattern" name="pattern"><code>pattern</code></a> (string, Pattern: <code>^[A-Za-z0-9-_.*?]+$</code>, MaxLength: 1024). fnmatch pattern. </li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#sorting_algorithm" name="sorting_algorithm"><code>sorting_algorithm</code></a> (string, Enum: <code>alphabetical</code>, <code>creation_date</code>). Deletion sorting algorithm. </li>
+</ul>
+<h3 id="index_template">index_template<a class="headerlink" href="#index_template" title="Permanent link">&para;</a></h3>
+<p>Template settings for all new indexes.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#mapping_nested_objects_limit" name="mapping_nested_objects_limit"><code>mapping_nested_objects_limit</code></a> (integer, Minimum: 0, Maximum: 100000). The maximum number of nested JSON objects that a single document can contain across all nested types. This limit helps to prevent out of memory errors when a document contains too many nested objects. Default is 10000. </li>
+<li><a href="#number_of_replicas" name="number_of_replicas"><code>number_of_replicas</code></a> (integer, Minimum: 0, Maximum: 29). The number of replicas each primary shard has. </li>
+<li><a href="#number_of_shards" name="number_of_shards"><code>number_of_shards</code></a> (integer, Minimum: 1, Maximum: 1024). The number of primary shards that an index should have. </li>
+</ul>
+<h3 id="ip_filter">ip_filter<a class="headerlink" href="#ip_filter" title="Permanent link">&para;</a></h3>
+<p>CIDR address block, either as a string, or in a dict with an optional description field.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#network" name="network"><code>network</code></a> (string, MaxLength: 43). CIDR address block. </li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#description" name="description"><code>description</code></a> (string, MaxLength: 1024). Description for IP filter list entry. </li>
+</ul>
+<h3 id="opensearch">opensearch<a class="headerlink" href="#opensearch" title="Permanent link">&para;</a></h3>
+<p>OpenSearch settings.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#action_auto_create_index_enabled" name="action_auto_create_index_enabled"><code>action_auto_create_index_enabled</code></a> (boolean). Explicitly allow or block automatic creation of indices. Defaults to true. </li>
+<li><a href="#action_destructive_requires_name" name="action_destructive_requires_name"><code>action_destructive_requires_name</code></a> (boolean). Require explicit index names when deleting. </li>
+<li><a href="#cluster_max_shards_per_node" name="cluster_max_shards_per_node"><code>cluster_max_shards_per_node</code></a> (integer, Minimum: 100, Maximum: 10000). Controls the number of shards allowed in the cluster per data node. </li>
+<li><a href="#cluster_routing_allocation_node_concurrent_recoveries" name="cluster_routing_allocation_node_concurrent_recoveries"><code>cluster_routing_allocation_node_concurrent_recoveries</code></a> (integer, Minimum: 2, Maximum: 16). How many concurrent incoming/outgoing shard recoveries (normally replicas) are allowed to happen on a node. Defaults to 2. </li>
+<li><a href="#email_sender_name" name="email_sender_name"><code>email_sender_name</code></a> (string, Pattern: <code>^[a-zA-Z0-9-_]+$</code>, MaxLength: 40). Sender email name placeholder to be used in Opensearch Dashboards and Opensearch keystore. </li>
+<li><a href="#email_sender_password" name="email_sender_password"><code>email_sender_password</code></a> (string, Pattern: <code>^[^\x00-\x1F]+$</code>, MaxLength: 1024). Sender email password for Opensearch alerts to authenticate with SMTP server. </li>
+<li><a href="#email_sender_username" name="email_sender_username"><code>email_sender_username</code></a> (string, MaxLength: 320). Sender email address for Opensearch alerts. </li>
+<li><a href="#http_max_content_length" name="http_max_content_length"><code>http_max_content_length</code></a> (integer, Minimum: 1, Maximum: 2147483647). Maximum content length for HTTP requests to the OpenSearch HTTP API, in bytes. </li>
+<li><a href="#http_max_header_size" name="http_max_header_size"><code>http_max_header_size</code></a> (integer, Minimum: 1024, Maximum: 262144). The max size of allowed headers, in bytes. </li>
+<li><a href="#http_max_initial_line_length" name="http_max_initial_line_length"><code>http_max_initial_line_length</code></a> (integer, Minimum: 1024, Maximum: 65536). The max length of an HTTP URL, in bytes. </li>
+<li><a href="#indices_fielddata_cache_size" name="indices_fielddata_cache_size"><code>indices_fielddata_cache_size</code></a> (integer, Minimum: 3, Maximum: 100). Relative amount. Maximum amount of heap memory used for field data cache. This is an expert setting; decreasing the value too much will increase overhead of loading field data; too much memory used for field data cache will decrease amount of heap available for other operations. </li>
+<li><a href="#indices_memory_index_buffer_size" name="indices_memory_index_buffer_size"><code>indices_memory_index_buffer_size</code></a> (integer, Minimum: 3, Maximum: 40). Percentage value. Default is 10%. Total amount of heap used for indexing buffer, before writing segments to disk. This is an expert setting. Too low value will slow down indexing; too high value will increase indexing performance but causes performance issues for query performance. </li>
+<li><a href="#indices_queries_cache_size" name="indices_queries_cache_size"><code>indices_queries_cache_size</code></a> (integer, Minimum: 3, Maximum: 40). Percentage value. Default is 10%. Maximum amount of heap used for query cache. This is an expert setting. Too low value will decrease query performance and increase performance for other operations; too high value will cause issues with other OpenSearch functionality. </li>
+<li><a href="#indices_query_bool_max_clause_count" name="indices_query_bool_max_clause_count"><code>indices_query_bool_max_clause_count</code></a> (integer, Minimum: 64, Maximum: 4096). Maximum number of clauses Lucene BooleanQuery can have. The default value (1024) is relatively high, and increasing it may cause performance issues. Investigate other approaches first before increasing this value. </li>
+<li><a href="#indices_recovery_max_bytes_per_sec" name="indices_recovery_max_bytes_per_sec"><code>indices_recovery_max_bytes_per_sec</code></a> (integer, Minimum: 40, Maximum: 400). Limits total inbound and outbound recovery traffic for each node. Applies to both peer recoveries as well as snapshot recoveries (i.e., restores from a snapshot). Defaults to 40mb. </li>
+<li><a href="#indices_recovery_max_concurrent_file_chunks" name="indices_recovery_max_concurrent_file_chunks"><code>indices_recovery_max_concurrent_file_chunks</code></a> (integer, Minimum: 2, Maximum: 5). Number of file chunks sent in parallel for each recovery. Defaults to 2. </li>
+<li><a href="#override_main_response_version" name="override_main_response_version"><code>override_main_response_version</code></a> (boolean). Compatibility mode sets OpenSearch to report its version as 7.10 so clients continue to work. Default is false. </li>
+<li><a href="#reindex_remote_whitelist" name="reindex_remote_whitelist"><code>reindex_remote_whitelist</code></a> (array, MaxItems: 32). Whitelisted addresses for reindexing. Changing this value will cause all OpenSearch instances to restart. </li>
+<li><a href="#script_max_compilations_rate" name="script_max_compilations_rate"><code>script_max_compilations_rate</code></a> (string, MaxLength: 1024). Script compilation circuit breaker limits the number of inline script compilations within a period of time. Default is use-context. </li>
+<li><a href="#search_max_buckets" name="search_max_buckets"><code>search_max_buckets</code></a> (integer, Minimum: 1, Maximum: 20000). Maximum number of aggregation buckets allowed in a single response. OpenSearch default value is used when this is not defined. </li>
+<li><a href="#thread_pool_analyze_queue_size" name="thread_pool_analyze_queue_size"><code>thread_pool_analyze_queue_size</code></a> (integer, Minimum: 10, Maximum: 2000). Size for the thread pool queue. See documentation for exact details. </li>
+<li><a href="#thread_pool_analyze_size" name="thread_pool_analyze_size"><code>thread_pool_analyze_size</code></a> (integer, Minimum: 1, Maximum: 128). Size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value. </li>
+<li><a href="#thread_pool_force_merge_size" name="thread_pool_force_merge_size"><code>thread_pool_force_merge_size</code></a> (integer, Minimum: 1, Maximum: 128). Size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value. </li>
+<li><a href="#thread_pool_get_queue_size" name="thread_pool_get_queue_size"><code>thread_pool_get_queue_size</code></a> (integer, Minimum: 10, Maximum: 2000). Size for the thread pool queue. See documentation for exact details. </li>
+<li><a href="#thread_pool_get_size" name="thread_pool_get_size"><code>thread_pool_get_size</code></a> (integer, Minimum: 1, Maximum: 128). Size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value. </li>
+<li><a href="#thread_pool_search_queue_size" name="thread_pool_search_queue_size"><code>thread_pool_search_queue_size</code></a> (integer, Minimum: 10, Maximum: 2000). Size for the thread pool queue. See documentation for exact details. </li>
+<li><a href="#thread_pool_search_size" name="thread_pool_search_size"><code>thread_pool_search_size</code></a> (integer, Minimum: 1, Maximum: 128). Size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value. </li>
+<li><a href="#thread_pool_search_throttled_queue_size" name="thread_pool_search_throttled_queue_size"><code>thread_pool_search_throttled_queue_size</code></a> (integer, Minimum: 10, Maximum: 2000). Size for the thread pool queue. See documentation for exact details. </li>
+<li><a href="#thread_pool_search_throttled_size" name="thread_pool_search_throttled_size"><code>thread_pool_search_throttled_size</code></a> (integer, Minimum: 1, Maximum: 128). Size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value. </li>
+<li><a href="#thread_pool_write_queue_size" name="thread_pool_write_queue_size"><code>thread_pool_write_queue_size</code></a> (integer, Minimum: 10, Maximum: 2000). Size for the thread pool queue. See documentation for exact details. </li>
+<li><a href="#thread_pool_write_size" name="thread_pool_write_size"><code>thread_pool_write_size</code></a> (integer, Minimum: 1, Maximum: 128). Size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value. </li>
+</ul>
+<h3 id="opensearch_dashboards">opensearch_dashboards<a class="headerlink" href="#opensearch_dashboards" title="Permanent link">&para;</a></h3>
+<p>OpenSearch Dashboards settings.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#enabled" name="enabled"><code>enabled</code></a> (boolean). Enable or disable OpenSearch Dashboards. </li>
+<li><a href="#max_old_space_size" name="max_old_space_size"><code>max_old_space_size</code></a> (integer, Minimum: 64, Maximum: 2048). Limits the maximum amount of memory (in MiB) the OpenSearch Dashboards process can use. This sets the max_old_space_size option of the nodejs running the OpenSearch Dashboards. Note: the memory reserved by OpenSearch Dashboards is not available for OpenSearch. </li>
+<li><a href="#opensearch_request_timeout" name="opensearch_request_timeout"><code>opensearch_request_timeout</code></a> (integer, Minimum: 5000, Maximum: 120000). Timeout in milliseconds for requests made by OpenSearch Dashboards towards OpenSearch. </li>
+</ul>
+<h3 id="private_access">private_access<a class="headerlink" href="#private_access" title="Permanent link">&para;</a></h3>
+<p>Allow access to selected service ports from private networks.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#opensearch" name="opensearch"><code>opensearch</code></a> (boolean). Allow clients to connect to opensearch with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations. </li>
+<li><a href="#opensearch_dashboards" name="opensearch_dashboards"><code>opensearch_dashboards</code></a> (boolean). Allow clients to connect to opensearch_dashboards with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations. </li>
+<li><a href="#prometheus" name="prometheus"><code>prometheus</code></a> (boolean). Allow clients to connect to prometheus with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations. </li>
+</ul>
+<h3 id="privatelink_access">privatelink_access<a class="headerlink" href="#privatelink_access" title="Permanent link">&para;</a></h3>
+<p>Allow access to selected service components through Privatelink.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#opensearch" name="opensearch"><code>opensearch</code></a> (boolean). Enable opensearch. </li>
+<li><a href="#opensearch_dashboards" name="opensearch_dashboards"><code>opensearch_dashboards</code></a> (boolean). Enable opensearch_dashboards. </li>
+<li><a href="#prometheus" name="prometheus"><code>prometheus</code></a> (boolean). Enable prometheus. </li>
+</ul>
+<h3 id="public_access">public_access<a class="headerlink" href="#public_access" title="Permanent link">&para;</a></h3>
+<p>Allow access to selected service ports from the public Internet.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#opensearch" name="opensearch"><code>opensearch</code></a> (boolean). Allow clients to connect to opensearch from the public internet for service nodes that are in a project VPC or another type of private network. </li>
+<li><a href="#opensearch_dashboards" name="opensearch_dashboards"><code>opensearch_dashboards</code></a> (boolean). Allow clients to connect to opensearch_dashboards from the public internet for service nodes that are in a project VPC or another type of private network. </li>
+<li><a href="#prometheus" name="prometheus"><code>prometheus</code></a> (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network. </li>
+</ul>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="mysql.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: MySQL" rel="prev">
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <div class="md-ellipsis">
+                <span class="md-footer__direction">
+                  Previous
+                </span>
+                MySQL
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="postgresql.html" class="md-footer__link md-footer__link--next" aria-label="Next: PostgreSQL" rel="next">
+            <div class="md-footer__title">
+              <div class="md-ellipsis">
+                <span class="md-footer__direction">
+                  Next
+                </span>
+                PostgreSQL
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Aiven Team
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.db81ec45.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.4b2c34cd.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -9,17 +9,17 @@
       
       
       
-        <link rel="prev" href="opensearch.html">
+        <link rel="prev" href="kafkaconnect.html">
       
       
-        <link rel="next" href="service-integrations.html">
+        <link rel="next" href="kafkaschema.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.12">
     
     
       
-        <title>Redis - Aiven Operator</title>
+        <title>KafkaConnector - Aiven Operator</title>
       
     
     
@@ -71,7 +71,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#creating-a-redis-instance" class="md-skip">
+        <a href="#authSecretRef" class="md-skip">
           Skip to content
         </a>
       
@@ -103,7 +103,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Redis
+              KafkaConnector
             
           </span>
         </div>
@@ -366,16 +366,14 @@
 
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
       
       
       
@@ -384,7 +382,7 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_5">
           <span class="md-nav__icon md-icon"></span>
           Resources
@@ -397,7 +395,7 @@
   
   
     <li class="md-nav__item">
-      <a href="project.html" class="md-nav__link">
+      <a href="../resources/project.html" class="md-nav__link">
         Aiven Project
       </a>
     </li>
@@ -411,7 +409,7 @@
   
   
     <li class="md-nav__item">
-      <a href="project-vpc.html" class="md-nav__link">
+      <a href="../resources/project-vpc.html" class="md-nav__link">
         Aiven Project VPC
       </a>
     </li>
@@ -452,7 +450,7 @@
   
   
     <li class="md-nav__item">
-      <a href="kafka/index.html" class="md-nav__link">
+      <a href="../resources/kafka/index.html" class="md-nav__link">
         Kafka
       </a>
     </li>
@@ -466,7 +464,7 @@
   
   
     <li class="md-nav__item">
-      <a href="kafka/schema.html" class="md-nav__link">
+      <a href="../resources/kafka/schema.html" class="md-nav__link">
         Kafka Schema
       </a>
     </li>
@@ -480,7 +478,7 @@
   
   
     <li class="md-nav__item">
-      <a href="kafka/connect.html" class="md-nav__link">
+      <a href="../resources/kafka/connect.html" class="md-nav__link">
         Kafka Connect
       </a>
     </li>
@@ -501,7 +499,7 @@
   
   
     <li class="md-nav__item">
-      <a href="postgresql.html" class="md-nav__link">
+      <a href="../resources/postgresql.html" class="md-nav__link">
         PostgreSQL
       </a>
     </li>
@@ -515,7 +513,7 @@
   
   
     <li class="md-nav__item">
-      <a href="opensearch.html" class="md-nav__link">
+      <a href="../resources/opensearch.html" class="md-nav__link">
         OpenSearch
       </a>
     </li>
@@ -527,55 +525,11 @@
               
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Redis
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="redis.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../resources/redis.html" class="md-nav__link">
         Redis
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#creating-a-redis-instance" class="md-nav__link">
-    Creating a Redis instance
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#using-the-connection-secret" class="md-nav__link">
-    Using the connection Secret
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -587,7 +541,7 @@
   
   
     <li class="md-nav__item">
-      <a href="service-integrations.html" class="md-nav__link">
+      <a href="../resources/service-integrations.html" class="md-nav__link">
         Service Integrations
       </a>
     </li>
@@ -685,14 +639,16 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
       
       
       
@@ -701,7 +657,7 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
         <label class="md-nav__title" for="__nav_8">
           <span class="md-nav__icon md-icon"></span>
           API Reference
@@ -714,7 +670,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/cassandra.html" class="md-nav__link">
+      <a href="cassandra.html" class="md-nav__link">
         Cassandra
       </a>
     </li>
@@ -728,7 +684,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/clickhouse.html" class="md-nav__link">
+      <a href="clickhouse.html" class="md-nav__link">
         Clickhouse
       </a>
     </li>
@@ -742,7 +698,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/clickhouseuser.html" class="md-nav__link">
+      <a href="clickhouseuser.html" class="md-nav__link">
         ClickhouseUser
       </a>
     </li>
@@ -756,7 +712,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/connectionpool.html" class="md-nav__link">
+      <a href="connectionpool.html" class="md-nav__link">
         ConnectionPool
       </a>
     </li>
@@ -770,7 +726,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/database.html" class="md-nav__link">
+      <a href="database.html" class="md-nav__link">
         Database
       </a>
     </li>
@@ -784,7 +740,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/grafana.html" class="md-nav__link">
+      <a href="grafana.html" class="md-nav__link">
         Grafana
       </a>
     </li>
@@ -798,7 +754,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/kafka.html" class="md-nav__link">
+      <a href="kafka.html" class="md-nav__link">
         Kafka
       </a>
     </li>
@@ -812,7 +768,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/kafkaacl.html" class="md-nav__link">
+      <a href="kafkaacl.html" class="md-nav__link">
         KafkaACL
       </a>
     </li>
@@ -826,7 +782,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/kafkaconnect.html" class="md-nav__link">
+      <a href="kafkaconnect.html" class="md-nav__link">
         KafkaConnect
       </a>
     </li>
@@ -838,11 +794,48 @@
               
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../api-reference/kafkaconnector.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          KafkaConnector
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="kafkaconnector.html" class="md-nav__link md-nav__link--active">
         KafkaConnector
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authSecretRef" class="md-nav__link">
+    authSecretRef
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -854,7 +847,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/kafkaschema.html" class="md-nav__link">
+      <a href="kafkaschema.html" class="md-nav__link">
         KafkaSchema
       </a>
     </li>
@@ -868,7 +861,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/kafkatopic.html" class="md-nav__link">
+      <a href="kafkatopic.html" class="md-nav__link">
         KafkaTopic
       </a>
     </li>
@@ -882,7 +875,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/mysql.html" class="md-nav__link">
+      <a href="mysql.html" class="md-nav__link">
         MySQL
       </a>
     </li>
@@ -896,7 +889,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/opensearch.html" class="md-nav__link">
+      <a href="opensearch.html" class="md-nav__link">
         OpenSearch
       </a>
     </li>
@@ -910,7 +903,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/postgresql.html" class="md-nav__link">
+      <a href="postgresql.html" class="md-nav__link">
         PostgreSQL
       </a>
     </li>
@@ -924,7 +917,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/project.html" class="md-nav__link">
+      <a href="project.html" class="md-nav__link">
         Project
       </a>
     </li>
@@ -938,7 +931,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/projectvpc.html" class="md-nav__link">
+      <a href="projectvpc.html" class="md-nav__link">
         ProjectVPC
       </a>
     </li>
@@ -952,7 +945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/redis.html" class="md-nav__link">
+      <a href="redis.html" class="md-nav__link">
         Redis
       </a>
     </li>
@@ -966,7 +959,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/serviceintegration.html" class="md-nav__link">
+      <a href="serviceintegration.html" class="md-nav__link">
         ServiceIntegration
       </a>
     </li>
@@ -980,7 +973,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api-reference/serviceuser.html" class="md-nav__link">
+      <a href="serviceuser.html" class="md-nav__link">
         ServiceUser
       </a>
     </li>
@@ -1019,15 +1012,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#creating-a-redis-instance" class="md-nav__link">
-    Creating a Redis instance
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#using-the-connection-secret" class="md-nav__link">
-    Using the connection Secret
+  <a href="#authSecretRef" class="md-nav__link">
+    authSecretRef
   </a>
   
 </li>
@@ -1051,7 +1037,7 @@
     
       
     
-    <a href="https://github.com/aiven/aiven-operator/raw/main/docs/resources/redis.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/aiven/aiven-operator/raw/main/docs/api-reference/kafkaconnector.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
     </a>
@@ -1059,104 +1045,37 @@
 
 
 
-  <h1>Redis</h1>
+  <h1>KafkaConnector</h1>
 
-<p>Aiven for Redis®* is a fully managed in-memory NoSQL database that you can deploy in the cloud of your choice to store and access data quickly and efficiently.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Before going through this guide, make sure you have a <a href="../../installation/prerequisites/">Kubernetes cluster</a> with the <a href="../../installation/">operator installed</a> 
-and a <a href="../../authentication/">Kubernetes Secret with an Aiven authentication token</a>.</p>
-</div>
-<h2 id="creating-a-redis-instance">Creating a Redis instance<a class="headerlink" href="#creating-a-redis-instance" title="Permanent link">&para;</a></h2>
-<p>1. Create a file named <code>redis-sample.yaml</code>, and add the following content: </p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Redis</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nt">metadata</span><span class="p">:</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis-sample</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nt">spec</span><span class="p">:</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="c1"># gets the authentication token from the `aiven-token` Secret</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="c1"># outputs the Redis connection on the `redis-secret` Secret</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis-secret</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="c1"># add your Project name here</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;your-project-name&gt;</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="c1"># cloud provider and plan of your choice</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span><span class="c1"># you can check all of the possibilities here https://aiven.io/pricing</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">  </span><span class="nt">cloudName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">google-europe-west1</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">  </span><span class="nt">plan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">startup-4</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">  </span><span class="c1"># general Aiven configuration</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">  </span><span class="nt">maintenanceWindowDow</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">friday</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">  </span><span class="nt">maintenanceWindowTime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">23:00:00</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">  </span><span class="c1"># specific Redis configuration</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">  </span><span class="nt">userConfig</span><span class="p">:</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">    </span><span class="nt">redis_maxmemory_policy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allkeys-random&quot;</span>
-</code></pre></div>
-<p>2. Create the service by applying the configuration:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>redis-sample.yaml<span class="w"> </span>
-</code></pre></div>
-<p>3. Review the resource you created with this command:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>redis.aiven.io<span class="w"> </span>redis-sample
-</code></pre></div>
-<p>The output is similar to the following:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>...
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Status:
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>Conditions:
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span>Last<span class="w"> </span>Transition<span class="w"> </span>Time:<span class="w">  </span><span class="m">2023</span>-01-19T14:48:59Z
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span>Message:<span class="w">               </span>Instance<span class="w"> </span>was<span class="w"> </span>created<span class="w"> </span>or<span class="w"> </span>update<span class="w"> </span>on<span class="w"> </span>Aiven<span class="w"> </span>side
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span>Reason:<span class="w">                </span>Created
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span>Status:<span class="w">                </span>True
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span>Type:<span class="w">                  </span>Initialized
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span>Last<span class="w"> </span>Transition<span class="w"> </span>Time:<span class="w">  </span><span class="m">2023</span>-01-19T14:48:59Z
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span>Message:<span class="w">               </span>Instance<span class="w"> </span>was<span class="w"> </span>created<span class="w"> </span>or<span class="w"> </span>update<span class="w"> </span>on<span class="w"> </span>Aiven<span class="w"> </span>side,<span class="w"> </span>status<span class="w"> </span>remains<span class="w"> </span>unknown
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span>Reason:<span class="w">                </span>Created
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">    </span>Status:<span class="w">                </span>Unknown
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">    </span>Type:<span class="w">                  </span>Running
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">  </span>State:<span class="w">                   </span>REBUILDING
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>...
-</code></pre></div>
-<p>The resource will be in the <code>REBUILDING</code> state for a few minutes. Once the state changes to <code>RUNNING</code>, you can access the resource.</p>
-<h2 id="using-the-connection-secret">Using the connection Secret<a class="headerlink" href="#using-the-connection-secret" title="Permanent link">&para;</a></h2>
-<p>For your convenience, the operator automatically stores the Redis connection information in a Secret created with the
-name specified on the <code>connInfoSecretTarget</code> field.</p>
-<p>To view the details of the Secret, use the following command:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>secret<span class="w"> </span>redis-secret<span class="w"> </span>
-</code></pre></div>
-<p>The output is similar to the following:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Name:<span class="w">         </span>redis-secret
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>Namespace:<span class="w">    </span>default
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>Labels:<span class="w">       </span>&lt;none&gt;
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>Annotations:<span class="w">  </span>&lt;none&gt;
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>Type:<span class="w">  </span>Opaque
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="nv">Data</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="o">====</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>SSL:<span class="w">       </span><span class="m">8</span><span class="w"> </span>bytes
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>USER:<span class="w">      </span><span class="m">7</span><span class="w"> </span>bytes
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>HOST:<span class="w">      </span><span class="m">60</span><span class="w"> </span>bytes
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>PASSWORD:<span class="w">  </span><span class="m">24</span><span class="w"> </span>bytes
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>PORT:<span class="w">      </span><span class="m">5</span><span class="w"> </span>bytes
-</code></pre></div>
-<p>You can use the <a href="https://github.com/stedolan/jq">jq</a> to quickly decode the Secret:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>redis-secret<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data | map_values(@base64d)&#39;</span>
-</code></pre></div>
-<p>The output is similar to the following:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="o">{</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="s2">&quot;HOST&quot;</span>:<span class="w"> </span><span class="s2">&quot;redis-sample-your-project.aivencloud.com&quot;</span>,
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="s2">&quot;PASSWORD&quot;</span>:<span class="w"> </span><span class="s2">&quot;&lt;secret-password&gt;&quot;</span>,
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="s2">&quot;PORT&quot;</span>:<span class="w"> </span><span class="s2">&quot;14610&quot;</span>,
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="s2">&quot;SSL&quot;</span>:<span class="w"> </span><span class="s2">&quot;required&quot;</span>,
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span><span class="s2">&quot;USER&quot;</span>:<span class="w"> </span><span class="s2">&quot;default&quot;</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="o">}</span>
-</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ApiVersion</th>
+<th>Kind</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>aiven.io/v1alpha1</td>
+<td>KafkaConnector</td>
+</tr>
+</tbody>
+</table>
+<p>KafkaConnectorSpec defines the desired state of KafkaConnector.</p>
+<ul>
+<li><a href="#authSecretRef" name="authSecretRef"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See <a href="#authSecretRef">below for nested schema</a>.</li>
+<li><a href="#connectorClass" name="connectorClass"><code>connectorClass</code></a> (string, MaxLength: 1024). The Java class of the connector. </li>
+<li><a href="#project" name="project"><code>project</code></a> (string, MaxLength: 63). Target project. </li>
+<li><a href="#serviceName" name="serviceName"><code>serviceName</code></a> (string, MaxLength: 63). Service name. </li>
+<li><a href="#userConfig" name="userConfig"><code>userConfig</code></a> (object). The connector specific configuration To build config values from secret the template function <code>{{ fromSecret "name" "key" }}</code> is provided when interpreting the keys. </li>
+</ul>
+<h2 id="authSecretRef">authSecretRef<a class="headerlink" href="#authSecretRef" title="Permanent link">&para;</a></h2>
+<p>Authentication reference to Aiven token in a secret.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#key" name="key"><code>key</code></a> (string, MinLength: 1).  </li>
+<li><a href="#name" name="name"><code>name</code></a> (string, MinLength: 1).  </li>
+</ul>
 
 
 
@@ -1183,7 +1102,7 @@ name specified on the <code>connInfoSecretTarget</code> field.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="opensearch.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: OpenSearch" rel="prev">
+          <a href="kafkaconnect.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: KafkaConnect" rel="prev">
             <div class="md-footer__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
             </div>
@@ -1192,20 +1111,20 @@ name specified on the <code>connInfoSecretTarget</code> field.</p>
                 <span class="md-footer__direction">
                   Previous
                 </span>
-                OpenSearch
+                KafkaConnect
               </div>
             </div>
           </a>
         
         
           
-          <a href="service-integrations.html" class="md-footer__link md-footer__link--next" aria-label="Next: Service Integrations" rel="next">
+          <a href="kafkaschema.html" class="md-footer__link md-footer__link--next" aria-label="Next: KafkaSchema" rel="next">
             <div class="md-footer__title">
               <div class="md-ellipsis">
                 <span class="md-footer__direction">
                   Next
                 </span>
-                Service Integrations
+                KafkaSchema
               </div>
             </div>
             <div class="md-footer__button md-icon">

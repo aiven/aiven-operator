@@ -1,0 +1,1550 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="grafana.html">
+      
+      
+        <link rel="next" href="kafkaacl.html">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.12">
+    
+    
+      
+        <title>Kafka - Aiven Operator</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.0d440cfe.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="red" data-md-color-accent="deep-orange">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#authSecretRef" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="Aiven Operator" class="md-header__button md-logo" aria-label="Aiven Operator" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Aiven Operator
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Kafka
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="slate" data-md-color-primary="red" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="default" data-md-color-primary="deep-orange" data-md-color-accent="red"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/aiven/aiven-operator/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="Aiven Operator" class="md-nav__button md-logo" aria-label="Aiven Operator" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    Aiven Operator
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/aiven/aiven-operator/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CHANGELOG.html" class="md-nav__link">
+        Changelog
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Installation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Installation
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/prerequisites.html" class="md-nav__link">
+        Prerequisites
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/helm.html" class="md-nav__link">
+        Installing with Helm (recommended)
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/kubectl.html" class="md-nav__link">
+        Installing with kubectl
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/uninstalling.html" class="md-nav__link">
+        Uninstalling
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authentication.html" class="md-nav__link">
+        Authenticating
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          Resources
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Resources
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/project.html" class="md-nav__link">
+        Aiven Project
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/project-vpc.html" class="md-nav__link">
+        Aiven Project VPC
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
+          Kafka
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5_3">
+          <span class="md-nav__icon md-icon"></span>
+          Kafka
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/kafka/index.html" class="md-nav__link">
+        Kafka
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/kafka/schema.html" class="md-nav__link">
+        Kafka Schema
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/kafka/connect.html" class="md-nav__link">
+        Kafka Connect
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/postgresql.html" class="md-nav__link">
+        PostgreSQL
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/opensearch.html" class="md-nav__link">
+        OpenSearch
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/redis.html" class="md-nav__link">
+        Redis
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resources/service-integrations.html" class="md-nav__link">
+        Service Integrations
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting.html" class="md-nav__link">
+        Troubleshooting
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Contributing
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Contributing
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/index.html" class="md-nav__link">
+        Contributing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/developer-guide.html" class="md-nav__link">
+        Developer guide
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          API Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          API Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cassandra.html" class="md-nav__link">
+        Cassandra
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="clickhouse.html" class="md-nav__link">
+        Clickhouse
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="clickhouseuser.html" class="md-nav__link">
+        ClickhouseUser
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="connectionpool.html" class="md-nav__link">
+        ConnectionPool
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="database.html" class="md-nav__link">
+        Database
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="grafana.html" class="md-nav__link">
+        Grafana
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Kafka
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="kafka.html" class="md-nav__link md-nav__link--active">
+        Kafka
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authSecretRef" class="md-nav__link">
+    authSecretRef
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connInfoSecretTarget" class="md-nav__link">
+    connInfoSecretTarget
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#projectVPCRef" class="md-nav__link">
+    projectVPCRef
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#serviceIntegrations" class="md-nav__link">
+    serviceIntegrations
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#userConfig" class="md-nav__link">
+    userConfig
+  </a>
+  
+    <nav class="md-nav" aria-label="userConfig">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ip_filter" class="md-nav__link">
+    ip_filter
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafka" class="md-nav__link">
+    kafka
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafka_authentication_methods" class="md-nav__link">
+    kafka_authentication_methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafka_connect_config" class="md-nav__link">
+    kafka_connect_config
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafka_rest_config" class="md-nav__link">
+    kafka_rest_config
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#private_access" class="md-nav__link">
+    private_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#privatelink_access" class="md-nav__link">
+    privatelink_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#public_access" class="md-nav__link">
+    public_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#schema_registry_config" class="md-nav__link">
+    schema_registry_config
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafkaacl.html" class="md-nav__link">
+        KafkaACL
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafkaconnect.html" class="md-nav__link">
+        KafkaConnect
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafkaconnector.html" class="md-nav__link">
+        KafkaConnector
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafkaschema.html" class="md-nav__link">
+        KafkaSchema
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafkatopic.html" class="md-nav__link">
+        KafkaTopic
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mysql.html" class="md-nav__link">
+        MySQL
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="opensearch.html" class="md-nav__link">
+        OpenSearch
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="postgresql.html" class="md-nav__link">
+        PostgreSQL
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="project.html" class="md-nav__link">
+        Project
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="projectvpc.html" class="md-nav__link">
+        ProjectVPC
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="redis.html" class="md-nav__link">
+        Redis
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="serviceintegration.html" class="md-nav__link">
+        ServiceIntegration
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="serviceuser.html" class="md-nav__link">
+        ServiceUser
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authSecretRef" class="md-nav__link">
+    authSecretRef
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connInfoSecretTarget" class="md-nav__link">
+    connInfoSecretTarget
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#projectVPCRef" class="md-nav__link">
+    projectVPCRef
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#serviceIntegrations" class="md-nav__link">
+    serviceIntegrations
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#userConfig" class="md-nav__link">
+    userConfig
+  </a>
+  
+    <nav class="md-nav" aria-label="userConfig">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ip_filter" class="md-nav__link">
+    ip_filter
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafka" class="md-nav__link">
+    kafka
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafka_authentication_methods" class="md-nav__link">
+    kafka_authentication_methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafka_connect_config" class="md-nav__link">
+    kafka_connect_config
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kafka_rest_config" class="md-nav__link">
+    kafka_rest_config
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#private_access" class="md-nav__link">
+    private_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#privatelink_access" class="md-nav__link">
+    privatelink_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#public_access" class="md-nav__link">
+    public_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#schema_registry_config" class="md-nav__link">
+    schema_registry_config
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+    
+      
+    
+    <a href="https://github.com/aiven/aiven-operator/raw/main/docs/api-reference/kafka.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
+    </a>
+  
+
+
+
+  <h1>Kafka</h1>
+
+<table>
+<thead>
+<tr>
+<th>ApiVersion</th>
+<th>Kind</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>aiven.io/v1alpha1</td>
+<td>Kafka</td>
+</tr>
+</tbody>
+</table>
+<p>KafkaSpec defines the desired state of Kafka.</p>
+<ul>
+<li><a href="#authSecretRef" name="authSecretRef"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See <a href="#authSecretRef">below for nested schema</a>.</li>
+<li><a href="#cloudName" name="cloudName"><code>cloudName</code></a> (string, MaxLength: 256). Cloud the service runs in. </li>
+<li><a href="#connInfoSecretTarget" name="connInfoSecretTarget"><code>connInfoSecretTarget</code></a> (object). Information regarding secret creation. See <a href="#connInfoSecretTarget">below for nested schema</a>.</li>
+<li><a href="#disk_space" name="disk_space"><code>disk_space</code></a> (string). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing. </li>
+<li><a href="#karapace" name="karapace"><code>karapace</code></a> (boolean). Switch the service to use Karapace for schema registry and REST proxy. </li>
+<li><a href="#maintenanceWindowDow" name="maintenanceWindowDow"><code>maintenanceWindowDow</code></a> (string, Enum: <code>monday</code>, <code>tuesday</code>, <code>wednesday</code>, <code>thursday</code>, <code>friday</code>, <code>saturday</code>, <code>sunday</code>). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc. </li>
+<li><a href="#maintenanceWindowTime" name="maintenanceWindowTime"><code>maintenanceWindowTime</code></a> (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format. </li>
+<li><a href="#plan" name="plan"><code>plan</code></a> (string, MaxLength: 128). Subscription plan. </li>
+<li><a href="#project" name="project"><code>project</code></a> (string, Immutable, MaxLength: 63). Target project. </li>
+<li><a href="#projectVPCRef" name="projectVPCRef"><code>projectVPCRef</code></a> (object, Immutable). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See <a href="#projectVPCRef">below for nested schema</a>.</li>
+<li><a href="#projectVpcId" name="projectVpcId"><code>projectVpcId</code></a> (string, Immutable, MaxLength: 36). Identifier of the VPC the service should be in, if any. </li>
+<li><a href="#serviceIntegrations" name="serviceIntegrations"><code>serviceIntegrations</code></a> (array, Immutable, MaxItems: 1). Service integrations to specify when creating a service. Not applied after initial service creation. See <a href="#serviceIntegrations">below for nested schema</a>.</li>
+<li><a href="#tags" name="tags"><code>tags</code></a> (object). Tags are key-value pairs that allow you to categorize services. </li>
+<li><a href="#terminationProtection" name="terminationProtection"><code>terminationProtection</code></a> (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services. </li>
+<li><a href="#userConfig" name="userConfig"><code>userConfig</code></a> (object). Kafka specific user configuration options. See <a href="#userConfig">below for nested schema</a>.</li>
+</ul>
+<h2 id="authSecretRef">authSecretRef<a class="headerlink" href="#authSecretRef" title="Permanent link">&para;</a></h2>
+<p>Authentication reference to Aiven token in a secret.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#key" name="key"><code>key</code></a> (string, MinLength: 1).  </li>
+<li><a href="#name" name="name"><code>name</code></a> (string, MinLength: 1).  </li>
+</ul>
+<h2 id="connInfoSecretTarget">connInfoSecretTarget<a class="headerlink" href="#connInfoSecretTarget" title="Permanent link">&para;</a></h2>
+<p>Information regarding secret creation.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#name" name="name"><code>name</code></a> (string). Name of the Secret resource to be created. </li>
+</ul>
+<h2 id="projectVPCRef">projectVPCRef<a class="headerlink" href="#projectVPCRef" title="Permanent link">&para;</a></h2>
+<p>ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#name" name="name"><code>name</code></a> (string, MinLength: 1).  </li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#namespace" name="namespace"><code>namespace</code></a> (string, MinLength: 1).  </li>
+</ul>
+<h2 id="serviceIntegrations">serviceIntegrations<a class="headerlink" href="#serviceIntegrations" title="Permanent link">&para;</a></h2>
+<p>Service integrations to specify when creating a service. Not applied after initial service creation.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#integrationType" name="integrationType"><code>integrationType</code></a> (string, Enum: <code>read_replica</code>).  </li>
+<li><a href="#sourceServiceName" name="sourceServiceName"><code>sourceServiceName</code></a> (string, MinLength: 1, MaxLength: 64).  </li>
+</ul>
+<h2 id="userConfig">userConfig<a class="headerlink" href="#userConfig" title="Permanent link">&para;</a></h2>
+<p>Kafka specific user configuration options.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#additional_backup_regions" name="additional_backup_regions"><code>additional_backup_regions</code></a> (array, MaxItems: 1). Additional Cloud Regions for Backup Replication. </li>
+<li><a href="#custom_domain" name="custom_domain"><code>custom_domain</code></a> (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name. </li>
+<li><a href="#ip_filter" name="ip_filter"><code>ip_filter</code></a> (array, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'. See <a href="#ip_filter">below for nested schema</a>.</li>
+<li><a href="#kafka" name="kafka"><code>kafka</code></a> (object). Kafka broker configuration values. See <a href="#kafka">below for nested schema</a>.</li>
+<li><a href="#kafka_authentication_methods" name="kafka_authentication_methods"><code>kafka_authentication_methods</code></a> (object). Kafka authentication methods. See <a href="#kafka_authentication_methods">below for nested schema</a>.</li>
+<li><a href="#kafka_connect" name="kafka_connect"><code>kafka_connect</code></a> (boolean). Enable Kafka Connect service. </li>
+<li><a href="#kafka_connect_config" name="kafka_connect_config"><code>kafka_connect_config</code></a> (object). Kafka Connect configuration values. See <a href="#kafka_connect_config">below for nested schema</a>.</li>
+<li><a href="#kafka_rest" name="kafka_rest"><code>kafka_rest</code></a> (boolean). Enable Kafka-REST service. </li>
+<li><a href="#kafka_rest_authorization" name="kafka_rest_authorization"><code>kafka_rest_authorization</code></a> (boolean). Enable authorization in Kafka-REST service. </li>
+<li><a href="#kafka_rest_config" name="kafka_rest_config"><code>kafka_rest_config</code></a> (object). Kafka REST configuration. See <a href="#kafka_rest_config">below for nested schema</a>.</li>
+<li><a href="#kafka_version" name="kafka_version"><code>kafka_version</code></a> (string, Enum: <code>3.2</code>, <code>3.3</code>). Kafka major version. </li>
+<li><a href="#private_access" name="private_access"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See <a href="#private_access">below for nested schema</a>.</li>
+<li><a href="#privatelink_access" name="privatelink_access"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See <a href="#privatelink_access">below for nested schema</a>.</li>
+<li><a href="#public_access" name="public_access"><code>public_access</code></a> (object). Allow access to selected service ports from the public Internet. See <a href="#public_access">below for nested schema</a>.</li>
+<li><a href="#schema_registry" name="schema_registry"><code>schema_registry</code></a> (boolean). Enable Schema-Registry service. </li>
+<li><a href="#schema_registry_config" name="schema_registry_config"><code>schema_registry_config</code></a> (object). Schema Registry configuration. See <a href="#schema_registry_config">below for nested schema</a>.</li>
+<li><a href="#static_ips" name="static_ips"><code>static_ips</code></a> (boolean). Use static public IP addresses. </li>
+</ul>
+<h3 id="ip_filter">ip_filter<a class="headerlink" href="#ip_filter" title="Permanent link">&para;</a></h3>
+<p>CIDR address block, either as a string, or in a dict with an optional description field.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#network" name="network"><code>network</code></a> (string, MaxLength: 43). CIDR address block. </li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#description" name="description"><code>description</code></a> (string, MaxLength: 1024). Description for IP filter list entry. </li>
+</ul>
+<h3 id="kafka">kafka<a class="headerlink" href="#kafka" title="Permanent link">&para;</a></h3>
+<p>Kafka broker configuration values.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#auto_create_topics_enable" name="auto_create_topics_enable"><code>auto_create_topics_enable</code></a> (boolean). Enable auto creation of topics. </li>
+<li><a href="#compression_type" name="compression_type"><code>compression_type</code></a> (string, Enum: <code>gzip</code>, <code>snappy</code>, <code>lz4</code>, <code>zstd</code>, <code>uncompressed</code>, <code>producer</code>). Specify the final compression type for a given topic. This configuration accepts the standard compression codecs ('gzip', 'snappy', 'lz4', 'zstd'). It additionally accepts 'uncompressed' which is equivalent to no compression; and 'producer' which means retain the original compression codec set by the producer. </li>
+<li><a href="#connections_max_idle_ms" name="connections_max_idle_ms"><code>connections_max_idle_ms</code></a> (integer, Minimum: 1000, Maximum: 3600000). Idle connections timeout: the server socket processor threads close the connections that idle for longer than this. </li>
+<li><a href="#default_replication_factor" name="default_replication_factor"><code>default_replication_factor</code></a> (integer, Minimum: 1, Maximum: 10). Replication factor for autocreated topics. </li>
+<li><a href="#group_initial_rebalance_delay_ms" name="group_initial_rebalance_delay_ms"><code>group_initial_rebalance_delay_ms</code></a> (integer, Minimum: 0, Maximum: 300000). The amount of time, in milliseconds, the group coordinator will wait for more consumers to join a new group before performing the first rebalance. A longer delay means potentially fewer rebalances, but increases the time until processing begins. The default value for this is 3 seconds. During development and testing it might be desirable to set this to 0 in order to not delay test execution time. </li>
+<li><a href="#group_max_session_timeout_ms" name="group_max_session_timeout_ms"><code>group_max_session_timeout_ms</code></a> (integer, Minimum: 0, Maximum: 1800000). The maximum allowed session timeout for registered consumers. Longer timeouts give consumers more time to process messages in between heartbeats at the cost of a longer time to detect failures. </li>
+<li><a href="#group_min_session_timeout_ms" name="group_min_session_timeout_ms"><code>group_min_session_timeout_ms</code></a> (integer, Minimum: 0, Maximum: 60000). The minimum allowed session timeout for registered consumers. Longer timeouts give consumers more time to process messages in between heartbeats at the cost of a longer time to detect failures. </li>
+<li><a href="#log_cleaner_delete_retention_ms" name="log_cleaner_delete_retention_ms"><code>log_cleaner_delete_retention_ms</code></a> (integer, Minimum: 0, Maximum: 315569260000). How long are delete records retained?. </li>
+<li><a href="#log_cleaner_max_compaction_lag_ms" name="log_cleaner_max_compaction_lag_ms"><code>log_cleaner_max_compaction_lag_ms</code></a> (integer, Minimum: 30000). The maximum amount of time message will remain uncompacted. Only applicable for logs that are being compacted. </li>
+<li><a href="#log_cleaner_min_cleanable_ratio" name="log_cleaner_min_cleanable_ratio"><code>log_cleaner_min_cleanable_ratio</code></a> (number). Controls log compactor frequency. Larger value means more frequent compactions but also more space wasted for logs. Consider setting log.cleaner.max.compaction.lag.ms to enforce compactions sooner, instead of setting a very high value for this option. </li>
+<li><a href="#log_cleaner_min_compaction_lag_ms" name="log_cleaner_min_compaction_lag_ms"><code>log_cleaner_min_compaction_lag_ms</code></a> (integer, Minimum: 0). The minimum time a message will remain uncompacted in the log. Only applicable for logs that are being compacted. </li>
+<li><a href="#log_cleanup_policy" name="log_cleanup_policy"><code>log_cleanup_policy</code></a> (string, Enum: <code>delete</code>, <code>compact</code>, <code>compact,delete</code>). The default cleanup policy for segments beyond the retention window. </li>
+<li><a href="#log_flush_interval_messages" name="log_flush_interval_messages"><code>log_flush_interval_messages</code></a> (integer, Minimum: 1). The number of messages accumulated on a log partition before messages are flushed to disk. </li>
+<li><a href="#log_flush_interval_ms" name="log_flush_interval_ms"><code>log_flush_interval_ms</code></a> (integer, Minimum: 0). The maximum time in ms that a message in any topic is kept in memory before flushed to disk. If not set, the value in log.flush.scheduler.interval.ms is used. </li>
+<li><a href="#log_index_interval_bytes" name="log_index_interval_bytes"><code>log_index_interval_bytes</code></a> (integer, Minimum: 0, Maximum: 104857600). The interval with which Kafka adds an entry to the offset index. </li>
+<li><a href="#log_index_size_max_bytes" name="log_index_size_max_bytes"><code>log_index_size_max_bytes</code></a> (integer, Minimum: 1048576, Maximum: 104857600). The maximum size in bytes of the offset index. </li>
+<li><a href="#log_message_downconversion_enable" name="log_message_downconversion_enable"><code>log_message_downconversion_enable</code></a> (boolean). This configuration controls whether down-conversion of message formats is enabled to satisfy consume requests. </li>
+<li><a href="#log_message_timestamp_difference_max_ms" name="log_message_timestamp_difference_max_ms"><code>log_message_timestamp_difference_max_ms</code></a> (integer, Minimum: 0). The maximum difference allowed between the timestamp when a broker receives a message and the timestamp specified in the message. </li>
+<li><a href="#log_message_timestamp_type" name="log_message_timestamp_type"><code>log_message_timestamp_type</code></a> (string, Enum: <code>CreateTime</code>, <code>LogAppendTime</code>). Define whether the timestamp in the message is message create time or log append time. </li>
+<li><a href="#log_preallocate" name="log_preallocate"><code>log_preallocate</code></a> (boolean). Should pre allocate file when create new segment?. </li>
+<li><a href="#log_retention_bytes" name="log_retention_bytes"><code>log_retention_bytes</code></a> (integer, Minimum: -1). The maximum size of the log before deleting messages. </li>
+<li><a href="#log_retention_hours" name="log_retention_hours"><code>log_retention_hours</code></a> (integer, Minimum: -1, Maximum: 2147483647). The number of hours to keep a log file before deleting it. </li>
+<li><a href="#log_retention_ms" name="log_retention_ms"><code>log_retention_ms</code></a> (integer, Minimum: -1). The number of milliseconds to keep a log file before deleting it (in milliseconds), If not set, the value in log.retention.minutes is used. If set to -1, no time limit is applied. </li>
+<li><a href="#log_roll_jitter_ms" name="log_roll_jitter_ms"><code>log_roll_jitter_ms</code></a> (integer, Minimum: 0). The maximum jitter to subtract from logRollTimeMillis (in milliseconds). If not set, the value in log.roll.jitter.hours is used. </li>
+<li><a href="#log_roll_ms" name="log_roll_ms"><code>log_roll_ms</code></a> (integer, Minimum: 1). The maximum time before a new log segment is rolled out (in milliseconds). </li>
+<li><a href="#log_segment_bytes" name="log_segment_bytes"><code>log_segment_bytes</code></a> (integer, Minimum: 10485760, Maximum: 1073741824). The maximum size of a single log file. </li>
+<li><a href="#log_segment_delete_delay_ms" name="log_segment_delete_delay_ms"><code>log_segment_delete_delay_ms</code></a> (integer, Minimum: 0, Maximum: 3600000). The amount of time to wait before deleting a file from the filesystem. </li>
+<li><a href="#max_connections_per_ip" name="max_connections_per_ip"><code>max_connections_per_ip</code></a> (integer, Minimum: 256, Maximum: 2147483647). The maximum number of connections allowed from each ip address (defaults to 2147483647). </li>
+<li><a href="#max_incremental_fetch_session_cache_slots" name="max_incremental_fetch_session_cache_slots"><code>max_incremental_fetch_session_cache_slots</code></a> (integer, Minimum: 1000, Maximum: 10000). The maximum number of incremental fetch sessions that the broker will maintain. </li>
+<li><a href="#message_max_bytes" name="message_max_bytes"><code>message_max_bytes</code></a> (integer, Minimum: 0, Maximum: 100001200). The maximum size of message that the server can receive. </li>
+<li><a href="#min_insync_replicas" name="min_insync_replicas"><code>min_insync_replicas</code></a> (integer, Minimum: 1, Maximum: 7). When a producer sets acks to 'all' (or '-1'), min.insync.replicas specifies the minimum number of replicas that must acknowledge a write for the write to be considered successful. </li>
+<li><a href="#num_partitions" name="num_partitions"><code>num_partitions</code></a> (integer, Minimum: 1, Maximum: 1000). Number of partitions for autocreated topics. </li>
+<li><a href="#offsets_retention_minutes" name="offsets_retention_minutes"><code>offsets_retention_minutes</code></a> (integer, Minimum: 1, Maximum: 2147483647). Log retention window in minutes for offsets topic. </li>
+<li><a href="#producer_purgatory_purge_interval_requests" name="producer_purgatory_purge_interval_requests"><code>producer_purgatory_purge_interval_requests</code></a> (integer, Minimum: 10, Maximum: 10000). The purge interval (in number of requests) of the producer request purgatory(defaults to 1000). </li>
+<li><a href="#replica_fetch_max_bytes" name="replica_fetch_max_bytes"><code>replica_fetch_max_bytes</code></a> (integer, Minimum: 1048576, Maximum: 104857600). The number of bytes of messages to attempt to fetch for each partition (defaults to 1048576). This is not an absolute maximum, if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that progress can be made. </li>
+<li><a href="#replica_fetch_response_max_bytes" name="replica_fetch_response_max_bytes"><code>replica_fetch_response_max_bytes</code></a> (integer, Minimum: 10485760, Maximum: 1048576000). Maximum bytes expected for the entire fetch response (defaults to 10485760). Records are fetched in batches, and if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that progress can be made. As such, this is not an absolute maximum. </li>
+<li><a href="#socket_request_max_bytes" name="socket_request_max_bytes"><code>socket_request_max_bytes</code></a> (integer, Minimum: 10485760, Maximum: 209715200). The maximum number of bytes in a socket request (defaults to 104857600). </li>
+<li><a href="#transaction_remove_expired_transaction_cleanup_interval_ms" name="transaction_remove_expired_transaction_cleanup_interval_ms"><code>transaction_remove_expired_transaction_cleanup_interval_ms</code></a> (integer, Minimum: 600000, Maximum: 3600000). The interval at which to remove transactions that have expired due to transactional.id.expiration.ms passing (defaults to 3600000 (1 hour)). </li>
+<li><a href="#transaction_state_log_segment_bytes" name="transaction_state_log_segment_bytes"><code>transaction_state_log_segment_bytes</code></a> (integer, Minimum: 1048576, Maximum: 2147483647). The transaction topic segment bytes should be kept relatively small in order to facilitate faster log compaction and cache loads (defaults to 104857600 (100 mebibytes)). </li>
+</ul>
+<h3 id="kafka_authentication_methods">kafka_authentication_methods<a class="headerlink" href="#kafka_authentication_methods" title="Permanent link">&para;</a></h3>
+<p>Kafka authentication methods.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#certificate" name="certificate"><code>certificate</code></a> (boolean). Enable certificate/SSL authentication. </li>
+<li><a href="#sasl" name="sasl"><code>sasl</code></a> (boolean). Enable SASL authentication. </li>
+</ul>
+<h3 id="kafka_connect_config">kafka_connect_config<a class="headerlink" href="#kafka_connect_config" title="Permanent link">&para;</a></h3>
+<p>Kafka Connect configuration values.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#connector_client_config_override_policy" name="connector_client_config_override_policy"><code>connector_client_config_override_policy</code></a> (string, Enum: <code>None</code>, <code>All</code>). Defines what client configurations can be overridden by the connector. Default is None. </li>
+<li><a href="#consumer_auto_offset_reset" name="consumer_auto_offset_reset"><code>consumer_auto_offset_reset</code></a> (string, Enum: <code>earliest</code>, <code>latest</code>). What to do when there is no initial offset in Kafka or if the current offset does not exist any more on the server. Default is earliest. </li>
+<li><a href="#consumer_fetch_max_bytes" name="consumer_fetch_max_bytes"><code>consumer_fetch_max_bytes</code></a> (integer, Minimum: 1048576, Maximum: 104857600). Records are fetched in batches by the consumer, and if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that the consumer can make progress. As such, this is not a absolute maximum. </li>
+<li><a href="#consumer_isolation_level" name="consumer_isolation_level"><code>consumer_isolation_level</code></a> (string, Enum: <code>read_uncommitted</code>, <code>read_committed</code>). Transaction read isolation level. read_uncommitted is the default, but read_committed can be used if consume-exactly-once behavior is desired. </li>
+<li><a href="#consumer_max_partition_fetch_bytes" name="consumer_max_partition_fetch_bytes"><code>consumer_max_partition_fetch_bytes</code></a> (integer, Minimum: 1048576, Maximum: 104857600). Records are fetched in batches by the consumer.If the first record batch in the first non-empty partition of the fetch is larger than this limit, the batch will still be returned to ensure that the consumer can make progress. </li>
+<li><a href="#consumer_max_poll_interval_ms" name="consumer_max_poll_interval_ms"><code>consumer_max_poll_interval_ms</code></a> (integer, Minimum: 1, Maximum: 2147483647). The maximum delay in milliseconds between invocations of poll() when using consumer group management (defaults to 300000). </li>
+<li><a href="#consumer_max_poll_records" name="consumer_max_poll_records"><code>consumer_max_poll_records</code></a> (integer, Minimum: 1, Maximum: 10000). The maximum number of records returned in a single call to poll() (defaults to 500). </li>
+<li><a href="#offset_flush_interval_ms" name="offset_flush_interval_ms"><code>offset_flush_interval_ms</code></a> (integer, Minimum: 1, Maximum: 100000000). The interval at which to try committing offsets for tasks (defaults to 60000). </li>
+<li><a href="#offset_flush_timeout_ms" name="offset_flush_timeout_ms"><code>offset_flush_timeout_ms</code></a> (integer, Minimum: 1, Maximum: 2147483647). Maximum number of milliseconds to wait for records to flush and partition offset data to be committed to offset storage before cancelling the process and restoring the offset data to be committed in a future attempt (defaults to 5000). </li>
+<li><a href="#producer_batch_size" name="producer_batch_size"><code>producer_batch_size</code></a> (integer, Minimum: 0, Maximum: 5242880). This setting gives the upper bound of the batch size to be sent. If there are fewer than this many bytes accumulated for this partition, the producer will 'linger' for the linger.ms time waiting for more records to show up. A batch size of zero will disable batching entirely (defaults to 16384). </li>
+<li><a href="#producer_buffer_memory" name="producer_buffer_memory"><code>producer_buffer_memory</code></a> (integer, Minimum: 5242880, Maximum: 134217728). The total bytes of memory the producer can use to buffer records waiting to be sent to the broker (defaults to 33554432). </li>
+<li><a href="#producer_compression_type" name="producer_compression_type"><code>producer_compression_type</code></a> (string, Enum: <code>gzip</code>, <code>snappy</code>, <code>lz4</code>, <code>zstd</code>, <code>none</code>). Specify the default compression type for producers. This configuration accepts the standard compression codecs ('gzip', 'snappy', 'lz4', 'zstd'). It additionally accepts 'none' which is the default and equivalent to no compression. </li>
+<li><a href="#producer_linger_ms" name="producer_linger_ms"><code>producer_linger_ms</code></a> (integer, Minimum: 0, Maximum: 5000). This setting gives the upper bound on the delay for batching: once there is batch.size worth of records for a partition it will be sent immediately regardless of this setting, however if there are fewer than this many bytes accumulated for this partition the producer will 'linger' for the specified time waiting for more records to show up. Defaults to 0. </li>
+<li><a href="#producer_max_request_size" name="producer_max_request_size"><code>producer_max_request_size</code></a> (integer, Minimum: 131072, Maximum: 67108864). This setting will limit the number of record batches the producer will send in a single request to avoid sending huge requests. </li>
+<li><a href="#session_timeout_ms" name="session_timeout_ms"><code>session_timeout_ms</code></a> (integer, Minimum: 1, Maximum: 2147483647). The timeout in milliseconds used to detect failures when using Kafka’s group management facilities (defaults to 10000). </li>
+</ul>
+<h3 id="kafka_rest_config">kafka_rest_config<a class="headerlink" href="#kafka_rest_config" title="Permanent link">&para;</a></h3>
+<p>Kafka REST configuration.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#consumer_enable_auto_commit" name="consumer_enable_auto_commit"><code>consumer_enable_auto_commit</code></a> (boolean). If true the consumer's offset will be periodically committed to Kafka in the background. </li>
+<li><a href="#consumer_request_max_bytes" name="consumer_request_max_bytes"><code>consumer_request_max_bytes</code></a> (integer, Minimum: 0, Maximum: 671088640). Maximum number of bytes in unencoded message keys and values by a single request. </li>
+<li><a href="#consumer_request_timeout_ms" name="consumer_request_timeout_ms"><code>consumer_request_timeout_ms</code></a> (integer, Enum: <code>1000</code>, <code>15000</code>, <code>30000</code>, Minimum: 1000, Maximum: 30000). The maximum total time to wait for messages for a request if the maximum number of messages has not yet been reached. </li>
+<li><a href="#producer_acks" name="producer_acks"><code>producer_acks</code></a> (string, Enum: <code>all</code>, <code>-1</code>, <code>0</code>, <code>1</code>). The number of acknowledgments the producer requires the leader to have received before considering a request complete. If set to 'all' or '-1', the leader will wait for the full set of in-sync replicas to acknowledge the record. </li>
+<li><a href="#producer_compression_type" name="producer_compression_type"><code>producer_compression_type</code></a> (string, Enum: <code>gzip</code>, <code>snappy</code>, <code>lz4</code>, <code>zstd</code>, <code>none</code>). Specify the default compression type for producers. This configuration accepts the standard compression codecs ('gzip', 'snappy', 'lz4', 'zstd'). It additionally accepts 'none' which is the default and equivalent to no compression. </li>
+<li><a href="#producer_linger_ms" name="producer_linger_ms"><code>producer_linger_ms</code></a> (integer, Minimum: 0, Maximum: 5000). Wait for up to the given delay to allow batching records together. </li>
+<li><a href="#simpleconsumer_pool_size_max" name="simpleconsumer_pool_size_max"><code>simpleconsumer_pool_size_max</code></a> (integer, Minimum: 10, Maximum: 250). Maximum number of SimpleConsumers that can be instantiated per broker. </li>
+</ul>
+<h3 id="private_access">private_access<a class="headerlink" href="#private_access" title="Permanent link">&para;</a></h3>
+<p>Allow access to selected service ports from private networks.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#kafka" name="kafka"><code>kafka</code></a> (boolean). Allow clients to connect to kafka with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations. </li>
+<li><a href="#kafka_connect" name="kafka_connect"><code>kafka_connect</code></a> (boolean). Allow clients to connect to kafka_connect with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations. </li>
+<li><a href="#kafka_rest" name="kafka_rest"><code>kafka_rest</code></a> (boolean). Allow clients to connect to kafka_rest with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations. </li>
+<li><a href="#prometheus" name="prometheus"><code>prometheus</code></a> (boolean). Allow clients to connect to prometheus with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations. </li>
+<li><a href="#schema_registry" name="schema_registry"><code>schema_registry</code></a> (boolean). Allow clients to connect to schema_registry with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations. </li>
+</ul>
+<h3 id="privatelink_access">privatelink_access<a class="headerlink" href="#privatelink_access" title="Permanent link">&para;</a></h3>
+<p>Allow access to selected service components through Privatelink.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#jolokia" name="jolokia"><code>jolokia</code></a> (boolean). Enable jolokia. </li>
+<li><a href="#kafka" name="kafka"><code>kafka</code></a> (boolean). Enable kafka. </li>
+<li><a href="#kafka_connect" name="kafka_connect"><code>kafka_connect</code></a> (boolean). Enable kafka_connect. </li>
+<li><a href="#kafka_rest" name="kafka_rest"><code>kafka_rest</code></a> (boolean). Enable kafka_rest. </li>
+<li><a href="#prometheus" name="prometheus"><code>prometheus</code></a> (boolean). Enable prometheus. </li>
+<li><a href="#schema_registry" name="schema_registry"><code>schema_registry</code></a> (boolean). Enable schema_registry. </li>
+</ul>
+<h3 id="public_access">public_access<a class="headerlink" href="#public_access" title="Permanent link">&para;</a></h3>
+<p>Allow access to selected service ports from the public Internet.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#kafka" name="kafka"><code>kafka</code></a> (boolean). Allow clients to connect to kafka from the public internet for service nodes that are in a project VPC or another type of private network. </li>
+<li><a href="#kafka_connect" name="kafka_connect"><code>kafka_connect</code></a> (boolean). Allow clients to connect to kafka_connect from the public internet for service nodes that are in a project VPC or another type of private network. </li>
+<li><a href="#kafka_rest" name="kafka_rest"><code>kafka_rest</code></a> (boolean). Allow clients to connect to kafka_rest from the public internet for service nodes that are in a project VPC or another type of private network. </li>
+<li><a href="#prometheus" name="prometheus"><code>prometheus</code></a> (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network. </li>
+<li><a href="#schema_registry" name="schema_registry"><code>schema_registry</code></a> (boolean). Allow clients to connect to schema_registry from the public internet for service nodes that are in a project VPC or another type of private network. </li>
+</ul>
+<h3 id="schema_registry_config">schema_registry_config<a class="headerlink" href="#schema_registry_config" title="Permanent link">&para;</a></h3>
+<p>Schema Registry configuration.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#leader_eligibility" name="leader_eligibility"><code>leader_eligibility</code></a> (boolean). If true, Karapace / Schema Registry on the service nodes can participate in leader election. It might be needed to disable this when the schemas topic is replicated to a secondary cluster and Karapace / Schema Registry there must not participate in leader election. Defaults to <code>true</code>. </li>
+<li><a href="#topic_name" name="topic_name"><code>topic_name</code></a> (string, MinLength: 1, MaxLength: 249). The durable single partition topic that acts as the durable log for the data. This topic must be compacted to avoid losing data due to retention policy. Please note that changing this configuration in an existing Schema Registry / Karapace setup leads to previous schemas being inaccessible, data encoded with them potentially unreadable and schema ID sequence put out of order. It's only possible to do the switch while Schema Registry / Karapace is disabled. Defaults to <code>_schemas</code>. </li>
+</ul>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="grafana.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Grafana" rel="prev">
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <div class="md-ellipsis">
+                <span class="md-footer__direction">
+                  Previous
+                </span>
+                Grafana
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="kafkaacl.html" class="md-footer__link md-footer__link--next" aria-label="Next: KafkaACL" rel="next">
+            <div class="md-footer__title">
+              <div class="md-ellipsis">
+                <span class="md-footer__direction">
+                  Next
+                </span>
+                KafkaACL
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Aiven Team
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.db81ec45.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.4b2c34cd.min.js"></script>
+      
+    
+  </body>
+</html>
