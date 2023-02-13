@@ -620,11 +620,11 @@ spec:
                   pg_version:
                     description: PostgreSQL major version
                     enum:
-                    - 10
                     - 11
                     - 12
                     - 13
                     - 14
+                    - 15
                     type: string
                   pgbouncer:
                     description: PGBouncer connection pooling settings

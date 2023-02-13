@@ -3,7 +3,7 @@ module github.com/aiven/aiven-operator
 go 1.18
 
 require (
-	github.com/aiven/aiven-go-client v1.7.1-0.20230109145511-e35ced14773c
+	github.com/aiven/aiven-go-client v1.7.1-0.20230210132513-62a95176f328
 	github.com/aiven/aiven-go-client/tools/exp v0.0.0-20230208122034-270adff994ec
 	github.com/dave/jennifer v1.6.0
 	github.com/docker/go-units v0.5.0
@@ -53,6 +53,8 @@ require (
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
+	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
+	github.com/hashicorp/go-retryablehttp v0.7.2 // indirect
 	github.com/hashicorp/go-version v0.0.0-20161031182605-e96d38404026 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
