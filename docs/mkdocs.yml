@@ -2,6 +2,7 @@
 site_name: Aiven Operator
 copyright: Aiven Team
 repo_url: https://github.com/aiven/aiven-operator/
+site_url: https://aiven.github.io/aiven-operator/
 edit_uri: blob/main/docs/
 markdown_extensions:
   - pymdownx.highlight:
@@ -12,6 +13,9 @@ markdown_extensions:
   - tables
   - admonition
   - pymdownx.details
+  - attr_list
+  - toc:
+      permalink: true
 plugins:
   - search
   - offline
@@ -23,6 +27,7 @@ theme:
     - navigation.footer
     - content.code.copy
     - content.code.annotate
+    - content.action.view
   palette:
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
@@ -43,6 +48,7 @@ theme:
         name: Switch to light mode
 nav:
   - Home: index.md
+  - CHANGELOG.md
   - Installation:
       - installation/prerequisites.md
       - installation/helm.md
@@ -64,4 +70,24 @@ nav:
   - Contributing:
       - contributing/index.md
       - contributing/developer-guide.md
-  - api-reference.md
+  - API Reference:
+      - api-reference/cassandra.md
+      - api-reference/clickhouse.md
+      - api-reference/clickhouseuser.md
+      - api-reference/connectionpool.md
+      - api-reference/database.md
+      - api-reference/grafana.md
+      - api-reference/kafka.md
+      - api-reference/kafkaacl.md
+      - api-reference/kafkaconnect.md
+      - api-reference/kafkaconnector.md
+      - api-reference/kafkaschema.md
+      - api-reference/kafkatopic.md
+      - api-reference/mysql.md
+      - api-reference/opensearch.md
+      - api-reference/postgresql.md
+      - api-reference/project.md
+      - api-reference/projectvpc.md
+      - api-reference/redis.md
+      - api-reference/serviceintegration.md
+      - api-reference/serviceuser.md

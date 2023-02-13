@@ -184,7 +184,7 @@ func ErrorSubstrChecker(substrings ...string) func(error) bool {
 	}
 }
 
-// ServiceIntegrationItem Service integrations to specify when creating a service. Not applied after initial service creation
+// Service integrations to specify when creating a service. Not applied after initial service creation
 type ServiceIntegrationItem struct {
 	// +kubebuilder:validation:Enum=read_replica
 	IntegrationType string `json:"integrationType"`
