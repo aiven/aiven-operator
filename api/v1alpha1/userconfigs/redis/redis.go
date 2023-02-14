@@ -57,7 +57,7 @@ type Migration struct {
 	// Comma-separated list of databases, which should be ignored during migration (supported by MySQL only at the moment)
 	IgnoreDbs *string `groups:"create,update" json:"ignore_dbs,omitempty"`
 
-	// +kubebuilder:validation:Enum=dump;replication
+	// +kubebuilder:validation:Enum="dump";"replication"
 	// The migration method to be used (currently supported only by Redis and MySQL service types)
 	Method *string `groups:"create,update" json:"method,omitempty"`
 
@@ -135,7 +135,7 @@ type RedisUserConfig struct {
 	// Name of the basebackup to restore in forked service
 	RecoveryBasebackupName *string `groups:"create,update" json:"recovery_basebackup_name,omitempty"`
 
-	// +kubebuilder:validation:Enum=allchannels;resetchannels
+	// +kubebuilder:validation:Enum="allchannels";"resetchannels"
 	// Determines default pub/sub channels' ACL for new users if ACL is not supplied. When this option is not defined, all_channels is assumed to keep backward compatibility. This option doesn't affect Redis configuration acl-pubsub-default.
 	RedisAclChannelsDefault *string `groups:"create,update" json:"redis_acl_channels_default,omitempty"`
 
@@ -154,7 +154,7 @@ type RedisUserConfig struct {
 	// Counter logarithm factor for volatile-lfu and allkeys-lfu maxmemory-policies
 	RedisLfuLogFactor *int `groups:"create,update" json:"redis_lfu_log_factor,omitempty"`
 
-	// +kubebuilder:validation:Enum=noeviction;allkeys-lru;volatile-lru;allkeys-random;volatile-random;volatile-ttl;volatile-lfu;allkeys-lfu
+	// +kubebuilder:validation:Enum="noeviction";"allkeys-lru";"volatile-lru";"allkeys-random";"volatile-random";"volatile-ttl";"volatile-lfu";"allkeys-lfu"
 	// Redis maxmemory-policy
 	RedisMaxmemoryPolicy *string `groups:"create,update" json:"redis_maxmemory_policy,omitempty"`
 
@@ -168,7 +168,7 @@ type RedisUserConfig struct {
 	// Set number of redis databases. Changing this will cause a restart of redis service.
 	RedisNumberOfDatabases *int `groups:"create,update" json:"redis_number_of_databases,omitempty"`
 
-	// +kubebuilder:validation:Enum=off;rdb
+	// +kubebuilder:validation:Enum="off";"rdb"
 	// When persistence is 'rdb', Redis does RDB dumps each 10 minutes if any key is changed. Also RDB dumps are done according to backup schedule for backup purposes. When persistence is 'off', no RDB dumps and backups are done, so data can be lost at any moment if service is restarted for any reason, or if service is powered off. Also service can't be forked.
 	RedisPersistence *string `groups:"create,update" json:"redis_persistence,omitempty"`
 

@@ -16,7 +16,7 @@ type IndexPatterns struct {
 	// fnmatch pattern
 	Pattern string `groups:"create,update" json:"pattern"`
 
-	// +kubebuilder:validation:Enum=alphabetical;creation_date
+	// +kubebuilder:validation:Enum="alphabetical";"creation_date"
 	// Deletion sorting algorithm
 	SortingAlgorithm *string `groups:"create,update" json:"sorting_algorithm,omitempty"`
 }
@@ -314,7 +314,7 @@ type OpensearchUserConfig struct {
 	// OpenSearch Dashboards settings
 	OpensearchDashboards *OpensearchDashboards `groups:"create,update" json:"opensearch_dashboards,omitempty"`
 
-	// +kubebuilder:validation:Enum=1;2
+	// +kubebuilder:validation:Enum="1";"2"
 	// OpenSearch major version
 	OpensearchVersion *string `groups:"create,update" json:"opensearch_version,omitempty"`
 

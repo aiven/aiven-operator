@@ -343,7 +343,11 @@ func addFieldComments(s *jen.Statement, obj *object) *jen.Statement {
 	if len(obj.Enum) != 0 {
 		enum := make([]string, len(obj.Enum))
 		for i, s := range obj.Enum {
-			enum[i] = safeEnum(s.Value)
+			if obj.Type == objectTypeString {
+				enum[i] = fmt.Sprintf("%q", s.Value)
+			} else {
+				enum[i] = s.Value
+			}
 		}
 		c = append(c, fmt.Sprintf("// +kubebuilder:validation:Enum=%s", strings.Join(enum, ";")))
 	}
@@ -383,17 +387,6 @@ func fmtComment(obj *object) string {
 // toCamelCase some fields has dots within, makes cleaner camelCase
 func toCamelCase(s string) string {
 	return strcase.UpperCamelCase(strings.ReplaceAll(s, ".", "_"))
-}
-
-// safeEnumRe operator sdk won't compile enums with special characters
-var safeEnumRe = regexp.MustCompile(`[^\w-]`)
-
-// safeEnum returns quoted enum if it contains special characters
-func safeEnum(s string) string {
-	if safeEnumRe.MatchString(s) {
-		return fmt.Sprintf("%q", s)
-	}
-	return s
 }
 
 // objMaximum validates obj maximum

@@ -490,8 +490,8 @@ spec:
                   opensearch_version:
                     description: OpenSearch major version
                     enum:
-                    - 1
-                    - 2
+                    - "1"
+                    - "2"
                     type: string
                   private_access:
                     description: Allow access to selected service ports from private

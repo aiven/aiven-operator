@@ -48,7 +48,7 @@ type Kafka struct {
 	// Enable auto creation of topics
 	AutoCreateTopicsEnable *bool `groups:"create,update" json:"auto_create_topics_enable,omitempty"`
 
-	// +kubebuilder:validation:Enum=gzip;snappy;lz4;zstd;uncompressed;producer
+	// +kubebuilder:validation:Enum="gzip";"snappy";"lz4";"zstd";"uncompressed";"producer"
 	// Specify the final compression type for a given topic. This configuration accepts the standard compression codecs ('gzip', 'snappy', 'lz4', 'zstd'). It additionally accepts 'uncompressed' which is equivalent to no compression; and 'producer' which means retain the original compression codec set by the producer.
 	CompressionType *string `groups:"create,update" json:"compression_type,omitempty"`
 
@@ -93,7 +93,7 @@ type Kafka struct {
 	// The minimum time a message will remain uncompacted in the log. Only applicable for logs that are being compacted.
 	LogCleanerMinCompactionLagMs *int `groups:"create,update" json:"log_cleaner_min_compaction_lag_ms,omitempty"`
 
-	// +kubebuilder:validation:Enum=delete;compact;"compact,delete"
+	// +kubebuilder:validation:Enum="delete";"compact";"compact,delete"
 	// The default cleanup policy for segments beyond the retention window
 	LogCleanupPolicy *string `groups:"create,update" json:"log_cleanup_policy,omitempty"`
 
@@ -122,7 +122,7 @@ type Kafka struct {
 	// The maximum difference allowed between the timestamp when a broker receives a message and the timestamp specified in the message
 	LogMessageTimestampDifferenceMaxMs *int `groups:"create,update" json:"log_message_timestamp_difference_max_ms,omitempty"`
 
-	// +kubebuilder:validation:Enum=CreateTime;LogAppendTime
+	// +kubebuilder:validation:Enum="CreateTime";"LogAppendTime"
 	// Define whether the timestamp in the message is message create time or log append time.
 	LogMessageTimestampType *string `groups:"create,update" json:"log_message_timestamp_type,omitempty"`
 
@@ -232,11 +232,11 @@ type KafkaAuthenticationMethods struct {
 
 // Kafka Connect configuration values
 type KafkaConnectConfig struct {
-	// +kubebuilder:validation:Enum=None;All
+	// +kubebuilder:validation:Enum="None";"All"
 	// Defines what client configurations can be overridden by the connector. Default is None
 	ConnectorClientConfigOverridePolicy *string `groups:"create,update" json:"connector_client_config_override_policy,omitempty"`
 
-	// +kubebuilder:validation:Enum=earliest;latest
+	// +kubebuilder:validation:Enum="earliest";"latest"
 	// What to do when there is no initial offset in Kafka or if the current offset does not exist any more on the server. Default is earliest
 	ConsumerAutoOffsetReset *string `groups:"create,update" json:"consumer_auto_offset_reset,omitempty"`
 
@@ -245,7 +245,7 @@ type KafkaConnectConfig struct {
 	// Records are fetched in batches by the consumer, and if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that the consumer can make progress. As such, this is not a absolute maximum.
 	ConsumerFetchMaxBytes *int `groups:"create,update" json:"consumer_fetch_max_bytes,omitempty"`
 
-	// +kubebuilder:validation:Enum=read_uncommitted;read_committed
+	// +kubebuilder:validation:Enum="read_uncommitted";"read_committed"
 	// Transaction read isolation level. read_uncommitted is the default, but read_committed can be used if consume-exactly-once behavior is desired.
 	ConsumerIsolationLevel *string `groups:"create,update" json:"consumer_isolation_level,omitempty"`
 
@@ -284,7 +284,7 @@ type KafkaConnectConfig struct {
 	// The total bytes of memory the producer can use to buffer records waiting to be sent to the broker (defaults to 33554432).
 	ProducerBufferMemory *int `groups:"create,update" json:"producer_buffer_memory,omitempty"`
 
-	// +kubebuilder:validation:Enum=gzip;snappy;lz4;zstd;none
+	// +kubebuilder:validation:Enum="gzip";"snappy";"lz4";"zstd";"none"
 	// Specify the default compression type for producers. This configuration accepts the standard compression codecs ('gzip', 'snappy', 'lz4', 'zstd'). It additionally accepts 'none' which is the default and equivalent to no compression.
 	ProducerCompressionType *string `groups:"create,update" json:"producer_compression_type,omitempty"`
 
@@ -320,11 +320,11 @@ type KafkaRestConfig struct {
 	// The maximum total time to wait for messages for a request if the maximum number of messages has not yet been reached
 	ConsumerRequestTimeoutMs *int `groups:"create,update" json:"consumer_request_timeout_ms,omitempty"`
 
-	// +kubebuilder:validation:Enum=all;-1;0;1
+	// +kubebuilder:validation:Enum="all";"-1";"0";"1"
 	// The number of acknowledgments the producer requires the leader to have received before considering a request complete. If set to 'all' or '-1', the leader will wait for the full set of in-sync replicas to acknowledge the record.
 	ProducerAcks *string `groups:"create,update" json:"producer_acks,omitempty"`
 
-	// +kubebuilder:validation:Enum=gzip;snappy;lz4;zstd;none
+	// +kubebuilder:validation:Enum="gzip";"snappy";"lz4";"zstd";"none"
 	// Specify the default compression type for producers. This configuration accepts the standard compression codecs ('gzip', 'snappy', 'lz4', 'zstd'). It additionally accepts 'none' which is the default and equivalent to no compression.
 	ProducerCompressionType *string `groups:"create,update" json:"producer_compression_type,omitempty"`
 

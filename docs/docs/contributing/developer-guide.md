@@ -46,15 +46,9 @@ make serve-docs
 
 And open the `http://localhost:1313/aiven-operator/` page in your web browser.
 
-The [API Reference](https://aiven.github.io/aiven-operator/docs/api-reference/) section is generated automatically from
+The documentation API Reference section is generated automatically from
 the source code during the documentation deployment. To generate it locally, run the following command:
 
 ```shell
-make generate-docs
-```
-
-To build the documentation locally (outputs to `docs/public`), run:
-
-```shell
-make generate-docs
+make generate-api-reference
 ```

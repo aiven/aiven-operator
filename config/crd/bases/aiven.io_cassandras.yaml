@@ -196,7 +196,7 @@ spec:
                   cassandra_version:
                     description: Cassandra major version
                     enum:
-                    - 4
+                    - "4"
                     type: string
                   ip_filter:
                     description: Allow incoming connections from CIDR address block,

@@ -176,15 +176,11 @@ undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/confi
 .PHONY: generate-api-reference
 generate-api-reference: ## Generate CRDS api-reference
 	go run ./docs_generator/...
-	sed 's/\[MAJOR\.MINOR\.PATCH\] - YYYY-MM-DD/🚧 Under development/g' ./CHANGELOG.md > ./docs/docs/CHANGELOG.md
+	sed 's/\[MAJOR\.MINOR\.PATCH\] - YYYY-MM-DD/🚧 Under development/g' ./CHANGELOG.md > ./docs/docs/changelog.md
 
 .PHONY: serve-docs
 serve-docs: generate-api-reference ## Run live preview.
 	docker run --rm -it -p 8000:8000 -v ${PWD}/docs:/docs squidfunk/mkdocs-material
-
-.PHONY: generate-docs
-generate-docs: ## Generate the documentation website locally.
-	docker run --rm -it -v ${PWD}/docs:/docs squidfunk/mkdocs-material build
 
 ##@ Build Dependencies
 

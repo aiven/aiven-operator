@@ -630,9 +630,9 @@ spec:
                           record.
                         enum:
                         - all
-                        - -1
-                        - 0
-                        - 1
+                        - "-1"
+                        - "0"
+                        - "1"
                         type: string
                       producer_compression_type:
                         description: Specify the default compression type for producers.

@@ -113,6 +113,9 @@ func pgSpec(serviceName, namespace string) *v1alpha1.PostgreSQL {
 				Tags:      map[string]string{"key1": "value1"},
 			},
 			UserConfig: &pguserconfig.PgUserConfig{
+				// YAML converts string integers to real integers,
+				// Then it fails with the validation as invalid choice
+				PgVersion: anyPointer("14"),
 				PublicAccess: &pguserconfig.PublicAccess{
 					Pg:         anyPointer(true),
 					Prometheus: anyPointer(true),
