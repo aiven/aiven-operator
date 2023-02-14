@@ -475,7 +475,7 @@ spec:
                   mysql_version:
                     description: MySQL major version
                     enum:
-                    - 8
+                    - "8"
                     type: string
                   private_access:
                     description: Allow access to selected service ports from private

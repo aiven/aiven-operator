@@ -4,8 +4,8 @@
 
 - Add `serviceIntegrations` on service types. Only `read_replica` type for now.
 - Add CRD validation rules for immutable fields
-- Breaking change: `ip_filter` field is now of `object` type.
-- Update user configs for following kinds: PostgreSQL, Kafka, Redis, Clickhouse, OpenSearch, KafkaConnect
+- **Breaking change:** `ip_filter` field is now of `object` type.
+- **Breaking change:** Update user configs for following kinds: PostgreSQL, Kafka, Redis, Clickhouse, OpenSearch, KafkaConnect.  
 - Add KafkaTopic `min_cleanable_dirty_ratio` config field support
 - Add Clickhouse `spec.disk_space` property
 - Use updated aiven-go-client with retries

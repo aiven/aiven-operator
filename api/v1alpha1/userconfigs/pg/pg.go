@@ -57,7 +57,7 @@ type Migration struct {
 	// Comma-separated list of databases, which should be ignored during migration (supported by MySQL only at the moment)
 	IgnoreDbs *string `groups:"create,update" json:"ignore_dbs,omitempty"`
 
-	// +kubebuilder:validation:Enum=dump;replication
+	// +kubebuilder:validation:Enum="dump";"replication"
 	// The migration method to be used (currently supported only by Redis and MySQL service types)
 	Method *string `groups:"create,update" json:"method,omitempty"`
 
@@ -144,7 +144,7 @@ type Pg struct {
 	// This is the amount of time, in milliseconds, to wait on a lock before checking to see if there is a deadlock condition.
 	DeadlockTimeout *int `groups:"create,update" json:"deadlock_timeout,omitempty"`
 
-	// +kubebuilder:validation:Enum=lz4;pglz
+	// +kubebuilder:validation:Enum="lz4";"pglz"
 	// Specifies the default TOAST compression method for values of compressible columns (the default is lz4).
 	DefaultToastCompression *string `groups:"create,update" json:"default_toast_compression,omitempty"`
 
@@ -161,7 +161,7 @@ type Pg struct {
 	// Causes each action executed by autovacuum to be logged if it ran for at least the specified number of milliseconds. Setting this to zero logs all autovacuum actions. Minus-one (the default) disables logging autovacuum actions.
 	LogAutovacuumMinDuration *int `groups:"create,update" json:"log_autovacuum_min_duration,omitempty"`
 
-	// +kubebuilder:validation:Enum=TERSE;DEFAULT;VERBOSE
+	// +kubebuilder:validation:Enum="TERSE";"DEFAULT";"VERBOSE"
 	// Controls the amount of detail written in the server log for each message that is logged.
 	LogErrorVerbosity *string `groups:"create,update" json:"log_error_verbosity,omitempty"`
 
@@ -267,7 +267,7 @@ type Pg struct {
 	// Sets the maximum number of buckets
 	PgStatMonitorPgsmMaxBuckets *int `groups:"create,update" json:"pg_stat_monitor.pgsm_max_buckets,omitempty"`
 
-	// +kubebuilder:validation:Enum=all;top;none
+	// +kubebuilder:validation:Enum="all";"top";"none"
 	// Controls which statements are counted. Specify top to track top-level statements (those issued directly by clients), all to also track nested statements (such as statements invoked within functions), or none to disable statement statistics collection. The default value is top.
 	PgStatStatementsTrack *string `groups:"create,update" json:"pg_stat_statements.track,omitempty"`
 
@@ -285,15 +285,15 @@ type Pg struct {
 	// Specifies the number of bytes reserved to track the currently executing command for each active session.
 	TrackActivityQuerySize *int `groups:"create,update" json:"track_activity_query_size,omitempty"`
 
-	// +kubebuilder:validation:Enum=off;on
+	// +kubebuilder:validation:Enum="off";"on"
 	// Record commit time of transactions.
 	TrackCommitTimestamp *string `groups:"create,update" json:"track_commit_timestamp,omitempty"`
 
-	// +kubebuilder:validation:Enum=all;pl;none
+	// +kubebuilder:validation:Enum="all";"pl";"none"
 	// Enables tracking of function call counts and time used.
 	TrackFunctions *string `groups:"create,update" json:"track_functions,omitempty"`
 
-	// +kubebuilder:validation:Enum=off;on
+	// +kubebuilder:validation:Enum="off";"on"
 	// Enables timing of database I/O calls. This parameter is off by default, because it will repeatedly query the operating system for the current time, which may cause significant overhead on some platforms.
 	TrackIoTiming *string `groups:"create,update" json:"track_io_timing,omitempty"`
 
@@ -318,7 +318,7 @@ type Pgbouncer struct {
 	// Do not allow more than this many server connections per database (regardless of user). Setting it to 0 means unlimited.
 	AutodbMaxDbConnections *int `groups:"create,update" json:"autodb_max_db_connections,omitempty"`
 
-	// +kubebuilder:validation:Enum=session;transaction;statement
+	// +kubebuilder:validation:Enum="session";"transaction";"statement"
 	// PGBouncer pool mode
 	AutodbPoolMode *string `groups:"create,update" json:"autodb_pool_mode,omitempty"`
 
@@ -452,7 +452,7 @@ type PgUserConfig struct {
 	// Enable the pg_stat_monitor extension. Enabling this extension will cause the cluster to be restarted.When this extension is enabled, pg_stat_statements results for utility commands are unreliable
 	PgStatMonitorEnable *bool `groups:"create,update" json:"pg_stat_monitor_enable,omitempty"`
 
-	// +kubebuilder:validation:Enum=11;12;13;14;15
+	// +kubebuilder:validation:Enum="11";"12";"13";"14";"15"
 	// PostgreSQL major version
 	PgVersion *string `groups:"create,update" json:"pg_version,omitempty"`
 
@@ -492,14 +492,14 @@ type PgUserConfig struct {
 	// Use static public IP addresses
 	StaticIps *bool `groups:"create,update" json:"static_ips,omitempty"`
 
-	// +kubebuilder:validation:Enum=quorum;off
+	// +kubebuilder:validation:Enum="quorum";"off"
 	// Synchronous replication type. Note that the service plan also needs to support synchronous replication.
 	SynchronousReplication *string `groups:"create,update" json:"synchronous_replication,omitempty"`
 
 	// TimescaleDB extension configuration values
 	Timescaledb *Timescaledb `groups:"create,update" json:"timescaledb,omitempty"`
 
-	// +kubebuilder:validation:Enum=aiven;timescale
+	// +kubebuilder:validation:Enum="aiven";"timescale"
 	// Variant of the PostgreSQL service, may affect the features that are exposed by default
 	Variant *string `groups:"create,update" json:"variant,omitempty"`
 

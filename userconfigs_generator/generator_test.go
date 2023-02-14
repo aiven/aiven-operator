@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"testing"
 
@@ -30,37 +29,6 @@ func TestNewUserConfigFile(t *testing.T) {
 	expectedStr := string(expected)
 	actualStr := string(actual)
 	assert.Equal(t, expectedStr, actualStr)
-}
-
-func TestSafeEnumKeepsOriginal(t *testing.T) {
-	cases := []string{
-		"1",
-		"foo",
-		"foo_bar",
-		"foo-bar",
-		"Foo",
-		"foo123",
-	}
-	for _, s := range cases {
-		t.Run(s, func(t *testing.T) {
-			assert.Equal(t, s, safeEnum(s))
-		})
-	}
-}
-
-func TestSafeEnumAddsQuotes(t *testing.T) {
-	cases := []string{
-		"foo%p",
-		"foo{}",
-		"[foo]",
-		"foo bar",
-		"foo,bar",
-	}
-	for _, s := range cases {
-		t.Run(s, func(t *testing.T) {
-			assert.Equal(t, fmt.Sprintf("%q", s), safeEnum(s))
-		})
-	}
 }
 
 func TestIpFilterString(t *testing.T) {

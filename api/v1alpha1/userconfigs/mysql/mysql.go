@@ -57,7 +57,7 @@ type Migration struct {
 	// Comma-separated list of databases, which should be ignored during migration (supported by MySQL only at the moment)
 	IgnoreDbs *string `groups:"create,update" json:"ignore_dbs,omitempty"`
 
-	// +kubebuilder:validation:Enum=dump;replication
+	// +kubebuilder:validation:Enum="dump";"replication"
 	// The migration method to be used (currently supported only by Redis and MySQL service types)
 	Method *string `groups:"create,update" json:"method,omitempty"`
 
@@ -160,7 +160,7 @@ type Mysql struct {
 	// The number of seconds the server waits for activity on an interactive connection before closing it.
 	InteractiveTimeout *int `groups:"create,update" json:"interactive_timeout,omitempty"`
 
-	// +kubebuilder:validation:Enum=TempTable;MEMORY
+	// +kubebuilder:validation:Enum="TempTable";"MEMORY"
 	// The storage engine for in-memory internal temporary tables.
 	InternalTmpMemStorageEngine *string `groups:"create,update" json:"internal_tmp_mem_storage_engine,omitempty"`
 
@@ -297,7 +297,7 @@ type MysqlUserConfig struct {
 	// mysql.conf configuration values
 	Mysql *Mysql `groups:"create,update" json:"mysql,omitempty"`
 
-	// +kubebuilder:validation:Enum=8
+	// +kubebuilder:validation:Enum="8"
 	// MySQL major version
 	MysqlVersion *string `groups:"create,update" json:"mysql_version,omitempty"`
 

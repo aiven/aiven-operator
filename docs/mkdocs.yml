@@ -48,7 +48,7 @@ theme:
         name: Switch to light mode
 nav:
   - Home: index.md
-  - CHANGELOG.md
+  - changelog.md
   - Installation:
       - installation/prerequisites.md
       - installation/helm.md

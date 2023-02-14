@@ -45,11 +45,11 @@ type IpFilter struct {
 
 // Kafka Connect configuration values
 type KafkaConnect struct {
-	// +kubebuilder:validation:Enum=None;All
+	// +kubebuilder:validation:Enum="None";"All"
 	// Defines what client configurations can be overridden by the connector. Default is None
 	ConnectorClientConfigOverridePolicy *string `groups:"create,update" json:"connector_client_config_override_policy,omitempty"`
 
-	// +kubebuilder:validation:Enum=earliest;latest
+	// +kubebuilder:validation:Enum="earliest";"latest"
 	// What to do when there is no initial offset in Kafka or if the current offset does not exist any more on the server. Default is earliest
 	ConsumerAutoOffsetReset *string `groups:"create,update" json:"consumer_auto_offset_reset,omitempty"`
 
@@ -58,7 +58,7 @@ type KafkaConnect struct {
 	// Records are fetched in batches by the consumer, and if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that the consumer can make progress. As such, this is not a absolute maximum.
 	ConsumerFetchMaxBytes *int `groups:"create,update" json:"consumer_fetch_max_bytes,omitempty"`
 
-	// +kubebuilder:validation:Enum=read_uncommitted;read_committed
+	// +kubebuilder:validation:Enum="read_uncommitted";"read_committed"
 	// Transaction read isolation level. read_uncommitted is the default, but read_committed can be used if consume-exactly-once behavior is desired.
 	ConsumerIsolationLevel *string `groups:"create,update" json:"consumer_isolation_level,omitempty"`
 
@@ -97,7 +97,7 @@ type KafkaConnect struct {
 	// The total bytes of memory the producer can use to buffer records waiting to be sent to the broker (defaults to 33554432).
 	ProducerBufferMemory *int `groups:"create,update" json:"producer_buffer_memory,omitempty"`
 
-	// +kubebuilder:validation:Enum=gzip;snappy;lz4;zstd;none
+	// +kubebuilder:validation:Enum="gzip";"snappy";"lz4";"zstd";"none"
 	// Specify the default compression type for producers. This configuration accepts the standard compression codecs ('gzip', 'snappy', 'lz4', 'zstd'). It additionally accepts 'none' which is the default and equivalent to no compression.
 	ProducerCompressionType *string `groups:"create,update" json:"producer_compression_type,omitempty"`
 
