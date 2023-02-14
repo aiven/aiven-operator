@@ -44,7 +44,7 @@ To run the documentation live preview:
 make serve-docs
 ```
 
-And open the `http://localhost:1313/aiven-operator/` page in your web browser.
+And open the `http://localhost:8000/aiven-operator/` page in your web browser.
 
 The documentation API Reference section is generated automatically from
 the source code during the documentation deployment. To generate it locally, run the following command:
