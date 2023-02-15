@@ -16,6 +16,9 @@ markdown_extensions:
   - attr_list
   - toc:
       permalink: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
 plugins:
   - search
   - offline
@@ -25,6 +28,8 @@ theme:
   features:
     - navigation.top
     - navigation.footer
+    - navigation.tabs
+    - navigation.sections
     - content.code.copy
     - content.code.annotate
     - content.action.view
@@ -47,30 +52,32 @@ theme:
         icon: material/brightness-4
         name: Switch to light mode
 nav:
-  - Home: index.md
-  - changelog.md
-  - Installation:
-      - installation/prerequisites.md
-      - installation/helm.md
-      - installation/kubectl.md
-      - installation/uninstalling.md
-  - authentication.md
+  - Home:
+      - index.md
+      - changelog.md
+      - Setup:
+          - installation/prerequisites.md
+          - installation/helm.md
+          - installation/kubectl.md
+          - authentication.md
+          - troubleshooting.md
+          - installation/uninstalling.md
+      - Contributing:
+          - contributing/index.md
+          - contributing/developer-guide.md
   - Resources:
       - resources/project.md
       - resources/project-vpc.md
-      - Kafka:
-        - resources/kafka/index.md
-        - resources/kafka/schema.md
-        - resources/kafka/connect.md
       - resources/postgresql.md
       - resources/opensearch.md
       - resources/redis.md
       - resources/service-integrations.md
-  - troubleshooting.md
-  - Contributing:
-      - contributing/index.md
-      - contributing/developer-guide.md
+      - Kafka:
+          - resources/kafka/index.md
+          - resources/kafka/schema.md
+          - resources/kafka/connect.md
   - API Reference:
+      - api-reference/index.md
       - api-reference/cassandra.md
       - api-reference/clickhouse.md
       - api-reference/clickhouseuser.md

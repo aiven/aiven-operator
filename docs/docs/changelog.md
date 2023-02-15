@@ -1,11 +1,19 @@
 # Changelog
 
-## 🚧 Under development
+## v0.8.0 - 2023-02-15
 
-- Add `serviceIntegrations` on service types. Only `read_replica` type for now.
+**Important:** This release brings breaking changes to the `userConfig` property.
+After new charts are installed, update your existing instances manually using the `kubectl edit` command
+according to the [API reference](https://aiven.github.io/aiven-operator/api-reference/).
+
+**Note:** It is now recommended to disable webhooks for Kubernetes version 1.25 and higher,
+as native [CRD validation rules](https://kubernetes.io/blog/2022/09/23/crd-validation-rules-beta/) are used.
+
+- **Breaking change:** `ip_filter` field is now of `object` type
+- **Breaking change:** Update user configs for following kinds: PostgreSQL, Kafka, KafkaConnect, Redis, Clickhouse, OpenSearch
 - Add CRD validation rules for immutable fields
-- **Breaking change:** `ip_filter` field is now of `object` type.
-- **Breaking change:** Update user configs for following kinds: PostgreSQL, Kafka, Redis, Clickhouse, OpenSearch, KafkaConnect.  
+- Add user config field validations (enum, minimum, maximum, minLength, and others)
+- Add `serviceIntegrations` on service types. Only the `read_replica` type is available.
 - Add KafkaTopic `min_cleanable_dirty_ratio` config field support
 - Add Clickhouse `spec.disk_space` property
 - Use updated aiven-go-client with retries
