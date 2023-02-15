@@ -23,7 +23,9 @@ helm install aiven-operator-crds aiven/aiven-operator-crds
 Verify the installation:
 ```shell
 kubectl api-resources --api-group=aiven.io
+```
 
+```{ .shell .no-copy }
 NAME                  SHORTNAMES   APIVERSION          NAMESPACED   KIND
 connectionpools                    aiven.io/v1alpha1   true         ConnectionPool
 databases                          aiven.io/v1alpha1   true         Database
@@ -42,7 +44,9 @@ helm install aiven-operator aiven/aiven-operator
 Verify the installation: 
 ```shell
 helm status aiven-operator
+```
 
+```{ .shell .no-copy }
 NAME: aiven-operator
 LAST DEPLOYED: Fri Sep 10 15:23:26 2021
 NAMESPACE: default
@@ -62,11 +66,16 @@ Please refer to the [values.yaml](https://github.com/aiven/aiven-charts/blob/mai
 
 ## Uninstalling 
 
+!!! important
+    Please see [this page](uninstalling.md) for more information.
+
 Find out the name of your deployment:
 
 ```shell
 helm list
+```
 
+```{ .shell .no-copy }
 NAME               	NAMESPACE	REVISION	UPDATED                                 	STATUS  	CHART                     	APP VERSION
 aiven-operator     	default  	1       	2021-09-09 10:56:14.623700249 +0200 CEST	deployed	aiven-operator-v0.1.0     	v0.1.0     
 aiven-operator-crds	default  	1       	2021-09-09 10:56:05.736411868 +0200 CEST	deployed	aiven-operator-crds-v0.1.0	v0.1.0
@@ -76,7 +85,9 @@ Remove the CRDs:
 
 ```shell
 helm uninstall aiven-operator-crds
+```
 
+```{ .shell .no-copy }
 release "aiven-operator-crds" uninstalled
 ```
 
@@ -84,7 +95,9 @@ Remove the operator:
 
 ```shell
 helm uninstall aiven-operator
+```
 
+```{ .shell .no-copy }
 release "aiven-operator" uninstalled
 ```
 
