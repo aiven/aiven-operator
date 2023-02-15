@@ -1,12 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v3"
+
+	pgtestuserconfig "github.com/aiven/aiven-operator/userconfigs_generator/pg"
 )
 
 func TestNewUserConfigFile(t *testing.T) {
@@ -17,49 +19,66 @@ func TestNewUserConfigFile(t *testing.T) {
 	err = yaml.Unmarshal(src, obj)
 	assert.NoError(t, err)
 
-	expected, err := os.ReadFile(`generator_test_expected.go`)
+	expected, err := os.ReadFile(`pg/pg.go`)
 	assert.NoError(t, err)
 
-	file, err := newUserConfigFile("pg_user_config", obj)
+	actual, err := newUserConfigFile("pg_test_user_config", obj)
 	assert.NoError(t, err)
-
-	// Result is a go file, but marked to be ignored.
-	// Empty lines add to make IDE formatter be happy with that.
-	ignore := "//go:build exclude\n\n"
-	expectedStr := string(expected)[len(ignore):]
 
 	// Leave the var for debugging with a break point
-	actual := file.GoString()
-	assert.Equal(t, expectedStr, actual)
+	expectedStr := string(expected)
+	actualStr := string(actual)
+	assert.Equal(t, expectedStr, actualStr)
 }
 
-func TestSafeEnumKeepsOriginal(t *testing.T) {
-	cases := []string{
-		"1",
-		"foo",
-		"foo_bar",
-		"foo-bar",
-		"Foo",
-		"foo123",
-	}
-	for _, s := range cases {
-		t.Run(s, func(t *testing.T) {
-			assert.Equal(t, s, safeEnum(s))
-		})
-	}
+func TestIpFilterString(t *testing.T) {
+	var c pgtestuserconfig.PgTestUserConfig
+	s := `{
+		"ip_filter": [
+			"foo",
+			"bar"
+		]
+	}`
+
+	err := json.Unmarshal([]byte(s), &c)
+	assert.NoError(t, err)
+	assert.Len(t, c.IpFilter, 2)
+	assert.Equal(t, c.IpFilter[0].Network, "foo")
+	assert.Nil(t, c.IpFilter[0].Description)
+	assert.Equal(t, c.IpFilter[1].Network, "bar")
+	assert.Nil(t, c.IpFilter[1].Description)
 }
 
-func TestSafeEnumAddsQuotes(t *testing.T) {
-	cases := []string{
-		"foo%p",
-		"foo{}",
-		"[foo]",
-		"foo bar",
-		"foo,bar",
-	}
-	for _, s := range cases {
-		t.Run(s, func(t *testing.T) {
-			assert.Equal(t, fmt.Sprintf("%q", s), safeEnum(s))
-		})
-	}
+func TestIpFilterObjects(t *testing.T) {
+	var c pgtestuserconfig.PgTestUserConfig
+	s := `{
+		"ip_filter": [
+			{
+				"network": "foo",
+				"description": "foo description"
+			},
+			{
+				"network": "bar"
+			}
+		]
+	}`
+
+	err := json.Unmarshal([]byte(s), &c)
+	assert.NoError(t, err)
+	assert.Len(t, c.IpFilter, 2)
+	assert.Equal(t, c.IpFilter[0].Network, "foo")
+	assert.Equal(t, *c.IpFilter[0].Description, "foo description")
+	assert.Equal(t, c.IpFilter[1].Network, "bar")
+	assert.Nil(t, c.IpFilter[1].Description)
+}
+
+func TestIpFilterEmpty(t *testing.T) {
+	var c pgtestuserconfig.PgTestUserConfig
+	s := `{
+		"ip_filter": []
+	}`
+
+	err := json.Unmarshal([]byte(s), &c)
+	assert.NoError(t, err)
+	assert.Len(t, c.IpFilter, 0)
 }

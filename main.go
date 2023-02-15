@@ -20,7 +20,7 @@ import (
 	//+kubebuilder:scaffold:imports
 )
 
-//go:generate go run ./userconfigs_generator/... --services mysql,cassandra,grafana
+//go:generate go run ./userconfigs_generator/... --services mysql,cassandra,grafana,pg,kafka,redis,clickhouse,opensearch,kafka_connect
 
 var (
 	scheme   = runtime.NewScheme()
@@ -368,11 +368,6 @@ func main() {
 
 		if err = (&v1alpha1.ServiceUser{}).SetupWebhookWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create webhook", "webhook", "ServiceUser")
-			os.Exit(1)
-		}
-
-		if err = (&v1alpha1.ProjectVPC{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "ProjectVPC")
 			os.Exit(1)
 		}
 

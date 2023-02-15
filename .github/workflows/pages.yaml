@@ -11,29 +11,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Generate docs
+        uses: addnab/docker-run-action@v3
         with:
-          submodules: recursive
-          fetch-depth: 0
-      - uses: peaceiris/actions-hugo@v2
-        with:
-          hugo-version: '0.83.1'
-          extended: true
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-      - uses: actions/cache@v1
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      - run: npm ci --prefix ./docs
-      - uses: actions/setup-go@v2
-        with:
-          go-version: '1.18'
-      - run: make generate-docs
-      - uses: peaceiris/actions-gh-pages@v3
+          image: squidfunk/mkdocs-material:latest
+          options: -v ${{ github.workspace }}/docs/:/docs
+          run: mkdocs build
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/public
+          publish_dir: ./docs/site
