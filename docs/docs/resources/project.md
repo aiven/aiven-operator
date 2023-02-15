@@ -36,9 +36,14 @@ kubectl apply -f project-sample.yaml
 ```
 
 Verify the newly created Project:
+
 ```shell
 kubectl get projects.aiven.io project-sample
+```
 
+The output is similar to the following:
+
+```{ .shell .no-copy }
 NAME             AGE
 project-sample   22s
 ```

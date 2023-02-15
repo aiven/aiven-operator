@@ -11,7 +11,7 @@ you can get up and running with a suitably sized Apache Kafka service in a few m
     Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/) 
     and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
 
-## Creating a `Kafka` instance
+## Creating a Kafka instance
 
 1\. Create a file named `kafka-sample.yaml`, and add the following content:
 
@@ -53,15 +53,21 @@ spec:
 kubectl apply -f kafka-sample.yaml 
 ```
 
-3\. Inspect the service created using the command below. After a couple of minutes, the `STATE` field is changed
-   to `RUNNING`, and is ready to be used.
+3\. Inspect the service created using the command below. 
 
 ```shell
 kubectl get kafka.aiven.io kafka-sample
+```
+
+The output has the project name and state, similar to the following:
+
+```{ .shell .no-copy }
 
 NAME           PROJECT          REGION                PLAN        STATE
 kafka-sample   <your-project>   google-europe-west1   startup-2   RUNNING
 ```
+
+ After a couple of minutes, the `STATE` field is changed to `RUNNING`, and is ready to be used.
 
 ## Using the connection Secret
 
@@ -70,7 +76,11 @@ name specified on the `connInfoSecretTarget` field.
 
 ```shell
 kubectl describe secret kafka-auth 
+```
 
+The output is similar to the following:
+
+```{ .shell .no-copy }
 Name:         kafka-auth
 Namespace:    default
 Annotations:  <none>
@@ -92,6 +102,11 @@ You can use the [jq](https://github.com/stedolan/jq) to quickly decode the Secre
 
 ```shell
 kubectl get secret kafka-auth -o json | jq '.data | map_values(@base64d)'
+```
+
+The output is similar to the following:
+
+```{ .json .no-copy }
 {
   "CA_CERT": "<secret-ca-cert>",
   "ACCESS_CERT": "<secret-cert>",
@@ -160,7 +175,11 @@ Once successfully applied, you have a log with the metadata information about th
 
 ```shell
 kubectl logs kafka-test-connection 
+```
 
+The output is similar to the following:
+
+```{ .shell .no-copy }
 Metadata for all topics (from broker -1: ssl://kafka-sample-your-project.aivencloud.com:13041/bootstrap):
  3 brokers:
   broker 2 at 35.205.234.70:13041

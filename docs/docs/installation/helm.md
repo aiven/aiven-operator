@@ -24,6 +24,7 @@ Verify the installation:
 ```shell
 kubectl api-resources --api-group=aiven.io
 ```
+The output is similar to the following:
 
 ```{ .shell .no-copy }
 NAME                  SHORTNAMES   APIVERSION          NAMESPACED   KIND
@@ -45,6 +46,8 @@ Verify the installation:
 ```shell
 helm status aiven-operator
 ```
+
+The output is similar to the following:
 
 ```{ .shell .no-copy }
 NAME: aiven-operator
@@ -75,6 +78,8 @@ Find out the name of your deployment:
 helm list
 ```
 
+The output has the name of each deployment similar to the following: 
+
 ```{ .shell .no-copy }
 NAME               	NAMESPACE	REVISION	UPDATED                                 	STATUS  	CHART                     	APP VERSION
 aiven-operator     	default  	1       	2021-09-09 10:56:14.623700249 +0200 CEST	deployed	aiven-operator-v0.1.0     	v0.1.0     
@@ -87,6 +92,8 @@ Remove the CRDs:
 helm uninstall aiven-operator-crds
 ```
 
+The confirmation message is similar to the following:
+
 ```{ .shell .no-copy }
 release "aiven-operator-crds" uninstalled
 ```
@@ -96,6 +103,8 @@ Remove the operator:
 ```shell
 helm uninstall aiven-operator
 ```
+
+The confirmation message is similar to the following:
 
 ```{ .shell .no-copy }
 release "aiven-operator" uninstalled

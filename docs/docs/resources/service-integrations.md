@@ -123,7 +123,11 @@ kubectl apply -f kafka-sample-topic.yaml
 
 ```shell
 kubectl get serviceintegrations.aiven.io service-integration-kafka-logs
+```
 
+The output is similar to the following:
+
+```{ .shell .no-copy }
 NAME                             PROJECT        TYPE         SOURCE SERVICE NAME   DESTINATION SERVICE NAME   SOURCE ENDPOINT ID   DESTINATION ENDPOINT ID
 service-integration-kafka-logs   your-project   kafka_logs   kafka-sample          kafka-sample                                    
 ```
