@@ -68,6 +68,7 @@ nav:
   - Resources:
       - resources/project.md
       - resources/project-vpc.md
+      - resources/cassandra.md
       - resources/postgresql.md
       - resources/opensearch.md
       - resources/redis.md
