@@ -1291,18 +1291,17 @@
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
 <h2 id="v080-2023-02-15">v0.8.0 - 2023-02-15<a class="headerlink" href="#v080-2023-02-15" title="Permanent link">&para;</a></h2>
-<p><strong>Note:</strong> This release brings breaking changes to <code>userConfig</code> property.
-Please update existing instances manually with <code>kubectl edit</code> command
-according to the <a href="https://aiven.github.io/aiven-operator/api-reference/">API reference</a>
-<em>after</em> new charts installed.</p>
-<p><strong>Note2:</strong> It is now recommended to disable webhooks for Kubernetes &gt;=1.25,
+<p><strong>Important:</strong> This release brings breaking changes to the <code>userConfig</code> property.
+After new charts are installed, update your existing instances manually using the <code>kubectl edit</code> command
+according to the <a href="https://aiven.github.io/aiven-operator/api-reference/">API reference</a>.</p>
+<p><strong>Note:</strong> It is now recommended to disable webhooks for Kubernetes version 1.25 and higher,
 as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-beta/">CRD validation rules</a> are used.</p>
 <ul>
 <li><strong>Breaking change:</strong> <code>ip_filter</code> field is now of <code>object</code> type</li>
 <li><strong>Breaking change:</strong> Update user configs for following kinds: PostgreSQL, Kafka, KafkaConnect, Redis, Clickhouse, OpenSearch</li>
 <li>Add CRD validation rules for immutable fields</li>
-<li>Add user config fields validations (enum, minimum, maximum, minLength, etc)</li>
-<li>Add <code>serviceIntegrations</code> on service types. Only <code>read_replica</code> type for now</li>
+<li>Add user config field validations (enum, minimum, maximum, minLength, and others)</li>
+<li>Add <code>serviceIntegrations</code> on service types. Only the <code>read_replica</code> type is available.</li>
 <li>Add KafkaTopic <code>min_cleanable_dirty_ratio</code> config field support</li>
 <li>Add Clickhouse <code>spec.disk_space</code> property</li>
 <li>Use updated aiven-go-client with retries</li>
