@@ -86,9 +86,13 @@ help: ## Display this help.
 
 ##@ Development
 
+.PHONY: go-generate
+go-generate:
+	go generate ./...
+
 .PHONY: manifests
-manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
-	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+manifests: go-generate controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
+	$(CONTROLLER_GEN) rbac:roleName=manager-role crd:allowDangerousTypes=true webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
 .PHONY: generate
 generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
@@ -110,6 +114,7 @@ test: manifests generate fmt vet envtest ginkgo ## Run tests.
 	KUBEBUILDER_ATTACH_CONTROL_PLANE_OUTPUT=true \
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" \
 	$(GINKGO) \
+			-v \
 			--focus-file=$(FOCUS_FILE) \
 			--output-interceptor-mode=none \
 			--nodes=6 \
@@ -168,14 +173,14 @@ undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/confi
 
 ##@ Docs
 
-.PHONY: serve-docs
-serve-docs: hugo ## Run Hugo live preview.
-	$(HUGO) serve docs -s docs
+.PHONY: generate-api-reference
+generate-api-reference: ## Generate CRDS api-reference
+	go run ./docs_generator/...
+	sed 's/\[MAJOR\.MINOR\.PATCH\] - YYYY-MM-DD/🚧 Under development/g' ./CHANGELOG.md > ./docs/docs/changelog.md
 
-.PHONY: generate-docs
-generate-docs: hugo gen-crd-api-ref-docs ## Generate the documentation website locally.
-	go run hack/genrefs/main.go
-	$(HUGO) --minify -s docs
+.PHONY: serve-docs
+serve-docs: generate-api-reference ## Run live preview.
+	docker run --rm -it -p 8000:8000 -v ${PWD}/docs:/docs squidfunk/mkdocs-material
 
 ##@ Build Dependencies
 
@@ -190,7 +195,6 @@ KUSTOMIZE ?= $(LOCALBIN)/kustomize
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
 ENVTEST ?= $(LOCALBIN)/setup-envtest
 GINKGO=$(LOCALBIN)/ginkgo
-HUGO=$(LOCALBIN)/hugo
 GOLANGCILINT=$(LOCALBIN)/golangci-lint
 GEN_CRD_API_REF_DOCS=$(LOCALBIN)/gen-crd-api-reference-docs
 
@@ -198,7 +202,6 @@ GEN_CRD_API_REF_DOCS=$(LOCALBIN)/gen-crd-api-reference-docs
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v4.2.0
 CONTROLLER_TOOLS_VERSION ?= v0.9.2
-HUGO_VERSION ?= v0.104.3
 GINKGO_VERSION ?= v2.3.1
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
@@ -216,21 +219,6 @@ $(CONTROLLER_GEN): $(LOCALBIN)
 envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
 $(ENVTEST): $(LOCALBIN)
 	test -s $(LOCALBIN)/setup-envtest || GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
-
-.PHONY: hugo
-hugo: $(HUGO) ## Download hugo locally if necessary.
-$(HUGO): $(LOCALBIN)
-	test -s $(LOCALBIN)/hugo || GOBIN=$(LOCALBIN) go install github.com/gohugoio/hugo@$(HUGO_VERSION)
-
-.PHONY: gen-crd-api-ref-docs
-gen-crd-api-ref-docs: $(GEN_CRD_API_REF_DOCS)  ## Download gen-crd-api-ref-docs hugo locally if necessary.
-$(GEN_CRD_API_REF_DOCS): $(LOCALBIN)
-	test -s $(LOCALBIN)/gen-crd-api-reference-docs || GOBIN=$(LOCALBIN) go install github.com/ahmetb/gen-crd-api-reference-docs@latest
-
-.PHONY: gen-crd-api-ref-docs
-gen-crd-api-ref-docs: $(GEN_CRD_API_REF_DOCS)  ## Download golang ci lint locally if necessary.
-$(GEN_CRD_API_REF_DOCS): $(LOCALBIN)
-	test -s $(LOCALBIN)/gen-crd-api-reference-docs || GOBIN=$(LOCALBIN) go install github.com/ahmetb/gen-crd-api-reference-docs@latest
 
 .PHONY: ginkgo
 ginkgo: $(GINKGO) ## Download envtest-setup locally if necessary.

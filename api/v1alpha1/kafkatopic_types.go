@@ -92,9 +92,8 @@ type KafkaTopicConfig struct {
 	// message.timestamp.type value
 	MessageTimestampType string `json:"message_timestamp_type,omitempty"`
 
-	// TODO: float is currently not supported by K8s provider SDK, but will be in the next versions
 	// min.cleanable.dirty.ratio value
-	//MinCleanableDirtyRatio *float64 `json:"min_cleanable_dirty_ratio,omitempty"`
+	MinCleanableDirtyRatio *float64 `json:"min_cleanable_dirty_ratio,omitempty"`
 
 	// min.compaction.lag.ms value
 	MinCompactionLagMs *int64 `json:"min_compaction_lag_ms,omitempty"`

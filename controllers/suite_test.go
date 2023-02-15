@@ -356,16 +356,6 @@ func anyPointer[T any](v T) *T {
 	return &v
 }
 
-// boolPointer converts boolean to *bool
-func boolPointer(b bool) *bool {
-	return &b
-}
-
-// int64Pointer converts int64 to a pointer int64
-func int64Pointer(i int64) *int64 {
-	return &i
-}
-
 // generateRandomString generate a random id
 func generateRandomID() string {
 	var src = rand.NewSource(time.Now().UnixNano())

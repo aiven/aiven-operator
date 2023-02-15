@@ -49,9 +49,6 @@ spec:
                 description: Cloud the service runs in.
                 maxLength: 256
                 type: string
-                x-kubernetes-validations:
-                - message: Value is immutable
-                  rule: self == oldSelf
               connInfoSecretTarget:
                 description: Information regarding secret creation
                 properties:
@@ -119,6 +116,28 @@ spec:
                 x-kubernetes-validations:
                 - message: Value is immutable
                   rule: self == oldSelf
+              serviceIntegrations:
+                items:
+                  description: Service integrations to specify when creating a service.
+                    Not applied after initial service creation
+                  properties:
+                    integrationType:
+                      enum:
+                      - read_replica
+                      type: string
+                    sourceServiceName:
+                      maxLength: 64
+                      minLength: 1
+                      type: string
+                  required:
+                  - integrationType
+                  - sourceServiceName
+                  type: object
+                maxItems: 1
+                type: array
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
               tags:
                 additionalProperties:
                   type: string
@@ -132,286 +151,316 @@ spec:
               userConfig:
                 description: OpenSearch specific user configuration options
                 properties:
+                  additional_backup_regions:
+                    description: Additional Cloud Regions for Backup Replication
+                    items:
+                      type: string
+                    maxItems: 1
+                    type: array
                   custom_domain:
-                    description: Custom domain Serve the web frontend using a custom
-                      CNAME pointing to the Aiven DNS name
+                    description: Serve the web frontend using a custom CNAME pointing
+                      to the Aiven DNS name
                     maxLength: 255
                     type: string
                   disable_replication_factor_adjustment:
-                    description: 'Disable replication factor adjustment DEPRECATED:
-                      Disable automatic replication factor adjustment for multi-node
-                      services. By default, Aiven ensures all indexes are replicated
-                      at least to two nodes. Note: Due to potential data loss in case
-                      of losing a service node, this setting can no longer be activated.'
+                    description: 'DEPRECATED: Disable automatic replication factor
+                      adjustment for multi-node services. By default, Aiven ensures
+                      all indexes are replicated at least to two nodes. Note: Due
+                      to potential data loss in case of losing a service node, this
+                      setting can no longer be activated.'
                     type: boolean
                   index_patterns:
-                    description: 'Allows you to create glob style patterns and set
-                      a max number of indexes matching this pattern you want to keep.
-                      Creating indexes exceeding this value will cause the oldest
-                      one to get deleted. You could for example create a pattern looking
-                      like ''logs.?'' and then create index logs.1, logs.2 etc, it
-                      will delete logs.1 once you create logs.6. Do note ''logs.?''
-                      does not apply to logs.10. Note: Setting max_index_count to
-                      0 will do nothing and the pattern gets ignored.'
+                    description: Index patterns
                     items:
+                      description: 'Allows you to create glob style patterns and set
+                        a max number of indexes matching this pattern you want to
+                        keep. Creating indexes exceeding this value will cause the
+                        oldest one to get deleted. You could for example create a
+                        pattern looking like ''logs.?'' and then create index logs.1,
+                        logs.2 etc, it will delete logs.1 once you create logs.6.
+                        Do note ''logs.?'' does not apply to logs.10. Note: Setting
+                        max_index_count to 0 will do nothing and the pattern gets
+                        ignored.'
                       properties:
                         max_index_count:
                           description: Maximum number of indexes to keep
-                          format: int64
                           minimum: 0
                           type: integer
                         pattern:
-                          description: Must consist of alpha-numeric characters, dashes,
-                            underscores, dots and glob characters (* and ?)
+                          description: fnmatch pattern
                           maxLength: 1024
+                          pattern: ^[A-Za-z0-9-_.*?]+$
                           type: string
+                        sorting_algorithm:
+                          description: Deletion sorting algorithm
+                          enum:
+                          - alphabetical
+                          - creation_date
+                          type: string
+                      required:
+                      - max_index_count
+                      - pattern
                       type: object
+                    maxItems: 512
                     type: array
                   index_template:
                     description: Template settings for all new indexes
                     properties:
                       mapping_nested_objects_limit:
-                        description: index.mapping.nested_objects.limit The maximum
-                          number of nested JSON objects that a single document can
-                          contain across all nested types. This limit helps to prevent
-                          out of memory errors when a document contains too many nested
-                          objects. Default is 10000.
-                        format: int64
+                        description: The maximum number of nested JSON objects that
+                          a single document can contain across all nested types. This
+                          limit helps to prevent out of memory errors when a document
+                          contains too many nested objects. Default is 10000.
                         maximum: 100000
                         minimum: 0
                         type: integer
                       number_of_replicas:
-                        description: index.number_of_replicas The number of replicas
-                          each primary shard has.
-                        format: int64
+                        description: The number of replicas each primary shard has.
                         maximum: 29
                         minimum: 0
                         type: integer
                       number_of_shards:
-                        description: index.number_of_shards The number of primary
-                          shards that an index should have.
-                        format: int64
+                        description: The number of primary shards that an index should
+                          have.
                         maximum: 1024
                         minimum: 1
                         type: integer
                     type: object
                   ip_filter:
-                    description: 'Glob pattern and number of indexes matching that
-                      pattern to be kept Allows you to create glob style patterns
-                      and set a max number of indexes matching this pattern you want
-                      to keep. Creating indexes exceeding this value will cause the
-                      oldest one to get deleted. You could for example create a pattern
-                      looking like ''logs.?'' and then create index logs.1, logs.2
-                      etc, it will delete logs.1 once you create logs.6. Do note ''logs.?''
-                      does not apply to logs.10. Note: Setting max_index_count to
-                      0 will do nothing and the pattern gets ignored. IP filter Allow
-                      incoming connections from CIDR address block, e.g. ''10.20.0.0/16'''
+                    description: Allow incoming connections from CIDR address block,
+                      e.g. '10.20.0.0/16'
                     items:
-                      type: string
+                      description: CIDR address block, either as a string, or in a
+                        dict with an optional description field
+                      properties:
+                        description:
+                          description: Description for IP filter list entry
+                          maxLength: 1024
+                          type: string
+                        network:
+                          description: CIDR address block
+                          maxLength: 43
+                          type: string
+                      required:
+                      - network
+                      type: object
+                    maxItems: 1024
                     type: array
                   keep_index_refresh_interval:
-                    description: Don't reset index.refresh_interval to the default
-                      value Aiven automation resets index.refresh_interval to default
-                      value for every index to be sure that indices are always visible
-                      to search. If it doesn't fit your case, you can disable this
-                      by setting up this flag to true.
+                    description: Aiven automation resets index.refresh_interval to
+                      default value for every index to be sure that indices are always
+                      visible to search. If it doesn't fit your case, you can disable
+                      this by setting up this flag to true.
                     type: boolean
                   max_index_count:
-                    description: Maximum index count Maximum number of indexes to
-                      keep before deleting the oldest one
-                    format: int64
+                    description: 'DEPRECATED: use index_patterns instead'
                     minimum: 0
                     type: integer
                   opensearch:
                     description: OpenSearch settings
                     properties:
                       action_auto_create_index_enabled:
-                        description: action.auto_create_index Explicitly allow or
-                          block automatic creation of indices. Defaults to true
+                        description: Explicitly allow or block automatic creation
+                          of indices. Defaults to true
                         type: boolean
                       action_destructive_requires_name:
                         description: Require explicit index names when deleting
                         type: boolean
                       cluster_max_shards_per_node:
-                        description: cluster.max_shards_per_node Controls the number
-                          of shards allowed in the cluster per data node
-                        format: int64
+                        description: Controls the number of shards allowed in the
+                          cluster per data node
                         maximum: 10000
                         minimum: 100
                         type: integer
+                      cluster_routing_allocation_node_concurrent_recoveries:
+                        description: How many concurrent incoming/outgoing shard recoveries
+                          (normally replicas) are allowed to happen on a node. Defaults
+                          to 2.
+                        maximum: 16
+                        minimum: 2
+                        type: integer
+                      email_sender_name:
+                        description: Sender email name placeholder to be used in Opensearch
+                          Dashboards and Opensearch keystore
+                        maxLength: 40
+                        pattern: ^[a-zA-Z0-9-_]+$
+                        type: string
+                      email_sender_password:
+                        description: Sender email password for Opensearch alerts to
+                          authenticate with SMTP server
+                        maxLength: 1024
+                        pattern: ^[^\x00-\x1F]+$
+                        type: string
+                      email_sender_username:
+                        description: Sender email address for Opensearch alerts
+                        maxLength: 320
+                        pattern: ^[A-Za-z0-9_\-\.+\'&]+@(([\da-zA-Z])([_\w-]{,62})\.){,127}(([\da-zA-Z])[_\w-]{,61})?([\da-zA-Z]\.((xn\-\-[a-zA-Z\d]+)|([a-zA-Z\d]{2,})))$
+                        type: string
                       http_max_content_length:
-                        description: http.max_content_length Maximum content length
-                          for HTTP requests to the OpenSearch HTTP API, in bytes.
-                        format: int64
+                        description: Maximum content length for HTTP requests to the
+                          OpenSearch HTTP API, in bytes.
                         maximum: 2147483647
                         minimum: 1
                         type: integer
                       http_max_header_size:
-                        description: http.max_header_size The max size of allowed
-                          headers, in bytes
-                        format: int64
+                        description: The max size of allowed headers, in bytes
                         maximum: 262144
                         minimum: 1024
                         type: integer
                       http_max_initial_line_length:
-                        description: http.max_initial_line_length The max length of
-                          an HTTP URL, in bytes
-                        format: int64
+                        description: The max length of an HTTP URL, in bytes
                         maximum: 65536
                         minimum: 1024
                         type: integer
                       indices_fielddata_cache_size:
-                        description: indices.fielddata.cache.size Relative amount.
-                          Maximum amount of heap memory used for field data cache.
-                          This is an expert setting; decreasing the value too much
-                          will increase overhead of loading field data; too much memory
-                          used for field data cache will decrease amount of heap available
-                          for other operations.
-                        format: int64
+                        description: Relative amount. Maximum amount of heap memory
+                          used for field data cache. This is an expert setting; decreasing
+                          the value too much will increase overhead of loading field
+                          data; too much memory used for field data cache will decrease
+                          amount of heap available for other operations.
                         maximum: 100
                         minimum: 3
                         type: integer
                       indices_memory_index_buffer_size:
-                        description: indices.memory.index_buffer_size Percentage value.
-                          Default is 10%. Total amount of heap used for indexing buffer,
-                          before writing segments to disk. This is an expert setting.
-                          Too low value will slow down indexing; too high value will
-                          increase indexing performance but causes performance issues
-                          for query performance.
-                        format: int64
+                        description: Percentage value. Default is 10%. Total amount
+                          of heap used for indexing buffer, before writing segments
+                          to disk. This is an expert setting. Too low value will slow
+                          down indexing; too high value will increase indexing performance
+                          but causes performance issues for query performance.
                         maximum: 40
                         minimum: 3
                         type: integer
                       indices_queries_cache_size:
-                        description: indices.queries.cache.size Percentage value.
-                          Default is 10%. Maximum amount of heap used for query cache.
-                          This is an expert setting. Too low value will decrease query
-                          performance and increase performance for other operations;
-                          too high value will cause issues with other OpenSearch functionality.
-                        format: int64
+                        description: Percentage value. Default is 10%. Maximum amount
+                          of heap used for query cache. This is an expert setting.
+                          Too low value will decrease query performance and increase
+                          performance for other operations; too high value will cause
+                          issues with other OpenSearch functionality.
                         maximum: 40
                         minimum: 3
                         type: integer
                       indices_query_bool_max_clause_count:
-                        description: indices.query.bool.max_clause_count Maximum number
-                          of clauses Lucene BooleanQuery can have. The default value
-                          (1024) is relatively high, and increasing it may cause performance
-                          issues. Investigate other approaches first before increasing
-                          this value.
-                        format: int64
+                        description: Maximum number of clauses Lucene BooleanQuery
+                          can have. The default value (1024) is relatively high, and
+                          increasing it may cause performance issues. Investigate
+                          other approaches first before increasing this value.
                         maximum: 4096
                         minimum: 64
                         type: integer
+                      indices_recovery_max_bytes_per_sec:
+                        description: Limits total inbound and outbound recovery traffic
+                          for each node. Applies to both peer recoveries as well as
+                          snapshot recoveries (i.e., restores from a snapshot). Defaults
+                          to 40mb
+                        maximum: 400
+                        minimum: 40
+                        type: integer
+                      indices_recovery_max_concurrent_file_chunks:
+                        description: Number of file chunks sent in parallel for each
+                          recovery. Defaults to 2.
+                        maximum: 5
+                        minimum: 2
+                        type: integer
+                      override_main_response_version:
+                        description: Compatibility mode sets OpenSearch to report
+                          its version as 7.10 so clients continue to work. Default
+                          is false
+                        type: boolean
                       reindex_remote_whitelist:
-                        description: reindex_remote_whitelist Whitelisted addresses
-                          for reindexing. Changing this value will cause all OpenSearch
-                          instances to restart. Address (hostname:port or IP:port)
+                        description: Whitelisted addresses for reindexing. Changing
+                          this value will cause all OpenSearch instances to restart.
                         items:
                           type: string
+                        maxItems: 32
                         type: array
+                      script_max_compilations_rate:
+                        description: Script compilation circuit breaker limits the
+                          number of inline script compilations within a period of
+                          time. Default is use-context
+                        maxLength: 1024
+                        type: string
                       search_max_buckets:
-                        description: search.max_buckets Maximum number of aggregation
-                          buckets allowed in a single response. OpenSearch default
-                          value is used when this is not defined.
-                        format: int64
+                        description: Maximum number of aggregation buckets allowed
+                          in a single response. OpenSearch default value is used when
+                          this is not defined.
                         maximum: 20000
                         minimum: 1
                         type: integer
                       thread_pool_analyze_queue_size:
-                        description: analyze thread pool queue size for the thread
-                          pool queue. See documentation for exact details.
-                        format: int64
+                        description: Size for the thread pool queue. See documentation
+                          for exact details.
                         maximum: 2000
                         minimum: 10
                         type: integer
                       thread_pool_analyze_size:
-                        description: analyze thread pool size for the thread pool.
-                          See documentation for exact details. Do note this may have
-                          maximum value depending on CPU count - value is automatically
-                          lowered if set to higher than maximum value.
-                        format: int64
+                        description: Size for the thread pool. See documentation for
+                          exact details. Do note this may have maximum value depending
+                          on CPU count - value is automatically lowered if set to
+                          higher than maximum value.
                         maximum: 128
                         minimum: 1
                         type: integer
                       thread_pool_force_merge_size:
-                        description: force_merge thread pool size for the thread pool.
-                          See documentation for exact details. Do note this may have
-                          maximum value depending on CPU count - value is automatically
-                          lowered if set to higher than maximum value.
-                        format: int64
+                        description: Size for the thread pool. See documentation for
+                          exact details. Do note this may have maximum value depending
+                          on CPU count - value is automatically lowered if set to
+                          higher than maximum value.
                         maximum: 128
                         minimum: 1
                         type: integer
                       thread_pool_get_queue_size:
-                        description: get thread pool queue size for the thread pool
-                          queue. See documentation for exact details.
-                        format: int64
+                        description: Size for the thread pool queue. See documentation
+                          for exact details.
                         maximum: 2000
                         minimum: 10
                         type: integer
                       thread_pool_get_size:
-                        description: get thread pool size for the thread pool. See
-                          documentation for exact details. Do note this may have maximum
-                          value depending on CPU count - value is automatically lowered
-                          if set to higher than maximum value.
-                        format: int64
-                        maximum: 128
-                        minimum: 1
-                        type: integer
-                      thread_pool_index_size:
-                        description: index thread pool size for the thread pool. See
-                          documentation for exact details. Do note this may have maximum
-                          value depending on CPU count - value is automatically lowered
-                          if set to higher than maximum value.
-                        format: int64
+                        description: Size for the thread pool. See documentation for
+                          exact details. Do note this may have maximum value depending
+                          on CPU count - value is automatically lowered if set to
+                          higher than maximum value.
                         maximum: 128
                         minimum: 1
                         type: integer
                       thread_pool_search_queue_size:
-                        description: search thread pool queue size for the thread
-                          pool queue. See documentation for exact details.
-                        format: int64
+                        description: Size for the thread pool queue. See documentation
+                          for exact details.
                         maximum: 2000
                         minimum: 10
                         type: integer
                       thread_pool_search_size:
-                        description: search thread pool size for the thread pool.
-                          See documentation for exact details. Do note this may have
-                          maximum value depending on CPU count - value is automatically
-                          lowered if set to higher than maximum value.
-                        format: int64
+                        description: Size for the thread pool. See documentation for
+                          exact details. Do note this may have maximum value depending
+                          on CPU count - value is automatically lowered if set to
+                          higher than maximum value.
                         maximum: 128
                         minimum: 1
                         type: integer
                       thread_pool_search_throttled_queue_size:
-                        description: search_throttled thread pool queue size for the
-                          thread pool queue. See documentation for exact details.
-                        format: int64
+                        description: Size for the thread pool queue. See documentation
+                          for exact details.
                         maximum: 2000
                         minimum: 10
                         type: integer
                       thread_pool_search_throttled_size:
-                        description: search_throttled thread pool size for the thread
-                          pool. See documentation for exact details. Do note this
-                          may have maximum value depending on CPU count - value is
-                          automatically lowered if set to higher than maximum value.
-                        format: int64
+                        description: Size for the thread pool. See documentation for
+                          exact details. Do note this may have maximum value depending
+                          on CPU count - value is automatically lowered if set to
+                          higher than maximum value.
                         maximum: 128
                         minimum: 1
                         type: integer
                       thread_pool_write_queue_size:
-                        description: write thread pool queue size for the thread pool
-                          queue. See documentation for exact details.
-                        format: int64
+                        description: Size for the thread pool queue. See documentation
+                          for exact details.
                         maximum: 2000
                         minimum: 10
                         type: integer
                       thread_pool_write_size:
-                        description: write thread pool size for the thread pool. See
-                          documentation for exact details. Do note this may have maximum
-                          value depending on CPU count - value is automatically lowered
-                          if set to higher than maximum value.
-                        format: int64
+                        description: Size for the thread pool. See documentation for
+                          exact details. Do note this may have maximum value depending
+                          on CPU count - value is automatically lowered if set to
+                          higher than maximum value.
                         maximum: 128
                         minimum: 1
                         type: integer
@@ -423,25 +472,26 @@ spec:
                         description: Enable or disable OpenSearch Dashboards
                         type: boolean
                       max_old_space_size:
-                        description: 'max_old_space_size Limits the maximum amount
-                          of memory (in MiB) the OpenSearch Dashboards process can
-                          use. This sets the max_old_space_size option of the nodejs
-                          running the OpenSearch Dashboards. Note: the memory reserved
-                          by OpenSearch Dashboards is not available for OpenSearch.'
-                        format: int64
-                        maximum: 1024
+                        description: 'Limits the maximum amount of memory (in MiB)
+                          the OpenSearch Dashboards process can use. This sets the
+                          max_old_space_size option of the nodejs running the OpenSearch
+                          Dashboards. Note: the memory reserved by OpenSearch Dashboards
+                          is not available for OpenSearch.'
+                        maximum: 2048
                         minimum: 64
                         type: integer
                       opensearch_request_timeout:
                         description: Timeout in milliseconds for requests made by
                           OpenSearch Dashboards towards OpenSearch
-                        format: int64
                         maximum: 120000
                         minimum: 5000
                         type: integer
                     type: object
                   opensearch_version:
                     description: OpenSearch major version
+                    enum:
+                    - "1"
+                    - "2"
                     type: string
                   private_access:
                     description: Allow access to selected service ports from private
@@ -473,12 +523,18 @@ spec:
                       opensearch_dashboards:
                         description: Enable opensearch_dashboards
                         type: boolean
+                      prometheus:
+                        description: Enable prometheus
+                        type: boolean
                     type: object
                   project_to_fork_from:
                     description: Name of another project to fork a service from. This
                       has effect only when a new service is being created.
                     maxLength: 63
                     type: string
+                    x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
                   public_access:
                     description: Allow access to selected service ports from the public
                       Internet
@@ -501,16 +557,19 @@ spec:
                     type: object
                   recovery_basebackup_name:
                     description: Name of the basebackup to restore in forked service
-                    format: ^[a-zA-Z0-9-_:.]+$
                     maxLength: 128
+                    pattern: ^[a-zA-Z0-9-_:.]+$
                     type: string
                   service_to_fork_from:
                     description: Name of another service to fork from. This has effect
                       only when a new service is being created.
-                    maxLength: 63
+                    maxLength: 64
                     type: string
+                    x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
                   static_ips:
-                    description: Static IP addresses Use static public IP addresses
+                    description: Use static public IP addresses
                     type: boolean
                 type: object
             required:

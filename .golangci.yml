@@ -7,6 +7,9 @@ issues:
         - goconst
         - golint
       text: "underscore"
+    - linters:
+        - gomnd
+      text: "mnd: Magic number: 0644"
 
 linters:
   disable-all: true
