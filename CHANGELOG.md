@@ -19,6 +19,7 @@ as native [CRD validation rules](https://kubernetes.io/blog/2022/09/23/crd-valid
 - Add KafkaTopic `min_cleanable_dirty_ratio` config field support
 - Add Clickhouse `spec.disk_space` property
 - Use updated aiven-go-client with retries
+- Add `linux/amd64` build. Thanks to @christoffer-eide
 
 ## v0.7.1 - 2023-01-24
 
