@@ -44,7 +44,7 @@ spec:
 2\. Create the service by applying the configuration:
 
 ```shell
-$ kubectl apply -f cassandra-sample.yaml 
+kubectl apply -f cassandra-sample.yaml 
 ```
 
 The output is:
@@ -56,7 +56,7 @@ cassandra.aiven.io/cassandra-sample created
 3\. Review the resource you created with this command:
 
 ```shell
-$ kubectl describe cassandra.aiven.io cassandra-sample
+kubectl describe cassandra.aiven.io cassandra-sample
 ```
 
 The output is similar to the following:
@@ -89,7 +89,7 @@ name specified on the `connInfoSecretTarget` field.
 To view the details of the Secret, use the following command:
 
 ```shell
-$ kubectl describe secret cassandra-secret 
+kubectl describe secret cassandra-secret 
 ```
 
 The output is similar to the following:
@@ -115,7 +115,7 @@ CASSANDRA_HOST:      60 bytes
 You can use the [jq](https://github.com/stedolan/jq) to quickly decode the Secret:
 
 ```shell
-$ kubectl get secret cassandra-secret -o json | jq '.data | map_values(@base64d)'
+kubectl get secret cassandra-secret -o json | jq '.data | map_values(@base64d)'
 ```
 
 The output is similar to the following:
@@ -158,7 +158,7 @@ spec:
 2\. Create the user by applying the configuration:
 
 ```shell
-$ kubectl apply -f cassandra-service-user.yaml
+kubectl apply -f cassandra-service-user.yaml
 ```
 
 The `ServiceUser` resource generates a Secret with connection information. 
@@ -166,7 +166,7 @@ The `ServiceUser` resource generates a Secret with connection information.
 3\. View the details of the Secret using the following command:
 
 ```shell
-$ kubectl get secret cassandra-service-user-secret -o json | jq '.data | map_values(@base64d)'
+kubectl get secret cassandra-service-user-secret -o json | jq '.data | map_values(@base64d)'
 ```
 
 The output is similar to the following:
