@@ -3,7 +3,7 @@ site_name: Aiven Operator
 copyright: Aiven Team
 repo_url: https://github.com/aiven/aiven-operator/
 site_url: https://aiven.github.io/aiven-operator/
-edit_uri: blob/main/docs/
+edit_uri: blob/main/docs/docs/
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
@@ -16,9 +16,6 @@ markdown_extensions:
   - attr_list
   - toc:
       permalink: true
-  - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
 plugins:
   - search
   - offline
