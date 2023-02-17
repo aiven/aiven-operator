@@ -5,7 +5,7 @@ package v1alpha1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	grafanauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/grafana"
+	grafanauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/grafana"
 )
 
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.

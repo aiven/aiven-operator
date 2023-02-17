@@ -15,7 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
-	redisuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/redis"
+	redisuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/redis"
 )
 
 var _ = Describe("Redis Controller using secret", func() {

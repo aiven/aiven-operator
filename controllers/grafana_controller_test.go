@@ -15,7 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
-	grafanauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/grafana"
+	grafanauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/grafana"
 )
 
 var _ = Describe("Grafana Controller", func() {

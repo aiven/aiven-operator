@@ -15,7 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
-	pguserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/pg"
+	pguserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/pg"
 )
 
 var _ = Describe("PostgreSQL Controller", func() {

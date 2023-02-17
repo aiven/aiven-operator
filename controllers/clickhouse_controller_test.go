@@ -15,7 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
-	clickhouseuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/clickhouse"
+	clickhouseuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/clickhouse"
 )
 
 var _ = Describe("Clickhouse Controller", func() {

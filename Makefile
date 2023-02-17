@@ -95,7 +95,7 @@ manifests: go-generate controller-gen ## Generate WebhookConfiguration, ClusterR
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd:allowDangerousTypes=true webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
 .PHONY: generate
-generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
+generate: manifests ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
 .PHONY: fmt
@@ -108,7 +108,7 @@ vet: ## Run go vet against code.
 
 .PHONY: test
 FOCUS_FILE ?= "*"
-test: manifests generate fmt vet envtest ginkgo ## Run tests.
+test: generate fmt vet envtest ginkgo ## Run tests.
 	KUBEBUILDER_CONTROLPLANE_START_TIMEOUT=120s \
 	KUBEBUILDER_CONTROLPLANE_STOP_TIMEOUT=120s \
 	KUBEBUILDER_ATTACH_CONTROL_PLANE_OUTPUT=true \
@@ -137,7 +137,7 @@ build: generate fmt vet ## Build manager binary.
 	go build -o bin/manager main.go
 
 .PHONY: run
-run: manifests generate install fmt vet ## Run a controller from your host.
+run: generate install fmt vet ## Run a controller from your host.
 	go run ./main.go
 
 .PHONY: docker-build

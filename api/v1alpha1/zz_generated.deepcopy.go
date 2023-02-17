@@ -8,15 +8,15 @@
 package v1alpha1
 
 import (
-	cassandra "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/cassandra"
-	clickhouse "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/clickhouse"
-	grafana "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/grafana"
-	kafka "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/kafka"
-	kafka_connect "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/kafka_connect"
-	mysql "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/mysql"
-	opensearch "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/opensearch"
-	pg "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/pg"
-	redis "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/redis"
+	cassandra "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/cassandra"
+	clickhouse "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/clickhouse"
+	grafana "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/grafana"
+	kafka "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/kafka"
+	kafka_connect "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/kafka_connect"
+	mysql "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/mysql"
+	opensearch "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/opensearch"
+	pg "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/pg"
+	redis "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/redis"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )

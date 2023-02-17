@@ -5,7 +5,7 @@ package v1alpha1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	opensearchuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/opensearch"
+	opensearchuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/opensearch"
 )
 
 // OpenSearchSpec defines the desired state of OpenSearch

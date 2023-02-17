@@ -15,7 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
-	opensearchuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/opensearch"
+	opensearchuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/opensearch"
 )
 
 var _ = Describe("OpenSearch Controller", func() {

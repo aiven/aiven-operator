@@ -5,7 +5,7 @@ package v1alpha1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	kafkaconnectuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/kafka_connect"
+	kafkaconnectuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/kafka_connect"
 )
 
 // KafkaConnectSpec defines the desired state of KafkaConnect
