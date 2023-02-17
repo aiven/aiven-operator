@@ -18,7 +18,6 @@ spec:
     name: cassandra-secret
 
   project: aiven-project-name
-
   cloudName: google-europe-west1
   plan: startup-4
 

@@ -18,7 +18,6 @@ spec:
     name: ch-token
 
   project: my-aiven-project
-
   cloudName: google-europe-west1
   plan: startup-16
 

@@ -18,7 +18,6 @@ spec:
     name: kafka-token
 
   project: my-aiven-project
-
   cloudName: google-europe-west1
   plan: startup-2
   disc_space: 15Gib

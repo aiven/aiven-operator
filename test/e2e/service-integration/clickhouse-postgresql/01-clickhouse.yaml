@@ -1,19 +1,19 @@
 apiVersion: aiven.io/v1alpha1
-kind: Kafka
+kind: Clickhouse
 metadata:
-  name: my-kafka
+  name: k8s-e2e-test-ch-integration
 spec:
   authSecretRef:
     name: aiven-token
     key: token
 
   connInfoSecretTarget:
-    name: kafka-token
+    name: ch-token
 
-  project: my-aiven-project
+  project: aiven-ci-kubernetes-operator
+
   cloudName: google-europe-west1
-  plan: startup-2
-  disc_space: 15Gib
+  plan: startup-16
 
   maintenanceWindowDow: friday
   maintenanceWindowTime: 23:00:00

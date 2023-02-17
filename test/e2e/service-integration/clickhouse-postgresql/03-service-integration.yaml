@@ -1,0 +1,19 @@
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: k8s-test-service-integration-clickhouse-postgresql
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-ci-kubernetes-operator
+  integrationType: clickhouse_postgresql
+
+  sourceServiceName: k8s-e2e-test-pg-integration
+  destinationServiceName: k8s-e2e-test-ch-integration
+
+  clickhousePostgresql:
+    databases:
+      - database: defaultdb
+        schema: public
