@@ -5,7 +5,7 @@ package v1alpha1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	clickhouseuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/clickhouse"
+	clickhouseuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/clickhouse"
 )
 
 // ClickhouseSpec defines the desired state of Clickhouse

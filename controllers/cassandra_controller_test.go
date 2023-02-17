@@ -15,7 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
-	cassandrauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/cassandra"
+	cassandrauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/cassandra"
 )
 
 var _ = Describe("Cassandra Controller", func() {

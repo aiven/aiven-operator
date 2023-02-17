@@ -5,7 +5,7 @@ package v1alpha1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	redisuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/redis"
+	redisuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/redis"
 )
 
 // RedisSpec defines the desired state of Redis

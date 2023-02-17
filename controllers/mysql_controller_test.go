@@ -15,7 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
-	mysqluserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/mysql"
+	mysqluserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/mysql"
 )
 
 var _ = Describe("MySQL Controller", func() {

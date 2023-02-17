@@ -15,7 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
-	kafkauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/kafka"
+	kafkauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/kafka"
 )
 
 var _ = Describe("Kafka Controller", func() {
