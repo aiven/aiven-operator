@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- `AuthSecretRef` fields marked as required
+
 ## v0.8.0 - 2023-02-15
 
 **Important:** This release brings breaking changes to the `userConfig` property.

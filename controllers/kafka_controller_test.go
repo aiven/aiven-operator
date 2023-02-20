@@ -121,7 +121,7 @@ func kafkaSpec(serviceName, namespace string) *v1alpha1.Kafka {
 					LogRetentionBytes:        anyPointer(1000000000),
 				},
 			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},

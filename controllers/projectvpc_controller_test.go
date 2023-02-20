@@ -101,7 +101,7 @@ func projectVPC(projectVPCName, namespace, projectName string) *v1alpha1.Project
 			Project:     projectName,
 			CloudName:   "google-europe-west2",
 			NetworkCidr: "10.0.0.0/24",
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},
@@ -130,7 +130,7 @@ func kafkaForProjectVPC(serviceName, namespace, projectName, projectVPCName stri
 					Namespace: namespace,
 				},
 			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},

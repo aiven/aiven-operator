@@ -152,7 +152,7 @@ func kafkaACLSpec(project, service, topic, userName, namespace string) *v1alpha1
 			Permission:  "admin",
 			Topic:       topic,
 			Username:    userName,
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},

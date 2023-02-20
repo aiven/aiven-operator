@@ -63,6 +63,9 @@ spec:
                   name:
                     minLength: 1
                     type: string
+                required:
+                - key
+                - name
                 type: object
               connInfoSecretTarget:
                 description: Information regarding secret creation

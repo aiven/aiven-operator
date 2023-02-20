@@ -17,7 +17,7 @@ type ClickhouseSpec struct {
 	DiskSpace string `json:"disk_space,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
+	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 
 	// Information regarding secret creation
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
@@ -47,7 +47,7 @@ type ClickhouseList struct {
 	Items           []Clickhouse `json:"items"`
 }
 
-func (in *Clickhouse) AuthSecretRef() AuthSecretReference {
+func (in *Clickhouse) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }
 

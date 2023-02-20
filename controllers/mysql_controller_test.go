@@ -144,7 +144,7 @@ func mysqlSpec(serviceName, namespace string) *v1alpha1.MySQL {
 					},
 				},
 			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},

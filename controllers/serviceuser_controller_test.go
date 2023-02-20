@@ -102,7 +102,7 @@ func serviceUserSpec(service, user, namespace string) *v1alpha1.ServiceUser {
 			Project:        os.Getenv("AIVEN_PROJECT_NAME"),
 			ServiceName:    service,
 			Authentication: "caching_sha2_password",
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},

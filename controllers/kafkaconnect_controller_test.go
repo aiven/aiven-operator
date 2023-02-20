@@ -99,7 +99,7 @@ func kafkaConnectSpec(serviceName, namespace string) *v1alpha1.KafkaConnect {
 				CloudName: "google-europe-west1",
 				Tags:      map[string]string{"key1": "value1"},
 			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},

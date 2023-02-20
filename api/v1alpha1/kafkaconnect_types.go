@@ -13,7 +13,7 @@ type KafkaConnectSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
+	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 
 	// KafkaConnect specific user configuration options
 	UserConfig *kafkaconnectuserconfig.KafkaConnectUserConfig `json:"userConfig,omitempty"`
@@ -32,7 +32,7 @@ type KafkaConnect struct {
 	Status ServiceStatus    `json:"status,omitempty"`
 }
 
-func (in *KafkaConnect) AuthSecretRef() AuthSecretReference {
+func (in *KafkaConnect) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }
 

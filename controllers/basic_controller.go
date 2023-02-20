@@ -29,6 +29,8 @@ const formatIntBaseDecimal = 10
 // requeueTimeout sets timeout to requeue controller
 const requeueTimeout = 10 * time.Second
 
+var errNoTokenProvided = fmt.Errorf("authSecretReference is not set and no default token provided")
+
 type (
 	// Controller reconciles the Aiven objects
 	Controller struct {
@@ -64,7 +66,7 @@ type (
 	aivenManagedObject interface {
 		client.Object
 
-		AuthSecretRef() v1alpha1.AuthSecretReference
+		AuthSecretRef() *v1alpha1.AuthSecretReference
 	}
 
 	// refsObject returns references to dependent resources
@@ -113,13 +115,15 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 	var clientAuthSecret *corev1.Secret
 	if len(c.DefaultToken) > 0 {
 		token = c.DefaultToken
-	} else {
+	} else if auth := o.AuthSecretRef(); auth != nil {
 		clientAuthSecret = &corev1.Secret{}
-		if err := c.Get(ctx, types.NamespacedName{Name: o.AuthSecretRef().Name, Namespace: req.Namespace}, clientAuthSecret); err != nil {
+		if err := c.Get(ctx, types.NamespacedName{Name: auth.Name, Namespace: req.Namespace}, clientAuthSecret); err != nil {
 			c.Recorder.Eventf(o, corev1.EventTypeWarning, eventUnableToGetAuthSecret, err.Error())
-			return ctrl.Result{}, fmt.Errorf("cannot get secret %q: %w", o.AuthSecretRef().Name, err)
+			return ctrl.Result{}, fmt.Errorf("cannot get secret %q: %w", auth.Name, err)
 		}
-		token = string(clientAuthSecret.Data[o.AuthSecretRef().Key])
+		token = string(clientAuthSecret.Data[auth.Key])
+	} else {
+		return ctrl.Result{}, errNoTokenProvided
 	}
 
 	avn, err := aiven.NewTokenClient(token, operatorUserAgent)

@@ -38,7 +38,7 @@ type KafkaTopicSpec struct {
 	TerminationProtection bool `json:"termination_protection,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
+	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 type KafkaTopicTag struct {
@@ -151,7 +151,7 @@ type KafkaTopic struct {
 	Status KafkaTopicStatus `json:"status,omitempty"`
 }
 
-func (kfkt KafkaTopic) AuthSecretRef() AuthSecretReference {
+func (kfkt KafkaTopic) AuthSecretRef() *AuthSecretReference {
 	return kfkt.Spec.AuthSecretRef
 }
 

@@ -17,13 +17,9 @@ var ErrDeleteDependencies = errors.New("object has dependencies and cannot be de
 // AuthSecretReference references a Secret containing an Aiven authentication token
 type AuthSecretReference struct {
 	// +kubebuilder:validation:MinLength=1
-	Name string `json:"name,omitempty"`
+	Name string `json:"name"`
 	// +kubebuilder:validation:MinLength=1
-	Key string `json:"key,omitempty"`
-}
-
-func (r AuthSecretReference) IsValid() bool {
-	return len(r.Name) > 0 && len(r.Key) > 0
+	Key string `json:"key"`
 }
 
 // ConnInfoSecretTarget contains information secret name

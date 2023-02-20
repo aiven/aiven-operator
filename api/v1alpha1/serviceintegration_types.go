@@ -42,7 +42,7 @@ type ServiceIntegrationSpec struct {
 	MetricsUserConfig ServiceIntegrationMetricsUserConfig `json:"metrics,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
+	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // ServiceIntegrationStatus defines the observed state of ServiceIntegration
@@ -139,7 +139,7 @@ type ServiceIntegration struct {
 	Status ServiceIntegrationStatus `json:"status,omitempty"`
 }
 
-func (svcint ServiceIntegration) AuthSecretRef() AuthSecretReference {
+func (svcint ServiceIntegration) AuthSecretRef() *AuthSecretReference {
 	return svcint.Spec.AuthSecretRef
 }
 

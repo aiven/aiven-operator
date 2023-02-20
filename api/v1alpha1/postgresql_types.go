@@ -17,7 +17,7 @@ type PostgreSQLSpec struct {
 	DiskSpace string `json:"disk_space,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
+	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 
 	// Information regarding secret creation
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
@@ -43,7 +43,7 @@ type PostgreSQL struct {
 	Status ServiceStatus  `json:"status,omitempty"`
 }
 
-func (in *PostgreSQL) AuthSecretRef() AuthSecretReference {
+func (in *PostgreSQL) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }
 
