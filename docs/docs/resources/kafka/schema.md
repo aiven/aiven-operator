@@ -93,10 +93,13 @@ kubectl apply -f kafka-schema.yaml
 
 ```shell
 kubectl get kafkaschemas.aiven.io kafka-schema
+```
 
+The output is similar to the following:
+
+```{ .shell .no-copy }
 NAME           SERVICE NAME   PROJECT          SUBJECT    COMPATIBILITY LEVEL   VERSION
 kafka-schema   kafka-sample   <your-project>   MySchema   BACKWARD              1
 ```
 
-Now you can follow [our official documentation](https://help.aiven.io/en/articles/2302613-using-schema-registry-with-aiven-for-apache-kafka)
-on how to use the schema created.
+Now you can follow the instructions to [use a schema registry in Java](https://docs.aiven.io/docs/products/kafka/howto/schema-registry) on how to use the schema created.

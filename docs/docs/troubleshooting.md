@@ -13,7 +13,12 @@ Use the following checks to help you troubleshoot the Aiven Operator for Kuberne
 Verify that all the operator Pods are `READY`, and the `STATUS` is `Running`.
 
 ```shell
-kubectl get pod -n aiven-operator-system 
+kubectl get pod -n aiven-operator-system
+```
+
+The output is similar to the following:
+
+```{ .shell .no-copy }
 
 NAME                                                            READY   STATUS    RESTARTS   AGE
 aiven-operator-controller-manager-576d944499-ggttj   1/1     Running   0          12m
@@ -23,7 +28,11 @@ Verify that the `cert-manager` Pods are also running.
 
 ```shell
 kubectl get pod -n cert-manager
+```
 
+The output has the status:
+
+```{ .shell .no-copy }
 NAME                                       READY   STATUS    RESTARTS   AGE
 cert-manager-7dd5854bb4-85cpv              1/1     Running   0          76s
 cert-manager-cainjector-64c949654c-n2z8l   1/1     Running   0          77s
@@ -55,7 +64,7 @@ it and are working to fix it. If your problem isn't listed below, report it as a
 
 The following event appears on the operator Pod:
 
-```shell
+```{ .shell .no-copy }
 MountVolume.SetUp failed for volume "cert" : secret "webhook-server-cert" not found
 ```
 
@@ -69,7 +78,11 @@ Make sure that cert-manager is up and running.
 
 ```shell
 kubectl get pod -n cert-manager
+```
 
+The output shows the status of each cert-manager:
+
+```{ .shell .no-copy }
 NAME                                       READY   STATUS    RESTARTS   AGE
 cert-manager-7dd5854bb4-85cpv              1/1     Running   0          76s
 cert-manager-cainjector-64c949654c-n2z8l   1/1     Running   0          77s

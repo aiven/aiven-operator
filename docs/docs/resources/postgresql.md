@@ -62,7 +62,11 @@ kubectl apply -f pg-sample.yaml
 
 ```shell
 kubectl get postgresqls.aiven.io pg-sample
+```
 
+The output is similar to the following:
+
+```{ .shell .no-copy }
 NAME        PROJECT        REGION                PLAN        STATE
 pg-sample   your-project   google-europe-west1   startup-4   RUNNING
 ```
@@ -76,8 +80,12 @@ For your convenience, the operator automatically stores the PostgreSQL connectio
 the name specified on the `connInfoSecretTarget` field.
 
 ```shell
-kubectl describe secret pg-connection 
+kubectl describe secret pg-connection
+```
 
+The output is similar to the following:
+
+```{ .shell .no-copy }
 Name:         pg-connection
 Namespace:    default
 Annotations:  <none>
@@ -99,7 +107,11 @@ You can use the [jq](https://github.com/stedolan/jq) to quickly decode the Secre
 
 ```shell
 kubectl get secret pg-connection -o json | jq '.data | map_values(@base64d)'
+```
 
+The output is similar to the following:
+
+```{ .json .no-copy }
 {
   "DATABASE_URI": "postgres://avnadmin:<secret-password>@pg-sample-your-project.aivencloud.com:13039/defaultdb?sslmode=require",
   "PGDATABASE": "defaultdb",
@@ -141,6 +153,10 @@ It runs once and stops, due to the `restartPolicy: Never` flag.
 
 ```shell
 kubectl logs psql-test-connection
+```
+
+The output is similar to the following:
+```{ .shell .no-copy }
                                            version                                           
 ---------------------------------------------------------------------------------------------
  PostgreSQL 11.12 on x86_64-pc-linux-gnu, compiled by gcc, a 68c5366192 p 6b9244f01a, 64-bit
@@ -210,7 +226,10 @@ named `pg-service-user-connection`:
 
 ```shell
 kubectl get secret pg-service-user-connection -o json | jq '.data | map_values(@base64d)'
+```
 
+The output has the password and username:
+```{ .json .no-copy }
 {
   "PASSWORD": "<secret-password>",
   "USERNAME": "pg-service-user"
@@ -223,12 +242,12 @@ the `pg-connection` Secret.
 ## Creating a PostgreSQL connection pool
 
 Connection pooling allows you to maintain very large numbers of connections to a database while minimizing the
-consumption of server resources. See more
-information [here](https://help.aiven.io/en/articles/964730-postgresql-connection-pooling). Aiven for PostgreSQL uses
+consumption of server resources. For more
+information, refer to the [connection pooling article](https://docs.aiven.io/docs/products/postgresql/concepts/pg-connection-pooling) in Aiven Docs. Aiven for PostgreSQL uses
 PGBouncer for connection pooling.
 
 You can create a connection pool with the `ConnectionPool` resource using the previously created `Database`
-and `ServiceUser`.
+and `ServiceUser`:
 
 Create a new file named `pg-connection-pool.yaml` with the following content:
 
@@ -258,7 +277,10 @@ field:
 
 ```shell
 kubectl get secret pg-connection-pool-connection -o json | jq '.data | map_values(@base64d)' 
+```
+The output is similar to the following: 
 
+```{ .json .no-copy }
 {
   "DATABASE_URI": "postgres://pg-service-user:<secret-password>@pg-sample-you-project.aivencloud.com:13040/pg-connection-pool?sslmode=require",
   "PGDATABASE": "pg-database-sample",

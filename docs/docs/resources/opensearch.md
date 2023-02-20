@@ -56,7 +56,7 @@ kubectl describe opensearch.aiven.io os-sample
 
 The output is similar to the following:
 
-```shell
+```{ .shell .no-copy }
 ...
 Status:
   Conditions:
@@ -90,7 +90,7 @@ kubectl describe secret os-secret
 
 The output is similar to the following:
 
-```shell
+```{ .shell .no-copy }
 Name:         os-secret
 Namespace:    default
 Labels:       <none>
@@ -114,7 +114,7 @@ kubectl get secret os-secret -o json | jq '.data | map_values(@base64d)'
 
 The output is similar to the following:
 
-```json
+```{ .json .no-copy }
 {
   "HOST": "os-sample-your-project.aivencloud.com",
   "PASSWORD": "<secret>",
@@ -162,7 +162,7 @@ kubectl get secret os-service-user-secret -o json | jq '.data | map_values(@base
 
 The output is similar to the following:
 
-```json
+```{ .json .no-copy }
 {
   "ACCESS_CERT": "<secret>",
   "ACCESS_KEY": "<secret>",

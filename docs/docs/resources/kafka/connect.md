@@ -185,7 +185,7 @@ spec:
     value.converter.schemas.enable: "true"
 ```
 
-With all the files create, let's apply the new Kubernetes resources:
+With all the files created, apply the new Kubernetes resources:
 
 ```shell
 kubectl apply \
@@ -196,7 +196,7 @@ kubectl apply \
   -f kafka-connector-connect.yaml
 ```
 
-It will take some time for all the services to be up and running. You can check all of them with the command below. The deployment is finished when all services have the state `RUNNING`:
+It will take some time for all the services to be up and running. You can check their status with the following command:
 
 ```shell
 kubectl get \
@@ -204,7 +204,11 @@ kubectl get \
     kafkaconnects.aiven.io/kafka-connect \
     postgresqls.aiven.io/pg-connect \
     kafkaconnectors.aiven.io/kafka-connector
+```
 
+The output is similar to the following:
+
+```{ .shell .no-copy }
 NAME                                  PROJECT        REGION                PLAN         STATE
 kafka.aiven.io/kafka-sample-connect   your-project   google-europe-west1   business-4   RUNNING
 
@@ -217,6 +221,7 @@ postgresql.aiven.io/pg-connect   your-project   google-europe-west1   startup-4 
 NAME                                      SERVICE NAME           PROJECT        CONNECTOR CLASS                           STATE     TASKS TOTAL   TASKS RUNNING
 kafkaconnector.aiven.io/kafka-connector   kafka-sample-connect   your-project   io.aiven.connect.jdbc.JdbcSinkConnector   RUNNING   1             1
 ```
+The deployment is finished when all services have the state `RUNNING`.
 
 ## Testing
 To test the connection integration, let's produce a Kafka message using [kcat](https://github.com/edenhill/kcat) from within the Kubernetes cluster. We will deploy a Pod responsible for crafting a message and sending to the Kafka cluster, using the `kafka-auth` secret generate by the `Kafka` CRD.
@@ -274,7 +279,11 @@ The Pod will execute the commands and finish. You can confirm its `Completed` st
 
 ```shell
 kubectl get pod kafka-message
+```
 
+The output is similar to the following:
+
+```{ .shell .no-copy }
 NAME            READY   STATUS      RESTARTS   AGE
 kafka-message   0/1     Completed   0          5m35s
 ```
@@ -307,11 +316,15 @@ Apply the file with:
 kubectl apply -f psql-connect.yaml
 ```
 
-After a couple of seconds, inspects its log with the command below. The output should be as follows:
+After a couple of seconds, inspect its log with this command: 
 
 ```shell
 kubectl logs psql-connect 
+```
 
+The output is similar to the following: 
+
+```{ .shell .no-copy }
     text     
 -------------
  Hello World
@@ -319,7 +332,7 @@ kubectl logs psql-connect
 ```
 
 ## Clean up
-To clean up all the created resources, use the command below:
+To clean up all the created resources, use the following command:
 
 ```shell
 kubectl delete \

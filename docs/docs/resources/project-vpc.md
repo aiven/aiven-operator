@@ -48,7 +48,11 @@ kubectl apply -f vpc-sample.yaml
 
 ```shell
 kubectl get projects.aiven.io vpc-sample
+```
 
+The output is similar to the following:
+
+```{ .shell .no-copy }
 NAME         PROJECT          CLOUD            NETWORK CIDR
 vpc-sample   <your-project>   aws-af-south-1   192.168.0.0/24
 ```

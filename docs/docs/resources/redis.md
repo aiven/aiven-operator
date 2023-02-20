@@ -60,7 +60,7 @@ kubectl describe redis.aiven.io redis-sample
 
 The output is similar to the following:
 
-```shell
+```{ .shell .no-copy }
 ...
 Status:
   Conditions:
@@ -94,7 +94,8 @@ kubectl describe secret redis-secret
 
 The output is similar to the following:
 
-```shell
+```{ .shell .no-copy }
+
 Name:         redis-secret
 Namespace:    default
 Labels:       <none>
@@ -119,7 +120,7 @@ kubectl get secret redis-secret -o json | jq '.data | map_values(@base64d)'
 
 The output is similar to the following:
 
-```shell
+```{ .shell .no-copy }
 {
   "HOST": "redis-sample-your-project.aivencloud.com",
   "PASSWORD": "<secret-password>",
