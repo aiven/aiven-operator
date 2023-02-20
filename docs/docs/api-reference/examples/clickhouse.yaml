@@ -1,0 +1,19 @@
+apiVersion: aiven.io/v1alpha1
+kind: Clickhouse
+metadata:
+  name: my-test-ch-sample
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: ch-token
+
+  project: my-aiven-project
+
+  cloudName: google-europe-west1
+  plan: startup-16
+
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00

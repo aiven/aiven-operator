@@ -95,7 +95,7 @@ manifests: go-generate controller-gen ## Generate WebhookConfiguration, ClusterR
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd:allowDangerousTypes=true webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
 .PHONY: generate
-generate: manifests ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
+generate: manifests generate-api-reference ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
 .PHONY: fmt
@@ -176,10 +176,9 @@ undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/confi
 .PHONY: generate-api-reference
 generate-api-reference: ## Generate CRDS api-reference
 	go run ./docs_generator/...
-	sed 's/\[MAJOR\.MINOR\.PATCH\] - YYYY-MM-DD/🚧 Under development/g' ./CHANGELOG.md > ./docs/docs/changelog.md
 
 .PHONY: serve-docs
-serve-docs: generate-api-reference ## Run live preview.
+serve-docs: ## Run live preview.
 	docker run --rm -it -p 8000:8000 -v ${PWD}/docs:/docs squidfunk/mkdocs-material
 
 ##@ Build Dependencies

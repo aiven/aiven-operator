@@ -7,6 +7,7 @@ require (
 	github.com/aiven/aiven-go-client/tools/exp v0.0.0-20230210144417-67543c45c148
 	github.com/dave/jennifer v1.6.0
 	github.com/docker/go-units v0.5.0
+	github.com/ghodss/yaml v1.0.0
 	github.com/go-logr/logr v1.2.0
 	github.com/google/go-cmp v0.5.8
 	github.com/hashicorp/go-multierror v1.0.0
@@ -16,6 +17,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/stoewer/go-strcase v1.2.0
 	github.com/stretchr/testify v1.8.1
+	github.com/tidwall/gjson v1.14.4
+	github.com/xeipuuv/gojsonschema v1.2.0
 	golang.org/x/exp v0.0.0-20221217163422-3c43f8badb15
 	golang.org/x/tools v0.2.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -70,6 +73,10 @@ require (
 	github.com/prometheus/common v0.32.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.0 // indirect
+	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
+	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.19.1 // indirect

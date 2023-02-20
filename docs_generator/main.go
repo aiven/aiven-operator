@@ -18,9 +18,12 @@ const (
 	// srcDirPath CRDs location
 	srcDirPath = "./config/crd/bases/"
 	// dstDirPath CRDs docs location to export to
-	dstDirPath = "./docs/docs/api-reference/"
+	dstDirPath  = "./docs/docs/api-reference/"
+	examplesDir = dstDirPath + "examples"
 	// maxPatternLength some patterns too long, looks not cool in docs, drops long patterns
 	maxPatternLength = 42
+	// minHeaderLevel h2
+	minHeaderLevel = 2
 )
 
 func main() {
@@ -41,9 +44,9 @@ func exec(srcDir, dstDir string) error {
 			continue
 		}
 
-		err = generate(path.Join(srcDir, entry.Name()), dstDir)
+		err = generate(path.Join(srcDir, entry.Name()), dstDir, examplesDir)
 		if err != nil {
-			return err
+			return fmt.Errorf("%q generation error: %w", entry.Name(), err)
 		}
 	}
 
@@ -54,26 +57,51 @@ func exec(srcDir, dstDir string) error {
 var emptyLinesRe = regexp.MustCompile(`\n{2,}`)
 
 // generate Creates documentation out of CRDs
-func generate(srcFile, dstDir string) error {
-	b, err := os.ReadFile(srcFile)
+func generate(srcFile, dstDir, examplesDir string) error {
+	crdData, err := os.ReadFile(srcFile)
 	if err != nil {
 		return err
 	}
 
-	var doc crdType
-	err = yaml.Unmarshal(b, &doc)
+	var crd crdType
+	err = yaml.Unmarshal(crdData, &crd)
 	if err != nil {
 		return err
 	}
 
-	if l := len(doc.Spec.Versions); l != 1 {
+	if l := len(crd.Spec.Versions); l != 1 {
 		return fmt.Errorf("version count must be exactly one, got %d", l)
 	}
 
-	kind := doc.Spec.Versions[0].Schema.OpenAPIV3Schema.Properties.Spec
-	kind.Name = doc.Spec.Names.Kind
-	kind.Version = doc.Spec.Versions[0].Name
-	kind.Group = doc.Spec.Group
+	// Root level object is composed of disparate fields
+	kind := crd.Spec.Versions[0].Schema.OpenAPIV3Schema
+	kind.Kind = crd.Spec.Names.Kind
+	kind.Version = crd.Spec.Versions[0].Name
+	kind.Group = crd.Spec.Group
+	kind.Name = "Schema"
+
+	// Those fields are generic, but can have only explicit values
+	kind.Properties["apiVersion"].Description = fmt.Sprintf("Must be equal to `%s/%s`", kind.Group, kind.Version)
+	kind.Properties["kind"].Description = fmt.Sprintf("Must be equal to `%s`", kind.Kind)
+	kind.Properties["metadata"].Description = "Data that identifies the object, including a `name` string and optional `namespace`"
+
+	// Status is a meta field, brings nothing important to docs
+	delete(kind.Properties, "status")
+	kind.init()
+
+	// Adds usage example
+	// Mkdocs can embed files, but we use docker, we can include files only within the dir
+	// So if they are moved out elsewhere, this will be broken
+	// Ignores errors, because does "not exist" is not a problem
+	examplePath := path.Join(examplesDir, strings.ToLower(kind.Kind+".yaml"))
+	exampleData, _ := os.ReadFile(examplePath)
+	if exampleData != nil {
+		err = validateYAML(crdData, exampleData)
+		if err != nil {
+			return err
+		}
+		kind.UsageExample = string(exampleData)
+	}
 
 	var buf bytes.Buffer
 	t := template.Must(template.New("schema").Funcs(templateFuncs).Parse(schemaTemplate))
@@ -83,7 +111,7 @@ func generate(srcFile, dstDir string) error {
 	}
 
 	// Replaces multilines made by template engine
-	dest := path.Join(dstDir, strings.ToLower(kind.Name)+".md")
+	dest := path.Join(dstDir, strings.ToLower(kind.Kind)+".md")
 	data := emptyLinesRe.ReplaceAll(buf.Bytes(), []byte("\n\n"))
 	err = os.WriteFile(dest, data, 0644)
 	if err != nil {
@@ -102,28 +130,38 @@ type crdType struct {
 		Versions []struct {
 			Name   string `yaml:"name"`
 			Schema struct {
-				OpenAPIV3Schema struct {
-					Properties struct {
-						Spec *schemaType `yaml:"spec"`
-					} `yaml:"properties"`
-				} `yaml:"openAPIV3Schema"`
+				OpenAPIV3Schema *schemaType `yaml:"openAPIV3Schema"`
 			} `yaml:"schema"`
 		} `yaml:"versions"`
 	} `yaml:"spec"`
 }
 
-type schemaType struct {
+type schemaInternal struct {
 	// Internal
-	Name    string
-	Version string
-	Group   string
-	Level   int
+	parent     *schemaType   // Parent line
+	properties []*schemaType // Sorted Properties
+	isRequired bool
+
+	// Meta data for rendering
+	Kind         string // CRD Kind
+	Name         string // field name
+	Version      string // API version, like v1alpha
+	Group        string // API group, like aiven.io
+	Level        int    // For header level
+	UsageExample string
+}
+
+type schemaType struct {
+	schemaInternal
 
 	// Yaml fields
+	AdditionalProperties *struct {
+		Type string `yaml:"type"`
+	} `yaml:"additionalProperties"`
 	Description            string                 `yaml:"description"`
 	Properties             map[string]*schemaType `yaml:"properties"`
 	Items                  *schemaType            `yaml:"items"`
-	Required               []string               `yaml:"required"`
+	RequiredList           []string               `yaml:"required"`
 	Type                   string                 `yaml:"type"`
 	Format                 string                 `yaml:"format"`
 	Enum                   []string               `yaml:"enum"`
@@ -147,23 +185,50 @@ const (
 	propsOptional
 )
 
+func (s *schemaType) init() {
+	if s.Items != nil && s.Items.IsNested() {
+		// If item is an object, then it doesn't have a name
+		// And we want to render it as topper level block
+		s.Items.Name = s.Name
+		s.Items.Level = s.Level
+		s.Items.parent = s.parent
+		s.Items.Description = s.Description
+		s.Items.init()
+	}
+
+	// The field is required if:
+	// - it is specified in required list
+	// - it is the only prop object has
+	// - it is root object 	https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/#required-fields
+	allRequired := len(s.Properties) == 1 || s.IsKind()
+	for k, v := range s.Properties {
+		v.Name = k
+		v.Level = s.Level + 1
+		v.parent = s
+		v.isRequired = allRequired || slices.Contains(s.RequiredList, v.Name)
+		v.init()
+		s.properties = append(s.properties, v)
+	}
+
+	slices.SortFunc(s.properties, func(a, b *schemaType) bool {
+		return a.Name < b.Name
+	})
+
+}
+
 // ListProperties lists all object properties
 func (s *schemaType) ListProperties(flag propsType) []*schemaType {
+	if flag == propsAll {
+		return s.properties
+	}
+
 	result := make([]*schemaType, 0)
-	for k, v := range s.Properties {
-		// The filed is required if:
-		// - it is specified in required list
-		// - it is the only prop object has
-		if flag == propsAll || (flag == propsRequired) == (len(s.Properties) == 1 || slices.Contains(s.Required, k)) {
-			v.Name = k
-			v.Level = s.Level + 1
+	wantRequired := flag == propsRequired
+	for _, v := range s.properties {
+		if v.isRequired == wantRequired {
 			result = append(result, v)
 		}
 	}
-
-	slices.SortFunc(result, func(a, b *schemaType) bool {
-		return a.Name < b.Name
-	})
 	return result
 }
 
@@ -177,7 +242,11 @@ func (s *schemaType) ListOptional() []*schemaType {
 	return s.ListProperties(propsOptional)
 }
 
-// IsNested returns if need to render nested block (an object)
+func (s *schemaType) IsKind() bool {
+	return s.Kind != ""
+}
+
+// IsNested returns true if need to render nested block (an object)
 func (s *schemaType) IsNested() bool {
 	return len(s.Properties) > 0 || (s.Items != nil && s.Items.IsNested())
 }
@@ -185,9 +254,6 @@ func (s *schemaType) IsNested() bool {
 // GetDescription Returns description with a dot suffix. Fallbacks to items description
 func (s *schemaType) GetDescription() string {
 	if s.Description == "" {
-		if s.Items != nil {
-			return s.Items.GetDescription()
-		}
 		return ""
 	}
 
@@ -197,14 +263,41 @@ func (s *schemaType) GetDescription() string {
 	return s.Description + "."
 }
 
-// GetNameLink renders a link with a name of if
-func (s *schemaType) GetNameLink() string {
-	return fmt.Sprintf("[`%[1]s`](#%[1]s){: name='%[1]s'}", s.Name)
+// GetLinkTag renders a link with a name of if
+func (s *schemaType) GetLinkTag() string {
+	return fmt.Sprintf("[`%[1]s`](#%[2]s-property){: name='%[2]s-property'}", s.Name, s.GetID())
+}
+
+func (s *schemaType) GetHeader() string {
+	// Flattens TOC, puts first two levels on the same level
+	// otherwise it starts with "spec" and then drills down to the atoms.
+	// And that makes TOC navigation useless
+	level := s.Level
+	if level < minHeaderLevel {
+		level = minHeaderLevel
+	}
+	return fmt.Sprintf("%s %s {: #%s }", strings.Repeat("#", level), s.Name, s.GetID())
+}
+
+func (s *schemaType) GetID() string {
+	if s.parent == nil || s.parent.IsKind() {
+		return s.Name
+	}
+	return fmt.Sprintf("%s.%s", s.parent.GetID(), s.Name)
+}
+
+func (s *schemaType) GetType() string {
+	switch s.Type {
+	case "array":
+		return fmt.Sprintf("array of %ss", s.Items.GetType())
+	default:
+		return s.Type
+	}
 }
 
 // GetDef returns field definition (types and constraints)
 func (s *schemaType) GetDef() string {
-	chunks := []string{s.Type}
+	chunks := []string{s.GetType()}
 	if len(s.Enum) != 0 {
 		ems := make([]string, len(s.Enum))
 		for i, e := range s.Enum {
@@ -239,7 +332,18 @@ func (s *schemaType) GetDef() string {
 	if s.MaxLength != nil {
 		chunks = append(chunks, fmt.Sprintf("MaxLength: %d", *s.MaxLength))
 	}
+	if s.AdditionalProperties != nil {
+		chunks = append(chunks, fmt.Sprintf("AdditionalProperties: %s", s.AdditionalProperties.Type))
+	}
+
 	return strings.Join(chunks, ", ")
+}
+
+func (s *schemaType) GetUsageExample() string {
+	if s.UsageExample == "" {
+		return ""
+	}
+	return fmt.Sprintf("```yaml\n%s```", s.UsageExample)
 }
 
 var templateFuncs = template.FuncMap{
@@ -248,37 +352,24 @@ var templateFuncs = template.FuncMap{
 }
 
 var schemaTemplate = `---
-title: "{{ .Name }}"
+title: "{{ .Kind }}"
 ---
 
-| ApiVersion                  | Kind        |
-|-----------------------------|-------------|
-| {{ .Group }}/{{ .Version }} | {{ .Name }} |
+{{ if .GetUsageExample }}
+## Usage example
 
-{{ .GetDescription }}
-
-{{ range .ListProperties 0 }}
-	{{- template "renderProp" . }}
-{{- end }}
-
-{{ range .ListProperties 0 }}
-	{{- if .IsNested }}
-		{{- template "renderSchema" . }}
-	{{- end }}
-{{- end }}
-
-{{ define "renderSchema" }}
-{{ if .Name }}
-#{{ range seq .Level }}#{{ end }} {{ .Name }} {: #{{ .Name }} }
+{{ .GetUsageExample }}
 {{ end }}
 
-{{/* This description may go recursively, so we don't render it if it has items  */}}
+{{- template "renderSchema" . }}
+
+{{ define "renderSchema" }}
 {{ if .Items }}
-	{{- if .Items.IsNested }}
-		{{- template "renderSchema" .Items }}
-	{{- end }}
+	{{- template "renderSchema" .Items }}
 {{ else }}
-	{{- .GetDescription }}
+{{ .GetHeader }}
+
+{{ .GetDescription }}
 {{ end }}
 
 {{ $req := .ListRequired }}
@@ -304,10 +395,9 @@ title: "{{ .Name }}"
 		{{- template "renderSchema" . }}
 	{{- end }}
 {{- end }}
-
 {{ end }}
 
 {{ define "renderProp" -}}
-- {{ .GetNameLink }} ({{ .GetDef }}). {{ .GetDescription }} {{ if .IsNested }}See [below for nested schema](#{{ .Name }}).{{ end }}
+- {{ .GetLinkTag }} ({{ .GetDef }}). {{ .GetDescription }}{{ if .IsNested }} See below for [nested schema](#{{ .GetID }}).{{ end }}
 {{ end }}
 `
