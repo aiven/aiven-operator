@@ -51,6 +51,9 @@ spec:
                   name:
                     minLength: 1
                     type: string
+                required:
+                - key
+                - name
                 type: object
               lcCollate:
                 description: 'Default string sort order (LC_COLLATE) of the database.

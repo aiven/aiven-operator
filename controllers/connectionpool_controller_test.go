@@ -10,11 +10,12 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 
-	"github.com/aiven/aiven-operator/api/v1alpha1"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 var _ = Describe("ConnectionPool Controller", func() {
@@ -206,7 +207,7 @@ func connectionPoolSpec(service, database, pool, user, namespace string) *v1alph
 			Username:     user,
 			PoolSize:     25,
 			PoolMode:     "transaction",
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},
@@ -230,7 +231,7 @@ func connectionPoolIncomingUserSpec(service, database, pool, namespace string) *
 			DatabaseName: database,
 			PoolSize:     25,
 			PoolMode:     "transaction",
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},

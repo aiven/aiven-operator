@@ -124,7 +124,7 @@ func pgSpec(serviceName, namespace string) *v1alpha1.PostgreSQL {
 					IdleInTransactionSessionTimeout: anyPointer(900),
 				},
 			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},

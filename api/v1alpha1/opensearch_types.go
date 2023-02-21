@@ -17,7 +17,7 @@ type OpenSearchSpec struct {
 	DiskSpace string `json:"disk_space,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
+	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 
 	// Information regarding secret creation
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
@@ -47,7 +47,7 @@ type OpenSearchList struct {
 	Items           []OpenSearch `json:"items"`
 }
 
-func (in *OpenSearch) AuthSecretRef() AuthSecretReference {
+func (in *OpenSearch) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }
 

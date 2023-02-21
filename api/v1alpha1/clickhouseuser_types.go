@@ -25,7 +25,7 @@ type ClickhouseUserSpec struct {
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
+	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // ClickhouseUserStatus defines the observed state of ClickhouseUser
@@ -53,7 +53,7 @@ type ClickhouseUser struct {
 	Status ClickhouseUserStatus `json:"status,omitempty"`
 }
 
-func (u ClickhouseUser) AuthSecretRef() AuthSecretReference {
+func (u ClickhouseUser) AuthSecretRef() *AuthSecretReference {
 	return u.Spec.AuthSecretRef
 }
 

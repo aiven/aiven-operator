@@ -103,7 +103,7 @@ func clickhouseUserSpec(service, user, namespace string) *v1alpha1.ClickhouseUse
 		Spec: v1alpha1.ClickhouseUserSpec{
 			Project:     os.Getenv("AIVEN_PROJECT_NAME"),
 			ServiceName: service,
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},

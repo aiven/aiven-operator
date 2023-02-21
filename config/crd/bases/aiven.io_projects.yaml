@@ -48,6 +48,9 @@ spec:
                   name:
                     minLength: 1
                     type: string
+                required:
+                - key
+                - name
                 type: object
               billingAddress:
                 description: Billing name and address of the project

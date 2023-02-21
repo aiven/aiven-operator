@@ -131,7 +131,7 @@ func chSpec(serviceName, namespace string) *v1alpha1.Clickhouse {
 					},
 				},
 			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},

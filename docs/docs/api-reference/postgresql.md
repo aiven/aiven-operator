@@ -68,7 +68,7 @@ PostgreSQLSpec defines the desired state of postgres instance.
 
 Authentication reference to Aiven token in a secret.
 
-**Optional**
+**Required**
 
 - [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1). 
 - [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1). 

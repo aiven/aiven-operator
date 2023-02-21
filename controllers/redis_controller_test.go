@@ -177,9 +177,9 @@ var _ = Describe("Redis Controller using default token", func() {
 })
 
 func redisSpec(serviceName, namespace string, useSecret bool) *v1alpha1.Redis {
-	var authSecretReference v1alpha1.AuthSecretReference
+	var authSecretReference *v1alpha1.AuthSecretReference
 	if useSecret {
-		authSecretReference = v1alpha1.AuthSecretReference{
+		authSecretReference = &v1alpha1.AuthSecretReference{
 			Name: secretRefName,
 			Key:  secretRefKey,
 		}

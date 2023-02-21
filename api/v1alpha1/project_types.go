@@ -61,7 +61,7 @@ type ProjectSpec struct {
 	Tags map[string]string `json:"tags,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
+	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // ProjectStatus defines the observed state of Project
@@ -98,7 +98,7 @@ type Project struct {
 	Status ProjectStatus `json:"status,omitempty"`
 }
 
-func (proj Project) AuthSecretRef() AuthSecretReference {
+func (proj Project) AuthSecretRef() *AuthSecretReference {
 	return proj.Spec.AuthSecretRef
 }
 

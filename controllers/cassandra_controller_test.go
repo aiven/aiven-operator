@@ -144,7 +144,7 @@ func cassandraSpec(serviceName, namespace string) *v1alpha1.Cassandra {
 					},
 				},
 			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},

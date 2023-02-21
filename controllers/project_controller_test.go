@@ -11,11 +11,12 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 
-	"github.com/aiven/aiven-operator/api/v1alpha1"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 var _ = Describe("Project Controller", func() {
@@ -51,7 +52,7 @@ var _ = Describe("Project Controller", func() {
 			Spec: v1alpha1.ProjectSpec{
 				BillingAddress: projectBillingAddress,
 				Cloud:          projectCloud,
-				AuthSecretRef: v1alpha1.AuthSecretReference{
+				AuthSecretRef: &v1alpha1.AuthSecretReference{
 					Name: secretRefName,
 					Key:  secretRefKey,
 				},

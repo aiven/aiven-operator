@@ -17,7 +17,7 @@ type RedisSpec struct {
 	DiskSpace string `json:"disk_space,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
+	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 
 	// Information regarding secret creation
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
@@ -39,7 +39,7 @@ type Redis struct {
 	Status ServiceStatus `json:"status,omitempty"`
 }
 
-func (in *Redis) AuthSecretRef() AuthSecretReference {
+func (in *Redis) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }
 

@@ -57,6 +57,9 @@ spec:
                   name:
                     minLength: 1
                     type: string
+                required:
+                - key
+                - name
                 type: object
               config:
                 description: Kafka topic configuration

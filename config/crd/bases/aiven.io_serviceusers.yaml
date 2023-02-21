@@ -54,6 +54,9 @@ spec:
                   name:
                     minLength: 1
                     type: string
+                required:
+                - key
+                - name
                 type: object
               authentication:
                 description: Authentication details
