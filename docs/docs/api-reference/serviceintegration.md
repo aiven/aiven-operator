@@ -2,78 +2,92 @@
 title: "ServiceIntegration"
 ---
 
-| ApiVersion                  | Kind        |
-|-----------------------------|-------------|
-| aiven.io/v1alpha1 | ServiceIntegration |
+## Schema {: #Schema }
+
+ServiceIntegration is the Schema for the serviceintegrations API.
+
+**Required**
+
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `ServiceIntegration`.
+- [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
+- [`spec`](#spec-property){: name='spec-property'} (object). ServiceIntegrationSpec defines the desired state of ServiceIntegration. See below for [nested schema](#spec).
+
+## spec {: #spec }
 
 ServiceIntegrationSpec defines the desired state of ServiceIntegration.
 
-- [`authSecretRef`](#authSecretRef){: name='authSecretRef'} (object). Authentication reference to Aiven token in a secret. See [below for nested schema](#authSecretRef).
-- [`datadog`](#datadog){: name='datadog'} (object). Datadog specific user configuration options. See [below for nested schema](#datadog).
-- [`destinationEndpointId`](#destinationEndpointId){: name='destinationEndpointId'} (string). Destination endpoint for the integration (if any). 
-- [`destinationServiceName`](#destinationServiceName){: name='destinationServiceName'} (string). Destination service for the integration (if any). 
-- [`integrationType`](#integrationType){: name='integrationType'} (string, Enum: `datadog`, `kafka_logs`, `kafka_connect`, `metrics`, `dashboard`, `rsyslog`, `read_replica`, `schema_registry_proxy`, `signalfx`, `jolokia`, `internal_connectivity`, `external_google_cloud_logging`, `datasource`). Type of the service integration. 
-- [`kafkaConnect`](#kafkaConnect){: name='kafkaConnect'} (object). Kafka Connect service configuration values. See [below for nested schema](#kafkaConnect).
-- [`kafkaLogs`](#kafkaLogs){: name='kafkaLogs'} (object). Kafka logs configuration values. See [below for nested schema](#kafkaLogs).
-- [`metrics`](#metrics){: name='metrics'} (object). Metrics configuration values. See [below for nested schema](#metrics).
-- [`project`](#project){: name='project'} (string, MaxLength: 63). Project the integration belongs to. 
-- [`sourceEndpointID`](#sourceEndpointID){: name='sourceEndpointID'} (string). Source endpoint for the integration (if any). 
-- [`sourceServiceName`](#sourceServiceName){: name='sourceServiceName'} (string). Source service for the integration (if any). 
+**Required**
 
-## authSecretRef {: #authSecretRef }
+- [`integrationType`](#spec.integrationType-property){: name='spec.integrationType-property'} (string, Enum: `datadog`, `kafka_logs`, `kafka_connect`, `metrics`, `dashboard`, `rsyslog`, `read_replica`, `schema_registry_proxy`, `signalfx`, `jolokia`, `internal_connectivity`, `external_google_cloud_logging`, `datasource`). Type of the service integration.
+- [`project`](#spec.project-property){: name='spec.project-property'} (string, MaxLength: 63). Project the integration belongs to.
+
+**Optional**
+
+- [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
+- [`datadog`](#spec.datadog-property){: name='spec.datadog-property'} (object). Datadog specific user configuration options. See below for [nested schema](#spec.datadog).
+- [`destinationEndpointId`](#spec.destinationEndpointId-property){: name='spec.destinationEndpointId-property'} (string). Destination endpoint for the integration (if any).
+- [`destinationServiceName`](#spec.destinationServiceName-property){: name='spec.destinationServiceName-property'} (string). Destination service for the integration (if any).
+- [`kafkaConnect`](#spec.kafkaConnect-property){: name='spec.kafkaConnect-property'} (object). Kafka Connect service configuration values. See below for [nested schema](#spec.kafkaConnect).
+- [`kafkaLogs`](#spec.kafkaLogs-property){: name='spec.kafkaLogs-property'} (object). Kafka logs configuration values. See below for [nested schema](#spec.kafkaLogs).
+- [`metrics`](#spec.metrics-property){: name='spec.metrics-property'} (object). Metrics configuration values. See below for [nested schema](#spec.metrics).
+- [`sourceEndpointID`](#spec.sourceEndpointID-property){: name='spec.sourceEndpointID-property'} (string). Source endpoint for the integration (if any).
+- [`sourceServiceName`](#spec.sourceServiceName-property){: name='spec.sourceServiceName-property'} (string). Source service for the integration (if any).
+
+## authSecretRef {: #spec.authSecretRef }
 
 Authentication reference to Aiven token in a secret.
 
 **Optional**
 
-- [`key`](#key){: name='key'} (string, MinLength: 1).  
-- [`name`](#name){: name='name'} (string, MinLength: 1).  
+- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1). 
+- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1). 
 
-## datadog {: #datadog }
+## datadog {: #spec.datadog }
 
 Datadog specific user configuration options.
 
 **Optional**
 
-- [`exclude_consumer_groups`](#exclude_consumer_groups){: name='exclude_consumer_groups'} (array). Consumer groups to exclude. 
-- [`exclude_topics`](#exclude_topics){: name='exclude_topics'} (array). List of topics to exclude. 
-- [`include_consumer_groups`](#include_consumer_groups){: name='include_consumer_groups'} (array). Consumer groups to include. 
-- [`include_topics`](#include_topics){: name='include_topics'} (array). Topics to include. 
-- [`kafka_custom_metrics`](#kafka_custom_metrics){: name='kafka_custom_metrics'} (array). List of custom metrics. 
+- [`exclude_consumer_groups`](#spec.datadog.exclude_consumer_groups-property){: name='spec.datadog.exclude_consumer_groups-property'} (array of strings). Consumer groups to exclude.
+- [`exclude_topics`](#spec.datadog.exclude_topics-property){: name='spec.datadog.exclude_topics-property'} (array of strings). List of topics to exclude.
+- [`include_consumer_groups`](#spec.datadog.include_consumer_groups-property){: name='spec.datadog.include_consumer_groups-property'} (array of strings). Consumer groups to include.
+- [`include_topics`](#spec.datadog.include_topics-property){: name='spec.datadog.include_topics-property'} (array of strings). Topics to include.
+- [`kafka_custom_metrics`](#spec.datadog.kafka_custom_metrics-property){: name='spec.datadog.kafka_custom_metrics-property'} (array of strings). List of custom metrics.
 
-## kafkaConnect {: #kafkaConnect }
+## kafkaConnect {: #spec.kafkaConnect }
 
 Kafka Connect service configuration values.
 
 **Required**
 
-- [`kafka_connect`](#kafka_connect){: name='kafka_connect'} (object).  See [below for nested schema](#kafka_connect).
+- [`kafka_connect`](#spec.kafkaConnect.kafka_connect-property){: name='spec.kafkaConnect.kafka_connect-property'} (object).  See below for [nested schema](#spec.kafkaConnect.kafka_connect).
 
-### kafka_connect {: #kafka_connect }
+### kafka_connect {: #spec.kafkaConnect.kafka_connect }
 
 **Optional**
 
-- [`config_storage_topic`](#config_storage_topic){: name='config_storage_topic'} (string, MaxLength: 249). The name of the topic where connector and task configuration data are stored. This must be the same for all workers with the same group_id. 
-- [`group_id`](#group_id){: name='group_id'} (string, MaxLength: 249). A unique string that identifies the Connect cluster group this worker belongs to. 
-- [`offset_storage_topic`](#offset_storage_topic){: name='offset_storage_topic'} (string, MaxLength: 249). The name of the topic where connector and task configuration offsets are stored. This must be the same for all workers with the same group_id. 
-- [`status_storage_topic`](#status_storage_topic){: name='status_storage_topic'} (string, MaxLength: 249). The name of the topic where connector and task configuration status updates are stored.This must be the same for all workers with the same group_id. 
+- [`config_storage_topic`](#spec.kafkaConnect.kafka_connect.config_storage_topic-property){: name='spec.kafkaConnect.kafka_connect.config_storage_topic-property'} (string, MaxLength: 249). The name of the topic where connector and task configuration data are stored. This must be the same for all workers with the same group_id.
+- [`group_id`](#spec.kafkaConnect.kafka_connect.group_id-property){: name='spec.kafkaConnect.kafka_connect.group_id-property'} (string, MaxLength: 249). A unique string that identifies the Connect cluster group this worker belongs to.
+- [`offset_storage_topic`](#spec.kafkaConnect.kafka_connect.offset_storage_topic-property){: name='spec.kafkaConnect.kafka_connect.offset_storage_topic-property'} (string, MaxLength: 249). The name of the topic where connector and task configuration offsets are stored. This must be the same for all workers with the same group_id.
+- [`status_storage_topic`](#spec.kafkaConnect.kafka_connect.status_storage_topic-property){: name='spec.kafkaConnect.kafka_connect.status_storage_topic-property'} (string, MaxLength: 249). The name of the topic where connector and task configuration status updates are stored.This must be the same for all workers with the same group_id.
 
-## kafkaLogs {: #kafkaLogs }
+## kafkaLogs {: #spec.kafkaLogs }
 
 Kafka logs configuration values.
 
 **Required**
 
-- [`kafka_topic`](#kafka_topic){: name='kafka_topic'} (string, MinLength: 1, MaxLength: 63). Topic name. 
+- [`kafka_topic`](#spec.kafkaLogs.kafka_topic-property){: name='spec.kafkaLogs.kafka_topic-property'} (string, MinLength: 1, MaxLength: 63). Topic name.
 
-## metrics {: #metrics }
+## metrics {: #spec.metrics }
 
 Metrics configuration values.
 
 **Optional**
 
-- [`database`](#database){: name='database'} (string, MaxLength: 40). Name of the database where to store metric datapoints. Only affects PostgreSQL destinations. 
-- [`retention_days`](#retention_days){: name='retention_days'} (integer). Number of days to keep old metrics. Only affects PostgreSQL destinations. Set to 0 for no automatic cleanup. Defaults to 30 days. 
-- [`ro_username`](#ro_username){: name='ro_username'} (string, MaxLength: 40). Name of a user that can be used to read metrics. This will be used for Grafana integration (if enabled) to prevent Grafana users from making undesired changes. Only affects PostgreSQL destinations. Defaults to 'metrics_reader'. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service. 
-- [`username`](#username){: name='username'} (string, MaxLength: 40). Name of the user used to write metrics. Only affects PostgreSQL destinations. Defaults to 'metrics_writer'. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service. 
+- [`database`](#spec.metrics.database-property){: name='spec.metrics.database-property'} (string, MaxLength: 40). Name of the database where to store metric datapoints. Only affects PostgreSQL destinations.
+- [`retention_days`](#spec.metrics.retention_days-property){: name='spec.metrics.retention_days-property'} (integer). Number of days to keep old metrics. Only affects PostgreSQL destinations. Set to 0 for no automatic cleanup. Defaults to 30 days.
+- [`ro_username`](#spec.metrics.ro_username-property){: name='spec.metrics.ro_username-property'} (string, MaxLength: 40). Name of a user that can be used to read metrics. This will be used for Grafana integration (if enabled) to prevent Grafana users from making undesired changes. Only affects PostgreSQL destinations. Defaults to 'metrics_reader'. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.
+- [`username`](#spec.metrics.username-property){: name='spec.metrics.username-property'} (string, MaxLength: 40). Name of the user used to write metrics. Only affects PostgreSQL destinations. Defaults to 'metrics_writer'. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.
 

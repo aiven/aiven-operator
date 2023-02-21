@@ -138,7 +138,7 @@ spec:
                   to have this enabled for all services.
                 type: boolean
               userConfig:
-                description: PostgreSQL specific user configuration options
+                description: KafkaConnect specific user configuration options
                 properties:
                   additional_backup_regions:
                     description: Additional Cloud Regions for Backup Replication

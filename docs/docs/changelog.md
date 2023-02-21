@@ -1,5 +1,7 @@
 # Changelog
 
+## 🚧 Under development
+
 ## v0.8.0 - 2023-02-15
 
 **Important:** This release brings breaking changes to the `userConfig` property.

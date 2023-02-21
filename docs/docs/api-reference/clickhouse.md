@@ -2,85 +2,121 @@
 title: "Clickhouse"
 ---
 
-| ApiVersion                  | Kind        |
-|-----------------------------|-------------|
-| aiven.io/v1alpha1 | Clickhouse |
+## Usage example
+
+```yaml
+apiVersion: aiven.io/v1alpha1
+kind: Clickhouse
+metadata:
+  name: my-test-ch-sample
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: ch-token
+
+  project: my-aiven-project
+
+  cloudName: google-europe-west1
+  plan: startup-16
+
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00
+```
+
+## Schema {: #Schema }
+
+Clickhouse is the Schema for the clickhouses API.
+
+**Required**
+
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `Clickhouse`.
+- [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
+- [`spec`](#spec-property){: name='spec-property'} (object). ClickhouseSpec defines the desired state of Clickhouse. See below for [nested schema](#spec).
+
+## spec {: #spec }
 
 ClickhouseSpec defines the desired state of Clickhouse.
 
-- [`authSecretRef`](#authSecretRef){: name='authSecretRef'} (object). Authentication reference to Aiven token in a secret. See [below for nested schema](#authSecretRef).
-- [`cloudName`](#cloudName){: name='cloudName'} (string, MaxLength: 256). Cloud the service runs in. 
-- [`connInfoSecretTarget`](#connInfoSecretTarget){: name='connInfoSecretTarget'} (object). Information regarding secret creation. See [below for nested schema](#connInfoSecretTarget).
-- [`disk_space`](#disk_space){: name='disk_space'} (string). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing. 
-- [`maintenanceWindowDow`](#maintenanceWindowDow){: name='maintenanceWindowDow'} (string, Enum: `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc. 
-- [`maintenanceWindowTime`](#maintenanceWindowTime){: name='maintenanceWindowTime'} (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format. 
-- [`plan`](#plan){: name='plan'} (string, MaxLength: 128). Subscription plan. 
-- [`project`](#project){: name='project'} (string, Immutable, MaxLength: 63). Target project. 
-- [`projectVPCRef`](#projectVPCRef){: name='projectVPCRef'} (object, Immutable). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See [below for nested schema](#projectVPCRef).
-- [`projectVpcId`](#projectVpcId){: name='projectVpcId'} (string, Immutable, MaxLength: 36). Identifier of the VPC the service should be in, if any. 
-- [`serviceIntegrations`](#serviceIntegrations){: name='serviceIntegrations'} (array, Immutable, MaxItems: 1). Service integrations to specify when creating a service. Not applied after initial service creation. See [below for nested schema](#serviceIntegrations).
-- [`tags`](#tags){: name='tags'} (object). Tags are key-value pairs that allow you to categorize services. 
-- [`terminationProtection`](#terminationProtection){: name='terminationProtection'} (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services. 
-- [`userConfig`](#userConfig){: name='userConfig'} (object). OpenSearch specific user configuration options. See [below for nested schema](#userConfig).
+**Required**
 
-## authSecretRef {: #authSecretRef }
+- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63). Target project.
+
+**Optional**
+
+- [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
+- [`cloudName`](#spec.cloudName-property){: name='spec.cloudName-property'} (string, MaxLength: 256). Cloud the service runs in.
+- [`connInfoSecretTarget`](#spec.connInfoSecretTarget-property){: name='spec.connInfoSecretTarget-property'} (object). Information regarding secret creation. See below for [nested schema](#spec.connInfoSecretTarget).
+- [`disk_space`](#spec.disk_space-property){: name='spec.disk_space-property'} (string). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.
+- [`maintenanceWindowDow`](#spec.maintenanceWindowDow-property){: name='spec.maintenanceWindowDow-property'} (string, Enum: `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.
+- [`maintenanceWindowTime`](#spec.maintenanceWindowTime-property){: name='spec.maintenanceWindowTime-property'} (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
+- [`plan`](#spec.plan-property){: name='spec.plan-property'} (string, MaxLength: 128). Subscription plan.
+- [`projectVPCRef`](#spec.projectVPCRef-property){: name='spec.projectVPCRef-property'} (object, Immutable). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See below for [nested schema](#spec.projectVPCRef).
+- [`projectVpcId`](#spec.projectVpcId-property){: name='spec.projectVpcId-property'} (string, Immutable, MaxLength: 36). Identifier of the VPC the service should be in, if any.
+- [`serviceIntegrations`](#spec.serviceIntegrations-property){: name='spec.serviceIntegrations-property'} (array of objects, Immutable, MaxItems: 1).  See below for [nested schema](#spec.serviceIntegrations).
+- [`tags`](#spec.tags-property){: name='spec.tags-property'} (object, AdditionalProperties: string). Tags are key-value pairs that allow you to categorize services.
+- [`terminationProtection`](#spec.terminationProtection-property){: name='spec.terminationProtection-property'} (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services.
+- [`userConfig`](#spec.userConfig-property){: name='spec.userConfig-property'} (object). OpenSearch specific user configuration options. See below for [nested schema](#spec.userConfig).
+
+## authSecretRef {: #spec.authSecretRef }
 
 Authentication reference to Aiven token in a secret.
 
 **Optional**
 
-- [`key`](#key){: name='key'} (string, MinLength: 1).  
-- [`name`](#name){: name='name'} (string, MinLength: 1).  
+- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1). 
+- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1). 
 
-## connInfoSecretTarget {: #connInfoSecretTarget }
+## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 
 Information regarding secret creation.
 
 **Required**
 
-- [`name`](#name){: name='name'} (string). Name of the Secret resource to be created. 
+- [`name`](#spec.connInfoSecretTarget.name-property){: name='spec.connInfoSecretTarget.name-property'} (string). Name of the secret resource to be created. By default, is equal to the resource name.
 
-## projectVPCRef {: #projectVPCRef }
+## projectVPCRef {: #spec.projectVPCRef }
 
 ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.
 
 **Required**
 
-- [`name`](#name){: name='name'} (string, MinLength: 1).  
+- [`name`](#spec.projectVPCRef.name-property){: name='spec.projectVPCRef.name-property'} (string, MinLength: 1). 
 
 **Optional**
 
-- [`namespace`](#namespace){: name='namespace'} (string, MinLength: 1).  
+- [`namespace`](#spec.projectVPCRef.namespace-property){: name='spec.projectVPCRef.namespace-property'} (string, MinLength: 1). 
 
-## serviceIntegrations {: #serviceIntegrations }
-
-Service integrations to specify when creating a service. Not applied after initial service creation.
+## serviceIntegrations {: #spec.serviceIntegrations }
 
 **Required**
 
-- [`integrationType`](#integrationType){: name='integrationType'} (string, Enum: `read_replica`).  
-- [`sourceServiceName`](#sourceServiceName){: name='sourceServiceName'} (string, MinLength: 1, MaxLength: 64).  
+- [`integrationType`](#spec.serviceIntegrations.integrationType-property){: name='spec.serviceIntegrations.integrationType-property'} (string, Enum: `read_replica`). 
+- [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64). 
 
-## userConfig {: #userConfig }
+## userConfig {: #spec.userConfig }
 
 OpenSearch specific user configuration options.
 
 **Optional**
 
-- [`additional_backup_regions`](#additional_backup_regions){: name='additional_backup_regions'} (array, MaxItems: 1). Additional Cloud Regions for Backup Replication. 
-- [`ip_filter`](#ip_filter){: name='ip_filter'} (array, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'. See [below for nested schema](#ip_filter).
-- [`project_to_fork_from`](#project_to_fork_from){: name='project_to_fork_from'} (string, Immutable, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created. 
-- [`service_to_fork_from`](#service_to_fork_from){: name='service_to_fork_from'} (string, Immutable, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created. 
+- [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.
+- [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'. See below for [nested schema](#spec.userConfig.ip_filter).
+- [`project_to_fork_from`](#spec.userConfig.project_to_fork_from-property){: name='spec.userConfig.project_to_fork_from-property'} (string, Immutable, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.
+- [`service_to_fork_from`](#spec.userConfig.service_to_fork_from-property){: name='spec.userConfig.service_to_fork_from-property'} (string, Immutable, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.
 
-### ip_filter {: #ip_filter }
+### ip_filter {: #spec.userConfig.ip_filter }
 
-CIDR address block, either as a string, or in a dict with an optional description field.
+Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 
 **Required**
 
-- [`network`](#network){: name='network'} (string, MaxLength: 43). CIDR address block. 
+- [`network`](#spec.userConfig.ip_filter.network-property){: name='spec.userConfig.ip_filter.network-property'} (string, MaxLength: 43). CIDR address block.
 
 **Optional**
 
-- [`description`](#description){: name='description'} (string, MaxLength: 1024). Description for IP filter list entry. 
+- [`description`](#spec.userConfig.ip_filter.description-property){: name='spec.userConfig.ip_filter.description-property'} (string, MaxLength: 1024). Description for IP filter list entry.
 

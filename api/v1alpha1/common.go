@@ -28,7 +28,7 @@ func (r AuthSecretReference) IsValid() bool {
 
 // ConnInfoSecretTarget contains information secret name
 type ConnInfoSecretTarget struct {
-	// Name of the Secret resource to be created
+	// Name of the secret resource to be created. By default, is equal to the resource name
 	Name string `json:"name"`
 }
 

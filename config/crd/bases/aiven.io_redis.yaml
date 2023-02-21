@@ -53,7 +53,8 @@ spec:
                 description: Information regarding secret creation
                 properties:
                   name:
-                    description: Name of the Secret resource to be created
+                    description: Name of the secret resource to be created. By default,
+                      is equal to the resource name
                     type: string
                 required:
                 - name

@@ -15,7 +15,7 @@ type KafkaConnectSpec struct {
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
 
-	// PostgreSQL specific user configuration options
+	// KafkaConnect specific user configuration options
 	UserConfig *kafkaconnectuserconfig.KafkaConnectUserConfig `json:"userConfig,omitempty"`
 }
 
