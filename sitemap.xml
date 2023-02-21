@@ -2,207 +2,207 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://aiven.github.io/aiven-operator/index.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/authentication.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/changelog.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/troubleshooting.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/index.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/cassandra.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/clickhouse.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/clickhouseuser.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/connectionpool.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/database.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/grafana.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/kafka.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/kafkaacl.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/kafkaconnect.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/kafkaconnector.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/kafkaschema.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/kafkatopic.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/mysql.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/opensearch.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/postgresql.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/project.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/projectvpc.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/redis.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/serviceintegration.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/api-reference/serviceuser.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/contributing/index.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/contributing/developer-guide.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/installation/helm.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/installation/kubectl.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/installation/prerequisites.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/installation/uninstalling.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/resources/cassandra.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/resources/opensearch.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/resources/postgresql.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/resources/project-vpc.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/resources/project.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/resources/redis.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/resources/service-integrations.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/resources/kafka/index.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/resources/kafka/connect.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/resources/kafka/schema.html</loc>
-         <lastmod>2023-02-16</lastmod>
+         <lastmod>2023-02-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
