@@ -17,18 +17,14 @@ var ErrDeleteDependencies = errors.New("object has dependencies and cannot be de
 // AuthSecretReference references a Secret containing an Aiven authentication token
 type AuthSecretReference struct {
 	// +kubebuilder:validation:MinLength=1
-	Name string `json:"name,omitempty"`
+	Name string `json:"name"`
 	// +kubebuilder:validation:MinLength=1
-	Key string `json:"key,omitempty"`
-}
-
-func (r AuthSecretReference) IsValid() bool {
-	return len(r.Name) > 0 && len(r.Key) > 0
+	Key string `json:"key"`
 }
 
 // ConnInfoSecretTarget contains information secret name
 type ConnInfoSecretTarget struct {
-	// Name of the Secret resource to be created
+	// Name of the secret resource to be created. By default, is equal to the resource name
 	Name string `json:"name"`
 }
 
@@ -53,7 +49,6 @@ type ServiceCommonSpec struct {
 	Plan string `json:"plan,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=256
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Cloud the service runs in.
 	CloudName string `json:"cloudName,omitempty"`
 
@@ -79,6 +74,10 @@ type ServiceCommonSpec struct {
 
 	// Tags are key-value pairs that allow you to categorize services.
 	Tags map[string]string `json:"tags,omitempty"`
+
+	// +kubebuilder:validation:MaxItems=1
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	ServiceIntegrations []*ServiceIntegrationItem `json:"serviceIntegrations,omitempty"`
 }
 
 // Validate runs complex validation on ServiceCommonSpec
@@ -147,6 +146,9 @@ type ResourceReferenceObject struct {
 }
 
 func ConvertDiscSpace(v string) int {
+	if v == "" {
+		return 0
+	}
 	diskSizeMB, _ := units.RAMInBytes(v)
 	return int(diskSizeMB / units.MiB)
 }
@@ -176,4 +178,13 @@ func ErrorSubstrChecker(substrings ...string) func(error) bool {
 		}
 		return false
 	}
+}
+
+// Service integrations to specify when creating a service. Not applied after initial service creation
+type ServiceIntegrationItem struct {
+	// +kubebuilder:validation:Enum=read_replica
+	IntegrationType string `json:"integrationType"`
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=64
+	SourceServiceName string `json:"sourceServiceName"`
 }

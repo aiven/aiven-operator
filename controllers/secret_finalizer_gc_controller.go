@@ -58,11 +58,11 @@ func (c *SecretFinalizerGCController) SetupWithManager(mgr ctrl.Manager, hasDefa
 			&source.Kind{Type: aivenManagedTypes[i]},
 			handler.EnqueueRequestsFromMapFunc(func(a client.Object) []reconcile.Request {
 				ao := a.(aivenManagedObject)
-				if ao.AuthSecretRef().IsValid() {
+				if auth := ao.AuthSecretRef(); auth != nil {
 					return []reconcile.Request{
 						{
 							NamespacedName: types.NamespacedName{
-								Name:      ao.AuthSecretRef().Name,
+								Name:      auth.Name,
 								Namespace: ao.GetNamespace(),
 							},
 						},
@@ -73,7 +73,7 @@ func (c *SecretFinalizerGCController) SetupWithManager(mgr ctrl.Manager, hasDefa
 						Name:      ao.GetName(),
 						Namespace: ao.GetNamespace(),
 					}
-					c.Log.Error(fmt.Errorf("resource %s %s has no AuthSecretReference and no default token provided", gvk, namespacedName), "")
+					c.Log.Error(fmt.Errorf("%w: resource %s %s", errNoTokenProvided, gvk, namespacedName), "")
 				}
 				return nil
 			}),

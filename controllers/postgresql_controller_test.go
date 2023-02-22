@@ -7,15 +7,15 @@ import (
 	"os"
 	"time"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	pguserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/pg"
 )
 
 var _ = Describe("PostgreSQL Controller", func() {
@@ -112,16 +112,19 @@ func pgSpec(serviceName, namespace string) *v1alpha1.PostgreSQL {
 				CloudName: "google-europe-west1",
 				Tags:      map[string]string{"key1": "value1"},
 			},
-			UserConfig: v1alpha1.PostgreSQLUserconfig{
-				PublicAccess: v1alpha1.PublicAccessUserConfig{
-					Pg:         boolPointer(true),
-					Prometheus: boolPointer(true),
+			UserConfig: &pguserconfig.PgUserConfig{
+				// YAML converts string integers to real integers,
+				// Then it fails with the validation as invalid choice
+				PgVersion: anyPointer("14"),
+				PublicAccess: &pguserconfig.PublicAccess{
+					Pg:         anyPointer(true),
+					Prometheus: anyPointer(true),
 				},
-				Pg: v1alpha1.PostgreSQLSubUserConfig{
-					IdleInTransactionSessionTimeout: int64Pointer(900),
+				Pg: &pguserconfig.Pg{
+					IdleInTransactionSessionTimeout: anyPointer(900),
 				},
 			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},

@@ -1,0 +1,98 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocas-material/schema.json
+site_name: Aiven Operator
+copyright: Aiven Team
+repo_url: https://github.com/aiven/aiven-operator/
+site_url: https://aiven.github.io/aiven-operator/
+edit_uri: blob/main/docs/docs/
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - tables
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - toc:
+      permalink: true
+plugins:
+  - search
+  - offline
+theme:
+  name: material
+  logo: assets/logo.svg
+  features:
+    - navigation.top
+    - navigation.footer
+    - navigation.tabs
+    - navigation.sections
+    - content.code.copy
+    - content.code.annotate
+    - content.action.view
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: slate
+      primary: red
+      accent: deep-orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: default
+      primary: deep-orange
+      accent: red
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+nav:
+  - Home:
+      - index.md
+      - changelog.md
+      - Setup:
+          - installation/prerequisites.md
+          - installation/helm.md
+          - installation/kubectl.md
+          - authentication.md
+          - troubleshooting.md
+          - installation/uninstalling.md
+      - Contributing:
+          - contributing/index.md
+          - contributing/developer-guide.md
+  - Resources:
+      - resources/project.md
+      - resources/project-vpc.md
+      - resources/cassandra.md
+      - resources/postgresql.md
+      - resources/opensearch.md
+      - resources/redis.md
+      - resources/service-integrations.md
+      - Kafka:
+          - resources/kafka/index.md
+          - resources/kafka/schema.md
+          - resources/kafka/connect.md
+  - API Reference:
+      - api-reference/index.md
+      - api-reference/cassandra.md
+      - api-reference/clickhouse.md
+      - api-reference/clickhouseuser.md
+      - api-reference/connectionpool.md
+      - api-reference/database.md
+      - api-reference/grafana.md
+      - api-reference/kafka.md
+      - api-reference/kafkaacl.md
+      - api-reference/kafkaconnect.md
+      - api-reference/kafkaconnector.md
+      - api-reference/kafkaschema.md
+      - api-reference/kafkatopic.md
+      - api-reference/mysql.md
+      - api-reference/opensearch.md
+      - api-reference/postgresql.md
+      - api-reference/project.md
+      - api-reference/projectvpc.md
+      - api-reference/redis.md
+      - api-reference/serviceintegration.md
+      - api-reference/serviceuser.md

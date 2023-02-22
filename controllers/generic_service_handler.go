@@ -24,7 +24,7 @@ type genericServiceHandler struct {
 }
 
 func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Object, refs []client.Object) error {
-	o, err := h.fabric(object)
+	o, err := h.fabric(a, object)
 	if err != nil {
 		return err
 	}
@@ -51,23 +51,54 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 	var reason string
 	if !exists {
 		reason = "Created"
-		req := o.newCreateRequest()
-		req.ProjectVPCID = toOptionalStringPointer(projectVPCID)
-		req.UserConfig, err = UserConfigurationToAPIV2(o.getUserConfig(), []string{"create", "update"})
+		userConfig, err := UserConfigurationToAPIV2(o.getUserConfig(), []string{"create", "update"})
 		if err != nil {
 			return err
 		}
+
+		req := aiven.CreateServiceRequest{
+			Cloud:                 spec.CloudName,
+			DiskSpaceMB:           v1alpha1.ConvertDiscSpace(o.getDiskSpace()),
+			MaintenanceWindow:     getMaintenanceWindow(spec.MaintenanceWindowDow, spec.MaintenanceWindowTime),
+			Plan:                  spec.Plan,
+			ProjectVPCID:          toOptionalStringPointer(projectVPCID),
+			ServiceIntegrations:   nil,
+			ServiceName:           ometa.Name,
+			ServiceType:           o.getServiceType(),
+			TerminationProtection: spec.TerminationProtection,
+			UserConfig:            userConfig,
+		}
+
+		for _, s := range spec.ServiceIntegrations {
+			i := aiven.NewServiceIntegration{
+				IntegrationType: s.IntegrationType,
+				SourceService:   &s.SourceServiceName,
+				// todo: fix in go client, sends None
+				UserConfig: make(map[string]interface{}),
+			}
+			req.ServiceIntegrations = append(req.ServiceIntegrations, i)
+		}
+
 		_, err = a.Services.Create(spec.Project, req)
 		if err != nil {
 			return fmt.Errorf("failed to create service: %w", err)
 		}
 	} else {
 		reason = "Updated"
-		req := o.newUpdateRequest()
-		req.ProjectVPCID = toOptionalStringPointer(projectVPCID)
-		req.UserConfig, err = UserConfigurationToAPIV2(o.getUserConfig(), []string{"update"})
+		userConfig, err := UserConfigurationToAPIV2(o.getUserConfig(), []string{"update"})
 		if err != nil {
 			return err
+		}
+
+		req := aiven.UpdateServiceRequest{
+			Cloud:                 spec.CloudName,
+			DiskSpaceMB:           v1alpha1.ConvertDiscSpace(o.getDiskSpace()),
+			MaintenanceWindow:     getMaintenanceWindow(spec.MaintenanceWindowDow, spec.MaintenanceWindowTime),
+			Plan:                  spec.Plan,
+			Powered:               true,
+			ProjectVPCID:          toOptionalStringPointer(projectVPCID),
+			TerminationProtection: spec.TerminationProtection,
+			UserConfig:            userConfig,
 		}
 		_, err = a.Services.Update(spec.Project, ometa.Name, req)
 		if err != nil {
@@ -90,7 +121,7 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 }
 
 func (h *genericServiceHandler) delete(a *aiven.Client, object client.Object) (bool, error) {
-	o, err := h.fabric(object)
+	o, err := h.fabric(a, object)
 	if err != nil {
 		return false, err
 	}
@@ -104,7 +135,7 @@ func (h *genericServiceHandler) delete(a *aiven.Client, object client.Object) (b
 }
 
 func (h *genericServiceHandler) get(a *aiven.Client, object client.Object) (*corev1.Secret, error) {
-	o, err := h.fabric(object)
+	o, err := h.fabric(a, object)
 	if err != nil {
 		return nil, err
 	}
@@ -124,29 +155,42 @@ func (h *genericServiceHandler) get(a *aiven.Client, object client.Object) (*cor
 
 		// Some services get secrets after they are running only,
 		// like ip addresses (hosts)
-		return o.newSecret(s), nil
+		return o.newSecret(s)
 	}
 	return nil, nil
 }
 
 // checkPreconditions not required for now by services to be implemented
 func (h *genericServiceHandler) checkPreconditions(a *aiven.Client, object client.Object) (bool, error) {
+	o, err := h.fabric(a, object)
+	if err != nil {
+		return false, err
+	}
+
+	spec := o.getServiceCommonSpec()
+	for _, s := range spec.ServiceIntegrations {
+		// Validates that read_replica is running
+		// If not, the wrapper controller will try later
+		if s.IntegrationType == "read_replica" {
+			r, err := checkServiceIsRunning(a, spec.Project, s.SourceServiceName)
+			if !(r && err == nil) {
+				return false, nil
+			}
+		}
+	}
 	return true, nil
 }
 
 // serviceAdapterFabric returns serviceAdapter for specific service, like MySQL
-type serviceAdapterFabric func(client.Object) (serviceAdapter, error)
+type serviceAdapterFabric func(*aiven.Client, client.Object) (serviceAdapter, error)
 
 // serviceAdapter turns client.Object into a generic thing
 type serviceAdapter interface {
-	// Getters
 	getObjectMeta() *metav1.ObjectMeta
 	getServiceStatus() *v1alpha1.ServiceStatus
 	getServiceCommonSpec() *v1alpha1.ServiceCommonSpec
+	getServiceType() string
+	getDiskSpace() string
 	getUserConfig() any
-
-	// Constructors for/from RPC calls
-	newSecret(*aiven.Service) *corev1.Secret
-	newCreateRequest() aiven.CreateServiceRequest
-	newUpdateRequest() aiven.UpdateServiceRequest
+	newSecret(*aiven.Service) (*corev1.Secret, error)
 }

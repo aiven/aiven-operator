@@ -7,14 +7,14 @@ import (
 	"os"
 	"time"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	kafkaconnectintegration "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/kafka_connect"
 )
 
 var _ = Describe("Service Integration Controller", func() {
@@ -108,14 +108,14 @@ func serviceIntegrationSpec(siName, source, destination, namespace string) *v1al
 			IntegrationType:        "kafka_connect",
 			SourceServiceName:      source,
 			DestinationServiceName: destination,
-			KafkaConnectUserConfig: v1alpha1.ServiceIntegrationKafkaConnectUserConfig{
-				KafkaConnect: v1alpha1.ServiceIntegrationKafkaConnect{
-					GroupID:            "connect",
-					OffsetStorageTopic: "__connect_status",
-					StatusStorageTopic: "__connect_offsets",
+			KafkaConnectUserConfig: &kafkaconnectintegration.KafkaConnectUserConfig{
+				KafkaConnect: &kafkaconnectintegration.KafkaConnect{
+					GroupId:            anyPointer("connect"),
+					OffsetStorageTopic: anyPointer("__connect_status"),
+					StatusStorageTopic: anyPointer("__connect_offsets"),
 				},
 			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},

@@ -7,15 +7,15 @@ import (
 	"os"
 	"time"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	kafkauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/kafka"
 )
 
 var _ = Describe("Kafka Controller", func() {
@@ -112,16 +112,16 @@ func kafkaSpec(serviceName, namespace string) *v1alpha1.Kafka {
 				CloudName: "google-europe-west1",
 				Tags:      map[string]string{"key1": "value1"},
 			},
-			UserConfig: v1alpha1.KafkaUserConfig{
-				KafkaRest:      boolPointer(true),
-				KafkaConnect:   boolPointer(true),
-				SchemaRegistry: boolPointer(true),
-				Kafka: v1alpha1.KafkaSubKafkaUserConfig{
-					GroupMaxSessionTimeoutMs: int64Pointer(70000),
-					LogRetentionBytes:        int64Pointer(1000000000),
+			UserConfig: &kafkauserconfig.KafkaUserConfig{
+				KafkaRest:      anyPointer(true),
+				KafkaConnect:   anyPointer(true),
+				SchemaRegistry: anyPointer(true),
+				Kafka: &kafkauserconfig.Kafka{
+					GroupMaxSessionTimeoutMs: anyPointer(70000),
+					LogRetentionBytes:        anyPointer(1000000000),
 				},
 			},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},

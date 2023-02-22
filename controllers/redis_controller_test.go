@@ -7,15 +7,15 @@ import (
 	"os"
 	"time"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	redisuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/redis"
 )
 
 var _ = Describe("Redis Controller using secret", func() {
@@ -155,6 +155,18 @@ var _ = Describe("Redis Controller using default token", func() {
 			Expect(createdSecret.Data["PASSWORD"]).NotTo(BeEmpty())
 
 			Expect(createdRedis.Status.State).Should(Equal("RUNNING"))
+
+			// Userconfig test
+			expectedIPFilter := []*redisuserconfig.IpFilter{
+				{
+					Network: "10.20.0.0/16",
+				},
+				{
+					Network:     "0.0.0.0",
+					Description: anyPointer("whatever"),
+				},
+			}
+			Expect(createdRedis.Spec.UserConfig.IpFilter).Should(Equal(expectedIPFilter))
 		})
 	})
 
@@ -165,9 +177,9 @@ var _ = Describe("Redis Controller using default token", func() {
 })
 
 func redisSpec(serviceName, namespace string, useSecret bool) *v1alpha1.Redis {
-	var authSecretReference v1alpha1.AuthSecretReference
+	var authSecretReference *v1alpha1.AuthSecretReference
 	if useSecret {
-		authSecretReference = v1alpha1.AuthSecretReference{
+		authSecretReference = &v1alpha1.AuthSecretReference{
 			Name: secretRefName,
 			Key:  secretRefKey,
 		}
@@ -187,7 +199,17 @@ func redisSpec(serviceName, namespace string, useSecret bool) *v1alpha1.Redis {
 				Plan:      "business-4",
 				CloudName: "google-europe-west1",
 			},
-			UserConfig:    v1alpha1.RedisUserConfig{},
+			UserConfig: &redisuserconfig.RedisUserConfig{
+				IpFilter: []*redisuserconfig.IpFilter{
+					{
+						Network: "10.20.0.0/16",
+					},
+					{
+						Network:     "0.0.0.0",
+						Description: anyPointer("whatever"),
+					},
+				},
+			},
 			AuthSecretRef: authSecretReference,
 		},
 	}

@@ -44,19 +44,20 @@ spec:
                   name:
                     minLength: 1
                     type: string
+                required:
+                - key
+                - name
                 type: object
               cloudName:
                 description: Cloud the service runs in.
                 maxLength: 256
                 type: string
-                x-kubernetes-validations:
-                - message: Value is immutable
-                  rule: self == oldSelf
               connInfoSecretTarget:
                 description: Information regarding secret creation
                 properties:
                   name:
-                    description: Name of the Secret resource to be created
+                    description: Name of the secret resource to be created. By default,
+                      is equal to the resource name
                     type: string
                 required:
                 - name
@@ -65,6 +66,7 @@ spec:
                 description: The disk space of the service, possible values depend
                   on the service type, the cloud provider and the project. Reducing
                   will result in the service re-balancing.
+                format: ^[1-9][0-9]*(GiB|G)*
                 type: string
               maintenanceWindowDow:
                 description: Day of week when maintenance operations should be performed.
@@ -118,6 +120,28 @@ spec:
                 x-kubernetes-validations:
                 - message: Value is immutable
                   rule: self == oldSelf
+              serviceIntegrations:
+                items:
+                  description: Service integrations to specify when creating a service.
+                    Not applied after initial service creation
+                  properties:
+                    integrationType:
+                      enum:
+                      - read_replica
+                      type: string
+                    sourceServiceName:
+                      maxLength: 64
+                      minLength: 1
+                      type: string
+                  required:
+                  - integrationType
+                  - sourceServiceName
+                  type: object
+                maxItems: 1
+                type: array
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
               tags:
                 additionalProperties:
                   type: string
@@ -131,11 +155,31 @@ spec:
               userConfig:
                 description: Redis specific user configuration options
                 properties:
-                  ip_filter:
-                    description: IP filter Allow incoming connections from CIDR address
-                      block, e.g. '10.20.0.0/16'
+                  additional_backup_regions:
+                    description: Additional Cloud Regions for Backup Replication
                     items:
                       type: string
+                    maxItems: 1
+                    type: array
+                  ip_filter:
+                    description: Allow incoming connections from CIDR address block,
+                      e.g. '10.20.0.0/16'
+                    items:
+                      description: CIDR address block, either as a string, or in a
+                        dict with an optional description field
+                      properties:
+                        description:
+                          description: Description for IP filter list entry
+                          maxLength: 1024
+                          type: string
+                        network:
+                          description: CIDR address block
+                          maxLength: 43
+                          type: string
+                      required:
+                      - network
+                      type: object
+                    maxItems: 1024
                     type: array
                   migration:
                     description: Migrate data from existing server
@@ -155,6 +199,13 @@ spec:
                           the moment)
                         maxLength: 2048
                         type: string
+                      method:
+                        description: The migration method to be used (currently supported
+                          only by Redis and MySQL service types)
+                        enum:
+                        - dump
+                        - replication
+                        type: string
                       password:
                         description: Password for authentication with the server where
                           to migrate data from
@@ -163,7 +214,6 @@ spec:
                       port:
                         description: Port number of the server where to migrate data
                           from
-                        format: int64
                         maximum: 65535
                         minimum: 1
                         type: integer
@@ -176,6 +226,9 @@ spec:
                           where to migrate data from
                         maxLength: 256
                         type: string
+                    required:
+                    - host
+                    - port
                     type: object
                   private_access:
                     description: Allow access to selected service ports from private
@@ -196,6 +249,9 @@ spec:
                     description: Allow access to selected service components through
                       Privatelink
                     properties:
+                      prometheus:
+                        description: Enable prometheus
+                        type: boolean
                       redis:
                         description: Enable redis
                         type: boolean
@@ -205,9 +261,12 @@ spec:
                       has effect only when a new service is being created.
                     maxLength: 63
                     type: string
+                    x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
                   public_access:
                     description: Allow access to selected service ports from the public
-                      internet
+                      Internet
                     properties:
                       prometheus:
                         description: Allow clients to connect to prometheus from the
@@ -222,13 +281,12 @@ spec:
                     type: object
                   recovery_basebackup_name:
                     description: Name of the basebackup to restore in forked service
-                    format: ^[a-zA-Z0-9-_:.]+$
                     maxLength: 128
+                    pattern: ^[a-zA-Z0-9-_:.]+$
                     type: string
                   redis_acl_channels_default:
-                    description: Default ACL for pub/sub channels used when Redis
-                      user is created Determines default pub/sub channels' ACL for
-                      new users if ACL is not supplied. When this option is not defined,
+                    description: Determines default pub/sub channels' ACL for new
+                      users if ACL is not supplied. When this option is not defined,
                       all_channels is assumed to keep backward compatibility. This
                       option doesn't affect Redis configuration acl-pubsub-default.
                     enum:
@@ -237,20 +295,17 @@ spec:
                     type: string
                   redis_io_threads:
                     description: Redis IO thread count
-                    format: int64
                     maximum: 32
                     minimum: 1
                     type: integer
                   redis_lfu_decay_time:
                     description: LFU maxmemory-policy counter decay time in minutes
-                    format: int64
                     maximum: 120
                     minimum: 1
                     type: integer
                   redis_lfu_log_factor:
                     description: Counter logarithm factor for volatile-lfu and allkeys-lfu
                       maxmemory-policies
-                    format: int64
                     maximum: 100
                     minimum: 0
                     type: integer
@@ -269,33 +324,30 @@ spec:
                   redis_notify_keyspace_events:
                     description: Set notify-keyspace-events option
                     maxLength: 32
+                    pattern: ^[KEg\$lshzxeA]*$
                     type: string
                   redis_number_of_databases:
-                    description: Number of redis databases Set number of redis databases.
-                      Changing this will cause a restart of redis service.
-                    format: int64
+                    description: Set number of redis databases. Changing this will
+                      cause a restart of redis service.
                     maximum: 128
                     minimum: 1
                     type: integer
                   redis_persistence:
-                    description: Redis persistence When persistence is 'rdb', Redis
-                      does RDB dumps each 10 minutes if any key is changed. Also RDB
-                      dumps are done according to backup schedule for backup purposes.
-                      When persistence is 'off', no RDB dumps and backups are done,
-                      so data can be lost at any moment if service is restarted for
-                      any reason, or if service is powered off. Also service can't
-                      be forked.
+                    description: When persistence is 'rdb', Redis does RDB dumps each
+                      10 minutes if any key is changed. Also RDB dumps are done according
+                      to backup schedule for backup purposes. When persistence is
+                      'off', no RDB dumps and backups are done, so data can be lost
+                      at any moment if service is restarted for any reason, or if
+                      service is powered off. Also service can't be forked.
                     enum:
                     - "off"
                     - rdb
                     type: string
                   redis_pubsub_client_output_buffer_limit:
-                    description: Pub/sub client output buffer hard limit in MB Set
-                      output buffer limit for pub / sub clients in MB. The value is
-                      the hard limit, the soft limit is 1/4 of the hard limit. When
-                      setting the limit, be mindful of the available memory in the
-                      selected service plan.
-                    format: int64
+                    description: Set output buffer limit for pub / sub clients in
+                      MB. The value is the hard limit, the soft limit is 1/4 of the
+                      hard limit. When setting the limit, be mindful of the available
+                      memory in the selected service plan.
                     maximum: 512
                     minimum: 32
                     type: integer
@@ -303,18 +355,20 @@ spec:
                     description: Require SSL to access Redis
                     type: boolean
                   redis_timeout:
-                    description: Redis idle connection timeout
-                    format: int64
+                    description: Redis idle connection timeout in seconds
                     maximum: 31536000
                     minimum: 0
                     type: integer
                   service_to_fork_from:
                     description: Name of another service to fork from. This has effect
                       only when a new service is being created.
-                    maxLength: 63
+                    maxLength: 64
                     type: string
+                    x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
                   static_ips:
-                    description: Static IP addresses Use static public IP addresses
+                    description: Use static public IP addresses
                     type: boolean
                 type: object
             required:

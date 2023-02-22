@@ -48,6 +48,9 @@ spec:
                   name:
                     minLength: 1
                     type: string
+                required:
+                - key
+                - name
                 type: object
               billingAddress:
                 description: Billing name and address of the project
@@ -95,7 +98,8 @@ spec:
                 description: Information regarding secret creation
                 properties:
                   name:
-                    description: Name of the Secret resource to be created
+                    description: Name of the secret resource to be created. By default,
+                      is equal to the resource name
                     type: string
                 required:
                 - name

@@ -7,15 +7,15 @@ import (
 	"os"
 	"time"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	clickhouseuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/clickhouse"
 )
 
 var _ = Describe("Clickhouse Controller", func() {
@@ -42,35 +42,35 @@ var _ = Describe("Clickhouse Controller", func() {
 		Expect(k8sClient.Create(ctx, os)).Should(Succeed())
 
 		rLookupKey := types.NamespacedName{Name: serviceName, Namespace: namespace}
-		createdOs := &v1alpha1.Clickhouse{}
+		createdClickhouse := &v1alpha1.Clickhouse{}
 		// We'll need to retry getting this newly created Clickhouse,
 		// given that creation may not immediately happen.
 		By("by retrieving os instance from k8s")
 		Eventually(func() bool {
-			err := k8sClient.Get(ctx, rLookupKey, createdOs)
+			err := k8sClient.Get(ctx, rLookupKey, createdClickhouse)
 
 			return err == nil
 		}, timeout, interval).Should(BeTrue())
 
 		By("by waiting Clickhouse service status to become RUNNING")
 		Eventually(func() bool {
-			err := k8sClient.Get(ctx, rLookupKey, createdOs)
+			err := k8sClient.Get(ctx, rLookupKey, createdClickhouse)
 			if err == nil {
-				return meta.IsStatusConditionTrue(createdOs.Status.Conditions, conditionTypeRunning)
+				return meta.IsStatusConditionTrue(createdClickhouse.Status.Conditions, conditionTypeRunning)
 			}
 			return false
 		}, timeout, interval).Should(BeTrue())
 
 		By("by checking finalizers")
-		Expect(createdOs.GetFinalizers()).ToNot(BeEmpty())
+		Expect(createdClickhouse.GetFinalizers()).ToNot(BeEmpty())
 	})
 
 	Context("Validating Clickhouse reconciler behaviour", func() {
 		It("should createOrUpdate a new Clickhouse service", func() {
-			createdOs := &v1alpha1.Clickhouse{}
+			createdClickhouse := &v1alpha1.Clickhouse{}
 			lookupKey := types.NamespacedName{Name: serviceName, Namespace: namespace}
 
-			Expect(k8sClient.Get(ctx, lookupKey, createdOs)).Should(Succeed())
+			Expect(k8sClient.Get(ctx, lookupKey, createdClickhouse)).Should(Succeed())
 
 			By("by checking that after creation of a Clickhouse service secret is created")
 			createdSecret := &corev1.Secret{}
@@ -81,7 +81,19 @@ var _ = Describe("Clickhouse Controller", func() {
 			Expect(createdSecret.Data["USER"]).NotTo(BeEmpty())
 			Expect(createdSecret.Data["PASSWORD"]).NotTo(BeEmpty())
 
-			Expect(createdOs.Status.State).Should(Equal("RUNNING"))
+			Expect(createdClickhouse.Status.State).Should(Equal("RUNNING"))
+
+			// Userconfig test
+			expectedIPFilter := []*clickhouseuserconfig.IpFilter{
+				{
+					Network: "10.20.0.0/16",
+				},
+				{
+					Network:     "0.0.0.0",
+					Description: anyPointer("whatever"),
+				},
+			}
+			Expect(createdClickhouse.Spec.UserConfig.IpFilter).Should(Equal(expectedIPFilter))
 		})
 	})
 
@@ -108,8 +120,18 @@ func chSpec(serviceName, namespace string) *v1alpha1.Clickhouse {
 				CloudName: "google-europe-west1",
 				Tags:      map[string]string{"key1": "value1"},
 			},
-			UserConfig: v1alpha1.ClickhouseUserConfig{},
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			UserConfig: &clickhouseuserconfig.ClickhouseUserConfig{
+				IpFilter: []*clickhouseuserconfig.IpFilter{
+					{
+						Network: "10.20.0.0/16",
+					},
+					{
+						Network:     "0.0.0.0",
+						Description: anyPointer("whatever"),
+					},
+				},
+			},
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},

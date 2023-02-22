@@ -9,11 +9,12 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/meta"
 
-	"github.com/aiven/aiven-operator/api/v1alpha1"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 var _ = Describe("Kafka Schema Controller", func() {
@@ -107,7 +108,7 @@ func kafkaSchemaSpec(service, subjName, namespace string) *v1alpha1.KafkaSchema 
 					"type": "record"
 				}`,
 			CompatibilityLevel: "BACKWARD",
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},

@@ -5,7 +5,7 @@ package v1alpha1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	mysqluserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/mysql"
+	mysqluserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/mysql"
 )
 
 // MySQLSpec defines the desired state of MySQL
@@ -17,7 +17,7 @@ type MySQLSpec struct {
 	DiskSpace string `json:"disk_space,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
+	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 
 	// Information regarding secret creation
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
@@ -41,7 +41,7 @@ type MySQL struct {
 	Status ServiceStatus `json:"status,omitempty"`
 }
 
-func (in *MySQL) AuthSecretRef() AuthSecretReference {
+func (in *MySQL) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }
 

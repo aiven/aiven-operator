@@ -5,7 +5,7 @@ package v1alpha1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	grafanauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfigs/grafana"
+	grafanauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/grafana"
 )
 
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
@@ -19,7 +19,7 @@ type GrafanaSpec struct {
 	DiskSpace string `json:"disk_space,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
-	AuthSecretRef AuthSecretReference `json:"authSecretRef,omitempty"`
+	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 
 	// Information regarding secret creation
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
@@ -43,7 +43,7 @@ type Grafana struct {
 	Status ServiceStatus `json:"status,omitempty"`
 }
 
-func (in *Grafana) AuthSecretRef() AuthSecretReference {
+func (in *Grafana) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }
 

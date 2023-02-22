@@ -44,23 +44,30 @@ spec:
                   name:
                     minLength: 1
                     type: string
+                required:
+                - key
+                - name
                 type: object
               cloudName:
                 description: Cloud the service runs in.
                 maxLength: 256
                 type: string
-                x-kubernetes-validations:
-                - message: Value is immutable
-                  rule: self == oldSelf
               connInfoSecretTarget:
                 description: Information regarding secret creation
                 properties:
                   name:
-                    description: Name of the Secret resource to be created
+                    description: Name of the secret resource to be created. By default,
+                      is equal to the resource name
                     type: string
                 required:
                 - name
                 type: object
+              disk_space:
+                description: The disk space of the service, possible values depend
+                  on the service type, the cloud provider and the project. Reducing
+                  will result in the service re-balancing.
+                format: ^[1-9][0-9]*(GiB|G)*
+                type: string
               maintenanceWindowDow:
                 description: Day of week when maintenance operations should be performed.
                   One monday, tuesday, wednesday, etc.
@@ -113,6 +120,28 @@ spec:
                 x-kubernetes-validations:
                 - message: Value is immutable
                   rule: self == oldSelf
+              serviceIntegrations:
+                items:
+                  description: Service integrations to specify when creating a service.
+                    Not applied after initial service creation
+                  properties:
+                    integrationType:
+                      enum:
+                      - read_replica
+                      type: string
+                    sourceServiceName:
+                      maxLength: 64
+                      minLength: 1
+                      type: string
+                  required:
+                  - integrationType
+                  - sourceServiceName
+                  type: object
+                maxItems: 1
+                type: array
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
               tags:
                 additionalProperties:
                   type: string
@@ -126,30 +155,48 @@ spec:
               userConfig:
                 description: OpenSearch specific user configuration options
                 properties:
-                  ip_filter:
-                    description: 'Glob pattern and number of indexes matching that
-                      pattern to be kept Allows you to create glob style patterns
-                      and set a max number of indexes matching this pattern you want
-                      to keep. Creating indexes exceeding this value will cause the
-                      oldest one to get deleted. You could for example create a pattern
-                      looking like ''logs.?'' and then create index logs.1, logs.2
-                      etc, it will delete logs.1 once you create logs.6. Do note ''logs.?''
-                      does not apply to logs.10. Note: Setting max_index_count to
-                      0 will do nothing and the pattern gets ignored. IP filter Allow
-                      incoming connections from CIDR address block, e.g. ''10.20.0.0/16'''
+                  additional_backup_regions:
+                    description: Additional Cloud Regions for Backup Replication
                     items:
                       type: string
+                    maxItems: 1
+                    type: array
+                  ip_filter:
+                    description: Allow incoming connections from CIDR address block,
+                      e.g. '10.20.0.0/16'
+                    items:
+                      description: CIDR address block, either as a string, or in a
+                        dict with an optional description field
+                      properties:
+                        description:
+                          description: Description for IP filter list entry
+                          maxLength: 1024
+                          type: string
+                        network:
+                          description: CIDR address block
+                          maxLength: 43
+                          type: string
+                      required:
+                      - network
+                      type: object
+                    maxItems: 1024
                     type: array
                   project_to_fork_from:
                     description: Name of another project to fork a service from. This
                       has effect only when a new service is being created.
                     maxLength: 63
                     type: string
+                    x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
                   service_to_fork_from:
                     description: Name of another service to fork from. This has effect
                       only when a new service is being created.
-                    maxLength: 63
+                    maxLength: 64
                     type: string
+                    x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
                 type: object
             required:
             - project

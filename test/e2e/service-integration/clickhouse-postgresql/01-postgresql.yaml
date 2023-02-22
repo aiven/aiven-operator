@@ -1,0 +1,18 @@
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: k8s-e2e-test-pg-integration
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: pg-token
+
+  project: aiven-ci-kubernetes-operator
+
+  cloudName: google-europe-west1
+  plan: startup-4
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00

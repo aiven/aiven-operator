@@ -124,9 +124,6 @@ var _ = BeforeSuite(func() {
 	err = (&Project{}).SetupWebhookWithManager(mgr)
 	Expect(err).NotTo(HaveOccurred())
 
-	err = (&ProjectVPC{}).SetupWebhookWithManager(mgr)
-	Expect(err).NotTo(HaveOccurred())
-
 	err = (&Redis{}).SetupWebhookWithManager(mgr)
 	Expect(err).NotTo(HaveOccurred())
 

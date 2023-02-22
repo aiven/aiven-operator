@@ -57,6 +57,9 @@ spec:
                   name:
                     minLength: 1
                     type: string
+                required:
+                - key
+                - name
                 type: object
               config:
                 description: Kafka topic configuration
@@ -108,6 +111,9 @@ spec:
                   message_timestamp_type:
                     description: message.timestamp.type value
                     type: string
+                  min_cleanable_dirty_ratio:
+                    description: min.cleanable.dirty.ratio value
+                    type: number
                   min_compaction_lag_ms:
                     description: min.compaction.lag.ms value
                     format: int64

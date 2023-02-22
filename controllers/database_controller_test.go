@@ -97,7 +97,7 @@ func databaseSpec(service, database, namespace string) *v1alpha1.Database {
 			ServiceName: service,
 			LcCtype:     "en_US.UTF-8",
 			LcCollate:   "en_US.UTF-8",
-			AuthSecretRef: v1alpha1.AuthSecretReference{
+			AuthSecretRef: &v1alpha1.AuthSecretReference{
 				Name: secretRefName,
 				Key:  secretRefKey,
 			},
