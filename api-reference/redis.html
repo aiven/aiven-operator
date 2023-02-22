@@ -1366,15 +1366,14 @@
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis-token</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-aiven-project</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="nt">cloudName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">google-europe-west1</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="nt">plan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">startup-4</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="nt">maintenanceWindowDow</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">friday</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span><span class="nt">maintenanceWindowTime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">23:00:00</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">  </span><span class="nt">userConfig</span><span class="p">:</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">    </span><span class="nt">redis_maxmemory_policy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allkeys-random&quot;</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="nt">cloudName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">google-europe-west1</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="nt">plan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">startup-4</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">  </span><span class="nt">maintenanceWindowDow</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">friday</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="nt">maintenanceWindowTime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">23:00:00</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">  </span><span class="nt">userConfig</span><span class="p">:</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">    </span><span class="nt">redis_maxmemory_policy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allkeys-random&quot;</span>
 </code></pre></div>
 <h2 id="Schema">Schema<a class="headerlink" href="#Schema" title="Permanent link">&para;</a></h2>
 <p>Redis is the Schema for the redis API.</p>
@@ -1409,7 +1408,7 @@
 </ul>
 <h2 id="spec.authSecretRef">authSecretRef<a class="headerlink" href="#spec.authSecretRef" title="Permanent link">&para;</a></h2>
 <p>Authentication reference to Aiven token in a secret.</p>
-<p><strong>Optional</strong></p>
+<p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.authSecretRef.key-property" name="spec.authSecretRef.key-property"><code>key</code></a> (string, MinLength: 1). </li>
 <li><a href="#spec.authSecretRef.name-property" name="spec.authSecretRef.name-property"><code>name</code></a> (string, MinLength: 1). </li>
