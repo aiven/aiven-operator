@@ -3,6 +3,8 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - `AuthSecretRef` fields marked as required
+- Generate user configs for existing service integrations: `datadog`, `kafka_connect`, `kafka_logs`, `metrics`
+- Add new service integrations: `clickhouse_postgresql`, `clickhouse_kafka`, `clickhouse_kafka`, `logs`, `external_aws_cloudwatch_metrics`
 
 ## v0.8.0 - 2023-02-15
 

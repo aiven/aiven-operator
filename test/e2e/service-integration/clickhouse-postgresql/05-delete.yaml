@@ -1,0 +1,12 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+delete:
+  - apiVersion: aiven.io/v1alpha1
+    kind: ServiceIntegration
+    name: k8s-test-service-integration-clickhouse-postgresql
+  - apiVersion: aiven.io/v1alpha1
+    kind: Clickhouse
+    name: k8s-e2e-test-pg-integration
+  - apiVersion: aiven.io/v1alpha1
+    kind: PostgreSQL
+    name: k8s-e2e-test-ch-integration

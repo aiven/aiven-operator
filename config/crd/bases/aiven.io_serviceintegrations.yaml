@@ -68,41 +68,239 @@ spec:
                 - key
                 - name
                 type: object
+              clickhouseKafka:
+                description: Clickhouse Kafka configuration values
+                properties:
+                  tables:
+                    description: Tables to create
+                    items:
+                      description: Table to create
+                      properties:
+                        columns:
+                          description: Table columns
+                          items:
+                            description: Table column
+                            properties:
+                              name:
+                                description: Column name
+                                maxLength: 40
+                                minLength: 1
+                                type: string
+                              type:
+                                description: Column type
+                                maxLength: 1000
+                                minLength: 1
+                                type: string
+                            required:
+                            - name
+                            - type
+                            type: object
+                          maxItems: 100
+                          type: array
+                        data_format:
+                          description: Message data format
+                          enum:
+                          - Avro
+                          - CSV
+                          - JSONAsString
+                          - JSONCompactEachRow
+                          - JSONCompactStringsEachRow
+                          - JSONEachRow
+                          - JSONStringsEachRow
+                          - MsgPack
+                          - TSKV
+                          - TSV
+                          - TabSeparated
+                          type: string
+                        group_name:
+                          description: Kafka consumers group
+                          maxLength: 249
+                          minLength: 1
+                          type: string
+                        name:
+                          description: Name of the table
+                          maxLength: 40
+                          minLength: 1
+                          type: string
+                        topics:
+                          description: Kafka topics
+                          items:
+                            description: Kafka topic
+                            properties:
+                              name:
+                                description: Name of the topic
+                                maxLength: 249
+                                minLength: 1
+                                type: string
+                            required:
+                            - name
+                            type: object
+                          maxItems: 100
+                          type: array
+                      required:
+                      - columns
+                      - data_format
+                      - group_name
+                      - name
+                      - topics
+                      type: object
+                    maxItems: 100
+                    type: array
+                type: object
+              clickhousePostgresql:
+                description: Clickhouse PostgreSQL configuration values
+                properties:
+                  databases:
+                    description: Databases to expose
+                    items:
+                      description: Database to expose
+                      properties:
+                        database:
+                          description: PostgreSQL database to expose
+                          maxLength: 63
+                          minLength: 1
+                          type: string
+                        schema:
+                          description: PostgreSQL schema to expose
+                          maxLength: 63
+                          minLength: 1
+                          type: string
+                      type: object
+                    maxItems: 10
+                    type: array
+                type: object
               datadog:
                 description: Datadog specific user configuration options
                 properties:
+                  datadog_dbm_enabled:
+                    description: Enable Datadog Database Monitoring
+                    type: boolean
+                  datadog_tags:
+                    description: Custom tags provided by user
+                    items:
+                      description: Datadog tag defined by user
+                      properties:
+                        comment:
+                          description: Optional tag explanation
+                          maxLength: 1024
+                          type: string
+                        tag:
+                          description: 'Tag format and usage are described here: https://docs.datadoghq.com/getting_started/tagging.
+                            Tags with prefix ''aiven-'' are reserved for Aiven.'
+                          maxLength: 200
+                          minLength: 1
+                          type: string
+                      required:
+                      - tag
+                      type: object
+                    maxItems: 32
+                    type: array
                   exclude_consumer_groups:
-                    description: Consumer groups to exclude
+                    description: List of custom metrics
                     items:
                       type: string
+                    maxItems: 1024
                     type: array
                   exclude_topics:
                     description: List of topics to exclude
                     items:
                       type: string
+                    maxItems: 1024
                     type: array
                   include_consumer_groups:
-                    description: Consumer groups to include
+                    description: List of custom metrics
                     items:
                       type: string
+                    maxItems: 1024
                     type: array
                   include_topics:
-                    description: Topics to include
+                    description: List of topics to include
                     items:
                       type: string
+                    maxItems: 1024
                     type: array
                   kafka_custom_metrics:
                     description: List of custom metrics
                     items:
                       type: string
+                    maxItems: 1024
                     type: array
+                  max_jmx_metrics:
+                    description: Maximum number of JMX metrics to send
+                    maximum: 100000
+                    minimum: 10
+                    type: integer
+                  opensearch:
+                    description: Datadog Opensearch Options
+                    properties:
+                      index_stats_enabled:
+                        description: Enable Datadog Opensearch Index Monitoring
+                        type: boolean
+                      pending_task_stats_enabled:
+                        description: Enable Datadog Opensearch Pending Task Monitoring
+                        type: boolean
+                      pshard_stats_enabled:
+                        description: Enable Datadog Opensearch Primary Shard Monitoring
+                        type: boolean
+                    type: object
                 type: object
               destinationEndpointId:
                 description: Destination endpoint for the integration (if any)
                 type: string
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
               destinationServiceName:
                 description: Destination service for the integration (if any)
                 type: string
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
+              external_aws_cloudwatch_metrics:
+                description: External AWS CloudWatch Metrics integration Logs configuration
+                  values
+                properties:
+                  dropped_metrics:
+                    description: Metrics to not send to AWS CloudWatch (takes precedence
+                      over extra_metrics)
+                    items:
+                      description: Metric name and subfield
+                      properties:
+                        field:
+                          description: Identifier of a value in the metric
+                          maxLength: 1000
+                          type: string
+                        metric:
+                          description: Identifier of the metric
+                          maxLength: 1000
+                          type: string
+                      required:
+                      - field
+                      - metric
+                      type: object
+                    maxItems: 1024
+                    type: array
+                  extra_metrics:
+                    description: Metrics to allow through to AWS CloudWatch (in addition
+                      to default metrics)
+                    items:
+                      description: Metric name and subfield
+                      properties:
+                        field:
+                          description: Identifier of a value in the metric
+                          maxLength: 1000
+                          type: string
+                        metric:
+                          description: Identifier of the metric
+                          maxLength: 1000
+                          type: string
+                      required:
+                      - field
+                      - metric
+                      type: object
+                    maxItems: 1024
+                    type: array
+                type: object
               integrationType:
                 description: Type of the service integration
                 enum:
@@ -119,15 +317,23 @@ spec:
                 - internal_connectivity
                 - external_google_cloud_logging
                 - datasource
+                - clickhouse_postgresql
+                - clickhouse_kafka
+                - logs
+                - external_aws_cloudwatch_metrics
                 type: string
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
               kafkaConnect:
                 description: Kafka Connect service configuration values
                 properties:
                   kafka_connect:
+                    description: Kafka Connect service configuration values
                     properties:
                       config_storage_topic:
                         description: The name of the topic where connector and task
-                          configuration data are stored. This must be the same for
+                          configuration data are stored.This must be the same for
                           all workers with the same group_id.
                         maxLength: 249
                         type: string
@@ -138,8 +344,8 @@ spec:
                         type: string
                       offset_storage_topic:
                         description: The name of the topic where connector and task
-                          configuration offsets are stored. This must be the same
-                          for all workers with the same group_id.
+                          configuration offsets are stored.This must be the same for
+                          all workers with the same group_id.
                         maxLength: 249
                         type: string
                       status_storage_topic:
@@ -155,7 +361,67 @@ spec:
                 properties:
                   kafka_topic:
                     description: Topic name
-                    maxLength: 63
+                    maxLength: 249
+                    minLength: 1
+                    type: string
+                required:
+                - kafka_topic
+                type: object
+              kafkaMirrormaker:
+                description: Kafka MirrorMaker configuration values
+                properties:
+                  cluster_alias:
+                    description: 'The alias under which the Kafka cluster is known
+                      to MirrorMaker. Can contain the following symbols: ASCII alphanumerics,
+                      ''.'', ''_'', and ''-''.'
+                    maxLength: 128
+                    pattern: ^[a-zA-Z0-9_.-]+$
+                    type: string
+                  kafka_mirrormaker:
+                    description: Kafka MirrorMaker configuration values
+                    properties:
+                      consumer_fetch_min_bytes:
+                        description: The minimum amount of data the server should
+                          return for a fetch request
+                        maximum: 5242880
+                        minimum: 1
+                        type: integer
+                      producer_batch_size:
+                        description: The batch size in bytes producer will attempt
+                          to collect before publishing to broker.
+                        maximum: 5242880
+                        minimum: 0
+                        type: integer
+                      producer_buffer_memory:
+                        description: The amount of bytes producer can use for buffering
+                          data before publishing to broker.
+                        maximum: 134217728
+                        minimum: 5242880
+                        type: integer
+                      producer_linger_ms:
+                        description: The linger time (ms) for waiting new data to
+                          arrive for publishing.
+                        maximum: 5000
+                        minimum: 0
+                        type: integer
+                      producer_max_request_size:
+                        description: The maximum request size in bytes.
+                        maximum: 67108864
+                        minimum: 0
+                        type: integer
+                    type: object
+                type: object
+              logs:
+                description: Logs configuration values
+                properties:
+                  elasticsearch_index_days_max:
+                    description: Elasticsearch index retention limit
+                    maximum: 10000
+                    minimum: 1
+                    type: integer
+                  elasticsearch_index_prefix:
+                    description: Elasticsearch index prefix
+                    maxLength: 1024
                     minLength: 1
                     type: string
                 type: object
@@ -164,14 +430,18 @@ spec:
                 properties:
                   database:
                     description: Name of the database where to store metric datapoints.
-                      Only affects PostgreSQL destinations
-                    format: ^[_A-Za-z0-9][-_A-Za-z0-9]{0,39}$
+                      Only affects PostgreSQL destinations. Defaults to 'metrics'.
+                      Note that this must be the same for all metrics integrations
+                      that write data to the same PostgreSQL service.
                     maxLength: 40
+                    pattern: ^[_A-Za-z0-9][-_A-Za-z0-9]{0,39}$
                     type: string
                   retention_days:
                     description: Number of days to keep old metrics. Only affects
                       PostgreSQL destinations. Set to 0 for no automatic cleanup.
                       Defaults to 30 days.
+                    maximum: 10000
+                    minimum: 0
                     type: integer
                   ro_username:
                     description: Name of a user that can be used to read metrics.
@@ -180,16 +450,78 @@ spec:
                       destinations. Defaults to 'metrics_reader'. Note that this must
                       be the same for all metrics integrations that write data to
                       the same PostgreSQL service.
-                    format: ^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$
                     maxLength: 40
+                    pattern: ^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$
                     type: string
+                  source_mysql:
+                    description: Configuration options for metrics where source service
+                      is MySQL
+                    properties:
+                      telegraf:
+                        description: Configuration options for Telegraf MySQL input
+                          plugin
+                        properties:
+                          gather_event_waits:
+                            description: Gather metrics from PERFORMANCE_SCHEMA.EVENT_WAITS
+                            type: boolean
+                          gather_file_events_stats:
+                            description: gather metrics from PERFORMANCE_SCHEMA.FILE_SUMMARY_BY_EVENT_NAME
+                            type: boolean
+                          gather_index_io_waits:
+                            description: Gather metrics from PERFORMANCE_SCHEMA.TABLE_IO_WAITS_SUMMARY_BY_INDEX_USAGE
+                            type: boolean
+                          gather_info_schema_auto_inc:
+                            description: Gather auto_increment columns and max values
+                              from information schema
+                            type: boolean
+                          gather_innodb_metrics:
+                            description: Gather metrics from INFORMATION_SCHEMA.INNODB_METRICS
+                            type: boolean
+                          gather_perf_events_statements:
+                            description: Gather metrics from PERFORMANCE_SCHEMA.EVENTS_STATEMENTS_SUMMARY_BY_DIGEST
+                            type: boolean
+                          gather_process_list:
+                            description: Gather thread state counts from INFORMATION_SCHEMA.PROCESSLIST
+                            type: boolean
+                          gather_slave_status:
+                            description: Gather metrics from SHOW SLAVE STATUS command
+                              output
+                            type: boolean
+                          gather_table_io_waits:
+                            description: Gather metrics from PERFORMANCE_SCHEMA.TABLE_IO_WAITS_SUMMARY_BY_TABLE
+                            type: boolean
+                          gather_table_lock_waits:
+                            description: Gather metrics from PERFORMANCE_SCHEMA.TABLE_LOCK_WAITS
+                            type: boolean
+                          gather_table_schema:
+                            description: Gather metrics from INFORMATION_SCHEMA.TABLES
+                            type: boolean
+                          perf_events_statements_digest_text_limit:
+                            description: Truncates digest text from perf_events_statements
+                              into this many characters
+                            maximum: 2048
+                            minimum: 1
+                            type: integer
+                          perf_events_statements_limit:
+                            description: Limits metrics from perf_events_statements
+                            maximum: 4000
+                            minimum: 1
+                            type: integer
+                          perf_events_statements_time_limit:
+                            description: Only include perf_events_statements whose
+                              last seen is less than this many seconds
+                            maximum: 2592000
+                            minimum: 1
+                            type: integer
+                        type: object
+                    type: object
                   username:
                     description: Name of the user used to write metrics. Only affects
                       PostgreSQL destinations. Defaults to 'metrics_writer'. Note
                       that this must be the same for all metrics integrations that
                       write data to the same PostgreSQL service.
-                    format: ^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$
                     maxLength: 40
+                    pattern: ^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$
                     type: string
                 type: object
               project:
@@ -197,12 +529,21 @@ spec:
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
               sourceEndpointID:
                 description: Source endpoint for the integration (if any)
                 type: string
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
               sourceServiceName:
                 description: Source service for the integration (if any)
                 type: string
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
             required:
             - integrationType
             - project

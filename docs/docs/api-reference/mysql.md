@@ -18,7 +18,6 @@ spec:
     name: mysql-secret
 
   project: my-aiven-project
-
   cloudName: google-europe-west1
   plan: business-4
 

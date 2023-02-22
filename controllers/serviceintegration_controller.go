@@ -48,6 +48,11 @@ func (h ServiceIntegrationHandler) createOrUpdate(avn *aiven.Client, i client.Ob
 
 	var reason string
 	if si.Status.ID == "" {
+		userConfig, err := h.getUserConfig(si, []string{"create", "update"})
+		if err != nil {
+			return err
+		}
+
 		integration, err = avn.ServiceIntegrations.Create(
 			si.Spec.Project,
 			aiven.CreateServiceIntegrationRequest{
@@ -56,7 +61,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(avn *aiven.Client, i client.Ob
 				IntegrationType:       si.Spec.IntegrationType,
 				SourceEndpointID:      toOptionalStringPointer(si.Spec.SourceEndpointID),
 				SourceService:         toOptionalStringPointer(si.Spec.SourceServiceName),
-				UserConfig:            h.getUserConfig(si),
+				UserConfig:            userConfig,
 			},
 		)
 		if err != nil {
@@ -65,11 +70,16 @@ func (h ServiceIntegrationHandler) createOrUpdate(avn *aiven.Client, i client.Ob
 
 		reason = "Created"
 	} else {
+		userConfig, err := h.getUserConfig(si, []string{"update"})
+		if err != nil {
+			return err
+		}
+
 		integration, err = avn.ServiceIntegrations.Update(
 			si.Spec.Project,
 			si.Status.ID,
 			aiven.UpdateServiceIntegrationRequest{
-				UserConfig: h.getUserConfig(si),
+				UserConfig: userConfig,
 			},
 		)
 		reason = "Updated"
@@ -157,19 +167,25 @@ func (h ServiceIntegrationHandler) convert(i client.Object) (*v1alpha1.ServiceIn
 	return si, nil
 }
 
-func (h ServiceIntegrationHandler) getUserConfig(int *v1alpha1.ServiceIntegration) map[string]interface{} {
-	if int.Spec.IntegrationType == "datadog" {
-		return UserConfigurationToAPI(int.Spec.DatadogUserConfig).(map[string]interface{})
+func (h ServiceIntegrationHandler) getUserConfig(int *v1alpha1.ServiceIntegration, groups []string) (map[string]interface{}, error) {
+	switch int.Spec.IntegrationType {
+	case "datadog":
+		return UserConfigurationToAPIV2(int.Spec.DatadogUserConfig, groups)
+	case "kafka_connect":
+		return UserConfigurationToAPIV2(int.Spec.KafkaConnectUserConfig, groups)
+	case "kafka_logs":
+		return UserConfigurationToAPIV2(int.Spec.KafkaLogsUserConfig, groups)
+	case "metrics":
+		return UserConfigurationToAPIV2(int.Spec.MetricsUserConfig, groups)
+	case "clickhouse_kafka":
+		return UserConfigurationToAPIV2(int.Spec.ClickhouseKafkaUserConfig, groups)
+	case "clickhouse_postgresql":
+		return UserConfigurationToAPIV2(int.Spec.ClickhousePostgreSQLUserConfig, groups)
+	case "kafka_mirrormaker":
+		return UserConfigurationToAPIV2(int.Spec.KafkaMirrormakerUserConfig, groups)
+	case "logs":
+		return UserConfigurationToAPIV2(int.Spec.LogsUserConfig, groups)
+	default:
+		return nil, nil
 	}
-	if int.Spec.IntegrationType == "kafka_connect" {
-		return UserConfigurationToAPI(int.Spec.KafkaConnectUserConfig).(map[string]interface{})
-	}
-	if int.Spec.IntegrationType == "kafka_logs" {
-		return UserConfigurationToAPI(int.Spec.KafkaLogsUserConfig).(map[string]interface{})
-	}
-	if int.Spec.IntegrationType == "metrics" {
-		return UserConfigurationToAPI(int.Spec.MetricsUserConfig).(map[string]interface{})
-	}
-
-	return nil
 }

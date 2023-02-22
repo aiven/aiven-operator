@@ -18,7 +18,6 @@ spec:
     name: redis-token
 
   project: my-aiven-project
-
   cloudName: google-europe-west1
   plan: startup-4
 
