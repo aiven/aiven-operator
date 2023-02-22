@@ -10,7 +10,7 @@ Aiven for MySQL is a fully managed relational database service, deployable in th
 
 ## Creating a MySQL instance
 
-1. Create a file named `mysql-sample.yaml`, and add the following content: 
+1\. Create a file named `mysql-sample.yaml`, and add the following content: 
 
 ```yaml
 apiVersion: aiven.io/v1alpha1
@@ -40,30 +40,30 @@ spec:
   maintenanceWindowTime: 23:00:00
 ```
 
-2. Create the service by applying the configuration:
+2\. Create the service by applying the configuration:
 
-```bash
-$ kubectl apply -f mysql-sample.yaml 
+```shell
+kubectl apply -f mysql-sample.yaml 
 ```
 
-3. Review the resource you created with this command:
+3\. Review the resource you created with this command:
 
-```bash
-$ kubectl describe mysql.aiven.io mysql-sample
+```shell
+kubectl describe mysql.aiven.io mysql-sample
 ```
 
 The output is similar to the following:
 
-```bash
+```{ .shell .no-copy }
 ...
 Status:
   Conditions:
-    Last Transition Time:  2023-01-19T14:41:43Z
+    Last Transition Time:  2023-02-22T15:43:44Z
     Message:               Instance was created or update on Aiven side
     Reason:                Created
     Status:                True
     Type:                  Initialized
-    Last Transition Time:  2023-01-19T14:41:43Z
+    Last Transition Time:  2023-02-22T15:43:44Z
     Message:               Instance was created or update on Aiven side, status remains unknown
     Reason:                Created
     Status:                Unknown
@@ -82,13 +82,13 @@ name specified on the `connInfoSecretTarget` field.
 
 To view the details of the Secret, use the following command:
 
-```bash
-$ kubectl describe secret mysql-secret 
+```shell
+kubectl describe secret mysql-secret 
 ```
 
 The output is similar to the following:
 
-```bash
+```{ .shell .no-copy }
 Name:         mysql-secret
 Namespace:    default
 Labels:       <none>
@@ -98,26 +98,32 @@ Type:  Opaque
 
 Data
 ====
-HOST:      61 bytes
-PASSWORD:  24 bytes
-PORT:      5 bytes
-USER:      8 bytes
+MYSQL_PORT:      5 bytes
+MYSQL_SSL_MODE:  8 bytes
+MYSQL_URI:       115 bytes
+MYSQL_USER:      8 bytes
+MYSQL_DATABASE:  9 bytes
+MYSQL_HOST:      39 bytes
+MYSQL_PASSWORD:  24 bytes
 ```
 
-You can use the [jq](https://github.com/stedolan/jq) to quickly decode the Secret:
+You can use [jq](https://github.com/stedolan/jq) to quickly decode the Secret:
 
-```bash
-$ kubectl get secret mysql-secret -o json | jq '.data | map_values(@base64d)'
+```shell
+kubectl get secret mysql-secret -o json | jq '.data | map_values(@base64d)'
 ```
 
 The output is similar to the following:
 
-```json
+```{ .json .no-copy}
 {
-  "HOST": "mysql-sample-your-project.aivencloud.com",
-  "PASSWORD": "<secret>",
-  "PORT": "13041",
-  "USER": "avnadmin"
+  "MYSQL_DATABASE": "defaultdb",
+  "MYSQL_HOST": "<secret>",
+  "MYSQL_PASSWORD": "<secret>",
+  "MYSQL_PORT": "12691",
+  "MYSQL_SSL_MODE": "REQUIRED",
+  "MYSQL_URI": "<secret>",
+  "MYSQL_USER": "avnadmin"
 }
 ```
 
@@ -125,7 +131,7 @@ The output is similar to the following:
 
 You can create service users for your instance of Aiven for MySQL. Service users are unique to this instance and are not shared with any other services.
 
-1. Create a file named mysql-service-user.yaml:
+1\. Create a file named mysql-service-user.yaml:
 
 ```yaml
 apiVersion: aiven.io/v1alpha1
@@ -144,28 +150,28 @@ spec:
   serviceName: mysql-sample
 ```
 
-2. Create the user by applying the configuration:
+2\. Create the user by applying the configuration:
 
-```bash
-$ kubectl apply -f mysql-service-user.yaml
+```shell
+kubectl apply -f mysql-service-user.yaml
 ```
 
 The `ServiceUser` resource generates a Secret with connection information. 
 
-3. View the details of the Secret using the following command:
+3\. View the details of the Secret using [jq](https://github.com/stedolan/jq):
 
-```bash
-$ kubectl get secret mysql-service-user-secret -o json | jq '.data | map_values(@base64d)'
+```shell
+kubectl get secret mysql-service-user-secret -o json | jq '.data | map_values(@base64d)'
 ```
 
 The output is similar to the following:
 
-```json
+```{ .json .no-copy }
 {
   "ACCESS_CERT": "<secret>",
   "ACCESS_KEY": "<secret>",
   "CA_CERT": "<secret>",
-  "HOST": "mysql-sample-your-project.aivencloud.com",
+  "HOST": "<secret>",
   "PASSWORD": "<secret>",
   "PORT": "14609",
   "USERNAME": "mysql-service-user"
