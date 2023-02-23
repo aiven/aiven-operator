@@ -66,8 +66,9 @@ nav:
       - resources/project.md
       - resources/project-vpc.md
       - resources/cassandra.md
-      - resources/postgresql.md
+      - resources/mysql.md
       - resources/opensearch.md
+      - resources/postgresql.md
       - resources/redis.md
       - resources/service-integrations.md
       - Kafka:
