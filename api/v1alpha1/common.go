@@ -77,6 +77,7 @@ type ServiceCommonSpec struct {
 
 	// +kubebuilder:validation:MaxItems=1
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// Service integrations to specify when creating a service. Not applied after initial service creation
 	ServiceIntegrations []*ServiceIntegrationItem `json:"serviceIntegrations,omitempty"`
 }
 
