@@ -161,6 +161,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://aiven.github.io/aiven-operator/resources/mysql.html</loc>
+         <lastmod>2023-02-24</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://aiven.github.io/aiven-operator/resources/opensearch.html</loc>
          <lastmod>2023-02-24</lastmod>
          <changefreq>daily</changefreq>

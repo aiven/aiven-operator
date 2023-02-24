@@ -8,20 +8,20 @@
       
       
       
-        <link rel="canonical" href="https://aiven.github.io/aiven-operator/resources/cassandra.html">
+        <link rel="canonical" href="https://aiven.github.io/aiven-operator/resources/mysql.html">
       
       
-        <link rel="prev" href="project-vpc.html">
+        <link rel="prev" href="cassandra.html">
       
       
-        <link rel="next" href="mysql.html">
+        <link rel="next" href="opensearch.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.14">
     
     
       
-        <title>Cassandra - Aiven Operator</title>
+        <title>MySQL - Aiven Operator</title>
       
     
     
@@ -73,7 +73,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#creating-a-cassandra-instance" class="md-skip">
+        <a href="#creating-a-mysql-instance" class="md-skip">
           Skip to content
         </a>
       
@@ -105,7 +105,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Cassandra
+              MySQL
             
           </span>
         </div>
@@ -597,6 +597,20 @@
               
   
   
+  
+    <li class="md-nav__item">
+      <a href="cassandra.html" class="md-nav__link">
+        Cassandra
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
     
   
   
@@ -607,12 +621,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Cassandra
+          MySQL
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="cassandra.html" class="md-nav__link md-nav__link--active">
-        Cassandra
+      <a href="mysql.html" class="md-nav__link md-nav__link--active">
+        MySQL
       </a>
       
         
@@ -629,8 +643,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#creating-a-cassandra-instance" class="md-nav__link">
-    Creating a Cassandra instance
+  <a href="#creating-a-mysql-instance" class="md-nav__link">
+    Creating a MySQL instance
   </a>
   
 </li>
@@ -643,8 +657,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#creating-a-cassandra-user" class="md-nav__link">
-    Creating a Cassandra user
+  <a href="#creating-a-mysql-user" class="md-nav__link">
+    Creating a MySQL user
   </a>
   
 </li>
@@ -653,20 +667,6 @@
   
 </nav>
       
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="mysql.html" class="md-nav__link">
-        MySQL
-      </a>
     </li>
   
 
@@ -1166,8 +1166,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#creating-a-cassandra-instance" class="md-nav__link">
-    Creating a Cassandra instance
+  <a href="#creating-a-mysql-instance" class="md-nav__link">
+    Creating a MySQL instance
   </a>
   
 </li>
@@ -1180,8 +1180,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#creating-a-cassandra-user" class="md-nav__link">
-    Creating a Cassandra user
+  <a href="#creating-a-mysql-user" class="md-nav__link">
+    Creating a MySQL user
   </a>
   
 </li>
@@ -1205,35 +1205,34 @@
     
       
     
-    <a href="https://github.com/aiven/aiven-operator/raw/main/docs/docs/resources/cassandra.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/aiven/aiven-operator/raw/main/docs/docs/resources/mysql.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
     </a>
   
 
 
-  <h1>Cassandra</h1>
+  <h1>MySQL</h1>
 
-<p>Aiven for Apache Cassandra® is a distributed database designed to handle large volumes of writes.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
+<p>Aiven for MySQL is a fully managed relational database service, deployable in the cloud of your choice. </p>
+<blockquote>
 <p>Before going through this guide, make sure you have a <a href="../../installation/prerequisites/">Kubernetes cluster</a> with the <a href="../../installation/">operator installed</a> and a <a href="../../authentication/">Kubernetes Secret with an Aiven authentication token</a>.</p>
-</div>
-<h2 id="creating-a-cassandra-instance">Creating a Cassandra instance<a class="headerlink" href="#creating-a-cassandra-instance" title="Permanent link">&para;</a></h2>
-<p>1. Create a file named <code>cassandra-sample.yaml</code>, and add the following content: </p>
+</blockquote>
+<h2 id="creating-a-mysql-instance">Creating a MySQL instance<a class="headerlink" href="#creating-a-mysql-instance" title="Permanent link">&para;</a></h2>
+<p>1. Create a file named <code>mysql-sample.yaml</code>, and add the following content: </p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Cassandra</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MySQL</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nt">metadata</span><span class="p">:</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cassandra-sample</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql-sample</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nt">spec</span><span class="p">:</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="c1"># gets the authentication token from the `aiven-token` Secret</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="c1"># outputs the Cassandra connection on the `cassandra-secret` Secret</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="c1"># outputs the MySQL connection on the `mysql-secret` Secret</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cassandra-secret</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql-secret</span>
 <a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="c1"># add your Project name here</span>
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;your-project-name&gt;</span>
@@ -1248,105 +1247,104 @@
 <a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">  </span><span class="nt">maintenanceWindowTime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">23:00:00</span>
 </code></pre></div>
 <p>2. Create the service by applying the configuration:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>cassandra-sample.yaml<span class="w"> </span>
-</code></pre></div>
-<p>The output is:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cassandra.aiven.io/cassandra-sample<span class="w"> </span>created
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>mysql-sample.yaml<span class="w"> </span>
 </code></pre></div>
 <p>3. Review the resource you created with this command:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>cassandra.aiven.io<span class="w"> </span>cassandra-sample
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>mysql.aiven.io<span class="w"> </span>mysql-sample
 </code></pre></div>
 <p>The output is similar to the following:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>...
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>Status:
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>Conditions:
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span>Last<span class="w"> </span>Transition<span class="w"> </span>Time:<span class="w">  </span><span class="m">2023</span>-01-31T10:17:25Z
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span>Message:<span class="w">               </span>Instance<span class="w"> </span>was<span class="w"> </span>created<span class="w"> </span>or<span class="w"> </span>update<span class="w"> </span>on<span class="w"> </span>Aiven<span class="w"> </span>side
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span>Reason:<span class="w">                </span>Created
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span>Status:<span class="w">                </span>True
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span>Type:<span class="w">                  </span>Initialized
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span>Last<span class="w"> </span>Transition<span class="w"> </span>Time:<span class="w">  </span><span class="m">2023</span>-01-31T10:24:00Z
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span>Message:<span class="w">               </span>Instance<span class="w"> </span>is<span class="w"> </span>running<span class="w"> </span>on<span class="w"> </span>Aiven<span class="w"> </span>side
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span>Reason:<span class="w">                </span>CheckRunning
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span>Status:<span class="w">                </span>True
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">    </span>Type:<span class="w">                  </span>Running
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">  </span>State:<span class="w">                   </span>RUNNING
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>...
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>...
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Status:
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>Conditions:
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span>Last<span class="w"> </span>Transition<span class="w"> </span>Time:<span class="w">  </span><span class="m">2023</span>-02-22T15:43:44Z
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span>Message:<span class="w">               </span>Instance<span class="w"> </span>was<span class="w"> </span>created<span class="w"> </span>or<span class="w"> </span>update<span class="w"> </span>on<span class="w"> </span>Aiven<span class="w"> </span>side
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span>Reason:<span class="w">                </span>Created
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span>Status:<span class="w">                </span>True
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span>Type:<span class="w">                  </span>Initialized
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span>Last<span class="w"> </span>Transition<span class="w"> </span>Time:<span class="w">  </span><span class="m">2023</span>-02-22T15:43:44Z
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span>Message:<span class="w">               </span>Instance<span class="w"> </span>was<span class="w"> </span>created<span class="w"> </span>or<span class="w"> </span>update<span class="w"> </span>on<span class="w"> </span>Aiven<span class="w"> </span>side,<span class="w"> </span>status<span class="w"> </span>remains<span class="w"> </span>unknown
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span>Reason:<span class="w">                </span>Created
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">    </span>Status:<span class="w">                </span>Unknown
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">    </span>Type:<span class="w">                  </span>Running
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">  </span>State:<span class="w">                   </span>REBUILDING
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>...
 </code></pre></div>
-<p>The resource can be in the <code>REBUILDING</code> state for a few minutes. Once the state changes to <code>RUNNING</code>, you can access the resource.</p>
+<p>The resource will be in the <code>REBUILDING</code> state for a few minutes. Once the state changes to <code>RUNNING</code>, you can access the resource.</p>
 <h2 id="using-the-connection-secret">Using the connection Secret<a class="headerlink" href="#using-the-connection-secret" title="Permanent link">&para;</a></h2>
-<p>For your convenience, the operator automatically stores the Cassandra connection information in a Secret created with the
+<p>For your convenience, the operator automatically stores the MySQL connection information in a Secret created with the
 name specified on the <code>connInfoSecretTarget</code> field.</p>
 <p>To view the details of the Secret, use the following command:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>secret<span class="w"> </span>cassandra-secret<span class="w"> </span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>secret<span class="w"> </span>mysql-secret<span class="w"> </span>
 </code></pre></div>
 <p>The output is similar to the following:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Name:<span class="w">         </span>cassandra-secret
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>Namespace:<span class="w">    </span>default
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>Labels:<span class="w">       </span>&lt;none&gt;
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>Annotations:<span class="w">  </span>&lt;none&gt;
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>Type:<span class="w">  </span>Opaque
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="nv">Data</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="o">====</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>CASSANDRA_HOSTS:<span class="w">     </span><span class="m">59</span><span class="w"> </span>bytes
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>CASSANDRA_PASSWORD:<span class="w">  </span><span class="m">24</span><span class="w"> </span>bytes
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>CASSANDRA_PORT:<span class="w">      </span><span class="m">5</span><span class="w"> </span>bytes
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>CASSANDRA_URI:<span class="w">       </span><span class="m">66</span><span class="w"> </span>bytes
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>CASSANDRA_USER:<span class="w">      </span><span class="m">8</span><span class="w"> </span>bytes
-<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>CASSANDRA_HOST:<span class="w">      </span><span class="m">60</span><span class="w"> </span>bytes
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Name:<span class="w">         </span>mysql-secret
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>Namespace:<span class="w">    </span>default
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>Labels:<span class="w">       </span>&lt;none&gt;
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>Annotations:<span class="w">  </span>&lt;none&gt;
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>Type:<span class="w">  </span>Opaque
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="nv">Data</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="o">====</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>MYSQL_PORT:<span class="w">      </span><span class="m">5</span><span class="w"> </span>bytes
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>MYSQL_SSL_MODE:<span class="w">  </span><span class="m">8</span><span class="w"> </span>bytes
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>MYSQL_URI:<span class="w">       </span><span class="m">115</span><span class="w"> </span>bytes
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>MYSQL_USER:<span class="w">      </span><span class="m">8</span><span class="w"> </span>bytes
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>MYSQL_DATABASE:<span class="w">  </span><span class="m">9</span><span class="w"> </span>bytes
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>MYSQL_HOST:<span class="w">      </span><span class="m">39</span><span class="w"> </span>bytes
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>MYSQL_PASSWORD:<span class="w">  </span><span class="m">24</span><span class="w"> </span>bytes
 </code></pre></div>
-<p>You can use the <a href="https://github.com/stedolan/jq">jq</a> to quickly decode the Secret:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>cassandra-secret<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data | map_values(@base64d)&#39;</span>
+<p>You can use <a href="https://github.com/stedolan/jq">jq</a> to quickly decode the Secret:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>mysql-secret<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data | map_values(@base64d)&#39;</span>
 </code></pre></div>
 <p>The output is similar to the following:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&quot;CASSANDRA_HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">&quot;CASSANDRA_HOSTS&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="nt">&quot;CASSANDRA_PASSWORD&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="nt">&quot;CASSANDRA_PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;14609&quot;</span><span class="p">,</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="nt">&quot;CASSANDRA_URI&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="nt">&quot;CASSANDRA_USER&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;avnadmin&quot;</span>
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="p">}</span>
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">&quot;MYSQL_DATABASE&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;defaultdb&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">&quot;MYSQL_HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="nt">&quot;MYSQL_PASSWORD&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="nt">&quot;MYSQL_PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;12691&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span><span class="nt">&quot;MYSQL_SSL_MODE&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;REQUIRED&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">  </span><span class="nt">&quot;MYSQL_URI&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">  </span><span class="nt">&quot;MYSQL_USER&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;avnadmin&quot;</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="p">}</span>
 </code></pre></div>
-<h2 id="creating-a-cassandra-user">Creating a Cassandra user<a class="headerlink" href="#creating-a-cassandra-user" title="Permanent link">&para;</a></h2>
-<p>You can create service users for your instance of Aiven for Apache Cassandra. Service users are unique to this instance and are not shared with any other services.</p>
-<p>1. Create a file named cassandra-service-user.yaml:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceUser</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="nt">metadata</span><span class="p">:</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cassandra-service-user</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="nt">spec</span><span class="p">:</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cassandra-service-user-secret</span>
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>
-<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;your-project-name&gt;</span>
-<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cassandra-sample</span>
+<h2 id="creating-a-mysql-user">Creating a MySQL user<a class="headerlink" href="#creating-a-mysql-user" title="Permanent link">&para;</a></h2>
+<p>You can create service users for your instance of Aiven for MySQL. Service users are unique to this instance and are not shared with any other services.</p>
+<p>1. Create a file named mysql-service-user.yaml:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceUser</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql-service-user</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql-service-user-secret</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;your-project-name&gt;</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql-sample</span>
 </code></pre></div>
 <p>2. Create the user by applying the configuration:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>cassandra-service-user.yaml
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>mysql-service-user.yaml
 </code></pre></div>
 <p>The <code>ServiceUser</code> resource generates a Secret with connection information. </p>
-<p>3. View the details of the Secret using the following command:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>cassandra-service-user-secret<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data | map_values(@base64d)&#39;</span>
+<p>3. View the details of the Secret using <a href="https://github.com/stedolan/jq">jq</a>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>mysql-service-user-secret<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data | map_values(@base64d)&#39;</span>
 </code></pre></div>
 <p>The output is similar to the following:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">{</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="nt">&quot;ACCESS_CERT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span><span class="nt">&quot;ACCESS_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">  </span><span class="nt">&quot;CA_CERT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">  </span><span class="nt">&quot;HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">  </span><span class="nt">&quot;PASSWORD&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">  </span><span class="nt">&quot;PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;14609&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">  </span><span class="nt">&quot;USERNAME&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cassandra-service-user&quot;</span>
-<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="p">}</span>
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">{</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="nt">&quot;ACCESS_CERT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="nt">&quot;ACCESS_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span><span class="nt">&quot;CA_CERT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span><span class="nt">&quot;HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">  </span><span class="nt">&quot;PASSWORD&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">  </span><span class="nt">&quot;PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;14609&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">  </span><span class="nt">&quot;USERNAME&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mysql-service-user&quot;</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="p">}</span>
 </code></pre></div>
-<p>You can connect to the Cassandra instance using these credentials and the host information from the <code>cassandra-secret</code> Secret.</p>
+<p>You can connect to the MySQL instance using these credentials and the host information from the <code>mysql-secret</code> Secret.</p>
 
 
 
@@ -1373,7 +1371,7 @@ name specified on the <code>connInfoSecretTarget</code> field.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="project-vpc.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Aiven Project VPC" rel="prev">
+          <a href="cassandra.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Cassandra" rel="prev">
             <div class="md-footer__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
             </div>
@@ -1382,20 +1380,20 @@ name specified on the <code>connInfoSecretTarget</code> field.</p>
                 <span class="md-footer__direction">
                   Previous
                 </span>
-                Aiven Project VPC
+                Cassandra
               </div>
             </div>
           </a>
         
         
           
-          <a href="mysql.html" class="md-footer__link md-footer__link--next" aria-label="Next: MySQL" rel="next">
+          <a href="opensearch.html" class="md-footer__link md-footer__link--next" aria-label="Next: OpenSearch" rel="next">
             <div class="md-footer__title">
               <div class="md-ellipsis">
                 <span class="md-footer__direction">
                   Next
                 </span>
-                MySQL
+                OpenSearch
               </div>
             </div>
             <div class="md-footer__button md-icon">
