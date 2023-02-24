@@ -17,7 +17,7 @@
         <link rel="next" href="serviceintegration.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.13">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.14">
     
     
       
@@ -25,7 +25,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ffa9267a.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.113286f1.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
@@ -1401,7 +1401,7 @@
 <li><a href="#spec.plan-property" name="spec.plan-property"><code>plan</code></a> (string, MaxLength: 128). Subscription plan.</li>
 <li><a href="#spec.projectVPCRef-property" name="spec.projectVPCRef-property"><code>projectVPCRef</code></a> (object, Immutable). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See below for <a href="#spec.projectVPCRef">nested schema</a>.</li>
 <li><a href="#spec.projectVpcId-property" name="spec.projectVpcId-property"><code>projectVpcId</code></a> (string, Immutable, MaxLength: 36). Identifier of the VPC the service should be in, if any.</li>
-<li><a href="#spec.serviceIntegrations-property" name="spec.serviceIntegrations-property"><code>serviceIntegrations</code></a> (array of objects, Immutable, MaxItems: 1).  See below for <a href="#spec.serviceIntegrations">nested schema</a>.</li>
+<li><a href="#spec.serviceIntegrations-property" name="spec.serviceIntegrations-property"><code>serviceIntegrations</code></a> (array of objects, Immutable, MaxItems: 1). Service integrations to specify when creating a service. Not applied after initial service creation. See below for <a href="#spec.serviceIntegrations">nested schema</a>.</li>
 <li><a href="#spec.tags-property" name="spec.tags-property"><code>tags</code></a> (object, AdditionalProperties: string). Tags are key-value pairs that allow you to categorize services.</li>
 <li><a href="#spec.terminationProtection-property" name="spec.terminationProtection-property"><code>terminationProtection</code></a> (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services.</li>
 <li><a href="#spec.userConfig-property" name="spec.userConfig-property"><code>userConfig</code></a> (object). Redis specific user configuration options. See below for <a href="#spec.userConfig">nested schema</a>.</li>
@@ -1430,6 +1430,7 @@
 <li><a href="#spec.projectVPCRef.namespace-property" name="spec.projectVPCRef.namespace-property"><code>namespace</code></a> (string, MinLength: 1). </li>
 </ul>
 <h2 id="spec.serviceIntegrations">serviceIntegrations<a class="headerlink" href="#spec.serviceIntegrations" title="Permanent link">&para;</a></h2>
+<p>Service integrations to specify when creating a service. Not applied after initial service creation.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.serviceIntegrations.integrationType-property" name="spec.serviceIntegrations.integrationType-property"><code>integrationType</code></a> (string, Enum: <code>read_replica</code>). </li>
