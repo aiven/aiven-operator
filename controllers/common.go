@@ -68,7 +68,8 @@ func isAlreadyProcessed(o client.Object) bool {
 	return o.GetAnnotations()[processedGenerationAnnotation] == strconv.FormatInt(o.GetGeneration(), formatIntBaseDecimal)
 }
 
-func isAlreadyRunning(o client.Object) bool {
+// IsAlreadyRunning returns true if object is ready to use
+func IsAlreadyRunning(o client.Object) bool {
 	_, found := o.GetAnnotations()[instanceIsRunningAnnotation]
 	return found
 }

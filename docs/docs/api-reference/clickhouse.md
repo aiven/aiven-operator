@@ -15,7 +15,7 @@ spec:
     key: token
 
   connInfoSecretTarget:
-    name: ch-token
+    name: clickhouse-secret
 
   project: my-aiven-project
   cloudName: google-europe-west1
