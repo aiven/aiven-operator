@@ -26,18 +26,20 @@ spec:
   maintenanceWindowTime: 23:00:00
 ```
 
-## Schema {: #Schema }
+## Kafka {: #Kafka }
 
 Kafka is the Schema for the kafkas API.
 
 **Required**
 
-- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `Kafka`.
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `Kafka`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
 - [`spec`](#spec-property){: name='spec-property'} (object). KafkaSpec defines the desired state of Kafka. See below for [nested schema](#spec).
 
 ## spec {: #spec }
+
+_Appears on [`Kafka`](#Kafka)._
 
 KafkaSpec defines the desired state of Kafka.
 
@@ -64,6 +66,8 @@ KafkaSpec defines the desired state of Kafka.
 
 ## authSecretRef {: #spec.authSecretRef }
 
+_Appears on [`spec`](#spec)._
+
 Authentication reference to Aiven token in a secret.
 
 **Required**
@@ -73,6 +77,8 @@ Authentication reference to Aiven token in a secret.
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 
+_Appears on [`spec`](#spec)._
+
 Information regarding secret creation.
 
 **Required**
@@ -80,6 +86,8 @@ Information regarding secret creation.
 - [`name`](#spec.connInfoSecretTarget.name-property){: name='spec.connInfoSecretTarget.name-property'} (string). Name of the secret resource to be created. By default, is equal to the resource name.
 
 ## projectVPCRef {: #spec.projectVPCRef }
+
+_Appears on [`spec`](#spec)._
 
 ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.
 
@@ -93,6 +101,8 @@ ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID aut
 
 ## serviceIntegrations {: #spec.serviceIntegrations }
 
+_Appears on [`spec`](#spec)._
+
 Service integrations to specify when creating a service. Not applied after initial service creation.
 
 **Required**
@@ -101,6 +111,8 @@ Service integrations to specify when creating a service. Not applied after initi
 - [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64). 
 
 ## userConfig {: #spec.userConfig }
+
+_Appears on [`spec`](#spec)._
 
 Kafka specific user configuration options.
 
@@ -126,6 +138,8 @@ Kafka specific user configuration options.
 
 ### ip_filter {: #spec.userConfig.ip_filter }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 
 **Required**
@@ -137,6 +151,8 @@ Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 - [`description`](#spec.userConfig.ip_filter.description-property){: name='spec.userConfig.ip_filter.description-property'} (string, MaxLength: 1024). Description for IP filter list entry.
 
 ### kafka {: #spec.userConfig.kafka }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Kafka broker configuration values.
 
@@ -184,6 +200,8 @@ Kafka broker configuration values.
 
 ### kafka_authentication_methods {: #spec.userConfig.kafka_authentication_methods }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Kafka authentication methods.
 
 **Optional**
@@ -192,6 +210,8 @@ Kafka authentication methods.
 - [`sasl`](#spec.userConfig.kafka_authentication_methods.sasl-property){: name='spec.userConfig.kafka_authentication_methods.sasl-property'} (boolean). Enable SASL authentication.
 
 ### kafka_connect_config {: #spec.userConfig.kafka_connect_config }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Kafka Connect configuration values.
 
@@ -215,6 +235,8 @@ Kafka Connect configuration values.
 
 ### kafka_rest_config {: #spec.userConfig.kafka_rest_config }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Kafka REST configuration.
 
 **Optional**
@@ -229,6 +251,8 @@ Kafka REST configuration.
 
 ### private_access {: #spec.userConfig.private_access }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow access to selected service ports from private networks.
 
 **Optional**
@@ -240,6 +264,8 @@ Allow access to selected service ports from private networks.
 - [`schema_registry`](#spec.userConfig.private_access.schema_registry-property){: name='spec.userConfig.private_access.schema_registry-property'} (boolean). Allow clients to connect to schema_registry with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.
 
 ### privatelink_access {: #spec.userConfig.privatelink_access }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow access to selected service components through Privatelink.
 
@@ -254,6 +280,8 @@ Allow access to selected service components through Privatelink.
 
 ### public_access {: #spec.userConfig.public_access }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow access to selected service ports from the public Internet.
 
 **Optional**
@@ -265,6 +293,8 @@ Allow access to selected service ports from the public Internet.
 - [`schema_registry`](#spec.userConfig.public_access.schema_registry-property){: name='spec.userConfig.public_access.schema_registry-property'} (boolean). Allow clients to connect to schema_registry from the public internet for service nodes that are in a project VPC or another type of private network.
 
 ### schema_registry_config {: #spec.userConfig.schema_registry_config }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Schema Registry configuration.
 

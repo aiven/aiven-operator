@@ -24,18 +24,20 @@ spec:
       kafka_connect: true
 ```
 
-## Schema {: #Schema }
+## KafkaConnect {: #KafkaConnect }
 
 KafkaConnect is the Schema for the kafkaconnects API.
 
 **Required**
 
-- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `KafkaConnect`.
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `KafkaConnect`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
 - [`spec`](#spec-property){: name='spec-property'} (object). KafkaConnectSpec defines the desired state of KafkaConnect. See below for [nested schema](#spec).
 
 ## spec {: #spec }
+
+_Appears on [`KafkaConnect`](#KafkaConnect)._
 
 KafkaConnectSpec defines the desired state of KafkaConnect.
 
@@ -59,6 +61,8 @@ KafkaConnectSpec defines the desired state of KafkaConnect.
 
 ## authSecretRef {: #spec.authSecretRef }
 
+_Appears on [`spec`](#spec)._
+
 Authentication reference to Aiven token in a secret.
 
 **Required**
@@ -67,6 +71,8 @@ Authentication reference to Aiven token in a secret.
 - [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1). 
 
 ## projectVPCRef {: #spec.projectVPCRef }
+
+_Appears on [`spec`](#spec)._
 
 ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.
 
@@ -80,6 +86,8 @@ ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID aut
 
 ## serviceIntegrations {: #spec.serviceIntegrations }
 
+_Appears on [`spec`](#spec)._
+
 Service integrations to specify when creating a service. Not applied after initial service creation.
 
 **Required**
@@ -88,6 +96,8 @@ Service integrations to specify when creating a service. Not applied after initi
 - [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64). 
 
 ## userConfig {: #spec.userConfig }
+
+_Appears on [`spec`](#spec)._
 
 KafkaConnect specific user configuration options.
 
@@ -103,6 +113,8 @@ KafkaConnect specific user configuration options.
 
 ### ip_filter {: #spec.userConfig.ip_filter }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 
 **Required**
@@ -114,6 +126,8 @@ Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 - [`description`](#spec.userConfig.ip_filter.description-property){: name='spec.userConfig.ip_filter.description-property'} (string, MaxLength: 1024). Description for IP filter list entry.
 
 ### kafka_connect {: #spec.userConfig.kafka_connect }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Kafka Connect configuration values.
 
@@ -137,6 +151,8 @@ Kafka Connect configuration values.
 
 ### private_access {: #spec.userConfig.private_access }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow access to selected service ports from private networks.
 
 **Optional**
@@ -145,6 +161,8 @@ Allow access to selected service ports from private networks.
 - [`prometheus`](#spec.userConfig.private_access.prometheus-property){: name='spec.userConfig.private_access.prometheus-property'} (boolean). Allow clients to connect to prometheus with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.
 
 ### privatelink_access {: #spec.userConfig.privatelink_access }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow access to selected service components through Privatelink.
 
@@ -155,6 +173,8 @@ Allow access to selected service components through Privatelink.
 - [`prometheus`](#spec.userConfig.privatelink_access.prometheus-property){: name='spec.userConfig.privatelink_access.prometheus-property'} (boolean). Enable prometheus.
 
 ### public_access {: #spec.userConfig.public_access }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow access to selected service ports from the public Internet.
 

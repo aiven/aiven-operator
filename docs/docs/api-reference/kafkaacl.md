@@ -2,18 +2,20 @@
 title: "KafkaACL"
 ---
 
-## Schema {: #Schema }
+## KafkaACL {: #KafkaACL }
 
 KafkaACL is the Schema for the kafkaacls API.
 
 **Required**
 
-- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `KafkaACL`.
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `KafkaACL`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
 - [`spec`](#spec-property){: name='spec-property'} (object). KafkaACLSpec defines the desired state of KafkaACL. See below for [nested schema](#spec).
 
 ## spec {: #spec }
+
+_Appears on [`KafkaACL`](#KafkaACL)._
 
 KafkaACLSpec defines the desired state of KafkaACL.
 
@@ -30,6 +32,8 @@ KafkaACLSpec defines the desired state of KafkaACL.
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
 
 ## authSecretRef {: #spec.authSecretRef }
+
+_Appears on [`spec`](#spec)._
 
 Authentication reference to Aiven token in a secret.
 

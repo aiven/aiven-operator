@@ -33,18 +33,20 @@ spec:
       - network: 10.20.0.0/16
 ```
 
-## Schema {: #Schema }
+## MySQL {: #MySQL }
 
 MySQL is the Schema for the mysqls API.
 
 **Required**
 
-- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `MySQL`.
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `MySQL`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
 - [`spec`](#spec-property){: name='spec-property'} (object). MySQLSpec defines the desired state of MySQL. See below for [nested schema](#spec).
 
 ## spec {: #spec }
+
+_Appears on [`MySQL`](#MySQL)._
 
 MySQLSpec defines the desired state of MySQL.
 
@@ -70,6 +72,8 @@ MySQLSpec defines the desired state of MySQL.
 
 ## authSecretRef {: #spec.authSecretRef }
 
+_Appears on [`spec`](#spec)._
+
 Authentication reference to Aiven token in a secret.
 
 **Required**
@@ -79,6 +83,8 @@ Authentication reference to Aiven token in a secret.
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 
+_Appears on [`spec`](#spec)._
+
 Information regarding secret creation.
 
 **Required**
@@ -86,6 +92,8 @@ Information regarding secret creation.
 - [`name`](#spec.connInfoSecretTarget.name-property){: name='spec.connInfoSecretTarget.name-property'} (string). Name of the secret resource to be created. By default, is equal to the resource name.
 
 ## projectVPCRef {: #spec.projectVPCRef }
+
+_Appears on [`spec`](#spec)._
 
 ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.
 
@@ -99,6 +107,8 @@ ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID aut
 
 ## serviceIntegrations {: #spec.serviceIntegrations }
 
+_Appears on [`spec`](#spec)._
+
 Service integrations to specify when creating a service. Not applied after initial service creation.
 
 **Required**
@@ -107,6 +117,8 @@ Service integrations to specify when creating a service. Not applied after initi
 - [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64). 
 
 ## userConfig {: #spec.userConfig }
+
+_Appears on [`spec`](#spec)._
 
 MySQL specific user configuration options.
 
@@ -132,6 +144,8 @@ MySQL specific user configuration options.
 
 ### ip_filter {: #spec.userConfig.ip_filter }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 
 **Required**
@@ -143,6 +157,8 @@ Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 - [`description`](#spec.userConfig.ip_filter.description-property){: name='spec.userConfig.ip_filter.description-property'} (string, MaxLength: 1024). Description for IP filter list entry.
 
 ### migration {: #spec.userConfig.migration }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Migrate data from existing server.
 
@@ -161,6 +177,8 @@ Migrate data from existing server.
 - [`username`](#spec.userConfig.migration.username-property){: name='spec.userConfig.migration.username-property'} (string, MaxLength: 256). User name for authentication with the server where to migrate data from.
 
 ### mysql {: #spec.userConfig.mysql }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 mysql.conf configuration values.
 
@@ -199,6 +217,8 @@ mysql.conf configuration values.
 
 ### private_access {: #spec.userConfig.private_access }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow access to selected service ports from private networks.
 
 **Optional**
@@ -209,6 +229,8 @@ Allow access to selected service ports from private networks.
 
 ### privatelink_access {: #spec.userConfig.privatelink_access }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow access to selected service components through Privatelink.
 
 **Optional**
@@ -218,6 +240,8 @@ Allow access to selected service components through Privatelink.
 - [`prometheus`](#spec.userConfig.privatelink_access.prometheus-property){: name='spec.userConfig.privatelink_access.prometheus-property'} (boolean). Enable prometheus.
 
 ### public_access {: #spec.userConfig.public_access }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow access to selected service ports from the public Internet.
 

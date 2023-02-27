@@ -21,18 +21,20 @@ spec:
   partitions: 1
 ```
 
-## Schema {: #Schema }
+## KafkaTopic {: #KafkaTopic }
 
 KafkaTopic is the Schema for the kafkatopics API.
 
 **Required**
 
-- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `KafkaTopic`.
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `KafkaTopic`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
 - [`spec`](#spec-property){: name='spec-property'} (object). KafkaTopicSpec defines the desired state of KafkaTopic. See below for [nested schema](#spec).
 
 ## spec {: #spec }
+
+_Appears on [`KafkaTopic`](#KafkaTopic)._
 
 KafkaTopicSpec defines the desired state of KafkaTopic.
 
@@ -52,6 +54,8 @@ KafkaTopicSpec defines the desired state of KafkaTopic.
 
 ## authSecretRef {: #spec.authSecretRef }
 
+_Appears on [`spec`](#spec)._
+
 Authentication reference to Aiven token in a secret.
 
 **Required**
@@ -60,6 +64,8 @@ Authentication reference to Aiven token in a secret.
 - [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1). 
 
 ## config {: #spec.config }
+
+_Appears on [`spec`](#spec)._
 
 Kafka topic configuration.
 
@@ -91,6 +97,8 @@ Kafka topic configuration.
 - [`unclean_leader_election_enable`](#spec.config.unclean_leader_election_enable-property){: name='spec.config.unclean_leader_election_enable-property'} (boolean). unclean.leader.election.enable value.
 
 ## tags {: #spec.tags }
+
+_Appears on [`spec`](#spec)._
 
 Kafka topic tags.
 

@@ -44,45 +44,55 @@ func exec(srcDir, dstDir string) error {
 			continue
 		}
 
-		err = generate(path.Join(srcDir, entry.Name()), dstDir, examplesDir)
+		kind, err := parseSchema(path.Join(srcDir, entry.Name()), dstDir, examplesDir)
 		if err != nil {
 			return fmt.Errorf("%q generation error: %w", entry.Name(), err)
 		}
-	}
 
+		data, err := renderTemplate(schemaTemplate, kind)
+		if err != nil {
+			return err
+		}
+
+		dest := path.Join(dstDir, strings.ToLower(kind.Kind)+".md")
+		err = os.WriteFile(dest, data, 0644)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
 // emptyLinesRe finds multiple newlines
 var emptyLinesRe = regexp.MustCompile(`\n{2,}`)
 
-// generate Creates documentation out of CRDs
-func generate(srcFile, dstDir, examplesDir string) error {
+// parseSchema creates documentation out of CRD
+func parseSchema(srcFile, dstDir, examplesDir string) (*schemaType, error) {
 	crdData, err := os.ReadFile(srcFile)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	var crd crdType
 	err = yaml.Unmarshal(crdData, &crd)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if l := len(crd.Spec.Versions); l != 1 {
-		return fmt.Errorf("version count must be exactly one, got %d", l)
+		return nil, fmt.Errorf("version count must be exactly one, got %d", l)
 	}
 
 	// Root level object is composed of disparate fields
 	kind := crd.Spec.Versions[0].Schema.OpenAPIV3Schema
 	kind.Kind = crd.Spec.Names.Kind
+	kind.Name = kind.Kind
 	kind.Version = crd.Spec.Versions[0].Name
 	kind.Group = crd.Spec.Group
-	kind.Name = "Schema"
 
 	// Those fields are generic, but can have only explicit values
-	kind.Properties["apiVersion"].Description = fmt.Sprintf("Must be equal to `%s/%s`", kind.Group, kind.Version)
-	kind.Properties["kind"].Description = fmt.Sprintf("Must be equal to `%s`", kind.Kind)
+	kind.Properties["apiVersion"].Description = fmt.Sprintf("Value `%s/%s`", kind.Group, kind.Version)
+	kind.Properties["kind"].Description = fmt.Sprintf("Value `%s`", kind.Kind)
 	kind.Properties["metadata"].Description = "Data that identifies the object, including a `name` string and optional `namespace`"
 
 	// Status is a meta field, brings nothing important to docs
@@ -98,26 +108,27 @@ func generate(srcFile, dstDir, examplesDir string) error {
 	if exampleData != nil {
 		err = validateYAML(crdData, exampleData)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		kind.UsageExample = string(exampleData)
 	}
 
-	var buf bytes.Buffer
-	t := template.Must(template.New("schema").Funcs(templateFuncs).Parse(schemaTemplate))
-	err = t.Execute(&buf, kind)
-	if err != nil {
-		return err
-	}
+	return kind, nil
+}
 
-	// Replaces multilines made by template engine
-	dest := path.Join(dstDir, strings.ToLower(kind.Kind)+".md")
-	data := emptyLinesRe.ReplaceAll(buf.Bytes(), []byte("\n\n"))
-	err = os.WriteFile(dest, data, 0644)
+func renderTemplate(tmpl string, in any) ([]byte, error) {
+	var buf bytes.Buffer
+	t := template.Must(template.New("").Funcs(templateFuncs).Parse(tmpl))
+	err := t.Execute(&buf, in)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return fixNewlines(buf.Bytes()), nil
+}
+
+// fixNewlines replaces multilines made by template engine
+func fixNewlines(b []byte) []byte {
+	return emptyLinesRe.ReplaceAll(b, []byte("\n\n"))
 }
 
 // crdType CRD doc type
@@ -138,16 +149,16 @@ type crdType struct {
 
 type schemaInternal struct {
 	// Internal
-	parent     *schemaType   // Parent line
+	parent     *schemaType   // parent line
 	properties []*schemaType // Sorted Properties
 	isRequired bool
+	level      int // For header level
 
 	// Meta data for rendering
 	Kind         string // CRD Kind
 	Name         string // field name
 	Version      string // API version, like v1alpha
 	Group        string // API group, like aiven.io
-	Level        int    // For header level
 	UsageExample string
 }
 
@@ -190,7 +201,7 @@ func (s *schemaType) init() {
 		// If item is an object, then it doesn't have a name
 		// And we want to render it as topper level block
 		s.Items.Name = s.Name
-		s.Items.Level = s.Level
+		s.Items.level = s.level
 		s.Items.parent = s.parent
 		s.Items.Description = s.Description
 		s.Items.init()
@@ -203,7 +214,7 @@ func (s *schemaType) init() {
 	allRequired := len(s.Properties) == 1 || s.IsKind()
 	for k, v := range s.Properties {
 		v.Name = k
-		v.Level = s.Level + 1
+		v.level = s.level + 1
 		v.parent = s
 		v.isRequired = allRequired || slices.Contains(s.RequiredList, v.Name)
 		v.init()
@@ -243,7 +254,7 @@ func (s *schemaType) ListOptional() []*schemaType {
 }
 
 func (s *schemaType) IsKind() bool {
-	return s.Kind != ""
+	return s.parent == nil
 }
 
 // IsNested returns true if need to render nested block (an object)
@@ -263,24 +274,35 @@ func (s *schemaType) GetDescription() string {
 	return s.Description + "."
 }
 
-// GetLinkTag renders a link with a name of if
-func (s *schemaType) GetLinkTag() string {
+// GetPropertyLink renders a link for property list
+func (s *schemaType) GetPropertyLink() string {
 	return fmt.Sprintf("[`%[1]s`](#%[2]s-property){: name='%[2]s-property'}", s.Name, s.GetID())
 }
 
+// GetParentLink returns a link to parent schema
+func (s *schemaType) GetParentLink() string {
+	if s.IsKind() {
+		return ""
+	}
+	return fmt.Sprintf("_Appears on [`%[1]s`](#%[2]s)._", s.parent.GetID(), s.parent.GetID())
+}
+
+// GetHeader renders h2/h3/etc tag
 func (s *schemaType) GetHeader() string {
 	// Flattens TOC, puts first two levels on the same level
 	// otherwise it starts with "spec" and then drills down to the atoms.
 	// And that makes TOC navigation useless
-	level := s.Level
+	level := s.level
 	if level < minHeaderLevel {
 		level = minHeaderLevel
 	}
 	return fmt.Sprintf("%s %s {: #%s }", strings.Repeat("#", level), s.Name, s.GetID())
 }
 
+// GetID returns id/path of nested schema without Kind,
+// because it is the document itself
 func (s *schemaType) GetID() string {
-	if s.parent == nil || s.parent.IsKind() {
+	if s.IsKind() || s.parent.IsKind() {
 		return s.Name
 	}
 	return fmt.Sprintf("%s.%s", s.parent.GetID(), s.Name)
@@ -369,6 +391,8 @@ title: "{{ .Kind }}"
 {{ else }}
 {{ .GetHeader }}
 
+{{ .GetParentLink }}
+
 {{ .GetDescription }}
 {{ end }}
 
@@ -398,6 +422,6 @@ title: "{{ .Kind }}"
 {{ end }}
 
 {{ define "renderProp" -}}
-- {{ .GetLinkTag }} ({{ .GetDef }}). {{ .GetDescription }}{{ if .IsNested }} See below for [nested schema](#{{ .GetID }}).{{ end }}
+- {{ .GetPropertyLink }} ({{ .GetDef }}). {{ .GetDescription }}{{ if .IsNested }} See below for [nested schema](#{{ .GetID }}).{{ end }}
 {{ end }}
 `

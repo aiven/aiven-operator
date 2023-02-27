@@ -26,18 +26,20 @@ spec:
   maintenanceWindowTime: 23:00:00
 ```
 
-## Schema {: #Schema }
+## OpenSearch {: #OpenSearch }
 
 OpenSearch is the Schema for the opensearches API.
 
 **Required**
 
-- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `OpenSearch`.
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `OpenSearch`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
 - [`spec`](#spec-property){: name='spec-property'} (object). OpenSearchSpec defines the desired state of OpenSearch. See below for [nested schema](#spec).
 
 ## spec {: #spec }
+
+_Appears on [`OpenSearch`](#OpenSearch)._
 
 OpenSearchSpec defines the desired state of OpenSearch.
 
@@ -63,6 +65,8 @@ OpenSearchSpec defines the desired state of OpenSearch.
 
 ## authSecretRef {: #spec.authSecretRef }
 
+_Appears on [`spec`](#spec)._
+
 Authentication reference to Aiven token in a secret.
 
 **Required**
@@ -72,6 +76,8 @@ Authentication reference to Aiven token in a secret.
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 
+_Appears on [`spec`](#spec)._
+
 Information regarding secret creation.
 
 **Required**
@@ -79,6 +85,8 @@ Information regarding secret creation.
 - [`name`](#spec.connInfoSecretTarget.name-property){: name='spec.connInfoSecretTarget.name-property'} (string). Name of the secret resource to be created. By default, is equal to the resource name.
 
 ## projectVPCRef {: #spec.projectVPCRef }
+
+_Appears on [`spec`](#spec)._
 
 ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.
 
@@ -92,6 +100,8 @@ ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID aut
 
 ## serviceIntegrations {: #spec.serviceIntegrations }
 
+_Appears on [`spec`](#spec)._
+
 Service integrations to specify when creating a service. Not applied after initial service creation.
 
 **Required**
@@ -100,6 +110,8 @@ Service integrations to specify when creating a service. Not applied after initi
 - [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64). 
 
 ## userConfig {: #spec.userConfig }
+
+_Appears on [`spec`](#spec)._
 
 OpenSearch specific user configuration options.
 
@@ -126,6 +138,8 @@ OpenSearch specific user configuration options.
 
 ### index_patterns {: #spec.userConfig.index_patterns }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Index patterns.
 
 **Required**
@@ -139,6 +153,8 @@ Index patterns.
 
 ### index_template {: #spec.userConfig.index_template }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Template settings for all new indexes.
 
 **Optional**
@@ -148,6 +164,8 @@ Template settings for all new indexes.
 - [`number_of_shards`](#spec.userConfig.index_template.number_of_shards-property){: name='spec.userConfig.index_template.number_of_shards-property'} (integer, Minimum: 1, Maximum: 1024). The number of primary shards that an index should have.
 
 ### ip_filter {: #spec.userConfig.ip_filter }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 
@@ -160,6 +178,8 @@ Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 - [`description`](#spec.userConfig.ip_filter.description-property){: name='spec.userConfig.ip_filter.description-property'} (string, MaxLength: 1024). Description for IP filter list entry.
 
 ### opensearch {: #spec.userConfig.opensearch }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 OpenSearch settings.
 
@@ -199,6 +219,8 @@ OpenSearch settings.
 
 ### opensearch_dashboards {: #spec.userConfig.opensearch_dashboards }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 OpenSearch Dashboards settings.
 
 **Optional**
@@ -208,6 +230,8 @@ OpenSearch Dashboards settings.
 - [`opensearch_request_timeout`](#spec.userConfig.opensearch_dashboards.opensearch_request_timeout-property){: name='spec.userConfig.opensearch_dashboards.opensearch_request_timeout-property'} (integer, Minimum: 5000, Maximum: 120000). Timeout in milliseconds for requests made by OpenSearch Dashboards towards OpenSearch.
 
 ### private_access {: #spec.userConfig.private_access }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow access to selected service ports from private networks.
 
@@ -219,6 +243,8 @@ Allow access to selected service ports from private networks.
 
 ### privatelink_access {: #spec.userConfig.privatelink_access }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow access to selected service components through Privatelink.
 
 **Optional**
@@ -228,6 +254,8 @@ Allow access to selected service components through Privatelink.
 - [`prometheus`](#spec.userConfig.privatelink_access.prometheus-property){: name='spec.userConfig.privatelink_access.prometheus-property'} (boolean). Enable prometheus.
 
 ### public_access {: #spec.userConfig.public_access }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow access to selected service ports from the public Internet.
 

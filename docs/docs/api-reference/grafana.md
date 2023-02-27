@@ -33,18 +33,20 @@ spec:
       - network: 10.20.0.0/16
 ```
 
-## Schema {: #Schema }
+## Grafana {: #Grafana }
 
 Grafana is the Schema for the grafanas API.
 
 **Required**
 
-- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `Grafana`.
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `Grafana`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
 - [`spec`](#spec-property){: name='spec-property'} (object). GrafanaSpec defines the desired state of Grafana. See below for [nested schema](#spec).
 
 ## spec {: #spec }
+
+_Appears on [`Grafana`](#Grafana)._
 
 GrafanaSpec defines the desired state of Grafana.
 
@@ -70,6 +72,8 @@ GrafanaSpec defines the desired state of Grafana.
 
 ## authSecretRef {: #spec.authSecretRef }
 
+_Appears on [`spec`](#spec)._
+
 Authentication reference to Aiven token in a secret.
 
 **Required**
@@ -79,6 +83,8 @@ Authentication reference to Aiven token in a secret.
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 
+_Appears on [`spec`](#spec)._
+
 Information regarding secret creation.
 
 **Required**
@@ -86,6 +92,8 @@ Information regarding secret creation.
 - [`name`](#spec.connInfoSecretTarget.name-property){: name='spec.connInfoSecretTarget.name-property'} (string). Name of the secret resource to be created. By default, is equal to the resource name.
 
 ## projectVPCRef {: #spec.projectVPCRef }
+
+_Appears on [`spec`](#spec)._
 
 ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.
 
@@ -99,6 +107,8 @@ ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID aut
 
 ## serviceIntegrations {: #spec.serviceIntegrations }
 
+_Appears on [`spec`](#spec)._
+
 Service integrations to specify when creating a service. Not applied after initial service creation.
 
 **Required**
@@ -107,6 +117,8 @@ Service integrations to specify when creating a service. Not applied after initi
 - [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64). 
 
 ## userConfig {: #spec.userConfig }
+
+_Appears on [`spec`](#spec)._
 
 Cassandra specific user configuration options.
 
@@ -152,6 +164,8 @@ Cassandra specific user configuration options.
 
 ### auth_azuread {: #spec.userConfig.auth_azuread }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Azure AD OAuth integration.
 
 **Required**
@@ -168,6 +182,8 @@ Azure AD OAuth integration.
 - [`allowed_groups`](#spec.userConfig.auth_azuread.allowed_groups-property){: name='spec.userConfig.auth_azuread.allowed_groups-property'} (array of strings, MaxItems: 50). Require users to belong to one of given groups.
 
 ### auth_generic_oauth {: #spec.userConfig.auth_generic_oauth }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Generic OAuth integration.
 
@@ -189,6 +205,8 @@ Generic OAuth integration.
 
 ### auth_github {: #spec.userConfig.auth_github }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Github Auth integration.
 
 **Required**
@@ -203,6 +221,8 @@ Github Auth integration.
 - [`team_ids`](#spec.userConfig.auth_github.team_ids-property){: name='spec.userConfig.auth_github.team_ids-property'} (array of integers, MaxItems: 50). Require users to belong to one of given team IDs.
 
 ### auth_gitlab {: #spec.userConfig.auth_gitlab }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 GitLab Auth integration.
 
@@ -221,6 +241,8 @@ GitLab Auth integration.
 
 ### auth_google {: #spec.userConfig.auth_google }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Google Auth integration.
 
 **Required**
@@ -234,6 +256,8 @@ Google Auth integration.
 - [`allow_sign_up`](#spec.userConfig.auth_google.allow_sign_up-property){: name='spec.userConfig.auth_google.allow_sign_up-property'} (boolean). Automatically sign-up users on successful sign-in.
 
 ### date_formats {: #spec.userConfig.date_formats }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Grafana date format specifications.
 
@@ -250,6 +274,8 @@ Grafana date format specifications.
 
 ### external_image_storage {: #spec.userConfig.external_image_storage }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 External image store settings.
 
 **Required**
@@ -260,6 +286,8 @@ External image store settings.
 - [`secret_key`](#spec.userConfig.external_image_storage.secret_key-property){: name='spec.userConfig.external_image_storage.secret_key-property'} (string, Pattern: `^[A-Za-z0-9/+=]+$`, MaxLength: 4096). S3 secret key.
 
 ### ip_filter {: #spec.userConfig.ip_filter }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 
@@ -273,6 +301,8 @@ Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 
 ### private_access {: #spec.userConfig.private_access }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow access to selected service ports from private networks.
 
 **Required**
@@ -280,6 +310,8 @@ Allow access to selected service ports from private networks.
 - [`grafana`](#spec.userConfig.private_access.grafana-property){: name='spec.userConfig.private_access.grafana-property'} (boolean). Allow clients to connect to grafana with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.
 
 ### privatelink_access {: #spec.userConfig.privatelink_access }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow access to selected service components through Privatelink.
 
@@ -289,6 +321,8 @@ Allow access to selected service components through Privatelink.
 
 ### public_access {: #spec.userConfig.public_access }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow access to selected service ports from the public Internet.
 
 **Required**
@@ -296,6 +330,8 @@ Allow access to selected service ports from the public Internet.
 - [`grafana`](#spec.userConfig.public_access.grafana-property){: name='spec.userConfig.public_access.grafana-property'} (boolean). Allow clients to connect to grafana from the public internet for service nodes that are in a project VPC or another type of private network.
 
 ### smtp_server {: #spec.userConfig.smtp_server }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 SMTP server settings.
 
