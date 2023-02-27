@@ -130,7 +130,7 @@ test-e2e: build ## Run end-to-end tests using kuttl (https://kuttl.dev/)
 	@[ "${AIVEN_PROJECT_NAME}" ] || ( echo ">> variable AIVEN_PROJECT_NAME is not set"; exit 1 )
 	kubectl kuttl test --config test/e2e/kuttl-test.yaml
 
-test: ## Run tests.
+test: envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" \
 	go test ./tests/... -v -timeout 42m -parallel 10 -cover -coverpkg=./... -covermode=count -coverprofile=coverage.out
 

@@ -194,6 +194,16 @@ spec:
                   to enable this for any production databases containing critical
                   data.
                 type: boolean
+              topicName:
+                description: Topic name. If provided, is used instead of metadata.name.
+                  This field supports additional characters, has a longer length,
+                  and will replace metadata.name in future releases
+                maxLength: 249
+                minLength: 1
+                type: string
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
             required:
             - partitions
             - project
