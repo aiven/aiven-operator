@@ -15,7 +15,7 @@ spec:
     key: token
 
   connInfoSecretTarget:
-    name: kafka-token
+    name: kafka-secret
 
   project: my-aiven-project
   cloudName: google-europe-west1

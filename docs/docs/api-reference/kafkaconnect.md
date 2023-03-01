@@ -2,6 +2,28 @@
 title: "KafkaConnect"
 ---
 
+## Usage example
+
+```yaml
+apiVersion: aiven.io/v1alpha1
+kind: KafkaConnect
+metadata:
+  name: my-kafka-connect
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  cloudName: google-europe-west1
+  plan: business-4
+  userConfig:
+    kafka_connect:
+      consumer_isolation_level: read_committed
+    public_access:
+      kafka_connect: true
+```
+
 ## Schema {: #Schema }
 
 KafkaConnect is the Schema for the kafkaconnects API.

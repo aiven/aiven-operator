@@ -108,7 +108,7 @@ vet: ## Run go vet against code.
 
 .PHONY: test
 FOCUS_FILE ?= "*"
-test: generate fmt vet envtest ginkgo ## Run tests.
+test-ginkgo: generate fmt vet envtest ginkgo ## Run tests.
 	KUBEBUILDER_CONTROLPLANE_START_TIMEOUT=120s \
 	KUBEBUILDER_CONTROLPLANE_STOP_TIMEOUT=120s \
 	KUBEBUILDER_ATTACH_CONTROL_PLANE_OUTPUT=true \
@@ -129,6 +129,10 @@ test-e2e: build ## Run end-to-end tests using kuttl (https://kuttl.dev/)
 	@[ "${AIVEN_TOKEN}" ] || ( echo ">> variable AIVEN_TOKEN is not set"; exit 1 )
 	@[ "${AIVEN_PROJECT_NAME}" ] || ( echo ">> variable AIVEN_PROJECT_NAME is not set"; exit 1 )
 	kubectl kuttl test --config test/e2e/kuttl-test.yaml
+
+test: ## Run tests.
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" \
+	go test ./tests/... -v -timeout 42m -parallel 10 -cover -coverpkg=./... -covermode=count -coverprofile=coverage.out
 
 ##@ Build
 
