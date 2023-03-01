@@ -27,6 +27,10 @@ var operatorUserAgent = "k8s-operator/" + aiven.Version()
 func checkServiceIsRunning(c *aiven.Client, project, serviceName string) (bool, error) {
 	s, err := c.Services.Get(project, serviceName)
 	if err != nil {
+		// if service is not found, it is not running
+		if aiven.IsNotFound(err) {
+			return false, nil
+		}
 		return false, err
 	}
 	return s.State == "RUNNING", nil
