@@ -2,18 +2,20 @@
 title: "KafkaSchema"
 ---
 
-## Schema {: #Schema }
+## KafkaSchema {: #KafkaSchema }
 
 KafkaSchema is the Schema for the kafkaschemas API.
 
 **Required**
 
-- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `KafkaSchema`.
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `KafkaSchema`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
 - [`spec`](#spec-property){: name='spec-property'} (object). KafkaSchemaSpec defines the desired state of KafkaSchema. See below for [nested schema](#spec).
 
 ## spec {: #spec }
+
+_Appears on [`KafkaSchema`](#KafkaSchema)._
 
 KafkaSchemaSpec defines the desired state of KafkaSchema.
 
@@ -30,6 +32,8 @@ KafkaSchemaSpec defines the desired state of KafkaSchema.
 - [`compatibilityLevel`](#spec.compatibilityLevel-property){: name='spec.compatibilityLevel-property'} (string, Enum: `BACKWARD`, `BACKWARD_TRANSITIVE`, `FORWARD`, `FORWARD_TRANSITIVE`, `FULL`, `FULL_TRANSITIVE`, `NONE`). Kafka Schemas compatibility level.
 
 ## authSecretRef {: #spec.authSecretRef }
+
+_Appears on [`spec`](#spec)._
 
 Authentication reference to Aiven token in a secret.
 

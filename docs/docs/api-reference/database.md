@@ -2,18 +2,20 @@
 title: "Database"
 ---
 
-## Schema {: #Schema }
+## Database {: #Database }
 
 Database is the Schema for the databases API.
 
 **Required**
 
-- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `Database`.
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `Database`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
 - [`spec`](#spec-property){: name='spec-property'} (object). DatabaseSpec defines the desired state of Database. See below for [nested schema](#spec).
 
 ## spec {: #spec }
+
+_Appears on [`Database`](#Database)._
 
 DatabaseSpec defines the desired state of Database.
 
@@ -30,6 +32,8 @@ DatabaseSpec defines the desired state of Database.
 - [`terminationProtection`](#spec.terminationProtection-property){: name='spec.terminationProtection-property'} (boolean). It is a Kubernetes side deletion protections, which prevents the database from being deleted by Kubernetes. It is recommended to enable this for any production databases containing critical data.
 
 ## authSecretRef {: #spec.authSecretRef }
+
+_Appears on [`spec`](#spec)._
 
 Authentication reference to Aiven token in a secret.
 

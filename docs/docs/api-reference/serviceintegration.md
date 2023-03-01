@@ -24,18 +24,20 @@ spec:
     kafka_topic: my-kafka-topic
 ```
 
-## Schema {: #Schema }
+## ServiceIntegration {: #ServiceIntegration }
 
 ServiceIntegration is the Schema for the serviceintegrations API.
 
 **Required**
 
-- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `ServiceIntegration`.
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `ServiceIntegration`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
 - [`spec`](#spec-property){: name='spec-property'} (object). ServiceIntegrationSpec defines the desired state of ServiceIntegration. See below for [nested schema](#spec).
 
 ## spec {: #spec }
+
+_Appears on [`ServiceIntegration`](#ServiceIntegration)._
 
 ServiceIntegrationSpec defines the desired state of ServiceIntegration.
 
@@ -63,6 +65,8 @@ ServiceIntegrationSpec defines the desired state of ServiceIntegration.
 
 ## authSecretRef {: #spec.authSecretRef }
 
+_Appears on [`spec`](#spec)._
+
 Authentication reference to Aiven token in a secret.
 
 **Required**
@@ -72,6 +76,8 @@ Authentication reference to Aiven token in a secret.
 
 ## clickhouseKafka {: #spec.clickhouseKafka }
 
+_Appears on [`spec`](#spec)._
+
 Clickhouse Kafka configuration values.
 
 **Required**
@@ -79,6 +85,8 @@ Clickhouse Kafka configuration values.
 - [`tables`](#spec.clickhouseKafka.tables-property){: name='spec.clickhouseKafka.tables-property'} (array of objects, MaxItems: 100). Tables to create. See below for [nested schema](#spec.clickhouseKafka.tables).
 
 ### tables {: #spec.clickhouseKafka.tables }
+
+_Appears on [`spec.clickhouseKafka`](#spec.clickhouseKafka)._
 
 Tables to create.
 
@@ -92,6 +100,8 @@ Tables to create.
 
 #### columns {: #spec.clickhouseKafka.tables.columns }
 
+_Appears on [`spec.clickhouseKafka.tables`](#spec.clickhouseKafka.tables)._
+
 Table columns.
 
 **Required**
@@ -101,6 +111,8 @@ Table columns.
 
 #### topics {: #spec.clickhouseKafka.tables.topics }
 
+_Appears on [`spec.clickhouseKafka.tables`](#spec.clickhouseKafka.tables)._
+
 Kafka topics.
 
 **Required**
@@ -108,6 +120,8 @@ Kafka topics.
 - [`name`](#spec.clickhouseKafka.tables.topics.name-property){: name='spec.clickhouseKafka.tables.topics.name-property'} (string, MinLength: 1, MaxLength: 249). Name of the topic.
 
 ## clickhousePostgresql {: #spec.clickhousePostgresql }
+
+_Appears on [`spec`](#spec)._
 
 Clickhouse PostgreSQL configuration values.
 
@@ -117,6 +131,8 @@ Clickhouse PostgreSQL configuration values.
 
 ### databases {: #spec.clickhousePostgresql.databases }
 
+_Appears on [`spec.clickhousePostgresql`](#spec.clickhousePostgresql)._
+
 Databases to expose.
 
 **Optional**
@@ -125,6 +141,8 @@ Databases to expose.
 - [`schema`](#spec.clickhousePostgresql.databases.schema-property){: name='spec.clickhousePostgresql.databases.schema-property'} (string, MinLength: 1, MaxLength: 63). PostgreSQL schema to expose.
 
 ## datadog {: #spec.datadog }
+
+_Appears on [`spec`](#spec)._
 
 Datadog specific user configuration options.
 
@@ -142,6 +160,8 @@ Datadog specific user configuration options.
 
 ### datadog_tags {: #spec.datadog.datadog_tags }
 
+_Appears on [`spec.datadog`](#spec.datadog)._
+
 Custom tags provided by user.
 
 **Required**
@@ -154,6 +174,8 @@ Custom tags provided by user.
 
 ### opensearch {: #spec.datadog.opensearch }
 
+_Appears on [`spec.datadog`](#spec.datadog)._
+
 Datadog Opensearch Options.
 
 **Optional**
@@ -164,6 +186,8 @@ Datadog Opensearch Options.
 
 ## external_aws_cloudwatch_metrics {: #spec.external_aws_cloudwatch_metrics }
 
+_Appears on [`spec`](#spec)._
+
 External AWS CloudWatch Metrics integration Logs configuration values.
 
 **Optional**
@@ -172,6 +196,8 @@ External AWS CloudWatch Metrics integration Logs configuration values.
 - [`extra_metrics`](#spec.external_aws_cloudwatch_metrics.extra_metrics-property){: name='spec.external_aws_cloudwatch_metrics.extra_metrics-property'} (array of objects, MaxItems: 1024). Metrics to allow through to AWS CloudWatch (in addition to default metrics). See below for [nested schema](#spec.external_aws_cloudwatch_metrics.extra_metrics).
 
 ### dropped_metrics {: #spec.external_aws_cloudwatch_metrics.dropped_metrics }
+
+_Appears on [`spec.external_aws_cloudwatch_metrics`](#spec.external_aws_cloudwatch_metrics)._
 
 Metrics to not send to AWS CloudWatch (takes precedence over extra_metrics).
 
@@ -182,6 +208,8 @@ Metrics to not send to AWS CloudWatch (takes precedence over extra_metrics).
 
 ### extra_metrics {: #spec.external_aws_cloudwatch_metrics.extra_metrics }
 
+_Appears on [`spec.external_aws_cloudwatch_metrics`](#spec.external_aws_cloudwatch_metrics)._
+
 Metrics to allow through to AWS CloudWatch (in addition to default metrics).
 
 **Required**
@@ -191,6 +219,8 @@ Metrics to allow through to AWS CloudWatch (in addition to default metrics).
 
 ## kafkaConnect {: #spec.kafkaConnect }
 
+_Appears on [`spec`](#spec)._
+
 Kafka Connect service configuration values.
 
 **Required**
@@ -198,6 +228,8 @@ Kafka Connect service configuration values.
 - [`kafka_connect`](#spec.kafkaConnect.kafka_connect-property){: name='spec.kafkaConnect.kafka_connect-property'} (object). Kafka Connect service configuration values. See below for [nested schema](#spec.kafkaConnect.kafka_connect).
 
 ### kafka_connect {: #spec.kafkaConnect.kafka_connect }
+
+_Appears on [`spec.kafkaConnect`](#spec.kafkaConnect)._
 
 Kafka Connect service configuration values.
 
@@ -210,6 +242,8 @@ Kafka Connect service configuration values.
 
 ## kafkaLogs {: #spec.kafkaLogs }
 
+_Appears on [`spec`](#spec)._
+
 Kafka logs configuration values.
 
 **Required**
@@ -217,6 +251,8 @@ Kafka logs configuration values.
 - [`kafka_topic`](#spec.kafkaLogs.kafka_topic-property){: name='spec.kafkaLogs.kafka_topic-property'} (string, MinLength: 1, MaxLength: 249). Topic name.
 
 ## kafkaMirrormaker {: #spec.kafkaMirrormaker }
+
+_Appears on [`spec`](#spec)._
 
 Kafka MirrorMaker configuration values.
 
@@ -226,6 +262,8 @@ Kafka MirrorMaker configuration values.
 - [`kafka_mirrormaker`](#spec.kafkaMirrormaker.kafka_mirrormaker-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker-property'} (object). Kafka MirrorMaker configuration values. See below for [nested schema](#spec.kafkaMirrormaker.kafka_mirrormaker).
 
 ### kafka_mirrormaker {: #spec.kafkaMirrormaker.kafka_mirrormaker }
+
+_Appears on [`spec.kafkaMirrormaker`](#spec.kafkaMirrormaker)._
 
 Kafka MirrorMaker configuration values.
 
@@ -239,6 +277,8 @@ Kafka MirrorMaker configuration values.
 
 ## logs {: #spec.logs }
 
+_Appears on [`spec`](#spec)._
+
 Logs configuration values.
 
 **Optional**
@@ -247,6 +287,8 @@ Logs configuration values.
 - [`elasticsearch_index_prefix`](#spec.logs.elasticsearch_index_prefix-property){: name='spec.logs.elasticsearch_index_prefix-property'} (string, MinLength: 1, MaxLength: 1024). Elasticsearch index prefix.
 
 ## metrics {: #spec.metrics }
+
+_Appears on [`spec`](#spec)._
 
 Metrics configuration values.
 
@@ -260,6 +302,8 @@ Metrics configuration values.
 
 ### source_mysql {: #spec.metrics.source_mysql }
 
+_Appears on [`spec.metrics`](#spec.metrics)._
+
 Configuration options for metrics where source service is MySQL.
 
 **Required**
@@ -267,6 +311,8 @@ Configuration options for metrics where source service is MySQL.
 - [`telegraf`](#spec.metrics.source_mysql.telegraf-property){: name='spec.metrics.source_mysql.telegraf-property'} (object). Configuration options for Telegraf MySQL input plugin. See below for [nested schema](#spec.metrics.source_mysql.telegraf).
 
 #### telegraf {: #spec.metrics.source_mysql.telegraf }
+
+_Appears on [`spec.metrics.source_mysql`](#spec.metrics.source_mysql)._
 
 Configuration options for Telegraf MySQL input plugin.
 

@@ -34,18 +34,20 @@ spec:
       - network: 10.20.0.0/16
 ```
 
-## Schema {: #Schema }
+## Cassandra {: #Cassandra }
 
 Cassandra is the Schema for the cassandras API.
 
 **Required**
 
-- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `Cassandra`.
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `Cassandra`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
 - [`spec`](#spec-property){: name='spec-property'} (object). CassandraSpec defines the desired state of Cassandra. See below for [nested schema](#spec).
 
 ## spec {: #spec }
+
+_Appears on [`Cassandra`](#Cassandra)._
 
 CassandraSpec defines the desired state of Cassandra.
 
@@ -71,6 +73,8 @@ CassandraSpec defines the desired state of Cassandra.
 
 ## authSecretRef {: #spec.authSecretRef }
 
+_Appears on [`spec`](#spec)._
+
 Authentication reference to Aiven token in a secret.
 
 **Required**
@@ -80,6 +84,8 @@ Authentication reference to Aiven token in a secret.
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 
+_Appears on [`spec`](#spec)._
+
 Information regarding secret creation.
 
 **Required**
@@ -87,6 +93,8 @@ Information regarding secret creation.
 - [`name`](#spec.connInfoSecretTarget.name-property){: name='spec.connInfoSecretTarget.name-property'} (string). Name of the secret resource to be created. By default, is equal to the resource name.
 
 ## projectVPCRef {: #spec.projectVPCRef }
+
+_Appears on [`spec`](#spec)._
 
 ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.
 
@@ -100,6 +108,8 @@ ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID aut
 
 ## serviceIntegrations {: #spec.serviceIntegrations }
 
+_Appears on [`spec`](#spec)._
+
 Service integrations to specify when creating a service. Not applied after initial service creation.
 
 **Required**
@@ -108,6 +118,8 @@ Service integrations to specify when creating a service. Not applied after initi
 - [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64). 
 
 ## userConfig {: #spec.userConfig }
+
+_Appears on [`spec`](#spec)._
 
 Cassandra specific user configuration options.
 
@@ -127,6 +139,8 @@ Cassandra specific user configuration options.
 
 ### cassandra {: #spec.userConfig.cassandra }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 cassandra configuration values.
 
 **Optional**
@@ -136,6 +150,8 @@ cassandra configuration values.
 - [`datacenter`](#spec.userConfig.cassandra.datacenter-property){: name='spec.userConfig.cassandra.datacenter-property'} (string, MaxLength: 128). Name of the datacenter to which nodes of this service belong. Can be set only when creating the service.
 
 ### ip_filter {: #spec.userConfig.ip_filter }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 
@@ -149,6 +165,8 @@ Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 
 ### private_access {: #spec.userConfig.private_access }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow access to selected service ports from private networks.
 
 **Required**
@@ -156,6 +174,8 @@ Allow access to selected service ports from private networks.
 - [`prometheus`](#spec.userConfig.private_access.prometheus-property){: name='spec.userConfig.private_access.prometheus-property'} (boolean). Allow clients to connect to prometheus with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.
 
 ### public_access {: #spec.userConfig.public_access }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow access to selected service ports from the public Internet.
 
