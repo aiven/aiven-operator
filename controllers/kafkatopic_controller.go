@@ -206,6 +206,7 @@ func convertKafkaTopicConfig(topic *v1alpha1.KafkaTopic) aiven.KafkaTopicConfig 
 		MessageFormatVersion:            topic.Spec.Config.MessageFormatVersion,
 		MessageTimestampDifferenceMaxMs: topic.Spec.Config.MessageTimestampDifferenceMaxMs,
 		MessageTimestampType:            topic.Spec.Config.MessageTimestampType,
+		MinCleanableDirtyRatio:          topic.Spec.Config.MinCleanableDirtyRatio,
 		MinCompactionLagMs:              topic.Spec.Config.MinCompactionLagMs,
 		MinInsyncReplicas:               topic.Spec.Config.MinInsyncReplicas,
 		Preallocate:                     topic.Spec.Config.Preallocate,
