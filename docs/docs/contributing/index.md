@@ -52,6 +52,11 @@ Examples of unacceptable behavior by participants include:
 * Publishing others' private information, such as a physical or electronic address, without explicit permission
 * Other conduct which could reasonably be considered inappropriate in a professional setting
 
+### Commit Messages
+
+This project adheres to the [Conventional Commits](https://conventionalcommits.org/en/v1.0.0/) specification.
+Please, make sure that your commit messages follow that specification.
+
 ### Our Responsibilities
 
 Project maintainers are responsible for clarifying the standards of acceptable behavior and are expected to take
