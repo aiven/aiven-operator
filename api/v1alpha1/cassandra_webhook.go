@@ -58,7 +58,7 @@ func (in *Cassandra) ValidateUpdate(old runtime.Object) error {
 func (in *Cassandra) ValidateDelete() error {
 	cassandralog.Info("validate delete", "name", in.Name)
 
-	if in.Spec.TerminationProtection {
+	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
 		return errors.New("cannot delete Cassandra service, termination protection is on")
 	}
 

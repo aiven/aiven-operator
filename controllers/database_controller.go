@@ -81,6 +81,10 @@ func (h DatabaseHandler) delete(avn *aiven.Client, i client.Object) (bool, error
 		return false, err
 	}
 
+	if fromAnyPointer(db.Spec.TerminationProtection) {
+		return false, errTerminationProtectionOn
+	}
+
 	err = avn.Databases.Delete(
 		db.Spec.Project,
 		db.Spec.ServiceName,

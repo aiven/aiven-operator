@@ -43,7 +43,7 @@ type KafkaTopicSpec struct {
 	// It is a Kubernetes side deletion protections, which prevents the kafka topic
 	// from being deleted by Kubernetes. It is recommended to enable this for any production
 	// databases containing critical data.
-	TerminationProtection bool `json:"termination_protection,omitempty"`
+	TerminationProtection *bool `json:"termination_protection,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`

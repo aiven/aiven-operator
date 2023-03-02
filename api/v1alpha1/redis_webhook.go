@@ -59,7 +59,7 @@ func (r *Redis) ValidateUpdate(old runtime.Object) error {
 func (r *Redis) ValidateDelete() error {
 	redislog.Info("validate delete", "name", r.Name)
 
-	if r.Spec.TerminationProtection {
+	if r.Spec.TerminationProtection != nil && *r.Spec.TerminationProtection {
 		return errors.New("cannot delete Redis service, termination protection is on")
 	}
 

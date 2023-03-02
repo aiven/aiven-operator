@@ -58,7 +58,7 @@ func (in *Grafana) ValidateUpdate(old runtime.Object) error {
 func (in *Grafana) ValidateDelete() error {
 	grafanalog.Info("validate delete", "name", in.Name)
 
-	if in.Spec.TerminationProtection {
+	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
 		return errors.New("cannot delete Grafana service, termination protection is on")
 	}
 

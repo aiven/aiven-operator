@@ -65,7 +65,7 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 			ServiceIntegrations:   nil,
 			ServiceName:           ometa.Name,
 			ServiceType:           o.getServiceType(),
-			TerminationProtection: spec.TerminationProtection,
+			TerminationProtection: fromAnyPointer(spec.TerminationProtection),
 			UserConfig:            userConfig,
 		}
 
@@ -97,7 +97,7 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 			Plan:                  spec.Plan,
 			Powered:               true,
 			ProjectVPCID:          toOptionalStringPointer(projectVPCID),
-			TerminationProtection: spec.TerminationProtection,
+			TerminationProtection: fromAnyPointer(spec.TerminationProtection),
 			UserConfig:            userConfig,
 		}
 		_, err = a.Services.Update(spec.Project, ometa.Name, req)
@@ -126,7 +126,12 @@ func (h *genericServiceHandler) delete(a *aiven.Client, object client.Object) (b
 		return false, err
 	}
 
-	err = a.Services.Delete(o.getServiceCommonSpec().Project, o.getObjectMeta().Name)
+	spec := o.getServiceCommonSpec()
+	if fromAnyPointer(spec.TerminationProtection) {
+		return false, errTerminationProtectionOn
+	}
+
+	err = a.Services.Delete(spec.Project, o.getObjectMeta().Name)
 	if err == nil || aiven.IsNotFound(err) {
 		return true, nil
 	}
@@ -193,4 +198,12 @@ type serviceAdapter interface {
 	getDiskSpace() string
 	getUserConfig() any
 	newSecret(*aiven.Service) (*corev1.Secret, error)
+}
+
+func fromAnyPointer[T any](v *T) T {
+	if v != nil {
+		return *v
+	}
+	var t T
+	return t
 }
