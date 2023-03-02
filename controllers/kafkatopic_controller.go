@@ -105,6 +105,10 @@ func (h KafkaTopicHandler) delete(avn *aiven.Client, i client.Object) (bool, err
 		return false, err
 	}
 
+	if fromAnyPointer(topic.Spec.TerminationProtection) {
+		return false, errTerminationProtectionOn
+	}
+
 	// Delete project on Aiven side
 	err = avn.KafkaTopics.Delete(topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName())
 	if err != nil && !aiven.IsNotFound(err) {

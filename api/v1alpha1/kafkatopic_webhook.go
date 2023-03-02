@@ -59,7 +59,7 @@ func (r *KafkaTopic) ValidateUpdate(old runtime.Object) error {
 func (r *KafkaTopic) ValidateDelete() error {
 	kafkatopiclog.Info("validate delete", "name", r.Name)
 
-	if r.Spec.TerminationProtection {
+	if r.Spec.TerminationProtection != nil && *r.Spec.TerminationProtection {
 		return errors.New("cannot delete KafkaTopic, termination protection is on")
 	}
 

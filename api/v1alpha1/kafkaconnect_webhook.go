@@ -55,7 +55,7 @@ func (r *KafkaConnect) ValidateUpdate(old runtime.Object) error {
 func (r *KafkaConnect) ValidateDelete() error {
 	kafkaconnectlog.Info("validate delete", "name", r.Name)
 
-	if r.Spec.TerminationProtection {
+	if r.Spec.TerminationProtection != nil && *r.Spec.TerminationProtection {
 		return errors.New("cannot delete KafkaConnect service, termination protection is on")
 	}
 

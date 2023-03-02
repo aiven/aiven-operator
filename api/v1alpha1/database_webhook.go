@@ -77,7 +77,7 @@ func (r *Database) ValidateUpdate(old runtime.Object) error {
 func (r *Database) ValidateDelete() error {
 	databaselog.Info("validate delete", "name", r.Name)
 
-	if r.Spec.TerminationProtection {
+	if r.Spec.TerminationProtection != nil && *r.Spec.TerminationProtection {
 		return errors.New("cannot delete Database, termination protection is on")
 	}
 	return nil

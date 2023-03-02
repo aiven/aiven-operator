@@ -28,7 +28,7 @@ type DatabaseSpec struct {
 	// It is a Kubernetes side deletion protections, which prevents the database
 	// from being deleted by Kubernetes. It is recommended to enable this for any production
 	// databases containing critical data.
-	TerminationProtection bool `json:"terminationProtection,omitempty"`
+	TerminationProtection *bool `json:"terminationProtection,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`

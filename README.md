@@ -4,7 +4,7 @@ Provision and manage [Aiven Services](https://aiven.io/) from your Kubernetes cl
 See the full documentation [here](https://aiven.github.io/aiven-operator/).
 
 ## Installation
-To install the Operator, please follow the [installation instructions](https://aiven.github.io/aiven-operator/docs/installation/).
+To install the Operator, please follow the [installation instructions](https://aiven.github.io/aiven-operator/installation/helm.html).
 
 
 ## Deploying PostgreSQL at Aiven
@@ -77,7 +77,7 @@ $ kubectl logs psql-test-connection
 ```
 
 ## Contributing
-We welcome and encourage contributions to this project. Please take a look at our [Contribution guide line](https://aiven.github.io/aiven-operator/docs/contributing/).
+We welcome and encourage contributions to this project. Please take a look at our [Contribution guide line](https://aiven.github.io/aiven-operator/contributing/index.html).
 
 ## License
 [Apache 2](LICENSE).
