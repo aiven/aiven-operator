@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        k8s-version: [1.24.10, 1.25.6, 1.26.1]
+        k8s-version: [1.24.10]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3

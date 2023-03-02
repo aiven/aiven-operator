@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"runtime/debug"
+	"strconv"
 	"testing"
 
 	"github.com/aiven/aiven-go-client"
@@ -61,9 +62,12 @@ func setupSuite() error {
 		return fmt.Errorf("missing AIVEN_PROJECT_NAME set")
 	}
 
-	ctrl.SetLogger(zap.New(func(o *zap.Options) {
-		o.Development = true
-	}))
+	enableLogs, _ := strconv.ParseBool(os.Getenv("ENABLE_DEBUG_LOGGING"))
+	if enableLogs {
+		ctrl.SetLogger(zap.New(func(o *zap.Options) {
+			o.Development = true
+		}))
+	}
 
 	testEnv = &envtest.Environment{
 		CRDDirectoryPaths:     []string{path.Join("..", "config", "crd", "bases")},
