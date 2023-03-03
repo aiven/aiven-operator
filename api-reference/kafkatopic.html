@@ -17,7 +17,7 @@
         <link rel="next" href="mysql.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.14">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.0">
     
     
       
@@ -25,7 +25,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.113286f1.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.402914a4.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
@@ -1001,8 +1001,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#Schema" class="md-nav__link">
-    Schema
+  <a href="#KafkaTopic" class="md-nav__link">
+    KafkaTopic
   </a>
   
 </li>
@@ -1194,8 +1194,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#Schema" class="md-nav__link">
-    Schema
+  <a href="#KafkaTopic" class="md-nav__link">
+    KafkaTopic
   </a>
   
 </li>
@@ -1260,7 +1260,7 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KafkaTopic</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nt">metadata</span><span class="p">:</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-kafka-topic</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kafka-topic</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nt">spec</span><span class="p">:</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
@@ -1268,20 +1268,22 @@
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-aiven-project</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-kafka</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="nt">replication</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="nt">partitions</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="nt">topicName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-kafka-topic</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="nt">replication</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="nt">partitions</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </code></pre></div>
-<h2 id="Schema">Schema<a class="headerlink" href="#Schema" title="Permanent link">&para;</a></h2>
+<h2 id="KafkaTopic">KafkaTopic<a class="headerlink" href="#KafkaTopic" title="Permanent link">&para;</a></h2>
 <p>KafkaTopic is the Schema for the kafkatopics API.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#apiVersion-property" name="apiVersion-property"><code>apiVersion</code></a> (string). Must be equal to <code>aiven.io/v1alpha1</code>.</li>
-<li><a href="#kind-property" name="kind-property"><code>kind</code></a> (string). Must be equal to <code>KafkaTopic</code>.</li>
+<li><a href="#apiVersion-property" name="apiVersion-property"><code>apiVersion</code></a> (string). Value <code>aiven.io/v1alpha1</code>.</li>
+<li><a href="#kind-property" name="kind-property"><code>kind</code></a> (string). Value <code>KafkaTopic</code>.</li>
 <li><a href="#metadata-property" name="metadata-property"><code>metadata</code></a> (object). Data that identifies the object, including a <code>name</code> string and optional <code>namespace</code>.</li>
 <li><a href="#spec-property" name="spec-property"><code>spec</code></a> (object). KafkaTopicSpec defines the desired state of KafkaTopic. See below for <a href="#spec">nested schema</a>.</li>
 </ul>
 <h2 id="spec">spec<a class="headerlink" href="#spec" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#KafkaTopic"><code>KafkaTopic</code></a>.</em></p>
 <p>KafkaTopicSpec defines the desired state of KafkaTopic.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1296,8 +1298,10 @@
 <li><a href="#spec.config-property" name="spec.config-property"><code>config</code></a> (object). Kafka topic configuration. See below for <a href="#spec.config">nested schema</a>.</li>
 <li><a href="#spec.tags-property" name="spec.tags-property"><code>tags</code></a> (array of objects). Kafka topic tags. See below for <a href="#spec.tags">nested schema</a>.</li>
 <li><a href="#spec.termination_protection-property" name="spec.termination_protection-property"><code>termination_protection</code></a> (boolean). It is a Kubernetes side deletion protections, which prevents the kafka topic from being deleted by Kubernetes. It is recommended to enable this for any production databases containing critical data.</li>
+<li><a href="#spec.topicName-property" name="spec.topicName-property"><code>topicName</code></a> (string, Immutable, MinLength: 1, MaxLength: 249). Topic name. If provided, is used instead of metadata.name. This field supports additional characters, has a longer length, and will replace metadata.name in future releases.</li>
 </ul>
 <h2 id="spec.authSecretRef">authSecretRef<a class="headerlink" href="#spec.authSecretRef" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Authentication reference to Aiven token in a secret.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1305,6 +1309,7 @@
 <li><a href="#spec.authSecretRef.name-property" name="spec.authSecretRef.name-property"><code>name</code></a> (string, MinLength: 1). </li>
 </ul>
 <h2 id="spec.config">config<a class="headerlink" href="#spec.config" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Kafka topic configuration.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1334,6 +1339,7 @@
 <li><a href="#spec.config.unclean_leader_election_enable-property" name="spec.config.unclean_leader_election_enable-property"><code>unclean_leader_election_enable</code></a> (boolean). unclean.leader.election.enable value.</li>
 </ul>
 <h2 id="spec.tags">tags<a class="headerlink" href="#spec.tags" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Kafka topic tags.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1430,7 +1436,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.2a6f1dda.min.js"></script>
+      <script src="../assets/javascripts/bundle.ce72ebac.min.js"></script>
       
     
   </body>

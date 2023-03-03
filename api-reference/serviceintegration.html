@@ -17,7 +17,7 @@
         <link rel="next" href="serviceuser.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.14">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.0">
     
     
       
@@ -25,7 +25,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.113286f1.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.402914a4.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
@@ -1099,8 +1099,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#Schema" class="md-nav__link">
-    Schema
+  <a href="#ServiceIntegration" class="md-nav__link">
+    ServiceIntegration
   </a>
   
 </li>
@@ -1381,8 +1381,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#Schema" class="md-nav__link">
-    Schema
+  <a href="#ServiceIntegration" class="md-nav__link">
+    ServiceIntegration
   </a>
   
 </li>
@@ -1649,16 +1649,17 @@
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="nt">kafkaLogs</span><span class="p">:</span>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="nt">kafka_topic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-kafka-topic</span>
 </code></pre></div>
-<h2 id="Schema">Schema<a class="headerlink" href="#Schema" title="Permanent link">&para;</a></h2>
+<h2 id="ServiceIntegration">ServiceIntegration<a class="headerlink" href="#ServiceIntegration" title="Permanent link">&para;</a></h2>
 <p>ServiceIntegration is the Schema for the serviceintegrations API.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#apiVersion-property" name="apiVersion-property"><code>apiVersion</code></a> (string). Must be equal to <code>aiven.io/v1alpha1</code>.</li>
-<li><a href="#kind-property" name="kind-property"><code>kind</code></a> (string). Must be equal to <code>ServiceIntegration</code>.</li>
+<li><a href="#apiVersion-property" name="apiVersion-property"><code>apiVersion</code></a> (string). Value <code>aiven.io/v1alpha1</code>.</li>
+<li><a href="#kind-property" name="kind-property"><code>kind</code></a> (string). Value <code>ServiceIntegration</code>.</li>
 <li><a href="#metadata-property" name="metadata-property"><code>metadata</code></a> (object). Data that identifies the object, including a <code>name</code> string and optional <code>namespace</code>.</li>
 <li><a href="#spec-property" name="spec-property"><code>spec</code></a> (object). ServiceIntegrationSpec defines the desired state of ServiceIntegration. See below for <a href="#spec">nested schema</a>.</li>
 </ul>
 <h2 id="spec">spec<a class="headerlink" href="#spec" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#ServiceIntegration"><code>ServiceIntegration</code></a>.</em></p>
 <p>ServiceIntegrationSpec defines the desired state of ServiceIntegration.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1683,6 +1684,7 @@
 <li><a href="#spec.sourceServiceName-property" name="spec.sourceServiceName-property"><code>sourceServiceName</code></a> (string, Immutable). Source service for the integration (if any).</li>
 </ul>
 <h2 id="spec.authSecretRef">authSecretRef<a class="headerlink" href="#spec.authSecretRef" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Authentication reference to Aiven token in a secret.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1690,12 +1692,14 @@
 <li><a href="#spec.authSecretRef.name-property" name="spec.authSecretRef.name-property"><code>name</code></a> (string, MinLength: 1). </li>
 </ul>
 <h2 id="spec.clickhouseKafka">clickhouseKafka<a class="headerlink" href="#spec.clickhouseKafka" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Clickhouse Kafka configuration values.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.clickhouseKafka.tables-property" name="spec.clickhouseKafka.tables-property"><code>tables</code></a> (array of objects, MaxItems: 100). Tables to create. See below for <a href="#spec.clickhouseKafka.tables">nested schema</a>.</li>
 </ul>
 <h3 id="spec.clickhouseKafka.tables">tables<a class="headerlink" href="#spec.clickhouseKafka.tables" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.clickhouseKafka"><code>spec.clickhouseKafka</code></a>.</em></p>
 <p>Tables to create.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1706,6 +1710,7 @@
 <li><a href="#spec.clickhouseKafka.tables.topics-property" name="spec.clickhouseKafka.tables.topics-property"><code>topics</code></a> (array of objects, MaxItems: 100). Kafka topics. See below for <a href="#spec.clickhouseKafka.tables.topics">nested schema</a>.</li>
 </ul>
 <h4 id="spec.clickhouseKafka.tables.columns">columns<a class="headerlink" href="#spec.clickhouseKafka.tables.columns" title="Permanent link">&para;</a></h4>
+<p><em>Appears on <a href="#spec.clickhouseKafka.tables"><code>spec.clickhouseKafka.tables</code></a>.</em></p>
 <p>Table columns.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1713,18 +1718,21 @@
 <li><a href="#spec.clickhouseKafka.tables.columns.type-property" name="spec.clickhouseKafka.tables.columns.type-property"><code>type</code></a> (string, MinLength: 1, MaxLength: 1000). Column type.</li>
 </ul>
 <h4 id="spec.clickhouseKafka.tables.topics">topics<a class="headerlink" href="#spec.clickhouseKafka.tables.topics" title="Permanent link">&para;</a></h4>
+<p><em>Appears on <a href="#spec.clickhouseKafka.tables"><code>spec.clickhouseKafka.tables</code></a>.</em></p>
 <p>Kafka topics.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.clickhouseKafka.tables.topics.name-property" name="spec.clickhouseKafka.tables.topics.name-property"><code>name</code></a> (string, MinLength: 1, MaxLength: 249). Name of the topic.</li>
 </ul>
 <h2 id="spec.clickhousePostgresql">clickhousePostgresql<a class="headerlink" href="#spec.clickhousePostgresql" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Clickhouse PostgreSQL configuration values.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.clickhousePostgresql.databases-property" name="spec.clickhousePostgresql.databases-property"><code>databases</code></a> (array of objects, MaxItems: 10). Databases to expose. See below for <a href="#spec.clickhousePostgresql.databases">nested schema</a>.</li>
 </ul>
 <h3 id="spec.clickhousePostgresql.databases">databases<a class="headerlink" href="#spec.clickhousePostgresql.databases" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.clickhousePostgresql"><code>spec.clickhousePostgresql</code></a>.</em></p>
 <p>Databases to expose.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1732,6 +1740,7 @@
 <li><a href="#spec.clickhousePostgresql.databases.schema-property" name="spec.clickhousePostgresql.databases.schema-property"><code>schema</code></a> (string, MinLength: 1, MaxLength: 63). PostgreSQL schema to expose.</li>
 </ul>
 <h2 id="spec.datadog">datadog<a class="headerlink" href="#spec.datadog" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Datadog specific user configuration options.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1746,6 +1755,7 @@
 <li><a href="#spec.datadog.opensearch-property" name="spec.datadog.opensearch-property"><code>opensearch</code></a> (object). Datadog Opensearch Options. See below for <a href="#spec.datadog.opensearch">nested schema</a>.</li>
 </ul>
 <h3 id="spec.datadog.datadog_tags">datadog_tags<a class="headerlink" href="#spec.datadog.datadog_tags" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.datadog"><code>spec.datadog</code></a>.</em></p>
 <p>Custom tags provided by user.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1756,6 +1766,7 @@
 <li><a href="#spec.datadog.datadog_tags.comment-property" name="spec.datadog.datadog_tags.comment-property"><code>comment</code></a> (string, MaxLength: 1024). Optional tag explanation.</li>
 </ul>
 <h3 id="spec.datadog.opensearch">opensearch<a class="headerlink" href="#spec.datadog.opensearch" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.datadog"><code>spec.datadog</code></a>.</em></p>
 <p>Datadog Opensearch Options.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1764,6 +1775,7 @@
 <li><a href="#spec.datadog.opensearch.pshard_stats_enabled-property" name="spec.datadog.opensearch.pshard_stats_enabled-property"><code>pshard_stats_enabled</code></a> (boolean). Enable Datadog Opensearch Primary Shard Monitoring.</li>
 </ul>
 <h2 id="spec.external_aws_cloudwatch_metrics">external_aws_cloudwatch_metrics<a class="headerlink" href="#spec.external_aws_cloudwatch_metrics" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>External AWS CloudWatch Metrics integration Logs configuration values.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1771,6 +1783,7 @@
 <li><a href="#spec.external_aws_cloudwatch_metrics.extra_metrics-property" name="spec.external_aws_cloudwatch_metrics.extra_metrics-property"><code>extra_metrics</code></a> (array of objects, MaxItems: 1024). Metrics to allow through to AWS CloudWatch (in addition to default metrics). See below for <a href="#spec.external_aws_cloudwatch_metrics.extra_metrics">nested schema</a>.</li>
 </ul>
 <h3 id="spec.external_aws_cloudwatch_metrics.dropped_metrics">dropped_metrics<a class="headerlink" href="#spec.external_aws_cloudwatch_metrics.dropped_metrics" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.external_aws_cloudwatch_metrics"><code>spec.external_aws_cloudwatch_metrics</code></a>.</em></p>
 <p>Metrics to not send to AWS CloudWatch (takes precedence over extra_metrics).</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1778,6 +1791,7 @@
 <li><a href="#spec.external_aws_cloudwatch_metrics.dropped_metrics.metric-property" name="spec.external_aws_cloudwatch_metrics.dropped_metrics.metric-property"><code>metric</code></a> (string, MaxLength: 1000). Identifier of the metric.</li>
 </ul>
 <h3 id="spec.external_aws_cloudwatch_metrics.extra_metrics">extra_metrics<a class="headerlink" href="#spec.external_aws_cloudwatch_metrics.extra_metrics" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.external_aws_cloudwatch_metrics"><code>spec.external_aws_cloudwatch_metrics</code></a>.</em></p>
 <p>Metrics to allow through to AWS CloudWatch (in addition to default metrics).</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1785,12 +1799,14 @@
 <li><a href="#spec.external_aws_cloudwatch_metrics.extra_metrics.metric-property" name="spec.external_aws_cloudwatch_metrics.extra_metrics.metric-property"><code>metric</code></a> (string, MaxLength: 1000). Identifier of the metric.</li>
 </ul>
 <h2 id="spec.kafkaConnect">kafkaConnect<a class="headerlink" href="#spec.kafkaConnect" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Kafka Connect service configuration values.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.kafkaConnect.kafka_connect-property" name="spec.kafkaConnect.kafka_connect-property"><code>kafka_connect</code></a> (object). Kafka Connect service configuration values. See below for <a href="#spec.kafkaConnect.kafka_connect">nested schema</a>.</li>
 </ul>
 <h3 id="spec.kafkaConnect.kafka_connect">kafka_connect<a class="headerlink" href="#spec.kafkaConnect.kafka_connect" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.kafkaConnect"><code>spec.kafkaConnect</code></a>.</em></p>
 <p>Kafka Connect service configuration values.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1800,12 +1816,14 @@
 <li><a href="#spec.kafkaConnect.kafka_connect.status_storage_topic-property" name="spec.kafkaConnect.kafka_connect.status_storage_topic-property"><code>status_storage_topic</code></a> (string, MaxLength: 249). The name of the topic where connector and task configuration status updates are stored.This must be the same for all workers with the same group_id.</li>
 </ul>
 <h2 id="spec.kafkaLogs">kafkaLogs<a class="headerlink" href="#spec.kafkaLogs" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Kafka logs configuration values.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.kafkaLogs.kafka_topic-property" name="spec.kafkaLogs.kafka_topic-property"><code>kafka_topic</code></a> (string, MinLength: 1, MaxLength: 249). Topic name.</li>
 </ul>
 <h2 id="spec.kafkaMirrormaker">kafkaMirrormaker<a class="headerlink" href="#spec.kafkaMirrormaker" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Kafka MirrorMaker configuration values.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1813,6 +1831,7 @@
 <li><a href="#spec.kafkaMirrormaker.kafka_mirrormaker-property" name="spec.kafkaMirrormaker.kafka_mirrormaker-property"><code>kafka_mirrormaker</code></a> (object). Kafka MirrorMaker configuration values. See below for <a href="#spec.kafkaMirrormaker.kafka_mirrormaker">nested schema</a>.</li>
 </ul>
 <h3 id="spec.kafkaMirrormaker.kafka_mirrormaker">kafka_mirrormaker<a class="headerlink" href="#spec.kafkaMirrormaker.kafka_mirrormaker" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.kafkaMirrormaker"><code>spec.kafkaMirrormaker</code></a>.</em></p>
 <p>Kafka MirrorMaker configuration values.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1823,6 +1842,7 @@
 <li><a href="#spec.kafkaMirrormaker.kafka_mirrormaker.producer_max_request_size-property" name="spec.kafkaMirrormaker.kafka_mirrormaker.producer_max_request_size-property"><code>producer_max_request_size</code></a> (integer, Minimum: 0, Maximum: 67108864). The maximum request size in bytes.</li>
 </ul>
 <h2 id="spec.logs">logs<a class="headerlink" href="#spec.logs" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Logs configuration values.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1830,6 +1850,7 @@
 <li><a href="#spec.logs.elasticsearch_index_prefix-property" name="spec.logs.elasticsearch_index_prefix-property"><code>elasticsearch_index_prefix</code></a> (string, MinLength: 1, MaxLength: 1024). Elasticsearch index prefix.</li>
 </ul>
 <h2 id="spec.metrics">metrics<a class="headerlink" href="#spec.metrics" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Metrics configuration values.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1840,12 +1861,14 @@
 <li><a href="#spec.metrics.username-property" name="spec.metrics.username-property"><code>username</code></a> (string, Pattern: <code>^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$</code>, MaxLength: 40). Name of the user used to write metrics. Only affects PostgreSQL destinations. Defaults to 'metrics_writer'. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.</li>
 </ul>
 <h3 id="spec.metrics.source_mysql">source_mysql<a class="headerlink" href="#spec.metrics.source_mysql" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.metrics"><code>spec.metrics</code></a>.</em></p>
 <p>Configuration options for metrics where source service is MySQL.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.metrics.source_mysql.telegraf-property" name="spec.metrics.source_mysql.telegraf-property"><code>telegraf</code></a> (object). Configuration options for Telegraf MySQL input plugin. See below for <a href="#spec.metrics.source_mysql.telegraf">nested schema</a>.</li>
 </ul>
 <h4 id="spec.metrics.source_mysql.telegraf">telegraf<a class="headerlink" href="#spec.metrics.source_mysql.telegraf" title="Permanent link">&para;</a></h4>
+<p><em>Appears on <a href="#spec.metrics.source_mysql"><code>spec.metrics.source_mysql</code></a>.</em></p>
 <p>Configuration options for Telegraf MySQL input plugin.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1951,7 +1974,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.2a6f1dda.min.js"></script>
+      <script src="../assets/javascripts/bundle.ce72ebac.min.js"></script>
       
     
   </body>

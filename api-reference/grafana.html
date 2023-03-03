@@ -17,7 +17,7 @@
         <link rel="next" href="kafka.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.14">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.0">
     
     
       
@@ -25,7 +25,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.113286f1.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.402914a4.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
@@ -917,8 +917,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#Schema" class="md-nav__link">
-    Schema
+  <a href="#Grafana" class="md-nav__link">
+    Grafana
   </a>
   
 </li>
@@ -1298,8 +1298,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#Schema" class="md-nav__link">
-    Schema
+  <a href="#Grafana" class="md-nav__link">
+    Grafana
   </a>
   
 </li>
@@ -1492,16 +1492,17 @@
 <a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">whatever</span>
 <a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">network</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.20.0.0/16</span>
 </code></pre></div>
-<h2 id="Schema">Schema<a class="headerlink" href="#Schema" title="Permanent link">&para;</a></h2>
+<h2 id="Grafana">Grafana<a class="headerlink" href="#Grafana" title="Permanent link">&para;</a></h2>
 <p>Grafana is the Schema for the grafanas API.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#apiVersion-property" name="apiVersion-property"><code>apiVersion</code></a> (string). Must be equal to <code>aiven.io/v1alpha1</code>.</li>
-<li><a href="#kind-property" name="kind-property"><code>kind</code></a> (string). Must be equal to <code>Grafana</code>.</li>
+<li><a href="#apiVersion-property" name="apiVersion-property"><code>apiVersion</code></a> (string). Value <code>aiven.io/v1alpha1</code>.</li>
+<li><a href="#kind-property" name="kind-property"><code>kind</code></a> (string). Value <code>Grafana</code>.</li>
 <li><a href="#metadata-property" name="metadata-property"><code>metadata</code></a> (object). Data that identifies the object, including a <code>name</code> string and optional <code>namespace</code>.</li>
 <li><a href="#spec-property" name="spec-property"><code>spec</code></a> (object). GrafanaSpec defines the desired state of Grafana. See below for <a href="#spec">nested schema</a>.</li>
 </ul>
 <h2 id="spec">spec<a class="headerlink" href="#spec" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#Grafana"><code>Grafana</code></a>.</em></p>
 <p>GrafanaSpec defines the desired state of Grafana.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1524,6 +1525,7 @@
 <li><a href="#spec.userConfig-property" name="spec.userConfig-property"><code>userConfig</code></a> (object). Cassandra specific user configuration options. See below for <a href="#spec.userConfig">nested schema</a>.</li>
 </ul>
 <h2 id="spec.authSecretRef">authSecretRef<a class="headerlink" href="#spec.authSecretRef" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Authentication reference to Aiven token in a secret.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1531,12 +1533,14 @@
 <li><a href="#spec.authSecretRef.name-property" name="spec.authSecretRef.name-property"><code>name</code></a> (string, MinLength: 1). </li>
 </ul>
 <h2 id="spec.connInfoSecretTarget">connInfoSecretTarget<a class="headerlink" href="#spec.connInfoSecretTarget" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Information regarding secret creation.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.connInfoSecretTarget.name-property" name="spec.connInfoSecretTarget.name-property"><code>name</code></a> (string). Name of the secret resource to be created. By default, is equal to the resource name.</li>
 </ul>
 <h2 id="spec.projectVPCRef">projectVPCRef<a class="headerlink" href="#spec.projectVPCRef" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1547,6 +1551,7 @@
 <li><a href="#spec.projectVPCRef.namespace-property" name="spec.projectVPCRef.namespace-property"><code>namespace</code></a> (string, MinLength: 1). </li>
 </ul>
 <h2 id="spec.serviceIntegrations">serviceIntegrations<a class="headerlink" href="#spec.serviceIntegrations" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Service integrations to specify when creating a service. Not applied after initial service creation.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1554,6 +1559,7 @@
 <li><a href="#spec.serviceIntegrations.sourceServiceName-property" name="spec.serviceIntegrations.sourceServiceName-property"><code>sourceServiceName</code></a> (string, MinLength: 1, MaxLength: 64). </li>
 </ul>
 <h2 id="spec.userConfig">userConfig<a class="headerlink" href="#spec.userConfig" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Cassandra specific user configuration options.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1596,6 +1602,7 @@
 <li><a href="#spec.userConfig.viewers_can_edit-property" name="spec.userConfig.viewers_can_edit-property"><code>viewers_can_edit</code></a> (boolean). Users with view-only permission can edit but not save dashboards.</li>
 </ul>
 <h3 id="spec.userConfig.auth_azuread">auth_azuread<a class="headerlink" href="#spec.userConfig.auth_azuread" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>Azure AD OAuth integration.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1611,6 +1618,7 @@
 <li><a href="#spec.userConfig.auth_azuread.allowed_groups-property" name="spec.userConfig.auth_azuread.allowed_groups-property"><code>allowed_groups</code></a> (array of strings, MaxItems: 50). Require users to belong to one of given groups.</li>
 </ul>
 <h3 id="spec.userConfig.auth_generic_oauth">auth_generic_oauth<a class="headerlink" href="#spec.userConfig.auth_generic_oauth" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>Generic OAuth integration.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1629,6 +1637,7 @@
 <li><a href="#spec.userConfig.auth_generic_oauth.scopes-property" name="spec.userConfig.auth_generic_oauth.scopes-property"><code>scopes</code></a> (array of strings, MaxItems: 50). OAuth scopes.</li>
 </ul>
 <h3 id="spec.userConfig.auth_github">auth_github<a class="headerlink" href="#spec.userConfig.auth_github" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>Github Auth integration.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1642,6 +1651,7 @@
 <li><a href="#spec.userConfig.auth_github.team_ids-property" name="spec.userConfig.auth_github.team_ids-property"><code>team_ids</code></a> (array of integers, MaxItems: 50). Require users to belong to one of given team IDs.</li>
 </ul>
 <h3 id="spec.userConfig.auth_gitlab">auth_gitlab<a class="headerlink" href="#spec.userConfig.auth_gitlab" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>GitLab Auth integration.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1657,6 +1667,7 @@
 <li><a href="#spec.userConfig.auth_gitlab.token_url-property" name="spec.userConfig.auth_gitlab.token_url-property"><code>token_url</code></a> (string, MaxLength: 2048). Token URL. This only needs to be set when using self hosted GitLab.</li>
 </ul>
 <h3 id="spec.userConfig.auth_google">auth_google<a class="headerlink" href="#spec.userConfig.auth_google" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>Google Auth integration.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1669,6 +1680,7 @@
 <li><a href="#spec.userConfig.auth_google.allow_sign_up-property" name="spec.userConfig.auth_google.allow_sign_up-property"><code>allow_sign_up</code></a> (boolean). Automatically sign-up users on successful sign-in.</li>
 </ul>
 <h3 id="spec.userConfig.date_formats">date_formats<a class="headerlink" href="#spec.userConfig.date_formats" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>Grafana date format specifications.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1682,6 +1694,7 @@
 <li><a href="#spec.userConfig.date_formats.interval_year-property" name="spec.userConfig.date_formats.interval_year-property"><code>interval_year</code></a> (string, MaxLength: 128). Moment.js style format string used when a time requiring year accuracy is shown.</li>
 </ul>
 <h3 id="spec.userConfig.external_image_storage">external_image_storage<a class="headerlink" href="#spec.userConfig.external_image_storage" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>External image store settings.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1691,6 +1704,7 @@
 <li><a href="#spec.userConfig.external_image_storage.secret_key-property" name="spec.userConfig.external_image_storage.secret_key-property"><code>secret_key</code></a> (string, Pattern: <code>^[A-Za-z0-9/+=]+$</code>, MaxLength: 4096). S3 secret key.</li>
 </ul>
 <h3 id="spec.userConfig.ip_filter">ip_filter<a class="headerlink" href="#spec.userConfig.ip_filter" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1701,24 +1715,28 @@
 <li><a href="#spec.userConfig.ip_filter.description-property" name="spec.userConfig.ip_filter.description-property"><code>description</code></a> (string, MaxLength: 1024). Description for IP filter list entry.</li>
 </ul>
 <h3 id="spec.userConfig.private_access">private_access<a class="headerlink" href="#spec.userConfig.private_access" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>Allow access to selected service ports from private networks.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.private_access.grafana-property" name="spec.userConfig.private_access.grafana-property"><code>grafana</code></a> (boolean). Allow clients to connect to grafana with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.</li>
 </ul>
 <h3 id="spec.userConfig.privatelink_access">privatelink_access<a class="headerlink" href="#spec.userConfig.privatelink_access" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>Allow access to selected service components through Privatelink.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.privatelink_access.grafana-property" name="spec.userConfig.privatelink_access.grafana-property"><code>grafana</code></a> (boolean). Enable grafana.</li>
 </ul>
 <h3 id="spec.userConfig.public_access">public_access<a class="headerlink" href="#spec.userConfig.public_access" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>Allow access to selected service ports from the public Internet.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.public_access.grafana-property" name="spec.userConfig.public_access.grafana-property"><code>grafana</code></a> (boolean). Allow clients to connect to grafana from the public internet for service nodes that are in a project VPC or another type of private network.</li>
 </ul>
 <h3 id="spec.userConfig.smtp_server">smtp_server<a class="headerlink" href="#spec.userConfig.smtp_server" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>SMTP server settings.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1821,7 +1839,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.2a6f1dda.min.js"></script>
+      <script src="../assets/javascripts/bundle.ce72ebac.min.js"></script>
       
     
   </body>

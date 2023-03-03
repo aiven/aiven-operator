@@ -17,7 +17,7 @@
         <link rel="next" href="postgresql.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.14">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.0">
     
     
       
@@ -25,7 +25,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.113286f1.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.402914a4.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
@@ -1029,8 +1029,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#Schema" class="md-nav__link">
-    Schema
+  <a href="#OpenSearch" class="md-nav__link">
+    OpenSearch
   </a>
   
 </li>
@@ -1270,8 +1270,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#Schema" class="md-nav__link">
-    Schema
+  <a href="#OpenSearch" class="md-nav__link">
+    OpenSearch
   </a>
   
 </li>
@@ -1429,16 +1429,17 @@
 <a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="nt">maintenanceWindowDow</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">friday</span>
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span><span class="nt">maintenanceWindowTime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">23:00:00</span>
 </code></pre></div>
-<h2 id="Schema">Schema<a class="headerlink" href="#Schema" title="Permanent link">&para;</a></h2>
+<h2 id="OpenSearch">OpenSearch<a class="headerlink" href="#OpenSearch" title="Permanent link">&para;</a></h2>
 <p>OpenSearch is the Schema for the opensearches API.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#apiVersion-property" name="apiVersion-property"><code>apiVersion</code></a> (string). Must be equal to <code>aiven.io/v1alpha1</code>.</li>
-<li><a href="#kind-property" name="kind-property"><code>kind</code></a> (string). Must be equal to <code>OpenSearch</code>.</li>
+<li><a href="#apiVersion-property" name="apiVersion-property"><code>apiVersion</code></a> (string). Value <code>aiven.io/v1alpha1</code>.</li>
+<li><a href="#kind-property" name="kind-property"><code>kind</code></a> (string). Value <code>OpenSearch</code>.</li>
 <li><a href="#metadata-property" name="metadata-property"><code>metadata</code></a> (object). Data that identifies the object, including a <code>name</code> string and optional <code>namespace</code>.</li>
 <li><a href="#spec-property" name="spec-property"><code>spec</code></a> (object). OpenSearchSpec defines the desired state of OpenSearch. See below for <a href="#spec">nested schema</a>.</li>
 </ul>
 <h2 id="spec">spec<a class="headerlink" href="#spec" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#OpenSearch"><code>OpenSearch</code></a>.</em></p>
 <p>OpenSearchSpec defines the desired state of OpenSearch.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1461,6 +1462,7 @@
 <li><a href="#spec.userConfig-property" name="spec.userConfig-property"><code>userConfig</code></a> (object). OpenSearch specific user configuration options. See below for <a href="#spec.userConfig">nested schema</a>.</li>
 </ul>
 <h2 id="spec.authSecretRef">authSecretRef<a class="headerlink" href="#spec.authSecretRef" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Authentication reference to Aiven token in a secret.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1468,12 +1470,14 @@
 <li><a href="#spec.authSecretRef.name-property" name="spec.authSecretRef.name-property"><code>name</code></a> (string, MinLength: 1). </li>
 </ul>
 <h2 id="spec.connInfoSecretTarget">connInfoSecretTarget<a class="headerlink" href="#spec.connInfoSecretTarget" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Information regarding secret creation.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.connInfoSecretTarget.name-property" name="spec.connInfoSecretTarget.name-property"><code>name</code></a> (string). Name of the secret resource to be created. By default, is equal to the resource name.</li>
 </ul>
 <h2 id="spec.projectVPCRef">projectVPCRef<a class="headerlink" href="#spec.projectVPCRef" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1484,6 +1488,7 @@
 <li><a href="#spec.projectVPCRef.namespace-property" name="spec.projectVPCRef.namespace-property"><code>namespace</code></a> (string, MinLength: 1). </li>
 </ul>
 <h2 id="spec.serviceIntegrations">serviceIntegrations<a class="headerlink" href="#spec.serviceIntegrations" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Service integrations to specify when creating a service. Not applied after initial service creation.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1491,6 +1496,7 @@
 <li><a href="#spec.serviceIntegrations.sourceServiceName-property" name="spec.serviceIntegrations.sourceServiceName-property"><code>sourceServiceName</code></a> (string, MinLength: 1, MaxLength: 64). </li>
 </ul>
 <h2 id="spec.userConfig">userConfig<a class="headerlink" href="#spec.userConfig" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>OpenSearch specific user configuration options.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1514,6 +1520,7 @@
 <li><a href="#spec.userConfig.static_ips-property" name="spec.userConfig.static_ips-property"><code>static_ips</code></a> (boolean). Use static public IP addresses.</li>
 </ul>
 <h3 id="spec.userConfig.index_patterns">index_patterns<a class="headerlink" href="#spec.userConfig.index_patterns" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>Index patterns.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1525,6 +1532,7 @@
 <li><a href="#spec.userConfig.index_patterns.sorting_algorithm-property" name="spec.userConfig.index_patterns.sorting_algorithm-property"><code>sorting_algorithm</code></a> (string, Enum: <code>alphabetical</code>, <code>creation_date</code>). Deletion sorting algorithm.</li>
 </ul>
 <h3 id="spec.userConfig.index_template">index_template<a class="headerlink" href="#spec.userConfig.index_template" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>Template settings for all new indexes.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1533,6 +1541,7 @@
 <li><a href="#spec.userConfig.index_template.number_of_shards-property" name="spec.userConfig.index_template.number_of_shards-property"><code>number_of_shards</code></a> (integer, Minimum: 1, Maximum: 1024). The number of primary shards that an index should have.</li>
 </ul>
 <h3 id="spec.userConfig.ip_filter">ip_filter<a class="headerlink" href="#spec.userConfig.ip_filter" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1543,6 +1552,7 @@
 <li><a href="#spec.userConfig.ip_filter.description-property" name="spec.userConfig.ip_filter.description-property"><code>description</code></a> (string, MaxLength: 1024). Description for IP filter list entry.</li>
 </ul>
 <h3 id="spec.userConfig.opensearch">opensearch<a class="headerlink" href="#spec.userConfig.opensearch" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>OpenSearch settings.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1579,6 +1589,7 @@
 <li><a href="#spec.userConfig.opensearch.thread_pool_write_size-property" name="spec.userConfig.opensearch.thread_pool_write_size-property"><code>thread_pool_write_size</code></a> (integer, Minimum: 1, Maximum: 128). Size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value.</li>
 </ul>
 <h3 id="spec.userConfig.opensearch_dashboards">opensearch_dashboards<a class="headerlink" href="#spec.userConfig.opensearch_dashboards" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>OpenSearch Dashboards settings.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1587,6 +1598,7 @@
 <li><a href="#spec.userConfig.opensearch_dashboards.opensearch_request_timeout-property" name="spec.userConfig.opensearch_dashboards.opensearch_request_timeout-property"><code>opensearch_request_timeout</code></a> (integer, Minimum: 5000, Maximum: 120000). Timeout in milliseconds for requests made by OpenSearch Dashboards towards OpenSearch.</li>
 </ul>
 <h3 id="spec.userConfig.private_access">private_access<a class="headerlink" href="#spec.userConfig.private_access" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>Allow access to selected service ports from private networks.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1595,6 +1607,7 @@
 <li><a href="#spec.userConfig.private_access.prometheus-property" name="spec.userConfig.private_access.prometheus-property"><code>prometheus</code></a> (boolean). Allow clients to connect to prometheus with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.</li>
 </ul>
 <h3 id="spec.userConfig.privatelink_access">privatelink_access<a class="headerlink" href="#spec.userConfig.privatelink_access" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>Allow access to selected service components through Privatelink.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1603,6 +1616,7 @@
 <li><a href="#spec.userConfig.privatelink_access.prometheus-property" name="spec.userConfig.privatelink_access.prometheus-property"><code>prometheus</code></a> (boolean). Enable prometheus.</li>
 </ul>
 <h3 id="spec.userConfig.public_access">public_access<a class="headerlink" href="#spec.userConfig.public_access" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>Allow access to selected service ports from the public Internet.</p>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1697,7 +1711,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.2a6f1dda.min.js"></script>
+      <script src="../assets/javascripts/bundle.ce72ebac.min.js"></script>
       
     
   </body>

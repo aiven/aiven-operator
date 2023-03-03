@@ -17,7 +17,7 @@
         <link rel="next" href="connectionpool.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.14">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.0">
     
     
       
@@ -25,7 +25,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.113286f1.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.402914a4.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
@@ -73,7 +73,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#Schema" class="md-skip">
+        <a href="#ClickhouseUser" class="md-skip">
           Skip to content
         </a>
       
@@ -868,8 +868,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#Schema" class="md-nav__link">
-    Schema
+  <a href="#ClickhouseUser" class="md-nav__link">
+    ClickhouseUser
   </a>
   
 </li>
@@ -1173,8 +1173,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#Schema" class="md-nav__link">
-    Schema
+  <a href="#ClickhouseUser" class="md-nav__link">
+    ClickhouseUser
   </a>
   
 </li>
@@ -1228,16 +1228,17 @@
 
   <h1>ClickhouseUser</h1>
 
-<h2 id="Schema">Schema<a class="headerlink" href="#Schema" title="Permanent link">&para;</a></h2>
+<h2 id="ClickhouseUser">ClickhouseUser<a class="headerlink" href="#ClickhouseUser" title="Permanent link">&para;</a></h2>
 <p>ClickhouseUser is the Schema for the clickhouseusers API.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#apiVersion-property" name="apiVersion-property"><code>apiVersion</code></a> (string). Must be equal to <code>aiven.io/v1alpha1</code>.</li>
-<li><a href="#kind-property" name="kind-property"><code>kind</code></a> (string). Must be equal to <code>ClickhouseUser</code>.</li>
+<li><a href="#apiVersion-property" name="apiVersion-property"><code>apiVersion</code></a> (string). Value <code>aiven.io/v1alpha1</code>.</li>
+<li><a href="#kind-property" name="kind-property"><code>kind</code></a> (string). Value <code>ClickhouseUser</code>.</li>
 <li><a href="#metadata-property" name="metadata-property"><code>metadata</code></a> (object). Data that identifies the object, including a <code>name</code> string and optional <code>namespace</code>.</li>
 <li><a href="#spec-property" name="spec-property"><code>spec</code></a> (object). ClickhouseUserSpec defines the desired state of ClickhouseUser. See below for <a href="#spec">nested schema</a>.</li>
 </ul>
 <h2 id="spec">spec<a class="headerlink" href="#spec" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#ClickhouseUser"><code>ClickhouseUser</code></a>.</em></p>
 <p>ClickhouseUserSpec defines the desired state of ClickhouseUser.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1251,6 +1252,7 @@
 <li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Information regarding secret creation. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
 </ul>
 <h2 id="spec.authSecretRef">authSecretRef<a class="headerlink" href="#spec.authSecretRef" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Authentication reference to Aiven token in a secret.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1258,6 +1260,7 @@
 <li><a href="#spec.authSecretRef.name-property" name="spec.authSecretRef.name-property"><code>name</code></a> (string, MinLength: 1). </li>
 </ul>
 <h2 id="spec.connInfoSecretTarget">connInfoSecretTarget<a class="headerlink" href="#spec.connInfoSecretTarget" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Information regarding secret creation.</p>
 <p><strong>Required</strong></p>
 <ul>
@@ -1350,7 +1353,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.2a6f1dda.min.js"></script>
+      <script src="../assets/javascripts/bundle.ce72ebac.min.js"></script>
       
     
   </body>
