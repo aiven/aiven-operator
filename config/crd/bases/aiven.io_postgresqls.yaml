@@ -828,6 +828,7 @@ spec:
                     type: integer
                 type: object
             required:
+            - plan
             - project
             type: object
           status:

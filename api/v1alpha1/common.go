@@ -46,7 +46,7 @@ type ServiceCommonSpec struct {
 
 	// +kubebuilder:validation:MaxLength=128
 	// Subscription plan.
-	Plan string `json:"plan,omitempty"`
+	Plan string `json:"plan"`
 
 	// +kubebuilder:validation:MaxLength=256
 	// Cloud the service runs in.

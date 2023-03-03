@@ -786,6 +786,7 @@ spec:
                     type: boolean
                 type: object
             required:
+            - plan
             - project
             type: object
           status:

@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Mark service `plan` as a required field
+
 ## v0.9.0 - 2023-03-03
 
 - `AuthSecretRef` fields marked as required
