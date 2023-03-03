@@ -2,12 +2,15 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.9.0 - 2023-03-03
+
 - `AuthSecretRef` fields marked as required
 - Generate user configs for existing service integrations: `datadog`, `kafka_connect`, `kafka_logs`, `metrics`
 - Add new service integrations: `clickhouse_postgresql`, `clickhouse_kafka`, `clickhouse_kafka`, `logs`, `external_aws_cloudwatch_metrics`
 - Add `KafkaTopic.Spec.topicName` field. Unlike the `metadata.name`, supports additional characters and has a longer length.
   `KafkaTopic.Spec.topicName` replaces `metadata.name` in future releases and will be marked as required.
 - Accept `false` value for `termination_protection` property
+- Fix `min_cleanable_dirty_ratio`. Thanks to @TV2rd
 
 ## v0.8.0 - 2023-02-15
 
