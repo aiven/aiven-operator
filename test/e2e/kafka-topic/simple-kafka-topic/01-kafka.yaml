@@ -14,7 +14,7 @@ spec:
 
   cloudName: google-europe-west1
   plan: business-4
-  disc_space: 15Gib
+  disk_space: 15Gib
 
   userConfig:
     kafka_connect: true

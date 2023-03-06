@@ -201,6 +201,7 @@ spec:
                       rule: self == oldSelf
                 type: object
             required:
+            - plan
             - project
             type: object
           status:
