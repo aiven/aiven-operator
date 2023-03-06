@@ -7,3 +7,9 @@ delete:
   - apiVersion: aiven.io/v1alpha1
     kind: KafkaConnector
     name: k8s-test-kafka-connector-connect-kafka-to-postgres-connector
+  - apiVersion: aiven.io/v1alpha1
+    kind: KafkaTopic
+    name: k8s-test-kafka-connector-connect-kafka-to-postgres-topic
+  - apiVersion: aiven.io/v1alpha1
+    kind: Kafka
+    name: k8s-test-kafka-connector-connect-kafka-to-postgres-kafka
