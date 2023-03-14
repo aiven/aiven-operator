@@ -3,6 +3,7 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - Mark service `plan` as a required field
+- Add `minumim`, `maximum` validations for `number` type
 
 ## v0.9.0 - 2023-03-03
 
