@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"math"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -120,19 +119,17 @@ type objectInternal struct {
 type object struct {
 	objectInternal
 
-	// ObjectValidators
-	// https://pkg.go.dev/encoding/json#Unmarshal
-	// Go returns float64 for JSON numbers
 	Enum []*struct {
 		Value string `yaml:"value"`
 	} `yaml:"enum"`
-	Pattern   string   `yaml:"pattern"`
-	Minimum   *float64 `yaml:"minimum"`
-	Maximum   *float64 `yaml:"maximum"`
-	MinItems  *float64 `yaml:"min_items"`
-	MaxItems  *float64 `yaml:"max_items"`
-	MinLength *float64 `yaml:"min_length"`
-	MaxLength *float64 `yaml:"max_length"`
+	Pattern   string `yaml:"pattern"`
+	MinItems  *int   `yaml:"min_items"`
+	MaxItems  *int   `yaml:"max_items"`
+	MinLength *int   `yaml:"min_length"`
+	MaxLength *int   `yaml:"max_length"`
+	// Store both int and float
+	Minimum *float64 `yaml:"minimum"`
+	Maximum *float64 `yaml:"maximum"`
 
 	// OpenAPI Spec
 	Type           objectType         `yaml:"-"`
@@ -320,26 +317,30 @@ func addFieldTags(s *jen.Statement, obj *object) *jen.Statement {
 // addFieldComments add validation markers and doc string
 func addFieldComments(s *jen.Statement, obj *object) *jen.Statement {
 	c := make([]string, 0)
-	// We don't validate floats because of conversion problems (go, json, yaml)
-	if obj.Type == objectTypeInteger {
-		if obj.Minimum != nil {
-			c = append(c, fmt.Sprintf("// +kubebuilder:validation:Minimum=%d", int(*obj.Minimum)))
+
+	// Sets min-max if they are not equal (both empty or equal to zero)
+	min := objMinimum(obj)
+	max := objMaximum(obj)
+	if min != max {
+		if min != "" {
+			c = append(c, "// +kubebuilder:validation:Minimum="+min)
 		}
-		if m := objMaximum(obj); m != "" {
-			c = append(c, "// +kubebuilder:validation:Maximum="+m)
+		if max != "" {
+			c = append(c, "// +kubebuilder:validation:Maximum="+max)
 		}
 	}
+
 	if obj.MinLength != nil {
-		c = append(c, fmt.Sprintf("// +kubebuilder:validation:MinLength=%d", int(*obj.MinLength)))
+		c = append(c, fmt.Sprintf("// +kubebuilder:validation:MinLength=%d", *obj.MinLength))
 	}
 	if obj.MaxLength != nil {
-		c = append(c, fmt.Sprintf("// +kubebuilder:validation:MaxLength=%d", int(*obj.MaxLength)))
+		c = append(c, fmt.Sprintf("// +kubebuilder:validation:MaxLength=%d", *obj.MaxLength))
 	}
 	if obj.MinItems != nil {
-		c = append(c, fmt.Sprintf("// +kubebuilder:validation:MinItems=%d", int(*obj.MinItems)))
+		c = append(c, fmt.Sprintf("// +kubebuilder:validation:MinItems=%d", *obj.MinItems))
 	}
 	if obj.MaxItems != nil {
-		c = append(c, fmt.Sprintf("// +kubebuilder:validation:MaxItems=%d", int(*obj.MaxItems)))
+		c = append(c, fmt.Sprintf("// +kubebuilder:validation:MaxItems=%d", *obj.MaxItems))
 	}
 	if obj.Pattern != "" {
 		_, err := regexp.Compile(obj.Pattern)
@@ -398,32 +399,41 @@ func toCamelCase(s string) string {
 	return strcase.UpperCamelCase(strings.ReplaceAll(s, ".", "_"))
 }
 
-// objMaximum validates obj maximum
+// maxSafeInt float64 mantissa size is 53 bits (52 explicitly stored) - 1
+// - Can be exactly represented as an IEEE-754 double precision number, and
+// - IEEE-754 representation cannot be the result of rounding any other integer to fit the IEEE-754 representation.
+const maxSafeInt = float64(1<<53 - 1)
+
 func objMaximum(obj *object) string {
-	if obj.Maximum == nil || obj.Type != objectTypeInteger {
+	if obj.Maximum == nil {
 		return ""
 	}
 
-	// "Maximum" validator is a float64
-	// https://github.com/kubernetes-sigs/controller-tools/blob/cb13ac551a0599044e50ed756735a8f438a24631/pkg/crd/markers/validation.go#L128
-	// MaxInt (9223372036854775807) becomes float64=9.223372036854776e+18
-	// and turing it to int results overflow: -9223372036854775808
-	// Validation then fails with "should be less than or equal to -9223372036854775808"
-	// Unfortunately type conversion works different for AMD64 and ARM64.
-	// So we can't just check conversion here, because we do need this work the very same way on all platforms.
-	// We now this happens to big numbers, and the big number we have in API is MaxInt.
-	// Skips it, skips overflows.
-	m := int(*obj.Maximum)
-	if m < 1 || m == math.MaxInt64 {
+	f := *obj.Maximum
+	if f > maxSafeInt {
 		return ""
 	}
 
-	if obj.Minimum != nil && int(*obj.Minimum) >= m {
-		// Maximum must be bigger than minimum
-		log.Printf("field %q has minimum >= maximum: %d >= %d", obj.jsonName, int(*obj.Minimum), m)
+	if obj.Type == objectTypeInteger {
+		return fmt.Sprint(int(f))
+	}
+	return fmt.Sprint(f)
+}
+
+func objMinimum(obj *object) string {
+	if obj.Minimum == nil {
 		return ""
 	}
-	return fmt.Sprint(m)
+
+	f := *obj.Minimum
+	if f < -maxSafeInt {
+		return ""
+	}
+
+	if obj.Type == objectTypeInteger {
+		return fmt.Sprint(int(f))
+	}
+	return fmt.Sprint(f)
 }
 
 // ipFilterCustomUnmarshal adds custom UnmarshalJSON that supports both strings and object type

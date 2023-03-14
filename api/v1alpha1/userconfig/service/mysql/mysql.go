@@ -164,6 +164,8 @@ type Mysql struct {
 	// The storage engine for in-memory internal temporary tables.
 	InternalTmpMemStorageEngine *string `groups:"create,update" json:"internal_tmp_mem_storage_engine,omitempty"`
 
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=3600
 	// The slow_query_logs work as SQL statements that take more than long_query_time seconds to execute. Default is 10s
 	LongQueryTime *float64 `groups:"create,update" json:"long_query_time,omitempty"`
 

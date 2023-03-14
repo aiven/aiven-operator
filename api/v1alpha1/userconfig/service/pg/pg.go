@@ -80,6 +80,8 @@ type Migration struct {
 
 // postgresql.conf configuration values
 type Pg struct {
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1
 	// Specifies a fraction of the table size to add to autovacuum_analyze_threshold when deciding whether to trigger an ANALYZE. The default is 0.2 (20% of table size)
 	AutovacuumAnalyzeScaleFactor *float64 `groups:"create,update" json:"autovacuum_analyze_scale_factor,omitempty"`
 
@@ -113,6 +115,8 @@ type Pg struct {
 	// Specifies the cost limit value that will be used in automatic VACUUM operations. If -1 is specified (which is the default), the regular vacuum_cost_limit value will be used.
 	AutovacuumVacuumCostLimit *int `groups:"create,update" json:"autovacuum_vacuum_cost_limit,omitempty"`
 
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1
 	// Specifies a fraction of the table size to add to autovacuum_vacuum_threshold when deciding whether to trigger a VACUUM. The default is 0.2 (20% of table size)
 	AutovacuumVacuumScaleFactor *float64 `groups:"create,update" json:"autovacuum_vacuum_scale_factor,omitempty"`
 
@@ -136,6 +140,8 @@ type Pg struct {
 	// In each round, no more than this many buffers will be written by the background writer. Setting this to zero disables background writing. Default is 100.
 	BgwriterLruMaxpages *int `groups:"create,update" json:"bgwriter_lru_maxpages,omitempty"`
 
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=10
 	// The average recent need for new buffers is multiplied by bgwriter_lru_multiplier to arrive at an estimate of the number that will be needed during the next round, (up to bgwriter_lru_maxpages). 1.0 represents a “just in time” policy of writing exactly the number of buffers predicted to be needed. Larger values provide some cushion against spikes in demand, while smaller values intentionally leave writes to be done by server processes. The default is 2.0.
 	BgwriterLruMultiplier *float64 `groups:"create,update" json:"bgwriter_lru_multiplier,omitempty"`
 
@@ -486,6 +492,8 @@ type PgUserConfig struct {
 	// Name of another service to fork from. This has effect only when a new service is being created.
 	ServiceToForkFrom *string `groups:"create" json:"service_to_fork_from,omitempty"`
 
+	// +kubebuilder:validation:Minimum=20
+	// +kubebuilder:validation:Maximum=60
 	// Percentage of total RAM that the database server uses for shared memory buffers. Valid range is 20-60 (float), which corresponds to 20% - 60%. This setting adjusts the shared_buffers configuration value.
 	SharedBuffersPercentage *float64 `groups:"create,update" json:"shared_buffers_percentage,omitempty"`
 

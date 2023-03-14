@@ -408,6 +408,8 @@ spec:
                         description: The slow_query_logs work as SQL statements that
                           take more than long_query_time seconds to execute. Default
                           is 10s
+                        maximum: 3600
+                        minimum: 0
                         type: number
                       max_allowed_packet:
                         description: Size of the largest message in bytes that can
