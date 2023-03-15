@@ -4,12 +4,12 @@ go 1.18
 
 require (
 	github.com/aiven/aiven-go-client v1.7.1-0.20230210144417-67543c45c148
-	github.com/aiven/aiven-go-client/tools/exp v0.0.0-20230210144417-67543c45c148
+	github.com/aiven/aiven-go-client/tools/exp v0.0.0-20230306100118-135ebe06ba82
 	github.com/dave/jennifer v1.6.0
 	github.com/docker/go-units v0.5.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-logr/logr v1.2.0
-	github.com/google/go-cmp v0.5.8
+	github.com/google/go-cmp v0.5.9
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/liip/sheriff v0.11.1
 	github.com/onsi/ginkgo/v2 v2.3.1
