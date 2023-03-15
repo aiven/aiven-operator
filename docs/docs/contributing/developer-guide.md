@@ -13,6 +13,10 @@ git clone git@github.com:aiven/aiven-operator.git
 cd aiven-operator
 ```
 
+## Resource generation
+
+Please see [this page](resource-generation.md) for more information.
+
 ## Building
 
 The project uses the `make` build system.

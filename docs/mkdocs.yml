@@ -7,6 +7,11 @@ edit_uri: blob/main/docs/docs/
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
@@ -62,6 +67,7 @@ nav:
       - Contributing:
           - contributing/index.md
           - contributing/developer-guide.md
+          - contributing/resource-generation.md
   - Resources:
       - resources/project.md
       - resources/project-vpc.md
