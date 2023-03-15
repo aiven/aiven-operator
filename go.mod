@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/aiven/aiven-go-client v1.7.1-0.20230210144417-67543c45c148
-	github.com/aiven/aiven-go-client/tools/exp v0.0.0-20230210144417-67543c45c148
+	github.com/aiven/aiven-go-client/tools/exp v0.0.0-20230306100118-135ebe06ba82
 	github.com/dave/jennifer v1.6.0
 	github.com/docker/go-units v0.5.0
 	github.com/ghodss/yaml v1.0.0
@@ -19,7 +19,7 @@ require (
 	github.com/stretchr/testify v1.8.1
 	github.com/xeipuuv/gojsonschema v1.2.0
 	golang.org/x/exp v0.0.0-20221217163422-3c43f8badb15
-	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
+	golang.org/x/sync v0.1.0
 	golang.org/x/tools v0.2.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.24.2
