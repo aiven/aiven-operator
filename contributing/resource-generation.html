@@ -1230,7 +1230,7 @@ a cron job fetches it, parses, patches, and saves in a shared library — <a hre
 <p>When the library is updated, 
 the GitHub <a href="https://github.com/dependabot">dependabot</a> creates a PR with new <code>tools</code> version to the dependant repositories, 
 like Aiven Kubernetes Operator and Aiven Terraform Provider.</p>
-<p>Then the <a href="make-generate">make generate</a> command is called by GitHub Actions.
+<p>Then the <a href="#make-generate">make generate</a> command is called by GitHub Actions.
 And the PR is ready for review.</p>
 <pre class="mermaid"><code>flowchart TB
     API(Aiven API) &lt;-.-&gt;|polls schema updates| Tools([tools repository])
@@ -1272,8 +1272,8 @@ Here how it goes in the details:</p>
         Examples--&gt; Markdown(creates docs out of CRDs, adds examples)
         Reference--&gt;Markdown(kafka.md)
     end
-    CRD--&gt;|yaml files|Releaser(&lt;i&gt;todo:&lt;/i&gt; releaser&lt;br&gt; updates helm charts)
-    Releaser--&gt;NewVersion("New version 🎉")
+    CRD-.-&gt;|yaml files|Releaser(&lt;i&gt;todo:&lt;/i&gt; releaser&lt;br&gt; updates helm charts)
+    Releaser-.-&gt;NewVersion("New version 🎉")
     Markdown--&gt;NewVersion
 </code></pre>
 
