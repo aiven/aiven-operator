@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v3"
 
-	pgtestuserconfig "github.com/aiven/aiven-operator/userconfigs_generator/pg"
+	pgtestuserconfig "github.com/aiven/aiven-operator/generators/userconfigs/pg"
 )
 
 func TestNewUserConfigFile(t *testing.T) {

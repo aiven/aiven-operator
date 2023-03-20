@@ -54,5 +54,5 @@ The documentation API Reference section is generated automatically from
 the source code during the documentation deployment. To generate it locally, run the following command:
 
 ```shell
-make generate-api-reference
+make docs
 ```
