@@ -565,8 +565,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-flow-overview" class="md-nav__link">
-    The flow overview
+  <a href="#flow-overview" class="md-nav__link">
+    Flow overview
   </a>
   
 </li>
@@ -574,6 +574,13 @@
         <li class="md-nav__item">
   <a href="#make-generate" class="md-nav__link">
     make generate
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#charts-version-bump" class="md-nav__link">
+    Charts version bump
   </a>
   
 </li>
@@ -1181,8 +1188,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-flow-overview" class="md-nav__link">
-    The flow overview
+  <a href="#flow-overview" class="md-nav__link">
+    Flow overview
   </a>
   
 </li>
@@ -1190,6 +1197,13 @@
         <li class="md-nav__item">
   <a href="#make-generate" class="md-nav__link">
     make generate
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#charts-version-bump" class="md-nav__link">
+    Charts version bump
   </a>
   
 </li>
@@ -1224,19 +1238,19 @@
 <p>Aiven Kubernetes Operator generates service configs code (also known as <em>user configs</em>)
 and documentation
 from public <a href="https://api.aiven.io/doc/#tag/Service/operation/ListPublicServiceTypes">service types schema</a>.</p>
-<h2 id="the-flow-overview">The flow overview<a class="headerlink" href="#the-flow-overview" title="Permanent link">&para;</a></h2>
+<h2 id="flow-overview">Flow overview<a class="headerlink" href="#flow-overview" title="Permanent link">&para;</a></h2>
 <p>When a new schema is issued on the API,
-a cron job fetches it, parses, patches, and saves in a shared library — <a href="https://github.com/aiven/aiven-go-client/tree/master/tools/exp">tools</a>.</p>
+a cron job fetches it, parses, patches, and saves in a shared library — <a href="https://github.com/aiven/go-api-schemas">go-api-schemas</a>.</p>
 <p>When the library is updated, 
-the GitHub <a href="https://github.com/dependabot">dependabot</a> creates a PR with new <code>tools</code> version to the dependant repositories, 
+the GitHub <a href="https://github.com/dependabot">dependabot</a> creates PRs to the dependant repositories, 
 like Aiven Kubernetes Operator and Aiven Terraform Provider.</p>
-<p>Then the <a href="#make-generate">make generate</a> command is called by GitHub Actions.
+<p>Then the <a href="#make-generate"><code>make generate</code></a> command is called by GitHub action.
 And the PR is ready for review.</p>
 <pre class="mermaid"><code>flowchart TB
-    API(Aiven API) &lt;-.-&gt;|polls schema updates| Tools([tools repository])
-    Bot(dependabot) &lt;-.-&gt;|polls updates| Tools 
-    Bot--&gt;|new tools version|UpdateOP[/"✨ $ make generate ✨"/]
-    UpdateOP--&gt;|pull request| OP([operator repository])</code></pre>
+    API(Aiven API) &lt;-.-&gt;|polls schema updates| Schema([go-api-schemas])
+    Bot(dependabot) &lt;-.-&gt;|polls updates| Schema 
+    Bot--&gt;|pull request|UpdateOP[/"✨ $ make generate ✨"/]
+    UpdateOP--&gt;|review| OP([operator repository])</code></pre>
 <h2 id="make-generate">make generate<a class="headerlink" href="#make-generate" title="Permanent link">&para;</a></h2>
 <p>The command runs several generators in a certain sequence.
 First, the user config generator is called.
@@ -1246,7 +1260,7 @@ Here how it goes in the details:</p>
 <ol>
 <li>User config generator creates Go structs (k8s api compatible objects) with docstrings, 
    validation rules and constraints (immutable, maxLength, etc)</li>
-<li><a href="https://book.kubebuilder.io/reference/controller-gen.html">controller-gen</a> implements k8s <a href="https://github.com/kubernetes/apimachinery/blob/76eb944e266d86623b855a30ff51c4a371568da6/pkg/runtime/interfaces.go#L323">Object Interface</a>,
+<li><a href="https://book.kubebuilder.io/reference/controller-gen.html">controller-gen</a> generates k8s methods,
    generates <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">CRDs</a> for those objects, 
    creates charts for cluster roles and webhooks. </li>
 <li>Docs generator creates <a href="../api-reference/index.html">API reference</a> out of CRDs:<ol>
@@ -1258,12 +1272,12 @@ Here how it goes in the details:</p>
 <li>creates a markdown file with spec and example (if exists)</li>
 </ol>
 </li>
-<li><em>todo:</em> Releaser updates CRDs, webhooks, cluster roles charts, and the changelog. 
-   Prepares a new release.  </li>
+<li>Charts generator 
+   updates CRDs, webhooks and cluster roles charts</li>
 </ol>
 <pre class="mermaid"><code>flowchart TB
     Make[/$ make generate/]--&gt;Generator(userconfig generator&lt;br&gt; creates/updates structs using updated spec)
-    Generator--&gt;|go: KafkaUserConfig struct| K8S(controller-gen&lt;br&gt; implements k8s object interface&lt;br&gt; for structs)
+    Generator--&gt;|go: KafkaUserConfig struct| K8S(controller-gen&lt;br&gt; adds k8s methods to structs)
     K8S--&gt;|go files| CRD(controller-gen&lt;br&gt; creates CRDs out of structs)
     CRD--&gt;|CRD: aiven.io_kafkas.yaml| Docs(docs generator)
     subgraph API reference generation
@@ -1272,10 +1286,17 @@ Here how it goes in the details:</p>
         Examples--&gt; Markdown(creates docs out of CRDs, adds examples)
         Reference--&gt;Markdown(kafka.md)
     end
-    CRD-.-&gt;|yaml files|Releaser(&lt;i&gt;todo:&lt;/i&gt; releaser&lt;br&gt; updates helm charts)
-    Releaser-.-&gt;NewVersion("New version 🎉")
-    Markdown--&gt;NewVersion
-</code></pre>
+    CRD--&gt;|yaml files|Charts(charts generator&lt;br&gt; updates helm charts)
+    Charts--&gt;ToRelease("Ready to release 🎉")
+    Markdown--&gt;ToRelease</code></pre>
+<h2 id="charts-version-bump">Charts version bump<a class="headerlink" href="#charts-version-bump" title="Permanent link">&para;</a></h2>
+<p>By default,
+charts generator keeps the current helm chart's version,
+because it doesn't know <a href="https://semver.org/">semver</a>.
+You need it to do manually.</p>
+<p>To do so run the following command with the version of your choice:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>make<span class="w"> </span><span class="nv">version</span><span class="o">=</span>v1.0.0<span class="w"> </span>charts
+</code></pre></div>
 
 
 
