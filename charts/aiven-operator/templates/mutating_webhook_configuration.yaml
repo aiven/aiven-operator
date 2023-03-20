@@ -1,0 +1,393 @@
+{{- if .Values.webhooks.enabled }}
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  annotations:
+{{- include "aiven-operator.ca_injection_annotation" . | nindent 4 }}
+  name: {{ include "aiven-operator.fullname" . }}-mutating-webhook-configuration
+  namespace: {{ include "aiven-operator.namespace" . }}
+  labels:
+{{- include "aiven-operator.labels" . | nindent 4 }}
+webhooks:
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-cassandra
+    failurePolicy: Fail
+    name: mcassandra.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - cassandras
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-clickhouse
+    failurePolicy: Fail
+    name: mclickhouse.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - clickhouses
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-clickhouseuser
+    failurePolicy: Fail
+    name: mclickhouseuser.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - clickhouseusers
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-connectionpool
+    failurePolicy: Fail
+    name: mconnectionpool.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - connectionpools
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-database
+    failurePolicy: Fail
+    name: mdatabase.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - databases
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-grafana
+    failurePolicy: Fail
+    name: mgrafana.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - grafanas
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-kafka
+    failurePolicy: Fail
+    name: mkafka.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - kafkas
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-kafkaacl
+    failurePolicy: Fail
+    name: mkafkaacl.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - kafkaacls
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-kafkaconnect
+    failurePolicy: Fail
+    name: mkafkaconnect.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - kafkaconnects
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-kafkaconnector
+    failurePolicy: Fail
+    name: mkafkaconnector.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - kafkaconnectors
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-kafkaschema
+    failurePolicy: Fail
+    name: mkafkaschema.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - kafkaschemas
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-kafkatopic
+    failurePolicy: Fail
+    name: mkafkatopic.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - kafkatopics
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-mysql
+    failurePolicy: Fail
+    name: mmysql.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - mysqls
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-opensearch
+    failurePolicy: Fail
+    name: mopensearch.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - opensearches
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-postgresql
+    failurePolicy: Fail
+    name: mpg.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - postgresqls
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-project
+    failurePolicy: Fail
+    name: mproject.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - projects
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-redis
+    failurePolicy: Fail
+    name: mredis.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - redis
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-serviceintegration
+    failurePolicy: Fail
+    name: mserviceintegration.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - serviceintegrations
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-serviceuser
+    failurePolicy: Fail
+    name: mserviceuser.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - serviceusers
+    sideEffects: None
+
+{{- end }}

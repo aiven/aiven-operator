@@ -1,0 +1,33 @@
+{{- if .Values.webhooks.enabled }}
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "aiven-operator.fullname" . }}-webhook-certificate
+  namespace: {{ include "aiven-operator.namespace" . }}
+  labels:
+    {{- include "aiven-operator.labels" . | nindent 4 }}
+spec:
+  dnsNames:
+  - {{ include "aiven-operator.fullname" . }}-webhook-service.{{ include "aiven-operator.namespace" . }}.svc
+  - {{ include "aiven-operator.fullname" . }}-webhook-service.{{ include "aiven-operator.namespace" . }}.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: {{ include "aiven-operator.fullname" . }}-selfsigned-issuer
+  secretName: webhook-server-cert
+
+---
+
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "aiven-operator.fullname" . }}-selfsigned-issuer
+  namespace: {{ include "aiven-operator.namespace" . }}
+  labels:
+    {{- include "aiven-operator.labels" . | nindent 4 }}
+spec:
+  selfSigned: {}
+
+---
+
+{{- end }}
