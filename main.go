@@ -19,8 +19,8 @@ import (
 	//+kubebuilder:scaffold:imports
 )
 
-//go:generate go run ./userconfigs_generator/... --services mysql,cassandra,grafana,pg,kafka,redis,clickhouse,opensearch,kafka_connect
-//go:generate go run ./userconfigs_generator/... --integrations clickhouse_kafka,clickhouse_postgresql,datadog,kafka_connect,kafka_logs,kafka_mirrormaker,logs,metrics,external_aws_cloudwatch_metrics
+//go:generate go run ./generators/userconfigs/... --services mysql,cassandra,grafana,pg,kafka,redis,clickhouse,opensearch,kafka_connect
+//go:generate go run ./generators/userconfigs/... --integrations clickhouse_kafka,clickhouse_postgresql,datadog,kafka_connect,kafka_logs,kafka_mirrormaker,logs,metrics,external_aws_cloudwatch_metrics
 
 var (
 	scheme   = runtime.NewScheme()

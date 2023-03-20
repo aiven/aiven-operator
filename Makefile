@@ -86,16 +86,16 @@ help: ## Display this help.
 
 ##@ Development
 
-.PHONY: go-generate
-go-generate:
+.PHONY: userconfigs
+userconfigs:
 	go generate ./...
 
 .PHONY: manifests
-manifests: go-generate controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
+manifests: userconfigs controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd:allowDangerousTypes=true webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
 .PHONY: generate
-generate: manifests generate-api-reference ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
+generate: manifests docs ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
 .PHONY: fmt
@@ -177,9 +177,9 @@ undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/confi
 
 ##@ Docs
 
-.PHONY: generate-api-reference
-generate-api-reference: ## Generate CRDS api-reference
-	go run ./docs_generator/...
+.PHONY: docs
+docs: ## Generate CRDS api-reference
+	go run ./generators/docs/...
 
 .PHONY: serve-docs
 serve-docs: ## Run live preview.
