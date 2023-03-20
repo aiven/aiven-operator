@@ -14,6 +14,7 @@ require (
 	github.com/liip/sheriff v0.11.1
 	github.com/onsi/ginkgo/v2 v2.9.1
 	github.com/onsi/gomega v1.27.4
+	github.com/otiai10/copy v1.9.0
 	github.com/pkg/errors v0.9.1
 	github.com/stoewer/go-strcase v1.2.1
 	github.com/stretchr/testify v1.8.2

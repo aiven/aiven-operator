@@ -86,6 +86,11 @@ help: ## Display this help.
 
 ##@ Development
 
+.PHONY: charts
+charts: ## Updates helm charts, updates changelog in docs (removes placeholder header)
+	go run ./generators/charts/... --version=$(version) --operator-charts ./charts/aiven-operator --crd-charts ./charts/aiven-operator-crds
+	[ "$(version)" == "" ] || sed '/## \[/d' ./CHANGELOG.md > docs/docs/changelog.md
+
 .PHONY: userconfigs
 userconfigs:
 	go generate ./...
@@ -95,7 +100,7 @@ manifests: userconfigs controller-gen ## Generate WebhookConfiguration, ClusterR
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd:allowDangerousTypes=true webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
 .PHONY: generate
-generate: manifests docs ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
+generate: manifests docs charts ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
 .PHONY: fmt

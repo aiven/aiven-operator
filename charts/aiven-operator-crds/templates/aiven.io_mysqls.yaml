@@ -408,6 +408,8 @@ spec:
                         description: The slow_query_logs work as SQL statements that
                           take more than long_query_time seconds to execute. Default
                           is 10s
+                        maximum: 3600
+                        minimum: 0
                         type: number
                       max_allowed_packet:
                         description: Size of the largest message in bytes that can
@@ -566,6 +568,7 @@ spec:
                     type: boolean
                 type: object
             required:
+            - plan
             - project
             type: object
           status:
@@ -578,8 +581,8 @@ spec:
                   description: "Condition contains details for one aspect of the current
                     state of this API Resource. --- This struct is intended for direct
                     use as an array at the field path .status.conditions.  For example,
-                    type FooStatus struct{ // Represents the observations of a foo's
-                    current state. // Known .status.conditions.type are: \"Available\",
+                    \n type FooStatus struct{ // Represents the observations of a
+                    foo's current state. // Known .status.conditions.type are: \"Available\",
                     \"Progressing\", and \"Degraded\" // +patchMergeKey=type // +patchStrategy=merge
                     // +listType=map // +listMapKey=type Conditions []metav1.Condition
                     `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\"
