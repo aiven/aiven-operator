@@ -3,35 +3,6 @@
 
 package pguserconfig
 
-import "encoding/json"
-
-func (ip *IpFilter) UnmarshalJSON(data []byte) error {
-	if string(data) == "null" || string(data) == `""` {
-		return nil
-	}
-
-	var s string
-	err := json.Unmarshal(data, &s)
-	if err == nil {
-		ip.Network = s
-		return nil
-	}
-
-	type this struct {
-		Network     string  `json:"network"`
-		Description *string `json:"description,omitempty" `
-	}
-
-	var t *this
-	err = json.Unmarshal(data, &t)
-	if err != nil {
-		return err
-	}
-	ip.Network = t.Network
-	ip.Description = t.Description
-	return nil
-}
-
 // CIDR address block, either as a string, or in a dict with an optional description field
 type IpFilter struct {
 	// +kubebuilder:validation:MaxLength=1024

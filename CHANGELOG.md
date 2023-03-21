@@ -6,6 +6,7 @@
 - Add `minumim`, `maximum` validations for `number` type
 - Move helm charts to the operator repository
 - Add helm charts generator
+- Remove `ip_filter` backward compatability
 
 ## v0.9.0 - 2023-03-03
 
