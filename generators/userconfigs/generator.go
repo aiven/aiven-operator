@@ -244,11 +244,6 @@ func addObject(file *jen.File, obj *object) error {
 		s = jen.Comment(fmtComment(obj)).Line().Add(s)
 	}
 
-	// Hacks!
-	if obj.jsonName == "ip_filter" {
-		file.Line().Op(ipFilterCustomUnmarshal)
-	}
-
 	file.Add(s)
 	return nil
 }
@@ -435,33 +430,3 @@ func objMinimum(obj *object) string {
 	}
 	return fmt.Sprint(f)
 }
-
-// ipFilterCustomUnmarshal adds custom UnmarshalJSON that supports both strings and object type
-const ipFilterCustomUnmarshal = `
-func (ip *IpFilter) UnmarshalJSON(data []byte) error {
-	if string(data) == "null" || string(data) == ` + "`" + `""` + "`" + ` {
-        return nil
-    }
-	
-	var s string
-	err := json.Unmarshal(data, &s)
-	if err == nil {
-		ip.Network = s
-		return nil
-	}
-
-	type this struct {
-		Network string ` + "`" + `json:"network"` + "`" + `
-		Description *string ` + "`" + `json:"description,omitempty" ` + "`" + `
-	}
-	
-	var t *this 
-	err = json.Unmarshal(data, &t)
-	if err != nil {
-		return err
-	}
-	ip.Network = t.Network
-	ip.Description = t.Description
-	return nil
-}
-`
