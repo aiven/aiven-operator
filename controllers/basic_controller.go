@@ -85,6 +85,7 @@ const (
 	eventTryingToDeleteAtAiven              = "TryingToDeleteAtAiven"
 	eventUnableToDeleteAtAiven              = "UnableToDeleteAtAiven"
 	eventUnableToDeleteFinalizer            = "UnableToDeleteFinalizer"
+	eventUnableToDelete                     = "UnableToDelete"
 	eventSuccessfullyDeletedAtAiven         = "SuccessfullyDeletedAtAiven"
 	eventAddedFinalizer                     = "InstanceFinalizerAdded"
 	eventUnableToAddFinalizer               = "UnableToAddFinalizer"
@@ -337,6 +338,9 @@ func (i instanceReconcilerHelper) finalize(ctx context.Context, o client.Object)
 		} else if aiven.IsNotFound(err) {
 			i.rec.Event(o, corev1.EventTypeWarning, eventUnableToDeleteAtAiven, err.Error())
 			return ctrl.Result{}, fmt.Errorf("unable to delete instance at aiven: %w", err)
+		} else {
+			i.rec.Event(o, corev1.EventTypeWarning, eventUnableToDelete, err.Error())
+			return ctrl.Result{}, fmt.Errorf("unable to delete instance: %w", err)
 		}
 	}
 

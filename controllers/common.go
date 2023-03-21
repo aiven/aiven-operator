@@ -25,7 +25,7 @@ const (
 
 var (
 	operatorUserAgent          = "k8s-operator/" + aiven.Version()
-	errTerminationProtectionOn = errors.New("cannot delete object, termination protection is on")
+	errTerminationProtectionOn = errors.New("termination protection is on")
 )
 
 func checkServiceIsRunning(c *aiven.Client, project, serviceName string) (bool, error) {
