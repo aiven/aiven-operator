@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"errors"
+	"net/http"
 	"strconv"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -88,4 +89,9 @@ func optionalStringPointer(u string) *string {
 	}
 
 	return &u
+}
+
+func isAivenServerError(err error) bool {
+	e, ok := err.(aiven.Error)
+	return ok && e.Status >= http.StatusInternalServerError
 }
