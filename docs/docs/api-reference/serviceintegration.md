@@ -93,7 +93,7 @@ Tables to create.
 **Required**
 
 - [`columns`](#spec.clickhouseKafka.tables.columns-property){: name='spec.clickhouseKafka.tables.columns-property'} (array of objects, MaxItems: 100). Table columns. See below for [nested schema](#spec.clickhouseKafka.tables.columns).
-- [`data_format`](#spec.clickhouseKafka.tables.data_format-property){: name='spec.clickhouseKafka.tables.data_format-property'} (string, Enum: `Avro`, `CSV`, `JSONAsString`, `JSONCompactEachRow`, `JSONCompactStringsEachRow`, `JSONEachRow`, `JSONStringsEachRow`, `MsgPack`, `TSKV`, `TSV`, `TabSeparated`). Message data format.
+- [`data_format`](#spec.clickhouseKafka.tables.data_format-property){: name='spec.clickhouseKafka.tables.data_format-property'} (string, Enum: `Avro`, `CSV`, `JSONAsString`, `JSONCompactEachRow`, `JSONCompactStringsEachRow`, `JSONEachRow`, `JSONStringsEachRow`, `MsgPack`, `TSKV`, `TSV`, `TabSeparated`, `RawBLOB`). Message data format.
 - [`group_name`](#spec.clickhouseKafka.tables.group_name-property){: name='spec.clickhouseKafka.tables.group_name-property'} (string, MinLength: 1, MaxLength: 249). Kafka consumers group.
 - [`name`](#spec.clickhouseKafka.tables.name-property){: name='spec.clickhouseKafka.tables.name-property'} (string, MinLength: 1, MaxLength: 40). Name of the table.
 - [`topics`](#spec.clickhouseKafka.tables.topics-property){: name='spec.clickhouseKafka.tables.topics-property'} (array of objects, MaxItems: 100). Kafka topics. See below for [nested schema](#spec.clickhouseKafka.tables.topics).

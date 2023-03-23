@@ -111,6 +111,7 @@ spec:
                           - TSKV
                           - TSV
                           - TabSeparated
+                          - RawBLOB
                           type: string
                         group_name:
                           description: Kafka consumers group

@@ -286,21 +286,21 @@ spec:
                         minimum: 2
                         type: integer
                       email_sender_name:
-                        description: Sender email name placeholder to be used in Opensearch
+                        description: Sender name placeholder to be used in Opensearch
                           Dashboards and Opensearch keystore
                         maxLength: 40
                         pattern: ^[a-zA-Z0-9-_]+$
                         type: string
                       email_sender_password:
-                        description: Sender email password for Opensearch alerts to
-                          authenticate with SMTP server
+                        description: Sender password for Opensearch alerts to authenticate
+                          with SMTP server
                         maxLength: 1024
                         pattern: ^[^\x00-\x1F]+$
                         type: string
                       email_sender_username:
-                        description: Sender email address for Opensearch alerts
+                        description: Sender username for Opensearch alerts
                         maxLength: 320
-                        pattern: ^[A-Za-z0-9_\-\.+\'&]+@(([\da-zA-Z])([_\w-]{,62})\.){,127}(([\da-zA-Z])[_\w-]{,61})?([\da-zA-Z]\.((xn\-\-[a-zA-Z\d]+)|([a-zA-Z\d]{2,})))$
+                        pattern: ^[^\x00-\x1F]+$
                         type: string
                       http_max_content_length:
                         description: Maximum content length for HTTP requests to the

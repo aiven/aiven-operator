@@ -68,17 +68,17 @@ type Opensearch struct {
 
 	// +kubebuilder:validation:MaxLength=40
 	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9-_]+$`
-	// Sender email name placeholder to be used in Opensearch Dashboards and Opensearch keystore
+	// Sender name placeholder to be used in Opensearch Dashboards and Opensearch keystore
 	EmailSenderName *string `groups:"create,update" json:"email_sender_name,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=1024
 	// +kubebuilder:validation:Pattern=`^[^\x00-\x1F]+$`
-	// Sender email password for Opensearch alerts to authenticate with SMTP server
+	// Sender password for Opensearch alerts to authenticate with SMTP server
 	EmailSenderPassword *string `groups:"create,update" json:"email_sender_password,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=320
-	// +kubebuilder:validation:Pattern=`^[A-Za-z0-9_\-\.+\'&]+@(([\da-zA-Z])([_\w-]{,62})\.){,127}(([\da-zA-Z])[_\w-]{,61})?([\da-zA-Z]\.((xn\-\-[a-zA-Z\d]+)|([a-zA-Z\d]{2,})))$`
-	// Sender email address for Opensearch alerts
+	// +kubebuilder:validation:Pattern=`^[^\x00-\x1F]+$`
+	// Sender username for Opensearch alerts
 	EmailSenderUsername *string `groups:"create,update" json:"email_sender_username,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1

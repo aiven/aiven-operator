@@ -8,6 +8,9 @@
 - Add helm charts generator
 - Remove `ip_filter` backward compatability
 - Fix deletion errors omitted
+- Add service integration `clickhouseKafka.tables.data_format-property` enum `RawBLOB` value
+- Update OpenSearch `userConfig.opensearch.email_sender_username` validation pattern
+- Add Kafka `log_cleaner_min_cleanable_ratio` minimum and maximum validation rules
 
 ## v0.9.0 - 2023-03-03
 

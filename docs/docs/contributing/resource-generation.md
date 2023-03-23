@@ -33,7 +33,9 @@ flowchart TB
 The command runs several generators in a certain sequence.
 First, the user config generator is called.
 Then [controller-gen][controller-gen] cli.
-Then [API reference][api-reference] docs generator.  
+Then [API reference][api-reference] docs generator
+and charts generator.
+
 Here how it goes in the details:
 
 1. User config generator creates Go structs (k8s api compatible objects) with docstrings, 

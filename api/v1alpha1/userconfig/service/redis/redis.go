@@ -25,11 +25,11 @@ type Migration struct {
 	Host string `groups:"create,update" json:"host"`
 
 	// +kubebuilder:validation:MaxLength=2048
-	// Comma-separated list of databases, which should be ignored during migration (supported by MySQL only at the moment)
+	// Comma-separated list of databases, which should be ignored during migration (supported by MySQL and PostgreSQL only at the moment)
 	IgnoreDbs *string `groups:"create,update" json:"ignore_dbs,omitempty"`
 
 	// +kubebuilder:validation:Enum="dump";"replication"
-	// The migration method to be used (currently supported only by Redis and MySQL service types)
+	// The migration method to be used (currently supported only by Redis, MySQL and PostgreSQL service types)
 	Method *string `groups:"create,update" json:"method,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=256

@@ -57,6 +57,8 @@ type Kafka struct {
 	// The maximum amount of time message will remain uncompacted. Only applicable for logs that are being compacted
 	LogCleanerMaxCompactionLagMs *int `groups:"create,update" json:"log_cleaner_max_compaction_lag_ms,omitempty"`
 
+	// +kubebuilder:validation:Minimum=0.2
+	// +kubebuilder:validation:Maximum=0.9
 	// Controls log compactor frequency. Larger value means more frequent compactions but also more space wasted for logs. Consider setting log.cleaner.max.compaction.lag.ms to enforce compactions sooner, instead of setting a very high value for this option.
 	LogCleanerMinCleanableRatio *float64 `groups:"create,update" json:"log_cleaner_min_cleanable_ratio,omitempty"`
 
