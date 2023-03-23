@@ -281,6 +281,8 @@ spec:
                           for logs. Consider setting log.cleaner.max.compaction.lag.ms
                           to enforce compactions sooner, instead of setting a very
                           high value for this option.
+                        maximum: 0.9
+                        minimum: 0.2
                         type: number
                       log_cleaner_min_compaction_lag_ms:
                         description: The minimum time a message will remain uncompacted

@@ -30,7 +30,7 @@ type Tables struct {
 	// Table columns
 	Columns []*Columns `groups:"create,update" json:"columns"`
 
-	// +kubebuilder:validation:Enum="Avro";"CSV";"JSONAsString";"JSONCompactEachRow";"JSONCompactStringsEachRow";"JSONEachRow";"JSONStringsEachRow";"MsgPack";"TSKV";"TSV";"TabSeparated"
+	// +kubebuilder:validation:Enum="Avro";"CSV";"JSONAsString";"JSONCompactEachRow";"JSONCompactStringsEachRow";"JSONEachRow";"JSONStringsEachRow";"MsgPack";"TSKV";"TSV";"TabSeparated";"RawBLOB"
 	// Message data format
 	DataFormat string `groups:"create,update" json:"data_format"`
 

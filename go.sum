@@ -35,8 +35,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/aiven/aiven-go-client v1.7.1-0.20230210144417-67543c45c148 h1:5q2f74Y+wFgNa7AwRSZ2jecApRMrQ+ZSZdKFm9I1kf4=
 github.com/aiven/aiven-go-client v1.7.1-0.20230210144417-67543c45c148/go.mod h1:Eo0leGt6XAYlFXW3xtxsldToZ/FtBE5xdjpqY+PhYJI=
-github.com/aiven/aiven-go-client/tools/exp v0.0.0-20230306100118-135ebe06ba82 h1:8QVC7D0fix5xm/rPEpe8hS383RtoZaT4dP09fa21Pu0=
-github.com/aiven/aiven-go-client/tools/exp v0.0.0-20230306100118-135ebe06ba82/go.mod h1:PEjz1ETUA7nlqD9gpbLWDyAEwkYbAU1JvhhKXtUQjwM=
+github.com/aiven/aiven-go-client/tools/exp v0.0.0-20230322225521-95b16e6cdbe8 h1:kXMbEn04fYvto+YBcB9+PTSeOkoeBN+djsogkWOZnEI=
+github.com/aiven/aiven-go-client/tools/exp v0.0.0-20230322225521-95b16e6cdbe8/go.mod h1:zdrHyv7Utejcd4/hT9EsBKSlzzjIz9uLP4lecUgO1Ik=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=

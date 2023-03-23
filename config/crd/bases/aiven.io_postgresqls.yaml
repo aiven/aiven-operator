@@ -247,13 +247,13 @@ spec:
                         type: string
                       ignore_dbs:
                         description: Comma-separated list of databases, which should
-                          be ignored during migration (supported by MySQL only at
-                          the moment)
+                          be ignored during migration (supported by MySQL and PostgreSQL
+                          only at the moment)
                         maxLength: 2048
                         type: string
                       method:
                         description: The migration method to be used (currently supported
-                          only by Redis and MySQL service types)
+                          only by Redis, MySQL and PostgreSQL service types)
                         enum:
                         - dump
                         - replication
