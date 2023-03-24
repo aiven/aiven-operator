@@ -188,3 +188,7 @@ func randName(name string) string {
 func isNotFound(err error) bool {
 	return err != nil && strings.Contains(err.Error(), "not found")
 }
+
+func anyPointer[T any](v T) *T {
+	return &v
+}

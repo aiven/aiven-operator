@@ -94,10 +94,10 @@ func TestKafkaTopicName(t *testing.T) {
 	// Validates Kafka
 	ksAvn, err := avnClient.Services.Get(testProject, ksName)
 	require.NoError(t, err)
-	assert.Equal(t, ks.GetName(), ksAvn.Name)
-	assert.Equal(t, ks.Status.State, ksAvn.State)
-	assert.Equal(t, ks.Spec.Plan, ksAvn.Plan)
-	assert.Equal(t, ks.Spec.CloudName, ksAvn.CloudName)
+	assert.Equal(t, ksAvn.Name, ks.GetName())
+	assert.Equal(t, ksAvn.State, ks.Status.State)
+	assert.Equal(t, ksAvn.Plan, ks.Spec.Plan)
+	assert.Equal(t, ksAvn.CloudName, ks.Spec.CloudName)
 
 	// Validates KafkaTopics
 	// KafkaTopic with name `foo-topic`
