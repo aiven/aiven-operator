@@ -137,7 +137,7 @@ test-e2e: build ## Run end-to-end tests using kuttl (https://kuttl.dev/)
 
 test: envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" \
-	go test ./tests/... -v -timeout 42m -parallel 10 -cover -coverpkg=./... -covermode=count -coverprofile=coverage.out
+	go test ./tests/... -run=$(run) -v -timeout 42m -parallel 10 -cover -coverpkg=./... -covermode=count -coverprofile=coverage.out
 
 ##@ Build
 
