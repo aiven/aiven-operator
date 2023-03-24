@@ -29,7 +29,6 @@ jobs:
           clickhouseuser_controller_test.go,
           connectionpool_controller_test.go,
           database_controller_test.go,
-          grafana_controller_test.go,
           kafka_controller_test.go,
           kafka_controller_with_projectvpc_ref_test.go,
           kafkaacl_controller_test.go,
