@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/aiven/aiven-go-client v1.7.1-0.20230210144417-67543c45c148
-	github.com/aiven/aiven-go-client/tools/exp v0.0.0-20230322225521-95b16e6cdbe8
+	github.com/aiven/aiven-go-client/tools/exp v0.0.0-20230328091650-5dbf0b98bc26
 	github.com/dave/jennifer v1.6.0
 	github.com/docker/go-units v0.5.0
 	github.com/ghodss/yaml v1.0.0
@@ -26,7 +26,7 @@ require (
 	k8s.io/api v0.26.3
 	k8s.io/apimachinery v0.26.3
 	k8s.io/client-go v0.26.3
-	sigs.k8s.io/controller-runtime v0.14.5
+	sigs.k8s.io/controller-runtime v0.14.6
 )
 
 require (
