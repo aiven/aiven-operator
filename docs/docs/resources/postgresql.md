@@ -291,3 +291,103 @@ The output is similar to the following:
   "PGUSER": "pg-service-user"
 }
 ```
+
+## Creating a PostgreSQL read-only replica
+
+Read-only replicas can be used to reduce the load on the primary service by making read-only queries against the replica service. 
+
+To create a read-only replica for a PostgreSQL service, you create a second PostgreSQL service and use [serviceIntegrations](https://aiven.github.io/aiven-operator/api-reference/postgresql.html#spec.serviceIntegrations) to replicate data from your primary service.
+
+The example that follows creates a primary service and a read-only replica:
+
+1\. Create a new file named pg-read-replica.yaml with the following:
+
+```yaml
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: primary-pg-service
+spec:
+  # gets the authentication token from the `aiven-token` Secret
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  # add your project's name here
+  project: <your-project-name>
+
+  # add the cloud provider and plan of your choice
+  # you can see all of the options at https://aiven.io/pricing
+  cloudName: google-europe-west1
+  plan: startup-4
+
+  # general Aiven configuration
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00
+  userConfig:
+    pg_version: '14'
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: read-replica-pg
+spec:
+  # gets the authentication token from the `aiven-token` Secret
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  # add your project's name here
+  project: <your-project-name>
+
+  # add the cloud provider and plan of your choice
+  # you can see all of the options at https://aiven.io/pricing
+  cloudName: google-europe-west1
+  plan: startup-4
+
+  # general Aiven configuration
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00
+  userConfig:
+    pg_version: '14'
+
+  # use the read_replica integration and point it to your primary service
+  serviceIntegrations:
+  -  integrationType: read_replica
+     sourceServiceName: primary-pg-service
+```
+
+!!! note
+    You can create the replica service in a different region or on a different cloud provider.
+
+2\. Apply the configuration with the following command:
+
+```shell
+kubectl apply -f pg-read-replica.yaml
+```
+
+The output is similar to the following:
+```shell
+postgresql.aiven.io/primary-pg-service created
+postgresql.aiven.io/read-replica-pg created
+```
+
+3\. Check the status of the primary service with the following command:
+
+```shell
+kubectl get postgresqls.aiven.io primary-pg-service
+```
+
+The output is similar to the following:
+
+```shell
+NAME                 	PROJECT       		    REGION                PLAN        STATE
+primary-pg-service  	<your-project-name> 	google-europe-west1   startup-4   RUNNING
+```
+
+The resource can be in the `BUILDING` state for a few minutes. After the state of the primary service changes to `RUNNING`, the read-only replica is created. You can check the status of the replica using the same command with the name of the replica:
+```shell
+kubectl get postgresqls.aiven.io read-replica-pg
+```
