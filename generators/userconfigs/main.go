@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/aiven/aiven-go-client/tools/exp/dist"
+	"github.com/aiven/go-api-schemas/pkg/dist"
 )
 
 const destination = "./api/v1alpha1/userconfig"
