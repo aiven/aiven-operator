@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/aiven/aiven-go-client v1.7.1-0.20230210144417-67543c45c148
-	github.com/aiven/aiven-go-client/tools/exp v0.0.0-20230328091650-5dbf0b98bc26
+	github.com/aiven/aiven-go-client/tools/exp v0.0.0-20230330082710-52155394db70
 	github.com/dave/jennifer v1.6.0
 	github.com/docker/go-units v0.5.0
 	github.com/ghodss/yaml v1.0.0
@@ -13,7 +13,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/liip/sheriff v0.11.1
 	github.com/onsi/ginkgo/v2 v2.9.2
-	github.com/onsi/gomega v1.27.5
+	github.com/onsi/gomega v1.27.6
 	github.com/otiai10/copy v1.9.0
 	github.com/pkg/errors v0.9.1
 	github.com/stoewer/go-strcase v1.3.0
