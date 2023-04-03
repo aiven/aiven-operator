@@ -670,7 +670,6 @@ spec:
                   kafka_version:
                     description: Kafka major version
                     enum:
-                    - "3.2"
                     - "3.3"
                     type: string
                   private_access:

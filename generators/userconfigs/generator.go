@@ -119,8 +119,10 @@ type objectInternal struct {
 type object struct {
 	objectInternal
 
-	Enum []*struct {
-		Value string `yaml:"value"`
+	IsDeprecated bool `yaml:"is_deprecated"`
+	Enum         []*struct {
+		Value        string `yaml:"value"`
+		IsDeprecated bool   `yaml:"is_deprecated"`
 	} `yaml:"enum"`
 	Pattern   string `yaml:"pattern"`
 	MinItems  *int   `yaml:"min_items"`
@@ -169,10 +171,13 @@ func (o *object) init(name string) {
 	o.jsonName = name
 	o.structName = toCamelCase(name)
 
-	// Sorts properties so they keep order on each generation
+	// Sorts properties, so they keep order on each generation
+	// Removes deprecated values
 	keys := make([]string, 0, len(o.Properties))
-	for k := range o.Properties {
-		keys = append(keys, k)
+	for k, p := range o.Properties {
+		if !p.IsDeprecated {
+			keys = append(keys, k)
+		}
 	}
 	slices.Sort(keys)
 
@@ -346,15 +351,20 @@ func addFieldComments(s *jen.Statement, obj *object) *jen.Statement {
 		}
 	}
 	if len(obj.Enum) != 0 {
-		enum := make([]string, len(obj.Enum))
-		for i, s := range obj.Enum {
-			if obj.Type == objectTypeString {
-				enum[i] = fmt.Sprintf("%q", s.Value)
-			} else {
-				enum[i] = s.Value
+		enum := make([]string, 0, len(obj.Enum))
+		for _, e := range obj.Enum {
+			if e.IsDeprecated {
+				continue
 			}
+			v := e.Value
+			if obj.Type == objectTypeString {
+				v = fmt.Sprintf("%q", e.Value)
+			}
+			enum = append(enum, v)
 		}
-		c = append(c, fmt.Sprintf("// +kubebuilder:validation:Enum=%s", strings.Join(enum, ";")))
+		if len(enum) != 0 {
+			c = append(c, fmt.Sprintf("// +kubebuilder:validation:Enum=%s", strings.Join(enum, ";")))
+		}
 	}
 	if obj.CreateOnly {
 		c = append(c, `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"`)
