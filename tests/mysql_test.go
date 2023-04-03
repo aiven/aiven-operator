@@ -67,15 +67,15 @@ func TestMySQL(t *testing.T) {
 	require.NoError(t, s.GetRunning(ms, name))
 
 	// THEN
-	chAvn, err := avnClient.Services.Get(testProject, name)
+	msAvn, err := avnClient.Services.Get(testProject, name)
 	require.NoError(t, err)
-	assert.Equal(t, chAvn.Name, ms.GetName())
+	assert.Equal(t, msAvn.Name, ms.GetName())
 	assert.Equal(t, "RUNNING", ms.Status.State)
-	assert.Equal(t, chAvn.State, ms.Status.State)
-	assert.Equal(t, chAvn.Plan, ms.Spec.Plan)
-	assert.Equal(t, chAvn.CloudName, ms.Spec.CloudName)
+	assert.Equal(t, msAvn.State, ms.Status.State)
+	assert.Equal(t, msAvn.Plan, ms.Spec.Plan)
+	assert.Equal(t, msAvn.CloudName, ms.Spec.CloudName)
 	assert.Equal(t, "100Gib", ms.Spec.DiskSpace)
-	assert.Equal(t, 102400, chAvn.DiskSpaceMB)
+	assert.Equal(t, 102400, msAvn.DiskSpaceMB)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, ms.Spec.Tags)
 
 	// UserConfig test
@@ -96,7 +96,7 @@ func TestMySQL(t *testing.T) {
 
 	// Compares with Aiven ip_filter
 	var ipFilterAvn []*mysqluserconfig.IpFilter
-	require.NoError(t, castInterface(chAvn.UserConfig["ip_filter"], &ipFilterAvn))
+	require.NoError(t, castInterface(msAvn.UserConfig["ip_filter"], &ipFilterAvn))
 	assert.Equal(t, ipFilterAvn, ms.Spec.UserConfig.IpFilter)
 
 	// Secrets test
