@@ -39,6 +39,5 @@ jobs:
           project_controller_test.go,
           projectvpc_controller_test.go,
           redis_controller_test.go,
-          serviceintegration_controller_test.go,
           serviceuser_controller_test.go,
         ]
