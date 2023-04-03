@@ -306,7 +306,7 @@ spec:
   kafkaConnect:
     kafka_connect:
       group_id: "connect"
-      status_storage_topi: "__connect_status"
+      status_storage_topic: "__connect_status"
       offset_storage_topic: "__connect_offsets"
 `, project, ksName, kcName, siName)
 }
@@ -371,4 +371,6 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	assert.True(t, siAvn.Enabled)
 	require.NotNil(t, si.Spec.KafkaConnectUserConfig)
 	assert.Equal(t, "connect", *si.Spec.KafkaConnectUserConfig.KafkaConnect.GroupId)
+	assert.Equal(t, "__connect_status", *si.Spec.KafkaConnectUserConfig.KafkaConnect.StatusStorageTopic)
+	assert.Equal(t, "__connect_offsets", *si.Spec.KafkaConnectUserConfig.KafkaConnect.OffsetStorageTopic)
 }
