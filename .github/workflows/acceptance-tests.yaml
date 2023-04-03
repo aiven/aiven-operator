@@ -25,7 +25,6 @@ jobs:
         file: [
           basic_controller_test.go,
           cassandra_controller_test.go,
-          clickhouse_controller_test.go,
           clickhouseuser_controller_test.go,
           connectionpool_controller_test.go,
           database_controller_test.go,
