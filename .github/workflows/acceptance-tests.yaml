@@ -34,7 +34,6 @@ jobs:
           kafkaconnect_controller_test.go,
           kafkaschema_controller_test.go,
           kafkatopic_controller_test.go,
-          mysql_controller_test.go,
           opensearch_controller_test.go,
           project_controller_test.go,
           projectvpc_controller_test.go,
