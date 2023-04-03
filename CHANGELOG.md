@@ -11,6 +11,8 @@
 - Add service integration `clickhouseKafka.tables.data_format-property` enum `RawBLOB` value
 - Update OpenSearch `userConfig.opensearch.email_sender_username` validation pattern
 - Add Kafka `log_cleaner_min_cleanable_ratio` minimum and maximum validation rules
+- Remove Kafka version `3.2`, reached EOL
+- Remove PostgreSQL version `10`, reached EOL
 
 ## v0.9.0 - 2023-03-03
 

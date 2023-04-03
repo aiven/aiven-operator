@@ -637,7 +637,6 @@ spec:
                     - "13"
                     - "14"
                     - "15"
-                    - "10"
                     type: string
                   pgbouncer:
                     description: PGBouncer connection pooling settings
