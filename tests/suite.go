@@ -3,6 +3,7 @@ package tests
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
@@ -191,4 +192,13 @@ func isNotFound(err error) bool {
 
 func anyPointer[T any](v T) *T {
 	return &v
+}
+
+// castInterface Using json is the easiest way to convert interface{} into object
+func castInterface(in, out any) error {
+	b, err := json.Marshal(in)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(b, out)
 }

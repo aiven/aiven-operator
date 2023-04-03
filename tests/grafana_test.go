@@ -2,7 +2,6 @@ package tests
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -97,12 +96,8 @@ func TestGrafana(t *testing.T) {
 	assert.Nil(t, grafana.Spec.UserConfig.IpFilter[1].Description)
 
 	// Compares with Aiven ip_filter
-	// Using json is the easiest way to convert interface{}
-	b, err := json.Marshal(grafanaAvn.UserConfig["ip_filter"])
-	require.NoError(t, err)
-
 	var ipFilterAvn []*grafanauserconfig.IpFilter
-	require.NoError(t, json.Unmarshal(b, &ipFilterAvn))
+	require.NoError(t, castInterface(grafanaAvn.UserConfig["ip_filter"], &ipFilterAvn))
 	assert.Equal(t, ipFilterAvn, grafana.Spec.UserConfig.IpFilter)
 
 	// Secrets test
