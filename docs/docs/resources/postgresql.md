@@ -382,7 +382,7 @@ kubectl get postgresqls.aiven.io primary-pg-service
 
 The output is similar to the following:
 
-```shell
+```{ .shell .no-copy }
 NAME                 	PROJECT       		    REGION                PLAN        STATE
 primary-pg-service  	<your-project-name> 	google-europe-west1   startup-4   RUNNING
 ```
