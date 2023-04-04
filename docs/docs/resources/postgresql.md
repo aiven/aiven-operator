@@ -348,7 +348,7 @@ spec:
   plan: startup-4
 
   # general Aiven configuration
-  maintenanceWindowDow: friday
+  maintenanceWindowDow: saturday
   maintenanceWindowTime: 23:00:00
   userConfig:
     pg_version: '15'
