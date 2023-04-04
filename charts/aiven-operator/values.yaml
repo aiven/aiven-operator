@@ -76,3 +76,7 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+rbac:
+  create: true
+  scoped: false
