@@ -26,23 +26,26 @@ spec:
   maintenanceWindowTime: 23:00:00
 ```
 
-## Schema {: #Schema }
+## OpenSearch {: #OpenSearch }
 
 OpenSearch is the Schema for the opensearches API.
 
 **Required**
 
-- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `OpenSearch`.
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `OpenSearch`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
 - [`spec`](#spec-property){: name='spec-property'} (object). OpenSearchSpec defines the desired state of OpenSearch. See below for [nested schema](#spec).
 
 ## spec {: #spec }
 
+_Appears on [`OpenSearch`](#OpenSearch)._
+
 OpenSearchSpec defines the desired state of OpenSearch.
 
 **Required**
 
+- [`plan`](#spec.plan-property){: name='spec.plan-property'} (string, MaxLength: 128). Subscription plan.
 - [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63). Target project.
 
 **Optional**
@@ -53,15 +56,16 @@ OpenSearchSpec defines the desired state of OpenSearch.
 - [`disk_space`](#spec.disk_space-property){: name='spec.disk_space-property'} (string). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.
 - [`maintenanceWindowDow`](#spec.maintenanceWindowDow-property){: name='spec.maintenanceWindowDow-property'} (string, Enum: `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.
 - [`maintenanceWindowTime`](#spec.maintenanceWindowTime-property){: name='spec.maintenanceWindowTime-property'} (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
-- [`plan`](#spec.plan-property){: name='spec.plan-property'} (string, MaxLength: 128). Subscription plan.
 - [`projectVPCRef`](#spec.projectVPCRef-property){: name='spec.projectVPCRef-property'} (object, Immutable). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See below for [nested schema](#spec.projectVPCRef).
 - [`projectVpcId`](#spec.projectVpcId-property){: name='spec.projectVpcId-property'} (string, Immutable, MaxLength: 36). Identifier of the VPC the service should be in, if any.
-- [`serviceIntegrations`](#spec.serviceIntegrations-property){: name='spec.serviceIntegrations-property'} (array of objects, Immutable, MaxItems: 1).  See below for [nested schema](#spec.serviceIntegrations).
+- [`serviceIntegrations`](#spec.serviceIntegrations-property){: name='spec.serviceIntegrations-property'} (array of objects, Immutable, MaxItems: 1). Service integrations to specify when creating a service. Not applied after initial service creation. See below for [nested schema](#spec.serviceIntegrations).
 - [`tags`](#spec.tags-property){: name='spec.tags-property'} (object, AdditionalProperties: string). Tags are key-value pairs that allow you to categorize services.
 - [`terminationProtection`](#spec.terminationProtection-property){: name='spec.terminationProtection-property'} (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services.
 - [`userConfig`](#spec.userConfig-property){: name='spec.userConfig-property'} (object). OpenSearch specific user configuration options. See below for [nested schema](#spec.userConfig).
 
 ## authSecretRef {: #spec.authSecretRef }
+
+_Appears on [`spec`](#spec)._
 
 Authentication reference to Aiven token in a secret.
 
@@ -72,6 +76,8 @@ Authentication reference to Aiven token in a secret.
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 
+_Appears on [`spec`](#spec)._
+
 Information regarding secret creation.
 
 **Required**
@@ -79,6 +85,8 @@ Information regarding secret creation.
 - [`name`](#spec.connInfoSecretTarget.name-property){: name='spec.connInfoSecretTarget.name-property'} (string). Name of the secret resource to be created. By default, is equal to the resource name.
 
 ## projectVPCRef {: #spec.projectVPCRef }
+
+_Appears on [`spec`](#spec)._
 
 ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.
 
@@ -92,12 +100,18 @@ ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID aut
 
 ## serviceIntegrations {: #spec.serviceIntegrations }
 
+_Appears on [`spec`](#spec)._
+
+Service integrations to specify when creating a service. Not applied after initial service creation.
+
 **Required**
 
 - [`integrationType`](#spec.serviceIntegrations.integrationType-property){: name='spec.serviceIntegrations.integrationType-property'} (string, Enum: `read_replica`). 
 - [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64). 
 
 ## userConfig {: #spec.userConfig }
+
+_Appears on [`spec`](#spec)._
 
 OpenSearch specific user configuration options.
 
@@ -124,6 +138,8 @@ OpenSearch specific user configuration options.
 
 ### index_patterns {: #spec.userConfig.index_patterns }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Index patterns.
 
 **Required**
@@ -137,6 +153,8 @@ Index patterns.
 
 ### index_template {: #spec.userConfig.index_template }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Template settings for all new indexes.
 
 **Optional**
@@ -146,6 +164,8 @@ Template settings for all new indexes.
 - [`number_of_shards`](#spec.userConfig.index_template.number_of_shards-property){: name='spec.userConfig.index_template.number_of_shards-property'} (integer, Minimum: 1, Maximum: 1024). The number of primary shards that an index should have.
 
 ### ip_filter {: #spec.userConfig.ip_filter }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 
@@ -159,6 +179,8 @@ Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 
 ### opensearch {: #spec.userConfig.opensearch }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 OpenSearch settings.
 
 **Optional**
@@ -167,9 +189,9 @@ OpenSearch settings.
 - [`action_destructive_requires_name`](#spec.userConfig.opensearch.action_destructive_requires_name-property){: name='spec.userConfig.opensearch.action_destructive_requires_name-property'} (boolean). Require explicit index names when deleting.
 - [`cluster_max_shards_per_node`](#spec.userConfig.opensearch.cluster_max_shards_per_node-property){: name='spec.userConfig.opensearch.cluster_max_shards_per_node-property'} (integer, Minimum: 100, Maximum: 10000). Controls the number of shards allowed in the cluster per data node.
 - [`cluster_routing_allocation_node_concurrent_recoveries`](#spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property){: name='spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property'} (integer, Minimum: 2, Maximum: 16). How many concurrent incoming/outgoing shard recoveries (normally replicas) are allowed to happen on a node. Defaults to 2.
-- [`email_sender_name`](#spec.userConfig.opensearch.email_sender_name-property){: name='spec.userConfig.opensearch.email_sender_name-property'} (string, Pattern: `^[a-zA-Z0-9-_]+$`, MaxLength: 40). Sender email name placeholder to be used in Opensearch Dashboards and Opensearch keystore.
-- [`email_sender_password`](#spec.userConfig.opensearch.email_sender_password-property){: name='spec.userConfig.opensearch.email_sender_password-property'} (string, Pattern: `^[^\x00-\x1F]+$`, MaxLength: 1024). Sender email password for Opensearch alerts to authenticate with SMTP server.
-- [`email_sender_username`](#spec.userConfig.opensearch.email_sender_username-property){: name='spec.userConfig.opensearch.email_sender_username-property'} (string, MaxLength: 320). Sender email address for Opensearch alerts.
+- [`email_sender_name`](#spec.userConfig.opensearch.email_sender_name-property){: name='spec.userConfig.opensearch.email_sender_name-property'} (string, Pattern: `^[a-zA-Z0-9-_]+$`, MaxLength: 40). Sender name placeholder to be used in Opensearch Dashboards and Opensearch keystore.
+- [`email_sender_password`](#spec.userConfig.opensearch.email_sender_password-property){: name='spec.userConfig.opensearch.email_sender_password-property'} (string, Pattern: `^[^\x00-\x1F]+$`, MaxLength: 1024). Sender password for Opensearch alerts to authenticate with SMTP server.
+- [`email_sender_username`](#spec.userConfig.opensearch.email_sender_username-property){: name='spec.userConfig.opensearch.email_sender_username-property'} (string, Pattern: `^[^\x00-\x1F]+$`, MaxLength: 320). Sender username for Opensearch alerts.
 - [`http_max_content_length`](#spec.userConfig.opensearch.http_max_content_length-property){: name='spec.userConfig.opensearch.http_max_content_length-property'} (integer, Minimum: 1, Maximum: 2147483647). Maximum content length for HTTP requests to the OpenSearch HTTP API, in bytes.
 - [`http_max_header_size`](#spec.userConfig.opensearch.http_max_header_size-property){: name='spec.userConfig.opensearch.http_max_header_size-property'} (integer, Minimum: 1024, Maximum: 262144). The max size of allowed headers, in bytes.
 - [`http_max_initial_line_length`](#spec.userConfig.opensearch.http_max_initial_line_length-property){: name='spec.userConfig.opensearch.http_max_initial_line_length-property'} (integer, Minimum: 1024, Maximum: 65536). The max length of an HTTP URL, in bytes.
@@ -197,6 +219,8 @@ OpenSearch settings.
 
 ### opensearch_dashboards {: #spec.userConfig.opensearch_dashboards }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 OpenSearch Dashboards settings.
 
 **Optional**
@@ -206,6 +230,8 @@ OpenSearch Dashboards settings.
 - [`opensearch_request_timeout`](#spec.userConfig.opensearch_dashboards.opensearch_request_timeout-property){: name='spec.userConfig.opensearch_dashboards.opensearch_request_timeout-property'} (integer, Minimum: 5000, Maximum: 120000). Timeout in milliseconds for requests made by OpenSearch Dashboards towards OpenSearch.
 
 ### private_access {: #spec.userConfig.private_access }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow access to selected service ports from private networks.
 
@@ -217,6 +243,8 @@ Allow access to selected service ports from private networks.
 
 ### privatelink_access {: #spec.userConfig.privatelink_access }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow access to selected service components through Privatelink.
 
 **Optional**
@@ -226,6 +254,8 @@ Allow access to selected service components through Privatelink.
 - [`prometheus`](#spec.userConfig.privatelink_access.prometheus-property){: name='spec.userConfig.privatelink_access.prometheus-property'} (boolean). Enable prometheus.
 
 ### public_access {: #spec.userConfig.public_access }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow access to selected service ports from the public Internet.
 

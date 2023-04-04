@@ -86,16 +86,21 @@ help: ## Display this help.
 
 ##@ Development
 
-.PHONY: go-generate
-go-generate:
+.PHONY: charts
+charts: ## Updates helm charts, updates changelog in docs (removes placeholder header)
+	go run ./generators/charts/... --version=$(version) --operator-charts ./charts/aiven-operator --crd-charts ./charts/aiven-operator-crds
+	[ "$(version)" == "" ] || sed '/## \[/d' ./CHANGELOG.md > docs/docs/changelog.md
+
+.PHONY: userconfigs
+userconfigs:
 	go generate ./...
 
 .PHONY: manifests
-manifests: go-generate controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
+manifests: userconfigs controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd:allowDangerousTypes=true webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
 .PHONY: generate
-generate: manifests generate-api-reference ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
+generate: manifests docs charts ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
 .PHONY: fmt
@@ -108,7 +113,7 @@ vet: ## Run go vet against code.
 
 .PHONY: test
 FOCUS_FILE ?= "*"
-test: generate fmt vet envtest ginkgo ## Run tests.
+test-ginkgo: generate fmt vet envtest ginkgo ## Run tests.
 	KUBEBUILDER_CONTROLPLANE_START_TIMEOUT=120s \
 	KUBEBUILDER_CONTROLPLANE_STOP_TIMEOUT=120s \
 	KUBEBUILDER_ATTACH_CONTROL_PLANE_OUTPUT=true \
@@ -129,6 +134,10 @@ test-e2e: build ## Run end-to-end tests using kuttl (https://kuttl.dev/)
 	@[ "${AIVEN_TOKEN}" ] || ( echo ">> variable AIVEN_TOKEN is not set"; exit 1 )
 	@[ "${AIVEN_PROJECT_NAME}" ] || ( echo ">> variable AIVEN_PROJECT_NAME is not set"; exit 1 )
 	kubectl kuttl test --config test/e2e/kuttl-test.yaml
+
+test: envtest ## Run tests.
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" \
+	go test ./tests/... -run=$(run) -v -timeout 42m -parallel 10 -cover -coverpkg=./... -covermode=count -coverprofile=coverage.out
 
 ##@ Build
 
@@ -173,9 +182,9 @@ undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/confi
 
 ##@ Docs
 
-.PHONY: generate-api-reference
-generate-api-reference: ## Generate CRDS api-reference
-	go run ./docs_generator/...
+.PHONY: docs
+docs: ## Generate CRDS api-reference
+	go run ./generators/docs/...
 
 .PHONY: serve-docs
 serve-docs: ## Run live preview.

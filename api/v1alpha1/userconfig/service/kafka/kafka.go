@@ -3,35 +3,6 @@
 
 package kafkauserconfig
 
-import "encoding/json"
-
-func (ip *IpFilter) UnmarshalJSON(data []byte) error {
-	if string(data) == "null" || string(data) == `""` {
-		return nil
-	}
-
-	var s string
-	err := json.Unmarshal(data, &s)
-	if err == nil {
-		ip.Network = s
-		return nil
-	}
-
-	type this struct {
-		Network     string  `json:"network"`
-		Description *string `json:"description,omitempty" `
-	}
-
-	var t *this
-	err = json.Unmarshal(data, &t)
-	if err != nil {
-		return err
-	}
-	ip.Network = t.Network
-	ip.Description = t.Description
-	return nil
-}
-
 // CIDR address block, either as a string, or in a dict with an optional description field
 type IpFilter struct {
 	// +kubebuilder:validation:MaxLength=1024
@@ -86,6 +57,8 @@ type Kafka struct {
 	// The maximum amount of time message will remain uncompacted. Only applicable for logs that are being compacted
 	LogCleanerMaxCompactionLagMs *int `groups:"create,update" json:"log_cleaner_max_compaction_lag_ms,omitempty"`
 
+	// +kubebuilder:validation:Minimum=0.2
+	// +kubebuilder:validation:Maximum=0.9
 	// Controls log compactor frequency. Larger value means more frequent compactions but also more space wasted for logs. Consider setting log.cleaner.max.compaction.lag.ms to enforce compactions sooner, instead of setting a very high value for this option.
 	LogCleanerMinCleanableRatio *float64 `groups:"create,update" json:"log_cleaner_min_cleanable_ratio,omitempty"`
 
@@ -440,7 +413,7 @@ type KafkaUserConfig struct {
 	// Kafka REST configuration
 	KafkaRestConfig *KafkaRestConfig `groups:"create,update" json:"kafka_rest_config,omitempty"`
 
-	// +kubebuilder:validation:Enum="3.2";"3.3"
+	// +kubebuilder:validation:Enum="3.3"
 	// Kafka major version
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
 

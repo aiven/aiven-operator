@@ -3,35 +3,6 @@
 
 package redisuserconfig
 
-import "encoding/json"
-
-func (ip *IpFilter) UnmarshalJSON(data []byte) error {
-	if string(data) == "null" || string(data) == `""` {
-		return nil
-	}
-
-	var s string
-	err := json.Unmarshal(data, &s)
-	if err == nil {
-		ip.Network = s
-		return nil
-	}
-
-	type this struct {
-		Network     string  `json:"network"`
-		Description *string `json:"description,omitempty" `
-	}
-
-	var t *this
-	err = json.Unmarshal(data, &t)
-	if err != nil {
-		return err
-	}
-	ip.Network = t.Network
-	ip.Description = t.Description
-	return nil
-}
-
 // CIDR address block, either as a string, or in a dict with an optional description field
 type IpFilter struct {
 	// +kubebuilder:validation:MaxLength=1024
@@ -54,11 +25,11 @@ type Migration struct {
 	Host string `groups:"create,update" json:"host"`
 
 	// +kubebuilder:validation:MaxLength=2048
-	// Comma-separated list of databases, which should be ignored during migration (supported by MySQL only at the moment)
+	// Comma-separated list of databases, which should be ignored during migration (supported by MySQL and PostgreSQL only at the moment)
 	IgnoreDbs *string `groups:"create,update" json:"ignore_dbs,omitempty"`
 
 	// +kubebuilder:validation:Enum="dump";"replication"
-	// The migration method to be used (currently supported only by Redis and MySQL service types)
+	// The migration method to be used (currently supported only by Redis, MySQL and PostgreSQL service types)
 	Method *string `groups:"create,update" json:"method,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=256

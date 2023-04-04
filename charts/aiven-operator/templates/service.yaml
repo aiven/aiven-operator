@@ -1,0 +1,19 @@
+{{- if .Values.webhooks.enabled }}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "aiven-operator.fullname" . }}-webhook-service
+  namespace: {{ include "aiven-operator.namespace" . }}
+  labels:
+    {{- include "aiven-operator.labels" . | nindent 4 }}
+spec:
+  ports:
+    - port: {{ .Values.webhooks.servicePort }}
+      targetPort: webhook
+      protocol: TCP
+      name: webhook
+  selector:
+    {{- include "aiven-operator.selectorLabels" . | nindent 4 }}
+
+{{- end }}

@@ -13,6 +13,10 @@ git clone git@github.com:aiven/aiven-operator.git
 cd aiven-operator
 ```
 
+## Resource generation
+
+Please see [this page](resource-generation.md) for more information.
+
 ## Building
 
 The project uses the `make` build system.
@@ -50,5 +54,5 @@ The documentation API Reference section is generated automatically from
 the source code during the documentation deployment. To generate it locally, run the following command:
 
 ```shell
-make generate-api-reference
+make docs
 ```

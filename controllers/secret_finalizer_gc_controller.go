@@ -158,7 +158,9 @@ const (
 // secretRefIndexFunc indexes the client token secret names of aiven managed objects
 func secretRefIndexFunc(o client.Object) []string {
 	if aivenObj, ok := o.(aivenManagedObject); ok {
-		return []string{aivenObj.AuthSecretRef().Name}
+		if auth := aivenObj.AuthSecretRef(); auth != nil {
+			return []string{auth.Name}
+		}
 	}
 	return nil
 }

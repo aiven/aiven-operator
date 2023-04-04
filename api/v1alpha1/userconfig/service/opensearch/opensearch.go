@@ -3,8 +3,6 @@
 
 package opensearchuserconfig
 
-import "encoding/json"
-
 // Allows you to create glob style patterns and set a max number of indexes matching this pattern you want to keep. Creating indexes exceeding this value will cause the oldest one to get deleted. You could for example create a pattern looking like 'logs.?' and then create index logs.1, logs.2 etc, it will delete logs.1 once you create logs.6. Do note 'logs.?' does not apply to logs.10. Note: Setting max_index_count to 0 will do nothing and the pattern gets ignored.
 type IndexPatterns struct {
 	// +kubebuilder:validation:Minimum=0
@@ -39,33 +37,6 @@ type IndexTemplate struct {
 	NumberOfShards *int `groups:"create,update" json:"number_of_shards,omitempty"`
 }
 
-func (ip *IpFilter) UnmarshalJSON(data []byte) error {
-	if string(data) == "null" || string(data) == `""` {
-		return nil
-	}
-
-	var s string
-	err := json.Unmarshal(data, &s)
-	if err == nil {
-		ip.Network = s
-		return nil
-	}
-
-	type this struct {
-		Network     string  `json:"network"`
-		Description *string `json:"description,omitempty" `
-	}
-
-	var t *this
-	err = json.Unmarshal(data, &t)
-	if err != nil {
-		return err
-	}
-	ip.Network = t.Network
-	ip.Description = t.Description
-	return nil
-}
-
 // CIDR address block, either as a string, or in a dict with an optional description field
 type IpFilter struct {
 	// +kubebuilder:validation:MaxLength=1024
@@ -97,17 +68,17 @@ type Opensearch struct {
 
 	// +kubebuilder:validation:MaxLength=40
 	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9-_]+$`
-	// Sender email name placeholder to be used in Opensearch Dashboards and Opensearch keystore
+	// Sender name placeholder to be used in Opensearch Dashboards and Opensearch keystore
 	EmailSenderName *string `groups:"create,update" json:"email_sender_name,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=1024
 	// +kubebuilder:validation:Pattern=`^[^\x00-\x1F]+$`
-	// Sender email password for Opensearch alerts to authenticate with SMTP server
+	// Sender password for Opensearch alerts to authenticate with SMTP server
 	EmailSenderPassword *string `groups:"create,update" json:"email_sender_password,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=320
-	// +kubebuilder:validation:Pattern=`^[A-Za-z0-9_\-\.+\'&]+@(([\da-zA-Z])([_\w-]{,62})\.){,127}(([\da-zA-Z])[_\w-]{,61})?([\da-zA-Z]\.((xn\-\-[a-zA-Z\d]+)|([a-zA-Z\d]{2,})))$`
-	// Sender email address for Opensearch alerts
+	// +kubebuilder:validation:Pattern=`^[^\x00-\x1F]+$`
+	// Sender username for Opensearch alerts
 	EmailSenderUsername *string `groups:"create,update" json:"email_sender_username,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1

@@ -17,6 +17,14 @@ type KafkaTopicSpec struct {
 	// Service name.
 	ServiceName string `json:"serviceName"`
 
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=249
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// Topic name. If provided, is used instead of metadata.name.
+	// This field supports additional characters, has a longer length,
+	// and will replace metadata.name in future releases
+	TopicName string `json:"topicName,omitempty"`
+
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=1000000
 	// Number of partitions to create in the topic
@@ -35,10 +43,19 @@ type KafkaTopicSpec struct {
 	// It is a Kubernetes side deletion protections, which prevents the kafka topic
 	// from being deleted by Kubernetes. It is recommended to enable this for any production
 	// databases containing critical data.
-	TerminationProtection bool `json:"termination_protection,omitempty"`
+	TerminationProtection *bool `json:"termination_protection,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
+}
+
+// GetTopicName returns topic name with a backward compatibility.
+// metadata.Name is deprecated
+func (t *KafkaTopic) GetTopicName() string {
+	if t.Spec.TopicName != "" {
+		return t.Spec.TopicName
+	}
+	return t.Name
 }
 
 type KafkaTopicTag struct {
@@ -151,8 +168,8 @@ type KafkaTopic struct {
 	Status KafkaTopicStatus `json:"status,omitempty"`
 }
 
-func (kfkt KafkaTopic) AuthSecretRef() *AuthSecretReference {
-	return kfkt.Spec.AuthSecretRef
+func (t *KafkaTopic) AuthSecretRef() *AuthSecretReference {
+	return t.Spec.AuthSecretRef
 }
 
 // +kubebuilder:object:root=true

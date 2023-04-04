@@ -34,23 +34,26 @@ spec:
       - network: 10.20.0.0/16
 ```
 
-## Schema {: #Schema }
+## Cassandra {: #Cassandra }
 
 Cassandra is the Schema for the cassandras API.
 
 **Required**
 
-- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `Cassandra`.
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `Cassandra`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
 - [`spec`](#spec-property){: name='spec-property'} (object). CassandraSpec defines the desired state of Cassandra. See below for [nested schema](#spec).
 
 ## spec {: #spec }
 
+_Appears on [`Cassandra`](#Cassandra)._
+
 CassandraSpec defines the desired state of Cassandra.
 
 **Required**
 
+- [`plan`](#spec.plan-property){: name='spec.plan-property'} (string, MaxLength: 128). Subscription plan.
 - [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63). Target project.
 
 **Optional**
@@ -61,15 +64,16 @@ CassandraSpec defines the desired state of Cassandra.
 - [`disk_space`](#spec.disk_space-property){: name='spec.disk_space-property'} (string). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.
 - [`maintenanceWindowDow`](#spec.maintenanceWindowDow-property){: name='spec.maintenanceWindowDow-property'} (string, Enum: `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.
 - [`maintenanceWindowTime`](#spec.maintenanceWindowTime-property){: name='spec.maintenanceWindowTime-property'} (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
-- [`plan`](#spec.plan-property){: name='spec.plan-property'} (string, MaxLength: 128). Subscription plan.
 - [`projectVPCRef`](#spec.projectVPCRef-property){: name='spec.projectVPCRef-property'} (object, Immutable). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See below for [nested schema](#spec.projectVPCRef).
 - [`projectVpcId`](#spec.projectVpcId-property){: name='spec.projectVpcId-property'} (string, Immutable, MaxLength: 36). Identifier of the VPC the service should be in, if any.
-- [`serviceIntegrations`](#spec.serviceIntegrations-property){: name='spec.serviceIntegrations-property'} (array of objects, Immutable, MaxItems: 1).  See below for [nested schema](#spec.serviceIntegrations).
+- [`serviceIntegrations`](#spec.serviceIntegrations-property){: name='spec.serviceIntegrations-property'} (array of objects, Immutable, MaxItems: 1). Service integrations to specify when creating a service. Not applied after initial service creation. See below for [nested schema](#spec.serviceIntegrations).
 - [`tags`](#spec.tags-property){: name='spec.tags-property'} (object, AdditionalProperties: string). Tags are key-value pairs that allow you to categorize services.
 - [`terminationProtection`](#spec.terminationProtection-property){: name='spec.terminationProtection-property'} (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services.
 - [`userConfig`](#spec.userConfig-property){: name='spec.userConfig-property'} (object). Cassandra specific user configuration options. See below for [nested schema](#spec.userConfig).
 
 ## authSecretRef {: #spec.authSecretRef }
+
+_Appears on [`spec`](#spec)._
 
 Authentication reference to Aiven token in a secret.
 
@@ -80,6 +84,8 @@ Authentication reference to Aiven token in a secret.
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 
+_Appears on [`spec`](#spec)._
+
 Information regarding secret creation.
 
 **Required**
@@ -87,6 +93,8 @@ Information regarding secret creation.
 - [`name`](#spec.connInfoSecretTarget.name-property){: name='spec.connInfoSecretTarget.name-property'} (string). Name of the secret resource to be created. By default, is equal to the resource name.
 
 ## projectVPCRef {: #spec.projectVPCRef }
+
+_Appears on [`spec`](#spec)._
 
 ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.
 
@@ -100,12 +108,18 @@ ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID aut
 
 ## serviceIntegrations {: #spec.serviceIntegrations }
 
+_Appears on [`spec`](#spec)._
+
+Service integrations to specify when creating a service. Not applied after initial service creation.
+
 **Required**
 
 - [`integrationType`](#spec.serviceIntegrations.integrationType-property){: name='spec.serviceIntegrations.integrationType-property'} (string, Enum: `read_replica`). 
 - [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64). 
 
 ## userConfig {: #spec.userConfig }
+
+_Appears on [`spec`](#spec)._
 
 Cassandra specific user configuration options.
 
@@ -125,6 +139,8 @@ Cassandra specific user configuration options.
 
 ### cassandra {: #spec.userConfig.cassandra }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 cassandra configuration values.
 
 **Optional**
@@ -134,6 +150,8 @@ cassandra configuration values.
 - [`datacenter`](#spec.userConfig.cassandra.datacenter-property){: name='spec.userConfig.cassandra.datacenter-property'} (string, MaxLength: 128). Name of the datacenter to which nodes of this service belong. Can be set only when creating the service.
 
 ### ip_filter {: #spec.userConfig.ip_filter }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 
@@ -147,6 +165,8 @@ Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 
 ### private_access {: #spec.userConfig.private_access }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow access to selected service ports from private networks.
 
 **Required**
@@ -154,6 +174,8 @@ Allow access to selected service ports from private networks.
 - [`prometheus`](#spec.userConfig.private_access.prometheus-property){: name='spec.userConfig.private_access.prometheus-property'} (boolean). Allow clients to connect to prometheus with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.
 
 ### public_access {: #spec.userConfig.public_access }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow access to selected service ports from the public Internet.
 

@@ -46,7 +46,7 @@ type ServiceCommonSpec struct {
 
 	// +kubebuilder:validation:MaxLength=128
 	// Subscription plan.
-	Plan string `json:"plan,omitempty"`
+	Plan string `json:"plan"`
 
 	// +kubebuilder:validation:MaxLength=256
 	// Cloud the service runs in.
@@ -70,13 +70,14 @@ type ServiceCommonSpec struct {
 	MaintenanceWindowTime string `json:"maintenanceWindowTime,omitempty"`
 
 	// Prevent service from being deleted. It is recommended to have this enabled for all services.
-	TerminationProtection bool `json:"terminationProtection,omitempty"`
+	TerminationProtection *bool `json:"terminationProtection,omitempty"`
 
 	// Tags are key-value pairs that allow you to categorize services.
 	Tags map[string]string `json:"tags,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=1
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// Service integrations to specify when creating a service. Not applied after initial service creation
 	ServiceIntegrations []*ServiceIntegrationItem `json:"serviceIntegrations,omitempty"`
 }
 

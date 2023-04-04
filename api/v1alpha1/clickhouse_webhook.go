@@ -59,7 +59,7 @@ func (r *Clickhouse) ValidateUpdate(old runtime.Object) error {
 func (r *Clickhouse) ValidateDelete() error {
 	clickhouselog.Info("validate delete", "name", r.Name)
 
-	if r.Spec.TerminationProtection {
+	if r.Spec.TerminationProtection != nil && *r.Spec.TerminationProtection {
 		return errors.New("cannot delete Clickhouse service, termination protection is on")
 	}
 

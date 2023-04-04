@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	"errors"
+	"net/http"
 	"strconv"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -22,11 +24,18 @@ const (
 	instanceIsRunningAnnotation   = "controllers.aiven.io/instance-is-running"
 )
 
-var operatorUserAgent = "k8s-operator/" + aiven.Version()
+var (
+	operatorUserAgent          = "k8s-operator/" + aiven.Version()
+	errTerminationProtectionOn = errors.New("termination protection is on")
+)
 
 func checkServiceIsRunning(c *aiven.Client, project, serviceName string) (bool, error) {
 	s, err := c.Services.Get(project, serviceName)
 	if err != nil {
+		// if service is not found, it is not running
+		if aiven.IsNotFound(err) {
+			return false, nil
+		}
 		return false, err
 	}
 	return s.State == "RUNNING", nil
@@ -68,7 +77,8 @@ func isAlreadyProcessed(o client.Object) bool {
 	return o.GetAnnotations()[processedGenerationAnnotation] == strconv.FormatInt(o.GetGeneration(), formatIntBaseDecimal)
 }
 
-func isAlreadyRunning(o client.Object) bool {
+// IsAlreadyRunning returns true if object is ready to use
+func IsAlreadyRunning(o client.Object) bool {
 	_, found := o.GetAnnotations()[instanceIsRunningAnnotation]
 	return found
 }
@@ -79,4 +89,9 @@ func optionalStringPointer(u string) *string {
 	}
 
 	return &u
+}
+
+func isAivenServerError(err error) bool {
+	e, ok := err.(aiven.Error)
+	return ok && e.Status >= http.StatusInternalServerError
 }

@@ -8,7 +8,7 @@ title: "KafkaTopic"
 apiVersion: aiven.io/v1alpha1
 kind: KafkaTopic
 metadata:
-  name: my-kafka-topic
+  name: kafka-topic
 spec:
   authSecretRef:
     name: aiven-token
@@ -16,23 +16,26 @@ spec:
 
   project: my-aiven-project
   serviceName: my-kafka
+  topicName: my-kafka-topic
 
   replication: 2
   partitions: 1
 ```
 
-## Schema {: #Schema }
+## KafkaTopic {: #KafkaTopic }
 
 KafkaTopic is the Schema for the kafkatopics API.
 
 **Required**
 
-- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `KafkaTopic`.
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `KafkaTopic`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
 - [`spec`](#spec-property){: name='spec-property'} (object). KafkaTopicSpec defines the desired state of KafkaTopic. See below for [nested schema](#spec).
 
 ## spec {: #spec }
+
+_Appears on [`KafkaTopic`](#KafkaTopic)._
 
 KafkaTopicSpec defines the desired state of KafkaTopic.
 
@@ -49,8 +52,11 @@ KafkaTopicSpec defines the desired state of KafkaTopic.
 - [`config`](#spec.config-property){: name='spec.config-property'} (object). Kafka topic configuration. See below for [nested schema](#spec.config).
 - [`tags`](#spec.tags-property){: name='spec.tags-property'} (array of objects). Kafka topic tags. See below for [nested schema](#spec.tags).
 - [`termination_protection`](#spec.termination_protection-property){: name='spec.termination_protection-property'} (boolean). It is a Kubernetes side deletion protections, which prevents the kafka topic from being deleted by Kubernetes. It is recommended to enable this for any production databases containing critical data.
+- [`topicName`](#spec.topicName-property){: name='spec.topicName-property'} (string, Immutable, MinLength: 1, MaxLength: 249). Topic name. If provided, is used instead of metadata.name. This field supports additional characters, has a longer length, and will replace metadata.name in future releases.
 
 ## authSecretRef {: #spec.authSecretRef }
+
+_Appears on [`spec`](#spec)._
 
 Authentication reference to Aiven token in a secret.
 
@@ -60,6 +66,8 @@ Authentication reference to Aiven token in a secret.
 - [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1). 
 
 ## config {: #spec.config }
+
+_Appears on [`spec`](#spec)._
 
 Kafka topic configuration.
 
@@ -91,6 +99,8 @@ Kafka topic configuration.
 - [`unclean_leader_election_enable`](#spec.config.unclean_leader_election_enable-property){: name='spec.config.unclean_leader_election_enable-property'} (boolean). unclean.leader.election.enable value.
 
 ## tags {: #spec.tags }
+
+_Appears on [`spec`](#spec)._
 
 Kafka topic tags.
 

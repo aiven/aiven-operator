@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "aiven-operator.fullname" . }}
+  namespace: {{ include "aiven-operator.namespace" . }}
+  labels:
+{{- include "aiven-operator.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+{{- include "aiven-operator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+{{- with .Values.podAnnotations }}
+      annotations:
+{{- toYaml . | nindent 8 }}
+{{- end }}
+      labels:
+{{- include "aiven-operator.selectorLabels" . | nindent 8 }}
+    spec:
+      terminationGracePeriodSeconds: 10
+
+{{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{- toYaml . | nindent 8 }}
+{{- end }}
+
+      serviceAccountName: {{ include "aiven-operator.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- if and (.Values.defaultTokenSecret.name) (.Values.defaultTokenSecret.key)}}
+            - name: DEFAULT_AIVEN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: {{ .Values.defaultTokenSecret.key }}
+                  name: {{ .Values.defaultTokenSecret.name }}
+            {{- end }}
+            {{- if ( not .Values.webhooks.enabled ) }}
+            - name: ENABLE_WEBHOOKS
+              value: "false"
+            {{- end }}
+          command:
+            - /manager
+          args:
+            - --leader-elect={{ .Values.leaderElect }}
+            - --metrics-bind-address={{ .Values.metricsBindAddress }}
+            - --health-probe-bind-address={{ .Values.healthProbeBindAddress }}
+
+          ports:
+            - name: metrics
+              containerPort: 8080
+              protocol: TCP
+
+{{- if .Values.webhooks.enabled }}
+            - name: webhook
+              containerPort: {{ .Values.webhooks.containerPort | default 9443 }}
+              protocol: TCP
+{{- end }}
+
+          livenessProbe:
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            tcpSocket:
+              port: metrics
+
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            tcpSocket:
+              port: metrics
+
+          resources:
+{{- toYaml .Values.resources | nindent 12 }}
+
+{{- if .Values.webhooks.enabled }}
+          volumeMounts:
+            - mountPath: /tmp/k8s-webhook-server/serving-certs
+              name: webhook-server-cert
+              readOnly: true
+{{- end }}
+
+{{- if .Values.webhooks.enabled }}
+      volumes:
+        - name: webhook-server-cert
+          secret:
+            defaultMode: 420
+            secretName: webhook-server-cert
+{{- end }}
+
+{{- with .Values.nodeSelector }}
+      nodeSelector:
+{{- toYaml . | nindent 8 }}
+{{- end }}
+
+{{- with .Values.affinity }}
+      affinity:
+{{- toYaml . | nindent 8 }}
+{{- end }}
+
+{{- with .Values.tolerations }}
+      tolerations:
+{{- toYaml . | nindent 8 }}
+{{- end }}

@@ -15,34 +15,37 @@ spec:
     key: token
 
   connInfoSecretTarget:
-    name: kafka-token
+    name: kafka-secret
 
   project: my-aiven-project
   cloudName: google-europe-west1
   plan: startup-2
-  disc_space: 15Gib
+  disk_space: 15Gib
 
   maintenanceWindowDow: friday
   maintenanceWindowTime: 23:00:00
 ```
 
-## Schema {: #Schema }
+## Kafka {: #Kafka }
 
 Kafka is the Schema for the kafkas API.
 
 **Required**
 
-- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `Kafka`.
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `Kafka`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
 - [`spec`](#spec-property){: name='spec-property'} (object). KafkaSpec defines the desired state of Kafka. See below for [nested schema](#spec).
 
 ## spec {: #spec }
 
+_Appears on [`Kafka`](#Kafka)._
+
 KafkaSpec defines the desired state of Kafka.
 
 **Required**
 
+- [`plan`](#spec.plan-property){: name='spec.plan-property'} (string, MaxLength: 128). Subscription plan.
 - [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63). Target project.
 
 **Optional**
@@ -54,15 +57,16 @@ KafkaSpec defines the desired state of Kafka.
 - [`karapace`](#spec.karapace-property){: name='spec.karapace-property'} (boolean). Switch the service to use Karapace for schema registry and REST proxy.
 - [`maintenanceWindowDow`](#spec.maintenanceWindowDow-property){: name='spec.maintenanceWindowDow-property'} (string, Enum: `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.
 - [`maintenanceWindowTime`](#spec.maintenanceWindowTime-property){: name='spec.maintenanceWindowTime-property'} (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
-- [`plan`](#spec.plan-property){: name='spec.plan-property'} (string, MaxLength: 128). Subscription plan.
 - [`projectVPCRef`](#spec.projectVPCRef-property){: name='spec.projectVPCRef-property'} (object, Immutable). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See below for [nested schema](#spec.projectVPCRef).
 - [`projectVpcId`](#spec.projectVpcId-property){: name='spec.projectVpcId-property'} (string, Immutable, MaxLength: 36). Identifier of the VPC the service should be in, if any.
-- [`serviceIntegrations`](#spec.serviceIntegrations-property){: name='spec.serviceIntegrations-property'} (array of objects, Immutable, MaxItems: 1).  See below for [nested schema](#spec.serviceIntegrations).
+- [`serviceIntegrations`](#spec.serviceIntegrations-property){: name='spec.serviceIntegrations-property'} (array of objects, Immutable, MaxItems: 1). Service integrations to specify when creating a service. Not applied after initial service creation. See below for [nested schema](#spec.serviceIntegrations).
 - [`tags`](#spec.tags-property){: name='spec.tags-property'} (object, AdditionalProperties: string). Tags are key-value pairs that allow you to categorize services.
 - [`terminationProtection`](#spec.terminationProtection-property){: name='spec.terminationProtection-property'} (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services.
 - [`userConfig`](#spec.userConfig-property){: name='spec.userConfig-property'} (object). Kafka specific user configuration options. See below for [nested schema](#spec.userConfig).
 
 ## authSecretRef {: #spec.authSecretRef }
+
+_Appears on [`spec`](#spec)._
 
 Authentication reference to Aiven token in a secret.
 
@@ -73,6 +77,8 @@ Authentication reference to Aiven token in a secret.
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 
+_Appears on [`spec`](#spec)._
+
 Information regarding secret creation.
 
 **Required**
@@ -80,6 +86,8 @@ Information regarding secret creation.
 - [`name`](#spec.connInfoSecretTarget.name-property){: name='spec.connInfoSecretTarget.name-property'} (string). Name of the secret resource to be created. By default, is equal to the resource name.
 
 ## projectVPCRef {: #spec.projectVPCRef }
+
+_Appears on [`spec`](#spec)._
 
 ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.
 
@@ -93,12 +101,18 @@ ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID aut
 
 ## serviceIntegrations {: #spec.serviceIntegrations }
 
+_Appears on [`spec`](#spec)._
+
+Service integrations to specify when creating a service. Not applied after initial service creation.
+
 **Required**
 
 - [`integrationType`](#spec.serviceIntegrations.integrationType-property){: name='spec.serviceIntegrations.integrationType-property'} (string, Enum: `read_replica`). 
 - [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64). 
 
 ## userConfig {: #spec.userConfig }
+
+_Appears on [`spec`](#spec)._
 
 Kafka specific user configuration options.
 
@@ -114,7 +128,7 @@ Kafka specific user configuration options.
 - [`kafka_rest`](#spec.userConfig.kafka_rest-property){: name='spec.userConfig.kafka_rest-property'} (boolean). Enable Kafka-REST service.
 - [`kafka_rest_authorization`](#spec.userConfig.kafka_rest_authorization-property){: name='spec.userConfig.kafka_rest_authorization-property'} (boolean). Enable authorization in Kafka-REST service.
 - [`kafka_rest_config`](#spec.userConfig.kafka_rest_config-property){: name='spec.userConfig.kafka_rest_config-property'} (object). Kafka REST configuration. See below for [nested schema](#spec.userConfig.kafka_rest_config).
-- [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string, Enum: `3.2`, `3.3`). Kafka major version.
+- [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string, Enum: `3.3`). Kafka major version.
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
 - [`privatelink_access`](#spec.userConfig.privatelink_access-property){: name='spec.userConfig.privatelink_access-property'} (object). Allow access to selected service components through Privatelink. See below for [nested schema](#spec.userConfig.privatelink_access).
 - [`public_access`](#spec.userConfig.public_access-property){: name='spec.userConfig.public_access-property'} (object). Allow access to selected service ports from the public Internet. See below for [nested schema](#spec.userConfig.public_access).
@@ -123,6 +137,8 @@ Kafka specific user configuration options.
 - [`static_ips`](#spec.userConfig.static_ips-property){: name='spec.userConfig.static_ips-property'} (boolean). Use static public IP addresses.
 
 ### ip_filter {: #spec.userConfig.ip_filter }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 
@@ -135,6 +151,8 @@ Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 - [`description`](#spec.userConfig.ip_filter.description-property){: name='spec.userConfig.ip_filter.description-property'} (string, MaxLength: 1024). Description for IP filter list entry.
 
 ### kafka {: #spec.userConfig.kafka }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Kafka broker configuration values.
 
@@ -149,7 +167,7 @@ Kafka broker configuration values.
 - [`group_min_session_timeout_ms`](#spec.userConfig.kafka.group_min_session_timeout_ms-property){: name='spec.userConfig.kafka.group_min_session_timeout_ms-property'} (integer, Minimum: 0, Maximum: 60000). The minimum allowed session timeout for registered consumers. Longer timeouts give consumers more time to process messages in between heartbeats at the cost of a longer time to detect failures.
 - [`log_cleaner_delete_retention_ms`](#spec.userConfig.kafka.log_cleaner_delete_retention_ms-property){: name='spec.userConfig.kafka.log_cleaner_delete_retention_ms-property'} (integer, Minimum: 0, Maximum: 315569260000). How long are delete records retained?.
 - [`log_cleaner_max_compaction_lag_ms`](#spec.userConfig.kafka.log_cleaner_max_compaction_lag_ms-property){: name='spec.userConfig.kafka.log_cleaner_max_compaction_lag_ms-property'} (integer, Minimum: 30000). The maximum amount of time message will remain uncompacted. Only applicable for logs that are being compacted.
-- [`log_cleaner_min_cleanable_ratio`](#spec.userConfig.kafka.log_cleaner_min_cleanable_ratio-property){: name='spec.userConfig.kafka.log_cleaner_min_cleanable_ratio-property'} (number). Controls log compactor frequency. Larger value means more frequent compactions but also more space wasted for logs. Consider setting log.cleaner.max.compaction.lag.ms to enforce compactions sooner, instead of setting a very high value for this option.
+- [`log_cleaner_min_cleanable_ratio`](#spec.userConfig.kafka.log_cleaner_min_cleanable_ratio-property){: name='spec.userConfig.kafka.log_cleaner_min_cleanable_ratio-property'} (number, Minimum: 0.2, Maximum: 0.9). Controls log compactor frequency. Larger value means more frequent compactions but also more space wasted for logs. Consider setting log.cleaner.max.compaction.lag.ms to enforce compactions sooner, instead of setting a very high value for this option.
 - [`log_cleaner_min_compaction_lag_ms`](#spec.userConfig.kafka.log_cleaner_min_compaction_lag_ms-property){: name='spec.userConfig.kafka.log_cleaner_min_compaction_lag_ms-property'} (integer, Minimum: 0). The minimum time a message will remain uncompacted in the log. Only applicable for logs that are being compacted.
 - [`log_cleanup_policy`](#spec.userConfig.kafka.log_cleanup_policy-property){: name='spec.userConfig.kafka.log_cleanup_policy-property'} (string, Enum: `delete`, `compact`, `compact,delete`). The default cleanup policy for segments beyond the retention window.
 - [`log_flush_interval_messages`](#spec.userConfig.kafka.log_flush_interval_messages-property){: name='spec.userConfig.kafka.log_flush_interval_messages-property'} (integer, Minimum: 1). The number of messages accumulated on a log partition before messages are flushed to disk.
@@ -182,6 +200,8 @@ Kafka broker configuration values.
 
 ### kafka_authentication_methods {: #spec.userConfig.kafka_authentication_methods }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Kafka authentication methods.
 
 **Optional**
@@ -190,6 +210,8 @@ Kafka authentication methods.
 - [`sasl`](#spec.userConfig.kafka_authentication_methods.sasl-property){: name='spec.userConfig.kafka_authentication_methods.sasl-property'} (boolean). Enable SASL authentication.
 
 ### kafka_connect_config {: #spec.userConfig.kafka_connect_config }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Kafka Connect configuration values.
 
@@ -213,6 +235,8 @@ Kafka Connect configuration values.
 
 ### kafka_rest_config {: #spec.userConfig.kafka_rest_config }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Kafka REST configuration.
 
 **Optional**
@@ -227,6 +251,8 @@ Kafka REST configuration.
 
 ### private_access {: #spec.userConfig.private_access }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow access to selected service ports from private networks.
 
 **Optional**
@@ -238,6 +264,8 @@ Allow access to selected service ports from private networks.
 - [`schema_registry`](#spec.userConfig.private_access.schema_registry-property){: name='spec.userConfig.private_access.schema_registry-property'} (boolean). Allow clients to connect to schema_registry with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.
 
 ### privatelink_access {: #spec.userConfig.privatelink_access }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow access to selected service components through Privatelink.
 
@@ -252,6 +280,8 @@ Allow access to selected service components through Privatelink.
 
 ### public_access {: #spec.userConfig.public_access }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow access to selected service ports from the public Internet.
 
 **Optional**
@@ -263,6 +293,8 @@ Allow access to selected service ports from the public Internet.
 - [`schema_registry`](#spec.userConfig.public_access.schema_registry-property){: name='spec.userConfig.public_access.schema_registry-property'} (boolean). Allow clients to connect to schema_registry from the public internet for service nodes that are in a project VPC or another type of private network.
 
 ### schema_registry_config {: #spec.userConfig.schema_registry_config }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Schema Registry configuration.
 

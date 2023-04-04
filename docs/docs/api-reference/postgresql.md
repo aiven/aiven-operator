@@ -28,23 +28,26 @@ spec:
     pg_version: "15"
 ```
 
-## Schema {: #Schema }
+## PostgreSQL {: #PostgreSQL }
 
 PostgreSQL is the Schema for the postgresql API.
 
 **Required**
 
-- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `PostgreSQL`.
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `PostgreSQL`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
 - [`spec`](#spec-property){: name='spec-property'} (object). PostgreSQLSpec defines the desired state of postgres instance. See below for [nested schema](#spec).
 
 ## spec {: #spec }
 
+_Appears on [`PostgreSQL`](#PostgreSQL)._
+
 PostgreSQLSpec defines the desired state of postgres instance.
 
 **Required**
 
+- [`plan`](#spec.plan-property){: name='spec.plan-property'} (string, MaxLength: 128). Subscription plan.
 - [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63). Target project.
 
 **Optional**
@@ -55,15 +58,16 @@ PostgreSQLSpec defines the desired state of postgres instance.
 - [`disk_space`](#spec.disk_space-property){: name='spec.disk_space-property'} (string). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.
 - [`maintenanceWindowDow`](#spec.maintenanceWindowDow-property){: name='spec.maintenanceWindowDow-property'} (string, Enum: `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.
 - [`maintenanceWindowTime`](#spec.maintenanceWindowTime-property){: name='spec.maintenanceWindowTime-property'} (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
-- [`plan`](#spec.plan-property){: name='spec.plan-property'} (string, MaxLength: 128). Subscription plan.
 - [`projectVPCRef`](#spec.projectVPCRef-property){: name='spec.projectVPCRef-property'} (object, Immutable). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See below for [nested schema](#spec.projectVPCRef).
 - [`projectVpcId`](#spec.projectVpcId-property){: name='spec.projectVpcId-property'} (string, Immutable, MaxLength: 36). Identifier of the VPC the service should be in, if any.
-- [`serviceIntegrations`](#spec.serviceIntegrations-property){: name='spec.serviceIntegrations-property'} (array of objects, Immutable, MaxItems: 1).  See below for [nested schema](#spec.serviceIntegrations).
+- [`serviceIntegrations`](#spec.serviceIntegrations-property){: name='spec.serviceIntegrations-property'} (array of objects, Immutable, MaxItems: 1). Service integrations to specify when creating a service. Not applied after initial service creation. See below for [nested schema](#spec.serviceIntegrations).
 - [`tags`](#spec.tags-property){: name='spec.tags-property'} (object, AdditionalProperties: string). Tags are key-value pairs that allow you to categorize services.
 - [`terminationProtection`](#spec.terminationProtection-property){: name='spec.terminationProtection-property'} (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services.
 - [`userConfig`](#spec.userConfig-property){: name='spec.userConfig-property'} (object). PostgreSQL specific user configuration options. See below for [nested schema](#spec.userConfig).
 
 ## authSecretRef {: #spec.authSecretRef }
+
+_Appears on [`spec`](#spec)._
 
 Authentication reference to Aiven token in a secret.
 
@@ -74,6 +78,8 @@ Authentication reference to Aiven token in a secret.
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 
+_Appears on [`spec`](#spec)._
+
 Information regarding secret creation.
 
 **Required**
@@ -81,6 +87,8 @@ Information regarding secret creation.
 - [`name`](#spec.connInfoSecretTarget.name-property){: name='spec.connInfoSecretTarget.name-property'} (string). Name of the secret resource to be created. By default, is equal to the resource name.
 
 ## projectVPCRef {: #spec.projectVPCRef }
+
+_Appears on [`spec`](#spec)._
 
 ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.
 
@@ -94,12 +102,18 @@ ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID aut
 
 ## serviceIntegrations {: #spec.serviceIntegrations }
 
+_Appears on [`spec`](#spec)._
+
+Service integrations to specify when creating a service. Not applied after initial service creation.
+
 **Required**
 
 - [`integrationType`](#spec.serviceIntegrations.integrationType-property){: name='spec.serviceIntegrations.integrationType-property'} (string, Enum: `read_replica`). 
 - [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64). 
 
 ## userConfig {: #spec.userConfig }
+
+_Appears on [`spec`](#spec)._
 
 PostgreSQL specific user configuration options.
 
@@ -126,7 +140,7 @@ PostgreSQL specific user configuration options.
 - [`public_access`](#spec.userConfig.public_access-property){: name='spec.userConfig.public_access-property'} (object). Allow access to selected service ports from the public Internet. See below for [nested schema](#spec.userConfig.public_access).
 - [`recovery_target_time`](#spec.userConfig.recovery_target_time-property){: name='spec.userConfig.recovery_target_time-property'} (string, Immutable, MaxLength: 32). Recovery target time when forking a service. This has effect only when a new service is being created.
 - [`service_to_fork_from`](#spec.userConfig.service_to_fork_from-property){: name='spec.userConfig.service_to_fork_from-property'} (string, Immutable, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.
-- [`shared_buffers_percentage`](#spec.userConfig.shared_buffers_percentage-property){: name='spec.userConfig.shared_buffers_percentage-property'} (number). Percentage of total RAM that the database server uses for shared memory buffers. Valid range is 20-60 (float), which corresponds to 20% - 60%. This setting adjusts the shared_buffers configuration value.
+- [`shared_buffers_percentage`](#spec.userConfig.shared_buffers_percentage-property){: name='spec.userConfig.shared_buffers_percentage-property'} (number, Minimum: 20, Maximum: 60). Percentage of total RAM that the database server uses for shared memory buffers. Valid range is 20-60 (float), which corresponds to 20% - 60%. This setting adjusts the shared_buffers configuration value.
 - [`static_ips`](#spec.userConfig.static_ips-property){: name='spec.userConfig.static_ips-property'} (boolean). Use static public IP addresses.
 - [`synchronous_replication`](#spec.userConfig.synchronous_replication-property){: name='spec.userConfig.synchronous_replication-property'} (string, Enum: `quorum`, `off`). Synchronous replication type. Note that the service plan also needs to support synchronous replication.
 - [`timescaledb`](#spec.userConfig.timescaledb-property){: name='spec.userConfig.timescaledb-property'} (object). TimescaleDB extension configuration values. See below for [nested schema](#spec.userConfig.timescaledb).
@@ -134,6 +148,8 @@ PostgreSQL specific user configuration options.
 - [`work_mem`](#spec.userConfig.work_mem-property){: name='spec.userConfig.work_mem-property'} (integer, Minimum: 1, Maximum: 1024). Sets the maximum amount of memory to be used by a query operation (such as a sort or hash table) before writing to temporary disk files, in MB. Default is 1MB + 0.075% of total RAM (up to 32MB).
 
 ### ip_filter {: #spec.userConfig.ip_filter }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 
@@ -147,6 +163,8 @@ Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 
 ### migration {: #spec.userConfig.migration }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Migrate data from existing server.
 
 **Required**
@@ -157,31 +175,33 @@ Migrate data from existing server.
 **Optional**
 
 - [`dbname`](#spec.userConfig.migration.dbname-property){: name='spec.userConfig.migration.dbname-property'} (string, MaxLength: 63). Database name for bootstrapping the initial connection.
-- [`ignore_dbs`](#spec.userConfig.migration.ignore_dbs-property){: name='spec.userConfig.migration.ignore_dbs-property'} (string, MaxLength: 2048). Comma-separated list of databases, which should be ignored during migration (supported by MySQL only at the moment).
-- [`method`](#spec.userConfig.migration.method-property){: name='spec.userConfig.migration.method-property'} (string, Enum: `dump`, `replication`). The migration method to be used (currently supported only by Redis and MySQL service types).
+- [`ignore_dbs`](#spec.userConfig.migration.ignore_dbs-property){: name='spec.userConfig.migration.ignore_dbs-property'} (string, MaxLength: 2048). Comma-separated list of databases, which should be ignored during migration (supported by MySQL and PostgreSQL only at the moment).
+- [`method`](#spec.userConfig.migration.method-property){: name='spec.userConfig.migration.method-property'} (string, Enum: `dump`, `replication`). The migration method to be used (currently supported only by Redis, MySQL and PostgreSQL service types).
 - [`password`](#spec.userConfig.migration.password-property){: name='spec.userConfig.migration.password-property'} (string, MaxLength: 256). Password for authentication with the server where to migrate data from.
 - [`ssl`](#spec.userConfig.migration.ssl-property){: name='spec.userConfig.migration.ssl-property'} (boolean). The server where to migrate data from is secured with SSL.
 - [`username`](#spec.userConfig.migration.username-property){: name='spec.userConfig.migration.username-property'} (string, MaxLength: 256). User name for authentication with the server where to migrate data from.
 
 ### pg {: #spec.userConfig.pg }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 postgresql.conf configuration values.
 
 **Optional**
 
-- [`autovacuum_analyze_scale_factor`](#spec.userConfig.pg.autovacuum_analyze_scale_factor-property){: name='spec.userConfig.pg.autovacuum_analyze_scale_factor-property'} (number). Specifies a fraction of the table size to add to autovacuum_analyze_threshold when deciding whether to trigger an ANALYZE. The default is 0.2 (20% of table size).
+- [`autovacuum_analyze_scale_factor`](#spec.userConfig.pg.autovacuum_analyze_scale_factor-property){: name='spec.userConfig.pg.autovacuum_analyze_scale_factor-property'} (number, Minimum: 0, Maximum: 1). Specifies a fraction of the table size to add to autovacuum_analyze_threshold when deciding whether to trigger an ANALYZE. The default is 0.2 (20% of table size).
 - [`autovacuum_analyze_threshold`](#spec.userConfig.pg.autovacuum_analyze_threshold-property){: name='spec.userConfig.pg.autovacuum_analyze_threshold-property'} (integer, Minimum: 0, Maximum: 2147483647). Specifies the minimum number of inserted, updated or deleted tuples needed to trigger an  ANALYZE in any one table. The default is 50 tuples.
 - [`autovacuum_freeze_max_age`](#spec.userConfig.pg.autovacuum_freeze_max_age-property){: name='spec.userConfig.pg.autovacuum_freeze_max_age-property'} (integer, Minimum: 200000000, Maximum: 1500000000). Specifies the maximum age (in transactions) that a table's pg_class.relfrozenxid field can attain before a VACUUM operation is forced to prevent transaction ID wraparound within the table. Note that the system will launch autovacuum processes to prevent wraparound even when autovacuum is otherwise disabled. This parameter will cause the server to be restarted.
 - [`autovacuum_max_workers`](#spec.userConfig.pg.autovacuum_max_workers-property){: name='spec.userConfig.pg.autovacuum_max_workers-property'} (integer, Minimum: 1, Maximum: 20). Specifies the maximum number of autovacuum processes (other than the autovacuum launcher) that may be running at any one time. The default is three. This parameter can only be set at server start.
 - [`autovacuum_naptime`](#spec.userConfig.pg.autovacuum_naptime-property){: name='spec.userConfig.pg.autovacuum_naptime-property'} (integer, Minimum: 1, Maximum: 86400). Specifies the minimum delay between autovacuum runs on any given database. The delay is measured in seconds, and the default is one minute.
 - [`autovacuum_vacuum_cost_delay`](#spec.userConfig.pg.autovacuum_vacuum_cost_delay-property){: name='spec.userConfig.pg.autovacuum_vacuum_cost_delay-property'} (integer, Minimum: -1, Maximum: 100). Specifies the cost delay value that will be used in automatic VACUUM operations. If -1 is specified, the regular vacuum_cost_delay value will be used. The default value is 20 milliseconds.
 - [`autovacuum_vacuum_cost_limit`](#spec.userConfig.pg.autovacuum_vacuum_cost_limit-property){: name='spec.userConfig.pg.autovacuum_vacuum_cost_limit-property'} (integer, Minimum: -1, Maximum: 10000). Specifies the cost limit value that will be used in automatic VACUUM operations. If -1 is specified (which is the default), the regular vacuum_cost_limit value will be used.
-- [`autovacuum_vacuum_scale_factor`](#spec.userConfig.pg.autovacuum_vacuum_scale_factor-property){: name='spec.userConfig.pg.autovacuum_vacuum_scale_factor-property'} (number). Specifies a fraction of the table size to add to autovacuum_vacuum_threshold when deciding whether to trigger a VACUUM. The default is 0.2 (20% of table size).
+- [`autovacuum_vacuum_scale_factor`](#spec.userConfig.pg.autovacuum_vacuum_scale_factor-property){: name='spec.userConfig.pg.autovacuum_vacuum_scale_factor-property'} (number, Minimum: 0, Maximum: 1). Specifies a fraction of the table size to add to autovacuum_vacuum_threshold when deciding whether to trigger a VACUUM. The default is 0.2 (20% of table size).
 - [`autovacuum_vacuum_threshold`](#spec.userConfig.pg.autovacuum_vacuum_threshold-property){: name='spec.userConfig.pg.autovacuum_vacuum_threshold-property'} (integer, Minimum: 0, Maximum: 2147483647). Specifies the minimum number of updated or deleted tuples needed to trigger a VACUUM in any one table. The default is 50 tuples.
 - [`bgwriter_delay`](#spec.userConfig.pg.bgwriter_delay-property){: name='spec.userConfig.pg.bgwriter_delay-property'} (integer, Minimum: 10, Maximum: 10000). Specifies the delay between activity rounds for the background writer in milliseconds. Default is 200.
 - [`bgwriter_flush_after`](#spec.userConfig.pg.bgwriter_flush_after-property){: name='spec.userConfig.pg.bgwriter_flush_after-property'} (integer, Minimum: 0, Maximum: 2048). Whenever more than bgwriter_flush_after bytes have been written by the background writer, attempt to force the OS to issue these writes to the underlying storage. Specified in kilobytes, default is 512. Setting of 0 disables forced writeback.
 - [`bgwriter_lru_maxpages`](#spec.userConfig.pg.bgwriter_lru_maxpages-property){: name='spec.userConfig.pg.bgwriter_lru_maxpages-property'} (integer, Minimum: 0, Maximum: 1073741823). In each round, no more than this many buffers will be written by the background writer. Setting this to zero disables background writing. Default is 100.
-- [`bgwriter_lru_multiplier`](#spec.userConfig.pg.bgwriter_lru_multiplier-property){: name='spec.userConfig.pg.bgwriter_lru_multiplier-property'} (number). The average recent need for new buffers is multiplied by bgwriter_lru_multiplier to arrive at an estimate of the number that will be needed during the next round, (up to bgwriter_lru_maxpages). 1.0 represents a “just in time” policy of writing exactly the number of buffers predicted to be needed. Larger values provide some cushion against spikes in demand, while smaller values intentionally leave writes to be done by server processes. The default is 2.0.
+- [`bgwriter_lru_multiplier`](#spec.userConfig.pg.bgwriter_lru_multiplier-property){: name='spec.userConfig.pg.bgwriter_lru_multiplier-property'} (number, Minimum: 0, Maximum: 10). The average recent need for new buffers is multiplied by bgwriter_lru_multiplier to arrive at an estimate of the number that will be needed during the next round, (up to bgwriter_lru_maxpages). 1.0 represents a “just in time” policy of writing exactly the number of buffers predicted to be needed. Larger values provide some cushion against spikes in demand, while smaller values intentionally leave writes to be done by server processes. The default is 2.0.
 - [`deadlock_timeout`](#spec.userConfig.pg.deadlock_timeout-property){: name='spec.userConfig.pg.deadlock_timeout-property'} (integer, Minimum: 500, Maximum: 1800000). This is the amount of time, in milliseconds, to wait on a lock before checking to see if there is a deadlock condition.
 - [`default_toast_compression`](#spec.userConfig.pg.default_toast_compression-property){: name='spec.userConfig.pg.default_toast_compression-property'} (string, Enum: `lz4`, `pglz`). Specifies the default TOAST compression method for values of compressible columns (the default is lz4).
 - [`idle_in_transaction_session_timeout`](#spec.userConfig.pg.idle_in_transaction_session_timeout-property){: name='spec.userConfig.pg.idle_in_transaction_session_timeout-property'} (integer, Minimum: 0, Maximum: 604800000). Time out sessions with open transactions after this number of milliseconds.
@@ -221,6 +241,8 @@ postgresql.conf configuration values.
 
 ### pgbouncer {: #spec.userConfig.pgbouncer }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 PGBouncer connection pooling settings.
 
 **Optional**
@@ -237,6 +259,8 @@ PGBouncer connection pooling settings.
 
 ### pglookout {: #spec.userConfig.pglookout }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 PGLookout settings.
 
 **Required**
@@ -244,6 +268,8 @@ PGLookout settings.
 - [`max_failover_replication_time_lag`](#spec.userConfig.pglookout.max_failover_replication_time_lag-property){: name='spec.userConfig.pglookout.max_failover_replication_time_lag-property'} (integer, Minimum: 10). Number of seconds of master unavailability before triggering database failover to standby.
 
 ### private_access {: #spec.userConfig.private_access }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow access to selected service ports from private networks.
 
@@ -255,6 +281,8 @@ Allow access to selected service ports from private networks.
 
 ### privatelink_access {: #spec.userConfig.privatelink_access }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow access to selected service components through Privatelink.
 
 **Optional**
@@ -265,6 +293,8 @@ Allow access to selected service components through Privatelink.
 
 ### public_access {: #spec.userConfig.public_access }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow access to selected service ports from the public Internet.
 
 **Optional**
@@ -274,6 +304,8 @@ Allow access to selected service ports from the public Internet.
 - [`prometheus`](#spec.userConfig.public_access.prometheus-property){: name='spec.userConfig.public_access.prometheus-property'} (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network.
 
 ### timescaledb {: #spec.userConfig.timescaledb }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 TimescaleDB extension configuration values.
 

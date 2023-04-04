@@ -33,23 +33,26 @@ spec:
       - network: 10.20.0.0/16
 ```
 
-## Schema {: #Schema }
+## MySQL {: #MySQL }
 
 MySQL is the Schema for the mysqls API.
 
 **Required**
 
-- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `MySQL`.
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `MySQL`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
 - [`spec`](#spec-property){: name='spec-property'} (object). MySQLSpec defines the desired state of MySQL. See below for [nested schema](#spec).
 
 ## spec {: #spec }
 
+_Appears on [`MySQL`](#MySQL)._
+
 MySQLSpec defines the desired state of MySQL.
 
 **Required**
 
+- [`plan`](#spec.plan-property){: name='spec.plan-property'} (string, MaxLength: 128). Subscription plan.
 - [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63). Target project.
 
 **Optional**
@@ -60,15 +63,16 @@ MySQLSpec defines the desired state of MySQL.
 - [`disk_space`](#spec.disk_space-property){: name='spec.disk_space-property'} (string). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.
 - [`maintenanceWindowDow`](#spec.maintenanceWindowDow-property){: name='spec.maintenanceWindowDow-property'} (string, Enum: `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.
 - [`maintenanceWindowTime`](#spec.maintenanceWindowTime-property){: name='spec.maintenanceWindowTime-property'} (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
-- [`plan`](#spec.plan-property){: name='spec.plan-property'} (string, MaxLength: 128). Subscription plan.
 - [`projectVPCRef`](#spec.projectVPCRef-property){: name='spec.projectVPCRef-property'} (object, Immutable). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See below for [nested schema](#spec.projectVPCRef).
 - [`projectVpcId`](#spec.projectVpcId-property){: name='spec.projectVpcId-property'} (string, Immutable, MaxLength: 36). Identifier of the VPC the service should be in, if any.
-- [`serviceIntegrations`](#spec.serviceIntegrations-property){: name='spec.serviceIntegrations-property'} (array of objects, Immutable, MaxItems: 1).  See below for [nested schema](#spec.serviceIntegrations).
+- [`serviceIntegrations`](#spec.serviceIntegrations-property){: name='spec.serviceIntegrations-property'} (array of objects, Immutable, MaxItems: 1). Service integrations to specify when creating a service. Not applied after initial service creation. See below for [nested schema](#spec.serviceIntegrations).
 - [`tags`](#spec.tags-property){: name='spec.tags-property'} (object, AdditionalProperties: string). Tags are key-value pairs that allow you to categorize services.
 - [`terminationProtection`](#spec.terminationProtection-property){: name='spec.terminationProtection-property'} (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services.
 - [`userConfig`](#spec.userConfig-property){: name='spec.userConfig-property'} (object). MySQL specific user configuration options. See below for [nested schema](#spec.userConfig).
 
 ## authSecretRef {: #spec.authSecretRef }
+
+_Appears on [`spec`](#spec)._
 
 Authentication reference to Aiven token in a secret.
 
@@ -79,6 +83,8 @@ Authentication reference to Aiven token in a secret.
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 
+_Appears on [`spec`](#spec)._
+
 Information regarding secret creation.
 
 **Required**
@@ -86,6 +92,8 @@ Information regarding secret creation.
 - [`name`](#spec.connInfoSecretTarget.name-property){: name='spec.connInfoSecretTarget.name-property'} (string). Name of the secret resource to be created. By default, is equal to the resource name.
 
 ## projectVPCRef {: #spec.projectVPCRef }
+
+_Appears on [`spec`](#spec)._
 
 ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.
 
@@ -99,12 +107,18 @@ ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID aut
 
 ## serviceIntegrations {: #spec.serviceIntegrations }
 
+_Appears on [`spec`](#spec)._
+
+Service integrations to specify when creating a service. Not applied after initial service creation.
+
 **Required**
 
 - [`integrationType`](#spec.serviceIntegrations.integrationType-property){: name='spec.serviceIntegrations.integrationType-property'} (string, Enum: `read_replica`). 
 - [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64). 
 
 ## userConfig {: #spec.userConfig }
+
+_Appears on [`spec`](#spec)._
 
 MySQL specific user configuration options.
 
@@ -130,6 +144,8 @@ MySQL specific user configuration options.
 
 ### ip_filter {: #spec.userConfig.ip_filter }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 
 **Required**
@@ -142,6 +158,8 @@ Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
 
 ### migration {: #spec.userConfig.migration }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Migrate data from existing server.
 
 **Required**
@@ -152,13 +170,15 @@ Migrate data from existing server.
 **Optional**
 
 - [`dbname`](#spec.userConfig.migration.dbname-property){: name='spec.userConfig.migration.dbname-property'} (string, MaxLength: 63). Database name for bootstrapping the initial connection.
-- [`ignore_dbs`](#spec.userConfig.migration.ignore_dbs-property){: name='spec.userConfig.migration.ignore_dbs-property'} (string, MaxLength: 2048). Comma-separated list of databases, which should be ignored during migration (supported by MySQL only at the moment).
-- [`method`](#spec.userConfig.migration.method-property){: name='spec.userConfig.migration.method-property'} (string, Enum: `dump`, `replication`). The migration method to be used (currently supported only by Redis and MySQL service types).
+- [`ignore_dbs`](#spec.userConfig.migration.ignore_dbs-property){: name='spec.userConfig.migration.ignore_dbs-property'} (string, MaxLength: 2048). Comma-separated list of databases, which should be ignored during migration (supported by MySQL and PostgreSQL only at the moment).
+- [`method`](#spec.userConfig.migration.method-property){: name='spec.userConfig.migration.method-property'} (string, Enum: `dump`, `replication`). The migration method to be used (currently supported only by Redis, MySQL and PostgreSQL service types).
 - [`password`](#spec.userConfig.migration.password-property){: name='spec.userConfig.migration.password-property'} (string, MaxLength: 256). Password for authentication with the server where to migrate data from.
 - [`ssl`](#spec.userConfig.migration.ssl-property){: name='spec.userConfig.migration.ssl-property'} (boolean). The server where to migrate data from is secured with SSL.
 - [`username`](#spec.userConfig.migration.username-property){: name='spec.userConfig.migration.username-property'} (string, MaxLength: 256). User name for authentication with the server where to migrate data from.
 
 ### mysql {: #spec.userConfig.mysql }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 mysql.conf configuration values.
 
@@ -182,7 +202,7 @@ mysql.conf configuration values.
 - [`innodb_write_io_threads`](#spec.userConfig.mysql.innodb_write_io_threads-property){: name='spec.userConfig.mysql.innodb_write_io_threads-property'} (integer, Minimum: 1, Maximum: 64). The number of I/O threads for write operations in InnoDB. Default is 4. Changing this parameter will lead to a restart of the MySQL service.
 - [`interactive_timeout`](#spec.userConfig.mysql.interactive_timeout-property){: name='spec.userConfig.mysql.interactive_timeout-property'} (integer, Minimum: 30, Maximum: 604800). The number of seconds the server waits for activity on an interactive connection before closing it.
 - [`internal_tmp_mem_storage_engine`](#spec.userConfig.mysql.internal_tmp_mem_storage_engine-property){: name='spec.userConfig.mysql.internal_tmp_mem_storage_engine-property'} (string, Enum: `TempTable`, `MEMORY`). The storage engine for in-memory internal temporary tables.
-- [`long_query_time`](#spec.userConfig.mysql.long_query_time-property){: name='spec.userConfig.mysql.long_query_time-property'} (number). The slow_query_logs work as SQL statements that take more than long_query_time seconds to execute. Default is 10s.
+- [`long_query_time`](#spec.userConfig.mysql.long_query_time-property){: name='spec.userConfig.mysql.long_query_time-property'} (number, Minimum: 0, Maximum: 3600). The slow_query_logs work as SQL statements that take more than long_query_time seconds to execute. Default is 10s.
 - [`max_allowed_packet`](#spec.userConfig.mysql.max_allowed_packet-property){: name='spec.userConfig.mysql.max_allowed_packet-property'} (integer, Minimum: 102400, Maximum: 1073741824). Size of the largest message in bytes that can be received by the server. Default is 67108864 (64M).
 - [`max_heap_table_size`](#spec.userConfig.mysql.max_heap_table_size-property){: name='spec.userConfig.mysql.max_heap_table_size-property'} (integer, Minimum: 1048576, Maximum: 1073741824). Limits the size of internal in-memory tables. Also set tmp_table_size. Default is 16777216 (16M).
 - [`net_buffer_length`](#spec.userConfig.mysql.net_buffer_length-property){: name='spec.userConfig.mysql.net_buffer_length-property'} (integer, Minimum: 1024, Maximum: 1048576). Start sizes of connection buffer and result buffer. Default is 16384 (16K). Changing this parameter will lead to a restart of the MySQL service.
@@ -197,6 +217,8 @@ mysql.conf configuration values.
 
 ### private_access {: #spec.userConfig.private_access }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow access to selected service ports from private networks.
 
 **Optional**
@@ -207,6 +229,8 @@ Allow access to selected service ports from private networks.
 
 ### privatelink_access {: #spec.userConfig.privatelink_access }
 
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
 Allow access to selected service components through Privatelink.
 
 **Optional**
@@ -216,6 +240,8 @@ Allow access to selected service components through Privatelink.
 - [`prometheus`](#spec.userConfig.privatelink_access.prometheus-property){: name='spec.userConfig.privatelink_access.prometheus-property'} (boolean). Enable prometheus.
 
 ### public_access {: #spec.userConfig.public_access }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow access to selected service ports from the public Internet.
 

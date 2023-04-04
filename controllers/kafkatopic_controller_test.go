@@ -81,7 +81,7 @@ var _ = Describe("Kafka Topic Controller", func() {
 			Expect(createdTopic.Status.State).Should(Equal("ACTIVE"))
 
 			By("by checking MinCleanableDirtyRatio")
-			Expect(*createdTopic.Spec.Config.MinCleanableDirtyRatio).Should(Equal(0.5))
+			Expect(*createdTopic.Spec.Config.MinCleanableDirtyRatio).Should(Equal(0.2))
 		})
 	})
 
@@ -119,7 +119,7 @@ func kafkaTopicSpec(service, topic, namespace string) *v1alpha1.KafkaTopic {
 				Key:  secretRefKey,
 			},
 			Config: v1alpha1.KafkaTopicConfig{
-				MinCleanableDirtyRatio: anyPointer(0.5),
+				MinCleanableDirtyRatio: anyPointer(0.2),
 			},
 		},
 	}

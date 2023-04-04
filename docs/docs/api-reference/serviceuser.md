@@ -2,18 +2,20 @@
 title: "ServiceUser"
 ---
 
-## Schema {: #Schema }
+## ServiceUser {: #ServiceUser }
 
 ServiceUser is the Schema for the serviceusers API.
 
 **Required**
 
-- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Must be equal to `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Must be equal to `ServiceUser`.
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `ServiceUser`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
 - [`spec`](#spec-property){: name='spec-property'} (object). ServiceUserSpec defines the desired state of ServiceUser. See below for [nested schema](#spec).
 
 ## spec {: #spec }
+
+_Appears on [`ServiceUser`](#ServiceUser)._
 
 ServiceUserSpec defines the desired state of ServiceUser.
 
@@ -30,6 +32,8 @@ ServiceUserSpec defines the desired state of ServiceUser.
 
 ## authSecretRef {: #spec.authSecretRef }
 
+_Appears on [`spec`](#spec)._
+
 Authentication reference to Aiven token in a secret.
 
 **Required**
@@ -38,6 +42,8 @@ Authentication reference to Aiven token in a secret.
 - [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1). 
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
+
+_Appears on [`spec`](#spec)._
 
 Information regarding secret creation.
 

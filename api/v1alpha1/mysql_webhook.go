@@ -59,7 +59,7 @@ func (in *MySQL) ValidateUpdate(old runtime.Object) error {
 func (in *MySQL) ValidateDelete() error {
 	mysqllog.Info("validate delete", "name", in.Name)
 
-	if in.Spec.TerminationProtection {
+	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
 		return errors.New("cannot delete MySQL service, termination protection is on")
 	}
 
