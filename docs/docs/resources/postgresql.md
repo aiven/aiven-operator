@@ -300,7 +300,7 @@ To create a read-only replica for a PostgreSQL service, you create a second Post
 
 The example that follows creates a primary service and a read-only replica:
 
-1\. Create a new file named pg-read-replica.yaml with the following:
+1\. Create a new file named `pg-read-replica.yaml` with the following:
 
 ```yaml
 apiVersion: aiven.io/v1alpha1
