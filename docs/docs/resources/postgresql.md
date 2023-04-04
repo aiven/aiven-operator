@@ -388,6 +388,7 @@ primary-pg-service  	<your-project-name> 	google-europe-west1   startup-4   RUNN
 ```
 
 The resource can be in the `BUILDING` state for a few minutes. After the state of the primary service changes to `RUNNING`, the read-only replica is created. You can check the status of the replica using the same command with the name of the replica:
+
 ```shell
 kubectl get postgresqls.aiven.io read-replica-pg
 ```
