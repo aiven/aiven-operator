@@ -325,7 +325,7 @@ spec:
   maintenanceWindowDow: friday
   maintenanceWindowTime: 23:00:00
   userConfig:
-    pg_version: '14'
+    pg_version: '15'
 
 ---
 
