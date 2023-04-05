@@ -30,17 +30,28 @@ const (
 	yamlBufferSize     = 100
 )
 
+type Session interface {
+	Apply() error
+	GetRunning(obj client.Object, keys ...string) error
+	Destroy()
+	Delete(o client.Object) error
+}
+
+var _ Session = &session{}
+
 type session struct {
 	k8s     client.Client
 	avn     *aiven.Client
+	ctx     context.Context
 	objs    []client.Object
 	project string
 }
 
-func NewSession(k8s client.Client, avn *aiven.Client, project, src string) (*session, error) {
+func NewSession(k8s client.Client, avn *aiven.Client, project, src string) (Session, error) {
 	s := &session{
 		k8s:     k8s,
 		avn:     avn,
+		ctx:     context.Background(),
 		project: project,
 	}
 
@@ -78,8 +89,7 @@ func NewSession(k8s client.Client, avn *aiven.Client, project, src string) (*ses
 }
 
 func (s *session) Apply() error {
-	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, createTimeout)
+	ctx, cancel := context.WithTimeout(s.ctx, createTimeout)
 	defer cancel()
 	var g errgroup.Group
 	for i := range s.objs {
@@ -130,18 +140,48 @@ func (s *session) Destroy() {
 	var wg sync.WaitGroup
 	wg.Add(len(s.objs))
 
-	ctx := context.Background()
 	for i := range s.objs {
 		o := s.objs[i]
 		go func() {
 			defer wg.Done()
-			err := k8sDelete(ctx, s.k8s, o)
-			if err != nil {
+			if err := s.Delete(o); err != nil {
 				log.Printf("failed to delete %s: %s", o.GetName(), err)
 			}
 		}()
 	}
 	wg.Wait()
+}
+
+// Delete deletes object from kube, and makes sure it is not there anymore
+// Removes from applied list to not delete object on Destroy()
+func (s *session) Delete(o client.Object) error {
+	if o.GetUID() == "" {
+		return fmt.Errorf("object %s has no UID to delete by", o.GetName())
+	}
+
+	oldLen := len(s.objs)
+	for i, a := range s.objs {
+		if o.GetUID() == a.GetUID() {
+			s.objs = append(s.objs[:i], s.objs[i+1:]...)
+			break
+		}
+	}
+
+	if oldLen == len(s.objs) {
+		return fmt.Errorf("object not applied: %s", o.GetName())
+	}
+
+	err := s.k8s.Delete(s.ctx, o)
+	if err != nil {
+		return fmt.Errorf("kubernetes error: %w", err)
+	}
+
+	// Waits being deleted from kube
+	key := types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()}
+	return retryForever(s.ctx, func() (bool, error) {
+		err := s.k8s.Get(s.ctx, key, o)
+		return !isNotFound(err), nil
+	})
 }
 
 func retryForever(ctx context.Context, f func() (bool, error)) (err error) {
@@ -195,19 +235,4 @@ func castInterface(in, out any) error {
 		return err
 	}
 	return json.Unmarshal(b, out)
-}
-
-// k8sDelete deletes object from kube, and makes sure it is not available anymore
-func k8sDelete(ctx context.Context, k8s client.Client, o client.Object) error {
-	err := k8s.Delete(ctx, o)
-	if err != nil {
-		return fmt.Errorf("kubernetes error: %w", err)
-	}
-
-	// Waits being deleted from kube
-	key := types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()}
-	return retryForever(ctx, func() (bool, error) {
-		err := k8s.Get(ctx, key, o)
-		return !isNotFound(err), nil
-	})
 }

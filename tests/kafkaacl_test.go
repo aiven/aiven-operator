@@ -116,13 +116,13 @@ func TestKafkaACL(t *testing.T) {
 	// KafkaACL
 	aclAvn, err := avnClient.KafkaACLs.Get(testProject, kafkaName, acl.Status.ID)
 	require.NoError(t, err)
+	assert.True(t, meta.IsStatusConditionTrue(acl.Status.Conditions, "Running"))
 	assert.Equal(t, "admin", acl.Spec.Permission)
 	assert.Equal(t, aclAvn.Permission, acl.Spec.Permission)
 	assert.Equal(t, "my-user", acl.Spec.Username)
 	assert.Equal(t, aclAvn.Username, acl.Spec.Username)
 	assert.Equal(t, topicName, acl.Spec.Topic)
 	assert.Equal(t, aclAvn.Topic, acl.Spec.Topic)
-	assert.True(t, meta.IsStatusConditionTrue(acl.Status.Conditions, "Running"))
 
 	// KafkaACL Update
 	// We check that update changes the ID
@@ -144,7 +144,7 @@ func TestKafkaACL(t *testing.T) {
 	assert.Equal(t, aclWriteAvn.Permission, aclWrite.Spec.Permission)
 
 	// Validate delete by new ID
-	require.NoError(t, k8sDelete(ctx, k8sClient, aclWrite))
+	require.NoError(t, s.Delete(aclWrite))
 	_, err = avnClient.KafkaACLs.Get(testProject, kafkaName, aclWrite.Status.ID)
 	require.True(t, aiven.IsNotFound(err))
 }
