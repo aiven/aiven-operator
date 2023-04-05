@@ -135,16 +135,10 @@ func (s *session) Destroy() {
 		o := s.objs[i]
 		go func() {
 			defer wg.Done()
-			if err := s.k8s.Delete(ctx, o); err != nil {
-				log.Printf("failed to delete %s from Kubernetes: %s", o.GetName(), err)
+			err := k8sDelete(ctx, s.k8s, o)
+			if err != nil {
+				log.Printf("failed to delete %s: %s", o.GetName(), err)
 			}
-
-			// Waits being deleted from kube
-			key := types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()}
-			_ = retryForever(ctx, func() (bool, error) {
-				err := s.k8s.Get(ctx, key, o)
-				return !isNotFound(err), nil
-			})
 		}()
 	}
 	wg.Wait()
@@ -201,4 +195,19 @@ func castInterface(in, out any) error {
 		return err
 	}
 	return json.Unmarshal(b, out)
+}
+
+// k8sDelete deletes object from kube, and makes sure it is not available anymore
+func k8sDelete(ctx context.Context, k8s client.Client, o client.Object) error {
+	err := k8s.Delete(ctx, o)
+	if err != nil {
+		return fmt.Errorf("kubernetes error: %w", err)
+	}
+
+	// Waits being deleted from kube
+	key := types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()}
+	return retryForever(ctx, func() (bool, error) {
+		err := k8s.Get(ctx, key, o)
+		return !isNotFound(err), nil
+	})
 }

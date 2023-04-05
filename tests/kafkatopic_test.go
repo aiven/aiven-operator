@@ -1,9 +1,11 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
+	"github.com/aiven/aiven-go-client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -119,4 +121,16 @@ func TestKafkaTopicName(t *testing.T) {
 	assert.Equal(t, barAvn.State, barTopic.Status.State)
 	assert.Equal(t, barAvn.Replication, barTopic.Spec.Replication)
 	assert.Len(t, barAvn.Partitions, barTopic.Spec.Partitions)
+
+	// We need to validate deletion,
+	// because we can get false positive here:
+	// if service is deleted, topic is destroyed in Aiven. No service — no topic. No topic — no topic.
+	// And we make sure that controller can delete topic itself
+	ctx := context.Background()
+	require.NoError(t, k8sDelete(ctx, k8sClient, fooTopic))
+	_, err = avnClient.KafkaTopics.Get(testProject, ksName, fooTopic.GetTopicName())
+	require.True(t, aiven.IsNotFound(err))
+	require.NoError(t, k8sDelete(ctx, k8sClient, barTopic))
+	_, err = avnClient.KafkaTopics.Get(testProject, ksName, barTopic.GetTopicName())
+	require.True(t, aiven.IsNotFound(err))
 }
