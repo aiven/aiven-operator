@@ -20,6 +20,9 @@ spec:
 
   replication: 2
   partitions: 1
+
+  config:
+    min_cleanable_dirty_ratio: 0.2
 ```
 
 ## KafkaTopic {: #KafkaTopic }
