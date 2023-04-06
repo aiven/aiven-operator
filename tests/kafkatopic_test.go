@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/aiven/aiven-go-client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/api/meta"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
@@ -40,6 +42,8 @@ spec:
   serviceName: %[2]s
   replication: 2
   partitions: 1
+  config:
+    min_cleanable_dirty_ratio: 0.2
 
 ---
 
@@ -60,14 +64,14 @@ spec:
 `, project, ksName)
 }
 
-// TestKafkaTopicName creates two topics: one with metadata.name, another one with spec.topicName
+// TestKafkaTopic creates two topics: one with metadata.name, another one with spec.topicName
 // Also validates kafka topic controller checkPreconditions(), because kafka and topic are applied simultaneously
-func TestKafkaTopicName(t *testing.T) {
+func TestKafkaTopic(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
 
 	// GIVEN
-	ksName := randName("topic-name")
+	ksName := randName("kafka-topic")
 	yml := getKafkaTopicNameYaml(testProject, ksName)
 	s, err := NewSession(k8sClient, avnClient, testProject, yml)
 	require.NoError(t, err)
@@ -100,15 +104,22 @@ func TestKafkaTopicName(t *testing.T) {
 	assert.Equal(t, ksAvn.CloudName, ks.Spec.CloudName)
 
 	// Validates KafkaTopics
+	assert.True(t, meta.IsStatusConditionTrue(fooTopic.Status.Conditions, "Running"))
+	assert.True(t, meta.IsStatusConditionTrue(barTopic.Status.Conditions, "Running"))
+
 	// KafkaTopic with name `foo-topic`
 	fooAvn, err := avnClient.KafkaTopics.Get(testProject, ksName, fooTopic.GetTopicName())
 	require.NoError(t, err)
 	assert.Equal(t, "foo-topic", fooTopic.GetName())
 	assert.Equal(t, "foo-topic", fooTopic.GetTopicName())
 	assert.Equal(t, fooAvn.TopicName, fooTopic.GetTopicName())
+	assert.Equal(t, "ACTIVE", fooTopic.Status.State)
 	assert.Equal(t, fooAvn.State, fooTopic.Status.State)
 	assert.Equal(t, fooAvn.Replication, fooTopic.Spec.Replication)
 	assert.Len(t, fooAvn.Partitions, fooTopic.Spec.Partitions)
+
+	// Validates MinCleanableDirtyRatio
+	require.Equal(t, anyPointer(0.2), fooTopic.Spec.Config.MinCleanableDirtyRatio)
 
 	// KafkaTopic with name `bar_topic_name_with_underscores`
 	barAvn, err := avnClient.KafkaTopics.Get(testProject, ksName, barTopic.GetTopicName())
@@ -116,7 +127,22 @@ func TestKafkaTopicName(t *testing.T) {
 	assert.Equal(t, "bar-topic", barTopic.GetName())
 	assert.Equal(t, "bar_topic_name_with_underscores", barTopic.GetTopicName())
 	assert.Equal(t, barAvn.TopicName, barTopic.GetTopicName())
+	assert.Equal(t, "ACTIVE", barTopic.Status.State)
 	assert.Equal(t, barAvn.State, barTopic.Status.State)
 	assert.Equal(t, barAvn.Replication, barTopic.Spec.Replication)
 	assert.Len(t, barAvn.Partitions, barTopic.Spec.Partitions)
+
+	// Validates MinCleanableDirtyRatio (not set)
+	assert.Nil(t, barTopic.Spec.Config.MinCleanableDirtyRatio)
+
+	// We need to validate deletion,
+	// because we can get false positive here:
+	// if service is deleted, topic is destroyed in Aiven. No service — no topic. No topic — no topic.
+	// And we make sure that controller can delete topic itself
+	require.NoError(t, s.Delete(fooTopic))
+	_, err = avnClient.KafkaTopics.Get(testProject, ksName, fooTopic.Name)
+	require.True(t, aiven.IsNotFound(err))
+	require.NoError(t, s.Delete(barTopic))
+	_, err = avnClient.KafkaTopics.Get(testProject, ksName, barTopic.Name)
+	require.True(t, aiven.IsNotFound(err))
 }

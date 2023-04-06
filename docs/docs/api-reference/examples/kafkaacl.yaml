@@ -1,7 +1,7 @@
 apiVersion: aiven.io/v1alpha1
-kind: KafkaTopic
+kind: KafkaACL
 metadata:
-  name: kafka-topic
+  name: my-kafka-acl
 spec:
   authSecretRef:
     name: aiven-token
@@ -9,10 +9,6 @@ spec:
 
   project: my-aiven-project
   serviceName: my-kafka
-  topicName: my-kafka-topic
-
-  replication: 2
-  partitions: 1
-
-  config:
-    min_cleanable_dirty_ratio: 0.2
+  topic: my-topic
+  username: my-user
+  permission: admin

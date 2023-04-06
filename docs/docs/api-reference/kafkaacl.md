@@ -2,6 +2,25 @@
 title: "KafkaACL"
 ---
 
+## Usage example
+
+```yaml
+apiVersion: aiven.io/v1alpha1
+kind: KafkaACL
+metadata:
+  name: my-kafka-acl
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  serviceName: my-kafka
+  topic: my-topic
+  username: my-user
+  permission: admin
+```
+
 ## KafkaACL {: #KafkaACL }
 
 KafkaACL is the Schema for the kafkaacls API.
