@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/aiven/aiven-go-client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -139,10 +138,13 @@ func TestKafkaTopic(t *testing.T) {
 	// because we can get false positive here:
 	// if service is deleted, topic is destroyed in Aiven. No service — no topic. No topic — no topic.
 	// And we make sure that controller can delete topic itself
-	require.NoError(t, s.Delete(fooTopic))
-	_, err = avnClient.KafkaTopics.Get(testProject, ksName, fooTopic.Name)
-	require.True(t, aiven.IsNotFound(err))
-	require.NoError(t, s.Delete(barTopic))
-	_, err = avnClient.KafkaTopics.Get(testProject, ksName, barTopic.Name)
-	require.True(t, aiven.IsNotFound(err))
+	assert.NoError(t, s.Delete(fooTopic, func() error {
+		_, err = avnClient.KafkaTopics.Get(testProject, ksName, fooTopic.Name)
+		return err
+	}))
+
+	assert.NoError(t, s.Delete(barTopic, func() error {
+		_, err = avnClient.KafkaTopics.Get(testProject, ksName, "bar_topic_name_with_underscores")
+		return err
+	}))
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/aiven/aiven-go-client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -144,7 +143,8 @@ func TestKafkaACL(t *testing.T) {
 	assert.Equal(t, aclWriteAvn.Permission, aclWrite.Spec.Permission)
 
 	// Validate delete by new ID
-	require.NoError(t, s.Delete(aclWrite))
-	_, err = avnClient.KafkaACLs.Get(testProject, kafkaName, aclWrite.Status.ID)
-	require.True(t, aiven.IsNotFound(err))
+	assert.NoError(t, s.Delete(aclWrite, func() error {
+		_, err = avnClient.KafkaACLs.Get(testProject, kafkaName, aclWrite.Status.ID)
+		return err
+	}))
 }

@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"math/rand"
 	"strings"
@@ -34,7 +35,7 @@ type Session interface {
 	Apply() error
 	GetRunning(obj client.Object, keys ...string) error
 	Destroy()
-	Delete(o client.Object) error
+	Delete(o client.Object, exists func() error) error
 }
 
 var _ Session = &session{}
@@ -59,8 +60,13 @@ func NewSession(k8s client.Client, avn *aiven.Client, project, src string) (Sess
 	decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader([]byte(src)), yamlBufferSize)
 	for {
 		var rawExt runtime.RawExtension
-		if err := decoder.Decode(&rawExt); err != nil {
+		err := decoder.Decode(&rawExt)
+		if err == io.EOF {
 			break
+		}
+
+		if err != nil {
+			return nil, err
 		}
 
 		if len(rawExt.Raw) == 0 {
@@ -144,7 +150,7 @@ func (s *session) Destroy() {
 		o := s.objs[i]
 		go func() {
 			defer wg.Done()
-			if err := s.Delete(o); err != nil {
+			if err := s.delete(o); err != nil {
 				log.Printf("failed to delete %s: %s", o.GetName(), err)
 			}
 		}()
@@ -152,9 +158,27 @@ func (s *session) Destroy() {
 	wg.Wait()
 }
 
-// Delete deletes object from kube, and makes sure it is not there anymore
+// Delete deletes object from kube, hence from Aiven
+// Validates it is exists before deleted and after, to avoid false positive deletion
+func (s *session) Delete(o client.Object, exists func() error) error {
+	err := exists()
+	if err != nil {
+		return err
+	}
+	err = s.delete(o)
+	if err != nil {
+		return err
+	}
+	err = exists()
+	if aiven.IsNotFound(err) {
+		return nil
+	}
+	return err
+}
+
+// delete deletes object from kube, and makes sure it is not there anymore
 // Removes from applied list to not delete object on Destroy()
-func (s *session) Delete(o client.Object) error {
+func (s *session) delete(o client.Object) error {
 	if o.GetUID() == "" {
 		return fmt.Errorf("object %s has no UID to delete by", o.GetName())
 	}
