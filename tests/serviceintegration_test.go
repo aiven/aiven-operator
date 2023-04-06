@@ -251,7 +251,7 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 	assert.Equal(t, ktName, si.Spec.KafkaLogsUserConfig.KafkaTopic)
 }
 
-func getKafkaConnectYaml(project, ksName, kcName, siName string) string {
+func getSIKafkaConnectYaml(project, ksName, kcName, siName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: Kafka
@@ -320,7 +320,7 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	kcName := randName("kafka-connect")
 	siName := randName("kafka-connect")
 
-	yml := getKafkaConnectYaml(testProject, ksName, kcName, siName)
+	yml := getSIKafkaConnectYaml(testProject, ksName, kcName, siName)
 	s, err := NewSession(k8sClient, avnClient, testProject, yml)
 	require.NoError(t, err)
 
