@@ -31,6 +31,7 @@ type KafkaConnectorHandler struct {
 
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkaconnectors,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkaconnectors/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=kafkaconnectors/finalizers,verbs=update
 
 func (r *KafkaConnectorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, KafkaConnectorHandler{k8s: r.Client}, &v1alpha1.KafkaConnector{})

@@ -20,7 +20,6 @@ spec:
   project: my-aiven-project
   cloudName: google-europe-west1
   plan: startup-2
-  disk_space: 15Gib
 
   maintenanceWindowDow: friday
   maintenanceWindowTime: 23:00:00

@@ -20,8 +20,9 @@ type PostgreSQLReconciler struct {
 	Controller
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=postgresqls,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=aiven.io,resources=postgresqls/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=postgresqls,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aiven.io,resources=postgresqls/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=postgresqls/finalizers,verbs=update
 
 func (r *PostgreSQLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newPostgresSQLAdapter), &v1alpha1.PostgreSQL{})

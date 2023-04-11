@@ -16,6 +16,7 @@
 - Add `rbac.create` and `rbac.scoped` options to Helm chart. Thanks to @ryaneorth
 - Explicitly delete `ProjectVPC` by `ID` to avoid conflicts 
 - Speed up `ProjectVPC` deletion by exiting on `DELETING` status
+- Fix missing RBAC permissions to update finalizers for various controllers 
 
 ## v0.9.0 - 2023-03-03
 
