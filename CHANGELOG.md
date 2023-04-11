@@ -14,6 +14,8 @@
 - Remove Kafka version `3.2`, reached EOL
 - Remove PostgreSQL version `10`, reached EOL
 - Add `rbac.create` and `rbac.scoped` options to Helm chart
+- Explicitly delete `ProjectVPC` by `ID` to avoid conflicts 
+- Speed up `ProjectVPC` deletion by exiting on `DELETING` status
 
 ## v0.9.0 - 2023-03-03
 
