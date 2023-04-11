@@ -10,7 +10,7 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getKafkaWithProjectVPCYaml(project, vpcName, kafkaName string) string {
+func getKafkaWithProjectVPCRefYaml(project, vpcName, kafkaName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: ProjectVPC
@@ -45,14 +45,15 @@ spec:
 `, project, vpcName, kafkaName)
 }
 
-func TestKafkaWithProjectVPC(t *testing.T) {
+// TestKafkaWithProjectVPCRef tests Kafka.Spec.ProjectVPCRef
+func TestKafkaWithProjectVPCRef(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
 
 	// GIVEN
 	vpcName := randName("kafka-vpc")
 	kafkaName := randName("kafka-vpc")
-	yml := getKafkaWithProjectVPCYaml(testProject, vpcName, kafkaName)
+	yml := getKafkaWithProjectVPCRefYaml(testProject, vpcName, kafkaName)
 	s, err := NewSession(k8sClient, avnClient, testProject, yml)
 	require.NoError(t, err)
 
@@ -89,5 +90,6 @@ func TestKafkaWithProjectVPC(t *testing.T) {
 	assert.Equal(t, "ACTIVE", vpcAvn.State)
 	assert.Equal(t, vpcAvn.State, vpc.Status.State)
 	assert.Equal(t, vpcAvn.CloudName, vpc.Spec.CloudName)
+	assert.Equal(t, "10.0.0.0/24", vpc.Spec.NetworkCidr)
 	assert.Equal(t, vpcAvn.NetworkCIDR, vpc.Spec.NetworkCidr)
 }
