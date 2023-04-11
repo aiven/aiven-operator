@@ -2,6 +2,25 @@
 title: "Database"
 ---
 
+## Usage example
+
+```yaml
+apiVersion: aiven.io/v1alpha1
+kind: Database
+metadata:
+  name: my-db
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  serviceName: google-europe-west1
+
+  lcCtype: en_US.UTF-8
+  lcCollate: en_US.UTF-8
+```
+
 ## Database {: #Database }
 
 Database is the Schema for the databases API.
