@@ -26,7 +26,6 @@ jobs:
           basic_controller_test.go,
           clickhouseuser_controller_test.go,
           connectionpool_controller_test.go,
-          kafka_controller_with_projectvpc_ref_test.go,
           project_controller_test.go,
           projectvpc_controller_test.go,
           serviceuser_controller_test.go,
