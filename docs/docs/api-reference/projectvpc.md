@@ -2,6 +2,23 @@
 title: "ProjectVPC"
 ---
 
+## Usage example
+
+```yaml
+apiVersion: aiven.io/v1alpha1
+kind: ProjectVPC
+metadata:
+  name: my-project-vpc
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  cloudName: google-europe-west1
+  networkCidr: 10.0.0.0/24
+```
+
 ## ProjectVPC {: #ProjectVPC }
 
 ProjectVPC is the Schema for the projectvpcs API.
