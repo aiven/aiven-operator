@@ -33,7 +33,7 @@ type ProjectVPCHandler struct{}
 // +kubebuilder:rbac:groups=aiven.io,resources=projectvpcs/status,verbs=get;update;patch
 
 func (r *ProjectVPCReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, ProjectVPCHandler{}, &v1alpha1.ProjectVPC{})
+	return r.reconcileInstance(ctx, req, &ProjectVPCHandler{}, &v1alpha1.ProjectVPC{})
 }
 
 func (r *ProjectVPCReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -42,7 +42,7 @@ func (r *ProjectVPCReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ProjectVPCHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs []client.Object) error {
+func (h *ProjectVPCHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs []client.Object) error {
 	projectVPC, err := h.convert(i)
 	if err != nil {
 		return err
@@ -72,68 +72,41 @@ func (h ProjectVPCHandler) createOrUpdate(avn *aiven.Client, i client.Object, re
 	return nil
 }
 
-func (h ProjectVPCHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
+func (h *ProjectVPCHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
 	projectVPC, err := h.convert(i)
 	if err != nil {
 		return false, err
 	}
 
-	vpc, err := h.getVPC(avn, projectVPC)
+	vpc, err := avn.VPCs.Get(projectVPC.Spec.Project, projectVPC.Status.ID)
+	if aiven.IsNotFound(err) {
+		return true, nil
+	}
+
 	if err != nil {
 		return false, err
 	}
 
-	if vpc == nil {
+	switch vpc.State {
+	case "DELETING", "DELETED":
 		return true, nil
 	}
 
-	if vpc.State != "DELETING" && vpc.State != "DELETED" {
-		// Delete project VPC on Aiven side
-		// ProjectVPC doesn't have ID initially from spec, it comes later with CREATE.
-		vpcID := projectVPC.Status.ID
-		if vpcID == "" {
-			vpcID = vpc.ProjectVPCID
-		}
-
-		err := avn.VPCs.Delete(projectVPC.Spec.Project, vpcID)
-		if isDependencyError(err) {
-			return false, fmt.Errorf("%w: %s", v1alpha1.ErrDeleteDependencies, err)
-		}
-
-		if !(err == nil || aiven.IsNotFound(err)) {
-			return false, err
-		}
-	}
-
-	if vpc.State == "DELETED" {
-		return true, nil
+	err = avn.VPCs.Delete(projectVPC.Spec.Project, projectVPC.Status.ID)
+	if isDependencyError(err) {
+		return false, fmt.Errorf("%w: %s", v1alpha1.ErrDeleteDependencies, err)
 	}
 
 	return false, nil
 }
 
-func (h ProjectVPCHandler) getVPC(avn *aiven.Client, projectVPC *v1alpha1.ProjectVPC) (*aiven.VPC, error) {
-	vpcs, err := avn.VPCs.List(projectVPC.Spec.Project)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, vpc := range vpcs {
-		if vpc.CloudName == projectVPC.Spec.CloudName {
-			return vpc, nil
-		}
-	}
-
-	return nil, nil
-}
-
-func (h ProjectVPCHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, error) {
+func (h *ProjectVPCHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, error) {
 	projectVPC, err := h.convert(i)
 	if err != nil {
 		return nil, err
 	}
 
-	vpc, err := h.getVPC(avn, projectVPC)
+	vpc, err := avn.VPCs.Get(projectVPC.Spec.Project, projectVPC.Status.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +123,7 @@ func (h ProjectVPCHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secr
 	return nil, nil
 }
 
-func (h ProjectVPCHandler) checkPreconditions(_ *aiven.Client, _ client.Object) (bool, error) {
+func (h *ProjectVPCHandler) checkPreconditions(_ *aiven.Client, _ client.Object) (bool, error) {
 	return true, nil
 }
 
