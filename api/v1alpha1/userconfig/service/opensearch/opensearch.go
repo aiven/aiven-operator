@@ -249,6 +249,37 @@ type PublicAccess struct {
 	// Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network
 	Prometheus *bool `groups:"create,update" json:"prometheus,omitempty"`
 }
+
+// OpenSearch SAML configuration
+type Saml struct {
+	// Enables or disables SAML-based authentication for OpenSearch. When enabled, users can authenticate using SAML with an Identity Provider.
+	Enabled bool `groups:"create,update" json:"enabled"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=1024
+	// The unique identifier for the Identity Provider (IdP) entity that is used for SAML authentication. This value is typically provided by the IdP.
+	IdpEntityId string `groups:"create,update" json:"idp_entity_id"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=2048
+	// The URL of the SAML metadata for the Identity Provider (IdP). This is used to configure SAML-based authentication with the IdP.
+	IdpMetadataUrl string `groups:"create,update" json:"idp_metadata_url"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=256
+	// Optional. Specifies the attribute in the SAML response where role information is stored, if available. Role attributes are not required for SAML authentication, but can be included in SAML assertions by most Identity Providers (IdPs) to determine user access levels or permissions.
+	RolesKey *string `groups:"create,update" json:"roles_key,omitempty"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=1024
+	// The unique identifier for the Service Provider (SP) entity that is used for SAML authentication. This value is typically provided by the SP.
+	SpEntityId string `groups:"create,update" json:"sp_entity_id"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=256
+	// Optional. Specifies the attribute in the SAML response where the subject identifier is stored. If not configured, the NameID attribute is used by default.
+	SubjectKey *string `groups:"create,update" json:"subject_key,omitempty"`
+}
 type OpensearchUserConfig struct {
 	// +kubebuilder:validation:MaxItems=1
 	// Additional Cloud Regions for Backup Replication
@@ -307,6 +338,9 @@ type OpensearchUserConfig struct {
 	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9-_:.]+$`
 	// Name of the basebackup to restore in forked service
 	RecoveryBasebackupName *string `groups:"create,update" json:"recovery_basebackup_name,omitempty"`
+
+	// OpenSearch SAML configuration
+	Saml *Saml `groups:"create,update" json:"saml,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=64
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"

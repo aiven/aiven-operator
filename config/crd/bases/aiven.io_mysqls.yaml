@@ -344,7 +344,7 @@ spec:
                         type: string
                       innodb_lock_wait_timeout:
                         description: The length of time in seconds an InnoDB transaction
-                          waits for a row lock before giving up.
+                          waits for a row lock before giving up. Default is 120.
                         maximum: 3600
                         minimum: 1
                         type: integer

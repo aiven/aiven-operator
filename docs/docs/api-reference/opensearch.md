@@ -133,6 +133,7 @@ OpenSearch specific user configuration options.
 - [`project_to_fork_from`](#spec.userConfig.project_to_fork_from-property){: name='spec.userConfig.project_to_fork_from-property'} (string, Immutable, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.
 - [`public_access`](#spec.userConfig.public_access-property){: name='spec.userConfig.public_access-property'} (object). Allow access to selected service ports from the public Internet. See below for [nested schema](#spec.userConfig.public_access).
 - [`recovery_basebackup_name`](#spec.userConfig.recovery_basebackup_name-property){: name='spec.userConfig.recovery_basebackup_name-property'} (string, Pattern: `^[a-zA-Z0-9-_:.]+$`, MaxLength: 128). Name of the basebackup to restore in forked service.
+- [`saml`](#spec.userConfig.saml-property){: name='spec.userConfig.saml-property'} (object). OpenSearch SAML configuration. See below for [nested schema](#spec.userConfig.saml).
 - [`service_to_fork_from`](#spec.userConfig.service_to_fork_from-property){: name='spec.userConfig.service_to_fork_from-property'} (string, Immutable, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.
 - [`static_ips`](#spec.userConfig.static_ips-property){: name='spec.userConfig.static_ips-property'} (boolean). Use static public IP addresses.
 
@@ -264,4 +265,22 @@ Allow access to selected service ports from the public Internet.
 - [`opensearch`](#spec.userConfig.public_access.opensearch-property){: name='spec.userConfig.public_access.opensearch-property'} (boolean). Allow clients to connect to opensearch from the public internet for service nodes that are in a project VPC or another type of private network.
 - [`opensearch_dashboards`](#spec.userConfig.public_access.opensearch_dashboards-property){: name='spec.userConfig.public_access.opensearch_dashboards-property'} (boolean). Allow clients to connect to opensearch_dashboards from the public internet for service nodes that are in a project VPC or another type of private network.
 - [`prometheus`](#spec.userConfig.public_access.prometheus-property){: name='spec.userConfig.public_access.prometheus-property'} (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network.
+
+### saml {: #spec.userConfig.saml }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+OpenSearch SAML configuration.
+
+**Required**
+
+- [`enabled`](#spec.userConfig.saml.enabled-property){: name='spec.userConfig.saml.enabled-property'} (boolean). Enables or disables SAML-based authentication for OpenSearch. When enabled, users can authenticate using SAML with an Identity Provider.
+- [`idp_entity_id`](#spec.userConfig.saml.idp_entity_id-property){: name='spec.userConfig.saml.idp_entity_id-property'} (string, MinLength: 1, MaxLength: 1024). The unique identifier for the Identity Provider (IdP) entity that is used for SAML authentication. This value is typically provided by the IdP.
+- [`idp_metadata_url`](#spec.userConfig.saml.idp_metadata_url-property){: name='spec.userConfig.saml.idp_metadata_url-property'} (string, MinLength: 1, MaxLength: 2048). The URL of the SAML metadata for the Identity Provider (IdP). This is used to configure SAML-based authentication with the IdP.
+- [`sp_entity_id`](#spec.userConfig.saml.sp_entity_id-property){: name='spec.userConfig.saml.sp_entity_id-property'} (string, MinLength: 1, MaxLength: 1024). The unique identifier for the Service Provider (SP) entity that is used for SAML authentication. This value is typically provided by the SP.
+
+**Optional**
+
+- [`roles_key`](#spec.userConfig.saml.roles_key-property){: name='spec.userConfig.saml.roles_key-property'} (string, MinLength: 1, MaxLength: 256). Optional. Specifies the attribute in the SAML response where role information is stored, if available. Role attributes are not required for SAML authentication, but can be included in SAML assertions by most Identity Providers (IdPs) to determine user access levels or permissions.
+- [`subject_key`](#spec.userConfig.saml.subject_key-property){: name='spec.userConfig.saml.subject_key-property'} (string, MinLength: 1, MaxLength: 256). Optional. Specifies the attribute in the SAML response where the subject identifier is stored. If not configured, the NameID attribute is used by default.
 

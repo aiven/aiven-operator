@@ -566,6 +566,57 @@ spec:
                     maxLength: 128
                     pattern: ^[a-zA-Z0-9-_:.]+$
                     type: string
+                  saml:
+                    description: OpenSearch SAML configuration
+                    properties:
+                      enabled:
+                        description: Enables or disables SAML-based authentication
+                          for OpenSearch. When enabled, users can authenticate using
+                          SAML with an Identity Provider.
+                        type: boolean
+                      idp_entity_id:
+                        description: The unique identifier for the Identity Provider
+                          (IdP) entity that is used for SAML authentication. This
+                          value is typically provided by the IdP.
+                        maxLength: 1024
+                        minLength: 1
+                        type: string
+                      idp_metadata_url:
+                        description: The URL of the SAML metadata for the Identity
+                          Provider (IdP). This is used to configure SAML-based authentication
+                          with the IdP.
+                        maxLength: 2048
+                        minLength: 1
+                        type: string
+                      roles_key:
+                        description: Optional. Specifies the attribute in the SAML
+                          response where role information is stored, if available.
+                          Role attributes are not required for SAML authentication,
+                          but can be included in SAML assertions by most Identity
+                          Providers (IdPs) to determine user access levels or permissions.
+                        maxLength: 256
+                        minLength: 1
+                        type: string
+                      sp_entity_id:
+                        description: The unique identifier for the Service Provider
+                          (SP) entity that is used for SAML authentication. This value
+                          is typically provided by the SP.
+                        maxLength: 1024
+                        minLength: 1
+                        type: string
+                      subject_key:
+                        description: Optional. Specifies the attribute in the SAML
+                          response where the subject identifier is stored. If not
+                          configured, the NameID attribute is used by default.
+                        maxLength: 256
+                        minLength: 1
+                        type: string
+                    required:
+                    - enabled
+                    - idp_entity_id
+                    - idp_metadata_url
+                    - sp_entity_id
+                    type: object
                   service_to_fork_from:
                     description: Name of another service to fork from. This has effect
                       only when a new service is being created.
