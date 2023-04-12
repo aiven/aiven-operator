@@ -58,12 +58,6 @@ spec:
                 - key
                 - name
                 type: object
-              authentication:
-                description: Authentication details
-                enum:
-                - caching_sha2_password
-                - mysql_native_password
-                type: string
               connInfoSecretTarget:
                 description: Information regarding secret creation
                 properties:
@@ -79,10 +73,16 @@ spec:
                 format: ^[a-zA-Z0-9_-]*$
                 maxLength: 63
                 type: string
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
               serviceName:
                 description: Service to link the user to
                 maxLength: 63
                 type: string
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
             required:
             - project
             - serviceName

@@ -8,7 +8,7 @@ title: "Clickhouse"
 apiVersion: aiven.io/v1alpha1
 kind: Clickhouse
 metadata:
-  name: my-test-ch-sample
+  name: my-clickhouse
 spec:
   authSecretRef:
     name: aiven-token

@@ -2,6 +2,22 @@
 title: "ClickhouseUser"
 ---
 
+## Usage example
+
+```yaml
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseUser
+metadata:
+  name: my-clickhouse-user
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  serviceName: my-clickhouse
+```
+
 ## ClickhouseUser {: #ClickhouseUser }
 
 ClickhouseUser is the Schema for the clickhouseusers API.
@@ -21,13 +37,12 @@ ClickhouseUserSpec defines the desired state of ClickhouseUser.
 
 **Required**
 
-- [`project`](#spec.project-property){: name='spec.project-property'} (string, MaxLength: 63). Project to link the user to.
-- [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, MaxLength: 63). Service to link the user to.
+- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63). Project to link the user to.
+- [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, Immutable, MaxLength: 63). Service to link the user to.
 
 **Optional**
 
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
-- [`authentication`](#spec.authentication-property){: name='spec.authentication-property'} (string, Enum: `caching_sha2_password`, `mysql_native_password`). Authentication details.
 - [`connInfoSecretTarget`](#spec.connInfoSecretTarget-property){: name='spec.connInfoSecretTarget-property'} (object). Information regarding secret creation. See below for [nested schema](#spec.connInfoSecretTarget).
 
 ## authSecretRef {: #spec.authSecretRef }
