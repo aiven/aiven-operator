@@ -13,4 +13,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: aivenoy/aiven-operator
-  newTag: b361a95f965aecd1474c6f15243924a89b75980c
+  newTag: b67bdfc15f9cac73542c68891f74382665311202
