@@ -92,7 +92,7 @@ type Mysql struct {
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=3600
-	// The length of time in seconds an InnoDB transaction waits for a row lock before giving up.
+	// The length of time in seconds an InnoDB transaction waits for a row lock before giving up. Default is 120.
 	InnodbLockWaitTimeout *int `groups:"create,update" json:"innodb_lock_wait_timeout,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1048576
