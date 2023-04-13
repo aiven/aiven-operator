@@ -30,6 +30,7 @@ type ClickhouseUserReconciler struct {
 
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouseusers,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouseusers/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=clickhouseusers/finalizers,verbs=update
 
 func (r *ClickhouseUserReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("clickhouseuser", req.NamespacedName)

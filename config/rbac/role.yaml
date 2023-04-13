@@ -91,6 +91,12 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
+  - clickhouseusers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
   - clickhouseusers/status
   verbs:
   - get
@@ -108,6 +114,12 @@ rules:
   - patch
   - update
   - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - connectionpools/finalizers
+  verbs:
+  - update
 - apiGroups:
   - aiven.io
   resources:
@@ -199,6 +211,12 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
+  - kafkaconnectors/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
   - kafkaconnectors/status
   verbs:
   - get
@@ -219,6 +237,12 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
+  - kafkaconnects/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
   - kafkaconnects/status
   verbs:
   - get
@@ -236,6 +260,12 @@ rules:
   - patch
   - update
   - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - kafkas/finalizers
+  verbs:
+  - update
 - apiGroups:
   - aiven.io
   resources:
@@ -325,6 +355,12 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
+  - opensearches/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
   - opensearches/status
   verbs:
   - get
@@ -345,6 +381,12 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
+  - postgresqls/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
   - postgresqls/status
   verbs:
   - get
@@ -362,6 +404,12 @@ rules:
   - patch
   - update
   - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - projects/finalizers
+  verbs:
+  - update
 - apiGroups:
   - aiven.io
   resources:
@@ -405,6 +453,12 @@ rules:
 - apiGroups:
   - aiven.io
   resources:
+  - redis/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - aiven.io
+  resources:
   - redis/status
   verbs:
   - get
@@ -441,6 +495,12 @@ rules:
   - list
   - update
   - watch
+- apiGroups:
+  - aiven.io
+  resources:
+  - serviceusers/finalizers
+  verbs:
+  - update
 - apiGroups:
   - aiven.io
   resources:

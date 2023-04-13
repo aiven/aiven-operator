@@ -24,6 +24,7 @@ type RedisHandler struct{}
 
 //+kubebuilder:rbac:groups=aiven.io,resources=redis,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=redis/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=redis/finalizers,verbs=update
 
 func (r *RedisReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newRedisAdapter), &v1alpha1.Redis{})

@@ -41,7 +41,7 @@ func updateClusterRole(operatorPath, crdCharts string) error {
 
 var clusterRoleTmpl = `{{- if .Values.rbac.create -}}
 apiVersion: rbac.authorization.k8s.io/v1
-{{- if .Values.rbac.scoped -}}
+{{- if .Values.rbac.scoped }}
 kind: Role
 {{- else }}
 kind: ClusterRole

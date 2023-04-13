@@ -28,6 +28,7 @@ type ProjectHandler struct{}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=projects,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=projects/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=aiven.io,resources=projects/finalizers,verbs=update
 
 func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, ProjectHandler{}, &v1alpha1.Project{})
