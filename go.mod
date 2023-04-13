@@ -12,19 +12,19 @@ require (
 	github.com/google/go-cmp v0.5.9
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/liip/sheriff v0.11.1
-	github.com/onsi/ginkgo/v2 v2.9.2
-	github.com/onsi/gomega v1.27.6
+	github.com/onsi/ginkgo/v2 v2.3.1
+	github.com/onsi/gomega v1.22.1
 	github.com/otiai10/copy v1.10.0
 	github.com/pkg/errors v0.9.1
 	github.com/stoewer/go-strcase v1.3.0
 	github.com/stretchr/testify v1.8.2
 	github.com/xeipuuv/gojsonschema v1.2.0
-	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
+	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e
 	golang.org/x/sync v0.1.0
 	golang.org/x/tools v0.8.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.25.8
-	k8s.io/apimachinery v0.25.8
+	k8s.io/apimachinery v0.25.9
 	k8s.io/client-go v0.25.8
 	sigs.k8s.io/controller-runtime v0.13.1
 )
@@ -47,14 +47,12 @@ require (
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.20.0 // indirect
 	github.com/go-openapi/swag v0.19.14 // indirect
-	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/gnostic v0.5.7-v3refs // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
-	github.com/google/pprof v0.0.0-20210720184732-4bb14d4b1be1 // indirect
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
