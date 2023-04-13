@@ -43,7 +43,7 @@ ServiceIntegrationSpec defines the desired state of ServiceIntegration.
 
 **Required**
 
-- [`integrationType`](#spec.integrationType-property){: name='spec.integrationType-property'} (string, Enum: `datadog`, `kafka_logs`, `kafka_connect`, `metrics`, `dashboard`, `rsyslog`, `read_replica`, `schema_registry_proxy`, `signalfx`, `jolokia`, `internal_connectivity`, `external_google_cloud_logging`, `datasource`, `clickhouse_postgresql`, `clickhouse_kafka`, `logs`, `external_aws_cloudwatch_metrics`, Immutable). Type of the service integration.
+- [`integrationType`](#spec.integrationType-property){: name='spec.integrationType-property'} (string, Enum: `datadog`, `kafka_logs`, `kafka_connect`, `metrics`, `dashboard`, `rsyslog`, `read_replica`, `schema_registry_proxy`, `jolokia`, `internal_connectivity`, `external_google_cloud_logging`, `datasource`, `clickhouse_postgresql`, `clickhouse_kafka`, `logs`, `external_aws_cloudwatch_metrics`, Immutable). Type of the service integration.
 - [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63). Project the integration belongs to.
 
 **Optional**

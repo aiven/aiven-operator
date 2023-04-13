@@ -25,7 +25,7 @@ type ServiceIntegrationSpec struct {
 	Project string `json:"project"`
 
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
-	// +kubebuilder:validation:Enum=datadog;kafka_logs;kafka_connect;metrics;dashboard;rsyslog;read_replica;schema_registry_proxy;signalfx;jolokia;internal_connectivity;external_google_cloud_logging;datasource;clickhouse_postgresql;clickhouse_kafka;logs;external_aws_cloudwatch_metrics
+	// +kubebuilder:validation:Enum=datadog;kafka_logs;kafka_connect;metrics;dashboard;rsyslog;read_replica;schema_registry_proxy;jolokia;internal_connectivity;external_google_cloud_logging;datasource;clickhouse_postgresql;clickhouse_kafka;logs;external_aws_cloudwatch_metrics
 	// Type of the service integration
 	IntegrationType string `json:"integrationType"`
 
