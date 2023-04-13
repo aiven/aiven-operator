@@ -18,6 +18,7 @@
 - Fix missing RBAC permissions to update finalizers for various controllers 
 - Refactor `ClickhouseUser` controller
 - Mark `ClickhouseUser.spec.project` and `ClickhouseUser.spec.serviceName` as immutable
+- Remove deprecated service integration type `signalfx`
 
 ## v0.9.0 - 2023-03-03
 

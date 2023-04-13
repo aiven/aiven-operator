@@ -313,7 +313,6 @@ spec:
                 - rsyslog
                 - read_replica
                 - schema_registry_proxy
-                - signalfx
                 - jolokia
                 - internal_connectivity
                 - external_google_cloud_logging
