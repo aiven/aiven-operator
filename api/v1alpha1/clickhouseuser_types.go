@@ -10,16 +10,14 @@ import (
 type ClickhouseUserSpec struct {
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Project to link the user to
 	Project string `json:"project"`
 
 	// +kubebuilder:validation:MaxLength=63
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Service to link the user to
 	ServiceName string `json:"serviceName"`
-
-	// +kubebuilder:validation:Enum=caching_sha2_password;mysql_native_password
-	// Authentication details
-	Authentication string `json:"authentication,omitempty"`
 
 	// Information regarding secret creation
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
