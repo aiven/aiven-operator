@@ -13,7 +13,6 @@
 - Add Kafka `log_cleaner_min_cleanable_ratio` minimum and maximum validation rules
 - Remove Kafka version `3.2`, reached EOL
 - Remove PostgreSQL version `10`, reached EOL
-- Add `rbac.create` and `rbac.scoped` options to Helm chart. Thanks to @ryaneorth
 - Explicitly delete `ProjectVPC` by `ID` to avoid conflicts 
 - Speed up `ProjectVPC` deletion by exiting on `DELETING` status
 - Fix missing RBAC permissions to update finalizers for various controllers 
