@@ -117,7 +117,10 @@ test-e2e: build ## Run end-to-end tests using kuttl (https://kuttl.dev/)
 	@[ "${AIVEN_PROJECT_NAME}" ] || ( echo ">> variable AIVEN_PROJECT_NAME is not set"; exit 1 )
 	kubectl kuttl test --config test/e2e/kuttl-test.yaml
 
-.PHONY: test
+.PHONY: test-e2e-preinstalled
+test-e2e-preinstalled:
+	kubectl kuttl test --config test/e2e/kuttl-test.preinstalled.yaml
+
 test: envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" \
 	go test ./tests/... -run=$(run) -v -timeout 42m -parallel 10 -cover -coverpkg=./controllers -covermode=count -coverprofile=coverage.out
@@ -271,3 +274,66 @@ release-manifests: manifests kustomize
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	mkdir -p releases
 	$(KUSTOMIZE) build config/default > releases/aiven-operator-${IMG_TAG}.yaml
+
+.PHONY: e2e-setup-kind
+WEBHOOKS_ENABLED ?= true
+CERT_MANAGER_TAG ?= v1.11.0
+OPERATOR_IMAGE_TAG ?= $(shell git rev-parse HEAD)
+
+PODMAN = podman
+# Podman requires specific image name
+OPERATOR_IMAGE_NAME ?= localhost/operator
+ifeq (, $(shell which podman))
+	PODMAN = docker
+	OPERATOR_IMAGE_NAME = operator
+endif
+
+SETUP_PREREQUISITES = jq base64 kcat helm kind $(PODMAN) avn
+e2e-setup-kind:
+	# Validates prerequisites
+	$(foreach bin,$(SETUP_PREREQUISITES),\
+        $(if $(shell command -v $(bin) 2> /dev/null),,$(error Please install `$(bin)` first)))
+	@[ "${AIVEN_TOKEN}" ] || ( echo ">> variable AIVEN_TOKEN is not set"; exit 1 )
+	@[ "${AIVEN_PROJECT_NAME}" ] || ( echo ">> variable AIVEN_PROJECT_NAME is not set"; exit 1 )
+
+	# Cleans previous installation. Ignores errors
+	helm uninstall aiven-operator-crds || true
+	helm uninstall aiven-operator || true
+	kubectl delete secret aiven-token || true
+
+	# Cleanups cert-manager
+	helm uninstall cert-manager || true
+	kubectl delete namespace cert-manager || true
+
+	# Installs cert manager if webhooks enabled
+	# We use helm here instead of "kubectl apply", because it waits pods up and running
+	# Otherwise, operator will fail webhook check
+ifeq ($(WEBHOOKS_ENABLED), true)
+	helm repo add jetstack https://charts.jetstack.io
+	helm repo update
+	helm install \
+      cert-manager jetstack/cert-manager \
+      --namespace cert-manager \
+      --create-namespace \
+      --version $(CERT_MANAGER_TAG) \
+      --set installCRDs=true
+endif
+
+	# Builds the operator
+	$(PODMAN) build -t ${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG} .
+	kind load docker-image $(OPERATOR_IMAGE_NAME):$(OPERATOR_IMAGE_TAG)
+
+	# Installs operators charts
+	kubectl create secret generic aiven-token --from-literal=token=$(AIVEN_TOKEN)
+	helm install aiven-operator-crds charts/aiven-operator-crds
+	helm install \
+		--set defaultTokenSecret.name=aiven-token \
+		--set defaultTokenSecret.key=token \
+		--set leaderElect=true \
+		--set image.repository="${OPERATOR_IMAGE_NAME}" \
+		--set image.tag=$(OPERATOR_IMAGE_TAG) \
+		--set image.pullPolicy="Never" \
+		--set resources.requests.cpu=0 \
+		--set resources.requests.memory=0 \
+		--set webhooks.enabled=${WEBHOOKS_ENABLED} \
+		aiven-operator charts/aiven-operator
