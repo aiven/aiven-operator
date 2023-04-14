@@ -25,7 +25,7 @@ const (
 )
 
 var (
-	operatorUserAgent          = "k8s-operator/" + aiven.Version()
+	version                    = "dev"
 	errTerminationProtectionOn = errors.New("termination protection is on")
 )
 
@@ -94,4 +94,9 @@ func optionalStringPointer(u string) *string {
 func isAivenServerError(err error) bool {
 	e, ok := err.(aiven.Error)
 	return ok && e.Status >= http.StatusInternalServerError
+}
+
+// NewAivenClient returns Aiven client
+func NewAivenClient(token string) (*aiven.Client, error) {
+	return aiven.NewTokenClient(token, "k8s-operator/"+version)
 }

@@ -84,7 +84,7 @@ func setupSuite() error {
 		return err
 	}
 
-	avnClient, err = aiven.NewTokenClient(aivenToken, "k8s-operator/dev")
+	avnClient, err = controllers.NewAivenClient(aivenToken)
 	if err != nil {
 		return err
 	}
