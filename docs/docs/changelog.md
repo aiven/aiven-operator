@@ -1,5 +1,26 @@
 # Changelog
 
+
+## v0.10.0 - 2023-04-14
+
+- Mark service `plan` as a required field
+- Add `minumim`, `maximum` validations for `number` type
+- Move helm charts to the operator repository
+- Add helm charts generator
+- Remove `ip_filter` backward compatability
+- Fix deletion errors omitted
+- Add service integration `clickhouseKafka.tables.data_format-property` enum `RawBLOB` value
+- Update OpenSearch `userConfig.opensearch.email_sender_username` validation pattern
+- Add Kafka `log_cleaner_min_cleanable_ratio` minimum and maximum validation rules
+- Remove Kafka version `3.2`, reached EOL
+- Remove PostgreSQL version `10`, reached EOL
+- Explicitly delete `ProjectVPC` by `ID` to avoid conflicts 
+- Speed up `ProjectVPC` deletion by exiting on `DELETING` status
+- Fix missing RBAC permissions to update finalizers for various controllers 
+- Refactor `ClickhouseUser` controller
+- Mark `ClickhouseUser.spec.project` and `ClickhouseUser.spec.serviceName` as immutable
+- Remove deprecated service integration type `signalfx`
+
 ## v0.9.0 - 2023-03-03
 
 - `AuthSecretRef` fields marked as required
@@ -40,7 +61,7 @@ as native [CRD validation rules](https://kubernetes.io/blog/2022/09/23/crd-valid
 
 ## v0.6.0 - 2023-01-16
 
-- Remove "never" from choices of maintenance dow
+- Remove `never` from choices of maintenance dow
 - Add `development` flag to configure logger's behavior
 - Add user config generator (see `make generate-user-configs`)
 - Add `genericServiceHandler` to generalize service management 
