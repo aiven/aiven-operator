@@ -1,0 +1,11 @@
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseUser
+metadata:
+  name: my-clickhouse-user
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  serviceName: my-clickhouse
