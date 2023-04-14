@@ -56,4 +56,4 @@ jobs:
         platforms: linux/amd64,linux/arm64
         tags: aivenoy/aiven-operator:${{ steps.action_vars.outputs.TAG }}
         build-args: |
-          VERSION=${{ Version }}
+          VERSION=${{steps.action_vars.outputs.TAG}}

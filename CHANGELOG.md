@@ -2,7 +2,7 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
-## v0.10.0 - 2023-04-14
+## v0.10.0 - 2023-04-17
 
 - Mark service `plan` as a required field
 - Add `minumim`, `maximum` validations for `number` type
@@ -21,6 +21,7 @@
 - Refactor `ClickhouseUser` controller
 - Mark `ClickhouseUser.spec.project` and `ClickhouseUser.spec.serviceName` as immutable
 - Remove deprecated service integration type `signalfx`
+- Add build version to the Aiven client user-agent
 
 ## v0.9.0 - 2023-03-03
 
