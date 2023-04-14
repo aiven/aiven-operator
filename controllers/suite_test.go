@@ -78,7 +78,7 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 	Expect(k8sClient).NotTo(BeNil())
 
-	aivenClient, err = aiven.NewTokenClient(aivenToken, operatorUserAgent)
+	aivenClient, err = NewAivenClient(aivenToken)
 	Expect(err).NotTo(HaveOccurred())
 	Expect(aivenClient).NotTo(BeNil())
 

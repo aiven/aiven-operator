@@ -127,7 +127,7 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 		return ctrl.Result{}, errNoTokenProvided
 	}
 
-	avn, err := aiven.NewTokenClient(token, operatorUserAgent)
+	avn, err := NewAivenClient(token)
 	if err != nil {
 		c.Recorder.Event(o, corev1.EventTypeWarning, eventUnableToCreateClient, err.Error())
 		return ctrl.Result{}, fmt.Errorf("cannot initialize aiven client: %w", err)
