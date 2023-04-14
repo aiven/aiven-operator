@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.10.0 - 2023-04-14
+
 - Mark service `plan` as a required field
 - Add `minumim`, `maximum` validations for `number` type
 - Move helm charts to the operator repository
