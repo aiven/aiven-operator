@@ -323,7 +323,7 @@ func (s *schemaType) GetUsageExample() string {
 	if s.UsageExample == "" {
 		return ""
 	}
-	return fmt.Sprintf("```yaml\n%s```", s.UsageExample)
+	return fmt.Sprintf("```yaml\n%s\n```", strings.TrimSpace(s.UsageExample))
 }
 
 var templateFuncs = template.FuncMap{

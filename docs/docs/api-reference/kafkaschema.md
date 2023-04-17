@@ -31,7 +31,8 @@ spec:
         "name": "example_name",
         "namespace": "example_namespace",
         "type": "record"
-    }```
+    }
+```
 
 ## KafkaSchema {: #KafkaSchema }
 
