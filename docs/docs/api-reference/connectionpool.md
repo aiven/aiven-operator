@@ -2,6 +2,26 @@
 title: "ConnectionPool"
 ---
 
+## Usage example
+
+```yaml
+apiVersion: aiven.io/v1alpha1
+kind: ConnectionPool
+metadata:
+  name: my-connection-pool
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  serviceName: google-europe-west1
+  databaseName: my-db
+  username: my-user
+  poolMode: transaction
+  poolSize: 25
+```
+
 ## ConnectionPool {: #ConnectionPool }
 
 ConnectionPool is the Schema for the connectionpools API.

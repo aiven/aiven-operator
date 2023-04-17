@@ -2,6 +2,22 @@
 title: "ServiceUser"
 ---
 
+## Usage example
+
+```yaml
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUser
+metadata:
+  name: my-service-user
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  serviceName: my-service-name
+```
+
 ## ServiceUser {: #ServiceUser }
 
 ServiceUser is the Schema for the serviceusers API.

@@ -557,22 +557,3 @@ func getMaintenanceWindow(dow, time string) *aiven.MaintenanceWindow {
 
 	return nil
 }
-
-func ensureSecretDataIsNotEmpty(log *logr.Logger, s *corev1.Secret) *corev1.Secret {
-	if s == nil {
-		return nil
-	}
-
-	for i, v := range s.StringData {
-		if len(v) == 0 {
-			if log != nil {
-				log.Info("secret field is empty, deleting it from the secret",
-					"field", v,
-					"secret name", s.Name)
-			}
-			delete(s.StringData, i)
-		}
-	}
-
-	return s
-}

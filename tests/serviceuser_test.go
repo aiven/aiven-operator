@@ -1,16 +1,19 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getDatabaseYaml(project, pgName, dbName string) string {
+func getServiceUserYaml(project, pgName, userName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: PostgreSQL
@@ -28,7 +31,7 @@ spec:
 ---
 
 apiVersion: aiven.io/v1alpha1
-kind: Database
+kind: ServiceUser
 metadata:
   name: %[3]s
 spec:
@@ -38,21 +41,17 @@ spec:
 
   project: %[1]s
   serviceName: %[2]s
-
-  lcCtype: en_US.UTF-8
-  lcCollate: en_US.UTF-8
-
-`, project, pgName, dbName)
+`, project, pgName, userName)
 }
 
-func TestDatabase(t *testing.T) {
+func TestServiceUser(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
 
 	// GIVEN
-	pgName := randName("database")
-	dbName := randName("database")
-	yml := getDatabaseYaml(testProject, pgName, dbName)
+	pgName := randName("connection-pool")
+	userName := randName("connection-pool")
+	yml := getServiceUserYaml(testProject, pgName, userName)
 	s, err := NewSession(k8sClient, avnClient, testProject, yml)
 	require.NoError(t, err)
 
@@ -67,8 +66,8 @@ func TestDatabase(t *testing.T) {
 	pg := new(v1alpha1.PostgreSQL)
 	require.NoError(t, s.GetRunning(pg, pgName))
 
-	db := new(v1alpha1.Database)
-	require.NoError(t, s.GetRunning(db, dbName))
+	user := new(v1alpha1.ServiceUser)
+	require.NoError(t, s.GetRunning(user, userName))
 
 	// THEN
 	// Validates PostgreSQL
@@ -80,22 +79,31 @@ func TestDatabase(t *testing.T) {
 	assert.Equal(t, pgAvn.Plan, pg.Spec.Plan)
 	assert.Equal(t, pgAvn.CloudName, pg.Spec.CloudName)
 
-	// Validates Database
-	dbAvn, err := avnClient.Databases.Get(testProject, pgName, dbName)
+	// Validates ServiceUser
+	userAvn, err := avnClient.ServiceUsers.Get(testProject, pgName, userName)
 	require.NoError(t, err)
-	assert.Equal(t, dbName, db.GetName())
-	assert.Equal(t, dbAvn.DatabaseName, db.GetName())
-	assert.Equal(t, "en_US.UTF-8", db.Spec.LcCtype)
-	assert.Equal(t, dbAvn.LcType, db.Spec.LcCtype)
-	assert.Equal(t, "en_US.UTF-8", db.Spec.LcCollate)
-	assert.Equal(t, dbAvn.LcCollate, db.Spec.LcCollate)
+	assert.Equal(t, userName, user.GetName())
+	assert.Equal(t, userName, userAvn.Username)
+	assert.Equal(t, pgName, user.Spec.ServiceName)
+
+	// Validates Secret
+	ctx := context.Background()
+	secret := new(corev1.Secret)
+	require.NoError(t, k8sClient.Get(ctx, types.NamespacedName{Name: userName, Namespace: "default"}, secret))
+	assert.NotEmpty(t, secret.Data["HOST"])
+	assert.NotEmpty(t, secret.Data["PORT"])
+	assert.NotEmpty(t, secret.Data["USERNAME"])
+	assert.NotEmpty(t, secret.Data["PASSWORD"])
+	assert.NotEmpty(t, secret.Data["CA_CERT"])
+	assert.Contains(t, secret.Data, "ACCESS_CERT")
+	assert.Contains(t, secret.Data, "ACCESS_KEY")
 
 	// We need to validate deletion,
 	// because we can get false positive here:
-	// if service is deleted, db is destroyed in Aiven. No service — no db. No db — no db.
+	// if service is deleted, pool is destroyed in Aiven. No service — no pool. No pool — no pool.
 	// And we make sure that controller can delete db itself
-	assert.NoError(t, s.Delete(db, func() error {
-		_, err = avnClient.Databases.Get(testProject, pgName, dbName)
+	assert.NoError(t, s.Delete(user, func() error {
+		_, err = avnClient.ServiceUsers.Get(testProject, pgName, userName)
 		return err
 	}))
 }

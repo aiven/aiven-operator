@@ -2,6 +2,25 @@
 title: "Project"
 ---
 
+## Usage example
+
+```yaml
+apiVersion: aiven.io/v1alpha1
+kind: Project
+metadata:
+  name: my-project
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  tags:
+    env: prod
+
+  billingAddress: NYC
+  cloud: aws-eu-west-1
+```
+
 ## Project {: #Project }
 
 Project is the Schema for the projects API.
