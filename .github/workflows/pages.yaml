@@ -1,26 +1,23 @@
 name: pages
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
   push:
     tags:
-      - 'v*'
+      - v*
 
 jobs:
   release_pages:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
       - name: Generate docs
         uses: addnab/docker-run-action@v3
         with:
           image: squidfunk/mkdocs-material:latest
           options: -v ${{ github.workspace }}/docs/:/docs
           run: mkdocs build
-
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
