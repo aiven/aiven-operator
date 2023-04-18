@@ -111,30 +111,13 @@ fmt: ## Run go fmt against code.
 vet: ## Run go vet against code.
 	go vet ./...
 
-.PHONY: test
-FOCUS_FILE ?= "*"
-test-ginkgo: generate fmt vet envtest ginkgo ## Run tests.
-	KUBEBUILDER_CONTROLPLANE_START_TIMEOUT=120s \
-	KUBEBUILDER_CONTROLPLANE_STOP_TIMEOUT=120s \
-	KUBEBUILDER_ATTACH_CONTROL_PLANE_OUTPUT=true \
-	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" \
-	$(GINKGO) \
-			-v \
-			--focus-file=$(FOCUS_FILE) \
-			--output-interceptor-mode=none \
-			--nodes=6 \
-			--race \
-			--randomize-all \
-			--trace \
-			--fail-fast \
-			--progress \
-			./controllers
-
+.PHONY: test-e2e
 test-e2e: build ## Run end-to-end tests using kuttl (https://kuttl.dev/)
 	@[ "${AIVEN_TOKEN}" ] || ( echo ">> variable AIVEN_TOKEN is not set"; exit 1 )
 	@[ "${AIVEN_PROJECT_NAME}" ] || ( echo ">> variable AIVEN_PROJECT_NAME is not set"; exit 1 )
 	kubectl kuttl test --config test/e2e/kuttl-test.yaml
 
+.PHONY: test
 test: envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" \
 	go test ./tests/... -run=$(run) -v -timeout 42m -parallel 10 -cover -coverpkg=./controllers -covermode=count -coverprofile=coverage.out
@@ -202,7 +185,6 @@ TOOLS_DIR := hack/tools
 KUSTOMIZE ?= $(LOCALBIN)/kustomize
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
 ENVTEST ?= $(LOCALBIN)/setup-envtest
-GINKGO=$(LOCALBIN)/ginkgo
 GOLANGCILINT=$(LOCALBIN)/golangci-lint
 GEN_CRD_API_REF_DOCS=$(LOCALBIN)/gen-crd-api-reference-docs
 
@@ -210,7 +192,6 @@ GEN_CRD_API_REF_DOCS=$(LOCALBIN)/gen-crd-api-reference-docs
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v4.2.0
 CONTROLLER_TOOLS_VERSION ?= v0.9.2
-GINKGO_VERSION ?= v2.3.1
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 .PHONY: kustomize
@@ -227,11 +208,6 @@ $(CONTROLLER_GEN): $(LOCALBIN)
 envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
 $(ENVTEST): $(LOCALBIN)
 	test -s $(LOCALBIN)/setup-envtest || GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
-
-.PHONY: ginkgo
-ginkgo: $(GINKGO) ## Download envtest-setup locally if necessary.
-$(GINKGO): $(LOCALBIN)
-	test -s $(LOCALBIN)/ginkgo || GOBIN=$(LOCALBIN) go install github.com/onsi/ginkgo/v2/ginkgo@$(GINKGO_VERSION)
 
 .PHONY: bundle
 bundle: manifests kustomize ## Generate bundle manifests and metadata, then validate generated files.
