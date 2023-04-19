@@ -3,6 +3,9 @@
 package v1alpha1
 
 import (
+	"fmt"
+	"reflect"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	clickhousekafkauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/clickhouse_kafka"
@@ -25,25 +28,39 @@ type ServiceIntegrationSpec struct {
 	Project string `json:"project"`
 
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
-	// +kubebuilder:validation:Enum=datadog;kafka_logs;kafka_connect;metrics;dashboard;rsyslog;read_replica;schema_registry_proxy;jolokia;internal_connectivity;external_google_cloud_logging;datasource;clickhouse_postgresql;clickhouse_kafka;logs;external_aws_cloudwatch_metrics
-	// Type of the service integration
+	// +kubebuilder:validation:Enum=alertmanager,autoscaler,caching,cassandra_cross_service_cluster,clickhouse_kafka,clickhouse_postgresql,dashboard,datadog,datasource,external_aws_cloudwatch_logs,external_aws_cloudwatch_metrics,external_elasticsearch_logs,external_google_cloud_logging,external_opensearch_logs,flink,flink_external_kafka,internal_connectivity,jolokia,kafka_connect,kafka_logs,kafka_mirrormaker,logs,m3aggregator,m3coordinator,metrics,opensearch_cross_cluster_replication,opensearch_cross_cluster_search,prometheus,read_replica,rsyslog,schema_registry_proxy,stresstester,thanosquery,thanosstore,vmalert
+	// Type of the service integration accepted by Aiven API. Some values may not be supported by the operator
 	IntegrationType string `json:"integrationType"`
 
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// +kubebuilder:validation:MaxLength=36
 	// Source endpoint for the integration (if any)
 	SourceEndpointID string `json:"sourceEndpointID,omitempty"`
 
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// +kubebuilder:validation:MaxLength=64
 	// Source service for the integration (if any)
 	SourceServiceName string `json:"sourceServiceName,omitempty"`
 
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// +kubebuilder:validation:MaxLength=63
+	// Source project for the integration (if any)
+	SourceProjectName string `json:"sourceProjectName,omitempty"`
+
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// +kubebuilder:validation:MaxLength=36
 	// Destination endpoint for the integration (if any)
 	DestinationEndpointID string `json:"destinationEndpointId,omitempty"`
 
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// +kubebuilder:validation:MaxLength=64
 	// Destination service for the integration (if any)
 	DestinationServiceName string `json:"destinationServiceName,omitempty"`
+
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// +kubebuilder:validation:MaxLength=63
+	// Destination project for the integration (if any)
+	DestinationProjectName string `json:"destinationProjectName,omitempty"`
 
 	// Datadog specific user configuration options
 	DatadogUserConfig *datadogintegration.DatadogUserConfig `json:"datadog,omitempty"`
@@ -70,7 +87,7 @@ type ServiceIntegrationSpec struct {
 	LogsUserConfig *logsuserconfig.LogsUserConfig `json:"logs,omitempty"`
 
 	// External AWS CloudWatch Metrics integration Logs configuration values
-	ExternalAWSCloudwatchMetricsUserConfig *externalawscloudwatchmetricsuserconfig.ExternalAwsCloudwatchMetricsUserConfig `json:"external_aws_cloudwatch_metrics,omitempty"`
+	ExternalAWSCloudwatchMetricsUserConfig *externalawscloudwatchmetricsuserconfig.ExternalAwsCloudwatchMetricsUserConfig `json:"externalAWSCloudwatchMetrics,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
@@ -103,8 +120,33 @@ type ServiceIntegration struct {
 	Status ServiceIntegrationStatus `json:"status,omitempty"`
 }
 
-func (svcint ServiceIntegration) AuthSecretRef() *AuthSecretReference {
-	return svcint.Spec.AuthSecretRef
+func (in *ServiceIntegration) AuthSecretRef() *AuthSecretReference {
+	return in.Spec.AuthSecretRef
+}
+
+func (in *ServiceIntegration) GetUserConfig() (any, error) {
+	configs := map[string]any{
+		"clickhouse_kafka":                in.Spec.ClickhouseKafkaUserConfig,
+		"clickhouse_postgresql":           in.Spec.ClickhousePostgreSQLUserConfig,
+		"datadog":                         in.Spec.DatadogUserConfig,
+		"external_aws_cloudwatch_metrics": in.Spec.ExternalAWSCloudwatchMetricsUserConfig,
+		"kafka_connect":                   in.Spec.KafkaConnectUserConfig,
+		"kafka_logs":                      in.Spec.KafkaLogsUserConfig,
+		"kafka_mirrormaker":               in.Spec.KafkaMirrormakerUserConfig,
+		"logs":                            in.Spec.LogsUserConfig,
+		"metrics":                         in.Spec.MetricsUserConfig,
+	}
+
+	thisType := in.Spec.IntegrationType
+
+	// Checks if it is the only configuration set
+	for k, v := range configs {
+		if k != thisType && !reflect.ValueOf(v).IsNil() {
+			return nil, fmt.Errorf("got additional configuration for integration type %q", k)
+		}
+	}
+
+	return configs[thisType], nil
 }
 
 // +kubebuilder:object:root=true

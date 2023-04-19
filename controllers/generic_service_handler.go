@@ -199,11 +199,3 @@ type serviceAdapter interface {
 	getUserConfig() any
 	newSecret(*aiven.Service) (*corev1.Secret, error)
 }
-
-func fromAnyPointer[T any](v *T) T {
-	if v != nil {
-		return *v
-	}
-	var t T
-	return t
-}

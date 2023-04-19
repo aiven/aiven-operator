@@ -5,6 +5,7 @@ package main
 import (
 	"flag"
 	"os"
+	"strings"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -84,94 +85,13 @@ func main() {
 		setupLog.Error(err, "controllers setup error")
 	}
 
-	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
-		if err = (&v1alpha1.Project{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Project")
-			os.Exit(1)
-		}
-		if err = (&v1alpha1.PostgreSQL{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "PostgreSQL")
-			os.Exit(1)
-		}
-		if err = (&v1alpha1.Database{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Database")
-			os.Exit(1)
-		}
-
-		if err = (&v1alpha1.ConnectionPool{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "ConnectionPool")
-			os.Exit(1)
-		}
-
-		if err = (&v1alpha1.ServiceUser{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "ServiceUser")
-			os.Exit(1)
-		}
-
-		if err = (&v1alpha1.Kafka{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Kafka")
-			os.Exit(1)
-		}
-
-		if err = (&v1alpha1.KafkaConnect{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "KafkaConnect")
-			os.Exit(1)
-		}
-
-		if err = (&v1alpha1.KafkaTopic{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "KafkaTopic")
-			os.Exit(1)
-		}
-
-		if err = (&v1alpha1.KafkaACL{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "KafkaACL")
-			os.Exit(1)
-		}
-
-		if err = (&v1alpha1.KafkaSchema{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "KafkaSchema")
-			os.Exit(1)
-		}
-
-		if err = (&v1alpha1.ServiceIntegration{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "ServiceIntegration")
-			os.Exit(1)
-		}
-
-		if err = (&v1alpha1.KafkaConnector{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "KafkaConnector")
-			os.Exit(1)
-		}
-
-		if err = (&v1alpha1.Redis{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Redis")
-			os.Exit(1)
-		}
-
-		if err = (&v1alpha1.OpenSearch{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "OpenSearch")
-			os.Exit(1)
-		}
-
-		if err = (&v1alpha1.Clickhouse{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Clickhouse")
-			os.Exit(1)
-		}
-
-		if err = (&v1alpha1.ClickhouseUser{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "ClickhouseUser")
-			os.Exit(1)
-		}
-		if err = (&v1alpha1.MySQL{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "MySQL")
-			os.Exit(1)
-		}
-		if err = (&v1alpha1.Cassandra{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Cassandra")
-			os.Exit(1)
-		}
-		if err = (&v1alpha1.Grafana{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "Grafana")
+	// Webhooks are enabled by default
+	switch strings.ToLower(os.Getenv("ENABLE_WEBHOOKS")) {
+	case "false", "0", "f":
+	default:
+		err = v1alpha1.SetupWebhooks(mgr)
+		if err != nil {
+			setupLog.Error(err, "unable to create webhook")
 			os.Exit(1)
 		}
 	}

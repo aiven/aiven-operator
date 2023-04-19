@@ -247,17 +247,26 @@ spec:
                 type: object
               destinationEndpointId:
                 description: Destination endpoint for the integration (if any)
+                maxLength: 36
+                type: string
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
+              destinationProjectName:
+                description: Destination project for the integration (if any)
+                maxLength: 63
                 type: string
                 x-kubernetes-validations:
                 - message: Value is immutable
                   rule: self == oldSelf
               destinationServiceName:
                 description: Destination service for the integration (if any)
+                maxLength: 64
                 type: string
                 x-kubernetes-validations:
                 - message: Value is immutable
                   rule: self == oldSelf
-              external_aws_cloudwatch_metrics:
+              externalAWSCloudwatchMetrics:
                 description: External AWS CloudWatch Metrics integration Logs configuration
                   values
                 properties:
@@ -534,12 +543,21 @@ spec:
                   rule: self == oldSelf
               sourceEndpointID:
                 description: Source endpoint for the integration (if any)
+                maxLength: 36
+                type: string
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
+              sourceProjectName:
+                description: Source project for the integration (if any)
+                maxLength: 63
                 type: string
                 x-kubernetes-validations:
                 - message: Value is immutable
                   rule: self == oldSelf
               sourceServiceName:
                 description: Source service for the integration (if any)
+                maxLength: 64
                 type: string
                 x-kubernetes-validations:
                 - message: Value is immutable

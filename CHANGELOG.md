@@ -2,6 +2,13 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `ServiceIntegration` kind `SourceProjectName` and `DestinationProjectName` fields
+- Add `ServiceIntegration` fields `MaxLength` validation
+- Add `ServiceIntegration` validation: multiple user configs cannot be set
+- Fix `ServiceIntegration`, should not require `destinationServiceName` or `sourceEndpointID` field
+- Fix `ServiceIntegration`, add missing `external_aws_cloudwatch_metrics` type config serialization
+- Update `ServiceIntegration` integration type list
+
 ## v0.10.0 - 2023-04-17
 
 - Mark service `plan` as a required field

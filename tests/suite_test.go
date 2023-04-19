@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
 	"runtime/debug"
 	"strconv"
 	"testing"
@@ -70,8 +69,11 @@ func setupSuite() error {
 	}
 
 	testEnv = &envtest.Environment{
-		CRDDirectoryPaths:     []string{path.Join("..", "config", "crd", "bases")},
 		ErrorIfCRDPathMissing: true,
+		CRDDirectoryPaths:     []string{"../config/crd/bases"},
+		WebhookInstallOptions: envtest.WebhookInstallOptions{
+			Paths: []string{"../config/webhook"},
+		},
 	}
 
 	cfg, err := testEnv.Start()
@@ -92,6 +94,8 @@ func setupSuite() error {
 	mgr, err := ctrl.NewManager(cfg, ctrl.Options{
 		Scheme:             scheme.Scheme,
 		MetricsBindAddress: "0",
+		CertDir:            testEnv.WebhookInstallOptions.LocalServingCertDir,
+		Port:               testEnv.WebhookInstallOptions.LocalServingPort,
 	})
 
 	if err != nil {
@@ -116,7 +120,12 @@ func setupSuite() error {
 
 	err = controllers.SetupControllers(mgr, aivenToken)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to setup controllers: %w", err)
+	}
+
+	err = v1alpha1.SetupWebhooks(mgr)
+	if err != nil {
+		return fmt.Errorf("unable to setup webhooks: %w", err)
 	}
 
 	go func() {
