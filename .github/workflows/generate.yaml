@@ -1,6 +1,7 @@
 name: generate files
+
 on:
-  pull_request:
+  pull_request: {}
 
 permissions:
   contents: write
@@ -9,20 +10,16 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
-
       - uses: actions/setup-go@v4
         with:
-          go-version: '1.19'
-
+          go-version-file: go.mod
       - name: generate files
         run: make generate
-
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "chore(userconfigs): generate files"

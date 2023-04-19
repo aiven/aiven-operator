@@ -2,9 +2,11 @@ name: lint
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   commitlint:
@@ -18,34 +20,29 @@ jobs:
     name: golang_ci_linter
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/setup-go@v4
-      with:
-        go-version: 1.18
-    - uses: actions/checkout@v3
-    - name: golangci-lint
-      uses: golangci/golangci-lint-action@v3
-      with:
-        # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
-        version: v1.50
-
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: go.mod
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
   codeql_analysis:
     runs-on: ubuntu-latest
     permissions:
       actions: read
       contents: read
       security-events: write
-
     steps:
-    - uses: actions/checkout@v3
-    - uses: github/codeql-action/init@v2
-      with:
-        languages: 'go'
-    - uses: github/codeql-action/autobuild@v2
-    - uses: github/codeql-action/analyze@v2
-
+      - uses: actions/checkout@v3
+      - uses: github/codeql-action/init@v2
+        with:
+          languages: go
+      - uses: github/codeql-action/autobuild@v2
+      - uses: github/codeql-action/analyze@v2
   kustomize_can_build_deployment:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
       - uses: karancode/kustomize-github-action@master
