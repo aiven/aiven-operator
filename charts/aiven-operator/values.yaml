@@ -21,6 +21,7 @@ defaultTokenSecret:
 # webhhook configuration
 webhooks:
   enabled: true
+  checkCapabilities: true
   servicePort: 443
   # Set 10250 for GKE, default is 9443
   # containerPort: 9443

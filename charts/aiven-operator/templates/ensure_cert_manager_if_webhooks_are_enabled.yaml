@@ -1,7 +1,9 @@
 {{- if .Values.webhooks.enabled }}
 
+{{- if .Values.webhooks.checkCapabilities }}
 {{- if not (.Capabilities.APIVersions.Has "cert-manager.io/v1") -}}
     {{- fail "Required Cert Manager CRDs are missing even though Webhooks are enabled and Cert Manager is required" }}
+{{ end }}
 {{ end }}
 
 {{ end }}
