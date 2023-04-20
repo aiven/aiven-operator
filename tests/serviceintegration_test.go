@@ -2,12 +2,14 @@ package tests
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
+	datadoguserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/datadog"
 )
 
 func getClickhousePostgreSQLYaml(project, chName, pgName, siName string) string {
@@ -373,4 +375,146 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	assert.Equal(t, "connect", *si.Spec.KafkaConnectUserConfig.KafkaConnect.GroupId)
 	assert.Equal(t, "__connect_status", *si.Spec.KafkaConnectUserConfig.KafkaConnect.StatusStorageTopic)
 	assert.Equal(t, "__connect_offsets", *si.Spec.KafkaConnectUserConfig.KafkaConnect.OffsetStorageTopic)
+}
+
+func getDatadogYaml(project, pgName, siName, endpointID string) string {
+	return fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: %[2]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  cloudName: google-europe-west1
+  plan: startup-4
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: %[3]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  integrationType: datadog
+  sourceServiceName: %[2]s
+  destinationEndpointId: %s
+
+  datadog:
+    datadog_dbm_enabled: True
+    datadog_tags:
+      - tag: env
+        comment: test
+`, project, pgName, siName, endpointID)
+}
+
+// todo: refactor when ServiceIntegrationEndpoint released
+func TestServiceIntegrationDatadog(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	endpointID := os.Getenv("DATADOG_ENDPOINT_ID")
+	if endpointID == "" {
+		t.Skip("Provide DATADOG_ENDPOINT_ID for this test")
+	}
+
+	// GIVEN
+	pgName := randName("datadog")
+	siName := randName("datadog")
+
+	yml := getDatadogYaml(testProject, pgName, siName, endpointID)
+	s, err := NewSession(k8sClient, avnClient, testProject, yml)
+	require.NoError(t, err)
+
+	// Cleans test afterwards
+	defer s.Destroy()
+
+	// WHEN
+	// Applies given manifest
+	require.NoError(t, s.Apply())
+
+	// Waits kube objects
+	pg := new(v1alpha1.PostgreSQL)
+	require.NoError(t, s.GetRunning(pg, pgName))
+
+	si := new(v1alpha1.ServiceIntegration)
+	require.NoError(t, s.GetRunning(si, siName))
+
+	// THEN
+	// Validates PostgreSQL
+	pgAvn, err := avnClient.Services.Get(testProject, pgName)
+	require.NoError(t, err)
+	assert.Equal(t, pgAvn.Name, pg.GetName())
+	assert.Equal(t, pgAvn.State, pg.Status.State)
+	assert.Equal(t, pgAvn.Plan, pg.Spec.Plan)
+
+	// Validates Datadog
+	siAvn, err := avnClient.ServiceIntegrations.Get(testProject, si.Status.ID)
+	require.NoError(t, err)
+	assert.Equal(t, "datadog", siAvn.IntegrationType)
+	assert.Equal(t, siAvn.IntegrationType, si.Spec.IntegrationType)
+	assert.True(t, siAvn.Active)
+	assert.True(t, siAvn.Enabled)
+
+	// Tests user config
+	require.NotNil(t, si.Spec.DatadogUserConfig)
+	assert.Equal(t, anyPointer(true), si.Spec.DatadogUserConfig.DatadogDbmEnabled)
+	expectedTags := []*datadoguserconfig.DatadogTags{
+		{Tag: "env", Comment: anyPointer("test")},
+	}
+	assert.Equal(t, expectedTags, si.Spec.DatadogUserConfig.DatadogTags)
+}
+
+func getWebhookMultipleUserConfigsDeniedYaml(project, siName string) string {
+	return fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: %[2]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  integrationType: datadog
+  sourceServiceName: whatever
+
+  datadog:
+    datadog_dbm_enabled: True
+
+  clickhousePostgresql:
+    databases:
+      - database: defaultdb
+        schema: public
+`, project, siName)
+}
+
+// TestWebhookMultipleUserConfigsDenied tests v1alpha1.ServiceIntegration.ValidateCreate()
+func TestWebhookMultipleUserConfigsDenied(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	// GIVEN
+	siName := randName("datadog")
+	yml := getWebhookMultipleUserConfigsDeniedYaml(testProject, siName)
+
+	// WHEN
+	s, err := NewSession(k8sClient, avnClient, testProject, yml)
+	require.NoError(t, err)
+
+	// THEN
+	err = s.Apply()
+	errStringExpected := `admission webhook ` +
+		`"vserviceintegration.kb.io" denied the request: ` +
+		`got additional configuration for integration type "clickhouse_postgresql"`
+	assert.EqualError(t, err, errStringExpected)
 }

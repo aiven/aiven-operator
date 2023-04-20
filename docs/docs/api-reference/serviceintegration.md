@@ -52,16 +52,18 @@ ServiceIntegrationSpec defines the desired state of ServiceIntegration.
 - [`clickhouseKafka`](#spec.clickhouseKafka-property){: name='spec.clickhouseKafka-property'} (object). Clickhouse Kafka configuration values. See below for [nested schema](#spec.clickhouseKafka).
 - [`clickhousePostgresql`](#spec.clickhousePostgresql-property){: name='spec.clickhousePostgresql-property'} (object). Clickhouse PostgreSQL configuration values. See below for [nested schema](#spec.clickhousePostgresql).
 - [`datadog`](#spec.datadog-property){: name='spec.datadog-property'} (object). Datadog specific user configuration options. See below for [nested schema](#spec.datadog).
-- [`destinationEndpointId`](#spec.destinationEndpointId-property){: name='spec.destinationEndpointId-property'} (string, Immutable). Destination endpoint for the integration (if any).
-- [`destinationServiceName`](#spec.destinationServiceName-property){: name='spec.destinationServiceName-property'} (string, Immutable). Destination service for the integration (if any).
-- [`external_aws_cloudwatch_metrics`](#spec.external_aws_cloudwatch_metrics-property){: name='spec.external_aws_cloudwatch_metrics-property'} (object). External AWS CloudWatch Metrics integration Logs configuration values. See below for [nested schema](#spec.external_aws_cloudwatch_metrics).
+- [`destinationEndpointId`](#spec.destinationEndpointId-property){: name='spec.destinationEndpointId-property'} (string, Immutable, MaxLength: 36). Destination endpoint for the integration (if any).
+- [`destinationProjectName`](#spec.destinationProjectName-property){: name='spec.destinationProjectName-property'} (string, Immutable, MaxLength: 63). Destination project for the integration (if any).
+- [`destinationServiceName`](#spec.destinationServiceName-property){: name='spec.destinationServiceName-property'} (string, Immutable, MaxLength: 64). Destination service for the integration (if any).
+- [`externalAWSCloudwatchMetrics`](#spec.externalAWSCloudwatchMetrics-property){: name='spec.externalAWSCloudwatchMetrics-property'} (object). External AWS CloudWatch Metrics integration Logs configuration values. See below for [nested schema](#spec.externalAWSCloudwatchMetrics).
 - [`kafkaConnect`](#spec.kafkaConnect-property){: name='spec.kafkaConnect-property'} (object). Kafka Connect service configuration values. See below for [nested schema](#spec.kafkaConnect).
 - [`kafkaLogs`](#spec.kafkaLogs-property){: name='spec.kafkaLogs-property'} (object). Kafka logs configuration values. See below for [nested schema](#spec.kafkaLogs).
 - [`kafkaMirrormaker`](#spec.kafkaMirrormaker-property){: name='spec.kafkaMirrormaker-property'} (object). Kafka MirrorMaker configuration values. See below for [nested schema](#spec.kafkaMirrormaker).
 - [`logs`](#spec.logs-property){: name='spec.logs-property'} (object). Logs configuration values. See below for [nested schema](#spec.logs).
 - [`metrics`](#spec.metrics-property){: name='spec.metrics-property'} (object). Metrics configuration values. See below for [nested schema](#spec.metrics).
-- [`sourceEndpointID`](#spec.sourceEndpointID-property){: name='spec.sourceEndpointID-property'} (string, Immutable). Source endpoint for the integration (if any).
-- [`sourceServiceName`](#spec.sourceServiceName-property){: name='spec.sourceServiceName-property'} (string, Immutable). Source service for the integration (if any).
+- [`sourceEndpointID`](#spec.sourceEndpointID-property){: name='spec.sourceEndpointID-property'} (string, Immutable, MaxLength: 36). Source endpoint for the integration (if any).
+- [`sourceProjectName`](#spec.sourceProjectName-property){: name='spec.sourceProjectName-property'} (string, Immutable, MaxLength: 63). Source project for the integration (if any).
+- [`sourceServiceName`](#spec.sourceServiceName-property){: name='spec.sourceServiceName-property'} (string, Immutable, MaxLength: 64). Source service for the integration (if any).
 
 ## authSecretRef {: #spec.authSecretRef }
 
@@ -184,7 +186,7 @@ Datadog Opensearch Options.
 - [`pending_task_stats_enabled`](#spec.datadog.opensearch.pending_task_stats_enabled-property){: name='spec.datadog.opensearch.pending_task_stats_enabled-property'} (boolean). Enable Datadog Opensearch Pending Task Monitoring.
 - [`pshard_stats_enabled`](#spec.datadog.opensearch.pshard_stats_enabled-property){: name='spec.datadog.opensearch.pshard_stats_enabled-property'} (boolean). Enable Datadog Opensearch Primary Shard Monitoring.
 
-## external_aws_cloudwatch_metrics {: #spec.external_aws_cloudwatch_metrics }
+## externalAWSCloudwatchMetrics {: #spec.externalAWSCloudwatchMetrics }
 
 _Appears on [`spec`](#spec)._
 
@@ -192,30 +194,30 @@ External AWS CloudWatch Metrics integration Logs configuration values.
 
 **Optional**
 
-- [`dropped_metrics`](#spec.external_aws_cloudwatch_metrics.dropped_metrics-property){: name='spec.external_aws_cloudwatch_metrics.dropped_metrics-property'} (array of objects, MaxItems: 1024). Metrics to not send to AWS CloudWatch (takes precedence over extra_metrics). See below for [nested schema](#spec.external_aws_cloudwatch_metrics.dropped_metrics).
-- [`extra_metrics`](#spec.external_aws_cloudwatch_metrics.extra_metrics-property){: name='spec.external_aws_cloudwatch_metrics.extra_metrics-property'} (array of objects, MaxItems: 1024). Metrics to allow through to AWS CloudWatch (in addition to default metrics). See below for [nested schema](#spec.external_aws_cloudwatch_metrics.extra_metrics).
+- [`dropped_metrics`](#spec.externalAWSCloudwatchMetrics.dropped_metrics-property){: name='spec.externalAWSCloudwatchMetrics.dropped_metrics-property'} (array of objects, MaxItems: 1024). Metrics to not send to AWS CloudWatch (takes precedence over extra_metrics). See below for [nested schema](#spec.externalAWSCloudwatchMetrics.dropped_metrics).
+- [`extra_metrics`](#spec.externalAWSCloudwatchMetrics.extra_metrics-property){: name='spec.externalAWSCloudwatchMetrics.extra_metrics-property'} (array of objects, MaxItems: 1024). Metrics to allow through to AWS CloudWatch (in addition to default metrics). See below for [nested schema](#spec.externalAWSCloudwatchMetrics.extra_metrics).
 
-### dropped_metrics {: #spec.external_aws_cloudwatch_metrics.dropped_metrics }
+### dropped_metrics {: #spec.externalAWSCloudwatchMetrics.dropped_metrics }
 
-_Appears on [`spec.external_aws_cloudwatch_metrics`](#spec.external_aws_cloudwatch_metrics)._
+_Appears on [`spec.externalAWSCloudwatchMetrics`](#spec.externalAWSCloudwatchMetrics)._
 
 Metrics to not send to AWS CloudWatch (takes precedence over extra_metrics).
 
 **Required**
 
-- [`field`](#spec.external_aws_cloudwatch_metrics.dropped_metrics.field-property){: name='spec.external_aws_cloudwatch_metrics.dropped_metrics.field-property'} (string, MaxLength: 1000). Identifier of a value in the metric.
-- [`metric`](#spec.external_aws_cloudwatch_metrics.dropped_metrics.metric-property){: name='spec.external_aws_cloudwatch_metrics.dropped_metrics.metric-property'} (string, MaxLength: 1000). Identifier of the metric.
+- [`field`](#spec.externalAWSCloudwatchMetrics.dropped_metrics.field-property){: name='spec.externalAWSCloudwatchMetrics.dropped_metrics.field-property'} (string, MaxLength: 1000). Identifier of a value in the metric.
+- [`metric`](#spec.externalAWSCloudwatchMetrics.dropped_metrics.metric-property){: name='spec.externalAWSCloudwatchMetrics.dropped_metrics.metric-property'} (string, MaxLength: 1000). Identifier of the metric.
 
-### extra_metrics {: #spec.external_aws_cloudwatch_metrics.extra_metrics }
+### extra_metrics {: #spec.externalAWSCloudwatchMetrics.extra_metrics }
 
-_Appears on [`spec.external_aws_cloudwatch_metrics`](#spec.external_aws_cloudwatch_metrics)._
+_Appears on [`spec.externalAWSCloudwatchMetrics`](#spec.externalAWSCloudwatchMetrics)._
 
 Metrics to allow through to AWS CloudWatch (in addition to default metrics).
 
 **Required**
 
-- [`field`](#spec.external_aws_cloudwatch_metrics.extra_metrics.field-property){: name='spec.external_aws_cloudwatch_metrics.extra_metrics.field-property'} (string, MaxLength: 1000). Identifier of a value in the metric.
-- [`metric`](#spec.external_aws_cloudwatch_metrics.extra_metrics.metric-property){: name='spec.external_aws_cloudwatch_metrics.extra_metrics.metric-property'} (string, MaxLength: 1000). Identifier of the metric.
+- [`field`](#spec.externalAWSCloudwatchMetrics.extra_metrics.field-property){: name='spec.externalAWSCloudwatchMetrics.extra_metrics.field-property'} (string, MaxLength: 1000). Identifier of a value in the metric.
+- [`metric`](#spec.externalAWSCloudwatchMetrics.extra_metrics.metric-property){: name='spec.externalAWSCloudwatchMetrics.extra_metrics.metric-property'} (string, MaxLength: 1000). Identifier of the metric.
 
 ## kafkaConnect {: #spec.kafkaConnect }
 

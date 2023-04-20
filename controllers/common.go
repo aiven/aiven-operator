@@ -100,3 +100,19 @@ func isAivenServerError(err error) bool {
 func NewAivenClient(token string) (*aiven.Client, error) {
 	return aiven.NewTokenClient(token, "k8s-operator/"+version)
 }
+
+func fromAnyPointer[T any](v *T) T {
+	if v != nil {
+		return *v
+	}
+	var t T
+	return t
+}
+
+func anyOptional[T comparable](v T) *T {
+	var zero T
+	if zero == v {
+		return nil
+	}
+	return &v
+}

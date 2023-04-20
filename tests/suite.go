@@ -44,7 +44,7 @@ type session struct {
 	k8s     client.Client
 	avn     *aiven.Client
 	ctx     context.Context
-	objs    []client.Object
+	objs    map[int]client.Object
 	project string
 }
 
@@ -53,8 +53,11 @@ func NewSession(k8s client.Client, avn *aiven.Client, project, src string) (Sess
 		k8s:     k8s,
 		avn:     avn,
 		ctx:     context.Background(),
+		objs:    make(map[int]client.Object),
 		project: project,
 	}
+
+	var objIndex int
 
 	// Creds: https://gist.github.com/pytimer/0ad436972a073bb37b8b6b8b474520fc
 	decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader([]byte(src)), yamlBufferSize)
@@ -89,7 +92,8 @@ func NewSession(k8s client.Client, avn *aiven.Client, project, src string) (Sess
 			obj.SetNamespace(defaultNamespace)
 		}
 
-		s.objs = append(s.objs, &obj)
+		s.objs[objIndex] = &obj
+		objIndex++
 	}
 	return s, nil
 }
@@ -147,13 +151,13 @@ func (s *session) Destroy() {
 	wg.Add(len(s.objs))
 
 	for i := range s.objs {
-		o := s.objs[i]
-		go func() {
+		go func(i int) {
+			o := s.objs[i]
 			defer wg.Done()
 			if err := s.delete(o); err != nil {
 				log.Printf("failed to delete %s: %s", o.GetName(), err)
 			}
-		}()
+		}(i)
 	}
 	wg.Wait()
 }
@@ -186,7 +190,7 @@ func (s *session) delete(o client.Object) error {
 	oldLen := len(s.objs)
 	for i, a := range s.objs {
 		if o.GetUID() == a.GetUID() {
-			s.objs = append(s.objs[:i], s.objs[i+1:]...)
+			delete(s.objs, i)
 			break
 		}
 	}

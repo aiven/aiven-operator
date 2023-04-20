@@ -44,11 +44,15 @@ func (h ServiceIntegrationHandler) createOrUpdate(avn *aiven.Client, i client.Ob
 		return err
 	}
 
-	var integration *aiven.ServiceIntegration
+	userConfig, err := si.GetUserConfig()
+	if err != nil {
+		return err
+	}
 
 	var reason string
+	var integration *aiven.ServiceIntegration
 	if si.Status.ID == "" {
-		userConfig, err := h.getUserConfig(si, []string{"create", "update"})
+		userConfigMap, err := UserConfigurationToAPIV2(userConfig, []string{"create", "update"})
 		if err != nil {
 			return err
 		}
@@ -56,12 +60,14 @@ func (h ServiceIntegrationHandler) createOrUpdate(avn *aiven.Client, i client.Ob
 		integration, err = avn.ServiceIntegrations.Create(
 			si.Spec.Project,
 			aiven.CreateServiceIntegrationRequest{
-				DestinationEndpointID: toOptionalStringPointer(si.Spec.DestinationEndpointID),
-				DestinationService:    toOptionalStringPointer(si.Spec.DestinationServiceName),
+				DestinationEndpointID: anyOptional(si.Spec.DestinationEndpointID),
+				DestinationService:    anyOptional(si.Spec.DestinationServiceName),
+				DestinationProject:    anyOptional(si.Spec.DestinationProjectName),
 				IntegrationType:       si.Spec.IntegrationType,
-				SourceEndpointID:      toOptionalStringPointer(si.Spec.SourceEndpointID),
-				SourceService:         toOptionalStringPointer(si.Spec.SourceServiceName),
-				UserConfig:            userConfig,
+				SourceEndpointID:      anyOptional(si.Spec.SourceEndpointID),
+				SourceService:         anyOptional(si.Spec.SourceServiceName),
+				SourceProject:         anyOptional(si.Spec.SourceProjectName),
+				UserConfig:            userConfigMap,
 			},
 		)
 		if err != nil {
@@ -70,7 +76,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(avn *aiven.Client, i client.Ob
 
 		reason = "Created"
 	} else {
-		userConfig, err := h.getUserConfig(si, []string{"update"})
+		userConfigMap, err := UserConfigurationToAPIV2(userConfig, []string{"update"})
 		if err != nil {
 			return err
 		}
@@ -79,7 +85,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(avn *aiven.Client, i client.Ob
 			si.Spec.Project,
 			si.Status.ID,
 			aiven.UpdateServiceIntegrationRequest{
-				UserConfig: userConfig,
+				UserConfig: userConfigMap,
 			},
 		)
 		reason = "Updated"
@@ -145,17 +151,31 @@ func (h ServiceIntegrationHandler) checkPreconditions(avn *aiven.Client, i clien
 	meta.SetStatusCondition(&si.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	sourceCheck, err := checkServiceIsRunning(avn, si.Spec.Project, si.Spec.SourceServiceName)
-	if err != nil {
-		return false, err
+	// todo: validate SourceEndpointID, DestinationEndpointID when ServiceIntegrationEndpoint kind released
+
+	if si.Spec.SourceServiceName != "" {
+		project := si.Spec.SourceProjectName
+		if project == "" {
+			project = si.Spec.Project
+		}
+		running, err := checkServiceIsRunning(avn, project, si.Spec.SourceServiceName)
+		if !running || err != nil {
+			return false, err
+		}
 	}
 
-	destinationCheck, err := checkServiceIsRunning(avn, si.Spec.Project, si.Spec.DestinationServiceName)
-	if err != nil {
-		return false, err
+	if si.Spec.DestinationServiceName != "" {
+		project := si.Spec.DestinationProjectName
+		if project == "" {
+			project = si.Spec.Project
+		}
+		running, err := checkServiceIsRunning(avn, project, si.Spec.DestinationServiceName)
+		if !running || err != nil {
+			return false, err
+		}
 	}
 
-	return sourceCheck && destinationCheck, nil
+	return true, nil
 }
 
 func (h ServiceIntegrationHandler) convert(i client.Object) (*v1alpha1.ServiceIntegration, error) {
@@ -165,27 +185,4 @@ func (h ServiceIntegrationHandler) convert(i client.Object) (*v1alpha1.ServiceIn
 	}
 
 	return si, nil
-}
-
-func (h ServiceIntegrationHandler) getUserConfig(int *v1alpha1.ServiceIntegration, groups []string) (map[string]interface{}, error) {
-	switch int.Spec.IntegrationType {
-	case "datadog":
-		return UserConfigurationToAPIV2(int.Spec.DatadogUserConfig, groups)
-	case "kafka_connect":
-		return UserConfigurationToAPIV2(int.Spec.KafkaConnectUserConfig, groups)
-	case "kafka_logs":
-		return UserConfigurationToAPIV2(int.Spec.KafkaLogsUserConfig, groups)
-	case "metrics":
-		return UserConfigurationToAPIV2(int.Spec.MetricsUserConfig, groups)
-	case "clickhouse_kafka":
-		return UserConfigurationToAPIV2(int.Spec.ClickhouseKafkaUserConfig, groups)
-	case "clickhouse_postgresql":
-		return UserConfigurationToAPIV2(int.Spec.ClickhousePostgreSQLUserConfig, groups)
-	case "kafka_mirrormaker":
-		return UserConfigurationToAPIV2(int.Spec.KafkaMirrormakerUserConfig, groups)
-	case "logs":
-		return UserConfigurationToAPIV2(int.Spec.LogsUserConfig, groups)
-	default:
-		return nil, nil
-	}
 }
