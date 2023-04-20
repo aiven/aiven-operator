@@ -63,8 +63,8 @@ github.com/Azure/go-autorest/tracing v0.6.0/go.mod h1:+vhtPC754Xsa23ID7GlGsrdKBp
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
-github.com/aiven/aiven-go-client v1.7.1-0.20230322225521-95b16e6cdbe8 h1:mjgonhRTE4qgfdY1DZq2m3VI0QpT3fMYTvZrw6QoNNA=
-github.com/aiven/aiven-go-client v1.7.1-0.20230322225521-95b16e6cdbe8/go.mod h1:Eo0leGt6XAYlFXW3xtxsldToZ/FtBE5xdjpqY+PhYJI=
+github.com/aiven/aiven-go-client v1.12.0 h1:MkPAo1wzCESXTK9jgA320dSF+FGTHpslQl9TzJtBRdo=
+github.com/aiven/aiven-go-client v1.12.0/go.mod h1:3Hh1PDNcqNNCYrkU/jSAHMV/b/ynoy73fwhBPKnMe6I=
 github.com/aiven/go-api-schemas v1.2.0 h1:ClrMKLIMaVWmfzPAqJs5Kea4FIhQ5MJvW9ptkOykifU=
 github.com/aiven/go-api-schemas v1.2.0/go.mod h1:RmQ8MfxwxAP2ji9eJtP6dICOaTMcQD9b5aQT3Bp7uzI=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
