@@ -33,8 +33,50 @@ As of now, we only support integration tests who interact directly with Aiven. T
 an [Aiven account](https://console.aiven.io/signup?utm_source=github&utm_medium=organic&utm_campaign=k8s-operator&utm_content=signup)
 and an [Aiven authentication code](https://help.aiven.io/en/articles/2059201-authentication-tokens).
 
+### Prerequisites
+
+Please have installed first:
+
+- docker/podman
+- [helm](https://helm.sh/)
+- [Aiven CLI](https://docs.aiven.io/docs/tools/cli) (make sure you have logged in)
+- [jq](https://stedolan.github.io/jq/)
+- [kcat](https://github.com/edenhill/kcat)
+- base64, note: MACOS version doesn't support `-w0` flag, some tests may not work properly
+- [kind](https://kind.sigs.k8s.io/), and existing cluster, e.g.
+    ```shell
+     kind create cluster --image kindest/node:v1.24.0 --wait 5m
+    ```
+
+The following commands must be executed with these environment variables (keep them in secret!):
+
+- `AIVEN_TOKEN` — your [authentication token](https://docs.aiven.io/docs/platform/howto/create_authentication_token) 
+- `AIVEN_PROJECT_NAME` — your Aiven project name to run services in
+
+Setup everything:
+
 ```shell
-make test-acc AIVEN_PROJECT_NAME="<your-project-name>" AIVEN_TOKEN="<your-token>"
+make e2e-setup-kind
+```
+
+!!! note
+    Additionally, webhooks can be disabled, 
+    if there are any problems with them.
+
+    ```shell
+    WEBHOOKS_ENABLED=false make e2e-setup-kind
+    ```
+
+Run e2e tests (creates real services in `AIVEN_PROJECT_NAME`):
+
+```shell
+make test-e2e-preinstalled 
+```
+
+When you're done, just drop the cluster:
+
+```shell
+kind delete cluster
 ```
 
 ## Documentation
