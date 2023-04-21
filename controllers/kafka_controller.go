@@ -66,11 +66,6 @@ func (a *kafkaAdapter) getUserConfig() any {
 }
 
 func (a *kafkaAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
-	name := a.Spec.ConnInfoSecretTarget.Name
-	if name == "" {
-		name = a.Name
-	}
-
 	var userName, password string
 	if len(s.Users) > 0 {
 		userName = s.Users[0].Username
@@ -92,17 +87,7 @@ func (a *kafkaAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
 		"CA_CERT":     caCert,
 	}
 
-	// Removes empties
-	for k, v := range stringData {
-		if v == "" {
-			delete(stringData, k)
-		}
-	}
-
-	return &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: a.Namespace},
-		StringData: stringData,
-	}, nil
+	return newSecret(a, a.Spec.ConnInfoSecretTarget, stringData), nil
 }
 
 func (a *kafkaAdapter) getServiceType() string {

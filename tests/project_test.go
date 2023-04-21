@@ -1,14 +1,11 @@
 package tests
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
@@ -64,8 +61,7 @@ func TestProject(t *testing.T) {
 	assert.Equal(t, "aws-eu-west-1", project.Spec.Cloud)
 
 	// Validates Secret
-	ctx := context.Background()
-	secret := new(corev1.Secret)
-	require.NoError(t, k8sClient.Get(ctx, types.NamespacedName{Name: name, Namespace: "default"}, secret))
+	secret, err := s.GetSecret(project.GetName())
+	require.NoError(t, err)
 	assert.NotEmpty(t, secret.Data["CA_CERT"])
 }

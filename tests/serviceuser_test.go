@@ -1,14 +1,11 @@
 package tests
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
@@ -38,6 +35,13 @@ spec:
   authSecretRef:
     name: aiven-token
     key: token
+
+  connInfoSecretTarget:
+    name: my-service-user-secret
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
 
   project: %[1]s
   serviceName: %[2]s
@@ -87,9 +91,8 @@ func TestServiceUser(t *testing.T) {
 	assert.Equal(t, pgName, user.Spec.ServiceName)
 
 	// Validates Secret
-	ctx := context.Background()
-	secret := new(corev1.Secret)
-	require.NoError(t, k8sClient.Get(ctx, types.NamespacedName{Name: userName, Namespace: "default"}, secret))
+	secret, err := s.GetSecret("my-service-user-secret")
+	require.NoError(t, err)
 	assert.NotEmpty(t, secret.Data["HOST"])
 	assert.NotEmpty(t, secret.Data["PORT"])
 	assert.NotEmpty(t, secret.Data["USERNAME"])
@@ -97,6 +100,8 @@ func TestServiceUser(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["CA_CERT"])
 	assert.Contains(t, secret.Data, "ACCESS_CERT")
 	assert.Contains(t, secret.Data, "ACCESS_KEY")
+	assert.Equal(t, map[string]string{"foo": "bar"}, secret.Annotations)
+	assert.Equal(t, map[string]string{"baz": "egg"}, secret.Labels)
 
 	// We need to validate deletion,
 	// because we can get false positive here:

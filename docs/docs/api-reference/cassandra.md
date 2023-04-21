@@ -16,6 +16,10 @@ spec:
 
   connInfoSecretTarget:
     name: cassandra-secret
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
 
   project: aiven-project-name
   cloudName: google-europe-west1
@@ -91,6 +95,11 @@ Information regarding secret creation.
 **Required**
 
 - [`name`](#spec.connInfoSecretTarget.name-property){: name='spec.connInfoSecretTarget.name-property'} (string). Name of the secret resource to be created. By default, is equal to the resource name.
+
+**Optional**
+
+- [`annotations`](#spec.connInfoSecretTarget.annotations-property){: name='spec.connInfoSecretTarget.annotations-property'} (object, AdditionalProperties: string). Annotations added to the secret.
+- [`labels`](#spec.connInfoSecretTarget.labels-property){: name='spec.connInfoSecretTarget.labels-property'} (object, AdditionalProperties: string). Labels added to the secret.
 
 ## projectVPCRef {: #spec.projectVPCRef }
 

@@ -1,14 +1,11 @@
 package tests
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	kafkauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/kafka"
@@ -102,9 +99,8 @@ func TestKafka(t *testing.T) {
 	assert.Equal(t, ipFilterAvn, ks.Spec.UserConfig.IpFilter)
 
 	// Secrets test
-	ctx := context.Background()
-	secret := new(corev1.Secret)
-	require.NoError(t, k8sClient.Get(ctx, types.NamespacedName{Name: name, Namespace: "default"}, secret))
+	secret, err := s.GetSecret(ks.GetName())
+	require.NoError(t, err)
 	assert.NotEmpty(t, secret.Data["HOST"])
 	assert.NotEmpty(t, secret.Data["PORT"])
 	assert.NotEmpty(t, secret.Data["USERNAME"])

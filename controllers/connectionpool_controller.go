@@ -142,21 +142,17 @@ func (h ConnectionPoolHandler) get(avn *aiven.Client, i client.Object) (*corev1.
 			"Instance is running on Aiven side"))
 
 	if len(connPool.Spec.Username) == 0 {
-		return &corev1.Secret{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      h.getSecretName(connPool),
-				Namespace: connPool.Namespace,
-			},
-			StringData: map[string]string{
-				"PGHOST":       s.URIParams["host"],
-				"PGPORT":       s.URIParams["port"],
-				"PGDATABASE":   cp.Database,
-				"PGUSER":       s.URIParams["user"],
-				"PGPASSWORD":   s.URIParams["password"],
-				"PGSSLMODE":    s.URIParams["sslmode"],
-				"DATABASE_URI": cp.ConnectionURI,
-			},
-		}, nil
+		stringData := map[string]string{
+			"PGHOST":       s.URIParams["host"],
+			"PGPORT":       s.URIParams["port"],
+			"PGDATABASE":   cp.Database,
+			"PGUSER":       s.URIParams["user"],
+			"PGPASSWORD":   s.URIParams["password"],
+			"PGSSLMODE":    s.URIParams["sslmode"],
+			"DATABASE_URI": cp.ConnectionURI,
+		}
+
+		return newSecret(connPool, connPool.Spec.ConnInfoSecretTarget, stringData), nil
 	}
 
 	u, err := avn.ServiceUsers.Get(connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Spec.Username)
@@ -164,21 +160,16 @@ func (h ConnectionPoolHandler) get(avn *aiven.Client, i client.Object) (*corev1.
 		return nil, fmt.Errorf("cannot get user: %w", err)
 	}
 
-	return &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      h.getSecretName(connPool),
-			Namespace: connPool.Namespace,
-		},
-		StringData: map[string]string{
-			"PGHOST":       s.URIParams["host"],
-			"PGPORT":       s.URIParams["port"],
-			"PGDATABASE":   cp.Database,
-			"PGUSER":       cp.Username,
-			"PGPASSWORD":   u.Password,
-			"PGSSLMODE":    s.URIParams["sslmode"],
-			"DATABASE_URI": cp.ConnectionURI,
-		},
-	}, nil
+	stringData := map[string]string{
+		"PGHOST":       s.URIParams["host"],
+		"PGPORT":       s.URIParams["port"],
+		"PGDATABASE":   cp.Database,
+		"PGUSER":       cp.Username,
+		"PGPASSWORD":   u.Password,
+		"PGSSLMODE":    s.URIParams["sslmode"],
+		"DATABASE_URI": cp.ConnectionURI,
+	}
+	return newSecret(connPool, connPool.Spec.ConnInfoSecretTarget, stringData), nil
 }
 
 func (h ConnectionPoolHandler) checkPreconditions(avn *aiven.Client, i client.Object) (bool, error) {
@@ -214,11 +205,4 @@ func (h ConnectionPoolHandler) convert(i client.Object) (*v1alpha1.ConnectionPoo
 	}
 
 	return cp, nil
-}
-
-func (h ConnectionPoolHandler) getSecretName(cp *v1alpha1.ConnectionPool) string {
-	if cp.Spec.ConnInfoSecretTarget.Name != "" {
-		return cp.Spec.ConnInfoSecretTarget.Name
-	}
-	return cp.Name
 }

@@ -9,6 +9,10 @@ spec:
 
   connInfoSecretTarget:
     name: postgresql-secret
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
 
   project: aiven-project-name
   cloudName: google-europe-west1

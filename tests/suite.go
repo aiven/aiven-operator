@@ -14,6 +14,7 @@ import (
 
 	"github.com/aiven/aiven-go-client"
 	"golang.org/x/sync/errgroup"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer/yaml"
@@ -34,6 +35,7 @@ const (
 type Session interface {
 	Apply() error
 	GetRunning(obj client.Object, keys ...string) error
+	GetSecret(keys ...string) (*corev1.Secret, error)
 	Destroy()
 	Delete(o client.Object, exists func() error) error
 }
@@ -112,23 +114,13 @@ func (s *session) Apply() error {
 }
 
 func (s *session) GetRunning(obj client.Object, keys ...string) error {
-	var name, namespace string
-	switch len(keys) {
-	case 1:
-		name = keys[0]
-		namespace = defaultNamespace
-	case 2: //nolint:gomnd
-		name = keys[0]
-		namespace = keys[1]
-	default:
-		return fmt.Errorf("provide name or/and namespace")
+	key, err := getNamespacedName(keys...)
+	if err != nil {
+		return err
 	}
-
-	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, waitRunningTimeout)
+	ctx, cancel := context.WithTimeout(s.ctx, waitRunningTimeout)
 	defer cancel()
 
-	key := types.NamespacedName{Name: name, Namespace: namespace}
 	return retryForever(ctx, func() (bool, error) {
 		err := s.k8s.Get(ctx, key, obj)
 		if err != nil {
@@ -140,6 +132,20 @@ func (s *session) GetRunning(obj client.Object, keys ...string) error {
 		}
 		return !controllers.IsAlreadyRunning(obj), nil
 	})
+}
+
+func (s *session) GetSecret(keys ...string) (*corev1.Secret, error) {
+	key, err := getNamespacedName(keys...)
+	if err != nil {
+		return nil, err
+	}
+
+	secret := new(corev1.Secret)
+	err = s.k8s.Get(s.ctx, key, secret)
+	if err != nil {
+		return nil, err
+	}
+	return secret, nil
 }
 
 func (s *session) Destroy() {
@@ -263,4 +269,19 @@ func castInterface(in, out any) error {
 		return err
 	}
 	return json.Unmarshal(b, out)
+}
+
+func getNamespacedName(keys ...string) (types.NamespacedName, error) {
+	var name, namespace string
+	switch len(keys) {
+	case 1:
+		name = keys[0]
+		namespace = defaultNamespace
+	case 2: //nolint:gomnd
+		name = keys[0]
+		namespace = keys[1]
+	default:
+		return types.NamespacedName{}, fmt.Errorf("provide name or/and namespace")
+	}
+	return types.NamespacedName{Name: name, Namespace: namespace}, nil
 }

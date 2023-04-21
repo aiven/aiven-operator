@@ -8,6 +8,7 @@
 - Fix `ServiceIntegration`, should not require `destinationServiceName` or `sourceEndpointID` field
 - Fix `ServiceIntegration`, add missing `external_aws_cloudwatch_metrics` type config serialization
 - Update `ServiceIntegration` integration type list
+- Add `annotations` and `labels` fields to `connInfoSecretTarget`
 
 ## v0.10.0 - 2023-04-17
 

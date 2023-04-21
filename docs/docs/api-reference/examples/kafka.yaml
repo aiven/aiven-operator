@@ -9,6 +9,10 @@ spec:
 
   connInfoSecretTarget:
     name: kafka-secret
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
 
   project: my-aiven-project
   cloudName: google-europe-west1

@@ -14,6 +14,8 @@ const (
 	// dstDirPath CRDs docs location to export to
 	dstDirPath  = "./docs/docs/api-reference/"
 	examplesDir = dstDirPath + "examples"
+	// allCRDYaml contains all crds, should ignore
+	allCRDYaml = "aiven.io_crd-all.gen.yaml"
 )
 
 func main() {
@@ -34,7 +36,11 @@ func generate(srcDir, dstDir string) error {
 			continue
 		}
 
-		kind, err := parseSchema(path.Join(srcDir, entry.Name()), dstDir, examplesDir)
+		if entry.Name() == allCRDYaml {
+			continue
+		}
+
+		kind, err := parseSchema(path.Join(srcDir, entry.Name()), examplesDir)
 		if err != nil {
 			return fmt.Errorf("%q generation error: %w", entry.Name(), err)
 		}

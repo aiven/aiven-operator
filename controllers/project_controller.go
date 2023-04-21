@@ -167,15 +167,10 @@ func (h ProjectHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret,
 
 	metav1.SetMetaDataAnnotation(&project.ObjectMeta, instanceIsRunningAnnotation, "true")
 
-	return &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      h.getSecretName(project),
-			Namespace: project.Namespace,
-		},
-		StringData: map[string]string{
-			"CA_CERT": cert,
-		},
-	}, nil
+	stringData := map[string]string{
+		"CA_CERT": cert,
+	}
+	return newSecret(project, project.Spec.ConnInfoSecretTarget, stringData), nil
 }
 
 // exists checks if project already exists on Aiven side
@@ -218,13 +213,6 @@ func (h ProjectHandler) delete(avn *aiven.Client, i client.Object) (bool, error)
 	}
 
 	return true, nil
-}
-
-func (h ProjectHandler) getSecretName(project *v1alpha1.Project) string {
-	if project.Spec.ConnInfoSecretTarget.Name != "" {
-		return project.Spec.ConnInfoSecretTarget.Name
-	}
-	return project.Name
 }
 
 func (h ProjectHandler) convert(i client.Object) (*v1alpha1.Project, error) {
