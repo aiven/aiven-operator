@@ -43,7 +43,7 @@ ServiceIntegrationSpec defines the desired state of ServiceIntegration.
 
 **Required**
 
-- [`integrationType`](#spec.integrationType-property){: name='spec.integrationType-property'} (string, Enum: `datadog`, `kafka_logs`, `kafka_connect`, `metrics`, `dashboard`, `rsyslog`, `read_replica`, `schema_registry_proxy`, `jolokia`, `internal_connectivity`, `external_google_cloud_logging`, `datasource`, `clickhouse_postgresql`, `clickhouse_kafka`, `logs`, `external_aws_cloudwatch_metrics`, Immutable). Type of the service integration.
+- [`integrationType`](#spec.integrationType-property){: name='spec.integrationType-property'} (string, Enum: `alertmanager`, `autoscaler`, `caching`, `cassandra_cross_service_cluster`, `clickhouse_kafka`, `clickhouse_postgresql`, `dashboard`, `datadog`, `datasource`, `external_aws_cloudwatch_logs`, `external_aws_cloudwatch_metrics`, `external_elasticsearch_logs`, `external_google_cloud_logging`, `external_opensearch_logs`, `flink`, `flink_external_kafka`, `internal_connectivity`, `jolokia`, `kafka_connect`, `kafka_logs`, `kafka_mirrormaker`, `logs`, `m3aggregator`, `m3coordinator`, `metrics`, `opensearch_cross_cluster_replication`, `opensearch_cross_cluster_search`, `prometheus`, `read_replica`, `rsyslog`, `schema_registry_proxy`, `stresstester`, `thanosquery`, `thanosstore`, `vmalert`, Immutable). Type of the service integration accepted by Aiven API. Some values may not be supported by the operator.
 - [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63). Project the integration belongs to.
 
 **Optional**
