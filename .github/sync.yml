@@ -1,0 +1,7 @@
+aiven/aiven-charts:
+  - source: charts/aiven-operator/
+    dest: charts/aiven-operator/
+    deleteOrphaned: true
+  - source: charts/aiven-operator-crds/
+    dest: charts/aiven-operator-crds/
+    deleteOrphaned: true
