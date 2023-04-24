@@ -32,6 +32,8 @@ type ConnInfoSecretTarget struct {
 	// +kubebuilder:pruning:PreserveUnknownFields
 	// Labels added to the secret
 	Labels map[string]string `json:"labels,omitempty"`
+	// Prefix added to all secret's keys
+	Prefix string `json:"prefix,omitempty"`
 }
 
 // ServiceStatus defines the observed state of service
