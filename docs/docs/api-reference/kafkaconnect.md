@@ -17,6 +17,7 @@ spec:
   project: my-aiven-project
   cloudName: google-europe-west1
   plan: business-4
+
   userConfig:
     kafka_connect:
       consumer_isolation_level: read_committed

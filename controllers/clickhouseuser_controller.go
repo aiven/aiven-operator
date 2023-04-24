@@ -113,19 +113,14 @@ func (h *clickhouseUserHandler) get(avn *aiven.Client, obj client.Object) (*core
 		return nil, err
 	}
 
-	params := s.URIParams
-	secret := &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      h.getSecretName(user),
-			Namespace: user.Namespace,
-		},
-		StringData: map[string]string{
-			"HOST":     params["host"],
-			"PORT":     params["port"],
-			"PASSWORD": password,
-			"USERNAME": user.Name,
-		},
+	stringData := map[string]string{
+		"HOST":     s.URIParams["host"],
+		"PORT":     s.URIParams["port"],
+		"PASSWORD": password,
+		"USERNAME": user.Name,
 	}
+
+	secret := newSecret(user, user.Spec.ConnInfoSecretTarget, stringData)
 
 	meta.SetStatusCondition(&user.Status.Conditions,
 		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
@@ -153,13 +148,6 @@ func (h *clickhouseUserHandler) convert(i client.Object) (*v1alpha1.ClickhouseUs
 		return nil, fmt.Errorf("cannot convert object to ClickhouseUser")
 	}
 	return user, nil
-}
-
-func (h *clickhouseUserHandler) getSecretName(user *v1alpha1.ClickhouseUser) string {
-	if user.Spec.ConnInfoSecretTarget.Name != "" {
-		return user.Spec.ConnInfoSecretTarget.Name
-	}
-	return user.Name
 }
 
 const maxUserPasswordLength = 24

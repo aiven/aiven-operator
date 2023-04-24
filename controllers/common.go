@@ -6,11 +6,14 @@ import (
 	"net/http"
 	"strconv"
 
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/aiven/aiven-go-client"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 const (
@@ -115,4 +118,22 @@ func anyOptional[T comparable](v T) *T {
 		return nil
 	}
 	return &v
+}
+
+func newSecret(o client.Object, target v1alpha1.ConnInfoSecretTarget, stringData map[string]string) *corev1.Secret {
+	meta := metav1.ObjectMeta{
+		Name:        o.GetName(),
+		Namespace:   o.GetNamespace(),
+		Annotations: target.Annotations,
+		Labels:      target.Labels,
+	}
+
+	if target.Name != "" {
+		meta.Name = target.Name
+	}
+
+	return &corev1.Secret{
+		ObjectMeta: meta,
+		StringData: stringData,
+	}
 }

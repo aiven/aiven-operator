@@ -26,6 +26,12 @@ type AuthSecretReference struct {
 type ConnInfoSecretTarget struct {
 	// Name of the secret resource to be created. By default, is equal to the resource name
 	Name string `json:"name"`
+	// +kubebuilder:pruning:PreserveUnknownFields
+	// Annotations added to the secret
+	Annotations map[string]string `json:"annotations,omitempty"`
+	// +kubebuilder:pruning:PreserveUnknownFields
+	// Labels added to the secret
+	Labels map[string]string `json:"labels,omitempty"`
 }
 
 // ServiceStatus defines the observed state of service

@@ -65,11 +65,6 @@ func (a *postgresSQLAdapter) getUserConfig() any {
 }
 
 func (a *postgresSQLAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
-	name := a.Spec.ConnInfoSecretTarget.Name
-	if name == "" {
-		name = a.Name
-	}
-
 	stringData := map[string]string{
 		"PGHOST":       s.URIParams["host"],
 		"PGPORT":       s.URIParams["port"],
@@ -80,17 +75,7 @@ func (a *postgresSQLAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error)
 		"DATABASE_URI": s.URI,
 	}
 
-	// Removes empties
-	for k, v := range stringData {
-		if v == "" {
-			delete(stringData, k)
-		}
-	}
-
-	return &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: a.Namespace},
-		StringData: stringData,
-	}, nil
+	return newSecret(a, a.Spec.ConnInfoSecretTarget, stringData), nil
 }
 
 func (a *postgresSQLAdapter) getServiceType() string {

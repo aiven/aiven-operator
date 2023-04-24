@@ -24,7 +24,7 @@ const (
 var emptyLinesRe = regexp.MustCompile(`\n{2,}`)
 
 // parseSchema creates documentation out of CRD
-func parseSchema(srcFile, dstDir, examplesDir string) (*schemaType, error) {
+func parseSchema(srcFile, examplesDir string) (*schemaType, error) {
 	crdData, err := os.ReadFile(srcFile)
 	if err != nil {
 		return nil, err

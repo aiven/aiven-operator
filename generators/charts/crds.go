@@ -10,6 +10,9 @@ import (
 	cp "github.com/otiai10/copy"
 )
 
+// allCRDYaml contains all crds
+const allCRDYaml = "aiven.io_crd-all.gen.yaml"
+
 // copyCRDs copies CRDs, like MySQL, Postgres, etc
 func copyCRDs(operatorPath, crdCharts string) error {
 	srcCRDs := path.Join(operatorPath, "config/crd/bases/")
@@ -20,7 +23,7 @@ func copyCRDs(operatorPath, crdCharts string) error {
 	}
 
 	// No need this one
-	_ = os.Remove(path.Join(dstCRDs, "aiven.io_crd-all.gen.yaml"))
+	_ = os.Remove(path.Join(dstCRDs, allCRDYaml))
 	return filepath.Walk(dstCRDs, fixCRD)
 }
 

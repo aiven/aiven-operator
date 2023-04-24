@@ -1,14 +1,11 @@
 package tests
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
@@ -126,10 +123,9 @@ func TestPgReadReplica(t *testing.T) {
 	assert.Equal(t, anyPointer(true), replica.Spec.UserConfig.PublicAccess.Pg)
 
 	// Secrets test
-	ctx := context.Background()
-	for _, name := range []string{masterName, replicaName} {
-		secret := new(corev1.Secret)
-		require.NoError(t, k8sClient.Get(ctx, types.NamespacedName{Name: name, Namespace: "default"}, secret))
+	for _, o := range []*v1alpha1.PostgreSQL{master, replica} {
+		secret, err := s.GetSecret(o.GetName())
+		require.NoError(t, err)
 		assert.NotEmpty(t, secret.Data["PGHOST"])
 		assert.NotEmpty(t, secret.Data["PGPORT"])
 		assert.NotEmpty(t, secret.Data["PGDATABASE"])

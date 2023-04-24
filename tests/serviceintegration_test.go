@@ -23,9 +23,6 @@ spec:
     name: aiven-token
     key: token
 
-  connInfoSecretTarget:
-    name: ch-token
-
   project: %[1]s
   cloudName: google-europe-west1
   plan: startup-16
@@ -42,9 +39,6 @@ spec:
   authSecretRef:
     name: aiven-token
     key: token
-
-  connInfoSecretTarget:
-    name: pg-token
 
   project: %[1]s
   cloudName: google-europe-west1
