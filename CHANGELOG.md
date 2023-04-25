@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.11.0 - 2023-04-25
+
 - Add `ServiceIntegration` kind `SourceProjectName` and `DestinationProjectName` fields
 - Add `ServiceIntegration` fields `MaxLength` validation
 - Add `ServiceIntegration` validation: multiple user configs cannot be set
@@ -9,6 +11,8 @@
 - Fix `ServiceIntegration`, add missing `external_aws_cloudwatch_metrics` type config serialization
 - Update `ServiceIntegration` integration type list
 - Add `annotations` and `labels` fields to `connInfoSecretTarget`
+- Allow to disable capabilities check to install webhooks. Thanks to @amstee
+- Set `OpenSearch.spec.userConfig.opensearch.search_max_buckets` maximum to `65536`
 
 ## v0.10.0 - 2023-04-17
 
