@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"math/rand"
+	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
@@ -46,20 +47,12 @@ type session struct {
 	k8s     client.Client
 	avn     *aiven.Client
 	ctx     context.Context
-	objs    map[int]client.Object
+	objs    map[string]client.Object
 	project string
 }
 
 func NewSession(k8s client.Client, avn *aiven.Client, project, src string) (Session, error) {
-	s := &session{
-		k8s:     k8s,
-		avn:     avn,
-		ctx:     context.Background(),
-		objs:    make(map[int]client.Object),
-		project: project,
-	}
-
-	var objIndex int
+	objs := make(map[string]client.Object)
 
 	// Creds: https://gist.github.com/pytimer/0ad436972a073bb37b8b6b8b474520fc
 	decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader([]byte(src)), yamlBufferSize)
@@ -89,13 +82,24 @@ func NewSession(k8s client.Client, avn *aiven.Client, project, src string) (Sess
 			return nil, fmt.Errorf("failed to convert to unstructured map %s", err)
 		}
 
-		obj := unstructured.Unstructured{Object: uMap}
-		if obj.GetNamespace() == "" {
-			obj.SetNamespace(defaultNamespace)
+		o := unstructured.Unstructured{Object: uMap}
+		if o.GetNamespace() == "" {
+			o.SetNamespace(defaultNamespace)
 		}
 
-		s.objs[objIndex] = &obj
-		objIndex++
+		n := o.GetName()
+		if _, ok := objs[n]; ok {
+			return nil, fmt.Errorf("resource name %q is not unique", n)
+		}
+		objs[n] = &o
+	}
+
+	s := &session{
+		k8s:     k8s,
+		avn:     avn,
+		ctx:     context.Background(),
+		objs:    objs,
+		project: project,
 	}
 	return s, nil
 }
@@ -103,10 +107,12 @@ func NewSession(k8s client.Client, avn *aiven.Client, project, src string) (Sess
 func (s *session) Apply() error {
 	ctx, cancel := context.WithTimeout(s.ctx, createTimeout)
 	defer cancel()
+
 	var g errgroup.Group
-	for i := range s.objs {
-		o := s.objs[i]
+	for n := range s.objs {
+		o := s.objs[n]
 		g.Go(func() error {
+			defer s.recover()
 			return s.k8s.Create(ctx, o)
 		})
 	}
@@ -148,22 +154,21 @@ func (s *session) GetSecret(keys ...string) (*corev1.Secret, error) {
 	return secret, nil
 }
 
+// Destroy deletes all applied resources.
+// Tolerant to "not found" error,
+// because resource may have been deleted manually
 func (s *session) Destroy() {
-	if len(s.objs) == 0 {
-		return
-	}
-
 	var wg sync.WaitGroup
 	wg.Add(len(s.objs))
-
-	for i := range s.objs {
-		go func(i int) {
-			o := s.objs[i]
+	for n := range s.objs {
+		go func(n string) {
 			defer wg.Done()
-			if err := s.delete(o); err != nil {
-				log.Printf("failed to delete %s: %s", o.GetName(), err)
+			defer s.recover()
+			err := s.delete(s.objs[n])
+			if !(err == nil || isNotFound(err)) {
+				log.Printf("failed to delete %q: %s", n, err)
 			}
-		}(i)
+		}(n)
 	}
 	wg.Wait()
 }
@@ -189,20 +194,9 @@ func (s *session) Delete(o client.Object, exists func() error) error {
 // delete deletes object from kube, and makes sure it is not there anymore
 // Removes from applied list to not delete object on Destroy()
 func (s *session) delete(o client.Object) error {
-	if o.GetUID() == "" {
-		return fmt.Errorf("object %s has no UID to delete by", o.GetName())
-	}
-
-	oldLen := len(s.objs)
-	for i, a := range s.objs {
-		if o.GetUID() == a.GetUID() {
-			delete(s.objs, i)
-			break
-		}
-	}
-
-	if oldLen == len(s.objs) {
-		return fmt.Errorf("object not applied: %s", o.GetName())
+	_, ok := s.objs[o.GetName()]
+	if !ok {
+		return fmt.Errorf("resource %q not applied", o.GetName())
 	}
 
 	err := s.k8s.Delete(s.ctx, o)
@@ -216,6 +210,14 @@ func (s *session) delete(o client.Object) error {
 		err := s.k8s.Get(s.ctx, key, o)
 		return !isNotFound(err), nil
 	})
+}
+
+func (s *session) recover() {
+	err := recover()
+	if err != nil {
+		log.Printf("panicked: %s", err)
+		log.Printf("stacktrace: \n%s", string(debug.Stack()))
+	}
 }
 
 func retryForever(ctx context.Context, f func() (bool, error)) (err error) {

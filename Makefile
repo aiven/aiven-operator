@@ -123,7 +123,7 @@ test-e2e-preinstalled:
 
 test: envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" \
-	go test ./tests/... -run=$(run) -v -timeout 42m -parallel 10 -cover -coverpkg=./controllers -covermode=count -coverprofile=coverage.out
+	go test ./tests/... -race -run=$(run) -v -timeout 42m -parallel 10 -cover -coverpkg=./controllers -covermode=atomic -coverprofile=coverage.out
 
 ##@ Build
 
