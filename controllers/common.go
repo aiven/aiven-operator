@@ -135,7 +135,7 @@ func newSecret(o client.Object, target v1alpha1.ConnInfoSecretTarget, stringData
 	if target.Prefix != "" {
 		stringData_prefix := make(map[string]string)
 		for key, data := range stringData {
-			stringData_prefix[target.Prefix + key] = data
+			stringData_prefix[target.Prefix+key] = data
 		}
 		stringData = stringData_prefix
 	}
