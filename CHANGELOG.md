@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.11.0 - 2023-04-25
+
 - Add `ServiceIntegration` kind `SourceProjectName` and `DestinationProjectName` fields
 - Add `ServiceIntegration` fields `MaxLength` validation
 - Add `ServiceIntegration` validation: multiple user configs cannot be set
