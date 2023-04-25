@@ -138,7 +138,7 @@ type Opensearch struct {
 	ScriptMaxCompilationsRate *string `groups:"create,update" json:"script_max_compilations_rate,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
-	// +kubebuilder:validation:Maximum=20000
+	// +kubebuilder:validation:Maximum=65536
 	// Maximum number of aggregation buckets allowed in a single response. OpenSearch default value is used when this is not defined.
 	SearchMaxBuckets *int `groups:"create,update" json:"search_max_buckets,omitempty"`
 
