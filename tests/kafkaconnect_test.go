@@ -11,7 +11,7 @@ import (
 	kafkaconnectuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/kafka_connect"
 )
 
-func getKafkaConnectYaml(project, name string) string {
+func getKafkaConnectYaml(project, name, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: KafkaConnect
@@ -27,7 +27,7 @@ spec:
     instance: foo
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[3]s
   plan: business-4
   
   userConfig:
@@ -39,7 +39,7 @@ spec:
       - network: 0.0.0.0/32
         description: bar
       - network: 10.20.0.0/16
-`, project, name)
+`, project, name, cloudName)
 }
 
 func TestKafkaConnect(t *testing.T) {
@@ -48,7 +48,7 @@ func TestKafkaConnect(t *testing.T) {
 
 	// GIVEN
 	name := randName("kafka-connect")
-	yml := getKafkaConnectYaml(testProject, name)
+	yml := getKafkaConnectYaml(testProject, name, testCloudName)
 	s, err := NewSession(k8sClient, avnClient, testProject, yml)
 	require.NoError(t, err)
 

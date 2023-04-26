@@ -10,7 +10,7 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getPgReadReplicaYaml(project, masterName, replicaName string) string {
+func getPgReadReplicaYaml(project, masterName, replicaName, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: PostgreSQL
@@ -22,7 +22,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[4]s
   plan: startup-4
 
   tags:
@@ -41,7 +41,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[4]s
   plan: startup-4
 
   serviceIntegrations:
@@ -58,7 +58,7 @@ spec:
       pg: true
       prometheus: true
 
-`, project, masterName, replicaName)
+`, project, masterName, replicaName, cloudName)
 }
 
 func TestPgReadReplica(t *testing.T) {
@@ -68,7 +68,7 @@ func TestPgReadReplica(t *testing.T) {
 	// GIVEN
 	masterName := randName("pg-master")
 	replicaName := randName("pg-replica")
-	yml := getPgReadReplicaYaml(testProject, masterName, replicaName)
+	yml := getPgReadReplicaYaml(testProject, masterName, replicaName, testCloudName)
 	s, err := NewSession(k8sClient, avnClient, testProject, yml)
 	require.NoError(t, err)
 

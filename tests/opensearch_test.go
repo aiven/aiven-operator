@@ -11,7 +11,7 @@ import (
 	opensearchuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/opensearch"
 )
 
-func getOpenSearchYaml(project, name string) string {
+func getOpenSearchYaml(project, name, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: OpenSearch
@@ -30,7 +30,7 @@ spec:
       baz: egg
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[3]s
   plan: startup-4
   disk_space: 240Gib
 
@@ -44,7 +44,7 @@ spec:
         description: bar
       - network: 10.20.0.0/16
 
-`, project, name)
+`, project, name, cloudName)
 }
 
 func TestOpenSearch(t *testing.T) {
@@ -53,7 +53,7 @@ func TestOpenSearch(t *testing.T) {
 
 	// GIVEN
 	name := randName("opensearch")
-	yml := getOpenSearchYaml(testProject, name)
+	yml := getOpenSearchYaml(testProject, name, testCloudName)
 	s, err := NewSession(k8sClient, avnClient, testProject, yml)
 	require.NoError(t, err)
 

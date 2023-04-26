@@ -24,6 +24,7 @@ import (
 
 var testEnv *envtest.Environment
 var testProject string
+var testCloudName string
 var k8sClient client.Client
 var avnClient *aiven.Client
 
@@ -59,6 +60,11 @@ func setupSuite() error {
 	testProject = os.Getenv("AIVEN_PROJECT_NAME")
 	if testProject == "" {
 		return fmt.Errorf("missing AIVEN_PROJECT_NAME set")
+	}
+
+	testCloudName = os.Getenv("AIVEN_CLOUD_NAME")
+	if testCloudName == "" {
+		testCloudName = "google-europe-west1"
 	}
 
 	enableLogs, _ := strconv.ParseBool(os.Getenv("ENABLE_DEBUG_LOGGING"))

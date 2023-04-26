@@ -11,7 +11,7 @@ import (
 	grafanauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/grafana"
 )
 
-func getGrafanaYaml(project, name string) string {
+func getGrafanaYaml(project, name, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: Grafana
@@ -23,7 +23,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[3]s
   plan: startup-1
 
   tags:
@@ -39,7 +39,7 @@ spec:
         description: bar
       - network: 10.20.0.0/16
 
-`, project, name)
+`, project, name, cloudName)
 }
 
 func TestGrafana(t *testing.T) {
@@ -48,7 +48,7 @@ func TestGrafana(t *testing.T) {
 
 	// GIVEN
 	name := randName("grafana")
-	yml := getGrafanaYaml(testProject, name)
+	yml := getGrafanaYaml(testProject, name, testCloudName)
 	s, err := NewSession(k8sClient, avnClient, testProject, yml)
 	require.NoError(t, err)
 

@@ -12,7 +12,7 @@ import (
 	datadoguserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/datadog"
 )
 
-func getClickhousePostgreSQLYaml(project, chName, pgName, siName string) string {
+func getClickhousePostgreSQLYaml(project, chName, pgName, siName, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: Clickhouse
@@ -24,7 +24,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[5]s
   plan: startup-16
   maintenanceWindowDow: friday
   maintenanceWindowTime: 23:00:00
@@ -41,7 +41,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[5]s
   plan: startup-4
   maintenanceWindowDow: friday
   maintenanceWindowTime: 23:00:00
@@ -69,7 +69,7 @@ spec:
     databases:
       - database: defaultdb
         schema: public
-`, project, chName, pgName, siName)
+`, project, chName, pgName, siName, cloudName)
 }
 
 func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
@@ -81,7 +81,7 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	pgName := randName("clickhouse-postgresql")
 	siName := randName("clickhouse-postgresql")
 
-	yml := getClickhousePostgreSQLYaml(testProject, chName, pgName, siName)
+	yml := getClickhousePostgreSQLYaml(testProject, chName, pgName, siName, testCloudName)
 	s, err := NewSession(k8sClient, avnClient, testProject, yml)
 	require.NoError(t, err)
 
@@ -135,7 +135,7 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	assert.True(t, siAvn.Enabled)
 }
 
-func getKafkaLogsYaml(project, ksName, ktName, siName string) string {
+func getKafkaLogsYaml(project, ksName, ktName, siName, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: Kafka
@@ -147,7 +147,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[5]s
   plan: business-4
 
 ---
@@ -184,7 +184,7 @@ spec:
 
   kafkaLogs:
     kafka_topic: %[3]s
-`, project, ksName, ktName, siName)
+`, project, ksName, ktName, siName, cloudName)
 }
 
 func TestServiceIntegrationKafkaLogs(t *testing.T) {
@@ -196,7 +196,7 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 	ktName := randName("kafka-logs")
 	siName := randName("kafka-logs")
 
-	yml := getKafkaLogsYaml(testProject, ksName, ktName, siName)
+	yml := getKafkaLogsYaml(testProject, ksName, ktName, siName, testCloudName)
 	s, err := NewSession(k8sClient, avnClient, testProject, yml)
 	require.NoError(t, err)
 
@@ -247,7 +247,7 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 	assert.Equal(t, ktName, si.Spec.KafkaLogsUserConfig.KafkaTopic)
 }
 
-func getSIKafkaConnectYaml(project, ksName, kcName, siName string) string {
+func getSIKafkaConnectYaml(project, ksName, kcName, siName, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: Kafka
@@ -259,7 +259,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[5]s
   plan: business-4
 
 ---
@@ -274,7 +274,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[5]s
   plan: business-4
 
   userConfig:
@@ -304,7 +304,7 @@ spec:
       group_id: "connect"
       status_storage_topic: "__connect_status"
       offset_storage_topic: "__connect_offsets"
-`, project, ksName, kcName, siName)
+`, project, ksName, kcName, siName, cloudName)
 }
 
 func TestServiceIntegrationKafkaConnect(t *testing.T) {
@@ -316,7 +316,7 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	kcName := randName("kafka-connect")
 	siName := randName("kafka-connect")
 
-	yml := getSIKafkaConnectYaml(testProject, ksName, kcName, siName)
+	yml := getSIKafkaConnectYaml(testProject, ksName, kcName, siName, testCloudName)
 	s, err := NewSession(k8sClient, avnClient, testProject, yml)
 	require.NoError(t, err)
 
@@ -371,7 +371,7 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	assert.Equal(t, "__connect_offsets", *si.Spec.KafkaConnectUserConfig.KafkaConnect.OffsetStorageTopic)
 }
 
-func getDatadogYaml(project, pgName, siName, endpointID string) string {
+func getDatadogYaml(project, pgName, siName, endpointID, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: PostgreSQL
@@ -383,7 +383,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[5]s
   plan: startup-4
 
 ---
@@ -407,7 +407,7 @@ spec:
     datadog_tags:
       - tag: env
         comment: test
-`, project, pgName, siName, endpointID)
+`, project, pgName, siName, endpointID, cloudName)
 }
 
 // todo: refactor when ServiceIntegrationEndpoint released
@@ -424,7 +424,7 @@ func TestServiceIntegrationDatadog(t *testing.T) {
 	pgName := randName("datadog")
 	siName := randName("datadog")
 
-	yml := getDatadogYaml(testProject, pgName, siName, endpointID)
+	yml := getDatadogYaml(testProject, pgName, siName, endpointID, testCloudName)
 	s, err := NewSession(k8sClient, avnClient, testProject, yml)
 	require.NoError(t, err)
 

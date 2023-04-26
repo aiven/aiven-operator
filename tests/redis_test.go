@@ -11,7 +11,7 @@ import (
 	redisuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/redis"
 )
 
-func getRedisYaml(project, name string) string {
+func getRedisYaml(project, name, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: Redis
@@ -23,7 +23,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[3]s
   plan: startup-4
 
   tags:
@@ -36,7 +36,7 @@ spec:
         description: bar
       - network: 10.20.0.0/16
 
-`, project, name)
+`, project, name, cloudName)
 }
 
 func TestRedis(t *testing.T) {
@@ -45,7 +45,7 @@ func TestRedis(t *testing.T) {
 
 	// GIVEN
 	name := randName("redis")
-	yml := getRedisYaml(testProject, name)
+	yml := getRedisYaml(testProject, name, testCloudName)
 	s, err := NewSession(k8sClient, avnClient, testProject, yml)
 	require.NoError(t, err)
 
