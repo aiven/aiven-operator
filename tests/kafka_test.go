@@ -74,7 +74,9 @@ func TestKafka(t *testing.T) {
 	assert.Equal(t, ksAvn.CloudName, ks.Spec.CloudName)
 	assert.Equal(t, "600Gib", ks.Spec.DiskSpace)
 	assert.Equal(t, 614400, ksAvn.DiskSpaceMB)
-	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, ks.Spec.Tags)
+	ksResp, err := avnClient.ServiceTags.Get(testProject, name)
+	require.NoError(t, err)
+	assert.Equal(t, ksResp.Tags, ks.Spec.Tags)
 
 	// UserConfig test
 	require.NotNil(t, ks.Spec.UserConfig)
