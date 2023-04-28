@@ -71,6 +71,7 @@ func TestGrafana(t *testing.T) {
 	assert.Equal(t, grafanaAvn.State, grafana.Status.State)
 	assert.Equal(t, grafanaAvn.Plan, grafana.Spec.Plan)
 	assert.Equal(t, grafanaAvn.CloudName, grafana.Spec.CloudName)
+	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, grafana.Spec.Tags)
 	grafanaResp, err := avnClient.ServiceTags.Get(testProject, name)
 	require.NoError(t, err)
 	assert.Equal(t, grafanaResp.Tags, grafana.Spec.Tags)
