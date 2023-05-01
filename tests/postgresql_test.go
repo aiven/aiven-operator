@@ -97,7 +97,7 @@ func TestPgReadReplica(t *testing.T) {
 	assert.Equal(t, masterAvn.CloudName, master.Spec.CloudName)
 	assert.NotNil(t, masterAvn.UserConfig) // "Aiven instance has defaults set"
 	assert.Nil(t, master.Spec.UserConfig)
-	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, master.Spec.Tags)
+	assert.Equal(t, map[string]string{"env": "prod", "instance": "master"}, master.Spec.Tags)
 	masterResp, err := avnClient.ServiceTags.Get(testProject, masterName)
 	require.NoError(t, err)
 	assert.Equal(t, masterResp.Tags, master.Spec.Tags)
@@ -109,7 +109,7 @@ func TestPgReadReplica(t *testing.T) {
 	assert.Equal(t, replicaAvn.State, replica.Status.State)
 	assert.Equal(t, replicaAvn.Plan, replica.Spec.Plan)
 	assert.Equal(t, replicaAvn.CloudName, replica.Spec.CloudName)
-	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, replica.Spec.Tags)
+	assert.Equal(t, map[string]string{"env": "test", "instance": "replica"}, replica.Spec.Tags)
 	replicaResp, err := avnClient.ServiceTags.Get(testProject, replicaName)
 	require.NoError(t, err)
 	assert.Equal(t, replicaResp.Tags, replica.Spec.Tags)

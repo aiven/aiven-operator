@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Fix service tags create/update. Thanks to @mortenlj
+
 ## v0.11.0 - 2023-04-25
 
 - Add `ServiceIntegration` kind `SourceProjectName` and `DestinationProjectName` fields
