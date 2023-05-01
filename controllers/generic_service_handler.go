@@ -106,6 +106,12 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 		}
 	}
 
+	req := aiven.ServiceTagsRequest{Tags: spec.Tags}
+	_, err = a.ServiceTags.Set(spec.Project, ometa.Name, req)
+	if err != nil {
+		return fmt.Errorf("failed to update tags: %w", err)
+	}
+
 	status := o.getServiceStatus()
 	meta.SetStatusCondition(&status.Conditions,
 		getInitializedCondition(reason, "Instance was created or update on Aiven side"))

@@ -69,6 +69,9 @@ func TestRedis(t *testing.T) {
 	assert.Equal(t, rsAvn.Plan, rs.Spec.Plan)
 	assert.Equal(t, rsAvn.CloudName, rs.Spec.CloudName)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, rs.Spec.Tags)
+	rsResp, err := avnClient.ServiceTags.Get(testProject, name)
+	require.NoError(t, err)
+	assert.Equal(t, rsResp.Tags, rs.Spec.Tags)
 
 	// UserConfig test
 	require.NotNil(t, rs.Spec.UserConfig)
