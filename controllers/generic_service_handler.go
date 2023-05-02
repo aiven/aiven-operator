@@ -106,7 +106,15 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 		}
 	}
 
-	req := aiven.ServiceTagsRequest{Tags: spec.Tags}
+	// Updates tags.
+	// Four scenarios: service created/updated * with/without tags
+	// By sending empty tags it clears existing list
+	req := aiven.ServiceTagsRequest{
+		Tags: make(map[string]string),
+	}
+	if spec.Tags != nil {
+		req.Tags = spec.Tags
+	}
 	_, err = a.ServiceTags.Set(spec.Project, ometa.Name, req)
 	if err != nil {
 		return fmt.Errorf("failed to update tags: %w", err)

@@ -104,6 +104,7 @@ func NewSession(k8s client.Client, avn *aiven.Client, project, src string) (Sess
 	return s, nil
 }
 
+// Apply emulates kubectl apply command
 func (s *session) Apply() error {
 	ctx, cancel := context.WithTimeout(s.ctx, createTimeout)
 	defer cancel()
@@ -113,7 +114,21 @@ func (s *session) Apply() error {
 		o := s.objs[n]
 		g.Go(func() error {
 			defer s.recover()
-			return s.k8s.Create(ctx, o)
+			err := s.k8s.Create(ctx, o)
+			if alreadyExists(err) {
+				c := o.DeepCopyObject().(client.Object)
+				key, err := getNamespacedName(c.GetName(), c.GetNamespace())
+				if err != nil {
+					return err
+				}
+				err = s.k8s.Get(ctx, key, c)
+				if err != nil {
+					return err
+				}
+				o.SetResourceVersion(c.GetResourceVersion())
+				return s.k8s.Update(ctx, o)
+			}
+			return err
 		})
 	}
 	return g.Wait()
@@ -258,6 +273,10 @@ func randName(name string) string {
 
 func isNotFound(err error) bool {
 	return err != nil && strings.Contains(err.Error(), "not found")
+}
+
+func alreadyExists(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "already exists")
 }
 
 func anyPointer[T any](v T) *T {
