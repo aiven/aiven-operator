@@ -34,7 +34,7 @@ const (
 )
 
 type Session interface {
-	Apply() error
+	Apply(src string) error
 	GetRunning(obj client.Object, keys ...string) error
 	GetSecret(keys ...string) (*corev1.Secret, error)
 	Destroy()
@@ -51,67 +51,35 @@ type session struct {
 	project string
 }
 
-func NewSession(k8s client.Client, avn *aiven.Client, project, src string) (Session, error) {
-	objs := make(map[string]client.Object)
-
-	// Creds: https://gist.github.com/pytimer/0ad436972a073bb37b8b6b8b474520fc
-	decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader([]byte(src)), yamlBufferSize)
-	for {
-		var rawExt runtime.RawExtension
-		err := decoder.Decode(&rawExt)
-		if err == io.EOF {
-			break
-		}
-
-		if err != nil {
-			return nil, err
-		}
-
-		if len(rawExt.Raw) == 0 {
-			// if the yaml object is empty just continue to the next one
-			continue
-		}
-
-		uObj, _, err := yaml.NewDecodingSerializer(unstructured.UnstructuredJSONScheme).Decode(rawExt.Raw, nil, nil)
-		if err != nil {
-			return nil, fmt.Errorf("failed to serialize raw object %s", err)
-		}
-
-		uMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(uObj)
-		if err != nil {
-			return nil, fmt.Errorf("failed to convert to unstructured map %s", err)
-		}
-
-		o := unstructured.Unstructured{Object: uMap}
-		if o.GetNamespace() == "" {
-			o.SetNamespace(defaultNamespace)
-		}
-
-		n := o.GetName()
-		if _, ok := objs[n]; ok {
-			return nil, fmt.Errorf("resource name %q is not unique", n)
-		}
-		objs[n] = &o
-	}
-
+func NewSession(k8s client.Client, avn *aiven.Client, project string) Session {
 	s := &session{
 		k8s:     k8s,
 		avn:     avn,
 		ctx:     context.Background(),
-		objs:    objs,
+		objs:    make(map[string]client.Object),
 		project: project,
 	}
-	return s, nil
+	return s
 }
 
 // Apply emulates kubectl apply command
-func (s *session) Apply() error {
+func (s *session) Apply(src string) error {
+	objs, err := parseObjs(src)
+	if err != nil {
+		return err
+	}
+
+	// Stores all objects ever applied
+	for k, o := range objs {
+		s.objs[k] = o
+	}
+
 	ctx, cancel := context.WithTimeout(s.ctx, createTimeout)
 	defer cancel()
 
 	var g errgroup.Group
-	for n := range s.objs {
-		o := s.objs[n]
+	for n := range objs {
+		o := objs[n]
 		g.Go(func() error {
 			defer s.recover()
 			err := s.k8s.Create(ctx, o)
@@ -305,4 +273,49 @@ func getNamespacedName(keys ...string) (types.NamespacedName, error) {
 		return types.NamespacedName{}, fmt.Errorf("provide name or/and namespace")
 	}
 	return types.NamespacedName{Name: name, Namespace: namespace}, nil
+}
+
+func parseObjs(src string) (map[string]client.Object, error) {
+	objs := make(map[string]client.Object)
+
+	// Creds: https://gist.github.com/pytimer/0ad436972a073bb37b8b6b8b474520fc
+	decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader([]byte(src)), yamlBufferSize)
+	for {
+		var rawExt runtime.RawExtension
+		err := decoder.Decode(&rawExt)
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			return nil, err
+		}
+
+		if len(rawExt.Raw) == 0 {
+			// if the yaml object is empty just continue to the next one
+			continue
+		}
+
+		uObj, _, err := yaml.NewDecodingSerializer(unstructured.UnstructuredJSONScheme).Decode(rawExt.Raw, nil, nil)
+		if err != nil {
+			return nil, fmt.Errorf("failed to serialize raw object %s", err)
+		}
+
+		uMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(uObj)
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert to unstructured map %s", err)
+		}
+
+		o := unstructured.Unstructured{Object: uMap}
+		if o.GetNamespace() == "" {
+			o.SetNamespace(defaultNamespace)
+		}
+
+		n := o.GetName()
+		if _, ok := objs[n]; ok {
+			return nil, fmt.Errorf("resource name %q is not unique", n)
+		}
+		objs[n] = &o
+	}
+	return objs, nil
 }

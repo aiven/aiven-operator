@@ -56,15 +56,14 @@ func TestCreateUpdateService(t *testing.T) {
 	// GIVEN
 	pgName := randName("generic-handler")
 	ymlCreate := getCreateServiceYaml(testProject, pgName)
-	s, err := NewSession(k8sClient, avnClient, testProject, ymlCreate)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(ymlCreate))
 
 	// Waits kube objects
 	pg := new(v1alpha1.PostgreSQL)
@@ -80,12 +79,11 @@ func TestCreateUpdateService(t *testing.T) {
 
 	// Updates tags
 	ymlUpdate := getUpdateServiceYaml(testProject, pgName)
-	u, err := NewSession(k8sClient, avnClient, testProject, ymlUpdate)
 	require.NoError(t, err)
-	require.NoError(t, u.Apply())
+	require.NoError(t, s.Apply(ymlUpdate))
 
 	pgUpdated := new(v1alpha1.PostgreSQL)
-	require.NoError(t, u.GetRunning(pgUpdated, pgName))
+	require.NoError(t, s.GetRunning(pgUpdated, pgName))
 	tagsUpdatedAvn, err := avnClient.ServiceTags.Get(testProject, pgName)
 	require.NoError(t, err)
 	assert.Empty(t, tagsUpdatedAvn.Tags) // cleared tags

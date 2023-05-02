@@ -49,15 +49,14 @@ func TestKafkaConnect(t *testing.T) {
 	// GIVEN
 	name := randName("kafka-connect")
 	yml := getKafkaConnectYaml(testProject, name)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	kc := new(v1alpha1.KafkaConnect)

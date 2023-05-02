@@ -83,15 +83,14 @@ func TestConnectionPool(t *testing.T) {
 	userName := randName("connection-pool")
 	poolName := randName("connection-pool")
 	yml := getConnectionPoolYaml(testProject, pgName, dbName, userName, poolName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	pg := new(v1alpha1.PostgreSQL)
