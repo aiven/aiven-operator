@@ -54,15 +54,14 @@ func TestOpenSearch(t *testing.T) {
 	// GIVEN
 	name := randName("opensearch")
 	yml := getOpenSearchYaml(testProject, name)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	os := new(v1alpha1.OpenSearch)

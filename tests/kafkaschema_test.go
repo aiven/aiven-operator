@@ -70,15 +70,14 @@ func TestKafkaSchema(t *testing.T) {
 	schemaName := randName("kafka-schema")
 	subjectName := randName("kafka-schema")
 	yml := getKafkaSchemaYaml(testProject, kafkaName, schemaName, subjectName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	kafka := new(v1alpha1.Kafka)

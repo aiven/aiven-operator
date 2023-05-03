@@ -72,15 +72,14 @@ func TestKafkaTopic(t *testing.T) {
 	// GIVEN
 	ksName := randName("kafka-topic")
 	yml := getKafkaTopicNameYaml(testProject, ksName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	ks := new(v1alpha1.Kafka)

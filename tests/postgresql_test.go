@@ -69,15 +69,14 @@ func TestPgReadReplica(t *testing.T) {
 	masterName := randName("pg-master")
 	replicaName := randName("pg-replica")
 	yml := getPgReadReplicaYaml(testProject, masterName, replicaName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	master := new(v1alpha1.PostgreSQL)

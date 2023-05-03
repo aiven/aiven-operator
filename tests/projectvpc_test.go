@@ -54,15 +54,14 @@ func TestProjectVPCID(t *testing.T) {
 	// GIVEN
 	vpcName := randName("project-vpc-id")
 	vpcYaml := getProjectVPCYaml(testProject, vpcName)
-	vpcSession, err := NewSession(k8sClient, avnClient, testProject, vpcYaml)
-	require.NoError(t, err)
+	vpcSession := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer vpcSession.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, vpcSession.Apply())
+	require.NoError(t, vpcSession.Apply(vpcYaml))
 
 	// Waits kube object
 	vpc := new(v1alpha1.ProjectVPC)
@@ -81,15 +80,14 @@ func TestProjectVPCID(t *testing.T) {
 	// Creates Kafka with given vpcID
 	kafkaName := randName("project-vpc-id")
 	kafkaYaml := getKafkaForProjectVPCYaml(testProject, vpc.Status.ID, kafkaName)
-	kafkaSession, err := NewSession(k8sClient, avnClient, testProject, kafkaYaml)
-	require.NoError(t, err)
+	kafkaSession := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer kafkaSession.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, kafkaSession.Apply())
+	require.NoError(t, kafkaSession.Apply(kafkaYaml))
 
 	// Waits kube objects
 	kafka := new(v1alpha1.Kafka)
