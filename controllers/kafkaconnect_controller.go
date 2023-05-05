@@ -22,7 +22,7 @@ type KafkaConnectReconciler struct {
 
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkaconnects,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkaconnects/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=aiven.io,resources=kafkaconnects/finalizers,verbs=update
+// +kubebuilder:rbac:groups=aiven.io,resources=kafkaconnects/finalizers,verbs=get;list;watch;create;update;patch;delete
 
 func (r *KafkaConnectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newKafkaConnectAdapter), &v1alpha1.KafkaConnect{})

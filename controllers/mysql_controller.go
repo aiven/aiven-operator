@@ -22,7 +22,7 @@ type MySQLReconciler struct {
 
 //+kubebuilder:rbac:groups=aiven.io,resources=mysqls,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=mysqls/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=aiven.io,resources=mysqls/finalizers,verbs=update
+//+kubebuilder:rbac:groups=aiven.io,resources=mysqls/finalizers,verbs=get;list;watch;create;update;patch;delete
 
 func (r *MySQLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newMySQLAdapter), &v1alpha1.MySQL{})
