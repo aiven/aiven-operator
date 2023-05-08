@@ -77,7 +77,16 @@ func (a *kafkaAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
 		return nil, fmt.Errorf("aiven client error %w", err)
 	}
 
+	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
+		prefix + "HOST":        s.URIParams["host"],
+		prefix + "PORT":        s.URIParams["port"],
+		prefix + "PASSWORD":    password,
+		prefix + "USERNAME":    userName,
+		prefix + "ACCESS_CERT": s.ConnectionInfo.KafkaAccessCert,
+		prefix + "ACCESS_KEY":  s.ConnectionInfo.KafkaAccessKey,
+		prefix + "CA_CERT":     caCert,
+		// todo: remove in future releases
 		"HOST":        s.URIParams["host"],
 		"PORT":        s.URIParams["port"],
 		"PASSWORD":    password,
@@ -87,7 +96,7 @@ func (a *kafkaAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
 		"CA_CERT":     caCert,
 	}
 
-	return newSecret(a, a.Spec.ConnInfoSecretTarget, stringData), nil
+	return newSecret(a, stringData, false), nil
 }
 
 func (a *kafkaAdapter) getServiceType() string {

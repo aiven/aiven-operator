@@ -65,7 +65,16 @@ func (a *postgresSQLAdapter) getUserConfig() any {
 }
 
 func (a *postgresSQLAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
+	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
+		prefix + "HOST":         s.URIParams["host"],
+		prefix + "PORT":         s.URIParams["port"],
+		prefix + "DATABASE":     s.URIParams["dbname"],
+		prefix + "USER":         s.URIParams["user"],
+		prefix + "PASSWORD":     s.URIParams["password"],
+		prefix + "SSLMODE":      s.URIParams["sslmode"],
+		prefix + "DATABASE_URI": s.URI,
+		// todo: remove in future releases
 		"PGHOST":       s.URIParams["host"],
 		"PGPORT":       s.URIParams["port"],
 		"PGDATABASE":   s.URIParams["dbname"],
@@ -75,7 +84,7 @@ func (a *postgresSQLAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error)
 		"DATABASE_URI": s.URI,
 	}
 
-	return newSecret(a, a.Spec.ConnInfoSecretTarget, stringData), nil
+	return newSecret(a, stringData, false), nil
 }
 
 func (a *postgresSQLAdapter) getServiceType() string {

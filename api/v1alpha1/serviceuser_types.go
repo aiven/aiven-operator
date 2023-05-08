@@ -56,6 +56,10 @@ func (svcusr ServiceUser) AuthSecretRef() *AuthSecretReference {
 	return svcusr.Spec.AuthSecretRef
 }
 
+func (in *ServiceUser) GetConnInfoSecretTarget() ConnInfoSecretTarget {
+	return in.Spec.ConnInfoSecretTarget
+}
+
 // +kubebuilder:object:root=true
 
 // ServiceUserList contains a list of ServiceUser

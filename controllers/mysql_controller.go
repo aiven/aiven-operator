@@ -67,17 +67,17 @@ func (a *mySQLAdapter) getUserConfig() any {
 
 func (a *mySQLAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
 	stringData := map[string]string{
-		"MYSQL_HOST":        s.URIParams["host"],
-		"MYSQL_PORT":        s.URIParams["port"],
-		"MYSQL_DATABASE":    s.URIParams["dbname"],
-		"MYSQL_USER":        s.URIParams["user"],
-		"MYSQL_PASSWORD":    s.URIParams["password"],
-		"MYSQL_SSL_MODE":    s.URIParams["ssl-mode"],
-		"MYSQL_URI":         s.URI,
-		"MYSQL_REPLICA_URI": s.ConnectionInfo.MySQLReplicaURI,
+		"HOST":        s.URIParams["host"],
+		"PORT":        s.URIParams["port"],
+		"DATABASE":    s.URIParams["dbname"],
+		"USER":        s.URIParams["user"],
+		"PASSWORD":    s.URIParams["password"],
+		"SSL_MODE":    s.URIParams["ssl-mode"],
+		"URI":         s.URI,
+		"REPLICA_URI": s.ConnectionInfo.MySQLReplicaURI,
 	}
 
-	return newSecret(a, a.Spec.ConnInfoSecretTarget, stringData), nil
+	return newSecret(a, stringData, true), nil
 }
 
 func (a *mySQLAdapter) getServiceType() string {

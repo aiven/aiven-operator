@@ -68,14 +68,20 @@ func (a *opensearchAdapter) getUserConfig() any {
 }
 
 func (a *opensearchAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
+	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
+		prefix + "HOST":     s.URIParams["host"],
+		prefix + "PASSWORD": s.URIParams["password"],
+		prefix + "PORT":     s.URIParams["port"],
+		prefix + "USER":     s.URIParams["user"],
+		// todo: remove in future releases
 		"HOST":     s.URIParams["host"],
 		"PASSWORD": s.URIParams["password"],
 		"PORT":     s.URIParams["port"],
 		"USER":     s.URIParams["user"],
 	}
 
-	return newSecret(a, a.Spec.ConnInfoSecretTarget, stringData), nil
+	return newSecret(a, stringData, false), nil
 }
 
 func (a *opensearchAdapter) getServiceType() string {

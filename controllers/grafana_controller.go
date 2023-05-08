@@ -68,15 +68,15 @@ func (a *grafanaAdapter) getUserConfig() any {
 
 func (a *grafanaAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
 	stringData := map[string]string{
-		"GRAFANA_HOST":     s.URIParams["host"],
-		"GRAFANA_PORT":     s.URIParams["port"],
-		"GRAFANA_USER":     s.URIParams["user"],
-		"GRAFANA_PASSWORD": s.URIParams["password"],
-		"GRAFANA_URI":      s.URI,
-		"GRAFANA_HOSTS":    strings.Join(s.ConnectionInfo.GrafanaURIs, ","),
+		"HOST":     s.URIParams["host"],
+		"PORT":     s.URIParams["port"],
+		"USER":     s.URIParams["user"],
+		"PASSWORD": s.URIParams["password"],
+		"URI":      s.URI,
+		"HOSTS":    strings.Join(s.ConnectionInfo.GrafanaURIs, ","),
 	}
 
-	return newSecret(a, a.Spec.ConnInfoSecretTarget, stringData), nil
+	return newSecret(a, stringData, true), nil
 }
 
 func (a *grafanaAdapter) getServiceType() string {

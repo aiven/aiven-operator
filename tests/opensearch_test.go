@@ -108,6 +108,10 @@ func TestOpenSearch(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["PORT"])
 	assert.NotEmpty(t, secret.Data["USER"])
 	assert.NotEmpty(t, secret.Data["PASSWORD"])
+	assert.NotEmpty(t, secret.Data["OPENSEARCH_HOST"])
+	assert.NotEmpty(t, secret.Data["OPENSEARCH_PORT"])
+	assert.NotEmpty(t, secret.Data["OPENSEARCH_USER"])
+	assert.NotEmpty(t, secret.Data["OPENSEARCH_PASSWORD"])
 	assert.Equal(t, map[string]string{"foo": "bar"}, secret.Annotations)
 	assert.Equal(t, map[string]string{"baz": "egg"}, secret.Labels)
 }

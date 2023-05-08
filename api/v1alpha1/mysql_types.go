@@ -49,6 +49,10 @@ func (in *MySQL) GetRefs() []*ResourceReferenceObject {
 	return in.Spec.GetRefs(in.GetNamespace())
 }
 
+func (in *MySQL) GetConnInfoSecretTarget() ConnInfoSecretTarget {
+	return in.Spec.ConnInfoSecretTarget
+}
+
 //+kubebuilder:object:root=true
 
 // MySQLList contains a list of MySQL

@@ -154,6 +154,15 @@ func TestConnectionPool(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["PGSSLMODE"])
 	assert.NotEmpty(t, secret.Data["DATABASE_URI"])
 
+	// New secrets
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_HOST"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_PORT"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_DATABASE"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_USER"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_PASSWORD"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_SSLMODE"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_DATABASE_URI"])
+
 	// We need to validate deletion,
 	// because we can get false positive here:
 	// if service is deleted, pool is destroyed in Aiven. No service — no pool. No pool — no pool.

@@ -93,6 +93,10 @@ func TestClickhouseUser(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["PORT"])
 	assert.NotEmpty(t, secret.Data["PASSWORD"])
 	assert.NotEmpty(t, secret.Data["USERNAME"])
+	assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_HOST"])
+	assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_PORT"])
+	assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_PASSWORD"])
+	assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_USERNAME"])
 	assert.Equal(t, map[string]string{"foo": "bar"}, secret.Annotations)
 	assert.Equal(t, map[string]string{"baz": "egg"}, secret.Labels)
 

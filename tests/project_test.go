@@ -63,4 +63,5 @@ func TestProject(t *testing.T) {
 	secret, err := s.GetSecret(project.GetName())
 	require.NoError(t, err)
 	assert.NotEmpty(t, secret.Data["CA_CERT"])
+	assert.NotEmpty(t, secret.Data["PROJECT_CA_CERT"])
 }

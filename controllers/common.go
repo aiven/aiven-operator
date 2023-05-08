@@ -5,9 +5,11 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -120,7 +122,15 @@ func anyOptional[T comparable](v T) *T {
 	return &v
 }
 
-func newSecret(o client.Object, target v1alpha1.ConnInfoSecretTarget, stringData map[string]string) *corev1.Secret {
+type objWithSecret interface {
+	GetName() string
+	GetNamespace() string
+	GetObjectKind() schema.ObjectKind
+	GetConnInfoSecretTarget() v1alpha1.ConnInfoSecretTarget
+}
+
+func newSecret(o objWithSecret, stringData map[string]string, addPrefix bool) *corev1.Secret {
+	target := o.GetConnInfoSecretTarget()
 	meta := metav1.ObjectMeta{
 		Name:        o.GetName(),
 		Namespace:   o.GetNamespace(),
@@ -132,8 +142,28 @@ func newSecret(o client.Object, target v1alpha1.ConnInfoSecretTarget, stringData
 		meta.Name = target.Name
 	}
 
+	// fixme: set this as default behaviour
+	//  when legacy secrets removed
+	if addPrefix {
+		prefix := getSecretPrefix(o)
+		for k, v := range stringData {
+			delete(stringData, k)
+			stringData[prefix+k] = v
+		}
+	}
+
 	return &corev1.Secret{
 		ObjectMeta: meta,
 		StringData: stringData,
 	}
+}
+
+// getSecretPrefix returns user's prefix or kind name
+func getSecretPrefix(o objWithSecret) string {
+	target := o.GetConnInfoSecretTarget()
+	if target.Prefix != "" {
+		return target.Prefix
+	}
+	kind := o.GetObjectKind()
+	return strings.ToUpper(kind.GroupVersionKind().Kind) + "_"
 }
