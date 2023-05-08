@@ -6,6 +6,9 @@
 - Add prefix name option for secrets. Thanks to @jordiclariana
 - Use kind name as default prefix for secrets to avoid collisions. Please migrate your applications before legacy names removed
 - Fix secrets creation on openshift
+- Add `OpenSearch.spec.userConfig.idp_pemtrustedcas_content` option.
+  Specifies the PEM-encoded root certificate authority (CA) content for the SAML identity provider (IdP) server verification.
+
 
 ## v0.11.0 - 2023-04-25
 

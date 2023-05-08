@@ -265,6 +265,10 @@ type Saml struct {
 	// The URL of the SAML metadata for the Identity Provider (IdP). This is used to configure SAML-based authentication with the IdP.
 	IdpMetadataUrl string `groups:"create,update" json:"idp_metadata_url"`
 
+	// +kubebuilder:validation:MaxLength=16384
+	// This parameter specifies the PEM-encoded root certificate authority (CA) content for the SAML identity provider (IdP) server verification. The root CA content is used to verify the SSL/TLS certificate presented by the server.
+	IdpPemtrustedcasContent *string `groups:"create,update" json:"idp_pemtrustedcas_content,omitempty"`
+
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=256
 	// Optional. Specifies the attribute in the SAML response where role information is stored, if available. Role attributes are not required for SAML authentication, but can be included in SAML assertions by most Identity Providers (IdPs) to determine user access levels or permissions.

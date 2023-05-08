@@ -605,6 +605,14 @@ spec:
                         maxLength: 2048
                         minLength: 1
                         type: string
+                      idp_pemtrustedcas_content:
+                        description: This parameter specifies the PEM-encoded root
+                          certificate authority (CA) content for the SAML identity
+                          provider (IdP) server verification. The root CA content
+                          is used to verify the SSL/TLS certificate presented by the
+                          server.
+                        maxLength: 16384
+                        type: string
                       roles_key:
                         description: Optional. Specifies the attribute in the SAML
                           response where role information is stored, if available.
