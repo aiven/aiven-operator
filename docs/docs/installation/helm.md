@@ -67,6 +67,9 @@ helm install aiven-operator aiven/aiven-operator --set webhooks.enabled=false
 
 Please refer to the [values.yaml](https://github.com/aiven/aiven-charts/blob/main/charts/aiven-operator/values.yaml) of the chart.
 
+#### Installing without full cluster administrator access
+There can be some scenarios where the individual installing the Helm chart does not have the ability to provision cluster-wide resources (e.g. ClusterRoles/ClusterRoleBindings). In this scenario, you can have a cluster administrator manually install the [ClusterRole](../../../charts/aiven-operator/templates/cluster_role.yaml) and [ClusterRoleBinding](../../../charts/aiven-operator/templates/cluster_role_binding.yaml) the operator requires prior to installing the Helm chart specifying `false` for the `clusterRole.create` attribute. 
+
 ## Uninstalling 
 
 !!! important
