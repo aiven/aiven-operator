@@ -113,14 +113,20 @@ func (h *clickhouseUserHandler) get(avn *aiven.Client, obj client.Object) (*core
 		return nil, err
 	}
 
+	prefix := getSecretPrefix(user)
 	stringData := map[string]string{
+		prefix + "HOST":     s.URIParams["host"],
+		prefix + "PORT":     s.URIParams["port"],
+		prefix + "PASSWORD": password,
+		prefix + "USERNAME": user.Name,
+		// todo: remove in future releases
 		"HOST":     s.URIParams["host"],
 		"PORT":     s.URIParams["port"],
 		"PASSWORD": password,
 		"USERNAME": user.Name,
 	}
 
-	secret := newSecret(user, user.Spec.ConnInfoSecretTarget, stringData)
+	secret := newSecret(user, stringData, false)
 
 	meta.SetStatusCondition(&user.Status.Conditions,
 		getRunningCondition(metav1.ConditionTrue, "CheckRunning",

@@ -3,6 +3,8 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - Fix service tags create/update. Thanks to @mortenlj
+- Add prefix name option for secrets. Thanks to @jordiclariana
+- Use kind name as default prefix for secrets to avoid collisions. Please migrate your applications before legacy names removed
 
 ## v0.11.0 - 2023-04-25
 

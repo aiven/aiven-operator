@@ -109,4 +109,12 @@ func TestKafka(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["PASSWORD"])
 	assert.NotEmpty(t, secret.Data["ACCESS_CERT"])
 	assert.NotEmpty(t, secret.Data["ACCESS_KEY"])
+
+	// New secrets
+	assert.NotEmpty(t, secret.Data["KAFKA_HOST"])
+	assert.NotEmpty(t, secret.Data["KAFKA_PORT"])
+	assert.NotEmpty(t, secret.Data["KAFKA_USERNAME"])
+	assert.NotEmpty(t, secret.Data["KAFKA_PASSWORD"])
+	assert.NotEmpty(t, secret.Data["KAFKA_ACCESS_CERT"])
+	assert.NotEmpty(t, secret.Data["KAFKA_ACCESS_KEY"])
 }

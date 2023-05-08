@@ -47,6 +47,10 @@ func (in *Redis) GetRefs() []*ResourceReferenceObject {
 	return in.Spec.GetRefs(in.GetNamespace())
 }
 
+func (in *Redis) GetConnInfoSecretTarget() ConnInfoSecretTarget {
+	return in.Spec.ConnInfoSecretTarget
+}
+
 //+kubebuilder:object:root=true
 
 // RedisList contains a list of Redis

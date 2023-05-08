@@ -167,10 +167,13 @@ func (h ProjectHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret,
 
 	metav1.SetMetaDataAnnotation(&project.ObjectMeta, instanceIsRunningAnnotation, "true")
 
+	prefix := getSecretPrefix(project)
 	stringData := map[string]string{
+		prefix + "CA_CERT": cert,
+		// todo: remove in future releases
 		"CA_CERT": cert,
 	}
-	return newSecret(project, project.Spec.ConnInfoSecretTarget, stringData), nil
+	return newSecret(project, stringData, false), nil
 }
 
 // exists checks if project already exists on Aiven side

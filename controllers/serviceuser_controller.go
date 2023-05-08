@@ -119,7 +119,16 @@ func (h ServiceUserHandler) get(avn *aiven.Client, i client.Object) (*corev1.Sec
 
 	metav1.SetMetaDataAnnotation(&user.ObjectMeta, instanceIsRunningAnnotation, "true")
 
+	prefix := getSecretPrefix(user)
 	stringData := map[string]string{
+		prefix + "HOST":        params["host"],
+		prefix + "PORT":        params["port"],
+		prefix + "USERNAME":    u.Username,
+		prefix + "PASSWORD":    u.Password,
+		prefix + "ACCESS_CERT": u.AccessCert,
+		prefix + "ACCESS_KEY":  u.AccessKey,
+		prefix + "CA_CERT":     caCert,
+		// todo: remove in future releases
 		"HOST":        params["host"],
 		"PORT":        params["port"],
 		"USERNAME":    u.Username,
@@ -129,7 +138,7 @@ func (h ServiceUserHandler) get(avn *aiven.Client, i client.Object) (*corev1.Sec
 		"CA_CERT":     caCert,
 	}
 
-	return newSecret(user, user.Spec.ConnInfoSecretTarget, stringData), nil
+	return newSecret(user, stringData, false), nil
 }
 
 func (h ServiceUserHandler) checkPreconditions(avn *aiven.Client, i client.Object) (bool, error) {

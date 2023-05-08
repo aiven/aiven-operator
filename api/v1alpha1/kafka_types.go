@@ -53,6 +53,10 @@ func (in *Kafka) GetRefs() []*ResourceReferenceObject {
 	return in.Spec.GetRefs(in.GetNamespace())
 }
 
+func (in *Kafka) GetConnInfoSecretTarget() ConnInfoSecretTarget {
+	return in.Spec.ConnInfoSecretTarget
+}
+
 // +kubebuilder:object:root=true
 
 // KafkaList contains a list of Kafka

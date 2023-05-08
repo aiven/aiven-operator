@@ -68,7 +68,14 @@ func (a *redisAdapter) getUserConfig() any {
 }
 
 func (a *redisAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
+	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
+		prefix + "HOST":     s.URIParams["host"],
+		prefix + "PASSWORD": s.URIParams["password"],
+		prefix + "PORT":     s.URIParams["port"],
+		prefix + "SSL":      s.URIParams["ssl"],
+		prefix + "USER":     s.URIParams["user"],
+		// todo: remove in future releases
 		"HOST":     s.URIParams["host"],
 		"PASSWORD": s.URIParams["password"],
 		"PORT":     s.URIParams["port"],
@@ -76,7 +83,7 @@ func (a *redisAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
 		"USER":     s.URIParams["user"],
 	}
 
-	return newSecret(a, a.Spec.ConnInfoSecretTarget, stringData), nil
+	return newSecret(a, stringData, false), nil
 }
 
 func (a *redisAdapter) getServiceType() string {

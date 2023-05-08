@@ -138,5 +138,14 @@ func TestPgReadReplica(t *testing.T) {
 		assert.NotEmpty(t, secret.Data["PGPASSWORD"])
 		assert.NotEmpty(t, secret.Data["PGSSLMODE"])
 		assert.NotEmpty(t, secret.Data["DATABASE_URI"])
+
+		// New secrets
+		assert.NotEmpty(t, secret.Data["POSTGRESQL_HOST"])
+		assert.NotEmpty(t, secret.Data["POSTGRESQL_PORT"])
+		assert.NotEmpty(t, secret.Data["POSTGRESQL_DATABASE"])
+		assert.NotEmpty(t, secret.Data["POSTGRESQL_USER"])
+		assert.NotEmpty(t, secret.Data["POSTGRESQL_PASSWORD"])
+		assert.NotEmpty(t, secret.Data["POSTGRESQL_SSLMODE"])
+		assert.NotEmpty(t, secret.Data["POSTGRESQL_DATABASE_URI"])
 	}
 }

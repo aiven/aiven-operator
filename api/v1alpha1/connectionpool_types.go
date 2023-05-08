@@ -69,6 +69,10 @@ func (cp ConnectionPool) AuthSecretRef() *AuthSecretReference {
 	return cp.Spec.AuthSecretRef
 }
 
+func (in *ConnectionPool) GetConnInfoSecretTarget() ConnInfoSecretTarget {
+	return in.Spec.ConnInfoSecretTarget
+}
+
 // +kubebuilder:object:root=true
 
 // ConnectionPoolList contains a list of ConnectionPool

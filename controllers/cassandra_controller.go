@@ -68,15 +68,15 @@ func (a *cassandraAdapter) getUserConfig() any {
 
 func (a *cassandraAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
 	stringData := map[string]string{
-		"CASSANDRA_HOST":     s.URIParams["host"],
-		"CASSANDRA_PORT":     s.URIParams["port"],
-		"CASSANDRA_USER":     s.URIParams["user"],
-		"CASSANDRA_PASSWORD": s.URIParams["password"],
-		"CASSANDRA_URI":      s.URI,
-		"CASSANDRA_HOSTS":    strings.Join(s.ConnectionInfo.CassandraHosts, ","),
+		"HOST":     s.URIParams["host"],
+		"PORT":     s.URIParams["port"],
+		"USER":     s.URIParams["user"],
+		"PASSWORD": s.URIParams["password"],
+		"URI":      s.URI,
+		"HOSTS":    strings.Join(s.ConnectionInfo.CassandraHosts, ","),
 	}
 
-	return newSecret(a, a.Spec.ConnInfoSecretTarget, stringData), nil
+	return newSecret(a, stringData, true), nil
 }
 
 func (a *cassandraAdapter) getServiceType() string {
