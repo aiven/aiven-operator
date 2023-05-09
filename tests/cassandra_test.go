@@ -11,7 +11,7 @@ import (
 	cassandrauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/cassandra"
 )
 
-func getCassandraYaml(project, name string) string {
+func getCassandraYaml(project, name, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: Cassandra
@@ -23,7 +23,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[3]s
   plan: startup-4
   disk_space: 450Gib
 
@@ -40,7 +40,7 @@ spec:
         description: bar
       - network: 10.20.0.0/16
 
-`, project, name)
+`, project, name, cloudName)
 }
 
 func TestCassandra(t *testing.T) {
@@ -49,7 +49,7 @@ func TestCassandra(t *testing.T) {
 
 	// GIVEN
 	name := randName("cassandra")
-	yml := getCassandraYaml(testProject, name)
+	yml := getCassandraYaml(testProject, name, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

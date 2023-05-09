@@ -10,7 +10,7 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getClickhouseUserYaml(project, chName, userName string) string {
+func getClickhouseUserYaml(project, chName, userName, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: Clickhouse
@@ -22,7 +22,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[4]s
   plan: startup-16
 
 ---
@@ -46,7 +46,7 @@ spec:
   project: %[1]s
   serviceName: %[2]s
 
-`, project, chName, userName)
+`, project, chName, userName, cloudName)
 }
 
 func TestClickhouseUser(t *testing.T) {
@@ -56,7 +56,7 @@ func TestClickhouseUser(t *testing.T) {
 	// GIVEN
 	chName := randName("clickhouse-user")
 	userName := randName("clickhouse-user")
-	yml := getClickhouseUserYaml(testProject, chName, userName)
+	yml := getClickhouseUserYaml(testProject, chName, userName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

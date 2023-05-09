@@ -10,7 +10,7 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getDatabaseYaml(project, pgName, dbName string) string {
+func getDatabaseYaml(project, pgName, dbName, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: PostgreSQL
@@ -22,7 +22,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[4]s
   plan: startup-4
 
 ---
@@ -42,7 +42,7 @@ spec:
   lcCtype: en_US.UTF-8
   lcCollate: en_US.UTF-8
 
-`, project, pgName, dbName)
+`, project, pgName, dbName, cloudName)
 }
 
 func TestDatabase(t *testing.T) {
@@ -52,7 +52,7 @@ func TestDatabase(t *testing.T) {
 	// GIVEN
 	pgName := randName("database")
 	dbName := randName("database")
-	yml := getDatabaseYaml(testProject, pgName, dbName)
+	yml := getDatabaseYaml(testProject, pgName, dbName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

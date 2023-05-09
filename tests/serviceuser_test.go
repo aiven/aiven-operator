@@ -10,7 +10,7 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getServiceUserYaml(project, pgName, userName string) string {
+func getServiceUserYaml(project, pgName, userName, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: PostgreSQL
@@ -22,7 +22,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[4]s
   plan: startup-4
 
 ---
@@ -45,7 +45,7 @@ spec:
 
   project: %[1]s
   serviceName: %[2]s
-`, project, pgName, userName)
+`, project, pgName, userName, cloudName)
 }
 
 func TestServiceUser(t *testing.T) {
@@ -55,7 +55,7 @@ func TestServiceUser(t *testing.T) {
 	// GIVEN
 	pgName := randName("connection-pool")
 	userName := randName("connection-pool")
-	yml := getServiceUserYaml(testProject, pgName, userName)
+	yml := getServiceUserYaml(testProject, pgName, userName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

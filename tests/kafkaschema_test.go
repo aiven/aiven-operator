@@ -12,7 +12,7 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getKafkaSchemaYaml(project, kafkaName, schemaName, subjectName string) string {
+func getKafkaSchemaYaml(project, kafkaName, schemaName, subjectName, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: Kafka
@@ -24,7 +24,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[5]s
   plan: startup-2
   userConfig:
     schema_registry: true
@@ -58,7 +58,7 @@ spec:
         "namespace": "example_namespace",
         "type": "record"
     }
-`, project, kafkaName, schemaName, subjectName)
+`, project, kafkaName, schemaName, subjectName, cloudName)
 }
 
 func TestKafkaSchema(t *testing.T) {
@@ -69,7 +69,7 @@ func TestKafkaSchema(t *testing.T) {
 	kafkaName := randName("kafka-schema")
 	schemaName := randName("kafka-schema")
 	subjectName := randName("kafka-schema")
-	yml := getKafkaSchemaYaml(testProject, kafkaName, schemaName, subjectName)
+	yml := getKafkaSchemaYaml(testProject, kafkaName, schemaName, subjectName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

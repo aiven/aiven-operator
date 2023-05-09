@@ -11,7 +11,7 @@ import (
 	kafkauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/kafka"
 )
 
-func getKafkaYaml(project, name string) string {
+func getKafkaYaml(project, name, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: Kafka
@@ -23,7 +23,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[3]s
   plan: business-4
   disk_space: 600Gib
 
@@ -40,7 +40,7 @@ spec:
         description: bar
       - network: 10.20.0.0/16
 
-`, project, name)
+`, project, name, cloudName)
 }
 
 func TestKafka(t *testing.T) {
@@ -49,7 +49,7 @@ func TestKafka(t *testing.T) {
 
 	// GIVEN
 	name := randName("kafka")
-	yml := getKafkaYaml(testProject, name)
+	yml := getKafkaYaml(testProject, name, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

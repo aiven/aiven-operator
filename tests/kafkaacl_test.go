@@ -12,7 +12,7 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getKafkaACLYaml(project, kafka, topic, acl string) string {
+func getKafkaACLYaml(project, kafka, topic, acl, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: Kafka
@@ -24,7 +24,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[5]s
   plan: startup-2
 
 ---
@@ -60,7 +60,7 @@ spec:
   topic: %[3]s
   username: my-user
   permission: admin
-`, project, kafka, topic, acl)
+`, project, kafka, topic, acl, cloudName)
 }
 
 func TestKafkaACL(t *testing.T) {
@@ -71,7 +71,7 @@ func TestKafkaACL(t *testing.T) {
 	kafkaName := randName("kafka-acl")
 	topicName := randName("kafka-acl")
 	aclName := randName("kafka-acl")
-	yml := getKafkaACLYaml(testProject, kafkaName, topicName, aclName)
+	yml := getKafkaACLYaml(testProject, kafkaName, topicName, aclName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

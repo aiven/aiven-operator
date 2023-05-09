@@ -10,7 +10,7 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getConnectionPoolYaml(project, pgName, dbName, userName, poolName string) string {
+func getConnectionPoolYaml(project, pgName, dbName, userName, poolName, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: PostgreSQL
@@ -22,7 +22,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[6]s
   plan: startup-4
 
 ---
@@ -70,7 +70,7 @@ spec:
   username: %[4]s
   poolMode: transaction
   poolSize: 25
-`, project, pgName, dbName, userName, poolName)
+`, project, pgName, dbName, userName, poolName, cloudName)
 }
 
 func TestConnectionPool(t *testing.T) {
@@ -82,7 +82,7 @@ func TestConnectionPool(t *testing.T) {
 	dbName := randName("connection-pool")
 	userName := randName("connection-pool")
 	poolName := randName("connection-pool")
-	yml := getConnectionPoolYaml(testProject, pgName, dbName, userName, poolName)
+	yml := getConnectionPoolYaml(testProject, pgName, dbName, userName, poolName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

@@ -10,7 +10,7 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getProjectVPCYaml(project, vpcName string) string {
+func getProjectVPCYaml(project, vpcName, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: ProjectVPC
@@ -22,12 +22,12 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west2
+  cloudName: %[3]s
   networkCidr: 10.0.0.0/24
-`, project, vpcName)
+`, project, vpcName, cloudName)
 }
 
-func getKafkaForProjectVPCYaml(project, vpcID, kafkaName string) string {
+func getKafkaForProjectVPCYaml(project, vpcID, kafkaName, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: Kafka
@@ -39,10 +39,10 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west2
+  cloudName: %[4]s
   plan: startup-2
   projectVpcId: %[2]s
-`, project, vpcID, kafkaName)
+`, project, vpcID, kafkaName, cloudName)
 }
 
 // TestProjectVPCID Kafka.Spec.ProjectVPCID
@@ -53,7 +53,7 @@ func TestProjectVPCID(t *testing.T) {
 
 	// GIVEN
 	vpcName := randName("project-vpc-id")
-	vpcYaml := getProjectVPCYaml(testProject, vpcName)
+	vpcYaml := getProjectVPCYaml(testProject, vpcName, testSecondaryCloudName)
 	vpcSession := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
@@ -79,7 +79,7 @@ func TestProjectVPCID(t *testing.T) {
 
 	// Creates Kafka with given vpcID
 	kafkaName := randName("project-vpc-id")
-	kafkaYaml := getKafkaForProjectVPCYaml(testProject, vpc.Status.ID, kafkaName)
+	kafkaYaml := getKafkaForProjectVPCYaml(testProject, vpc.Status.ID, kafkaName, testSecondaryCloudName)
 	kafkaSession := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

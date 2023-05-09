@@ -11,7 +11,7 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getKafkaTopicNameYaml(project, ksName string) string {
+func getKafkaTopicNameYaml(project, ksName, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: Kafka
@@ -23,7 +23,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[3]s
   plan: startup-2
 
 ---
@@ -60,7 +60,7 @@ spec:
   topicName: bar_topic_name_with_underscores
   replication: 3
   partitions: 2
-`, project, ksName)
+`, project, ksName, cloudName)
 }
 
 // TestKafkaTopic creates two topics: one with metadata.name, another one with spec.topicName
@@ -71,7 +71,7 @@ func TestKafkaTopic(t *testing.T) {
 
 	// GIVEN
 	ksName := randName("kafka-topic")
-	yml := getKafkaTopicNameYaml(testProject, ksName)
+	yml := getKafkaTopicNameYaml(testProject, ksName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

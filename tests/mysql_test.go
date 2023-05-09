@@ -11,7 +11,7 @@ import (
 	mysqluserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/mysql"
 )
 
-func getMySQLYaml(project, name string) string {
+func getMySQLYaml(project, name, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: MySQL
@@ -23,7 +23,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[3]s
   plan: business-4
   disk_space: 100Gib
 
@@ -39,7 +39,7 @@ spec:
         description: bar
       - network: 10.20.0.0/16
 
-`, project, name)
+`, project, name, cloudName)
 }
 
 func TestMySQL(t *testing.T) {
@@ -48,7 +48,7 @@ func TestMySQL(t *testing.T) {
 
 	// GIVEN
 	name := randName("mysql")
-	yml := getMySQLYaml(testProject, name)
+	yml := getMySQLYaml(testProject, name, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

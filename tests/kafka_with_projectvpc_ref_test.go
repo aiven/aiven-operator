@@ -10,7 +10,7 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getKafkaWithProjectVPCRefYaml(project, vpcName, kafkaName string) string {
+func getKafkaWithProjectVPCRefYaml(project, vpcName, kafkaName, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: ProjectVPC
@@ -22,7 +22,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[4]s
   networkCidr: 10.0.0.0/24
 
 ---
@@ -37,12 +37,12 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: google-europe-west1
+  cloudName: %[3]s
   plan: startup-2
 
   projectVPCRef:
     name: %[2]s
-`, project, vpcName, kafkaName)
+`, project, vpcName, kafkaName, cloudName)
 }
 
 // TestKafkaWithProjectVPCRef tests Kafka.Spec.ProjectVPCRef
@@ -53,7 +53,7 @@ func TestKafkaWithProjectVPCRef(t *testing.T) {
 	// GIVEN
 	vpcName := randName("kafka-vpc")
 	kafkaName := randName("kafka-vpc")
-	yml := getKafkaWithProjectVPCRefYaml(testProject, vpcName, kafkaName)
+	yml := getKafkaWithProjectVPCRefYaml(testProject, vpcName, kafkaName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
