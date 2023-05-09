@@ -48,7 +48,7 @@ func TestGrafana(t *testing.T) {
 
 	// GIVEN
 	name := randName("grafana")
-	yml := getGrafanaYaml(testProject, name, testCloudName)
+	yml := getGrafanaYaml(testProject, name, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

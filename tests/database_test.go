@@ -52,7 +52,7 @@ func TestDatabase(t *testing.T) {
 	// GIVEN
 	pgName := randName("database")
 	dbName := randName("database")
-	yml := getDatabaseYaml(testProject, pgName, dbName, testCloudName)
+	yml := getDatabaseYaml(testProject, pgName, dbName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

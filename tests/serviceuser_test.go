@@ -55,7 +55,7 @@ func TestServiceUser(t *testing.T) {
 	// GIVEN
 	pgName := randName("connection-pool")
 	userName := randName("connection-pool")
-	yml := getServiceUserYaml(testProject, pgName, userName, testCloudName)
+	yml := getServiceUserYaml(testProject, pgName, userName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

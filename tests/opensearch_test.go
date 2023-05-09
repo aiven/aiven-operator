@@ -53,7 +53,7 @@ func TestOpenSearch(t *testing.T) {
 
 	// GIVEN
 	name := randName("opensearch")
-	yml := getOpenSearchYaml(testProject, name, testCloudName)
+	yml := getOpenSearchYaml(testProject, name, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

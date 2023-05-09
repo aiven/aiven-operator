@@ -82,7 +82,7 @@ func TestConnectionPool(t *testing.T) {
 	dbName := randName("connection-pool")
 	userName := randName("connection-pool")
 	poolName := randName("connection-pool")
-	yml := getConnectionPoolYaml(testProject, pgName, dbName, userName, poolName, testCloudName)
+	yml := getConnectionPoolYaml(testProject, pgName, dbName, userName, poolName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

@@ -81,7 +81,7 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	pgName := randName("clickhouse-postgresql")
 	siName := randName("clickhouse-postgresql")
 
-	yml := getClickhousePostgreSQLYaml(testProject, chName, pgName, siName, testCloudName)
+	yml := getClickhousePostgreSQLYaml(testProject, chName, pgName, siName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
@@ -195,7 +195,7 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 	ktName := randName("kafka-logs")
 	siName := randName("kafka-logs")
 
-	yml := getKafkaLogsYaml(testProject, ksName, ktName, siName, testCloudName)
+	yml := getKafkaLogsYaml(testProject, ksName, ktName, siName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
@@ -314,7 +314,7 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	kcName := randName("kafka-connect")
 	siName := randName("kafka-connect")
 
-	yml := getSIKafkaConnectYaml(testProject, ksName, kcName, siName, testCloudName)
+	yml := getSIKafkaConnectYaml(testProject, ksName, kcName, siName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
@@ -421,7 +421,7 @@ func TestServiceIntegrationDatadog(t *testing.T) {
 	pgName := randName("datadog")
 	siName := randName("datadog")
 
-	yml := getDatadogYaml(testProject, pgName, siName, endpointID, testCloudName)
+	yml := getDatadogYaml(testProject, pgName, siName, endpointID, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

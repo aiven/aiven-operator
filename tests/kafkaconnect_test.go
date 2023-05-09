@@ -48,7 +48,7 @@ func TestKafkaConnect(t *testing.T) {
 
 	// GIVEN
 	name := randName("kafka-connect")
-	yml := getKafkaConnectYaml(testProject, name, testCloudName)
+	yml := getKafkaConnectYaml(testProject, name, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

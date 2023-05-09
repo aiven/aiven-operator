@@ -45,7 +45,7 @@ func TestRedis(t *testing.T) {
 
 	// GIVEN
 	name := randName("redis")
-	yml := getRedisYaml(testProject, name, testCloudName)
+	yml := getRedisYaml(testProject, name, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

@@ -68,7 +68,7 @@ func TestPgReadReplica(t *testing.T) {
 	// GIVEN
 	masterName := randName("pg-master")
 	replicaName := randName("pg-replica")
-	yml := getPgReadReplicaYaml(testProject, masterName, replicaName, testCloudName)
+	yml := getPgReadReplicaYaml(testProject, masterName, replicaName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

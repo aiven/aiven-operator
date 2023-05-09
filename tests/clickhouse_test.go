@@ -45,7 +45,7 @@ func TestClickhouse(t *testing.T) {
 
 	// GIVEN
 	name := randName("clickhouse")
-	yml := getClickhouseYaml(testProject, name, testCloudName)
+	yml := getClickhouseYaml(testProject, name, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

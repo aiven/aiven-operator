@@ -48,7 +48,7 @@ func TestMySQL(t *testing.T) {
 
 	// GIVEN
 	name := randName("mysql")
-	yml := getMySQLYaml(testProject, name, testCloudName)
+	yml := getMySQLYaml(testProject, name, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

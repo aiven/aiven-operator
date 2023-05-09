@@ -49,7 +49,7 @@ func TestCassandra(t *testing.T) {
 
 	// GIVEN
 	name := randName("cassandra")
-	yml := getCassandraYaml(testProject, name, testCloudName)
+	yml := getCassandraYaml(testProject, name, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards

@@ -71,7 +71,7 @@ func TestKafkaACL(t *testing.T) {
 	kafkaName := randName("kafka-acl")
 	topicName := randName("kafka-acl")
 	aclName := randName("kafka-acl")
-	yml := getKafkaACLYaml(testProject, kafkaName, topicName, aclName, testCloudName)
+	yml := getKafkaACLYaml(testProject, kafkaName, topicName, aclName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
