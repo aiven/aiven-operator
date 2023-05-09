@@ -26,7 +26,7 @@ type ClickhouseUserReconciler struct {
 
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouseusers,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouseusers/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=aiven.io,resources=clickhouseusers/finalizers,verbs=update
+//+kubebuilder:rbac:groups=aiven.io,resources=clickhouseusers/finalizers,verbs=get;list;watch;create;update;patch;delete
 
 func (r *ClickhouseUserReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, &clickhouseUserHandler{}, &v1alpha1.ClickhouseUser{})

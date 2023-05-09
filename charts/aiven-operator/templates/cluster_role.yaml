@@ -42,7 +42,13 @@ rules:
     resources:
       - cassandras/finalizers
     verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
       - update
+      - watch
   - apiGroups:
       - aiven.io
     resources:
@@ -68,7 +74,13 @@ rules:
     resources:
       - clickhouses/finalizers
     verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
       - update
+      - watch
   - apiGroups:
       - aiven.io
     resources:
@@ -94,7 +106,13 @@ rules:
     resources:
       - clickhouseusers/finalizers
     verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
       - update
+      - watch
   - apiGroups:
       - aiven.io
     resources:
@@ -120,7 +138,13 @@ rules:
     resources:
       - connectionpools/finalizers
     verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
       - update
+      - watch
   - apiGroups:
       - aiven.io
     resources:
@@ -166,7 +190,13 @@ rules:
     resources:
       - grafanas/finalizers
     verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
       - update
+      - watch
   - apiGroups:
       - aiven.io
     resources:
@@ -214,7 +244,13 @@ rules:
     resources:
       - kafkaconnectors/finalizers
     verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
       - update
+      - watch
   - apiGroups:
       - aiven.io
     resources:
@@ -240,7 +276,13 @@ rules:
     resources:
       - kafkaconnects/finalizers
     verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
       - update
+      - watch
   - apiGroups:
       - aiven.io
     resources:
@@ -266,7 +308,13 @@ rules:
     resources:
       - kafkas/finalizers
     verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
       - update
+      - watch
   - apiGroups:
       - aiven.io
     resources:
@@ -332,7 +380,13 @@ rules:
     resources:
       - mysqls/finalizers
     verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
       - update
+      - watch
   - apiGroups:
       - aiven.io
     resources:
@@ -358,7 +412,13 @@ rules:
     resources:
       - opensearches/finalizers
     verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
       - update
+      - watch
   - apiGroups:
       - aiven.io
     resources:
@@ -384,7 +444,13 @@ rules:
     resources:
       - postgresqls/finalizers
     verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
       - update
+      - watch
   - apiGroups:
       - aiven.io
     resources:
@@ -410,7 +476,13 @@ rules:
     resources:
       - projects/finalizers
     verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
       - update
+      - watch
   - apiGroups:
       - aiven.io
     resources:
@@ -456,7 +528,13 @@ rules:
     resources:
       - redis/finalizers
     verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
       - update
+      - watch
   - apiGroups:
       - aiven.io
     resources:
@@ -501,7 +579,13 @@ rules:
     resources:
       - serviceusers/finalizers
     verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
       - update
+      - watch
   - apiGroups:
       - aiven.io
     resources:
