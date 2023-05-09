@@ -19,7 +19,9 @@ type RedisSpec struct {
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 
-	// Information regarding secret creation
+	// Information regarding secret creation.
+	//
+	// Exposed keys: `REDIS_HOST`, `REDIS_PORT`, `REDIS_USER`, `REDIS_PASSWORD`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
 	// Redis specific user configuration options

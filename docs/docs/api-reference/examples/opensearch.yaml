@@ -9,6 +9,7 @@ spec:
 
   connInfoSecretTarget:
     name: os-secret
+    prefix: MY_SECRET_PREFIX_
     annotations:
       foo: bar
     labels:

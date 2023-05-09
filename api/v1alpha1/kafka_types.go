@@ -19,7 +19,9 @@ type KafkaSpec struct {
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 
-	// Information regarding secret creation
+	// Information regarding secret creation.
+	//
+	// Exposed keys: `KAFKA_HOST`, `KAFKA_PORT`, `KAFKA_USERNAME`, `KAFKA_PASSWORD`, `KAFKA_ACCESS_CERT`, `KAFKA_ACCESS_KEY`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
 	// Switch the service to use Karapace for schema registry and REST proxy

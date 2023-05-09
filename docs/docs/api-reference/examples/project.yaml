@@ -7,6 +7,14 @@ spec:
     name: aiven-token
     key: token
 
+  connInfoSecretTarget:
+    name: project-secret
+    prefix: MY_SECRET_PREFIX_
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
+
   tags:
     env: prod
 

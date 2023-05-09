@@ -37,7 +37,7 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: %[3]s
+  cloudName: %[4]s
   plan: startup-2
 
   projectVPCRef:

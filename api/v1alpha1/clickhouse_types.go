@@ -19,7 +19,9 @@ type ClickhouseSpec struct {
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 
-	// Information regarding secret creation
+	// Information regarding secret creation.
+	//
+	// Exposed keys: `CLICKHOUSE_HOST`, `CLICKHOUSE_PORT`, `CLICKHOUSE_USER`, `CLICKHOUSE_PASSWORD`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
 	// OpenSearch specific user configuration options

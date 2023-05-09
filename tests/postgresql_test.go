@@ -53,7 +53,6 @@ spec:
     instance: replica
 
   userConfig:
-    pg_version: "14"
     public_access:
       pg: true
       prometheus: true
@@ -116,12 +115,6 @@ func TestPgReadReplica(t *testing.T) {
 	// UserConfig test
 	require.NotNil(t, replica.Spec.UserConfig)
 
-	// Tests non-strict yaml. By sending string-integer we expect it's parsed as a string.
-	// We don't set version number for master, we expect 14 to be a default value.
-	// So this will fail when default version is changed.
-	assert.Equal(t, "14", replicaAvn.UserConfig["pg_version"])
-	assert.Equal(t, anyPointer("14"), replica.Spec.UserConfig.PgVersion)
-
 	// UserConfig nested options test
 	require.NotNil(t, replica.Spec.UserConfig.PublicAccess)
 	assert.Equal(t, anyPointer(true), replica.Spec.UserConfig.PublicAccess.Prometheus)
@@ -148,4 +141,104 @@ func TestPgReadReplica(t *testing.T) {
 		assert.NotEmpty(t, secret.Data["POSTGRESQL_SSLMODE"])
 		assert.NotEmpty(t, secret.Data["POSTGRESQL_DATABASE_URI"])
 	}
+}
+
+func getPgCustomPrefixYaml(project, pgName, cloudName string) string {
+	return fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: %[2]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  cloudName: %[3]s
+  plan: startup-4
+
+  connInfoSecretTarget:
+    name: postgresql-secret
+    prefix: MY_PG_
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
+
+  tags:
+    env: prod
+    instance: pg
+  
+  userConfig:
+    pg_version: "14"
+`, project, pgName, cloudName)
+}
+
+func TestPgCustomPrefix(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	// GIVEN
+	pgName := randName("secret-prefix")
+	yml := getPgCustomPrefixYaml(testProject, pgName, testPrimaryCloudName)
+	s := NewSession(k8sClient, avnClient, testProject)
+
+	// Cleans test afterwards
+	defer s.Destroy()
+
+	// WHEN
+	// Applies given manifest
+	require.NoError(t, s.Apply(yml))
+
+	// Waits kube objects
+	pg := new(v1alpha1.PostgreSQL)
+	require.NoError(t, s.GetRunning(pg, pgName))
+
+	// THEN
+	// Validates instance
+	pgAvn, err := avnClient.Services.Get(testProject, pgName)
+	require.NoError(t, err)
+	assert.Equal(t, pgAvn.Name, pg.GetName())
+	assert.Equal(t, "RUNNING", pg.Status.State)
+	assert.Equal(t, pgAvn.State, pg.Status.State)
+	assert.Equal(t, pgAvn.Plan, pg.Spec.Plan)
+	assert.Equal(t, pgAvn.CloudName, pg.Spec.CloudName)
+	assert.Equal(t, map[string]string{"env": "prod", "instance": "pg"}, pg.Spec.Tags)
+	masterResp, err := avnClient.ServiceTags.Get(testProject, pgName)
+	require.NoError(t, err)
+	assert.Equal(t, masterResp.Tags, pg.Spec.Tags)
+
+	// UserConfig test
+	require.NotNil(t, pg.Spec.UserConfig)
+	assert.NotNil(t, pgAvn.UserConfig) // "Aiven instance has defaults set"
+
+	// Tests non-strict yaml. By sending string-integer we expect it's parsed as a string.
+	// Default version is 15, we get 14, as we set it.
+	assert.Equal(t, "14", pgAvn.UserConfig["pg_version"])
+	assert.Equal(t, anyPointer("14"), pg.Spec.UserConfig.PgVersion)
+
+	// Validates secret
+	secret, err := s.GetSecret("postgresql-secret")
+	assert.Equal(t, map[string]string{"foo": "bar"}, secret.Annotations)
+	assert.Equal(t, map[string]string{"baz": "egg"}, secret.Labels)
+
+	// Legacy secrets
+	require.NoError(t, err)
+	assert.NotEmpty(t, secret.Data["PGHOST"])
+	assert.NotEmpty(t, secret.Data["PGPORT"])
+	assert.NotEmpty(t, secret.Data["PGDATABASE"])
+	assert.NotEmpty(t, secret.Data["PGUSER"])
+	assert.NotEmpty(t, secret.Data["PGPASSWORD"])
+	assert.NotEmpty(t, secret.Data["PGSSLMODE"])
+	assert.NotEmpty(t, secret.Data["DATABASE_URI"])
+
+	// New secrets
+	assert.NotEmpty(t, secret.Data["MY_PG_HOST"])
+	assert.NotEmpty(t, secret.Data["MY_PG_PORT"])
+	assert.NotEmpty(t, secret.Data["MY_PG_DATABASE"])
+	assert.NotEmpty(t, secret.Data["MY_PG_USER"])
+	assert.NotEmpty(t, secret.Data["MY_PG_PASSWORD"])
+	assert.NotEmpty(t, secret.Data["MY_PG_SSLMODE"])
+	assert.NotEmpty(t, secret.Data["MY_PG_DATABASE_URI"])
 }

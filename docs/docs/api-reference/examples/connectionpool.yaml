@@ -7,6 +7,14 @@ spec:
     name: aiven-token
     key: token
 
+  connInfoSecretTarget:
+    name: connection-pool-secret
+    prefix: MY_SECRET_PREFIX_
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
+
   project: aiven-project-name
   serviceName: google-europe-west1
   databaseName: my-db

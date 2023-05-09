@@ -7,5 +7,13 @@ spec:
     name: aiven-token
     key: token
 
+  connInfoSecretTarget:
+    name: service-user-secret
+    prefix: MY_SECRET_PREFIX_
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
+
   project: aiven-project-name
   serviceName: my-service-name

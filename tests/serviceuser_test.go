@@ -99,6 +99,13 @@ func TestServiceUser(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["CA_CERT"])
 	assert.Contains(t, secret.Data, "ACCESS_CERT")
 	assert.Contains(t, secret.Data, "ACCESS_KEY")
+	assert.NotEmpty(t, secret.Data["SERVICEUSER_HOST"])
+	assert.NotEmpty(t, secret.Data["SERVICEUSER_PORT"])
+	assert.NotEmpty(t, secret.Data["SERVICEUSER_USERNAME"])
+	assert.NotEmpty(t, secret.Data["SERVICEUSER_PASSWORD"])
+	assert.NotEmpty(t, secret.Data["SERVICEUSER_CA_CERT"])
+	assert.Contains(t, secret.Data, "SERVICEUSER_ACCESS_CERT")
+	assert.Contains(t, secret.Data, "SERVICEUSER_ACCESS_KEY")
 	assert.Equal(t, map[string]string{"foo": "bar"}, secret.Annotations)
 	assert.Equal(t, map[string]string{"baz": "egg"}, secret.Labels)
 

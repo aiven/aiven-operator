@@ -54,7 +54,9 @@ type ProjectSpec struct {
 	// Technical contact emails of the project
 	TechnicalEmails []string `json:"technicalEmails,omitempty"`
 
-	// Information regarding secret creation
+	// Information regarding secret creation.
+	//
+	// Exposed keys: `PROJECT_CA_CERT`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
 	// Tags are key-value pairs that allow you to categorize projects

@@ -66,7 +66,9 @@ spec:
                 maxLength: 256
                 type: string
               connInfoSecretTarget:
-                description: Information regarding secret creation
+                description: "Information regarding secret creation. \n Exposed keys:
+                  `KAFKA_HOST`, `KAFKA_PORT`, `KAFKA_USERNAME`, `KAFKA_PASSWORD`,
+                  `KAFKA_ACCESS_CERT`, `KAFKA_ACCESS_KEY`"
                 properties:
                   annotations:
                     additionalProperties:

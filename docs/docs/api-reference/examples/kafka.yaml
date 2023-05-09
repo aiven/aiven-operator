@@ -9,6 +9,7 @@ spec:
 
   connInfoSecretTarget:
     name: kafka-secret
+    prefix: MY_SECRET_PREFIX_
     annotations:
       foo: bar
     labels:
