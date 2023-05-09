@@ -50,15 +50,14 @@ func TestKafka(t *testing.T) {
 	// GIVEN
 	name := randName("kafka")
 	yml := getKafkaYaml(testProject, name, testCloudName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	ks := new(v1alpha1.Kafka)
@@ -75,6 +74,9 @@ func TestKafka(t *testing.T) {
 	assert.Equal(t, "600Gib", ks.Spec.DiskSpace)
 	assert.Equal(t, 614400, ksAvn.DiskSpaceMB)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, ks.Spec.Tags)
+	ksResp, err := avnClient.ServiceTags.Get(testProject, name)
+	require.NoError(t, err)
+	assert.Equal(t, ksResp.Tags, ks.Spec.Tags)
 
 	// UserConfig test
 	require.NotNil(t, ks.Spec.UserConfig)
@@ -107,4 +109,12 @@ func TestKafka(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["PASSWORD"])
 	assert.NotEmpty(t, secret.Data["ACCESS_CERT"])
 	assert.NotEmpty(t, secret.Data["ACCESS_KEY"])
+
+	// New secrets
+	assert.NotEmpty(t, secret.Data["KAFKA_HOST"])
+	assert.NotEmpty(t, secret.Data["KAFKA_PORT"])
+	assert.NotEmpty(t, secret.Data["KAFKA_USERNAME"])
+	assert.NotEmpty(t, secret.Data["KAFKA_PASSWORD"])
+	assert.NotEmpty(t, secret.Data["KAFKA_ACCESS_CERT"])
+	assert.NotEmpty(t, secret.Data["KAFKA_ACCESS_KEY"])
 }

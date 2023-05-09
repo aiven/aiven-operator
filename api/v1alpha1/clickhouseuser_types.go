@@ -55,6 +55,10 @@ func (u ClickhouseUser) AuthSecretRef() *AuthSecretReference {
 	return u.Spec.AuthSecretRef
 }
 
+func (in *ClickhouseUser) GetConnInfoSecretTarget() ConnInfoSecretTarget {
+	return in.Spec.ConnInfoSecretTarget
+}
+
 //+kubebuilder:object:root=true
 
 // ClickhouseUserList contains a list of ClickhouseUser

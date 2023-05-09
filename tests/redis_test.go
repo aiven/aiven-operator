@@ -46,15 +46,14 @@ func TestRedis(t *testing.T) {
 	// GIVEN
 	name := randName("redis")
 	yml := getRedisYaml(testProject, name, testCloudName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	rs := new(v1alpha1.Redis)
@@ -69,6 +68,9 @@ func TestRedis(t *testing.T) {
 	assert.Equal(t, rsAvn.Plan, rs.Spec.Plan)
 	assert.Equal(t, rsAvn.CloudName, rs.Spec.CloudName)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, rs.Spec.Tags)
+	rsResp, err := avnClient.ServiceTags.Get(testProject, name)
+	require.NoError(t, err)
+	assert.Equal(t, rsResp.Tags, rs.Spec.Tags)
 
 	// UserConfig test
 	require.NotNil(t, rs.Spec.UserConfig)
@@ -96,4 +98,10 @@ func TestRedis(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["PORT"])
 	assert.NotEmpty(t, secret.Data["USER"])
 	assert.NotEmpty(t, secret.Data["PASSWORD"])
+
+	// New secrets
+	assert.NotEmpty(t, secret.Data["REDIS_HOST"])
+	assert.NotEmpty(t, secret.Data["REDIS_PORT"])
+	assert.NotEmpty(t, secret.Data["REDIS_USER"])
+	assert.NotEmpty(t, secret.Data["REDIS_PASSWORD"])
 }

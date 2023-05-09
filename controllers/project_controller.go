@@ -28,7 +28,7 @@ type ProjectHandler struct{}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=projects,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=projects/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=aiven.io,resources=projects/finalizers,verbs=update
+// +kubebuilder:rbac:groups=aiven.io,resources=projects/finalizers,verbs=get;list;watch;create;update;patch;delete
 
 func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, ProjectHandler{}, &v1alpha1.Project{})
@@ -167,10 +167,13 @@ func (h ProjectHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret,
 
 	metav1.SetMetaDataAnnotation(&project.ObjectMeta, instanceIsRunningAnnotation, "true")
 
+	prefix := getSecretPrefix(project)
 	stringData := map[string]string{
+		prefix + "CA_CERT": cert,
+		// todo: remove in future releases
 		"CA_CERT": cert,
 	}
-	return newSecret(project, project.Spec.ConnInfoSecretTarget, stringData), nil
+	return newSecret(project, stringData, false), nil
 }
 
 // exists checks if project already exists on Aiven side

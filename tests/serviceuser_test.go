@@ -56,15 +56,14 @@ func TestServiceUser(t *testing.T) {
 	pgName := randName("connection-pool")
 	userName := randName("connection-pool")
 	yml := getServiceUserYaml(testProject, pgName, userName, testCloudName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	pg := new(v1alpha1.PostgreSQL)

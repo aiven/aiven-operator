@@ -23,7 +23,7 @@ type CassandraReconciler struct {
 
 // +kubebuilder:rbac:groups=aiven.io,resources=cassandras,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=cassandras/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=aiven.io,resources=cassandras/finalizers,verbs=update
+// +kubebuilder:rbac:groups=aiven.io,resources=cassandras/finalizers,verbs=get;list;watch;create;update;patch;delete
 
 func (r *CassandraReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newCassandraAdapter), &v1alpha1.Cassandra{})
@@ -68,15 +68,15 @@ func (a *cassandraAdapter) getUserConfig() any {
 
 func (a *cassandraAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
 	stringData := map[string]string{
-		"CASSANDRA_HOST":     s.URIParams["host"],
-		"CASSANDRA_PORT":     s.URIParams["port"],
-		"CASSANDRA_USER":     s.URIParams["user"],
-		"CASSANDRA_PASSWORD": s.URIParams["password"],
-		"CASSANDRA_URI":      s.URI,
-		"CASSANDRA_HOSTS":    strings.Join(s.ConnectionInfo.CassandraHosts, ","),
+		"HOST":     s.URIParams["host"],
+		"PORT":     s.URIParams["port"],
+		"USER":     s.URIParams["user"],
+		"PASSWORD": s.URIParams["password"],
+		"URI":      s.URI,
+		"HOSTS":    strings.Join(s.ConnectionInfo.CassandraHosts, ","),
 	}
 
-	return newSecret(a, a.Spec.ConnInfoSecretTarget, stringData), nil
+	return newSecret(a, stringData, true), nil
 }
 
 func (a *cassandraAdapter) getServiceType() string {

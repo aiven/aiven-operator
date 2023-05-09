@@ -50,15 +50,14 @@ func TestCassandra(t *testing.T) {
 	// GIVEN
 	name := randName("cassandra")
 	yml := getCassandraYaml(testProject, name, testCloudName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	cs := new(v1alpha1.Cassandra)
@@ -75,6 +74,9 @@ func TestCassandra(t *testing.T) {
 	assert.Equal(t, "450Gib", cs.Spec.DiskSpace)
 	assert.Equal(t, 460800, csAvn.DiskSpaceMB)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, cs.Spec.Tags)
+	csResp, err := avnClient.ServiceTags.Get(testProject, name)
+	require.NoError(t, err)
+	assert.Equal(t, csResp.Tags, cs.Spec.Tags)
 
 	// UserConfig test
 	require.NotNil(t, cs.Spec.UserConfig)

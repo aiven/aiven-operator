@@ -49,15 +49,14 @@ func TestMySQL(t *testing.T) {
 	// GIVEN
 	name := randName("mysql")
 	yml := getMySQLYaml(testProject, name, testCloudName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	ms := new(v1alpha1.MySQL)
@@ -74,6 +73,9 @@ func TestMySQL(t *testing.T) {
 	assert.Equal(t, "100Gib", ms.Spec.DiskSpace)
 	assert.Equal(t, 102400, msAvn.DiskSpaceMB)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, ms.Spec.Tags)
+	msResp, err := avnClient.ServiceTags.Get(testProject, name)
+	require.NoError(t, err)
+	assert.Equal(t, msResp.Tags, ms.Spec.Tags)
 
 	// UserConfig test
 	require.NotNil(t, ms.Spec.UserConfig)

@@ -22,7 +22,7 @@ type ClickhouseReconciler struct {
 
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouses,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouses/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=aiven.io,resources=clickhouses/finalizers,verbs=update
+//+kubebuilder:rbac:groups=aiven.io,resources=clickhouses/finalizers,verbs=get;list;watch;create;update;patch;delete
 
 func (r *ClickhouseReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newClickhouseAdapter), &v1alpha1.Clickhouse{})
@@ -66,14 +66,20 @@ func (a *clickhouseAdapter) getUserConfig() any {
 }
 
 func (a *clickhouseAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
+	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
+		prefix + "HOST":     s.URIParams["host"],
+		prefix + "PASSWORD": s.URIParams["password"],
+		prefix + "PORT":     s.URIParams["port"],
+		prefix + "USER":     s.URIParams["user"],
+		// todo: remove in future releases
 		"HOST":     s.URIParams["host"],
 		"PASSWORD": s.URIParams["password"],
 		"PORT":     s.URIParams["port"],
 		"USER":     s.URIParams["user"],
 	}
 
-	return newSecret(a, a.Spec.ConnInfoSecretTarget, stringData), nil
+	return newSecret(a, stringData, false), nil
 }
 
 func (a *clickhouseAdapter) getServiceType() string {

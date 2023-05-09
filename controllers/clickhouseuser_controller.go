@@ -26,7 +26,7 @@ type ClickhouseUserReconciler struct {
 
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouseusers,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouseusers/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=aiven.io,resources=clickhouseusers/finalizers,verbs=update
+//+kubebuilder:rbac:groups=aiven.io,resources=clickhouseusers/finalizers,verbs=get;list;watch;create;update;patch;delete
 
 func (r *ClickhouseUserReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, &clickhouseUserHandler{}, &v1alpha1.ClickhouseUser{})
@@ -113,14 +113,20 @@ func (h *clickhouseUserHandler) get(avn *aiven.Client, obj client.Object) (*core
 		return nil, err
 	}
 
+	prefix := getSecretPrefix(user)
 	stringData := map[string]string{
+		prefix + "HOST":     s.URIParams["host"],
+		prefix + "PORT":     s.URIParams["port"],
+		prefix + "PASSWORD": password,
+		prefix + "USERNAME": user.Name,
+		// todo: remove in future releases
 		"HOST":     s.URIParams["host"],
 		"PORT":     s.URIParams["port"],
 		"PASSWORD": password,
 		"USERNAME": user.Name,
 	}
 
-	secret := newSecret(user, user.Spec.ConnInfoSecretTarget, stringData)
+	secret := newSecret(user, stringData, false)
 
 	meta.SetStatusCondition(&user.Status.Conditions,
 		getRunningCondition(metav1.ConditionTrue, "CheckRunning",

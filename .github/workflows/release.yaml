@@ -55,6 +55,9 @@ jobs:
           build-args: |
             VERSION=${{ steps.action_vars.outputs.tag }}
   sync-charts:
+    needs:
+      - build_default_release_manifest
+      - build_and_push_docker_image
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

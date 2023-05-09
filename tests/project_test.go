@@ -36,15 +36,14 @@ func TestProject(t *testing.T) {
 	// GIVEN
 	name := randName("project")
 	yml := getProjectYaml(name)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube object
 	project := new(v1alpha1.Project)
@@ -64,4 +63,5 @@ func TestProject(t *testing.T) {
 	secret, err := s.GetSecret(project.GetName())
 	require.NoError(t, err)
 	assert.NotEmpty(t, secret.Data["CA_CERT"])
+	assert.NotEmpty(t, secret.Data["PROJECT_CA_CERT"])
 }

@@ -27,7 +27,7 @@ type ConnectionPoolHandler struct{}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=connectionpools,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=connectionpools/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=aiven.io,resources=connectionpools/finalizers,verbs=update
+// +kubebuilder:rbac:groups=aiven.io,resources=connectionpools/finalizers,verbs=get;list;watch;create;update;patch;delete
 
 func (r *ConnectionPoolReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, ConnectionPoolHandler{}, &v1alpha1.ConnectionPool{})
@@ -142,7 +142,16 @@ func (h ConnectionPoolHandler) get(avn *aiven.Client, i client.Object) (*corev1.
 			"Instance is running on Aiven side"))
 
 	if len(connPool.Spec.Username) == 0 {
+		prefix := getSecretPrefix(connPool)
 		stringData := map[string]string{
+			prefix + "HOST":         s.URIParams["host"],
+			prefix + "PORT":         s.URIParams["port"],
+			prefix + "DATABASE":     cp.Database,
+			prefix + "USER":         s.URIParams["user"],
+			prefix + "PASSWORD":     s.URIParams["password"],
+			prefix + "SSLMODE":      s.URIParams["sslmode"],
+			prefix + "DATABASE_URI": cp.ConnectionURI,
+			// todo: remove in future releases
 			"PGHOST":       s.URIParams["host"],
 			"PGPORT":       s.URIParams["port"],
 			"PGDATABASE":   cp.Database,
@@ -152,7 +161,7 @@ func (h ConnectionPoolHandler) get(avn *aiven.Client, i client.Object) (*corev1.
 			"DATABASE_URI": cp.ConnectionURI,
 		}
 
-		return newSecret(connPool, connPool.Spec.ConnInfoSecretTarget, stringData), nil
+		return newSecret(connPool, stringData, false), nil
 	}
 
 	u, err := avn.ServiceUsers.Get(connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Spec.Username)
@@ -160,7 +169,16 @@ func (h ConnectionPoolHandler) get(avn *aiven.Client, i client.Object) (*corev1.
 		return nil, fmt.Errorf("cannot get user: %w", err)
 	}
 
+	prefix := getSecretPrefix(connPool)
 	stringData := map[string]string{
+		prefix + "HOST":         s.URIParams["host"],
+		prefix + "PORT":         s.URIParams["port"],
+		prefix + "DATABASE":     cp.Database,
+		prefix + "USER":         cp.Username,
+		prefix + "PASSWORD":     u.Password,
+		prefix + "SSLMODE":      s.URIParams["sslmode"],
+		prefix + "DATABASE_URI": cp.ConnectionURI,
+		// todo: remove in future releases
 		"PGHOST":       s.URIParams["host"],
 		"PGPORT":       s.URIParams["port"],
 		"PGDATABASE":   cp.Database,
@@ -169,7 +187,7 @@ func (h ConnectionPoolHandler) get(avn *aiven.Client, i client.Object) (*corev1.
 		"PGSSLMODE":    s.URIParams["sslmode"],
 		"DATABASE_URI": cp.ConnectionURI,
 	}
-	return newSecret(connPool, connPool.Spec.ConnInfoSecretTarget, stringData), nil
+	return newSecret(connPool, stringData, false), nil
 }
 
 func (h ConnectionPoolHandler) checkPreconditions(avn *aiven.Client, i client.Object) (bool, error) {

@@ -51,6 +51,10 @@ func (in *PostgreSQL) GetRefs() []*ResourceReferenceObject {
 	return in.Spec.GetRefs(in.GetNamespace())
 }
 
+func (in *PostgreSQL) GetConnInfoSecretTarget() ConnInfoSecretTarget {
+	return in.Spec.ConnInfoSecretTarget
+}
+
 // +kubebuilder:object:root=true
 
 // PostgreSQLList contains a list of PostgreSQL instances

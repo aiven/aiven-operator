@@ -72,15 +72,14 @@ func TestKafkaACL(t *testing.T) {
 	topicName := randName("kafka-acl")
 	aclName := randName("kafka-acl")
 	yml := getKafkaACLYaml(testProject, kafkaName, topicName, aclName, testCloudName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	kafka := new(v1alpha1.Kafka)

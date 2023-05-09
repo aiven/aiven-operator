@@ -54,15 +54,14 @@ func TestOpenSearch(t *testing.T) {
 	// GIVEN
 	name := randName("opensearch")
 	yml := getOpenSearchYaml(testProject, name, testCloudName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	os := new(v1alpha1.OpenSearch)
@@ -79,6 +78,9 @@ func TestOpenSearch(t *testing.T) {
 	assert.Equal(t, "240Gib", os.Spec.DiskSpace)
 	assert.Equal(t, 245760, osAvn.DiskSpaceMB)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, os.Spec.Tags)
+	osResp, err := avnClient.ServiceTags.Get(testProject, name)
+	require.NoError(t, err)
+	assert.Equal(t, osResp.Tags, os.Spec.Tags)
 
 	// UserConfig test
 	require.NotNil(t, os.Spec.UserConfig)
@@ -106,6 +108,10 @@ func TestOpenSearch(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["PORT"])
 	assert.NotEmpty(t, secret.Data["USER"])
 	assert.NotEmpty(t, secret.Data["PASSWORD"])
+	assert.NotEmpty(t, secret.Data["OPENSEARCH_HOST"])
+	assert.NotEmpty(t, secret.Data["OPENSEARCH_PORT"])
+	assert.NotEmpty(t, secret.Data["OPENSEARCH_USER"])
+	assert.NotEmpty(t, secret.Data["OPENSEARCH_PASSWORD"])
 	assert.Equal(t, map[string]string{"foo": "bar"}, secret.Annotations)
 	assert.Equal(t, map[string]string{"baz": "egg"}, secret.Labels)
 }

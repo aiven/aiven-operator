@@ -102,6 +102,10 @@ func (proj Project) AuthSecretRef() *AuthSecretReference {
 	return proj.Spec.AuthSecretRef
 }
 
+func (in *Project) GetConnInfoSecretTarget() ConnInfoSecretTarget {
+	return in.Spec.ConnInfoSecretTarget
+}
+
 // +kubebuilder:object:root=true
 
 // ProjectList contains a list of Project

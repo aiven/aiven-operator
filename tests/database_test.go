@@ -53,15 +53,14 @@ func TestDatabase(t *testing.T) {
 	pgName := randName("database")
 	dbName := randName("database")
 	yml := getDatabaseYaml(testProject, pgName, dbName, testCloudName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	pg := new(v1alpha1.PostgreSQL)

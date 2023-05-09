@@ -69,15 +69,14 @@ func TestPgReadReplica(t *testing.T) {
 	masterName := randName("pg-master")
 	replicaName := randName("pg-replica")
 	yml := getPgReadReplicaYaml(testProject, masterName, replicaName, testCloudName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	master := new(v1alpha1.PostgreSQL)
@@ -95,9 +94,12 @@ func TestPgReadReplica(t *testing.T) {
 	assert.Equal(t, masterAvn.State, master.Status.State)
 	assert.Equal(t, masterAvn.Plan, master.Spec.Plan)
 	assert.Equal(t, masterAvn.CloudName, master.Spec.CloudName)
-	assert.Equal(t, map[string]string{"env": "prod", "instance": "master"}, master.Spec.Tags)
 	assert.NotNil(t, masterAvn.UserConfig) // "Aiven instance has defaults set"
 	assert.Nil(t, master.Spec.UserConfig)
+	assert.Equal(t, map[string]string{"env": "prod", "instance": "master"}, master.Spec.Tags)
+	masterResp, err := avnClient.ServiceTags.Get(testProject, masterName)
+	require.NoError(t, err)
+	assert.Equal(t, masterResp.Tags, master.Spec.Tags)
 
 	replicaAvn, err := avnClient.Services.Get(testProject, replicaName)
 	require.NoError(t, err)
@@ -107,6 +109,9 @@ func TestPgReadReplica(t *testing.T) {
 	assert.Equal(t, replicaAvn.Plan, replica.Spec.Plan)
 	assert.Equal(t, replicaAvn.CloudName, replica.Spec.CloudName)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "replica"}, replica.Spec.Tags)
+	replicaResp, err := avnClient.ServiceTags.Get(testProject, replicaName)
+	require.NoError(t, err)
+	assert.Equal(t, replicaResp.Tags, replica.Spec.Tags)
 
 	// UserConfig test
 	require.NotNil(t, replica.Spec.UserConfig)
@@ -133,5 +138,14 @@ func TestPgReadReplica(t *testing.T) {
 		assert.NotEmpty(t, secret.Data["PGPASSWORD"])
 		assert.NotEmpty(t, secret.Data["PGSSLMODE"])
 		assert.NotEmpty(t, secret.Data["DATABASE_URI"])
+
+		// New secrets
+		assert.NotEmpty(t, secret.Data["POSTGRESQL_HOST"])
+		assert.NotEmpty(t, secret.Data["POSTGRESQL_PORT"])
+		assert.NotEmpty(t, secret.Data["POSTGRESQL_DATABASE"])
+		assert.NotEmpty(t, secret.Data["POSTGRESQL_USER"])
+		assert.NotEmpty(t, secret.Data["POSTGRESQL_PASSWORD"])
+		assert.NotEmpty(t, secret.Data["POSTGRESQL_SSLMODE"])
+		assert.NotEmpty(t, secret.Data["POSTGRESQL_DATABASE_URI"])
 	}
 }

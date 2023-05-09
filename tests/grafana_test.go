@@ -49,15 +49,14 @@ func TestGrafana(t *testing.T) {
 	// GIVEN
 	name := randName("grafana")
 	yml := getGrafanaYaml(testProject, name, testCloudName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	grafana := new(v1alpha1.Grafana)
@@ -72,6 +71,9 @@ func TestGrafana(t *testing.T) {
 	assert.Equal(t, grafanaAvn.Plan, grafana.Spec.Plan)
 	assert.Equal(t, grafanaAvn.CloudName, grafana.Spec.CloudName)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, grafana.Spec.Tags)
+	grafanaResp, err := avnClient.ServiceTags.Get(testProject, name)
+	require.NoError(t, err)
+	assert.Equal(t, grafanaResp.Tags, grafana.Spec.Tags)
 
 	// UserConfig test
 	require.NotNil(t, grafana.Spec.UserConfig)

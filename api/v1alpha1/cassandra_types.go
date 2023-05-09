@@ -51,6 +51,10 @@ func (in *Cassandra) GetRefs() []*ResourceReferenceObject {
 	return in.Spec.GetRefs(in.GetNamespace())
 }
 
+func (in *Cassandra) GetConnInfoSecretTarget() ConnInfoSecretTarget {
+	return in.Spec.ConnInfoSecretTarget
+}
+
 //+kubebuilder:object:root=true
 
 // CassandraList contains a list of Cassandra

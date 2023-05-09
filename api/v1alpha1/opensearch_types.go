@@ -55,6 +55,10 @@ func (in *OpenSearch) GetRefs() []*ResourceReferenceObject {
 	return in.Spec.GetRefs(in.GetNamespace())
 }
 
+func (in *OpenSearch) GetConnInfoSecretTarget() ConnInfoSecretTarget {
+	return in.Spec.ConnInfoSecretTarget
+}
+
 func init() {
 	SchemeBuilder.Register(&OpenSearch{}, &OpenSearchList{})
 }

@@ -46,15 +46,14 @@ func TestClickhouse(t *testing.T) {
 	// GIVEN
 	name := randName("clickhouse")
 	yml := getClickhouseYaml(testProject, name, testCloudName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	ch := new(v1alpha1.Clickhouse)
@@ -69,6 +68,9 @@ func TestClickhouse(t *testing.T) {
 	assert.Equal(t, chAvn.Plan, ch.Spec.Plan)
 	assert.Equal(t, chAvn.CloudName, ch.Spec.CloudName)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, ch.Spec.Tags)
+	chResp, err := avnClient.ServiceTags.Get(testProject, name)
+	require.NoError(t, err)
+	assert.Equal(t, chResp.Tags, ch.Spec.Tags)
 
 	// UserConfig test
 	require.NotNil(t, ch.Spec.UserConfig)
@@ -96,4 +98,10 @@ func TestClickhouse(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["PORT"])
 	assert.NotEmpty(t, secret.Data["USER"])
 	assert.NotEmpty(t, secret.Data["PASSWORD"])
+
+	// New secrets
+	assert.NotEmpty(t, secret.Data["CLICKHOUSE_HOST"])
+	assert.NotEmpty(t, secret.Data["CLICKHOUSE_PORT"])
+	assert.NotEmpty(t, secret.Data["CLICKHOUSE_USER"])
+	assert.NotEmpty(t, secret.Data["CLICKHOUSE_PASSWORD"])
 }

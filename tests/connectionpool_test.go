@@ -83,15 +83,14 @@ func TestConnectionPool(t *testing.T) {
 	userName := randName("connection-pool")
 	poolName := randName("connection-pool")
 	yml := getConnectionPoolYaml(testProject, pgName, dbName, userName, poolName, testCloudName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	pg := new(v1alpha1.PostgreSQL)
@@ -154,6 +153,15 @@ func TestConnectionPool(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["PGPASSWORD"])
 	assert.NotEmpty(t, secret.Data["PGSSLMODE"])
 	assert.NotEmpty(t, secret.Data["DATABASE_URI"])
+
+	// New secrets
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_HOST"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_PORT"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_DATABASE"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_USER"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_PASSWORD"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_SSLMODE"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_DATABASE_URI"])
 
 	// We need to validate deletion,
 	// because we can get false positive here:

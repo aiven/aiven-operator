@@ -23,7 +23,7 @@ type GrafanaReconciler struct {
 
 // +kubebuilder:rbac:groups=aiven.io,resources=grafanas,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=grafanas/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=aiven.io,resources=grafanas/finalizers,verbs=update
+// +kubebuilder:rbac:groups=aiven.io,resources=grafanas/finalizers,verbs=get;list;watch;create;update;patch;delete
 
 func (r *GrafanaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newGrafanaAdapter), &v1alpha1.Grafana{})
@@ -68,15 +68,15 @@ func (a *grafanaAdapter) getUserConfig() any {
 
 func (a *grafanaAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
 	stringData := map[string]string{
-		"GRAFANA_HOST":     s.URIParams["host"],
-		"GRAFANA_PORT":     s.URIParams["port"],
-		"GRAFANA_USER":     s.URIParams["user"],
-		"GRAFANA_PASSWORD": s.URIParams["password"],
-		"GRAFANA_URI":      s.URI,
-		"GRAFANA_HOSTS":    strings.Join(s.ConnectionInfo.GrafanaURIs, ","),
+		"HOST":     s.URIParams["host"],
+		"PORT":     s.URIParams["port"],
+		"USER":     s.URIParams["user"],
+		"PASSWORD": s.URIParams["password"],
+		"URI":      s.URI,
+		"HOSTS":    strings.Join(s.ConnectionInfo.GrafanaURIs, ","),
 	}
 
-	return newSecret(a, a.Spec.ConnInfoSecretTarget, stringData), nil
+	return newSecret(a, stringData, true), nil
 }
 
 func (a *grafanaAdapter) getServiceType() string {

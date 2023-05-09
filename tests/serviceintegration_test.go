@@ -82,15 +82,14 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	siName := randName("clickhouse-postgresql")
 
 	yml := getClickhousePostgreSQLYaml(testProject, chName, pgName, siName, testCloudName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	ch := new(v1alpha1.Clickhouse)
@@ -197,15 +196,14 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 	siName := randName("kafka-logs")
 
 	yml := getKafkaLogsYaml(testProject, ksName, ktName, siName, testCloudName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	ks := new(v1alpha1.Kafka)
@@ -317,15 +315,14 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	siName := randName("kafka-connect")
 
 	yml := getSIKafkaConnectYaml(testProject, ksName, kcName, siName, testCloudName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	ks := new(v1alpha1.Kafka)
@@ -425,15 +422,14 @@ func TestServiceIntegrationDatadog(t *testing.T) {
 	siName := randName("datadog")
 
 	yml := getDatadogYaml(testProject, pgName, siName, endpointID, testCloudName)
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// Cleans test afterwards
 	defer s.Destroy()
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply())
+	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
 	pg := new(v1alpha1.PostgreSQL)
@@ -502,11 +498,10 @@ func TestWebhookMultipleUserConfigsDenied(t *testing.T) {
 	yml := getWebhookMultipleUserConfigsDeniedYaml(testProject, siName)
 
 	// WHEN
-	s, err := NewSession(k8sClient, avnClient, testProject, yml)
-	require.NoError(t, err)
+	s := NewSession(k8sClient, avnClient, testProject)
 
 	// THEN
-	err = s.Apply()
+	err := s.Apply(yml)
 	errStringExpected := `admission webhook ` +
 		`"vserviceintegration.kb.io" denied the request: ` +
 		`got additional configuration for integration type "clickhouse_postgresql"`

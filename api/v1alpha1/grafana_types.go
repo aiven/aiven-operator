@@ -51,6 +51,10 @@ func (in *Grafana) GetRefs() []*ResourceReferenceObject {
 	return in.Spec.GetRefs(in.GetNamespace())
 }
 
+func (in *Grafana) GetConnInfoSecretTarget() ConnInfoSecretTarget {
+	return in.Spec.ConnInfoSecretTarget
+}
+
 //+kubebuilder:object:root=true
 
 // GrafanaList contains a list of Grafana
