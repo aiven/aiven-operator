@@ -14,6 +14,14 @@ spec:
     name: aiven-token
     key: token
 
+  connInfoSecretTarget:
+    name: connection-pool-secret
+    prefix: MY_SECRET_PREFIX_
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
+
   project: aiven-project-name
   serviceName: google-europe-west1
   databaseName: my-db
@@ -49,7 +57,8 @@ ConnectionPoolSpec defines the desired state of ConnectionPool.
 **Optional**
 
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
-- [`connInfoSecretTarget`](#spec.connInfoSecretTarget-property){: name='spec.connInfoSecretTarget-property'} (object). Information regarding secret creation. See below for [nested schema](#spec.connInfoSecretTarget).
+- [`connInfoSecretTarget`](#spec.connInfoSecretTarget-property){: name='spec.connInfoSecretTarget-property'} (object). Information regarding secret creation. 
+ Exposed keys: `CONNECTIONPOOL_HOST`, `CONNECTIONPOOL_PORT`, `CONNECTIONPOOL_DATABASE`, `CONNECTIONPOOL_USER`, `CONNECTIONPOOL_PASSWORD`, `CONNECTIONPOOL_SSLMODE`, `CONNECTIONPOOL_DATABASE_URI`. See below for [nested schema](#spec.connInfoSecretTarget).
 - [`poolMode`](#spec.poolMode-property){: name='spec.poolMode-property'} (string, Enum: `session`, `transaction`, `statement`). Mode the pool operates in (session, transaction, statement).
 - [`poolSize`](#spec.poolSize-property){: name='spec.poolSize-property'} (integer). Number of connections the pool may create towards the backend server.
 
@@ -68,7 +77,8 @@ Authentication reference to Aiven token in a secret.
 
 _Appears on [`spec`](#spec)._
 
-Information regarding secret creation.
+Information regarding secret creation. 
+ Exposed keys: `CONNECTIONPOOL_HOST`, `CONNECTIONPOOL_PORT`, `CONNECTIONPOOL_DATABASE`, `CONNECTIONPOOL_USER`, `CONNECTIONPOOL_PASSWORD`, `CONNECTIONPOOL_SSLMODE`, `CONNECTIONPOOL_DATABASE_URI`.
 
 **Required**
 

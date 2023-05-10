@@ -19,7 +19,9 @@ type ClickhouseUserSpec struct {
 	// Service to link the user to
 	ServiceName string `json:"serviceName"`
 
-	// Information regarding secret creation
+	// Information regarding secret creation.
+	//
+	// Exposed keys: `CLICKHOUSEUSER_HOST`, `CLICKHOUSEUSER_PORT`, `CLICKHOUSEUSER_USER`, `CLICKHOUSEUSER_PASSWORD`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
 	// Authentication reference to Aiven token in a secret

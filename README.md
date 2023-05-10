@@ -31,7 +31,7 @@ spec:
   maintenanceWindowDow: friday
   maintenanceWindowTime: 23:00:00
   userConfig:
-    pg_version: '11'
+    pg_version: '15'
 ```
 
 Watch the resource being created and wait until its status is `RUNNING`:

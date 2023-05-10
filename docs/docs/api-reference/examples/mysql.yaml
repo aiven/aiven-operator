@@ -9,6 +9,7 @@ spec:
 
   connInfoSecretTarget:
     name: mysql-secret
+    prefix: MY_SECRET_PREFIX_
     annotations:
       foo: bar
     labels:

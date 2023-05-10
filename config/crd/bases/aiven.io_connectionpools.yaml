@@ -68,7 +68,10 @@ spec:
                 - name
                 type: object
               connInfoSecretTarget:
-                description: Information regarding secret creation
+                description: "Information regarding secret creation. \n Exposed keys:
+                  `CONNECTIONPOOL_HOST`, `CONNECTIONPOOL_PORT`, `CONNECTIONPOOL_DATABASE`,
+                  `CONNECTIONPOOL_USER`, `CONNECTIONPOOL_PASSWORD`, `CONNECTIONPOOL_SSLMODE`,
+                  `CONNECTIONPOOL_DATABASE_URI`"
                 properties:
                   annotations:
                     additionalProperties:

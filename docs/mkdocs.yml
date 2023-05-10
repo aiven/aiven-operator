@@ -19,6 +19,7 @@ markdown_extensions:
   - admonition
   - pymdownx.details
   - attr_list
+  - nl2br
   - toc:
       permalink: true
 plugins:

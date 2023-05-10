@@ -14,6 +14,14 @@ spec:
     name: aiven-token
     key: token
 
+  connInfoSecretTarget:
+    name: clickhouse-user-secret
+    prefix: MY_SECRET_PREFIX_
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
+
   project: my-aiven-project
   serviceName: my-clickhouse
 ```
@@ -43,7 +51,8 @@ ClickhouseUserSpec defines the desired state of ClickhouseUser.
 **Optional**
 
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
-- [`connInfoSecretTarget`](#spec.connInfoSecretTarget-property){: name='spec.connInfoSecretTarget-property'} (object). Information regarding secret creation. See below for [nested schema](#spec.connInfoSecretTarget).
+- [`connInfoSecretTarget`](#spec.connInfoSecretTarget-property){: name='spec.connInfoSecretTarget-property'} (object). Information regarding secret creation. 
+ Exposed keys: `CLICKHOUSEUSER_HOST`, `CLICKHOUSEUSER_PORT`, `CLICKHOUSEUSER_USER`, `CLICKHOUSEUSER_PASSWORD`. See below for [nested schema](#spec.connInfoSecretTarget).
 
 ## authSecretRef {: #spec.authSecretRef }
 
@@ -60,7 +69,8 @@ Authentication reference to Aiven token in a secret.
 
 _Appears on [`spec`](#spec)._
 
-Information regarding secret creation.
+Information regarding secret creation. 
+ Exposed keys: `CLICKHOUSEUSER_HOST`, `CLICKHOUSEUSER_PORT`, `CLICKHOUSEUSER_USER`, `CLICKHOUSEUSER_PASSWORD`.
 
 **Required**
 

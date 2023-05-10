@@ -59,7 +59,9 @@ spec:
                 - name
                 type: object
               connInfoSecretTarget:
-                description: Information regarding secret creation
+                description: "Information regarding secret creation. \n Exposed keys:
+                  `CLICKHOUSEUSER_HOST`, `CLICKHOUSEUSER_PORT`, `CLICKHOUSEUSER_USER`,
+                  `CLICKHOUSEUSER_PASSWORD`"
                 properties:
                   annotations:
                     additionalProperties:
