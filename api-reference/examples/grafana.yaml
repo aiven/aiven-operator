@@ -9,6 +9,7 @@ spec:
 
   connInfoSecretTarget:
     name: grafana-secret
+    prefix: MY_SECRET_PREFIX_
     annotations:
       foo: bar
     labels:

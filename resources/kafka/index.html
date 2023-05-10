@@ -17,7 +17,7 @@
         <link rel="next" href="schema.html">
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.8">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.11">
     
     
       
@@ -25,10 +25,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ded33207.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.85bb2934.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.a0c5b2b5.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.a6bdf11c.min.css">
       
       
 
@@ -1264,11 +1264,11 @@
 
   <h1>Kafka</h1>
 
-<p>Aiven for Apache Kafka is an excellent option if you need to run Apache Kafka at scale. With Aiven Kubernetes Operator
+<p>Aiven for Apache Kafka is an excellent option if you need to run Apache Kafka at scale. With Aiven Kubernetes Operator<br />
 you can get up and running with a suitably sized Apache Kafka service in a few minutes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Before going through this guide, make sure you have a <a href="../../installation/prerequisites/">Kubernetes cluster</a> with the <a href="../../installation/">operator installed</a> 
+<p>Before going through this guide, make sure you have a <a href="../../installation/prerequisites/">Kubernetes cluster</a> with the <a href="../../installation/">operator installed</a> <br />
 and a <a href="../../authentication/">Kubernetes Secret with an Aiven authentication token</a>.</p>
 </div>
 <h2 id="creating-a-kafka-instance">Creating a Kafka instance<a class="headerlink" href="#creating-a-kafka-instance" title="Permanent link">&para;</a></h2>
@@ -1315,7 +1315,7 @@ and a <a href="../../authentication/">Kubernetes Secret with an Aiven authentica
 </code></pre></div>
 <p>After a couple of minutes, the <code>STATE</code> field is changed to <code>RUNNING</code>, and is ready to be used.</p>
 <h2 id="using-the-connection-secret">Using the connection Secret<a class="headerlink" href="#using-the-connection-secret" title="Permanent link">&para;</a></h2>
-<p>For your convenience, the operator automatically stores the Kafka connection information in a Secret created with the
+<p>For your convenience, the operator automatically stores the Kafka connection information in a Secret created with the<br />
 name specified on the <code>connInfoSecretTarget</code> field.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>secret<span class="w"> </span>kafka-auth<span class="w"> </span>
 </code></pre></div>
@@ -1407,7 +1407,7 @@ name specified on the <code>connInfoSecretTarget</code> field.</p>
 <a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w"> </span><span class="m">0</span><span class="w"> </span>topics:
 </code></pre></div>
 <h2 id="creating-a-kafkatopic-and-kafkaacl">Creating a <code>KafkaTopic</code> and <code>KafkaACL</code><a class="headerlink" href="#creating-a-kafkatopic-and-kafkaacl" title="Permanent link">&para;</a></h2>
-<p>To properly produce and consume content on Kafka, you need topics and ACLs. The operator supports both with
+<p>To properly produce and consume content on Kafka, you need topics and ACLs. The operator supports both with<br />
 the <code>KafkaTopic</code> and <code>KafkaACL</code> resources.</p>
 <p>Below, here is how to create a Kafka topic named <code>random-strings</code> where random string messages will be sent.</p>
 <p>1. Create a file named <code>kafka-topic-random-strings.yaml</code> with the content below:</p>
@@ -1435,7 +1435,7 @@ the <code>KafkaTopic</code> and <code>KafkaACL</code> resources.</p>
 <p>2. Create the resource on Kubernetes:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>kafka-topic-random-strings.yaml
 </code></pre></div>
-<p>3. Create a user and an ACL. To use the Kafka topic, create a new user with the <code>ServiceUser</code> resource (in order to
+<p>3. Create a user and an ACL. To use the Kafka topic, create a new user with the <code>ServiceUser</code> resource (in order to<br />
    avoid using the <code>avnadmin</code> superuser), and the <code>KafkaACL</code> to allow the user access to the topic.</p>
 <p>In a file named <code>kafka-acl-user-crab.yaml</code>, add the following two resources:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
@@ -1488,7 +1488,7 @@ the <code>KafkaTopic</code> and <code>KafkaACL</code> resources.</p>
 </code></pre></div>
 <h2 id="producing-and-consuming-events">Producing and consuming events<a class="headerlink" href="#producing-and-consuming-events" title="Permanent link">&para;</a></h2>
 <p>Using the previously created <code>KafkaTopic</code>, <code>ServiceUser</code>, <code>KafkaACL</code>, you can produce and consume events.</p>
-<p>You can use <a href="https://github.com/edenhill/kcat">kcat</a> to produce a message into Kafka, and the <code>-t random-strings</code> argument to select the desired topic,
+<p>You can use <a href="https://github.com/edenhill/kcat">kcat</a> to produce a message into Kafka, and the <code>-t random-strings</code> argument to select the desired topic,<br />
 and use the content of the <code>/etc/issue</code> file as the message's body.</p>
 <p>1. Create a <code>kafka-crab-produce.yaml</code> file with the content below:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
@@ -1533,9 +1533,9 @@ and use the content of the <code>/etc/issue</code> file as the message's body.</
 <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>kafka-crab-produce.yaml
 </code></pre></div>
 <p>Now your event is stored in Kafka.</p>
-<p>To <em>consume</em> a message, you can use a graphical interface called <a href="https://github.com/cloudhut/kowl">Kowl</a>. It allows you
+<p>To <em>consume</em> a message, you can use a graphical interface called <a href="https://github.com/cloudhut/kowl">Kowl</a>. It allows you<br />
 to explore information about our Kafka cluster, such as brokers, topics, or consumer groups.</p>
-<p>1. Create a Kubernetes Pod and service to deploy and access Kowl. Create a file named <code>kafka-crab-consume.yaml</code> with the
+<p>1. Create a Kubernetes Pod and service to deploy and access Kowl. Create a file named <code>kafka-crab-consume.yaml</code> with the<br />
    content below:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
 <a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Pod</span>
@@ -1601,11 +1601,11 @@ to explore information about our Kafka cluster, such as brokers, topics, or cons
 <p>3. In another terminal create a port-forward tunnel to your Pod:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>kubectl<span class="w"> </span>port-forward<span class="w"> </span>kafka-crab-consume<span class="w"> </span><span class="m">8080</span>:8080
 </code></pre></div>
-<p>4. In the browser of your choice, access the <a href="">http://localhost:8080</a> address. You now see a page with
-   the <code>random-strings</code> topic listed:
-   <img alt="Kowl graphical interface on the topic listing page" src="kowl-topics.png" /></p>
-<p>5. Click the topic name to see the message.
-   <img alt="Kowl graphical interface on the random-strings topic page" src="kowl-random-strings.png" /></p>
+<p>4. In the browser of your choice, access the <a href="">http://localhost:8080</a> address. You now see a page with<br />
+   the <code>random-strings</code> topic listed:<br />
+<img alt="Kowl graphical interface on the topic listing page" src="kowl-topics.png" /></p>
+<p>5. Click the topic name to see the message.<br />
+<img alt="Kowl graphical interface on the random-strings topic page" src="kowl-random-strings.png" /></p>
 <p>You have now consumed the message.</p>
 
 
@@ -1694,7 +1694,7 @@ to explore information about our Kafka cluster, such as brokers, topics, or cons
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.51198bba.min.js"></script>
+      <script src="../../assets/javascripts/bundle.fac441b0.min.js"></script>
       
     
   </body>

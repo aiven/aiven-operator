@@ -17,7 +17,7 @@
         <link rel="next" href="kubectl.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.8">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.11">
     
     
       
@@ -25,10 +25,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ded33207.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.85bb2934.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.a6bdf11c.min.css">
       
       
 
@@ -458,6 +458,19 @@
   <a href="#configuration-options" class="md-nav__link">
     Configuration Options
   </a>
+  
+    <nav class="md-nav" aria-label="Configuration Options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installing-without-full-cluster-administrator-access" class="md-nav__link">
+    Installing without full cluster administrator access
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1234,6 +1247,19 @@
     Configuration Options
   </a>
   
+    <nav class="md-nav" aria-label="Configuration Options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installing-without-full-cluster-administrator-access" class="md-nav__link">
+    Installing without full cluster administrator access
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
       </ul>
@@ -1284,9 +1310,9 @@
 <h3 id="installing-custom-resource-definitions">Installing Custom Resource Definitions<a class="headerlink" href="#installing-custom-resource-definitions" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>helm<span class="w"> </span>install<span class="w"> </span>aiven-operator-crds<span class="w"> </span>aiven/aiven-operator-crds
 </code></pre></div>
-<p>Verify the installation:
+<p>Verify the installation:<br />
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>api-resources<span class="w"> </span>--api-group<span class="o">=</span>aiven.io
-</code></pre></div>
+</code></pre></div><br />
 The output is similar to the following:</p>
 <div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>NAME<span class="w">                  </span>SHORTNAMES<span class="w">   </span>APIVERSION<span class="w">          </span>NAMESPACED<span class="w">   </span>KIND
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>connectionpools<span class="w">                    </span>aiven.io/v1alpha1<span class="w">   </span><span class="nb">true</span><span class="w">         </span>ConnectionPool
@@ -1300,7 +1326,7 @@ The output is similar to the following:</p>
 <p class="admonition-title">Note</p>
 <p>Installation will fail if webhooks are enabled and the CRDs for the cert-manager are not installed.</p>
 </div>
-<p>Verify the installation: 
+<p>Verify the installation: <br />
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>helm<span class="w"> </span>status<span class="w"> </span>aiven-operator
 </code></pre></div></p>
 <p>The output is similar to the following:</p>
@@ -1311,11 +1337,13 @@ The output is similar to the following:</p>
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>REVISION:<span class="w"> </span><span class="m">1</span>
 <a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>TEST<span class="w"> </span>SUITE:<span class="w"> </span>None
 </code></pre></div>
-<p>It is also possible to install the operator without webhooks enabled:
+<p>It is also possible to install the operator without webhooks enabled:<br />
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>helm<span class="w"> </span>install<span class="w"> </span>aiven-operator<span class="w"> </span>aiven/aiven-operator<span class="w"> </span>--set<span class="w"> </span>webhooks.enabled<span class="o">=</span><span class="nb">false</span>
 </code></pre></div></p>
 <h3 id="configuration-options">Configuration Options<a class="headerlink" href="#configuration-options" title="Permanent link">&para;</a></h3>
 <p>Please refer to the <a href="https://github.com/aiven/aiven-charts/blob/main/charts/aiven-operator/values.yaml">values.yaml</a> of the chart.</p>
+<h4 id="installing-without-full-cluster-administrator-access">Installing without full cluster administrator access<a class="headerlink" href="#installing-without-full-cluster-administrator-access" title="Permanent link">&para;</a></h4>
+<p>There can be some scenarios where the individual installing the Helm chart does not have the ability to provision cluster-wide resources (e.g. ClusterRoles/ClusterRoleBindings). In this scenario, you can have a cluster administrator manually install the <a href="../../../charts/aiven-operator/templates/cluster_role.yaml">ClusterRole</a> and <a href="../../../charts/aiven-operator/templates/cluster_role_binding.yaml">ClusterRoleBinding</a> the operator requires prior to installing the Helm chart specifying <code>false</code> for the <code>clusterRole.create</code> attribute. </p>
 <h2 id="uninstalling">Uninstalling<a class="headerlink" href="#uninstalling" title="Permanent link">&para;</a></h2>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
@@ -1428,7 +1456,7 @@ The output is similar to the following:</p>
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.51198bba.min.js"></script>
+      <script src="../assets/javascripts/bundle.fac441b0.min.js"></script>
       
     
   </body>

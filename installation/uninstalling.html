@@ -17,7 +17,7 @@
         <link rel="next" href="../contributing/index.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.8">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.11">
     
     
       
@@ -25,10 +25,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ded33207.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.85bb2934.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.a6bdf11c.min.css">
       
       
 
@@ -1232,13 +1232,13 @@
 <li><a href="{{&lt; relref &quot;/docs/installation/kubectl&quot; &gt;}}#uninstalling">kubectl</a></li>
 </ul>
 <h2 id="dealing-with-expired-tokens">Dealing with expired tokens<a class="headerlink" href="#dealing-with-expired-tokens" title="Permanent link">&para;</a></h2>
-<p>Aiven resources need to have an accompanying secret that contains the token that is used to authorize the manipulation of that resource.
-If that token expired then you will not be able to delete the custom resource and deletion will also hang until the situation is resolved.
+<p>Aiven resources need to have an accompanying secret that contains the token that is used to authorize the manipulation of that resource.<br />
+If that token expired then you will not be able to delete the custom resource and deletion will also hang until the situation is resolved.<br />
 The recommended approach to deal with that situation is to patch a valid token into the secret again so that proper cleanup of aiven resources can take place.</p>
 <h2 id="hanging-deletions">Hanging deletions<a class="headerlink" href="#hanging-deletions" title="Permanent link">&para;</a></h2>
-<p>To protect the secrets that the operator is using from deletion, it adds the <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/finalizers/">finalizer</a> <code>finalizers.aiven.io/needed-to-delete-services</code> to the secret.
-This solves a race condition that happens when deleting a namespace, where there is a possibility of the secret getting deleted before the resource that uses it.
-When the controller is deleted it may not cleanup the finalizers from all secrets.
+<p>To protect the secrets that the operator is using from deletion, it adds the <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/finalizers/">finalizer</a> <code>finalizers.aiven.io/needed-to-delete-services</code> to the secret.<br />
+This solves a race condition that happens when deleting a namespace, where there is a possibility of the secret getting deleted before the resource that uses it.<br />
+When the controller is deleted it may not cleanup the finalizers from all secrets.<br />
 If there is a secret with this finalizer blocking deletion of a namespace, for now please do</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>kubectl<span class="w"> </span>patch<span class="w"> </span>secret<span class="w"> </span>&lt;offending-secret&gt;<span class="w"> </span>-p<span class="w"> </span><span class="s1">&#39;{&quot;metadata&quot;:{&quot;finalizers&quot;:null}}&#39;</span><span class="w"> </span>--type<span class="o">=</span>merge
 </code></pre></div>
@@ -1330,7 +1330,7 @@ If there is a secret with this finalizer blocking deletion of a namespace, for n
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.51198bba.min.js"></script>
+      <script src="../assets/javascripts/bundle.fac441b0.min.js"></script>
       
     
   </body>

@@ -17,7 +17,7 @@
         <link rel="next" href="installation/prerequisites.html">
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.8">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.11">
     
     
       
@@ -25,10 +25,10 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.ded33207.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.85bb2934.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.a0c5b2b5.min.css">
+        <link rel="stylesheet" href="assets/stylesheets/palette.a6bdf11c.min.css">
       
       
 
@@ -376,6 +376,13 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0120-2023-05-10" class="md-nav__link">
+    v0.12.0 - 2023-05-10
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v0110-2023-04-25" class="md-nav__link">
@@ -1262,6 +1269,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0120-2023-05-10" class="md-nav__link">
+    v0.12.0 - 2023-05-10
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0110-2023-04-25" class="md-nav__link">
     v0.11.0 - 2023-04-25
   </a>
@@ -1379,6 +1393,16 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0120-2023-05-10">v0.12.0 - 2023-05-10<a class="headerlink" href="#v0120-2023-05-10" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Fix service tags create/update. Thanks to @mortenlj</li>
+<li>Add prefix name option for secrets. Thanks to @jordiclariana</li>
+<li>Add <code>clusterRole.create</code> option to Helm chart. Thanks to @ryaneorth</li>
+<li>Use kind name as default prefix for secrets to avoid collisions. Please migrate your applications before legacy names removed</li>
+<li>Fix secrets creation on openshift</li>
+<li>Add <code>OpenSearch.spec.userConfig.idp_pemtrustedcas_content</code> option.<br />
+  Specifies the PEM-encoded root certificate authority (CA) content for the SAML identity provider (IdP) server verification.</li>
+</ul>
 <h2 id="v0110-2023-04-25">v0.11.0 - 2023-04-25<a class="headerlink" href="#v0110-2023-04-25" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Add <code>ServiceIntegration</code> kind <code>SourceProjectName</code> and <code>DestinationProjectName</code> fields</li>
@@ -1417,16 +1441,16 @@
 <li><code>AuthSecretRef</code> fields marked as required</li>
 <li>Generate user configs for existing service integrations: <code>datadog</code>, <code>kafka_connect</code>, <code>kafka_logs</code>, <code>metrics</code></li>
 <li>Add new service integrations: <code>clickhouse_postgresql</code>, <code>clickhouse_kafka</code>, <code>clickhouse_kafka</code>, <code>logs</code>, <code>external_aws_cloudwatch_metrics</code></li>
-<li>Add <code>KafkaTopic.Spec.topicName</code> field. Unlike the <code>metadata.name</code>, supports additional characters and has a longer length.
-  <code>KafkaTopic.Spec.topicName</code> replaces <code>metadata.name</code> in future releases and will be marked as required.</li>
+<li>Add <code>KafkaTopic.Spec.topicName</code> field. Unlike the <code>metadata.name</code>, supports additional characters and has a longer length.<br />
+<code>KafkaTopic.Spec.topicName</code> replaces <code>metadata.name</code> in future releases and will be marked as required.</li>
 <li>Accept <code>false</code> value for <code>termination_protection</code> property</li>
 <li>Fix <code>min_cleanable_dirty_ratio</code>. Thanks to @TV2rd</li>
 </ul>
 <h2 id="v080-2023-02-15">v0.8.0 - 2023-02-15<a class="headerlink" href="#v080-2023-02-15" title="Permanent link">&para;</a></h2>
-<p><strong>Important:</strong> This release brings breaking changes to the <code>userConfig</code> property.
-After new charts are installed, update your existing instances manually using the <code>kubectl edit</code> command
+<p><strong>Important:</strong> This release brings breaking changes to the <code>userConfig</code> property.<br />
+After new charts are installed, update your existing instances manually using the <code>kubectl edit</code> command<br />
 according to the <a href="https://aiven.github.io/aiven-operator/api-reference/">API reference</a>.</p>
-<p><strong>Note:</strong> It is now recommended to disable webhooks for Kubernetes version 1.25 and higher,
+<p><strong>Note:</strong> It is now recommended to disable webhooks for Kubernetes version 1.25 and higher,<br />
 as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-beta/">CRD validation rules</a> are used.</p>
 <ul>
 <li><strong>Breaking change:</strong> <code>ip_filter</code> field is now of <code>object</code> type</li>
@@ -1443,8 +1467,8 @@ as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-be
 <ul>
 <li>Add Cassandra Kind</li>
 <li>Add Grafana Kind</li>
-<li>Recreate Kafka ACL if modified. 
-  Note: Modification of ACL created prior to v0.5.1 won't delete existing instance at Aiven.
+<li>Recreate Kafka ACL if modified. <br />
+  Note: Modification of ACL created prior to v0.5.1 won't delete existing instance at Aiven.<br />
   It must be deleted manually.</li>
 <li>Fix MySQL webhook</li>
 </ul>
@@ -1467,7 +1491,7 @@ as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-be
 <h2 id="v050-2022-11-27">v0.5.0 - 2022-11-27<a class="headerlink" href="#v050-2022-11-27" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Add ability to link resources through the references</li>
-<li>Add <code>ProjectVPCRef</code> property to <code>Kafka</code>, <code>OpenSearch</code>, <code>Clickhouse</code> and <code>Redis</code> kinds
+<li>Add <code>ProjectVPCRef</code> property to <code>Kafka</code>, <code>OpenSearch</code>, <code>Clickhouse</code> and <code>Redis</code> kinds<br />
   to get <code>ProjectVPC</code> ID when resource is ready</li>
 <li>Improve <code>ProjectVPC</code> deletion, deletes by ID first if possible, then tries by name</li>
 <li>Fix <code>client.Object</code> storage update data loss</li>
@@ -1582,7 +1606,7 @@ as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-be
     <script id="__config" type="application/json">{"base": ".", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="assets/javascripts/bundle.51198bba.min.js"></script>
+      <script src="assets/javascripts/bundle.fac441b0.min.js"></script>
       
     
   </body>

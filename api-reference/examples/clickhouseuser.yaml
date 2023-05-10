@@ -7,5 +7,13 @@ spec:
     name: aiven-token
     key: token
 
+  connInfoSecretTarget:
+    name: clickhouse-user-secret
+    prefix: MY_SECRET_PREFIX_
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
+
   project: my-aiven-project
   serviceName: my-clickhouse

@@ -17,7 +17,7 @@
         <link rel="next" href="../resources/project.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.8">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.11">
     
     
       
@@ -25,10 +25,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ded33207.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.85bb2934.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.a6bdf11c.min.css">
       
       
 
@@ -1241,16 +1241,16 @@
 
 
 <h1 id="resource-generation">Resource generation<a class="headerlink" href="#resource-generation" title="Permanent link">&para;</a></h1>
-<p>Aiven Kubernetes Operator generates service configs code (also known as <em>user configs</em>)
-and documentation
+<p>Aiven Kubernetes Operator generates service configs code (also known as <em>user configs</em>)<br />
+and documentation<br />
 from public <a href="https://api.aiven.io/doc/#tag/Service/operation/ListPublicServiceTypes">service types schema</a>.</p>
 <h2 id="flow-overview">Flow overview<a class="headerlink" href="#flow-overview" title="Permanent link">&para;</a></h2>
-<p>When a new schema is issued on the API,
+<p>When a new schema is issued on the API,<br />
 a cron job fetches it, parses, patches, and saves in a shared library — <a href="https://github.com/aiven/go-api-schemas">go-api-schemas</a>.</p>
-<p>When the library is updated, 
-the GitHub <a href="https://github.com/dependabot">dependabot</a> creates PRs to the dependant repositories, 
+<p>When the library is updated, <br />
+the GitHub <a href="https://github.com/dependabot">dependabot</a> creates PRs to the dependant repositories, <br />
 like Aiven Kubernetes Operator and Aiven Terraform Provider.</p>
-<p>Then the <a href="#make-generate"><code>make generate</code></a> command is called by GitHub action.
+<p>Then the <a href="#make-generate"><code>make generate</code></a> command is called by GitHub action.<br />
 And the PR is ready for review.</p>
 <pre class="mermaid"><code>flowchart TB
     API(Aiven API) &lt;-.-&gt;|polls schema updates| Schema([go-api-schemas])
@@ -1258,28 +1258,28 @@ And the PR is ready for review.</p>
     Bot--&gt;|pull request|UpdateOP[/"✨ $ make generate ✨"/]
     UpdateOP--&gt;|review| OP([operator repository])</code></pre>
 <h2 id="make-generate">make generate<a class="headerlink" href="#make-generate" title="Permanent link">&para;</a></h2>
-<p>The command runs several generators in a certain sequence.
-First, the user config generator is called.
-Then <a href="https://book.kubebuilder.io/reference/controller-gen.html">controller-gen</a> cli.
-Then <a href="../api-reference/index.html">API reference</a> docs generator
+<p>The command runs several generators in a certain sequence.<br />
+First, the user config generator is called.<br />
+Then <a href="https://book.kubebuilder.io/reference/controller-gen.html">controller-gen</a> cli.<br />
+Then <a href="../api-reference/index.html">API reference</a> docs generator<br />
 and charts generator.</p>
 <p>Here how it goes in the details:</p>
 <ol>
-<li>User config generator creates Go structs (k8s api compatible objects) with docstrings, 
+<li>User config generator creates Go structs (k8s api compatible objects) with docstrings, <br />
    validation rules and constraints (immutable, maxLength, etc)</li>
-<li><a href="https://book.kubebuilder.io/reference/controller-gen.html">controller-gen</a> generates k8s methods,
-   generates <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">CRDs</a> for those objects, 
+<li><a href="https://book.kubebuilder.io/reference/controller-gen.html">controller-gen</a> generates k8s methods,<br />
+   generates <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">CRDs</a> for those objects, <br />
    creates charts for cluster roles and webhooks. </li>
 <li>Docs generator creates <a href="../api-reference/index.html">API reference</a> out of CRDs:<ol>
-<li>it looks for an example file for the given CRD kind in <code>./&lt;api-reference-docs&gt;/example/</code>,
-   if it finds one, it validates that with the CRD. 
-   Each CRD has an OpenAPI v3 schema as a part of it. 
+<li>it looks for an example file for the given CRD kind in <code>./&lt;api-reference-docs&gt;/example/</code>,<br />
+   if it finds one, it validates that with the CRD. <br />
+   Each CRD has an OpenAPI v3 schema as a part of it. <br />
    This is also used by Kubernetes itself to validate user input.</li>
 <li>generates full spec reference out of the schema</li>
 <li>creates a markdown file with spec and example (if exists)</li>
 </ol>
 </li>
-<li>Charts generator 
+<li>Charts generator <br />
    updates CRDs, webhooks and cluster roles charts</li>
 </ol>
 <pre class="mermaid"><code>flowchart TB
@@ -1297,9 +1297,9 @@ and charts generator.</p>
     Charts--&gt;ToRelease("Ready to release 🎉")
     Markdown--&gt;ToRelease</code></pre>
 <h2 id="charts-version-bump">Charts version bump<a class="headerlink" href="#charts-version-bump" title="Permanent link">&para;</a></h2>
-<p>By default,
-charts generator keeps the current helm chart's version,
-because it doesn't know <a href="https://semver.org/">semver</a>.
+<p>By default,<br />
+charts generator keeps the current helm chart's version,<br />
+because it doesn't know <a href="https://semver.org/">semver</a>.<br />
 You need it to do manually.</p>
 <p>To do so run the following command with the version of your choice:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>make<span class="w"> </span><span class="nv">version</span><span class="o">=</span>v1.0.0<span class="w"> </span>charts
@@ -1391,7 +1391,7 @@ You need it to do manually.</p>
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.51198bba.min.js"></script>
+      <script src="../assets/javascripts/bundle.fac441b0.min.js"></script>
       
     
   </body>
