@@ -18,6 +18,7 @@
 - Add `annotations` and `labels` fields to `connInfoSecretTarget`
 - Allow to disable capabilities check to install webhooks. Thanks to @amstee
 - Set `OpenSearch.spec.userConfig.opensearch.search_max_buckets` maximum to `65536`
+- Add `clusterRole.create` option to Helm chart
 
 ## v0.10.0 - 2023-04-17
 
