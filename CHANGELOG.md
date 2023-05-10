@@ -2,8 +2,11 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.12.0 - 2023-05-10
+
 - Fix service tags create/update. Thanks to @mortenlj
 - Add prefix name option for secrets. Thanks to @jordiclariana
+- Add `clusterRole.create` option to Helm chart. Thanks to @ryaneorth
 - Use kind name as default prefix for secrets to avoid collisions. Please migrate your applications before legacy names removed
 - Fix secrets creation on openshift
 - Add `OpenSearch.spec.userConfig.idp_pemtrustedcas_content` option.
@@ -21,7 +24,6 @@
 - Add `annotations` and `labels` fields to `connInfoSecretTarget`
 - Allow to disable capabilities check to install webhooks. Thanks to @amstee
 - Set `OpenSearch.spec.userConfig.opensearch.search_max_buckets` maximum to `65536`
-- Add `clusterRole.create` option to Helm chart
 
 ## v0.10.0 - 2023-04-17
 
