@@ -39,11 +39,13 @@ func updateClusterRole(operatorPath, crdCharts string) error {
 	return writeFile(dstPath, []byte(content))
 }
 
-var clusterRoleTmpl = `apiVersion: rbac.authorization.k8s.io/v1
+var clusterRoleTmpl = `{{- if .Values.clusterRole.create -}}
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: {{ include "aiven-operator.fullname" . }}-role
   namespace: {{ include "aiven-operator.namespace" . }}
   labels:
     {{- include "aiven-operator.labels" . | nindent 4 }}
-%s`
+%s{{- end }}
+`
