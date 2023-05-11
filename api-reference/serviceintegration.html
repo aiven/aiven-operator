@@ -1781,7 +1781,7 @@
 <p>Custom tags provided by user.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.datadog.datadog_tags.tag-property" name="spec.datadog.datadog_tags.tag-property"><code>tag</code></a> (string, MinLength: 1, MaxLength: 200). Tag format and usage are described here: https://docs.datadoghq.com/getting_started/tagging. Tags with prefix 'aiven-' are reserved for Aiven.</li>
+<li><a href="#spec.datadog.datadog_tags.tag-property" name="spec.datadog.datadog_tags.tag-property"><code>tag</code></a> (string, MinLength: 1, MaxLength: 200). Tag format and usage are described here: https://docs.datadoghq.com/getting_started/tagging. Tags with prefix <code>aiven-</code> are reserved for Aiven.</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1849,7 +1849,7 @@
 <p>Kafka MirrorMaker configuration values.</p>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.kafkaMirrormaker.cluster_alias-property" name="spec.kafkaMirrormaker.cluster_alias-property"><code>cluster_alias</code></a> (string, Pattern: <code>^[a-zA-Z0-9_.-]+$</code>, MaxLength: 128). The alias under which the Kafka cluster is known to MirrorMaker. Can contain the following symbols: ASCII alphanumerics, '.', '_', and '-'.</li>
+<li><a href="#spec.kafkaMirrormaker.cluster_alias-property" name="spec.kafkaMirrormaker.cluster_alias-property"><code>cluster_alias</code></a> (string, Pattern: <code>^[a-zA-Z0-9_.-]+$</code>, MaxLength: 128). The alias under which the Kafka cluster is known to MirrorMaker. Can contain the following symbols: ASCII alphanumerics, <code>.</code>, <code>_</code>, and <code>-</code>.</li>
 <li><a href="#spec.kafkaMirrormaker.kafka_mirrormaker-property" name="spec.kafkaMirrormaker.kafka_mirrormaker-property"><code>kafka_mirrormaker</code></a> (object). Kafka MirrorMaker configuration values. See below for <a href="#spec.kafkaMirrormaker.kafka_mirrormaker">nested schema</a>.</li>
 </ul>
 <h3 id="spec.kafkaMirrormaker.kafka_mirrormaker">kafka_mirrormaker<a class="headerlink" href="#spec.kafkaMirrormaker.kafka_mirrormaker" title="Permanent link">&para;</a></h3>
@@ -1876,11 +1876,11 @@
 <p>Metrics configuration values.</p>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.metrics.database-property" name="spec.metrics.database-property"><code>database</code></a> (string, Pattern: <code>^[_A-Za-z0-9][-_A-Za-z0-9]{0,39}$</code>, MaxLength: 40). Name of the database where to store metric datapoints. Only affects PostgreSQL destinations. Defaults to 'metrics'. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.</li>
+<li><a href="#spec.metrics.database-property" name="spec.metrics.database-property"><code>database</code></a> (string, Pattern: <code>^[_A-Za-z0-9][-_A-Za-z0-9]{0,39}$</code>, MaxLength: 40). Name of the database where to store metric datapoints. Only affects PostgreSQL destinations. Defaults to <code>metrics</code>. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.</li>
 <li><a href="#spec.metrics.retention_days-property" name="spec.metrics.retention_days-property"><code>retention_days</code></a> (integer, Minimum: 0, Maximum: 10000). Number of days to keep old metrics. Only affects PostgreSQL destinations. Set to 0 for no automatic cleanup. Defaults to 30 days.</li>
-<li><a href="#spec.metrics.ro_username-property" name="spec.metrics.ro_username-property"><code>ro_username</code></a> (string, Pattern: <code>^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$</code>, MaxLength: 40). Name of a user that can be used to read metrics. This will be used for Grafana integration (if enabled) to prevent Grafana users from making undesired changes. Only affects PostgreSQL destinations. Defaults to 'metrics_reader'. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.</li>
+<li><a href="#spec.metrics.ro_username-property" name="spec.metrics.ro_username-property"><code>ro_username</code></a> (string, Pattern: <code>^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$</code>, MaxLength: 40). Name of a user that can be used to read metrics. This will be used for Grafana integration (if enabled) to prevent Grafana users from making undesired changes. Only affects PostgreSQL destinations. Defaults to <code>metrics_reader</code>. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.</li>
 <li><a href="#spec.metrics.source_mysql-property" name="spec.metrics.source_mysql-property"><code>source_mysql</code></a> (object). Configuration options for metrics where source service is MySQL. See below for <a href="#spec.metrics.source_mysql">nested schema</a>.</li>
-<li><a href="#spec.metrics.username-property" name="spec.metrics.username-property"><code>username</code></a> (string, Pattern: <code>^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$</code>, MaxLength: 40). Name of the user used to write metrics. Only affects PostgreSQL destinations. Defaults to 'metrics_writer'. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.</li>
+<li><a href="#spec.metrics.username-property" name="spec.metrics.username-property"><code>username</code></a> (string, Pattern: <code>^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$</code>, MaxLength: 40). Name of the user used to write metrics. Only affects PostgreSQL destinations. Defaults to <code>metrics_writer</code>. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.</li>
 </ul>
 <h3 id="spec.metrics.source_mysql">source_mysql<a class="headerlink" href="#spec.metrics.source_mysql" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.metrics"><code>spec.metrics</code></a>.</em></p>

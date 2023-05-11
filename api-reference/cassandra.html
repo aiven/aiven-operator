@@ -1486,7 +1486,7 @@
 <li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.</li>
 <li><a href="#spec.userConfig.cassandra-property" name="spec.userConfig.cassandra-property"><code>cassandra</code></a> (object). cassandra configuration values. See below for <a href="#spec.userConfig.cassandra">nested schema</a>.</li>
 <li><a href="#spec.userConfig.cassandra_version-property" name="spec.userConfig.cassandra_version-property"><code>cassandra_version</code></a> (string, Enum: <code>4</code>). Cassandra major version.</li>
-<li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
+<li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
 <li><a href="#spec.userConfig.migrate_sstableloader-property" name="spec.userConfig.migrate_sstableloader-property"><code>migrate_sstableloader</code></a> (boolean). Sets the service into migration mode enabling the sstableloader utility to be used to upload Cassandra data files. Available only on service create.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.project_to_fork_from-property" name="spec.userConfig.project_to_fork_from-property"><code>project_to_fork_from</code></a> (string, Immutable, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.</li>
@@ -1506,7 +1506,7 @@
 </ul>
 <h3 id="spec.userConfig.ip_filter">ip_filter<a class="headerlink" href="#spec.userConfig.ip_filter" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
-<p>Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.</p>
+<p>Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.ip_filter.network-property" name="spec.userConfig.ip_filter.network-property"><code>network</code></a> (string, MaxLength: 43). CIDR address block.</li>

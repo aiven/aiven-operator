@@ -1550,7 +1550,7 @@
 <li><a href="#spec.userConfig.disable_replication_factor_adjustment-property" name="spec.userConfig.disable_replication_factor_adjustment-property"><code>disable_replication_factor_adjustment</code></a> (boolean). DEPRECATED: Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can no longer be activated.</li>
 <li><a href="#spec.userConfig.index_patterns-property" name="spec.userConfig.index_patterns-property"><code>index_patterns</code></a> (array of objects, MaxItems: 512). Index patterns. See below for <a href="#spec.userConfig.index_patterns">nested schema</a>.</li>
 <li><a href="#spec.userConfig.index_template-property" name="spec.userConfig.index_template-property"><code>index_template</code></a> (object). Template settings for all new indexes. See below for <a href="#spec.userConfig.index_template">nested schema</a>.</li>
-<li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
+<li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
 <li><a href="#spec.userConfig.keep_index_refresh_interval-property" name="spec.userConfig.keep_index_refresh_interval-property"><code>keep_index_refresh_interval</code></a> (boolean). Aiven automation resets index.refresh_interval to default value for every index to be sure that indices are always visible to search. If it doesn't fit your case, you can disable this by setting up this flag to true.</li>
 <li><a href="#spec.userConfig.max_index_count-property" name="spec.userConfig.max_index_count-property"><code>max_index_count</code></a> (integer, Minimum: 0). DEPRECATED: use index_patterns instead.</li>
 <li><a href="#spec.userConfig.opensearch-property" name="spec.userConfig.opensearch-property"><code>opensearch</code></a> (object). OpenSearch settings. See below for <a href="#spec.userConfig.opensearch">nested schema</a>.</li>
@@ -1588,7 +1588,7 @@
 </ul>
 <h3 id="spec.userConfig.ip_filter">ip_filter<a class="headerlink" href="#spec.userConfig.ip_filter" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
-<p>Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.</p>
+<p>Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.ip_filter.network-property" name="spec.userConfig.ip_filter.network-property"><code>network</code></a> (string, MaxLength: 43). CIDR address block.</li>
