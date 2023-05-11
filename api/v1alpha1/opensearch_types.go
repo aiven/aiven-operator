@@ -20,7 +20,6 @@ type OpenSearchSpec struct {
 	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 
 	// Information regarding secret creation.
-	//
 	// Exposed keys: `OPENSEARCH_HOST`, `OPENSEARCH_PORT`, `OPENSEARCH_USER`, `OPENSEARCH_PASSWORD`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 

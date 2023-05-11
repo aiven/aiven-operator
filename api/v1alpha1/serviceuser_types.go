@@ -22,7 +22,6 @@ type ServiceUserSpec struct {
 	Authentication string `json:"authentication,omitempty"`
 
 	// Information regarding secret creation.
-	//
 	// Exposed keys: `SERVICEUSER_HOST`, `SERVICEUSER_PORT`, `SERVICEUSER_USERNAME`, `SERVICEUSER_PASSWORD`, `SERVICEUSER_CA_CERT`, `SERVICEUSER_ACCESS_CERT`, `SERVICEUSER_ACCESS_KEY`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 

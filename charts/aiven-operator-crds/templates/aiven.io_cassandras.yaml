@@ -66,9 +66,9 @@ spec:
                 maxLength: 256
                 type: string
               connInfoSecretTarget:
-                description: "Information regarding secret creation. \n Exposed keys:
+                description: 'Information regarding secret creation. Exposed keys:
                   `CASSANDRA_HOST`, `CASSANDRA_PORT`, `CASSANDRA_USER`, `CASSANDRA_PASSWORD`,
-                  `CASSANDRA_URI`, `CASSANDRA_HOSTS`"
+                  `CASSANDRA_URI`, `CASSANDRA_HOSTS`'
                 properties:
                   annotations:
                     additionalProperties:

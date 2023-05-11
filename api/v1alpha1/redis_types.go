@@ -20,7 +20,6 @@ type RedisSpec struct {
 	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 
 	// Information regarding secret creation.
-	//
 	// Exposed keys: `REDIS_HOST`, `REDIS_PORT`, `REDIS_USER`, `REDIS_PASSWORD`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 

@@ -65,10 +65,10 @@ spec:
                 - mysql_native_password
                 type: string
               connInfoSecretTarget:
-                description: "Information regarding secret creation. \n Exposed keys:
+                description: 'Information regarding secret creation. Exposed keys:
                   `SERVICEUSER_HOST`, `SERVICEUSER_PORT`, `SERVICEUSER_USERNAME`,
                   `SERVICEUSER_PASSWORD`, `SERVICEUSER_CA_CERT`, `SERVICEUSER_ACCESS_CERT`,
-                  `SERVICEUSER_ACCESS_KEY`"
+                  `SERVICEUSER_ACCESS_KEY`'
                 properties:
                   annotations:
                     additionalProperties:

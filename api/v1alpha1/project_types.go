@@ -55,7 +55,6 @@ type ProjectSpec struct {
 	TechnicalEmails []string `json:"technicalEmails,omitempty"`
 
 	// Information regarding secret creation.
-	//
 	// Exposed keys: `PROJECT_CA_CERT`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 

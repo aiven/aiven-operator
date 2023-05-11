@@ -20,7 +20,6 @@ type PostgreSQLSpec struct {
 	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 
 	// Information regarding secret creation.
-	//
 	// Exposed keys: `POSTGRESQL_HOST`, `POSTGRESQL_PORT`, `POSTGRESQL_DATABASE`, `POSTGRESQL_USER`, `POSTGRESQL_PASSWORD`, `POSTGRESQL_SSLMODE`, `POSTGRESQL_DATABASE_URI`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 

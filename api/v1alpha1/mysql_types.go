@@ -20,7 +20,6 @@ type MySQLSpec struct {
 	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 
 	// Information regarding secret creation.
-	//
 	// Exposed keys: `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_SSL_MODE`, `MYSQL_URI`, `MYSQL_REPLICA_URI`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
