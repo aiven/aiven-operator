@@ -53,8 +53,8 @@ spec:
                 maxLength: 256
                 type: string
               connInfoSecretTarget:
-                description: "Information regarding secret creation. \n Exposed keys:
-                  `CLICKHOUSE_HOST`, `CLICKHOUSE_PORT`, `CLICKHOUSE_USER`, `CLICKHOUSE_PASSWORD`"
+                description: 'Information regarding secret creation. Exposed keys:
+                  `CLICKHOUSE_HOST`, `CLICKHOUSE_PORT`, `CLICKHOUSE_USER`, `CLICKHOUSE_PASSWORD`'
                 properties:
                   annotations:
                     additionalProperties:

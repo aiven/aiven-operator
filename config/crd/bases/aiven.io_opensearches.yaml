@@ -53,8 +53,8 @@ spec:
                 maxLength: 256
                 type: string
               connInfoSecretTarget:
-                description: "Information regarding secret creation. \n Exposed keys:
-                  `OPENSEARCH_HOST`, `OPENSEARCH_PORT`, `OPENSEARCH_USER`, `OPENSEARCH_PASSWORD`"
+                description: 'Information regarding secret creation. Exposed keys:
+                  `OPENSEARCH_HOST`, `OPENSEARCH_PORT`, `OPENSEARCH_USER`, `OPENSEARCH_PASSWORD`'
                 properties:
                   annotations:
                     additionalProperties:

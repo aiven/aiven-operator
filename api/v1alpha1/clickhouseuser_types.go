@@ -20,7 +20,6 @@ type ClickhouseUserSpec struct {
 	ServiceName string `json:"serviceName"`
 
 	// Information regarding secret creation.
-	//
 	// Exposed keys: `CLICKHOUSEUSER_HOST`, `CLICKHOUSEUSER_PORT`, `CLICKHOUSEUSER_USER`, `CLICKHOUSEUSER_PASSWORD`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
