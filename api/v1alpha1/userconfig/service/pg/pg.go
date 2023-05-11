@@ -429,7 +429,7 @@ type PgUserConfig struct {
 	// Enable the pg_stat_monitor extension. Enabling this extension will cause the cluster to be restarted.When this extension is enabled, pg_stat_statements results for utility commands are unreliable
 	PgStatMonitorEnable *bool `groups:"create,update" json:"pg_stat_monitor_enable,omitempty"`
 
-	// +kubebuilder:validation:Enum="12";"13";"14";"15"
+	// +kubebuilder:validation:Enum="11";"12";"13";"14";"15"
 	// PostgreSQL major version
 	PgVersion *string `groups:"create,update" json:"pg_version,omitempty"`
 
