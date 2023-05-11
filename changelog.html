@@ -1400,7 +1400,7 @@
 <li>Add <code>clusterRole.create</code> option to Helm chart. Thanks to @ryaneorth</li>
 <li>Use kind name as default prefix for secrets to avoid collisions. Please migrate your applications before legacy names removed</li>
 <li>Fix secrets creation on openshift</li>
-<li>Add <code>OpenSearch.spec.userConfig.idp_pemtrustedcas_content</code> option.<br />
+<li>Add <code>OpenSearch.spec.userConfig.idp_pemtrustedcas_content</code> option.
   Specifies the PEM-encoded root certificate authority (CA) content for the SAML identity provider (IdP) server verification.</li>
 </ul>
 <h2 id="v0110-2023-04-25">v0.11.0 - 2023-04-25<a class="headerlink" href="#v0110-2023-04-25" title="Permanent link">&para;</a></h2>
@@ -1441,16 +1441,16 @@
 <li><code>AuthSecretRef</code> fields marked as required</li>
 <li>Generate user configs for existing service integrations: <code>datadog</code>, <code>kafka_connect</code>, <code>kafka_logs</code>, <code>metrics</code></li>
 <li>Add new service integrations: <code>clickhouse_postgresql</code>, <code>clickhouse_kafka</code>, <code>clickhouse_kafka</code>, <code>logs</code>, <code>external_aws_cloudwatch_metrics</code></li>
-<li>Add <code>KafkaTopic.Spec.topicName</code> field. Unlike the <code>metadata.name</code>, supports additional characters and has a longer length.<br />
-<code>KafkaTopic.Spec.topicName</code> replaces <code>metadata.name</code> in future releases and will be marked as required.</li>
+<li>Add <code>KafkaTopic.Spec.topicName</code> field. Unlike the <code>metadata.name</code>, supports additional characters and has a longer length.
+  <code>KafkaTopic.Spec.topicName</code> replaces <code>metadata.name</code> in future releases and will be marked as required.</li>
 <li>Accept <code>false</code> value for <code>termination_protection</code> property</li>
 <li>Fix <code>min_cleanable_dirty_ratio</code>. Thanks to @TV2rd</li>
 </ul>
 <h2 id="v080-2023-02-15">v0.8.0 - 2023-02-15<a class="headerlink" href="#v080-2023-02-15" title="Permanent link">&para;</a></h2>
-<p><strong>Important:</strong> This release brings breaking changes to the <code>userConfig</code> property.<br />
-After new charts are installed, update your existing instances manually using the <code>kubectl edit</code> command<br />
+<p><strong>Important:</strong> This release brings breaking changes to the <code>userConfig</code> property.
+After new charts are installed, update your existing instances manually using the <code>kubectl edit</code> command
 according to the <a href="https://aiven.github.io/aiven-operator/api-reference/">API reference</a>.</p>
-<p><strong>Note:</strong> It is now recommended to disable webhooks for Kubernetes version 1.25 and higher,<br />
+<p><strong>Note:</strong> It is now recommended to disable webhooks for Kubernetes version 1.25 and higher,
 as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-beta/">CRD validation rules</a> are used.</p>
 <ul>
 <li><strong>Breaking change:</strong> <code>ip_filter</code> field is now of <code>object</code> type</li>
@@ -1467,8 +1467,8 @@ as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-be
 <ul>
 <li>Add Cassandra Kind</li>
 <li>Add Grafana Kind</li>
-<li>Recreate Kafka ACL if modified. <br />
-  Note: Modification of ACL created prior to v0.5.1 won't delete existing instance at Aiven.<br />
+<li>Recreate Kafka ACL if modified. 
+  Note: Modification of ACL created prior to v0.5.1 won't delete existing instance at Aiven.
   It must be deleted manually.</li>
 <li>Fix MySQL webhook</li>
 </ul>
@@ -1491,7 +1491,7 @@ as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-be
 <h2 id="v050-2022-11-27">v0.5.0 - 2022-11-27<a class="headerlink" href="#v050-2022-11-27" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Add ability to link resources through the references</li>
-<li>Add <code>ProjectVPCRef</code> property to <code>Kafka</code>, <code>OpenSearch</code>, <code>Clickhouse</code> and <code>Redis</code> kinds<br />
+<li>Add <code>ProjectVPCRef</code> property to <code>Kafka</code>, <code>OpenSearch</code>, <code>Clickhouse</code> and <code>Redis</code> kinds
   to get <code>ProjectVPC</code> ID when resource is ready</li>
 <li>Improve <code>ProjectVPC</code> deletion, deletes by ID first if possible, then tries by name</li>
 <li>Fix <code>client.Object</code> storage update data loss</li>

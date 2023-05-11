@@ -1241,16 +1241,16 @@
 
 
 <h1 id="resource-generation">Resource generation<a class="headerlink" href="#resource-generation" title="Permanent link">&para;</a></h1>
-<p>Aiven Kubernetes Operator generates service configs code (also known as <em>user configs</em>)<br />
-and documentation<br />
+<p>Aiven Kubernetes Operator generates service configs code (also known as <em>user configs</em>)
+and documentation
 from public <a href="https://api.aiven.io/doc/#tag/Service/operation/ListPublicServiceTypes">service types schema</a>.</p>
 <h2 id="flow-overview">Flow overview<a class="headerlink" href="#flow-overview" title="Permanent link">&para;</a></h2>
-<p>When a new schema is issued on the API,<br />
+<p>When a new schema is issued on the API,
 a cron job fetches it, parses, patches, and saves in a shared library — <a href="https://github.com/aiven/go-api-schemas">go-api-schemas</a>.</p>
-<p>When the library is updated, <br />
-the GitHub <a href="https://github.com/dependabot">dependabot</a> creates PRs to the dependant repositories, <br />
+<p>When the library is updated, 
+the GitHub <a href="https://github.com/dependabot">dependabot</a> creates PRs to the dependant repositories, 
 like Aiven Kubernetes Operator and Aiven Terraform Provider.</p>
-<p>Then the <a href="#make-generate"><code>make generate</code></a> command is called by GitHub action.<br />
+<p>Then the <a href="#make-generate"><code>make generate</code></a> command is called by GitHub action.
 And the PR is ready for review.</p>
 <pre class="mermaid"><code>flowchart TB
     API(Aiven API) &lt;-.-&gt;|polls schema updates| Schema([go-api-schemas])
@@ -1258,28 +1258,28 @@ And the PR is ready for review.</p>
     Bot--&gt;|pull request|UpdateOP[/"✨ $ make generate ✨"/]
     UpdateOP--&gt;|review| OP([operator repository])</code></pre>
 <h2 id="make-generate">make generate<a class="headerlink" href="#make-generate" title="Permanent link">&para;</a></h2>
-<p>The command runs several generators in a certain sequence.<br />
-First, the user config generator is called.<br />
-Then <a href="https://book.kubebuilder.io/reference/controller-gen.html">controller-gen</a> cli.<br />
-Then <a href="../api-reference/index.html">API reference</a> docs generator<br />
+<p>The command runs several generators in a certain sequence.
+First, the user config generator is called.
+Then <a href="https://book.kubebuilder.io/reference/controller-gen.html">controller-gen</a> cli.
+Then <a href="../api-reference/index.html">API reference</a> docs generator
 and charts generator.</p>
 <p>Here how it goes in the details:</p>
 <ol>
-<li>User config generator creates Go structs (k8s api compatible objects) with docstrings, <br />
+<li>User config generator creates Go structs (k8s api compatible objects) with docstrings, 
    validation rules and constraints (immutable, maxLength, etc)</li>
-<li><a href="https://book.kubebuilder.io/reference/controller-gen.html">controller-gen</a> generates k8s methods,<br />
-   generates <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">CRDs</a> for those objects, <br />
+<li><a href="https://book.kubebuilder.io/reference/controller-gen.html">controller-gen</a> generates k8s methods,
+   generates <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">CRDs</a> for those objects, 
    creates charts for cluster roles and webhooks. </li>
 <li>Docs generator creates <a href="../api-reference/index.html">API reference</a> out of CRDs:<ol>
-<li>it looks for an example file for the given CRD kind in <code>./&lt;api-reference-docs&gt;/example/</code>,<br />
-   if it finds one, it validates that with the CRD. <br />
-   Each CRD has an OpenAPI v3 schema as a part of it. <br />
+<li>it looks for an example file for the given CRD kind in <code>./&lt;api-reference-docs&gt;/example/</code>,
+   if it finds one, it validates that with the CRD. 
+   Each CRD has an OpenAPI v3 schema as a part of it. 
    This is also used by Kubernetes itself to validate user input.</li>
 <li>generates full spec reference out of the schema</li>
 <li>creates a markdown file with spec and example (if exists)</li>
 </ol>
 </li>
-<li>Charts generator <br />
+<li>Charts generator 
    updates CRDs, webhooks and cluster roles charts</li>
 </ol>
 <pre class="mermaid"><code>flowchart TB
@@ -1297,9 +1297,9 @@ and charts generator.</p>
     Charts--&gt;ToRelease("Ready to release 🎉")
     Markdown--&gt;ToRelease</code></pre>
 <h2 id="charts-version-bump">Charts version bump<a class="headerlink" href="#charts-version-bump" title="Permanent link">&para;</a></h2>
-<p>By default,<br />
-charts generator keeps the current helm chart's version,<br />
-because it doesn't know <a href="https://semver.org/">semver</a>.<br />
+<p>By default,
+charts generator keeps the current helm chart's version,
+because it doesn't know <a href="https://semver.org/">semver</a>.
 You need it to do manually.</p>
 <p>To do so run the following command with the version of your choice:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>make<span class="w"> </span><span class="nv">version</span><span class="o">=</span>v1.0.0<span class="w"> </span>charts

@@ -1309,8 +1309,7 @@
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
-<li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Information regarding secret creation. <br />
- Exposed keys: <code>CONNECTIONPOOL_HOST</code>, <code>CONNECTIONPOOL_PORT</code>, <code>CONNECTIONPOOL_DATABASE</code>, <code>CONNECTIONPOOL_USER</code>, <code>CONNECTIONPOOL_PASSWORD</code>, <code>CONNECTIONPOOL_SSLMODE</code>, <code>CONNECTIONPOOL_DATABASE_URI</code>. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
+<li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Information regarding secret creation. Exposed keys: <code>CONNECTIONPOOL_HOST</code>, <code>CONNECTIONPOOL_PORT</code>, <code>CONNECTIONPOOL_DATABASE</code>, <code>CONNECTIONPOOL_USER</code>, <code>CONNECTIONPOOL_PASSWORD</code>, <code>CONNECTIONPOOL_SSLMODE</code>, <code>CONNECTIONPOOL_DATABASE_URI</code>. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
 <li><a href="#spec.poolMode-property" name="spec.poolMode-property"><code>poolMode</code></a> (string, Enum: <code>session</code>, <code>transaction</code>, <code>statement</code>). Mode the pool operates in (session, transaction, statement).</li>
 <li><a href="#spec.poolSize-property" name="spec.poolSize-property"><code>poolSize</code></a> (integer). Number of connections the pool may create towards the backend server.</li>
 </ul>
@@ -1324,8 +1323,7 @@
 </ul>
 <h2 id="spec.connInfoSecretTarget">connInfoSecretTarget<a class="headerlink" href="#spec.connInfoSecretTarget" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
-<p>Information regarding secret creation. <br />
- Exposed keys: <code>CONNECTIONPOOL_HOST</code>, <code>CONNECTIONPOOL_PORT</code>, <code>CONNECTIONPOOL_DATABASE</code>, <code>CONNECTIONPOOL_USER</code>, <code>CONNECTIONPOOL_PASSWORD</code>, <code>CONNECTIONPOOL_SSLMODE</code>, <code>CONNECTIONPOOL_DATABASE_URI</code>.</p>
+<p>Information regarding secret creation. Exposed keys: <code>CONNECTIONPOOL_HOST</code>, <code>CONNECTIONPOOL_PORT</code>, <code>CONNECTIONPOOL_DATABASE</code>, <code>CONNECTIONPOOL_USER</code>, <code>CONNECTIONPOOL_PASSWORD</code>, <code>CONNECTIONPOOL_SSLMODE</code>, <code>CONNECTIONPOOL_DATABASE_URI</code>.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.connInfoSecretTarget.name-property" name="spec.connInfoSecretTarget.name-property"><code>name</code></a> (string). Name of the secret resource to be created. By default, is equal to the resource name.</li>

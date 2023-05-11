@@ -1207,12 +1207,12 @@
   <h1>Service Integrations</h1>
 
 <p>Service Integrations provide additional functionality and features by connecting different Aiven services together.</p>
-<p>See<br />
-our <a href="https://help.aiven.io/en/articles/1456441-getting-started-with-service-integrations">Getting Started with Service Integrations guide</a><br />
+<p>See
+our <a href="https://help.aiven.io/en/articles/1456441-getting-started-with-service-integrations">Getting Started with Service Integrations guide</a>
 for more information.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Before going through this guide, make sure you have a <a href="../../installation/prerequisites/">Kubernetes cluster</a> with the <a href="../../installation/">operator installed</a>, <br />
+<p>Before going through this guide, make sure you have a <a href="../../installation/prerequisites/">Kubernetes cluster</a> with the <a href="../../installation/">operator installed</a>, 
 and a <a href="../../authentication/">Kubernetes Secret with an Aiven authentication token</a>.</p>
 </div>
 <h2 id="send-kafka-logs-to-a-kafka-topic">Send Kafka logs to a Kafka Topic<a class="headerlink" href="#send-kafka-logs-to-a-kafka-topic" title="Permanent link">&para;</a></h2>
@@ -1275,7 +1275,7 @@ and a <a href="../../authentication/">Kubernetes Secret with an Aiven authentica
 <p>2. Create the resource on Kubernetes:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>kafka-sample-topic.yaml<span class="w"> </span>
 </code></pre></div>
-<p>3. Now, create a <code>ServiceIntegration</code> resource to send the Kafka logs to the created topic. In the same file, add the<br />
+<p>3. Now, create a <code>ServiceIntegration</code> resource to send the Kafka logs to the created topic. In the same file, add the
    following YAML:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceIntegration</span>

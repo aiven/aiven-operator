@@ -1310,9 +1310,9 @@
 <h3 id="installing-custom-resource-definitions">Installing Custom Resource Definitions<a class="headerlink" href="#installing-custom-resource-definitions" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>helm<span class="w"> </span>install<span class="w"> </span>aiven-operator-crds<span class="w"> </span>aiven/aiven-operator-crds
 </code></pre></div>
-<p>Verify the installation:<br />
+<p>Verify the installation:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>api-resources<span class="w"> </span>--api-group<span class="o">=</span>aiven.io
-</code></pre></div><br />
+</code></pre></div>
 The output is similar to the following:</p>
 <div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>NAME<span class="w">                  </span>SHORTNAMES<span class="w">   </span>APIVERSION<span class="w">          </span>NAMESPACED<span class="w">   </span>KIND
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>connectionpools<span class="w">                    </span>aiven.io/v1alpha1<span class="w">   </span><span class="nb">true</span><span class="w">         </span>ConnectionPool
@@ -1326,7 +1326,7 @@ The output is similar to the following:</p>
 <p class="admonition-title">Note</p>
 <p>Installation will fail if webhooks are enabled and the CRDs for the cert-manager are not installed.</p>
 </div>
-<p>Verify the installation: <br />
+<p>Verify the installation: 
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>helm<span class="w"> </span>status<span class="w"> </span>aiven-operator
 </code></pre></div></p>
 <p>The output is similar to the following:</p>
@@ -1337,7 +1337,7 @@ The output is similar to the following:</p>
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>REVISION:<span class="w"> </span><span class="m">1</span>
 <a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>TEST<span class="w"> </span>SUITE:<span class="w"> </span>None
 </code></pre></div>
-<p>It is also possible to install the operator without webhooks enabled:<br />
+<p>It is also possible to install the operator without webhooks enabled:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>helm<span class="w"> </span>install<span class="w"> </span>aiven-operator<span class="w"> </span>aiven/aiven-operator<span class="w"> </span>--set<span class="w"> </span>webhooks.enabled<span class="o">=</span><span class="nb">false</span>
 </code></pre></div></p>
 <h3 id="configuration-options">Configuration Options<a class="headerlink" href="#configuration-options" title="Permanent link">&para;</a></h3>

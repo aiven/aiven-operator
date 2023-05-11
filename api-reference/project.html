@@ -1309,8 +1309,7 @@
 <li><a href="#spec.billingGroupId-property" name="spec.billingGroupId-property"><code>billingGroupId</code></a> (string, MinLength: 36, MaxLength: 36). BillingGroup ID.</li>
 <li><a href="#spec.cardId-property" name="spec.cardId-property"><code>cardId</code></a> (string, MaxLength: 64). Credit card ID; The ID may be either last 4 digits of the card or the actual ID.</li>
 <li><a href="#spec.cloud-property" name="spec.cloud-property"><code>cloud</code></a> (string, MaxLength: 256). Target cloud, example: aws-eu-central-1.</li>
-<li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Information regarding secret creation. <br />
- Exposed keys: <code>PROJECT_CA_CERT</code>. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
+<li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Information regarding secret creation. Exposed keys: <code>PROJECT_CA_CERT</code>. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
 <li><a href="#spec.copyFromProject-property" name="spec.copyFromProject-property"><code>copyFromProject</code></a> (string, MaxLength: 63). Project name from which to copy settings to the new project.</li>
 <li><a href="#spec.countryCode-property" name="spec.countryCode-property"><code>countryCode</code></a> (string, MinLength: 2, MaxLength: 2). Billing country code of the project.</li>
 <li><a href="#spec.tags-property" name="spec.tags-property"><code>tags</code></a> (object, AdditionalProperties: string). Tags are key-value pairs that allow you to categorize projects.</li>
@@ -1326,8 +1325,7 @@
 </ul>
 <h2 id="spec.connInfoSecretTarget">connInfoSecretTarget<a class="headerlink" href="#spec.connInfoSecretTarget" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
-<p>Information regarding secret creation. <br />
- Exposed keys: <code>PROJECT_CA_CERT</code>.</p>
+<p>Information regarding secret creation. Exposed keys: <code>PROJECT_CA_CERT</code>.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.connInfoSecretTarget.name-property" name="spec.connInfoSecretTarget.name-property"><code>name</code></a> (string). Name of the secret resource to be created. By default, is equal to the resource name.</li>

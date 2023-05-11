@@ -1290,14 +1290,14 @@
 
   <h1>PostgreSQL</h1>
 
-<p>PostgreSQL is an open source, relational database. It's ideal for organisations that need a well organised tabular<br />
-datastore. On top of the strict table and columns formats, PostgreSQL also offers solutions for nested datasets with the<br />
-native <code>jsonb</code> format and advanced set of extensions including <a href="https://postgis.net/">PostGIS</a>, a spatial database<br />
+<p>PostgreSQL is an open source, relational database. It's ideal for organisations that need a well organised tabular
+datastore. On top of the strict table and columns formats, PostgreSQL also offers solutions for nested datasets with the
+native <code>jsonb</code> format and advanced set of extensions including <a href="https://postgis.net/">PostGIS</a>, a spatial database
 extender for location queries. Aiven for PostgreSQL is the perfect fit for your relational data.</p>
 <p>With Aiven Kubernetes Operator, you can manage Aiven for PostgreSQL through the well defined Kubernetes API.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Before going through this guide, make sure you have a <a href="../../installation/prerequisites/">Kubernetes cluster</a> with the <a href="../../installation/">operator installed</a>, <br />
+<p>Before going through this guide, make sure you have a <a href="../../installation/prerequisites/">Kubernetes cluster</a> with the <a href="../../installation/">operator installed</a>, 
 and a <a href="../../authentication/">Kubernetes Secret with an Aiven authentication token</a>.</p>
 </div>
 <h2 id="creating-a-postgresql-instance">Creating a PostgreSQL instance<a class="headerlink" href="#creating-a-postgresql-instance" title="Permanent link">&para;</a></h2>
@@ -1343,10 +1343,10 @@ and a <a href="../../authentication/">Kubernetes Secret with an Aiven authentica
 <div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>NAME<span class="w">        </span>PROJECT<span class="w">        </span>REGION<span class="w">                </span>PLAN<span class="w">        </span>STATE
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>pg-sample<span class="w">   </span>your-project<span class="w">   </span>google-europe-west1<span class="w">   </span>startup-4<span class="w">   </span>RUNNING
 </code></pre></div>
-<p>The resource can stay in the <code>BUILDING</code> state for a couple of minutes. Once the state changes to <code>RUNNING</code>, you are<br />
+<p>The resource can stay in the <code>BUILDING</code> state for a couple of minutes. Once the state changes to <code>RUNNING</code>, you are
 ready to access it.</p>
 <h2 id="using-the-connection-secret">Using the connection Secret<a class="headerlink" href="#using-the-connection-secret" title="Permanent link">&para;</a></h2>
-<p>For your convenience, the operator automatically stores the PostgreSQL connection information in a Secret created with<br />
+<p>For your convenience, the operator automatically stores the PostgreSQL connection information in a Secret created with
 the name specified on the <code>connInfoSecretTarget</code> field.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>secret<span class="w"> </span>pg-connection
 </code></pre></div>
@@ -1404,7 +1404,7 @@ the name specified on the <code>connInfoSecretTarget</code> field.</p>
 <p>2. Inspect the log:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>kubectl<span class="w"> </span>logs<span class="w"> </span>psql-test-connection
 </code></pre></div>
-<p>The output is similar to the following:<br />
+<p>The output is similar to the following:
 <div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="w">                                           </span>version<span class="w">                                           </span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>---------------------------------------------------------------------------------------------
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w"> </span>PostgreSQL<span class="w"> </span><span class="m">11</span>.12<span class="w"> </span>on<span class="w"> </span>x86_64-pc-linux-gnu,<span class="w"> </span>compiled<span class="w"> </span>by<span class="w"> </span>gcc,<span class="w"> </span>a<span class="w"> </span>68c5366192<span class="w"> </span>p<span class="w"> </span>6b9244f01a,<span class="w"> </span><span class="m">64</span>-bit
@@ -1432,7 +1432,7 @@ the name specified on the <code>connInfoSecretTarget</code> field.</p>
 </code></pre></div>
 <p>You can now connect to the <code>pg-database-sample</code> using the credentials stored in the <code>pg-connection</code> Secret.</p>
 <h2 id="creating-a-postgresql-user">Creating a PostgreSQL user<a class="headerlink" href="#creating-a-postgresql-user" title="Permanent link">&para;</a></h2>
-<p>Aiven uses the concept of <em>service user</em> that allows you to create users for different services. You can create one for<br />
+<p>Aiven uses the concept of <em>service user</em> that allows you to create users for different services. You can create one for
 the PostgreSQL instance.</p>
 <p>1. Create a file named <code>pg-service-user.yaml</code>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
@@ -1453,24 +1453,24 @@ the PostgreSQL instance.</p>
 <p>2. Apply the configuration with the following command.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>pg-service-user.yaml
 </code></pre></div>
-<p>The <code>ServiceUser</code> resource generates a Secret with connection information, in this case<br />
+<p>The <code>ServiceUser</code> resource generates a Secret with connection information, in this case
 named <code>pg-service-user-connection</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>pg-service-user-connection<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data | map_values(@base64d)&#39;</span>
 </code></pre></div>
-<p>The output has the password and username:<br />
+<p>The output has the password and username:
 <div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="p">{</span>
 <a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span><span class="nt">&quot;PASSWORD&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret-password&gt;&quot;</span><span class="p">,</span>
 <a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">  </span><span class="nt">&quot;USERNAME&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pg-service-user&quot;</span>
 <a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="p">}</span>
 </code></pre></div></p>
-<p>You can now connect to the PostgreSQL instance using the credentials generated above, and the host information from<br />
+<p>You can now connect to the PostgreSQL instance using the credentials generated above, and the host information from
 the <code>pg-connection</code> Secret.</p>
 <h2 id="creating-a-postgresql-connection-pool">Creating a PostgreSQL connection pool<a class="headerlink" href="#creating-a-postgresql-connection-pool" title="Permanent link">&para;</a></h2>
-<p>Connection pooling allows you to maintain very large numbers of connections to a database while minimizing the<br />
-consumption of server resources. For more<br />
-information, refer to the <a href="https://docs.aiven.io/docs/products/postgresql/concepts/pg-connection-pooling">connection pooling article</a> in Aiven Docs. Aiven for PostgreSQL uses<br />
+<p>Connection pooling allows you to maintain very large numbers of connections to a database while minimizing the
+consumption of server resources. For more
+information, refer to the <a href="https://docs.aiven.io/docs/products/postgresql/concepts/pg-connection-pooling">connection pooling article</a> in Aiven Docs. Aiven for PostgreSQL uses
 PGBouncer for connection pooling.</p>
-<p>You can create a connection pool with the <code>ConnectionPool</code> resource using the previously created <code>Database</code><br />
+<p>You can create a connection pool with the <code>ConnectionPool</code> resource using the previously created <code>Database</code>
 and <code>ServiceUser</code>:</p>
 <p>Create a new file named <code>pg-connection-pool.yaml</code> with the following content:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
@@ -1492,10 +1492,10 @@ and <code>ServiceUser</code>:</p>
 <a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="w">  </span><span class="nt">poolSize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
 <a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a><span class="w">  </span><span class="nt">poolMode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">transaction</span>
 </code></pre></div>
-<p>The <code>ConnectionPool</code> generates a Secret with the connection info using the name from the <code>connInfoSecretTarget.Name</code><br />
+<p>The <code>ConnectionPool</code> generates a Secret with the connection info using the name from the <code>connInfoSecretTarget.Name</code>
 field:</p>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>pg-connection-pool-connection<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data | map_values(@base64d)&#39;</span><span class="w"> </span>
-</code></pre></div><br />
+</code></pre></div>
 The output is similar to the following: </p>
 <div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="p">{</span>
 <a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">  </span><span class="nt">&quot;DATABASE_URI&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;postgres://pg-service-user:&lt;secret-password&gt;@pg-sample-you-project.aivencloud.com:13040/pg-connection-pool?sslmode=require&quot;</span><span class="p">,</span>

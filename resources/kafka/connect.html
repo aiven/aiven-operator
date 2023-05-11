@@ -1237,11 +1237,11 @@
   <h1>Kafka Connect</h1>
 
 <p><a href="https://aiven.io/kafka-connect">Aiven for Apache Kafka Connect</a> is a framework and a runtime for integrating Kafka with other systems. Kafka connectors can either be a source (for pulling data from other systems into Kafka) or sink (for pushing data into other systems from Kafka).</p>
-<p>This section involves a few different Kubernetes CRDs:<br />
-1. A <code>KafkaService</code> service with a <code>KafkaTopic</code><br />
-2. A <code>KafkaConnect</code> service<br />
-3. A <code>ServiceIntegration</code> to integrate the <code>Kafka</code> and <code>KafkaConnect</code> services<br />
-4. A <code>PostgreSQL</code> used as a sink to receive messages from <code>Kafka</code><br />
+<p>This section involves a few different Kubernetes CRDs:
+1. A <code>KafkaService</code> service with a <code>KafkaTopic</code>
+2. A <code>KafkaConnect</code> service
+3. A <code>ServiceIntegration</code> to integrate the <code>Kafka</code> and <code>KafkaConnect</code> services
+4. A <code>PostgreSQL</code> used as a sink to receive messages from <code>Kafka</code>
 5. A <code>KafkaConnector</code> to finally connect the <code>Kafka</code> with the <code>PostgreSQL</code></p>
 <h2 id="creating-the-resources">Creating the resources<a class="headerlink" href="#creating-the-resources" title="Permanent link">&para;</a></h2>
 <p>Create a file named <code>kafka-sample-connect.yaml</code> with the following content:</p>
@@ -1426,7 +1426,7 @@
 <a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>
 <a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>NAME<span class="w">                                      </span>SERVICE<span class="w"> </span>NAME<span class="w">           </span>PROJECT<span class="w">        </span>CONNECTOR<span class="w"> </span>CLASS<span class="w">                           </span>STATE<span class="w">     </span>TASKS<span class="w"> </span>TOTAL<span class="w">   </span>TASKS<span class="w"> </span>RUNNING
 <a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>kafkaconnector.aiven.io/kafka-connector<span class="w">   </span>kafka-sample-connect<span class="w">   </span>your-project<span class="w">   </span>io.aiven.connect.jdbc.JdbcSinkConnector<span class="w">   </span>RUNNING<span class="w">   </span><span class="m">1</span><span class="w">             </span><span class="m">1</span>
-</code></pre></div><br />
+</code></pre></div>
 The deployment is finished when all services have the state <code>RUNNING</code>.</p>
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
 <p>To test the connection integration, let's produce a Kafka message using <a href="https://github.com/edenhill/kcat">kcat</a> from within the Kubernetes cluster. We will deploy a Pod responsible for crafting a message and sending to the Kafka cluster, using the <code>kafka-auth</code> secret generate by the <code>Kafka</code> CRD.</p>
