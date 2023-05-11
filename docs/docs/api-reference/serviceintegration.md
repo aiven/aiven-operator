@@ -168,7 +168,7 @@ Custom tags provided by user.
 
 **Required**
 
-- [`tag`](#spec.datadog.datadog_tags.tag-property){: name='spec.datadog.datadog_tags.tag-property'} (string, MinLength: 1, MaxLength: 200). Tag format and usage are described here: https://docs.datadoghq.com/getting_started/tagging. Tags with prefix 'aiven-' are reserved for Aiven.
+- [`tag`](#spec.datadog.datadog_tags.tag-property){: name='spec.datadog.datadog_tags.tag-property'} (string, MinLength: 1, MaxLength: 200). Tag format and usage are described here: https://docs.datadoghq.com/getting_started/tagging. Tags with prefix `aiven-` are reserved for Aiven.
 
 **Optional**
 
@@ -260,7 +260,7 @@ Kafka MirrorMaker configuration values.
 
 **Optional**
 
-- [`cluster_alias`](#spec.kafkaMirrormaker.cluster_alias-property){: name='spec.kafkaMirrormaker.cluster_alias-property'} (string, Pattern: `^[a-zA-Z0-9_.-]+$`, MaxLength: 128). The alias under which the Kafka cluster is known to MirrorMaker. Can contain the following symbols: ASCII alphanumerics, '.', '_', and '-'.
+- [`cluster_alias`](#spec.kafkaMirrormaker.cluster_alias-property){: name='spec.kafkaMirrormaker.cluster_alias-property'} (string, Pattern: `^[a-zA-Z0-9_.-]+$`, MaxLength: 128). The alias under which the Kafka cluster is known to MirrorMaker. Can contain the following symbols: ASCII alphanumerics, `.`, `_`, and `-`.
 - [`kafka_mirrormaker`](#spec.kafkaMirrormaker.kafka_mirrormaker-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker-property'} (object). Kafka MirrorMaker configuration values. See below for [nested schema](#spec.kafkaMirrormaker.kafka_mirrormaker).
 
 ### kafka_mirrormaker {: #spec.kafkaMirrormaker.kafka_mirrormaker }
@@ -296,11 +296,11 @@ Metrics configuration values.
 
 **Optional**
 
-- [`database`](#spec.metrics.database-property){: name='spec.metrics.database-property'} (string, Pattern: `^[_A-Za-z0-9][-_A-Za-z0-9]{0,39}$`, MaxLength: 40). Name of the database where to store metric datapoints. Only affects PostgreSQL destinations. Defaults to 'metrics'. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.
+- [`database`](#spec.metrics.database-property){: name='spec.metrics.database-property'} (string, Pattern: `^[_A-Za-z0-9][-_A-Za-z0-9]{0,39}$`, MaxLength: 40). Name of the database where to store metric datapoints. Only affects PostgreSQL destinations. Defaults to `metrics`. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.
 - [`retention_days`](#spec.metrics.retention_days-property){: name='spec.metrics.retention_days-property'} (integer, Minimum: 0, Maximum: 10000). Number of days to keep old metrics. Only affects PostgreSQL destinations. Set to 0 for no automatic cleanup. Defaults to 30 days.
-- [`ro_username`](#spec.metrics.ro_username-property){: name='spec.metrics.ro_username-property'} (string, Pattern: `^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$`, MaxLength: 40). Name of a user that can be used to read metrics. This will be used for Grafana integration (if enabled) to prevent Grafana users from making undesired changes. Only affects PostgreSQL destinations. Defaults to 'metrics_reader'. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.
+- [`ro_username`](#spec.metrics.ro_username-property){: name='spec.metrics.ro_username-property'} (string, Pattern: `^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$`, MaxLength: 40). Name of a user that can be used to read metrics. This will be used for Grafana integration (if enabled) to prevent Grafana users from making undesired changes. Only affects PostgreSQL destinations. Defaults to `metrics_reader`. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.
 - [`source_mysql`](#spec.metrics.source_mysql-property){: name='spec.metrics.source_mysql-property'} (object). Configuration options for metrics where source service is MySQL. See below for [nested schema](#spec.metrics.source_mysql).
-- [`username`](#spec.metrics.username-property){: name='spec.metrics.username-property'} (string, Pattern: `^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$`, MaxLength: 40). Name of the user used to write metrics. Only affects PostgreSQL destinations. Defaults to 'metrics_writer'. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.
+- [`username`](#spec.metrics.username-property){: name='spec.metrics.username-property'} (string, Pattern: `^[_A-Za-z0-9][-._A-Za-z0-9]{0,39}$`, MaxLength: 40). Name of the user used to write metrics. Only affects PostgreSQL destinations. Defaults to `metrics_writer`. Note that this must be the same for all metrics integrations that write data to the same PostgreSQL service.
 
 ### source_mysql {: #spec.metrics.source_mysql }
 

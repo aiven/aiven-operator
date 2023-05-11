@@ -147,19 +147,19 @@ Cassandra specific user configuration options.
 - [`auth_github`](#spec.userConfig.auth_github-property){: name='spec.userConfig.auth_github-property'} (object). Github Auth integration. See below for [nested schema](#spec.userConfig.auth_github).
 - [`auth_gitlab`](#spec.userConfig.auth_gitlab-property){: name='spec.userConfig.auth_gitlab-property'} (object). GitLab Auth integration. See below for [nested schema](#spec.userConfig.auth_gitlab).
 - [`auth_google`](#spec.userConfig.auth_google-property){: name='spec.userConfig.auth_google-property'} (object). Google Auth integration. See below for [nested schema](#spec.userConfig.auth_google).
-- [`cookie_samesite`](#spec.userConfig.cookie_samesite-property){: name='spec.userConfig.cookie_samesite-property'} (string, Enum: `lax`, `strict`, `none`). Cookie SameSite attribute: 'strict' prevents sending cookie for cross-site requests, effectively disabling direct linking from other sites to Grafana. 'lax' is the default value.
+- [`cookie_samesite`](#spec.userConfig.cookie_samesite-property){: name='spec.userConfig.cookie_samesite-property'} (string, Enum: `lax`, `strict`, `none`). Cookie SameSite attribute: `strict` prevents sending cookie for cross-site requests, effectively disabling direct linking from other sites to Grafana. `lax` is the default value.
 - [`custom_domain`](#spec.userConfig.custom_domain-property){: name='spec.userConfig.custom_domain-property'} (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name.
 - [`dashboard_previews_enabled`](#spec.userConfig.dashboard_previews_enabled-property){: name='spec.userConfig.dashboard_previews_enabled-property'} (boolean). This feature is new in Grafana 9 and is quite resource intensive. It may cause low-end plans to work more slowly while the dashboard previews are rendering.
 - [`dashboards_min_refresh_interval`](#spec.userConfig.dashboards_min_refresh_interval-property){: name='spec.userConfig.dashboards_min_refresh_interval-property'} (string, Pattern: `^[0-9]+(ms|s|m|h|d)$`, MaxLength: 16). Signed sequence of decimal numbers, followed by a unit suffix (ms, s, m, h, d), e.g. 30s, 1h.
 - [`dashboards_versions_to_keep`](#spec.userConfig.dashboards_versions_to_keep-property){: name='spec.userConfig.dashboards_versions_to_keep-property'} (integer, Minimum: 1, Maximum: 100). Dashboard versions to keep per dashboard.
-- [`dataproxy_send_user_header`](#spec.userConfig.dataproxy_send_user_header-property){: name='spec.userConfig.dataproxy_send_user_header-property'} (boolean). Send 'X-Grafana-User' header to data source.
+- [`dataproxy_send_user_header`](#spec.userConfig.dataproxy_send_user_header-property){: name='spec.userConfig.dataproxy_send_user_header-property'} (boolean). Send `X-Grafana-User` header to data source.
 - [`dataproxy_timeout`](#spec.userConfig.dataproxy_timeout-property){: name='spec.userConfig.dataproxy_timeout-property'} (integer, Minimum: 15, Maximum: 90). Timeout for data proxy requests in seconds.
 - [`date_formats`](#spec.userConfig.date_formats-property){: name='spec.userConfig.date_formats-property'} (object). Grafana date format specifications. See below for [nested schema](#spec.userConfig.date_formats).
 - [`disable_gravatar`](#spec.userConfig.disable_gravatar-property){: name='spec.userConfig.disable_gravatar-property'} (boolean). Set to true to disable gravatar. Defaults to false (gravatar is enabled).
 - [`editors_can_admin`](#spec.userConfig.editors_can_admin-property){: name='spec.userConfig.editors_can_admin-property'} (boolean). Editors can manage folders, teams and dashboards created by them.
 - [`external_image_storage`](#spec.userConfig.external_image_storage-property){: name='spec.userConfig.external_image_storage-property'} (object). External image store settings. See below for [nested schema](#spec.userConfig.external_image_storage).
 - [`google_analytics_ua_id`](#spec.userConfig.google_analytics_ua_id-property){: name='spec.userConfig.google_analytics_ua_id-property'} (string, Pattern: `^(G|UA|YT|MO)-[a-zA-Z0-9-]+$`, MaxLength: 64). Google Analytics ID.
-- [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'. See below for [nested schema](#spec.userConfig.ip_filter).
+- [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
 - [`metrics_enabled`](#spec.userConfig.metrics_enabled-property){: name='spec.userConfig.metrics_enabled-property'} (boolean). Enable Grafana /metrics endpoint.
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
 - [`privatelink_access`](#spec.userConfig.privatelink_access-property){: name='spec.userConfig.privatelink_access-property'} (object). Allow access to selected service components through Privatelink. See below for [nested schema](#spec.userConfig.privatelink_access).
@@ -274,7 +274,7 @@ Grafana date format specifications.
 
 **Optional**
 
-- [`default_timezone`](#spec.userConfig.date_formats.default_timezone-property){: name='spec.userConfig.date_formats.default_timezone-property'} (string, MaxLength: 64). Default time zone for user preferences. Value 'browser' uses browser local time zone.
+- [`default_timezone`](#spec.userConfig.date_formats.default_timezone-property){: name='spec.userConfig.date_formats.default_timezone-property'} (string, MaxLength: 64). Default time zone for user preferences. Value `browser` uses browser local time zone.
 - [`full_date`](#spec.userConfig.date_formats.full_date-property){: name='spec.userConfig.date_formats.full_date-property'} (string, MaxLength: 128). Moment.js style format string for cases where full date is shown.
 - [`interval_day`](#spec.userConfig.date_formats.interval_day-property){: name='spec.userConfig.date_formats.interval_day-property'} (string, MaxLength: 128). Moment.js style format string used when a time requiring day accuracy is shown.
 - [`interval_hour`](#spec.userConfig.date_formats.interval_hour-property){: name='spec.userConfig.date_formats.interval_hour-property'} (string, MaxLength: 128). Moment.js style format string used when a time requiring hour accuracy is shown.
@@ -300,7 +300,7 @@ External image store settings.
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
 
-Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
+Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`.
 
 **Required**
 
