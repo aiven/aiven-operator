@@ -131,7 +131,7 @@ Redis specific user configuration options.
 **Optional**
 
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.
-- [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'. See below for [nested schema](#spec.userConfig.ip_filter).
+- [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
 - [`migration`](#spec.userConfig.migration-property){: name='spec.userConfig.migration-property'} (object). Migrate data from existing server. See below for [nested schema](#spec.userConfig.migration).
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
 - [`privatelink_access`](#spec.userConfig.privatelink_access-property){: name='spec.userConfig.privatelink_access-property'} (object). Allow access to selected service components through Privatelink. See below for [nested schema](#spec.userConfig.privatelink_access).
@@ -145,7 +145,7 @@ Redis specific user configuration options.
 - [`redis_maxmemory_policy`](#spec.userConfig.redis_maxmemory_policy-property){: name='spec.userConfig.redis_maxmemory_policy-property'} (string, Enum: `noeviction`, `allkeys-lru`, `volatile-lru`, `allkeys-random`, `volatile-random`, `volatile-ttl`, `volatile-lfu`, `allkeys-lfu`). Redis maxmemory-policy.
 - [`redis_notify_keyspace_events`](#spec.userConfig.redis_notify_keyspace_events-property){: name='spec.userConfig.redis_notify_keyspace_events-property'} (string, Pattern: `^[KEg\$lshzxeA]*$`, MaxLength: 32). Set notify-keyspace-events option.
 - [`redis_number_of_databases`](#spec.userConfig.redis_number_of_databases-property){: name='spec.userConfig.redis_number_of_databases-property'} (integer, Minimum: 1, Maximum: 128). Set number of redis databases. Changing this will cause a restart of redis service.
-- [`redis_persistence`](#spec.userConfig.redis_persistence-property){: name='spec.userConfig.redis_persistence-property'} (string, Enum: `off`, `rdb`). When persistence is 'rdb', Redis does RDB dumps each 10 minutes if any key is changed. Also RDB dumps are done according to backup schedule for backup purposes. When persistence is 'off', no RDB dumps and backups are done, so data can be lost at any moment if service is restarted for any reason, or if service is powered off. Also service can't be forked.
+- [`redis_persistence`](#spec.userConfig.redis_persistence-property){: name='spec.userConfig.redis_persistence-property'} (string, Enum: `off`, `rdb`). When persistence is `rdb`, Redis does RDB dumps each 10 minutes if any key is changed. Also RDB dumps are done according to backup schedule for backup purposes. When persistence is `off`, no RDB dumps and backups are done, so data can be lost at any moment if service is restarted for any reason, or if service is powered off. Also service can't be forked.
 - [`redis_pubsub_client_output_buffer_limit`](#spec.userConfig.redis_pubsub_client_output_buffer_limit-property){: name='spec.userConfig.redis_pubsub_client_output_buffer_limit-property'} (integer, Minimum: 32, Maximum: 512). Set output buffer limit for pub / sub clients in MB. The value is the hard limit, the soft limit is 1/4 of the hard limit. When setting the limit, be mindful of the available memory in the selected service plan.
 - [`redis_ssl`](#spec.userConfig.redis_ssl-property){: name='spec.userConfig.redis_ssl-property'} (boolean). Require SSL to access Redis.
 - [`redis_timeout`](#spec.userConfig.redis_timeout-property){: name='spec.userConfig.redis_timeout-property'} (integer, Minimum: 0, Maximum: 31536000). Redis idle connection timeout in seconds.
@@ -156,7 +156,7 @@ Redis specific user configuration options.
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
 
-Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
+Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`.
 
 **Required**
 

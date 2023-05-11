@@ -20,8 +20,8 @@ const (
 	minHeaderLevel = 2
 )
 
-// emptyLinesRe finds multiple newlines
-var emptyLinesRe = regexp.MustCompile(`\n{2,}`)
+// reEmptyLines finds multiple newlines
+var reEmptyLines = regexp.MustCompile(`\n{2,}`)
 
 // parseSchema creates documentation out of CRD
 func parseSchema(srcFile, examplesDir string) (*schemaType, error) {
@@ -85,7 +85,7 @@ func renderTemplate(tmpl string, in any) ([]byte, error) {
 
 // fixNewlines replaces multilines made by template engine
 func fixNewlines(b []byte) []byte {
-	return emptyLinesRe.ReplaceAll(b, []byte("\n\n"))
+	return reEmptyLines.ReplaceAll(b, []byte("\n\n"))
 }
 
 // crdType CRD doc type
@@ -220,16 +220,23 @@ func (s *schemaType) IsNested() bool {
 	return len(s.Properties) > 0 || (s.Items != nil && s.Items.IsNested())
 }
 
+// reInlineCode finds all code-like text
+var reInlineCode = regexp.MustCompile(`'(\S+)'`)
+
 // GetDescription Returns description with a dot suffix. Fallbacks to items description
 func (s *schemaType) GetDescription() string {
 	if s.Description == "" {
 		return ""
 	}
 
-	if strings.HasSuffix(s.Description, ".") {
-		return s.Description
+	// Adds trailing dot to the description
+	d := s.Description
+	if !strings.HasSuffix(s.Description, ".") {
+		d += "."
 	}
-	return s.Description + "."
+
+	// Wraps code chunks with backticks
+	return reInlineCode.ReplaceAllString(d, "`$1`")
 }
 
 // GetPropertyLink renders a link for property list

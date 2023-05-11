@@ -141,7 +141,7 @@ MySQL specific user configuration options.
 - [`backup_hour`](#spec.userConfig.backup_hour-property){: name='spec.userConfig.backup_hour-property'} (integer, Minimum: 0, Maximum: 23). The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.
 - [`backup_minute`](#spec.userConfig.backup_minute-property){: name='spec.userConfig.backup_minute-property'} (integer, Minimum: 0, Maximum: 59). The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
 - [`binlog_retention_period`](#spec.userConfig.binlog_retention_period-property){: name='spec.userConfig.binlog_retention_period-property'} (integer, Minimum: 600, Maximum: 86400). The minimum amount of time in seconds to keep binlog entries before deletion. This may be extended for services that require binlog entries for longer than the default for example if using the MySQL Debezium Kafka connector.
-- [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'. See below for [nested schema](#spec.userConfig.ip_filter).
+- [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
 - [`migration`](#spec.userConfig.migration-property){: name='spec.userConfig.migration-property'} (object). Migrate data from existing server. See below for [nested schema](#spec.userConfig.migration).
 - [`mysql`](#spec.userConfig.mysql-property){: name='spec.userConfig.mysql-property'} (object). mysql.conf configuration values. See below for [nested schema](#spec.userConfig.mysql).
 - [`mysql_version`](#spec.userConfig.mysql_version-property){: name='spec.userConfig.mysql_version-property'} (string, Enum: `8`). MySQL major version.
@@ -157,7 +157,7 @@ MySQL specific user configuration options.
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
 
-Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'.
+Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`.
 
 **Required**
 
@@ -196,7 +196,7 @@ mysql.conf configuration values.
 **Optional**
 
 - [`connect_timeout`](#spec.userConfig.mysql.connect_timeout-property){: name='spec.userConfig.mysql.connect_timeout-property'} (integer, Minimum: 2, Maximum: 3600). The number of seconds that the mysqld server waits for a connect packet before responding with Bad handshake.
-- [`default_time_zone`](#spec.userConfig.mysql.default_time_zone-property){: name='spec.userConfig.mysql.default_time_zone-property'} (string, MinLength: 2, MaxLength: 100). Default server time zone as an offset from UTC (from -12:00 to +12:00), a time zone name, or 'SYSTEM' to use the MySQL server default.
+- [`default_time_zone`](#spec.userConfig.mysql.default_time_zone-property){: name='spec.userConfig.mysql.default_time_zone-property'} (string, MinLength: 2, MaxLength: 100). Default server time zone as an offset from UTC (from -12:00 to +12:00), a time zone name, or `SYSTEM` to use the MySQL server default.
 - [`group_concat_max_len`](#spec.userConfig.mysql.group_concat_max_len-property){: name='spec.userConfig.mysql.group_concat_max_len-property'} (integer, Minimum: 4). The maximum permitted result length in bytes for the GROUP_CONCAT() function.
 - [`information_schema_stats_expiry`](#spec.userConfig.mysql.information_schema_stats_expiry-property){: name='spec.userConfig.mysql.information_schema_stats_expiry-property'} (integer, Minimum: 900, Maximum: 31536000). The time, in seconds, before cached statistics expire.
 - [`innodb_change_buffer_max_size`](#spec.userConfig.mysql.innodb_change_buffer_max_size-property){: name='spec.userConfig.mysql.innodb_change_buffer_max_size-property'} (integer, Minimum: 0, Maximum: 50). Maximum size for the InnoDB change buffer, as a percentage of the total size of the buffer pool. Default is 25.
