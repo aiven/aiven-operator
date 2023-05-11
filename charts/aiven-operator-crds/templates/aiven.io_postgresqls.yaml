@@ -651,7 +651,6 @@ spec:
                   pg_version:
                     description: PostgreSQL major version
                     enum:
-                    - "11"
                     - "12"
                     - "13"
                     - "14"
