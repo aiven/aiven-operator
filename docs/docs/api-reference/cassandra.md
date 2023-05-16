@@ -138,7 +138,7 @@ Cassandra specific user configuration options.
 
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.
 - [`cassandra`](#spec.userConfig.cassandra-property){: name='spec.userConfig.cassandra-property'} (object). cassandra configuration values. See below for [nested schema](#spec.userConfig.cassandra).
-- [`cassandra_version`](#spec.userConfig.cassandra_version-property){: name='spec.userConfig.cassandra_version-property'} (string, Enum: `4`). Cassandra major version.
+- [`cassandra_version`](#spec.userConfig.cassandra_version-property){: name='spec.userConfig.cassandra_version-property'} (string, Enum: `4`, `3`). Cassandra major version.
 - [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
 - [`migrate_sstableloader`](#spec.userConfig.migrate_sstableloader-property){: name='spec.userConfig.migrate_sstableloader-property'} (boolean). Sets the service into migration mode enabling the sstableloader utility to be used to upload Cassandra data files. Available only on service create.
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).

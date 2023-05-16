@@ -413,7 +413,7 @@ type KafkaUserConfig struct {
 	// Kafka REST configuration
 	KafkaRestConfig *KafkaRestConfig `groups:"create,update" json:"kafka_rest_config,omitempty"`
 
-	// +kubebuilder:validation:Enum="3.3"
+	// +kubebuilder:validation:Enum="3.3";"3.1";"3.4"
 	// Kafka major version
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
 
