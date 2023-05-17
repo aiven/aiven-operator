@@ -3,7 +3,7 @@ module github.com/aiven/aiven-operator
 go 1.18
 
 require (
-	github.com/aiven/aiven-go-client v1.14.0
+	github.com/aiven/aiven-go-client v1.15.0
 	github.com/aiven/go-api-schemas v1.9.0
 	github.com/dave/jennifer v1.6.1
 	github.com/docker/go-units v0.5.0
