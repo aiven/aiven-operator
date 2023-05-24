@@ -21,3 +21,7 @@ updates:
         update-types:
           - version-update:semver-major
           - version-update:semver-minor
+      - dependency-name: sigs.k8s.io/controller-runtime
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
