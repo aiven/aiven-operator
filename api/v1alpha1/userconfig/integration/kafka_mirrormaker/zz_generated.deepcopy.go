@@ -27,6 +27,11 @@ func (in *KafkaMirrormaker) DeepCopyInto(out *KafkaMirrormaker) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.ProducerCompressionType != nil {
+		in, out := &in.ProducerCompressionType, &out.ProducerCompressionType
+		*out = new(string)
+		**out = **in
+	}
 	if in.ProducerLingerMs != nil {
 		in, out := &in.ProducerLingerMs, &out.ProducerLingerMs
 		*out = new(int)
