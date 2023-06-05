@@ -471,9 +471,6 @@ spec:
               state:
                 description: Service state
                 type: string
-            required:
-            - conditions
-            - state
             type: object
         type: object
     served: true
