@@ -2400,9 +2400,6 @@ spec:
                     description: segment.ms value
                     format: int64
                     type: integer
-                  unclean_leader_election_enable:
-                    description: unclean.leader.election.enable value
-                    type: boolean
                 type: object
               partitions:
                 description: Number of partitions to create in the topic

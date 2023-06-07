@@ -99,7 +99,6 @@ Kafka topic configuration.
 - [`segment_index_bytes`](#spec.config.segment_index_bytes-property){: name='spec.config.segment_index_bytes-property'} (integer). segment.index.bytes value.
 - [`segment_jitter_ms`](#spec.config.segment_jitter_ms-property){: name='spec.config.segment_jitter_ms-property'} (integer). segment.jitter.ms value.
 - [`segment_ms`](#spec.config.segment_ms-property){: name='spec.config.segment_ms-property'} (integer). segment.ms value.
-- [`unclean_leader_election_enable`](#spec.config.unclean_leader_election_enable-property){: name='spec.config.unclean_leader_election_enable-property'} (boolean). unclean.leader.election.enable value.
 
 ## tags {: #spec.tags }
 

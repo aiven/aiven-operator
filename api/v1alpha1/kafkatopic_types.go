@@ -138,9 +138,6 @@ type KafkaTopicConfig struct {
 
 	// segment.ms value
 	SegmentMs *int64 `json:"segment_ms,omitempty"`
-
-	// unclean.leader.election.enable value
-	UncleanLeaderElectionEnable *bool `json:"unclean_leader_election_enable,omitempty"`
 }
 
 // KafkaTopicStatus defines the observed state of KafkaTopic
