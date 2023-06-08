@@ -220,6 +220,5 @@ func convertKafkaTopicConfig(topic *v1alpha1.KafkaTopic) aiven.KafkaTopicConfig 
 		SegmentIndexBytes:               topic.Spec.Config.SegmentIndexBytes,
 		SegmentJitterMs:                 topic.Spec.Config.SegmentJitterMs,
 		SegmentMs:                       topic.Spec.Config.SegmentMs,
-		UncleanLeaderElectionEnable:     topic.Spec.Config.UncleanLeaderElectionEnable,
 	}
 }
