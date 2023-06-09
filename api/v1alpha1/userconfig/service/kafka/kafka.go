@@ -306,6 +306,11 @@ type KafkaRestConfig struct {
 	// Wait for up to the given delay to allow batching records together
 	ProducerLingerMs *int `groups:"create,update" json:"producer_linger_ms,omitempty"`
 
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=2147483647
+	// The maximum size of a request in bytes. Note that Kafka broker can also cap the record batch size.
+	ProducerMaxRequestSize *int `groups:"create,update" json:"producer_max_request_size,omitempty"`
+
 	// +kubebuilder:validation:Minimum=10
 	// +kubebuilder:validation:Maximum=250
 	// Maximum number of SimpleConsumers that can be instantiated per broker
