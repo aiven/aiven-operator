@@ -387,6 +387,11 @@ func (in *KafkaRestConfig) DeepCopyInto(out *KafkaRestConfig) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.ProducerMaxRequestSize != nil {
+		in, out := &in.ProducerMaxRequestSize, &out.ProducerMaxRequestSize
+		*out = new(int)
+		**out = **in
+	}
 	if in.SimpleconsumerPoolSizeMax != nil {
 		in, out := &in.SimpleconsumerPoolSizeMax, &out.SimpleconsumerPoolSizeMax
 		*out = new(int)
