@@ -39,7 +39,8 @@ spec:
       - network: 0.0.0.0/32
         description: bar
       - network: 10.20.0.0/16
-
+    kafka_authentication_methods:
+      sasl: true
 `, project, name, cloudName)
 }
 
@@ -117,4 +118,10 @@ func TestKafka(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["KAFKA_PASSWORD"])
 	assert.NotEmpty(t, secret.Data["KAFKA_ACCESS_CERT"])
 	assert.NotEmpty(t, secret.Data["KAFKA_ACCESS_KEY"])
+
+	// SASL test
+	assert.Equal(t, anyPointer(true), ks.Spec.UserConfig.KafkaAuthenticationMethods.Sasl)
+	assert.NotEmpty(t, secret.Data["KAFKA_SASL_HOST"])
+	assert.NotEmpty(t, secret.Data["KAFKA_SASL_PORT"])
+	assert.NotEqual(t, secret.Data["KAFKA_SASL_PORT"], secret.Data["KAFKA_PORT"])
 }

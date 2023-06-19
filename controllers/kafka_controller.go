@@ -5,6 +5,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/aiven/aiven-go-client"
 	corev1 "k8s.io/api/core/v1"
@@ -94,6 +95,14 @@ func (a *kafkaAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
 		"ACCESS_CERT": s.ConnectionInfo.KafkaAccessCert,
 		"ACCESS_KEY":  s.ConnectionInfo.KafkaAccessKey,
 		"CA_CERT":     caCert,
+	}
+
+	// If SASL authentication method is enabled
+	for _, c := range s.Components {
+		if c.KafkaAuthenticationMethod == "sasl" {
+			stringData[prefix+"SASL_HOST"] = c.Host
+			stringData[prefix+"SASL_PORT"] = strconv.Itoa(c.Port)
+		}
 	}
 
 	return newSecret(a, stringData, false), nil
