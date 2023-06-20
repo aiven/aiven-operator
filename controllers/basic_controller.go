@@ -374,7 +374,8 @@ func (i instanceReconcilerHelper) finalize(ctx context.Context, o client.Object)
 func (i instanceReconcilerHelper) isInvalidTokenError(err error) bool {
 	// When an instance was created but pointing to an invalid API token
 	// and no generation was ever processed, allow deleting such instance
-	return strings.Contains(err.Error(), "Invalid token")
+	msg := err.Error()
+	return strings.Contains(msg, "Invalid token") || strings.Contains(msg, "Missing (expired) db token")
 }
 
 func (i instanceReconcilerHelper) createOrUpdateInstance(o client.Object, refs []client.Object) error {
