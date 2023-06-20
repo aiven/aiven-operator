@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.12.1 - 2023-06-20
+
 - make conditions and state optional attributes of service status. Thanks to @mortenlj
 - remove deprecated `unclean_leader_election_enable` from `KafkaTopic` kind config
 - expose `KAFKA_SASL_PORT` for `Kafka` kind if `SASL` authentication method is enabled
