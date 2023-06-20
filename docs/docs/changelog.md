@@ -1,12 +1,16 @@
 # Changelog
 
 
-## v0.12.1 - 2023-06-20
+## v0.12.2 - 2023-06-20
 
-- make conditions and state optional attributes of service status. Thanks to @mortenlj
-- remove deprecated `unclean_leader_election_enable` from `KafkaTopic` kind config
-- expose `KAFKA_SASL_PORT` for `Kafka` kind if `SASL` authentication method is enabled
-- add `redis` options to datadog `ServiceIntegration` 
+- Make conditions and state optional attributes of service status. Thanks to @mortenlj
+- Remove deprecated `unclean_leader_election_enable` from `KafkaTopic` kind config
+- Expose `KAFKA_SASL_PORT` for `Kafka` kind if `SASL` authentication method is enabled
+- Add `redis` options to datadog `ServiceIntegration`
+- Add `Cassandra` version `3`
+- Add `Kafka` versions `3.1` and `3.4`
+- Add `kafka_rest_config.producer_max_request_size` option
+- Add `kafka_mirrormaker.producer_compression_type` option
 
 ## v0.12.0 - 2023-05-10
 
