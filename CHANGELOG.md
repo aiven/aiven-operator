@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Expose `KAFKA_SCHEMA_REGISTRY_PORT` for `Kafka` kind if `schema_registry` is enabled 
+
 ## v0.12.2 - 2023-06-20
 
 - Make conditions and state optional attributes of service status. Thanks to @mortenlj

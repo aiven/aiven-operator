@@ -124,4 +124,11 @@ func TestKafka(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["KAFKA_SASL_HOST"])
 	assert.NotEmpty(t, secret.Data["KAFKA_SASL_PORT"])
 	assert.NotEqual(t, secret.Data["KAFKA_SASL_PORT"], secret.Data["KAFKA_PORT"])
+
+	// Schema registry test
+	assert.Equal(t, anyPointer(true), ks.Spec.UserConfig.SchemaRegistry)
+	assert.NotEmpty(t, secret.Data["KAFKA_SCHEMA_REGISTRY_HOST"])
+	assert.NotEmpty(t, secret.Data["KAFKA_SCHEMA_REGISTRY_PORT"])
+	assert.NotEqual(t, secret.Data["KAFKA_SCHEMA_REGISTRY_PORT"], secret.Data["KAFKA_PORT"])
+	assert.NotEqual(t, secret.Data["KAFKA_SCHEMA_REGISTRY_PORT"], secret.Data["KAFKA_SASL_PORT"])
 }

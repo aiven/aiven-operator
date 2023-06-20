@@ -97,11 +97,16 @@ func (a *kafkaAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
 		"CA_CERT":     caCert,
 	}
 
-	// If SASL authentication method is enabled
 	for _, c := range s.Components {
-		if c.KafkaAuthenticationMethod == "sasl" {
-			stringData[prefix+"SASL_HOST"] = c.Host
-			stringData[prefix+"SASL_PORT"] = strconv.Itoa(c.Port)
+		switch c.Component {
+		case "kafka":
+			if c.KafkaAuthenticationMethod == "sasl" {
+				stringData[prefix+"SASL_HOST"] = c.Host
+				stringData[prefix+"SASL_PORT"] = strconv.Itoa(c.Port)
+			}
+		case "schema_registry":
+			stringData[prefix+"SCHEMA_REGISTRY_HOST"] = c.Host
+			stringData[prefix+"SCHEMA_REGISTRY_PORT"] = strconv.Itoa(c.Port)
 		}
 	}
 
