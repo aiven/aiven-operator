@@ -17,7 +17,7 @@
         <link rel="next" href="serviceuser.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.11">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.16">
     
     
       
@@ -25,10 +25,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.85bb2934.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.26e3688c.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.a6bdf11c.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ecc896b0.min.css">
       
       
 
@@ -1221,6 +1221,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#spec.datadog.redis" class="md-nav__link">
+    redis
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1503,6 +1510,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#spec.datadog.redis" class="md-nav__link">
+    redis
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1775,6 +1789,7 @@
 <li><a href="#spec.datadog.kafka_custom_metrics-property" name="spec.datadog.kafka_custom_metrics-property"><code>kafka_custom_metrics</code></a> (array of strings, MaxItems: 1024). List of custom metrics.</li>
 <li><a href="#spec.datadog.max_jmx_metrics-property" name="spec.datadog.max_jmx_metrics-property"><code>max_jmx_metrics</code></a> (integer, Minimum: 10, Maximum: 100000). Maximum number of JMX metrics to send.</li>
 <li><a href="#spec.datadog.opensearch-property" name="spec.datadog.opensearch-property"><code>opensearch</code></a> (object). Datadog Opensearch Options. See below for <a href="#spec.datadog.opensearch">nested schema</a>.</li>
+<li><a href="#spec.datadog.redis-property" name="spec.datadog.redis-property"><code>redis</code></a> (object). Datadog Redis Options. See below for <a href="#spec.datadog.redis">nested schema</a>.</li>
 </ul>
 <h3 id="spec.datadog.datadog_tags">datadog_tags<a class="headerlink" href="#spec.datadog.datadog_tags" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.datadog"><code>spec.datadog</code></a>.</em></p>
@@ -1795,6 +1810,13 @@
 <li><a href="#spec.datadog.opensearch.index_stats_enabled-property" name="spec.datadog.opensearch.index_stats_enabled-property"><code>index_stats_enabled</code></a> (boolean). Enable Datadog Opensearch Index Monitoring.</li>
 <li><a href="#spec.datadog.opensearch.pending_task_stats_enabled-property" name="spec.datadog.opensearch.pending_task_stats_enabled-property"><code>pending_task_stats_enabled</code></a> (boolean). Enable Datadog Opensearch Pending Task Monitoring.</li>
 <li><a href="#spec.datadog.opensearch.pshard_stats_enabled-property" name="spec.datadog.opensearch.pshard_stats_enabled-property"><code>pshard_stats_enabled</code></a> (boolean). Enable Datadog Opensearch Primary Shard Monitoring.</li>
+</ul>
+<h3 id="spec.datadog.redis">redis<a class="headerlink" href="#spec.datadog.redis" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.datadog"><code>spec.datadog</code></a>.</em></p>
+<p>Datadog Redis Options.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.datadog.redis.command_stats_enabled-property" name="spec.datadog.redis.command_stats_enabled-property"><code>command_stats_enabled</code></a> (boolean). Enable command_stats option in the agent's configuration.</li>
 </ul>
 <h2 id="spec.externalAWSCloudwatchMetrics">externalAWSCloudwatchMetrics<a class="headerlink" href="#spec.externalAWSCloudwatchMetrics" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -1860,6 +1882,7 @@
 <li><a href="#spec.kafkaMirrormaker.kafka_mirrormaker.consumer_fetch_min_bytes-property" name="spec.kafkaMirrormaker.kafka_mirrormaker.consumer_fetch_min_bytes-property"><code>consumer_fetch_min_bytes</code></a> (integer, Minimum: 1, Maximum: 5242880). The minimum amount of data the server should return for a fetch request.</li>
 <li><a href="#spec.kafkaMirrormaker.kafka_mirrormaker.producer_batch_size-property" name="spec.kafkaMirrormaker.kafka_mirrormaker.producer_batch_size-property"><code>producer_batch_size</code></a> (integer, Minimum: 0, Maximum: 5242880). The batch size in bytes producer will attempt to collect before publishing to broker.</li>
 <li><a href="#spec.kafkaMirrormaker.kafka_mirrormaker.producer_buffer_memory-property" name="spec.kafkaMirrormaker.kafka_mirrormaker.producer_buffer_memory-property"><code>producer_buffer_memory</code></a> (integer, Minimum: 5242880, Maximum: 134217728). The amount of bytes producer can use for buffering data before publishing to broker.</li>
+<li><a href="#spec.kafkaMirrormaker.kafka_mirrormaker.producer_compression_type-property" name="spec.kafkaMirrormaker.kafka_mirrormaker.producer_compression_type-property"><code>producer_compression_type</code></a> (string, Enum: <code>gzip</code>, <code>snappy</code>, <code>lz4</code>, <code>zstd</code>, <code>none</code>). Specify the default compression type for producers. This configuration accepts the standard compression codecs (<code>gzip</code>, <code>snappy</code>, <code>lz4</code>, <code>zstd</code>). It additionally accepts <code>none</code> which is the default and equivalent to no compression.</li>
 <li><a href="#spec.kafkaMirrormaker.kafka_mirrormaker.producer_linger_ms-property" name="spec.kafkaMirrormaker.kafka_mirrormaker.producer_linger_ms-property"><code>producer_linger_ms</code></a> (integer, Minimum: 0, Maximum: 5000). The linger time (ms) for waiting new data to arrive for publishing.</li>
 <li><a href="#spec.kafkaMirrormaker.kafka_mirrormaker.producer_max_request_size-property" name="spec.kafkaMirrormaker.kafka_mirrormaker.producer_max_request_size-property"><code>producer_max_request_size</code></a> (integer, Minimum: 0, Maximum: 67108864). The maximum request size in bytes.</li>
 </ul>
@@ -1996,7 +2019,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.fac441b0.min.js"></script>
+      <script src="../assets/javascripts/bundle.a51614de.min.js"></script>
       
     
   </body>
