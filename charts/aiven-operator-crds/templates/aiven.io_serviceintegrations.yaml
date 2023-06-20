@@ -244,6 +244,13 @@ spec:
                         description: Enable Datadog Opensearch Primary Shard Monitoring
                         type: boolean
                     type: object
+                  redis:
+                    description: Datadog Redis Options
+                    properties:
+                      command_stats_enabled:
+                        description: Enable command_stats option in the agent's configuration
+                        type: boolean
+                    type: object
                 type: object
               destinationEndpointId:
                 description: Destination endpoint for the integration (if any)

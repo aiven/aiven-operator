@@ -26,6 +26,12 @@ type Opensearch struct {
 	// Enable Datadog Opensearch Primary Shard Monitoring
 	PshardStatsEnabled *bool `groups:"create,update" json:"pshard_stats_enabled,omitempty"`
 }
+
+// Datadog Redis Options
+type Redis struct {
+	// Enable command_stats option in the agent's configuration
+	CommandStatsEnabled *bool `groups:"create,update" json:"command_stats_enabled,omitempty"`
+}
 type DatadogUserConfig struct {
 	// Enable Datadog Database Monitoring
 	DatadogDbmEnabled *bool `groups:"create,update" json:"datadog_dbm_enabled,omitempty"`
@@ -61,4 +67,7 @@ type DatadogUserConfig struct {
 
 	// Datadog Opensearch Options
 	Opensearch *Opensearch `groups:"create,update" json:"opensearch,omitempty"`
+
+	// Datadog Redis Options
+	Redis *Redis `groups:"create,update" json:"redis,omitempty"`
 }

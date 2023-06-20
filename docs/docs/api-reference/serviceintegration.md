@@ -159,6 +159,7 @@ Datadog specific user configuration options.
 - [`kafka_custom_metrics`](#spec.datadog.kafka_custom_metrics-property){: name='spec.datadog.kafka_custom_metrics-property'} (array of strings, MaxItems: 1024). List of custom metrics.
 - [`max_jmx_metrics`](#spec.datadog.max_jmx_metrics-property){: name='spec.datadog.max_jmx_metrics-property'} (integer, Minimum: 10, Maximum: 100000). Maximum number of JMX metrics to send.
 - [`opensearch`](#spec.datadog.opensearch-property){: name='spec.datadog.opensearch-property'} (object). Datadog Opensearch Options. See below for [nested schema](#spec.datadog.opensearch).
+- [`redis`](#spec.datadog.redis-property){: name='spec.datadog.redis-property'} (object). Datadog Redis Options. See below for [nested schema](#spec.datadog.redis).
 
 ### datadog_tags {: #spec.datadog.datadog_tags }
 
@@ -185,6 +186,16 @@ Datadog Opensearch Options.
 - [`index_stats_enabled`](#spec.datadog.opensearch.index_stats_enabled-property){: name='spec.datadog.opensearch.index_stats_enabled-property'} (boolean). Enable Datadog Opensearch Index Monitoring.
 - [`pending_task_stats_enabled`](#spec.datadog.opensearch.pending_task_stats_enabled-property){: name='spec.datadog.opensearch.pending_task_stats_enabled-property'} (boolean). Enable Datadog Opensearch Pending Task Monitoring.
 - [`pshard_stats_enabled`](#spec.datadog.opensearch.pshard_stats_enabled-property){: name='spec.datadog.opensearch.pshard_stats_enabled-property'} (boolean). Enable Datadog Opensearch Primary Shard Monitoring.
+
+### redis {: #spec.datadog.redis }
+
+_Appears on [`spec.datadog`](#spec.datadog)._
+
+Datadog Redis Options.
+
+**Required**
+
+- [`command_stats_enabled`](#spec.datadog.redis.command_stats_enabled-property){: name='spec.datadog.redis.command_stats_enabled-property'} (boolean). Enable command_stats option in the agent's configuration.
 
 ## externalAWSCloudwatchMetrics {: #spec.externalAWSCloudwatchMetrics }
 
