@@ -2,7 +2,10 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
-- Expose `KAFKA_SCHEMA_REGISTRY_PORT` for `Kafka` kind if `schema_registry` is enabled 
+- Expose `KAFKA_SCHEMA_REGISTRY_PORT` for `Kafka` kind if `schema_registry` is enabled
+- Expose `KAFKA_CONNECT_PORT` for `Kafka`
+- Expose `KAFKA_REST_PORT` for `Kafka`
+- Expose `KAFKA_PROMETHEUS_PORT` for `Kafka`
 
 ## v0.12.2 - 2023-06-20
 
