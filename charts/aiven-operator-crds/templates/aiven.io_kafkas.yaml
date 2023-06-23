@@ -70,8 +70,7 @@ spec:
                   `KAFKA_HOST`, `KAFKA_PORT`, `KAFKA_USERNAME`, `KAFKA_PASSWORD`,
                   `KAFKA_ACCESS_CERT`, `KAFKA_ACCESS_KEY`, `KAFKA_SASL_HOST`, `KAFKA_SASL_PORT`,
                   `KAFKA_SCHEMA_REGISTRY_HOST`, `KAFKA_SCHEMA_REGISTRY_PORT`, `KAFKA_CONNECT_HOST`,
-                  `KAFKA_CONNECT_PORT`, `KAFKA_REST_HOST`, `KAFKA_REST_PORT`, `KAFKA_PROMETHEUS_HOST`,
-                  `KAFKA_PROMETHEUS_PORT`'
+                  `KAFKA_CONNECT_PORT`, `KAFKA_REST_HOST`, `KAFKA_REST_PORT`'
                 properties:
                   annotations:
                     additionalProperties:
