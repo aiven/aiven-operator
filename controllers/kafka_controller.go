@@ -107,6 +107,15 @@ func (a *kafkaAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
 		case "schema_registry":
 			stringData[prefix+"SCHEMA_REGISTRY_HOST"] = c.Host
 			stringData[prefix+"SCHEMA_REGISTRY_PORT"] = strconv.Itoa(c.Port)
+		case "kafka_connect":
+			stringData[prefix+"CONNECT_HOST"] = c.Host
+			stringData[prefix+"CONNECT_PORT"] = strconv.Itoa(c.Port)
+		case "kafka_rest":
+			stringData[prefix+"REST_HOST"] = c.Host
+			stringData[prefix+"REST_PORT"] = strconv.Itoa(c.Port)
+		case "prometheus":
+			stringData[prefix+"PROMETHEUS_HOST"] = c.Host
+			stringData[prefix+"PROMETHEUS_PORT"] = strconv.Itoa(c.Port)
 		}
 	}
 
