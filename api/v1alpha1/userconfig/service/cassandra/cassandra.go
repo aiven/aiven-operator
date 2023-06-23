@@ -47,6 +47,16 @@ type CassandraUserConfig struct {
 	// Additional Cloud Regions for Backup Replication
 	AdditionalBackupRegions []string `groups:"create,update" json:"additional_backup_regions,omitempty"`
 
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=23
+	// The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.
+	BackupHour *int `groups:"create,update" json:"backup_hour,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=59
+	// The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
+	BackupMinute *int `groups:"create,update" json:"backup_minute,omitempty"`
+
 	// cassandra configuration values
 	Cassandra *Cassandra `groups:"create,update" json:"cassandra,omitempty"`
 

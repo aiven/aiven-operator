@@ -137,6 +137,8 @@ Cassandra specific user configuration options.
 **Optional**
 
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.
+- [`backup_hour`](#spec.userConfig.backup_hour-property){: name='spec.userConfig.backup_hour-property'} (integer, Minimum: 0, Maximum: 23). The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.
+- [`backup_minute`](#spec.userConfig.backup_minute-property){: name='spec.userConfig.backup_minute-property'} (integer, Minimum: 0, Maximum: 59). The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
 - [`cassandra`](#spec.userConfig.cassandra-property){: name='spec.userConfig.cassandra-property'} (object). cassandra configuration values. See below for [nested schema](#spec.userConfig.cassandra).
 - [`cassandra_version`](#spec.userConfig.cassandra_version-property){: name='spec.userConfig.cassandra_version-property'} (string, Enum: `4`, `3`). Cassandra major version.
 - [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).

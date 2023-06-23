@@ -195,6 +195,20 @@ spec:
                       type: string
                     maxItems: 1
                     type: array
+                  backup_hour:
+                    description: The hour of day (in UTC) when backup for the service
+                      is started. New backup is only started if previous backup has
+                      already completed.
+                    maximum: 23
+                    minimum: 0
+                    type: integer
+                  backup_minute:
+                    description: The minute of an hour when backup for the service
+                      is started. New backup is only started if previous backup has
+                      already completed.
+                    maximum: 59
+                    minimum: 0
+                    type: integer
                   cassandra:
                     description: cassandra configuration values
                     properties:
