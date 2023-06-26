@@ -73,8 +73,6 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 			i := aiven.NewServiceIntegration{
 				IntegrationType: s.IntegrationType,
 				SourceService:   &s.SourceServiceName,
-				// todo: fix in go client, sends None
-				UserConfig: make(map[string]interface{}),
 			}
 			req.ServiceIntegrations = append(req.ServiceIntegrations, i)
 		}
