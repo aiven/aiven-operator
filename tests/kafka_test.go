@@ -133,22 +133,16 @@ func TestKafka(t *testing.T) {
 	assert.NotEqual(t, secret.Data["KAFKA_SCHEMA_REGISTRY_PORT"], secret.Data["KAFKA_SASL_PORT"])
 
 	// Kafka Connect test
-	assert.Equal(t, anyPointer(true), ks.Spec.UserConfig.KafkaConnectConfig)
+	assert.Equal(t, anyPointer(true), ks.Spec.UserConfig.KafkaConnect)
 	assert.NotEmpty(t, secret.Data["KAFKA_CONNECT_HOST"])
 	assert.NotEmpty(t, secret.Data["KAFKA_CONNECT_PORT"])
 	assert.NotEqual(t, secret.Data["KAFKA_CONNECT_PORT"], secret.Data["KAFKA_PORT"])
 	assert.NotEqual(t, secret.Data["KAFKA_CONNECT_PORT"], secret.Data["KAFKA_SASL_PORT"])
 
 	// Kafka REST test
-	assert.Equal(t, anyPointer(true), ks.Spec.UserConfig.KafkaRestConfig)
+	assert.Equal(t, anyPointer(true), ks.Spec.UserConfig.KafkaRest)
 	assert.NotEmpty(t, secret.Data["KAFKA_REST_HOST"])
 	assert.NotEmpty(t, secret.Data["KAFKA_REST_PORT"])
 	assert.NotEqual(t, secret.Data["KAFKA_REST_PORT"], secret.Data["KAFKA_PORT"])
 	assert.NotEqual(t, secret.Data["KAFKA_REST_PORT"], secret.Data["KAFKA_SASL_PORT"])
-
-	// Prometheus test
-	assert.NotEmpty(t, secret.Data["KAFKA_PROMETHEUS_HOST"])
-	assert.NotEmpty(t, secret.Data["KAFKA_PROMETHEUS_PORT"])
-	assert.NotEqual(t, secret.Data["KAFKA_PROMETHEUS_PORT"], secret.Data["KAFKA_PORT"])
-	assert.NotEqual(t, secret.Data["KAFKA_PROMETHEUS_PORT"], secret.Data["KAFKA_SASL_PORT"])
 }
