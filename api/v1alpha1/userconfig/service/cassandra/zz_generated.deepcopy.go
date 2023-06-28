@@ -47,6 +47,16 @@ func (in *CassandraUserConfig) DeepCopyInto(out *CassandraUserConfig) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
+	if in.BackupHour != nil {
+		in, out := &in.BackupHour, &out.BackupHour
+		*out = new(int)
+		**out = **in
+	}
+	if in.BackupMinute != nil {
+		in, out := &in.BackupMinute, &out.BackupMinute
+		*out = new(int)
+		**out = **in
+	}
 	if in.Cassandra != nil {
 		in, out := &in.Cassandra, &out.Cassandra
 		*out = new(Cassandra)
