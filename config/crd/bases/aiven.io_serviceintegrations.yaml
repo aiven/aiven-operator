@@ -112,6 +112,7 @@ spec:
                           - TSV
                           - TabSeparated
                           - RawBLOB
+                          - AvroConfluent
                           type: string
                         group_name:
                           description: Kafka consumers group
