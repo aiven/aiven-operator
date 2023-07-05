@@ -100,6 +100,17 @@ Tables to create.
 - [`name`](#spec.clickhouseKafka.tables.name-property){: name='spec.clickhouseKafka.tables.name-property'} (string, MinLength: 1, MaxLength: 40). Name of the table.
 - [`topics`](#spec.clickhouseKafka.tables.topics-property){: name='spec.clickhouseKafka.tables.topics-property'} (array of objects, MaxItems: 100). Kafka topics. See below for [nested schema](#spec.clickhouseKafka.tables.topics).
 
+**Optional**
+
+- [`auto_offset_reset`](#spec.clickhouseKafka.tables.auto_offset_reset-property){: name='spec.clickhouseKafka.tables.auto_offset_reset-property'} (string, Enum: `smallest`, `earliest`, `beginning`, `largest`, `latest`, `end`). Action to take when there is no initial offset in offset store or the desired offset is out of range.
+- [`date_time_input_format`](#spec.clickhouseKafka.tables.date_time_input_format-property){: name='spec.clickhouseKafka.tables.date_time_input_format-property'} (string, Enum: `basic`, `best_effort`, `best_effort_us`). Method to read DateTime from text input formats.
+- [`handle_error_mode`](#spec.clickhouseKafka.tables.handle_error_mode-property){: name='spec.clickhouseKafka.tables.handle_error_mode-property'} (string, Enum: `default`, `stream`). How to handle errors for Kafka engine.
+- [`max_block_size`](#spec.clickhouseKafka.tables.max_block_size-property){: name='spec.clickhouseKafka.tables.max_block_size-property'} (integer, Minimum: 0, Maximum: 1000000000). Number of row collected by poll(s) for flushing data from Kafka.
+- [`max_rows_per_message`](#spec.clickhouseKafka.tables.max_rows_per_message-property){: name='spec.clickhouseKafka.tables.max_rows_per_message-property'} (integer, Minimum: 1, Maximum: 1000000000). The maximum number of rows produced in one kafka message for row-based formats.
+- [`num_consumers`](#spec.clickhouseKafka.tables.num_consumers-property){: name='spec.clickhouseKafka.tables.num_consumers-property'} (integer, Minimum: 1, Maximum: 10). The number of consumers per table per replica.
+- [`poll_max_batch_size`](#spec.clickhouseKafka.tables.poll_max_batch_size-property){: name='spec.clickhouseKafka.tables.poll_max_batch_size-property'} (integer, Minimum: 0, Maximum: 1000000000). Maximum amount of messages to be polled in a single Kafka poll.
+- [`skip_broken_messages`](#spec.clickhouseKafka.tables.skip_broken_messages-property){: name='spec.clickhouseKafka.tables.skip_broken_messages-property'} (integer, Minimum: 0, Maximum: 1000000000). Skip at least this number of broken messages from Kafka topic per block.
+
 #### columns {: #spec.clickhouseKafka.tables.columns }
 
 _Appears on [`spec.clickhouseKafka.tables`](#spec.clickhouseKafka.tables)._

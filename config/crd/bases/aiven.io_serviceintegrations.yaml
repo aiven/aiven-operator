@@ -76,6 +76,17 @@ spec:
                     items:
                       description: Table to create
                       properties:
+                        auto_offset_reset:
+                          description: Action to take when there is no initial offset
+                            in offset store or the desired offset is out of range
+                          enum:
+                          - smallest
+                          - earliest
+                          - beginning
+                          - largest
+                          - latest
+                          - end
+                          type: string
                         columns:
                           description: Table columns
                           items:
@@ -114,16 +125,58 @@ spec:
                           - RawBLOB
                           - AvroConfluent
                           type: string
+                        date_time_input_format:
+                          description: Method to read DateTime from text input formats
+                          enum:
+                          - basic
+                          - best_effort
+                          - best_effort_us
+                          type: string
                         group_name:
                           description: Kafka consumers group
                           maxLength: 249
                           minLength: 1
                           type: string
+                        handle_error_mode:
+                          description: How to handle errors for Kafka engine
+                          enum:
+                          - default
+                          - stream
+                          type: string
+                        max_block_size:
+                          description: Number of row collected by poll(s) for flushing
+                            data from Kafka
+                          maximum: 1000000000
+                          minimum: 0
+                          type: integer
+                        max_rows_per_message:
+                          description: The maximum number of rows produced in one
+                            kafka message for row-based formats
+                          maximum: 1000000000
+                          minimum: 1
+                          type: integer
                         name:
                           description: Name of the table
                           maxLength: 40
                           minLength: 1
                           type: string
+                        num_consumers:
+                          description: The number of consumers per table per replica
+                          maximum: 10
+                          minimum: 1
+                          type: integer
+                        poll_max_batch_size:
+                          description: Maximum amount of messages to be polled in
+                            a single Kafka poll
+                          maximum: 1000000000
+                          minimum: 0
+                          type: integer
+                        skip_broken_messages:
+                          description: Skip at least this number of broken messages
+                            from Kafka topic per block
+                          maximum: 1000000000
+                          minimum: 0
+                          type: integer
                         topics:
                           description: Kafka topics
                           items:
