@@ -26,6 +26,10 @@ type Topics struct {
 
 // Table to create
 type Tables struct {
+	// +kubebuilder:validation:Enum="smallest";"earliest";"beginning";"largest";"latest";"end"
+	// Action to take when there is no initial offset in offset store or the desired offset is out of range
+	AutoOffsetReset *string `groups:"create,update" json:"auto_offset_reset,omitempty"`
+
 	// +kubebuilder:validation:MaxItems=100
 	// Table columns
 	Columns []*Columns `groups:"create,update" json:"columns"`
@@ -34,15 +38,48 @@ type Tables struct {
 	// Message data format
 	DataFormat string `groups:"create,update" json:"data_format"`
 
+	// +kubebuilder:validation:Enum="basic";"best_effort";"best_effort_us"
+	// Method to read DateTime from text input formats
+	DateTimeInputFormat *string `groups:"create,update" json:"date_time_input_format,omitempty"`
+
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=249
 	// Kafka consumers group
 	GroupName string `groups:"create,update" json:"group_name"`
 
+	// +kubebuilder:validation:Enum="default";"stream"
+	// How to handle errors for Kafka engine
+	HandleErrorMode *string `groups:"create,update" json:"handle_error_mode,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1000000000
+	// Number of row collected by poll(s) for flushing data from Kafka
+	MaxBlockSize *int `groups:"create,update" json:"max_block_size,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=1000000000
+	// The maximum number of rows produced in one kafka message for row-based formats
+	MaxRowsPerMessage *int `groups:"create,update" json:"max_rows_per_message,omitempty"`
+
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=40
 	// Name of the table
 	Name string `groups:"create,update" json:"name"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=10
+	// The number of consumers per table per replica
+	NumConsumers *int `groups:"create,update" json:"num_consumers,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1000000000
+	// Maximum amount of messages to be polled in a single Kafka poll
+	PollMaxBatchSize *int `groups:"create,update" json:"poll_max_batch_size,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1000000000
+	// Skip at least this number of broken messages from Kafka topic per block
+	SkipBrokenMessages *int `groups:"create,update" json:"skip_broken_messages,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=100
 	// Kafka topics
