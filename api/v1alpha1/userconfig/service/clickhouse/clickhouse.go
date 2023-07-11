@@ -13,6 +13,42 @@ type IpFilter struct {
 	// CIDR address block
 	Network string `groups:"create,update" json:"network"`
 }
+
+// Allow access to selected service ports from private networks
+type PrivateAccess struct {
+	// Allow clients to connect to clickhouse with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
+	Clickhouse *bool `groups:"create,update" json:"clickhouse,omitempty"`
+
+	// Allow clients to connect to clickhouse_https with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
+	ClickhouseHttps *bool `groups:"create,update" json:"clickhouse_https,omitempty"`
+
+	// Allow clients to connect to prometheus with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
+	Prometheus *bool `groups:"create,update" json:"prometheus,omitempty"`
+}
+
+// Allow access to selected service components through Privatelink
+type PrivatelinkAccess struct {
+	// Enable clickhouse
+	Clickhouse *bool `groups:"create,update" json:"clickhouse,omitempty"`
+
+	// Enable clickhouse_https
+	ClickhouseHttps *bool `groups:"create,update" json:"clickhouse_https,omitempty"`
+
+	// Enable prometheus
+	Prometheus *bool `groups:"create,update" json:"prometheus,omitempty"`
+}
+
+// Allow access to selected service ports from the public Internet
+type PublicAccess struct {
+	// Allow clients to connect to clickhouse from the public internet for service nodes that are in a project VPC or another type of private network
+	Clickhouse *bool `groups:"create,update" json:"clickhouse,omitempty"`
+
+	// Allow clients to connect to clickhouse_https from the public internet for service nodes that are in a project VPC or another type of private network
+	ClickhouseHttps *bool `groups:"create,update" json:"clickhouse_https,omitempty"`
+
+	// Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network
+	Prometheus *bool `groups:"create,update" json:"prometheus,omitempty"`
+}
 type ClickhouseUserConfig struct {
 	// +kubebuilder:validation:MaxItems=1
 	// Additional Cloud Regions for Backup Replication
@@ -22,13 +58,25 @@ type ClickhouseUserConfig struct {
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
 	IpFilter []*IpFilter `groups:"create,update" json:"ip_filter,omitempty"`
 
+	// Allow access to selected service ports from private networks
+	PrivateAccess *PrivateAccess `groups:"create,update" json:"private_access,omitempty"`
+
+	// Allow access to selected service components through Privatelink
+	PrivatelinkAccess *PrivatelinkAccess `groups:"create,update" json:"privatelink_access,omitempty"`
+
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Name of another project to fork a service from. This has effect only when a new service is being created.
 	ProjectToForkFrom *string `groups:"create" json:"project_to_fork_from,omitempty"`
 
+	// Allow access to selected service ports from the public Internet
+	PublicAccess *PublicAccess `groups:"create,update" json:"public_access,omitempty"`
+
 	// +kubebuilder:validation:MaxLength=64
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Name of another service to fork from. This has effect only when a new service is being created.
 	ServiceToForkFrom *string `groups:"create" json:"service_to_fork_from,omitempty"`
+
+	// Use static public IP addresses
+	StaticIps *bool `groups:"create,update" json:"static_ips,omitempty"`
 }

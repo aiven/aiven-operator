@@ -201,6 +201,40 @@ spec:
                       type: object
                     maxItems: 1024
                     type: array
+                  private_access:
+                    description: Allow access to selected service ports from private
+                      networks
+                    properties:
+                      clickhouse:
+                        description: Allow clients to connect to clickhouse with a
+                          DNS name that always resolves to the service's private IP
+                          addresses. Only available in certain network locations
+                        type: boolean
+                      clickhouse_https:
+                        description: Allow clients to connect to clickhouse_https
+                          with a DNS name that always resolves to the service's private
+                          IP addresses. Only available in certain network locations
+                        type: boolean
+                      prometheus:
+                        description: Allow clients to connect to prometheus with a
+                          DNS name that always resolves to the service's private IP
+                          addresses. Only available in certain network locations
+                        type: boolean
+                    type: object
+                  privatelink_access:
+                    description: Allow access to selected service components through
+                      Privatelink
+                    properties:
+                      clickhouse:
+                        description: Enable clickhouse
+                        type: boolean
+                      clickhouse_https:
+                        description: Enable clickhouse_https
+                        type: boolean
+                      prometheus:
+                        description: Enable prometheus
+                        type: boolean
+                    type: object
                   project_to_fork_from:
                     description: Name of another project to fork a service from. This
                       has effect only when a new service is being created.
@@ -209,6 +243,26 @@ spec:
                     x-kubernetes-validations:
                     - message: Value is immutable
                       rule: self == oldSelf
+                  public_access:
+                    description: Allow access to selected service ports from the public
+                      Internet
+                    properties:
+                      clickhouse:
+                        description: Allow clients to connect to clickhouse from the
+                          public internet for service nodes that are in a project
+                          VPC or another type of private network
+                        type: boolean
+                      clickhouse_https:
+                        description: Allow clients to connect to clickhouse_https
+                          from the public internet for service nodes that are in a
+                          project VPC or another type of private network
+                        type: boolean
+                      prometheus:
+                        description: Allow clients to connect to prometheus from the
+                          public internet for service nodes that are in a project
+                          VPC or another type of private network
+                        type: boolean
+                    type: object
                   service_to_fork_from:
                     description: Name of another service to fork from. This has effect
                       only when a new service is being created.
@@ -217,6 +271,9 @@ spec:
                     x-kubernetes-validations:
                     - message: Value is immutable
                       rule: self == oldSelf
+                  static_ips:
+                    description: Use static public IP addresses
+                    type: boolean
                 type: object
             required:
             - plan
