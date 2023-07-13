@@ -17,7 +17,7 @@
         <link rel="next" href="clickhouseuser.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.16">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.18">
     
     
       
@@ -937,6 +937,27 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.private_access" class="md-nav__link">
+    private_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.privatelink_access" class="md-nav__link">
+    privatelink_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.public_access" class="md-nav__link">
+    public_access
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1297,6 +1318,27 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.private_access" class="md-nav__link">
+    private_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.privatelink_access" class="md-nav__link">
+    privatelink_access
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.public_access" class="md-nav__link">
+    public_access
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1434,8 +1476,12 @@
 <ul>
 <li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.</li>
 <li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
+<li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
+<li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.project_to_fork_from-property" name="spec.userConfig.project_to_fork_from-property"><code>project_to_fork_from</code></a> (string, Immutable, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.</li>
+<li><a href="#spec.userConfig.public_access-property" name="spec.userConfig.public_access-property"><code>public_access</code></a> (object). Allow access to selected service ports from the public Internet. See below for <a href="#spec.userConfig.public_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.service_to_fork_from-property" name="spec.userConfig.service_to_fork_from-property"><code>service_to_fork_from</code></a> (string, Immutable, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.</li>
+<li><a href="#spec.userConfig.static_ips-property" name="spec.userConfig.static_ips-property"><code>static_ips</code></a> (boolean). Use static public IP addresses.</li>
 </ul>
 <h3 id="spec.userConfig.ip_filter">ip_filter<a class="headerlink" href="#spec.userConfig.ip_filter" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
@@ -1447,6 +1493,33 @@
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.userConfig.ip_filter.description-property" name="spec.userConfig.ip_filter.description-property"><code>description</code></a> (string, MaxLength: 1024). Description for IP filter list entry.</li>
+</ul>
+<h3 id="spec.userConfig.private_access">private_access<a class="headerlink" href="#spec.userConfig.private_access" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
+<p>Allow access to selected service ports from private networks.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.private_access.clickhouse-property" name="spec.userConfig.private_access.clickhouse-property"><code>clickhouse</code></a> (boolean). Allow clients to connect to clickhouse with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.</li>
+<li><a href="#spec.userConfig.private_access.clickhouse_https-property" name="spec.userConfig.private_access.clickhouse_https-property"><code>clickhouse_https</code></a> (boolean). Allow clients to connect to clickhouse_https with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.</li>
+<li><a href="#spec.userConfig.private_access.prometheus-property" name="spec.userConfig.private_access.prometheus-property"><code>prometheus</code></a> (boolean). Allow clients to connect to prometheus with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.</li>
+</ul>
+<h3 id="spec.userConfig.privatelink_access">privatelink_access<a class="headerlink" href="#spec.userConfig.privatelink_access" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
+<p>Allow access to selected service components through Privatelink.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.privatelink_access.clickhouse-property" name="spec.userConfig.privatelink_access.clickhouse-property"><code>clickhouse</code></a> (boolean). Enable clickhouse.</li>
+<li><a href="#spec.userConfig.privatelink_access.clickhouse_https-property" name="spec.userConfig.privatelink_access.clickhouse_https-property"><code>clickhouse_https</code></a> (boolean). Enable clickhouse_https.</li>
+<li><a href="#spec.userConfig.privatelink_access.prometheus-property" name="spec.userConfig.privatelink_access.prometheus-property"><code>prometheus</code></a> (boolean). Enable prometheus.</li>
+</ul>
+<h3 id="spec.userConfig.public_access">public_access<a class="headerlink" href="#spec.userConfig.public_access" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
+<p>Allow access to selected service ports from the public Internet.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.public_access.clickhouse-property" name="spec.userConfig.public_access.clickhouse-property"><code>clickhouse</code></a> (boolean). Allow clients to connect to clickhouse from the public internet for service nodes that are in a project VPC or another type of private network.</li>
+<li><a href="#spec.userConfig.public_access.clickhouse_https-property" name="spec.userConfig.public_access.clickhouse_https-property"><code>clickhouse_https</code></a> (boolean). Allow clients to connect to clickhouse_https from the public internet for service nodes that are in a project VPC or another type of private network.</li>
+<li><a href="#spec.userConfig.public_access.prometheus-property" name="spec.userConfig.public_access.prometheus-property"><code>prometheus</code></a> (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network.</li>
 </ul>
 
 
@@ -1532,10 +1605,10 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.a51614de.min.js"></script>
+      <script src="../assets/javascripts/bundle.220ee61c.min.js"></script>
       
     
   </body>

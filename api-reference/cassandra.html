@@ -17,7 +17,7 @@
         <link rel="next" href="clickhouse.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.16">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.18">
     
     
       
@@ -1484,6 +1484,8 @@
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.</li>
+<li><a href="#spec.userConfig.backup_hour-property" name="spec.userConfig.backup_hour-property"><code>backup_hour</code></a> (integer, Minimum: 0, Maximum: 23). The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.</li>
+<li><a href="#spec.userConfig.backup_minute-property" name="spec.userConfig.backup_minute-property"><code>backup_minute</code></a> (integer, Minimum: 0, Maximum: 59). The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.</li>
 <li><a href="#spec.userConfig.cassandra-property" name="spec.userConfig.cassandra-property"><code>cassandra</code></a> (object). cassandra configuration values. See below for <a href="#spec.userConfig.cassandra">nested schema</a>.</li>
 <li><a href="#spec.userConfig.cassandra_version-property" name="spec.userConfig.cassandra_version-property"><code>cassandra_version</code></a> (string, Enum: <code>4</code>, <code>3</code>). Cassandra major version.</li>
 <li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
@@ -1613,10 +1615,10 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.a51614de.min.js"></script>
+      <script src="../assets/javascripts/bundle.220ee61c.min.js"></script>
       
     
   </body>

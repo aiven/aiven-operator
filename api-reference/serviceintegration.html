@@ -17,7 +17,7 @@
         <link rel="next" href="serviceuser.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.16">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.18">
     
     
       
@@ -1740,10 +1740,21 @@
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.clickhouseKafka.tables.columns-property" name="spec.clickhouseKafka.tables.columns-property"><code>columns</code></a> (array of objects, MaxItems: 100). Table columns. See below for <a href="#spec.clickhouseKafka.tables.columns">nested schema</a>.</li>
-<li><a href="#spec.clickhouseKafka.tables.data_format-property" name="spec.clickhouseKafka.tables.data_format-property"><code>data_format</code></a> (string, Enum: <code>Avro</code>, <code>CSV</code>, <code>JSONAsString</code>, <code>JSONCompactEachRow</code>, <code>JSONCompactStringsEachRow</code>, <code>JSONEachRow</code>, <code>JSONStringsEachRow</code>, <code>MsgPack</code>, <code>TSKV</code>, <code>TSV</code>, <code>TabSeparated</code>, <code>RawBLOB</code>). Message data format.</li>
+<li><a href="#spec.clickhouseKafka.tables.data_format-property" name="spec.clickhouseKafka.tables.data_format-property"><code>data_format</code></a> (string, Enum: <code>Avro</code>, <code>CSV</code>, <code>JSONAsString</code>, <code>JSONCompactEachRow</code>, <code>JSONCompactStringsEachRow</code>, <code>JSONEachRow</code>, <code>JSONStringsEachRow</code>, <code>MsgPack</code>, <code>TSKV</code>, <code>TSV</code>, <code>TabSeparated</code>, <code>RawBLOB</code>, <code>AvroConfluent</code>). Message data format.</li>
 <li><a href="#spec.clickhouseKafka.tables.group_name-property" name="spec.clickhouseKafka.tables.group_name-property"><code>group_name</code></a> (string, MinLength: 1, MaxLength: 249). Kafka consumers group.</li>
 <li><a href="#spec.clickhouseKafka.tables.name-property" name="spec.clickhouseKafka.tables.name-property"><code>name</code></a> (string, MinLength: 1, MaxLength: 40). Name of the table.</li>
 <li><a href="#spec.clickhouseKafka.tables.topics-property" name="spec.clickhouseKafka.tables.topics-property"><code>topics</code></a> (array of objects, MaxItems: 100). Kafka topics. See below for <a href="#spec.clickhouseKafka.tables.topics">nested schema</a>.</li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.clickhouseKafka.tables.auto_offset_reset-property" name="spec.clickhouseKafka.tables.auto_offset_reset-property"><code>auto_offset_reset</code></a> (string, Enum: <code>smallest</code>, <code>earliest</code>, <code>beginning</code>, <code>largest</code>, <code>latest</code>, <code>end</code>). Action to take when there is no initial offset in offset store or the desired offset is out of range.</li>
+<li><a href="#spec.clickhouseKafka.tables.date_time_input_format-property" name="spec.clickhouseKafka.tables.date_time_input_format-property"><code>date_time_input_format</code></a> (string, Enum: <code>basic</code>, <code>best_effort</code>, <code>best_effort_us</code>). Method to read DateTime from text input formats.</li>
+<li><a href="#spec.clickhouseKafka.tables.handle_error_mode-property" name="spec.clickhouseKafka.tables.handle_error_mode-property"><code>handle_error_mode</code></a> (string, Enum: <code>default</code>, <code>stream</code>). How to handle errors for Kafka engine.</li>
+<li><a href="#spec.clickhouseKafka.tables.max_block_size-property" name="spec.clickhouseKafka.tables.max_block_size-property"><code>max_block_size</code></a> (integer, Minimum: 0, Maximum: 1000000000). Number of row collected by poll(s) for flushing data from Kafka.</li>
+<li><a href="#spec.clickhouseKafka.tables.max_rows_per_message-property" name="spec.clickhouseKafka.tables.max_rows_per_message-property"><code>max_rows_per_message</code></a> (integer, Minimum: 1, Maximum: 1000000000). The maximum number of rows produced in one kafka message for row-based formats.</li>
+<li><a href="#spec.clickhouseKafka.tables.num_consumers-property" name="spec.clickhouseKafka.tables.num_consumers-property"><code>num_consumers</code></a> (integer, Minimum: 1, Maximum: 10). The number of consumers per table per replica.</li>
+<li><a href="#spec.clickhouseKafka.tables.poll_max_batch_size-property" name="spec.clickhouseKafka.tables.poll_max_batch_size-property"><code>poll_max_batch_size</code></a> (integer, Minimum: 0, Maximum: 1000000000). Maximum amount of messages to be polled in a single Kafka poll.</li>
+<li><a href="#spec.clickhouseKafka.tables.skip_broken_messages-property" name="spec.clickhouseKafka.tables.skip_broken_messages-property"><code>skip_broken_messages</code></a> (integer, Minimum: 0, Maximum: 1000000000). Skip at least this number of broken messages from Kafka topic per block.</li>
 </ul>
 <h4 id="spec.clickhouseKafka.tables.columns">columns<a class="headerlink" href="#spec.clickhouseKafka.tables.columns" title="Permanent link">&para;</a></h4>
 <p><em>Appears on <a href="#spec.clickhouseKafka.tables"><code>spec.clickhouseKafka.tables</code></a>.</em></p>
@@ -1866,6 +1877,10 @@
 <ul>
 <li><a href="#spec.kafkaLogs.kafka_topic-property" name="spec.kafkaLogs.kafka_topic-property"><code>kafka_topic</code></a> (string, MinLength: 1, MaxLength: 249). Topic name.</li>
 </ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.kafkaLogs.selected_log_fields-property" name="spec.kafkaLogs.selected_log_fields-property"><code>selected_log_fields</code></a> (array of strings, MaxItems: 5). The list of logging fields that will be sent to the integration logging service. The MESSAGE and timestamp fields are always sent.</li>
+</ul>
 <h2 id="spec.kafkaMirrormaker">kafkaMirrormaker<a class="headerlink" href="#spec.kafkaMirrormaker" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Kafka MirrorMaker configuration values.</p>
@@ -1893,6 +1908,7 @@
 <ul>
 <li><a href="#spec.logs.elasticsearch_index_days_max-property" name="spec.logs.elasticsearch_index_days_max-property"><code>elasticsearch_index_days_max</code></a> (integer, Minimum: 1, Maximum: 10000). Elasticsearch index retention limit.</li>
 <li><a href="#spec.logs.elasticsearch_index_prefix-property" name="spec.logs.elasticsearch_index_prefix-property"><code>elasticsearch_index_prefix</code></a> (string, MinLength: 1, MaxLength: 1024). Elasticsearch index prefix.</li>
+<li><a href="#spec.logs.selected_log_fields-property" name="spec.logs.selected_log_fields-property"><code>selected_log_fields</code></a> (array of strings, MaxItems: 5). The list of logging fields that will be sent to the integration logging service. The MESSAGE and timestamp fields are always sent.</li>
 </ul>
 <h2 id="spec.metrics">metrics<a class="headerlink" href="#spec.metrics" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -2016,10 +2032,10 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.a51614de.min.js"></script>
+      <script src="../assets/javascripts/bundle.220ee61c.min.js"></script>
       
     
   </body>
