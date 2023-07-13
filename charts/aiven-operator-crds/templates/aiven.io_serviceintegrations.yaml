@@ -454,6 +454,14 @@ spec:
                     maxLength: 249
                     minLength: 1
                     type: string
+                  selected_log_fields:
+                    description: The list of logging fields that will be sent to the
+                      integration logging service. The MESSAGE and timestamp fields
+                      are always sent.
+                    items:
+                      type: string
+                    maxItems: 5
+                    type: array
                 required:
                 - kafka_topic
                 type: object
@@ -526,6 +534,14 @@ spec:
                     maxLength: 1024
                     minLength: 1
                     type: string
+                  selected_log_fields:
+                    description: The list of logging fields that will be sent to the
+                      integration logging service. The MESSAGE and timestamp fields
+                      are always sent.
+                    items:
+                      type: string
+                    maxItems: 5
+                    type: array
                 type: object
               metrics:
                 description: Metrics configuration values

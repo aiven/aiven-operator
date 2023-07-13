@@ -13,4 +13,8 @@ type LogsUserConfig struct {
 	// +kubebuilder:validation:MaxLength=1024
 	// Elasticsearch index prefix
 	ElasticsearchIndexPrefix *string `groups:"create,update" json:"elasticsearch_index_prefix,omitempty"`
+
+	// +kubebuilder:validation:MaxItems=5
+	// The list of logging fields that will be sent to the integration logging service. The MESSAGE and timestamp fields are always sent.
+	SelectedLogFields []string `groups:"create,update" json:"selected_log_fields,omitempty"`
 }
