@@ -8,4 +8,8 @@ type KafkaLogsUserConfig struct {
 	// +kubebuilder:validation:MaxLength=249
 	// Topic name
 	KafkaTopic string `groups:"create,update" json:"kafka_topic"`
+
+	// +kubebuilder:validation:MaxItems=5
+	// The list of logging fields that will be sent to the integration logging service. The MESSAGE and timestamp fields are always sent.
+	SelectedLogFields []string `groups:"create,update" json:"selected_log_fields,omitempty"`
 }
