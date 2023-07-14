@@ -1,0 +1,15 @@
+name: force sync charts
+
+on:
+  workflow_dispatch: {}
+
+# N.B. If you need to update this workflow, please make sure to update the one in the release.yml file as well.
+jobs:
+  sync-charts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: BetaHuhn/repo-file-sync-action@v1
+        with:
+          GH_PAT: ${{ secrets.AIVEN_CI_PAT__VALID_WHILE_ALEKS_IS_EMPLOYED }}
+          COMMIT_PREFIX: "chore:"
