@@ -112,7 +112,7 @@ type RedisUserConfig struct {
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=32
-	// Redis IO thread count
+	// Set Redis IO thread count. Changing this will cause a restart of the Redis service.
 	RedisIoThreads *int `groups:"create,update" json:"redis_io_threads,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
@@ -136,7 +136,7 @@ type RedisUserConfig struct {
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=128
-	// Set number of redis databases. Changing this will cause a restart of redis service.
+	// Set number of Redis databases. Changing this will cause a restart of the Redis service.
 	RedisNumberOfDatabases *int `groups:"create,update" json:"redis_number_of_databases,omitempty"`
 
 	// +kubebuilder:validation:Enum="off";"rdb"
