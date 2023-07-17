@@ -2126,7 +2126,7 @@ func (in *ServiceIntegrationSpec) DeepCopyInto(out *ServiceIntegrationSpec) {
 	if in.KafkaLogsUserConfig != nil {
 		in, out := &in.KafkaLogsUserConfig, &out.KafkaLogsUserConfig
 		*out = new(kafka_logs.KafkaLogsUserConfig)
-		**out = **in
+		(*in).DeepCopyInto(*out)
 	}
 	if in.MetricsUserConfig != nil {
 		in, out := &in.MetricsUserConfig, &out.MetricsUserConfig

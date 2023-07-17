@@ -314,7 +314,8 @@ spec:
                     - resetchannels
                     type: string
                   redis_io_threads:
-                    description: Redis IO thread count
+                    description: Set Redis IO thread count. Changing this will cause
+                      a restart of the Redis service.
                     maximum: 32
                     minimum: 1
                     type: integer
@@ -347,8 +348,8 @@ spec:
                     pattern: ^[KEg\$lshzxeA]*$
                     type: string
                   redis_number_of_databases:
-                    description: Set number of redis databases. Changing this will
-                      cause a restart of redis service.
+                    description: Set number of Redis databases. Changing this will
+                      cause a restart of the Redis service.
                     maximum: 128
                     minimum: 1
                     type: integer
