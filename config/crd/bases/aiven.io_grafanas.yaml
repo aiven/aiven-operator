@@ -594,6 +594,10 @@ spec:
                   metrics_enabled:
                     description: Enable Grafana /metrics endpoint
                     type: boolean
+                  oauth_allow_insecure_email_lookup:
+                    description: Enforce user lookup based on email instead of the
+                      unique ID provided by the IdP
+                    type: boolean
                   private_access:
                     description: Allow access to selected service ports from private
                       networks

@@ -382,6 +382,9 @@ type GrafanaUserConfig struct {
 	// Enable Grafana /metrics endpoint
 	MetricsEnabled *bool `groups:"create,update" json:"metrics_enabled,omitempty"`
 
+	// Enforce user lookup based on email instead of the unique ID provided by the IdP
+	OauthAllowInsecureEmailLookup *bool `groups:"create,update" json:"oauth_allow_insecure_email_lookup,omitempty"`
+
 	// Allow access to selected service ports from private networks
 	PrivateAccess *PrivateAccess `groups:"create,update" json:"private_access,omitempty"`
 
