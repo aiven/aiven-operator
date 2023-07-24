@@ -383,6 +383,11 @@ func (in *GrafanaUserConfig) DeepCopyInto(out *GrafanaUserConfig) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.OauthAllowInsecureEmailLookup != nil {
+		in, out := &in.OauthAllowInsecureEmailLookup, &out.OauthAllowInsecureEmailLookup
+		*out = new(bool)
+		**out = **in
+	}
 	if in.PrivateAccess != nil {
 		in, out := &in.PrivateAccess, &out.PrivateAccess
 		*out = new(PrivateAccess)
