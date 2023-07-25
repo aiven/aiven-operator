@@ -168,6 +168,9 @@ type Kafka struct {
 	// The purge interval (in number of requests) of the producer request purgatory(defaults to 1000).
 	ProducerPurgatoryPurgeIntervalRequests *int `groups:"create,update" json:"producer_purgatory_purge_interval_requests,omitempty"`
 
+	// Whether to enable the tiered storage functionality
+	RemoteLogStorageSystemEnable *bool `groups:"create,update" json:"remote_log_storage_system_enable,omitempty"`
+
 	// +kubebuilder:validation:Minimum=1048576
 	// +kubebuilder:validation:Maximum=104857600
 	// The number of bytes of messages to attempt to fetch for each partition (defaults to 1048576). This is not an absolute maximum, if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that progress can be made.

@@ -441,6 +441,9 @@ spec:
                         maximum: 10000
                         minimum: 10
                         type: integer
+                      remote_log_storage_system_enable:
+                        description: Whether to enable the tiered storage functionality
+                        type: boolean
                       replica_fetch_max_bytes:
                         description: The number of bytes of messages to attempt to
                           fetch for each partition (defaults to 1048576). This is
