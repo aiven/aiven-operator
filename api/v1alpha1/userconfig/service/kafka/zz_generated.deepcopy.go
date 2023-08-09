@@ -202,6 +202,11 @@ func (in *Kafka) DeepCopyInto(out *Kafka) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.RemoteLogStorageSystemEnable != nil {
+		in, out := &in.RemoteLogStorageSystemEnable, &out.RemoteLogStorageSystemEnable
+		*out = new(bool)
+		**out = **in
+	}
 	if in.ReplicaFetchMaxBytes != nil {
 		in, out := &in.ReplicaFetchMaxBytes, &out.ReplicaFetchMaxBytes
 		*out = new(int)
