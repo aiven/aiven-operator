@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.13.0 - 2023-08-18
+
+- Add [TieredStorage](https://github.com/Aiven-Open/tiered-storage-for-apache-kafka) support to `Kafka`
+- Add `Kafka` version `3.5`
+- Add `Kafka` spec property `scheduled_rebalance_max_delay_ms`
+- Mark deprecated `Kafka` spec property `remote_log_storage_system_enable`
+- Add `KafkaConnect` spec property `scheduled_rebalance_max_delay_ms`
+- Add `OpenSearch` spec property `openid` 
+- Use updated go client with enhanced retries
+
 ## v0.12.3 - 2023-07-13
 
 - Expose `KAFKA_SCHEMA_REGISTRY_HOST` and `KAFKA_SCHEMA_REGISTRY_PORT` for `Kafka`

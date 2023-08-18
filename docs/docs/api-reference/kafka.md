@@ -138,13 +138,14 @@ Kafka specific user configuration options.
 - [`kafka_rest`](#spec.userConfig.kafka_rest-property){: name='spec.userConfig.kafka_rest-property'} (boolean). Enable Kafka-REST service.
 - [`kafka_rest_authorization`](#spec.userConfig.kafka_rest_authorization-property){: name='spec.userConfig.kafka_rest_authorization-property'} (boolean). Enable authorization in Kafka-REST service.
 - [`kafka_rest_config`](#spec.userConfig.kafka_rest_config-property){: name='spec.userConfig.kafka_rest_config-property'} (object). Kafka REST configuration. See below for [nested schema](#spec.userConfig.kafka_rest_config).
-- [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string, Enum: `3.3`, `3.1`, `3.4`). Kafka major version.
+- [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string, Enum: `3.3`, `3.1`, `3.4`, `3.5`). Kafka major version.
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
 - [`privatelink_access`](#spec.userConfig.privatelink_access-property){: name='spec.userConfig.privatelink_access-property'} (object). Allow access to selected service components through Privatelink. See below for [nested schema](#spec.userConfig.privatelink_access).
 - [`public_access`](#spec.userConfig.public_access-property){: name='spec.userConfig.public_access-property'} (object). Allow access to selected service ports from the public Internet. See below for [nested schema](#spec.userConfig.public_access).
 - [`schema_registry`](#spec.userConfig.schema_registry-property){: name='spec.userConfig.schema_registry-property'} (boolean). Enable Schema-Registry service.
 - [`schema_registry_config`](#spec.userConfig.schema_registry_config-property){: name='spec.userConfig.schema_registry_config-property'} (object). Schema Registry configuration. See below for [nested schema](#spec.userConfig.schema_registry_config).
 - [`static_ips`](#spec.userConfig.static_ips-property){: name='spec.userConfig.static_ips-property'} (boolean). Use static public IP addresses.
+- [`tiered_storage`](#spec.userConfig.tiered_storage-property){: name='spec.userConfig.tiered_storage-property'} (object). Tiered storage configuration. See below for [nested schema](#spec.userConfig.tiered_storage).
 
 ### ip_filter {: #spec.userConfig.ip_filter }
 
@@ -202,7 +203,7 @@ Kafka broker configuration values.
 - [`num_partitions`](#spec.userConfig.kafka.num_partitions-property){: name='spec.userConfig.kafka.num_partitions-property'} (integer, Minimum: 1, Maximum: 1000). Number of partitions for autocreated topics.
 - [`offsets_retention_minutes`](#spec.userConfig.kafka.offsets_retention_minutes-property){: name='spec.userConfig.kafka.offsets_retention_minutes-property'} (integer, Minimum: 1, Maximum: 2147483647). Log retention window in minutes for offsets topic.
 - [`producer_purgatory_purge_interval_requests`](#spec.userConfig.kafka.producer_purgatory_purge_interval_requests-property){: name='spec.userConfig.kafka.producer_purgatory_purge_interval_requests-property'} (integer, Minimum: 10, Maximum: 10000). The purge interval (in number of requests) of the producer request purgatory(defaults to 1000).
-- [`remote_log_storage_system_enable`](#spec.userConfig.kafka.remote_log_storage_system_enable-property){: name='spec.userConfig.kafka.remote_log_storage_system_enable-property'} (boolean). Whether to enable the tiered storage functionality.
+- [`remote_log_storage_system_enable`](#spec.userConfig.kafka.remote_log_storage_system_enable-property){: name='spec.userConfig.kafka.remote_log_storage_system_enable-property'} (boolean). Deprecated. Whether to enable the tiered storage functionality.
 - [`replica_fetch_max_bytes`](#spec.userConfig.kafka.replica_fetch_max_bytes-property){: name='spec.userConfig.kafka.replica_fetch_max_bytes-property'} (integer, Minimum: 1048576, Maximum: 104857600). The number of bytes of messages to attempt to fetch for each partition (defaults to 1048576). This is not an absolute maximum, if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that progress can be made.
 - [`replica_fetch_response_max_bytes`](#spec.userConfig.kafka.replica_fetch_response_max_bytes-property){: name='spec.userConfig.kafka.replica_fetch_response_max_bytes-property'} (integer, Minimum: 10485760, Maximum: 1048576000). Maximum bytes expected for the entire fetch response (defaults to 10485760). Records are fetched in batches, and if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that progress can be made. As such, this is not an absolute maximum.
 - [`socket_request_max_bytes`](#spec.userConfig.kafka.socket_request_max_bytes-property){: name='spec.userConfig.kafka.socket_request_max_bytes-property'} (integer, Minimum: 10485760, Maximum: 209715200). The maximum number of bytes in a socket request (defaults to 104857600).
@@ -242,6 +243,7 @@ Kafka Connect configuration values.
 - [`producer_compression_type`](#spec.userConfig.kafka_connect_config.producer_compression_type-property){: name='spec.userConfig.kafka_connect_config.producer_compression_type-property'} (string, Enum: `gzip`, `snappy`, `lz4`, `zstd`, `none`). Specify the default compression type for producers. This configuration accepts the standard compression codecs (`gzip`, `snappy`, `lz4`, `zstd`). It additionally accepts `none` which is the default and equivalent to no compression.
 - [`producer_linger_ms`](#spec.userConfig.kafka_connect_config.producer_linger_ms-property){: name='spec.userConfig.kafka_connect_config.producer_linger_ms-property'} (integer, Minimum: 0, Maximum: 5000). This setting gives the upper bound on the delay for batching: once there is batch.size worth of records for a partition it will be sent immediately regardless of this setting, however if there are fewer than this many bytes accumulated for this partition the producer will `linger` for the specified time waiting for more records to show up. Defaults to 0.
 - [`producer_max_request_size`](#spec.userConfig.kafka_connect_config.producer_max_request_size-property){: name='spec.userConfig.kafka_connect_config.producer_max_request_size-property'} (integer, Minimum: 131072, Maximum: 67108864). This setting will limit the number of record batches the producer will send in a single request to avoid sending huge requests.
+- [`scheduled_rebalance_max_delay_ms`](#spec.userConfig.kafka_connect_config.scheduled_rebalance_max_delay_ms-property){: name='spec.userConfig.kafka_connect_config.scheduled_rebalance_max_delay_ms-property'} (integer, Minimum: 0, Maximum: 600000). The maximum delay that is scheduled in order to wait for the return of one or more departed workers before rebalancing and reassigning their connectors and tasks to the group. During this period the connectors and tasks of the departed workers remain unassigned.  Defaults to 5 minutes.
 - [`session_timeout_ms`](#spec.userConfig.kafka_connect_config.session_timeout_ms-property){: name='spec.userConfig.kafka_connect_config.session_timeout_ms-property'} (integer, Minimum: 1, Maximum: 2147483647). The timeout in milliseconds used to detect failures when using Kafka’s group management facilities (defaults to 10000).
 
 ### kafka_rest_config {: #spec.userConfig.kafka_rest_config }
@@ -314,4 +316,25 @@ Schema Registry configuration.
 
 - [`leader_eligibility`](#spec.userConfig.schema_registry_config.leader_eligibility-property){: name='spec.userConfig.schema_registry_config.leader_eligibility-property'} (boolean). If true, Karapace / Schema Registry on the service nodes can participate in leader election. It might be needed to disable this when the schemas topic is replicated to a secondary cluster and Karapace / Schema Registry there must not participate in leader election. Defaults to `true`.
 - [`topic_name`](#spec.userConfig.schema_registry_config.topic_name-property){: name='spec.userConfig.schema_registry_config.topic_name-property'} (string, MinLength: 1, MaxLength: 249). The durable single partition topic that acts as the durable log for the data. This topic must be compacted to avoid losing data due to retention policy. Please note that changing this configuration in an existing Schema Registry / Karapace setup leads to previous schemas being inaccessible, data encoded with them potentially unreadable and schema ID sequence put out of order. It's only possible to do the switch while Schema Registry / Karapace is disabled. Defaults to `_schemas`.
+
+### tiered_storage {: #spec.userConfig.tiered_storage }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+Tiered storage configuration.
+
+**Optional**
+
+- [`enabled`](#spec.userConfig.tiered_storage.enabled-property){: name='spec.userConfig.tiered_storage.enabled-property'} (boolean). Whether to enable the tiered storage functionality.
+- [`local_cache`](#spec.userConfig.tiered_storage.local_cache-property){: name='spec.userConfig.tiered_storage.local_cache-property'} (object). Local cache configuration. See below for [nested schema](#spec.userConfig.tiered_storage.local_cache).
+
+#### local_cache {: #spec.userConfig.tiered_storage.local_cache }
+
+_Appears on [`spec.userConfig.tiered_storage`](#spec.userConfig.tiered_storage)._
+
+Local cache configuration.
+
+**Required**
+
+- [`size`](#spec.userConfig.tiered_storage.local_cache.size-property){: name='spec.userConfig.tiered_storage.local_cache.size-property'} (integer, Minimum: 1, Maximum: 107374182400). Local cache size in bytes.
 

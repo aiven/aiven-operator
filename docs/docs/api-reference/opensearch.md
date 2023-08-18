@@ -136,6 +136,7 @@ OpenSearch specific user configuration options.
 - [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
 - [`keep_index_refresh_interval`](#spec.userConfig.keep_index_refresh_interval-property){: name='spec.userConfig.keep_index_refresh_interval-property'} (boolean). Aiven automation resets index.refresh_interval to default value for every index to be sure that indices are always visible to search. If it doesn't fit your case, you can disable this by setting up this flag to true.
 - [`max_index_count`](#spec.userConfig.max_index_count-property){: name='spec.userConfig.max_index_count-property'} (integer, Minimum: 0). DEPRECATED: use index_patterns instead.
+- [`openid`](#spec.userConfig.openid-property){: name='spec.userConfig.openid-property'} (object). OpenSearch OpenID Connect Configuration. See below for [nested schema](#spec.userConfig.openid).
 - [`opensearch`](#spec.userConfig.opensearch-property){: name='spec.userConfig.opensearch-property'} (object). OpenSearch settings. See below for [nested schema](#spec.userConfig.opensearch).
 - [`opensearch_dashboards`](#spec.userConfig.opensearch_dashboards-property){: name='spec.userConfig.opensearch_dashboards-property'} (object). OpenSearch Dashboards settings. See below for [nested schema](#spec.userConfig.opensearch_dashboards).
 - [`opensearch_version`](#spec.userConfig.opensearch_version-property){: name='spec.userConfig.opensearch_version-property'} (string, Enum: `1`, `2`). OpenSearch major version.
@@ -188,6 +189,30 @@ Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`.
 **Optional**
 
 - [`description`](#spec.userConfig.ip_filter.description-property){: name='spec.userConfig.ip_filter.description-property'} (string, MaxLength: 1024). Description for IP filter list entry.
+
+### openid {: #spec.userConfig.openid }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+OpenSearch OpenID Connect Configuration.
+
+**Required**
+
+- [`client_id`](#spec.userConfig.openid.client_id-property){: name='spec.userConfig.openid.client_id-property'} (string, MinLength: 1, MaxLength: 1024). The ID of the OpenID Connect client configured in your IdP. Required.
+- [`client_secret`](#spec.userConfig.openid.client_secret-property){: name='spec.userConfig.openid.client_secret-property'} (string, MinLength: 1, MaxLength: 1024). The client secret of the OpenID Connect client configured in your IdP. Required.
+- [`connect_url`](#spec.userConfig.openid.connect_url-property){: name='spec.userConfig.openid.connect_url-property'} (string, MaxLength: 2048). The URL of your IdP where the Security plugin can find the OpenID Connect metadata/configuration settings.
+
+**Optional**
+
+- [`enabled`](#spec.userConfig.openid.enabled-property){: name='spec.userConfig.openid.enabled-property'} (boolean). Enables or disables OpenID Connect authentication for OpenSearch. When enabled, users can authenticate using OpenID Connect with an Identity Provider.
+- [`header`](#spec.userConfig.openid.header-property){: name='spec.userConfig.openid.header-property'} (string, MinLength: 1, MaxLength: 1024). HTTP header name of the JWT token. Optional. Default is Authorization.
+- [`jwt_header`](#spec.userConfig.openid.jwt_header-property){: name='spec.userConfig.openid.jwt_header-property'} (string, MinLength: 1, MaxLength: 1024). The HTTP header that stores the token. Typically the Authorization header with the Bearer schema: Authorization: Bearer <token>. Optional. Default is Authorization.
+- [`jwt_url_parameter`](#spec.userConfig.openid.jwt_url_parameter-property){: name='spec.userConfig.openid.jwt_url_parameter-property'} (string, MinLength: 1, MaxLength: 1024). If the token is not transmitted in the HTTP header, but as an URL parameter, define the name of the parameter here. Optional.
+- [`refresh_rate_limit_count`](#spec.userConfig.openid.refresh_rate_limit_count-property){: name='spec.userConfig.openid.refresh_rate_limit_count-property'} (integer, Minimum: 10). The maximum number of unknown key IDs in the time frame. Default is 10. Optional.
+- [`refresh_rate_limit_time_window_ms`](#spec.userConfig.openid.refresh_rate_limit_time_window_ms-property){: name='spec.userConfig.openid.refresh_rate_limit_time_window_ms-property'} (integer, Minimum: 10000). The time frame to use when checking the maximum number of unknown key IDs, in milliseconds. Optional.Default is 10000 (10 seconds).
+- [`roles_key`](#spec.userConfig.openid.roles_key-property){: name='spec.userConfig.openid.roles_key-property'} (string, MinLength: 1, MaxLength: 1024). The key in the JSON payload that stores the user’s roles. The value of this key must be a comma-separated list of roles. Required only if you want to use roles in the JWT.
+- [`scope`](#spec.userConfig.openid.scope-property){: name='spec.userConfig.openid.scope-property'} (string, MinLength: 1, MaxLength: 1024). The scope of the identity token issued by the IdP. Optional. Default is openid profile email address phone.
+- [`subject_key`](#spec.userConfig.openid.subject_key-property){: name='spec.userConfig.openid.subject_key-property'} (string, MinLength: 1, MaxLength: 1024). The key in the JSON payload that stores the user’s name. If not defined, the subject registered claim is used. Most IdP providers use the preferred_username claim. Optional.
 
 ### opensearch {: #spec.userConfig.opensearch }
 

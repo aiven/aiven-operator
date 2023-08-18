@@ -289,6 +289,15 @@ spec:
                         maximum: 67108864
                         minimum: 131072
                         type: integer
+                      scheduled_rebalance_max_delay_ms:
+                        description: The maximum delay that is scheduled in order
+                          to wait for the return of one or more departed workers before
+                          rebalancing and reassigning their connectors and tasks to
+                          the group. During this period the connectors and tasks of
+                          the departed workers remain unassigned.  Defaults to 5 minutes.
+                        maximum: 600000
+                        minimum: 0
+                        type: integer
                       session_timeout_ms:
                         description: The timeout in milliseconds used to detect failures
                           when using Kafka’s group management facilities (defaults

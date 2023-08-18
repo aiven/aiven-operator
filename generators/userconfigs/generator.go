@@ -108,16 +108,11 @@ const (
 	objectTypeNumber  objectType = "number"
 )
 
-// ObjectInternal internal fields for object
-type objectInternal struct {
-	jsonName   string // original name from json spec
-	structName string // go struct name in CamelCase
-	index      int    // field order in object.Properties
-}
-
 // object represents OpenApi object
 type object struct {
-	objectInternal
+	jsonName      string   // original name from json spec
+	structName    string   // go struct name in CamelCase
+	propertyNames []string // properties with order
 
 	IsDeprecated bool `yaml:"is_deprecated"`
 	Enum         []*struct {
@@ -163,7 +158,6 @@ type object struct {
 	// Another reason is that spec is mostly invalid, and nullable fields are not so.
 	// So for simplicity this generator doesn't support nullable values.
 	Nullable bool `yaml:"-"` // Not really used for now
-
 }
 
 // init initiates object after it gets values from OpenAPI spec
@@ -172,23 +166,20 @@ func (o *object) init(name string) {
 	o.structName = toCamelCase(name)
 
 	// Sorts properties, so they keep order on each generation
-	// Removes deprecated values
 	keys := make([]string, 0, len(o.Properties))
-	for k, p := range o.Properties {
-		if !p.IsDeprecated {
-			keys = append(keys, k)
-		}
+	for k := range o.Properties {
+		keys = append(keys, k)
 	}
 	slices.Sort(keys)
+	o.propertyNames = keys
 
 	required := make(map[string]bool, len(o.RequiredFields))
 	for _, k := range o.RequiredFields {
 		required[k] = true
 	}
 
-	for i, k := range keys {
+	for _, k := range keys {
 		child := o.Properties[k]
-		child.index = i
 		child.Required = required[k]
 		child.init(k)
 	}
@@ -225,22 +216,14 @@ func (o *object) init(name string) {
 
 // addObject adds object to jen.File
 func addObject(file *jen.File, obj *object) error {
-	// We need to iterate over fields by index,
-	// so new structs and properties are ordered
-	// Or we will get diff everytime we generate files
-	keyOrder := make([]string, len(obj.Properties))
-	for key, child := range obj.Properties {
-		keyOrder[child.index] = key
-	}
-
-	fields := make([]jen.Code, len(obj.Properties))
-	for _, key := range keyOrder {
+	fields := make([]jen.Code, len(obj.propertyNames))
+	for i, key := range obj.propertyNames {
 		child := obj.Properties[key]
 		f, err := addField(file, jen.Id(child.structName), child)
 		if err != nil {
 			return fmt.Errorf("%s: %s", key, err)
 		}
-		fields[child.index] = f
+		fields[i] = f
 	}
 
 	// Creates struct and adds fmtComment if available
@@ -370,6 +353,10 @@ func addFieldComments(s *jen.Statement, obj *object) *jen.Statement {
 		c = append(c, `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"`)
 	}
 
+	if obj.IsDeprecated {
+		c = append(c, fmt.Sprintf(`// +kubebuilder:deprecatedversion:warning="%s is deprecated"`, obj.jsonName))
+	}
+
 	doc := fmtComment(obj)
 	if doc != "" {
 		c = append(c, doc)
@@ -389,6 +376,10 @@ func fmtComment(obj *object) string {
 		d = obj.Description
 	} else {
 		d = obj.Title
+	}
+
+	if obj.IsDeprecated {
+		d = "Deprecated. " + d
 	}
 
 	if d == "" {

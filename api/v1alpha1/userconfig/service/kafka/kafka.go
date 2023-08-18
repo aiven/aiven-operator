@@ -168,7 +168,8 @@ type Kafka struct {
 	// The purge interval (in number of requests) of the producer request purgatory(defaults to 1000).
 	ProducerPurgatoryPurgeIntervalRequests *int `groups:"create,update" json:"producer_purgatory_purge_interval_requests,omitempty"`
 
-	// Whether to enable the tiered storage functionality
+	// +kubebuilder:deprecatedversion:warning="remote_log_storage_system_enable is deprecated"
+	// Deprecated. Whether to enable the tiered storage functionality
 	RemoteLogStorageSystemEnable *bool `groups:"create,update" json:"remote_log_storage_system_enable,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1048576
@@ -273,6 +274,11 @@ type KafkaConnectConfig struct {
 	// +kubebuilder:validation:Maximum=67108864
 	// This setting will limit the number of record batches the producer will send in a single request to avoid sending huge requests.
 	ProducerMaxRequestSize *int `groups:"create,update" json:"producer_max_request_size,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=600000
+	// The maximum delay that is scheduled in order to wait for the return of one or more departed workers before rebalancing and reassigning their connectors and tasks to the group. During this period the connectors and tasks of the departed workers remain unassigned.  Defaults to 5 minutes.
+	ScheduledRebalanceMaxDelayMs *int `groups:"create,update" json:"scheduled_rebalance_max_delay_ms,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=2147483647
@@ -387,6 +393,23 @@ type SchemaRegistryConfig struct {
 	// The durable single partition topic that acts as the durable log for the data. This topic must be compacted to avoid losing data due to retention policy. Please note that changing this configuration in an existing Schema Registry / Karapace setup leads to previous schemas being inaccessible, data encoded with them potentially unreadable and schema ID sequence put out of order. It's only possible to do the switch while Schema Registry / Karapace is disabled. Defaults to `_schemas`.
 	TopicName *string `groups:"create,update" json:"topic_name,omitempty"`
 }
+
+// Local cache configuration
+type LocalCache struct {
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=107374182400
+	// Local cache size in bytes
+	Size *int `groups:"create,update" json:"size,omitempty"`
+}
+
+// Tiered storage configuration
+type TieredStorage struct {
+	// Whether to enable the tiered storage functionality
+	Enabled *bool `groups:"create,update" json:"enabled,omitempty"`
+
+	// Local cache configuration
+	LocalCache *LocalCache `groups:"create,update" json:"local_cache,omitempty"`
+}
 type KafkaUserConfig struct {
 	// +kubebuilder:validation:MaxItems=1
 	// Additional Cloud Regions for Backup Replication
@@ -421,7 +444,7 @@ type KafkaUserConfig struct {
 	// Kafka REST configuration
 	KafkaRestConfig *KafkaRestConfig `groups:"create,update" json:"kafka_rest_config,omitempty"`
 
-	// +kubebuilder:validation:Enum="3.3";"3.1";"3.4"
+	// +kubebuilder:validation:Enum="3.3";"3.1";"3.4";"3.5"
 	// Kafka major version
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
 
@@ -442,4 +465,7 @@ type KafkaUserConfig struct {
 
 	// Use static public IP addresses
 	StaticIps *bool `groups:"create,update" json:"static_ips,omitempty"`
+
+	// Tiered storage configuration
+	TieredStorage *TieredStorage `groups:"create,update" json:"tiered_storage,omitempty"`
 }

@@ -82,6 +82,11 @@ type KafkaConnect struct {
 	// This setting will limit the number of record batches the producer will send in a single request to avoid sending huge requests.
 	ProducerMaxRequestSize *int `groups:"create,update" json:"producer_max_request_size,omitempty"`
 
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=600000
+	// The maximum delay that is scheduled in order to wait for the return of one or more departed workers before rebalancing and reassigning their connectors and tasks to the group. During this period the connectors and tasks of the departed workers remain unassigned.  Defaults to 5 minutes.
+	ScheduledRebalanceMaxDelayMs *int `groups:"create,update" json:"scheduled_rebalance_max_delay_ms,omitempty"`
+
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=2147483647
 	// The timeout in milliseconds used to detect failures when using Kafka’s group management facilities (defaults to 10000).

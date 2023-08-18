@@ -280,6 +280,88 @@ spec:
                     description: 'DEPRECATED: use index_patterns instead'
                     minimum: 0
                     type: integer
+                  openid:
+                    description: OpenSearch OpenID Connect Configuration
+                    properties:
+                      client_id:
+                        description: The ID of the OpenID Connect client configured
+                          in your IdP. Required.
+                        maxLength: 1024
+                        minLength: 1
+                        type: string
+                      client_secret:
+                        description: The client secret of the OpenID Connect client
+                          configured in your IdP. Required.
+                        maxLength: 1024
+                        minLength: 1
+                        type: string
+                      connect_url:
+                        description: The URL of your IdP where the Security plugin
+                          can find the OpenID Connect metadata/configuration settings.
+                        maxLength: 2048
+                        type: string
+                      enabled:
+                        description: Enables or disables OpenID Connect authentication
+                          for OpenSearch. When enabled, users can authenticate using
+                          OpenID Connect with an Identity Provider.
+                        type: boolean
+                      header:
+                        description: HTTP header name of the JWT token. Optional.
+                          Default is Authorization.
+                        maxLength: 1024
+                        minLength: 1
+                        type: string
+                      jwt_header:
+                        description: 'The HTTP header that stores the token. Typically
+                          the Authorization header with the Bearer schema: Authorization:
+                          Bearer <token>. Optional. Default is Authorization.'
+                        maxLength: 1024
+                        minLength: 1
+                        type: string
+                      jwt_url_parameter:
+                        description: If the token is not transmitted in the HTTP header,
+                          but as an URL parameter, define the name of the parameter
+                          here. Optional.
+                        maxLength: 1024
+                        minLength: 1
+                        type: string
+                      refresh_rate_limit_count:
+                        description: The maximum number of unknown key IDs in the
+                          time frame. Default is 10. Optional.
+                        minimum: 10
+                        type: integer
+                      refresh_rate_limit_time_window_ms:
+                        description: The time frame to use when checking the maximum
+                          number of unknown key IDs, in milliseconds. Optional.Default
+                          is 10000 (10 seconds).
+                        minimum: 10000
+                        type: integer
+                      roles_key:
+                        description: The key in the JSON payload that stores the user’s
+                          roles. The value of this key must be a comma-separated list
+                          of roles. Required only if you want to use roles in the
+                          JWT
+                        maxLength: 1024
+                        minLength: 1
+                        type: string
+                      scope:
+                        description: The scope of the identity token issued by the
+                          IdP. Optional. Default is openid profile email address phone.
+                        maxLength: 1024
+                        minLength: 1
+                        type: string
+                      subject_key:
+                        description: The key in the JSON payload that stores the user’s
+                          name. If not defined, the subject registered claim is used.
+                          Most IdP providers use the preferred_username claim. Optional.
+                        maxLength: 1024
+                        minLength: 1
+                        type: string
+                    required:
+                    - client_id
+                    - client_secret
+                    - connect_url
+                    type: object
                   opensearch:
                     description: OpenSearch settings
                     properties:
