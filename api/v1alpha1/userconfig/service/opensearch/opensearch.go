@@ -48,6 +48,64 @@ type IpFilter struct {
 	Network string `groups:"create,update" json:"network"`
 }
 
+// OpenSearch OpenID Connect Configuration
+type Openid struct {
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=1024
+	// The ID of the OpenID Connect client configured in your IdP. Required.
+	ClientId string `groups:"create,update" json:"client_id"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=1024
+	// The client secret of the OpenID Connect client configured in your IdP. Required.
+	ClientSecret string `groups:"create,update" json:"client_secret"`
+
+	// +kubebuilder:validation:MaxLength=2048
+	// The URL of your IdP where the Security plugin can find the OpenID Connect metadata/configuration settings.
+	ConnectUrl string `groups:"create,update" json:"connect_url"`
+
+	// Enables or disables OpenID Connect authentication for OpenSearch. When enabled, users can authenticate using OpenID Connect with an Identity Provider.
+	Enabled *bool `groups:"create,update" json:"enabled,omitempty"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=1024
+	// HTTP header name of the JWT token. Optional. Default is Authorization.
+	Header *string `groups:"create,update" json:"header,omitempty"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=1024
+	// The HTTP header that stores the token. Typically the Authorization header with the Bearer schema: Authorization: Bearer <token>. Optional. Default is Authorization.
+	JwtHeader *string `groups:"create,update" json:"jwt_header,omitempty"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=1024
+	// If the token is not transmitted in the HTTP header, but as an URL parameter, define the name of the parameter here. Optional.
+	JwtUrlParameter *string `groups:"create,update" json:"jwt_url_parameter,omitempty"`
+
+	// +kubebuilder:validation:Minimum=10
+	// The maximum number of unknown key IDs in the time frame. Default is 10. Optional.
+	RefreshRateLimitCount *int `groups:"create,update" json:"refresh_rate_limit_count,omitempty"`
+
+	// +kubebuilder:validation:Minimum=10000
+	// The time frame to use when checking the maximum number of unknown key IDs, in milliseconds. Optional.Default is 10000 (10 seconds).
+	RefreshRateLimitTimeWindowMs *int `groups:"create,update" json:"refresh_rate_limit_time_window_ms,omitempty"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=1024
+	// The key in the JSON payload that stores the user’s roles. The value of this key must be a comma-separated list of roles. Required only if you want to use roles in the JWT
+	RolesKey *string `groups:"create,update" json:"roles_key,omitempty"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=1024
+	// The scope of the identity token issued by the IdP. Optional. Default is openid profile email address phone.
+	Scope *string `groups:"create,update" json:"scope,omitempty"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=1024
+	// The key in the JSON payload that stores the user’s name. If not defined, the subject registered claim is used. Most IdP providers use the preferred_username claim. Optional.
+	SubjectKey *string `groups:"create,update" json:"subject_key,omitempty"`
+}
+
 // OpenSearch settings
 type Opensearch struct {
 	// Explicitly allow or block automatic creation of indices. Defaults to true
@@ -313,6 +371,9 @@ type OpensearchUserConfig struct {
 	// +kubebuilder:validation:Minimum=0
 	// DEPRECATED: use index_patterns instead
 	MaxIndexCount *int `groups:"create,update" json:"max_index_count,omitempty"`
+
+	// OpenSearch OpenID Connect Configuration
+	Openid *Openid `groups:"create,update" json:"openid,omitempty"`
 
 	// OpenSearch settings
 	Opensearch *Opensearch `groups:"create,update" json:"opensearch,omitempty"`

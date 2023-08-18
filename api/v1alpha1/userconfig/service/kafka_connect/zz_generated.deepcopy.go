@@ -102,6 +102,11 @@ func (in *KafkaConnect) DeepCopyInto(out *KafkaConnect) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.ScheduledRebalanceMaxDelayMs != nil {
+		in, out := &in.ScheduledRebalanceMaxDelayMs, &out.ScheduledRebalanceMaxDelayMs
+		*out = new(int)
+		**out = **in
+	}
 	if in.SessionTimeoutMs != nil {
 		in, out := &in.SessionTimeoutMs, &out.SessionTimeoutMs
 		*out = new(int)
