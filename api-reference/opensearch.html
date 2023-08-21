@@ -17,7 +17,7 @@
         <link rel="next" href="postgresql.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.18">
+      <meta name="generator" content="mkdocs-1.5.0, mkdocs-material-9.1.21">
     
     
       
@@ -25,7 +25,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.26e3688c.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.eebd395e.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ecc896b0.min.css">
@@ -1120,6 +1120,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#spec.userConfig.openid" class="md-nav__link">
+    openid
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#spec.userConfig.opensearch" class="md-nav__link">
     opensearch
   </a>
@@ -1368,6 +1375,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#spec.userConfig.openid" class="md-nav__link">
+    openid
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#spec.userConfig.opensearch" class="md-nav__link">
     opensearch
   </a>
@@ -1553,6 +1567,7 @@
 <li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
 <li><a href="#spec.userConfig.keep_index_refresh_interval-property" name="spec.userConfig.keep_index_refresh_interval-property"><code>keep_index_refresh_interval</code></a> (boolean). Aiven automation resets index.refresh_interval to default value for every index to be sure that indices are always visible to search. If it doesn't fit your case, you can disable this by setting up this flag to true.</li>
 <li><a href="#spec.userConfig.max_index_count-property" name="spec.userConfig.max_index_count-property"><code>max_index_count</code></a> (integer, Minimum: 0). DEPRECATED: use index_patterns instead.</li>
+<li><a href="#spec.userConfig.openid-property" name="spec.userConfig.openid-property"><code>openid</code></a> (object). OpenSearch OpenID Connect Configuration. See below for <a href="#spec.userConfig.openid">nested schema</a>.</li>
 <li><a href="#spec.userConfig.opensearch-property" name="spec.userConfig.opensearch-property"><code>opensearch</code></a> (object). OpenSearch settings. See below for <a href="#spec.userConfig.opensearch">nested schema</a>.</li>
 <li><a href="#spec.userConfig.opensearch_dashboards-property" name="spec.userConfig.opensearch_dashboards-property"><code>opensearch_dashboards</code></a> (object). OpenSearch Dashboards settings. See below for <a href="#spec.userConfig.opensearch_dashboards">nested schema</a>.</li>
 <li><a href="#spec.userConfig.opensearch_version-property" name="spec.userConfig.opensearch_version-property"><code>opensearch_version</code></a> (string, Enum: <code>1</code>, <code>2</code>). OpenSearch major version.</li>
@@ -1596,6 +1611,27 @@
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.userConfig.ip_filter.description-property" name="spec.userConfig.ip_filter.description-property"><code>description</code></a> (string, MaxLength: 1024). Description for IP filter list entry.</li>
+</ul>
+<h3 id="spec.userConfig.openid">openid<a class="headerlink" href="#spec.userConfig.openid" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
+<p>OpenSearch OpenID Connect Configuration.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.userConfig.openid.client_id-property" name="spec.userConfig.openid.client_id-property"><code>client_id</code></a> (string, MinLength: 1, MaxLength: 1024). The ID of the OpenID Connect client configured in your IdP. Required.</li>
+<li><a href="#spec.userConfig.openid.client_secret-property" name="spec.userConfig.openid.client_secret-property"><code>client_secret</code></a> (string, MinLength: 1, MaxLength: 1024). The client secret of the OpenID Connect client configured in your IdP. Required.</li>
+<li><a href="#spec.userConfig.openid.connect_url-property" name="spec.userConfig.openid.connect_url-property"><code>connect_url</code></a> (string, MaxLength: 2048). The URL of your IdP where the Security plugin can find the OpenID Connect metadata/configuration settings.</li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.openid.enabled-property" name="spec.userConfig.openid.enabled-property"><code>enabled</code></a> (boolean). Enables or disables OpenID Connect authentication for OpenSearch. When enabled, users can authenticate using OpenID Connect with an Identity Provider.</li>
+<li><a href="#spec.userConfig.openid.header-property" name="spec.userConfig.openid.header-property"><code>header</code></a> (string, MinLength: 1, MaxLength: 1024). HTTP header name of the JWT token. Optional. Default is Authorization.</li>
+<li><a href="#spec.userConfig.openid.jwt_header-property" name="spec.userConfig.openid.jwt_header-property"><code>jwt_header</code></a> (string, MinLength: 1, MaxLength: 1024). The HTTP header that stores the token. Typically the Authorization header with the Bearer schema: Authorization: Bearer <token>. Optional. Default is Authorization.</li>
+<li><a href="#spec.userConfig.openid.jwt_url_parameter-property" name="spec.userConfig.openid.jwt_url_parameter-property"><code>jwt_url_parameter</code></a> (string, MinLength: 1, MaxLength: 1024). If the token is not transmitted in the HTTP header, but as an URL parameter, define the name of the parameter here. Optional.</li>
+<li><a href="#spec.userConfig.openid.refresh_rate_limit_count-property" name="spec.userConfig.openid.refresh_rate_limit_count-property"><code>refresh_rate_limit_count</code></a> (integer, Minimum: 10). The maximum number of unknown key IDs in the time frame. Default is 10. Optional.</li>
+<li><a href="#spec.userConfig.openid.refresh_rate_limit_time_window_ms-property" name="spec.userConfig.openid.refresh_rate_limit_time_window_ms-property"><code>refresh_rate_limit_time_window_ms</code></a> (integer, Minimum: 10000). The time frame to use when checking the maximum number of unknown key IDs, in milliseconds. Optional.Default is 10000 (10 seconds).</li>
+<li><a href="#spec.userConfig.openid.roles_key-property" name="spec.userConfig.openid.roles_key-property"><code>roles_key</code></a> (string, MinLength: 1, MaxLength: 1024). The key in the JSON payload that stores the user’s roles. The value of this key must be a comma-separated list of roles. Required only if you want to use roles in the JWT.</li>
+<li><a href="#spec.userConfig.openid.scope-property" name="spec.userConfig.openid.scope-property"><code>scope</code></a> (string, MinLength: 1, MaxLength: 1024). The scope of the identity token issued by the IdP. Optional. Default is openid profile email address phone.</li>
+<li><a href="#spec.userConfig.openid.subject_key-property" name="spec.userConfig.openid.subject_key-property"><code>subject_key</code></a> (string, MinLength: 1, MaxLength: 1024). The key in the JSON payload that stores the user’s name. If not defined, the subject registered claim is used. Most IdP providers use the preferred_username claim. Optional.</li>
 </ul>
 <h3 id="spec.userConfig.opensearch">opensearch<a class="headerlink" href="#spec.userConfig.opensearch" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>

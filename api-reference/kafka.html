@@ -17,7 +17,7 @@
         <link rel="next" href="kafkaacl.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.18">
+      <meta name="generator" content="mkdocs-1.5.0, mkdocs-material-9.1.21">
     
     
       
@@ -25,7 +25,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.26e3688c.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.eebd395e.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ecc896b0.min.css">
@@ -1063,6 +1063,26 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.tiered_storage" class="md-nav__link">
+    tiered_storage
+  </a>
+  
+    <nav class="md-nav" aria-label="tiered_storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.tiered_storage.local_cache" class="md-nav__link">
+    local_cache
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1409,6 +1429,26 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.tiered_storage" class="md-nav__link">
+    tiered_storage
+  </a>
+  
+    <nav class="md-nav" aria-label="tiered_storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.tiered_storage.local_cache" class="md-nav__link">
+    local_cache
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1555,13 +1595,14 @@
 <li><a href="#spec.userConfig.kafka_rest-property" name="spec.userConfig.kafka_rest-property"><code>kafka_rest</code></a> (boolean). Enable Kafka-REST service.</li>
 <li><a href="#spec.userConfig.kafka_rest_authorization-property" name="spec.userConfig.kafka_rest_authorization-property"><code>kafka_rest_authorization</code></a> (boolean). Enable authorization in Kafka-REST service.</li>
 <li><a href="#spec.userConfig.kafka_rest_config-property" name="spec.userConfig.kafka_rest_config-property"><code>kafka_rest_config</code></a> (object). Kafka REST configuration. See below for <a href="#spec.userConfig.kafka_rest_config">nested schema</a>.</li>
-<li><a href="#spec.userConfig.kafka_version-property" name="spec.userConfig.kafka_version-property"><code>kafka_version</code></a> (string, Enum: <code>3.3</code>, <code>3.1</code>, <code>3.4</code>). Kafka major version.</li>
+<li><a href="#spec.userConfig.kafka_version-property" name="spec.userConfig.kafka_version-property"><code>kafka_version</code></a> (string, Enum: <code>3.3</code>, <code>3.1</code>, <code>3.4</code>, <code>3.5</code>). Kafka major version.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.public_access-property" name="spec.userConfig.public_access-property"><code>public_access</code></a> (object). Allow access to selected service ports from the public Internet. See below for <a href="#spec.userConfig.public_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.schema_registry-property" name="spec.userConfig.schema_registry-property"><code>schema_registry</code></a> (boolean). Enable Schema-Registry service.</li>
 <li><a href="#spec.userConfig.schema_registry_config-property" name="spec.userConfig.schema_registry_config-property"><code>schema_registry_config</code></a> (object). Schema Registry configuration. See below for <a href="#spec.userConfig.schema_registry_config">nested schema</a>.</li>
 <li><a href="#spec.userConfig.static_ips-property" name="spec.userConfig.static_ips-property"><code>static_ips</code></a> (boolean). Use static public IP addresses.</li>
+<li><a href="#spec.userConfig.tiered_storage-property" name="spec.userConfig.tiered_storage-property"><code>tiered_storage</code></a> (object). Tiered storage configuration. See below for <a href="#spec.userConfig.tiered_storage">nested schema</a>.</li>
 </ul>
 <h3 id="spec.userConfig.ip_filter">ip_filter<a class="headerlink" href="#spec.userConfig.ip_filter" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
@@ -1613,6 +1654,7 @@
 <li><a href="#spec.userConfig.kafka.num_partitions-property" name="spec.userConfig.kafka.num_partitions-property"><code>num_partitions</code></a> (integer, Minimum: 1, Maximum: 1000). Number of partitions for autocreated topics.</li>
 <li><a href="#spec.userConfig.kafka.offsets_retention_minutes-property" name="spec.userConfig.kafka.offsets_retention_minutes-property"><code>offsets_retention_minutes</code></a> (integer, Minimum: 1, Maximum: 2147483647). Log retention window in minutes for offsets topic.</li>
 <li><a href="#spec.userConfig.kafka.producer_purgatory_purge_interval_requests-property" name="spec.userConfig.kafka.producer_purgatory_purge_interval_requests-property"><code>producer_purgatory_purge_interval_requests</code></a> (integer, Minimum: 10, Maximum: 10000). The purge interval (in number of requests) of the producer request purgatory(defaults to 1000).</li>
+<li><a href="#spec.userConfig.kafka.remote_log_storage_system_enable-property" name="spec.userConfig.kafka.remote_log_storage_system_enable-property"><code>remote_log_storage_system_enable</code></a> (boolean). Deprecated. Whether to enable the tiered storage functionality.</li>
 <li><a href="#spec.userConfig.kafka.replica_fetch_max_bytes-property" name="spec.userConfig.kafka.replica_fetch_max_bytes-property"><code>replica_fetch_max_bytes</code></a> (integer, Minimum: 1048576, Maximum: 104857600). The number of bytes of messages to attempt to fetch for each partition (defaults to 1048576). This is not an absolute maximum, if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that progress can be made.</li>
 <li><a href="#spec.userConfig.kafka.replica_fetch_response_max_bytes-property" name="spec.userConfig.kafka.replica_fetch_response_max_bytes-property"><code>replica_fetch_response_max_bytes</code></a> (integer, Minimum: 10485760, Maximum: 1048576000). Maximum bytes expected for the entire fetch response (defaults to 10485760). Records are fetched in batches, and if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that progress can be made. As such, this is not an absolute maximum.</li>
 <li><a href="#spec.userConfig.kafka.socket_request_max_bytes-property" name="spec.userConfig.kafka.socket_request_max_bytes-property"><code>socket_request_max_bytes</code></a> (integer, Minimum: 10485760, Maximum: 209715200). The maximum number of bytes in a socket request (defaults to 104857600).</li>
@@ -1646,6 +1688,7 @@
 <li><a href="#spec.userConfig.kafka_connect_config.producer_compression_type-property" name="spec.userConfig.kafka_connect_config.producer_compression_type-property"><code>producer_compression_type</code></a> (string, Enum: <code>gzip</code>, <code>snappy</code>, <code>lz4</code>, <code>zstd</code>, <code>none</code>). Specify the default compression type for producers. This configuration accepts the standard compression codecs (<code>gzip</code>, <code>snappy</code>, <code>lz4</code>, <code>zstd</code>). It additionally accepts <code>none</code> which is the default and equivalent to no compression.</li>
 <li><a href="#spec.userConfig.kafka_connect_config.producer_linger_ms-property" name="spec.userConfig.kafka_connect_config.producer_linger_ms-property"><code>producer_linger_ms</code></a> (integer, Minimum: 0, Maximum: 5000). This setting gives the upper bound on the delay for batching: once there is batch.size worth of records for a partition it will be sent immediately regardless of this setting, however if there are fewer than this many bytes accumulated for this partition the producer will <code>linger</code> for the specified time waiting for more records to show up. Defaults to 0.</li>
 <li><a href="#spec.userConfig.kafka_connect_config.producer_max_request_size-property" name="spec.userConfig.kafka_connect_config.producer_max_request_size-property"><code>producer_max_request_size</code></a> (integer, Minimum: 131072, Maximum: 67108864). This setting will limit the number of record batches the producer will send in a single request to avoid sending huge requests.</li>
+<li><a href="#spec.userConfig.kafka_connect_config.scheduled_rebalance_max_delay_ms-property" name="spec.userConfig.kafka_connect_config.scheduled_rebalance_max_delay_ms-property"><code>scheduled_rebalance_max_delay_ms</code></a> (integer, Minimum: 0, Maximum: 600000). The maximum delay that is scheduled in order to wait for the return of one or more departed workers before rebalancing and reassigning their connectors and tasks to the group. During this period the connectors and tasks of the departed workers remain unassigned.  Defaults to 5 minutes.</li>
 <li><a href="#spec.userConfig.kafka_connect_config.session_timeout_ms-property" name="spec.userConfig.kafka_connect_config.session_timeout_ms-property"><code>session_timeout_ms</code></a> (integer, Minimum: 1, Maximum: 2147483647). The timeout in milliseconds used to detect failures when using Kafka’s group management facilities (defaults to 10000).</li>
 </ul>
 <h3 id="spec.userConfig.kafka_rest_config">kafka_rest_config<a class="headerlink" href="#spec.userConfig.kafka_rest_config" title="Permanent link">&para;</a></h3>
@@ -1703,6 +1746,21 @@
 <ul>
 <li><a href="#spec.userConfig.schema_registry_config.leader_eligibility-property" name="spec.userConfig.schema_registry_config.leader_eligibility-property"><code>leader_eligibility</code></a> (boolean). If true, Karapace / Schema Registry on the service nodes can participate in leader election. It might be needed to disable this when the schemas topic is replicated to a secondary cluster and Karapace / Schema Registry there must not participate in leader election. Defaults to <code>true</code>.</li>
 <li><a href="#spec.userConfig.schema_registry_config.topic_name-property" name="spec.userConfig.schema_registry_config.topic_name-property"><code>topic_name</code></a> (string, MinLength: 1, MaxLength: 249). The durable single partition topic that acts as the durable log for the data. This topic must be compacted to avoid losing data due to retention policy. Please note that changing this configuration in an existing Schema Registry / Karapace setup leads to previous schemas being inaccessible, data encoded with them potentially unreadable and schema ID sequence put out of order. It's only possible to do the switch while Schema Registry / Karapace is disabled. Defaults to <code>_schemas</code>.</li>
+</ul>
+<h3 id="spec.userConfig.tiered_storage">tiered_storage<a class="headerlink" href="#spec.userConfig.tiered_storage" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
+<p>Tiered storage configuration.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.tiered_storage.enabled-property" name="spec.userConfig.tiered_storage.enabled-property"><code>enabled</code></a> (boolean). Whether to enable the tiered storage functionality.</li>
+<li><a href="#spec.userConfig.tiered_storage.local_cache-property" name="spec.userConfig.tiered_storage.local_cache-property"><code>local_cache</code></a> (object). Local cache configuration. See below for <a href="#spec.userConfig.tiered_storage.local_cache">nested schema</a>.</li>
+</ul>
+<h4 id="spec.userConfig.tiered_storage.local_cache">local_cache<a class="headerlink" href="#spec.userConfig.tiered_storage.local_cache" title="Permanent link">&para;</a></h4>
+<p><em>Appears on <a href="#spec.userConfig.tiered_storage"><code>spec.userConfig.tiered_storage</code></a>.</em></p>
+<p>Local cache configuration.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.userConfig.tiered_storage.local_cache.size-property" name="spec.userConfig.tiered_storage.local_cache.size-property"><code>size</code></a> (integer, Minimum: 1, Maximum: 107374182400). Local cache size in bytes.</li>
 </ul>
 
 

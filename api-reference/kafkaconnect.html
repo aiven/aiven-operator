@@ -17,7 +17,7 @@
         <link rel="next" href="kafkaconnector.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.18">
+      <meta name="generator" content="mkdocs-1.5.0, mkdocs-material-9.1.21">
     
     
       
@@ -25,7 +25,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.26e3688c.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.eebd395e.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ecc896b0.min.css">
@@ -1492,6 +1492,7 @@
 <li><a href="#spec.userConfig.kafka_connect.producer_compression_type-property" name="spec.userConfig.kafka_connect.producer_compression_type-property"><code>producer_compression_type</code></a> (string, Enum: <code>gzip</code>, <code>snappy</code>, <code>lz4</code>, <code>zstd</code>, <code>none</code>). Specify the default compression type for producers. This configuration accepts the standard compression codecs (<code>gzip</code>, <code>snappy</code>, <code>lz4</code>, <code>zstd</code>). It additionally accepts <code>none</code> which is the default and equivalent to no compression.</li>
 <li><a href="#spec.userConfig.kafka_connect.producer_linger_ms-property" name="spec.userConfig.kafka_connect.producer_linger_ms-property"><code>producer_linger_ms</code></a> (integer, Minimum: 0, Maximum: 5000). This setting gives the upper bound on the delay for batching: once there is batch.size worth of records for a partition it will be sent immediately regardless of this setting, however if there are fewer than this many bytes accumulated for this partition the producer will <code>linger</code> for the specified time waiting for more records to show up. Defaults to 0.</li>
 <li><a href="#spec.userConfig.kafka_connect.producer_max_request_size-property" name="spec.userConfig.kafka_connect.producer_max_request_size-property"><code>producer_max_request_size</code></a> (integer, Minimum: 131072, Maximum: 67108864). This setting will limit the number of record batches the producer will send in a single request to avoid sending huge requests.</li>
+<li><a href="#spec.userConfig.kafka_connect.scheduled_rebalance_max_delay_ms-property" name="spec.userConfig.kafka_connect.scheduled_rebalance_max_delay_ms-property"><code>scheduled_rebalance_max_delay_ms</code></a> (integer, Minimum: 0, Maximum: 600000). The maximum delay that is scheduled in order to wait for the return of one or more departed workers before rebalancing and reassigning their connectors and tasks to the group. During this period the connectors and tasks of the departed workers remain unassigned.  Defaults to 5 minutes.</li>
 <li><a href="#spec.userConfig.kafka_connect.session_timeout_ms-property" name="spec.userConfig.kafka_connect.session_timeout_ms-property"><code>session_timeout_ms</code></a> (integer, Minimum: 1, Maximum: 2147483647). The timeout in milliseconds used to detect failures when using Kafka’s group management facilities (defaults to 10000).</li>
 </ul>
 <h3 id="spec.userConfig.private_access">private_access<a class="headerlink" href="#spec.userConfig.private_access" title="Permanent link">&para;</a></h3>

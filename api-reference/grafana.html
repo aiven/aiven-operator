@@ -17,7 +17,7 @@
         <link rel="next" href="kafka.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.18">
+      <meta name="generator" content="mkdocs-1.5.0, mkdocs-material-9.1.21">
     
     
       
@@ -25,7 +25,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.26e3688c.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.eebd395e.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ecc896b0.min.css">
@@ -1620,6 +1620,7 @@
 <li><a href="#spec.userConfig.google_analytics_ua_id-property" name="spec.userConfig.google_analytics_ua_id-property"><code>google_analytics_ua_id</code></a> (string, Pattern: <code>^(G|UA|YT|MO)-[a-zA-Z0-9-]+$</code>, MaxLength: 64). Google Analytics ID.</li>
 <li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
 <li><a href="#spec.userConfig.metrics_enabled-property" name="spec.userConfig.metrics_enabled-property"><code>metrics_enabled</code></a> (boolean). Enable Grafana /metrics endpoint.</li>
+<li><a href="#spec.userConfig.oauth_allow_insecure_email_lookup-property" name="spec.userConfig.oauth_allow_insecure_email_lookup-property"><code>oauth_allow_insecure_email_lookup</code></a> (boolean). Enforce user lookup based on email instead of the unique ID provided by the IdP.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.project_to_fork_from-property" name="spec.userConfig.project_to_fork_from-property"><code>project_to_fork_from</code></a> (string, Immutable, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.</li>

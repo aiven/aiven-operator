@@ -17,7 +17,7 @@
         <link rel="next" href="installation/prerequisites.html">
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.18">
+      <meta name="generator" content="mkdocs-1.5.0, mkdocs-material-9.1.21">
     
     
       
@@ -25,7 +25,7 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.26e3688c.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.eebd395e.min.css">
       
         
         <link rel="stylesheet" href="assets/stylesheets/palette.ecc896b0.min.css">
@@ -376,6 +376,20 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0130-2023-08-18" class="md-nav__link">
+    v0.13.0 - 2023-08-18
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v0123-2023-07-13" class="md-nav__link">
+    v0.12.3 - 2023-07-13
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v0122-2023-06-20" class="md-nav__link">
@@ -1276,6 +1290,20 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0130-2023-08-18" class="md-nav__link">
+    v0.13.0 - 2023-08-18
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v0123-2023-07-13" class="md-nav__link">
+    v0.12.3 - 2023-07-13
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0122-2023-06-20" class="md-nav__link">
     v0.12.2 - 2023-06-20
   </a>
@@ -1407,6 +1435,21 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0130-2023-08-18">v0.13.0 - 2023-08-18<a class="headerlink" href="#v0130-2023-08-18" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Add <a href="https://github.com/Aiven-Open/tiered-storage-for-apache-kafka">TieredStorage</a> support to <code>Kafka</code></li>
+<li>Add <code>Kafka</code> version <code>3.5</code></li>
+<li>Add <code>Kafka</code> spec property <code>scheduled_rebalance_max_delay_ms</code></li>
+<li>Mark deprecated <code>Kafka</code> spec property <code>remote_log_storage_system_enable</code></li>
+<li>Add <code>KafkaConnect</code> spec property <code>scheduled_rebalance_max_delay_ms</code></li>
+<li>Add <code>OpenSearch</code> spec property <code>openid</code> </li>
+<li>Use updated go client with enhanced retries</li>
+</ul>
+<h2 id="v0123-2023-07-13">v0.12.3 - 2023-07-13<a class="headerlink" href="#v0123-2023-07-13" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Expose <code>KAFKA_SCHEMA_REGISTRY_HOST</code> and <code>KAFKA_SCHEMA_REGISTRY_PORT</code> for <code>Kafka</code></li>
+<li>Expose <code>KAFKA_CONNECT_HOST</code>, <code>KAFKA_CONNECT_PORT</code>, <code>KAFKA_REST_HOST</code> and <code>KAFKA_REST_PORT</code> for <code>Kafka</code>. Thanks to @Dariusch</li>
+</ul>
 <h2 id="v0122-2023-06-20">v0.12.2 - 2023-06-20<a class="headerlink" href="#v0122-2023-06-20" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Make conditions and state optional attributes of service status. Thanks to @mortenlj</li>

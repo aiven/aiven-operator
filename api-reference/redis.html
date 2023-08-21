@@ -17,7 +17,7 @@
         <link rel="next" href="serviceintegration.html">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.18">
+      <meta name="generator" content="mkdocs-1.5.0, mkdocs-material-9.1.21">
     
     
       
@@ -25,7 +25,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.26e3688c.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.eebd395e.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ecc896b0.min.css">
@@ -1500,12 +1500,12 @@
 <li><a href="#spec.userConfig.public_access-property" name="spec.userConfig.public_access-property"><code>public_access</code></a> (object). Allow access to selected service ports from the public Internet. See below for <a href="#spec.userConfig.public_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.recovery_basebackup_name-property" name="spec.userConfig.recovery_basebackup_name-property"><code>recovery_basebackup_name</code></a> (string, Pattern: <code>^[a-zA-Z0-9-_:.]+$</code>, MaxLength: 128). Name of the basebackup to restore in forked service.</li>
 <li><a href="#spec.userConfig.redis_acl_channels_default-property" name="spec.userConfig.redis_acl_channels_default-property"><code>redis_acl_channels_default</code></a> (string, Enum: <code>allchannels</code>, <code>resetchannels</code>). Determines default pub/sub channels' ACL for new users if ACL is not supplied. When this option is not defined, all_channels is assumed to keep backward compatibility. This option doesn't affect Redis configuration acl-pubsub-default.</li>
-<li><a href="#spec.userConfig.redis_io_threads-property" name="spec.userConfig.redis_io_threads-property"><code>redis_io_threads</code></a> (integer, Minimum: 1, Maximum: 32). Redis IO thread count.</li>
+<li><a href="#spec.userConfig.redis_io_threads-property" name="spec.userConfig.redis_io_threads-property"><code>redis_io_threads</code></a> (integer, Minimum: 1, Maximum: 32). Set Redis IO thread count. Changing this will cause a restart of the Redis service.</li>
 <li><a href="#spec.userConfig.redis_lfu_decay_time-property" name="spec.userConfig.redis_lfu_decay_time-property"><code>redis_lfu_decay_time</code></a> (integer, Minimum: 1, Maximum: 120). LFU maxmemory-policy counter decay time in minutes.</li>
 <li><a href="#spec.userConfig.redis_lfu_log_factor-property" name="spec.userConfig.redis_lfu_log_factor-property"><code>redis_lfu_log_factor</code></a> (integer, Minimum: 0, Maximum: 100). Counter logarithm factor for volatile-lfu and allkeys-lfu maxmemory-policies.</li>
 <li><a href="#spec.userConfig.redis_maxmemory_policy-property" name="spec.userConfig.redis_maxmemory_policy-property"><code>redis_maxmemory_policy</code></a> (string, Enum: <code>noeviction</code>, <code>allkeys-lru</code>, <code>volatile-lru</code>, <code>allkeys-random</code>, <code>volatile-random</code>, <code>volatile-ttl</code>, <code>volatile-lfu</code>, <code>allkeys-lfu</code>). Redis maxmemory-policy.</li>
 <li><a href="#spec.userConfig.redis_notify_keyspace_events-property" name="spec.userConfig.redis_notify_keyspace_events-property"><code>redis_notify_keyspace_events</code></a> (string, Pattern: <code>^[KEg\$lshzxeA]*$</code>, MaxLength: 32). Set notify-keyspace-events option.</li>
-<li><a href="#spec.userConfig.redis_number_of_databases-property" name="spec.userConfig.redis_number_of_databases-property"><code>redis_number_of_databases</code></a> (integer, Minimum: 1, Maximum: 128). Set number of redis databases. Changing this will cause a restart of redis service.</li>
+<li><a href="#spec.userConfig.redis_number_of_databases-property" name="spec.userConfig.redis_number_of_databases-property"><code>redis_number_of_databases</code></a> (integer, Minimum: 1, Maximum: 128). Set number of Redis databases. Changing this will cause a restart of the Redis service.</li>
 <li><a href="#spec.userConfig.redis_persistence-property" name="spec.userConfig.redis_persistence-property"><code>redis_persistence</code></a> (string, Enum: <code>off</code>, <code>rdb</code>). When persistence is <code>rdb</code>, Redis does RDB dumps each 10 minutes if any key is changed. Also RDB dumps are done according to backup schedule for backup purposes. When persistence is <code>off</code>, no RDB dumps and backups are done, so data can be lost at any moment if service is restarted for any reason, or if service is powered off. Also service can't be forked.</li>
 <li><a href="#spec.userConfig.redis_pubsub_client_output_buffer_limit-property" name="spec.userConfig.redis_pubsub_client_output_buffer_limit-property"><code>redis_pubsub_client_output_buffer_limit</code></a> (integer, Minimum: 32, Maximum: 512). Set output buffer limit for pub / sub clients in MB. The value is the hard limit, the soft limit is 1/4 of the hard limit. When setting the limit, be mindful of the available memory in the selected service plan.</li>
 <li><a href="#spec.userConfig.redis_ssl-property" name="spec.userConfig.redis_ssl-property"><code>redis_ssl</code></a> (boolean). Require SSL to access Redis.</li>
