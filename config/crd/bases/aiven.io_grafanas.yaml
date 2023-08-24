@@ -297,6 +297,10 @@ spec:
                         description: Authorization URL
                         maxLength: 2048
                         type: string
+                      auto_login:
+                        description: Allow users to bypass the login screen and automatically
+                          log in
+                        type: boolean
                       client_id:
                         description: Client ID from provider
                         maxLength: 1024

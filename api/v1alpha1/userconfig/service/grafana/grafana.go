@@ -56,6 +56,9 @@ type AuthGenericOauth struct {
 	// Authorization URL
 	AuthUrl string `groups:"create,update" json:"auth_url"`
 
+	// Allow users to bypass the login screen and automatically log in
+	AutoLogin *bool `groups:"create,update" json:"auto_login,omitempty"`
+
 	// +kubebuilder:validation:MaxLength=1024
 	// +kubebuilder:validation:Pattern=`^[\040-\176]+$`
 	// Client ID from provider

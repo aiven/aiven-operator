@@ -212,6 +212,7 @@ Generic OAuth integration.
 - [`allow_sign_up`](#spec.userConfig.auth_generic_oauth.allow_sign_up-property){: name='spec.userConfig.auth_generic_oauth.allow_sign_up-property'} (boolean). Automatically sign-up users on successful sign-in.
 - [`allowed_domains`](#spec.userConfig.auth_generic_oauth.allowed_domains-property){: name='spec.userConfig.auth_generic_oauth.allowed_domains-property'} (array of strings, MaxItems: 50). Allowed domains.
 - [`allowed_organizations`](#spec.userConfig.auth_generic_oauth.allowed_organizations-property){: name='spec.userConfig.auth_generic_oauth.allowed_organizations-property'} (array of strings, MaxItems: 50). Require user to be member of one of the listed organizations.
+- [`auto_login`](#spec.userConfig.auth_generic_oauth.auto_login-property){: name='spec.userConfig.auth_generic_oauth.auto_login-property'} (boolean). Allow users to bypass the login screen and automatically log in.
 - [`name`](#spec.userConfig.auth_generic_oauth.name-property){: name='spec.userConfig.auth_generic_oauth.name-property'} (string, Pattern: `^[a-zA-Z0-9_\- ]+$`, MaxLength: 128). Name of the OAuth integration.
 - [`scopes`](#spec.userConfig.auth_generic_oauth.scopes-property){: name='spec.userConfig.auth_generic_oauth.scopes-property'} (array of strings, MaxItems: 50). OAuth scopes.
 
