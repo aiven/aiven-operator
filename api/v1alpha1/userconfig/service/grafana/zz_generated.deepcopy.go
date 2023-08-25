@@ -57,6 +57,11 @@ func (in *AuthGenericOauth) DeepCopyInto(out *AuthGenericOauth) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
+	if in.AutoLogin != nil {
+		in, out := &in.AutoLogin, &out.AutoLogin
+		*out = new(bool)
+		**out = **in
+	}
 	if in.Name != nil {
 		in, out := &in.Name, &out.Name
 		*out = new(string)
