@@ -168,8 +168,7 @@ type Kafka struct {
 	// The purge interval (in number of requests) of the producer request purgatory(defaults to 1000).
 	ProducerPurgatoryPurgeIntervalRequests *int `groups:"create,update" json:"producer_purgatory_purge_interval_requests,omitempty"`
 
-	// +kubebuilder:deprecatedversion:warning="remote_log_storage_system_enable is deprecated"
-	// Deprecated. Whether to enable the tiered storage functionality
+	// Whether to enable the tiered storage functionality
 	RemoteLogStorageSystemEnable *bool `groups:"create,update" json:"remote_log_storage_system_enable,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1048576

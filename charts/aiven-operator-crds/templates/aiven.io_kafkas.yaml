@@ -442,8 +442,7 @@ spec:
                         minimum: 10
                         type: integer
                       remote_log_storage_system_enable:
-                        description: Deprecated. Whether to enable the tiered storage
-                          functionality
+                        description: Whether to enable the tiered storage functionality
                         type: boolean
                       replica_fetch_max_bytes:
                         description: The number of bytes of messages to attempt to
