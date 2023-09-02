@@ -1,5 +1,9 @@
 # Changelog
 
+## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
+
+- Make `projectVpcId` and `projectVPCRef` mutable
+
 ## v0.13.0 - 2023-08-18
 
 - Add [TieredStorage](https://github.com/Aiven-Open/tiered-storage-for-apache-kafka) support to `Kafka`

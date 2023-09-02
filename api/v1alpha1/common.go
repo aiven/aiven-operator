@@ -63,11 +63,9 @@ type ServiceCommonSpec struct {
 	CloudName string `json:"cloudName,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=36
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Identifier of the VPC the service should be in, if any.
 	ProjectVPCID string `json:"projectVpcId,omitempty"`
 
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically
 	ProjectVPCRef *ResourceReference `json:"projectVPCRef,omitempty"`
 
