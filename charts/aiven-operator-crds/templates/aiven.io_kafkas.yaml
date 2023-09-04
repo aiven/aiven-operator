@@ -340,6 +340,22 @@ spec:
                         maximum: 104857600
                         minimum: 1048576
                         type: integer
+                      log_local_retention_bytes:
+                        description: The maximum size of local log segments that can
+                          grow for a partition before it gets eligible for deletion.
+                          If set to -2, the value of log.retention.bytes is used.
+                          The effective value should always be less than or equal
+                          to log.retention.bytes value.
+                        minimum: -2
+                        type: integer
+                      log_local_retention_ms:
+                        description: The number of milliseconds to keep the local
+                          log segments before it gets eligible for deletion. If set
+                          to -2, the value of log.retention.ms is used. The effective
+                          value should always be less than or equal to log.retention.ms
+                          value.
+                        minimum: -2
+                        type: integer
                       log_message_downconversion_enable:
                         description: This configuration controls whether down-conversion
                           of message formats is enabled to satisfy consume requests.
@@ -441,9 +457,6 @@ spec:
                         maximum: 10000
                         minimum: 10
                         type: integer
-                      remote_log_storage_system_enable:
-                        description: Whether to enable the tiered storage functionality
-                        type: boolean
                       replica_fetch_max_bytes:
                         description: The number of bytes of messages to attempt to
                           fetch for each partition (defaults to 1048576). This is

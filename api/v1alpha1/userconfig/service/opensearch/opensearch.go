@@ -105,6 +105,80 @@ type Openid struct {
 	// The key in the JSON payload that stores the user’s name. If not defined, the subject registered claim is used. Most IdP providers use the preferred_username claim. Optional.
 	SubjectKey *string `groups:"create,update" json:"subject_key,omitempty"`
 }
+type InternalAuthenticationBackendLimiting struct {
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=2147483647
+	// The number of login attempts allowed before login is blocked
+	AllowedTries *int `groups:"create,update" json:"allowed_tries,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=1024
+	// internal_authentication_backend_limiting.authentication_backend
+	AuthenticationBackend *string `groups:"create,update" json:"authentication_backend,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=2147483647
+	// The duration of time that login remains blocked after a failed login
+	BlockExpirySeconds *int `groups:"create,update" json:"block_expiry_seconds,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=2147483647
+	// internal_authentication_backend_limiting.max_blocked_clients
+	MaxBlockedClients *int `groups:"create,update" json:"max_blocked_clients,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=2147483647
+	// The maximum number of tracked IP addresses that have failed login
+	MaxTrackedClients *int `groups:"create,update" json:"max_tracked_clients,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=2147483647
+	// The window of time in which the value for `allowed_tries` is enforced
+	TimeWindowSeconds *int `groups:"create,update" json:"time_window_seconds,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=1024
+	// internal_authentication_backend_limiting.type
+	Type *string `groups:"create,update" json:"type,omitempty"`
+}
+
+// IP address rate limiting settings
+type IpRateLimiting struct {
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=2147483647
+	// The number of login attempts allowed before login is blocked
+	AllowedTries *int `groups:"create,update" json:"allowed_tries,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=36000
+	// The duration of time that login remains blocked after a failed login
+	BlockExpirySeconds *int `groups:"create,update" json:"block_expiry_seconds,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=2147483647
+	// The maximum number of blocked IP addresses
+	MaxBlockedClients *int `groups:"create,update" json:"max_blocked_clients,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=2147483647
+	// The maximum number of tracked IP addresses that have failed login
+	MaxTrackedClients *int `groups:"create,update" json:"max_tracked_clients,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=36000
+	// The window of time in which the value for `allowed_tries` is enforced
+	TimeWindowSeconds *int `groups:"create,update" json:"time_window_seconds,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=1024
+	// The type of rate limiting
+	Type *string `groups:"create,update" json:"type,omitempty"`
+}
+
+// Opensearch Security Plugin Settings
+type AuthFailureListeners struct {
+	InternalAuthenticationBackendLimiting *InternalAuthenticationBackendLimiting `groups:"create,update" json:"internal_authentication_backend_limiting,omitempty"`
+
+	// IP address rate limiting settings
+	IpRateLimiting *IpRateLimiting `groups:"create,update" json:"ip_rate_limiting,omitempty"`
+}
 
 // OpenSearch settings
 type Opensearch struct {
@@ -113,6 +187,9 @@ type Opensearch struct {
 
 	// Require explicit index names when deleting
 	ActionDestructiveRequiresName *bool `groups:"create,update" json:"action_destructive_requires_name,omitempty"`
+
+	// Opensearch Security Plugin Settings
+	AuthFailureListeners *AuthFailureListeners `groups:"create,update" json:"auth_failure_listeners,omitempty"`
 
 	// +kubebuilder:validation:Minimum=100
 	// +kubebuilder:validation:Maximum=10000
