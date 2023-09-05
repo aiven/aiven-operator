@@ -63,5 +63,9 @@ func (in *MySQL) ValidateDelete() error {
 		return errors.New("cannot delete MySQL service, termination protection is on")
 	}
 
+	if in.Spec.ProjectVPCID != "" && in.Spec.ProjectVPCRef != nil {
+		return errors.New("cannot use both projectVpcId and projectVPCRef")
+	}
+
 	return nil
 }

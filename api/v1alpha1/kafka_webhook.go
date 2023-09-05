@@ -63,5 +63,9 @@ func (r *Kafka) ValidateDelete() error {
 		return errors.New("cannot delete Kafka service, termination protection is on")
 	}
 
+	if r.Spec.ProjectVPCID != "" && r.Spec.ProjectVPCRef != nil {
+		return errors.New("cannot use both projectVpcId and projectVPCRef")
+	}
+
 	return nil
 }
