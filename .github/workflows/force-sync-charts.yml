@@ -8,7 +8,7 @@ jobs:
   sync-charts:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: BetaHuhn/repo-file-sync-action@v1
         with:
           GH_PAT: ${{ secrets.AIVEN_CI_PAT__VALID_WHILE_ALEKS_IS_EMPLOYED }}
