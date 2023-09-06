@@ -148,16 +148,10 @@ spec:
                 required:
                 - name
                 type: object
-                x-kubernetes-validations:
-                - message: Value is immutable
-                  rule: self == oldSelf
               projectVpcId:
                 description: Identifier of the VPC the service should be in, if any.
                 maxLength: 36
                 type: string
-                x-kubernetes-validations:
-                - message: Value is immutable
-                  rule: self == oldSelf
               serviceIntegrations:
                 description: Service integrations to specify when creating a service.
                   Not applied after initial service creation
