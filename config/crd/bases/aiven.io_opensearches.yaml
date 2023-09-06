@@ -366,6 +366,87 @@ spec:
                       action_destructive_requires_name:
                         description: Require explicit index names when deleting
                         type: boolean
+                      auth_failure_listeners:
+                        description: Opensearch Security Plugin Settings
+                        properties:
+                          internal_authentication_backend_limiting:
+                            properties:
+                              allowed_tries:
+                                description: The number of login attempts allowed
+                                  before login is blocked
+                                maximum: 2147483647
+                                minimum: 0
+                                type: integer
+                              authentication_backend:
+                                description: internal_authentication_backend_limiting.authentication_backend
+                                maxLength: 1024
+                                type: string
+                              block_expiry_seconds:
+                                description: The duration of time that login remains
+                                  blocked after a failed login
+                                maximum: 2147483647
+                                minimum: 0
+                                type: integer
+                              max_blocked_clients:
+                                description: internal_authentication_backend_limiting.max_blocked_clients
+                                maximum: 2147483647
+                                minimum: 0
+                                type: integer
+                              max_tracked_clients:
+                                description: The maximum number of tracked IP addresses
+                                  that have failed login
+                                maximum: 2147483647
+                                minimum: 0
+                                type: integer
+                              time_window_seconds:
+                                description: The window of time in which the value
+                                  for `allowed_tries` is enforced
+                                maximum: 2147483647
+                                minimum: 0
+                                type: integer
+                              type:
+                                description: internal_authentication_backend_limiting.type
+                                maxLength: 1024
+                                type: string
+                            type: object
+                          ip_rate_limiting:
+                            description: IP address rate limiting settings
+                            properties:
+                              allowed_tries:
+                                description: The number of login attempts allowed
+                                  before login is blocked
+                                maximum: 2147483647
+                                minimum: 1
+                                type: integer
+                              block_expiry_seconds:
+                                description: The duration of time that login remains
+                                  blocked after a failed login
+                                maximum: 36000
+                                minimum: 1
+                                type: integer
+                              max_blocked_clients:
+                                description: The maximum number of blocked IP addresses
+                                maximum: 2147483647
+                                minimum: 0
+                                type: integer
+                              max_tracked_clients:
+                                description: The maximum number of tracked IP addresses
+                                  that have failed login
+                                maximum: 2147483647
+                                minimum: 0
+                                type: integer
+                              time_window_seconds:
+                                description: The window of time in which the value
+                                  for `allowed_tries` is enforced
+                                maximum: 36000
+                                minimum: 1
+                                type: integer
+                              type:
+                                description: The type of rate limiting
+                                maxLength: 1024
+                                type: string
+                            type: object
+                        type: object
                       cluster_max_shards_per_node:
                         description: Controls the number of shards allowed in the
                           cluster per data node
@@ -460,6 +541,36 @@ spec:
                           recovery. Defaults to 2.
                         maximum: 5
                         minimum: 2
+                        type: integer
+                      ism_enabled:
+                        description: Specifies whether ISM is enabled or not
+                        type: boolean
+                      ism_history_enabled:
+                        description: Specifies whether audit history is enabled or
+                          not. The logs from ISM are automatically indexed to a logs
+                          document.
+                        type: boolean
+                      ism_history_max_age:
+                        description: The maximum age before rolling over the audit
+                          history index in hours
+                        maximum: 2147483647
+                        minimum: 1
+                        type: integer
+                      ism_history_max_docs:
+                        description: The maximum number of documents before rolling
+                          over the audit history index.
+                        minimum: 1
+                        type: integer
+                      ism_history_rollover_check_period:
+                        description: The time between rollover checks for the audit
+                          history index in hours.
+                        maximum: 2147483647
+                        minimum: 1
+                        type: integer
+                      ism_history_rollover_retention_period:
+                        description: How long audit history indices are kept in days.
+                        maximum: 2147483647
+                        minimum: 1
                         type: integer
                       override_main_response_version:
                         description: Compatibility mode sets OpenSearch to report

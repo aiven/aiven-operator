@@ -112,6 +112,16 @@ func (in *Kafka) DeepCopyInto(out *Kafka) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.LogLocalRetentionBytes != nil {
+		in, out := &in.LogLocalRetentionBytes, &out.LogLocalRetentionBytes
+		*out = new(int)
+		**out = **in
+	}
+	if in.LogLocalRetentionMs != nil {
+		in, out := &in.LogLocalRetentionMs, &out.LogLocalRetentionMs
+		*out = new(int)
+		**out = **in
+	}
 	if in.LogMessageDownconversionEnable != nil {
 		in, out := &in.LogMessageDownconversionEnable, &out.LogMessageDownconversionEnable
 		*out = new(bool)
@@ -200,11 +210,6 @@ func (in *Kafka) DeepCopyInto(out *Kafka) {
 	if in.ProducerPurgatoryPurgeIntervalRequests != nil {
 		in, out := &in.ProducerPurgatoryPurgeIntervalRequests, &out.ProducerPurgatoryPurgeIntervalRequests
 		*out = new(int)
-		**out = **in
-	}
-	if in.RemoteLogStorageSystemEnable != nil {
-		in, out := &in.RemoteLogStorageSystemEnable, &out.RemoteLogStorageSystemEnable
-		*out = new(bool)
 		**out = **in
 	}
 	if in.ReplicaFetchMaxBytes != nil {
