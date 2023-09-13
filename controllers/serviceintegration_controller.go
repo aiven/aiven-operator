@@ -52,7 +52,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(avn *aiven.Client, i client.Ob
 	var reason string
 	var integration *aiven.ServiceIntegration
 	if si.Status.ID == "" {
-		userConfigMap, err := UserConfigurationToAPIV2(userConfig, []string{"create", "update"})
+		userConfigMap, err := CreateUserConfiguration(userConfig)
 		if err != nil {
 			return err
 		}
@@ -76,7 +76,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(avn *aiven.Client, i client.Ob
 
 		reason = "Created"
 	} else {
-		userConfigMap, err := UserConfigurationToAPIV2(userConfig, []string{"update"})
+		userConfigMap, err := UpdateUserConfiguration(userConfig)
 		if err != nil {
 			return err
 		}

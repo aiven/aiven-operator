@@ -51,7 +51,7 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 	var reason string
 	if !exists {
 		reason = "Created"
-		userConfig, err := UserConfigurationToAPIV2(o.getUserConfig(), []string{"create", "update"})
+		userConfig, err := CreateUserConfiguration(o.getUserConfig())
 		if err != nil {
 			return err
 		}
@@ -83,7 +83,7 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 		}
 	} else {
 		reason = "Updated"
-		userConfig, err := UserConfigurationToAPIV2(o.getUserConfig(), []string{"update"})
+		userConfig, err := UpdateUserConfiguration(o.getUserConfig())
 		if err != nil {
 			return err
 		}
