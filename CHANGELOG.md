@@ -3,6 +3,7 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - Make `projectVpcId` and `projectVPCRef` mutable
+- Fix panic on `nil` user config conversion
 
 ## v0.13.0 - 2023-08-18
 

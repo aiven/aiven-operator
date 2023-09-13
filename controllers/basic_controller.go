@@ -3,14 +3,12 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"reflect"
 	"strings"
 	"time"
 
 	"github.com/aiven/aiven-go-client"
 	"github.com/go-logr/logr"
 	"github.com/hashicorp/go-multierror"
-	"github.com/liip/sheriff"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -449,95 +447,6 @@ func setupLogger(log logr.Logger, o client.Object) logr.Logger {
 	name := types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()}
 
 	return log.WithValues("kind", kind, "name", name, "annotations", a)
-}
-
-// UserConfigurationToAPI converts UserConfiguration options structure
-// to Aiven API compatible map[string]interface{}
-func UserConfigurationToAPI(c interface{}) interface{} {
-	result := make(map[string]interface{})
-
-	v := reflect.ValueOf(c)
-
-	// if its a pointer, resolve its value
-	if v.Kind() == reflect.Ptr {
-		v = reflect.Indirect(v)
-	}
-
-	if v.Kind() != reflect.Struct {
-		switch v.Kind() {
-		case reflect.Int64:
-			return *c.(*int64)
-		case reflect.Bool:
-			return *c.(*bool)
-		default:
-			return c
-		}
-	}
-
-	structType := v.Type()
-
-	// convert UserConfig structure to a map
-	for i := 0; i < structType.NumField(); i++ {
-		name := strings.ReplaceAll(structType.Field(i).Tag.Get("json"), ",omitempty", "")
-
-		if structType.Kind() == reflect.Struct {
-			result[name] = UserConfigurationToAPI(v.Field(i).Interface())
-		} else {
-			result[name] = v.Elem().Field(i).Interface()
-		}
-	}
-
-	// remove all the nil and empty map data
-	for key, val := range result {
-		if val == nil || isNil(val) || val == "" {
-			delete(result, key)
-		}
-
-		if reflect.TypeOf(val).Kind() == reflect.Map {
-			if len(val.(map[string]interface{})) == 0 {
-				delete(result, key)
-			}
-		}
-	}
-
-	return result
-}
-
-// UserConfigurationToAPIV2 same as UserConfigurationToAPI but uses sheriff.Marshal
-// which can subset fields from create or update operation
-func UserConfigurationToAPIV2(userConfig interface{}, groups []string) (map[string]interface{}, error) {
-	if userConfig == nil {
-		return nil, nil
-	}
-
-	o := &sheriff.Options{
-		Groups: groups,
-	}
-
-	i, err := sheriff.Marshal(o, userConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	m, ok := i.(map[string]interface{})
-	if !ok {
-		// It is an empty pointer
-		// sheriff just returned the very same object
-		return nil, nil
-	}
-
-	return m, nil
-}
-
-func isNil(i interface{}) bool {
-	if i == nil {
-		return true
-	}
-	switch reflect.TypeOf(i).Kind() {
-	case reflect.Ptr, reflect.Map, reflect.Array, reflect.Chan, reflect.Slice:
-		return reflect.ValueOf(i).IsNil()
-	}
-	return false
 }
 
 func toOptionalStringPointer(s string) *string {

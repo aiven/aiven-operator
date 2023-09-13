@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"reflect"
 	"strconv"
 	"strings"
 
+	"github.com/liip/sheriff"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -166,4 +168,37 @@ func getSecretPrefix(o objWithSecret) string {
 	}
 	kind := o.GetObjectKind()
 	return strings.ToUpper(kind.GroupVersionKind().Kind) + "_"
+}
+
+// userConfigurationToAPI converts user config into a map
+func userConfigurationToAPI(c any, groups ...string) (map[string]any, error) {
+	if c == nil || (reflect.ValueOf(c).Kind() == reflect.Ptr && reflect.ValueOf(c).IsNil()) {
+		return nil, nil
+	}
+
+	o := &sheriff.Options{
+		Groups: groups,
+	}
+
+	i, err := sheriff.Marshal(o, c)
+	if err != nil {
+		return nil, err
+	}
+
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		// It is an empty pointer
+		// sheriff just returned the very same object
+		return nil, nil
+	}
+
+	return m, nil
+}
+
+func CreateUserConfiguration(userConfig any) (map[string]any, error) {
+	return userConfigurationToAPI(userConfig, "create", "update")
+}
+
+func UpdateUserConfiguration(userConfig any) (map[string]any, error) {
+	return userConfigurationToAPI(userConfig, "update")
 }
