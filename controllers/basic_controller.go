@@ -423,7 +423,7 @@ func (i instanceReconcilerHelper) updateInstanceStateAndSecretUntilRunning(ctx c
 			return false, fmt.Errorf("unable to create or update aiven secret: %w", err)
 		}
 	}
-	return IsAlreadyRunning(o), nil
+	return IsAlreadyRunning(o), err
 
 }
 
