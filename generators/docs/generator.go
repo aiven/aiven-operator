@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -179,10 +180,9 @@ func (s *schemaType) init() {
 		s.properties = append(s.properties, v)
 	}
 
-	slices.SortFunc(s.properties, func(a, b *schemaType) bool {
-		return a.Name < b.Name
+	sort.Slice(s.properties, func(i, j int) bool {
+		return s.properties[i].Name < s.properties[j].Name
 	})
-
 }
 
 // ListProperties lists all object properties

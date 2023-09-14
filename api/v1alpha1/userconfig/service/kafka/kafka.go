@@ -88,6 +88,14 @@ type Kafka struct {
 	// The maximum size in bytes of the offset index
 	LogIndexSizeMaxBytes *int `groups:"create,update" json:"log_index_size_max_bytes,omitempty"`
 
+	// +kubebuilder:validation:Minimum=-2
+	// The maximum size of local log segments that can grow for a partition before it gets eligible for deletion. If set to -2, the value of log.retention.bytes is used. The effective value should always be less than or equal to log.retention.bytes value.
+	LogLocalRetentionBytes *int `groups:"create,update" json:"log_local_retention_bytes,omitempty"`
+
+	// +kubebuilder:validation:Minimum=-2
+	// The number of milliseconds to keep the local log segments before it gets eligible for deletion. If set to -2, the value of log.retention.ms is used. The effective value should always be less than or equal to log.retention.ms value.
+	LogLocalRetentionMs *int `groups:"create,update" json:"log_local_retention_ms,omitempty"`
+
 	// This configuration controls whether down-conversion of message formats is enabled to satisfy consume requests.
 	LogMessageDownconversionEnable *bool `groups:"create,update" json:"log_message_downconversion_enable,omitempty"`
 
@@ -167,9 +175,6 @@ type Kafka struct {
 	// +kubebuilder:validation:Maximum=10000
 	// The purge interval (in number of requests) of the producer request purgatory(defaults to 1000).
 	ProducerPurgatoryPurgeIntervalRequests *int `groups:"create,update" json:"producer_purgatory_purge_interval_requests,omitempty"`
-
-	// Whether to enable the tiered storage functionality
-	RemoteLogStorageSystemEnable *bool `groups:"create,update" json:"remote_log_storage_system_enable,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1048576
 	// +kubebuilder:validation:Maximum=104857600

@@ -224,6 +224,7 @@ OpenSearch settings.
 
 - [`action_auto_create_index_enabled`](#spec.userConfig.opensearch.action_auto_create_index_enabled-property){: name='spec.userConfig.opensearch.action_auto_create_index_enabled-property'} (boolean). Explicitly allow or block automatic creation of indices. Defaults to true.
 - [`action_destructive_requires_name`](#spec.userConfig.opensearch.action_destructive_requires_name-property){: name='spec.userConfig.opensearch.action_destructive_requires_name-property'} (boolean). Require explicit index names when deleting.
+- [`auth_failure_listeners`](#spec.userConfig.opensearch.auth_failure_listeners-property){: name='spec.userConfig.opensearch.auth_failure_listeners-property'} (object). Opensearch Security Plugin Settings. See below for [nested schema](#spec.userConfig.opensearch.auth_failure_listeners).
 - [`cluster_max_shards_per_node`](#spec.userConfig.opensearch.cluster_max_shards_per_node-property){: name='spec.userConfig.opensearch.cluster_max_shards_per_node-property'} (integer, Minimum: 100, Maximum: 10000). Controls the number of shards allowed in the cluster per data node.
 - [`cluster_routing_allocation_node_concurrent_recoveries`](#spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property){: name='spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property'} (integer, Minimum: 2, Maximum: 16). How many concurrent incoming/outgoing shard recoveries (normally replicas) are allowed to happen on a node. Defaults to 2.
 - [`email_sender_name`](#spec.userConfig.opensearch.email_sender_name-property){: name='spec.userConfig.opensearch.email_sender_name-property'} (string, Pattern: `^[a-zA-Z0-9-_]+$`, MaxLength: 40). Sender name placeholder to be used in Opensearch Dashboards and Opensearch keystore.
@@ -238,6 +239,12 @@ OpenSearch settings.
 - [`indices_query_bool_max_clause_count`](#spec.userConfig.opensearch.indices_query_bool_max_clause_count-property){: name='spec.userConfig.opensearch.indices_query_bool_max_clause_count-property'} (integer, Minimum: 64, Maximum: 4096). Maximum number of clauses Lucene BooleanQuery can have. The default value (1024) is relatively high, and increasing it may cause performance issues. Investigate other approaches first before increasing this value.
 - [`indices_recovery_max_bytes_per_sec`](#spec.userConfig.opensearch.indices_recovery_max_bytes_per_sec-property){: name='spec.userConfig.opensearch.indices_recovery_max_bytes_per_sec-property'} (integer, Minimum: 40, Maximum: 400). Limits total inbound and outbound recovery traffic for each node. Applies to both peer recoveries as well as snapshot recoveries (i.e., restores from a snapshot). Defaults to 40mb.
 - [`indices_recovery_max_concurrent_file_chunks`](#spec.userConfig.opensearch.indices_recovery_max_concurrent_file_chunks-property){: name='spec.userConfig.opensearch.indices_recovery_max_concurrent_file_chunks-property'} (integer, Minimum: 2, Maximum: 5). Number of file chunks sent in parallel for each recovery. Defaults to 2.
+- [`ism_enabled`](#spec.userConfig.opensearch.ism_enabled-property){: name='spec.userConfig.opensearch.ism_enabled-property'} (boolean). Specifies whether ISM is enabled or not.
+- [`ism_history_enabled`](#spec.userConfig.opensearch.ism_history_enabled-property){: name='spec.userConfig.opensearch.ism_history_enabled-property'} (boolean). Specifies whether audit history is enabled or not. The logs from ISM are automatically indexed to a logs document.
+- [`ism_history_max_age`](#spec.userConfig.opensearch.ism_history_max_age-property){: name='spec.userConfig.opensearch.ism_history_max_age-property'} (integer, Minimum: 1, Maximum: 2147483647). The maximum age before rolling over the audit history index in hours.
+- [`ism_history_max_docs`](#spec.userConfig.opensearch.ism_history_max_docs-property){: name='spec.userConfig.opensearch.ism_history_max_docs-property'} (integer, Minimum: 1). The maximum number of documents before rolling over the audit history index.
+- [`ism_history_rollover_check_period`](#spec.userConfig.opensearch.ism_history_rollover_check_period-property){: name='spec.userConfig.opensearch.ism_history_rollover_check_period-property'} (integer, Minimum: 1, Maximum: 2147483647). The time between rollover checks for the audit history index in hours.
+- [`ism_history_rollover_retention_period`](#spec.userConfig.opensearch.ism_history_rollover_retention_period-property){: name='spec.userConfig.opensearch.ism_history_rollover_retention_period-property'} (integer, Minimum: 1, Maximum: 2147483647). How long audit history indices are kept in days.
 - [`override_main_response_version`](#spec.userConfig.opensearch.override_main_response_version-property){: name='spec.userConfig.opensearch.override_main_response_version-property'} (boolean). Compatibility mode sets OpenSearch to report its version as 7.10 so clients continue to work. Default is false.
 - [`reindex_remote_whitelist`](#spec.userConfig.opensearch.reindex_remote_whitelist-property){: name='spec.userConfig.opensearch.reindex_remote_whitelist-property'} (array of strings, MaxItems: 32). Whitelisted addresses for reindexing. Changing this value will cause all OpenSearch instances to restart.
 - [`script_max_compilations_rate`](#spec.userConfig.opensearch.script_max_compilations_rate-property){: name='spec.userConfig.opensearch.script_max_compilations_rate-property'} (string, MaxLength: 1024). Script compilation circuit breaker limits the number of inline script compilations within a period of time. Default is use-context.
@@ -253,6 +260,46 @@ OpenSearch settings.
 - [`thread_pool_search_throttled_size`](#spec.userConfig.opensearch.thread_pool_search_throttled_size-property){: name='spec.userConfig.opensearch.thread_pool_search_throttled_size-property'} (integer, Minimum: 1, Maximum: 128). Size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value.
 - [`thread_pool_write_queue_size`](#spec.userConfig.opensearch.thread_pool_write_queue_size-property){: name='spec.userConfig.opensearch.thread_pool_write_queue_size-property'} (integer, Minimum: 10, Maximum: 2000). Size for the thread pool queue. See documentation for exact details.
 - [`thread_pool_write_size`](#spec.userConfig.opensearch.thread_pool_write_size-property){: name='spec.userConfig.opensearch.thread_pool_write_size-property'} (integer, Minimum: 1, Maximum: 128). Size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value.
+
+#### auth_failure_listeners {: #spec.userConfig.opensearch.auth_failure_listeners }
+
+_Appears on [`spec.userConfig.opensearch`](#spec.userConfig.opensearch)._
+
+Opensearch Security Plugin Settings.
+
+**Optional**
+
+- [`internal_authentication_backend_limiting`](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting-property){: name='spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting-property'} (object).  See below for [nested schema](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting).
+- [`ip_rate_limiting`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting-property'} (object). IP address rate limiting settings. See below for [nested schema](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting).
+
+##### internal_authentication_backend_limiting {: #spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting }
+
+_Appears on [`spec.userConfig.opensearch.auth_failure_listeners`](#spec.userConfig.opensearch.auth_failure_listeners)._
+
+**Optional**
+
+- [`allowed_tries`](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.allowed_tries-property){: name='spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.allowed_tries-property'} (integer, Minimum: 0, Maximum: 2147483647). The number of login attempts allowed before login is blocked.
+- [`authentication_backend`](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.authentication_backend-property){: name='spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.authentication_backend-property'} (string, MaxLength: 1024). internal_authentication_backend_limiting.authentication_backend.
+- [`block_expiry_seconds`](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.block_expiry_seconds-property){: name='spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.block_expiry_seconds-property'} (integer, Minimum: 0, Maximum: 2147483647). The duration of time that login remains blocked after a failed login.
+- [`max_blocked_clients`](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.max_blocked_clients-property){: name='spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.max_blocked_clients-property'} (integer, Minimum: 0, Maximum: 2147483647). internal_authentication_backend_limiting.max_blocked_clients.
+- [`max_tracked_clients`](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.max_tracked_clients-property){: name='spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.max_tracked_clients-property'} (integer, Minimum: 0, Maximum: 2147483647). The maximum number of tracked IP addresses that have failed login.
+- [`time_window_seconds`](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.time_window_seconds-property){: name='spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.time_window_seconds-property'} (integer, Minimum: 0, Maximum: 2147483647). The window of time in which the value for `allowed_tries` is enforced.
+- [`type`](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.type-property){: name='spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.type-property'} (string, MaxLength: 1024). internal_authentication_backend_limiting.type.
+
+##### ip_rate_limiting {: #spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting }
+
+_Appears on [`spec.userConfig.opensearch.auth_failure_listeners`](#spec.userConfig.opensearch.auth_failure_listeners)._
+
+IP address rate limiting settings.
+
+**Optional**
+
+- [`allowed_tries`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.allowed_tries-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.allowed_tries-property'} (integer, Minimum: 1, Maximum: 2147483647). The number of login attempts allowed before login is blocked.
+- [`block_expiry_seconds`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.block_expiry_seconds-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.block_expiry_seconds-property'} (integer, Minimum: 1, Maximum: 36000). The duration of time that login remains blocked after a failed login.
+- [`max_blocked_clients`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.max_blocked_clients-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.max_blocked_clients-property'} (integer, Minimum: 0, Maximum: 2147483647). The maximum number of blocked IP addresses.
+- [`max_tracked_clients`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.max_tracked_clients-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.max_tracked_clients-property'} (integer, Minimum: 0, Maximum: 2147483647). The maximum number of tracked IP addresses that have failed login.
+- [`time_window_seconds`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.time_window_seconds-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.time_window_seconds-property'} (integer, Minimum: 1, Maximum: 36000). The window of time in which the value for `allowed_tries` is enforced.
+- [`type`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.type-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.type-property'} (string, MaxLength: 1024). The type of rate limiting.
 
 ### opensearch_dashboards {: #spec.userConfig.opensearch_dashboards }
 
