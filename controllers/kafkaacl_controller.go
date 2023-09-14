@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-go-client/v2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -38,21 +38,22 @@ func (r *KafkaACLReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaACLHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs []client.Object) error {
-	acl, err := h.convert(i)
+func (h KafkaACLHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, refs []client.Object) error {
+	acl, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
 
 	// ACL can't be really modified
 	// Tries to delete it instead
-	_, err = h.delete(avn, i)
+	_, err = h.delete(ctx, avn, obj)
 	if err != nil {
 		return err
 	}
 
 	// Creates it from scratch
 	r, err := avn.KafkaACLs.Create(
+		ctx,
 		acl.Spec.Project,
 		acl.Spec.ServiceName,
 		aiven.CreateKafkaACLRequest{
@@ -81,15 +82,15 @@ func (h KafkaACLHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs
 	return nil
 }
 
-func (h KafkaACLHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
-	acl, err := h.convert(i)
+func (h KafkaACLHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+	acl, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
 
-	id, err := h.getID(avn, acl)
+	id, err := h.getID(ctx, avn, acl)
 	if err == nil {
-		err = avn.KafkaACLs.Delete(acl.Spec.Project, acl.Spec.ServiceName, id)
+		err = avn.KafkaACLs.Delete(ctx, acl.Spec.Project, acl.Spec.ServiceName, id)
 	}
 
 	if err != nil && !aiven.IsNotFound(err) {
@@ -101,7 +102,7 @@ func (h KafkaACLHandler) delete(avn *aiven.Client, i client.Object) (bool, error
 
 // todo: remove in v1
 // getID returns ACL's ID in < v0.5.1 compatible mode
-func (h KafkaACLHandler) getID(avn *aiven.Client, acl *v1alpha1.KafkaACL) (string, error) {
+func (h KafkaACLHandler) getID(ctx context.Context, avn *aiven.Client, acl *v1alpha1.KafkaACL) (string, error) {
 	// ACLs made prior to v0.5.1 doesn't have an ID.
 	// This block is for fresh made ACLs only
 	// The rest of this function tries to guess it filtering the list.
@@ -110,7 +111,7 @@ func (h KafkaACLHandler) getID(avn *aiven.Client, acl *v1alpha1.KafkaACL) (strin
 	}
 
 	// For old ACLs only
-	list, err := avn.KafkaACLs.List(acl.Spec.Project, acl.Spec.ServiceName)
+	list, err := avn.KafkaACLs.List(ctx, acl.Spec.Project, acl.Spec.ServiceName)
 	if err != nil {
 		return "", err
 	}
@@ -125,18 +126,18 @@ func (h KafkaACLHandler) getID(avn *aiven.Client, acl *v1alpha1.KafkaACL) (strin
 	return "", aiven.Error{Status: http.StatusNotFound, Message: fmt.Sprintf("Kafka ACL %q not found", acl.Name)}
 }
 
-func (h KafkaACLHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, error) {
-	acl, err := h.convert(i)
+func (h KafkaACLHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+	acl, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := h.getID(avn, acl)
+	id, err := h.getID(ctx, avn, acl)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = avn.KafkaACLs.Get(acl.Spec.Project, acl.Spec.ServiceName, id)
+	_, err = avn.KafkaACLs.Get(ctx, acl.Spec.Project, acl.Spec.ServiceName, id)
 	if err != nil {
 		return nil, err
 	}
@@ -150,8 +151,8 @@ func (h KafkaACLHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret
 	return nil, nil
 }
 
-func (h KafkaACLHandler) checkPreconditions(avn *aiven.Client, i client.Object) (bool, error) {
-	acl, err := h.convert(i)
+func (h KafkaACLHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+	acl, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
@@ -159,7 +160,7 @@ func (h KafkaACLHandler) checkPreconditions(avn *aiven.Client, i client.Object) 
 	meta.SetStatusCondition(&acl.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsRunning(avn, acl.Spec.Project, acl.Spec.ServiceName)
+	return checkServiceIsRunning(ctx, avn, acl.Spec.Project, acl.Spec.ServiceName)
 }
 
 func (h KafkaACLHandler) convert(i client.Object) (*v1alpha1.KafkaACL, error) {

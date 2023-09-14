@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-go-client/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/types"
@@ -70,6 +70,7 @@ func TestProjectVPCID(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
+	ctx := context.Background()
 	vpcName1 := randName("project-vpc-id")
 	vpcName2 := randName("project-vpc-id")
 	vpcYaml := getProjectVPCsYaml(testProject, vpcName1, testSecondaryCloudName, vpcName2, testTertiaryCloudName)
@@ -91,7 +92,7 @@ func TestProjectVPCID(t *testing.T) {
 
 	// THEN
 	// Validates VPC
-	vpc1Avn, err := avnClient.VPCs.Get(testProject, vpc1.Status.ID)
+	vpc1Avn, err := avnClient.VPCs.Get(ctx, testProject, vpc1.Status.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "ACTIVE", vpc1Avn.State)
 	assert.Equal(t, vpc1Avn.State, vpc1.Status.State)
@@ -99,7 +100,7 @@ func TestProjectVPCID(t *testing.T) {
 	assert.Equal(t, "10.0.0.0/24", vpc1.Spec.NetworkCidr)
 	assert.Equal(t, vpc1Avn.NetworkCIDR, vpc1.Spec.NetworkCidr)
 
-	vpc2Avn, err := avnClient.VPCs.Get(testProject, vpc2.Status.ID)
+	vpc2Avn, err := avnClient.VPCs.Get(ctx, testProject, vpc2.Status.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "ACTIVE", vpc2Avn.State)
 	assert.Equal(t, vpc2Avn.State, vpc2.Status.State)
@@ -124,7 +125,7 @@ func TestProjectVPCID(t *testing.T) {
 	require.NoError(t, kafkaSession.GetRunning(kafka, kafkaName))
 
 	// THEN
-	kafkaAvn, err := avnClient.Services.Get(testProject, kafkaName)
+	kafkaAvn, err := avnClient.Services.Get(ctx, testProject, kafkaName)
 	require.NoError(t, err)
 	assert.Equal(t, kafkaAvn.Name, kafka.GetName())
 	assert.Equal(t, "RUNNING", kafka.Status.State)
@@ -141,14 +142,13 @@ func TestProjectVPCID(t *testing.T) {
 	require.NoError(t, kafkaSession.Apply(kafkaYamlUpd))
 
 	// This migration takes too long, so we don't wait it's being in the RUNNING state in kube
-	ctx := context.Background()
 	ctx, cancel := context.WithTimeout(ctx, waitRunningTimeout)
 	defer cancel()
 
 	// Gets Aiven object
 	var kafkaAvnUpd *aiven.Service
 	require.NoError(t, retryForever(ctx, func() (bool, error) {
-		kafkaAvnUpd, err = avnClient.Services.Get(testProject, kafkaName)
+		kafkaAvnUpd, err = avnClient.Services.Get(ctx, testProject, kafkaName)
 		if err != nil {
 			return false, err
 		}

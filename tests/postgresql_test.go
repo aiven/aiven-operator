@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -65,6 +66,7 @@ func TestPgReadReplica(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
+	ctx := context.Background()
 	masterName := randName("pg-master")
 	replicaName := randName("pg-replica")
 	yml := getPgReadReplicaYaml(testProject, masterName, replicaName, testPrimaryCloudName)
@@ -86,7 +88,7 @@ func TestPgReadReplica(t *testing.T) {
 
 	// THEN
 	// Validates instances
-	masterAvn, err := avnClient.Services.Get(testProject, masterName)
+	masterAvn, err := avnClient.Services.Get(ctx, testProject, masterName)
 	require.NoError(t, err)
 	assert.Equal(t, masterAvn.Name, master.GetName())
 	assert.Equal(t, "RUNNING", master.Status.State)
@@ -96,11 +98,11 @@ func TestPgReadReplica(t *testing.T) {
 	assert.NotNil(t, masterAvn.UserConfig) // "Aiven instance has defaults set"
 	assert.Nil(t, master.Spec.UserConfig)
 	assert.Equal(t, map[string]string{"env": "prod", "instance": "master"}, master.Spec.Tags)
-	masterResp, err := avnClient.ServiceTags.Get(testProject, masterName)
+	masterResp, err := avnClient.ServiceTags.Get(ctx, testProject, masterName)
 	require.NoError(t, err)
 	assert.Equal(t, masterResp.Tags, master.Spec.Tags)
 
-	replicaAvn, err := avnClient.Services.Get(testProject, replicaName)
+	replicaAvn, err := avnClient.Services.Get(ctx, testProject, replicaName)
 	require.NoError(t, err)
 	assert.Equal(t, replicaAvn.Name, replica.GetName())
 	assert.Equal(t, "RUNNING", replica.Status.State)
@@ -108,7 +110,7 @@ func TestPgReadReplica(t *testing.T) {
 	assert.Equal(t, replicaAvn.Plan, replica.Spec.Plan)
 	assert.Equal(t, replicaAvn.CloudName, replica.Spec.CloudName)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "replica"}, replica.Spec.Tags)
-	replicaResp, err := avnClient.ServiceTags.Get(testProject, replicaName)
+	replicaResp, err := avnClient.ServiceTags.Get(ctx, testProject, replicaName)
 	require.NoError(t, err)
 	assert.Equal(t, replicaResp.Tags, replica.Spec.Tags)
 
@@ -180,6 +182,7 @@ func TestPgCustomPrefix(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
+	ctx := context.Background()
 	pgName := randName("secret-prefix")
 	yml := getPgCustomPrefixYaml(testProject, pgName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
@@ -197,7 +200,7 @@ func TestPgCustomPrefix(t *testing.T) {
 
 	// THEN
 	// Validates instance
-	pgAvn, err := avnClient.Services.Get(testProject, pgName)
+	pgAvn, err := avnClient.Services.Get(ctx, testProject, pgName)
 	require.NoError(t, err)
 	assert.Equal(t, pgAvn.Name, pg.GetName())
 	assert.Equal(t, "RUNNING", pg.Status.State)
@@ -205,7 +208,7 @@ func TestPgCustomPrefix(t *testing.T) {
 	assert.Equal(t, pgAvn.Plan, pg.Spec.Plan)
 	assert.Equal(t, pgAvn.CloudName, pg.Spec.CloudName)
 	assert.Equal(t, map[string]string{"env": "prod", "instance": "pg"}, pg.Spec.Tags)
-	masterResp, err := avnClient.ServiceTags.Get(testProject, pgName)
+	masterResp, err := avnClient.ServiceTags.Get(ctx, testProject, pgName)
 	require.NoError(t, err)
 	assert.Equal(t, masterResp.Tags, pg.Spec.Tags)
 

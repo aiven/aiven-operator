@@ -68,6 +68,7 @@ func TestKafkaACL(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
+	ctx := context.Background()
 	kafkaName := randName("kafka-acl")
 	topicName := randName("kafka-acl")
 	aclName := randName("kafka-acl")
@@ -93,7 +94,7 @@ func TestKafkaACL(t *testing.T) {
 
 	// THEN
 	// Kafka
-	kafkaAvn, err := avnClient.Services.Get(testProject, kafkaName)
+	kafkaAvn, err := avnClient.Services.Get(ctx, testProject, kafkaName)
 	require.NoError(t, err)
 	assert.Equal(t, kafkaAvn.Name, kafka.GetName())
 	assert.Equal(t, "RUNNING", kafka.Status.State)
@@ -102,7 +103,7 @@ func TestKafkaACL(t *testing.T) {
 	assert.Equal(t, kafkaAvn.CloudName, kafka.Spec.CloudName)
 
 	// KafkaTopic
-	topicAvn, err := avnClient.KafkaTopics.Get(testProject, kafkaName, topic.GetTopicName())
+	topicAvn, err := avnClient.KafkaTopics.Get(ctx, testProject, kafkaName, topic.GetTopicName())
 	require.NoError(t, err)
 	assert.Equal(t, topicName, topic.GetName())
 	assert.Equal(t, topicName, topic.GetTopicName())
@@ -112,7 +113,7 @@ func TestKafkaACL(t *testing.T) {
 	assert.Len(t, topicAvn.Partitions, topic.Spec.Partitions)
 
 	// KafkaACL
-	aclAvn, err := avnClient.KafkaACLs.Get(testProject, kafkaName, acl.Status.ID)
+	aclAvn, err := avnClient.KafkaACLs.Get(ctx, testProject, kafkaName, acl.Status.ID)
 	require.NoError(t, err)
 	assert.True(t, meta.IsStatusConditionTrue(acl.Status.Conditions, "Running"))
 	assert.Equal(t, "admin", acl.Spec.Permission)
@@ -124,7 +125,6 @@ func TestKafkaACL(t *testing.T) {
 
 	// KafkaACL Update
 	// We check that update changes the ID
-	ctx := context.Background()
 	aclCopy := acl.DeepCopyObject().(*v1alpha1.KafkaACL)
 	aclCopy.Spec.Permission = "write"
 	require.NoError(t, k8sClient.Update(ctx, aclCopy))
@@ -136,14 +136,14 @@ func TestKafkaACL(t *testing.T) {
 	assert.NotEqual(t, aclWrite.Status.ID, acl.Status.ID)
 
 	// Permission has changed on Aiven side too
-	aclWriteAvn, err := avnClient.KafkaACLs.Get(testProject, kafkaName, aclWrite.Status.ID)
+	aclWriteAvn, err := avnClient.KafkaACLs.Get(ctx, testProject, kafkaName, aclWrite.Status.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "write", aclWrite.Spec.Permission)
 	assert.Equal(t, aclWriteAvn.Permission, aclWrite.Spec.Permission)
 
 	// Validate delete by new ID
 	assert.NoError(t, s.Delete(aclWrite, func() error {
-		_, err = avnClient.KafkaACLs.Get(testProject, kafkaName, aclWrite.Status.ID)
+		_, err = avnClient.KafkaACLs.Get(ctx, testProject, kafkaName, aclWrite.Status.ID)
 		return err
 	}))
 }

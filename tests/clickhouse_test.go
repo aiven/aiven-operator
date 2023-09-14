@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -44,6 +45,7 @@ func TestClickhouse(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
+	ctx := context.Background()
 	name := randName("clickhouse")
 	yml := getClickhouseYaml(testProject, name, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
@@ -60,7 +62,7 @@ func TestClickhouse(t *testing.T) {
 	require.NoError(t, s.GetRunning(ch, name))
 
 	// THEN
-	chAvn, err := avnClient.Services.Get(testProject, name)
+	chAvn, err := avnClient.Services.Get(ctx, testProject, name)
 	require.NoError(t, err)
 	assert.Equal(t, chAvn.Name, ch.GetName())
 	assert.Equal(t, "RUNNING", ch.Status.State)
@@ -68,7 +70,7 @@ func TestClickhouse(t *testing.T) {
 	assert.Equal(t, chAvn.Plan, ch.Spec.Plan)
 	assert.Equal(t, chAvn.CloudName, ch.Spec.CloudName)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, ch.Spec.Tags)
-	chResp, err := avnClient.ServiceTags.Get(testProject, name)
+	chResp, err := avnClient.ServiceTags.Get(ctx, testProject, name)
 	require.NoError(t, err)
 	assert.Equal(t, chResp.Tags, ch.Spec.Tags)
 

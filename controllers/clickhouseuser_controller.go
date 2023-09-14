@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-go-client/v2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -42,13 +42,13 @@ func (r *ClickhouseUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 type clickhouseUserHandler struct{}
 
-func (h *clickhouseUserHandler) createOrUpdate(avn *aiven.Client, obj client.Object, _ []client.Object) error {
+func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, refs []client.Object) error {
 	user, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
 
-	r, err := avn.ClickhouseUser.Create(user.Spec.Project, user.Spec.ServiceName, user.Name)
+	r, err := avn.ClickhouseUser.Create(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func (h *clickhouseUserHandler) createOrUpdate(avn *aiven.Client, obj client.Obj
 	return nil
 }
 
-func (h *clickhouseUserHandler) delete(avn *aiven.Client, obj client.Object) (bool, error) {
+func (h *clickhouseUserHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -84,7 +84,7 @@ func (h *clickhouseUserHandler) delete(avn *aiven.Client, obj client.Object) (bo
 		return true, nil
 	}
 
-	err = avn.ClickhouseUser.Delete(user.Spec.Project, user.Spec.ServiceName, user.Status.UUID)
+	err = avn.ClickhouseUser.Delete(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID)
 	if !aiven.IsNotFound(err) {
 		return false, err
 	}
@@ -92,13 +92,13 @@ func (h *clickhouseUserHandler) delete(avn *aiven.Client, obj client.Object) (bo
 	return true, nil
 }
 
-func (h *clickhouseUserHandler) get(avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *clickhouseUserHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
 
-	s, err := avn.Services.Get(user.Spec.Project, user.Spec.ServiceName)
+	s, err := avn.Services.Get(ctx, user.Spec.Project, user.Spec.ServiceName)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (h *clickhouseUserHandler) get(avn *aiven.Client, obj client.Object) (*core
 	// And all other GET methods return empty password, even this one.
 	// So the only way to have a secret here is to reset it manually
 	password := randPassword(maxUserPasswordLength)
-	_, err = avn.ClickhouseUser.ResetPassword(user.Spec.Project, user.Spec.ServiceName, user.Status.UUID, password)
+	_, err = avn.ClickhouseUser.ResetPassword(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID, password)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (h *clickhouseUserHandler) get(avn *aiven.Client, obj client.Object) (*core
 	return secret, nil
 }
 
-func (h *clickhouseUserHandler) checkPreconditions(avn *aiven.Client, obj client.Object) (bool, error) {
+func (h *clickhouseUserHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -145,7 +145,7 @@ func (h *clickhouseUserHandler) checkPreconditions(avn *aiven.Client, obj client
 	meta.SetStatusCondition(&user.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsRunning(avn, user.Spec.Project, user.Spec.ServiceName)
+	return checkServiceIsRunning(ctx, avn, user.Spec.Project, user.Spec.ServiceName)
 }
 
 func (h *clickhouseUserHandler) convert(i client.Object) (*v1alpha1.ClickhouseUser, error) {

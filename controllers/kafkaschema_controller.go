@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-go-client/v2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -37,14 +37,15 @@ func (r *KafkaSchemaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaSchemaHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs []client.Object) error {
-	schema, err := h.convert(i)
+func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, refs []client.Object) error {
+	schema, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
 
 	// createOrUpdate Kafka Schema Subject
 	_, err = avn.KafkaSubjectSchemas.Add(
+		ctx,
 		schema.Spec.Project,
 		schema.Spec.ServiceName,
 		schema.Spec.SubjectName,
@@ -59,6 +60,7 @@ func (h KafkaSchemaHandler) createOrUpdate(avn *aiven.Client, i client.Object, r
 	// set compatibility level if defined for a newly created Kafka Schema Subject
 	if schema.Spec.CompatibilityLevel != "" {
 		_, err := avn.KafkaSubjectSchemas.UpdateConfiguration(
+			ctx,
 			schema.Spec.Project,
 			schema.Spec.ServiceName,
 			schema.Spec.SubjectName,
@@ -70,7 +72,7 @@ func (h KafkaSchemaHandler) createOrUpdate(avn *aiven.Client, i client.Object, r
 	}
 
 	// get last version
-	version, err := h.getLastVersion(avn, schema)
+	version, err := h.getLastVersion(ctx, avn, schema)
 	if err != nil {
 		return fmt.Errorf("cannot get Kafka Schema Subject version: %w", err)
 	}
@@ -91,13 +93,13 @@ func (h KafkaSchemaHandler) createOrUpdate(avn *aiven.Client, i client.Object, r
 	return nil
 }
 
-func (h KafkaSchemaHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
-	schema, err := h.convert(i)
+func (h KafkaSchemaHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+	schema, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
 
-	err = avn.KafkaSubjectSchemas.Delete(schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName)
+	err = avn.KafkaSubjectSchemas.Delete(ctx, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName)
 	if err != nil && !aiven.IsNotFound(err) {
 		return false, fmt.Errorf("aiven client delete Kafka Schema error: %w", err)
 	}
@@ -105,8 +107,8 @@ func (h KafkaSchemaHandler) delete(avn *aiven.Client, i client.Object) (bool, er
 	return true, nil
 }
 
-func (h KafkaSchemaHandler) get(_ *aiven.Client, i client.Object) (*corev1.Secret, error) {
-	schema, err := h.convert(i)
+func (h KafkaSchemaHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+	schema, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
@@ -120,13 +122,13 @@ func (h KafkaSchemaHandler) get(_ *aiven.Client, i client.Object) (*corev1.Secre
 	return nil, nil
 }
 
-func (h KafkaSchemaHandler) checkPreconditions(avn *aiven.Client, i client.Object) (bool, error) {
-	schema, err := h.convert(i)
+func (h KafkaSchemaHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+	schema, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
 
-	return checkServiceIsRunning(avn, schema.Spec.Project, schema.Spec.ServiceName)
+	return checkServiceIsRunning(ctx, avn, schema.Spec.Project, schema.Spec.ServiceName)
 }
 
 func (h KafkaSchemaHandler) convert(i client.Object) (*v1alpha1.KafkaSchema, error) {
@@ -138,8 +140,9 @@ func (h KafkaSchemaHandler) convert(i client.Object) (*v1alpha1.KafkaSchema, err
 	return schema, nil
 }
 
-func (h KafkaSchemaHandler) getLastVersion(avn *aiven.Client, schema *v1alpha1.KafkaSchema) (int, error) {
+func (h KafkaSchemaHandler) getLastVersion(ctx context.Context, avn *aiven.Client, schema *v1alpha1.KafkaSchema) (int, error) {
 	ver, err := avn.KafkaSubjectSchemas.GetVersions(
+		ctx,
 		schema.Spec.Project,
 		schema.Spec.ServiceName,
 		schema.Spec.SubjectName)

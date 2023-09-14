@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-go-client/v2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -38,8 +38,8 @@ func (r *ServiceIntegrationReconciler) SetupWithManager(mgr ctrl.Manager) error 
 		Complete(r)
 }
 
-func (h ServiceIntegrationHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs []client.Object) error {
-	si, err := h.convert(i)
+func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, refs []client.Object) error {
+	si, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
@@ -58,6 +58,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(avn *aiven.Client, i client.Ob
 		}
 
 		integration, err = avn.ServiceIntegrations.Create(
+			ctx,
 			si.Spec.Project,
 			aiven.CreateServiceIntegrationRequest{
 				DestinationEndpointID: anyOptional(si.Spec.DestinationEndpointID),
@@ -82,6 +83,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(avn *aiven.Client, i client.Ob
 		}
 
 		integration, err = avn.ServiceIntegrations.Update(
+			ctx,
 			si.Spec.Project,
 			si.Status.ID,
 			aiven.UpdateServiceIntegrationRequest{
@@ -113,13 +115,13 @@ func (h ServiceIntegrationHandler) createOrUpdate(avn *aiven.Client, i client.Ob
 	return nil
 }
 
-func (h ServiceIntegrationHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
-	si, err := h.convert(i)
+func (h ServiceIntegrationHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+	si, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
 
-	err = avn.ServiceIntegrations.Delete(si.Spec.Project, si.Status.ID)
+	err = avn.ServiceIntegrations.Delete(ctx, si.Spec.Project, si.Status.ID)
 	if err != nil && !aiven.IsNotFound(err) {
 		return false, fmt.Errorf("aiven client delete service ingtegration error: %w", err)
 	}
@@ -127,8 +129,8 @@ func (h ServiceIntegrationHandler) delete(avn *aiven.Client, i client.Object) (b
 	return true, nil
 }
 
-func (h ServiceIntegrationHandler) get(_ *aiven.Client, i client.Object) (*corev1.Secret, error) {
-	si, err := h.convert(i)
+func (h ServiceIntegrationHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+	si, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
@@ -142,8 +144,8 @@ func (h ServiceIntegrationHandler) get(_ *aiven.Client, i client.Object) (*corev
 	return nil, nil
 }
 
-func (h ServiceIntegrationHandler) checkPreconditions(avn *aiven.Client, i client.Object) (bool, error) {
-	si, err := h.convert(i)
+func (h ServiceIntegrationHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+	si, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
@@ -158,7 +160,7 @@ func (h ServiceIntegrationHandler) checkPreconditions(avn *aiven.Client, i clien
 		if project == "" {
 			project = si.Spec.Project
 		}
-		running, err := checkServiceIsRunning(avn, project, si.Spec.SourceServiceName)
+		running, err := checkServiceIsRunning(ctx, avn, project, si.Spec.SourceServiceName)
 		if !running || err != nil {
 			return false, err
 		}
@@ -169,7 +171,7 @@ func (h ServiceIntegrationHandler) checkPreconditions(avn *aiven.Client, i clien
 		if project == "" {
 			project = si.Spec.Project
 		}
-		running, err := checkServiceIsRunning(avn, project, si.Spec.DestinationServiceName)
+		running, err := checkServiceIsRunning(ctx, avn, project, si.Spec.DestinationServiceName)
 		if !running || err != nil {
 			return false, err
 		}

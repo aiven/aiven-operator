@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-go-client/v2"
 	"github.com/go-logr/logr"
 	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
@@ -45,20 +45,20 @@ type (
 	// of the Aiven services lifecycle.
 	Handlers interface {
 		// create or updates an instance on the Aiven side.
-		createOrUpdate(*aiven.Client, client.Object, []client.Object) error
+		createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, refs []client.Object) error
 
 		// delete removes an instance on Aiven side.
 		// If an object is already deleted and cannot be found, it should not be an error. For other deletion
 		// errors, return an error.
-		delete(*aiven.Client, client.Object) (bool, error)
+		delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error)
 
 		// get retrieve an object and a secret (for example, connection credentials) that is generated on the
 		// fly based on data from Aiven API.  When not applicable to service, it should return nil.
-		get(*aiven.Client, client.Object) (*corev1.Secret, error)
+		get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error)
 
 		// checkPreconditions check whether all preconditions for creating (or updating) the resource are in place.
 		// For example, it is applicable when a service needs to be running before this resource can be created.
-		checkPreconditions(*aiven.Client, client.Object) (bool, error)
+		checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error)
 	}
 
 	aivenManagedObject interface {
@@ -212,7 +212,7 @@ func (i instanceReconcilerHelper) reconcileInstance(ctx context.Context, o clien
 
 	if !isAlreadyProcessed(o) {
 		i.rec.Event(o, corev1.EventTypeNormal, eventCreateOrUpdatedAtAiven, "about to create instance at aiven")
-		if err := i.createOrUpdateInstance(o, refs); err != nil {
+		if err := i.createOrUpdateInstance(ctx, o, refs); err != nil {
 			i.rec.Event(o, corev1.EventTypeWarning, eventUnableToCreateOrUpdateAtAiven, err.Error())
 			return ctrl.Result{}, fmt.Errorf("unable to create or update instance at aiven: %w", err)
 		}
@@ -262,7 +262,7 @@ func (i instanceReconcilerHelper) checkPreconditions(ctx context.Context, o clie
 		i.log.Info("all references are good")
 	}
 
-	check, err := i.h.checkPreconditions(i.avn, o)
+	check, err := i.h.checkPreconditions(ctx, i.avn, o)
 	if err != nil {
 		i.rec.Event(o, corev1.EventTypeWarning, eventUnableToWaitForPreconditions, err.Error())
 		return false, fmt.Errorf("unable to wait for preconditions: %w", err)
@@ -317,7 +317,7 @@ func (i instanceReconcilerHelper) getObjectRefs(ctx context.Context, o client.Ob
 func (i instanceReconcilerHelper) finalize(ctx context.Context, o client.Object) (ctrl.Result, error) {
 	i.rec.Event(o, corev1.EventTypeNormal, eventTryingToDeleteAtAiven, "trying to delete instance at aiven")
 
-	finalised, err := i.h.delete(i.avn, o)
+	finalised, err := i.h.delete(ctx, i.avn, o)
 
 	// There are dependencies on Aiven side, resets error, so it goes for requeue
 	// Handlers does not have logger, it goes here
@@ -376,13 +376,13 @@ func (i instanceReconcilerHelper) isInvalidTokenError(err error) bool {
 	return strings.Contains(msg, "Invalid token") || strings.Contains(msg, "Missing (expired) db token")
 }
 
-func (i instanceReconcilerHelper) createOrUpdateInstance(o client.Object, refs []client.Object) error {
+func (i instanceReconcilerHelper) createOrUpdateInstance(ctx context.Context, o client.Object, refs []client.Object) error {
 	i.log.Info("generation wasn't processed, creation or updating instance on aiven side")
 	a := o.GetAnnotations()
 	delete(a, processedGenerationAnnotation)
 	delete(a, instanceIsRunningAnnotation)
 
-	if err := i.h.createOrUpdate(i.avn, o, refs); err != nil {
+	if err := i.h.createOrUpdate(ctx, i.avn, o, refs); err != nil {
 		return fmt.Errorf("unable to create or update aiven instance: %w", err)
 	}
 
@@ -415,7 +415,7 @@ func (i instanceReconcilerHelper) updateInstanceStateAndSecretUntilRunning(ctx c
 		err = err.(*multierror.Error).ErrorOrNil()
 	}()
 
-	serviceSecret, err := i.h.get(i.avn, o)
+	serviceSecret, err := i.h.get(ctx, i.avn, o)
 	if err != nil {
 		return false, err
 	} else if serviceSecret != nil {

@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -47,6 +48,7 @@ func TestMySQL(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
+	ctx := context.Background()
 	name := randName("mysql")
 	yml := getMySQLYaml(testProject, name, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
@@ -63,7 +65,7 @@ func TestMySQL(t *testing.T) {
 	require.NoError(t, s.GetRunning(ms, name))
 
 	// THEN
-	msAvn, err := avnClient.Services.Get(testProject, name)
+	msAvn, err := avnClient.Services.Get(ctx, testProject, name)
 	require.NoError(t, err)
 	assert.Equal(t, msAvn.Name, ms.GetName())
 	assert.Equal(t, "RUNNING", ms.Status.State)
@@ -73,7 +75,7 @@ func TestMySQL(t *testing.T) {
 	assert.Equal(t, "100Gib", ms.Spec.DiskSpace)
 	assert.Equal(t, 102400, msAvn.DiskSpaceMB)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, ms.Spec.Tags)
-	msResp, err := avnClient.ServiceTags.Get(testProject, name)
+	msResp, err := avnClient.ServiceTags.Get(ctx, testProject, name)
 	require.NoError(t, err)
 	assert.Equal(t, msResp.Tags, ms.Spec.Tags)
 

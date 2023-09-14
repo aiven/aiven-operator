@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-go-client/v2"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -67,7 +67,7 @@ func (a *redisAdapter) getUserConfig() any {
 	return &a.Spec.UserConfig
 }
 
-func (a *redisAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
+func (a *redisAdapter) newSecret(ctx context.Context, s *aiven.Service) (*corev1.Secret, error) {
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
 		prefix + "HOST":     s.URIParams["host"],

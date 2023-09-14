@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-go-client/v2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -42,13 +42,13 @@ func (r *ProjectVPCReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h *ProjectVPCHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs []client.Object) error {
-	projectVPC, err := h.convert(i)
+func (h *ProjectVPCHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, refs []client.Object) error {
+	projectVPC, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
 
-	vpc, err := avn.VPCs.Create(projectVPC.Spec.Project, aiven.CreateVPCRequest{
+	vpc, err := avn.VPCs.Create(ctx, projectVPC.Spec.Project, aiven.CreateVPCRequest{
 		CloudName:   projectVPC.Spec.CloudName,
 		NetworkCIDR: projectVPC.Spec.NetworkCidr,
 	})
@@ -72,13 +72,13 @@ func (h *ProjectVPCHandler) createOrUpdate(avn *aiven.Client, i client.Object, r
 	return nil
 }
 
-func (h *ProjectVPCHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
-	projectVPC, err := h.convert(i)
+func (h *ProjectVPCHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+	projectVPC, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
 
-	vpc, err := avn.VPCs.Get(projectVPC.Spec.Project, projectVPC.Status.ID)
+	vpc, err := avn.VPCs.Get(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
 	if aiven.IsNotFound(err) {
 		return true, nil
 	}
@@ -92,7 +92,7 @@ func (h *ProjectVPCHandler) delete(avn *aiven.Client, i client.Object) (bool, er
 		return true, nil
 	}
 
-	err = avn.VPCs.Delete(projectVPC.Spec.Project, projectVPC.Status.ID)
+	err = avn.VPCs.Delete(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
 	if isDependencyError(err) {
 		return false, fmt.Errorf("%w: %s", v1alpha1.ErrDeleteDependencies, err)
 	}
@@ -100,13 +100,13 @@ func (h *ProjectVPCHandler) delete(avn *aiven.Client, i client.Object) (bool, er
 	return false, nil
 }
 
-func (h *ProjectVPCHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, error) {
-	projectVPC, err := h.convert(i)
+func (h *ProjectVPCHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+	projectVPC, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
 
-	vpc, err := avn.VPCs.Get(projectVPC.Spec.Project, projectVPC.Status.ID)
+	vpc, err := avn.VPCs.Get(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func (h *ProjectVPCHandler) get(avn *aiven.Client, i client.Object) (*corev1.Sec
 	return nil, nil
 }
 
-func (h *ProjectVPCHandler) checkPreconditions(_ *aiven.Client, _ client.Object) (bool, error) {
+func (h *ProjectVPCHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
 	return true, nil
 }
 

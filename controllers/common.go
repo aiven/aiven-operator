@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-go-client/v2"
 	"github.com/liip/sheriff"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -35,8 +35,8 @@ var (
 	errTerminationProtectionOn = errors.New("termination protection is on")
 )
 
-func checkServiceIsRunning(c *aiven.Client, project, serviceName string) (bool, error) {
-	s, err := c.Services.Get(project, serviceName)
+func checkServiceIsRunning(ctx context.Context, c *aiven.Client, project, serviceName string) (bool, error) {
+	s, err := c.Services.Get(ctx, project, serviceName)
 	if err != nil {
 		// if service is not found, it is not running
 		if aiven.IsNotFound(err) {

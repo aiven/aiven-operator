@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-go-client/v2"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -66,14 +66,14 @@ func (a *kafkaAdapter) getUserConfig() any {
 	return &a.Spec.UserConfig
 }
 
-func (a *kafkaAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
+func (a *kafkaAdapter) newSecret(ctx context.Context, s *aiven.Service) (*corev1.Secret, error) {
 	var userName, password string
 	if len(s.Users) > 0 {
 		userName = s.Users[0].Username
 		password = s.Users[0].Password
 	}
 
-	caCert, err := a.avn.CA.Get(a.getServiceCommonSpec().Project)
+	caCert, err := a.avn.CA.Get(ctx, a.getServiceCommonSpec().Project)
 	if err != nil {
 		return nil, fmt.Errorf("aiven client error %w", err)
 	}

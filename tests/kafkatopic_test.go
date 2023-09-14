@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -70,6 +71,7 @@ func TestKafkaTopic(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
+	ctx := context.Background()
 	ksName := randName("kafka-topic")
 	yml := getKafkaTopicNameYaml(testProject, ksName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
@@ -94,7 +96,7 @@ func TestKafkaTopic(t *testing.T) {
 
 	// THEN
 	// Validates Kafka
-	ksAvn, err := avnClient.Services.Get(testProject, ksName)
+	ksAvn, err := avnClient.Services.Get(ctx, testProject, ksName)
 	require.NoError(t, err)
 	assert.Equal(t, ksAvn.Name, ks.GetName())
 	assert.Equal(t, ksAvn.State, ks.Status.State)
@@ -106,7 +108,7 @@ func TestKafkaTopic(t *testing.T) {
 	assert.True(t, meta.IsStatusConditionTrue(barTopic.Status.Conditions, "Running"))
 
 	// KafkaTopic with name `foo-topic`
-	fooAvn, err := avnClient.KafkaTopics.Get(testProject, ksName, fooTopic.GetTopicName())
+	fooAvn, err := avnClient.KafkaTopics.Get(ctx, testProject, ksName, fooTopic.GetTopicName())
 	require.NoError(t, err)
 	assert.Equal(t, "foo-topic", fooTopic.GetName())
 	assert.Equal(t, "foo-topic", fooTopic.GetTopicName())
@@ -120,7 +122,7 @@ func TestKafkaTopic(t *testing.T) {
 	require.Equal(t, anyPointer(0.2), fooTopic.Spec.Config.MinCleanableDirtyRatio)
 
 	// KafkaTopic with name `bar_topic_name_with_underscores`
-	barAvn, err := avnClient.KafkaTopics.Get(testProject, ksName, barTopic.GetTopicName())
+	barAvn, err := avnClient.KafkaTopics.Get(ctx, testProject, ksName, barTopic.GetTopicName())
 	require.NoError(t, err)
 	assert.Equal(t, "bar-topic", barTopic.GetName())
 	assert.Equal(t, "bar_topic_name_with_underscores", barTopic.GetTopicName())
@@ -138,12 +140,12 @@ func TestKafkaTopic(t *testing.T) {
 	// if service is deleted, topic is destroyed in Aiven. No service — no topic. No topic — no topic.
 	// And we make sure that controller can delete topic itself
 	assert.NoError(t, s.Delete(fooTopic, func() error {
-		_, err = avnClient.KafkaTopics.Get(testProject, ksName, fooTopic.Name)
+		_, err = avnClient.KafkaTopics.Get(ctx, testProject, ksName, fooTopic.Name)
 		return err
 	}))
 
 	assert.NoError(t, s.Delete(barTopic, func() error {
-		_, err = avnClient.KafkaTopics.Get(testProject, ksName, "bar_topic_name_with_underscores")
+		_, err = avnClient.KafkaTopics.Get(ctx, testProject, ksName, "bar_topic_name_with_underscores")
 		return err
 	}))
 }

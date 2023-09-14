@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -54,6 +55,7 @@ func TestClickhouseUser(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
+	ctx := context.Background()
 	chName := randName("clickhouse-user")
 	userName := randName("clickhouse-user")
 	yml := getClickhouseUserYaml(testProject, chName, userName, testPrimaryCloudName)
@@ -71,7 +73,7 @@ func TestClickhouseUser(t *testing.T) {
 	require.NoError(t, s.GetRunning(ch, chName))
 
 	// THEN
-	chAvn, err := avnClient.Services.Get(testProject, chName)
+	chAvn, err := avnClient.Services.Get(ctx, testProject, chName)
 	require.NoError(t, err)
 	assert.Equal(t, chAvn.Name, ch.GetName())
 	assert.Equal(t, "RUNNING", ch.Status.State)
@@ -82,7 +84,7 @@ func TestClickhouseUser(t *testing.T) {
 	user := new(v1alpha1.ClickhouseUser)
 	require.NoError(t, s.GetRunning(user, userName))
 
-	userAvn, err := avnClient.ClickhouseUser.Get(testProject, chName, user.Status.UUID)
+	userAvn, err := avnClient.ClickhouseUser.Get(ctx, testProject, chName, user.Status.UUID)
 	require.NoError(t, err)
 	assert.Equal(t, userName, user.GetName())
 	assert.Equal(t, userAvn.Name, user.GetName())
@@ -105,7 +107,7 @@ func TestClickhouseUser(t *testing.T) {
 	// if service is deleted, user is destroyed in Aiven. No service — no user. No user — no user.
 	// And we make sure that controller can delete user itself
 	assert.NoError(t, s.Delete(user, func() error {
-		_, err = avnClient.ClickhouseUser.Get(testProject, chName, user.Status.UUID)
+		_, err = avnClient.ClickhouseUser.Get(ctx, testProject, chName, user.Status.UUID)
 		return err
 	}))
 }

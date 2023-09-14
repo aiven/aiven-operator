@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-go-client/v2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -41,12 +41,12 @@ func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ProjectHandler) getLongCardID(client *aiven.Client, cardID string) (*string, error) {
+func (h ProjectHandler) getLongCardID(ctx context.Context, client *aiven.Client, cardID string) (*string, error) {
 	if cardID == "" {
 		return nil, nil
 	}
 
-	card, err := client.CardsHandler.Get(cardID)
+	card, err := client.CardsHandler.Get(ctx, cardID)
 	if err != nil {
 		return nil, err
 	}
@@ -59,8 +59,8 @@ func (h ProjectHandler) getLongCardID(client *aiven.Client, cardID string) (*str
 }
 
 // create creates a project on Aiven side
-func (h ProjectHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs []client.Object) error {
-	project, err := h.convert(i)
+func (h ProjectHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, refs []client.Object) error {
+	project, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
@@ -75,12 +75,12 @@ func (h ProjectHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs 
 		technicalEmails = aiven.ContactEmailFromStringSlice(project.Spec.TechnicalEmails)
 	}
 
-	exists, err := h.exists(avn, project)
+	exists, err := h.exists(ctx, avn, project)
 	if err != nil {
 		return fmt.Errorf("project does not exists: %w", err)
 	}
 
-	cardID, err := h.getLongCardID(avn, project.Spec.CardID)
+	cardID, err := h.getLongCardID(ctx, avn, project.Spec.CardID)
 	if err != nil {
 		return fmt.Errorf("cannot get long card id: %w", err)
 	}
@@ -88,7 +88,7 @@ func (h ProjectHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs 
 	var reason string
 	var p *aiven.Project
 	if !exists {
-		p, err = avn.Projects.Create(aiven.CreateProjectRequest{
+		p, err = avn.Projects.Create(ctx, aiven.CreateProjectRequest{
 			BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
 			BillingEmails:    billingEmails,
 			BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
@@ -111,7 +111,7 @@ func (h ProjectHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs 
 
 		reason = "Created"
 	} else {
-		p, err = avn.Projects.Update(project.Name, aiven.UpdateProjectRequest{
+		p, err = avn.Projects.Update(ctx, project.Name, aiven.UpdateProjectRequest{
 			BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
 			BillingEmails:    billingEmails,
 			BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
@@ -150,13 +150,13 @@ func (h ProjectHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs 
 	return nil
 }
 
-func (h ProjectHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, error) {
-	project, err := h.convert(i)
+func (h ProjectHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+	project, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
 
-	cert, err := avn.CA.Get(project.Name)
+	cert, err := avn.CA.Get(ctx, project.Name)
 	if err != nil {
 		return nil, fmt.Errorf("aiven client error %w", err)
 	}
@@ -177,8 +177,8 @@ func (h ProjectHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret,
 }
 
 // exists checks if project already exists on Aiven side
-func (h ProjectHandler) exists(avn *aiven.Client, project *v1alpha1.Project) (bool, error) {
-	pr, err := avn.Projects.Get(project.Name)
+func (h ProjectHandler) exists(ctx context.Context, avn *aiven.Client, project *v1alpha1.Project) (bool, error) {
+	pr, err := avn.Projects.Get(ctx, project.Name)
 	if aiven.IsNotFound(err) {
 		return false, nil
 	}
@@ -187,14 +187,14 @@ func (h ProjectHandler) exists(avn *aiven.Client, project *v1alpha1.Project) (bo
 }
 
 // delete deletes Aiven project
-func (h ProjectHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
-	project, err := h.convert(i)
+func (h ProjectHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+	project, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
 
 	// Delete project on Aiven side
-	if err := avn.Projects.Delete(project.Name); err != nil {
+	if err := avn.Projects.Delete(ctx, project.Name); err != nil {
 		var skip bool
 
 		// If project not found then there is nothing to delete
@@ -227,6 +227,6 @@ func (h ProjectHandler) convert(i client.Object) (*v1alpha1.Project, error) {
 	return p, nil
 }
 
-func (h ProjectHandler) checkPreconditions(_ *aiven.Client, _ client.Object) (bool, error) {
+func (h ProjectHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
 	return true, nil
 }

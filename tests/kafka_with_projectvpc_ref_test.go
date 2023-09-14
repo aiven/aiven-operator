@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -51,6 +52,7 @@ func TestKafkaWithProjectVPCRef(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
+	ctx := context.Background()
 	vpcName := randName("kafka-vpc")
 	kafkaName := randName("kafka-vpc")
 	yml := getKafkaWithProjectVPCRefYaml(testProject, vpcName, kafkaName, testPrimaryCloudName)
@@ -71,7 +73,7 @@ func TestKafkaWithProjectVPCRef(t *testing.T) {
 	require.NoError(t, s.GetRunning(vpc, vpcName))
 
 	// THEN
-	kafkaAvn, err := avnClient.Services.Get(testProject, kafkaName)
+	kafkaAvn, err := avnClient.Services.Get(ctx, testProject, kafkaName)
 	require.NoError(t, err)
 	assert.Equal(t, kafkaAvn.Name, kafka.GetName())
 	assert.Equal(t, "RUNNING", kafka.Status.State)
@@ -84,7 +86,7 @@ func TestKafkaWithProjectVPCRef(t *testing.T) {
 	assert.Equal(t, vpcName, kafka.Spec.ProjectVPCRef.Name)
 	assert.Equal(t, anyPointer(vpc.Status.ID), kafkaAvn.ProjectVPCID)
 
-	vpcAvn, err := avnClient.VPCs.Get(testProject, vpc.Status.ID)
+	vpcAvn, err := avnClient.VPCs.Get(ctx, testProject, vpc.Status.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "ACTIVE", vpcAvn.State)
 	assert.Equal(t, vpcAvn.State, vpc.Status.State)
