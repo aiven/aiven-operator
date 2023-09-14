@@ -8,14 +8,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/aiven/aiven-go-client"
 	"github.com/liip/sheriff"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-
-	"github.com/aiven/aiven-go-client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )

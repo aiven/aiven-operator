@@ -104,7 +104,7 @@ boilerplate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, 
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
 .PHONY: generate
-generate: boilerplate userconfigs manifests docs charts
+generate: boilerplate userconfigs imports manifests docs charts
 
 .PHONY: fmt
 fmt: ## Run go fmt against code.
@@ -340,3 +340,8 @@ endif
 		--set resources.requests.memory=0 \
 		--set webhooks.enabled=${WEBHOOKS_ENABLED} \
 		aiven-operator charts/aiven-operator
+
+# On MACOS requires gnu-sed. Run `brew info gnu-sed` and follow instructions to replace default sed.
+imports:
+	find . -type f -name '*.go' -exec sed -zi 's/"\n\+\t"/"\n"/g' {} +
+	goimports -local "github.com/aiven/aiven-operator" -w .
