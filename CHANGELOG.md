@@ -4,6 +4,7 @@
 
 - Make `projectVpcId` and `projectVPCRef` mutable
 - Fix panic on `nil` user config conversion
+- Use aiven-go-client with context support
 
 ## v0.13.0 - 2023-08-18
 

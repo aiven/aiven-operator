@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -50,6 +51,7 @@ func TestDatabase(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
+	ctx := context.Background()
 	pgName := randName("database")
 	dbName := randName("database")
 	yml := getDatabaseYaml(testProject, pgName, dbName, testPrimaryCloudName)
@@ -71,7 +73,7 @@ func TestDatabase(t *testing.T) {
 
 	// THEN
 	// Validates PostgreSQL
-	pgAvn, err := avnClient.Services.Get(testProject, pgName)
+	pgAvn, err := avnClient.Services.Get(ctx, testProject, pgName)
 	require.NoError(t, err)
 	assert.Equal(t, pgAvn.Name, pg.GetName())
 	assert.Equal(t, "RUNNING", pg.Status.State)
@@ -80,7 +82,7 @@ func TestDatabase(t *testing.T) {
 	assert.Equal(t, pgAvn.CloudName, pg.Spec.CloudName)
 
 	// Validates Database
-	dbAvn, err := avnClient.Databases.Get(testProject, pgName, dbName)
+	dbAvn, err := avnClient.Databases.Get(ctx, testProject, pgName, dbName)
 	require.NoError(t, err)
 	assert.Equal(t, dbName, db.GetName())
 	assert.Equal(t, dbAvn.DatabaseName, db.GetName())
@@ -94,7 +96,7 @@ func TestDatabase(t *testing.T) {
 	// if service is deleted, db is destroyed in Aiven. No service — no db. No db — no db.
 	// And we make sure that controller can delete db itself
 	assert.NoError(t, s.Delete(db, func() error {
-		_, err = avnClient.Databases.Get(testProject, pgName, dbName)
+		_, err = avnClient.Databases.Get(ctx, testProject, pgName, dbName)
 		return err
 	}))
 }

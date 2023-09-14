@@ -1,10 +1,11 @@
 package controllers
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-go-client/v2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -23,8 +24,8 @@ type genericServiceHandler struct {
 	fabric serviceAdapterFabric
 }
 
-func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Object, refs []client.Object) error {
-	o, err := h.fabric(a, object)
+func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, refs []client.Object) error {
+	o, err := h.fabric(avn, obj)
 	if err != nil {
 		return err
 	}
@@ -41,7 +42,7 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 		}
 	}
 
-	_, err = a.Services.Get(spec.Project, ometa.Name)
+	_, err = avn.Services.Get(ctx, spec.Project, ometa.Name)
 	exists := err == nil
 	if !exists && !aiven.IsNotFound(err) {
 		return fmt.Errorf("failed to fetch service: %w", err)
@@ -77,7 +78,7 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 			req.ServiceIntegrations = append(req.ServiceIntegrations, i)
 		}
 
-		_, err = a.Services.Create(spec.Project, req)
+		_, err = avn.Services.Create(ctx, spec.Project, req)
 		if err != nil {
 			return fmt.Errorf("failed to create service: %w", err)
 		}
@@ -98,7 +99,7 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 			TerminationProtection: fromAnyPointer(spec.TerminationProtection),
 			UserConfig:            userConfig,
 		}
-		_, err = a.Services.Update(spec.Project, ometa.Name, req)
+		_, err = avn.Services.Update(ctx, spec.Project, ometa.Name, req)
 		if err != nil {
 			return fmt.Errorf("failed to update service: %w", err)
 		}
@@ -113,7 +114,7 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 	if spec.Tags != nil {
 		req.Tags = spec.Tags
 	}
-	_, err = a.ServiceTags.Set(spec.Project, ometa.Name, req)
+	_, err = avn.ServiceTags.Set(ctx, spec.Project, ometa.Name, req)
 	if err != nil {
 		return fmt.Errorf("failed to update tags: %w", err)
 	}
@@ -127,13 +128,13 @@ func (h *genericServiceHandler) createOrUpdate(a *aiven.Client, object client.Ob
 	metav1.SetMetaDataAnnotation(
 		o.getObjectMeta(),
 		processedGenerationAnnotation,
-		strconv.FormatInt(object.GetGeneration(), formatIntBaseDecimal),
+		strconv.FormatInt(obj.GetGeneration(), formatIntBaseDecimal),
 	)
 	return nil
 }
 
-func (h *genericServiceHandler) delete(a *aiven.Client, object client.Object) (bool, error) {
-	o, err := h.fabric(a, object)
+func (h *genericServiceHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+	o, err := h.fabric(avn, obj)
 	if err != nil {
 		return false, err
 	}
@@ -143,7 +144,7 @@ func (h *genericServiceHandler) delete(a *aiven.Client, object client.Object) (b
 		return false, errTerminationProtectionOn
 	}
 
-	err = a.Services.Delete(spec.Project, o.getObjectMeta().Name)
+	err = avn.Services.Delete(ctx, spec.Project, o.getObjectMeta().Name)
 	if err == nil || aiven.IsNotFound(err) {
 		return true, nil
 	}
@@ -151,13 +152,13 @@ func (h *genericServiceHandler) delete(a *aiven.Client, object client.Object) (b
 	return false, fmt.Errorf("failed to delete service in Aiven: %w", err)
 }
 
-func (h *genericServiceHandler) get(a *aiven.Client, object client.Object) (*corev1.Secret, error) {
-	o, err := h.fabric(a, object)
+func (h *genericServiceHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+	o, err := h.fabric(avn, obj)
 	if err != nil {
 		return nil, err
 	}
 
-	s, err := a.Services.Get(o.getServiceCommonSpec().Project, o.getObjectMeta().Name)
+	s, err := avn.Services.Get(ctx, o.getServiceCommonSpec().Project, o.getObjectMeta().Name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get service from Aiven: %w", err)
 	}
@@ -172,14 +173,14 @@ func (h *genericServiceHandler) get(a *aiven.Client, object client.Object) (*cor
 
 		// Some services get secrets after they are running only,
 		// like ip addresses (hosts)
-		return o.newSecret(s)
+		return o.newSecret(ctx, s)
 	}
 	return nil, nil
 }
 
 // checkPreconditions not required for now by services to be implemented
-func (h *genericServiceHandler) checkPreconditions(a *aiven.Client, object client.Object) (bool, error) {
-	o, err := h.fabric(a, object)
+func (h *genericServiceHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+	o, err := h.fabric(avn, obj)
 	if err != nil {
 		return false, err
 	}
@@ -189,7 +190,7 @@ func (h *genericServiceHandler) checkPreconditions(a *aiven.Client, object clien
 		// Validates that read_replica is running
 		// If not, the wrapper controller will try later
 		if s.IntegrationType == "read_replica" {
-			r, err := checkServiceIsRunning(a, spec.Project, s.SourceServiceName)
+			r, err := checkServiceIsRunning(ctx, avn, spec.Project, s.SourceServiceName)
 			if !(r && err == nil) {
 				return false, nil
 			}
@@ -209,5 +210,5 @@ type serviceAdapter interface {
 	getServiceType() string
 	getDiskSpace() string
 	getUserConfig() any
-	newSecret(*aiven.Service) (*corev1.Secret, error)
+	newSecret(ctx context.Context, s *aiven.Service) (*corev1.Secret, error)
 }

@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -47,6 +48,7 @@ func TestKafkaConnect(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
+	ctx := context.Background()
 	name := randName("kafka-connect")
 	yml := getKafkaConnectYaml(testProject, name, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
@@ -63,7 +65,7 @@ func TestKafkaConnect(t *testing.T) {
 	require.NoError(t, s.GetRunning(kc, name))
 
 	// THEN
-	kcAvn, err := avnClient.Services.Get(testProject, name)
+	kcAvn, err := avnClient.Services.Get(ctx, testProject, name)
 	require.NoError(t, err)
 	assert.Equal(t, kcAvn.Name, kc.GetName())
 	assert.Equal(t, "RUNNING", kc.Status.State)

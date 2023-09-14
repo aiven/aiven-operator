@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"testing"
@@ -66,6 +67,7 @@ func TestKafkaSchema(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
+	ctx := context.Background()
 	kafkaName := randName("kafka-schema")
 	schemaName := randName("kafka-schema")
 	subjectName := randName("kafka-schema")
@@ -85,7 +87,7 @@ func TestKafkaSchema(t *testing.T) {
 
 	// THEN
 	// Kafka test
-	kafkaAvn, err := avnClient.Services.Get(testProject, kafkaName)
+	kafkaAvn, err := avnClient.Services.Get(ctx, testProject, kafkaName)
 	require.NoError(t, err)
 	assert.Equal(t, kafkaAvn.Name, kafka.GetName())
 	assert.Equal(t, "RUNNING", kafka.Status.State)
@@ -135,7 +137,7 @@ func TestKafkaSchema(t *testing.T) {
 
 	// Validates deleting, because deleted kafka drops schemas, and we want be sure deletion works
 	assert.NoError(t, s.Delete(schema, func() error {
-		_, err := avnClient.KafkaSubjectSchemas.Get(testProject, kafkaName, subjectName, 1)
+		_, err := avnClient.KafkaSubjectSchemas.Get(ctx, testProject, kafkaName, subjectName, 1)
 		return err
 	}))
 }

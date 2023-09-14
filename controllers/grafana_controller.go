@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-go-client/v2"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -66,7 +66,7 @@ func (a *grafanaAdapter) getUserConfig() any {
 	return &a.Spec.UserConfig
 }
 
-func (a *grafanaAdapter) newSecret(s *aiven.Service) (*corev1.Secret, error) {
+func (a *grafanaAdapter) newSecret(ctx context.Context, s *aiven.Service) (*corev1.Secret, error) {
 	stringData := map[string]string{
 		"HOST":     s.URIParams["host"],
 		"PORT":     s.URIParams["port"],

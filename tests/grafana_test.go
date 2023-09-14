@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -47,6 +48,7 @@ func TestGrafana(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
+	ctx := context.Background()
 	name := randName("grafana")
 	yml := getGrafanaYaml(testProject, name, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
@@ -63,7 +65,7 @@ func TestGrafana(t *testing.T) {
 	require.NoError(t, s.GetRunning(grafana, name))
 
 	// THEN
-	grafanaAvn, err := avnClient.Services.Get(testProject, name)
+	grafanaAvn, err := avnClient.Services.Get(ctx, testProject, name)
 	require.NoError(t, err)
 	assert.Equal(t, grafanaAvn.Name, grafana.GetName())
 	assert.Equal(t, "RUNNING", grafana.Status.State)
@@ -71,7 +73,7 @@ func TestGrafana(t *testing.T) {
 	assert.Equal(t, grafanaAvn.Plan, grafana.Spec.Plan)
 	assert.Equal(t, grafanaAvn.CloudName, grafana.Spec.CloudName)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, grafana.Spec.Tags)
-	grafanaResp, err := avnClient.ServiceTags.Get(testProject, name)
+	grafanaResp, err := avnClient.ServiceTags.Get(ctx, testProject, name)
 	require.NoError(t, err)
 	assert.Equal(t, grafanaResp.Tags, grafana.Spec.Tags)
 

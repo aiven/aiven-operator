@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -52,6 +53,7 @@ func TestOpenSearch(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
+	ctx := context.Background()
 	name := randName("opensearch")
 	yml := getOpenSearchYaml(testProject, name, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
@@ -68,7 +70,7 @@ func TestOpenSearch(t *testing.T) {
 	require.NoError(t, s.GetRunning(os, name))
 
 	// THEN
-	osAvn, err := avnClient.Services.Get(testProject, name)
+	osAvn, err := avnClient.Services.Get(ctx, testProject, name)
 	require.NoError(t, err)
 	assert.Equal(t, osAvn.Name, os.GetName())
 	assert.Equal(t, "RUNNING", os.Status.State)
@@ -78,7 +80,7 @@ func TestOpenSearch(t *testing.T) {
 	assert.Equal(t, "240Gib", os.Spec.DiskSpace)
 	assert.Equal(t, 245760, osAvn.DiskSpaceMB)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, os.Spec.Tags)
-	osResp, err := avnClient.ServiceTags.Get(testProject, name)
+	osResp, err := avnClient.ServiceTags.Get(ctx, testProject, name)
 	require.NoError(t, err)
 	assert.Equal(t, osResp.Tags, os.Spec.Tags)
 

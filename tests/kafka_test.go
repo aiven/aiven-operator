@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -49,6 +50,7 @@ func TestKafka(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
+	ctx := context.Background()
 	name := randName("kafka")
 	yml := getKafkaYaml(testProject, name, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
@@ -65,7 +67,7 @@ func TestKafka(t *testing.T) {
 	require.NoError(t, s.GetRunning(ks, name))
 
 	// THEN
-	ksAvn, err := avnClient.Services.Get(testProject, name)
+	ksAvn, err := avnClient.Services.Get(ctx, testProject, name)
 	require.NoError(t, err)
 	assert.Equal(t, ksAvn.Name, ks.GetName())
 	assert.Equal(t, "RUNNING", ks.Status.State)
@@ -75,7 +77,7 @@ func TestKafka(t *testing.T) {
 	assert.Equal(t, "600Gib", ks.Spec.DiskSpace)
 	assert.Equal(t, 614400, ksAvn.DiskSpaceMB)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, ks.Spec.Tags)
-	ksResp, err := avnClient.ServiceTags.Get(testProject, name)
+	ksResp, err := avnClient.ServiceTags.Get(ctx, testProject, name)
 	require.NoError(t, err)
 	assert.Equal(t, ksResp.Tags, ks.Spec.Tags)
 

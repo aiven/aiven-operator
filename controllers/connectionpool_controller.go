@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-go-client/v2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -40,19 +40,19 @@ func (r *ConnectionPoolReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ConnectionPoolHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs []client.Object) error {
-	cp, err := h.convert(i)
+func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, _ []client.Object) error {
+	cp, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
 
-	exists, err := h.exists(avn, cp)
+	exists, err := h.exists(ctx, avn, cp)
 	if err != nil {
 		return err
 	}
 	var reason string
 	if !exists {
-		_, err := avn.ConnectionPools.Create(cp.Spec.Project, cp.Spec.ServiceName,
+		_, err := avn.ConnectionPools.Create(ctx, cp.Spec.Project, cp.Spec.ServiceName,
 			aiven.CreateConnectionPoolRequest{
 				Database: cp.Spec.DatabaseName,
 				PoolMode: cp.Spec.PoolMode,
@@ -65,7 +65,7 @@ func (h ConnectionPoolHandler) createOrUpdate(avn *aiven.Client, i client.Object
 		}
 		reason = "Created"
 	} else {
-		_, err := avn.ConnectionPools.Update(cp.Spec.Project, cp.Spec.ServiceName, cp.Name,
+		_, err := avn.ConnectionPools.Update(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Name,
 			aiven.UpdateConnectionPoolRequest{
 				Database: cp.Spec.DatabaseName,
 				PoolMode: cp.Spec.PoolMode,
@@ -92,14 +92,13 @@ func (h ConnectionPoolHandler) createOrUpdate(avn *aiven.Client, i client.Object
 	return nil
 }
 
-func (h ConnectionPoolHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
-	cp, err := h.convert(i)
+func (h ConnectionPoolHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+	cp, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
 
-	err = avn.ConnectionPools.Delete(
-		cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
+	err = avn.ConnectionPools.Delete(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
 	if err != nil && !aiven.IsNotFound(err) {
 		return false, err
 	}
@@ -107,8 +106,8 @@ func (h ConnectionPoolHandler) delete(avn *aiven.Client, i client.Object) (bool,
 	return true, nil
 }
 
-func (h ConnectionPoolHandler) exists(avn *aiven.Client, cp *v1alpha1.ConnectionPool) (bool, error) {
-	conPool, err := avn.ConnectionPools.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
+func (h ConnectionPoolHandler) exists(ctx context.Context, avn *aiven.Client, cp *v1alpha1.ConnectionPool) (bool, error) {
+	conPool, err := avn.ConnectionPools.Get(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
 	if err != nil {
 		if aiven.IsNotFound(err) {
 			return false, nil
@@ -119,18 +118,18 @@ func (h ConnectionPoolHandler) exists(avn *aiven.Client, cp *v1alpha1.Connection
 	return conPool != nil, nil
 }
 
-func (h ConnectionPoolHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, error) {
-	connPool, err := h.convert(i)
+func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+	connPool, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
 
-	cp, err := avn.ConnectionPools.Get(connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Name)
+	cp, err := avn.ConnectionPools.Get(ctx, connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Name)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get ConnectionPool: %w", err)
 	}
 
-	s, err := avn.Services.Get(connPool.Spec.Project, connPool.Spec.ServiceName)
+	s, err := avn.Services.Get(ctx, connPool.Spec.Project, connPool.Spec.ServiceName)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get service: %w", err)
 	}
@@ -164,7 +163,7 @@ func (h ConnectionPoolHandler) get(avn *aiven.Client, i client.Object) (*corev1.
 		return newSecret(connPool, stringData, false), nil
 	}
 
-	u, err := avn.ServiceUsers.Get(connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Spec.Username)
+	u, err := avn.ServiceUsers.Get(ctx, connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Spec.Username)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get user: %w", err)
 	}
@@ -190,8 +189,8 @@ func (h ConnectionPoolHandler) get(avn *aiven.Client, i client.Object) (*corev1.
 	return newSecret(connPool, stringData, false), nil
 }
 
-func (h ConnectionPoolHandler) checkPreconditions(avn *aiven.Client, i client.Object) (bool, error) {
-	cp, err := h.convert(i)
+func (h ConnectionPoolHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+	cp, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
@@ -199,13 +198,13 @@ func (h ConnectionPoolHandler) checkPreconditions(avn *aiven.Client, i client.Ob
 	meta.SetStatusCondition(&cp.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	check, err := checkServiceIsRunning(avn, cp.Spec.Project, cp.Spec.ServiceName)
+	check, err := checkServiceIsRunning(ctx, avn, cp.Spec.Project, cp.Spec.ServiceName)
 	if err != nil {
 		return false, err
 	}
 
 	if check {
-		db, err := avn.Databases.Get(cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.DatabaseName)
+		db, err := avn.Databases.Get(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.DatabaseName)
 		if err != nil {
 			return false, err
 		}

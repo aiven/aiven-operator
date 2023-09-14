@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -34,6 +35,7 @@ func TestProject(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
+	ctx := context.Background()
 	name := randName("project")
 	yml := getProjectYaml(name)
 	s := NewSession(k8sClient, avnClient, testProject)
@@ -51,7 +53,7 @@ func TestProject(t *testing.T) {
 
 	// THEN
 	// Validates Project
-	projectAvn, err := avnClient.Projects.Get(name)
+	projectAvn, err := avnClient.Projects.Get(ctx, name)
 	require.NoError(t, err)
 	assert.Equal(t, name, project.GetName())
 	assert.Equal(t, projectAvn.Name, project.GetName())

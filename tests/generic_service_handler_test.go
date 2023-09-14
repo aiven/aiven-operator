@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -54,6 +55,7 @@ func TestCreateUpdateService(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
+	ctx := context.Background()
 	pgName := randName("generic-handler")
 	ymlCreate := getCreateServiceYaml(testProject, pgName)
 	s := NewSession(k8sClient, avnClient, testProject)
@@ -71,7 +73,7 @@ func TestCreateUpdateService(t *testing.T) {
 
 	// THEN
 	// Validates tags
-	tagsCreatedAvn, err := avnClient.ServiceTags.Get(testProject, pgName)
+	tagsCreatedAvn, err := avnClient.ServiceTags.Get(ctx, testProject, pgName)
 	require.NoError(t, err)
 
 	assert.Equal(t, map[string]string{"env": "prod", "instance": "master"}, pg.Spec.Tags)
@@ -84,7 +86,7 @@ func TestCreateUpdateService(t *testing.T) {
 
 	pgUpdated := new(v1alpha1.PostgreSQL)
 	require.NoError(t, s.GetRunning(pgUpdated, pgName))
-	tagsUpdatedAvn, err := avnClient.ServiceTags.Get(testProject, pgName)
+	tagsUpdatedAvn, err := avnClient.ServiceTags.Get(ctx, testProject, pgName)
 	require.NoError(t, err)
 	assert.Empty(t, tagsUpdatedAvn.Tags) // cleared tags
 }

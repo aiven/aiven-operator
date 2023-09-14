@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-go-client/v2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -38,20 +38,20 @@ func (r *DatabaseReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h DatabaseHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs []client.Object) error {
-	db, err := h.convert(i)
+func (h DatabaseHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, refs []client.Object) error {
+	db, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
 
-	exists, err := h.exists(avn, db)
+	exists, err := h.exists(ctx, avn, db)
 
 	if err != nil {
 		return err
 	}
 
 	if !exists {
-		_, err := avn.Databases.Create(db.Spec.Project, db.Spec.ServiceName, aiven.CreateDatabaseRequest{
+		_, err := avn.Databases.Create(ctx, db.Spec.Project, db.Spec.ServiceName, aiven.CreateDatabaseRequest{
 			Database:  db.Name,
 			LcCollate: db.Spec.LcCollate,
 			LcType:    db.Spec.LcCtype,
@@ -75,8 +75,8 @@ func (h DatabaseHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs
 	return nil
 }
 
-func (h DatabaseHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
-	db, err := h.convert(i)
+func (h DatabaseHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+	db, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
@@ -86,6 +86,7 @@ func (h DatabaseHandler) delete(avn *aiven.Client, i client.Object) (bool, error
 	}
 
 	err = avn.Databases.Delete(
+		ctx,
 		db.Spec.Project,
 		db.Spec.ServiceName,
 		db.Name)
@@ -96,8 +97,8 @@ func (h DatabaseHandler) delete(avn *aiven.Client, i client.Object) (bool, error
 	return true, nil
 }
 
-func (h DatabaseHandler) exists(avn *aiven.Client, db *v1alpha1.Database) (bool, error) {
-	d, err := avn.Databases.Get(db.Spec.Project, db.Spec.ServiceName, db.Name)
+func (h DatabaseHandler) exists(ctx context.Context, avn *aiven.Client, db *v1alpha1.Database) (bool, error) {
+	d, err := avn.Databases.Get(ctx, db.Spec.Project, db.Spec.ServiceName, db.Name)
 	if aiven.IsNotFound(err) {
 		return false, nil
 	}
@@ -105,13 +106,13 @@ func (h DatabaseHandler) exists(avn *aiven.Client, db *v1alpha1.Database) (bool,
 	return d != nil, nil
 }
 
-func (h DatabaseHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, error) {
-	db, err := h.convert(i)
+func (h DatabaseHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+	db, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = avn.Databases.Get(db.Spec.Project, db.Spec.ServiceName, db.Name)
+	_, err = avn.Databases.Get(ctx, db.Spec.Project, db.Spec.ServiceName, db.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -125,8 +126,8 @@ func (h DatabaseHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret
 	return nil, nil
 }
 
-func (h DatabaseHandler) checkPreconditions(avn *aiven.Client, i client.Object) (bool, error) {
-	db, err := h.convert(i)
+func (h DatabaseHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+	db, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
@@ -134,7 +135,7 @@ func (h DatabaseHandler) checkPreconditions(avn *aiven.Client, i client.Object) 
 	meta.SetStatusCondition(&db.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsRunning(avn, db.Spec.Project, db.Spec.ServiceName)
+	return checkServiceIsRunning(ctx, avn, db.Spec.Project, db.Spec.ServiceName)
 }
 
 func (h DatabaseHandler) convert(i client.Object) (*v1alpha1.Database, error) {

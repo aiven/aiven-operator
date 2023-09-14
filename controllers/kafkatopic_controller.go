@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client"
+	"github.com/aiven/aiven-go-client/v2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -37,8 +37,8 @@ func (r *KafkaTopicReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaTopicHandler) createOrUpdate(avn *aiven.Client, i client.Object, refs []client.Object) error {
-	topic, err := h.convert(i)
+func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, refs []client.Object) error {
+	topic, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
@@ -51,14 +51,14 @@ func (h KafkaTopicHandler) createOrUpdate(avn *aiven.Client, i client.Object, re
 		})
 	}
 
-	exists, err := h.exists(avn, topic)
+	exists, err := h.exists(ctx, avn, topic)
 	if err != nil {
 		return err
 	}
 
 	var reason string
 	if !exists {
-		err = avn.KafkaTopics.Create(topic.Spec.Project, topic.Spec.ServiceName, aiven.CreateKafkaTopicRequest{
+		err = avn.KafkaTopics.Create(ctx, topic.Spec.Project, topic.Spec.ServiceName, aiven.CreateKafkaTopicRequest{
 			Partitions:  &topic.Spec.Partitions,
 			Replication: &topic.Spec.Replication,
 			TopicName:   topic.GetTopicName(),
@@ -71,7 +71,7 @@ func (h KafkaTopicHandler) createOrUpdate(avn *aiven.Client, i client.Object, re
 
 		reason = "Created"
 	} else {
-		err = avn.KafkaTopics.Update(topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName(),
+		err = avn.KafkaTopics.Update(ctx, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName(),
 			aiven.UpdateKafkaTopicRequest{
 				Partitions:  &topic.Spec.Partitions,
 				Replication: &topic.Spec.Replication,
@@ -99,8 +99,8 @@ func (h KafkaTopicHandler) createOrUpdate(avn *aiven.Client, i client.Object, re
 	return nil
 }
 
-func (h KafkaTopicHandler) delete(avn *aiven.Client, i client.Object) (bool, error) {
-	topic, err := h.convert(i)
+func (h KafkaTopicHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+	topic, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
@@ -110,7 +110,7 @@ func (h KafkaTopicHandler) delete(avn *aiven.Client, i client.Object) (bool, err
 	}
 
 	// Delete project on Aiven side
-	err = avn.KafkaTopics.Delete(topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName())
+	err = avn.KafkaTopics.Delete(ctx, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName())
 	if err != nil && !aiven.IsNotFound(err) {
 		return false, err
 	}
@@ -118,8 +118,8 @@ func (h KafkaTopicHandler) delete(avn *aiven.Client, i client.Object) (bool, err
 	return true, nil
 }
 
-func (h KafkaTopicHandler) exists(avn *aiven.Client, topic *v1alpha1.KafkaTopic) (bool, error) {
-	t, err := avn.KafkaTopics.Get(topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName())
+func (h KafkaTopicHandler) exists(ctx context.Context, avn *aiven.Client, topic *v1alpha1.KafkaTopic) (bool, error) {
+	t, err := avn.KafkaTopics.Get(ctx, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName())
 	if err != nil && !aiven.IsNotFound(err) {
 		if aivenError, ok := err.(aiven.Error); ok {
 			// Getting topic info can sometimes temporarily fail with 501 and 502. Don't
@@ -135,13 +135,13 @@ func (h KafkaTopicHandler) exists(avn *aiven.Client, topic *v1alpha1.KafkaTopic)
 	return t != nil, nil
 }
 
-func (h KafkaTopicHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secret, error) {
-	topic, err := h.convert(i)
+func (h KafkaTopicHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+	topic, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
 
-	state, err := h.getState(avn, topic)
+	state, err := h.getState(ctx, avn, topic)
 	if err != nil {
 		return nil, err
 	}
@@ -159,8 +159,8 @@ func (h KafkaTopicHandler) get(avn *aiven.Client, i client.Object) (*corev1.Secr
 	return nil, err
 }
 
-func (h KafkaTopicHandler) checkPreconditions(avn *aiven.Client, i client.Object) (bool, error) {
-	topic, err := h.convert(i)
+func (h KafkaTopicHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+	topic, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
@@ -168,11 +168,11 @@ func (h KafkaTopicHandler) checkPreconditions(avn *aiven.Client, i client.Object
 	meta.SetStatusCondition(&topic.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsRunning(avn, topic.Spec.Project, topic.Spec.ServiceName)
+	return checkServiceIsRunning(ctx, avn, topic.Spec.Project, topic.Spec.ServiceName)
 }
 
-func (h KafkaTopicHandler) getState(avn *aiven.Client, topic *v1alpha1.KafkaTopic) (string, error) {
-	t, err := avn.KafkaTopics.Get(topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName())
+func (h KafkaTopicHandler) getState(ctx context.Context, avn *aiven.Client, topic *v1alpha1.KafkaTopic) (string, error) {
+	t, err := avn.KafkaTopics.Get(ctx, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName())
 	if err != nil {
 		if aivenError, ok := err.(aiven.Error); ok {
 			// Getting topic info can sometimes temporarily fail with 501 and 502. Don't
