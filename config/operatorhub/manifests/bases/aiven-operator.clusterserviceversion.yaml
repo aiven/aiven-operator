@@ -105,8 +105,8 @@ spec:
   maintainers:
   - email: ivan.savciuc@gmail.com
     name: Ivan Savciuc
-  - email: michael.hoffmann@aiven.io
-    name: Michael Hoffmann
+  - email: murad.biashimov@aiven.io
+    name: Murad Biashimov
   maturity: alpha
   provider:
     name: aiven

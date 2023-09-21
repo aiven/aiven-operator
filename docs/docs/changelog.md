@@ -1,5 +1,18 @@
 # Changelog
 
+
+## v0.14.0 - 2023-09-21
+
+- Make `projectVpcId` and `projectVPCRef` mutable
+- Fix panic on `nil` user config conversion
+- Use aiven-go-client with context support
+- Deprecate `Cassandra` kind option `additional_backup_regions`
+- Add `Grafana` kind option `auto_login`
+- Add `Kafka` kind properties `log_local_retention_bytes`, `log_local_retention_ms`
+- Remove `Kafka` kind option `remote_log_storage_system_enable`
+- Add `OpenSearch` kind option `auth_failure_listeners`
+- Add `OpenSearch` kind [Index State Management](https://opensearch.org/docs/latest/im-plugin/ism/index/) options
+
 ## v0.13.0 - 2023-08-18
 
 - Add [TieredStorage](https://github.com/Aiven-Open/tiered-storage-for-apache-kafka) support to `Kafka`
