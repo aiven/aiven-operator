@@ -136,7 +136,7 @@ Cassandra specific user configuration options.
 **Optional**
 
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.
-- [`alerting_enabled`](#spec.userConfig.alerting_enabled-property){: name='spec.userConfig.alerting_enabled-property'} (boolean). Enable or disable Grafana alerting functionality.
+- [`alerting_enabled`](#spec.userConfig.alerting_enabled-property){: name='spec.userConfig.alerting_enabled-property'} (boolean). Enable or disable Grafana legacy alerting functionality. This should not be enabled with unified_alerting_enabled.
 - [`alerting_error_or_timeout`](#spec.userConfig.alerting_error_or_timeout-property){: name='spec.userConfig.alerting_error_or_timeout-property'} (string, Enum: `alerting`, `keep_state`). Default error or timeout setting for new alerting rules.
 - [`alerting_max_annotations_to_keep`](#spec.userConfig.alerting_max_annotations_to_keep-property){: name='spec.userConfig.alerting_max_annotations_to_keep-property'} (integer, Minimum: 0, Maximum: 1000000). Max number of alert annotations that Grafana stores. 0 (default) keeps all alert annotations.
 - [`alerting_nodata_or_nullvalues`](#spec.userConfig.alerting_nodata_or_nullvalues-property){: name='spec.userConfig.alerting_nodata_or_nullvalues-property'} (string, Enum: `alerting`, `no_data`, `keep_state`, `ok`). Default value for 'no data or null values' for new alerting rules.
@@ -170,6 +170,7 @@ Cassandra specific user configuration options.
 - [`service_to_fork_from`](#spec.userConfig.service_to_fork_from-property){: name='spec.userConfig.service_to_fork_from-property'} (string, Immutable, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.
 - [`smtp_server`](#spec.userConfig.smtp_server-property){: name='spec.userConfig.smtp_server-property'} (object). SMTP server settings. See below for [nested schema](#spec.userConfig.smtp_server).
 - [`static_ips`](#spec.userConfig.static_ips-property){: name='spec.userConfig.static_ips-property'} (boolean). Use static public IP addresses.
+- [`unified_alerting_enabled`](#spec.userConfig.unified_alerting_enabled-property){: name='spec.userConfig.unified_alerting_enabled-property'} (boolean). Enable or disable Grafana unified alerting functionality. By default this is enabled and any legacy alerts will be migrated on upgrade to Grafana 9+. To stay on legacy alerting, set unified_alerting_enabled to false and alerting_enabled to true. See https://grafana.com/docs/grafana/latest/alerting/set-up/migrating-alerts/ for more details.
 - [`user_auto_assign_org`](#spec.userConfig.user_auto_assign_org-property){: name='spec.userConfig.user_auto_assign_org-property'} (boolean). Auto-assign new users on signup to main organization. Defaults to false.
 - [`user_auto_assign_org_role`](#spec.userConfig.user_auto_assign_org_role-property){: name='spec.userConfig.user_auto_assign_org_role-property'} (string, Enum: `Viewer`, `Admin`, `Editor`). Set role for new signups. Defaults to Viewer.
 - [`viewers_can_edit`](#spec.userConfig.viewers_can_edit-property){: name='spec.userConfig.viewers_can_edit-property'} (boolean). Users with view-only permission can edit but not save dashboards.
