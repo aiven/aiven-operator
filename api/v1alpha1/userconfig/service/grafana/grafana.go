@@ -295,7 +295,7 @@ type GrafanaUserConfig struct {
 	// Additional Cloud Regions for Backup Replication
 	AdditionalBackupRegions []string `groups:"create,update" json:"additional_backup_regions,omitempty"`
 
-	// Enable or disable Grafana alerting functionality
+	// Enable or disable Grafana legacy alerting functionality. This should not be enabled with unified_alerting_enabled.
 	AlertingEnabled *bool `groups:"create,update" json:"alerting_enabled,omitempty"`
 
 	// +kubebuilder:validation:Enum="alerting";"keep_state"
@@ -417,6 +417,9 @@ type GrafanaUserConfig struct {
 
 	// Use static public IP addresses
 	StaticIps *bool `groups:"create,update" json:"static_ips,omitempty"`
+
+	// Enable or disable Grafana unified alerting functionality. By default this is enabled and any legacy alerts will be migrated on upgrade to Grafana 9+. To stay on legacy alerting, set unified_alerting_enabled to false and alerting_enabled to true. See https://grafana.com/docs/grafana/latest/alerting/set-up/migrating-alerts/ for more details.
+	UnifiedAlertingEnabled *bool `groups:"create,update" json:"unified_alerting_enabled,omitempty"`
 
 	// Auto-assign new users on signup to main organization. Defaults to false
 	UserAutoAssignOrg *bool `groups:"create,update" json:"user_auto_assign_org,omitempty"`
