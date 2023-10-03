@@ -431,6 +431,11 @@ func (in *GrafanaUserConfig) DeepCopyInto(out *GrafanaUserConfig) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.UnifiedAlertingEnabled != nil {
+		in, out := &in.UnifiedAlertingEnabled, &out.UnifiedAlertingEnabled
+		*out = new(bool)
+		**out = **in
+	}
 	if in.UserAutoAssignOrg != nil {
 		in, out := &in.UserAutoAssignOrg, &out.UserAutoAssignOrg
 		*out = new(bool)
