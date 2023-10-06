@@ -841,10 +841,10 @@ spec:
                         description: Whether to enable the tiered storage functionality
                         type: boolean
                       local_cache:
-                        description: Local cache configuration
+                        description: Deprecated. Local cache configuration
                         properties:
                           size:
-                            description: Local cache size in bytes
+                            description: Deprecated. Local cache size in bytes
                             maximum: 107374182400
                             minimum: 1
                             type: integer
