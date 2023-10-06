@@ -398,11 +398,12 @@ type SchemaRegistryConfig struct {
 	TopicName *string `groups:"create,update" json:"topic_name,omitempty"`
 }
 
-// Local cache configuration
+// Deprecated. Local cache configuration
 type LocalCache struct {
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=107374182400
-	// Local cache size in bytes
+	// +kubebuilder:deprecatedversion:warning="size is deprecated"
+	// Deprecated. Local cache size in bytes
 	Size *int `groups:"create,update" json:"size,omitempty"`
 }
 
@@ -411,7 +412,8 @@ type TieredStorage struct {
 	// Whether to enable the tiered storage functionality
 	Enabled *bool `groups:"create,update" json:"enabled,omitempty"`
 
-	// Local cache configuration
+	// +kubebuilder:deprecatedversion:warning="local_cache is deprecated"
+	// Deprecated. Local cache configuration
 	LocalCache *LocalCache `groups:"create,update" json:"local_cache,omitempty"`
 }
 type KafkaUserConfig struct {

@@ -327,15 +327,15 @@ Tiered storage configuration.
 **Optional**
 
 - [`enabled`](#spec.userConfig.tiered_storage.enabled-property){: name='spec.userConfig.tiered_storage.enabled-property'} (boolean). Whether to enable the tiered storage functionality.
-- [`local_cache`](#spec.userConfig.tiered_storage.local_cache-property){: name='spec.userConfig.tiered_storage.local_cache-property'} (object). Local cache configuration. See below for [nested schema](#spec.userConfig.tiered_storage.local_cache).
+- [`local_cache`](#spec.userConfig.tiered_storage.local_cache-property){: name='spec.userConfig.tiered_storage.local_cache-property'} (object). Deprecated. Local cache configuration. See below for [nested schema](#spec.userConfig.tiered_storage.local_cache).
 
 #### local_cache {: #spec.userConfig.tiered_storage.local_cache }
 
 _Appears on [`spec.userConfig.tiered_storage`](#spec.userConfig.tiered_storage)._
 
-Local cache configuration.
+Deprecated. Local cache configuration.
 
 **Required**
 
-- [`size`](#spec.userConfig.tiered_storage.local_cache.size-property){: name='spec.userConfig.tiered_storage.local_cache.size-property'} (integer, Minimum: 1, Maximum: 107374182400). Local cache size in bytes.
+- [`size`](#spec.userConfig.tiered_storage.local_cache.size-property){: name='spec.userConfig.tiered_storage.local_cache.size-property'} (integer, Minimum: 1, Maximum: 107374182400). Deprecated. Local cache size in bytes.
 
