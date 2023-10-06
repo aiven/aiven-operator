@@ -317,7 +317,23 @@ func (i instanceReconcilerHelper) getObjectRefs(ctx context.Context, o client.Ob
 func (i instanceReconcilerHelper) finalize(ctx context.Context, o client.Object) (ctrl.Result, error) {
 	i.rec.Event(o, corev1.EventTypeNormal, eventTryingToDeleteAtAiven, "trying to delete instance at aiven")
 
-	finalised, err := i.h.delete(ctx, i.avn, o)
+	var err error
+	finalised := true
+	deletionPolicy := deletionPolicyDelete
+
+	// Parse the annotations for the deletion policy. For simplicity, we only allow 'Orphan'.
+	// If set will skip the deletion of the remote object. Disable by removing the annoation.
+	if p, ok := o.GetAnnotations()[deletionPolicyAnnotation]; ok {
+		deletionPolicy = deletionPolicyOrphan
+		if p != deletionPolicyOrphan {
+			i.log.Info(fmt.Sprintf("Invalid deletion policy! Only '%s' is allowed.", deletionPolicyOrphan))
+			finalised = false
+		}
+	}
+
+	if deletionPolicy == deletionPolicyDelete {
+		finalised, err = i.h.delete(ctx, i.avn, o)
+	}
 
 	// There are dependencies on Aiven side, resets error, so it goes for requeue
 	// Handlers does not have logger, it goes here
