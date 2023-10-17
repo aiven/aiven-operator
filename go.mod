@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/aiven/aiven-go-client/v2 v2.1.0
-	github.com/aiven/go-api-schemas v1.35.0
+	github.com/aiven/go-api-schemas v1.36.0
 	github.com/dave/jennifer v1.7.0
 	github.com/docker/go-units v0.5.0
 	github.com/ghodss/yaml v1.0.0
