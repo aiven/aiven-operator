@@ -186,6 +186,22 @@ type Kafka struct {
 	// Maximum bytes expected for the entire fetch response (defaults to 10485760). Records are fetched in batches, and if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that progress can be made. As such, this is not an absolute maximum.
 	ReplicaFetchResponseMaxBytes *int `groups:"create,update" json:"replica_fetch_response_max_bytes,omitempty"`
 
+	// +kubebuilder:validation:MaxLength=128
+	// The (optional) comma-delimited setting for the broker to use to verify that the JWT was issued for one of the expected audiences.
+	SaslOauthbearerExpectedAudience *string `groups:"create,update" json:"sasl_oauthbearer_expected_audience,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=128
+	// Optional setting for the broker to use to verify that the JWT was created by the expected issuer.
+	SaslOauthbearerExpectedIssuer *string `groups:"create,update" json:"sasl_oauthbearer_expected_issuer,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=2048
+	// OIDC JWKS endpoint URL. By setting this the SASL SSL OAuth2/OIDC authentication is enabled. See also other options for SASL OAuth2/OIDC.
+	SaslOauthbearerJwksEndpointUrl *string `groups:"create,update" json:"sasl_oauthbearer_jwks_endpoint_url,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=128
+	// Name of the scope from which to extract the subject claim from the JWT. Defaults to sub.
+	SaslOauthbearerSubClaimName *string `groups:"create,update" json:"sasl_oauthbearer_sub_claim_name,omitempty"`
+
 	// +kubebuilder:validation:Minimum=10485760
 	// +kubebuilder:validation:Maximum=209715200
 	// The maximum number of bytes in a socket request (defaults to 104857600).
