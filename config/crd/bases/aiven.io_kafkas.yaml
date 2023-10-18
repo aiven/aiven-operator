@@ -471,6 +471,28 @@ spec:
                         maximum: 1048576000
                         minimum: 10485760
                         type: integer
+                      sasl_oauthbearer_expected_audience:
+                        description: The (optional) comma-delimited setting for the
+                          broker to use to verify that the JWT was issued for one
+                          of the expected audiences.
+                        maxLength: 128
+                        type: string
+                      sasl_oauthbearer_expected_issuer:
+                        description: Optional setting for the broker to use to verify
+                          that the JWT was created by the expected issuer.
+                        maxLength: 128
+                        type: string
+                      sasl_oauthbearer_jwks_endpoint_url:
+                        description: OIDC JWKS endpoint URL. By setting this the SASL
+                          SSL OAuth2/OIDC authentication is enabled. See also other
+                          options for SASL OAuth2/OIDC.
+                        maxLength: 2048
+                        type: string
+                      sasl_oauthbearer_sub_claim_name:
+                        description: Name of the scope from which to extract the subject
+                          claim from the JWT. Defaults to sub.
+                        maxLength: 128
+                        type: string
                       socket_request_max_bytes:
                         description: The maximum number of bytes in a socket request
                           (defaults to 104857600).

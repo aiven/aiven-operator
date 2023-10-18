@@ -112,6 +112,7 @@ type InternalAuthenticationBackendLimiting struct {
 	AllowedTries *int `groups:"create,update" json:"allowed_tries,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Enum="internal"
 	// internal_authentication_backend_limiting.authentication_backend
 	AuthenticationBackend *string `groups:"create,update" json:"authentication_backend,omitempty"`
 
@@ -136,6 +137,7 @@ type InternalAuthenticationBackendLimiting struct {
 	TimeWindowSeconds *int `groups:"create,update" json:"time_window_seconds,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Enum="username"
 	// internal_authentication_backend_limiting.type
 	Type *string `groups:"create,update" json:"type,omitempty"`
 }
@@ -168,6 +170,7 @@ type IpRateLimiting struct {
 	TimeWindowSeconds *int `groups:"create,update" json:"time_window_seconds,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Enum="ip"
 	// The type of rate limiting
 	Type *string `groups:"create,update" json:"type,omitempty"`
 }

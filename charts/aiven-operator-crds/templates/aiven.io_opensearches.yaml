@@ -379,6 +379,8 @@ spec:
                                 type: integer
                               authentication_backend:
                                 description: internal_authentication_backend_limiting.authentication_backend
+                                enum:
+                                - internal
                                 maxLength: 1024
                                 type: string
                               block_expiry_seconds:
@@ -406,6 +408,8 @@ spec:
                                 type: integer
                               type:
                                 description: internal_authentication_backend_limiting.type
+                                enum:
+                                - username
                                 maxLength: 1024
                                 type: string
                             type: object
@@ -443,6 +447,8 @@ spec:
                                 type: integer
                               type:
                                 description: The type of rate limiting
+                                enum:
+                                - ip
                                 maxLength: 1024
                                 type: string
                             type: object
