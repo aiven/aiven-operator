@@ -220,6 +220,26 @@ func (in *Kafka) DeepCopyInto(out *Kafka) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.SaslOauthbearerExpectedAudience != nil {
+		in, out := &in.SaslOauthbearerExpectedAudience, &out.SaslOauthbearerExpectedAudience
+		*out = new(string)
+		**out = **in
+	}
+	if in.SaslOauthbearerExpectedIssuer != nil {
+		in, out := &in.SaslOauthbearerExpectedIssuer, &out.SaslOauthbearerExpectedIssuer
+		*out = new(string)
+		**out = **in
+	}
+	if in.SaslOauthbearerJwksEndpointUrl != nil {
+		in, out := &in.SaslOauthbearerJwksEndpointUrl, &out.SaslOauthbearerJwksEndpointUrl
+		*out = new(string)
+		**out = **in
+	}
+	if in.SaslOauthbearerSubClaimName != nil {
+		in, out := &in.SaslOauthbearerSubClaimName, &out.SaslOauthbearerSubClaimName
+		*out = new(string)
+		**out = **in
+	}
 	if in.SocketRequestMaxBytes != nil {
 		in, out := &in.SocketRequestMaxBytes, &out.SocketRequestMaxBytes
 		*out = new(int)
