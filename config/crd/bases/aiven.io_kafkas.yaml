@@ -195,6 +195,10 @@ spec:
                       type: string
                     maxItems: 1
                     type: array
+                  aiven_kafka_topic_messages:
+                    description: Allow access to read Kafka topic messages in the
+                      Aiven Console and REST API.
+                    type: boolean
                   custom_domain:
                     description: Serve the web frontend using a custom CNAME pointing
                       to the Aiven DNS name

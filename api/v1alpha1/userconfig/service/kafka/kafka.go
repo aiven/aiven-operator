@@ -437,6 +437,9 @@ type KafkaUserConfig struct {
 	// Additional Cloud Regions for Backup Replication
 	AdditionalBackupRegions []string `groups:"create,update" json:"additional_backup_regions,omitempty"`
 
+	// Allow access to read Kafka topic messages in the Aiven Console and REST API.
+	AivenKafkaTopicMessages *bool `groups:"create,update" json:"aiven_kafka_topic_messages,omitempty"`
+
 	// +kubebuilder:validation:MaxLength=255
 	// Serve the web frontend using a custom CNAME pointing to the Aiven DNS name
 	CustomDomain *string `groups:"create,update" json:"custom_domain,omitempty"`
