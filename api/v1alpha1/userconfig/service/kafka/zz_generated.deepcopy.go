@@ -450,6 +450,11 @@ func (in *KafkaUserConfig) DeepCopyInto(out *KafkaUserConfig) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
+	if in.AivenKafkaTopicMessages != nil {
+		in, out := &in.AivenKafkaTopicMessages, &out.AivenKafkaTopicMessages
+		*out = new(bool)
+		**out = **in
+	}
 	if in.CustomDomain != nil {
 		in, out := &in.CustomDomain, &out.CustomDomain
 		*out = new(string)
