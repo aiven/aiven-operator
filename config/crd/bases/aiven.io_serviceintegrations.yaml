@@ -516,7 +516,7 @@ spec:
                         type: integer
                       producer_max_request_size:
                         description: The maximum request size in bytes.
-                        maximum: 67108864
+                        maximum: 268435456
                         minimum: 0
                         type: integer
                     type: object
