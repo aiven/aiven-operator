@@ -302,7 +302,7 @@ Kafka MirrorMaker configuration values.
 - [`producer_buffer_memory`](#spec.kafkaMirrormaker.kafka_mirrormaker.producer_buffer_memory-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker.producer_buffer_memory-property'} (integer, Minimum: 5242880, Maximum: 134217728). The amount of bytes producer can use for buffering data before publishing to broker.
 - [`producer_compression_type`](#spec.kafkaMirrormaker.kafka_mirrormaker.producer_compression_type-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker.producer_compression_type-property'} (string, Enum: `gzip`, `snappy`, `lz4`, `zstd`, `none`). Specify the default compression type for producers. This configuration accepts the standard compression codecs (`gzip`, `snappy`, `lz4`, `zstd`). It additionally accepts `none` which is the default and equivalent to no compression.
 - [`producer_linger_ms`](#spec.kafkaMirrormaker.kafka_mirrormaker.producer_linger_ms-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker.producer_linger_ms-property'} (integer, Minimum: 0, Maximum: 5000). The linger time (ms) for waiting new data to arrive for publishing.
-- [`producer_max_request_size`](#spec.kafkaMirrormaker.kafka_mirrormaker.producer_max_request_size-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker.producer_max_request_size-property'} (integer, Minimum: 0, Maximum: 67108864). The maximum request size in bytes.
+- [`producer_max_request_size`](#spec.kafkaMirrormaker.kafka_mirrormaker.producer_max_request_size-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker.producer_max_request_size-property'} (integer, Minimum: 0, Maximum: 268435456). The maximum request size in bytes.
 
 ## logs {: #spec.logs }
 

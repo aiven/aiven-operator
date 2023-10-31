@@ -160,6 +160,7 @@ Allow access to selected service ports from private networks.
 
 - [`clickhouse`](#spec.userConfig.private_access.clickhouse-property){: name='spec.userConfig.private_access.clickhouse-property'} (boolean). Allow clients to connect to clickhouse with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.
 - [`clickhouse_https`](#spec.userConfig.private_access.clickhouse_https-property){: name='spec.userConfig.private_access.clickhouse_https-property'} (boolean). Allow clients to connect to clickhouse_https with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.
+- [`clickhouse_mysql`](#spec.userConfig.private_access.clickhouse_mysql-property){: name='spec.userConfig.private_access.clickhouse_mysql-property'} (boolean). Allow clients to connect to clickhouse_mysql with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.
 - [`prometheus`](#spec.userConfig.private_access.prometheus-property){: name='spec.userConfig.private_access.prometheus-property'} (boolean). Allow clients to connect to prometheus with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.
 
 ### privatelink_access {: #spec.userConfig.privatelink_access }
@@ -172,6 +173,7 @@ Allow access to selected service components through Privatelink.
 
 - [`clickhouse`](#spec.userConfig.privatelink_access.clickhouse-property){: name='spec.userConfig.privatelink_access.clickhouse-property'} (boolean). Enable clickhouse.
 - [`clickhouse_https`](#spec.userConfig.privatelink_access.clickhouse_https-property){: name='spec.userConfig.privatelink_access.clickhouse_https-property'} (boolean). Enable clickhouse_https.
+- [`clickhouse_mysql`](#spec.userConfig.privatelink_access.clickhouse_mysql-property){: name='spec.userConfig.privatelink_access.clickhouse_mysql-property'} (boolean). Enable clickhouse_mysql.
 - [`prometheus`](#spec.userConfig.privatelink_access.prometheus-property){: name='spec.userConfig.privatelink_access.prometheus-property'} (boolean). Enable prometheus.
 
 ### public_access {: #spec.userConfig.public_access }
@@ -184,5 +186,6 @@ Allow access to selected service ports from the public Internet.
 
 - [`clickhouse`](#spec.userConfig.public_access.clickhouse-property){: name='spec.userConfig.public_access.clickhouse-property'} (boolean). Allow clients to connect to clickhouse from the public internet for service nodes that are in a project VPC or another type of private network.
 - [`clickhouse_https`](#spec.userConfig.public_access.clickhouse_https-property){: name='spec.userConfig.public_access.clickhouse_https-property'} (boolean). Allow clients to connect to clickhouse_https from the public internet for service nodes that are in a project VPC or another type of private network.
+- [`clickhouse_mysql`](#spec.userConfig.public_access.clickhouse_mysql-property){: name='spec.userConfig.public_access.clickhouse_mysql-property'} (boolean). Allow clients to connect to clickhouse_mysql from the public internet for service nodes that are in a project VPC or another type of private network.
 - [`prometheus`](#spec.userConfig.public_access.prometheus-property){: name='spec.userConfig.public_access.prometheus-property'} (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network.
 

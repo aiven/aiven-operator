@@ -209,6 +209,11 @@ spec:
                           with a DNS name that always resolves to the service's private
                           IP addresses. Only available in certain network locations
                         type: boolean
+                      clickhouse_mysql:
+                        description: Allow clients to connect to clickhouse_mysql
+                          with a DNS name that always resolves to the service's private
+                          IP addresses. Only available in certain network locations
+                        type: boolean
                       prometheus:
                         description: Allow clients to connect to prometheus with a
                           DNS name that always resolves to the service's private IP
@@ -224,6 +229,9 @@ spec:
                         type: boolean
                       clickhouse_https:
                         description: Enable clickhouse_https
+                        type: boolean
+                      clickhouse_mysql:
+                        description: Enable clickhouse_mysql
                         type: boolean
                       prometheus:
                         description: Enable prometheus
@@ -248,6 +256,11 @@ spec:
                         type: boolean
                       clickhouse_https:
                         description: Allow clients to connect to clickhouse_https
+                          from the public internet for service nodes that are in a
+                          project VPC or another type of private network
+                        type: boolean
+                      clickhouse_mysql:
+                        description: Allow clients to connect to clickhouse_mysql
                           from the public internet for service nodes that are in a
                           project VPC or another type of private network
                         type: boolean

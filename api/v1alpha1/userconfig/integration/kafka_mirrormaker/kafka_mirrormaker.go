@@ -30,7 +30,7 @@ type KafkaMirrormaker struct {
 	ProducerLingerMs *int `groups:"create,update" json:"producer_linger_ms,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
-	// +kubebuilder:validation:Maximum=67108864
+	// +kubebuilder:validation:Maximum=268435456
 	// The maximum request size in bytes.
 	ProducerMaxRequestSize *int `groups:"create,update" json:"producer_max_request_size,omitempty"`
 }
