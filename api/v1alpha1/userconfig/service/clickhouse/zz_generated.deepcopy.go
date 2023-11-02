@@ -101,6 +101,11 @@ func (in *PrivateAccess) DeepCopyInto(out *PrivateAccess) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.ClickhouseMysql != nil {
+		in, out := &in.ClickhouseMysql, &out.ClickhouseMysql
+		*out = new(bool)
+		**out = **in
+	}
 	if in.Prometheus != nil {
 		in, out := &in.Prometheus, &out.Prometheus
 		*out = new(bool)
@@ -131,6 +136,11 @@ func (in *PrivatelinkAccess) DeepCopyInto(out *PrivatelinkAccess) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.ClickhouseMysql != nil {
+		in, out := &in.ClickhouseMysql, &out.ClickhouseMysql
+		*out = new(bool)
+		**out = **in
+	}
 	if in.Prometheus != nil {
 		in, out := &in.Prometheus, &out.Prometheus
 		*out = new(bool)
@@ -158,6 +168,11 @@ func (in *PublicAccess) DeepCopyInto(out *PublicAccess) {
 	}
 	if in.ClickhouseHttps != nil {
 		in, out := &in.ClickhouseHttps, &out.ClickhouseHttps
+		*out = new(bool)
+		**out = **in
+	}
+	if in.ClickhouseMysql != nil {
+		in, out := &in.ClickhouseMysql, &out.ClickhouseMysql
 		*out = new(bool)
 		**out = **in
 	}

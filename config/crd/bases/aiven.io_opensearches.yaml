@@ -600,7 +600,7 @@ spec:
                         description: Maximum number of aggregation buckets allowed
                           in a single response. OpenSearch default value is used when
                           this is not defined.
-                        maximum: 65536
+                        maximum: 1000000
                         minimum: 1
                         type: integer
                       thread_pool_analyze_queue_size:
