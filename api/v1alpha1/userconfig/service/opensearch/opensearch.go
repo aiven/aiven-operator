@@ -245,6 +245,16 @@ type Opensearch struct {
 	IndicesMemoryIndexBufferSize *int `groups:"create,update" json:"indices_memory_index_buffer_size,omitempty"`
 
 	// +kubebuilder:validation:Minimum=3
+	// +kubebuilder:validation:Maximum=2048
+	// Absolute value. Default is unbound. Doesn't work without indices.memory.index_buffer_size. Maximum amount of heap used for query cache, an absolute indices.memory.index_buffer_size maximum hard limit.
+	IndicesMemoryMaxIndexBufferSize *int `groups:"create,update" json:"indices_memory_max_index_buffer_size,omitempty"`
+
+	// +kubebuilder:validation:Minimum=3
+	// +kubebuilder:validation:Maximum=2048
+	// Absolute value. Default is 48mb. Doesn't work without indices.memory.index_buffer_size. Minimum amount of heap used for query cache, an absolute indices.memory.index_buffer_size minimal hard limit.
+	IndicesMemoryMinIndexBufferSize *int `groups:"create,update" json:"indices_memory_min_index_buffer_size,omitempty"`
+
+	// +kubebuilder:validation:Minimum=3
 	// +kubebuilder:validation:Maximum=40
 	// Percentage value. Default is 10%. Maximum amount of heap used for query cache. This is an expert setting. Too low value will decrease query performance and increase performance for other operations; too high value will cause issues with other OpenSearch functionality.
 	IndicesQueriesCacheSize *int `groups:"create,update" json:"indices_queries_cache_size,omitempty"`
