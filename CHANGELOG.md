@@ -3,6 +3,7 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - Upgrade to Go 1.21
+- Add a format for `string` type fields to the documentation
 
 ## v0.14.0 - 2023-09-21
 

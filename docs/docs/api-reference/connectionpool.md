@@ -50,7 +50,7 @@ ConnectionPoolSpec defines the desired state of ConnectionPool.
 **Required**
 
 - [`databaseName`](#spec.databaseName-property){: name='spec.databaseName-property'} (string, MaxLength: 40). Name of the database the pool connects to.
-- [`project`](#spec.project-property){: name='spec.project-property'} (string, MaxLength: 63). Target project.
+- [`project`](#spec.project-property){: name='spec.project-property'} (string, MaxLength: 63, Format: `^[a-zA-Z0-9_-]*$`). Target project.
 - [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, MaxLength: 63). Service name.
 - [`username`](#spec.username-property){: name='spec.username-property'} (string, MaxLength: 64). Name of the service user used to connect to the database.
 

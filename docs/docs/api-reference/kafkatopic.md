@@ -45,7 +45,7 @@ KafkaTopicSpec defines the desired state of KafkaTopic.
 **Required**
 
 - [`partitions`](#spec.partitions-property){: name='spec.partitions-property'} (integer, Minimum: 1, Maximum: 1000000). Number of partitions to create in the topic.
-- [`project`](#spec.project-property){: name='spec.project-property'} (string, MaxLength: 63). Target project.
+- [`project`](#spec.project-property){: name='spec.project-property'} (string, MaxLength: 63, Format: `^[a-zA-Z0-9_-]*$`). Target project.
 - [`replication`](#spec.replication-property){: name='spec.replication-property'} (integer, Minimum: 2). Replication factor for the topic.
 - [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, MaxLength: 63). Service name.
 
@@ -108,9 +108,9 @@ Kafka topic tags.
 
 **Required**
 
-- [`key`](#spec.tags.key-property){: name='spec.tags.key-property'} (string, MinLength: 1, MaxLength: 64). 
+- [`key`](#spec.tags.key-property){: name='spec.tags.key-property'} (string, MinLength: 1, MaxLength: 64, Format: `^[a-zA-Z0-9_-]*$`). 
 
 **Optional**
 
-- [`value`](#spec.tags.value-property){: name='spec.tags.value-property'} (string, MaxLength: 256). 
+- [`value`](#spec.tags.value-property){: name='spec.tags.value-property'} (string, MaxLength: 256, Format: `^[a-zA-Z0-9_-]*$`). 
 
