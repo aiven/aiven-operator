@@ -176,7 +176,7 @@ func getSecretPrefix(o objWithSecret) string {
 // userConfigurationToAPI converts user config into a map
 func userConfigurationToAPI(c any, groups ...string) (map[string]any, error) {
 	if c == nil || (reflect.ValueOf(c).Kind() == reflect.Ptr && reflect.ValueOf(c).IsNil()) {
-		return nil, nil
+		return map[string]any{}, nil
 	}
 
 	o := &sheriff.Options{
@@ -192,7 +192,7 @@ func userConfigurationToAPI(c any, groups ...string) (map[string]any, error) {
 	if !ok {
 		// It is an empty pointer
 		// sheriff just returned the very same object
-		return nil, nil
+		return map[string]any{}, nil
 	}
 
 	return m, nil

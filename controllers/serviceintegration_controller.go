@@ -5,6 +5,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -77,6 +78,12 @@ func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avn *aive
 
 		reason = "Created"
 	} else {
+		// Not all service integrations have user_config available; skip the update if user_config is unavailable.
+		withUserConfig := []string{"clickhouse_kafka", "clickhouse_postgresql", "datadog", "kafka_connect", "kafka_logs", "kafka_mirrormaker", "logs", "metrics", "external_aws_cloudwatch_metrics"}
+		if !slices.Contains(withUserConfig, si.Spec.IntegrationType) {
+			return nil
+		}
+
 		userConfigMap, err := UpdateUserConfiguration(userConfig)
 		if err != nil {
 			return err
@@ -92,7 +99,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avn *aive
 		)
 		reason = "Updated"
 		if err != nil {
-			if strings.Contains(err.Error(), "user config not changed") {
+			if strings.Contains(strings.ToLower(err.Error()), "user config not changed") {
 				return nil
 			}
 			return err
