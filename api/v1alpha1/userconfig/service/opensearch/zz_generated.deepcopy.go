@@ -325,6 +325,16 @@ func (in *Opensearch) DeepCopyInto(out *Opensearch) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.IndicesMemoryMaxIndexBufferSize != nil {
+		in, out := &in.IndicesMemoryMaxIndexBufferSize, &out.IndicesMemoryMaxIndexBufferSize
+		*out = new(int)
+		**out = **in
+	}
+	if in.IndicesMemoryMinIndexBufferSize != nil {
+		in, out := &in.IndicesMemoryMinIndexBufferSize, &out.IndicesMemoryMinIndexBufferSize
+		*out = new(int)
+		**out = **in
+	}
 	if in.IndicesQueriesCacheSize != nil {
 		in, out := &in.IndicesQueriesCacheSize, &out.IndicesQueriesCacheSize
 		*out = new(int)

@@ -1,6 +1,6 @@
 module github.com/aiven/aiven-operator
 
-go 1.18
+go 1.21
 
 require (
 	github.com/aiven/aiven-go-client/v2 v2.2.0
