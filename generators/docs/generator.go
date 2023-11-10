@@ -319,6 +319,9 @@ func (s *schemaType) GetDef() string {
 	if s.MaxLength != nil {
 		chunks = append(chunks, fmt.Sprintf("MaxLength: %d", *s.MaxLength))
 	}
+	if s.Format != "" && s.Type == "string" {
+		chunks = append(chunks, fmt.Sprintf("Format: `%s`", s.Format))
+	}
 	if s.AdditionalProperties != nil {
 		chunks = append(chunks, fmt.Sprintf("AdditionalProperties: %s", s.AdditionalProperties.Type))
 	}

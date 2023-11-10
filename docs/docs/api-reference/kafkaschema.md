@@ -53,7 +53,7 @@ KafkaSchemaSpec defines the desired state of KafkaSchema.
 
 **Required**
 
-- [`project`](#spec.project-property){: name='spec.project-property'} (string, MaxLength: 63). Project to link the Kafka Schema to.
+- [`project`](#spec.project-property){: name='spec.project-property'} (string, MaxLength: 63, Format: `^[a-zA-Z0-9_-]*$`). Project to link the Kafka Schema to.
 - [`schema`](#spec.schema-property){: name='spec.schema-property'} (string). Kafka Schema configuration should be a valid Avro Schema JSON format.
 - [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, MaxLength: 63). Service to link the Kafka Schema to.
 - [`subjectName`](#spec.subjectName-property){: name='spec.subjectName-property'} (string, MaxLength: 63). Kafka Schema Subject name.

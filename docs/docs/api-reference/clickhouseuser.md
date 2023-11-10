@@ -45,7 +45,7 @@ ClickhouseUserSpec defines the desired state of ClickhouseUser.
 
 **Required**
 
-- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63). Project to link the user to.
+- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63, Format: `^[a-zA-Z0-9_-]*$`). Project to link the user to.
 - [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, Immutable, MaxLength: 63). Service to link the user to.
 
 **Optional**
