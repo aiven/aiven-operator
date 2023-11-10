@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Upgrade to Go 1.21
+
 ## v0.14.0 - 2023-09-21
 
 - Make `projectVpcId` and `projectVPCRef` mutable
