@@ -11,12 +11,16 @@ import (
 )
 
 // allCRDYaml contains all crds
-const allCRDYaml = "aiven.io_crd-all.gen.yaml"
+const (
+	allCRDYaml        = "aiven.io_crd-all.gen.yaml"
+	crdSourceDir      = "config/crd/bases/"
+	crdDestinationDir = "templates"
+)
 
 // copyCRDs copies CRDs, like MySQL, Postgres, etc
 func copyCRDs(operatorPath, crdCharts string) error {
-	srcCRDs := path.Join(operatorPath, "config/crd/bases/")
-	dstCRDs := path.Join(crdCharts, "templates")
+	srcCRDs := path.Join(operatorPath, crdSourceDir)
+	dstCRDs := path.Join(crdCharts, crdDestinationDir)
 	err := cp.Copy(srcCRDs, dstCRDs)
 	if err != nil {
 		return err

@@ -32,7 +32,7 @@ func updateVersion(version, operatorPath string, charts ...string) error {
 			return err
 		}
 	}
-	return updateChangelog(version, path.Join(operatorPath, "CHANGELOG.md"))
+	return updateChangelogVersion(version, path.Join(operatorPath, changelogFile))
 }
 
 // updateChartVersion replaces version in Chart.yaml
@@ -67,9 +67,9 @@ const (
 	headerVersionDateFormat  = "2006-01-02"
 )
 
-// updateChangelog updates CHANGELOG.md, sets version header.
+// updateChangelogVersion updates CHANGELOG.md, sets version header.
 // If version already exists, updates release date
-func updateChangelog(version, filePath string) error {
+func updateChangelogVersion(version, filePath string) error {
 	f, err := os.ReadFile(filePath)
 	if err != nil {
 		return err
