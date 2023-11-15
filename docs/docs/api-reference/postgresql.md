@@ -187,7 +187,7 @@ Migrate data from existing server.
 
 - [`dbname`](#spec.userConfig.migration.dbname-property){: name='spec.userConfig.migration.dbname-property'} (string, MaxLength: 63). Database name for bootstrapping the initial connection.
 - [`ignore_dbs`](#spec.userConfig.migration.ignore_dbs-property){: name='spec.userConfig.migration.ignore_dbs-property'} (string, MaxLength: 2048). Comma-separated list of databases, which should be ignored during migration (supported by MySQL and PostgreSQL only at the moment).
-- [`method`](#spec.userConfig.migration.method-property){: name='spec.userConfig.migration.method-property'} (string, Enum: `dump`, `replication`). The migration method to be used (currently supported only by Redis, MySQL and PostgreSQL service types).
+- [`method`](#spec.userConfig.migration.method-property){: name='spec.userConfig.migration.method-property'} (string, Enum: `dump`, `replication`). The migration method to be used (currently supported only by Redis, Dragonfly, MySQL and PostgreSQL service types).
 - [`password`](#spec.userConfig.migration.password-property){: name='spec.userConfig.migration.password-property'} (string, MaxLength: 256). Password for authentication with the server where to migrate data from.
 - [`ssl`](#spec.userConfig.migration.ssl-property){: name='spec.userConfig.migration.ssl-property'} (boolean). The server where to migrate data from is secured with SSL.
 - [`username`](#spec.userConfig.migration.username-property){: name='spec.userConfig.migration.username-property'} (string, MaxLength: 256). User name for authentication with the server where to migrate data from.

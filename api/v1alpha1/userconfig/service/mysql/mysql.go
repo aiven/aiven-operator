@@ -29,7 +29,7 @@ type Migration struct {
 	IgnoreDbs *string `groups:"create,update" json:"ignore_dbs,omitempty"`
 
 	// +kubebuilder:validation:Enum="dump";"replication"
-	// The migration method to be used (currently supported only by Redis, MySQL and PostgreSQL service types)
+	// The migration method to be used (currently supported only by Redis, Dragonfly, MySQL and PostgreSQL service types)
 	Method *string `groups:"create,update" json:"method,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=256
