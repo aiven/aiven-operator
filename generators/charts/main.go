@@ -51,10 +51,17 @@ func generate(version, operatorPath, operatorCharts, crdCharts string) error {
 		return err
 	}
 
+	// Changelog is generated from old CRDs.
+	// Reads them first, and then compares with updated files.
+	commitChangelog, err := updateChangelog(operatorPath, crdCharts)
+	if err != nil {
+		return err
+	}
+
 	err = copyCRDs(operatorPath, crdCharts)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return commitChangelog()
 }

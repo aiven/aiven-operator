@@ -51,7 +51,8 @@ Here how it goes in the details:
     2. generates full spec reference out of the schema
     3. creates a markdown file with spec and example (if exists)
 4. Charts generator 
-   updates CRDs, webhooks and cluster roles charts
+   updates CRDs, webhooks and cluster roles charts,
+   adds all changes to the changelog 
 
 [go-api-schemas]: https://github.com/aiven/go-api-schemas
 [service-types]: https://api.aiven.io/doc/#tag/Service/operation/ListPublicServiceTypes
@@ -71,7 +72,7 @@ flowchart TB
         Examples--> Markdown(creates docs out of CRDs, adds examples)
         Reference-->Markdown(kafka.md)
     end
-    CRD-->|yaml files|Charts(charts generator<br> updates helm charts)
+    CRD-->|yaml files|Charts(charts generator<br> updates helm charts<br> and the changelog)
     Charts-->ToRelease("Ready to release 🎉")
     Markdown-->ToRelease
 ```
