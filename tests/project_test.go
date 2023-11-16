@@ -31,6 +31,7 @@ spec:
 }
 
 func TestProject(t *testing.T) {
+	t.Skip("Requires a payment to be done to remove the project.")
 	t.Parallel()
 	defer recoverPanic(t)
 
