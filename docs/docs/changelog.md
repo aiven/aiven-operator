@@ -1,5 +1,46 @@
 # Changelog
 
+## v0.15.0 - 2023-11-16
+
+- Upgrade to Go 1.21
+- Add option to orphan resources. Thanks to @atarax
+- Fix `ServiceIntegration`: do not send empty user config to the API 
+- Add a format for `string` type fields to the documentation
+- Generate CRDs changelog
+- Add `Clickhouse` field `userConfig.private_access.clickhouse_mysql`, type `boolean`: Allow clients
+  to connect to clickhouse_mysql with a DNS name that always resolves to the service's private IP addresses
+- Add `Clickhouse` field `userConfig.privatelink_access.clickhouse_mysql`, type `boolean`: Enable clickhouse_mysql
+- Add `Clickhouse` field `userConfig.public_access.clickhouse_mysql`, type `boolean`: Allow clients to
+  connect to clickhouse_mysql from the public internet for service nodes that are in a project VPC
+  or another type of private network
+- Add `Grafana` field `userConfig.unified_alerting_enabled`, type `boolean`: Enable or disable Grafana
+  unified alerting functionality
+- Add `Kafka` field `userConfig.aiven_kafka_topic_messages`, type `boolean`: Allow access to read Kafka
+  topic messages in the Aiven Console and REST API
+- Add `Kafka` field `userConfig.kafka.sasl_oauthbearer_expected_audience`, type `string`: The (optional)
+  comma-delimited setting for the broker to use to verify that the JWT was issued for one of the
+  expected audiences
+- Add `Kafka` field `userConfig.kafka.sasl_oauthbearer_expected_issuer`, type `string`: Optional setting
+  for the broker to use to verify that the JWT was created by the expected issuer
+- Add `Kafka` field `userConfig.kafka.sasl_oauthbearer_jwks_endpoint_url`, type `string`: OIDC JWKS endpoint
+  URL. By setting this the SASL SSL OAuth2/OIDC authentication is enabled
+- Add `Kafka` field `userConfig.kafka.sasl_oauthbearer_sub_claim_name`, type `string`: Name of the scope
+  from which to extract the subject claim from the JWT. Defaults to sub
+- Change `Kafka` field `userConfig.kafka_version`: enum ~`[3.1, 3.3, 3.4, 3.5]`~ → `[3.1, 3.3, 3.4,
+  3.5, 3.6]`
+- Change `Kafka` field `userConfig.tiered_storage.local_cache.size`: deprecated
+- Add `OpenSearch` field `userConfig.opensearch.indices_memory_max_index_buffer_size`, type `integer`:
+  Absolute value. Default is unbound. Doesn't work without indices.memory.index_buffer_size
+- Add `OpenSearch` field `userConfig.opensearch.indices_memory_min_index_buffer_size`, type `integer`:
+  Absolute value. Default is 48mb. Doesn't work without indices.memory.index_buffer_size
+- Change `OpenSearch` field `userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.authentication_backend`:
+  enum `[internal]`
+- Change `OpenSearch` field `userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.type`:
+  enum `[username]`
+- Change `OpenSearch` field `userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.type`: enum `[ip]`
+- Change `OpenSearch` field `userConfig.opensearch.search_max_buckets`: maximum ~`65536`~ → `1000000`
+- Change `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.producer_max_request_size`: maximum
+  ~`67108864`~ → `268435456`
 
 ## v0.14.0 - 2023-09-21
 
