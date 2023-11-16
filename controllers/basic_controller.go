@@ -90,6 +90,7 @@ const (
 	eventWaitingForPreconditions            = "WaitingForPreconditions"
 	eventUnableToWaitForPreconditions       = "UnableToWaitForPreconditions"
 	eventPreconditionsAreMet                = "PreconditionsAreMet"
+	eventPreconditionsNotMet                = "PreconditionsNotMet"
 	eventUnableToCreateOrUpdateAtAiven      = "UnableToCreateOrUpdateAtAiven"
 	eventCreateOrUpdatedAtAiven             = "CreateOrUpdatedAtAiven"
 	eventCreatedOrUpdatedAtAiven            = "CreatedOrUpdatedAtAiven"
@@ -165,6 +166,26 @@ type instanceReconcilerHelper struct {
 func (i instanceReconcilerHelper) reconcileInstance(ctx context.Context, o client.Object) (ctrl.Result, error) {
 	i.log.Info("reconciling instance")
 	i.rec.Event(o, corev1.EventTypeNormal, eventReconciliationStarted, "starting reconciliation")
+
+	var err error
+
+	defer func() {
+		// Order matters.
+		// First need to update the object, and then update the status.
+		// So dependent resources won't see READY before it has been updated with new values
+		// Clone is used so update won't overwrite in-memory values
+		// We need to this on outer level because we otherwise wouldn't set status-conditions
+		// properly when preconditions fail
+		clone := o.DeepCopyObject().(client.Object)
+		err = multierror.Append(err, i.k8s.Update(ctx, clone))
+
+		// Original object has been updated
+		o.SetResourceVersion(clone.GetResourceVersion())
+
+		// It's ready to cast its status
+		err = multierror.Append(err, i.k8s.Status().Update(ctx, o))
+		err = err.(*multierror.Error).ErrorOrNil()
+	}()
 
 	if isMarkedForDeletion(o) {
 		if controllerutil.ContainsFinalizer(o, instanceDeletionFinalizer) {
@@ -269,6 +290,7 @@ func (i instanceReconcilerHelper) checkPreconditions(ctx context.Context, o clie
 	}
 
 	if !check {
+		i.rec.Event(o, corev1.EventTypeNormal, eventPreconditionsNotMet, "preconditions are not met, requeue")
 		i.log.Info("preconditions are not met, requeue")
 		return true, nil
 	}
@@ -411,25 +433,7 @@ func (i instanceReconcilerHelper) createOrUpdateInstance(ctx context.Context, o 
 }
 
 func (i instanceReconcilerHelper) updateInstanceStateAndSecretUntilRunning(ctx context.Context, o client.Object) (bool, error) {
-	var err error
-
 	i.log.Info("checking if instance is ready")
-
-	defer func() {
-		// Order matters.
-		// First need to update the object, and then update the status.
-		// So dependent resources won't see READY before it has been updated with new values
-		// Clone is used so update won't overwrite in-memory values
-		clone := o.DeepCopyObject().(client.Object)
-		err = multierror.Append(err, i.k8s.Update(ctx, clone))
-
-		// Original object has been updated
-		o.SetResourceVersion(clone.GetResourceVersion())
-
-		// It's ready to cast its status
-		err = multierror.Append(err, i.k8s.Status().Update(ctx, o))
-		err = err.(*multierror.Error).ErrorOrNil()
-	}()
 
 	serviceSecret, err := i.h.get(ctx, i.avn, o)
 	if err != nil {

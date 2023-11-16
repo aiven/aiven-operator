@@ -53,6 +53,7 @@ func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avn *aiven.Client
 
 	exists, err := h.exists(ctx, avn, topic)
 	if err != nil {
+		meta.SetStatusCondition(&topic.Status.Conditions, getErrorCondition("CheckExists", err))
 		return err
 	}
 
@@ -66,6 +67,7 @@ func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avn *aiven.Client
 			Config:      convertKafkaTopicConfig(topic),
 		})
 		if err != nil && !aiven.IsAlreadyExists(err) {
+			meta.SetStatusCondition(&topic.Status.Conditions, getErrorCondition("Create", err))
 			return err
 		}
 
@@ -79,6 +81,7 @@ func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avn *aiven.Client
 				Config:      convertKafkaTopicConfig(topic),
 			})
 		if err != nil {
+			meta.SetStatusCondition(&topic.Status.Conditions, getErrorCondition("Update", err))
 			return fmt.Errorf("cannot update Kafka Topic: %w", err)
 		}
 
@@ -112,6 +115,7 @@ func (h KafkaTopicHandler) delete(ctx context.Context, avn *aiven.Client, obj cl
 	// Delete project on Aiven side
 	err = avn.KafkaTopics.Delete(ctx, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName())
 	if err != nil && !aiven.IsNotFound(err) {
+		meta.SetStatusCondition(&topic.Status.Conditions, getErrorCondition("Delete", err))
 		return false, err
 	}
 
@@ -168,7 +172,11 @@ func (h KafkaTopicHandler) checkPreconditions(ctx context.Context, avn *aiven.Cl
 	meta.SetStatusCondition(&topic.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsRunning(ctx, avn, topic.Spec.Project, topic.Spec.ServiceName)
+	running, err := checkServiceIsRunning(ctx, avn, topic.Spec.Project, topic.Spec.ServiceName)
+	if err != nil {
+		meta.SetStatusCondition(&topic.Status.Conditions, getErrorCondition("Preconditions", err))
+	}
+	return running, err
 }
 
 func (h KafkaTopicHandler) getState(ctx context.Context, avn *aiven.Client, topic *v1alpha1.KafkaTopic) (string, error) {

@@ -45,6 +45,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 	_, err = avn.Services.Get(ctx, spec.Project, ometa.Name)
 	exists := err == nil
 	if !exists && !aiven.IsNotFound(err) {
+		meta.SetStatusCondition(&o.getServiceStatus().Conditions, getErrorCondition("CheckExists", err))
 		return fmt.Errorf("failed to fetch service: %w", err)
 	}
 
@@ -80,12 +81,14 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 
 		_, err = avn.Services.Create(ctx, spec.Project, req)
 		if err != nil {
+			meta.SetStatusCondition(&o.getServiceStatus().Conditions, getErrorCondition("Create", err))
 			return fmt.Errorf("failed to create service: %w", err)
 		}
 	} else {
 		reason = "Updated"
 		userConfig, err := UpdateUserConfiguration(o.getUserConfig())
 		if err != nil {
+			meta.SetStatusCondition(&o.getServiceStatus().Conditions, getErrorCondition("Update", err))
 			return err
 		}
 
@@ -101,6 +104,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 		}
 		_, err = avn.Services.Update(ctx, spec.Project, ometa.Name, req)
 		if err != nil {
+			meta.SetStatusCondition(&o.getServiceStatus().Conditions, getErrorCondition("Update", err))
 			return fmt.Errorf("failed to update service: %w", err)
 		}
 	}
@@ -116,6 +120,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 	}
 	_, err = avn.ServiceTags.Set(ctx, spec.Project, ometa.Name, req)
 	if err != nil {
+		meta.SetStatusCondition(&o.getServiceStatus().Conditions, getErrorCondition("Update", err))
 		return fmt.Errorf("failed to update tags: %w", err)
 	}
 
@@ -149,6 +154,7 @@ func (h *genericServiceHandler) delete(ctx context.Context, avn *aiven.Client, o
 		return true, nil
 	}
 
+	meta.SetStatusCondition(&o.getServiceStatus().Conditions, getErrorCondition("Delete", err))
 	return false, fmt.Errorf("failed to delete service in Aiven: %w", err)
 }
 
@@ -191,6 +197,9 @@ func (h *genericServiceHandler) checkPreconditions(ctx context.Context, avn *aiv
 		// If not, the wrapper controller will try later
 		if s.IntegrationType == "read_replica" {
 			r, err := checkServiceIsRunning(ctx, avn, spec.Project, s.SourceServiceName)
+			if err != nil {
+				meta.SetStatusCondition(&o.getServiceStatus().Conditions, getErrorCondition("Preconditions", err))
+			}
 			if !(r && err == nil) {
 				return false, nil
 			}

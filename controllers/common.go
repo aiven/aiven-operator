@@ -22,6 +22,7 @@ import (
 const (
 	conditionTypeRunning     = "Running"
 	conditionTypeInitialized = "Initialized"
+	conditionTypeError       = "Error"
 
 	secretProtectionFinalizer = "finalizers.aiven.io/needed-to-delete-services"
 	instanceDeletionFinalizer = "finalizers.aiven.io/delete-remote-resource"
@@ -44,6 +45,7 @@ func checkServiceIsRunning(ctx context.Context, c *aiven.Client, project, servic
 	if err != nil {
 		// if service is not found, it is not running
 		if aiven.IsNotFound(err) {
+			// this will swallow an error if the project doesn't exist and object is not project
 			return false, nil
 		}
 		return false, err
@@ -66,6 +68,15 @@ func getRunningCondition(status metav1.ConditionStatus, reason, message string) 
 		Status:  status,
 		Reason:  reason,
 		Message: message,
+	}
+}
+
+func getErrorCondition(reason string, err error) metav1.Condition {
+	return metav1.Condition{
+		Type:    conditionTypeError,
+		Status:  metav1.ConditionUnknown,
+		Reason:  reason,
+		Message: err.Error(),
 	}
 }
 
