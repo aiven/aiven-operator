@@ -141,7 +141,7 @@ func fmtChanges(was, has *schema) string {
 	return strings.Join(sortedKeys(changes), ", ")
 }
 
-// fmtChange returns a string like: foo ~`0`~ → `1` or empty string
+// fmtChange returns a string like: foo ~~`0`~~ → `1` or empty string
 func fmtChange[T any](title string, was, has *T) string {
 	if cmp.Equal(was, has) {
 		return ""
@@ -167,9 +167,9 @@ func fmtWasHas(sep, was, has string) string {
 	case was:
 		return has
 	case has:
-		return fmt.Sprintf("~%s~", was)
+		return fmt.Sprintf("~~%s~~", was)
 	}
-	return fmt.Sprintf("~%s~%s%s", was, sep, has)
+	return fmt.Sprintf("~~%s~~%s%s", was, sep, has)
 }
 
 func strSlice(src []any) string {
@@ -293,6 +293,10 @@ func updateChangelog(operatorPath, crdCharts string) (func() error, error) {
 				return err
 			}
 			changes = append(changes, kindChanges...)
+		}
+
+		if len(changes) == 0 {
+			return nil
 		}
 
 		// Reads changelogFile
