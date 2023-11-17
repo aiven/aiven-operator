@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.15.0 - 2023-11-16
+## v0.15.0 - 2023-11-17
 
 - Upgrade to Go 1.21
 - Add option to orphan resources. Thanks to @atarax
@@ -26,7 +26,7 @@
   URL. By setting this the SASL SSL OAuth2/OIDC authentication is enabled
 - Add `Kafka` field `userConfig.kafka.sasl_oauthbearer_sub_claim_name`, type `string`: Name of the scope
   from which to extract the subject claim from the JWT. Defaults to sub
-- Change `Kafka` field `userConfig.kafka_version`: enum ~`[3.1, 3.3, 3.4, 3.5]`~ → `[3.1, 3.3, 3.4,
+- Change `Kafka` field `userConfig.kafka_version`: enum ~~`[3.1, 3.3, 3.4, 3.5]`~~ → `[3.1, 3.3, 3.4,
   3.5, 3.6]`
 - Change `Kafka` field `userConfig.tiered_storage.local_cache.size`: deprecated
 - Add `OpenSearch` field `userConfig.opensearch.indices_memory_max_index_buffer_size`, type `integer`:
@@ -38,9 +38,9 @@
 - Change `OpenSearch` field `userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.type`:
   enum `[username]`
 - Change `OpenSearch` field `userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.type`: enum `[ip]`
-- Change `OpenSearch` field `userConfig.opensearch.search_max_buckets`: maximum ~`65536`~ → `1000000`
+- Change `OpenSearch` field `userConfig.opensearch.search_max_buckets`: maximum ~~`65536`~~ → `1000000`
 - Change `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.producer_max_request_size`: maximum
-  ~`67108864`~ → `268435456`
+  ~~`67108864`~~ → `268435456`
 
 ## v0.14.0 - 2023-09-21
 

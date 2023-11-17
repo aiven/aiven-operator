@@ -15,9 +15,10 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - pymdownx.tilde
+  - pymdownx.details
   - tables
   - admonition
-  - pymdownx.details
   - attr_list
   - toc:
       permalink: true
