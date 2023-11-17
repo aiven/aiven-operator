@@ -2,7 +2,11 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.15.0 - 2023-11-16
+
 - Upgrade to Go 1.21
+- Add option to orphan resources. Thanks to @atarax
+- Fix `ServiceIntegration`: do not send empty user config to the API 
 - Add a format for `string` type fields to the documentation
 - Generate CRDs changelog
 - Add `Clickhouse` field `userConfig.private_access.clickhouse_mysql`, type `boolean`: Allow clients
