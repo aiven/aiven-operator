@@ -77,6 +77,7 @@ func (h ProjectHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, o
 
 	exists, err := h.exists(ctx, avn, project)
 	if err != nil {
+		meta.SetStatusCondition(&project.Status.Conditions, getErrorCondition("CheckExists", err))
 		return fmt.Errorf("project does not exists: %w", err)
 	}
 

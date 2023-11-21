@@ -52,11 +52,13 @@ func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avn *aiven.Cl
 
 	exists, err := h.exists(ctx, avn, conn)
 	if err != nil {
+		meta.SetStatusCondition(&conn.Status.Conditions, getErrorCondition("CheckExists", err))
 		return fmt.Errorf("unable to check if kafka connector exists: %w", err)
 	}
 
 	connCfg, err := h.buildConnectorConfig(conn)
 	if err != nil {
+		meta.SetStatusCondition(&conn.Status.Conditions, getErrorCondition("BuildConfig", err))
 		return fmt.Errorf("unable to build connector config: %w", err)
 	}
 
@@ -64,12 +66,14 @@ func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avn *aiven.Cl
 	if !exists {
 		err = avn.KafkaConnectors.Create(ctx, conn.Spec.Project, conn.Spec.ServiceName, connCfg)
 		if err != nil && !aiven.IsAlreadyExists(err) {
+			meta.SetStatusCondition(&conn.Status.Conditions, getErrorCondition("Create", err))
 			return err
 		}
 		reason = "Created"
 	} else {
 		_, err := avn.KafkaConnectors.Update(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name, connCfg)
 		if err != nil {
+			meta.SetStatusCondition(&conn.Status.Conditions, getErrorCondition("Update", err))
 			return err
 		}
 		reason = "Updated"
@@ -141,6 +145,7 @@ func (h KafkaConnectorHandler) delete(ctx context.Context, avn *aiven.Client, ob
 	}
 	err = avn.KafkaConnectors.Delete(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
 	if err != nil && !aiven.IsNotFound(err) {
+		meta.SetStatusCondition(&conn.Status.Conditions, getErrorCondition("Delete", err))
 		return false, fmt.Errorf("unable to delete kafka connector: %w", err)
 	}
 	return true, nil
@@ -215,7 +220,11 @@ func (h KafkaConnectorHandler) checkPreconditions(ctx context.Context, avn *aive
 	meta.SetStatusCondition(&conn.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsRunning(ctx, avn, conn.Spec.Project, conn.Spec.ServiceName)
+	running, err := checkServiceIsRunning(ctx, avn, conn.Spec.Project, conn.Spec.ServiceName)
+	if err != nil {
+		meta.SetStatusCondition(&conn.Status.Conditions, getErrorCondition("Preconditions", err))
+	}
+	return running, err
 }
 
 func (h KafkaConnectorHandler) convert(o client.Object) (*v1alpha1.KafkaConnector, error) {
