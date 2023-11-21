@@ -52,8 +52,14 @@ type ClickhouseUser struct {
 	Status ClickhouseUserStatus `json:"status,omitempty"`
 }
 
+var _ AivenManagedObject = &ClickhouseUser{}
+
 func (in *ClickhouseUser) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+
+func (in *ClickhouseUser) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 func (in *ClickhouseUser) GetConnInfoSecretTarget() ConnInfoSecretTarget {

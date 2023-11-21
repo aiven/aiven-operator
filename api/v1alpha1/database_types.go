@@ -54,8 +54,13 @@ type Database struct {
 	Status DatabaseStatus `json:"status,omitempty"`
 }
 
+var _ AivenManagedObject = &Database{}
+
 func (in *Database) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+func (in *Database) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 // +kubebuilder:object:root=true

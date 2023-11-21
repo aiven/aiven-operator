@@ -32,8 +32,14 @@ type KafkaConnect struct {
 	Status ServiceStatus    `json:"status,omitempty"`
 }
 
+var _ AivenManagedObject = &KafkaConnect{}
+
 func (in *KafkaConnect) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+
+func (in *KafkaConnect) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 func (in *KafkaConnect) GetRefs() []*ResourceReferenceObject {

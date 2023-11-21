@@ -56,8 +56,13 @@ type ProjectVPC struct {
 	Status ProjectVPCStatus `json:"status,omitempty"`
 }
 
+var _ AivenManagedObject = &ProjectVPC{}
+
 func (in *ProjectVPC) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+func (in *ProjectVPC) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 // +kubebuilder:object:root=true

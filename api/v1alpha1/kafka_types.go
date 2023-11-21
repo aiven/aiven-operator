@@ -46,8 +46,14 @@ type Kafka struct {
 	Status ServiceStatus `json:"status,omitempty"`
 }
 
+var _ AivenManagedObject = &Kafka{}
+
 func (in *Kafka) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+
+func (in *Kafka) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 func (in *Kafka) GetRefs() []*ResourceReferenceObject {

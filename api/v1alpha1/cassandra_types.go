@@ -44,8 +44,14 @@ type Cassandra struct {
 	Status ServiceStatus `json:"status,omitempty"`
 }
 
+var _ AivenManagedObject = &Cassandra{}
+
 func (in *Cassandra) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+
+func (in *Cassandra) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 func (in *Cassandra) GetRefs() []*ResourceReferenceObject {

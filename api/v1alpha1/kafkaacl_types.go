@@ -57,8 +57,14 @@ type KafkaACL struct {
 	Status KafkaACLStatus `json:"status,omitempty"`
 }
 
+var _ AivenManagedObject = &KafkaACL{}
+
 func (in *KafkaACL) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+
+func (in *KafkaACL) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 // +kubebuilder:object:root=true

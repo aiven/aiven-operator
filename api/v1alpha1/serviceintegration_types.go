@@ -120,8 +120,13 @@ type ServiceIntegration struct {
 	Status ServiceIntegrationStatus `json:"status,omitempty"`
 }
 
+var _ AivenManagedObject = &ServiceIntegration{}
+
 func (in *ServiceIntegration) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+func (in *ServiceIntegration) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 func (in *ServiceIntegration) GetUserConfig() (any, error) {

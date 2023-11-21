@@ -99,8 +99,13 @@ type Project struct {
 	Status ProjectStatus `json:"status,omitempty"`
 }
 
+var _ AivenManagedObject = &Project{}
+
 func (in *Project) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+func (in *Project) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 func (in *Project) GetConnInfoSecretTarget() ConnInfoSecretTarget {

@@ -48,8 +48,14 @@ type ClickhouseList struct {
 	Items           []Clickhouse `json:"items"`
 }
 
+var _ AivenManagedObject = &Clickhouse{}
+
 func (in *Clickhouse) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+
+func (in *Clickhouse) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 func (in *Clickhouse) GetRefs() []*ResourceReferenceObject {
