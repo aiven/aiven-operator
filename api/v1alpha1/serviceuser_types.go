@@ -53,8 +53,13 @@ type ServiceUser struct {
 	Status ServiceUserStatus `json:"status,omitempty"`
 }
 
+var _ AivenManagedObject = &ServiceUser{}
+
 func (in *ServiceUser) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+func (in *ServiceUser) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 func (in *ServiceUser) GetConnInfoSecretTarget() ConnInfoSecretTarget {

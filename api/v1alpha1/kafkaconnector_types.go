@@ -84,8 +84,14 @@ type KafkaConnector struct {
 	Status KafkaConnectorStatus `json:"status,omitempty"`
 }
 
+var _ AivenManagedObject = &KafkaConnector{}
+
 func (in *KafkaConnector) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+
+func (in *KafkaConnector) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 //+kubebuilder:object:root=true

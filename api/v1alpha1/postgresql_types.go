@@ -44,8 +44,13 @@ type PostgreSQL struct {
 	Status ServiceStatus  `json:"status,omitempty"`
 }
 
+var _ AivenManagedObject = &PostgreSQL{}
+
 func (in *PostgreSQL) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+func (in *PostgreSQL) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 func (in *PostgreSQL) GetRefs() []*ResourceReferenceObject {

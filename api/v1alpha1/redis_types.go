@@ -40,8 +40,13 @@ type Redis struct {
 	Status ServiceStatus `json:"status,omitempty"`
 }
 
+var _ AivenManagedObject = &Redis{}
+
 func (in *Redis) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+func (in *Redis) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 func (in *Redis) GetRefs() []*ResourceReferenceObject {

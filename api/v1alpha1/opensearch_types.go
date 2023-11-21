@@ -48,8 +48,13 @@ type OpenSearchList struct {
 	Items           []OpenSearch `json:"items"`
 }
 
+var _ AivenManagedObject = &OpenSearch{}
+
 func (in *OpenSearch) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+func (in *OpenSearch) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 func (in *OpenSearch) GetRefs() []*ResourceReferenceObject {

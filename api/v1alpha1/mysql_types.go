@@ -42,8 +42,13 @@ type MySQL struct {
 	Status ServiceStatus `json:"status,omitempty"`
 }
 
+var _ AivenManagedObject = &MySQL{}
+
 func (in *MySQL) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+func (in *MySQL) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 func (in *MySQL) GetRefs() []*ResourceReferenceObject {

@@ -44,8 +44,14 @@ type Grafana struct {
 	Status ServiceStatus `json:"status,omitempty"`
 }
 
+var _ AivenManagedObject = &Grafana{}
+
 func (in *Grafana) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+
+func (in *Grafana) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 func (in *Grafana) GetRefs() []*ResourceReferenceObject {

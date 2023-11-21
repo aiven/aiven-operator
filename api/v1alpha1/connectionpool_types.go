@@ -66,8 +66,14 @@ type ConnectionPool struct {
 	Status ConnectionPoolStatus `json:"status,omitempty"`
 }
 
+var _ AivenManagedObject = &ConnectionPool{}
+
 func (in *ConnectionPool) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+
+func (in *ConnectionPool) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 func (in *ConnectionPool) GetConnInfoSecretTarget() ConnInfoSecretTarget {

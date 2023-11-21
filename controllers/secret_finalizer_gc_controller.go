@@ -56,7 +56,7 @@ func (c *SecretFinalizerGCController) SetupWithManager(mgr ctrl.Manager, hasDefa
 		builder.Watches(
 			&source.Kind{Type: aivenManagedTypes[i]},
 			handler.EnqueueRequestsFromMapFunc(func(a client.Object) []reconcile.Request {
-				ao := a.(aivenManagedObject)
+				ao := a.(v1alpha1.AivenManagedObject)
 				if auth := ao.AuthSecretRef(); auth != nil {
 					return []reconcile.Request{
 						{
@@ -126,11 +126,11 @@ func (c *SecretFinalizerGCController) knownListTypes() []client.ObjectList {
 	return res
 }
 
-func (c *SecretFinalizerGCController) knownInstanceTypes() []aivenManagedObject {
-	res := make([]aivenManagedObject, 0)
+func (c *SecretFinalizerGCController) knownInstanceTypes() []v1alpha1.AivenManagedObject {
+	res := make([]v1alpha1.AivenManagedObject, 0)
 
 	for _, t := range c.Scheme().KnownTypes(v1alpha1.GroupVersion) {
-		if obj, ok := reflect.New(t).Interface().(aivenManagedObject); ok {
+		if obj, ok := reflect.New(t).Interface().(v1alpha1.AivenManagedObject); ok {
 			res = append(res, obj)
 		}
 	}
@@ -156,7 +156,7 @@ const (
 
 // secretRefIndexFunc indexes the client token secret names of aiven managed objects
 func secretRefIndexFunc(o client.Object) []string {
-	if aivenObj, ok := o.(aivenManagedObject); ok {
+	if aivenObj, ok := o.(v1alpha1.AivenManagedObject); ok {
 		if auth := aivenObj.AuthSecretRef(); auth != nil {
 			return []string{auth.Name}
 		}
@@ -164,7 +164,7 @@ func secretRefIndexFunc(o client.Object) []string {
 	return nil
 }
 
-func indexClientSecretRefFields(ctx context.Context, mgr ctrl.Manager, objs ...aivenManagedObject) error {
+func indexClientSecretRefFields(ctx context.Context, mgr ctrl.Manager, objs ...v1alpha1.AivenManagedObject) error {
 	for i := range objs {
 		if err := mgr.GetFieldIndexer().IndexField(ctx, objs[i], secretRefIndexKey, secretRefIndexFunc); err != nil {
 			return err

@@ -61,12 +61,6 @@ type (
 		checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error)
 	}
 
-	aivenManagedObject interface {
-		client.Object
-
-		AuthSecretRef() *v1alpha1.AuthSecretReference
-	}
-
 	// refsObject returns references to dependent resources
 	refsObject interface {
 		client.Object
@@ -103,7 +97,7 @@ const (
 // +kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups="",resources=events,verbs=create;patch
 
-func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h Handlers, o aivenManagedObject) (ctrl.Result, error) {
+func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h Handlers, o v1alpha1.AivenManagedObject) (ctrl.Result, error) {
 	if err := c.Get(ctx, req.NamespacedName, o); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}

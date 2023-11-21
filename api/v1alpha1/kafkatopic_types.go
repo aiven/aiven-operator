@@ -165,8 +165,14 @@ type KafkaTopic struct {
 	Status KafkaTopicStatus `json:"status,omitempty"`
 }
 
+var _ AivenManagedObject = &KafkaTopic{}
+
 func (in *KafkaTopic) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+
+func (in *KafkaTopic) Conditions() *[]metav1.Condition {
+	return &in.Status.Conditions
 }
 
 // +kubebuilder:object:root=true

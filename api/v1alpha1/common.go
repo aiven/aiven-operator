@@ -197,3 +197,10 @@ type ServiceIntegrationItem struct {
 	// +kubebuilder:validation:MaxLength=64
 	SourceServiceName string `json:"sourceServiceName"`
 }
+
+type AivenManagedObject interface {
+	client.Object
+
+	AuthSecretRef() *AuthSecretReference
+	Conditions() *[]metav1.Condition
+}
