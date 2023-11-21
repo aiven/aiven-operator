@@ -57,8 +57,8 @@ type KafkaACL struct {
 	Status KafkaACLStatus `json:"status,omitempty"`
 }
 
-func (acl KafkaACL) AuthSecretRef() *AuthSecretReference {
-	return acl.Spec.AuthSecretRef
+func (in *KafkaACL) AuthSecretRef() *AuthSecretReference {
+	return in.Spec.AuthSecretRef
 }
 
 // +kubebuilder:object:root=true

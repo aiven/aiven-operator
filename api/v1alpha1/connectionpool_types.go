@@ -66,8 +66,8 @@ type ConnectionPool struct {
 	Status ConnectionPoolStatus `json:"status,omitempty"`
 }
 
-func (cp ConnectionPool) AuthSecretRef() *AuthSecretReference {
-	return cp.Spec.AuthSecretRef
+func (in *ConnectionPool) AuthSecretRef() *AuthSecretReference {
+	return in.Spec.AuthSecretRef
 }
 
 func (in *ConnectionPool) GetConnInfoSecretTarget() ConnInfoSecretTarget {

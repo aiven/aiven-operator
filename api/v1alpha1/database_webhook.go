@@ -14,9 +14,9 @@ import (
 // log is for logging in this package.
 var databaselog = logf.Log.WithName("database-resource")
 
-func (r *Database) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func (in *Database) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
+		For(in).
 		Complete()
 }
 
@@ -25,17 +25,17 @@ func (r *Database) SetupWebhookWithManager(mgr ctrl.Manager) error {
 var _ webhook.Defaulter = &Database{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *Database) Default() {
-	databaselog.Info("default", "name", r.Name)
+func (in *Database) Default() {
+	databaselog.Info("default", "name", in.Name)
 
 	const defaultLC = "en_US.UTF-8"
 
-	if r.Spec.LcCtype == "" {
-		r.Spec.LcCtype = defaultLC
+	if in.Spec.LcCtype == "" {
+		in.Spec.LcCtype = defaultLC
 	}
 
-	if r.Spec.LcCollate == "" {
-		r.Spec.LcCollate = defaultLC
+	if in.Spec.LcCollate == "" {
+		in.Spec.LcCollate = defaultLC
 	}
 }
 
@@ -44,29 +44,29 @@ func (r *Database) Default() {
 var _ webhook.Validator = &Database{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *Database) ValidateCreate() error {
-	databaselog.Info("validate create", "name", r.Name)
+func (in *Database) ValidateCreate() error {
+	databaselog.Info("validate create", "name", in.Name)
 
 	return nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *Database) ValidateUpdate(old runtime.Object) error {
-	databaselog.Info("validate update", "name", r.Name)
+func (in *Database) ValidateUpdate(old runtime.Object) error {
+	databaselog.Info("validate update", "name", in.Name)
 
-	if r.Spec.Project != old.(*Database).Spec.Project {
+	if in.Spec.Project != old.(*Database).Spec.Project {
 		return errors.New("cannot update a Database, project field is immutable and cannot be updated")
 	}
 
-	if r.Spec.ServiceName != old.(*Database).Spec.ServiceName {
+	if in.Spec.ServiceName != old.(*Database).Spec.ServiceName {
 		return errors.New("cannot update a Database, service_name field is immutable and cannot be updated")
 	}
 
-	if r.Spec.LcCollate != old.(*Database).Spec.LcCollate {
+	if in.Spec.LcCollate != old.(*Database).Spec.LcCollate {
 		return errors.New("cannot update a Database, lc_collate field is immutable and cannot be updated")
 	}
 
-	if r.Spec.LcCtype != old.(*Database).Spec.LcCtype {
+	if in.Spec.LcCtype != old.(*Database).Spec.LcCtype {
 		return errors.New("cannot update a Database, lc_ctype field is immutable and cannot be updated")
 	}
 
@@ -74,10 +74,10 @@ func (r *Database) ValidateUpdate(old runtime.Object) error {
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *Database) ValidateDelete() error {
-	databaselog.Info("validate delete", "name", r.Name)
+func (in *Database) ValidateDelete() error {
+	databaselog.Info("validate delete", "name", in.Name)
 
-	if r.Spec.TerminationProtection != nil && *r.Spec.TerminationProtection {
+	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
 		return errors.New("cannot delete Database, termination protection is on")
 	}
 	return nil

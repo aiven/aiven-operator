@@ -12,9 +12,9 @@ import (
 // log is for logging in this package.
 var kafkaacllog = logf.Log.WithName("kafkaacl-resource")
 
-func (r *KafkaACL) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func (in *KafkaACL) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
+		For(in).
 		Complete()
 }
 
@@ -23,8 +23,8 @@ func (r *KafkaACL) SetupWebhookWithManager(mgr ctrl.Manager) error {
 var _ webhook.Defaulter = &KafkaACL{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *KafkaACL) Default() {
-	kafkaacllog.Info("default", "name", r.Name)
+func (in *KafkaACL) Default() {
+	kafkaacllog.Info("default", "name", in.Name)
 }
 
 //+kubebuilder:webhook:verbs=create;update,path=/validate-aiven-io-v1alpha1-kafkaacl,mutating=false,failurePolicy=fail,groups=aiven.io,resources=kafkaacls,versions=v1alpha1,name=vkafkaacl.kb.io,sideEffects=none,admissionReviewVersions=v1
@@ -32,15 +32,15 @@ func (r *KafkaACL) Default() {
 var _ webhook.Validator = &KafkaACL{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *KafkaACL) ValidateCreate() error {
-	kafkaacllog.Info("validate create", "name", r.Name)
+func (in *KafkaACL) ValidateCreate() error {
+	kafkaacllog.Info("validate create", "name", in.Name)
 
 	return nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *KafkaACL) ValidateUpdate(old runtime.Object) error {
-	kafkaacllog.Info("validate update", "name", r.Name)
+func (in *KafkaACL) ValidateUpdate(old runtime.Object) error {
+	kafkaacllog.Info("validate update", "name", in.Name)
 
 	// TODO: validate that the spec does not get updated; this will fail on the aiven api
 
@@ -48,8 +48,8 @@ func (r *KafkaACL) ValidateUpdate(old runtime.Object) error {
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *KafkaACL) ValidateDelete() error {
-	kafkaacllog.Info("validate delete", "name", r.Name)
+func (in *KafkaACL) ValidateDelete() error {
+	kafkaacllog.Info("validate delete", "name", in.Name)
 
 	return nil
 }

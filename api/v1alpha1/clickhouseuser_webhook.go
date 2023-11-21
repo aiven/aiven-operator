@@ -12,9 +12,9 @@ import (
 // log is for logging in this package.
 var clickhouseuserlog = logf.Log.WithName("clickhouseuser-resource")
 
-func (r *ClickhouseUser) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func (in *ClickhouseUser) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
+		For(in).
 		Complete()
 }
 
@@ -23,8 +23,8 @@ func (r *ClickhouseUser) SetupWebhookWithManager(mgr ctrl.Manager) error {
 var _ webhook.Defaulter = &ClickhouseUser{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *ClickhouseUser) Default() {
-	clickhouseuserlog.Info("default", "name", r.Name)
+func (in *ClickhouseUser) Default() {
+	clickhouseuserlog.Info("default", "name", in.Name)
 }
 
 //+kubebuilder:webhook:path=/validate-aiven-io-v1alpha1-clickhouseuser,mutating=false,failurePolicy=fail,sideEffects=None,groups=aiven.io,resources=clickhouseusers,verbs=create;update,versions=v1alpha1,name=vclickhouseuser.kb.io,admissionReviewVersions=v1
@@ -32,21 +32,21 @@ func (r *ClickhouseUser) Default() {
 var _ webhook.Validator = &ClickhouseUser{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *ClickhouseUser) ValidateCreate() error {
-	clickhouseuserlog.Info("validate create", "name", r.Name)
+func (in *ClickhouseUser) ValidateCreate() error {
+	clickhouseuserlog.Info("validate create", "name", in.Name)
 	return nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *ClickhouseUser) ValidateUpdate(old runtime.Object) error {
-	clickhouseuserlog.Info("validate update", "name", r.Name)
+func (in *ClickhouseUser) ValidateUpdate(old runtime.Object) error {
+	clickhouseuserlog.Info("validate update", "name", in.Name)
 
 	return nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *ClickhouseUser) ValidateDelete() error {
-	clickhouseuserlog.Info("validate delete", "name", r.Name)
+func (in *ClickhouseUser) ValidateDelete() error {
+	clickhouseuserlog.Info("validate delete", "name", in.Name)
 
 	return nil
 }

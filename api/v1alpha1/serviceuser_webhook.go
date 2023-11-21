@@ -14,9 +14,9 @@ import (
 // log is for logging in this package.
 var serviceuserlog = logf.Log.WithName("serviceuser-resource")
 
-func (r *ServiceUser) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func (in *ServiceUser) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
+		For(in).
 		Complete()
 }
 
@@ -25,8 +25,8 @@ func (r *ServiceUser) SetupWebhookWithManager(mgr ctrl.Manager) error {
 var _ webhook.Defaulter = &ServiceUser{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *ServiceUser) Default() {
-	serviceuserlog.Info("default", "name", r.Name)
+func (in *ServiceUser) Default() {
+	serviceuserlog.Info("default", "name", in.Name)
 
 }
 
@@ -35,25 +35,25 @@ func (r *ServiceUser) Default() {
 var _ webhook.Validator = &ServiceUser{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *ServiceUser) ValidateCreate() error {
-	serviceuserlog.Info("validate create", "name", r.Name)
+func (in *ServiceUser) ValidateCreate() error {
+	serviceuserlog.Info("validate create", "name", in.Name)
 
 	return nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *ServiceUser) ValidateUpdate(old runtime.Object) error {
-	serviceuserlog.Info("validate update", "name", r.Name)
+func (in *ServiceUser) ValidateUpdate(old runtime.Object) error {
+	serviceuserlog.Info("validate update", "name", in.Name)
 
-	if r.Spec.Project != old.(*ServiceUser).Spec.Project {
+	if in.Spec.Project != old.(*ServiceUser).Spec.Project {
 		return errors.New("cannot update a Service User, project field is immutable and cannot be updated")
 	}
 
-	if r.Spec.ServiceName != old.(*ServiceUser).Spec.ServiceName {
+	if in.Spec.ServiceName != old.(*ServiceUser).Spec.ServiceName {
 		return errors.New("cannot update a Service User, serviceName field is immutable and cannot be updated")
 	}
 
-	if r.Spec.ConnInfoSecretTarget.Name != old.(*ServiceUser).Spec.ConnInfoSecretTarget.Name {
+	if in.Spec.ConnInfoSecretTarget.Name != old.(*ServiceUser).Spec.ConnInfoSecretTarget.Name {
 		return errors.New("cannot update a ServiceUser, connInfoSecretTarget.name field is immutable and cannot be updated")
 	}
 
@@ -61,8 +61,8 @@ func (r *ServiceUser) ValidateUpdate(old runtime.Object) error {
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *ServiceUser) ValidateDelete() error {
-	serviceuserlog.Info("validate delete", "name", r.Name)
+func (in *ServiceUser) ValidateDelete() error {
+	serviceuserlog.Info("validate delete", "name", in.Name)
 
 	return nil
 }
