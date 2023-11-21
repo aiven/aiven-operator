@@ -53,8 +53,8 @@ type ServiceUser struct {
 	Status ServiceUserStatus `json:"status,omitempty"`
 }
 
-func (svcusr ServiceUser) AuthSecretRef() *AuthSecretReference {
-	return svcusr.Spec.AuthSecretRef
+func (in *ServiceUser) AuthSecretRef() *AuthSecretReference {
+	return in.Spec.AuthSecretRef
 }
 
 func (in *ServiceUser) GetConnInfoSecretTarget() ConnInfoSecretTarget {

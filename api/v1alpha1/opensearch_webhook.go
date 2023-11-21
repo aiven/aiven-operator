@@ -14,9 +14,9 @@ import (
 // log is for logging in this package.
 var opensearchlog = logf.Log.WithName("opensearch-resource")
 
-func (r *OpenSearch) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func (in *OpenSearch) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
+		For(in).
 		Complete()
 }
 
@@ -25,8 +25,8 @@ func (r *OpenSearch) SetupWebhookWithManager(mgr ctrl.Manager) error {
 var _ webhook.Defaulter = &OpenSearch{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *OpenSearch) Default() {
-	opensearchlog.Info("default", "name", r.Name)
+func (in *OpenSearch) Default() {
+	opensearchlog.Info("default", "name", in.Name)
 }
 
 //+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-opensearch,mutating=false,failurePolicy=fail,groups=aiven.io,resources=opensearches,versions=v1alpha1,name=vopensearch.kb.io,sideEffects=none,admissionReviewVersions=v1
@@ -34,36 +34,36 @@ func (r *OpenSearch) Default() {
 var _ webhook.Validator = &OpenSearch{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *OpenSearch) ValidateCreate() error {
-	opensearchlog.Info("validate create", "name", r.Name)
+func (in *OpenSearch) ValidateCreate() error {
+	opensearchlog.Info("validate create", "name", in.Name)
 
-	return r.Spec.Validate()
+	return in.Spec.Validate()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *OpenSearch) ValidateUpdate(old runtime.Object) error {
-	opensearchlog.Info("validate update", "name", r.Name)
+func (in *OpenSearch) ValidateUpdate(old runtime.Object) error {
+	opensearchlog.Info("validate update", "name", in.Name)
 
-	if r.Spec.Project != old.(*OpenSearch).Spec.Project {
+	if in.Spec.Project != old.(*OpenSearch).Spec.Project {
 		return errors.New("cannot update a OpenSearch service, project field is immutable and cannot be updated")
 	}
 
-	if r.Spec.ConnInfoSecretTarget.Name != old.(*OpenSearch).Spec.ConnInfoSecretTarget.Name {
+	if in.Spec.ConnInfoSecretTarget.Name != old.(*OpenSearch).Spec.ConnInfoSecretTarget.Name {
 		return errors.New("cannot update a OpenSearch service, connInfoSecretTarget.name field is immutable and cannot be updated")
 	}
 
-	return r.Spec.Validate()
+	return in.Spec.Validate()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *OpenSearch) ValidateDelete() error {
-	opensearchlog.Info("validate delete", "name", r.Name)
+func (in *OpenSearch) ValidateDelete() error {
+	opensearchlog.Info("validate delete", "name", in.Name)
 
-	if r.Spec.TerminationProtection != nil && *r.Spec.TerminationProtection {
+	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
 		return errors.New("cannot delete OpenSearch service, termination protection is on")
 	}
 
-	if r.Spec.ProjectVPCID != "" && r.Spec.ProjectVPCRef != nil {
+	if in.Spec.ProjectVPCID != "" && in.Spec.ProjectVPCRef != nil {
 		return errors.New("cannot use both projectVpcId and projectVPCRef")
 	}
 

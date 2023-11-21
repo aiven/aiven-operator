@@ -14,9 +14,9 @@ import (
 // log is for logging in this package.
 var kafkalog = logf.Log.WithName("kafka-resource")
 
-func (r *Kafka) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func (in *Kafka) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
+		For(in).
 		Complete()
 }
 
@@ -25,8 +25,8 @@ func (r *Kafka) SetupWebhookWithManager(mgr ctrl.Manager) error {
 var _ webhook.Defaulter = &Kafka{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *Kafka) Default() {
-	kafkalog.Info("default", "name", r.Name)
+func (in *Kafka) Default() {
+	kafkalog.Info("default", "name", in.Name)
 }
 
 //+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-kafka,mutating=false,failurePolicy=fail,groups=aiven.io,resources=kafkas,versions=v1alpha1,name=vkafka.kb.io,sideEffects=none,admissionReviewVersions=v1
@@ -34,36 +34,36 @@ func (r *Kafka) Default() {
 var _ webhook.Validator = &Kafka{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *Kafka) ValidateCreate() error {
-	kafkalog.Info("validate create", "name", r.Name)
+func (in *Kafka) ValidateCreate() error {
+	kafkalog.Info("validate create", "name", in.Name)
 
-	return r.Spec.Validate()
+	return in.Spec.Validate()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *Kafka) ValidateUpdate(old runtime.Object) error {
-	kafkalog.Info("validate update", "name", r.Name)
+func (in *Kafka) ValidateUpdate(old runtime.Object) error {
+	kafkalog.Info("validate update", "name", in.Name)
 
-	if r.Spec.Project != old.(*Kafka).Spec.Project {
+	if in.Spec.Project != old.(*Kafka).Spec.Project {
 		return errors.New("cannot update a Kafka service, project field is immutable and cannot be updated")
 	}
 
-	if r.Spec.ConnInfoSecretTarget.Name != old.(*Kafka).Spec.ConnInfoSecretTarget.Name {
+	if in.Spec.ConnInfoSecretTarget.Name != old.(*Kafka).Spec.ConnInfoSecretTarget.Name {
 		return errors.New("cannot update a Kafka service, connInfoSecretTarget.name field is immutable and cannot be updated")
 	}
 
-	return r.Spec.Validate()
+	return in.Spec.Validate()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *Kafka) ValidateDelete() error {
-	kafkalog.Info("validate delete", "name", r.Name)
+func (in *Kafka) ValidateDelete() error {
+	kafkalog.Info("validate delete", "name", in.Name)
 
-	if r.Spec.TerminationProtection != nil && *r.Spec.TerminationProtection {
+	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
 		return errors.New("cannot delete Kafka service, termination protection is on")
 	}
 
-	if r.Spec.ProjectVPCID != "" && r.Spec.ProjectVPCRef != nil {
+	if in.Spec.ProjectVPCID != "" && in.Spec.ProjectVPCRef != nil {
 		return errors.New("cannot use both projectVpcId and projectVPCRef")
 	}
 

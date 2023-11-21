@@ -12,9 +12,9 @@ import (
 // log is for logging in this package.
 var kafkaconnectorlog = logf.Log.WithName("kafkaconnector-resource")
 
-func (r *KafkaConnector) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func (in *KafkaConnector) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
+		For(in).
 		Complete()
 }
 
@@ -23,8 +23,8 @@ func (r *KafkaConnector) SetupWebhookWithManager(mgr ctrl.Manager) error {
 var _ webhook.Defaulter = &KafkaConnector{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *KafkaConnector) Default() {
-	kafkaconnectorlog.Info("default", "name", r.Name)
+func (in *KafkaConnector) Default() {
+	kafkaconnectorlog.Info("default", "name", in.Name)
 }
 
 //+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-kafkaconnector,mutating=false,failurePolicy=fail,groups=aiven.io,resources=kafkaconnectors,versions=v1alpha1,name=vkafkaconnector.kb.io,sideEffects=none,admissionReviewVersions=v1
@@ -32,22 +32,22 @@ func (r *KafkaConnector) Default() {
 var _ webhook.Validator = &KafkaConnector{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *KafkaConnector) ValidateCreate() error {
-	kafkaconnectorlog.Info("validate create", "name", r.Name)
+func (in *KafkaConnector) ValidateCreate() error {
+	kafkaconnectorlog.Info("validate create", "name", in.Name)
 
 	return nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *KafkaConnector) ValidateUpdate(old runtime.Object) error {
-	kafkaconnectorlog.Info("validate update", "name", r.Name)
+func (in *KafkaConnector) ValidateUpdate(old runtime.Object) error {
+	kafkaconnectorlog.Info("validate update", "name", in.Name)
 
 	return nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *KafkaConnector) ValidateDelete() error {
-	kafkaconnectorlog.Info("validate delete", "name", r.Name)
+func (in *KafkaConnector) ValidateDelete() error {
+	kafkaconnectorlog.Info("validate delete", "name", in.Name)
 
 	return nil
 }

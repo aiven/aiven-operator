@@ -51,11 +51,11 @@ type KafkaTopicSpec struct {
 
 // GetTopicName returns topic name with a backward compatibility.
 // metadata.Name is deprecated
-func (t *KafkaTopic) GetTopicName() string {
-	if t.Spec.TopicName != "" {
-		return t.Spec.TopicName
+func (in *KafkaTopic) GetTopicName() string {
+	if in.Spec.TopicName != "" {
+		return in.Spec.TopicName
 	}
-	return t.Name
+	return in.Name
 }
 
 type KafkaTopicTag struct {
@@ -165,8 +165,8 @@ type KafkaTopic struct {
 	Status KafkaTopicStatus `json:"status,omitempty"`
 }
 
-func (t *KafkaTopic) AuthSecretRef() *AuthSecretReference {
-	return t.Spec.AuthSecretRef
+func (in *KafkaTopic) AuthSecretRef() *AuthSecretReference {
+	return in.Spec.AuthSecretRef
 }
 
 // +kubebuilder:object:root=true

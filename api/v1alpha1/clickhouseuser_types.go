@@ -52,8 +52,8 @@ type ClickhouseUser struct {
 	Status ClickhouseUserStatus `json:"status,omitempty"`
 }
 
-func (u ClickhouseUser) AuthSecretRef() *AuthSecretReference {
-	return u.Spec.AuthSecretRef
+func (in *ClickhouseUser) AuthSecretRef() *AuthSecretReference {
+	return in.Spec.AuthSecretRef
 }
 
 func (in *ClickhouseUser) GetConnInfoSecretTarget() ConnInfoSecretTarget {

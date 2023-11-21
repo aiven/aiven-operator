@@ -84,8 +84,8 @@ type KafkaConnector struct {
 	Status KafkaConnectorStatus `json:"status,omitempty"`
 }
 
-func (kfk KafkaConnector) AuthSecretRef() *AuthSecretReference {
-	return kfk.Spec.AuthSecretRef
+func (in *KafkaConnector) AuthSecretRef() *AuthSecretReference {
+	return in.Spec.AuthSecretRef
 }
 
 //+kubebuilder:object:root=true

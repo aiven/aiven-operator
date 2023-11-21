@@ -14,9 +14,9 @@ import (
 // log is for logging in this package.
 var projectlog = logf.Log.WithName("project-resource")
 
-func (r *Project) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func (in *Project) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
+		For(in).
 		Complete()
 }
 
@@ -27,8 +27,8 @@ func (r *Project) SetupWebhookWithManager(mgr ctrl.Manager) error {
 var _ webhook.Defaulter = &Project{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *Project) Default() {
-	projectlog.Info("default", "name", r.Name)
+func (in *Project) Default() {
+	projectlog.Info("default", "name", in.Name)
 }
 
 //+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-project,mutating=false,failurePolicy=fail,groups=aiven.io,resources=projects,versions=v1alpha1,name=vproject.kb.io,sideEffects=none,admissionReviewVersions=v1
@@ -36,25 +36,25 @@ func (r *Project) Default() {
 var _ webhook.Validator = &Project{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *Project) ValidateCreate() error {
-	projectlog.Info("validate create", "name", r.Name)
+func (in *Project) ValidateCreate() error {
+	projectlog.Info("validate create", "name", in.Name)
 
 	return nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *Project) ValidateUpdate(old runtime.Object) error {
-	projectlog.Info("validate update", "name", r.Name)
+func (in *Project) ValidateUpdate(old runtime.Object) error {
+	projectlog.Info("validate update", "name", in.Name)
 
-	if r.Spec.CopyFromProject != old.(*Project).Spec.CopyFromProject {
+	if in.Spec.CopyFromProject != old.(*Project).Spec.CopyFromProject {
 		return errors.New("'copyFromProject' can only be set during creation of a project")
 	}
 
-	if r.Spec.ConnInfoSecretTarget.Name != old.(*Project).Spec.ConnInfoSecretTarget.Name {
+	if in.Spec.ConnInfoSecretTarget.Name != old.(*Project).Spec.ConnInfoSecretTarget.Name {
 		return errors.New("cannot update a Project, connInfoSecretTarget.name field is immutable and cannot be updated")
 	}
 
-	if r.Spec.BillingGroupID != old.(*Project).Spec.BillingGroupID {
+	if in.Spec.BillingGroupID != old.(*Project).Spec.BillingGroupID {
 		return errors.New("'billingGroupId' can only be set during creation of a project")
 	}
 
@@ -62,10 +62,10 @@ func (r *Project) ValidateUpdate(old runtime.Object) error {
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *Project) ValidateDelete() error {
-	projectlog.Info("validate delete", "name", r.Name)
+func (in *Project) ValidateDelete() error {
+	projectlog.Info("validate delete", "name", in.Name)
 
-	if r.Spec.AccountID == "" && r.Status.EstimatedBalance != "0.00" {
+	if in.Spec.AccountID == "" && in.Status.EstimatedBalance != "0.00" {
 		return errors.New("project with an open balance cannot be deleted")
 	}
 

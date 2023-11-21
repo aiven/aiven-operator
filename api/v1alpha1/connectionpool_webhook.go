@@ -14,9 +14,9 @@ import (
 // log is for logging in this package.
 var connectionpoollog = logf.Log.WithName("connectionpool-resource")
 
-func (r *ConnectionPool) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func (in *ConnectionPool) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
+		For(in).
 		Complete()
 }
 
@@ -25,11 +25,11 @@ func (r *ConnectionPool) SetupWebhookWithManager(mgr ctrl.Manager) error {
 var _ webhook.Defaulter = &ConnectionPool{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *ConnectionPool) Default() {
-	connectionpoollog.Info("default", "name", r.Name)
+func (in *ConnectionPool) Default() {
+	connectionpoollog.Info("default", "name", in.Name)
 
-	if r.Spec.PoolSize == 0 {
-		r.Spec.PoolSize = 10
+	if in.Spec.PoolSize == 0 {
+		in.Spec.PoolSize = 10
 	}
 }
 
@@ -38,25 +38,25 @@ func (r *ConnectionPool) Default() {
 var _ webhook.Validator = &ConnectionPool{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *ConnectionPool) ValidateCreate() error {
-	connectionpoollog.Info("validate create", "name", r.Name)
+func (in *ConnectionPool) ValidateCreate() error {
+	connectionpoollog.Info("validate create", "name", in.Name)
 
 	return nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *ConnectionPool) ValidateUpdate(old runtime.Object) error {
-	connectionpoollog.Info("validate update", "name", r.Name)
+func (in *ConnectionPool) ValidateUpdate(old runtime.Object) error {
+	connectionpoollog.Info("validate update", "name", in.Name)
 
-	if r.Spec.Project != old.(*ConnectionPool).Spec.Project {
+	if in.Spec.Project != old.(*ConnectionPool).Spec.Project {
 		return errors.New("cannot update a ConnectionPool, project field is immutable and cannot be updated")
 	}
 
-	if r.Spec.ServiceName != old.(*ConnectionPool).Spec.ServiceName {
+	if in.Spec.ServiceName != old.(*ConnectionPool).Spec.ServiceName {
 		return errors.New("cannot update a ConnectionPool, serviceName field is immutable and cannot be updated")
 	}
 
-	if r.Spec.ConnInfoSecretTarget.Name != old.(*ConnectionPool).Spec.ConnInfoSecretTarget.Name {
+	if in.Spec.ConnInfoSecretTarget.Name != old.(*ConnectionPool).Spec.ConnInfoSecretTarget.Name {
 		return errors.New("cannot update a ConnectionPool, connInfoSecretTarget.name field is immutable and cannot be updated")
 	}
 
@@ -64,8 +64,8 @@ func (r *ConnectionPool) ValidateUpdate(old runtime.Object) error {
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *ConnectionPool) ValidateDelete() error {
-	connectionpoollog.Info("validate delete", "name", r.Name)
+func (in *ConnectionPool) ValidateDelete() error {
+	connectionpoollog.Info("validate delete", "name", in.Name)
 
 	return nil
 }

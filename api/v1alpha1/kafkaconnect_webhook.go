@@ -14,9 +14,9 @@ import (
 // log is for logging in this package.
 var kafkaconnectlog = logf.Log.WithName("kafkaconnect-resource")
 
-func (r *KafkaConnect) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func (in *KafkaConnect) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
+		For(in).
 		Complete()
 }
 
@@ -25,8 +25,8 @@ func (r *KafkaConnect) SetupWebhookWithManager(mgr ctrl.Manager) error {
 var _ webhook.Defaulter = &KafkaConnect{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *KafkaConnect) Default() {
-	kafkaconnectlog.Info("default", "name", r.Name)
+func (in *KafkaConnect) Default() {
+	kafkaconnectlog.Info("default", "name", in.Name)
 }
 
 //+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-kafkaconnect,mutating=false,failurePolicy=fail,groups=aiven.io,resources=kafkaconnects,versions=v1alpha1,name=vkafkaconnect.kb.io,sideEffects=none,admissionReviewVersions=v1
@@ -34,32 +34,32 @@ func (r *KafkaConnect) Default() {
 var _ webhook.Validator = &KafkaConnect{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *KafkaConnect) ValidateCreate() error {
-	kafkaconnectlog.Info("validate create", "name", r.Name)
+func (in *KafkaConnect) ValidateCreate() error {
+	kafkaconnectlog.Info("validate create", "name", in.Name)
 
-	return r.Spec.Validate()
+	return in.Spec.Validate()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *KafkaConnect) ValidateUpdate(old runtime.Object) error {
-	kafkaconnectlog.Info("validate update", "name", r.Name)
+func (in *KafkaConnect) ValidateUpdate(old runtime.Object) error {
+	kafkaconnectlog.Info("validate update", "name", in.Name)
 
-	if r.Spec.Project != old.(*KafkaConnect).Spec.Project {
+	if in.Spec.Project != old.(*KafkaConnect).Spec.Project {
 		return errors.New("cannot update a KafkaConnect service, project field is immutable and cannot be updated")
 	}
 
-	return r.Spec.Validate()
+	return in.Spec.Validate()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *KafkaConnect) ValidateDelete() error {
-	kafkaconnectlog.Info("validate delete", "name", r.Name)
+func (in *KafkaConnect) ValidateDelete() error {
+	kafkaconnectlog.Info("validate delete", "name", in.Name)
 
-	if r.Spec.TerminationProtection != nil && *r.Spec.TerminationProtection {
+	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
 		return errors.New("cannot delete KafkaConnect service, termination protection is on")
 	}
 
-	if r.Spec.ProjectVPCID != "" && r.Spec.ProjectVPCRef != nil {
+	if in.Spec.ProjectVPCID != "" && in.Spec.ProjectVPCRef != nil {
 		return errors.New("cannot use both projectVpcId and projectVPCRef")
 	}
 

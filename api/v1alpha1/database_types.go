@@ -54,8 +54,8 @@ type Database struct {
 	Status DatabaseStatus `json:"status,omitempty"`
 }
 
-func (db Database) AuthSecretRef() *AuthSecretReference {
-	return db.Spec.AuthSecretRef
+func (in *Database) AuthSecretRef() *AuthSecretReference {
+	return in.Spec.AuthSecretRef
 }
 
 // +kubebuilder:object:root=true
