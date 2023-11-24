@@ -198,6 +198,7 @@ type ServiceIntegrationItem struct {
 	SourceServiceName string `json:"sourceServiceName"`
 }
 
+// +k8s:deepcopy-gen=false
 type AivenManagedObject interface {
 	client.Object
 
