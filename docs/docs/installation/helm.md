@@ -8,6 +8,8 @@ weight: 10
 
 The Aiven Operator for Kubernetes can be installed via [Helm](https://helm.sh/). 
 
+Before you start, make sure you have the [prerequisites](prerequisites.md).
+
 First add the [Aiven Helm repository](https://github.com/aiven/aiven-charts):
 
 ```shell

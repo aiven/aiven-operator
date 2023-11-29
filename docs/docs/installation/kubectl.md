@@ -6,6 +6,8 @@ weight: 15
 
 ## Installing
 
+Before you start, make sure you have the [prerequisites](prerequisites.md).
+
 All Aiven Operator for Kubernetes components can be installed from one YAML file that is uploaded for every release:
 
 ```shell
