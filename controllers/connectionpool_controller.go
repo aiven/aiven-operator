@@ -48,7 +48,6 @@ func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avn *aiven.Cl
 
 	exists, err := h.exists(ctx, avn, cp)
 	if err != nil {
-		meta.SetStatusCondition(&cp.Status.Conditions, getErrorCondition("CheckExists", err))
 		return err
 	}
 	var reason string
@@ -62,7 +61,6 @@ func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avn *aiven.Cl
 				Username: optionalStringPointer(cp.Spec.Username),
 			})
 		if err != nil && !aiven.IsAlreadyExists(err) {
-			meta.SetStatusCondition(&cp.Status.Conditions, getErrorCondition("Create", err))
 			return err
 		}
 		reason = "Created"
@@ -75,7 +73,6 @@ func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avn *aiven.Cl
 				Username: optionalStringPointer(cp.Spec.Username),
 			})
 		if err != nil {
-			meta.SetStatusCondition(&cp.Status.Conditions, getErrorCondition("Update", err))
 			return err
 		}
 		reason = "Updated"
@@ -103,7 +100,6 @@ func (h ConnectionPoolHandler) delete(ctx context.Context, avn *aiven.Client, ob
 
 	err = avn.ConnectionPools.Delete(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
 	if err != nil && !aiven.IsNotFound(err) {
-		meta.SetStatusCondition(&cp.Status.Conditions, getErrorCondition("Delete", err))
 		return false, err
 	}
 
@@ -204,7 +200,6 @@ func (h ConnectionPoolHandler) checkPreconditions(ctx context.Context, avn *aive
 
 	check, err := checkServiceIsRunning(ctx, avn, cp.Spec.Project, cp.Spec.ServiceName)
 	if err != nil {
-		meta.SetStatusCondition(&cp.Status.Conditions, getErrorCondition("Preconditions", err))
 		return false, err
 	}
 

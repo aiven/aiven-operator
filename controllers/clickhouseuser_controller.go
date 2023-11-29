@@ -53,10 +53,6 @@ func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 		return err
 	}
 
-	if err != nil && !aiven.IsAlreadyExists(err) {
-		return fmt.Errorf("cannot createOrUpdate clickhouse user on aiven side: %w", err)
-	}
-
 	user.Status.UUID = r.User.UUID
 
 	meta.SetStatusCondition(&user.Status.Conditions,

@@ -47,7 +47,6 @@ func (h DatabaseHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, 
 	exists, err := h.exists(ctx, avn, db)
 
 	if err != nil {
-		meta.SetStatusCondition(&db.Status.Conditions, getErrorCondition("CheckExists", err))
 		return err
 	}
 
@@ -58,7 +57,6 @@ func (h DatabaseHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, 
 			LcType:    db.Spec.LcCtype,
 		})
 		if err != nil {
-			meta.SetStatusCondition(&db.Status.Conditions, getErrorCondition("CreateOrUpdate", err))
 			return fmt.Errorf("cannot create database on Aiven side: %w", err)
 		}
 	}
@@ -93,7 +91,6 @@ func (h DatabaseHandler) delete(ctx context.Context, avn *aiven.Client, obj clie
 		db.Spec.ServiceName,
 		db.Name)
 	if err != nil && !aiven.IsNotFound(err) {
-		meta.SetStatusCondition(&db.Status.Conditions, getErrorCondition("Delete", err))
 		return false, err
 	}
 
@@ -138,11 +135,7 @@ func (h DatabaseHandler) checkPreconditions(ctx context.Context, avn *aiven.Clie
 	meta.SetStatusCondition(&db.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	running, err := checkServiceIsRunning(ctx, avn, db.Spec.Project, db.Spec.ServiceName)
-	if err != nil {
-		meta.SetStatusCondition(&db.Status.Conditions, getErrorCondition("Preconditions", err))
-	}
-	return running, err
+	return checkServiceIsRunning(ctx, avn, db.Spec.Project, db.Spec.ServiceName)
 }
 
 func (h DatabaseHandler) convert(i client.Object) (*v1alpha1.Database, error) {
