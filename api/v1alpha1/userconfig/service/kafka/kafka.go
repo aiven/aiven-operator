@@ -207,6 +207,9 @@ type Kafka struct {
 	// The maximum number of bytes in a socket request (defaults to 104857600).
 	SocketRequestMaxBytes *int `groups:"create,update" json:"socket_request_max_bytes,omitempty"`
 
+	// Enable verification that checks that the partition has been added to the transaction before writing transactional records to the partition
+	TransactionPartitionVerificationEnable *bool `groups:"create,update" json:"transaction_partition_verification_enable,omitempty"`
+
 	// +kubebuilder:validation:Minimum=600000
 	// +kubebuilder:validation:Maximum=3600000
 	// The interval at which to remove transactions that have expired due to transactional.id.expiration.ms passing (defaults to 3600000 (1 hour)).

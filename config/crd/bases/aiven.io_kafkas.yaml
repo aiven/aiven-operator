@@ -503,6 +503,11 @@ spec:
                         maximum: 209715200
                         minimum: 10485760
                         type: integer
+                      transaction_partition_verification_enable:
+                        description: Enable verification that checks that the partition
+                          has been added to the transaction before writing transactional
+                          records to the partition
+                        type: boolean
                       transaction_remove_expired_transaction_cleanup_interval_ms:
                         description: The interval at which to remove transactions
                           that have expired due to transactional.id.expiration.ms

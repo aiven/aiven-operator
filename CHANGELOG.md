@@ -2,6 +2,10 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `Kafka` field `userConfig.kafka.transaction_partition_verification_enable`, type `boolean`: Enable
+  verification that checks that the partition has been added to the transaction before writing transactional
+  records to the partition
+
 ## v0.15.0 - 2023-11-17
 
 - Upgrade to Go 1.21
