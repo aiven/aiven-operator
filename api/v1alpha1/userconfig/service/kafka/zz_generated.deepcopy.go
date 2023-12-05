@@ -245,6 +245,11 @@ func (in *Kafka) DeepCopyInto(out *Kafka) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.TransactionPartitionVerificationEnable != nil {
+		in, out := &in.TransactionPartitionVerificationEnable, &out.TransactionPartitionVerificationEnable
+		*out = new(bool)
+		**out = **in
+	}
 	if in.TransactionRemoveExpiredTransactionCleanupIntervalMs != nil {
 		in, out := &in.TransactionRemoveExpiredTransactionCleanupIntervalMs, &out.TransactionRemoveExpiredTransactionCleanupIntervalMs
 		*out = new(int)

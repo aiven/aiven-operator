@@ -48,7 +48,6 @@ func (h KafkaACLHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, 
 	// Tries to delete it instead
 	_, err = h.delete(ctx, avn, obj)
 	if err != nil {
-		meta.SetStatusCondition(&acl.Status.Conditions, getErrorCondition("Delete", err))
 		return err
 	}
 
@@ -161,11 +160,7 @@ func (h KafkaACLHandler) checkPreconditions(ctx context.Context, avn *aiven.Clie
 	meta.SetStatusCondition(&acl.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	running, err := checkServiceIsRunning(ctx, avn, acl.Spec.Project, acl.Spec.ServiceName)
-	if err != nil {
-		meta.SetStatusCondition(&acl.Status.Conditions, getErrorCondition("Delete", err))
-	}
-	return running, err
+	return checkServiceIsRunning(ctx, avn, acl.Spec.Project, acl.Spec.ServiceName)
 }
 
 func (h KafkaACLHandler) convert(i client.Object) (*v1alpha1.KafkaACL, error) {

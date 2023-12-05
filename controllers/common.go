@@ -35,6 +35,14 @@ const (
 	deletionPolicyDelete     = "Delete"
 )
 
+type errCondition string
+
+const (
+	errConditionDelete         errCondition = "Delete"
+	errConditionPreconditions  errCondition = "Preconditions"
+	errConditionCreateOrUpdate errCondition = "CreateOrUpdate"
+)
+
 var (
 	version                    = "dev"
 	errTerminationProtectionOn = errors.New("termination protection is on")
@@ -71,11 +79,11 @@ func getRunningCondition(status metav1.ConditionStatus, reason, message string) 
 	}
 }
 
-func getErrorCondition(reason string, err error) metav1.Condition {
+func getErrorCondition(reason errCondition, err error) metav1.Condition {
 	return metav1.Condition{
 		Type:    conditionTypeError,
 		Status:  metav1.ConditionUnknown,
-		Reason:  reason,
+		Reason:  string(reason),
 		Message: err.Error(),
 	}
 }

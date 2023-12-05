@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Set conditions on errors: `Preconditions`, `CreateOrUpdate`, `Delete`. Thanks to @atarax
+- Fix object updates lost when reconciler exits before the object is committed  
 - Add `Kafka` field `userConfig.kafka.transaction_partition_verification_enable`, type `boolean`: Enable
   verification that checks that the partition has been added to the transaction before writing transactional
   records to the partition
