@@ -623,6 +623,27 @@ spec:
                         minimum: 10
                         type: integer
                     type: object
+                  pg_qualstats:
+                    description: System-wide settings for the pg_qualstats extension
+                    properties:
+                      enabled:
+                        description: Enable / Disable pg_qualstats
+                        type: boolean
+                      min_err_estimate_num:
+                        description: Error estimation num threshold to save quals
+                        minimum: 0
+                        type: integer
+                      min_err_estimate_ratio:
+                        description: Error estimation ratio threshold to save quals
+                        minimum: 0
+                        type: integer
+                      track_constants:
+                        description: Enable / Disable pg_qualstats constants tracking
+                        type: boolean
+                      track_pg_catalog:
+                        description: Track quals on system catalogs too.
+                        type: boolean
+                    type: object
                   pg_read_replica:
                     description: Should the service which is being forked be a read
                       replica (deprecated, use read_replica service integration instead).
@@ -715,7 +736,7 @@ spec:
                         type: boolean
                     type: object
                   pglookout:
-                    description: PGLookout settings
+                    description: System-wide settings for pglookout.
                     properties:
                       max_failover_replication_time_lag:
                         description: Number of seconds of master unavailability before
@@ -793,6 +814,10 @@ spec:
                     x-kubernetes-validations:
                     - message: Value is immutable
                       rule: self == oldSelf
+                  service_log:
+                    description: Store logs for the service so that they are available
+                      in the HTTP API and console.
+                    type: boolean
                   service_to_fork_from:
                     description: Name of another service to fork from. This has effect
                       only when a new service is being created.
@@ -820,7 +845,7 @@ spec:
                     - "off"
                     type: string
                   timescaledb:
-                    description: TimescaleDB extension configuration values
+                    description: System-wide settings for the timescaledb extension
                     properties:
                       max_background_workers:
                         description: The number of background workers for timescaledb

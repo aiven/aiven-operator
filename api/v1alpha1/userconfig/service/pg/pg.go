@@ -283,6 +283,26 @@ type Pg struct {
 	WalWriterDelay *int `groups:"create,update" json:"wal_writer_delay,omitempty"`
 }
 
+// System-wide settings for the pg_qualstats extension
+type PgQualstats struct {
+	// Enable / Disable pg_qualstats
+	Enabled *bool `groups:"create,update" json:"enabled,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// Error estimation num threshold to save quals
+	MinErrEstimateNum *int `groups:"create,update" json:"min_err_estimate_num,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// Error estimation ratio threshold to save quals
+	MinErrEstimateRatio *int `groups:"create,update" json:"min_err_estimate_ratio,omitempty"`
+
+	// Enable / Disable pg_qualstats constants tracking
+	TrackConstants *bool `groups:"create,update" json:"track_constants,omitempty"`
+
+	// Track quals on system catalogs too.
+	TrackPgCatalog *bool `groups:"create,update" json:"track_pg_catalog,omitempty"`
+}
+
 // PGBouncer connection pooling settings
 type Pgbouncer struct {
 	// +kubebuilder:validation:Minimum=0
@@ -327,7 +347,7 @@ type Pgbouncer struct {
 	ServerResetQueryAlways *bool `groups:"create,update" json:"server_reset_query_always,omitempty"`
 }
 
-// PGLookout settings
+// System-wide settings for pglookout.
 type Pglookout struct {
 	// +kubebuilder:validation:Minimum=10
 	// Number of seconds of master unavailability before triggering database failover to standby
@@ -370,7 +390,7 @@ type PublicAccess struct {
 	Prometheus *bool `groups:"create,update" json:"prometheus,omitempty"`
 }
 
-// TimescaleDB extension configuration values
+// System-wide settings for the timescaledb extension
 type Timescaledb struct {
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=4096
@@ -418,6 +438,9 @@ type PgUserConfig struct {
 	// postgresql.conf configuration values
 	Pg *Pg `groups:"create,update" json:"pg,omitempty"`
 
+	// System-wide settings for the pg_qualstats extension
+	PgQualstats *PgQualstats `groups:"create,update" json:"pg_qualstats,omitempty"`
+
 	// Should the service which is being forked be a read replica (deprecated, use read_replica service integration instead).
 	PgReadReplica *bool `groups:"create,update" json:"pg_read_replica,omitempty"`
 
@@ -436,7 +459,7 @@ type PgUserConfig struct {
 	// PGBouncer connection pooling settings
 	Pgbouncer *Pgbouncer `groups:"create,update" json:"pgbouncer,omitempty"`
 
-	// PGLookout settings
+	// System-wide settings for pglookout.
 	Pglookout *Pglookout `groups:"create,update" json:"pglookout,omitempty"`
 
 	// Allow access to selected service ports from private networks
@@ -458,6 +481,9 @@ type PgUserConfig struct {
 	// Recovery target time when forking a service. This has effect only when a new service is being created.
 	RecoveryTargetTime *string `groups:"create" json:"recovery_target_time,omitempty"`
 
+	// Store logs for the service so that they are available in the HTTP API and console.
+	ServiceLog *bool `groups:"create,update" json:"service_log,omitempty"`
+
 	// +kubebuilder:validation:MaxLength=64
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Name of another service to fork from. This has effect only when a new service is being created.
@@ -475,7 +501,7 @@ type PgUserConfig struct {
 	// Synchronous replication type. Note that the service plan also needs to support synchronous replication.
 	SynchronousReplication *string `groups:"create,update" json:"synchronous_replication,omitempty"`
 
-	// TimescaleDB extension configuration values
+	// System-wide settings for the timescaledb extension
 	Timescaledb *Timescaledb `groups:"create,update" json:"timescaledb,omitempty"`
 
 	// +kubebuilder:validation:Enum="aiven";"timescale"

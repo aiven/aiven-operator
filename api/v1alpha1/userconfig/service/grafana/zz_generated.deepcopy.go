@@ -416,6 +416,11 @@ func (in *GrafanaUserConfig) DeepCopyInto(out *GrafanaUserConfig) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.ServiceLog != nil {
+		in, out := &in.ServiceLog, &out.ServiceLog
+		*out = new(bool)
+		**out = **in
+	}
 	if in.ServiceToForkFrom != nil {
 		in, out := &in.ServiceToForkFrom, &out.ServiceToForkFrom
 		*out = new(string)

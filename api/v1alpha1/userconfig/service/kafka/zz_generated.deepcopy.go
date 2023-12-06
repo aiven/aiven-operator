@@ -410,6 +410,11 @@ func (in *KafkaRestConfig) DeepCopyInto(out *KafkaRestConfig) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.NameStrategyValidation != nil {
+		in, out := &in.NameStrategyValidation, &out.NameStrategyValidation
+		*out = new(bool)
+		**out = **in
+	}
 	if in.ProducerAcks != nil {
 		in, out := &in.ProducerAcks, &out.ProducerAcks
 		*out = new(string)
@@ -540,6 +545,11 @@ func (in *KafkaUserConfig) DeepCopyInto(out *KafkaUserConfig) {
 		in, out := &in.SchemaRegistryConfig, &out.SchemaRegistryConfig
 		*out = new(SchemaRegistryConfig)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.ServiceLog != nil {
+		in, out := &in.ServiceLog, &out.ServiceLog
+		*out = new(bool)
+		**out = **in
 	}
 	if in.StaticIps != nil {
 		in, out := &in.StaticIps, &out.StaticIps

@@ -701,6 +701,11 @@ spec:
                         maximum: 30000
                         minimum: 1000
                         type: integer
+                      name_strategy_validation:
+                        description: If true, validate that given schema is registered
+                          under expected subject name by the used name strategy when
+                          producing messages.
+                        type: boolean
                       producer_acks:
                         description: The number of acknowledgments the producer requires
                           the leader to have received before considering a request
@@ -863,6 +868,10 @@ spec:
                         minLength: 1
                         type: string
                     type: object
+                  service_log:
+                    description: Store logs for the service so that they are available
+                      in the HTTP API and console.
+                    type: boolean
                   static_ips:
                     description: Use static public IP addresses
                     type: boolean
