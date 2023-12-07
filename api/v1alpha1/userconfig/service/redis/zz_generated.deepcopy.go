@@ -251,6 +251,11 @@ func (in *RedisUserConfig) DeepCopyInto(out *RedisUserConfig) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.ServiceLog != nil {
+		in, out := &in.ServiceLog, &out.ServiceLog
+		*out = new(bool)
+		**out = **in
+	}
 	if in.ServiceToForkFrom != nil {
 		in, out := &in.ServiceToForkFrom, &out.ServiceToForkFrom
 		*out = new(string)

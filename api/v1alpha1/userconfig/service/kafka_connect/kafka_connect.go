@@ -143,6 +143,9 @@ type KafkaConnectUserConfig struct {
 	// Allow access to selected service ports from the public Internet
 	PublicAccess *PublicAccess `groups:"create,update" json:"public_access,omitempty"`
 
+	// Store logs for the service so that they are available in the HTTP API and console.
+	ServiceLog *bool `groups:"create,update" json:"service_log,omitempty"`
+
 	// Use static public IP addresses
 	StaticIps *bool `groups:"create,update" json:"static_ips,omitempty"`
 }

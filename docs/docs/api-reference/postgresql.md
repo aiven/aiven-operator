@@ -139,22 +139,24 @@ PostgreSQL specific user configuration options.
 - [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
 - [`migration`](#spec.userConfig.migration-property){: name='spec.userConfig.migration-property'} (object). Migrate data from existing server. See below for [nested schema](#spec.userConfig.migration).
 - [`pg`](#spec.userConfig.pg-property){: name='spec.userConfig.pg-property'} (object). postgresql.conf configuration values. See below for [nested schema](#spec.userConfig.pg).
+- [`pg_qualstats`](#spec.userConfig.pg_qualstats-property){: name='spec.userConfig.pg_qualstats-property'} (object). System-wide settings for the pg_qualstats extension. See below for [nested schema](#spec.userConfig.pg_qualstats).
 - [`pg_read_replica`](#spec.userConfig.pg_read_replica-property){: name='spec.userConfig.pg_read_replica-property'} (boolean). Should the service which is being forked be a read replica (deprecated, use read_replica service integration instead).
 - [`pg_service_to_fork_from`](#spec.userConfig.pg_service_to_fork_from-property){: name='spec.userConfig.pg_service_to_fork_from-property'} (string, Immutable, MaxLength: 64). Name of the PG Service from which to fork (deprecated, use service_to_fork_from). This has effect only when a new service is being created.
 - [`pg_stat_monitor_enable`](#spec.userConfig.pg_stat_monitor_enable-property){: name='spec.userConfig.pg_stat_monitor_enable-property'} (boolean). Enable the pg_stat_monitor extension. Enabling this extension will cause the cluster to be restarted.When this extension is enabled, pg_stat_statements results for utility commands are unreliable.
 - [`pg_version`](#spec.userConfig.pg_version-property){: name='spec.userConfig.pg_version-property'} (string, Enum: `11`, `12`, `13`, `14`, `15`). PostgreSQL major version.
 - [`pgbouncer`](#spec.userConfig.pgbouncer-property){: name='spec.userConfig.pgbouncer-property'} (object). PGBouncer connection pooling settings. See below for [nested schema](#spec.userConfig.pgbouncer).
-- [`pglookout`](#spec.userConfig.pglookout-property){: name='spec.userConfig.pglookout-property'} (object). PGLookout settings. See below for [nested schema](#spec.userConfig.pglookout).
+- [`pglookout`](#spec.userConfig.pglookout-property){: name='spec.userConfig.pglookout-property'} (object). System-wide settings for pglookout. See below for [nested schema](#spec.userConfig.pglookout).
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
 - [`privatelink_access`](#spec.userConfig.privatelink_access-property){: name='spec.userConfig.privatelink_access-property'} (object). Allow access to selected service components through Privatelink. See below for [nested schema](#spec.userConfig.privatelink_access).
 - [`project_to_fork_from`](#spec.userConfig.project_to_fork_from-property){: name='spec.userConfig.project_to_fork_from-property'} (string, Immutable, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.
 - [`public_access`](#spec.userConfig.public_access-property){: name='spec.userConfig.public_access-property'} (object). Allow access to selected service ports from the public Internet. See below for [nested schema](#spec.userConfig.public_access).
 - [`recovery_target_time`](#spec.userConfig.recovery_target_time-property){: name='spec.userConfig.recovery_target_time-property'} (string, Immutable, MaxLength: 32). Recovery target time when forking a service. This has effect only when a new service is being created.
+- [`service_log`](#spec.userConfig.service_log-property){: name='spec.userConfig.service_log-property'} (boolean). Store logs for the service so that they are available in the HTTP API and console.
 - [`service_to_fork_from`](#spec.userConfig.service_to_fork_from-property){: name='spec.userConfig.service_to_fork_from-property'} (string, Immutable, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.
 - [`shared_buffers_percentage`](#spec.userConfig.shared_buffers_percentage-property){: name='spec.userConfig.shared_buffers_percentage-property'} (number, Minimum: 20, Maximum: 60). Percentage of total RAM that the database server uses for shared memory buffers. Valid range is 20-60 (float), which corresponds to 20% - 60%. This setting adjusts the shared_buffers configuration value.
 - [`static_ips`](#spec.userConfig.static_ips-property){: name='spec.userConfig.static_ips-property'} (boolean). Use static public IP addresses.
 - [`synchronous_replication`](#spec.userConfig.synchronous_replication-property){: name='spec.userConfig.synchronous_replication-property'} (string, Enum: `quorum`, `off`). Synchronous replication type. Note that the service plan also needs to support synchronous replication.
-- [`timescaledb`](#spec.userConfig.timescaledb-property){: name='spec.userConfig.timescaledb-property'} (object). TimescaleDB extension configuration values. See below for [nested schema](#spec.userConfig.timescaledb).
+- [`timescaledb`](#spec.userConfig.timescaledb-property){: name='spec.userConfig.timescaledb-property'} (object). System-wide settings for the timescaledb extension. See below for [nested schema](#spec.userConfig.timescaledb).
 - [`variant`](#spec.userConfig.variant-property){: name='spec.userConfig.variant-property'} (string, Enum: `aiven`, `timescale`). Variant of the PostgreSQL service, may affect the features that are exposed by default.
 - [`work_mem`](#spec.userConfig.work_mem-property){: name='spec.userConfig.work_mem-property'} (integer, Minimum: 1, Maximum: 1024). Sets the maximum amount of memory to be used by a query operation (such as a sort or hash table) before writing to temporary disk files, in MB. Default is 1MB + 0.075% of total RAM (up to 32MB).
 
@@ -250,6 +252,20 @@ postgresql.conf configuration values.
 - [`wal_sender_timeout`](#spec.userConfig.pg.wal_sender_timeout-property){: name='spec.userConfig.pg.wal_sender_timeout-property'} (integer). Terminate replication connections that are inactive for longer than this amount of time, in milliseconds. Setting this value to zero disables the timeout.
 - [`wal_writer_delay`](#spec.userConfig.pg.wal_writer_delay-property){: name='spec.userConfig.pg.wal_writer_delay-property'} (integer, Minimum: 10, Maximum: 200). WAL flush interval in milliseconds. Note that setting this value to lower than the default 200ms may negatively impact performance.
 
+### pg_qualstats {: #spec.userConfig.pg_qualstats }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+System-wide settings for the pg_qualstats extension.
+
+**Optional**
+
+- [`enabled`](#spec.userConfig.pg_qualstats.enabled-property){: name='spec.userConfig.pg_qualstats.enabled-property'} (boolean). Enable / Disable pg_qualstats.
+- [`min_err_estimate_num`](#spec.userConfig.pg_qualstats.min_err_estimate_num-property){: name='spec.userConfig.pg_qualstats.min_err_estimate_num-property'} (integer, Minimum: 0). Error estimation num threshold to save quals.
+- [`min_err_estimate_ratio`](#spec.userConfig.pg_qualstats.min_err_estimate_ratio-property){: name='spec.userConfig.pg_qualstats.min_err_estimate_ratio-property'} (integer, Minimum: 0). Error estimation ratio threshold to save quals.
+- [`track_constants`](#spec.userConfig.pg_qualstats.track_constants-property){: name='spec.userConfig.pg_qualstats.track_constants-property'} (boolean). Enable / Disable pg_qualstats constants tracking.
+- [`track_pg_catalog`](#spec.userConfig.pg_qualstats.track_pg_catalog-property){: name='spec.userConfig.pg_qualstats.track_pg_catalog-property'} (boolean). Track quals on system catalogs too.
+
 ### pgbouncer {: #spec.userConfig.pgbouncer }
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
@@ -272,7 +288,7 @@ PGBouncer connection pooling settings.
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
 
-PGLookout settings.
+System-wide settings for pglookout.
 
 **Required**
 
@@ -318,7 +334,7 @@ Allow access to selected service ports from the public Internet.
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
 
-TimescaleDB extension configuration values.
+System-wide settings for the timescaledb extension.
 
 **Required**
 

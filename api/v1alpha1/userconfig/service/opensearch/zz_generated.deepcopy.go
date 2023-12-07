@@ -607,6 +607,11 @@ func (in *OpensearchUserConfig) DeepCopyInto(out *OpensearchUserConfig) {
 		*out = new(Saml)
 		(*in).DeepCopyInto(*out)
 	}
+	if in.ServiceLog != nil {
+		in, out := &in.ServiceLog, &out.ServiceLog
+		*out = new(bool)
+		**out = **in
+	}
 	if in.ServiceToForkFrom != nil {
 		in, out := &in.ServiceToForkFrom, &out.ServiceToForkFrom
 		*out = new(string)

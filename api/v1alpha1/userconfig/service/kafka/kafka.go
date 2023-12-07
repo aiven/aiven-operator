@@ -325,6 +325,9 @@ type KafkaRestConfig struct {
 	// The maximum total time to wait for messages for a request if the maximum number of messages has not yet been reached
 	ConsumerRequestTimeoutMs *int `groups:"create,update" json:"consumer_request_timeout_ms,omitempty"`
 
+	// If true, validate that given schema is registered under expected subject name by the used name strategy when producing messages.
+	NameStrategyValidation *bool `groups:"create,update" json:"name_strategy_validation,omitempty"`
+
 	// +kubebuilder:validation:Enum="all";"-1";"0";"1"
 	// The number of acknowledgments the producer requires the leader to have received before considering a request complete. If set to 'all' or '-1', the leader will wait for the full set of in-sync replicas to acknowledge the record.
 	ProducerAcks *string `groups:"create,update" json:"producer_acks,omitempty"`
@@ -490,6 +493,9 @@ type KafkaUserConfig struct {
 
 	// Schema Registry configuration
 	SchemaRegistryConfig *SchemaRegistryConfig `groups:"create,update" json:"schema_registry_config,omitempty"`
+
+	// Store logs for the service so that they are available in the HTTP API and console.
+	ServiceLog *bool `groups:"create,update" json:"service_log,omitempty"`
 
 	// Use static public IP addresses
 	StaticIps *bool `groups:"create,update" json:"static_ips,omitempty"`

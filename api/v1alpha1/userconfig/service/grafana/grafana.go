@@ -407,6 +407,9 @@ type GrafanaUserConfig struct {
 	// Name of the basebackup to restore in forked service
 	RecoveryBasebackupName *string `groups:"create,update" json:"recovery_basebackup_name,omitempty"`
 
+	// Store logs for the service so that they are available in the HTTP API and console.
+	ServiceLog *bool `groups:"create,update" json:"service_log,omitempty"`
+
 	// +kubebuilder:validation:MaxLength=64
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Name of another service to fork from. This has effect only when a new service is being created.

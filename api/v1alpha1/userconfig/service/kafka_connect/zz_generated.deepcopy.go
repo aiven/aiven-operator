@@ -161,6 +161,11 @@ func (in *KafkaConnectUserConfig) DeepCopyInto(out *KafkaConnectUserConfig) {
 		*out = new(PublicAccess)
 		(*in).DeepCopyInto(*out)
 	}
+	if in.ServiceLog != nil {
+		in, out := &in.ServiceLog, &out.ServiceLog
+		*out = new(bool)
+		**out = **in
+	}
 	if in.StaticIps != nil {
 		in, out := &in.StaticIps, &out.StaticIps
 		*out = new(bool)
