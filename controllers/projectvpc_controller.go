@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/aiven/aiven-go-client/v2"
+	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -27,13 +28,15 @@ type ProjectVPCReconciler struct {
 	Controller
 }
 
-type ProjectVPCHandler struct{}
+type ProjectVPCHandler struct {
+	log logr.Logger
+}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=projectvpcs,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=projectvpcs/status,verbs=get;update;patch
 
 func (r *ProjectVPCReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, &ProjectVPCHandler{}, &v1alpha1.ProjectVPC{})
+	return r.reconcileInstance(ctx, req, &ProjectVPCHandler{log: r.Log}, &v1alpha1.ProjectVPC{})
 }
 
 func (r *ProjectVPCReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -90,6 +93,18 @@ func (h *ProjectVPCHandler) delete(ctx context.Context, avn *aiven.Client, obj c
 	switch vpc.State {
 	case "DELETING", "DELETED":
 		return true, nil
+	}
+
+	services, err := avn.Services.List(ctx, projectVPC.Spec.Project)
+	if err != nil {
+		return false, err
+	}
+
+	for _, s := range services {
+		if s.ProjectVPCID != nil && *s.ProjectVPCID == projectVPC.Status.ID {
+			h.log.Info(fmt.Sprintf("vpc has dependent service %q in status %q", s.Name, s.State))
+			return false, nil
+		}
 	}
 
 	err = avn.VPCs.Delete(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
