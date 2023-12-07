@@ -1,5 +1,37 @@
 # Changelog
 
+
+## v0.16.0 - 2023-12-07
+
+- Set conditions on errors: `Preconditions`, `CreateOrUpdate`, `Delete`. Thanks to @atarax
+- Fix object updates lost when reconciler exits before the object is committed  
+- Add `Kafka` field `userConfig.kafka.transaction_partition_verification_enable`, type `boolean`: Enable
+  verification that checks that the partition has been added to the transaction before writing transactional
+  records to the partition
+- Add `Cassandra` field `userConfig.service_log`, type `boolean`: Store logs for the service so that
+  they are available in the HTTP API and console
+- Add `Clickhouse` field `userConfig.service_log`, type `boolean`: Store logs for the service so that
+  they are available in the HTTP API and console
+- Add `Grafana` field `userConfig.service_log`, type `boolean`: Store logs for the service so that they
+  are available in the HTTP API and console
+- Add `KafkaConnect` field `userConfig.service_log`, type `boolean`: Store logs for the service so that
+  they are available in the HTTP API and console
+- Add `Kafka` field `userConfig.kafka_rest_config.name_strategy_validation`, type `boolean`: If true,
+  validate that given schema is registered under expected subject name by the used name strategy when
+  producing messages
+- Add `Kafka` field `userConfig.service_log`, type `boolean`: Store logs for the service so that they
+  are available in the HTTP API and console
+- Add `MySQL` field `userConfig.service_log`, type `boolean`: Store logs for the service so that they
+  are available in the HTTP API and console
+- Add `OpenSearch` field `userConfig.service_log`, type `boolean`: Store logs for the service so that
+  they are available in the HTTP API and console
+- Add `PostgreSQL` field `userConfig.pg_qualstats`, type `object`: System-wide settings for the pg_qualstats
+  extension
+- Add `PostgreSQL` field `userConfig.service_log`, type `boolean`: Store logs for the service so that
+  they are available in the HTTP API and console
+- Add `Redis` field `userConfig.service_log`, type `boolean`: Store logs for the service so that they
+  are available in the HTTP API and console
+
 ## v0.15.0 - 2023-11-17
 
 - Upgrade to Go 1.21

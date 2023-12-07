@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.16.0 - 2023-12-07
+
 - Set conditions on errors: `Preconditions`, `CreateOrUpdate`, `Delete`. Thanks to @atarax
 - Fix object updates lost when reconciler exits before the object is committed  
 - Add `Kafka` field `userConfig.kafka.transaction_partition_verification_enable`, type `boolean`: Enable
