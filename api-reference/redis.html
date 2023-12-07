@@ -1959,6 +1959,7 @@
 <li><a href="#spec.userConfig.redis_pubsub_client_output_buffer_limit-property" name="spec.userConfig.redis_pubsub_client_output_buffer_limit-property"><code>redis_pubsub_client_output_buffer_limit</code></a> (integer, Minimum: 32, Maximum: 512). Set output buffer limit for pub / sub clients in MB. The value is the hard limit, the soft limit is 1/4 of the hard limit. When setting the limit, be mindful of the available memory in the selected service plan.</li>
 <li><a href="#spec.userConfig.redis_ssl-property" name="spec.userConfig.redis_ssl-property"><code>redis_ssl</code></a> (boolean). Require SSL to access Redis.</li>
 <li><a href="#spec.userConfig.redis_timeout-property" name="spec.userConfig.redis_timeout-property"><code>redis_timeout</code></a> (integer, Minimum: 0, Maximum: 31536000). Redis idle connection timeout in seconds.</li>
+<li><a href="#spec.userConfig.service_log-property" name="spec.userConfig.service_log-property"><code>service_log</code></a> (boolean). Store logs for the service so that they are available in the HTTP API and console.</li>
 <li><a href="#spec.userConfig.service_to_fork_from-property" name="spec.userConfig.service_to_fork_from-property"><code>service_to_fork_from</code></a> (string, Immutable, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.</li>
 <li><a href="#spec.userConfig.static_ips-property" name="spec.userConfig.static_ips-property"><code>static_ips</code></a> (boolean). Use static public IP addresses.</li>
 </ul>

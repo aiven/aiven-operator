@@ -2124,6 +2124,7 @@
 <li><a href="#spec.userConfig.public_access-property" name="spec.userConfig.public_access-property"><code>public_access</code></a> (object). Allow access to selected service ports from the public Internet. See below for <a href="#spec.userConfig.public_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.recovery_basebackup_name-property" name="spec.userConfig.recovery_basebackup_name-property"><code>recovery_basebackup_name</code></a> (string, Pattern: <code>^[a-zA-Z0-9-_:.]+$</code>, MaxLength: 128). Name of the basebackup to restore in forked service.</li>
 <li><a href="#spec.userConfig.saml-property" name="spec.userConfig.saml-property"><code>saml</code></a> (object). OpenSearch SAML configuration. See below for <a href="#spec.userConfig.saml">nested schema</a>.</li>
+<li><a href="#spec.userConfig.service_log-property" name="spec.userConfig.service_log-property"><code>service_log</code></a> (boolean). Store logs for the service so that they are available in the HTTP API and console.</li>
 <li><a href="#spec.userConfig.service_to_fork_from-property" name="spec.userConfig.service_to_fork_from-property"><code>service_to_fork_from</code></a> (string, Immutable, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.</li>
 <li><a href="#spec.userConfig.static_ips-property" name="spec.userConfig.static_ips-property"><code>static_ips</code></a> (boolean). Use static public IP addresses.</li>
 </ul>

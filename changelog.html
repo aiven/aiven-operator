@@ -427,6 +427,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0160-2023-12-07" class="md-nav__link">
+    <span class="md-ellipsis">
+      v0.16.0 - 2023-12-07
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0150-2023-11-17" class="md-nav__link">
     <span class="md-ellipsis">
       v0.15.0 - 2023-11-17
@@ -1739,6 +1748,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0160-2023-12-07" class="md-nav__link">
+    <span class="md-ellipsis">
+      v0.16.0 - 2023-12-07
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0150-2023-11-17" class="md-nav__link">
     <span class="md-ellipsis">
       v0.15.0 - 2023-11-17
@@ -1936,6 +1954,37 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0160-2023-12-07">v0.16.0 - 2023-12-07<a class="headerlink" href="#v0160-2023-12-07" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Set conditions on errors: <code>Preconditions</code>, <code>CreateOrUpdate</code>, <code>Delete</code>. Thanks to @atarax</li>
+<li>Fix object updates lost when reconciler exits before the object is committed  </li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka.transaction_partition_verification_enable</code>, type <code>boolean</code>: Enable
+  verification that checks that the partition has been added to the transaction before writing transactional
+  records to the partition</li>
+<li>Add <code>Cassandra</code> field <code>userConfig.service_log</code>, type <code>boolean</code>: Store logs for the service so that
+  they are available in the HTTP API and console</li>
+<li>Add <code>Clickhouse</code> field <code>userConfig.service_log</code>, type <code>boolean</code>: Store logs for the service so that
+  they are available in the HTTP API and console</li>
+<li>Add <code>Grafana</code> field <code>userConfig.service_log</code>, type <code>boolean</code>: Store logs for the service so that they
+  are available in the HTTP API and console</li>
+<li>Add <code>KafkaConnect</code> field <code>userConfig.service_log</code>, type <code>boolean</code>: Store logs for the service so that
+  they are available in the HTTP API and console</li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka_rest_config.name_strategy_validation</code>, type <code>boolean</code>: If true,
+  validate that given schema is registered under expected subject name by the used name strategy when
+  producing messages</li>
+<li>Add <code>Kafka</code> field <code>userConfig.service_log</code>, type <code>boolean</code>: Store logs for the service so that they
+  are available in the HTTP API and console</li>
+<li>Add <code>MySQL</code> field <code>userConfig.service_log</code>, type <code>boolean</code>: Store logs for the service so that they
+  are available in the HTTP API and console</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.service_log</code>, type <code>boolean</code>: Store logs for the service so that
+  they are available in the HTTP API and console</li>
+<li>Add <code>PostgreSQL</code> field <code>userConfig.pg_qualstats</code>, type <code>object</code>: System-wide settings for the pg_qualstats
+  extension</li>
+<li>Add <code>PostgreSQL</code> field <code>userConfig.service_log</code>, type <code>boolean</code>: Store logs for the service so that
+  they are available in the HTTP API and console</li>
+<li>Add <code>Redis</code> field <code>userConfig.service_log</code>, type <code>boolean</code>: Store logs for the service so that they
+  are available in the HTTP API and console</li>
+</ul>
 <h2 id="v0150-2023-11-17">v0.15.0 - 2023-11-17<a class="headerlink" href="#v0150-2023-11-17" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Upgrade to Go 1.21</li>
