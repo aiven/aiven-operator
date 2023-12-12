@@ -80,13 +80,15 @@ func (a *kafkaAdapter) newSecret(ctx context.Context, s *aiven.Service) (*corev1
 
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
-		prefix + "HOST":        s.URIParams["host"],
-		prefix + "PORT":        s.URIParams["port"],
-		prefix + "PASSWORD":    password,
-		prefix + "USERNAME":    userName,
-		prefix + "ACCESS_CERT": s.ConnectionInfo.KafkaAccessCert,
-		prefix + "ACCESS_KEY":  s.ConnectionInfo.KafkaAccessKey,
-		prefix + "CA_CERT":     caCert,
+		prefix + "HOST":                s.URIParams["host"],
+		prefix + "PORT":                s.URIParams["port"],
+		prefix + "PASSWORD":            password,
+		prefix + "USERNAME":            userName,
+		prefix + "ACCESS_CERT":         s.ConnectionInfo.KafkaAccessCert,
+		prefix + "ACCESS_KEY":          s.ConnectionInfo.KafkaAccessKey,
+		prefix + "REST_URI":            s.ConnectionInfo.KafkaRestURI,
+		prefix + "SCHEMA_REGISTRY_URI": s.ConnectionInfo.SchemaRegistryURI,
+		prefix + "CA_CERT":             caCert,
 		// todo: remove in future releases
 		"HOST":        s.URIParams["host"],
 		"PORT":        s.URIParams["port"],

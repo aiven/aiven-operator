@@ -129,6 +129,7 @@ func TestKafka(t *testing.T) {
 
 	// Schema registry test
 	assert.Equal(t, anyPointer(true), ks.Spec.UserConfig.SchemaRegistry)
+	assert.NotEmpty(t, secret.Data["KAFKA_SCHEMA_REGISTRY_URI"])
 	assert.NotEmpty(t, secret.Data["KAFKA_SCHEMA_REGISTRY_HOST"])
 	assert.NotEmpty(t, secret.Data["KAFKA_SCHEMA_REGISTRY_PORT"])
 	assert.NotEqual(t, secret.Data["KAFKA_SCHEMA_REGISTRY_PORT"], secret.Data["KAFKA_PORT"])
@@ -143,6 +144,7 @@ func TestKafka(t *testing.T) {
 
 	// Kafka REST test
 	assert.Equal(t, anyPointer(true), ks.Spec.UserConfig.KafkaRest)
+	assert.NotEmpty(t, secret.Data["KAFKA_REST_URI"])
 	assert.NotEmpty(t, secret.Data["KAFKA_REST_HOST"])
 	assert.NotEmpty(t, secret.Data["KAFKA_REST_PORT"])
 	assert.NotEqual(t, secret.Data["KAFKA_REST_PORT"], secret.Data["KAFKA_PORT"])
