@@ -3,6 +3,7 @@ package tests
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,10 +12,10 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getServiceUserYaml(project, pgName, userName, cloudName string) string {
+func getServiceUserYaml(project, kafkaName, userName, cloudName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
-kind: PostgreSQL
+kind: Kafka
 metadata:
   name: %[2]s
 spec:
@@ -24,8 +25,12 @@ spec:
 
   project: %[1]s
   cloudName: %[4]s
-  plan: startup-4
+  plan: startup-2
 
+  userConfig:
+    kafka_authentication_methods:
+      sasl: true
+      certificate: false
 ---
 
 apiVersion: aiven.io/v1alpha1
@@ -46,7 +51,7 @@ spec:
 
   project: %[1]s
   serviceName: %[2]s
-`, project, pgName, userName, cloudName)
+`, project, kafkaName, userName, cloudName)
 }
 
 func TestServiceUser(t *testing.T) {
@@ -55,12 +60,12 @@ func TestServiceUser(t *testing.T) {
 
 	// GIVEN
 	ctx := context.Background()
-	pgName := randName("connection-pool")
-	userName := randName("connection-pool")
-	yml := getServiceUserYaml(testProject, pgName, userName, testPrimaryCloudName)
+	kafkaName := randName("service-user")
+	userName := randName("service-user")
+	yml := getServiceUserYaml(testProject, kafkaName, userName, testPrimaryCloudName)
 	s := NewSession(k8sClient, avnClient, testProject)
 
-	// Cleans test afterwards
+	// Cleans test afterward
 	defer s.Destroy()
 
 	// WHEN
@@ -68,28 +73,28 @@ func TestServiceUser(t *testing.T) {
 	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
-	pg := new(v1alpha1.PostgreSQL)
-	require.NoError(t, s.GetRunning(pg, pgName))
+	kafka := new(v1alpha1.Kafka)
+	require.NoError(t, s.GetRunning(kafka, kafkaName))
 
 	user := new(v1alpha1.ServiceUser)
 	require.NoError(t, s.GetRunning(user, userName))
 
 	// THEN
-	// Validates PostgreSQL
-	pgAvn, err := avnClient.Services.Get(ctx, testProject, pgName)
+	// Validates Kafka
+	kafkaAvn, err := avnClient.Services.Get(ctx, testProject, kafkaName)
 	require.NoError(t, err)
-	assert.Equal(t, pgAvn.Name, pg.GetName())
-	assert.Equal(t, "RUNNING", pg.Status.State)
-	assert.Equal(t, pgAvn.State, pg.Status.State)
-	assert.Equal(t, pgAvn.Plan, pg.Spec.Plan)
-	assert.Equal(t, pgAvn.CloudName, pg.Spec.CloudName)
+	assert.Equal(t, kafkaAvn.Name, kafka.GetName())
+	assert.Equal(t, "RUNNING", kafka.Status.State)
+	assert.Equal(t, kafkaAvn.State, kafka.Status.State)
+	assert.Equal(t, kafkaAvn.Plan, kafka.Spec.Plan)
+	assert.Equal(t, kafkaAvn.CloudName, kafka.Spec.CloudName)
 
 	// Validates ServiceUser
-	userAvn, err := avnClient.ServiceUsers.Get(ctx, testProject, pgName, userName)
+	userAvn, err := avnClient.ServiceUsers.Get(ctx, testProject, kafkaName, userName)
 	require.NoError(t, err)
 	assert.Equal(t, userName, user.GetName())
 	assert.Equal(t, userName, userAvn.Username)
-	assert.Equal(t, pgName, user.Spec.ServiceName)
+	assert.Equal(t, kafkaName, user.Spec.ServiceName)
 
 	// Validates Secret
 	secret, err := s.GetSecret("my-service-user-secret")
@@ -111,12 +116,22 @@ func TestServiceUser(t *testing.T) {
 	assert.Equal(t, map[string]string{"foo": "bar"}, secret.Annotations)
 	assert.Equal(t, map[string]string{"baz": "egg"}, secret.Labels)
 
+	// This kafka has sasl enabled and cert auth disabled.
+	// Which means that the port is not the same as in uri params.
+	strPort := string(secret.Data["SERVICEUSER_PORT"])
+	assert.NotEmpty(t, kafkaAvn.URIParams["port"])
+	assert.NotEqual(t, kafkaAvn.URIParams["port"], strPort)
+
+	intPort, err := strconv.ParseInt(strPort, 10, 32)
+	assert.NoError(t, err)
+	assert.True(t, intPort > 0)
+
 	// We need to validate deletion,
 	// because we can get false positive here:
 	// if service is deleted, pool is destroyed in Aiven. No service — no pool. No pool — no pool.
-	// And we make sure that controller can delete db itself
+	// And we make sure that the controller can delete db itself
 	assert.NoError(t, s.Delete(user, func() error {
-		_, err = avnClient.ServiceUsers.Get(ctx, testProject, pgName, userName)
+		_, err = avnClient.ServiceUsers.Get(ctx, testProject, kafkaName, userName)
 		return err
 	}))
 }
