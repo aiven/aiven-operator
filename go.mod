@@ -17,7 +17,7 @@ require (
 	github.com/xeipuuv/gojsonschema v1.2.0
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
 	golang.org/x/sync v0.5.0
-	golang.org/x/tools v0.16.0
+	golang.org/x/tools v0.16.1
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.25.16
 	k8s.io/apimachinery v0.25.16
