@@ -5,6 +5,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strconv"
 
 	"github.com/aiven/aiven-go-client/v2"
@@ -129,6 +130,12 @@ func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, obj c
 		return nil, fmt.Errorf("cannot get ConnectionPool: %w", err)
 	}
 
+	// The pool comes with its own port
+	poolURI, err := url.Parse(cp.ConnectionURI)
+	if err != nil {
+		return nil, fmt.Errorf("can't parse ConnectionPool URI: %w", err)
+	}
+
 	s, err := avn.Services.Get(ctx, connPool.Spec.Project, connPool.Spec.ServiceName)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get service: %w", err)
@@ -143,8 +150,9 @@ func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, obj c
 	if len(connPool.Spec.Username) == 0 {
 		prefix := getSecretPrefix(connPool)
 		stringData := map[string]string{
+			prefix + "NAME":         connPool.Name,
 			prefix + "HOST":         s.URIParams["host"],
-			prefix + "PORT":         s.URIParams["port"],
+			prefix + "PORT":         poolURI.Port(),
 			prefix + "DATABASE":     cp.Database,
 			prefix + "USER":         s.URIParams["user"],
 			prefix + "PASSWORD":     s.URIParams["password"],
@@ -152,7 +160,7 @@ func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, obj c
 			prefix + "DATABASE_URI": cp.ConnectionURI,
 			// todo: remove in future releases
 			"PGHOST":       s.URIParams["host"],
-			"PGPORT":       s.URIParams["port"],
+			"PGPORT":       poolURI.Port(),
 			"PGDATABASE":   cp.Database,
 			"PGUSER":       s.URIParams["user"],
 			"PGPASSWORD":   s.URIParams["password"],
@@ -170,8 +178,9 @@ func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, obj c
 
 	prefix := getSecretPrefix(connPool)
 	stringData := map[string]string{
+		prefix + "NAME":         connPool.Name,
 		prefix + "HOST":         s.URIParams["host"],
-		prefix + "PORT":         s.URIParams["port"],
+		prefix + "PORT":         poolURI.Port(),
 		prefix + "DATABASE":     cp.Database,
 		prefix + "USER":         cp.Username,
 		prefix + "PASSWORD":     u.Password,
@@ -179,7 +188,7 @@ func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, obj c
 		prefix + "DATABASE_URI": cp.ConnectionURI,
 		// todo: remove in future releases
 		"PGHOST":       s.URIParams["host"],
-		"PGPORT":       s.URIParams["port"],
+		"PGPORT":       poolURI.Port(),
 		"PGDATABASE":   cp.Database,
 		"PGUSER":       cp.Username,
 		"PGPASSWORD":   u.Password,

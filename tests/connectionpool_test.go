@@ -157,6 +157,7 @@ func TestConnectionPool(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["DATABASE_URI"])
 
 	// New secrets
+	assert.Equal(t, poolName, string(secret.Data["CONNECTIONPOOL_NAME"]))
 	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_HOST"])
 	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_PORT"])
 	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_DATABASE"])
@@ -164,6 +165,11 @@ func TestConnectionPool(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_PASSWORD"])
 	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_SSLMODE"])
 	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_DATABASE_URI"])
+
+	// URI contains valid values
+	uri := string(secret.Data["CONNECTIONPOOL_DATABASE_URI"])
+	assert.Contains(t, uri, string(secret.Data["CONNECTIONPOOL_HOST"]))
+	assert.Contains(t, uri, string(secret.Data["CONNECTIONPOOL_PORT"]))
 
 	// We need to validate deletion,
 	// because we can get false positive here:
