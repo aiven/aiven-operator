@@ -106,7 +106,17 @@ func (h ServiceUserHandler) get(ctx context.Context, avn *aiven.Client, obj clie
 		return nil, err
 	}
 
-	params := s.URIParams
+	var component *aiven.ServiceComponents
+	for _, c := range s.Components {
+		if c.Component == s.Type {
+			component = c
+			break
+		}
+	}
+
+	if component == nil {
+		return nil, fmt.Errorf("service component %q not found", s.Type)
+	}
 
 	caCert, err := avn.CA.Get(ctx, user.Spec.Project)
 	if err != nil {
@@ -121,16 +131,16 @@ func (h ServiceUserHandler) get(ctx context.Context, avn *aiven.Client, obj clie
 
 	prefix := getSecretPrefix(user)
 	stringData := map[string]string{
-		prefix + "HOST":        params["host"],
-		prefix + "PORT":        params["port"],
+		prefix + "HOST":        component.Host,
+		prefix + "PORT":        fmt.Sprintf("%d", component.Port),
 		prefix + "USERNAME":    u.Username,
 		prefix + "PASSWORD":    u.Password,
 		prefix + "ACCESS_CERT": u.AccessCert,
 		prefix + "ACCESS_KEY":  u.AccessKey,
 		prefix + "CA_CERT":     caCert,
 		// todo: remove in future releases
-		"HOST":        params["host"],
-		"PORT":        params["port"],
+		"HOST":        component.Host,
+		"PORT":        fmt.Sprintf("%d", component.Port),
 		"USERNAME":    u.Username,
 		"PASSWORD":    u.Password,
 		"ACCESS_CERT": u.AccessCert,

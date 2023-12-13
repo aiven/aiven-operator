@@ -271,9 +271,8 @@ catalog-build: opm ## Build a catalog image.
 catalog-push: ## Push a catalog image.
 	$(MAKE) docker-push IMG=$(CATALOG_IMG)
 
-# Release manifests
-.PHONY: release-manifests
-release-manifests: manifests kustomize
+.PHONY: build-manifests
+build-manifests: manifests kustomize
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	mkdir -p releases
 	$(KUSTOMIZE) build config/default > releases/aiven-operator-${IMG_TAG}.yaml
@@ -342,6 +341,7 @@ endif
 		aiven-operator charts/aiven-operator
 
 # On MACOS requires gnu-sed. Run `brew info gnu-sed` and follow instructions to replace default sed.
+.PHONY: imports
 imports:
 	find . -type f -name '*.go' -exec sed -zi 's/"\n\+\t"/"\n"/g' {} +
 	goimports -local "github.com/aiven/aiven-operator" -w .

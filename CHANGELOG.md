@@ -8,6 +8,7 @@
 - Expose `KAFKA_SCHEMA_REGISTRY_URI` and `KAFKA_REST_URI` to `Kafka` secret
 - Expose `CONNECTIONPOOL_NAME` in `ConnectionPool` secret
 - Fix `CONNECTIONPOOL_PORT` exposes service port instead of pool port 
+- Fix `SERVICEUSER_PORT` when `sasl` is the only authentication method
 
 ## v0.16.0 - 2023-12-07
 
