@@ -139,7 +139,7 @@ PostgreSQL specific user configuration options.
 - [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
 - [`migration`](#spec.userConfig.migration-property){: name='spec.userConfig.migration-property'} (object). Migrate data from existing server. See below for [nested schema](#spec.userConfig.migration).
 - [`pg`](#spec.userConfig.pg-property){: name='spec.userConfig.pg-property'} (object). postgresql.conf configuration values. See below for [nested schema](#spec.userConfig.pg).
-- [`pg_qualstats`](#spec.userConfig.pg_qualstats-property){: name='spec.userConfig.pg_qualstats-property'} (object). System-wide settings for the pg_qualstats extension. See below for [nested schema](#spec.userConfig.pg_qualstats).
+- [`pg_qualstats`](#spec.userConfig.pg_qualstats-property){: name='spec.userConfig.pg_qualstats-property'} (object). Deprecated. System-wide settings for the pg_qualstats extension. See below for [nested schema](#spec.userConfig.pg_qualstats).
 - [`pg_read_replica`](#spec.userConfig.pg_read_replica-property){: name='spec.userConfig.pg_read_replica-property'} (boolean). Should the service which is being forked be a read replica (deprecated, use read_replica service integration instead).
 - [`pg_service_to_fork_from`](#spec.userConfig.pg_service_to_fork_from-property){: name='spec.userConfig.pg_service_to_fork_from-property'} (string, Immutable, MaxLength: 64). Name of the PG Service from which to fork (deprecated, use service_to_fork_from). This has effect only when a new service is being created.
 - [`pg_stat_monitor_enable`](#spec.userConfig.pg_stat_monitor_enable-property){: name='spec.userConfig.pg_stat_monitor_enable-property'} (boolean). Enable the pg_stat_monitor extension. Enabling this extension will cause the cluster to be restarted.When this extension is enabled, pg_stat_statements results for utility commands are unreliable.
@@ -256,15 +256,15 @@ postgresql.conf configuration values.
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
 
-System-wide settings for the pg_qualstats extension.
+Deprecated. System-wide settings for the pg_qualstats extension.
 
 **Optional**
 
-- [`enabled`](#spec.userConfig.pg_qualstats.enabled-property){: name='spec.userConfig.pg_qualstats.enabled-property'} (boolean). Enable / Disable pg_qualstats.
-- [`min_err_estimate_num`](#spec.userConfig.pg_qualstats.min_err_estimate_num-property){: name='spec.userConfig.pg_qualstats.min_err_estimate_num-property'} (integer, Minimum: 0). Error estimation num threshold to save quals.
-- [`min_err_estimate_ratio`](#spec.userConfig.pg_qualstats.min_err_estimate_ratio-property){: name='spec.userConfig.pg_qualstats.min_err_estimate_ratio-property'} (integer, Minimum: 0). Error estimation ratio threshold to save quals.
-- [`track_constants`](#spec.userConfig.pg_qualstats.track_constants-property){: name='spec.userConfig.pg_qualstats.track_constants-property'} (boolean). Enable / Disable pg_qualstats constants tracking.
-- [`track_pg_catalog`](#spec.userConfig.pg_qualstats.track_pg_catalog-property){: name='spec.userConfig.pg_qualstats.track_pg_catalog-property'} (boolean). Track quals on system catalogs too.
+- [`enabled`](#spec.userConfig.pg_qualstats.enabled-property){: name='spec.userConfig.pg_qualstats.enabled-property'} (boolean). Deprecated. Enable / Disable pg_qualstats.
+- [`min_err_estimate_num`](#spec.userConfig.pg_qualstats.min_err_estimate_num-property){: name='spec.userConfig.pg_qualstats.min_err_estimate_num-property'} (integer, Minimum: 0). Deprecated. Error estimation num threshold to save quals.
+- [`min_err_estimate_ratio`](#spec.userConfig.pg_qualstats.min_err_estimate_ratio-property){: name='spec.userConfig.pg_qualstats.min_err_estimate_ratio-property'} (integer, Minimum: 0). Deprecated. Error estimation ratio threshold to save quals.
+- [`track_constants`](#spec.userConfig.pg_qualstats.track_constants-property){: name='spec.userConfig.pg_qualstats.track_constants-property'} (boolean). Deprecated. Enable / Disable pg_qualstats constants tracking.
+- [`track_pg_catalog`](#spec.userConfig.pg_qualstats.track_pg_catalog-property){: name='spec.userConfig.pg_qualstats.track_pg_catalog-property'} (boolean). Deprecated. Track quals on system catalogs too.
 
 ### pgbouncer {: #spec.userConfig.pgbouncer }
 

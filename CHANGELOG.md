@@ -2,6 +2,12 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Change `PostgreSQL` field `userConfig.pg_qualstats.enabled`: deprecated
+- Change `PostgreSQL` field `userConfig.pg_qualstats.min_err_estimate_num`: deprecated
+- Change `PostgreSQL` field `userConfig.pg_qualstats.min_err_estimate_ratio`: deprecated
+- Change `PostgreSQL` field `userConfig.pg_qualstats.track_constants`: deprecated
+- Change `PostgreSQL` field `userConfig.pg_qualstats.track_pg_catalog`: deprecated
+
 ## v0.16.1 - YYYY-MM-DD
 
 - Check VPC for running services before deletion
