@@ -624,24 +624,28 @@ spec:
                         type: integer
                     type: object
                   pg_qualstats:
-                    description: System-wide settings for the pg_qualstats extension
+                    description: Deprecated. System-wide settings for the pg_qualstats
+                      extension
                     properties:
                       enabled:
-                        description: Enable / Disable pg_qualstats
+                        description: Deprecated. Enable / Disable pg_qualstats
                         type: boolean
                       min_err_estimate_num:
-                        description: Error estimation num threshold to save quals
+                        description: Deprecated. Error estimation num threshold to
+                          save quals
                         minimum: 0
                         type: integer
                       min_err_estimate_ratio:
-                        description: Error estimation ratio threshold to save quals
+                        description: Deprecated. Error estimation ratio threshold
+                          to save quals
                         minimum: 0
                         type: integer
                       track_constants:
-                        description: Enable / Disable pg_qualstats constants tracking
+                        description: Deprecated. Enable / Disable pg_qualstats constants
+                          tracking
                         type: boolean
                       track_pg_catalog:
-                        description: Track quals on system catalogs too.
+                        description: Deprecated. Track quals on system catalogs too.
                         type: boolean
                     type: object
                   pg_read_replica:

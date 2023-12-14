@@ -283,23 +283,28 @@ type Pg struct {
 	WalWriterDelay *int `groups:"create,update" json:"wal_writer_delay,omitempty"`
 }
 
-// System-wide settings for the pg_qualstats extension
+// Deprecated. System-wide settings for the pg_qualstats extension
 type PgQualstats struct {
-	// Enable / Disable pg_qualstats
+	// +kubebuilder:deprecatedversion:warning="enabled is deprecated"
+	// Deprecated. Enable / Disable pg_qualstats
 	Enabled *bool `groups:"create,update" json:"enabled,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
-	// Error estimation num threshold to save quals
+	// +kubebuilder:deprecatedversion:warning="min_err_estimate_num is deprecated"
+	// Deprecated. Error estimation num threshold to save quals
 	MinErrEstimateNum *int `groups:"create,update" json:"min_err_estimate_num,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
-	// Error estimation ratio threshold to save quals
+	// +kubebuilder:deprecatedversion:warning="min_err_estimate_ratio is deprecated"
+	// Deprecated. Error estimation ratio threshold to save quals
 	MinErrEstimateRatio *int `groups:"create,update" json:"min_err_estimate_ratio,omitempty"`
 
-	// Enable / Disable pg_qualstats constants tracking
+	// +kubebuilder:deprecatedversion:warning="track_constants is deprecated"
+	// Deprecated. Enable / Disable pg_qualstats constants tracking
 	TrackConstants *bool `groups:"create,update" json:"track_constants,omitempty"`
 
-	// Track quals on system catalogs too.
+	// +kubebuilder:deprecatedversion:warning="track_pg_catalog is deprecated"
+	// Deprecated. Track quals on system catalogs too.
 	TrackPgCatalog *bool `groups:"create,update" json:"track_pg_catalog,omitempty"`
 }
 
@@ -438,7 +443,8 @@ type PgUserConfig struct {
 	// postgresql.conf configuration values
 	Pg *Pg `groups:"create,update" json:"pg,omitempty"`
 
-	// System-wide settings for the pg_qualstats extension
+	// +kubebuilder:deprecatedversion:warning="pg_qualstats is deprecated"
+	// Deprecated. System-wide settings for the pg_qualstats extension
 	PgQualstats *PgQualstats `groups:"create,update" json:"pg_qualstats,omitempty"`
 
 	// Should the service which is being forked be a read replica (deprecated, use read_replica service integration instead).
