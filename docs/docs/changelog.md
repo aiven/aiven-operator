@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v0.16.1 - 2023-12-15
+
+- Check VPC for running services before deletion. Prevents VPC from hanging in the DELETING state  
+- Expose `KAFKA_SCHEMA_REGISTRY_URI` and `KAFKA_REST_URI` to `Kafka` secret
+- Expose `CONNECTIONPOOL_NAME` in `ConnectionPool` secret
+- Fix `CONNECTIONPOOL_PORT` exposes service port instead of pool port 
+- Fix `SERVICEUSER_PORT` when `sasl` is the only authentication method
+- Change `PostgreSQL` field `userConfig.pg_qualstats.enabled`: deprecated
+- Change `PostgreSQL` field `userConfig.pg_qualstats.min_err_estimate_num`: deprecated
+- Change `PostgreSQL` field `userConfig.pg_qualstats.min_err_estimate_ratio`: deprecated
+- Change `PostgreSQL` field `userConfig.pg_qualstats.track_constants`: deprecated
+- Change `PostgreSQL` field `userConfig.pg_qualstats.track_pg_catalog`: deprecated
+
 ## v0.16.0 - 2023-12-07
 
 - Set conditions on errors: `Preconditions`, `CreateOrUpdate`, `Delete`. Thanks to @atarax
