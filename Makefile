@@ -193,6 +193,7 @@ CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
 ENVTEST ?= $(LOCALBIN)/setup-envtest
 GOLANGCILINT=$(LOCALBIN)/golangci-lint
 GEN_CRD_API_REF_DOCS=$(LOCALBIN)/gen-crd-api-reference-docs
+GOIMPORTS ?= $(LOCALBIN)/goimports
 
 
 ## Tool Versions
@@ -340,8 +341,13 @@ endif
 		--set webhooks.enabled=${WEBHOOKS_ENABLED} \
 		aiven-operator charts/aiven-operator
 
+.PHONY: goimports
+goimports: $(GOIMPORTS) ## Download goimports locally if necessary.
+$(GOIMPORTS): $(LOCALBIN)
+	test -s $(LOCALBIN)/goimports || GOBIN=$(LOCALBIN) go install golang.org/x/tools/cmd/goimports@latest
+
 # On MACOS requires gnu-sed. Run `brew info gnu-sed` and follow instructions to replace default sed.
 .PHONY: imports
-imports:
+imports: goimports
 	find . -type f -name '*.go' -exec sed -zi 's/"\n\+\t"/"\n"/g' {} +
-	goimports -local "github.com/aiven/aiven-operator" -w .
+	$(GOIMPORTS) -local "github.com/aiven/aiven-operator" -w .
