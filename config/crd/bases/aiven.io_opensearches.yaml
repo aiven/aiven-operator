@@ -483,6 +483,9 @@ spec:
                         maxLength: 320
                         pattern: ^[^\x00-\x1F]+$
                         type: string
+                      enable_security_audit:
+                        description: Enable/Disable security audit
+                        type: boolean
                       http_max_content_length:
                         description: Maximum content length for HTTP requests to the
                           OpenSearch HTTP API, in bytes.

@@ -300,6 +300,11 @@ func (in *Opensearch) DeepCopyInto(out *Opensearch) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.EnableSecurityAudit != nil {
+		in, out := &in.EnableSecurityAudit, &out.EnableSecurityAudit
+		*out = new(bool)
+		**out = **in
+	}
 	if in.HttpMaxContentLength != nil {
 		in, out := &in.HttpMaxContentLength, &out.HttpMaxContentLength
 		*out = new(int)

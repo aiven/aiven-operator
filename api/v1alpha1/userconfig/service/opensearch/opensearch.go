@@ -219,6 +219,9 @@ type Opensearch struct {
 	// Sender username for Opensearch alerts
 	EmailSenderUsername *string `groups:"create,update" json:"email_sender_username,omitempty"`
 
+	// Enable/Disable security audit
+	EnableSecurityAudit *bool `groups:"create,update" json:"enable_security_audit,omitempty"`
+
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=2147483647
 	// Maximum content length for HTTP requests to the OpenSearch HTTP API, in bytes.

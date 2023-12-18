@@ -2,6 +2,9 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `OpenSearch` field `userConfig.opensearch.enable_security_audit`, type `boolean`: Enable/Disable
+  security audit
+
 ## v0.16.1 - 2023-12-15
 
 - Check VPC for running services before deletion. Prevents VPC from hanging in the DELETING state  
