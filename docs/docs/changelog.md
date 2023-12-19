@@ -152,7 +152,7 @@
 - Add `minumim`, `maximum` validations for `number` type
 - Move helm charts to the operator repository
 - Add helm charts generator
-- Remove `ip_filter` backward compatability
+- Remove `ip_filter` backward compatibility
 - Fix deletion errors omitted
 - Add service integration `clickhouseKafka.tables.data_format-property` enum `RawBLOB` value
 - Update OpenSearch `userConfig.opensearch.email_sender_username` validation pattern

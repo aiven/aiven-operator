@@ -143,7 +143,7 @@ spec:
                             minimum: 0
                             type: integer
                           pattern:
-                            description: Must consist of alpha-numeric characters,
+                            description: Must consist of alphanumeric characters,
                               dashes, underscores, dots and glob characters (* and
                               ?)
                             maxLength: 1024
