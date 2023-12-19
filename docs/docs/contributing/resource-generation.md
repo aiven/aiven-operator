@@ -14,7 +14,7 @@ When a new schema is issued on the API,
 a cron job fetches it, parses, patches, and saves in a shared library — [go-api-schemas][go-api-schemas].
 
 When the library is updated,
-the GitHub [dependabot](https://github.com/dependabot) creates PRs to the dependant repositories,
+the GitHub [dependabot](https://github.com/dependabot) creates PRs to the dependent repositories,
 like Aiven Kubernetes Operator and Aiven Terraform Provider.
 
 Then the [`make generate`](#make-generate) command is called by GitHub action.

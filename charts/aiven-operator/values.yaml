@@ -30,7 +30,7 @@ webhooks:
 image:
   repository: aivenoy/aiven-operator
   pullPolicy: IfNotPresent
-  # default is .Chart.AppVersion but can be overriden here
+  # default is .Chart.AppVersion but can be overridden here
   tag: ""
 
 imagePullSecrets: []

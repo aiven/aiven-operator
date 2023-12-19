@@ -47,7 +47,7 @@ Use the following command to visualize all the logs from the operator.
 kubectl logs -n aiven-operator-system -l control-plane=controller-manager
 ```
 
-### Verifing the operator version
+### Verifying the operator version
 
 ```shell
 kubectl get pod -n aiven-operator-system -l control-plane=controller-manager -o jsonpath="{.items[0].spec.containers[0].image}"

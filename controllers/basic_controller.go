@@ -346,7 +346,7 @@ func (i *instanceReconcilerHelper) finalize(ctx context.Context, o v1alpha1.Aive
 	deletionPolicy := deletionPolicyDelete
 
 	// Parse the annotations for the deletion policy. For simplicity, we only allow 'Orphan'.
-	// If set will skip the deletion of the remote object. Disable by removing the annoation.
+	// If set will skip the deletion of the remote object. Disable by removing the annotation.
 	if p, ok := o.GetAnnotations()[deletionPolicyAnnotation]; ok {
 		deletionPolicy = deletionPolicyOrphan
 		if p != deletionPolicyOrphan {

@@ -9,7 +9,7 @@ properties:
       max_length: 256
       pattern: ^[a-z0-9-]+$
       example: aws-eu-central-1
-      user_error: Must consist of lower-case alpha-numeric characters or dashes
+      user_error: Must consist of lower-case alphanumeric characters or dashes
     max_items: 1
   admin_password:
     title: Custom password for admin user. Defaults to random string. This must be set only when a new service is being created.
@@ -21,7 +21,7 @@ properties:
     create_only: true
     pattern: ^[a-zA-Z0-9-_]+$
     example: z66o9QXqKM
-    user_error: Must consist of alpha-numeric characters, underscores or dashes
+    user_error: Must consist of alphanumeric characters, underscores or dashes
   admin_username:
     title: Custom username for admin user. This must be set only when a new service is being created.
     type:
@@ -31,7 +31,7 @@ properties:
     create_only: true
     pattern: ^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$
     example: avnadmin
-    user_error: Must consist of alpha-numeric characters, dots, underscores or dashes, may not start with dash or dot, max 64 characters
+    user_error: Must consist of alphanumeric characters, dots, underscores or dashes, may not start with dash or dot, max 64 characters
   backup_hour:
     title: The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.
     type:
@@ -376,7 +376,7 @@ properties:
         max_length: 64
         pattern: ^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$
         example: myrolename
-        user_error: Must consist of alpha-numeric characters, dots, underscores or dashes, may not start with dash or dot, max 64 characters
+        user_error: Must consist of alphanumeric characters, dots, underscores or dashes, may not start with dash or dot, max 64 characters
       pg_stat_monitor.pgsm_enable_query_plan:
         title: pg_stat_monitor.pgsm_enable_query_plan
         description: Enables or disables query plan monitoring
