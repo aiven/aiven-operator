@@ -43,6 +43,13 @@ type testConfig struct {
 }
 
 func TestMain(m *testing.M) {
+	if os.Getenv("LIST_ONLY") != "" {
+		// For go test ./... -list=.
+		// Lists test names without running them.
+		m.Run()
+		return
+	}
+
 	env, err := setupSuite()
 	if err != nil {
 		log.Fatal(err)

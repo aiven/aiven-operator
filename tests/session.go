@@ -27,7 +27,6 @@ import (
 )
 
 const (
-	suiteTimeout       = time.Minute * 20
 	retryInterval      = time.Second * 10
 	createTimeout      = time.Second * 15
 	waitRunningTimeout = time.Minute * 20
@@ -46,23 +45,20 @@ type Session interface {
 var _ Session = &session{}
 
 type session struct {
-	k8s       client.Client
-	avn       *aiven.Client
-	ctx       context.Context
-	cancelCtx func()
-	objs      map[string]client.Object
-	project   string
+	k8s     client.Client
+	avn     *aiven.Client
+	ctx     context.Context
+	objs    map[string]client.Object
+	project string
 }
 
 func NewSession(k8s client.Client, avn *aiven.Client, project string) Session {
-	ctx, cancel := context.WithTimeout(context.Background(), suiteTimeout)
 	s := &session{
-		k8s:       k8s,
-		avn:       avn,
-		ctx:       ctx,
-		cancelCtx: cancel,
-		objs:      make(map[string]client.Object),
-		project:   project,
+		k8s:     k8s,
+		avn:     avn,
+		ctx:     context.Background(),
+		objs:    make(map[string]client.Object),
+		project: project,
 	}
 	return s
 }
@@ -146,8 +142,6 @@ func (s *session) GetSecret(keys ...string) (*corev1.Secret, error) {
 // Tolerant to "not found" error,
 // because resource may have been deleted manually
 func (s *session) Destroy() {
-	defer s.cancelCtx()
-
 	if err := recover(); err != nil {
 		log.Printf("panicked, deleting resources: %s", err)
 	}
