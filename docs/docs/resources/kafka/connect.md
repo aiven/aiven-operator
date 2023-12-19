@@ -26,7 +26,7 @@ spec:
   authSecretRef:
     name: aiven-token
     key: token
-  
+
   # outputs the Kafka connection on the `kafka-connection` Secret
   connInfoSecretTarget:
     name: kafka-auth
@@ -304,7 +304,7 @@ spec:
       name: postgres
       # "kafka-topic-connect" is the table automatically created by KafkaConnect
       command: ['psql', '$(DATABASE_URI)', '-c', 'SELECT * from "kafka-topic-connect";']
-      
+
       envFrom:
       - secretRef:
           name: pg-connection
@@ -316,16 +316,16 @@ Apply the file with:
 kubectl apply -f psql-connect.yaml
 ```
 
-After a couple of seconds, inspect its log with this command: 
+After a couple of seconds, inspect its log with this command:
 
 ```shell
-kubectl logs psql-connect 
+kubectl logs psql-connect
 ```
 
-The output is similar to the following: 
+The output is similar to the following:
 
 ```{ .shell .no-copy }
-    text     
+    text
 -------------
  Hello World
 (1 row)

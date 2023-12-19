@@ -7,12 +7,12 @@ weight: 45
 OpenSearch® is an open source search and analytics suite including search engine, NoSQL document database, and visualization interface. OpenSearch offers a distributed, full-text search engine based on Apache Lucene® with a RESTful API interface and support for JSON documents.
 
 !!! note
-    Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/) 
+    Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/)
     and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
 
 ## Creating an OpenSearch instance
 
-1\. Create a file named `os-sample.yaml`, and add the following content: 
+1\. Create a file named `os-sample.yaml`, and add the following content:
 
 ```yaml
 apiVersion: aiven.io/v1alpha1
@@ -45,7 +45,7 @@ spec:
 2\. Create the service by applying the configuration:
 
 ```shell
-kubectl apply -f os-sample.yaml 
+kubectl apply -f os-sample.yaml
 ```
 
 3\. Review the resource you created with this command:
@@ -85,7 +85,7 @@ name specified on the `connInfoSecretTarget` field.
 To view the details of the Secret, use the following command:
 
 ```shell
-kubectl describe secret os-secret 
+kubectl describe secret os-secret
 ```
 
 The output is similar to the following:

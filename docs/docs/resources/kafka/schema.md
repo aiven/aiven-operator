@@ -43,7 +43,7 @@ spec:
 2\. Apply the changes with the following command:
 
 ```shell
-kubectl apply -f kafka-schema.yaml 
+kubectl apply -f kafka-schema.yaml
 ```
 
 Now, let's create the schema itself.
@@ -79,7 +79,7 @@ spec:
       ]
     }
 
-  # sets the schema compatibility level 
+  # sets the schema compatibility level
   compatibilityLevel: BACKWARD
 ```
 

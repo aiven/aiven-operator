@@ -7,10 +7,10 @@
 
 ## v0.16.1 - 2023-12-15
 
-- Check VPC for running services before deletion. Prevents VPC from hanging in the DELETING state  
+- Check VPC for running services before deletion. Prevents VPC from hanging in the DELETING state
 - Expose `KAFKA_SCHEMA_REGISTRY_URI` and `KAFKA_REST_URI` to `Kafka` secret
 - Expose `CONNECTIONPOOL_NAME` in `ConnectionPool` secret
-- Fix `CONNECTIONPOOL_PORT` exposes service port instead of pool port 
+- Fix `CONNECTIONPOOL_PORT` exposes service port instead of pool port
 - Fix `SERVICEUSER_PORT` when `sasl` is the only authentication method
 - Change `PostgreSQL` field `userConfig.pg_qualstats.enabled`: deprecated
 - Change `PostgreSQL` field `userConfig.pg_qualstats.min_err_estimate_num`: deprecated
@@ -21,7 +21,7 @@
 ## v0.16.0 - 2023-12-07
 
 - Set conditions on errors: `Preconditions`, `CreateOrUpdate`, `Delete`. Thanks to @atarax
-- Fix object updates lost when reconciler exits before the object is committed  
+- Fix object updates lost when reconciler exits before the object is committed
 - Add `Kafka` field `userConfig.kafka.transaction_partition_verification_enable`, type `boolean`: Enable
   verification that checks that the partition has been added to the transaction before writing transactional
   records to the partition
@@ -53,7 +53,7 @@
 
 - Upgrade to Go 1.21
 - Add option to orphan resources. Thanks to @atarax
-- Fix `ServiceIntegration`: do not send empty user config to the API 
+- Fix `ServiceIntegration`: do not send empty user config to the API
 - Add a format for `string` type fields to the documentation
 - Generate CRDs changelog
 - Add `Clickhouse` field `userConfig.private_access.clickhouse_mysql`, type `boolean`: Allow clients
@@ -110,7 +110,7 @@
 - Add `Kafka` spec property `scheduled_rebalance_max_delay_ms`
 - Mark deprecated `Kafka` spec property `remote_log_storage_system_enable`
 - Add `KafkaConnect` spec property `scheduled_rebalance_max_delay_ms`
-- Add `OpenSearch` spec property `openid` 
+- Add `OpenSearch` spec property `openid`
 - Use updated go client with enhanced retries
 
 ## v0.12.3 - 2023-07-13
@@ -165,9 +165,9 @@
 - Add Kafka `log_cleaner_min_cleanable_ratio` minimum and maximum validation rules
 - Remove Kafka version `3.2`, reached EOL
 - Remove PostgreSQL version `10`, reached EOL
-- Explicitly delete `ProjectVPC` by `ID` to avoid conflicts 
+- Explicitly delete `ProjectVPC` by `ID` to avoid conflicts
 - Speed up `ProjectVPC` deletion by exiting on `DELETING` status
-- Fix missing RBAC permissions to update finalizers for various controllers 
+- Fix missing RBAC permissions to update finalizers for various controllers
 - Refactor `ClickhouseUser` controller
 - Mark `ClickhouseUser.spec.project` and `ClickhouseUser.spec.serviceName` as immutable
 - Remove deprecated service integration type `signalfx`
@@ -206,7 +206,7 @@ as native [CRD validation rules](https://kubernetes.io/blog/2022/09/23/crd-valid
 
 - Add Cassandra Kind
 - Add Grafana Kind
-- Recreate Kafka ACL if modified. 
+- Recreate Kafka ACL if modified.
   Note: Modification of ACL created prior to v0.5.1 won't delete existing instance at Aiven.
   It must be deleted manually.
 - Fix MySQL webhook
@@ -216,7 +216,7 @@ as native [CRD validation rules](https://kubernetes.io/blog/2022/09/23/crd-valid
 - Remove `never` from choices of maintenance dow
 - Add `development` flag to configure logger's behavior
 - Add user config generator (see `make generate-user-configs`)
-- Add `genericServiceHandler` to generalize service management 
+- Add `genericServiceHandler` to generalize service management
 - Add MySQL Kind
 
 ## v0.5.2 - 2022-12-09

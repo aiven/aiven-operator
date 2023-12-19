@@ -171,7 +171,7 @@ spec:
   tags:
     env: prod
     instance: pg
-  
+
   userConfig:
     pg_version: "14"
 `, project, pgName, cloudName)

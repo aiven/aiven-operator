@@ -12,7 +12,7 @@ commands:
     HOST=$(kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.HOST -r | base64 -d)
     PORT=$(kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.PORT -r | base64 -d)
     TOPIC=k8s-test-service-integration-kafka-logs-topic
-      
+
     kcat \
         -b $HOST:$PORT \
         -X security.protocol=SSL \

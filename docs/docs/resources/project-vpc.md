@@ -11,7 +11,7 @@ directly without going through the public internet.
 Within the Aiven Kubernetes Operator, you can create a `ProjectVPC` on Aiven's side to connect to your cloud provider.
 
 !!! note
-    Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/), 
+    Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/),
     and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
 
 ## Creating an Aiven VPC

@@ -30,7 +30,7 @@ spec:
   project: %[1]s
   cloudName: %[3]s
   plan: business-4
-  
+
   userConfig:
     kafka_connect:
       consumer_isolation_level: read_committed

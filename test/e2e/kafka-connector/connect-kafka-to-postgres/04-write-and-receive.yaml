@@ -27,7 +27,7 @@ commands:
       }
     }
     EOF
-      
+
     kcat \
         -b $HOST:$PORT \
         -X security.protocol=SSL \
@@ -42,7 +42,7 @@ commands:
     TABLE=k8s-test-kafka-connector-connect-kafka-to-postgres-topic
 
     while ! psql $URI -qtAX -c "SELECT text FROM \"$TABLE\"" == "Hello World"
-    do 
+    do
       sleep 10
     done
 

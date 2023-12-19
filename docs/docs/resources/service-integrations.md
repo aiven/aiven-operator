@@ -11,7 +11,7 @@ our [Getting Started with Service Integrations guide](https://help.aiven.io/en/a
 for more information.
 
 !!! note
-    Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/), 
+    Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/),
     and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
 
 ## Send Kafka logs to a Kafka Topic
@@ -80,7 +80,7 @@ spec:
 2\. Create the resource on Kubernetes:
 
 ```shell
-kubectl apply -f kafka-sample-topic.yaml 
+kubectl apply -f kafka-sample-topic.yaml
 ```
 
 3\. Now, create a `ServiceIntegration` resource to send the Kafka logs to the created topic. In the same file, add the
@@ -116,7 +116,7 @@ spec:
 4\. Reapply the resource on Kubernetes:
 
 ```shell
-kubectl apply -f kafka-sample-topic.yaml 
+kubectl apply -f kafka-sample-topic.yaml
 ```
 
 5\. Let's check the created service integration:
@@ -129,7 +129,7 @@ The output is similar to the following:
 
 ```{ .shell .no-copy }
 NAME                             PROJECT        TYPE         SOURCE SERVICE NAME   DESTINATION SERVICE NAME   SOURCE ENDPOINT ID   DESTINATION ENDPOINT ID
-service-integration-kafka-logs   your-project   kafka_logs   kafka-sample          kafka-sample                                    
+service-integration-kafka-logs   your-project   kafka_logs   kafka-sample          kafka-sample
 ```
 
 Your Kafka service logs are now being streamed to the `logs` Kafka topic.

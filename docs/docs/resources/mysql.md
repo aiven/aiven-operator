@@ -4,13 +4,13 @@ linkTitle: "MySQL"
 weight: 46
 ---
 
-Aiven for MySQL is a fully managed relational database service, deployable in the cloud of your choice. 
+Aiven for MySQL is a fully managed relational database service, deployable in the cloud of your choice.
 
 > Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/) and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
 
 ## Creating a MySQL instance
 
-1\. Create a file named `mysql-sample.yaml`, and add the following content: 
+1\. Create a file named `mysql-sample.yaml`, and add the following content:
 
 ```yaml
 apiVersion: aiven.io/v1alpha1
@@ -43,7 +43,7 @@ spec:
 2\. Create the service by applying the configuration:
 
 ```shell
-kubectl apply -f mysql-sample.yaml 
+kubectl apply -f mysql-sample.yaml
 ```
 
 3\. Review the resource you created with this command:
@@ -83,7 +83,7 @@ name specified on the `connInfoSecretTarget` field.
 To view the details of the Secret, use the following command:
 
 ```shell
-kubectl describe secret mysql-secret 
+kubectl describe secret mysql-secret
 ```
 
 The output is similar to the following:
@@ -156,7 +156,7 @@ spec:
 kubectl apply -f mysql-service-user.yaml
 ```
 
-The `ServiceUser` resource generates a Secret with connection information. 
+The `ServiceUser` resource generates a Secret with connection information.
 
 3\. View the details of the Secret using [jq](https://github.com/stedolan/jq):
 

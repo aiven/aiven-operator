@@ -8,7 +8,7 @@ Aiven for Apache Kafka is an excellent option if you need to run Apache Kafka at
 you can get up and running with a suitably sized Apache Kafka service in a few minutes.
 
 !!! note
-    Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/) 
+    Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/)
     and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
 
 ## Creating a Kafka instance
@@ -50,10 +50,10 @@ spec:
 2\. Create the following resource on Kubernetes:
 
 ```shell
-kubectl apply -f kafka-sample.yaml 
+kubectl apply -f kafka-sample.yaml
 ```
 
-3\. Inspect the service created using the command below. 
+3\. Inspect the service created using the command below.
 
 ```shell
 kubectl get kafka.aiven.io kafka-sample
@@ -75,7 +75,7 @@ For your convenience, the operator automatically stores the Kafka connection inf
 name specified on the `connInfoSecretTarget` field.
 
 ```shell
-kubectl describe secret kafka-auth 
+kubectl describe secret kafka-auth
 ```
 
 The output is similar to the following:
@@ -158,7 +158,7 @@ spec:
           mountPath: "/kafka-auth"
 
   # loading the data from the Secret as files in a volume
-  # useful to access the Kafka certificates 
+  # useful to access the Kafka certificates
   volumes:
     - name: kafka-auth
       secret:
@@ -174,7 +174,7 @@ kubectl apply -f kafka-test-connection.yaml
 Once successfully applied, you have a log with the metadata information about the Kafka cluster.
 
 ```shell
-kubectl logs kafka-test-connection 
+kubectl logs kafka-test-connection
 ```
 
 The output is similar to the following:
@@ -325,7 +325,7 @@ spec:
           mountPath: "/crab-auth"
 
   # loading the crab user information from the Secret as files in a volume
-  # useful to access the Kafka certificates 
+  # useful to access the Kafka certificates
   volumes:
     - name: crab-auth
       secret:
@@ -385,7 +385,7 @@ spec:
           mountPath: /crab-auth
 
   # loading the crab user information from the Secret as files in a volume
-  # useful to access the Kafka certificates 
+  # useful to access the Kafka certificates
   volumes:
     - name: crab-auth
       secret:
