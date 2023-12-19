@@ -10,7 +10,6 @@ issues:
 linters:
   disable-all: true
   enable:
-    - deadcode
     - errcheck
     - gofmt
     - gosimple
@@ -20,7 +19,6 @@ linters:
     - staticcheck
     - unconvert
     - unused
-    - varcheck
     - vet
     - goimports
     - gomnd
