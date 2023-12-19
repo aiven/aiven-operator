@@ -25,7 +25,7 @@ type PostgreSQLReconciler struct {
 //+kubebuilder:rbac:groups=aiven.io,resources=postgresqls/finalizers,verbs=get;list;watch;create;update;patch;delete
 
 func (r *PostgreSQLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newPostgresSQLAdapter), &v1alpha1.PostgreSQL{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newpostgreSQLAdapter), &v1alpha1.PostgreSQL{})
 }
 
 func (r *PostgreSQLReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -35,36 +35,36 @@ func (r *PostgreSQLReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func newPostgresSQLAdapter(_ *aiven.Client, object client.Object) (serviceAdapter, error) {
+func newpostgreSQLAdapter(_ *aiven.Client, object client.Object) (serviceAdapter, error) {
 	pg, ok := object.(*v1alpha1.PostgreSQL)
 	if !ok {
-		return nil, fmt.Errorf("object is not of type v1alpha1.PostgresSQL")
+		return nil, fmt.Errorf("object is not of type v1alpha1.PostgreSQL")
 	}
-	return &postgresSQLAdapter{pg}, nil
+	return &postgreSQLAdapter{pg}, nil
 }
 
-// postgresSQLAdapter handles an Aiven PostgresSQL service
-type postgresSQLAdapter struct {
+// postgreSQLAdapter handles an Aiven postgreSQL service
+type postgreSQLAdapter struct {
 	*v1alpha1.PostgreSQL
 }
 
-func (a *postgresSQLAdapter) getObjectMeta() *metav1.ObjectMeta {
+func (a *postgreSQLAdapter) getObjectMeta() *metav1.ObjectMeta {
 	return &a.ObjectMeta
 }
 
-func (a *postgresSQLAdapter) getServiceStatus() *v1alpha1.ServiceStatus {
+func (a *postgreSQLAdapter) getServiceStatus() *v1alpha1.ServiceStatus {
 	return &a.Status
 }
 
-func (a *postgresSQLAdapter) getServiceCommonSpec() *v1alpha1.ServiceCommonSpec {
+func (a *postgreSQLAdapter) getServiceCommonSpec() *v1alpha1.ServiceCommonSpec {
 	return &a.Spec.ServiceCommonSpec
 }
 
-func (a *postgresSQLAdapter) getUserConfig() any {
+func (a *postgreSQLAdapter) getUserConfig() any {
 	return &a.Spec.UserConfig
 }
 
-func (a *postgresSQLAdapter) newSecret(ctx context.Context, s *aiven.Service) (*corev1.Secret, error) {
+func (a *postgreSQLAdapter) newSecret(ctx context.Context, s *aiven.Service) (*corev1.Secret, error) {
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
 		prefix + "HOST":         s.URIParams["host"],
@@ -87,10 +87,10 @@ func (a *postgresSQLAdapter) newSecret(ctx context.Context, s *aiven.Service) (*
 	return newSecret(a, stringData, false), nil
 }
 
-func (a *postgresSQLAdapter) getServiceType() string {
+func (a *postgreSQLAdapter) getServiceType() string {
 	return "pg"
 }
 
-func (a *postgresSQLAdapter) getDiskSpace() string {
+func (a *postgreSQLAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
