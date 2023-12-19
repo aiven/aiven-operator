@@ -13,6 +13,7 @@ The `Project` CRD allows you to create Aiven Projects, where your resources can 
 To create a fully working Aiven Project with the Aiven Operator you need a source Aiven Project already created with a working billing configuration, like a credit card.
 
 Create a file named `project-sample.yaml` with the following content:
+
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: Project
@@ -31,6 +32,7 @@ spec:
 ```
 
 Apply the resource with:
+
 ```shell
 kubectl apply -f project-sample.yaml
 ```

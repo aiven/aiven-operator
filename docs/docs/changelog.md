@@ -1,6 +1,5 @@
 # Changelog
 
-
 ## v0.16.1 - 2023-12-15
 
 - Check VPC for running services before deletion. Prevents VPC from hanging in the DELETING state
@@ -135,7 +134,6 @@
 - Add `OpenSearch.spec.userConfig.idp_pemtrustedcas_content` option.
   Specifies the PEM-encoded root certificate authority (CA) content for the SAML identity provider (IdP) server verification.
 
-
 ## v0.11.0 - 2023-04-25
 
 - Add `ServiceIntegration` kind `SourceProjectName` and `DestinationProjectName` fields
@@ -242,23 +240,29 @@ as native [CRD validation rules](https://kubernetes.io/blog/2022/09/23/crd-valid
 ## v0.2.0 - 2021-11-17
 
 features:
-* add Redis CRD
+
+- add Redis CRD
 
 improvements:
-* watch CRDs to reconcile token secrets
+
+- watch CRDs to reconcile token secrets
 
 fixes:
-* fix RBACs of KafkaACL CRD
+
+- fix RBACs of KafkaACL CRD
 
 ## v0.1.1 - 2021-09-13
 
 improvements:
-* update helm installation docs
+
+- update helm installation docs
 
 fixes:
-* fix typo in a kafka-connector kuttl test
+
+- fix typo in a kafka-connector kuttl test
 
 ## v0.1.0 - 2021-09-10
 
 features:
-* initial release
+
+- initial release

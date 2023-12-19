@@ -7,6 +7,7 @@ weight: 50
 [Aiven for Apache Kafka Connect](https://aiven.io/kafka-connect) is a framework and a runtime for integrating Kafka with other systems. Kafka connectors can either be a source (for pulling data from other systems into Kafka) or sink (for pushing data into other systems from Kafka).
 
 This section involves a few different Kubernetes CRDs:
+
 1. A `KafkaService` service with a `KafkaTopic`
 2. A `KafkaConnect` service
 3. A `ServiceIntegration` to integrate the `Kafka` and `KafkaConnect` services
@@ -14,6 +15,7 @@ This section involves a few different Kubernetes CRDs:
 5. A `KafkaConnector` to finally connect the `Kafka` with the `PostgreSQL`
 
 ## Creating the resources
+
 Create a file named `kafka-sample-connect.yaml` with the following content:
 
 ```yaml
@@ -221,9 +223,11 @@ postgresql.aiven.io/pg-connect   your-project   google-europe-west1   startup-4 
 NAME                                      SERVICE NAME           PROJECT        CONNECTOR CLASS                           STATE     TASKS TOTAL   TASKS RUNNING
 kafkaconnector.aiven.io/kafka-connector   kafka-sample-connect   your-project   io.aiven.connect.jdbc.JdbcSinkConnector   RUNNING   1             1
 ```
+
 The deployment is finished when all services have the state `RUNNING`.
 
 ## Testing
+
 To test the connection integration, let's produce a Kafka message using [kcat](https://github.com/edenhill/kcat) from within the Kubernetes cluster. We will deploy a Pod responsible for crafting a message and sending to the Kafka cluster, using the `kafka-auth` secret generate by the `Kafka` CRD.
 
 Create a new file named `kcat-connect.yaml` and add the content below:
@@ -332,6 +336,7 @@ The output is similar to the following:
 ```
 
 ## Clean up
+
 To clean up all the created resources, use the following command:
 
 ```shell

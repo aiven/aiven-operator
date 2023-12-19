@@ -11,13 +11,13 @@ to help get your contribution accepted.
 
 Please see also the Aiven Operator for Kubernetes [Developer Guide](./developer-guide).
 
-### Support Channels
+## Support Channels
 
 This project offers support through GitHub issues and can be
 filed [here](https://github.com/aiven/aiven-operator/issues). Moreover, GitHub issues are used as the primary
 method for tracking anything to do with the Aiven Operator for Kubernetes project.
 
-### Pull Request Process
+## Pull Request Process
 
 1. Ensure any install or build dependencies are removed before the end of the layer when doing a build.
 2. Increase the version numbers in any examples files and the README.md and in corresponding file in he /docs folder to

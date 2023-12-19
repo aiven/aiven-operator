@@ -74,7 +74,6 @@ Status:
 
 The resource will be in the `REBUILDING` state for a few minutes. Once the state changes to `RUNNING`, you can access the resource.
 
-
 ## Using the connection Secret
 
 For your convenience, the operator automatically stores the MySQL connection information in a Secret created with the

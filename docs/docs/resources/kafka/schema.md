@@ -5,6 +5,7 @@ weight: 40
 ---
 
 ## Creating a `KafkaSchema`
+
 Aiven develops and maintain [Karapace](https://github.com/aiven/karapace), an open source implementation of Kafka REST
 and schema registry. Is available out of the box for our managed Kafka service.
 

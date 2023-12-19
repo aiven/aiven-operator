@@ -44,6 +44,7 @@ Please have installed first:
 - [kcat](https://github.com/edenhill/kcat)
 - base64, note: MACOS version doesn't support `-w0` flag, some tests may not work properly
 - [kind](https://kind.sigs.k8s.io/), and existing cluster, e.g.
+
     ```shell
      kind create cluster --image kindest/node:v1.24.0 --wait 5m
     ```
