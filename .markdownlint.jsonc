@@ -1,0 +1,15 @@
+{
+  // mkdocs code blocks inside admonitions trip this rule
+  "code-block-style": false,
+  // allow inline html
+  "no-inline-html": false,
+  // allow using **emphasis** as heading
+  "no-emphasis-as-heading": false,
+  // don't care about line length
+  "line-length": false,
+  // mkdocs admonitions and links aren't supported https://github.com/DavidAnson/markdownlint/issues/207
+  "link-fragments": false,
+  // mkdocs renders link titles from YAML frontmatter and renders the content
+  // title from the first title specified with "#"
+  "single-title": false
+}
