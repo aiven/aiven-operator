@@ -1,20 +1,15 @@
+---
 # permissions for end users to view kafkaconnects.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
+
 metadata:
   name: kafkaconnect-viewer-role
+
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - kafkaconnects
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - kafkaconnects/status
-  verbs:
-  - get
+  - apiGroups: [aiven.io]
+    resources: [kafkaconnects]
+    verbs: [get, list, watch]
+  - apiGroups: [aiven.io]
+    resources: [kafkaconnects/status]
+    verbs: [get]

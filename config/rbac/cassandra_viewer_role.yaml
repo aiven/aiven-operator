@@ -1,20 +1,15 @@
+---
 # permissions for end users to view cassandras.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
+
 metadata:
   name: cassandra-viewer-role
+
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - cassandras
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - cassandras/status
-  verbs:
-  - get
+  - apiGroups: [aiven.io]
+    resources: [cassandras]
+    verbs: [get, list, watch]
+  - apiGroups: [aiven.io]
+    resources: [cassandras/status]
+    verbs: [get]

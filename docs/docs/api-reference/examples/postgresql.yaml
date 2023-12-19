@@ -1,7 +1,10 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: PostgreSQL
+
 metadata:
   name: my-postgresql
+
 spec:
   authSecretRef:
     name: aiven-token
@@ -23,4 +26,4 @@ spec:
   maintenanceWindowTime: 11:00:00
 
   userConfig:
-    pg_version: "15"
+    pg_version: '15'

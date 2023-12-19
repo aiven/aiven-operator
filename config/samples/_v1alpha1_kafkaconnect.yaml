@@ -1,6 +1,9 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: KafkaConnect
+
 metadata:
   name: kafkaconnect-sample
+
 spec:
   # TODO(user): Add fields here

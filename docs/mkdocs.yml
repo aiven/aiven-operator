@@ -1,9 +1,11 @@
+---
 # yaml-language-server: $schema=https://squidfunk.github.io/mkdocas-material/schema.json
 site_name: Aiven Operator
 copyright: Aiven Team
 repo_url: https://github.com/aiven/aiven-operator/
 site_url: https://aiven.github.io/aiven-operator/
 edit_uri: blob/main/docs/docs/
+
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
@@ -22,9 +24,9 @@ markdown_extensions:
   - attr_list
   - toc:
       permalink: true
-plugins:
-  - search
-  - offline
+
+plugins: [search, offline]
+
 theme:
   name: material
   logo: assets/logo.svg
@@ -38,7 +40,7 @@ theme:
     - content.action.view
   palette:
     # Palette toggle for light mode
-    - media: "(prefers-color-scheme: light)"
+    - media: '(prefers-color-scheme: light)'
       scheme: slate
       primary: red
       accent: deep-orange
@@ -47,13 +49,14 @@ theme:
         name: Switch to dark mode
 
     # Palette toggle for dark mode
-    - media: "(prefers-color-scheme: dark)"
+    - media: '(prefers-color-scheme: dark)'
       scheme: default
       primary: deep-orange
       accent: red
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+
 nav:
   - Home:
       - index.md

@@ -1,9 +1,8 @@
+---
 - op: add
   path: /stages/0/tests/-
   value:
-    entrypoint:
-    - scorecard-test
-    - olm-bundle-validation
+    entrypoint: [scorecard-test, olm-bundle-validation]
     image: quay.io/operator-framework/scorecard-test:v1.24.0
     labels:
       suite: olm
@@ -11,9 +10,7 @@
 - op: add
   path: /stages/0/tests/-
   value:
-    entrypoint:
-    - scorecard-test
-    - olm-crds-have-validation
+    entrypoint: [scorecard-test, olm-crds-have-validation]
     image: quay.io/operator-framework/scorecard-test:v1.24.0
     labels:
       suite: olm
@@ -21,9 +18,7 @@
 - op: add
   path: /stages/0/tests/-
   value:
-    entrypoint:
-    - scorecard-test
-    - olm-crds-have-resources
+    entrypoint: [scorecard-test, olm-crds-have-resources]
     image: quay.io/operator-framework/scorecard-test:v1.24.0
     labels:
       suite: olm
@@ -31,9 +26,7 @@
 - op: add
   path: /stages/0/tests/-
   value:
-    entrypoint:
-    - scorecard-test
-    - olm-spec-descriptors
+    entrypoint: [scorecard-test, olm-spec-descriptors]
     image: quay.io/operator-framework/scorecard-test:v1.24.0
     labels:
       suite: olm
@@ -41,9 +34,7 @@
 - op: add
   path: /stages/0/tests/-
   value:
-    entrypoint:
-    - scorecard-test
-    - olm-status-descriptors
+    entrypoint: [scorecard-test, olm-status-descriptors]
     image: quay.io/operator-framework/scorecard-test:v1.24.0
     labels:
       suite: olm

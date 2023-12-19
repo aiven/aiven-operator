@@ -1,5 +1,7 @@
+---
 apiVersion: kuttl.dev/v1beta1
 kind: TestStep
+
 delete:
   - apiVersion: aiven.io/v1alpha1
     kind: Grafana

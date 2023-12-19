@@ -1,7 +1,10 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: MySQL
+
 metadata:
   name: my-mysql
+
 spec:
   authSecretRef:
     name: aiven-token

@@ -1,6 +1,9 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: ClickhouseUser
+
 metadata:
   name: clickhouseuser-sample
+
 spec:
   # TODO(user): Add fields here

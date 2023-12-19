@@ -1,7 +1,10 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: Database
+
 metadata:
   name: my-db
+
 spec:
   authSecretRef:
     name: aiven-token

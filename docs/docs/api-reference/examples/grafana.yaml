@@ -1,7 +1,10 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: Grafana
+
 metadata:
   name: my-grafana
+
 spec:
   authSecretRef:
     name: aiven-token

@@ -1,13 +1,14 @@
+---
 # Default values for aiven-operator.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
 
-nameOverride: ""
-fullnameOverride: ""
-metricsBindAddress: ""
-healthProbeBindAddress: ""
+nameOverride: ''
+fullnameOverride: ''
+metricsBindAddress: ''
+healthProbeBindAddress: ''
 leaderElect: true
 
 # Default Aiven Token secret
@@ -15,8 +16,8 @@ leaderElect: true
 # It is expected to be in the same namespace where the Aiven
 # operator will be installed and should contain a valid Aiven API Token.
 defaultTokenSecret:
-  name: ""
-  key: "token"
+  name: ''
+  key: token
 
 # webhhook configuration
 webhooks:
@@ -31,7 +32,7 @@ image:
   repository: aivenoy/aiven-operator
   pullPolicy: IfNotPresent
   # default is .Chart.AppVersion but can be overriden here
-  tag: ""
+  tag: ''
 
 imagePullSecrets: []
 
@@ -42,7 +43,7 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: ""
+  name: ''
 
 resources:
   limits:

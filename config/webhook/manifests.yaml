@@ -1,788 +1,551 @@
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
+
 metadata:
-  creationTimestamp: null
+  creationTimestamp:
   name: mutating-webhook-configuration
+
 webhooks:
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-cassandra
-  failurePolicy: Fail
-  name: mcassandra.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - cassandras
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-clickhouse
-  failurePolicy: Fail
-  name: mclickhouse.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - clickhouses
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-clickhouseuser
-  failurePolicy: Fail
-  name: mclickhouseuser.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - clickhouseusers
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-connectionpool
-  failurePolicy: Fail
-  name: mconnectionpool.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - connectionpools
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-database
-  failurePolicy: Fail
-  name: mdatabase.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - databases
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-grafana
-  failurePolicy: Fail
-  name: mgrafana.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - grafanas
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-kafka
-  failurePolicy: Fail
-  name: mkafka.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - kafkas
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-kafkaacl
-  failurePolicy: Fail
-  name: mkafkaacl.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - kafkaacls
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-kafkaconnect
-  failurePolicy: Fail
-  name: mkafkaconnect.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - kafkaconnects
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-kafkaconnector
-  failurePolicy: Fail
-  name: mkafkaconnector.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - kafkaconnectors
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-kafkaschema
-  failurePolicy: Fail
-  name: mkafkaschema.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - kafkaschemas
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-kafkatopic
-  failurePolicy: Fail
-  name: mkafkatopic.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - kafkatopics
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-mysql
-  failurePolicy: Fail
-  name: mmysql.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - mysqls
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-opensearch
-  failurePolicy: Fail
-  name: mopensearch.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - opensearches
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-postgresql
-  failurePolicy: Fail
-  name: mpg.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - postgresqls
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-project
-  failurePolicy: Fail
-  name: mproject.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - projects
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-redis
-  failurePolicy: Fail
-  name: mredis.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - redis
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-serviceintegration
-  failurePolicy: Fail
-  name: mserviceintegration.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - serviceintegrations
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /mutate-aiven-io-v1alpha1-serviceuser
-  failurePolicy: Fail
-  name: mserviceuser.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - serviceusers
-  sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-cassandra
+    failurePolicy: Fail
+    name: mcassandra.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [cassandras]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-clickhouse
+    failurePolicy: Fail
+    name: mclickhouse.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [clickhouses]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-clickhouseuser
+    failurePolicy: Fail
+    name: mclickhouseuser.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [clickhouseusers]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-connectionpool
+    failurePolicy: Fail
+    name: mconnectionpool.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [connectionpools]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-database
+    failurePolicy: Fail
+    name: mdatabase.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [databases]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-grafana
+    failurePolicy: Fail
+    name: mgrafana.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [grafanas]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-kafka
+    failurePolicy: Fail
+    name: mkafka.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [kafkas]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-kafkaacl
+    failurePolicy: Fail
+    name: mkafkaacl.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [kafkaacls]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-kafkaconnect
+    failurePolicy: Fail
+    name: mkafkaconnect.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [kafkaconnects]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-kafkaconnector
+    failurePolicy: Fail
+    name: mkafkaconnector.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [kafkaconnectors]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-kafkaschema
+    failurePolicy: Fail
+    name: mkafkaschema.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [kafkaschemas]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-kafkatopic
+    failurePolicy: Fail
+    name: mkafkatopic.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [kafkatopics]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-mysql
+    failurePolicy: Fail
+    name: mmysql.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [mysqls]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-opensearch
+    failurePolicy: Fail
+    name: mopensearch.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [opensearches]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-postgresql
+    failurePolicy: Fail
+    name: mpg.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [postgresqls]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-project
+    failurePolicy: Fail
+    name: mproject.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [projects]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-redis
+    failurePolicy: Fail
+    name: mredis.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [redis]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-serviceintegration
+    failurePolicy: Fail
+    name: mserviceintegration.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [serviceintegrations]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /mutate-aiven-io-v1alpha1-serviceuser
+    failurePolicy: Fail
+    name: mserviceuser.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [serviceusers]
+    sideEffects: None
+
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
+
 metadata:
-  creationTimestamp: null
+  creationTimestamp:
   name: validating-webhook-configuration
+
 webhooks:
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-cassandra
-  failurePolicy: Fail
-  name: vcassandra.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    - DELETE
-    resources:
-    - cassandras
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-clickhouse
-  failurePolicy: Fail
-  name: vclickhouse.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    - DELETE
-    resources:
-    - clickhouses
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-clickhouseuser
-  failurePolicy: Fail
-  name: vclickhouseuser.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - clickhouseusers
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-connectionpool
-  failurePolicy: Fail
-  name: vconnectionpool.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    - DELETE
-    resources:
-    - connectionpools
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-database
-  failurePolicy: Fail
-  name: vdatabase.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    - DELETE
-    resources:
-    - databases
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-grafana
-  failurePolicy: Fail
-  name: vgrafana.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    - DELETE
-    resources:
-    - grafanas
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-kafka
-  failurePolicy: Fail
-  name: vkafka.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    - DELETE
-    resources:
-    - kafkas
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-kafkaacl
-  failurePolicy: Fail
-  name: vkafkaacl.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - kafkaacls
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-kafkaconnect
-  failurePolicy: Fail
-  name: vkafkaconnect.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    - DELETE
-    resources:
-    - kafkaconnects
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-kafkaconnector
-  failurePolicy: Fail
-  name: vkafkaconnector.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    - DELETE
-    resources:
-    - kafkaconnectors
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-kafkaschema
-  failurePolicy: Fail
-  name: vkafkaschema.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - kafkaschemas
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-kafkatopic
-  failurePolicy: Fail
-  name: vkafkatopic.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    - DELETE
-    resources:
-    - kafkatopics
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-mysql
-  failurePolicy: Fail
-  name: vmysql.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    - DELETE
-    resources:
-    - mysqls
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-opensearch
-  failurePolicy: Fail
-  name: vopensearch.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    - DELETE
-    resources:
-    - opensearches
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-postgresql
-  failurePolicy: Fail
-  name: vpg.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    - DELETE
-    resources:
-    - postgresqls
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-project
-  failurePolicy: Fail
-  name: vproject.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    - DELETE
-    resources:
-    - projects
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-redis
-  failurePolicy: Fail
-  name: vredis.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    - DELETE
-    resources:
-    - redis
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-serviceintegration
-  failurePolicy: Fail
-  name: vserviceintegration.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - serviceintegrations
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: webhook-service
-      namespace: system
-      path: /validate-aiven-io-v1alpha1-serviceuser
-  failurePolicy: Fail
-  name: vserviceuser.kb.io
-  rules:
-  - apiGroups:
-    - aiven.io
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - serviceusers
-  sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-cassandra
+    failurePolicy: Fail
+    name: vcassandra.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE, DELETE]
+        resources: [cassandras]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-clickhouse
+    failurePolicy: Fail
+    name: vclickhouse.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE, DELETE]
+        resources: [clickhouses]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-clickhouseuser
+    failurePolicy: Fail
+    name: vclickhouseuser.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [clickhouseusers]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-connectionpool
+    failurePolicy: Fail
+    name: vconnectionpool.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE, DELETE]
+        resources: [connectionpools]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-database
+    failurePolicy: Fail
+    name: vdatabase.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE, DELETE]
+        resources: [databases]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-grafana
+    failurePolicy: Fail
+    name: vgrafana.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE, DELETE]
+        resources: [grafanas]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-kafka
+    failurePolicy: Fail
+    name: vkafka.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE, DELETE]
+        resources: [kafkas]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-kafkaacl
+    failurePolicy: Fail
+    name: vkafkaacl.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [kafkaacls]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-kafkaconnect
+    failurePolicy: Fail
+    name: vkafkaconnect.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE, DELETE]
+        resources: [kafkaconnects]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-kafkaconnector
+    failurePolicy: Fail
+    name: vkafkaconnector.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE, DELETE]
+        resources: [kafkaconnectors]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-kafkaschema
+    failurePolicy: Fail
+    name: vkafkaschema.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [kafkaschemas]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-kafkatopic
+    failurePolicy: Fail
+    name: vkafkatopic.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE, DELETE]
+        resources: [kafkatopics]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-mysql
+    failurePolicy: Fail
+    name: vmysql.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE, DELETE]
+        resources: [mysqls]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-opensearch
+    failurePolicy: Fail
+    name: vopensearch.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE, DELETE]
+        resources: [opensearches]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-postgresql
+    failurePolicy: Fail
+    name: vpg.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE, DELETE]
+        resources: [postgresqls]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-project
+    failurePolicy: Fail
+    name: vproject.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE, DELETE]
+        resources: [projects]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-redis
+    failurePolicy: Fail
+    name: vredis.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE, DELETE]
+        resources: [redis]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-serviceintegration
+    failurePolicy: Fail
+    name: vserviceintegration.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [serviceintegrations]
+    sideEffects: None
+  - admissionReviewVersions: [v1]
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-serviceuser
+    failurePolicy: Fail
+    name: vserviceuser.kb.io
+    rules:
+      - apiGroups: [aiven.io]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [serviceusers]
+    sideEffects: None

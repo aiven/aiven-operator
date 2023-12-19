@@ -1,7 +1,10 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: Redis
+
 metadata:
   name: k8s-redis-simple
+
 spec:
   authSecretRef:
     name: aiven-token
@@ -19,4 +22,4 @@ spec:
   maintenanceWindowTime: 23:00:00
 
   userConfig:
-    redis_maxmemory_policy: "allkeys-random"
+    redis_maxmemory_policy: allkeys-random

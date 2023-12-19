@@ -1,7 +1,10 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: ServiceUser
+
 metadata:
   name: my-service-user
+
 spec:
   authSecretRef:
     name: aiven-token

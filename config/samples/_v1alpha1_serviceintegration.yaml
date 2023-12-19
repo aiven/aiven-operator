@@ -1,6 +1,9 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: ServiceIntegration
+
 metadata:
   name: serviceintegration-sample
+
 spec:
   # TODO(user): Add fields here

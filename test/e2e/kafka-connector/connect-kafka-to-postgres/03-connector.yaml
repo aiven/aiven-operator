@@ -1,7 +1,10 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: KafkaConnector
+
 metadata:
   name: k8s-test-kafka-connector-connect-kafka-to-postgres-connector
+
 spec:
   authSecretRef:
     name: aiven-token
@@ -14,11 +17,12 @@ spec:
   connectorClass: io.aiven.connect.jdbc.JdbcSinkConnector
 
   userConfig:
-    auto.create: "true"
-    connection.url: 'jdbc:postgresql://{{ fromSecret "pg-secret" "PGHOST"}}:{{ fromSecret "pg-secret" "PGPORT" }}/{{ fromSecret "pg-secret" "PGDATABASE" }}'
+    auto.create: 'true'
+    connection.url: jdbc:postgresql://{{ fromSecret "pg-secret" "PGHOST"}}:{{ fromSecret
+      "pg-secret" "PGPORT" }}/{{ fromSecret "pg-secret" "PGDATABASE" }}
     connection.user: '{{ fromSecret "pg-secret" "PGUSER" }}'
     connection.password: '{{ fromSecret "pg-secret" "PGPASSWORD" }}'
     topics: k8s-test-kafka-connector-connect-kafka-to-postgres-topic
     key.converter: org.apache.kafka.connect.json.JsonConverter
     value.converter: org.apache.kafka.connect.json.JsonConverter
-    value.converter.schemas.enable: "true"
+    value.converter.schemas.enable: 'true'

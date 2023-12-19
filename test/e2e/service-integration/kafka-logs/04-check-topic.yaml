@@ -1,22 +1,24 @@
+---
 apiVersion: kuttl.dev/v1beta1
 kind: TestStep
+
 commands:
-- script: |
-    TMPDIR=$(mktemp -d)
-    trap "rm -rf $TMPDIR" EXIT
+  - script: |-
+      TMPDIR=$(mktemp -d)
+      trap "rm -rf $TMPDIR" EXIT
 
-    kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.CA_CERT -r | base64 -w0 -d >> $TMPDIR/ca.crt
-    kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.ACCESS_CERT -r | base64 -w0 -d >> $TMPDIR/service.crt
-    kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.ACCESS_KEY -r | base64 -w0 -d >> $TMPDIR/service.key
+      kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.CA_CERT -r | base64 -w0 -d >> $TMPDIR/ca.crt
+      kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.ACCESS_CERT -r | base64 -w0 -d >> $TMPDIR/service.crt
+      kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.ACCESS_KEY -r | base64 -w0 -d >> $TMPDIR/service.key
 
-    HOST=$(kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.HOST -r | base64 -d)
-    PORT=$(kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.PORT -r | base64 -d)
-    TOPIC=k8s-test-service-integration-kafka-logs-topic
+      HOST=$(kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.HOST -r | base64 -d)
+      PORT=$(kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.PORT -r | base64 -d)
+      TOPIC=k8s-test-service-integration-kafka-logs-topic
 
-    kcat \
-        -b $HOST:$PORT \
-        -X security.protocol=SSL \
-        -X ssl.ca.location=$TMPDIR/ca.crt \
-        -X ssl.certificate.location=$TMPDIR/service.crt \
-        -X ssl.key.location=$TMPDIR/service.key \
-        -C -t $TOPIC -c 1
+      kcat \
+          -b $HOST:$PORT \
+          -X security.protocol=SSL \
+          -X ssl.ca.location=$TMPDIR/ca.crt \
+          -X ssl.certificate.location=$TMPDIR/service.crt \
+          -X ssl.key.location=$TMPDIR/service.key \
+          -C -t $TOPIC -c 1

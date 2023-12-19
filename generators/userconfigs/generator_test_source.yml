@@ -1,4 +1,6 @@
+---
 type: object
+
 properties:
   additional_backup_regions:
     title: Additional Cloud Regions for Backup Replication
@@ -12,10 +14,9 @@ properties:
       user_error: Must consist of lower-case alpha-numeric characters or dashes
     max_items: 1
   admin_password:
-    title: Custom password for admin user. Defaults to random string. This must be set only when a new service is being created.
-    type:
-      - string
-      - "null"
+    title: Custom password for admin user. Defaults to random string. This must be
+      set only when a new service is being created.
+    type: [string, 'null']
     min_length: 8
     max_length: 256
     create_only: true
@@ -23,49 +24,45 @@ properties:
     example: z66o9QXqKM
     user_error: Must consist of alpha-numeric characters, underscores or dashes
   admin_username:
-    title: Custom username for admin user. This must be set only when a new service is being created.
-    type:
-      - string
-      - "null"
+    title: Custom username for admin user. This must be set only when a new service
+      is being created.
+    type: [string, 'null']
     max_length: 64
     create_only: true
     pattern: ^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$
     example: avnadmin
-    user_error: Must consist of alpha-numeric characters, dots, underscores or dashes, may not start with dash or dot, max 64 characters
+    user_error: Must consist of alpha-numeric characters, dots, underscores or dashes,
+      may not start with dash or dot, max 64 characters
   backup_hour:
-    title: The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.
-    type:
-      - integer
-      - "null"
+    title: The hour of day (in UTC) when backup for the service is started. New backup
+      is only started if previous backup has already completed.
+    type: [integer, 'null']
     minimum: 0
     maximum: 23
-    example: "3"
+    example: '3'
   backup_minute:
-    title: The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
-    type:
-      - integer
-      - "null"
+    title: The minute of an hour when backup for the service is started. New backup
+      is only started if previous backup has already completed.
+    type: [integer, 'null']
     minimum: 0
     maximum: 59
-    example: "30"
+    example: '30'
   enable_ipv6:
     title: Enable IPv6
-    description: Register AAAA DNS records for the service, and allow IPv6 packets to service ports
+    description: Register AAAA DNS records for the service, and allow IPv6 packets
+      to service ports
     type: boolean
     example: true
   ip_filter:
     title: IP filter
     description: Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
     type: array
-    default:
-      - 0.0.0.0/0
+    default: [0.0.0.0/0]
     items:
-      title: CIDR address block, either as a string, or in a dict with an optional description field
-      type:
-        - string
-        - object
-      required:
-        - network
+      title: CIDR address block, either as a string, or in a dict with an optional
+        description field
+      type: [string, object]
+      required: [network]
       properties:
         description:
           title: Description for IP filter list entry
@@ -82,12 +79,8 @@ properties:
     max_items: 1024
   migration:
     title: Migrate data from existing server
-    type:
-      - object
-      - "null"
-    required:
-      - host
-      - port
+    type: [object, 'null']
+    required: [host, port]
     properties:
       dbname:
         title: Database name for bootstrapping the initial connection
@@ -100,12 +93,14 @@ properties:
         max_length: 255
         example: my.server.com
       ignore_dbs:
-        title: Comma-separated list of databases, which should be ignored during migration (supported by MySQL only at the moment)
+        title: Comma-separated list of databases, which should be ignored during migration
+          (supported by MySQL only at the moment)
         type: string
         max_length: 2048
         example: db1,db2
       method:
-        title: The migration method to be used (currently supported only by Redis and MySQL service types)
+        title: The migration method to be used (currently supported only by Redis
+          and MySQL service types)
         type: string
         enum:
           - value: dump
@@ -121,13 +116,14 @@ properties:
         type: integer
         minimum: 1
         maximum: 65535
-        example: "1234"
+        example: '1234'
       ssl:
         title: The server where to migrate data from is secured with SSL
         type: boolean
         default: true
       username:
-        title: User name for authentication with the server where to migrate data from
+        title: User name for authentication with the server where to migrate data
+          from
         type: string
         max_length: 256
         example: myname
@@ -137,97 +133,129 @@ properties:
     properties:
       autovacuum_analyze_scale_factor:
         title: autovacuum_analyze_scale_factor
-        description: Specifies a fraction of the table size to add to autovacuum_analyze_threshold when deciding whether to trigger an ANALYZE. The default is 0.2 (20% of table size)
+        description: Specifies a fraction of the table size to add to autovacuum_analyze_threshold
+          when deciding whether to trigger an ANALYZE. The default is 0.2 (20% of
+          table size)
         type: number
         minimum: 0
         maximum: 1
       autovacuum_analyze_threshold:
         title: autovacuum_analyze_threshold
-        description: Specifies the minimum number of inserted, updated or deleted tuples needed to trigger an  ANALYZE in any one table. The default is 50 tuples.
+        description: Specifies the minimum number of inserted, updated or deleted
+          tuples needed to trigger an  ANALYZE in any one table. The default is 50
+          tuples.
         type: integer
         minimum: 0
         maximum: 2147483647
       autovacuum_freeze_max_age:
         title: autovacuum_freeze_max_age
-        description: Specifies the maximum age (in transactions) that a table's pg_class.relfrozenxid field can attain before a VACUUM operation is forced to prevent transaction ID wraparound within the table. Note that the system will launch autovacuum processes to prevent wraparound even when autovacuum is otherwise disabled. This parameter will cause the server to be restarted.
+        description: Specifies the maximum age (in transactions) that a table's pg_class.relfrozenxid
+          field can attain before a VACUUM operation is forced to prevent transaction
+          ID wraparound within the table. Note that the system will launch autovacuum
+          processes to prevent wraparound even when autovacuum is otherwise disabled.
+          This parameter will cause the server to be restarted.
         type: integer
         minimum: 200000000
         maximum: 1500000000
-        example: "200000000"
+        example: '200000000'
       autovacuum_max_workers:
         title: autovacuum_max_workers
-        description: Specifies the maximum number of autovacuum processes (other than the autovacuum launcher) that may be running at any one time. The default is three. This parameter can only be set at server start.
+        description: Specifies the maximum number of autovacuum processes (other than
+          the autovacuum launcher) that may be running at any one time. The default
+          is three. This parameter can only be set at server start.
         type: integer
         minimum: 1
         maximum: 20
       autovacuum_naptime:
         title: autovacuum_naptime
-        description: Specifies the minimum delay between autovacuum runs on any given database. The delay is measured in seconds, and the default is one minute
+        description: Specifies the minimum delay between autovacuum runs on any given
+          database. The delay is measured in seconds, and the default is one minute
         type: integer
         minimum: 1
         maximum: 86400
       autovacuum_vacuum_cost_delay:
         title: autovacuum_vacuum_cost_delay
-        description: Specifies the cost delay value that will be used in automatic VACUUM operations. If -1 is specified, the regular vacuum_cost_delay value will be used. The default value is 20 milliseconds
+        description: Specifies the cost delay value that will be used in automatic
+          VACUUM operations. If -1 is specified, the regular vacuum_cost_delay value
+          will be used. The default value is 20 milliseconds
         type: integer
         minimum: -1
         maximum: 100
       autovacuum_vacuum_cost_limit:
         title: autovacuum_vacuum_cost_limit
-        description: Specifies the cost limit value that will be used in automatic VACUUM operations. If -1 is specified (which is the default), the regular vacuum_cost_limit value will be used.
+        description: Specifies the cost limit value that will be used in automatic
+          VACUUM operations. If -1 is specified (which is the default), the regular
+          vacuum_cost_limit value will be used.
         type: integer
         minimum: -1
         maximum: 10000
       autovacuum_vacuum_scale_factor:
         title: autovacuum_vacuum_scale_factor
-        description: Specifies a fraction of the table size to add to autovacuum_vacuum_threshold when deciding whether to trigger a VACUUM. The default is 0.2 (20% of table size)
+        description: Specifies a fraction of the table size to add to autovacuum_vacuum_threshold
+          when deciding whether to trigger a VACUUM. The default is 0.2 (20% of table
+          size)
         type: number
         minimum: 0
         maximum: 1
       autovacuum_vacuum_threshold:
         title: autovacuum_vacuum_threshold
-        description: Specifies the minimum number of updated or deleted tuples needed to trigger a VACUUM in any one table. The default is 50 tuples
+        description: Specifies the minimum number of updated or deleted tuples needed
+          to trigger a VACUUM in any one table. The default is 50 tuples
         type: integer
         minimum: 0
         maximum: 2147483647
       bgwriter_delay:
         title: bgwriter_delay
-        description: Specifies the delay between activity rounds for the background writer in milliseconds. Default is 200.
+        description: Specifies the delay between activity rounds for the background
+          writer in milliseconds. Default is 200.
         type: integer
         minimum: 10
         maximum: 10000
-        example: "200"
+        example: '200'
       bgwriter_flush_after:
         title: bgwriter_flush_after
-        description: Whenever more than bgwriter_flush_after bytes have been written by the background writer, attempt to force the OS to issue these writes to the underlying storage. Specified in kilobytes, default is 512. Setting of 0 disables forced writeback.
+        description: Whenever more than bgwriter_flush_after bytes have been written
+          by the background writer, attempt to force the OS to issue these writes
+          to the underlying storage. Specified in kilobytes, default is 512. Setting
+          of 0 disables forced writeback.
         type: integer
         minimum: 0
         maximum: 2048
-        example: "512"
+        example: '512'
       bgwriter_lru_maxpages:
         title: bgwriter_lru_maxpages
-        description: In each round, no more than this many buffers will be written by the background writer. Setting this to zero disables background writing. Default is 100.
+        description: In each round, no more than this many buffers will be written
+          by the background writer. Setting this to zero disables background writing.
+          Default is 100.
         type: integer
         minimum: 0
         maximum: 1073741823
-        example: "100"
+        example: '100'
       bgwriter_lru_multiplier:
         title: bgwriter_lru_multiplier
-        description: The average recent need for new buffers is multiplied by bgwriter_lru_multiplier to arrive at an estimate of the number that will be needed during the next round, (up to bgwriter_lru_maxpages). 1.0 represents a “just in time” policy of writing exactly the number of buffers predicted to be needed. Larger values provide some cushion against spikes in demand, while smaller values intentionally leave writes to be done by server processes. The default is 2.0.
+        description: The average recent need for new buffers is multiplied by bgwriter_lru_multiplier
+          to arrive at an estimate of the number that will be needed during the next
+          round, (up to bgwriter_lru_maxpages). 1.0 represents a “just in time” policy
+          of writing exactly the number of buffers predicted to be needed. Larger
+          values provide some cushion against spikes in demand, while smaller values
+          intentionally leave writes to be done by server processes. The default is
+          2.0.
         type: number
         minimum: 0
         maximum: 10
-        example: "2.0"
+        example: '2.0'
       deadlock_timeout:
         title: deadlock_timeout
-        description: This is the amount of time, in milliseconds, to wait on a lock before checking to see if there is a deadlock condition.
+        description: This is the amount of time, in milliseconds, to wait on a lock
+          before checking to see if there is a deadlock condition.
         type: integer
         minimum: 500
         maximum: 1800000
-        example: "1000"
+        example: '1000'
       default_toast_compression:
         title: default_toast_compression
-        description: Specifies the default TOAST compression method for values of compressible columns (the default is lz4).
+        description: Specifies the default TOAST compression method for values of
+          compressible columns (the default is lz4).
         type: string
         enum:
           - value: lz4
@@ -235,7 +263,8 @@ properties:
         example: lz4
       idle_in_transaction_session_timeout:
         title: idle_in_transaction_session_timeout
-        description: Time out sessions with open transactions after this number of milliseconds
+        description: Time out sessions with open transactions after this number of
+          milliseconds
         type: integer
         minimum: 0
         maximum: 604800000
@@ -246,13 +275,17 @@ properties:
         example: true
       log_autovacuum_min_duration:
         title: log_autovacuum_min_duration
-        description: Causes each action executed by autovacuum to be logged if it ran for at least the specified number of milliseconds. Setting this to zero logs all autovacuum actions. Minus-one (the default) disables logging autovacuum actions.
+        description: Causes each action executed by autovacuum to be logged if it
+          ran for at least the specified number of milliseconds. Setting this to zero
+          logs all autovacuum actions. Minus-one (the default) disables logging autovacuum
+          actions.
         type: integer
         minimum: -1
         maximum: 2147483647
       log_error_verbosity:
         title: log_error_verbosity
-        description: Controls the amount of detail written in the server log for each message that is logged.
+        description: Controls the amount of detail written in the server log for each
+          message that is logged.
         type: string
         enum:
           - value: TERSE
@@ -260,21 +293,24 @@ properties:
           - value: VERBOSE
       log_line_prefix:
         title: log_line_prefix
-        description: Choose from one of the available log-formats. These can support popular log analyzers like pgbadger, pganalyze etc.
+        description: Choose from one of the available log-formats. These can support
+          popular log analyzers like pgbadger, pganalyze etc.
         type: string
         enum:
-          - value: '''pid=%p,user=%u,db=%d,app=%a,client=%h '''
-          - value: '''%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '''
-          - value: '''%m [%p] %q[user=%u,db=%d,app=%a] '''
+          - value: "'pid=%p,user=%u,db=%d,app=%a,client=%h '"
+          - value: "'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '"
+          - value: "'%m [%p] %q[user=%u,db=%d,app=%a] '"
       log_min_duration_statement:
         title: log_min_duration_statement
-        description: Log statements that take more than this number of milliseconds to run, -1 disables
+        description: Log statements that take more than this number of milliseconds
+          to run, -1 disables
         type: integer
         minimum: -1
         maximum: 86400000
       log_temp_files:
         title: log_temp_files
-        description: Log statements for each temporary file created larger than this number of kilobytes, -1 disables
+        description: Log statements for each temporary file created larger than this
+          number of kilobytes, -1 disables
         type: integer
         minimum: -1
         maximum: 2147483647
@@ -292,19 +328,22 @@ properties:
         maximum: 6400
       max_logical_replication_workers:
         title: max_logical_replication_workers
-        description: PostgreSQL maximum logical replication workers (taken from the pool of max_parallel_workers)
+        description: PostgreSQL maximum logical replication workers (taken from the
+          pool of max_parallel_workers)
         type: integer
         minimum: 4
         maximum: 64
       max_parallel_workers:
         title: max_parallel_workers
-        description: Sets the maximum number of workers that the system can support for parallel queries
+        description: Sets the maximum number of workers that the system can support
+          for parallel queries
         type: integer
         minimum: 0
         maximum: 96
       max_parallel_workers_per_gather:
         title: max_parallel_workers_per_gather
-        description: Sets the maximum number of workers that can be started by a single Gather or Gather Merge node
+        description: Sets the maximum number of workers that can be started by a single
+          Gather or Gather Merge node
         type: integer
         minimum: 0
         maximum: 96
@@ -328,7 +367,9 @@ properties:
         maximum: 64
       max_slot_wal_keep_size:
         title: max_slot_wal_keep_size
-        description: PostgreSQL maximum WAL size (MB) reserved for replication slots. Default is -1 (unlimited). wal_keep_size minimum WAL size setting takes precedence over this.
+        description: PostgreSQL maximum WAL size (MB) reserved for replication slots.
+          Default is -1 (unlimited). wal_keep_size minimum WAL size setting takes
+          precedence over this.
         type: integer
         minimum: -1
         maximum: 2147483647
@@ -358,7 +399,8 @@ properties:
         maximum: 64
       max_worker_processes:
         title: max_worker_processes
-        description: Sets the maximum number of background processes that the system can support
+        description: Sets the maximum number of background processes that the system
+          can support
         type: integer
         minimum: 8
         maximum: 96
@@ -368,15 +410,17 @@ properties:
         type: integer
         minimum: 3600
         maximum: 604800
-        example: "3600"
+        example: '3600'
       pg_partman_bgw.role:
         title: pg_partman_bgw.role
-        description: Controls which role to use for pg_partman's scheduled background tasks.
+        description: Controls which role to use for pg_partman's scheduled background
+          tasks.
         type: string
         max_length: 64
         pattern: ^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$
         example: myrolename
-        user_error: Must consist of alpha-numeric characters, dots, underscores or dashes, may not start with dash or dot, max 64 characters
+        user_error: Must consist of alpha-numeric characters, dots, underscores or
+          dashes, may not start with dash or dot, max 64 characters
       pg_stat_monitor.pgsm_enable_query_plan:
         title: pg_stat_monitor.pgsm_enable_query_plan
         description: Enables or disables query plan monitoring
@@ -388,12 +432,14 @@ properties:
         type: integer
         minimum: 1
         maximum: 10
-        example: "10"
+        example: '10'
       pg_stat_statements.track:
         title: pg_stat_statements.track
-        description: Controls which statements are counted. Specify top to track top-level statements (those issued directly by clients), all to also track nested statements (such as statements invoked within functions), or none to disable statement statistics collection. The default value is top.
-        type:
-          - string
+        description: Controls which statements are counted. Specify top to track top-level
+          statements (those issued directly by clients), all to also track nested
+          statements (such as statements invoked within functions), or none to disable
+          statement statistics collection. The default value is top.
+        type: [string]
         enum:
           - value: all
           - value: top
@@ -404,7 +450,7 @@ properties:
         type: integer
         minimum: -1
         maximum: 2147483647
-        example: "5000000"
+        example: '5000000'
       timezone:
         title: timezone
         description: PostgreSQL service timezone
@@ -413,19 +459,20 @@ properties:
         example: Europe/Helsinki
       track_activity_query_size:
         title: track_activity_query_size
-        description: Specifies the number of bytes reserved to track the currently executing command for each active session.
+        description: Specifies the number of bytes reserved to track the currently
+          executing command for each active session.
         type: integer
         minimum: 1024
         maximum: 10240
-        example: "1024"
+        example: '1024'
       track_commit_timestamp:
         title: track_commit_timestamp
         description: Record commit time of transactions.
         type: string
         enum:
-          - value: "off"
-          - value: "on"
-        example: "off"
+          - value: 'off'
+          - value: 'on'
+        example: 'off'
       track_functions:
         title: track_functions
         description: Enables tracking of function call counts and time used.
@@ -436,74 +483,80 @@ properties:
           - value: none
       track_io_timing:
         title: track_io_timing
-        description: Enables timing of database I/O calls. This parameter is off by default, because it will repeatedly query the operating system for the current time, which may cause significant overhead on some platforms.
+        description: Enables timing of database I/O calls. This parameter is off by
+          default, because it will repeatedly query the operating system for the current
+          time, which may cause significant overhead on some platforms.
         type: string
         enum:
-          - value: "off"
-          - value: "on"
-        example: "off"
+          - value: 'off'
+          - value: 'on'
+        example: 'off'
       wal_sender_timeout:
         title: wal_sender_timeout
-        description: Terminate replication connections that are inactive for longer than this amount of time, in milliseconds. Setting this value to zero disables the timeout.
+        description: Terminate replication connections that are inactive for longer
+          than this amount of time, in milliseconds. Setting this value to zero disables
+          the timeout.
         type: integer
-        example: "60000"
+        example: '60000'
         user_error: Must be either 0 or between 5000 and 10800000.
       wal_writer_delay:
         title: wal_writer_delay
-        description: WAL flush interval in milliseconds. Note that setting this value to lower than the default 200ms may negatively impact performance
+        description: WAL flush interval in milliseconds. Note that setting this value
+          to lower than the default 200ms may negatively impact performance
         type: integer
         minimum: 10
         maximum: 200
-        example: "50"
+        example: '50'
   pg_read_replica:
-    title: Should the service which is being forked be a read replica (deprecated, use read_replica service integration instead).
-    description: This setting is deprecated. Use read_replica service integration instead.
-    type:
-      - boolean
-      - "null"
+    title: Should the service which is being forked be a read replica (deprecated,
+      use read_replica service integration instead).
+    description: This setting is deprecated. Use read_replica service integration
+      instead.
+    type: [boolean, 'null']
     example: true
   pg_service_to_fork_from:
-    title: Name of the PG Service from which to fork (deprecated, use service_to_fork_from). This has effect only when a new service is being created.
-    type:
-      - string
-      - "null"
+    title: Name of the PG Service from which to fork (deprecated, use service_to_fork_from).
+      This has effect only when a new service is being created.
+    type: [string, 'null']
     max_length: 64
     create_only: true
     example: anotherservicename
   pg_stat_monitor_enable:
     title: Enable pg_stat_monitor extension if available for the current cluster
-    description: Enable the pg_stat_monitor extension. Enabling this extension will cause the cluster to be restarted.When this extension is enabled, pg_stat_statements results for utility commands are unreliable
+    description: Enable the pg_stat_monitor extension. Enabling this extension will
+      cause the cluster to be restarted.When this extension is enabled, pg_stat_statements
+      results for utility commands are unreliable
     type: boolean
     default: false
   pg_version:
     title: PostgreSQL major version
-    type:
-      - string
-      - "null"
+    type: [string, 'null']
     enum:
       - is_deprecated: true
         deprecation_notice: This value is deprecated.
-        value: "10"
-      - value: "11"
-      - value: "12"
-      - value: "13"
-      - value: "14"
+        value: '10'
+      - value: '11'
+      - value: '12'
+      - value: '13'
+      - value: '14'
   pgbouncer:
     title: PGBouncer connection pooling settings
     type: object
     properties:
       autodb_idle_timeout:
-        title: If the automatically created database pools have been unused this many seconds, they are freed. If 0 then timeout is disabled. [seconds]
+        title: If the automatically created database pools have been unused this many
+          seconds, they are freed. If 0 then timeout is disabled. [seconds]
         type: integer
         minimum: 0
         maximum: 86400
-        example: "3600"
+        example: '3600'
       autodb_max_db_connections:
-        title: Do not allow more than this many server connections per database (regardless of user). Setting it to 0 means unlimited.
+        title: Do not allow more than this many server connections per database (regardless
+          of user). Setting it to 0 means unlimited.
         type: integer
         minimum: 0
         maximum: 2147483647
-        example: "0"
+        example: '0'
       autodb_pool_mode:
         title: PGBouncer pool mode
         type: string
@@ -513,11 +566,12 @@ properties:
           - value: statement
         example: session
       autodb_pool_size:
-        title: If non-zero then create automatically a pool of that size per user when a pool doesn't exist.
+        title: If non-zero then create automatically a pool of that size per user
+          when a pool doesn't exist.
         type: integer
         minimum: 0
         maximum: 10000
-        example: "0"
+        example: '0'
       ignore_startup_parameters:
         title: List of parameters to ignore when given in startup packet
         type: array
@@ -528,27 +582,29 @@ properties:
             - value: extra_float_digits
             - value: search_path
         max_items: 32
-        example:
-          - extra_float_digits
-          - search_path
+        example: [extra_float_digits, search_path]
       min_pool_size:
-        title: Add more server connections to pool if below this number. Improves behavior when usual load comes suddenly back after period of total inactivity. The value is effectively capped at the pool size.
+        title: Add more server connections to pool if below this number. Improves
+          behavior when usual load comes suddenly back after period of total inactivity.
+          The value is effectively capped at the pool size.
         type: integer
         minimum: 0
         maximum: 10000
-        example: "0"
+        example: '0'
       server_idle_timeout:
-        title: If a server connection has been idle more than this many seconds it will be dropped. If 0 then timeout is disabled. [seconds]
+        title: If a server connection has been idle more than this many seconds it
+          will be dropped. If 0 then timeout is disabled. [seconds]
         type: integer
         minimum: 0
         maximum: 86400
-        example: "600"
+        example: '600'
       server_lifetime:
-        title: The pooler will close an unused server connection that has been connected longer than this. [seconds]
+        title: The pooler will close an unused server connection that has been connected
+          longer than this. [seconds]
         type: integer
         minimum: 60
         maximum: 86400
-        example: "3600"
+        example: '3600'
       server_reset_query_always:
         title: Run server_reset_query (DISCARD ALL) in all pooling modes
         type: boolean
@@ -557,13 +613,14 @@ properties:
     title: PGLookout settings
     type: object
     default:
-      max_failover_replication_time_lag: "60"
+      max_failover_replication_time_lag: '60'
     properties:
       max_failover_replication_time_lag:
         title: max_failover_replication_time_lag
-        description: Number of seconds of master unavailability before triggering database failover to standby
+        description: Number of seconds of master unavailability before triggering
+          database failover to standby
         type: integer
-        default: "60"
+        default: '60'
         minimum: 10
         maximum: 9223372036854775807
   private_access:
@@ -571,15 +628,21 @@ properties:
     type: object
     properties:
       pg:
-        title: Allow clients to connect to pg with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
+        title: Allow clients to connect to pg with a DNS name that always resolves
+          to the service's private IP addresses. Only available in certain network
+          locations
         type: boolean
         example: true
       pgbouncer:
-        title: Allow clients to connect to pgbouncer with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
+        title: Allow clients to connect to pgbouncer with a DNS name that always resolves
+          to the service's private IP addresses. Only available in certain network
+          locations
         type: boolean
         example: true
       prometheus:
-        title: Allow clients to connect to prometheus with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
+        title: Allow clients to connect to prometheus with a DNS name that always
+          resolves to the service's private IP addresses. Only available in certain
+          network locations
         type: boolean
         example: true
   privatelink_access:
@@ -599,10 +662,9 @@ properties:
         type: boolean
         example: true
   project_to_fork_from:
-    title: Name of another project to fork a service from. This has effect only when a new service is being created.
-    type:
-      - string
-      - "null"
+    title: Name of another project to fork a service from. This has effect only when
+      a new service is being created.
+    type: [string, 'null']
     max_length: 63
     create_only: true
     example: anotherprojectname
@@ -611,76 +673,84 @@ properties:
     type: object
     properties:
       pg:
-        title: Allow clients to connect to pg from the public internet for service nodes that are in a project VPC or another type of private network
+        title: Allow clients to connect to pg from the public internet for service
+          nodes that are in a project VPC or another type of private network
         type: boolean
         example: true
       pgbouncer:
-        title: Allow clients to connect to pgbouncer from the public internet for service nodes that are in a project VPC or another type of private network
+        title: Allow clients to connect to pgbouncer from the public internet for
+          service nodes that are in a project VPC or another type of private network
         type: boolean
         example: true
       prometheus:
-        title: Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network
+        title: Allow clients to connect to prometheus from the public internet for
+          service nodes that are in a project VPC or another type of private network
         type: boolean
         example: true
   recovery_target_time:
-    title: Recovery target time when forking a service. This has effect only when a new service is being created.
-    type:
-      - string
-      - "null"
+    title: Recovery target time when forking a service. This has effect only when
+      a new service is being created.
+    type: [string, 'null']
     max_length: 32
     create_only: true
-    example: "2019-01-01 23:34:45"
+    example: '2019-01-01 23:34:45'
   service_to_fork_from:
-    title: Name of another service to fork from. This has effect only when a new service is being created.
-    type:
-      - string
-      - "null"
+    title: Name of another service to fork from. This has effect only when a new service
+      is being created.
+    type: [string, 'null']
     max_length: 64
     create_only: true
     example: anotherservicename
   shared_buffers_percentage:
     title: shared_buffers_percentage
-    description: Percentage of total RAM that the database server uses for shared memory buffers. Valid range is 20-60 (float), which corresponds to 20% - 60%. This setting adjusts the shared_buffers configuration value.
+    description: Percentage of total RAM that the database server uses for shared
+      memory buffers. Valid range is 20-60 (float), which corresponds to 20% - 60%.
+      This setting adjusts the shared_buffers configuration value.
     type: number
     minimum: 20
     maximum: 60
-    example: "41.5"
+    example: '41.5'
   static_ips:
     title: Static IP addresses
     description: Use static public IP addresses
     type: boolean
     example: true
   synchronous_replication:
-    title: Synchronous replication type. Note that the service plan also needs to support synchronous replication.
+    title: Synchronous replication type. Note that the service plan also needs to
+      support synchronous replication.
     type: string
     enum:
       - value: quorum
-      - value: "off"
-    example: "off"
+      - value: 'off'
+    example: 'off'
   timescaledb:
     title: TimescaleDB extension configuration values
     type: object
     properties:
       max_background_workers:
         title: timescaledb.max_background_workers
-        description: The number of background workers for timescaledb operations. You should configure this setting to the sum of your number of databases and the total number of concurrent background workers you want running at any given point in time.
+        description: The number of background workers for timescaledb operations.
+          You should configure this setting to the sum of your number of databases
+          and the total number of concurrent background workers you want running at
+          any given point in time.
         type: integer
         minimum: 1
         maximum: 4096
-        example: "8"
+        example: '8'
   variant:
-    title: Variant of the PostgreSQL service, may affect the features that are exposed by default
-    type:
-      - string
-      - "null"
+    title: Variant of the PostgreSQL service, may affect the features that are exposed
+      by default
+    type: [string, 'null']
     enum:
       - value: aiven
       - value: timescale
     example: aiven
   work_mem:
     title: work_mem
-    description: Sets the maximum amount of memory to be used by a query operation (such as a sort or hash table) before writing to temporary disk files, in MB. Default is 1MB + 0.075% of total RAM (up to 32MB).
+    description: Sets the maximum amount of memory to be used by a query operation
+      (such as a sort or hash table) before writing to temporary disk files, in MB.
+      Default is 1MB + 0.075% of total RAM (up to 32MB).
     type: integer
     minimum: 1
     maximum: 1024
-    example: "4"
+    example: '4'

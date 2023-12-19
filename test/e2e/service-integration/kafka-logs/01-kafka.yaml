@@ -1,7 +1,10 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: Kafka
+
 metadata:
   name: k8s-test-service-integration-kafka-logs-kafka
+
 spec:
   authSecretRef:
     name: aiven-token

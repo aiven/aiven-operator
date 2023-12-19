@@ -1,7 +1,10 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: KafkaACL
+
 metadata:
   name: my-kafka-acl
+
 spec:
   authSecretRef:
     name: aiven-token

@@ -1,22 +1,24 @@
+---
 apiVersion: kuttl.dev/v1beta1
 kind: TestStep
+
 commands:
-- script: |
-    SERVICE=k8s-test-kafka-connector-connect-kafka-to-postgres-kafka
-    while ! avn --auth-token $AIVEN_TOKEN service wait $SERVICE --project aiven-ci-kubernetes-operator;
-    do
-      sleep 10
-    done
-- script: |
-    SERVICE=k8s-test-kafka-connector-connect-kafka-to-postgres-pg
-    while ! avn --auth-token $AIVEN_TOKEN service wait $SERVICE --project aiven-ci-kubernetes-operator;
-    do
-      sleep 10
-    done
-- script: |
-    SERVICE=k8s-test-kafka-connector-connect-kafka-to-postgres-kafka
-    TOPIC=k8s-test-kafka-connector-connect-kafka-to-postgres-topic
-    while ! avn --auth-token $AIVEN_TOKEN service topic-get $SERVICE $TOPIC --project aiven-ci-kubernetes-operator;
-    do
-      sleep 10
-    done
+  - script: |
+      SERVICE=k8s-test-kafka-connector-connect-kafka-to-postgres-kafka
+      while ! avn --auth-token $AIVEN_TOKEN service wait $SERVICE --project aiven-ci-kubernetes-operator;
+      do
+        sleep 10
+      done
+  - script: |
+      SERVICE=k8s-test-kafka-connector-connect-kafka-to-postgres-pg
+      while ! avn --auth-token $AIVEN_TOKEN service wait $SERVICE --project aiven-ci-kubernetes-operator;
+      do
+        sleep 10
+      done
+  - script: |-
+      SERVICE=k8s-test-kafka-connector-connect-kafka-to-postgres-kafka
+      TOPIC=k8s-test-kafka-connector-connect-kafka-to-postgres-topic
+      while ! avn --auth-token $AIVEN_TOKEN service topic-get $SERVICE $TOPIC --project aiven-ci-kubernetes-operator;
+      do
+        sleep 10
+      done

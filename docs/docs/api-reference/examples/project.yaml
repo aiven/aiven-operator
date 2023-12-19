@@ -1,7 +1,10 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: Project
+
 metadata:
   name: my-project
+
 spec:
   authSecretRef:
     name: aiven-token

@@ -1,7 +1,10 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: ServiceIntegration
+
 metadata:
   name: my-service-integration
+
 spec:
   authSecretRef:
     name: aiven-token

@@ -1,15 +1,11 @@
+---
 issues:
   exclude-rules:
     - path: _test\.go
-      linters:
-        - dupl
-        - gosec
-        - goconst
-        - golint
+      linters: [dupl, gosec, goconst, golint]
       text: underscore
-    - linters:
-        - gomnd
-      text: "mnd: Magic number: 0644"
+    - linters: [gomnd]
+      text: 'mnd: Magic number: 0644'
 
 linters:
   disable-all: true
@@ -31,7 +27,5 @@ linters:
 
 run:
   timeout: 10m
-  skip-dirs:
-    - hack
-  skip-files:
-    - api/v1alpha1/zz_generated.deepcopy.go
+  skip-dirs: [hack]
+  skip-files: [api/v1alpha1/zz_generated.deepcopy.go]

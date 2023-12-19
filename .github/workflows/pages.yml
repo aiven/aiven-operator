@@ -1,10 +1,10 @@
+---
 name: pages
 
 on:
   workflow_dispatch: {}
   push:
-    tags:
-      - v*
+    tags: [v*]
 
 jobs:
   release_pages:

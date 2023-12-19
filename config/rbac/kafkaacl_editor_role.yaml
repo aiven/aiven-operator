@@ -1,24 +1,15 @@
+---
 # permissions for end users to edit kafkaacls.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
+
 metadata:
   name: kafkaacl-editor-role
+
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - kafkaacls
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - kafkaacls/status
-  verbs:
-  - get
+  - apiGroups: [aiven.io]
+    resources: [kafkaacls]
+    verbs: [create, delete, get, list, patch, update, watch]
+  - apiGroups: [aiven.io]
+    resources: [kafkaacls/status]
+    verbs: [get]

@@ -1,6 +1,9 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: KafkaConnector
+
 metadata:
   name: kafkaconnector-sample
+
 spec:
   # TODO(user): Add fields here

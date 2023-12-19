@@ -1,7 +1,10 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: ConnectionPool
+
 metadata:
   name: my-connection-pool
+
 spec:
   authSecretRef:
     name: aiven-token

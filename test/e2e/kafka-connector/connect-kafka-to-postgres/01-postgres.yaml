@@ -1,7 +1,10 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: PostgreSQL
+
 metadata:
   name: k8s-test-kafka-connector-connect-kafka-to-postgres-pg
+
 spec:
   authSecretRef:
     name: aiven-token

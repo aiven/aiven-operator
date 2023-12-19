@@ -1,24 +1,15 @@
+---
 # permissions for end users to edit serviceintegrations.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
+
 metadata:
   name: serviceintegration-editor-role
+
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - serviceintegrations
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - serviceintegrations/status
-  verbs:
-  - get
+  - apiGroups: [aiven.io]
+    resources: [serviceintegrations]
+    verbs: [create, delete, get, list, patch, update, watch]
+  - apiGroups: [aiven.io]
+    resources: [serviceintegrations/status]
+    verbs: [get]

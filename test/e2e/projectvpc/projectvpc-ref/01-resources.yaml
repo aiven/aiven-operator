@@ -1,7 +1,10 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: ProjectVPC
+
 metadata:
   name: k8s-e2e-projectvpc-ref
+
 spec:
   project: aiven-ci-kubernetes-operator
   cloudName: google-europe-west1
@@ -15,8 +18,10 @@ spec:
 
 apiVersion: aiven.io/v1alpha1
 kind: Kafka
+
 metadata:
   name: k8s-e2e-projectvpc-ref-kafka
+
 spec:
   project: aiven-ci-kubernetes-operator
   cloudName: google-europe-west1
@@ -36,8 +41,10 @@ spec:
 
 apiVersion: aiven.io/v1alpha1
 kind: OpenSearch
+
 metadata:
   name: k8s-e2e-projectvpc-ref-os
+
 spec:
   project: aiven-ci-kubernetes-operator
   cloudName: google-europe-west1
@@ -57,8 +64,10 @@ spec:
 
 apiVersion: aiven.io/v1alpha1
 kind: Redis
+
 metadata:
   name: k8s-e2e-projectvpc-ref-redis
+
 spec:
   project: aiven-ci-kubernetes-operator
   cloudName: google-europe-west1

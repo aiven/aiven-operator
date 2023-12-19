@@ -1,24 +1,15 @@
+---
 # permissions for end users to edit projectvpcs.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
+
 metadata:
   name: projectvpc-editor-role
+
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - projectvpcs
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - projectvpcs/status
-  verbs:
-  - get
+  - apiGroups: [aiven.io]
+    resources: [projectvpcs]
+    verbs: [create, delete, get, list, patch, update, watch]
+  - apiGroups: [aiven.io]
+    resources: [projectvpcs/status]
+    verbs: [get]

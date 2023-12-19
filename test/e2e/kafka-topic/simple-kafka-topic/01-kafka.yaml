@@ -1,7 +1,10 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: Kafka
+
 metadata:
   name: k8s-test-kafka-topic-simple-kafka-topic-kafka
+
 spec:
   authSecretRef:
     name: aiven-token

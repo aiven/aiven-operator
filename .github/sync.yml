@@ -1,3 +1,4 @@
+---
 aiven/aiven-charts:
   - source: charts/aiven-operator/
     dest: charts/aiven-operator/

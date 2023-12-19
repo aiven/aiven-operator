@@ -1,7 +1,10 @@
+---
 apiVersion: aiven.io/v1alpha1
 kind: KafkaSchema
+
 metadata:
   name: my-schema
+
 spec:
   authSecretRef:
     name: aiven-token
@@ -11,7 +14,7 @@ spec:
   serviceName: my-kafka
   subjectName: mny-subject
   compatibilityLevel: BACKWARD
-  schema: |
+  schema: |-
     {
         "doc": "example_doc",
         "fields": [{

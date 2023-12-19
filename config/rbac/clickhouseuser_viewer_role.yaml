@@ -1,20 +1,15 @@
+---
 # permissions for end users to view clickhouseusers.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
+
 metadata:
   name: clickhouseuser-viewer-role
+
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - clickhouseusers
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - clickhouseusers/status
-  verbs:
-  - get
+  - apiGroups: [aiven.io]
+    resources: [clickhouseusers]
+    verbs: [get, list, watch]
+  - apiGroups: [aiven.io]
+    resources: [clickhouseusers/status]
+    verbs: [get]
