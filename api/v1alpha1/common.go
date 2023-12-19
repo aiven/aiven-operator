@@ -47,6 +47,12 @@ type ServiceStatus struct {
 	State string `json:"state,omitempty"`
 }
 
+type ServiceTechEmail struct {
+	// +kubebuilder:validation:Format="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+	// Email address.
+	Email string `json:"email"`
+}
+
 type ServiceCommonSpec struct {
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
@@ -87,6 +93,10 @@ type ServiceCommonSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Service integrations to specify when creating a service. Not applied after initial service creation
 	ServiceIntegrations []*ServiceIntegrationItem `json:"serviceIntegrations,omitempty"`
+
+	// +kubebuilder:validation:MaxItems=10
+	// Defines the email addresses that will receive alerts about upcoming maintenance updates or warnings about service instability.
+	TechnicalEmails []ServiceTechEmail `json:"technicalEmails,omitempty"`
 }
 
 // Validate runs complex validation on ServiceCommonSpec
