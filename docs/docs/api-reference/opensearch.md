@@ -202,10 +202,10 @@ OpenSearch OpenID Connect Configuration.
 - [`client_id`](#spec.userConfig.openid.client_id-property){: name='spec.userConfig.openid.client_id-property'} (string, MinLength: 1, MaxLength: 1024). The ID of the OpenID Connect client configured in your IdP. Required.
 - [`client_secret`](#spec.userConfig.openid.client_secret-property){: name='spec.userConfig.openid.client_secret-property'} (string, MinLength: 1, MaxLength: 1024). The client secret of the OpenID Connect client configured in your IdP. Required.
 - [`connect_url`](#spec.userConfig.openid.connect_url-property){: name='spec.userConfig.openid.connect_url-property'} (string, MaxLength: 2048). The URL of your IdP where the Security plugin can find the OpenID Connect metadata/configuration settings.
+- [`enabled`](#spec.userConfig.openid.enabled-property){: name='spec.userConfig.openid.enabled-property'} (boolean). Enables or disables OpenID Connect authentication for OpenSearch. When enabled, users can authenticate using OpenID Connect with an Identity Provider.
 
 **Optional**
 
-- [`enabled`](#spec.userConfig.openid.enabled-property){: name='spec.userConfig.openid.enabled-property'} (boolean). Enables or disables OpenID Connect authentication for OpenSearch. When enabled, users can authenticate using OpenID Connect with an Identity Provider.
 - [`header`](#spec.userConfig.openid.header-property){: name='spec.userConfig.openid.header-property'} (string, MinLength: 1, MaxLength: 1024). HTTP header name of the JWT token. Optional. Default is Authorization.
 - [`jwt_header`](#spec.userConfig.openid.jwt_header-property){: name='spec.userConfig.openid.jwt_header-property'} (string, MinLength: 1, MaxLength: 1024). The HTTP header that stores the token. Typically the Authorization header with the Bearer schema: Authorization: Bearer <token>. Optional. Default is Authorization.
 - [`jwt_url_parameter`](#spec.userConfig.openid.jwt_url_parameter-property){: name='spec.userConfig.openid.jwt_url_parameter-property'} (string, MinLength: 1, MaxLength: 1024). If the token is not transmitted in the HTTP header, but as an URL parameter, define the name of the parameter here. Optional.
