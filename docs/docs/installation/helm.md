@@ -114,4 +114,3 @@ The confirmation message is similar to the following:
 ```{ .shell .no-copy }
 release "aiven-operator" uninstalled
 ```
-

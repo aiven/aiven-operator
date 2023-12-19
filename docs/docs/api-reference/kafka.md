@@ -346,4 +346,3 @@ Deprecated. Local cache configuration.
 **Required**
 
 - [`size`](#spec.userConfig.tiered_storage.local_cache.size-property){: name='spec.userConfig.tiered_storage.local_cache.size-property'} (integer, Minimum: 1, Maximum: 107374182400). Deprecated. Local cache size in bytes.
-

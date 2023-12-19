@@ -262,4 +262,3 @@ Allow access to selected service ports from the public Internet.
 - [`mysql`](#spec.userConfig.public_access.mysql-property){: name='spec.userConfig.public_access.mysql-property'} (boolean). Allow clients to connect to mysql from the public internet for service nodes that are in a project VPC or another type of private network.
 - [`mysqlx`](#spec.userConfig.public_access.mysqlx-property){: name='spec.userConfig.public_access.mysqlx-property'} (boolean). Allow clients to connect to mysqlx from the public internet for service nodes that are in a project VPC or another type of private network.
 - [`prometheus`](#spec.userConfig.public_access.prometheus-property){: name='spec.userConfig.public_access.prometheus-property'} (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network.
-

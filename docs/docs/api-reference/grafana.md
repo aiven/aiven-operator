@@ -363,4 +363,3 @@ SMTP server settings.
 - [`skip_verify`](#spec.userConfig.smtp_server.skip_verify-property){: name='spec.userConfig.smtp_server.skip_verify-property'} (boolean). Skip verifying server certificate. Defaults to false.
 - [`starttls_policy`](#spec.userConfig.smtp_server.starttls_policy-property){: name='spec.userConfig.smtp_server.starttls_policy-property'} (string, Enum: `OpportunisticStartTLS`, `MandatoryStartTLS`, `NoStartTLS`). Either OpportunisticStartTLS, MandatoryStartTLS or NoStartTLS. Default is OpportunisticStartTLS.
 - [`username`](#spec.userConfig.smtp_server.username-property){: name='spec.userConfig.smtp_server.username-property'} (string, Pattern: `^[^\x00-\x1F]+$`, MaxLength: 255). Username for SMTP authentication.
-

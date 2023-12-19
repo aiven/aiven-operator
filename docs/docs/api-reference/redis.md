@@ -219,4 +219,3 @@ Allow access to selected service ports from the public Internet.
 
 - [`prometheus`](#spec.userConfig.public_access.prometheus-property){: name='spec.userConfig.public_access.prometheus-property'} (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network.
 - [`redis`](#spec.userConfig.public_access.redis-property){: name='spec.userConfig.public_access.redis-property'} (boolean). Allow clients to connect to redis from the public internet for service nodes that are in a project VPC or another type of private network.
-

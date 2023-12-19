@@ -24,4 +24,3 @@ Please follow the [installation instructions](https://cert-manager.io/docs/insta
     The Aiven Operator for Kubernetes uses webhooks for setting defaults
     and enforcing invariants that are expected by the aiven API and will lead to errors if ignored.
     In the future webhooks will also be used for conversion and supporting multiple CRD versions.
-

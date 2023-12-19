@@ -196,4 +196,3 @@ Allow access to selected service ports from the public Internet.
 **Required**
 
 - [`prometheus`](#spec.userConfig.public_access.prometheus-property){: name='spec.userConfig.public_access.prometheus-property'} (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network.
-

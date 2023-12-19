@@ -113,4 +113,3 @@ Kafka topic tags.
 **Optional**
 
 - [`value`](#spec.tags.value-property){: name='spec.tags.value-property'} (string, MaxLength: 256, Format: `^[a-zA-Z0-9_-]*$`).
-
