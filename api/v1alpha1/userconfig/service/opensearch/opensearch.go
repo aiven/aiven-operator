@@ -65,7 +65,7 @@ type Openid struct {
 	ConnectUrl string `groups:"create,update" json:"connect_url"`
 
 	// Enables or disables OpenID Connect authentication for OpenSearch. When enabled, users can authenticate using OpenID Connect with an Identity Provider.
-	Enabled *bool `groups:"create,update" json:"enabled,omitempty"`
+	Enabled bool `groups:"create,update" json:"enabled"`
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=1024
