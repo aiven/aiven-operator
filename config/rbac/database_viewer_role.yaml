@@ -4,17 +4,17 @@ kind: ClusterRole
 metadata:
   name: database-viewer-role
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - databases
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - databases/status
-  verbs:
-  - get
+  - apiGroups:
+      - aiven.io
+    resources:
+      - databases
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - databases/status
+    verbs:
+      - get

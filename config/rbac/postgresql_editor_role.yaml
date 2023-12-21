@@ -4,21 +4,21 @@ kind: ClusterRole
 metadata:
   name: postgresql-editor-role
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - postgresqls
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - postgresqls/status
-  verbs:
-  - get
+  - apiGroups:
+      - aiven.io
+    resources:
+      - postgresqls
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - postgresqls/status
+    verbs:
+      - get

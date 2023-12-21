@@ -1,21 +1,23 @@
 # Aiven Operator
+
 Provision and manage [Aiven Services](https://aiven.io/) from your Kubernetes cluster.
 
 See the full documentation [here](https://aiven.github.io/aiven-operator/).
 
 ## Installation
+
 To install the Operator, please follow the [installation instructions](https://aiven.github.io/aiven-operator/installation/helm.html).
 
-
 ## Deploying PostgreSQL at Aiven
+
 Now let's create a `PostgreSQL` resource with the following YAML – please fill in your project name under in the `project` field:
+
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: PostgreSQL
 metadata:
   name: aiven-pg
 spec:
-
   # reads the authentication token
   authSecretRef:
     name: aiven-token
@@ -31,26 +33,31 @@ spec:
   maintenanceWindowDow: friday
   maintenanceWindowTime: 23:00:00
   userConfig:
-    pg_version: '15'
+    pg_version: "15"
 ```
 
 Watch the resource being created and wait until its status is `RUNNING`:
+
 ```bash
 $ watch kubectl get postgresql.aiven.io aiven-pg
 ```
 
 After created, the Operator will create a Kubernetes Secret containing the PostgreSQL connection information:
+
 ```bash
 $ kubectl describe secret pg-connection
 ```
 
 Use the following [jq](https://github.com/stedolan/jq) command to decode the Secret:
+
 ```bash
 $ kubectl get secret pg-connection -o json | jq '.data | map_values(@base64d)'
 ```
 
 ## Connecting to PostgreSQL
+
 Let's run a `psql` command to test the database connection using the generated Secret:
+
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -61,23 +68,26 @@ spec:
   containers:
     - image: postgres:11
       name: postgres
-      command: ['psql', '$(DATABASE_URI)', '-c', 'SELECT version();']
+      command: ["psql", "$(DATABASE_URI)", "-c", "SELECT version();"]
       envFrom:
-      - secretRef:
-          name: pg-connection
+        - secretRef:
+            name: pg-connection
 ```
 
 The Pod should the PostgreSQL version. You can verify with the following command:
+
 ```bash
 $ kubectl logs psql-test-connection
-                                           version                                           
+                                           version
 ---------------------------------------------------------------------------------------------
  PostgreSQL 11.12 on x86_64-pc-linux-gnu, compiled by gcc, a 68c5366192 p 6b9244f01a, 64-bit
 (1 row)
 ```
 
 ## Contributing
+
 We welcome and encourage contributions to this project. Please take a look at our [Contribution guide line](https://aiven.github.io/aiven-operator/contributing/index.html).
 
 ## License
+
 [Apache 2](LICENSE).

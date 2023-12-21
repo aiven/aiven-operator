@@ -1,9 +1,9 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestStep
 commands:
-- script: |
-    SERVICE=k8s-e2e-test-pg-integration
-    while ! avn service integration-list $SERVICE --json | jq '.[] | select(.integration_type == "clickhouse_postgresql" and .active == true)'
-    do
-        sleep 10
-    done
+  - script: |
+      SERVICE=k8s-e2e-test-pg-integration
+      while ! avn service integration-list $SERVICE --json | jq '.[] | select(.integration_type == "clickhouse_postgresql" and .active == true)'
+      do
+          sleep 10
+      done

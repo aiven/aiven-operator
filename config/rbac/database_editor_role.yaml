@@ -4,21 +4,21 @@ kind: ClusterRole
 metadata:
   name: database-editor-role
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - databases
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - databases/status
-  verbs:
-  - get
+  - apiGroups:
+      - aiven.io
+    resources:
+      - databases
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - databases/status
+    verbs:
+      - get

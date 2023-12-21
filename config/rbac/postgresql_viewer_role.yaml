@@ -4,17 +4,17 @@ kind: ClusterRole
 metadata:
   name: postgresql-viewer-role
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - postgresqls
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - postgresqls/status
-  verbs:
-  - get
+  - apiGroups:
+      - aiven.io
+    resources:
+      - postgresqls
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - postgresqls/status
+    verbs:
+      - get

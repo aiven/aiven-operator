@@ -4,21 +4,21 @@ kind: ClusterRole
 metadata:
   name: kafkaconnector-editor-role
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - kafkaconnectors
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - kafkaconnectors/status
-  verbs:
-  - get
+  - apiGroups:
+      - aiven.io
+    resources:
+      - kafkaconnectors
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - kafkaconnectors/status
+    verbs:
+      - get

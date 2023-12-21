@@ -263,9 +263,9 @@ properties:
         description: Choose from one of the available log-formats. These can support popular log analyzers like pgbadger, pganalyze etc.
         type: string
         enum:
-          - value: '''pid=%p,user=%u,db=%d,app=%a,client=%h '''
-          - value: '''%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '''
-          - value: '''%m [%p] %q[user=%u,db=%d,app=%a] '''
+          - value: "'pid=%p,user=%u,db=%d,app=%a,client=%h '"
+          - value: "'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '"
+          - value: "'%m [%p] %q[user=%u,db=%d,app=%a] '"
       log_min_duration_statement:
         title: log_min_duration_statement
         description: Log statements that take more than this number of milliseconds to run, -1 disables
@@ -384,7 +384,7 @@ properties:
         example: false
       pg_stat_monitor.pgsm_max_buckets:
         title: pg_stat_monitor.pgsm_max_buckets
-        description: 'Sets the maximum number of buckets '
+        description: "Sets the maximum number of buckets "
         type: integer
         minimum: 1
         maximum: 10

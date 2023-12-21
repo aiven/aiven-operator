@@ -1,48 +1,47 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestStep
 commands:
-# produce the message
-- script: |
-    mkdir -p /tmp/kafkacat
-    trap 'rm -rf /tmp/kafkacat' EXIT
+  # produce the message
+  - script: |
+      mkdir -p /tmp/kafkacat
+      trap 'rm -rf /tmp/kafkacat' EXIT
 
-    kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.CA_CERT -r | base64 -w0 -d >> /tmp/kafkacat/ca.crt
-    kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.ACCESS_CERT -r | base64 -w0 -d >> /tmp/kafkacat/service.crt
-    kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.ACCESS_KEY -r | base64 -w0 -d >> /tmp/kafkacat/service.key
+      kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.CA_CERT -r | base64 -w0 -d >> /tmp/kafkacat/ca.crt
+      kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.ACCESS_CERT -r | base64 -w0 -d >> /tmp/kafkacat/service.crt
+      kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.ACCESS_KEY -r | base64 -w0 -d >> /tmp/kafkacat/service.key
 
-    HOST=$(kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.HOST -r | base64 -d)
-    PORT=$(kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.PORT -r | base64 -d)
-    TOPIC=k8s-test-kafka-connector-connect-kafka-to-postgres-topic
+      HOST=$(kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.HOST -r | base64 -d)
+      PORT=$(kubectl --namespace $NAMESPACE get secret kafka-secret -ojson | jq .data.PORT -r | base64 -d)
+      TOPIC=k8s-test-kafka-connector-connect-kafka-to-postgres-topic
 
-    cat <<EOF >> /tmp/kafkacat/msg
-    {
-      "schema": {
-        "type": "struct",
-        "fields": [
-         { "field": "text", "type": "string", "optional": false }
-        ]
-      },
-      "payload": {
-        "text": "Hello World"
+      cat <<EOF >> /tmp/kafkacat/msg
+      {
+        "schema": {
+          "type": "struct",
+          "fields": [
+           { "field": "text", "type": "string", "optional": false }
+          ]
+        },
+        "payload": {
+          "text": "Hello World"
+        }
       }
-    }
-    EOF
-      
-    kcat \
-        -b $HOST:$PORT \
-        -X security.protocol=SSL \
-        -X ssl.ca.location=/tmp/kafkacat/ca.crt \
-        -X ssl.certificate.location=/tmp/kafkacat/service.crt \
-        -X ssl.key.location=/tmp/kafkacat/service.key \
-        -P -t $TOPIC /tmp/kafkacat/msg
+      EOF
+        
+      kcat \
+          -b $HOST:$PORT \
+          -X security.protocol=SSL \
+          -X ssl.ca.location=/tmp/kafkacat/ca.crt \
+          -X ssl.certificate.location=/tmp/kafkacat/service.crt \
+          -X ssl.key.location=/tmp/kafkacat/service.key \
+          -P -t $TOPIC /tmp/kafkacat/msg
 
-# check that the connector wrote the message
-- script: |
-    URI=$(kubectl --namespace $NAMESPACE get secret pg-secret -ojson | jq .data.DATABASE_URI -r | base64 -d)
-    TABLE=k8s-test-kafka-connector-connect-kafka-to-postgres-topic
+  # check that the connector wrote the message
+  - script: |
+      URI=$(kubectl --namespace $NAMESPACE get secret pg-secret -ojson | jq .data.DATABASE_URI -r | base64 -d)
+      TABLE=k8s-test-kafka-connector-connect-kafka-to-postgres-topic
 
-    while ! psql $URI -qtAX -c "SELECT text FROM \"$TABLE\"" == "Hello World"
-    do 
-      sleep 10
-    done
-
+      while ! psql $URI -qtAX -c "SELECT text FROM \"$TABLE\"" == "Hello World"
+      do 
+        sleep 10
+      done

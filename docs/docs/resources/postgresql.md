@@ -12,8 +12,8 @@ extender for location queries. Aiven for PostgreSQL is the perfect fit for your 
 With Aiven Kubernetes Operator, you can manage Aiven for PostgreSQL through the well defined Kubernetes API.
 
 !!! note
-    Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/), 
-    and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
+Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/),
+and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
 
 ## Creating a PostgreSQL instance
 
@@ -25,7 +25,6 @@ kind: PostgreSQL
 metadata:
   name: pg-sample
 spec:
-
   # gets the authentication token from the `aiven-token` Secret
   authSecretRef:
     name: aiven-token
@@ -49,7 +48,7 @@ spec:
 
   # specific PostgreSQL configuration
   userConfig:
-    pg_version: '11'
+    pg_version: "11"
 ```
 
 2\. Create the service by applying the configuration:
@@ -139,9 +138,9 @@ spec:
   containers:
     - image: postgres:11-alpine
       name: postgres
-      command: [ 'psql', '$(DATABASE_URI)', '-c', 'SELECT version();' ]
+      command: ["psql", "$(DATABASE_URI)", "-c", "SELECT version();"]
 
-      # the pg-connection Secret becomes environment variables 
+      # the pg-connection Secret becomes environment variables
       envFrom:
         - secretRef:
             name: pg-connection
@@ -156,8 +155,9 @@ kubectl logs psql-test-connection
 ```
 
 The output is similar to the following:
+
 ```{ .shell .no-copy }
-                                           version                                           
+                                           version
 ---------------------------------------------------------------------------------------------
  PostgreSQL 11.12 on x86_64-pc-linux-gnu, compiled by gcc, a 68c5366192 p 6b9244f01a, 64-bit
 (1 row)
@@ -193,7 +193,7 @@ You can now connect to the `pg-database-sample` using the credentials stored in 
 
 ## Creating a PostgreSQL user
 
-Aiven uses the concept of *service user* that allows you to create users for different services. You can create one for
+Aiven uses the concept of _service user_ that allows you to create users for different services. You can create one for
 the PostgreSQL instance.
 
 1\. Create a file named `pg-service-user.yaml`.
@@ -229,6 +229,7 @@ kubectl get secret pg-service-user-connection -o json | jq '.data | map_values(@
 ```
 
 The output has the password and username:
+
 ```{ .json .no-copy }
 {
   "PASSWORD": "<secret-password>",
@@ -276,9 +277,10 @@ The `ConnectionPool` generates a Secret with the connection info using the name 
 field:
 
 ```shell
-kubectl get secret pg-connection-pool-connection -o json | jq '.data | map_values(@base64d)' 
+kubectl get secret pg-connection-pool-connection -o json | jq '.data | map_values(@base64d)'
 ```
-The output is similar to the following: 
+
+The output is similar to the following:
 
 ```{ .json .no-copy }
 {
@@ -294,7 +296,7 @@ The output is similar to the following:
 
 ## Creating a PostgreSQL read-only replica
 
-Read-only replicas can be used to reduce the load on the primary service by making read-only queries against the replica service. 
+Read-only replicas can be used to reduce the load on the primary service by making read-only queries against the replica service.
 
 To create a read-only replica for a PostgreSQL service, you create a second PostgreSQL service and use [serviceIntegrations](https://aiven.github.io/aiven-operator/api-reference/postgresql.html#spec.serviceIntegrations) to replicate data from your primary service.
 
@@ -325,10 +327,9 @@ spec:
   maintenanceWindowDow: friday
   maintenanceWindowTime: 23:00:00
   userConfig:
-    pg_version: '15'
+    pg_version: "15"
 
 ---
-
 apiVersion: aiven.io/v1alpha1
 kind: PostgreSQL
 metadata:
@@ -351,16 +352,16 @@ spec:
   maintenanceWindowDow: saturday
   maintenanceWindowTime: 23:00:00
   userConfig:
-    pg_version: '15'
+    pg_version: "15"
 
   # use the read_replica integration and point it to your primary service
   serviceIntegrations:
-  -  integrationType: read_replica
-     sourceServiceName: primary-pg-service
+    - integrationType: read_replica
+      sourceServiceName: primary-pg-service
 ```
 
 !!! note
-    You can create the replica service in a different region or on a different cloud provider.
+You can create the replica service in a different region or on a different cloud provider.
 
 2\. Apply the configuration with the following command:
 

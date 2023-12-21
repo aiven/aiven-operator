@@ -18,10 +18,9 @@ The Aiven Operator for Kubernetes uses `cert-manager` to configure the [service 
 
 Please follow the [installation instructions](https://cert-manager.io/docs/installation/helm/) on their website.
 
-!!! note 
-    This is not required in the Helm installation if you select to [disable webhooks](./helm.md), 
-    but that is not recommended outside of playground use. 
-    The Aiven Operator for Kubernetes uses webhooks for setting defaults 
-    and enforcing invariants that are expected by the aiven API and will lead to errors if ignored. 
-    In the future webhooks will also be used for conversion and supporting multiple CRD versions.
-
+!!! note
+This is not required in the Helm installation if you select to [disable webhooks](./helm.md),
+but that is not recommended outside of playground use.
+The Aiven Operator for Kubernetes uses webhooks for setting defaults
+and enforcing invariants that are expected by the aiven API and will lead to errors if ignored.
+In the future webhooks will also be used for conversion and supporting multiple CRD versions.

@@ -10,8 +10,8 @@ weight: 90
 
 Depending on your installation, please follow one of:
 
-* [Helm]({{< relref "/docs/installation/helm" >}}#uninstalling)
-* [kubectl]({{< relref "/docs/installation/kubectl" >}}#uninstalling)
+- [Helm]({{< relref "/docs/installation/helm" >}}#uninstalling)
+- [kubectl]({{< relref "/docs/installation/kubectl" >}}#uninstalling)
 
 ## Dealing with expired tokens
 

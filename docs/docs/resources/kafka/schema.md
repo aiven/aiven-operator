@@ -5,6 +5,7 @@ weight: 40
 ---
 
 ## Creating a `KafkaSchema`
+
 Aiven develops and maintain [Karapace](https://github.com/aiven/karapace), an open source implementation of Kafka REST
 and schema registry. Is available out of the box for our managed Kafka service.
 
@@ -34,7 +35,7 @@ spec:
   maintenanceWindowTime: 23:00:00
 
   userConfig:
-    kafka_version: '2.7'
+    kafka_version: "2.7"
 
     # this flag enables the Schema registry
     schema_registry: true
@@ -43,7 +44,7 @@ spec:
 2\. Apply the changes with the following command:
 
 ```shell
-kubectl apply -f kafka-schema.yaml 
+kubectl apply -f kafka-schema.yaml
 ```
 
 Now, let's create the schema itself.
@@ -79,7 +80,7 @@ spec:
       ]
     }
 
-  # sets the schema compatibility level 
+  # sets the schema compatibility level
   compatibilityLevel: BACKWARD
 ```
 

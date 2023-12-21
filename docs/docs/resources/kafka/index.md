@@ -8,8 +8,8 @@ Aiven for Apache Kafka is an excellent option if you need to run Apache Kafka at
 you can get up and running with a suitably sized Apache Kafka service in a few minutes.
 
 !!! note
-    Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/) 
-    and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
+Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/)
+and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
 
 ## Creating a Kafka instance
 
@@ -44,16 +44,16 @@ spec:
 
   # specific Kafka configuration
   userConfig:
-    kafka_version: '2.7'
+    kafka_version: "2.7"
 ```
 
 2\. Create the following resource on Kubernetes:
 
 ```shell
-kubectl apply -f kafka-sample.yaml 
+kubectl apply -f kafka-sample.yaml
 ```
 
-3\. Inspect the service created using the command below. 
+3\. Inspect the service created using the command below.
 
 ```shell
 kubectl get kafka.aiven.io kafka-sample
@@ -67,7 +67,7 @@ NAME           PROJECT          REGION                PLAN        STATE
 kafka-sample   <your-project>   google-europe-west1   startup-2   RUNNING
 ```
 
- After a couple of minutes, the `STATE` field is changed to `RUNNING`, and is ready to be used.
+After a couple of minutes, the `STATE` field is changed to `RUNNING`, and is ready to be used.
 
 ## Using the connection Secret
 
@@ -75,7 +75,7 @@ For your convenience, the operator automatically stores the Kafka connection inf
 name specified on the `connInfoSecretTarget` field.
 
 ```shell
-kubectl describe secret kafka-auth 
+kubectl describe secret kafka-auth
 ```
 
 The output is similar to the following:
@@ -137,15 +137,23 @@ spec:
 
       # the command below will connect to the Kafka cluster
       # and output its metadata
-      command: [
-          'kcat', '-b', '$(HOST):$(PORT)',
-          '-X', 'security.protocol=SSL',
-          '-X', 'ssl.key.location=/kafka-auth/ACCESS_KEY',
-          '-X', 'ssl.key.password=$(PASSWORD)',
-          '-X', 'ssl.certificate.location=/kafka-auth/ACCESS_CERT',
-          '-X', 'ssl.ca.location=/kafka-auth/CA_CERT',
-          '-L'
-      ]
+      command:
+        [
+          "kcat",
+          "-b",
+          "$(HOST):$(PORT)",
+          "-X",
+          "security.protocol=SSL",
+          "-X",
+          "ssl.key.location=/kafka-auth/ACCESS_KEY",
+          "-X",
+          "ssl.key.password=$(PASSWORD)",
+          "-X",
+          "ssl.certificate.location=/kafka-auth/ACCESS_CERT",
+          "-X",
+          "ssl.ca.location=/kafka-auth/CA_CERT",
+          "-L",
+        ]
 
       # loading the data from the Secret as environment variables
       # useful to access the Kafka information, like hostname and port
@@ -158,7 +166,7 @@ spec:
           mountPath: "/kafka-auth"
 
   # loading the data from the Secret as files in a volume
-  # useful to access the Kafka certificates 
+  # useful to access the Kafka certificates
   volumes:
     - name: kafka-auth
       secret:
@@ -174,7 +182,7 @@ kubectl apply -f kafka-test-connection.yaml
 Once successfully applied, you have a log with the metadata information about the Kafka cluster.
 
 ```shell
-kubectl logs kafka-test-connection 
+kubectl logs kafka-test-connection
 ```
 
 The output is similar to the following:
@@ -189,6 +197,7 @@ Metadata for all topics (from broker -1: ssl://kafka-sample-your-project.aivencl
 ```
 
 ## Creating a `KafkaTopic` and `KafkaACL`
+
 To properly produce and consume content on Kafka, you need topics and ACLs. The operator supports both with
 the `KafkaTopic` and `KafkaACL` resources.
 
@@ -226,7 +235,7 @@ kubectl apply -f kafka-topic-random-strings.yaml
 ```
 
 3\. Create a user and an ACL. To use the Kafka topic, create a new user with the `ServiceUser` resource (in order to
-   avoid using the `avnadmin` superuser), and the `KafkaACL` to allow the user access to the topic.
+avoid using the `avnadmin` superuser), and the `KafkaACL` to allow the user access to the topic.
 
 In a file named `kafka-acl-user-crab.yaml`, add the following two resources:
 
@@ -254,7 +263,6 @@ spec:
   serviceName: kafka-sample
 
 ---
-
 apiVersion: aiven.io/v1alpha1
 kind: KafkaACL
 metadata:
@@ -304,15 +312,26 @@ spec:
       name: kcat
 
       # the command below will produce a message with the /etc/issue file content
-      command: [
-          'kcat', '-b', '$(HOST):$(PORT)',
-          '-X', 'security.protocol=SSL',
-          '-X', 'ssl.key.location=/crab-auth/ACCESS_KEY',
-          '-X', 'ssl.key.password=$(PASSWORD)',
-          '-X', 'ssl.certificate.location=/crab-auth/ACCESS_CERT',
-          '-X', 'ssl.ca.location=/crab-auth/CA_CERT',
-          '-P', '-t', 'random-strings', '/etc/issue',
-      ]
+      command:
+        [
+          "kcat",
+          "-b",
+          "$(HOST):$(PORT)",
+          "-X",
+          "security.protocol=SSL",
+          "-X",
+          "ssl.key.location=/crab-auth/ACCESS_KEY",
+          "-X",
+          "ssl.key.password=$(PASSWORD)",
+          "-X",
+          "ssl.certificate.location=/crab-auth/ACCESS_CERT",
+          "-X",
+          "ssl.ca.location=/crab-auth/CA_CERT",
+          "-P",
+          "-t",
+          "random-strings",
+          "/etc/issue",
+        ]
 
       # loading the crab user data from the Secret as environment variables
       # useful to access the Kafka information, like hostname and port
@@ -325,7 +344,7 @@ spec:
           mountPath: "/crab-auth"
 
   # loading the crab user information from the Secret as files in a volume
-  # useful to access the Kafka certificates 
+  # useful to access the Kafka certificates
   volumes:
     - name: crab-auth
       secret:
@@ -344,7 +363,7 @@ To _consume_ a message, you can use a graphical interface called [Kowl](https://
 to explore information about our Kafka cluster, such as brokers, topics, or consumer groups.
 
 1\. Create a Kubernetes Pod and service to deploy and access Kowl. Create a file named `kafka-crab-consume.yaml` with the
-   content below:
+content below:
 
 ```yaml
 apiVersion: v1
@@ -361,7 +380,7 @@ spec:
       # kowl configuration values
       env:
         - name: KAFKA_TLS_ENABLED
-          value: 'true'
+          value: "true"
 
         - name: KAFKA_BROKERS
           value: $(HOST):$(PORT)
@@ -385,14 +404,13 @@ spec:
           mountPath: /crab-auth
 
   # loading the crab user information from the Secret as files in a volume
-  # useful to access the Kafka certificates 
+  # useful to access the Kafka certificates
   volumes:
     - name: crab-auth
       secret:
         secretName: kafka-crab-connection
 
 ---
-
 # we will be using a simple service to access Kowl on port 8080
 apiVersion: v1
 kind: Service
@@ -419,10 +437,10 @@ kubectl port-forward kafka-crab-consume 8080:8080
 ```
 
 4\. In the browser of your choice, access the [http://localhost:8080]() address. You now see a page with
-   the `random-strings` topic listed:
-   ![Kowl graphical interface on the topic listing page](./kowl-topics.png)
+the `random-strings` topic listed:
+![Kowl graphical interface on the topic listing page](./kowl-topics.png)
 
 5\. Click the topic name to see the message.
-   ![Kowl graphical interface on the random-strings topic page](./kowl-random-strings.png)
+![Kowl graphical interface on the random-strings topic page](./kowl-random-strings.png)
 
 You have now consumed the message.

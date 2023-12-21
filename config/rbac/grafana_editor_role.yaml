@@ -4,21 +4,21 @@ kind: ClusterRole
 metadata:
   name: grafana-editor-role
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - grafanas
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - grafanas/status
-  verbs:
-  - get
+  - apiGroups:
+      - aiven.io
+    resources:
+      - grafanas
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - grafanas/status
+    verbs:
+      - get

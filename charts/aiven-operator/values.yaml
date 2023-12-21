@@ -54,11 +54,13 @@ resources:
 
 podAnnotations: {}
 
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # runAsNonRoot: true
   # runAsUser: 65532
 
-securityContext: {}
+securityContext:
+  {}
   # capabilities:
   #   drop:
   #   - ALL

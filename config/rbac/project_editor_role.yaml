@@ -4,21 +4,21 @@ kind: ClusterRole
 metadata:
   name: project-editor-role
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - projects
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - projects/status
-  verbs:
-  - get
+  - apiGroups:
+      - aiven.io
+    resources:
+      - projects
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - projects/status
+    verbs:
+      - get

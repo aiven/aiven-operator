@@ -4,15 +4,15 @@ linkTitle: "Redis"
 weight: 50
 ---
 
-Aiven for Redis®* is a fully managed in-memory NoSQL database that you can deploy in the cloud of your choice to store and access data quickly and efficiently.
+Aiven for Redis®\* is a fully managed in-memory NoSQL database that you can deploy in the cloud of your choice to store and access data quickly and efficiently.
 
 !!! note
-    Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/) 
-    and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
+Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/)
+and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
 
 ## Creating a Redis instance
 
-1\. Create a file named `redis-sample.yaml`, and add the following content: 
+1\. Create a file named `redis-sample.yaml`, and add the following content:
 
 ```yaml
 apiVersion: aiven.io/v1alpha1
@@ -49,7 +49,7 @@ spec:
 2\. Create the service by applying the configuration:
 
 ```shell
-kubectl apply -f redis-sample.yaml 
+kubectl apply -f redis-sample.yaml
 ```
 
 3\. Review the resource you created with this command:
@@ -80,7 +80,6 @@ Status:
 
 The resource will be in the `REBUILDING` state for a few minutes. Once the state changes to `RUNNING`, you can access the resource.
 
-
 ## Using the connection Secret
 
 For your convenience, the operator automatically stores the Redis connection information in a Secret created with the
@@ -89,7 +88,7 @@ name specified on the `connInfoSecretTarget` field.
 To view the details of the Secret, use the following command:
 
 ```shell
-kubectl describe secret redis-secret 
+kubectl describe secret redis-secret
 ```
 
 The output is similar to the following:

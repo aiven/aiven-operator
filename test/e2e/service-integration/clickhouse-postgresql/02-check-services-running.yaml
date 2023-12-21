@@ -1,15 +1,15 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestStep
 commands:
-- script: |
-    SERVICE=k8s-e2e-test-ch-integration
-    while ! avn --auth-token $AIVEN_TOKEN service wait $SERVICE --project aiven-ci-kubernetes-operator;
-    do
-      sleep 10
-    done
-- script: |
-    SERVICE=k8s-e2e-test-pg-integration
-    while ! avn --auth-token $AIVEN_TOKEN service wait $SERVICE --project aiven-ci-kubernetes-operator;
-    do
-      sleep 10
-    done
+  - script: |
+      SERVICE=k8s-e2e-test-ch-integration
+      while ! avn --auth-token $AIVEN_TOKEN service wait $SERVICE --project aiven-ci-kubernetes-operator;
+      do
+        sleep 10
+      done
+  - script: |
+      SERVICE=k8s-e2e-test-pg-integration
+      while ! avn --auth-token $AIVEN_TOKEN service wait $SERVICE --project aiven-ci-kubernetes-operator;
+      do
+        sleep 10
+      done

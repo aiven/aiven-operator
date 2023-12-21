@@ -2,15 +2,15 @@ apiVersion: kuttl.dev/v1beta1
 kind: TestSuite
 timeout: 600
 testDirs:
-- test/e2e/kafka
-- test/e2e/kafka-topic
-- test/e2e/kafka-connector
-- test/e2e/redis
-- test/e2e/opensearch
-- test/e2e/clickhouse
-- test/e2e/projectvpc
-- test/e2e/service-integration
-- test/e2e/mysql
-- test/e2e/cassandra
-- test/e2e/grafana
+  - test/e2e/kafka
+  - test/e2e/kafka-topic
+  - test/e2e/kafka-connector
+  - test/e2e/redis
+  - test/e2e/opensearch
+  - test/e2e/clickhouse
+  - test/e2e/projectvpc
+  - test/e2e/service-integration
+  - test/e2e/mysql
+  - test/e2e/cassandra
+  - test/e2e/grafana
 blockOnNamespaceDelete: true

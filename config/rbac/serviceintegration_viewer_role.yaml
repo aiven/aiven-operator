@@ -4,17 +4,17 @@ kind: ClusterRole
 metadata:
   name: serviceintegration-viewer-role
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - serviceintegrations
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - serviceintegrations/status
-  verbs:
-  - get
+  - apiGroups:
+      - aiven.io
+    resources:
+      - serviceintegrations
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - serviceintegrations/status
+    verbs:
+      - get
