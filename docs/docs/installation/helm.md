@@ -91,9 +91,9 @@ helm list
 The output has the name of each deployment similar to the following:
 
 ```{ .shell .no-copy }
-NAME               	NAMESPACE	REVISION	UPDATED                                 	STATUS  	CHART                     	APP VERSION
-aiven-operator     	default  	1       	2021-09-09 10:56:14.623700249 +0200 CEST	deployed	aiven-operator-v0.1.0     	v0.1.0
-aiven-operator-crds	default  	1       	2021-09-09 10:56:05.736411868 +0200 CEST	deployed	aiven-operator-crds-v0.1.0	v0.1.0
+NAME                NAMESPACE REVISION UPDATED                                  STATUS   CHART                      APP VERSION
+aiven-operator      default   1        2021-09-09 10:56:14.623700249 +0200 CEST deployed aiven-operator-v0.1.0      v0.1.0
+aiven-operator-crds default   1        2021-09-09 10:56:05.736411868 +0200 CEST deployed aiven-operator-crds-v0.1.0 v0.1.0
 ```
 
 Remove the CRDs:

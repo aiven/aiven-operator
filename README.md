@@ -39,19 +39,19 @@ spec:
 Watch the resource being created and wait until its status is `RUNNING`:
 
 ```bash
-$ watch kubectl get postgresql.aiven.io aiven-pg
+watch kubectl get postgresql.aiven.io aiven-pg
 ```
 
 After created, the Operator will create a Kubernetes Secret containing the PostgreSQL connection information:
 
 ```bash
-$ kubectl describe secret pg-connection
+kubectl describe secret pg-connection
 ```
 
 Use the following [jq](https://github.com/stedolan/jq) command to decode the Secret:
 
 ```bash
-$ kubectl get secret pg-connection -o json | jq '.data | map_values(@base64d)'
+kubectl get secret pg-connection -o json | jq '.data | map_values(@base64d)'
 ```
 
 ## Connecting to PostgreSQL

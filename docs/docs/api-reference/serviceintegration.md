@@ -180,7 +180,7 @@ Custom tags provided by user.
 
 **Required**
 
-- [`tag`](#spec.datadog.datadog_tags.tag-property){: name='spec.datadog.datadog_tags.tag-property'} (string, MinLength: 1, MaxLength: 200). Tag format and usage are described here: https://docs.datadoghq.com/getting_started/tagging. Tags with prefix `aiven-` are reserved for Aiven.
+- [`tag`](#spec.datadog.datadog_tags.tag-property){: name='spec.datadog.datadog_tags.tag-property'} (string, MinLength: 1, MaxLength: 200). Tag format and usage are described here: <https://docs.datadoghq.com/getting_started/tagging>. Tags with prefix `aiven-` are reserved for Aiven.
 
 **Optional**
 
