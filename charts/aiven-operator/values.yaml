@@ -16,7 +16,7 @@ leaderElect: true
 # operator will be installed and should contain a valid Aiven API Token.
 defaultTokenSecret:
   name: ""
-  key: "token"
+  key: token
 
 # webhhook configuration
 webhooks:
