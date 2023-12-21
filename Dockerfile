@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM --platform=$BUILDPLATFORM golang:1.21 as builder
+FROM --platform=$BUILDPLATFORM golang:1.21 AS builder
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
@@ -18,7 +18,7 @@ COPY controllers/ controllers/
 ARG TARGETOS
 ARG TARGETARCH
 ARG VERSION=dev
-RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -trimpath \
+RUN CGO_ENABLED=0 GOOS="$TARGETOS" GOARCH="$TARGETARCH" go build -trimpath \
     -ldflags="-s -w -X github.com/aiven/aiven-operator/controllers.version=${VERSION}" \
     -a -o manager main.go
 
