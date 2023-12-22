@@ -31,6 +31,7 @@ lint:
         - markdownlint
       paths:
         - .trunk/**
+        - docs/docs/**
 
 runtimes:
   enabled:

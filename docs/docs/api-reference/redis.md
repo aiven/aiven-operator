@@ -30,7 +30,7 @@ spec:
   maintenanceWindowTime: 23:00:00
 
   userConfig:
-    redis_maxmemory_policy: "allkeys-random"
+    redis_maxmemory_policy: allkeys-random
 ```
 
 ## Redis {: #Redis }
