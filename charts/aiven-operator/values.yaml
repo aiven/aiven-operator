@@ -16,7 +16,7 @@ leaderElect: true
 # operator will be installed and should contain a valid Aiven API Token.
 defaultTokenSecret:
   name: ""
-  key: "token"
+  key: token
 
 # webhhook configuration
 webhooks:
@@ -30,7 +30,7 @@ webhooks:
 image:
   repository: aivenoy/aiven-operator
   pullPolicy: IfNotPresent
-  # default is .Chart.AppVersion but can be overriden here
+  # default is .Chart.AppVersion but can be overridden here
   tag: ""
 
 imagePullSecrets: []
@@ -54,11 +54,13 @@ resources:
 
 podAnnotations: {}
 
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # runAsNonRoot: true
   # runAsUser: 65532
 
-securityContext: {}
+securityContext:
+  {}
   # capabilities:
   #   drop:
   #   - ALL

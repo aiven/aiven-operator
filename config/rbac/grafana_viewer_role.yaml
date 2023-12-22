@@ -4,17 +4,17 @@ kind: ClusterRole
 metadata:
   name: grafana-viewer-role
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - grafanas
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - grafanas/status
-  verbs:
-  - get
+  - apiGroups:
+      - aiven.io
+    resources:
+      - grafanas
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - grafanas/status
+    verbs:
+      - get

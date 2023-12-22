@@ -90,7 +90,7 @@ func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avn *aiven.Cl
 	return nil
 }
 
-// buildConnectorConfig joins mandatory fields with additional conncetor specific config
+// buildConnectorConfig joins mandatory fields with additional connector specific config
 func (h KafkaConnectorHandler) buildConnectorConfig(conn *v1alpha1.KafkaConnector) (aiven.KafkaConnectorConfig, error) {
 	const (
 		configFieldConnectorName  = "name"

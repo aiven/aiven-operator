@@ -4,17 +4,17 @@ kind: ClusterRole
 metadata:
   name: clickhouse-viewer-role
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - clickhouses
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - clickhouses/status
-  verbs:
-  - get
+  - apiGroups:
+      - aiven.io
+    resources:
+      - clickhouses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - clickhouses/status
+    verbs:
+      - get

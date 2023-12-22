@@ -4,17 +4,17 @@ kind: ClusterRole
 metadata:
   name: kafkaschema-viewer-role
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - kafkaschemas
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - kafkaschemas/status
-  verbs:
-  - get
+  - apiGroups:
+      - aiven.io
+    resources:
+      - kafkaschemas
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - kafkaschemas/status
+    verbs:
+      - get

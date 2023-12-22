@@ -4,17 +4,17 @@ kind: ClusterRole
 metadata:
   name: opensearch-viewer-role
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - opensearches
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - opensearches/status
-  verbs:
-  - get
+  - apiGroups:
+      - aiven.io
+    resources:
+      - opensearches
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - opensearches/status
+    verbs:
+      - get

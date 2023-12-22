@@ -12,7 +12,6 @@ spec:
     key: token
 
 ---
-
 apiVersion: aiven.io/v1alpha1
 kind: Kafka
 metadata:
@@ -33,7 +32,6 @@ spec:
     name: k8s-e2e-projectvpc-ref
 
 ---
-
 apiVersion: aiven.io/v1alpha1
 kind: OpenSearch
 metadata:
@@ -54,7 +52,6 @@ spec:
     name: k8s-e2e-projectvpc-ref
 
 ---
-
 apiVersion: aiven.io/v1alpha1
 kind: Redis
 metadata:

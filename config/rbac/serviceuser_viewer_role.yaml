@@ -4,17 +4,17 @@ kind: ClusterRole
 metadata:
   name: serviceuser-viewer-role
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - serviceusers
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - serviceusers/status
-  verbs:
-  - get
+  - apiGroups:
+      - aiven.io
+    resources:
+      - serviceusers
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - serviceusers/status
+    verbs:
+      - get

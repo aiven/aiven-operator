@@ -5,14 +5,15 @@ weight: 5
 ---
 
 !!! note
-    Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/) 
-    and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
+Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/)
+and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
 
 The `Project` CRD allows you to create Aiven Projects, where your resources can be located.
 
 To create a fully working Aiven Project with the Aiven Operator you need a source Aiven Project already created with a working billing configuration, like a credit card.
 
 Create a file named `project-sample.yaml` with the following content:
+
 ```yaml
 apiVersion: aiven.io/v1alpha1
 kind: Project
@@ -31,6 +32,7 @@ spec:
 ```
 
 Apply the resource with:
+
 ```shell
 kubectl apply -f project-sample.yaml
 ```

@@ -4,21 +4,21 @@ kind: ClusterRole
 metadata:
   name: mysql-editor-role
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - mysqls
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - mysqls/status
-  verbs:
-  - get
+  - apiGroups:
+      - aiven.io
+    resources:
+      - mysqls
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - mysqls/status
+    verbs:
+      - get

@@ -4,21 +4,21 @@ kind: ClusterRole
 metadata:
   name: clickhouse-editor-role
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - clickhouses
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - clickhouses/status
-  verbs:
-  - get
+  - apiGroups:
+      - aiven.io
+    resources:
+      - clickhouses
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - clickhouses/status
+    verbs:
+      - get

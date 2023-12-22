@@ -4,21 +4,21 @@ kind: ClusterRole
 metadata:
   name: cassandra-editor-role
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - cassandras
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - cassandras/status
-  verbs:
-  - get
+  - apiGroups:
+      - aiven.io
+    resources:
+      - cassandras
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - cassandras/status
+    verbs:
+      - get

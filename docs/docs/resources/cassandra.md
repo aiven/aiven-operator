@@ -6,12 +6,12 @@ weight: 55
 
 Aiven for Apache Cassandra® is a distributed database designed to handle large volumes of writes.
 
-!!! note 
-    Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/) and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
+!!! note
+Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/) and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
 
 ## Creating a Cassandra instance
 
-1\. Create a file named `cassandra-sample.yaml`, and add the following content: 
+1\. Create a file named `cassandra-sample.yaml`, and add the following content:
 
 ```yaml
 apiVersion: aiven.io/v1alpha1
@@ -44,7 +44,7 @@ spec:
 2\. Create the service by applying the configuration:
 
 ```shell
-kubectl apply -f cassandra-sample.yaml 
+kubectl apply -f cassandra-sample.yaml
 ```
 
 The output is:
@@ -89,7 +89,7 @@ name specified on the `connInfoSecretTarget` field.
 To view the details of the Secret, use the following command:
 
 ```shell
-kubectl describe secret cassandra-secret 
+kubectl describe secret cassandra-secret
 ```
 
 The output is similar to the following:
@@ -129,7 +129,6 @@ The output is similar to the following:
   "CASSANDRA_URI": "<secret>",
   "CASSANDRA_USER": "avnadmin"
 }
-
 ```
 
 ## Creating a Cassandra user
@@ -161,7 +160,7 @@ spec:
 kubectl apply -f cassandra-service-user.yaml
 ```
 
-The `ServiceUser` resource generates a Secret with connection information. 
+The `ServiceUser` resource generates a Secret with connection information.
 
 3\. View the details of the Secret using the following command:
 

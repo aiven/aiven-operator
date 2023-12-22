@@ -65,8 +65,8 @@ Authentication reference to Aiven token in a secret.
 
 **Required**
 
-- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1). 
-- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1). 
+- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1).
+- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1).
 
 ## config {: #spec.config }
 
@@ -108,9 +108,8 @@ Kafka topic tags.
 
 **Required**
 
-- [`key`](#spec.tags.key-property){: name='spec.tags.key-property'} (string, MinLength: 1, MaxLength: 64, Format: `^[a-zA-Z0-9_-]*$`). 
+- [`key`](#spec.tags.key-property){: name='spec.tags.key-property'} (string, MinLength: 1, MaxLength: 64, Format: `^[a-zA-Z0-9_-]*$`).
 
 **Optional**
 
-- [`value`](#spec.tags.value-property){: name='spec.tags.value-property'} (string, MaxLength: 256, Format: `^[a-zA-Z0-9_-]*$`). 
-
+- [`value`](#spec.tags.value-property){: name='spec.tags.value-property'} (string, MaxLength: 256, Format: `^[a-zA-Z0-9_-]*$`).

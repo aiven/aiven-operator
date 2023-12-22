@@ -4,17 +4,17 @@ kind: ClusterRole
 metadata:
   name: connectionpool-viewer-role
 rules:
-- apiGroups:
-  - aiven.io
-  resources:
-  - connectionpools
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - aiven.io
-  resources:
-  - connectionpools/status
-  verbs:
-  - get
+  - apiGroups:
+      - aiven.io
+    resources:
+      - connectionpools
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - connectionpools/status
+    verbs:
+      - get

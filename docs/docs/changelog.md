@@ -1,12 +1,11 @@
 # Changelog
 
-
 ## v0.16.1 - 2023-12-15
 
-- Check VPC for running services before deletion. Prevents VPC from hanging in the DELETING state  
+- Check VPC for running services before deletion. Prevents VPC from hanging in the DELETING state
 - Expose `KAFKA_SCHEMA_REGISTRY_URI` and `KAFKA_REST_URI` to `Kafka` secret
 - Expose `CONNECTIONPOOL_NAME` in `ConnectionPool` secret
-- Fix `CONNECTIONPOOL_PORT` exposes service port instead of pool port 
+- Fix `CONNECTIONPOOL_PORT` exposes service port instead of pool port
 - Fix `SERVICEUSER_PORT` when `sasl` is the only authentication method
 - Change `PostgreSQL` field `userConfig.pg_qualstats.enabled`: deprecated
 - Change `PostgreSQL` field `userConfig.pg_qualstats.min_err_estimate_num`: deprecated
@@ -17,7 +16,7 @@
 ## v0.16.0 - 2023-12-07
 
 - Set conditions on errors: `Preconditions`, `CreateOrUpdate`, `Delete`. Thanks to @atarax
-- Fix object updates lost when reconciler exits before the object is committed  
+- Fix object updates lost when reconciler exits before the object is committed
 - Add `Kafka` field `userConfig.kafka.transaction_partition_verification_enable`, type `boolean`: Enable
   verification that checks that the partition has been added to the transaction before writing transactional
   records to the partition
@@ -49,7 +48,7 @@
 
 - Upgrade to Go 1.21
 - Add option to orphan resources. Thanks to @atarax
-- Fix `ServiceIntegration`: do not send empty user config to the API 
+- Fix `ServiceIntegration`: do not send empty user config to the API
 - Add a format for `string` type fields to the documentation
 - Generate CRDs changelog
 - Add `Clickhouse` field `userConfig.private_access.clickhouse_mysql`, type `boolean`: Allow clients
@@ -72,7 +71,7 @@
 - Add `Kafka` field `userConfig.kafka.sasl_oauthbearer_sub_claim_name`, type `string`: Name of the scope
   from which to extract the subject claim from the JWT. Defaults to sub
 - Change `Kafka` field `userConfig.kafka_version`: enum ~~`[3.1, 3.3, 3.4, 3.5]`~~ → `[3.1, 3.3, 3.4,
-  3.5, 3.6]`
+3.5, 3.6]`
 - Change `Kafka` field `userConfig.tiered_storage.local_cache.size`: deprecated
 - Add `OpenSearch` field `userConfig.opensearch.indices_memory_max_index_buffer_size`, type `integer`:
   Absolute value. Default is unbound. Doesn't work without indices.memory.index_buffer_size
@@ -106,7 +105,7 @@
 - Add `Kafka` spec property `scheduled_rebalance_max_delay_ms`
 - Mark deprecated `Kafka` spec property `remote_log_storage_system_enable`
 - Add `KafkaConnect` spec property `scheduled_rebalance_max_delay_ms`
-- Add `OpenSearch` spec property `openid` 
+- Add `OpenSearch` spec property `openid`
 - Use updated go client with enhanced retries
 
 ## v0.12.3 - 2023-07-13
@@ -135,7 +134,6 @@
 - Add `OpenSearch.spec.userConfig.idp_pemtrustedcas_content` option.
   Specifies the PEM-encoded root certificate authority (CA) content for the SAML identity provider (IdP) server verification.
 
-
 ## v0.11.0 - 2023-04-25
 
 - Add `ServiceIntegration` kind `SourceProjectName` and `DestinationProjectName` fields
@@ -154,16 +152,16 @@
 - Add `minumim`, `maximum` validations for `number` type
 - Move helm charts to the operator repository
 - Add helm charts generator
-- Remove `ip_filter` backward compatability
+- Remove `ip_filter` backward compatibility
 - Fix deletion errors omitted
 - Add service integration `clickhouseKafka.tables.data_format-property` enum `RawBLOB` value
 - Update OpenSearch `userConfig.opensearch.email_sender_username` validation pattern
 - Add Kafka `log_cleaner_min_cleanable_ratio` minimum and maximum validation rules
 - Remove Kafka version `3.2`, reached EOL
 - Remove PostgreSQL version `10`, reached EOL
-- Explicitly delete `ProjectVPC` by `ID` to avoid conflicts 
+- Explicitly delete `ProjectVPC` by `ID` to avoid conflicts
 - Speed up `ProjectVPC` deletion by exiting on `DELETING` status
-- Fix missing RBAC permissions to update finalizers for various controllers 
+- Fix missing RBAC permissions to update finalizers for various controllers
 - Refactor `ClickhouseUser` controller
 - Mark `ClickhouseUser.spec.project` and `ClickhouseUser.spec.serviceName` as immutable
 - Remove deprecated service integration type `signalfx`
@@ -202,7 +200,7 @@ as native [CRD validation rules](https://kubernetes.io/blog/2022/09/23/crd-valid
 
 - Add Cassandra Kind
 - Add Grafana Kind
-- Recreate Kafka ACL if modified. 
+- Recreate Kafka ACL if modified.
   Note: Modification of ACL created prior to v0.5.1 won't delete existing instance at Aiven.
   It must be deleted manually.
 - Fix MySQL webhook
@@ -212,7 +210,7 @@ as native [CRD validation rules](https://kubernetes.io/blog/2022/09/23/crd-valid
 - Remove `never` from choices of maintenance dow
 - Add `development` flag to configure logger's behavior
 - Add user config generator (see `make generate-user-configs`)
-- Add `genericServiceHandler` to generalize service management 
+- Add `genericServiceHandler` to generalize service management
 - Add MySQL Kind
 
 ## v0.5.2 - 2022-12-09
@@ -242,23 +240,29 @@ as native [CRD validation rules](https://kubernetes.io/blog/2022/09/23/crd-valid
 ## v0.2.0 - 2021-11-17
 
 features:
-* add Redis CRD
+
+- add Redis CRD
 
 improvements:
-* watch CRDs to reconcile token secrets
+
+- watch CRDs to reconcile token secrets
 
 fixes:
-* fix RBACs of KafkaACL CRD
+
+- fix RBACs of KafkaACL CRD
 
 ## v0.1.1 - 2021-09-13
 
 improvements:
-* update helm installation docs
+
+- update helm installation docs
 
 fixes:
-* fix typo in a kafka-connector kuttl test
+
+- fix typo in a kafka-connector kuttl test
 
 ## v0.1.0 - 2021-09-10
 
 features:
-* initial release
+
+- initial release
