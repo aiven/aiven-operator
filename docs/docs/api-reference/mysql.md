@@ -83,8 +83,8 @@ Authentication reference to Aiven token in a secret.
 
 **Required**
 
-- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1).
-- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1).
+- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1). 
+- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1). 
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 
@@ -110,11 +110,11 @@ ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID aut
 
 **Required**
 
-- [`name`](#spec.projectVPCRef.name-property){: name='spec.projectVPCRef.name-property'} (string, MinLength: 1).
+- [`name`](#spec.projectVPCRef.name-property){: name='spec.projectVPCRef.name-property'} (string, MinLength: 1). 
 
 **Optional**
 
-- [`namespace`](#spec.projectVPCRef.namespace-property){: name='spec.projectVPCRef.namespace-property'} (string, MinLength: 1).
+- [`namespace`](#spec.projectVPCRef.namespace-property){: name='spec.projectVPCRef.namespace-property'} (string, MinLength: 1). 
 
 ## serviceIntegrations {: #spec.serviceIntegrations }
 
@@ -124,8 +124,8 @@ Service integrations to specify when creating a service. Not applied after initi
 
 **Required**
 
-- [`integrationType`](#spec.serviceIntegrations.integrationType-property){: name='spec.serviceIntegrations.integrationType-property'} (string, Enum: `read_replica`).
-- [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64).
+- [`integrationType`](#spec.serviceIntegrations.integrationType-property){: name='spec.serviceIntegrations.integrationType-property'} (string, Enum: `read_replica`). 
+- [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64). 
 
 ## userConfig {: #spec.userConfig }
 
@@ -136,7 +136,7 @@ MySQL specific user configuration options.
 **Optional**
 
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.
-- [`admin_password`](#spec.userConfig.admin_password-property){: name='spec.userConfig.admin*password-property'} (string, Immutable, Pattern: `^[a-zA-Z0-9-*]+$`, MinLength: 8, MaxLength: 256). Custom password for admin user. Defaults to random string. This must be set only when a new service is being created.
+- [`admin_password`](#spec.userConfig.admin_password-property){: name='spec.userConfig.admin_password-property'} (string, Immutable, Pattern: `^[a-zA-Z0-9-_]+$`, MinLength: 8, MaxLength: 256). Custom password for admin user. Defaults to random string. This must be set only when a new service is being created.
 - [`admin_username`](#spec.userConfig.admin_username-property){: name='spec.userConfig.admin_username-property'} (string, Immutable, Pattern: `^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$`, MaxLength: 64). Custom username for admin user. This must be set only when a new service is being created.
 - [`backup_hour`](#spec.userConfig.backup_hour-property){: name='spec.userConfig.backup_hour-property'} (integer, Minimum: 0, Maximum: 23). The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.
 - [`backup_minute`](#spec.userConfig.backup_minute-property){: name='spec.userConfig.backup_minute-property'} (integer, Minimum: 0, Maximum: 59). The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
@@ -201,7 +201,7 @@ mysql.conf configuration values.
 - [`group_concat_max_len`](#spec.userConfig.mysql.group_concat_max_len-property){: name='spec.userConfig.mysql.group_concat_max_len-property'} (integer, Minimum: 4). The maximum permitted result length in bytes for the GROUP_CONCAT() function.
 - [`information_schema_stats_expiry`](#spec.userConfig.mysql.information_schema_stats_expiry-property){: name='spec.userConfig.mysql.information_schema_stats_expiry-property'} (integer, Minimum: 900, Maximum: 31536000). The time, in seconds, before cached statistics expire.
 - [`innodb_change_buffer_max_size`](#spec.userConfig.mysql.innodb_change_buffer_max_size-property){: name='spec.userConfig.mysql.innodb_change_buffer_max_size-property'} (integer, Minimum: 0, Maximum: 50). Maximum size for the InnoDB change buffer, as a percentage of the total size of the buffer pool. Default is 25.
-- [`innodb_flush_neighbors`](#spec.userConfig.mysql.innodb_flush_neighbors-property){: name='spec.userConfig.mysql.innodb_flush_neighbors-property'} (integer, Minimum: 0, Maximum: 2). Specifies whether flushing a page from the InnoDB buffer pool also flushes other dirty pages in the same extent (default is 1): 0 - dirty pages in the same extent are not flushed, 1 - flush contiguous dirty pages in the same extent, 2 - flush dirty pages in the same extent.
+- [`innodb_flush_neighbors`](#spec.userConfig.mysql.innodb_flush_neighbors-property){: name='spec.userConfig.mysql.innodb_flush_neighbors-property'} (integer, Minimum: 0, Maximum: 2). Specifies whether flushing a page from the InnoDB buffer pool also flushes other dirty pages in the same extent (default is 1): 0 - dirty pages in the same extent are not flushed,  1 - flush contiguous dirty pages in the same extent,  2 - flush dirty pages in the same extent.
 - [`innodb_ft_min_token_size`](#spec.userConfig.mysql.innodb_ft_min_token_size-property){: name='spec.userConfig.mysql.innodb_ft_min_token_size-property'} (integer, Minimum: 0, Maximum: 16). Minimum length of words that are stored in an InnoDB FULLTEXT index. Changing this parameter will lead to a restart of the MySQL service.
 - [`innodb_ft_server_stopword_table`](#spec.userConfig.mysql.innodb_ft_server_stopword_table-property){: name='spec.userConfig.mysql.innodb_ft_server_stopword_table-property'} (string, Pattern: `^.+/.+$`, MaxLength: 1024). This option is used to specify your own InnoDB FULLTEXT index stopword list for all InnoDB tables.
 - [`innodb_lock_wait_timeout`](#spec.userConfig.mysql.innodb_lock_wait_timeout-property){: name='spec.userConfig.mysql.innodb_lock_wait_timeout-property'} (integer, Minimum: 1, Maximum: 3600). The length of time in seconds an InnoDB transaction waits for a row lock before giving up. Default is 120.
@@ -222,7 +222,7 @@ mysql.conf configuration values.
 - [`net_write_timeout`](#spec.userConfig.mysql.net_write_timeout-property){: name='spec.userConfig.mysql.net_write_timeout-property'} (integer, Minimum: 1, Maximum: 3600). The number of seconds to wait for a block to be written to a connection before aborting the write.
 - [`slow_query_log`](#spec.userConfig.mysql.slow_query_log-property){: name='spec.userConfig.mysql.slow_query_log-property'} (boolean). Slow query log enables capturing of slow queries. Setting slow_query_log to false also truncates the mysql.slow_log table. Default is off.
 - [`sort_buffer_size`](#spec.userConfig.mysql.sort_buffer_size-property){: name='spec.userConfig.mysql.sort_buffer_size-property'} (integer, Minimum: 32768, Maximum: 1073741824). Sort buffer size in bytes for ORDER BY optimization. Default is 262144 (256K).
-- [`sql_mode`](#spec.userConfig.mysql.sql_mode-property){: name='spec.userConfig.mysql.sql*mode-property'} (string, Pattern: `^[A-Z*]_(,[A-Z_]+)\_$`, MaxLength: 1024). Global SQL mode. Set to empty to use MySQL server defaults. When creating a new service and not setting this field Aiven default SQL mode (strict, SQL standard compliant) will be assigned.
+- [`sql_mode`](#spec.userConfig.mysql.sql_mode-property){: name='spec.userConfig.mysql.sql_mode-property'} (string, Pattern: `^[A-Z_]*(,[A-Z_]+)*$`, MaxLength: 1024). Global SQL mode. Set to empty to use MySQL server defaults. When creating a new service and not setting this field Aiven default SQL mode (strict, SQL standard compliant) will be assigned.
 - [`sql_require_primary_key`](#spec.userConfig.mysql.sql_require_primary_key-property){: name='spec.userConfig.mysql.sql_require_primary_key-property'} (boolean). Require primary key to be defined for new tables or old tables modified with ALTER TABLE and fail if missing. It is recommended to always have primary keys because various functionality may break if any large table is missing them.
 - [`tmp_table_size`](#spec.userConfig.mysql.tmp_table_size-property){: name='spec.userConfig.mysql.tmp_table_size-property'} (integer, Minimum: 1048576, Maximum: 1073741824). Limits the size of internal in-memory tables. Also set max_heap_table_size. Default is 16777216 (16M).
 - [`wait_timeout`](#spec.userConfig.mysql.wait_timeout-property){: name='spec.userConfig.mysql.wait_timeout-property'} (integer, Minimum: 1, Maximum: 2147483). The number of seconds the server waits for activity on a noninteractive connection before closing it.
@@ -262,3 +262,4 @@ Allow access to selected service ports from the public Internet.
 - [`mysql`](#spec.userConfig.public_access.mysql-property){: name='spec.userConfig.public_access.mysql-property'} (boolean). Allow clients to connect to mysql from the public internet for service nodes that are in a project VPC or another type of private network.
 - [`mysqlx`](#spec.userConfig.public_access.mysqlx-property){: name='spec.userConfig.public_access.mysqlx-property'} (boolean). Allow clients to connect to mysqlx from the public internet for service nodes that are in a project VPC or another type of private network.
 - [`prometheus`](#spec.userConfig.public_access.prometheus-property){: name='spec.userConfig.public_access.prometheus-property'} (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network.
+
