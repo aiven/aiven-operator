@@ -75,8 +75,8 @@ Authentication reference to Aiven token in a secret.
 
 **Required**
 
-- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1).
-- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1).
+- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1). 
+- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1). 
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 
@@ -102,11 +102,11 @@ ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID aut
 
 **Required**
 
-- [`name`](#spec.projectVPCRef.name-property){: name='spec.projectVPCRef.name-property'} (string, MinLength: 1).
+- [`name`](#spec.projectVPCRef.name-property){: name='spec.projectVPCRef.name-property'} (string, MinLength: 1). 
 
 **Optional**
 
-- [`namespace`](#spec.projectVPCRef.namespace-property){: name='spec.projectVPCRef.namespace-property'} (string, MinLength: 1).
+- [`namespace`](#spec.projectVPCRef.namespace-property){: name='spec.projectVPCRef.namespace-property'} (string, MinLength: 1). 
 
 ## serviceIntegrations {: #spec.serviceIntegrations }
 
@@ -116,8 +116,8 @@ Service integrations to specify when creating a service. Not applied after initi
 
 **Required**
 
-- [`integrationType`](#spec.serviceIntegrations.integrationType-property){: name='spec.serviceIntegrations.integrationType-property'} (string, Enum: `read_replica`).
-- [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64).
+- [`integrationType`](#spec.serviceIntegrations.integrationType-property){: name='spec.serviceIntegrations.integrationType-property'} (string, Enum: `read_replica`). 
+- [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64). 
 
 ## userConfig {: #spec.userConfig }
 
@@ -189,3 +189,4 @@ Allow access to selected service ports from the public Internet.
 - [`clickhouse_https`](#spec.userConfig.public_access.clickhouse_https-property){: name='spec.userConfig.public_access.clickhouse_https-property'} (boolean). Allow clients to connect to clickhouse_https from the public internet for service nodes that are in a project VPC or another type of private network.
 - [`clickhouse_mysql`](#spec.userConfig.public_access.clickhouse_mysql-property){: name='spec.userConfig.public_access.clickhouse_mysql-property'} (boolean). Allow clients to connect to clickhouse_mysql from the public internet for service nodes that are in a project VPC or another type of private network.
 - [`prometheus`](#spec.userConfig.public_access.prometheus-property){: name='spec.userConfig.public_access.prometheus-property'} (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network.
+
