@@ -78,8 +78,8 @@ Authentication reference to Aiven token in a secret.
 
 **Required**
 
-- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1). 
-- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1). 
+- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1).
+- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1).
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 
@@ -105,11 +105,11 @@ ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID aut
 
 **Required**
 
-- [`name`](#spec.projectVPCRef.name-property){: name='spec.projectVPCRef.name-property'} (string, MinLength: 1). 
+- [`name`](#spec.projectVPCRef.name-property){: name='spec.projectVPCRef.name-property'} (string, MinLength: 1).
 
 **Optional**
 
-- [`namespace`](#spec.projectVPCRef.namespace-property){: name='spec.projectVPCRef.namespace-property'} (string, MinLength: 1). 
+- [`namespace`](#spec.projectVPCRef.namespace-property){: name='spec.projectVPCRef.namespace-property'} (string, MinLength: 1).
 
 ## serviceIntegrations {: #spec.serviceIntegrations }
 
@@ -119,8 +119,8 @@ Service integrations to specify when creating a service. Not applied after initi
 
 **Required**
 
-- [`integrationType`](#spec.serviceIntegrations.integrationType-property){: name='spec.serviceIntegrations.integrationType-property'} (string, Enum: `read_replica`). 
-- [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64). 
+- [`integrationType`](#spec.serviceIntegrations.integrationType-property){: name='spec.serviceIntegrations.integrationType-property'} (string, Enum: `read_replica`).
+- [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64).
 
 ## userConfig {: #spec.userConfig }
 
@@ -131,7 +131,7 @@ PostgreSQL specific user configuration options.
 **Optional**
 
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.
-- [`admin_password`](#spec.userConfig.admin_password-property){: name='spec.userConfig.admin_password-property'} (string, Immutable, Pattern: `^[a-zA-Z0-9-_]+$`, MinLength: 8, MaxLength: 256). Custom password for admin user. Defaults to random string. This must be set only when a new service is being created.
+- [`admin_password`](#spec.userConfig.admin_password-property){: name='spec.userConfig.admin*password-property'} (string, Immutable, Pattern: `^[a-zA-Z0-9-*]+$`, MinLength: 8, MaxLength: 256). Custom password for admin user. Defaults to random string. This must be set only when a new service is being created.
 - [`admin_username`](#spec.userConfig.admin_username-property){: name='spec.userConfig.admin_username-property'} (string, Immutable, Pattern: `^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$`, MaxLength: 64). Custom username for admin user. This must be set only when a new service is being created.
 - [`backup_hour`](#spec.userConfig.backup_hour-property){: name='spec.userConfig.backup_hour-property'} (integer, Minimum: 0, Maximum: 23). The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.
 - [`backup_minute`](#spec.userConfig.backup_minute-property){: name='spec.userConfig.backup_minute-property'} (integer, Minimum: 0, Maximum: 59). The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
@@ -203,7 +203,7 @@ postgresql.conf configuration values.
 **Optional**
 
 - [`autovacuum_analyze_scale_factor`](#spec.userConfig.pg.autovacuum_analyze_scale_factor-property){: name='spec.userConfig.pg.autovacuum_analyze_scale_factor-property'} (number, Minimum: 0, Maximum: 1). Specifies a fraction of the table size to add to autovacuum_analyze_threshold when deciding whether to trigger an ANALYZE. The default is 0.2 (20% of table size).
-- [`autovacuum_analyze_threshold`](#spec.userConfig.pg.autovacuum_analyze_threshold-property){: name='spec.userConfig.pg.autovacuum_analyze_threshold-property'} (integer, Minimum: 0, Maximum: 2147483647). Specifies the minimum number of inserted, updated or deleted tuples needed to trigger an  ANALYZE in any one table. The default is 50 tuples.
+- [`autovacuum_analyze_threshold`](#spec.userConfig.pg.autovacuum_analyze_threshold-property){: name='spec.userConfig.pg.autovacuum_analyze_threshold-property'} (integer, Minimum: 0, Maximum: 2147483647). Specifies the minimum number of inserted, updated or deleted tuples needed to trigger an ANALYZE in any one table. The default is 50 tuples.
 - [`autovacuum_freeze_max_age`](#spec.userConfig.pg.autovacuum_freeze_max_age-property){: name='spec.userConfig.pg.autovacuum_freeze_max_age-property'} (integer, Minimum: 200000000, Maximum: 1500000000). Specifies the maximum age (in transactions) that a table's pg_class.relfrozenxid field can attain before a VACUUM operation is forced to prevent transaction ID wraparound within the table. Note that the system will launch autovacuum processes to prevent wraparound even when autovacuum is otherwise disabled. This parameter will cause the server to be restarted.
 - [`autovacuum_max_workers`](#spec.userConfig.pg.autovacuum_max_workers-property){: name='spec.userConfig.pg.autovacuum_max_workers-property'} (integer, Minimum: 1, Maximum: 20). Specifies the maximum number of autovacuum processes (other than the autovacuum launcher) that may be running at any one time. The default is three. This parameter can only be set at server start.
 - [`autovacuum_naptime`](#spec.userConfig.pg.autovacuum_naptime-property){: name='spec.userConfig.pg.autovacuum_naptime-property'} (integer, Minimum: 1, Maximum: 86400). Specifies the minimum delay between autovacuum runs on any given database. The delay is measured in seconds, and the default is one minute.
@@ -339,4 +339,3 @@ System-wide settings for the timescaledb extension.
 **Required**
 
 - [`max_background_workers`](#spec.userConfig.timescaledb.max_background_workers-property){: name='spec.userConfig.timescaledb.max_background_workers-property'} (integer, Minimum: 1, Maximum: 4096). The number of background workers for timescaledb operations. You should configure this setting to the sum of your number of databases and the total number of concurrent background workers you want running at any given point in time.
-
