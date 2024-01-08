@@ -48,7 +48,7 @@ After created, the Operator will create a Kubernetes Secret containing the Postg
 kubectl describe secret pg-connection
 ```
 
-Use the following [jq](https://github.com/stedolan/jq) command to decode the Secret:
+Use the following [jq](https://github.com/jqlang/jq) command to decode the Secret:
 
 ```bash
 kubectl get secret pg-connection -o json | jq '.data | map_values(@base64d)'

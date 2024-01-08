@@ -98,7 +98,7 @@ ACCESS_CERT:  1533 bytes
 ACCESS_KEY:   2484 bytes
 ```
 
-You can use the [jq](https://github.com/stedolan/jq) to quickly decode the Secret:
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the Secret:
 
 ```shell
 kubectl get secret kafka-auth -o json | jq '.data | map_values(@base64d)'

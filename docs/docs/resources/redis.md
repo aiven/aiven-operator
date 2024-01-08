@@ -111,7 +111,7 @@ PASSWORD:  24 bytes
 PORT:      5 bytes
 ```
 
-You can use the [jq](https://github.com/stedolan/jq) to quickly decode the Secret:
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the Secret:
 
 ```shell
 kubectl get secret redis-secret -o json | jq '.data | map_values(@base64d)'
