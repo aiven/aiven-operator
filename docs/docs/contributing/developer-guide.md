@@ -40,7 +40,7 @@ Please have installed first:
 - docker/podman
 - [helm](https://helm.sh/)
 - [Aiven CLI](https://docs.aiven.io/docs/tools/cli) (make sure you have logged in)
-- [jq](https://stedolan.github.io/jq/)
+- [jq](https://jqlang.github.io/jq/)
 - [kcat](https://github.com/edenhill/kcat)
 - base64, note: MACOS version doesn't support `-w0` flag, some tests may not work properly
 - [kind](https://kind.sigs.k8s.io/), and existing cluster, e.g.

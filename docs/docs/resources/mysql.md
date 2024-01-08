@@ -106,7 +106,7 @@ MYSQL_HOST:      39 bytes
 MYSQL_PASSWORD:  24 bytes
 ```
 
-You can use [jq](https://github.com/stedolan/jq) to quickly decode the Secret:
+You can use [jq](https://github.com/jqlang/jq) to quickly decode the Secret:
 
 ```shell
 kubectl get secret mysql-secret -o json | jq '.data | map_values(@base64d)'
@@ -157,7 +157,7 @@ kubectl apply -f mysql-service-user.yaml
 
 The `ServiceUser` resource generates a Secret with connection information.
 
-3\. View the details of the Secret using [jq](https://github.com/stedolan/jq):
+3\. View the details of the Secret using [jq](https://github.com/jqlang/jq):
 
 ```shell
 kubectl get secret mysql-service-user-secret -o json | jq '.data | map_values(@base64d)'

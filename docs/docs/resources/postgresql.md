@@ -102,7 +102,7 @@ PGSSLMODE:     7 bytes
 PGUSER:        8 bytes
 ```
 
-You can use the [jq](https://github.com/stedolan/jq) to quickly decode the Secret:
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the Secret:
 
 ```shell
 kubectl get secret pg-connection -o json | jq '.data | map_values(@base64d)'

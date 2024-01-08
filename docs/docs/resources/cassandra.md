@@ -112,7 +112,7 @@ CASSANDRA_USER:      8 bytes
 CASSANDRA_HOST:      60 bytes
 ```
 
-You can use the [jq](https://github.com/stedolan/jq) to quickly decode the Secret:
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the Secret:
 
 ```shell
 kubectl get secret cassandra-secret -o json | jq '.data | map_values(@base64d)'
