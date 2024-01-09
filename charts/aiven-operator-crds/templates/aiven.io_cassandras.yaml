@@ -188,6 +188,21 @@ spec:
                     Tags are key-value pairs that allow you to categorize
                     services.
                   type: object
+                technicalEmails:
+                  description:
+                    Defines the email addresses that will receive alerts
+                    about upcoming maintenance updates or warnings about service instability.
+                  items:
+                    properties:
+                      email:
+                        description: Email address.
+                        format: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+                        type: string
+                    required:
+                      - email
+                    type: object
+                  maxItems: 10
+                  type: array
                 terminationProtection:
                   description:
                     Prevent service from being deleted. It is recommended

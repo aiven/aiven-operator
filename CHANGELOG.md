@@ -4,6 +4,24 @@
 
 - Add `OpenSearch` field `userConfig.opensearch.enable_security_audit`, type `boolean`: Enable/Disable
   security audit
+- Add `Cassandra` field `technicalEmails`, type `array`: Defines the email addresses that will receive
+  alerts about upcoming maintenance updates or warnings about service instability
+- Add `Clickhouse` field `technicalEmails`, type `array`: Defines the email addresses that will receive
+  alerts about upcoming maintenance updates or warnings about service instability
+- Add `Grafana` field `technicalEmails`, type `array`: Defines the email addresses that will receive
+  alerts about upcoming maintenance updates or warnings about service instability
+- Add `KafkaConnect` field `technicalEmails`, type `array`: Defines the email addresses that will receive
+  alerts about upcoming maintenance updates or warnings about service instability
+- Add `Kafka` field `technicalEmails`, type `array`: Defines the email addresses that will receive alerts
+  about upcoming maintenance updates or warnings about service instability
+- Add `MySQL` field `technicalEmails`, type `array`: Defines the email addresses that will receive alerts
+  about upcoming maintenance updates or warnings about service instability
+- Add `OpenSearch` field `technicalEmails`, type `array`: Defines the email addresses that will receive
+  alerts about upcoming maintenance updates or warnings about service instability
+- Add `PostgreSQL` field `technicalEmails`, type `array`: Defines the email addresses that will receive
+  alerts about upcoming maintenance updates or warnings about service instability
+- Add `Redis` field `technicalEmails`, type `array`: Defines the email addresses that will receive alerts
+  about upcoming maintenance updates or warnings about service instability
 
 ## v0.16.1 - 2023-12-15
 
