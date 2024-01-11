@@ -48,6 +48,11 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 		return fmt.Errorf("failed to fetch service: %w", err)
 	}
 
+	technicalEmails := make([]aiven.ContactEmail, 0)
+	for _, email := range spec.TechnicalEmails {
+		technicalEmails = append(technicalEmails, aiven.ContactEmail(email))
+	}
+
 	// Creates if not exists or updates existing service
 	var reason string
 	if !exists {
@@ -68,6 +73,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 			ServiceType:           o.getServiceType(),
 			TerminationProtection: fromAnyPointer(spec.TerminationProtection),
 			UserConfig:            userConfig,
+			TechnicalEmails:       &technicalEmails,
 		}
 
 		for _, s := range spec.ServiceIntegrations {
@@ -98,6 +104,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 			ProjectVPCID:          toOptionalStringPointer(projectVPCID),
 			TerminationProtection: fromAnyPointer(spec.TerminationProtection),
 			UserConfig:            userConfig,
+			TechnicalEmails:       &technicalEmails,
 		}
 		_, err = avn.Services.Update(ctx, spec.Project, ometa.Name, req)
 		if err != nil {
