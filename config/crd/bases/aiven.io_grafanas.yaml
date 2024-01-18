@@ -212,7 +212,7 @@ spec:
                   description: Cassandra specific user configuration options
                   properties:
                     additional_backup_regions:
-                      description: Additional Cloud Regions for Backup Replication
+                      description: Deprecated. Additional Cloud Regions for Backup Replication
                       items:
                         type: string
                       maxItems: 1
@@ -376,6 +376,11 @@ spec:
                             type: string
                           maxItems: 50
                           type: array
+                        auto_login:
+                          description:
+                            Allow users to bypass the login screen and automatically
+                            log in
+                          type: boolean
                         client_id:
                           description: Client ID from provider
                           maxLength: 1024
@@ -386,6 +391,9 @@ spec:
                           maxLength: 1024
                           pattern: ^[\040-\176]+$
                           type: string
+                        skip_org_role_sync:
+                          description: Stop automatically syncing user roles
+                          type: boolean
                         team_ids:
                           description:
                             Require users to belong to one of given team

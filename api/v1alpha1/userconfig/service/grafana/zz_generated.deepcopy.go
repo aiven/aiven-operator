@@ -95,6 +95,16 @@ func (in *AuthGithub) DeepCopyInto(out *AuthGithub) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
+	if in.AutoLogin != nil {
+		in, out := &in.AutoLogin, &out.AutoLogin
+		*out = new(bool)
+		**out = **in
+	}
+	if in.SkipOrgRoleSync != nil {
+		in, out := &in.SkipOrgRoleSync, &out.SkipOrgRoleSync
+		*out = new(bool)
+		**out = **in
+	}
 	if in.TeamIds != nil {
 		in, out := &in.TeamIds, &out.TeamIds
 		*out = make([]int, len(*in))
