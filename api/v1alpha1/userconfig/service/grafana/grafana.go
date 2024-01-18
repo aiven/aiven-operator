@@ -92,6 +92,9 @@ type AuthGithub struct {
 	// Require users to belong to one of given organizations
 	AllowedOrganizations []string `groups:"create,update" json:"allowed_organizations,omitempty"`
 
+	// Allow users to bypass the login screen and automatically log in
+	AutoLogin *bool `groups:"create,update" json:"auto_login,omitempty"`
+
 	// +kubebuilder:validation:MaxLength=1024
 	// +kubebuilder:validation:Pattern=`^[\040-\176]+$`
 	// Client ID from provider
@@ -101,6 +104,9 @@ type AuthGithub struct {
 	// +kubebuilder:validation:Pattern=`^[\040-\176]+$`
 	// Client secret from provider
 	ClientSecret string `groups:"create,update" json:"client_secret"`
+
+	// Stop automatically syncing user roles
+	SkipOrgRoleSync *bool `groups:"create,update" json:"skip_org_role_sync,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=50
 	// Require users to belong to one of given team IDs
@@ -292,7 +298,8 @@ type SmtpServer struct {
 }
 type GrafanaUserConfig struct {
 	// +kubebuilder:validation:MaxItems=1
-	// Additional Cloud Regions for Backup Replication
+	// +kubebuilder:deprecatedversion:warning="additional_backup_regions is deprecated"
+	// Deprecated. Additional Cloud Regions for Backup Replication
 	AdditionalBackupRegions []string `groups:"create,update" json:"additional_backup_regions,omitempty"`
 
 	// Enable or disable Grafana legacy alerting functionality. This should not be enabled with unified_alerting_enabled.

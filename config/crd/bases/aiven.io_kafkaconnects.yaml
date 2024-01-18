@@ -164,7 +164,7 @@ spec:
                   description: KafkaConnect specific user configuration options
                   properties:
                     additional_backup_regions:
-                      description: Additional Cloud Regions for Backup Replication
+                      description: Deprecated. Additional Cloud Regions for Backup Replication
                       items:
                         type: string
                       maxItems: 1

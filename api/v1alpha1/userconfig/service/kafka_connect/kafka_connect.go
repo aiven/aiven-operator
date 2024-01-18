@@ -124,7 +124,8 @@ type PublicAccess struct {
 }
 type KafkaConnectUserConfig struct {
 	// +kubebuilder:validation:MaxItems=1
-	// Additional Cloud Regions for Backup Replication
+	// +kubebuilder:deprecatedversion:warning="additional_backup_regions is deprecated"
+	// Deprecated. Additional Cloud Regions for Backup Replication
 	AdditionalBackupRegions []string `groups:"create,update" json:"additional_backup_regions,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=1024

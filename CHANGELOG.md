@@ -22,6 +22,18 @@
   alerts about upcoming maintenance updates or warnings about service instability
 - Add `Redis` field `technicalEmails`, type `array`: Defines the email addresses that will receive alerts
   about upcoming maintenance updates or warnings about service instability
+- Change `Clickhouse` field `userConfig.additional_backup_regions`: deprecated
+- Add `Grafana` field `userConfig.auth_github.auto_login`, type `boolean`: Allow users to bypass the
+  login screen and automatically log in
+- Add `Grafana` field `userConfig.auth_github.skip_org_role_sync`, type `boolean`: Stop automatically
+  syncing user roles
+- Change `Grafana` field `userConfig.additional_backup_regions`: deprecated
+- Change `KafkaConnect` field `userConfig.additional_backup_regions`: deprecated
+- Change `Kafka` field `userConfig.additional_backup_regions`: deprecated
+- Change `OpenSearch` field `userConfig.additional_backup_regions`: deprecated
+- Change `PostgreSQL` field `userConfig.pg_version`: enum ~~`[11, 12, 13, 14, 15]`~~ → `[11, 12, 13,
+14, 15, 16]`
+- Change `Redis` field `userConfig.additional_backup_regions`: deprecated
 
 ## v0.16.1 - 2023-12-15
 
