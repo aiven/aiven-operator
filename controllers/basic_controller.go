@@ -91,6 +91,7 @@ const (
 	eventWaitingForTheInstanceToBeRunning   = "WaitingForInstanceToBeRunning"
 	eventUnableToWaitForInstanceToBeRunning = "UnableToWaitForInstanceToBeRunning"
 	eventInstanceIsRunning                  = "InstanceIsRunning"
+	eventConnInfoSecretCreationDisabled     = "ConnInfoSecretCreationDisabled"
 )
 
 // +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;list;create;update
@@ -435,12 +436,19 @@ func (i *instanceReconcilerHelper) createOrUpdateInstance(ctx context.Context, o
 	return nil
 }
 
-func (i *instanceReconcilerHelper) updateInstanceStateAndSecretUntilRunning(ctx context.Context, o client.Object) error {
+func (i *instanceReconcilerHelper) updateInstanceStateAndSecretUntilRunning(ctx context.Context, o v1alpha1.AivenManagedObject) error {
 	i.log.Info("checking if instance is ready")
 
+	// Needs to be before o.NoSecret() check because `get` mutates the object's metadata annotations.
+	// It set the instanceIsRunningAnnotation annotation when the instance is running on Aiven's side.
 	secret, err := i.h.get(ctx, i.avn, o)
 	if secret == nil || err != nil {
 		return err
+	}
+
+	if o.NoSecret() {
+		i.rec.Event(o, corev1.EventTypeNormal, eventConnInfoSecretCreationDisabled, "connInfoSecretTargetDisabled is true, secret will not be created")
+		return nil
 	}
 
 	_, err = controllerutil.CreateOrUpdate(ctx, i.k8s, secret, func() error {
