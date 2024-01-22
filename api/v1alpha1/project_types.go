@@ -7,6 +7,7 @@ import (
 )
 
 // ProjectSpec defines the desired state of Project
+// +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type ProjectSpec struct {
 	// +kubebuilder:validation:MaxLength=64
 	// Credit card ID; The ID may be either last 4 digits of the card or the actual ID
@@ -58,6 +59,10 @@ type ProjectSpec struct {
 	// Exposed keys: `PROJECT_CA_CERT`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="connInfoSecretTargetDisabled is immutable."
+	// When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
+	ConnInfoSecretTargetDisabled *bool `json:"connInfoSecretTargetDisabled,omitempty"`
+
 	// Tags are key-value pairs that allow you to categorize projects
 	Tags map[string]string `json:"tags,omitempty"`
 
@@ -104,6 +109,7 @@ var _ AivenManagedObject = &Project{}
 func (in *Project) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }
+
 func (in *Project) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }

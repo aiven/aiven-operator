@@ -7,6 +7,7 @@ import (
 )
 
 // ClickhouseUserSpec defines the desired state of ClickhouseUser
+// +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type ClickhouseUserSpec struct {
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
@@ -22,6 +23,10 @@ type ClickhouseUserSpec struct {
 	// Information regarding secret creation.
 	// Exposed keys: `CLICKHOUSEUSER_HOST`, `CLICKHOUSEUSER_PORT`, `CLICKHOUSEUSER_USER`, `CLICKHOUSEUSER_PASSWORD`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
+
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="connInfoSecretTargetDisabled is immutable."
+	// When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
+	ConnInfoSecretTargetDisabled *bool `json:"connInfoSecretTargetDisabled,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`

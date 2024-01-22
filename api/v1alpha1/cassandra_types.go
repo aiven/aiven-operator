@@ -11,6 +11,7 @@ import (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // CassandraSpec defines the desired state of Cassandra
+// +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type CassandraSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
@@ -24,6 +25,10 @@ type CassandraSpec struct {
 	// Information regarding secret creation.
 	// Exposed keys: `CASSANDRA_HOST`, `CASSANDRA_PORT`, `CASSANDRA_USER`, `CASSANDRA_PASSWORD`, `CASSANDRA_URI`, `CASSANDRA_HOSTS`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
+
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="connInfoSecretTargetDisabled is immutable."
+	// When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
+	ConnInfoSecretTargetDisabled *bool `json:"connInfoSecretTargetDisabled,omitempty"`
 
 	// Cassandra specific user configuration options
 	UserConfig *cassandrauserconfig.CassandraUserConfig `json:"userConfig,omitempty"`

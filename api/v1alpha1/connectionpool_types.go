@@ -7,6 +7,7 @@ import (
 )
 
 // ConnectionPoolSpec defines the desired state of ConnectionPool
+// +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type ConnectionPoolSpec struct {
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
@@ -37,6 +38,10 @@ type ConnectionPoolSpec struct {
 	// Information regarding secret creation.
 	// Exposed keys: `CONNECTIONPOOL_NAME`, `CONNECTIONPOOL_HOST`, `CONNECTIONPOOL_PORT`, `CONNECTIONPOOL_DATABASE`, `CONNECTIONPOOL_USER`, `CONNECTIONPOOL_PASSWORD`, `CONNECTIONPOOL_SSLMODE`, `CONNECTIONPOOL_DATABASE_URI`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
+
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="connInfoSecretTargetDisabled is immutable."
+	// When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
+	ConnInfoSecretTargetDisabled *bool `json:"connInfoSecretTargetDisabled,omitempty"`
 
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`

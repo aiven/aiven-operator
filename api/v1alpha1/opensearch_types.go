@@ -9,6 +9,7 @@ import (
 )
 
 // OpenSearchSpec defines the desired state of OpenSearch
+// +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type OpenSearchSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
@@ -22,6 +23,10 @@ type OpenSearchSpec struct {
 	// Information regarding secret creation.
 	// Exposed keys: `OPENSEARCH_HOST`, `OPENSEARCH_PORT`, `OPENSEARCH_USER`, `OPENSEARCH_PASSWORD`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
+
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="connInfoSecretTargetDisabled is immutable."
+	// When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
+	ConnInfoSecretTargetDisabled *bool `json:"connInfoSecretTargetDisabled,omitempty"`
 
 	// OpenSearch specific user configuration options
 	UserConfig *opensearchuserconfig.OpensearchUserConfig `json:"userConfig,omitempty"`
@@ -53,6 +58,7 @@ var _ AivenManagedObject = &OpenSearch{}
 func (in *OpenSearch) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }
+
 func (in *OpenSearch) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }

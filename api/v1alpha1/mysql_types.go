@@ -9,6 +9,7 @@ import (
 )
 
 // MySQLSpec defines the desired state of MySQL
+// +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type MySQLSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
@@ -22,6 +23,10 @@ type MySQLSpec struct {
 	// Information regarding secret creation.
 	// Exposed keys: `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_SSL_MODE`, `MYSQL_URI`, `MYSQL_REPLICA_URI`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
+
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="connInfoSecretTargetDisabled is immutable."
+	// When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
+	ConnInfoSecretTargetDisabled *bool `json:"connInfoSecretTargetDisabled,omitempty"`
 
 	// MySQL specific user configuration options
 	UserConfig *mysqluserconfig.MysqlUserConfig `json:"userConfig,omitempty"`
@@ -47,6 +52,7 @@ var _ AivenManagedObject = &MySQL{}
 func (in *MySQL) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }
+
 func (in *MySQL) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }

@@ -9,6 +9,7 @@ import (
 )
 
 // RedisSpec defines the desired state of Redis
+// +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type RedisSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
@@ -22,6 +23,10 @@ type RedisSpec struct {
 	// Information regarding secret creation.
 	// Exposed keys: `REDIS_HOST`, `REDIS_PORT`, `REDIS_USER`, `REDIS_PASSWORD`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
+
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="connInfoSecretTargetDisabled is immutable."
+	// When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
+	ConnInfoSecretTargetDisabled *bool `json:"connInfoSecretTargetDisabled,omitempty"`
 
 	// Redis specific user configuration options
 	UserConfig *redisuserconfig.RedisUserConfig `json:"userConfig,omitempty"`
@@ -45,6 +50,7 @@ var _ AivenManagedObject = &Redis{}
 func (in *Redis) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }
+
 func (in *Redis) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
