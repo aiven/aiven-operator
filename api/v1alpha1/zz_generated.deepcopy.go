@@ -115,6 +115,11 @@ func (in *CassandraSpec) DeepCopyInto(out *CassandraSpec) {
 		**out = **in
 	}
 	in.ConnInfoSecretTarget.DeepCopyInto(&out.ConnInfoSecretTarget)
+	if in.ConnInfoSecretTargetDisabled != nil {
+		in, out := &in.ConnInfoSecretTargetDisabled, &out.ConnInfoSecretTargetDisabled
+		*out = new(bool)
+		**out = **in
+	}
 	if in.UserConfig != nil {
 		in, out := &in.UserConfig, &out.UserConfig
 		*out = new(cassandra.CassandraUserConfig)
@@ -201,6 +206,11 @@ func (in *ClickhouseSpec) DeepCopyInto(out *ClickhouseSpec) {
 		**out = **in
 	}
 	in.ConnInfoSecretTarget.DeepCopyInto(&out.ConnInfoSecretTarget)
+	if in.ConnInfoSecretTargetDisabled != nil {
+		in, out := &in.ConnInfoSecretTargetDisabled, &out.ConnInfoSecretTargetDisabled
+		*out = new(bool)
+		**out = **in
+	}
 	if in.UserConfig != nil {
 		in, out := &in.UserConfig, &out.UserConfig
 		*out = new(clickhouse.ClickhouseUserConfig)
@@ -281,6 +291,11 @@ func (in *ClickhouseUserList) DeepCopyObject() runtime.Object {
 func (in *ClickhouseUserSpec) DeepCopyInto(out *ClickhouseUserSpec) {
 	*out = *in
 	in.ConnInfoSecretTarget.DeepCopyInto(&out.ConnInfoSecretTarget)
+	if in.ConnInfoSecretTargetDisabled != nil {
+		in, out := &in.ConnInfoSecretTargetDisabled, &out.ConnInfoSecretTargetDisabled
+		*out = new(bool)
+		**out = **in
+	}
 	if in.AuthSecretRef != nil {
 		in, out := &in.AuthSecretRef, &out.AuthSecretRef
 		*out = new(AuthSecretReference)
@@ -412,6 +427,11 @@ func (in *ConnectionPoolList) DeepCopyObject() runtime.Object {
 func (in *ConnectionPoolSpec) DeepCopyInto(out *ConnectionPoolSpec) {
 	*out = *in
 	in.ConnInfoSecretTarget.DeepCopyInto(&out.ConnInfoSecretTarget)
+	if in.ConnInfoSecretTargetDisabled != nil {
+		in, out := &in.ConnInfoSecretTargetDisabled, &out.ConnInfoSecretTargetDisabled
+		*out = new(bool)
+		**out = **in
+	}
 	if in.AuthSecretRef != nil {
 		in, out := &in.AuthSecretRef, &out.AuthSecretRef
 		*out = new(AuthSecretReference)
@@ -626,6 +646,11 @@ func (in *GrafanaSpec) DeepCopyInto(out *GrafanaSpec) {
 		**out = **in
 	}
 	in.ConnInfoSecretTarget.DeepCopyInto(&out.ConnInfoSecretTarget)
+	if in.ConnInfoSecretTargetDisabled != nil {
+		in, out := &in.ConnInfoSecretTargetDisabled, &out.ConnInfoSecretTargetDisabled
+		*out = new(bool)
+		**out = **in
+	}
 	if in.UserConfig != nil {
 		in, out := &in.UserConfig, &out.UserConfig
 		*out = new(grafana.GrafanaUserConfig)
@@ -1139,6 +1164,11 @@ func (in *KafkaSpec) DeepCopyInto(out *KafkaSpec) {
 		**out = **in
 	}
 	in.ConnInfoSecretTarget.DeepCopyInto(&out.ConnInfoSecretTarget)
+	if in.ConnInfoSecretTargetDisabled != nil {
+		in, out := &in.ConnInfoSecretTargetDisabled, &out.ConnInfoSecretTargetDisabled
+		*out = new(bool)
+		**out = **in
+	}
 	if in.Karapace != nil {
 		in, out := &in.Karapace, &out.Karapace
 		*out = new(bool)
@@ -1467,6 +1497,11 @@ func (in *MySQLSpec) DeepCopyInto(out *MySQLSpec) {
 		**out = **in
 	}
 	in.ConnInfoSecretTarget.DeepCopyInto(&out.ConnInfoSecretTarget)
+	if in.ConnInfoSecretTargetDisabled != nil {
+		in, out := &in.ConnInfoSecretTargetDisabled, &out.ConnInfoSecretTargetDisabled
+		*out = new(bool)
+		**out = **in
+	}
 	if in.UserConfig != nil {
 		in, out := &in.UserConfig, &out.UserConfig
 		*out = new(mysql.MysqlUserConfig)
@@ -1553,6 +1588,11 @@ func (in *OpenSearchSpec) DeepCopyInto(out *OpenSearchSpec) {
 		**out = **in
 	}
 	in.ConnInfoSecretTarget.DeepCopyInto(&out.ConnInfoSecretTarget)
+	if in.ConnInfoSecretTargetDisabled != nil {
+		in, out := &in.ConnInfoSecretTargetDisabled, &out.ConnInfoSecretTargetDisabled
+		*out = new(bool)
+		**out = **in
+	}
 	if in.UserConfig != nil {
 		in, out := &in.UserConfig, &out.UserConfig
 		*out = new(opensearch.OpensearchUserConfig)
@@ -1639,6 +1679,11 @@ func (in *PostgreSQLSpec) DeepCopyInto(out *PostgreSQLSpec) {
 		**out = **in
 	}
 	in.ConnInfoSecretTarget.DeepCopyInto(&out.ConnInfoSecretTarget)
+	if in.ConnInfoSecretTargetDisabled != nil {
+		in, out := &in.ConnInfoSecretTargetDisabled, &out.ConnInfoSecretTargetDisabled
+		*out = new(bool)
+		**out = **in
+	}
 	if in.UserConfig != nil {
 		in, out := &in.UserConfig, &out.UserConfig
 		*out = new(pg.PgUserConfig)
@@ -1729,6 +1774,11 @@ func (in *ProjectSpec) DeepCopyInto(out *ProjectSpec) {
 		copy(*out, *in)
 	}
 	in.ConnInfoSecretTarget.DeepCopyInto(&out.ConnInfoSecretTarget)
+	if in.ConnInfoSecretTargetDisabled != nil {
+		in, out := &in.ConnInfoSecretTargetDisabled, &out.ConnInfoSecretTargetDisabled
+		*out = new(bool)
+		**out = **in
+	}
 	if in.Tags != nil {
 		in, out := &in.Tags, &out.Tags
 		*out = make(map[string]string, len(*in))
@@ -1945,6 +1995,11 @@ func (in *RedisSpec) DeepCopyInto(out *RedisSpec) {
 		**out = **in
 	}
 	in.ConnInfoSecretTarget.DeepCopyInto(&out.ConnInfoSecretTarget)
+	if in.ConnInfoSecretTargetDisabled != nil {
+		in, out := &in.ConnInfoSecretTargetDisabled, &out.ConnInfoSecretTargetDisabled
+		*out = new(bool)
+		**out = **in
+	}
 	if in.UserConfig != nil {
 		in, out := &in.UserConfig, &out.UserConfig
 		*out = new(redis.RedisUserConfig)
@@ -2303,6 +2358,11 @@ func (in *ServiceUserList) DeepCopyObject() runtime.Object {
 func (in *ServiceUserSpec) DeepCopyInto(out *ServiceUserSpec) {
 	*out = *in
 	in.ConnInfoSecretTarget.DeepCopyInto(&out.ConnInfoSecretTarget)
+	if in.ConnInfoSecretTargetDisabled != nil {
+		in, out := &in.ConnInfoSecretTargetDisabled, &out.ConnInfoSecretTargetDisabled
+		*out = new(bool)
+		**out = **in
+	}
 	if in.AuthSecretRef != nil {
 		in, out := &in.AuthSecretRef, &out.AuthSecretRef
 		*out = new(AuthSecretReference)

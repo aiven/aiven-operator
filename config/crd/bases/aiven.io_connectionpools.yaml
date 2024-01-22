@@ -102,6 +102,15 @@ spec:
                   required:
                     - name
                   type: object
+                connInfoSecretTargetDisabled:
+                  description:
+                    When true, the secret containing connection information
+                    will not be created, defaults to false. This field cannot be changed
+                    after resource creation.
+                  type: boolean
+                  x-kubernetes-validations:
+                    - message: connInfoSecretTargetDisabled is immutable.
+                      rule: self == oldSelf
                 databaseName:
                   description: Name of the database the pool connects to
                   maxLength: 40
@@ -137,6 +146,11 @@ spec:
                 - serviceName
                 - username
               type: object
+              x-kubernetes-validations:
+                - message:
+                    connInfoSecretTargetDisabled can only be set during resource
+                    creation.
+                  rule: has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)
             status:
               description: ConnectionPoolStatus defines the observed state of ConnectionPool
               properties:
