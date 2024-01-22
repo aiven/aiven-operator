@@ -63,6 +63,10 @@ func (in *Clickhouse) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *Clickhouse) NoSecret() bool {
+	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
+}
+
 func (in *Clickhouse) GetRefs() []*ResourceReferenceObject {
 	return in.Spec.GetRefs(in.GetNamespace())
 }

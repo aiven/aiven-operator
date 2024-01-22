@@ -114,6 +114,10 @@ func (in *Project) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *Project) NoSecret() bool {
+	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
+}
+
 func (in *Project) GetConnInfoSecretTarget() ConnInfoSecretTarget {
 	return in.Spec.ConnInfoSecretTarget
 }

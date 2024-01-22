@@ -122,9 +122,14 @@ type ServiceIntegration struct {
 
 var _ AivenManagedObject = &ServiceIntegration{}
 
+func (*ServiceIntegration) NoSecret() bool {
+	return false
+}
+
 func (in *ServiceIntegration) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }
+
 func (in *ServiceIntegration) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }

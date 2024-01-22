@@ -68,6 +68,10 @@ func (in *ServiceUser) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *ServiceUser) NoSecret() bool {
+	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
+}
+
 func (in *ServiceUser) GetConnInfoSecretTarget() ConnInfoSecretTarget {
 	return in.Spec.ConnInfoSecretTarget
 }

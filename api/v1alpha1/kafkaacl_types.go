@@ -67,6 +67,10 @@ func (in *KafkaACL) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (*KafkaACL) NoSecret() bool {
+	return false
+}
+
 // +kubebuilder:object:root=true
 
 // KafkaACLList contains a list of KafkaACL

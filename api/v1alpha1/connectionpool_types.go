@@ -81,6 +81,10 @@ func (in *ConnectionPool) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *ConnectionPool) NoSecret() bool {
+	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
+}
+
 func (in *ConnectionPool) GetConnInfoSecretTarget() ConnInfoSecretTarget {
 	return in.Spec.ConnInfoSecretTarget
 }

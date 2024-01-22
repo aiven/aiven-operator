@@ -63,6 +63,10 @@ func (in *OpenSearch) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *OpenSearch) NoSecret() bool {
+	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
+}
+
 func (in *OpenSearch) GetRefs() []*ResourceReferenceObject {
 	return in.Spec.GetRefs(in.GetNamespace())
 }

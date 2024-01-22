@@ -55,6 +55,10 @@ func (in *Redis) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *Redis) NoSecret() bool {
+	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
+}
+
 func (in *Redis) GetRefs() []*ResourceReferenceObject {
 	return in.Spec.GetRefs(in.GetNamespace())
 }

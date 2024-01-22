@@ -51,6 +51,10 @@ type PostgreSQL struct {
 
 var _ AivenManagedObject = &PostgreSQL{}
 
+func (in *PostgreSQL) NoSecret() bool {
+	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
+}
+
 func (in *PostgreSQL) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }

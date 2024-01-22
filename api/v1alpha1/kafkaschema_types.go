@@ -60,6 +60,10 @@ type KafkaSchema struct {
 
 var _ AivenManagedObject = &KafkaSchema{}
 
+func (*KafkaSchema) NoSecret() bool {
+	return false
+}
+
 func (in *KafkaSchema) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }

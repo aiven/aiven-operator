@@ -49,6 +49,10 @@ type MySQL struct {
 
 var _ AivenManagedObject = &MySQL{}
 
+func (in *MySQL) NoSecret() bool {
+	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
+}
+
 func (in *MySQL) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }

@@ -53,6 +53,10 @@ type Kafka struct {
 
 var _ AivenManagedObject = &Kafka{}
 
+func (in *Kafka) NoSecret() bool {
+	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
+}
+
 func (in *Kafka) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }

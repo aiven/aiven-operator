@@ -59,6 +59,10 @@ type ClickhouseUser struct {
 
 var _ AivenManagedObject = &ClickhouseUser{}
 
+func (in *ClickhouseUser) NoSecret() bool {
+	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
+}
+
 func (in *ClickhouseUser) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }

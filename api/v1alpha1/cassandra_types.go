@@ -59,6 +59,10 @@ func (in *Cassandra) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *Cassandra) NoSecret() bool {
+	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
+}
+
 func (in *Cassandra) GetRefs() []*ResourceReferenceObject {
 	return in.Spec.GetRefs(in.GetNamespace())
 }
