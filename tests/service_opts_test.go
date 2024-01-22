@@ -14,7 +14,7 @@ import (
 func getTechnicalEmailsYaml(project, name, cloudName string, includeTechnicalEmails bool) string {
 	baseYaml := `
 apiVersion: aiven.io/v1alpha1
-kind: MySQL
+kind: Grafana
 metadata:
   name: %[2]s
 spec:
@@ -42,7 +42,7 @@ func TestServiceTechnicalEmails(t *testing.T) {
 
 	// GIVEN
 	ctx := context.Background()
-	name := randName("mysql")
+	name := randName("grafana")
 	yml := getTechnicalEmailsYaml(testProject, name, testPrimaryCloudName, true)
 	s := NewSession(k8sClient, avnClient, testProject)
 
@@ -54,15 +54,15 @@ func TestServiceTechnicalEmails(t *testing.T) {
 	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
-	ms := new(v1alpha1.MySQL)
-	require.NoError(t, s.GetRunning(ms, name))
+	grafana := new(v1alpha1.Grafana)
+	require.NoError(t, s.GetRunning(grafana, name))
 
 	// THEN
 	// Technical emails are set
-	msAvn, err := avnClient.Services.Get(ctx, testProject, name)
+	grafanaAvn, err := avnClient.Services.Get(ctx, testProject, name)
 	require.NoError(t, err)
-	assert.Len(t, ms.Spec.TechnicalEmails, 1)
-	assert.Equal(t, "test@example.com", msAvn.TechnicalEmails[0].Email)
+	assert.Len(t, grafana.Spec.TechnicalEmails, 1)
+	assert.Equal(t, "test@example.com", grafanaAvn.TechnicalEmails[0].Email)
 
 	// WHEN
 	// Technical emails are removed from manifest
@@ -72,11 +72,11 @@ func TestServiceTechnicalEmails(t *testing.T) {
 	require.NoError(t, s.Apply(updatedYml))
 
 	// Waits kube objects
-	require.NoError(t, s.GetRunning(ms, name))
+	require.NoError(t, s.GetRunning(grafana, name))
 
 	// THEN
 	// Technical emails are removed from service
-	msAvnUpdated, err := avnClient.Services.Get(ctx, testProject, name)
+	grafanaAvnUpdated, err := avnClient.Services.Get(ctx, testProject, name)
 	require.NoError(t, err)
-	assert.Empty(t, msAvnUpdated.TechnicalEmails)
+	assert.Empty(t, grafanaAvnUpdated.TechnicalEmails)
 }
