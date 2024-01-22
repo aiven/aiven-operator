@@ -51,7 +51,7 @@ func generate(srcDir, dstDir string) error {
 		}
 
 		dest := path.Join(dstDir, strings.ToLower(kind.Kind)+".md")
-		err = os.WriteFile(dest, data, 0644)
+		err = os.WriteFile(dest, data, 0o644)
 		if err != nil {
 			return err
 		}

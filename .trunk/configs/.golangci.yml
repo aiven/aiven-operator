@@ -9,13 +9,14 @@ issues:
       text: underscore
     - linters:
         - gomnd
-      text: "mnd: Magic number: 0644"
+      text: "mnd: Magic number: 0o644"
 
 linters:
   disable-all: true
   enable:
     - errcheck
     - gofmt
+    - gofumpt
     - gosimple
     - ineffassign
     - misspell

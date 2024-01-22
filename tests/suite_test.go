@@ -22,13 +22,15 @@ import (
 	"github.com/aiven/aiven-operator/controllers"
 )
 
-var testEnv *envtest.Environment
-var testProject string
-var testPrimaryCloudName string
-var testSecondaryCloudName string
-var testTertiaryCloudName string
-var k8sClient client.Client
-var avnClient *aiven.Client
+var (
+	testEnv                *envtest.Environment
+	testProject            string
+	testPrimaryCloudName   string
+	testSecondaryCloudName string
+	testTertiaryCloudName  string
+	k8sClient              client.Client
+	avnClient              *aiven.Client
+)
 
 const (
 	secretRefName    = "aiven-token"
@@ -115,7 +117,6 @@ func setupSuite() error {
 		CertDir:            testEnv.WebhookInstallOptions.LocalServingCertDir,
 		Port:               testEnv.WebhookInstallOptions.LocalServingPort,
 	})
-
 	if err != nil {
 		return err
 	}

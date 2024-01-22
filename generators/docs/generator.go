@@ -394,10 +394,8 @@ title: "{{ .Kind }}"
 {{ end }}
 `
 
-var (
-	// reTrailingZeros finds trailing zeros
-	reTrailingZeros = regexp.MustCompile(`0+$`)
-)
+// reTrailingZeros finds trailing zeros
+var reTrailingZeros = regexp.MustCompile(`0+$`)
 
 // prettyDigit formats floats without zero fraction
 func prettyDigit(kind string, value float64) string {
