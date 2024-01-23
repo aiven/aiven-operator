@@ -50,7 +50,7 @@ endif
 IMG ?= aivenoy/aiven-operator:${IMG_TAG}
 IMG_TAG ?= $(shell git rev-parse HEAD)
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
-ENVTEST_K8S_VERSION = 1.26.1
+ENVTEST_K8S_VERSION = "1.26.*"
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -126,7 +126,7 @@ test-e2e-preinstalled:
 	kubectl kuttl test --config test/e2e/kuttl-test.preinstalled.yaml
 
 test: envtest ## Run tests.
-	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" \
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" \
 	go test ./tests/... -race -run=$(run) -v -timeout 42m -parallel 10 -cover -coverpkg=./controllers -covermode=atomic -coverprofile=coverage.out
 
 ##@ Build
