@@ -264,6 +264,7 @@ spec:
                       enum:
                         - "4"
                         - "3"
+                        - "4.1"
                       type: string
                     ip_filter:
                       description:
