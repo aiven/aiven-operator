@@ -2,6 +2,7 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Bump k8s deps to 1.26.13
 - Add `OpenSearch` field `userConfig.opensearch.enable_security_audit`, type `boolean`: Enable/Disable
   security audit
 - Add `Cassandra` field `technicalEmails`, type `array`: Defines the email addresses that will receive
