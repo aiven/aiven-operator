@@ -847,8 +847,6 @@ spec:
                     kafka_version:
                       description: Kafka major version
                       enum:
-                        - "3.3"
-                        - "3.1"
                         - "3.4"
                         - "3.5"
                         - "3.6"
