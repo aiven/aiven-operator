@@ -20,7 +20,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
@@ -52,10 +51,10 @@ func (c *SecretFinalizerGCController) SetupWithManager(mgr ctrl.Manager, hasDefa
 	})
 
 	// watch aiven CRDs to queue secret reconciliations
-	for i := range aivenManagedTypes {
+	for _, aivenManagedType := range aivenManagedTypes {
 		builder.Watches(
-			&source.Kind{Type: aivenManagedTypes[i]},
-			handler.EnqueueRequestsFromMapFunc(func(a client.Object) []reconcile.Request {
+			aivenManagedType,
+			handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, a client.Object) []reconcile.Request {
 				ao := a.(v1alpha1.AivenManagedObject)
 				if auth := ao.AuthSecretRef(); auth != nil {
 					return []reconcile.Request{
