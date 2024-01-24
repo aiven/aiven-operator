@@ -3,12 +3,14 @@
 package v1alpha1
 
 import (
+	"context"
 	"errors"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -31,41 +33,41 @@ func (in *Redis) Default() {
 
 //+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-redis,mutating=false,failurePolicy=fail,groups=aiven.io,resources=redis,versions=v1alpha1,name=vredis.kb.io,sideEffects=none,admissionReviewVersions=v1
 
-var _ webhook.Validator = &Redis{}
+var _ webhook.CustomValidator = &Redis{}
 
-// ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *Redis) ValidateCreate() error {
+// ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
+func (in *Redis) ValidateCreate(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
 	redislog.Info("validate create", "name", in.Name)
 
-	return in.Spec.Validate()
+	return nil, in.Spec.Validate()
 }
 
-// ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *Redis) ValidateUpdate(old runtime.Object) error {
+// ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
+func (in *Redis) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
 	redislog.Info("validate update", "name", in.Name)
 
-	if in.Spec.Project != old.(*Redis).Spec.Project {
-		return errors.New("cannot update a Redis service, project field is immutable and cannot be updated")
+	if in.Spec.Project != oldObj.(*Redis).Spec.Project {
+		return nil, errors.New("cannot update a Redis service, project field is immutable and cannot be updated")
 	}
 
-	if in.Spec.ConnInfoSecretTarget.Name != old.(*Redis).Spec.ConnInfoSecretTarget.Name {
-		return errors.New("cannot update a Redis service, connInfoSecretTarget.name field is immutable and cannot be updated")
+	if in.Spec.ConnInfoSecretTarget.Name != oldObj.(*Redis).Spec.ConnInfoSecretTarget.Name {
+		return nil, errors.New("cannot update a Redis service, connInfoSecretTarget.name field is immutable and cannot be updated")
 	}
 
-	return in.Spec.Validate()
+	return nil, in.Spec.Validate()
 }
 
-// ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *Redis) ValidateDelete() error {
+// ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
+func (in *Redis) ValidateDelete(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
 	redislog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
-		return errors.New("cannot delete Redis service, termination protection is on")
+		return nil, errors.New("cannot delete Redis service, termination protection is on")
 	}
 
 	if in.Spec.ProjectVPCID != "" && in.Spec.ProjectVPCRef != nil {
-		return errors.New("cannot use both projectVpcId and projectVPCRef")
+		return nil, errors.New("cannot use both projectVpcId and projectVPCRef")
 	}
 
-	return nil
+	return nil, nil
 }

@@ -3,10 +3,13 @@
 package v1alpha1
 
 import (
+	"context"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -29,27 +32,27 @@ func (in *KafkaACL) Default() {
 
 //+kubebuilder:webhook:verbs=create;update,path=/validate-aiven-io-v1alpha1-kafkaacl,mutating=false,failurePolicy=fail,groups=aiven.io,resources=kafkaacls,versions=v1alpha1,name=vkafkaacl.kb.io,sideEffects=none,admissionReviewVersions=v1
 
-var _ webhook.Validator = &KafkaACL{}
+var _ webhook.CustomValidator = &KafkaACL{}
 
-// ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaACL) ValidateCreate() error {
+// ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
+func (in *KafkaACL) ValidateCreate(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
 	kafkaacllog.Info("validate create", "name", in.Name)
 
-	return nil
+	return nil, nil
 }
 
-// ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaACL) ValidateUpdate(old runtime.Object) error {
+// ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
+func (in *KafkaACL) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
 	kafkaacllog.Info("validate update", "name", in.Name)
 
 	// TODO: validate that the spec does not get updated; this will fail on the aiven api
 
-	return nil
+	return nil, nil
 }
 
-// ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaACL) ValidateDelete() error {
+// ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
+func (in *KafkaACL) ValidateDelete(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
 	kafkaacllog.Info("validate delete", "name", in.Name)
 
-	return nil
+	return nil, nil
 }
