@@ -46,7 +46,7 @@ Please have installed first:
 - [kind](https://kind.sigs.k8s.io/), and existing cluster, e.g.
 
   ```shell
-   kind create cluster --image kindest/node:v1.24.0 --wait 5m
+   kind create cluster --image kindest/node:v1.26.6 --wait 5m
   ```
 
 The following commands must be executed with these environment variables (keep them in secret!):
