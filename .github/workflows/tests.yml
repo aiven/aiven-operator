@@ -6,6 +6,11 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        k8s-version:
+          - 1.28.*
+          - 1.29.*
     steps:
       - uses: actions/checkout@v4
         with:
@@ -17,3 +22,4 @@ jobs:
         env:
           AIVEN_TOKEN: ${{ secrets.AIVEN_TOKEN }}
           AIVEN_PROJECT_NAME: ${{ secrets.AIVEN_PROJECT_NAME }}
+          ENVTEST_K8S_VERSION: ${{ matrix.k8s-version }}
