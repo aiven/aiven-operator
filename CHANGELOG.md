@@ -36,6 +36,10 @@
 14, 15, 16]`
 - Change `Redis` field `userConfig.additional_backup_regions`: deprecated
 - Change `Cassandra` field `userConfig.cassandra_version`: enum ~~`[3, 4]`~~ → `[3, 4, 4.1]`
+- Change `Cassandra` field `userConfig.cassandra_version`: enum ~~`[3, 4, 4.1]`~~ → `[4, 4.1]`
+- Change `Kafka` field `userConfig.kafka_version`: enum ~~`[3.1, 3.3, 3.4, 3.5, 3.6]`~~ → `[3.4, 3.5, 3.6]`
+- Change `PostgreSQL` field `userConfig.pg_version`: enum ~~`[11, 12, 13, 14, 15, 16]`~~ → `[12, 13,
+14, 15, 16]`
 
 ## v0.16.1 - 2023-12-15
 
