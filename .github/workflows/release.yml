@@ -26,7 +26,7 @@ jobs:
           " > config/manager/kustomization.yaml
       - uses: karancode/kustomize-github-action@master
         with:
-          kustomize_version: 4.3.0
+          kustomize_version: 4.5.7
           kustomize_build_dir: config/default
           kustomize_output_file: deployment.yaml
         env:
