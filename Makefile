@@ -51,6 +51,7 @@ IMG ?= aivenoy/aiven-operator:${IMG_TAG}
 IMG_TAG ?= $(shell git rev-parse HEAD)
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = "1.26.*"
+KUBEBUILDER_ASSETS_CMD = '$(ENVTEST) use "$(ENVTEST_K8S_VERSION)" --bin-dir $(LOCALBIN) -p path'
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -126,7 +127,7 @@ test-e2e-preinstalled:
 	kubectl kuttl test --config test/e2e/kuttl-test.preinstalled.yaml
 
 test: envtest ## Run tests.
-	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" \
+	export KUBEBUILDER_ASSETS=$(shell eval ${KUBEBUILDER_ASSETS_CMD}); \
 	go test ./tests/... -race -run=$(run) -v -timeout 42m -parallel 10 -cover -coverpkg=./controllers -covermode=atomic -coverprofile=coverage.out
 
 ##@ Build
@@ -211,10 +212,13 @@ controller-gen: $(CONTROLLER_GEN) ## Download controller-gen locally if necessar
 $(CONTROLLER_GEN): $(LOCALBIN)
 	$(call go-install-tool,$(CONTROLLER_GEN),sigs.k8s.io/controller-tools/cmd/controller-gen,$(CONTROLLER_TOOLS_VERSION))
 
+# KUBEBUILDER_ASSETS is installed in this target so that it can be used by e.g. IDE test integrations.
 .PHONY: envtest
 envtest: $(ENVTEST) ## Download setup-envtest locally if necessary.
 $(ENVTEST): $(LOCALBIN)
-	$(call go-install-tool,$(ENVTEST),sigs.k8s.io/controller-runtime/tools/setup-envtest,$(ENVTEST_VERSION))
+	$(call go-install-tool,$(ENVTEST),sigs.k8s.io/controller-runtime/tools/setup-envtest,$(ENVTEST_VERSION)) ;\
+	echo -e "\n>>Installing kubebuilder assets to path:"; \
+	eval $(KUBEBUILDER_ASSETS_CMD)
 
 .PHONY: golangci-lint
 golangci-lint: $(GOLANGCI_LINT) ## Download golangci-lint locally if necessary.
