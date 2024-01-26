@@ -27,7 +27,6 @@ var _ webhook.Defaulter = &ServiceUser{}
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (in *ServiceUser) Default() {
 	serviceuserlog.Info("default", "name", in.Name)
-
 }
 
 //+kubebuilder:webhook:verbs=create;update,path=/validate-aiven-io-v1alpha1-serviceuser,mutating=false,failurePolicy=fail,groups=aiven.io,resources=serviceusers,versions=v1alpha1,name=vserviceuser.kb.io,sideEffects=none,admissionReviewVersions=v1

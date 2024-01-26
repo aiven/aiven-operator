@@ -45,7 +45,6 @@ func (h DatabaseHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, 
 	}
 
 	exists, err := h.exists(ctx, avn, db)
-
 	if err != nil {
 		return err
 	}

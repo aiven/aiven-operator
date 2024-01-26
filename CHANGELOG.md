@@ -40,6 +40,30 @@
 - Change `Kafka` field `userConfig.kafka_version`: enum ~~`[3.1, 3.3, 3.4, 3.5, 3.6]`~~ → `[3.4, 3.5, 3.6]`
 - Change `PostgreSQL` field `userConfig.pg_version`: enum ~~`[11, 12, 13, 14, 15, 16]`~~ → `[12, 13,
 14, 15, 16]`
+- Add `Cassandra` field `connInfoSecretTargetDisabled`, type `boolean`: When true, the secret containing
+  connection information will not be created, defaults to false
+- Add `Clickhouse` field `connInfoSecretTargetDisabled`, type `boolean`: When true, the secret containing
+  connection information will not be created, defaults to false
+- Add `ClickhouseUser` field `connInfoSecretTargetDisabled`, type `boolean`: When true, the secret containing
+  connection information will not be created, defaults to false
+- Add `ConnectionPool` field `connInfoSecretTargetDisabled`, type `boolean`: When true, the secret containing
+  connection information will not be created, defaults to false
+- Add `Grafana` field `connInfoSecretTargetDisabled`, type `boolean`: When true, the secret containing
+  connection information will not be created, defaults to false
+- Add `Kafka` field `connInfoSecretTargetDisabled`, type `boolean`: When true, the secret containing
+  connection information will not be created, defaults to false
+- Add `MySQL` field `connInfoSecretTargetDisabled`, type `boolean`: When true, the secret containing
+  connection information will not be created, defaults to false
+- Add `OpenSearch` field `connInfoSecretTargetDisabled`, type `boolean`: When true, the secret containing
+  connection information will not be created, defaults to false
+- Add `PostgreSQL` field `connInfoSecretTargetDisabled`, type `boolean`: When true, the secret containing
+  connection information will not be created, defaults to false
+- Add `Project` field `connInfoSecretTargetDisabled`, type `boolean`: When true, the secret containing
+  connection information will not be created, defaults to false
+- Add `Redis` field `connInfoSecretTargetDisabled`, type `boolean`: When true, the secret containing
+  connection information will not be created, defaults to false
+- Add `ServiceUser` field `connInfoSecretTargetDisabled`, type `boolean`: When true, the secret containing
+  connection information will not be created, defaults to false
 
 ## v0.16.1 - 2023-12-15
 

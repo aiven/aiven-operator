@@ -21,5 +21,5 @@ func marshalCompactYaml(in any) (*bytes.Buffer, error) {
 }
 
 func writeFile(filePath string, b []byte) error {
-	return os.WriteFile(filePath, b, 0644)
+	return os.WriteFile(filePath, b, 0o644)
 }

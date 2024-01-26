@@ -74,7 +74,8 @@ func TestGenChangelog(t *testing.T) {
 	changes, err := genChangelog([]byte(testOldCRD), []byte(testNewCRD))
 	require.NoError(t, err)
 
-	expect := []string{"Add `Kafka` field `disk_space`, type `string`: The disk space of the service",
+	expect := []string{
+		"Add `Kafka` field `disk_space`, type `string`: The disk space of the service",
 		"Change `Kafka` field `cloudName`: enum ~~`[bar, foo]`~~ → `[bar, baz, foo]`, maxLength ~~`120`~~ → `256`, maximum ~~`2`~~ → `4`, minimum ~~`1`~~ → `3`",
 		"Change `Kafka` field `topic_name`: enum `[bar, baz, foo]`, format ~~`^[1-9]*(GiB|G)*`~~ → `^[1-9][0-9]*(GiB|G)*`, maxLength ~~`111`~~ → `249`, maximum `1000000`, minLength `1`, minimum `1`",
 		"Remove `Kafka` field `karapace`, type `boolean`: Switch the service to use Karapace for schema registry and REST proxy",

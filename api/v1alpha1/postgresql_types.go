@@ -9,6 +9,7 @@ import (
 )
 
 // PostgreSQLSpec defines the desired state of postgres instance
+// +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type PostgreSQLSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
@@ -22,6 +23,10 @@ type PostgreSQLSpec struct {
 	// Information regarding secret creation.
 	// Exposed keys: `POSTGRESQL_HOST`, `POSTGRESQL_PORT`, `POSTGRESQL_DATABASE`, `POSTGRESQL_USER`, `POSTGRESQL_PASSWORD`, `POSTGRESQL_SSLMODE`, `POSTGRESQL_DATABASE_URI`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
+
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="connInfoSecretTargetDisabled is immutable."
+	// When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
+	ConnInfoSecretTargetDisabled *bool `json:"connInfoSecretTargetDisabled,omitempty"`
 
 	// PostgreSQL specific user configuration options
 	UserConfig *pguserconfig.PgUserConfig `json:"userConfig,omitempty"`
@@ -46,9 +51,14 @@ type PostgreSQL struct {
 
 var _ AivenManagedObject = &PostgreSQL{}
 
+func (in *PostgreSQL) NoSecret() bool {
+	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
+}
+
 func (in *PostgreSQL) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }
+
 func (in *PostgreSQL) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }

@@ -58,9 +58,14 @@ type ProjectVPC struct {
 
 var _ AivenManagedObject = &ProjectVPC{}
 
+func (*ProjectVPC) NoSecret() bool {
+	return false
+}
+
 func (in *ProjectVPC) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }
+
 func (in *ProjectVPC) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }

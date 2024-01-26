@@ -56,9 +56,14 @@ type Database struct {
 
 var _ AivenManagedObject = &Database{}
 
+func (*Database) NoSecret() bool {
+	return false
+}
+
 func (in *Database) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }
+
 func (in *Database) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }

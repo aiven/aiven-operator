@@ -129,6 +129,15 @@ spec:
                   required:
                     - name
                   type: object
+                connInfoSecretTargetDisabled:
+                  description:
+                    When true, the secret containing connection information
+                    will not be created, defaults to false. This field cannot be changed
+                    after resource creation.
+                  type: boolean
+                  x-kubernetes-validations:
+                    - message: connInfoSecretTargetDisabled is immutable.
+                      rule: self == oldSelf
                 copyFromProject:
                   description: Project name from which to copy settings to the new project
                   maxLength: 63
@@ -152,6 +161,11 @@ spec:
                   maxItems: 10
                   type: array
               type: object
+              x-kubernetes-validations:
+                - message:
+                    connInfoSecretTargetDisabled can only be set during resource
+                    creation.
+                  rule: has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)
             status:
               description: ProjectStatus defines the observed state of Project
               properties:

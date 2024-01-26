@@ -175,6 +175,10 @@ func (in *KafkaTopic) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (*KafkaTopic) NoSecret() bool {
+	return false
+}
+
 // +kubebuilder:object:root=true
 
 // KafkaTopicList contains a list of KafkaTopic

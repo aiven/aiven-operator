@@ -34,6 +34,10 @@ type KafkaConnect struct {
 
 var _ AivenManagedObject = &KafkaConnect{}
 
+func (*KafkaConnect) NoSecret() bool {
+	return false
+}
+
 func (in *KafkaConnect) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
 }

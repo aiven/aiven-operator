@@ -94,6 +94,10 @@ func (in *KafkaConnector) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (*KafkaConnector) NoSecret() bool {
+	return false
+}
+
 //+kubebuilder:object:root=true
 
 // KafkaConnectorList contains a list of KafkaConnector

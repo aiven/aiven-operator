@@ -308,7 +308,7 @@ func updateChangelog(operatorPath, crdCharts string) (func() error, error) {
 
 		// Writes changes to changelogFile
 		changelogUpdated := addChanges(changelogBody, changes)
-		return os.WriteFile(changelogPath, []byte(changelogUpdated), 0644)
+		return os.WriteFile(changelogPath, []byte(changelogUpdated), 0o644)
 	}, nil
 }
 

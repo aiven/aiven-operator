@@ -11,6 +11,7 @@ import (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // GrafanaSpec defines the desired state of Grafana
+// +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type GrafanaSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
@@ -24,6 +25,10 @@ type GrafanaSpec struct {
 	// Information regarding secret creation.
 	// Exposed keys: `GRAFANA_HOST`, `GRAFANA_PORT`, `GRAFANA_USER`, `GRAFANA_PASSWORD`, `GRAFANA_URI`, `GRAFANA_HOSTS`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
+
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="connInfoSecretTargetDisabled is immutable."
+	// When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
+	ConnInfoSecretTargetDisabled *bool `json:"connInfoSecretTargetDisabled,omitempty"`
 
 	// Cassandra specific user configuration options
 	UserConfig *grafanauserconfig.GrafanaUserConfig `json:"userConfig,omitempty"`
@@ -52,6 +57,10 @@ func (in *Grafana) AuthSecretRef() *AuthSecretReference {
 
 func (in *Grafana) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
+}
+
+func (in *Grafana) NoSecret() bool {
+	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
 }
 
 func (in *Grafana) GetRefs() []*ResourceReferenceObject {

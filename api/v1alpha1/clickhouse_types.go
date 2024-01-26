@@ -9,6 +9,7 @@ import (
 )
 
 // ClickhouseSpec defines the desired state of Clickhouse
+// +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type ClickhouseSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
@@ -22,6 +23,10 @@ type ClickhouseSpec struct {
 	// Information regarding secret creation.
 	// Exposed keys: `CLICKHOUSE_HOST`, `CLICKHOUSE_PORT`, `CLICKHOUSE_USER`, `CLICKHOUSE_PASSWORD`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
+
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="connInfoSecretTargetDisabled is immutable."
+	// When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
+	ConnInfoSecretTargetDisabled *bool `json:"connInfoSecretTargetDisabled,omitempty"`
 
 	// OpenSearch specific user configuration options
 	UserConfig *clickhouseuserconfig.ClickhouseUserConfig `json:"userConfig,omitempty"`
@@ -56,6 +61,10 @@ func (in *Clickhouse) AuthSecretRef() *AuthSecretReference {
 
 func (in *Clickhouse) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
+}
+
+func (in *Clickhouse) NoSecret() bool {
+	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
 }
 
 func (in *Clickhouse) GetRefs() []*ResourceReferenceObject {

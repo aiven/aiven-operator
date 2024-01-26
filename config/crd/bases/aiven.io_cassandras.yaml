@@ -99,6 +99,15 @@ spec:
                   required:
                     - name
                   type: object
+                connInfoSecretTargetDisabled:
+                  description:
+                    When true, the secret containing connection information
+                    will not be created, defaults to false. This field cannot be changed
+                    after resource creation.
+                  type: boolean
+                  x-kubernetes-validations:
+                    - message: connInfoSecretTargetDisabled is immutable.
+                      rule: self == oldSelf
                 disk_space:
                   description:
                     The disk space of the service, possible values depend
@@ -355,6 +364,11 @@ spec:
                 - plan
                 - project
               type: object
+              x-kubernetes-validations:
+                - message:
+                    connInfoSecretTargetDisabled can only be set during resource
+                    creation.
+                  rule: has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)
             status:
               description: ServiceStatus defines the observed state of service
               properties:

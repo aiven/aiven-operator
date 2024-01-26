@@ -46,7 +46,7 @@ func generate(dstDir string, serviceTypes []byte, serviceList []string) error {
 		}
 
 		filePath := filepath.Join(dirPath, k+".go")
-		err = os.WriteFile(filePath, b, 0644)
+		err = os.WriteFile(filePath, b, 0o644)
 		if err != nil {
 			return err
 		}
