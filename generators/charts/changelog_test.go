@@ -74,18 +74,21 @@ func TestGenChangelog(t *testing.T) {
 	changes, err := genChangelog([]byte(testOldCRD), []byte(testNewCRD))
 	require.NoError(t, err)
 
-	expect := []string{
-		"Add `Kafka` field `disk_space`, type `string`: The disk space of the service",
-		"Change `Kafka` field `cloudName`: enum ~~`[bar, foo]`~~ → `[bar, baz, foo]`, maxLength ~~`120`~~ → `256`, maximum ~~`2`~~ → `4`, minimum ~~`1`~~ → `3`",
-		"Change `Kafka` field `topic_name`: enum `[bar, baz, foo]`, format ~~`^[1-9]*(GiB|G)*`~~ → `^[1-9][0-9]*(GiB|G)*`, maxLength ~~`111`~~ → `249`, maximum `1000000`, minLength `1`, minimum `1`",
-		"Remove `Kafka` field `karapace`, type `boolean`: Switch the service to use Karapace for schema registry and REST proxy",
+	expect := []changelog{
+		{title: "Add `Kafka` field `disk_space`, type `string`", value: "The disk space of the service"},
+		{title: "Change `Kafka` field `cloudName`", value: "enum ~~`[bar, foo]`~~ → `[bar, baz, foo]`, maxLength ~~`120`~~ → `256`, maximum ~~`2`~~ → `4`, minimum ~~`1`~~ → `3`"},
+		{title: "Change `Kafka` field `topic_name`", value: "enum `[bar, baz, foo]`, format ~~`^[1-9]*(GiB|G)*`~~ → `^[1-9][0-9]*(GiB|G)*`, maxLength ~~`111`~~ → `249`, maximum `1000000`, minLength `1`, minimum `1`"},
+		{title: "Remove `Kafka` field `karapace`, type `boolean`", value: "Switch the service to use Karapace for schema registry and REST proxy"},
 	}
 
 	assert.Equal(t, expect, changes)
 }
 
 func TestAddChanges(t *testing.T) {
-	changes := []string{"a change", "another change"}
+	changes := []changelog{
+		{title: "a change", value: "wow!"},
+		{title: "another change", value: "great!"},
+	}
 	cases := []struct {
 		name   string
 		source string
@@ -99,8 +102,8 @@ func TestAddChanges(t *testing.T) {
 `,
 			expect: `## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
-- a change
-- another change
+- a change: wow!
+- another change: great!
 
 ## v0.13.0 - 2023-08-18
 `,
@@ -116,8 +119,26 @@ func TestAddChanges(t *testing.T) {
 			expect: `## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - new go version
-- a change
-- another change
+- a change: wow!
+- another change: great!
+
+## v0.13.0 - 2023-08-18
+`,
+		},
+		{
+			name: "overrides existing change: old one! -> wow!",
+			source: `## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
+
+- a change: old one!
+- new go version
+
+## v0.13.0 - 2023-08-18
+`,
+			expect: `## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
+
+- a change: wow!
+- new go version
+- another change: great!
 
 ## v0.13.0 - 2023-08-18
 `,

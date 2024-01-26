@@ -67,7 +67,7 @@ func loadSchema(b []byte) (*schema, error) {
 }
 
 // genChangelog generates changelog for given yamls
-func genChangelog(wasBytes, hasBytes []byte) ([]string, error) {
+func genChangelog(wasBytes, hasBytes []byte) ([]changelog, error) {
 	wasSchema, err := loadSchema(wasBytes)
 	if err != nil {
 		return nil, err
@@ -80,18 +80,23 @@ func genChangelog(wasBytes, hasBytes []byte) ([]string, error) {
 
 	changes := cmpSchemas(hasSchema.Kind, "", wasSchema, hasSchema)
 	sort.Slice(changes, func(i, j int) bool {
-		return changes[i][0] < changes[j][0]
+		return changes[i].title < changes[j].title
 	})
 
 	return changes, nil
 }
 
-func cmpSchemas(kind, parent string, wasSpec, hasSpec *schema) []string {
+type changelog struct {
+	title string
+	value string
+}
+
+func cmpSchemas(kind, parent string, wasSpec, hasSpec *schema) []changelog {
 	if cmp.Equal(wasSpec, hasSpec) {
 		return nil
 	}
 
-	changes := make([]string, 0)
+	changes := make([]changelog, 0)
 	for _, k := range mergedKeys(wasSpec.Properties, hasSpec.Properties) {
 		ov, oOk := wasSpec.Properties[k]
 		nv, nOk := hasSpec.Properties[k]
@@ -103,9 +108,11 @@ func cmpSchemas(kind, parent string, wasSpec, hasSpec *schema) []string {
 
 		switch {
 		case !nOk:
-			changes = append(changes, fmt.Sprintf("Remove `%s` field `%s`, type `%s`: %s", kind, fieldPath, ov.Type, shortDescription(ov.Description)))
+			title := fmt.Sprintf("Remove `%s` field `%s`, type `%s`", kind, fieldPath, ov.Type)
+			changes = append(changes, changelog{title: title, value: shortDescription(ov.Description)})
 		case !oOk:
-			changes = append(changes, fmt.Sprintf("Add `%s` field `%s`, type `%s`: %s", kind, fieldPath, nv.Type, shortDescription(nv.Description)))
+			title := fmt.Sprintf("Add `%s` field `%s`, type `%s`", kind, fieldPath, nv.Type)
+			changes = append(changes, changelog{title: title, value: shortDescription(nv.Description)})
 		case !cmp.Equal(ov, nv):
 			switch ov.Type {
 			case "object":
@@ -113,7 +120,8 @@ func cmpSchemas(kind, parent string, wasSpec, hasSpec *schema) []string {
 			default:
 				c := fmtChanges(ov, nv)
 				if c != "" {
-					changes = append(changes, fmt.Sprintf("Change `%s` field `%s`: %s", kind, fieldPath, c))
+					title := fmt.Sprintf("Change `%s` field `%s`", kind, fieldPath)
+					changes = append(changes, changelog{title: title, value: c})
 				}
 			}
 		}
@@ -241,8 +249,9 @@ func softWrapLine(src, linebreak string, n int) string {
 	return src
 }
 
-func addChanges(body []byte, changes []string) string {
-	lines := strings.Split(string(body), "\n")
+func addChanges(body []byte, changes []changelog) string {
+	strBody := string(body)
+	lines := strings.Split(strBody, "\n")
 
 	i := 0
 	headerAt := -1
@@ -262,8 +271,17 @@ func addChanges(body []byte, changes []string) string {
 		// adds extra line between headers (no changes in the changelog)
 		items = append(items, "")
 	}
+outer:
 	for _, s := range changes {
-		items = append(items, softWrapLine("- "+s, "\n  ", lineWidth))
+		line := softWrapLine(fmt.Sprintf("- %s: %s", s.title, s.value), "\n  ", lineWidth)
+		// Replaces a change with the same title to store latest change only
+		for index, old := range items {
+			if strings.Contains(old, s.title) {
+				items[index] = line
+				continue outer
+			}
+		}
+		items = append(items, line)
 	}
 	items = append(items, lines[i:]...)
 	return strings.Join(items, "\n")
@@ -286,7 +304,7 @@ func updateChangelog(operatorPath, crdCharts string) (func() error, error) {
 		}
 
 		// Finds changes per Kind
-		changes := make([]string, 0)
+		changes := make([]changelog, 0)
 		for _, k := range sortedKeys(hasFiles) {
 			kindChanges, err := genChangelog(wasFiles[k], hasFiles[k])
 			if err != nil {
