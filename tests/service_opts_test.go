@@ -155,7 +155,7 @@ func TestServiceConnInfoSecretTargetDisabled(t *testing.T) {
 			// Modifying `connInfoSecretTargetDisabled` from missing to true --> A secret is created, but the update fails
 			// because `connInfoSecretTargetDisabled` can only be set during resource creation.
 			testName:                           "modify from missing to true",
-			serviceName:                        randName("grafana-modify-conn-info-secret-target-disabled-from-missing-to-true"),
+			serviceName:                        randName("grafana-conn-secret-test-1"),
 			connInfoSecretTargetDisabledChange: []*bool{nil, pointer.Bool(true)},
 			expectSecretGetErrIsNil:            true,
 			expectSecretIsNil:                  false,
@@ -165,7 +165,7 @@ func TestServiceConnInfoSecretTargetDisabled(t *testing.T) {
 			// Modifying `connInfoSecretTargetDisabled` from true to missing --> A secret is not created and the update fails
 			// because `connInfoSecretTargetDisabled` can only be set during resource creation.
 			testName:                           "modify from true to missing",
-			serviceName:                        randName("grafana-modify-conn-info-secret-target-disabled-from-true-to-missing"),
+			serviceName:                        randName("grafana-conn-secret-test-2"),
 			connInfoSecretTargetDisabledChange: []*bool{pointer.Bool(true), nil},
 			expectSecretGetErrIsNil:            false,
 			expectSecretIsNil:                  true,
@@ -175,7 +175,7 @@ func TestServiceConnInfoSecretTargetDisabled(t *testing.T) {
 			// Modifying `connInfoSecretTargetDisabled` from false to true --> A secret is created and the update fails
 			// due to the immutability of `connInfoSecretTargetDisabled`.
 			testName:                           "modify from false to true",
-			serviceName:                        randName("grafana-modify-conn-info-secret-target-disabled-from-false-to-true"),
+			serviceName:                        randName("grafana-conn-secret-test-3"),
 			connInfoSecretTargetDisabledChange: []*bool{pointer.Bool(false), pointer.Bool(true)},
 			expectSecretGetErrIsNil:            true,
 			expectSecretIsNil:                  false,
