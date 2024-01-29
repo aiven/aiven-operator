@@ -434,6 +434,11 @@ spec:
                       maximum: 31536000
                       minimum: 0
                       type: integer
+                    redis_version:
+                      description: Redis major version
+                      enum:
+                        - "7.0"
+                      type: string
                     service_log:
                       description:
                         Store logs for the service so that they are available

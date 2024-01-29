@@ -61,6 +61,9 @@
   connection information will not be created, defaults to false
 - Add `ServiceUser` field `connInfoSecretTargetDisabled`, type `boolean`: When true, the secret containing
   connection information will not be created, defaults to false
+- Add `Kafka` field `userConfig.kafka_rest_config.name_strategy`, type `string`: Name strategy to use
+  when selecting subject for storing schemas
+- Add `Redis` field `userConfig.redis_version`, type `string`: Redis major version
 
 ## v0.16.1 - 2023-12-15
 

@@ -799,6 +799,15 @@ spec:
                           maximum: 30000
                           minimum: 1000
                           type: integer
+                        name_strategy:
+                          description:
+                            Name strategy to use when selecting subject for
+                            storing schemas
+                          enum:
+                            - topic_name
+                            - record_name
+                            - topic_record_name
+                          type: string
                         name_strategy_validation:
                           description:
                             If true, validate that given schema is registered

@@ -410,6 +410,11 @@ func (in *KafkaRestConfig) DeepCopyInto(out *KafkaRestConfig) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.NameStrategy != nil {
+		in, out := &in.NameStrategy, &out.NameStrategy
+		*out = new(string)
+		**out = **in
+	}
 	if in.NameStrategyValidation != nil {
 		in, out := &in.NameStrategyValidation, &out.NameStrategyValidation
 		*out = new(bool)

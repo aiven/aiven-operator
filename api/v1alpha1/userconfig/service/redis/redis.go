@@ -157,6 +157,10 @@ type RedisUserConfig struct {
 	// Redis idle connection timeout in seconds
 	RedisTimeout *int `groups:"create,update" json:"redis_timeout,omitempty"`
 
+	// +kubebuilder:validation:Enum="7.0"
+	// Redis major version
+	RedisVersion *string `groups:"create,update" json:"redis_version,omitempty"`
+
 	// Store logs for the service so that they are available in the HTTP API and console.
 	ServiceLog *bool `groups:"create,update" json:"service_log,omitempty"`
 

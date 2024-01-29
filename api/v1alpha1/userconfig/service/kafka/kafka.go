@@ -325,6 +325,10 @@ type KafkaRestConfig struct {
 	// The maximum total time to wait for messages for a request if the maximum number of messages has not yet been reached
 	ConsumerRequestTimeoutMs *int `groups:"create,update" json:"consumer_request_timeout_ms,omitempty"`
 
+	// +kubebuilder:validation:Enum="topic_name";"record_name";"topic_record_name"
+	// Name strategy to use when selecting subject for storing schemas
+	NameStrategy *string `groups:"create,update" json:"name_strategy,omitempty"`
+
 	// If true, validate that given schema is registered under expected subject name by the used name strategy when producing messages.
 	NameStrategyValidation *bool `groups:"create,update" json:"name_strategy_validation,omitempty"`
 
