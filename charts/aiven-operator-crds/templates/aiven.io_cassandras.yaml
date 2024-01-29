@@ -269,7 +269,7 @@ spec:
                           type: string
                       type: object
                     cassandra_version:
-                      description: Cassandra major version
+                      description: Cassandra version
                       enum:
                         - "4"
                         - "4.1"
