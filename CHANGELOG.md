@@ -2,9 +2,28 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.17.0 - 2024-02-01
+
 - Bump k8s deps to 1.26.13
 - Add `OpenSearch` field `userConfig.opensearch.enable_security_audit`, type `boolean`: Enable/Disable
   security audit
+- Add `Kafka` field `userConfig.kafka_rest_config.name_strategy`, type `string`: Name strategy to use
+  when selecting subject for storing schemas
+- Add `Redis` field `userConfig.redis_version`, type `string`: Redis major version
+- Add `Grafana` field `userConfig.auth_github.auto_login`, type `boolean`: Allow users to bypass the
+  login screen and automatically log in
+- Add `Grafana` field `userConfig.auth_github.skip_org_role_sync`, type `boolean`: Stop automatically
+  syncing user roles
+- Change `Clickhouse` field `userConfig.additional_backup_regions`: deprecated
+- Change `Grafana` field `userConfig.additional_backup_regions`: deprecated
+- Change `KafkaConnect` field `userConfig.additional_backup_regions`: deprecated
+- Change `Kafka` field `userConfig.additional_backup_regions`: deprecated
+- Change `OpenSearch` field `userConfig.additional_backup_regions`: deprecated
+- Change `Redis` field `userConfig.additional_backup_regions`: deprecated
+- Change `Cassandra` field `userConfig.cassandra_version`: enum ~~`[3, 4, 4.1]`~~ → `[4, 4.1]`
+- Change `Kafka` field `userConfig.kafka_version`: enum ~~`[3.1, 3.3, 3.4, 3.5, 3.6]`~~ → `[3.4, 3.5, 3.6]`
+- Change `PostgreSQL` field `userConfig.pg_version`: enum ~~`[11, 12, 13, 14, 15, 16]`~~ → `[12, 13,
+14, 15, 16]`
 - Add `Cassandra` field `technicalEmails`, type `array`: Defines the email addresses that will receive
   alerts about upcoming maintenance updates or warnings about service instability
 - Add `Clickhouse` field `technicalEmails`, type `array`: Defines the email addresses that will receive
@@ -23,20 +42,6 @@
   alerts about upcoming maintenance updates or warnings about service instability
 - Add `Redis` field `technicalEmails`, type `array`: Defines the email addresses that will receive alerts
   about upcoming maintenance updates or warnings about service instability
-- Change `Clickhouse` field `userConfig.additional_backup_regions`: deprecated
-- Add `Grafana` field `userConfig.auth_github.auto_login`, type `boolean`: Allow users to bypass the
-  login screen and automatically log in
-- Add `Grafana` field `userConfig.auth_github.skip_org_role_sync`, type `boolean`: Stop automatically
-  syncing user roles
-- Change `Grafana` field `userConfig.additional_backup_regions`: deprecated
-- Change `KafkaConnect` field `userConfig.additional_backup_regions`: deprecated
-- Change `Kafka` field `userConfig.additional_backup_regions`: deprecated
-- Change `OpenSearch` field `userConfig.additional_backup_regions`: deprecated
-- Change `Redis` field `userConfig.additional_backup_regions`: deprecated
-- Change `Cassandra` field `userConfig.cassandra_version`: enum ~~`[3, 4, 4.1]`~~ → `[4, 4.1]`
-- Change `Kafka` field `userConfig.kafka_version`: enum ~~`[3.1, 3.3, 3.4, 3.5, 3.6]`~~ → `[3.4, 3.5, 3.6]`
-- Change `PostgreSQL` field `userConfig.pg_version`: enum ~~`[11, 12, 13, 14, 15, 16]`~~ → `[12, 13,
-14, 15, 16]`
 - Add `Cassandra` field `connInfoSecretTargetDisabled`, type `boolean`: When true, the secret containing
   connection information will not be created, defaults to false
 - Add `Clickhouse` field `connInfoSecretTargetDisabled`, type `boolean`: When true, the secret containing
@@ -61,9 +66,6 @@
   connection information will not be created, defaults to false
 - Add `ServiceUser` field `connInfoSecretTargetDisabled`, type `boolean`: When true, the secret containing
   connection information will not be created, defaults to false
-- Add `Kafka` field `userConfig.kafka_rest_config.name_strategy`, type `string`: Name strategy to use
-  when selecting subject for storing schemas
-- Add `Redis` field `userConfig.redis_version`, type `string`: Redis major version
 
 ## v0.16.1 - 2023-12-15
 
