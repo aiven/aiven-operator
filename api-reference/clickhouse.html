@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.2">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
     
     
       
@@ -1207,6 +1207,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#spec.technicalEmails" class="md-nav__link">
+    <span class="md-ellipsis">
+      technicalEmails
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#spec.userConfig" class="md-nav__link">
     <span class="md-ellipsis">
       userConfig
@@ -1739,6 +1748,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#spec.technicalEmails" class="md-nav__link">
+    <span class="md-ellipsis">
+      technicalEmails
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#spec.userConfig" class="md-nav__link">
     <span class="md-ellipsis">
       userConfig
@@ -1864,6 +1882,7 @@
 <li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
 <li><a href="#spec.cloudName-property" name="spec.cloudName-property"><code>cloudName</code></a> (string, MaxLength: 256). Cloud the service runs in.</li>
 <li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Information regarding secret creation. Exposed keys: <code>CLICKHOUSE_HOST</code>, <code>CLICKHOUSE_PORT</code>, <code>CLICKHOUSE_USER</code>, <code>CLICKHOUSE_PASSWORD</code>. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
+<li><a href="#spec.connInfoSecretTargetDisabled-property" name="spec.connInfoSecretTargetDisabled-property"><code>connInfoSecretTargetDisabled</code></a> (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.</li>
 <li><a href="#spec.disk_space-property" name="spec.disk_space-property"><code>disk_space</code></a> (string, Format: <code>^[1-9][0-9]*(GiB|G)*</code>). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</li>
 <li><a href="#spec.maintenanceWindowDow-property" name="spec.maintenanceWindowDow-property"><code>maintenanceWindowDow</code></a> (string, Enum: <code>monday</code>, <code>tuesday</code>, <code>wednesday</code>, <code>thursday</code>, <code>friday</code>, <code>saturday</code>, <code>sunday</code>). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.</li>
 <li><a href="#spec.maintenanceWindowTime-property" name="spec.maintenanceWindowTime-property"><code>maintenanceWindowTime</code></a> (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.</li>
@@ -1871,6 +1890,7 @@
 <li><a href="#spec.projectVpcId-property" name="spec.projectVpcId-property"><code>projectVpcId</code></a> (string, MaxLength: 36). Identifier of the VPC the service should be in, if any.</li>
 <li><a href="#spec.serviceIntegrations-property" name="spec.serviceIntegrations-property"><code>serviceIntegrations</code></a> (array of objects, Immutable, MaxItems: 1). Service integrations to specify when creating a service. Not applied after initial service creation. See below for <a href="#spec.serviceIntegrations">nested schema</a>.</li>
 <li><a href="#spec.tags-property" name="spec.tags-property"><code>tags</code></a> (object, AdditionalProperties: string). Tags are key-value pairs that allow you to categorize services.</li>
+<li><a href="#spec.technicalEmails-property" name="spec.technicalEmails-property"><code>technicalEmails</code></a> (array of objects, MaxItems: 10). Defines the email addresses that will receive alerts about upcoming maintenance updates or warnings about service instability. See below for <a href="#spec.technicalEmails">nested schema</a>.</li>
 <li><a href="#spec.terminationProtection-property" name="spec.terminationProtection-property"><code>terminationProtection</code></a> (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services.</li>
 <li><a href="#spec.userConfig-property" name="spec.userConfig-property"><code>userConfig</code></a> (object). OpenSearch specific user configuration options. See below for <a href="#spec.userConfig">nested schema</a>.</li>
 </ul>
@@ -1879,8 +1899,8 @@
 <p>Authentication reference to Aiven token in a secret.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.authSecretRef.key-property" name="spec.authSecretRef.key-property"><code>key</code></a> (string, MinLength: 1). </li>
-<li><a href="#spec.authSecretRef.name-property" name="spec.authSecretRef.name-property"><code>name</code></a> (string, MinLength: 1). </li>
+<li><a href="#spec.authSecretRef.key-property" name="spec.authSecretRef.key-property"><code>key</code></a> (string, MinLength: 1).</li>
+<li><a href="#spec.authSecretRef.name-property" name="spec.authSecretRef.name-property"><code>name</code></a> (string, MinLength: 1).</li>
 </ul>
 <h2 id="spec.connInfoSecretTarget">connInfoSecretTarget<a class="headerlink" href="#spec.connInfoSecretTarget" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -1900,26 +1920,33 @@
 <p>ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.projectVPCRef.name-property" name="spec.projectVPCRef.name-property"><code>name</code></a> (string, MinLength: 1). </li>
+<li><a href="#spec.projectVPCRef.name-property" name="spec.projectVPCRef.name-property"><code>name</code></a> (string, MinLength: 1).</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.projectVPCRef.namespace-property" name="spec.projectVPCRef.namespace-property"><code>namespace</code></a> (string, MinLength: 1). </li>
+<li><a href="#spec.projectVPCRef.namespace-property" name="spec.projectVPCRef.namespace-property"><code>namespace</code></a> (string, MinLength: 1).</li>
 </ul>
 <h2 id="spec.serviceIntegrations">serviceIntegrations<a class="headerlink" href="#spec.serviceIntegrations" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Service integrations to specify when creating a service. Not applied after initial service creation.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.serviceIntegrations.integrationType-property" name="spec.serviceIntegrations.integrationType-property"><code>integrationType</code></a> (string, Enum: <code>read_replica</code>). </li>
-<li><a href="#spec.serviceIntegrations.sourceServiceName-property" name="spec.serviceIntegrations.sourceServiceName-property"><code>sourceServiceName</code></a> (string, MinLength: 1, MaxLength: 64). </li>
+<li><a href="#spec.serviceIntegrations.integrationType-property" name="spec.serviceIntegrations.integrationType-property"><code>integrationType</code></a> (string, Enum: <code>read_replica</code>).</li>
+<li><a href="#spec.serviceIntegrations.sourceServiceName-property" name="spec.serviceIntegrations.sourceServiceName-property"><code>sourceServiceName</code></a> (string, MinLength: 1, MaxLength: 64).</li>
+</ul>
+<h2 id="spec.technicalEmails">technicalEmails<a class="headerlink" href="#spec.technicalEmails" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
+<p>Defines the email addresses that will receive alerts about upcoming maintenance updates or warnings about service instability.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.technicalEmails.email-property" name="spec.technicalEmails.email-property"><code>email</code></a> (string, Format: <code>^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$</code>). Email address.</li>
 </ul>
 <h2 id="spec.userConfig">userConfig<a class="headerlink" href="#spec.userConfig" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>OpenSearch specific user configuration options.</p>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.</li>
+<li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Deprecated. Additional Cloud Regions for Backup Replication.</li>
 <li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
@@ -2069,10 +2096,10 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      <script src="../assets/javascripts/bundle.e1c3ead8.min.js"></script>
       
     
   </body>

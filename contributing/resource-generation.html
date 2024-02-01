@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.2">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
     
     
       
@@ -1656,14 +1656,14 @@ from public <a href="https://api.aiven.io/doc/#tag/Service/operation/ListPublicS
 <h2 id="flow-overview">Flow overview<a class="headerlink" href="#flow-overview" title="Permanent link">&para;</a></h2>
 <p>When a new schema is issued on the API,
 a cron job fetches it, parses, patches, and saves in a shared library — <a href="https://github.com/aiven/go-api-schemas">go-api-schemas</a>.</p>
-<p>When the library is updated, 
-the GitHub <a href="https://github.com/dependabot">dependabot</a> creates PRs to the dependant repositories, 
+<p>When the library is updated,
+the GitHub <a href="https://github.com/dependabot">dependabot</a> creates PRs to the dependent repositories,
 like Aiven Kubernetes Operator and Aiven Terraform Provider.</p>
 <p>Then the <a href="#make-generate"><code>make generate</code></a> command is called by GitHub action.
 And the PR is ready for review.</p>
 <pre class="mermaid"><code>flowchart TB
     API(Aiven API) &lt;-.-&gt;|polls schema updates| Schema([go-api-schemas])
-    Bot(dependabot) &lt;-.-&gt;|polls updates| Schema 
+    Bot(dependabot) &lt;-.-&gt;|polls updates| Schema
     Bot--&gt;|pull request|UpdateOP[/"✨ $ make generate ✨"/]
     UpdateOP--&gt;|review| OP([operator repository])</code></pre>
 <h2 id="make-generate">make generate<a class="headerlink" href="#make-generate" title="Permanent link">&para;</a></h2>
@@ -1674,23 +1674,21 @@ Then <a href="../api-reference/index.html">API reference</a> docs generator
 and charts generator.</p>
 <p>Here how it goes in the details:</p>
 <ol>
-<li>User config generator creates Go structs (k8s api compatible objects) with docstrings, 
+<li>User config generator creates Go structs (k8s api compatible objects) with docstrings,
    validation rules and constraints (immutable, maxLength, etc)</li>
 <li><a href="https://book.kubebuilder.io/reference/controller-gen.html">controller-gen</a> generates k8s methods,
-   generates <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">CRDs</a> for those objects, 
-   creates charts for cluster roles and webhooks. </li>
-<li>Docs generator creates <a href="../api-reference/index.html">API reference</a> out of CRDs:<ol>
+   generates <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">CRDs</a> for those objects,
+   creates charts for cluster roles and webhooks.</li>
+<li>Docs generator creates <a href="../api-reference/index.html">API reference</a> out of CRDs:</li>
 <li>it looks for an example file for the given CRD kind in <code>./&lt;api-reference-docs&gt;/example/</code>,
-   if it finds one, it validates that with the CRD. 
-   Each CRD has an OpenAPI v3 schema as a part of it. 
-   This is also used by Kubernetes itself to validate user input.</li>
+      if it finds one, it validates that with the CRD.
+      Each CRD has an OpenAPI v3 schema as a part of it.
+      This is also used by Kubernetes itself to validate user input.</li>
 <li>generates full spec reference out of the schema</li>
 <li>creates a markdown file with spec and example (if exists)</li>
-</ol>
-</li>
-<li>Charts generator 
+<li>Charts generator
    updates CRDs, webhooks and cluster roles charts,
-   adds all changes to the changelog </li>
+   adds all changes to the changelog</li>
 </ol>
 <pre class="mermaid"><code>flowchart TB
     Make[/$ make generate/]--&gt;Generator(userconfig generator&lt;br&gt; creates/updates structs using updated spec)
@@ -1813,10 +1811,10 @@ You need it to do manually.</p>
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      <script src="../assets/javascripts/bundle.e1c3ead8.min.js"></script>
       
     
   </body>

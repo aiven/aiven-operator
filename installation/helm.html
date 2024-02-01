@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.2">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
     
     
       
@@ -1724,7 +1724,7 @@
   <h1>Installing with Helm (recommended)</h1>
 
 <h2 id="installing">Installing<a class="headerlink" href="#installing" title="Permanent link">&para;</a></h2>
-<p>The Aiven Operator for Kubernetes can be installed via <a href="https://helm.sh/">Helm</a>. </p>
+<p>The Aiven Operator for Kubernetes can be installed via <a href="https://helm.sh/">Helm</a>.</p>
 <p>Before you start, make sure you have the <a href="prerequisites.html">prerequisites</a>.</p>
 <p>First add the <a href="https://github.com/aiven/aiven-charts">Aiven Helm repository</a>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>aiven<span class="w"> </span>https://aiven.github.io/aiven-charts<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>helm<span class="w"> </span>repo<span class="w"> </span>update
@@ -1732,10 +1732,10 @@
 <h3 id="installing-custom-resource-definitions">Installing Custom Resource Definitions<a class="headerlink" href="#installing-custom-resource-definitions" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>helm<span class="w"> </span>install<span class="w"> </span>aiven-operator-crds<span class="w"> </span>aiven/aiven-operator-crds
 </code></pre></div>
-<p>Verify the installation:
+<p>Verify the installation:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>api-resources<span class="w"> </span>--api-group<span class="o">=</span>aiven.io
 </code></pre></div>
-The output is similar to the following:</p>
+<p>The output is similar to the following:</p>
 <div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>NAME<span class="w">                  </span>SHORTNAMES<span class="w">   </span>APIVERSION<span class="w">          </span>NAMESPACED<span class="w">   </span>KIND
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>connectionpools<span class="w">                    </span>aiven.io/v1alpha1<span class="w">   </span><span class="nb">true</span><span class="w">         </span>ConnectionPool
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>databases<span class="w">                          </span>aiven.io/v1alpha1<span class="w">   </span><span class="nb">true</span><span class="w">         </span>Database
@@ -1746,11 +1746,11 @@ The output is similar to the following:</p>
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Installation will fail if webhooks are enabled and the CRDs for the cert-manager are not installed.</p>
 </div>
-<p>Verify the installation: 
+<p>Installation will fail if webhooks are enabled and the CRDs for the cert-manager are not installed.</p>
+<p>Verify the installation:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>helm<span class="w"> </span>status<span class="w"> </span>aiven-operator
-</code></pre></div></p>
+</code></pre></div>
 <p>The output is similar to the following:</p>
 <div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>NAME:<span class="w"> </span>aiven-operator
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>LAST<span class="w"> </span>DEPLOYED:<span class="w"> </span>Fri<span class="w"> </span>Sep<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">15</span>:23:26<span class="w"> </span><span class="m">2021</span>
@@ -1759,25 +1759,25 @@ The output is similar to the following:</p>
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>REVISION:<span class="w"> </span><span class="m">1</span>
 <a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>TEST<span class="w"> </span>SUITE:<span class="w"> </span>None
 </code></pre></div>
-<p>It is also possible to install the operator without webhooks enabled:
+<p>It is also possible to install the operator without webhooks enabled:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>helm<span class="w"> </span>install<span class="w"> </span>aiven-operator<span class="w"> </span>aiven/aiven-operator<span class="w"> </span>--set<span class="w"> </span>webhooks.enabled<span class="o">=</span><span class="nb">false</span>
-</code></pre></div></p>
+</code></pre></div>
 <h3 id="configuration-options">Configuration Options<a class="headerlink" href="#configuration-options" title="Permanent link">&para;</a></h3>
 <p>Please refer to the <a href="https://github.com/aiven/aiven-charts/blob/main/charts/aiven-operator/values.yaml">values.yaml</a> of the chart.</p>
 <h4 id="installing-without-full-cluster-administrator-access">Installing without full cluster administrator access<a class="headerlink" href="#installing-without-full-cluster-administrator-access" title="Permanent link">&para;</a></h4>
-<p>There can be some scenarios where the individual installing the Helm chart does not have the ability to provision cluster-wide resources (e.g. ClusterRoles/ClusterRoleBindings). In this scenario, you can have a cluster administrator manually install the <a href="../../../charts/aiven-operator/templates/cluster_role.yaml">ClusterRole</a> and <a href="../../../charts/aiven-operator/templates/cluster_role_binding.yaml">ClusterRoleBinding</a> the operator requires prior to installing the Helm chart specifying <code>false</code> for the <code>clusterRole.create</code> attribute. </p>
+<p>There can be some scenarios where the individual installing the Helm chart does not have the ability to provision cluster-wide resources (e.g. ClusterRoles/ClusterRoleBindings). In this scenario, you can have a cluster administrator manually install the <a href="../../../charts/aiven-operator/templates/cluster_role.yaml">ClusterRole</a> and <a href="../../../charts/aiven-operator/templates/cluster_role_binding.yaml">ClusterRoleBinding</a> the operator requires prior to installing the Helm chart specifying <code>false</code> for the <code>clusterRole.create</code> attribute.</p>
 <h2 id="uninstalling">Uninstalling<a class="headerlink" href="#uninstalling" title="Permanent link">&para;</a></h2>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>Please see <a href="uninstalling.html">this page</a> for more information.</p>
 </div>
+<p>Please see <a href="uninstalling.html">this page</a> for more information.</p>
 <p>Find out the name of your deployment:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>helm<span class="w"> </span>list
 </code></pre></div>
-<p>The output has the name of each deployment similar to the following: </p>
-<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>NAME<span class="w">                </span>NAMESPACE<span class="w">   </span>REVISION<span class="w">    </span>UPDATED<span class="w">                                     </span>STATUS<span class="w">      </span>CHART<span class="w">                       </span>APP<span class="w"> </span>VERSION
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>aiven-operator<span class="w">      </span>default<span class="w">     </span><span class="m">1</span><span class="w">           </span><span class="m">2021</span>-09-09<span class="w"> </span><span class="m">10</span>:56:14.623700249<span class="w"> </span>+0200<span class="w"> </span>CEST<span class="w">    </span>deployed<span class="w">    </span>aiven-operator-v0.1.0<span class="w">       </span>v0.1.0<span class="w">     </span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>aiven-operator-crds<span class="w"> </span>default<span class="w">     </span><span class="m">1</span><span class="w">           </span><span class="m">2021</span>-09-09<span class="w"> </span><span class="m">10</span>:56:05.736411868<span class="w"> </span>+0200<span class="w"> </span>CEST<span class="w">    </span>deployed<span class="w">    </span>aiven-operator-crds-v0.1.0<span class="w">  </span>v0.1.0
+<p>The output has the name of each deployment similar to the following:</p>
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>NAME<span class="w">                </span>NAMESPACE<span class="w"> </span>REVISION<span class="w"> </span>UPDATED<span class="w">                                  </span>STATUS<span class="w">   </span>CHART<span class="w">                      </span>APP<span class="w"> </span>VERSION
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>aiven-operator<span class="w">      </span>default<span class="w">   </span><span class="m">1</span><span class="w">        </span><span class="m">2021</span>-09-09<span class="w"> </span><span class="m">10</span>:56:14.623700249<span class="w"> </span>+0200<span class="w"> </span>CEST<span class="w"> </span>deployed<span class="w"> </span>aiven-operator-v0.1.0<span class="w">      </span>v0.1.0
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>aiven-operator-crds<span class="w"> </span>default<span class="w">   </span><span class="m">1</span><span class="w">        </span><span class="m">2021</span>-09-09<span class="w"> </span><span class="m">10</span>:56:05.736411868<span class="w"> </span>+0200<span class="w"> </span>CEST<span class="w"> </span>deployed<span class="w"> </span>aiven-operator-crds-v0.1.0<span class="w"> </span>v0.1.0
 </code></pre></div>
 <p>Remove the CRDs:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>helm<span class="w"> </span>uninstall<span class="w"> </span>aiven-operator-crds
@@ -1890,10 +1890,10 @@ The output is similar to the following:</p>
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      <script src="../assets/javascripts/bundle.e1c3ead8.min.js"></script>
       
     
   </body>

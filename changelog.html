@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.2">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
     
     
       
@@ -425,6 +425,15 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0170-2024-02-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      v0.17.0 - 2024-02-01
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v0161-2023-12-15" class="md-nav__link">
@@ -1757,6 +1766,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0170-2024-02-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      v0.17.0 - 2024-02-01
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0161-2023-12-15" class="md-nav__link">
     <span class="md-ellipsis">
       v0.16.1 - 2023-12-15
@@ -1972,12 +1990,77 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0170-2024-02-01">v0.17.0 - 2024-02-01<a class="headerlink" href="#v0170-2024-02-01" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Bump k8s deps to 1.26.13</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.opensearch.enable_security_audit</code>, type <code>boolean</code>: Enable/Disable
+  security audit</li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka_rest_config.name_strategy</code>, type <code>string</code>: Name strategy to use
+  when selecting subject for storing schemas</li>
+<li>Add <code>Redis</code> field <code>userConfig.redis_version</code>, type <code>string</code>: Redis major version</li>
+<li>Add <code>Grafana</code> field <code>userConfig.auth_github.auto_login</code>, type <code>boolean</code>: Allow users to bypass the
+  login screen and automatically log in</li>
+<li>Add <code>Grafana</code> field <code>userConfig.auth_github.skip_org_role_sync</code>, type <code>boolean</code>: Stop automatically
+  syncing user roles</li>
+<li>Change <code>Clickhouse</code> field <code>userConfig.additional_backup_regions</code>: deprecated</li>
+<li>Change <code>Grafana</code> field <code>userConfig.additional_backup_regions</code>: deprecated</li>
+<li>Change <code>KafkaConnect</code> field <code>userConfig.additional_backup_regions</code>: deprecated</li>
+<li>Change <code>Kafka</code> field <code>userConfig.additional_backup_regions</code>: deprecated</li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.additional_backup_regions</code>: deprecated</li>
+<li>Change <code>Redis</code> field <code>userConfig.additional_backup_regions</code>: deprecated</li>
+<li>Change <code>Cassandra</code> field <code>userConfig.cassandra_version</code>: enum <del><code>[3, 4, 4.1]</code></del> → <code>[4, 4.1]</code></li>
+<li>Change <code>Kafka</code> field <code>userConfig.kafka_version</code>: enum <del><code>[3.1, 3.3, 3.4, 3.5, 3.6]</code></del> → <code>[3.4, 3.5, 3.6]</code></li>
+<li>Change <code>PostgreSQL</code> field <code>userConfig.pg_version</code>: enum <del><code>[11, 12, 13, 14, 15, 16]</code></del> → <code>[12, 13,
+14, 15, 16]</code></li>
+<li>Add <code>Cassandra</code> field <code>technicalEmails</code>, type <code>array</code>: Defines the email addresses that will receive
+  alerts about upcoming maintenance updates or warnings about service instability</li>
+<li>Add <code>Clickhouse</code> field <code>technicalEmails</code>, type <code>array</code>: Defines the email addresses that will receive
+  alerts about upcoming maintenance updates or warnings about service instability</li>
+<li>Add <code>Grafana</code> field <code>technicalEmails</code>, type <code>array</code>: Defines the email addresses that will receive
+  alerts about upcoming maintenance updates or warnings about service instability</li>
+<li>Add <code>KafkaConnect</code> field <code>technicalEmails</code>, type <code>array</code>: Defines the email addresses that will receive
+  alerts about upcoming maintenance updates or warnings about service instability</li>
+<li>Add <code>Kafka</code> field <code>technicalEmails</code>, type <code>array</code>: Defines the email addresses that will receive alerts
+  about upcoming maintenance updates or warnings about service instability</li>
+<li>Add <code>MySQL</code> field <code>technicalEmails</code>, type <code>array</code>: Defines the email addresses that will receive alerts
+  about upcoming maintenance updates or warnings about service instability</li>
+<li>Add <code>OpenSearch</code> field <code>technicalEmails</code>, type <code>array</code>: Defines the email addresses that will receive
+  alerts about upcoming maintenance updates or warnings about service instability</li>
+<li>Add <code>PostgreSQL</code> field <code>technicalEmails</code>, type <code>array</code>: Defines the email addresses that will receive
+  alerts about upcoming maintenance updates or warnings about service instability</li>
+<li>Add <code>Redis</code> field <code>technicalEmails</code>, type <code>array</code>: Defines the email addresses that will receive alerts
+  about upcoming maintenance updates or warnings about service instability</li>
+<li>Add <code>Cassandra</code> field <code>connInfoSecretTargetDisabled</code>, type <code>boolean</code>: When true, the secret containing
+  connection information will not be created, defaults to false</li>
+<li>Add <code>Clickhouse</code> field <code>connInfoSecretTargetDisabled</code>, type <code>boolean</code>: When true, the secret containing
+  connection information will not be created, defaults to false</li>
+<li>Add <code>ClickhouseUser</code> field <code>connInfoSecretTargetDisabled</code>, type <code>boolean</code>: When true, the secret containing
+  connection information will not be created, defaults to false</li>
+<li>Add <code>ConnectionPool</code> field <code>connInfoSecretTargetDisabled</code>, type <code>boolean</code>: When true, the secret containing
+  connection information will not be created, defaults to false</li>
+<li>Add <code>Grafana</code> field <code>connInfoSecretTargetDisabled</code>, type <code>boolean</code>: When true, the secret containing
+  connection information will not be created, defaults to false</li>
+<li>Add <code>Kafka</code> field <code>connInfoSecretTargetDisabled</code>, type <code>boolean</code>: When true, the secret containing
+  connection information will not be created, defaults to false</li>
+<li>Add <code>MySQL</code> field <code>connInfoSecretTargetDisabled</code>, type <code>boolean</code>: When true, the secret containing
+  connection information will not be created, defaults to false</li>
+<li>Add <code>OpenSearch</code> field <code>connInfoSecretTargetDisabled</code>, type <code>boolean</code>: When true, the secret containing
+  connection information will not be created, defaults to false</li>
+<li>Add <code>PostgreSQL</code> field <code>connInfoSecretTargetDisabled</code>, type <code>boolean</code>: When true, the secret containing
+  connection information will not be created, defaults to false</li>
+<li>Add <code>Project</code> field <code>connInfoSecretTargetDisabled</code>, type <code>boolean</code>: When true, the secret containing
+  connection information will not be created, defaults to false</li>
+<li>Add <code>Redis</code> field <code>connInfoSecretTargetDisabled</code>, type <code>boolean</code>: When true, the secret containing
+  connection information will not be created, defaults to false</li>
+<li>Add <code>ServiceUser</code> field <code>connInfoSecretTargetDisabled</code>, type <code>boolean</code>: When true, the secret containing
+  connection information will not be created, defaults to false</li>
+</ul>
 <h2 id="v0161-2023-12-15">v0.16.1 - 2023-12-15<a class="headerlink" href="#v0161-2023-12-15" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Check VPC for running services before deletion. Prevents VPC from hanging in the DELETING state  </li>
+<li>Check VPC for running services before deletion. Prevents VPC from hanging in the DELETING state</li>
 <li>Expose <code>KAFKA_SCHEMA_REGISTRY_URI</code> and <code>KAFKA_REST_URI</code> to <code>Kafka</code> secret</li>
 <li>Expose <code>CONNECTIONPOOL_NAME</code> in <code>ConnectionPool</code> secret</li>
-<li>Fix <code>CONNECTIONPOOL_PORT</code> exposes service port instead of pool port </li>
+<li>Fix <code>CONNECTIONPOOL_PORT</code> exposes service port instead of pool port</li>
 <li>Fix <code>SERVICEUSER_PORT</code> when <code>sasl</code> is the only authentication method</li>
 <li>Change <code>PostgreSQL</code> field <code>userConfig.pg_qualstats.enabled</code>: deprecated</li>
 <li>Change <code>PostgreSQL</code> field <code>userConfig.pg_qualstats.min_err_estimate_num</code>: deprecated</li>
@@ -1988,7 +2071,7 @@
 <h2 id="v0160-2023-12-07">v0.16.0 - 2023-12-07<a class="headerlink" href="#v0160-2023-12-07" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Set conditions on errors: <code>Preconditions</code>, <code>CreateOrUpdate</code>, <code>Delete</code>. Thanks to @atarax</li>
-<li>Fix object updates lost when reconciler exits before the object is committed  </li>
+<li>Fix object updates lost when reconciler exits before the object is committed</li>
 <li>Add <code>Kafka</code> field <code>userConfig.kafka.transaction_partition_verification_enable</code>, type <code>boolean</code>: Enable
   verification that checks that the partition has been added to the transaction before writing transactional
   records to the partition</li>
@@ -2020,7 +2103,7 @@
 <ul>
 <li>Upgrade to Go 1.21</li>
 <li>Add option to orphan resources. Thanks to @atarax</li>
-<li>Fix <code>ServiceIntegration</code>: do not send empty user config to the API </li>
+<li>Fix <code>ServiceIntegration</code>: do not send empty user config to the API</li>
 <li>Add a format for <code>string</code> type fields to the documentation</li>
 <li>Generate CRDs changelog</li>
 <li>Add <code>Clickhouse</code> field <code>userConfig.private_access.clickhouse_mysql</code>, type <code>boolean</code>: Allow clients
@@ -2043,7 +2126,7 @@
 <li>Add <code>Kafka</code> field <code>userConfig.kafka.sasl_oauthbearer_sub_claim_name</code>, type <code>string</code>: Name of the scope
   from which to extract the subject claim from the JWT. Defaults to sub</li>
 <li>Change <code>Kafka</code> field <code>userConfig.kafka_version</code>: enum <del><code>[3.1, 3.3, 3.4, 3.5]</code></del> → <code>[3.1, 3.3, 3.4,
-  3.5, 3.6]</code></li>
+3.5, 3.6]</code></li>
 <li>Change <code>Kafka</code> field <code>userConfig.tiered_storage.local_cache.size</code>: deprecated</li>
 <li>Add <code>OpenSearch</code> field <code>userConfig.opensearch.indices_memory_max_index_buffer_size</code>, type <code>integer</code>:
   Absolute value. Default is unbound. Doesn't work without indices.memory.index_buffer_size</li>
@@ -2077,7 +2160,7 @@
 <li>Add <code>Kafka</code> spec property <code>scheduled_rebalance_max_delay_ms</code></li>
 <li>Mark deprecated <code>Kafka</code> spec property <code>remote_log_storage_system_enable</code></li>
 <li>Add <code>KafkaConnect</code> spec property <code>scheduled_rebalance_max_delay_ms</code></li>
-<li>Add <code>OpenSearch</code> spec property <code>openid</code> </li>
+<li>Add <code>OpenSearch</code> spec property <code>openid</code></li>
 <li>Use updated go client with enhanced retries</li>
 </ul>
 <h2 id="v0123-2023-07-13">v0.12.3 - 2023-07-13<a class="headerlink" href="#v0123-2023-07-13" title="Permanent link">&para;</a></h2>
@@ -2124,16 +2207,16 @@
 <li>Add <code>minumim</code>, <code>maximum</code> validations for <code>number</code> type</li>
 <li>Move helm charts to the operator repository</li>
 <li>Add helm charts generator</li>
-<li>Remove <code>ip_filter</code> backward compatability</li>
+<li>Remove <code>ip_filter</code> backward compatibility</li>
 <li>Fix deletion errors omitted</li>
 <li>Add service integration <code>clickhouseKafka.tables.data_format-property</code> enum <code>RawBLOB</code> value</li>
 <li>Update OpenSearch <code>userConfig.opensearch.email_sender_username</code> validation pattern</li>
 <li>Add Kafka <code>log_cleaner_min_cleanable_ratio</code> minimum and maximum validation rules</li>
 <li>Remove Kafka version <code>3.2</code>, reached EOL</li>
 <li>Remove PostgreSQL version <code>10</code>, reached EOL</li>
-<li>Explicitly delete <code>ProjectVPC</code> by <code>ID</code> to avoid conflicts </li>
+<li>Explicitly delete <code>ProjectVPC</code> by <code>ID</code> to avoid conflicts</li>
 <li>Speed up <code>ProjectVPC</code> deletion by exiting on <code>DELETING</code> status</li>
-<li>Fix missing RBAC permissions to update finalizers for various controllers </li>
+<li>Fix missing RBAC permissions to update finalizers for various controllers</li>
 <li>Refactor <code>ClickhouseUser</code> controller</li>
 <li>Mark <code>ClickhouseUser.spec.project</code> and <code>ClickhouseUser.spec.serviceName</code> as immutable</li>
 <li>Remove deprecated service integration type <code>signalfx</code></li>
@@ -2170,7 +2253,7 @@ as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-be
 <ul>
 <li>Add Cassandra Kind</li>
 <li>Add Grafana Kind</li>
-<li>Recreate Kafka ACL if modified. 
+<li>Recreate Kafka ACL if modified.
   Note: Modification of ACL created prior to v0.5.1 won't delete existing instance at Aiven.
   It must be deleted manually.</li>
 <li>Fix MySQL webhook</li>
@@ -2180,7 +2263,7 @@ as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-be
 <li>Remove <code>never</code> from choices of maintenance dow</li>
 <li>Add <code>development</code> flag to configure logger's behavior</li>
 <li>Add user config generator (see <code>make generate-user-configs</code>)</li>
-<li>Add <code>genericServiceHandler</code> to generalize service management </li>
+<li>Add <code>genericServiceHandler</code> to generalize service management</li>
 <li>Add MySQL Kind</li>
 </ul>
 <h2 id="v052-2022-12-09">v0.5.2 - 2022-12-09<a class="headerlink" href="#v052-2022-12-09" title="Permanent link">&para;</a></h2>
@@ -2208,20 +2291,32 @@ as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-be
 <li>Enable termination protection</li>
 </ul>
 <h2 id="v020-2021-11-17">v0.2.0 - 2021-11-17<a class="headerlink" href="#v020-2021-11-17" title="Permanent link">&para;</a></h2>
-<p>features:
-* add Redis CRD</p>
-<p>improvements:
-* watch CRDs to reconcile token secrets</p>
-<p>fixes:
-* fix RBACs of KafkaACL CRD</p>
+<p>features:</p>
+<ul>
+<li>add Redis CRD</li>
+</ul>
+<p>improvements:</p>
+<ul>
+<li>watch CRDs to reconcile token secrets</li>
+</ul>
+<p>fixes:</p>
+<ul>
+<li>fix RBACs of KafkaACL CRD</li>
+</ul>
 <h2 id="v011-2021-09-13">v0.1.1 - 2021-09-13<a class="headerlink" href="#v011-2021-09-13" title="Permanent link">&para;</a></h2>
-<p>improvements:
-* update helm installation docs</p>
-<p>fixes:
-* fix typo in a kafka-connector kuttl test</p>
+<p>improvements:</p>
+<ul>
+<li>update helm installation docs</li>
+</ul>
+<p>fixes:</p>
+<ul>
+<li>fix typo in a kafka-connector kuttl test</li>
+</ul>
 <h2 id="v010-2021-09-10">v0.1.0 - 2021-09-10<a class="headerlink" href="#v010-2021-09-10" title="Permanent link">&para;</a></h2>
-<p>features:
-* initial release</p>
+<p>features:</p>
+<ul>
+<li>initial release</li>
+</ul>
 
 
 
@@ -2318,10 +2413,10 @@ as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-be
     </div>
     
     
-    <script id="__config" type="application/json">{"base": ".", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": ".", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="assets/javascripts/bundle.d7c377c4.min.js"></script>
+      <script src="assets/javascripts/bundle.e1c3ead8.min.js"></script>
       
     
   </body>

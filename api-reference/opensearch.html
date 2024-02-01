@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.2">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
     
     
       
@@ -1459,6 +1459,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#spec.technicalEmails" class="md-nav__link">
+    <span class="md-ellipsis">
+      technicalEmails
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#spec.userConfig" class="md-nav__link">
     <span class="md-ellipsis">
       userConfig
@@ -1832,6 +1841,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#spec.technicalEmails" class="md-nav__link">
+    <span class="md-ellipsis">
+      technicalEmails
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#spec.userConfig" class="md-nav__link">
     <span class="md-ellipsis">
       userConfig
@@ -2051,6 +2069,7 @@
 <li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
 <li><a href="#spec.cloudName-property" name="spec.cloudName-property"><code>cloudName</code></a> (string, MaxLength: 256). Cloud the service runs in.</li>
 <li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Information regarding secret creation. Exposed keys: <code>OPENSEARCH_HOST</code>, <code>OPENSEARCH_PORT</code>, <code>OPENSEARCH_USER</code>, <code>OPENSEARCH_PASSWORD</code>. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
+<li><a href="#spec.connInfoSecretTargetDisabled-property" name="spec.connInfoSecretTargetDisabled-property"><code>connInfoSecretTargetDisabled</code></a> (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.</li>
 <li><a href="#spec.disk_space-property" name="spec.disk_space-property"><code>disk_space</code></a> (string, Format: <code>^[1-9][0-9]*(GiB|G)*</code>). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</li>
 <li><a href="#spec.maintenanceWindowDow-property" name="spec.maintenanceWindowDow-property"><code>maintenanceWindowDow</code></a> (string, Enum: <code>monday</code>, <code>tuesday</code>, <code>wednesday</code>, <code>thursday</code>, <code>friday</code>, <code>saturday</code>, <code>sunday</code>). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.</li>
 <li><a href="#spec.maintenanceWindowTime-property" name="spec.maintenanceWindowTime-property"><code>maintenanceWindowTime</code></a> (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.</li>
@@ -2058,6 +2077,7 @@
 <li><a href="#spec.projectVpcId-property" name="spec.projectVpcId-property"><code>projectVpcId</code></a> (string, MaxLength: 36). Identifier of the VPC the service should be in, if any.</li>
 <li><a href="#spec.serviceIntegrations-property" name="spec.serviceIntegrations-property"><code>serviceIntegrations</code></a> (array of objects, Immutable, MaxItems: 1). Service integrations to specify when creating a service. Not applied after initial service creation. See below for <a href="#spec.serviceIntegrations">nested schema</a>.</li>
 <li><a href="#spec.tags-property" name="spec.tags-property"><code>tags</code></a> (object, AdditionalProperties: string). Tags are key-value pairs that allow you to categorize services.</li>
+<li><a href="#spec.technicalEmails-property" name="spec.technicalEmails-property"><code>technicalEmails</code></a> (array of objects, MaxItems: 10). Defines the email addresses that will receive alerts about upcoming maintenance updates or warnings about service instability. See below for <a href="#spec.technicalEmails">nested schema</a>.</li>
 <li><a href="#spec.terminationProtection-property" name="spec.terminationProtection-property"><code>terminationProtection</code></a> (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services.</li>
 <li><a href="#spec.userConfig-property" name="spec.userConfig-property"><code>userConfig</code></a> (object). OpenSearch specific user configuration options. See below for <a href="#spec.userConfig">nested schema</a>.</li>
 </ul>
@@ -2066,8 +2086,8 @@
 <p>Authentication reference to Aiven token in a secret.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.authSecretRef.key-property" name="spec.authSecretRef.key-property"><code>key</code></a> (string, MinLength: 1). </li>
-<li><a href="#spec.authSecretRef.name-property" name="spec.authSecretRef.name-property"><code>name</code></a> (string, MinLength: 1). </li>
+<li><a href="#spec.authSecretRef.key-property" name="spec.authSecretRef.key-property"><code>key</code></a> (string, MinLength: 1).</li>
+<li><a href="#spec.authSecretRef.name-property" name="spec.authSecretRef.name-property"><code>name</code></a> (string, MinLength: 1).</li>
 </ul>
 <h2 id="spec.connInfoSecretTarget">connInfoSecretTarget<a class="headerlink" href="#spec.connInfoSecretTarget" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -2087,26 +2107,33 @@
 <p>ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.projectVPCRef.name-property" name="spec.projectVPCRef.name-property"><code>name</code></a> (string, MinLength: 1). </li>
+<li><a href="#spec.projectVPCRef.name-property" name="spec.projectVPCRef.name-property"><code>name</code></a> (string, MinLength: 1).</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.projectVPCRef.namespace-property" name="spec.projectVPCRef.namespace-property"><code>namespace</code></a> (string, MinLength: 1). </li>
+<li><a href="#spec.projectVPCRef.namespace-property" name="spec.projectVPCRef.namespace-property"><code>namespace</code></a> (string, MinLength: 1).</li>
 </ul>
 <h2 id="spec.serviceIntegrations">serviceIntegrations<a class="headerlink" href="#spec.serviceIntegrations" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Service integrations to specify when creating a service. Not applied after initial service creation.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.serviceIntegrations.integrationType-property" name="spec.serviceIntegrations.integrationType-property"><code>integrationType</code></a> (string, Enum: <code>read_replica</code>). </li>
-<li><a href="#spec.serviceIntegrations.sourceServiceName-property" name="spec.serviceIntegrations.sourceServiceName-property"><code>sourceServiceName</code></a> (string, MinLength: 1, MaxLength: 64). </li>
+<li><a href="#spec.serviceIntegrations.integrationType-property" name="spec.serviceIntegrations.integrationType-property"><code>integrationType</code></a> (string, Enum: <code>read_replica</code>).</li>
+<li><a href="#spec.serviceIntegrations.sourceServiceName-property" name="spec.serviceIntegrations.sourceServiceName-property"><code>sourceServiceName</code></a> (string, MinLength: 1, MaxLength: 64).</li>
+</ul>
+<h2 id="spec.technicalEmails">technicalEmails<a class="headerlink" href="#spec.technicalEmails" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
+<p>Defines the email addresses that will receive alerts about upcoming maintenance updates or warnings about service instability.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.technicalEmails.email-property" name="spec.technicalEmails.email-property"><code>email</code></a> (string, Format: <code>^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$</code>). Email address.</li>
 </ul>
 <h2 id="spec.userConfig">userConfig<a class="headerlink" href="#spec.userConfig" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>OpenSearch specific user configuration options.</p>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.</li>
+<li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Deprecated. Additional Cloud Regions for Backup Replication.</li>
 <li><a href="#spec.userConfig.custom_domain-property" name="spec.userConfig.custom_domain-property"><code>custom_domain</code></a> (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name.</li>
 <li><a href="#spec.userConfig.disable_replication_factor_adjustment-property" name="spec.userConfig.disable_replication_factor_adjustment-property"><code>disable_replication_factor_adjustment</code></a> (boolean). DEPRECATED: Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can no longer be activated.</li>
 <li><a href="#spec.userConfig.index_patterns-property" name="spec.userConfig.index_patterns-property"><code>index_patterns</code></a> (array of objects, MaxItems: 512). Index patterns. See below for <a href="#spec.userConfig.index_patterns">nested schema</a>.</li>
@@ -2122,7 +2149,7 @@
 <li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.project_to_fork_from-property" name="spec.userConfig.project_to_fork_from-property"><code>project_to_fork_from</code></a> (string, Immutable, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.</li>
 <li><a href="#spec.userConfig.public_access-property" name="spec.userConfig.public_access-property"><code>public_access</code></a> (object). Allow access to selected service ports from the public Internet. See below for <a href="#spec.userConfig.public_access">nested schema</a>.</li>
-<li><a href="#spec.userConfig.recovery_basebackup_name-property" name="spec.userConfig.recovery_basebackup_name-property"><code>recovery_basebackup_name</code></a> (string, Pattern: <code>^[a-zA-Z0-9-_:.]+$</code>, MaxLength: 128). Name of the basebackup to restore in forked service.</li>
+<li><a href="#spec.userConfig.recovery_basebackup_name-property" name="spec.userConfig.recovery*basebackup_name-property"><code>recovery_basebackup_name</code></a> (string, Pattern: <code>^[a-zA-Z0-9-*:.]+$</code>, MaxLength: 128). Name of the basebackup to restore in forked service.</li>
 <li><a href="#spec.userConfig.saml-property" name="spec.userConfig.saml-property"><code>saml</code></a> (object). OpenSearch SAML configuration. See below for <a href="#spec.userConfig.saml">nested schema</a>.</li>
 <li><a href="#spec.userConfig.service_log-property" name="spec.userConfig.service_log-property"><code>service_log</code></a> (boolean). Store logs for the service so that they are available in the HTTP API and console.</li>
 <li><a href="#spec.userConfig.service_to_fork_from-property" name="spec.userConfig.service_to_fork_from-property"><code>service_to_fork_from</code></a> (string, Immutable, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.</li>
@@ -2134,7 +2161,7 @@
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.index_patterns.max_index_count-property" name="spec.userConfig.index_patterns.max_index_count-property"><code>max_index_count</code></a> (integer, Minimum: 0). Maximum number of indexes to keep.</li>
-<li><a href="#spec.userConfig.index_patterns.pattern-property" name="spec.userConfig.index_patterns.pattern-property"><code>pattern</code></a> (string, Pattern: <code>^[A-Za-z0-9-_.*?]+$</code>, MaxLength: 1024). fnmatch pattern.</li>
+<li><a href="#spec.userConfig.index_patterns.pattern-property" name="spec.userConfig.index*patterns.pattern-property"><code>pattern</code></a> (string, Pattern: <code>^[A-Za-z0-9-*.\*?]+$</code>, MaxLength: 1024). fnmatch pattern.</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
@@ -2168,10 +2195,10 @@
 <li><a href="#spec.userConfig.openid.client_id-property" name="spec.userConfig.openid.client_id-property"><code>client_id</code></a> (string, MinLength: 1, MaxLength: 1024). The ID of the OpenID Connect client configured in your IdP. Required.</li>
 <li><a href="#spec.userConfig.openid.client_secret-property" name="spec.userConfig.openid.client_secret-property"><code>client_secret</code></a> (string, MinLength: 1, MaxLength: 1024). The client secret of the OpenID Connect client configured in your IdP. Required.</li>
 <li><a href="#spec.userConfig.openid.connect_url-property" name="spec.userConfig.openid.connect_url-property"><code>connect_url</code></a> (string, MaxLength: 2048). The URL of your IdP where the Security plugin can find the OpenID Connect metadata/configuration settings.</li>
+<li><a href="#spec.userConfig.openid.enabled-property" name="spec.userConfig.openid.enabled-property"><code>enabled</code></a> (boolean). Enables or disables OpenID Connect authentication for OpenSearch. When enabled, users can authenticate using OpenID Connect with an Identity Provider.</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.userConfig.openid.enabled-property" name="spec.userConfig.openid.enabled-property"><code>enabled</code></a> (boolean). Enables or disables OpenID Connect authentication for OpenSearch. When enabled, users can authenticate using OpenID Connect with an Identity Provider.</li>
 <li><a href="#spec.userConfig.openid.header-property" name="spec.userConfig.openid.header-property"><code>header</code></a> (string, MinLength: 1, MaxLength: 1024). HTTP header name of the JWT token. Optional. Default is Authorization.</li>
 <li><a href="#spec.userConfig.openid.jwt_header-property" name="spec.userConfig.openid.jwt_header-property"><code>jwt_header</code></a> (string, MinLength: 1, MaxLength: 1024). The HTTP header that stores the token. Typically the Authorization header with the Bearer schema: Authorization: Bearer <token>. Optional. Default is Authorization.</li>
 <li><a href="#spec.userConfig.openid.jwt_url_parameter-property" name="spec.userConfig.openid.jwt_url_parameter-property"><code>jwt_url_parameter</code></a> (string, MinLength: 1, MaxLength: 1024). If the token is not transmitted in the HTTP header, but as an URL parameter, define the name of the parameter here. Optional.</li>
@@ -2191,9 +2218,10 @@
 <li><a href="#spec.userConfig.opensearch.auth_failure_listeners-property" name="spec.userConfig.opensearch.auth_failure_listeners-property"><code>auth_failure_listeners</code></a> (object). Opensearch Security Plugin Settings. See below for <a href="#spec.userConfig.opensearch.auth_failure_listeners">nested schema</a>.</li>
 <li><a href="#spec.userConfig.opensearch.cluster_max_shards_per_node-property" name="spec.userConfig.opensearch.cluster_max_shards_per_node-property"><code>cluster_max_shards_per_node</code></a> (integer, Minimum: 100, Maximum: 10000). Controls the number of shards allowed in the cluster per data node.</li>
 <li><a href="#spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property" name="spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property"><code>cluster_routing_allocation_node_concurrent_recoveries</code></a> (integer, Minimum: 2, Maximum: 16). How many concurrent incoming/outgoing shard recoveries (normally replicas) are allowed to happen on a node. Defaults to 2.</li>
-<li><a href="#spec.userConfig.opensearch.email_sender_name-property" name="spec.userConfig.opensearch.email_sender_name-property"><code>email_sender_name</code></a> (string, Pattern: <code>^[a-zA-Z0-9-_]+$</code>, MaxLength: 40). Sender name placeholder to be used in Opensearch Dashboards and Opensearch keystore.</li>
+<li><a href="#spec.userConfig.opensearch.email_sender_name-property" name="spec.userConfig.opensearch.email*sender_name-property"><code>email_sender_name</code></a> (string, Pattern: <code>^[a-zA-Z0-9-*]+$</code>, MaxLength: 40). Sender name placeholder to be used in Opensearch Dashboards and Opensearch keystore.</li>
 <li><a href="#spec.userConfig.opensearch.email_sender_password-property" name="spec.userConfig.opensearch.email_sender_password-property"><code>email_sender_password</code></a> (string, Pattern: <code>^[^\x00-\x1F]+$</code>, MaxLength: 1024). Sender password for Opensearch alerts to authenticate with SMTP server.</li>
 <li><a href="#spec.userConfig.opensearch.email_sender_username-property" name="spec.userConfig.opensearch.email_sender_username-property"><code>email_sender_username</code></a> (string, Pattern: <code>^[^\x00-\x1F]+$</code>, MaxLength: 320). Sender username for Opensearch alerts.</li>
+<li><a href="#spec.userConfig.opensearch.enable_security_audit-property" name="spec.userConfig.opensearch.enable_security_audit-property"><code>enable_security_audit</code></a> (boolean). Enable/Disable security audit.</li>
 <li><a href="#spec.userConfig.opensearch.http_max_content_length-property" name="spec.userConfig.opensearch.http_max_content_length-property"><code>http_max_content_length</code></a> (integer, Minimum: 1, Maximum: 2147483647). Maximum content length for HTTP requests to the OpenSearch HTTP API, in bytes.</li>
 <li><a href="#spec.userConfig.opensearch.http_max_header_size-property" name="spec.userConfig.opensearch.http_max_header_size-property"><code>http_max_header_size</code></a> (integer, Minimum: 1024, Maximum: 262144). The max size of allowed headers, in bytes.</li>
 <li><a href="#spec.userConfig.opensearch.http_max_initial_line_length-property" name="spec.userConfig.opensearch.http_max_initial_line_length-property"><code>http_max_initial_line_length</code></a> (integer, Minimum: 1024, Maximum: 65536). The max length of an HTTP URL, in bytes.</li>
@@ -2232,7 +2260,7 @@
 <p>Opensearch Security Plugin Settings.</p>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting-property" name="spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting-property"><code>internal_authentication_backend_limiting</code></a> (object).  See below for <a href="#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting">nested schema</a>.</li>
+<li><a href="#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting-property" name="spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting-property"><code>internal_authentication_backend_limiting</code></a> (object). See below for <a href="#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting">nested schema</a>.</li>
 <li><a href="#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting-property" name="spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting-property"><code>ip_rate_limiting</code></a> (object). IP address rate limiting settings. See below for <a href="#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting">nested schema</a>.</li>
 </ul>
 <h5 id="spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting">internal_authentication_backend_limiting<a class="headerlink" href="#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting" title="Permanent link">&para;</a></h5>
@@ -2410,10 +2438,10 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      <script src="../assets/javascripts/bundle.e1c3ead8.min.js"></script>
       
     
   </body>

@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.2">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
     
     
       
@@ -1291,6 +1291,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#spec.technicalEmails" class="md-nav__link">
+    <span class="md-ellipsis">
+      technicalEmails
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#spec.userConfig" class="md-nav__link">
     <span class="md-ellipsis">
       userConfig
@@ -1811,6 +1820,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#spec.technicalEmails" class="md-nav__link">
+    <span class="md-ellipsis">
+      technicalEmails
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#spec.userConfig" class="md-nav__link">
     <span class="md-ellipsis">
       userConfig
@@ -2016,6 +2034,7 @@
 <li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
 <li><a href="#spec.cloudName-property" name="spec.cloudName-property"><code>cloudName</code></a> (string, MaxLength: 256). Cloud the service runs in.</li>
 <li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Information regarding secret creation. Exposed keys: <code>GRAFANA_HOST</code>, <code>GRAFANA_PORT</code>, <code>GRAFANA_USER</code>, <code>GRAFANA_PASSWORD</code>, <code>GRAFANA_URI</code>, <code>GRAFANA_HOSTS</code>. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
+<li><a href="#spec.connInfoSecretTargetDisabled-property" name="spec.connInfoSecretTargetDisabled-property"><code>connInfoSecretTargetDisabled</code></a> (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.</li>
 <li><a href="#spec.disk_space-property" name="spec.disk_space-property"><code>disk_space</code></a> (string, Format: <code>^[1-9][0-9]*(GiB|G)*</code>). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</li>
 <li><a href="#spec.maintenanceWindowDow-property" name="spec.maintenanceWindowDow-property"><code>maintenanceWindowDow</code></a> (string, Enum: <code>monday</code>, <code>tuesday</code>, <code>wednesday</code>, <code>thursday</code>, <code>friday</code>, <code>saturday</code>, <code>sunday</code>). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.</li>
 <li><a href="#spec.maintenanceWindowTime-property" name="spec.maintenanceWindowTime-property"><code>maintenanceWindowTime</code></a> (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.</li>
@@ -2023,6 +2042,7 @@
 <li><a href="#spec.projectVpcId-property" name="spec.projectVpcId-property"><code>projectVpcId</code></a> (string, MaxLength: 36). Identifier of the VPC the service should be in, if any.</li>
 <li><a href="#spec.serviceIntegrations-property" name="spec.serviceIntegrations-property"><code>serviceIntegrations</code></a> (array of objects, Immutable, MaxItems: 1). Service integrations to specify when creating a service. Not applied after initial service creation. See below for <a href="#spec.serviceIntegrations">nested schema</a>.</li>
 <li><a href="#spec.tags-property" name="spec.tags-property"><code>tags</code></a> (object, AdditionalProperties: string). Tags are key-value pairs that allow you to categorize services.</li>
+<li><a href="#spec.technicalEmails-property" name="spec.technicalEmails-property"><code>technicalEmails</code></a> (array of objects, MaxItems: 10). Defines the email addresses that will receive alerts about upcoming maintenance updates or warnings about service instability. See below for <a href="#spec.technicalEmails">nested schema</a>.</li>
 <li><a href="#spec.terminationProtection-property" name="spec.terminationProtection-property"><code>terminationProtection</code></a> (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services.</li>
 <li><a href="#spec.userConfig-property" name="spec.userConfig-property"><code>userConfig</code></a> (object). Cassandra specific user configuration options. See below for <a href="#spec.userConfig">nested schema</a>.</li>
 </ul>
@@ -2031,8 +2051,8 @@
 <p>Authentication reference to Aiven token in a secret.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.authSecretRef.key-property" name="spec.authSecretRef.key-property"><code>key</code></a> (string, MinLength: 1). </li>
-<li><a href="#spec.authSecretRef.name-property" name="spec.authSecretRef.name-property"><code>name</code></a> (string, MinLength: 1). </li>
+<li><a href="#spec.authSecretRef.key-property" name="spec.authSecretRef.key-property"><code>key</code></a> (string, MinLength: 1).</li>
+<li><a href="#spec.authSecretRef.name-property" name="spec.authSecretRef.name-property"><code>name</code></a> (string, MinLength: 1).</li>
 </ul>
 <h2 id="spec.connInfoSecretTarget">connInfoSecretTarget<a class="headerlink" href="#spec.connInfoSecretTarget" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -2052,26 +2072,33 @@
 <p>ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.projectVPCRef.name-property" name="spec.projectVPCRef.name-property"><code>name</code></a> (string, MinLength: 1). </li>
+<li><a href="#spec.projectVPCRef.name-property" name="spec.projectVPCRef.name-property"><code>name</code></a> (string, MinLength: 1).</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.projectVPCRef.namespace-property" name="spec.projectVPCRef.namespace-property"><code>namespace</code></a> (string, MinLength: 1). </li>
+<li><a href="#spec.projectVPCRef.namespace-property" name="spec.projectVPCRef.namespace-property"><code>namespace</code></a> (string, MinLength: 1).</li>
 </ul>
 <h2 id="spec.serviceIntegrations">serviceIntegrations<a class="headerlink" href="#spec.serviceIntegrations" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Service integrations to specify when creating a service. Not applied after initial service creation.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.serviceIntegrations.integrationType-property" name="spec.serviceIntegrations.integrationType-property"><code>integrationType</code></a> (string, Enum: <code>read_replica</code>). </li>
-<li><a href="#spec.serviceIntegrations.sourceServiceName-property" name="spec.serviceIntegrations.sourceServiceName-property"><code>sourceServiceName</code></a> (string, MinLength: 1, MaxLength: 64). </li>
+<li><a href="#spec.serviceIntegrations.integrationType-property" name="spec.serviceIntegrations.integrationType-property"><code>integrationType</code></a> (string, Enum: <code>read_replica</code>).</li>
+<li><a href="#spec.serviceIntegrations.sourceServiceName-property" name="spec.serviceIntegrations.sourceServiceName-property"><code>sourceServiceName</code></a> (string, MinLength: 1, MaxLength: 64).</li>
+</ul>
+<h2 id="spec.technicalEmails">technicalEmails<a class="headerlink" href="#spec.technicalEmails" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
+<p>Defines the email addresses that will receive alerts about upcoming maintenance updates or warnings about service instability.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.technicalEmails.email-property" name="spec.technicalEmails.email-property"><code>email</code></a> (string, Format: <code>^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$</code>). Email address.</li>
 </ul>
 <h2 id="spec.userConfig">userConfig<a class="headerlink" href="#spec.userConfig" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Cassandra specific user configuration options.</p>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.</li>
+<li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Deprecated. Additional Cloud Regions for Backup Replication.</li>
 <li><a href="#spec.userConfig.alerting_enabled-property" name="spec.userConfig.alerting_enabled-property"><code>alerting_enabled</code></a> (boolean). Enable or disable Grafana legacy alerting functionality. This should not be enabled with unified_alerting_enabled.</li>
 <li><a href="#spec.userConfig.alerting_error_or_timeout-property" name="spec.userConfig.alerting_error_or_timeout-property"><code>alerting_error_or_timeout</code></a> (string, Enum: <code>alerting</code>, <code>keep_state</code>). Default error or timeout setting for new alerting rules.</li>
 <li><a href="#spec.userConfig.alerting_max_annotations_to_keep-property" name="spec.userConfig.alerting_max_annotations_to_keep-property"><code>alerting_max_annotations_to_keep</code></a> (integer, Minimum: 0, Maximum: 1000000). Max number of alert annotations that Grafana stores. 0 (default) keeps all alert annotations.</li>
@@ -2102,7 +2129,7 @@
 <li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.project_to_fork_from-property" name="spec.userConfig.project_to_fork_from-property"><code>project_to_fork_from</code></a> (string, Immutable, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.</li>
 <li><a href="#spec.userConfig.public_access-property" name="spec.userConfig.public_access-property"><code>public_access</code></a> (object). Allow access to selected service ports from the public Internet. See below for <a href="#spec.userConfig.public_access">nested schema</a>.</li>
-<li><a href="#spec.userConfig.recovery_basebackup_name-property" name="spec.userConfig.recovery_basebackup_name-property"><code>recovery_basebackup_name</code></a> (string, Pattern: <code>^[a-zA-Z0-9-_:.]+$</code>, MaxLength: 128). Name of the basebackup to restore in forked service.</li>
+<li><a href="#spec.userConfig.recovery_basebackup_name-property" name="spec.userConfig.recovery*basebackup_name-property"><code>recovery_basebackup_name</code></a> (string, Pattern: <code>^[a-zA-Z0-9-*:.]+$</code>, MaxLength: 128). Name of the basebackup to restore in forked service.</li>
 <li><a href="#spec.userConfig.service_log-property" name="spec.userConfig.service_log-property"><code>service_log</code></a> (boolean). Store logs for the service so that they are available in the HTTP API and console.</li>
 <li><a href="#spec.userConfig.service_to_fork_from-property" name="spec.userConfig.service_to_fork_from-property"><code>service_to_fork_from</code></a> (string, Immutable, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.</li>
 <li><a href="#spec.userConfig.smtp_server-property" name="spec.userConfig.smtp_server-property"><code>smtp_server</code></a> (object). SMTP server settings. See below for <a href="#spec.userConfig.smtp_server">nested schema</a>.</li>
@@ -2145,7 +2172,7 @@
 <li><a href="#spec.userConfig.auth_generic_oauth.allowed_domains-property" name="spec.userConfig.auth_generic_oauth.allowed_domains-property"><code>allowed_domains</code></a> (array of strings, MaxItems: 50). Allowed domains.</li>
 <li><a href="#spec.userConfig.auth_generic_oauth.allowed_organizations-property" name="spec.userConfig.auth_generic_oauth.allowed_organizations-property"><code>allowed_organizations</code></a> (array of strings, MaxItems: 50). Require user to be member of one of the listed organizations.</li>
 <li><a href="#spec.userConfig.auth_generic_oauth.auto_login-property" name="spec.userConfig.auth_generic_oauth.auto_login-property"><code>auto_login</code></a> (boolean). Allow users to bypass the login screen and automatically log in.</li>
-<li><a href="#spec.userConfig.auth_generic_oauth.name-property" name="spec.userConfig.auth_generic_oauth.name-property"><code>name</code></a> (string, Pattern: <code>^[a-zA-Z0-9_\- ]+$</code>, MaxLength: 128). Name of the OAuth integration.</li>
+<li><a href="#spec.userConfig.auth_generic_oauth.name-property" name="spec.userConfig.auth*generic_oauth.name-property"><code>name</code></a> (string, Pattern: <code>^[a-zA-Z0-9*\- ]+$</code>, MaxLength: 128). Name of the OAuth integration.</li>
 <li><a href="#spec.userConfig.auth_generic_oauth.scopes-property" name="spec.userConfig.auth_generic_oauth.scopes-property"><code>scopes</code></a> (array of strings, MaxItems: 50). OAuth scopes.</li>
 </ul>
 <h3 id="spec.userConfig.auth_github">auth_github<a class="headerlink" href="#spec.userConfig.auth_github" title="Permanent link">&para;</a></h3>
@@ -2160,6 +2187,8 @@
 <ul>
 <li><a href="#spec.userConfig.auth_github.allow_sign_up-property" name="spec.userConfig.auth_github.allow_sign_up-property"><code>allow_sign_up</code></a> (boolean). Automatically sign-up users on successful sign-in.</li>
 <li><a href="#spec.userConfig.auth_github.allowed_organizations-property" name="spec.userConfig.auth_github.allowed_organizations-property"><code>allowed_organizations</code></a> (array of strings, MaxItems: 50). Require users to belong to one of given organizations.</li>
+<li><a href="#spec.userConfig.auth_github.auto_login-property" name="spec.userConfig.auth_github.auto_login-property"><code>auto_login</code></a> (boolean). Allow users to bypass the login screen and automatically log in.</li>
+<li><a href="#spec.userConfig.auth_github.skip_org_role_sync-property" name="spec.userConfig.auth_github.skip_org_role_sync-property"><code>skip_org_role_sync</code></a> (boolean). Stop automatically syncing user roles.</li>
 <li><a href="#spec.userConfig.auth_github.team_ids-property" name="spec.userConfig.auth_github.team_ids-property"><code>team_ids</code></a> (array of integers, MaxItems: 50). Require users to belong to one of given team IDs.</li>
 </ul>
 <h3 id="spec.userConfig.auth_gitlab">auth_gitlab<a class="headerlink" href="#spec.userConfig.auth_gitlab" title="Permanent link">&para;</a></h3>
@@ -2363,10 +2392,10 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      <script src="../assets/javascripts/bundle.e1c3ead8.min.js"></script>
       
     
   </body>

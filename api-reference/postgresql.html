@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.2">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
     
     
       
@@ -1480,6 +1480,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#spec.technicalEmails" class="md-nav__link">
+    <span class="md-ellipsis">
+      technicalEmails
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#spec.userConfig" class="md-nav__link">
     <span class="md-ellipsis">
       userConfig
@@ -1793,6 +1802,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#spec.technicalEmails" class="md-nav__link">
+    <span class="md-ellipsis">
+      technicalEmails
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#spec.userConfig" class="md-nav__link">
     <span class="md-ellipsis">
       userConfig
@@ -1975,6 +1993,7 @@
 <li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
 <li><a href="#spec.cloudName-property" name="spec.cloudName-property"><code>cloudName</code></a> (string, MaxLength: 256). Cloud the service runs in.</li>
 <li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Information regarding secret creation. Exposed keys: <code>POSTGRESQL_HOST</code>, <code>POSTGRESQL_PORT</code>, <code>POSTGRESQL_DATABASE</code>, <code>POSTGRESQL_USER</code>, <code>POSTGRESQL_PASSWORD</code>, <code>POSTGRESQL_SSLMODE</code>, <code>POSTGRESQL_DATABASE_URI</code>. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
+<li><a href="#spec.connInfoSecretTargetDisabled-property" name="spec.connInfoSecretTargetDisabled-property"><code>connInfoSecretTargetDisabled</code></a> (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.</li>
 <li><a href="#spec.disk_space-property" name="spec.disk_space-property"><code>disk_space</code></a> (string, Format: <code>^[1-9][0-9]*(GiB|G)*</code>). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</li>
 <li><a href="#spec.maintenanceWindowDow-property" name="spec.maintenanceWindowDow-property"><code>maintenanceWindowDow</code></a> (string, Enum: <code>monday</code>, <code>tuesday</code>, <code>wednesday</code>, <code>thursday</code>, <code>friday</code>, <code>saturday</code>, <code>sunday</code>). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.</li>
 <li><a href="#spec.maintenanceWindowTime-property" name="spec.maintenanceWindowTime-property"><code>maintenanceWindowTime</code></a> (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.</li>
@@ -1982,6 +2001,7 @@
 <li><a href="#spec.projectVpcId-property" name="spec.projectVpcId-property"><code>projectVpcId</code></a> (string, MaxLength: 36). Identifier of the VPC the service should be in, if any.</li>
 <li><a href="#spec.serviceIntegrations-property" name="spec.serviceIntegrations-property"><code>serviceIntegrations</code></a> (array of objects, Immutable, MaxItems: 1). Service integrations to specify when creating a service. Not applied after initial service creation. See below for <a href="#spec.serviceIntegrations">nested schema</a>.</li>
 <li><a href="#spec.tags-property" name="spec.tags-property"><code>tags</code></a> (object, AdditionalProperties: string). Tags are key-value pairs that allow you to categorize services.</li>
+<li><a href="#spec.technicalEmails-property" name="spec.technicalEmails-property"><code>technicalEmails</code></a> (array of objects, MaxItems: 10). Defines the email addresses that will receive alerts about upcoming maintenance updates or warnings about service instability. See below for <a href="#spec.technicalEmails">nested schema</a>.</li>
 <li><a href="#spec.terminationProtection-property" name="spec.terminationProtection-property"><code>terminationProtection</code></a> (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services.</li>
 <li><a href="#spec.userConfig-property" name="spec.userConfig-property"><code>userConfig</code></a> (object). PostgreSQL specific user configuration options. See below for <a href="#spec.userConfig">nested schema</a>.</li>
 </ul>
@@ -1990,8 +2010,8 @@
 <p>Authentication reference to Aiven token in a secret.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.authSecretRef.key-property" name="spec.authSecretRef.key-property"><code>key</code></a> (string, MinLength: 1). </li>
-<li><a href="#spec.authSecretRef.name-property" name="spec.authSecretRef.name-property"><code>name</code></a> (string, MinLength: 1). </li>
+<li><a href="#spec.authSecretRef.key-property" name="spec.authSecretRef.key-property"><code>key</code></a> (string, MinLength: 1).</li>
+<li><a href="#spec.authSecretRef.name-property" name="spec.authSecretRef.name-property"><code>name</code></a> (string, MinLength: 1).</li>
 </ul>
 <h2 id="spec.connInfoSecretTarget">connInfoSecretTarget<a class="headerlink" href="#spec.connInfoSecretTarget" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -2011,19 +2031,26 @@
 <p>ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.projectVPCRef.name-property" name="spec.projectVPCRef.name-property"><code>name</code></a> (string, MinLength: 1). </li>
+<li><a href="#spec.projectVPCRef.name-property" name="spec.projectVPCRef.name-property"><code>name</code></a> (string, MinLength: 1).</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.projectVPCRef.namespace-property" name="spec.projectVPCRef.namespace-property"><code>namespace</code></a> (string, MinLength: 1). </li>
+<li><a href="#spec.projectVPCRef.namespace-property" name="spec.projectVPCRef.namespace-property"><code>namespace</code></a> (string, MinLength: 1).</li>
 </ul>
 <h2 id="spec.serviceIntegrations">serviceIntegrations<a class="headerlink" href="#spec.serviceIntegrations" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Service integrations to specify when creating a service. Not applied after initial service creation.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.serviceIntegrations.integrationType-property" name="spec.serviceIntegrations.integrationType-property"><code>integrationType</code></a> (string, Enum: <code>read_replica</code>). </li>
-<li><a href="#spec.serviceIntegrations.sourceServiceName-property" name="spec.serviceIntegrations.sourceServiceName-property"><code>sourceServiceName</code></a> (string, MinLength: 1, MaxLength: 64). </li>
+<li><a href="#spec.serviceIntegrations.integrationType-property" name="spec.serviceIntegrations.integrationType-property"><code>integrationType</code></a> (string, Enum: <code>read_replica</code>).</li>
+<li><a href="#spec.serviceIntegrations.sourceServiceName-property" name="spec.serviceIntegrations.sourceServiceName-property"><code>sourceServiceName</code></a> (string, MinLength: 1, MaxLength: 64).</li>
+</ul>
+<h2 id="spec.technicalEmails">technicalEmails<a class="headerlink" href="#spec.technicalEmails" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
+<p>Defines the email addresses that will receive alerts about upcoming maintenance updates or warnings about service instability.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.technicalEmails.email-property" name="spec.technicalEmails.email-property"><code>email</code></a> (string, Format: <code>^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$</code>). Email address.</li>
 </ul>
 <h2 id="spec.userConfig">userConfig<a class="headerlink" href="#spec.userConfig" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -2031,7 +2058,7 @@
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.</li>
-<li><a href="#spec.userConfig.admin_password-property" name="spec.userConfig.admin_password-property"><code>admin_password</code></a> (string, Immutable, Pattern: <code>^[a-zA-Z0-9-_]+$</code>, MinLength: 8, MaxLength: 256). Custom password for admin user. Defaults to random string. This must be set only when a new service is being created.</li>
+<li><a href="#spec.userConfig.admin_password-property" name="spec.userConfig.admin*password-property"><code>admin_password</code></a> (string, Immutable, Pattern: <code>^[a-zA-Z0-9-*]+$</code>, MinLength: 8, MaxLength: 256). Custom password for admin user. Defaults to random string. This must be set only when a new service is being created.</li>
 <li><a href="#spec.userConfig.admin_username-property" name="spec.userConfig.admin_username-property"><code>admin_username</code></a> (string, Immutable, Pattern: <code>^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$</code>, MaxLength: 64). Custom username for admin user. This must be set only when a new service is being created.</li>
 <li><a href="#spec.userConfig.backup_hour-property" name="spec.userConfig.backup_hour-property"><code>backup_hour</code></a> (integer, Minimum: 0, Maximum: 23). The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.</li>
 <li><a href="#spec.userConfig.backup_minute-property" name="spec.userConfig.backup_minute-property"><code>backup_minute</code></a> (integer, Minimum: 0, Maximum: 59). The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.</li>
@@ -2043,7 +2070,7 @@
 <li><a href="#spec.userConfig.pg_read_replica-property" name="spec.userConfig.pg_read_replica-property"><code>pg_read_replica</code></a> (boolean). Should the service which is being forked be a read replica (deprecated, use read_replica service integration instead).</li>
 <li><a href="#spec.userConfig.pg_service_to_fork_from-property" name="spec.userConfig.pg_service_to_fork_from-property"><code>pg_service_to_fork_from</code></a> (string, Immutable, MaxLength: 64). Name of the PG Service from which to fork (deprecated, use service_to_fork_from). This has effect only when a new service is being created.</li>
 <li><a href="#spec.userConfig.pg_stat_monitor_enable-property" name="spec.userConfig.pg_stat_monitor_enable-property"><code>pg_stat_monitor_enable</code></a> (boolean). Enable the pg_stat_monitor extension. Enabling this extension will cause the cluster to be restarted.When this extension is enabled, pg_stat_statements results for utility commands are unreliable.</li>
-<li><a href="#spec.userConfig.pg_version-property" name="spec.userConfig.pg_version-property"><code>pg_version</code></a> (string, Enum: <code>11</code>, <code>12</code>, <code>13</code>, <code>14</code>, <code>15</code>). PostgreSQL major version.</li>
+<li><a href="#spec.userConfig.pg_version-property" name="spec.userConfig.pg_version-property"><code>pg_version</code></a> (string, Enum: <code>12</code>, <code>13</code>, <code>14</code>, <code>15</code>, <code>16</code>). PostgreSQL major version.</li>
 <li><a href="#spec.userConfig.pgbouncer-property" name="spec.userConfig.pgbouncer-property"><code>pgbouncer</code></a> (object). PGBouncer connection pooling settings. See below for <a href="#spec.userConfig.pgbouncer">nested schema</a>.</li>
 <li><a href="#spec.userConfig.pglookout-property" name="spec.userConfig.pglookout-property"><code>pglookout</code></a> (object). System-wide settings for pglookout. See below for <a href="#spec.userConfig.pglookout">nested schema</a>.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
@@ -2094,7 +2121,7 @@
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.userConfig.pg.autovacuum_analyze_scale_factor-property" name="spec.userConfig.pg.autovacuum_analyze_scale_factor-property"><code>autovacuum_analyze_scale_factor</code></a> (number, Minimum: 0, Maximum: 1). Specifies a fraction of the table size to add to autovacuum_analyze_threshold when deciding whether to trigger an ANALYZE. The default is 0.2 (20% of table size).</li>
-<li><a href="#spec.userConfig.pg.autovacuum_analyze_threshold-property" name="spec.userConfig.pg.autovacuum_analyze_threshold-property"><code>autovacuum_analyze_threshold</code></a> (integer, Minimum: 0, Maximum: 2147483647). Specifies the minimum number of inserted, updated or deleted tuples needed to trigger an  ANALYZE in any one table. The default is 50 tuples.</li>
+<li><a href="#spec.userConfig.pg.autovacuum_analyze_threshold-property" name="spec.userConfig.pg.autovacuum_analyze_threshold-property"><code>autovacuum_analyze_threshold</code></a> (integer, Minimum: 0, Maximum: 2147483647). Specifies the minimum number of inserted, updated or deleted tuples needed to trigger an ANALYZE in any one table. The default is 50 tuples.</li>
 <li><a href="#spec.userConfig.pg.autovacuum_freeze_max_age-property" name="spec.userConfig.pg.autovacuum_freeze_max_age-property"><code>autovacuum_freeze_max_age</code></a> (integer, Minimum: 200000000, Maximum: 1500000000). Specifies the maximum age (in transactions) that a table's pg_class.relfrozenxid field can attain before a VACUUM operation is forced to prevent transaction ID wraparound within the table. Note that the system will launch autovacuum processes to prevent wraparound even when autovacuum is otherwise disabled. This parameter will cause the server to be restarted.</li>
 <li><a href="#spec.userConfig.pg.autovacuum_max_workers-property" name="spec.userConfig.pg.autovacuum_max_workers-property"><code>autovacuum_max_workers</code></a> (integer, Minimum: 1, Maximum: 20). Specifies the maximum number of autovacuum processes (other than the autovacuum launcher) that may be running at any one time. The default is three. This parameter can only be set at server start.</li>
 <li><a href="#spec.userConfig.pg.autovacuum_naptime-property" name="spec.userConfig.pg.autovacuum_naptime-property"><code>autovacuum_naptime</code></a> (integer, Minimum: 1, Maximum: 86400). Specifies the minimum delay between autovacuum runs on any given database. The delay is measured in seconds, and the default is one minute.</li>
@@ -2309,10 +2336,10 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      <script src="../assets/javascripts/bundle.e1c3ead8.min.js"></script>
       
     
   </body>
