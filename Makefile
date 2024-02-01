@@ -47,8 +47,14 @@ ifeq ($(USE_IMAGE_DIGESTS), true)
 endif
 
 # Image URL to use all building/pushing image targets
-IMG ?= aivenoy/aiven-operator:${IMG_TAG}
 IMG_TAG ?= $(shell git rev-parse HEAD)
+IMG ?= aivenoy/aiven-operator:${IMG_TAG}
+ifeq ($(shell command -v podman 2> /dev/null),)
+    CONTAINER_TOOL=docker
+else
+    CONTAINER_TOOL=podman
+endif
+
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = "1.26.*"
 KUBEBUILDER_ASSETS_CMD = '$(ENVTEST) use "$(ENVTEST_K8S_VERSION)" --bin-dir $(LOCALBIN) -p path'
@@ -142,11 +148,11 @@ run: generate install fmt vet ## Run a controller from your host.
 
 .PHONY: docker-build
 docker-build: test ## Build docker image with the manager.
-	docker build -t ${IMG} .
+	$(CONTAINER_TOOL) build -t ${IMG} .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
-	docker push ${IMG}
+	$(CONTAINER_TOOL) push ${IMG}
 
 ##@ Deployment
 
@@ -179,7 +185,7 @@ docs: ## Generate CRDS api-reference
 
 .PHONY: serve-docs
 serve-docs: ## Run live preview.
-	docker run --rm -it -p 8000:8000 -v ${PWD}/docs:/docs squidfunk/mkdocs-material
+	$(CONTAINER_TOOL) run --rm -it -p 8000:8000 -v ${PWD}/docs:/docs squidfunk/mkdocs-material
 
 ##@ Build Dependencies
 
@@ -234,7 +240,7 @@ bundle: manifests kustomize ## Generate bundle manifests and metadata, then vali
 
 .PHONY: bundle-build
 bundle-build: ## Build the bundle image.
-	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
+	$(CONTAINER_TOOL) build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
 
 .PHONY: bundle-push
 bundle-push: ## Push the bundle image.
@@ -274,7 +280,7 @@ endif
 # https://github.com/operator-framework/community-operators/blob/7f1438c/docs/packaging-operator.md#updating-your-existing-operator
 .PHONY: catalog-build
 catalog-build: opm ## Build a catalog image.
-	$(OPM) index add --container-tool docker --mode semver --tag $(CATALOG_IMG) --bundles $(BUNDLE_IMGS) $(FROM_INDEX_OPT)
+	$(OPM) index add --container-tool $(CONTAINER_TOOL) --mode semver --tag $(CATALOG_IMG) --bundles $(BUNDLE_IMGS) $(FROM_INDEX_OPT)
 
 # Push the catalog image.
 .PHONY: catalog-push
@@ -292,11 +298,9 @@ WEBHOOKS_ENABLED ?= true
 CERT_MANAGER_TAG ?= v1.11.0
 OPERATOR_IMAGE_TAG ?= $(shell git rev-parse HEAD)
 
-PODMAN = podman
 # Podman requires specific image name
 OPERATOR_IMAGE_NAME ?= localhost/operator
-ifeq (, $(shell which podman))
-	PODMAN = docker
+ifeq ($(CONTAINER_TOOL), podman)
 	OPERATOR_IMAGE_NAME = operator
 endif
 
