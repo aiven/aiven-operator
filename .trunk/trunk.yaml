@@ -1,13 +1,13 @@
 version: 0.1
 
 cli:
-  version: 1.18.1
+  version: 1.19.0
 
 plugins:
   sources:
     - id: trunk
       uri: https://github.com/trunk-io/plugins
-      ref: v1.4.1
+      ref: v1.4.2
 
 lint:
   enabled:
@@ -18,8 +18,8 @@ lint:
     - gitleaks@8.18.1
     - gofmt@1.20.4
     - golangci-lint@1.55.2
-    - markdownlint@0.38.0
-    - prettier@3.1.1
+    - markdownlint@0.39.0
+    - prettier@3.2.4
     - yamllint@1.33.0
   ignore:
     - linters:
