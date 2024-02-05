@@ -183,18 +183,28 @@ golangci-lint: $(GOLANGCI_LINT) ## Download golangci-lint locally if necessary.
 $(GOLANGCI_LINT): $(LOCALBIN)
 	$(call go-install-tool,$(GOLANGCI_LINT),github.com/golangci/golangci-lint/cmd/golangci-lint,${GOLANGCI_LINT_VERSION})
 
-.PHONY: e2e-setup-kind
 WEBHOOKS_ENABLED ?= true
 CERT_MANAGER_TAG ?= v1.11.0
 OPERATOR_IMAGE_TAG ?= $(shell git rev-parse HEAD)
 
 # Podman requires specific image name
 OPERATOR_IMAGE_NAME ?= localhost/operator
-ifeq ($(CONTAINER_TOOL), podman)
+ifneq ($(CONTAINER_TOOL), podman)
 	OPERATOR_IMAGE_NAME = operator
 endif
 
-SETUP_PREREQUISITES = jq base64 kcat helm kind $(PODMAN) avn
+# Clean previous installations and delete resources
+CLEANUP_TARGETS := aiven-operator-crds aiven-operator aiven-token cert-manager
+CLEANUP_NAMESPACES := cert-manager
+CLEANUP_SECRETS := aiven-token
+.PHONY: cleanup
+cleanup:
+	$(foreach target,$(CLEANUP_TARGETS),helm uninstall $(target) || true;)
+	$(foreach namespace,$(CLEANUP_NAMESPACES),kubectl delete namespace $(namespace) || true;)
+	$(foreach secret,$(CLEANUP_SECRETS),kubectl delete secret $(secret) || true;)
+
+SETUP_PREREQUISITES = jq base64 kcat helm kind $(CONTAINER_TOOL) avn
+.PHONY: e2e-setup-kind
 e2e-setup-kind:
 	# Validates prerequisites
 	$(foreach bin,$(SETUP_PREREQUISITES),\
@@ -202,14 +212,11 @@ e2e-setup-kind:
 	@[ "${AIVEN_TOKEN}" ] || ( echo ">> variable AIVEN_TOKEN is not set"; exit 1 )
 	@[ "${AIVEN_PROJECT_NAME}" ] || ( echo ">> variable AIVEN_PROJECT_NAME is not set"; exit 1 )
 
-	# Cleans previous installation. Ignores errors
-	helm uninstall aiven-operator-crds || true
-	helm uninstall aiven-operator || true
-	kubectl delete secret aiven-token || true
+# Check that kind cluster is running. Keep the --image argument in sync with developer-docs.md
+	@kubectl config view -o jsonpath='{.contexts[*].name}' | grep -q kind-kind || \
+	 (echo ">> Kind cluster not found. Please create it using 'kind create cluster --image kindest/node:v1.26.6 --wait 5m'"; exit 1)
 
-	# Cleanups cert-manager
-	helm uninstall cert-manager || true
-	kubectl delete namespace cert-manager || true
+	$(MAKE) cleanup
 
 	# Installs cert manager if webhooks enabled
 	# We use helm here instead of "kubectl apply", because it waits pods up and running
@@ -226,8 +233,13 @@ ifeq ($(WEBHOOKS_ENABLED), true)
 endif
 
 	# Builds the operator
-	$(PODMAN) build -t ${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG} .
+	$(CONTAINER_TOOL) build -t ${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG} .
+ifeq ($(CONTAINER_TOOL), podman)
+	podman image save --format oci-archive ${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG} -o /tmp/operator-image.tar
+	kind load image-archive /tmp/operator-image.tar
+else
 	kind load docker-image $(OPERATOR_IMAGE_NAME):$(OPERATOR_IMAGE_TAG)
+endif
 
 	# Installs operators charts
 	kubectl create secret generic aiven-token --from-literal=token=$(AIVEN_TOKEN)
@@ -255,11 +267,11 @@ imports:
 # $2 - package url which can be installed
 # $3 - specific version of package
 define go-install-tool
-@[ -f $(1) ] || { \
-set -e; \
-package=$(2)@$(3) ;\
-echo "Downloading $${package}" ;\
-GOBIN=$(LOCALBIN) go install $${package} ;\
-mv "$$(echo "$(1)" | sed "s/-$(3)$$//")" $(1) ;\
-}
+	@[ -f $(1) ] || { \
+		set -e; \
+		package=$(2)@$(3) ;\
+		echo "Downloading $${package}" ;\
+		GOBIN=$(LOCALBIN) go install $${package} ;\
+		mv "$$(echo "$(1)" | sed "s/-$(3)$$//")" $(1) ;\
+	}
 endef
