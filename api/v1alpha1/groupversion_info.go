@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Aiven, Helsinki, Finland. https://aiven.io/
+// Copyright (c) 2024 Aiven, Helsinki, Finland. https://aiven.io/
 
 // Package v1alpha1 contains API Schema definitions for the  v1alpha1 API group
 //+kubebuilder:object:generate=true
