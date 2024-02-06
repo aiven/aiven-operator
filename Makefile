@@ -46,12 +46,12 @@ help: ## Display this help.
 ##@ Development
 
 .PHONY: charts
-charts: ## Updates helm charts, updates changelog in docs (removes placeholder header)
+charts: ## Updates helm charts, updates changelog in docs (removes placeholder header).
 	go run ./generators/charts/... --version=$(version) --operator-charts ./charts/aiven-operator --crd-charts ./charts/aiven-operator-crds
 	[ "$(version)" == "" ] || sed '/## \[/d' ./CHANGELOG.md > docs/docs/changelog.md
 
 .PHONY: userconfigs
-userconfigs:
+userconfigs: ## Run userconfigs generator.
 	go generate ./...
 
 .PHONY: manifests
@@ -63,10 +63,10 @@ boilerplate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, 
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
 .PHONY: generate
-generate: userconfigs boilerplate imports manifests docs charts fmt
+generate: userconfigs boilerplate imports manifests docs charts fmt ## Run all code generation targets.
 
 .PHONY: fmt
-fmt:
+fmt: ## Format code.
 	go fmt ./...
 	trunk fmt
 
@@ -74,8 +74,16 @@ fmt:
 vet: ## Run go vet against code.
 	go vet ./...
 
+# On MACOS requires gnu-sed. Run `brew info gnu-sed` and follow instructions to replace default sed.
+.PHONY: imports
+imports: ## Run goimports against code.
+	find . -type f -name '*.go' -exec sed -zi 's/"\n\+\t"/"\n"/g' {} +
+	goimports -local "github.com/aiven/aiven-operator" -w .
+
+##@ Checks
+
 .PHONY: check-avn-client
-check-avn-client:
+check-avn-client: ## Check if avn client is installed and user is authenticated.
 	@if ! command -v avn >/dev/null 2>&1; then \
 		(echo ">> avn command not found, please install https://github.com/aiven/aiven-client"; exit 1) \
 	fi
@@ -84,16 +92,18 @@ check-avn-client:
 	fi
 
 .PHONY: check-env-vars
-check-env-vars:
+check-env-vars: ## Check if required environment variables are set.
 		@[ "${AIVEN_TOKEN}" ] || (echo ">> variable AIVEN_TOKEN is not set"; exit 1)
 		@[ "${AIVEN_PROJECT_NAME}" ] || (echo ">> variable AIVEN_PROJECT_NAME is not set"; exit 1)
 
+##@ Tests
+
 .PHONY: test-e2e
-test-e2e: check-env-vars check-avn-client build ## Run end-to-end tests using kuttl (https://kuttl.dev/)
+test-e2e: check-env-vars check-avn-client build ## Run end-to-end tests using kuttl (https://kuttl.dev).
 	kubectl kuttl test --config test/e2e/kuttl-test.yaml
 
 .PHONY: test-e2e-preinstalled
-test-e2e-preinstalled: check-env-vars check-avn-client
+test-e2e-preinstalled: check-env-vars check-avn-client ## Run end-to-end tests using kuttl (https://kuttl.dev) with preinstalled operator ('make e2e-setup-kind' should be run before this target).
 	kubectl kuttl test --config test/e2e/kuttl-test.preinstalled.yaml
 
 test: envtest ## Run tests.
@@ -144,14 +154,14 @@ undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/confi
 ##@ Docs
 
 .PHONY: docs
-docs: ## Generate CRDS api-reference
+docs: ## Generate CRDs api-reference.
 	go run ./generators/docs/...
 
 .PHONY: serve-docs
 serve-docs: ## Run live preview.
 	$(CONTAINER_TOOL) run --rm -it -p 8000:8000 -v ${PWD}/docs:/docs squidfunk/mkdocs-material
 
-##@ Build Dependencies
+##@ Build dependencies
 
 ## Location to install dependencies to
 LOCALBIN ?= $(shell pwd)/bin
@@ -205,19 +215,21 @@ ifneq ($(CONTAINER_TOOL), podman)
 	OPERATOR_IMAGE_NAME = operator
 endif
 
+##@ Test setup and cleanup
+
 # Clean previous installations and delete resources
 CLEANUP_TARGETS := aiven-operator-crds aiven-operator aiven-token cert-manager
 CLEANUP_NAMESPACES := cert-manager
 CLEANUP_SECRETS := aiven-token
 .PHONY: cleanup
-cleanup:
+cleanup: ## Cleanup resources created by e2e-setup-kind.
 	$(foreach target,$(CLEANUP_TARGETS),helm uninstall $(target) || true;)
 	$(foreach namespace,$(CLEANUP_NAMESPACES),kubectl delete namespace $(namespace) || true;)
 	$(foreach secret,$(CLEANUP_SECRETS),kubectl delete secret $(secret) || true;)
 
 SETUP_PREREQUISITES = jq base64 kcat helm kind $(CONTAINER_TOOL) avn
 .PHONY: e2e-setup-kind
-e2e-setup-kind: check-env-vars
+e2e-setup-kind: check-env-vars ## Setup kind cluster and install operator.
 # Validates prerequisites
 	$(foreach bin,$(SETUP_PREREQUISITES),\
         $(if $(shell command -v $(bin) 2> /dev/null),,$(error Please install `$(bin)` first)))
@@ -228,9 +240,9 @@ e2e-setup-kind: check-env-vars
 
 	$(MAKE) cleanup
 
-	# Installs cert manager if webhooks enabled
-	# We use helm here instead of "kubectl apply", because it waits pods up and running
-	# Otherwise, operator will fail webhook check
+# Installs cert manager if webhooks enabled
+# We use helm here instead of "kubectl apply", because it waits pods up and running
+# Otherwise, operator will fail webhook check
 ifeq ($(WEBHOOKS_ENABLED), true)
 	helm repo add jetstack https://charts.jetstack.io
 	helm repo update
@@ -242,7 +254,7 @@ ifeq ($(WEBHOOKS_ENABLED), true)
       --set installCRDs=true
 endif
 
-	# Builds the operator
+# Builds the operator
 	$(CONTAINER_TOOL) build -t ${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG} .
 ifeq ($(CONTAINER_TOOL), podman)
 	podman image save --format oci-archive ${OPERATOR_IMAGE_NAME}:${OPERATOR_IMAGE_TAG} -o /tmp/operator-image.tar
@@ -251,7 +263,7 @@ else
 	kind load docker-image $(OPERATOR_IMAGE_NAME):$(OPERATOR_IMAGE_TAG)
 endif
 
-	# Installs operators charts
+# Installs operators charts
 	kubectl create secret generic aiven-token --from-literal=token=$(AIVEN_TOKEN)
 	helm install aiven-operator-crds charts/aiven-operator-crds
 	helm install \
@@ -265,12 +277,6 @@ endif
 		--set resources.requests.memory=0 \
 		--set webhooks.enabled=${WEBHOOKS_ENABLED} \
 		aiven-operator charts/aiven-operator
-
-# On MACOS requires gnu-sed. Run `brew info gnu-sed` and follow instructions to replace default sed.
-.PHONY: imports
-imports:
-	find . -type f -name '*.go' -exec sed -zi 's/"\n\+\t"/"\n"/g' {} +
-	goimports -local "github.com/aiven/aiven-operator" -w .
 
 # go-install-tool will 'go install' any package with custom target and name of binary, if it doesn't exist
 # $1 - target path with name of binary (ideally with version)
