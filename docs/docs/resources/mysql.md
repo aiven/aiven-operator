@@ -6,7 +6,7 @@ weight: 46
 
 Aiven for MySQL is a fully managed relational database service, deployable in the cloud of your choice.
 
-> Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/) and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
+> Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites.md) with the operator installed (see instructions for [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md)) and a [Kubernetes Secret with an Aiven authentication token](../authentication.md).
 
 ## Creating a MySQL instance
 

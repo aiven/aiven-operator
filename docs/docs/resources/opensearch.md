@@ -7,8 +7,8 @@ weight: 45
 OpenSearch® is an open source search and analytics suite including search engine, NoSQL document database, and visualization interface. OpenSearch offers a distributed, full-text search engine based on Apache Lucene® with a RESTful API interface and support for JSON documents.
 
 !!! note
-Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/)
-and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
+Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites.md) with the operator installed (see instructions for [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md))
+and a [Kubernetes Secret with an Aiven authentication token](../authentication.md).
 
 ## Creating an OpenSearch instance
 
