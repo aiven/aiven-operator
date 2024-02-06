@@ -31,7 +31,7 @@ make build
 
 As of now, we only support integration tests who interact directly with Aiven. To run the tests, you'll need
 an [Aiven account](https://console.aiven.io/signup?utm_source=github&utm_medium=organic&utm_campaign=k8s-operator&utm_content=signup)
-and an [Aiven authentication code](https://help.aiven.io/en/articles/2059201-authentication-tokens).
+and an [Aiven authentication code](https://aiven.io/docs/platform/concepts/authentication-tokens).
 
 ### Prerequisites
 
@@ -51,7 +51,7 @@ Please have installed first:
 
 The following commands must be executed with these environment variables (keep them in secret!):
 
-- `AIVEN_TOKEN` — your [authentication token](https://docs.aiven.io/docs/platform/howto/create_authentication_token)
+- `AIVEN_TOKEN` — your [authentication token](https://aiven.io/docs/platform/howto/create_authentication_token)
 - `AIVEN_PROJECT_NAME` — your Aiven project name to run services in
 
 Setup everything:

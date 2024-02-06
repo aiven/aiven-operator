@@ -103,4 +103,4 @@ NAME           SERVICE NAME   PROJECT          SUBJECT    COMPATIBILITY LEVEL   
 kafka-schema   kafka-sample   <your-project>   MySchema   BACKWARD              1
 ```
 
-Now you can follow the instructions to [use a schema registry in Java](https://docs.aiven.io/docs/products/kafka/howto/schema-registry) on how to use the schema created.
+Now you can follow the instructions to [use a schema registry in Java](https://aiven.io/docs/products/kafka/howto/schema-registry) on how to use the schema created.

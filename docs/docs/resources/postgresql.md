@@ -244,7 +244,7 @@ the `pg-connection` Secret.
 
 Connection pooling allows you to maintain very large numbers of connections to a database while minimizing the
 consumption of server resources. For more
-information, refer to the [connection pooling article](https://docs.aiven.io/docs/products/postgresql/concepts/pg-connection-pooling) in Aiven Docs. Aiven for PostgreSQL uses
+information, refer to the [connection pooling article](https://aiven.io/docs/products/postgresql/concepts/pg-connection-pooling) in Aiven Docs. Aiven for PostgreSQL uses
 PGBouncer for connection pooling.
 
 You can create a connection pool with the `ConnectionPool` resource using the previously created `Database`

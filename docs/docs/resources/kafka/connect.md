@@ -146,7 +146,7 @@ spec:
   maintenanceWindowTime: 23:00:00
 ```
 
-Finally, let's add the glue of everything: a `KafkaConnector`. As described in the specification, it will send receive messages from the `kafka-sample-connect` and send them to the `pg-connect` service. Check our [official documentation](https://help.aiven.io/en/articles/1231452-kafka-connect-connectors) for more connectors.
+Finally, let's add the glue of everything: a `KafkaConnector`. As described in the specification, it will send receive messages from the `kafka-sample-connect` and send them to the `pg-connect` service. Check our [official documentation](https://aiven.io/docs/products/kafka/kafka-connect/concepts/list-of-connector-plugins) for more connectors.
 
 Create a file named `kafka-connector-connect.yaml` and with the content below:
 

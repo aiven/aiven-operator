@@ -60,5 +60,5 @@ vpc-sample   <your-project>   aws-af-south-1   192.168.0.0/24
 ## Using the Aiven VPC
 
 Follow the
-official [VPC documentation](https://help.aiven.io/en/articles/778836-using-virtual-private-cloud-vpc-peering) to
+official [VPC documentation](https://aiven.io/docs/platform/howto/manage-vpc-peering) to
 complete the VPC peering on your cloud of choice.
