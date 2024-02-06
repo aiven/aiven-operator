@@ -12,8 +12,8 @@ extender for location queries. Aiven for PostgreSQL is the perfect fit for your 
 With Aiven Kubernetes Operator, you can manage Aiven for PostgreSQL through the well defined Kubernetes API.
 
 !!! note
-Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites/) with the [operator installed](../../installation/),
-and a [Kubernetes Secret with an Aiven authentication token](../../authentication/).
+Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites.md) with the operator installed (see instructions for [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md)),
+and a [Kubernetes Secret with an Aiven authentication token](../authentication.md).
 
 ## Creating a PostgreSQL instance
 
@@ -244,7 +244,7 @@ the `pg-connection` Secret.
 
 Connection pooling allows you to maintain very large numbers of connections to a database while minimizing the
 consumption of server resources. For more
-information, refer to the [connection pooling article](https://docs.aiven.io/docs/products/postgresql/concepts/pg-connection-pooling) in Aiven Docs. Aiven for PostgreSQL uses
+information, refer to the [connection pooling article](https://aiven.io/docs/products/postgresql/concepts/pg-connection-pooling) in Aiven Docs. Aiven for PostgreSQL uses
 PGBouncer for connection pooling.
 
 You can create a connection pool with the `ConnectionPool` resource using the previously created `Database`

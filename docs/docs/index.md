@@ -16,4 +16,4 @@ We offer multiple cloud options because we believe that everyone should have acc
 
 ## Contributing
 
-The [contribution guide](./contributing) covers everything you need to know about how you can contribute to Aiven Operator for Kubernetes. The [developer guide](./contributing/developer-guide) will help you onboard as a developer.
+The [contribution guide](./contributing/index.md) covers everything you need to know about how you can contribute to Aiven Operator for Kubernetes. The [developer guide](./contributing/developer-guide.md) will help you onboard as a developer.

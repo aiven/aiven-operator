@@ -14,7 +14,7 @@ for a free trial. 🦀**
 
 1\. Generate an authentication token
 
-Refer to [our documentation article](https://help.aiven.io/en/articles/2059201-authentication-tokens) to generate your
+Refer to [our documentation article](https://aiven.io/docs/platform/concepts/authentication-tokens) to generate your
 authentication token.
 
 2\. Create the Kubernetes Secret
@@ -42,7 +42,7 @@ spec:
 
 Also, note that within Aiven, all resources are conceptually inside a _Project_. By default, a random project name is
 generated when you signup, but you can
-also [create new projects](https://help.aiven.io/en/articles/5039826-how-to-create-new-project).
+also [create new projects](https://aiven.io/docs/platform/howto/manage-project).
 
 The Project name is required in most of the resources. It will look like the example below:
 

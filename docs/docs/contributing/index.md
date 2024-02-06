@@ -9,7 +9,7 @@ weight: 85
 The Aiven Operator for Kubernetes project accepts contributions via GitHub pull requests. This document outlines the process
 to help get your contribution accepted.
 
-Please see also the Aiven Operator for Kubernetes [Developer Guide](./developer-guide).
+Please see also the Aiven Operator for Kubernetes [Developer Guide](./developer-guide.md).
 
 ## Support Channels
 

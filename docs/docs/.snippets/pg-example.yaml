@@ -1,0 +1,21 @@
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: aiven-devdocs-pg
+spec:
+  # reads the authentication token
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  # stores the PostgreSQL connection information on the specified Secret
+  connInfoSecretTarget:
+    name: pg-connection
+
+  project: <your-project-name>
+  cloudName: google-europe-west1
+  plan: hobbyist
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00
+  userConfig:
+    pg_version: "15"
