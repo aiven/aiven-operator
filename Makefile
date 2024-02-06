@@ -197,15 +197,16 @@ $(CONTROLLER_GEN): $(LOCALBIN)
 envtest: $(ENVTEST) ## Download setup-envtest locally if necessary.
 $(ENVTEST): $(LOCALBIN)
 	$(call go-install-tool,$(ENVTEST),sigs.k8s.io/controller-runtime/tools/setup-envtest,$(ENVTEST_VERSION)) ;\
-	echo -e "\n>>Installing kubebuilder assets to path:"; \
-	eval $(KUBEBUILDER_ASSETS_CMD)
+	echo -e ">>Installing kubebuilder assets to path:"; \
+	eval $(KUBEBUILDER_ASSETS_CMD); \
+	echo -e "\n"
 
 .PHONY: golangci-lint
 golangci-lint: $(GOLANGCI_LINT) ## Download golangci-lint locally if necessary.
 $(GOLANGCI_LINT): $(LOCALBIN)
 	$(call go-install-tool,$(GOLANGCI_LINT),github.com/golangci/golangci-lint/cmd/golangci-lint,${GOLANGCI_LINT_VERSION})
 
-WEBHOOKS_ENABLED ?= true
+ENABLE_WEBHOOKS ?= true
 CERT_MANAGER_TAG ?= v1.11.0
 OPERATOR_IMAGE_TAG ?= $(shell git rev-parse HEAD)
 
@@ -243,7 +244,7 @@ e2e-setup-kind: check-env-vars ## Setup kind cluster and install operator.
 # Installs cert manager if webhooks enabled
 # We use helm here instead of "kubectl apply", because it waits pods up and running
 # Otherwise, operator will fail webhook check
-ifeq ($(WEBHOOKS_ENABLED), true)
+ifeq ($(ENABLE_WEBHOOKS), true)
 	helm repo add jetstack https://charts.jetstack.io
 	helm repo update
 	helm install \
@@ -275,7 +276,7 @@ endif
 		--set image.pullPolicy="Never" \
 		--set resources.requests.cpu=0 \
 		--set resources.requests.memory=0 \
-		--set webhooks.enabled=${WEBHOOKS_ENABLED} \
+		--set webhooks.enabled=${ENABLE_WEBHOOKS} \
 		aiven-operator charts/aiven-operator
 
 # go-install-tool will 'go install' any package with custom target and name of binary, if it doesn't exist
