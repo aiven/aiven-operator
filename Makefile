@@ -106,9 +106,9 @@ test-e2e: check-env-vars check-avn-client build ## Run end-to-end tests using ku
 test-e2e-preinstalled: check-env-vars check-avn-client ## Run end-to-end tests using kuttl (https://kuttl.dev) with preinstalled operator ('make e2e-setup-kind' should be run before this target).
 	kubectl kuttl test --config test/e2e/kuttl-test.preinstalled.yaml
 
-test: envtest ## Run tests.
+test: envtest ## Run tests. To target a specific test, use 'run=TestName make test'.
 	export KUBEBUILDER_ASSETS=$(shell eval ${KUBEBUILDER_ASSETS_CMD}); \
-	go test ./tests/... -race -run=$(run) -v -timeout 42m -parallel 10 -cover -coverpkg=./controllers -covermode=atomic -coverprofile=coverage.out
+	go test ./tests/... -race -run=$(run) -v $(if $(run), -timeout 10m, -timeout 42m) -parallel 10 -cover -coverpkg=./controllers -covermode=atomic -coverprofile=coverage.out
 
 ##@ Build
 
