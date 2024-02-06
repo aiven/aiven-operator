@@ -74,14 +74,26 @@ fmt:
 vet: ## Run go vet against code.
 	go vet ./...
 
+.PHONY: check-avn-client
+check-avn-client:
+	@if ! command -v avn >/dev/null 2>&1; then \
+		(echo ">> avn command not found, please install https://github.com/aiven/aiven-client"; exit 1) \
+	fi
+	@if ! avn user info >/dev/null 2>&1; then \
+		(echo ">> User not authenticated, please login first with 'avn user login'"; exit 1) \
+	fi
+
+.PHONY: check-env-vars
+check-env-vars:
+		@[ "${AIVEN_TOKEN}" ] || (echo ">> variable AIVEN_TOKEN is not set"; exit 1)
+		@[ "${AIVEN_PROJECT_NAME}" ] || (echo ">> variable AIVEN_PROJECT_NAME is not set"; exit 1)
+
 .PHONY: test-e2e
-test-e2e: build ## Run end-to-end tests using kuttl (https://kuttl.dev/)
-	@[ "${AIVEN_TOKEN}" ] || ( echo ">> variable AIVEN_TOKEN is not set"; exit 1 )
-	@[ "${AIVEN_PROJECT_NAME}" ] || ( echo ">> variable AIVEN_PROJECT_NAME is not set"; exit 1 )
+test-e2e: check-env-vars check-avn-client build ## Run end-to-end tests using kuttl (https://kuttl.dev/)
 	kubectl kuttl test --config test/e2e/kuttl-test.yaml
 
 .PHONY: test-e2e-preinstalled
-test-e2e-preinstalled:
+test-e2e-preinstalled: check-env-vars check-avn-client
 	kubectl kuttl test --config test/e2e/kuttl-test.preinstalled.yaml
 
 test: envtest ## Run tests.
@@ -205,12 +217,10 @@ cleanup:
 
 SETUP_PREREQUISITES = jq base64 kcat helm kind $(CONTAINER_TOOL) avn
 .PHONY: e2e-setup-kind
-e2e-setup-kind:
-	# Validates prerequisites
+e2e-setup-kind: check-env-vars
+# Validates prerequisites
 	$(foreach bin,$(SETUP_PREREQUISITES),\
         $(if $(shell command -v $(bin) 2> /dev/null),,$(error Please install `$(bin)` first)))
-	@[ "${AIVEN_TOKEN}" ] || ( echo ">> variable AIVEN_TOKEN is not set"; exit 1 )
-	@[ "${AIVEN_PROJECT_NAME}" ] || ( echo ">> variable AIVEN_PROJECT_NAME is not set"; exit 1 )
 
 # Check that kind cluster is running. Keep the --image argument in sync with developer-docs.md
 	@kubectl config view -o jsonpath='{.contexts[*].name}' | grep -q kind-kind || \
