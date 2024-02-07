@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.8">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.50c56a3b.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.f2e4d321.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -687,14 +687,20 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#resource-generation" class="md-nav__link">
+    <nav class="md-nav" aria-label="Getting Started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
-      Resource generation
+      Prerequisites
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -702,6 +708,15 @@
   <a href="#building" class="md-nav__link">
     <span class="md-ellipsis">
       Building
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running
     </span>
   </a>
   
@@ -718,9 +733,18 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+  <a href="#unit" class="md-nav__link">
     <span class="md-ellipsis">
-      Prerequisites
+      Unit
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e2e" class="md-nav__link">
+    <span class="md-ellipsis">
+      e2e
     </span>
   </a>
   
@@ -728,6 +752,15 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resource-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resource generation
+    </span>
+  </a>
   
 </li>
       
@@ -1630,14 +1663,20 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#resource-generation" class="md-nav__link">
+    <nav class="md-nav" aria-label="Getting Started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
-      Resource generation
+      Prerequisites
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1645,6 +1684,15 @@
   <a href="#building" class="md-nav__link">
     <span class="md-ellipsis">
       Building
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running
     </span>
   </a>
   
@@ -1661,9 +1709,18 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+  <a href="#unit" class="md-nav__link">
     <span class="md-ellipsis">
-      Prerequisites
+      Unit
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e2e" class="md-nav__link">
+    <span class="md-ellipsis">
+      e2e
     </span>
   </a>
   
@@ -1671,6 +1728,15 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resource-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resource generation
+    </span>
+  </a>
   
 </li>
       
@@ -1712,67 +1778,136 @@
   <h1>Developer guide</h1>
 
 <h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
-<p>You must have a working <a href="https://golang.org/doc/install">Go environment</a> and then clone the repository:</p>
+<p>To get started, make sure you have a working <a href="https://golang.org/doc/install">Go environment</a> and clone the repository:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:aiven/aiven-operator.git
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>aiven-operator
 </code></pre></div>
-<h2 id="resource-generation">Resource generation<a class="headerlink" href="#resource-generation" title="Permanent link">&para;</a></h2>
-<p>Please see <a href="resource-generation.html">this page</a> for more information.</p>
+<h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h3>
+<p>Before proceeding, please ensure that you have the following dependencies installed:</p>
+<ul>
+<li>Docker or Podman</li>
+<li><a href="https://helm.sh/">Helm</a></li>
+<li><a href="https://aiven.io/docs/tools/cli">Aiven CLI</a> (make sure you are logged in)</li>
+<li><a href="https://jqlang.github.io/jq/">jq</a></li>
+<li><a href="https://github.com/edenhill/kcat">kcat</a></li>
+<li>base64 (Note: The macOS version does not support the <code>-w0</code> flag, which may cause some tests to not work properly)</li>
+<li><a href="https://kind.sigs.k8s.io/">kind</a></li>
+</ul>
+<p>Create an Aiven authentication token and an Aiven project, you'll need them in the following sections:</p>
+<ul>
+<li><code>AIVEN_TOKEN</code> — your <a href="https://aiven.io/docs/platform/howto/create_authentication_token">authentication token</a></li>
+<li><code>AIVEN_PROJECT_NAME</code> — the name of you <a href="https://aiven.io/docs/platform/howto/manage-project">Aiven project</a> to run the services in</li>
+</ul>
+<p>Optional dependencies:</p>
+<ul>
+<li><a href="https://k9scli.io/">k9s</a> — a terminal based UI to interact with our kubernetes clusters</li>
+</ul>
 <h2 id="building">Building<a class="headerlink" href="#building" title="Permanent link">&para;</a></h2>
-<p>The project uses the <code>make</code> build system.</p>
+<p>The project uses the <code>make</code> build system. To see the available targets, run <code>make help</code>.</p>
 <p>Building the operator binary:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>make<span class="w"> </span>build
 </code></pre></div>
+<h2 id="running">Running<a class="headerlink" href="#running" title="Permanent link">&para;</a></h2>
+<p>To run the operator locally, first create a local k8s cluster with <code>kind</code>:</p>
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$<span class="w"> </span>kind<span class="w"> </span>create<span class="w"> </span>cluster<span class="w"> </span>--image<span class="w"> </span>kindest/node:v1.26.6<span class="w"> </span>--wait<span class="w"> </span>5m
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Creating<span class="w"> </span>cluster<span class="w"> </span><span class="s2">&quot;kind&quot;</span><span class="w"> </span>...
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w"> </span>✓<span class="w"> </span>Ensuring<span class="w"> </span>node<span class="w"> </span>image<span class="w"> </span><span class="o">(</span>kindest/node:v1.26.6<span class="o">)</span><span class="w"> </span>🖼
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w"> </span>✓<span class="w"> </span>Preparing<span class="w"> </span>nodes<span class="w"> </span>📦
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w"> </span>✓<span class="w"> </span>Writing<span class="w"> </span>configuration<span class="w"> </span>📜
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w"> </span>✓<span class="w"> </span>Starting<span class="w"> </span>control-plane<span class="w"> </span>🕹️
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w"> </span>✓<span class="w"> </span>Installing<span class="w"> </span>CNI<span class="w"> </span>🔌
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w"> </span>✓<span class="w"> </span>Installing<span class="w"> </span>StorageClass<span class="w"> </span>💾
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w"> </span>✓<span class="w"> </span>Waiting<span class="w"> </span>≤<span class="w"> </span>5m0s<span class="w"> </span><span class="k">for</span><span class="w"> </span>control-plane<span class="w"> </span><span class="o">=</span><span class="w"> </span>Ready<span class="w"> </span>⏳
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w"> </span>•<span class="w"> </span>Ready<span class="w"> </span>after<span class="w"> </span>14s<span class="w"> </span>💚
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>Set<span class="w"> </span>kubectl<span class="w"> </span>context<span class="w"> </span>to<span class="w"> </span><span class="s2">&quot;kind-kind&quot;</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>You<span class="w"> </span>can<span class="w"> </span>now<span class="w"> </span>use<span class="w"> </span>your<span class="w"> </span>cluster<span class="w"> </span>with:
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>kubectl<span class="w"> </span>cluster-info<span class="w"> </span>--context<span class="w"> </span>kind-kinds
+</code></pre></div>
+<p>This creates a k8s cluster and points your <code>kubectl</code> to that cluster:</p>
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>$<span class="w"> </span>kubectl<span class="w"> </span>cluster-info<span class="w"> </span>--context<span class="w"> </span>kind-kind
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Kubernetes<span class="w"> </span>control<span class="w"> </span>plane<span class="w"> </span>is<span class="w"> </span>running<span class="w"> </span>at<span class="w"> </span>https://127.0.0.1:58083
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>CoreDNS<span class="w"> </span>is<span class="w"> </span>running<span class="w"> </span>at<span class="w"> </span>https://127.0.0.1:58083/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+</code></pre></div>
+<p>Run the operator:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nv">ENABLE_WEBHOOKS</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>make<span class="w"> </span>run
+</code></pre></div>
+<p>In another terminal window, create a Kubernetes <a href="https://kubernetes.io/docs/concepts/configuration/secret/">Secret</a>
+named <code>aiven-token</code> (use the Aiven authentication token created earlier):</p>
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">AIVEN_TOKEN</span><span class="o">=</span>...
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>aiven-token<span class="w"> </span>--from-literal<span class="o">=</span><span class="nv">token</span><span class="o">=</span><span class="nv">$AIVEN_TOKEN</span>
+</code></pre></div>
+<p>Then, create a manifest for an Aiven PostgreSQL service:</p>
+<div class="highlight"><span class="filename">aiven-pg.yaml</span><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PostgreSQL</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-devdocs-pg</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="c1"># reads the authentication token</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">  </span><span class="c1"># stores the PostgreSQL connection information on the specified Secret</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pg-connection</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;your-project-name&gt;</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">  </span><span class="nt">cloudName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">google-europe-west1</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">  </span><span class="nt">plan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hobbyist</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="w">  </span><span class="nt">maintenanceWindowDow</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">friday</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="w">  </span><span class="nt">maintenanceWindowTime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">23:00:00</span>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="w">  </span><span class="nt">userConfig</span><span class="p">:</span>
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a><span class="w">    </span><span class="nt">pg_version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;15&quot;</span>
+</code></pre></div>
+<p>...and create the service at Aiven by applying the manifest:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>aiven-pg.yaml
+</code></pre></div>
+<p>You should see the service be created on Aiven's side using either <a href="https://console.aiven.io/">Aiven Console</a> or Aiven CLI:</p>
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>$<span class="w"> </span>avn<span class="w"> </span>project<span class="w"> </span>switch<span class="w"> </span>&lt;your-project-name&gt;
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>$<span class="w"> </span>avn<span class="w"> </span>service<span class="w"> </span>list
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>SERVICE_NAME<span class="w">      </span>SERVICE_TYPE<span class="w">  </span>STATE<span class="w">       </span>CLOUD_NAME<span class="w">           </span>PLAN<span class="w">      </span>CREATE_TIME<span class="w">           </span>UPDATE_TIME<span class="w">           </span><span class="nv">NOTIFICATIONS</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="o">================</span><span class="w">  </span><span class="o">============</span><span class="w">  </span><span class="o">==========</span><span class="w">  </span><span class="o">===================</span><span class="w">  </span><span class="o">========</span><span class="w">  </span><span class="o">====================</span><span class="w">  </span><span class="o">====================</span><span class="w">  </span><span class="o">=============</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>aiven-devdocs-pg<span class="w">  </span>pg<span class="w">            </span>REBUILDING<span class="w">  </span>google-europe-west1<span class="w">  </span>hobbyist<span class="w">  </span><span class="m">2024</span>-01-01T00:00:00Z<span class="w">  </span><span class="m">2024</span>-01-01T00:01:00Z
+</code></pre></div>
+<p>To see the resource on k8s side, use <code>kubectl</code>:</p>
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>$<span class="w"> </span>kubectl<span class="w"> </span>get<span class="w"> </span>postgresqls
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>NAME<span class="w">               </span>PROJECT<span class="w">                </span>REGION<span class="w">                </span>PLAN<span class="w">       </span>STATE
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>aiven-devdocs-pg<span class="w">   </span>aiven-sbox-k8s-riski<span class="w">   </span>google-europe-west1<span class="w">   </span>hobbyist<span class="w">   </span>REBUILDING
+</code></pre></div>
+<p>... or by running <code>k9s</code> in another terminal window and type ": postgresqls" to see the provisioned
+PostgreSQL resources:</p>
+<p><img alt="k9s" src="../assets/developer-guide-k9s.jpg" /></p>
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
-<p>As of now, we only support integration tests who interact directly with Aiven. To run the tests, you'll need
-an <a href="https://console.aiven.io/signup?utm_source=github&amp;utm_medium=organic&amp;utm_campaign=k8s-operator&amp;utm_content=signup">Aiven account</a>
-and an <a href="https://help.aiven.io/en/articles/2059201-authentication-tokens">Aiven authentication code</a>.</p>
-<h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h3>
-<p>Please have installed first:</p>
-<ul>
-<li>docker/podman</li>
-<li><a href="https://helm.sh/">helm</a></li>
-<li><a href="https://docs.aiven.io/docs/tools/cli">Aiven CLI</a> (make sure you have logged in)</li>
-<li><a href="https://jqlang.github.io/jq/">jq</a></li>
-<li><a href="https://github.com/edenhill/kcat">kcat</a></li>
-<li>base64, note: MACOS version doesn't support <code>-w0</code> flag, some tests may not work properly</li>
-<li><a href="https://kind.sigs.k8s.io/">kind</a>, and existing cluster, e.g.</li>
-</ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="w"> </span>kind<span class="w"> </span>create<span class="w"> </span>cluster<span class="w"> </span>--image<span class="w"> </span>kindest/node:v1.26.6<span class="w"> </span>--wait<span class="w"> </span>5m
-</code></pre></div>
-<p>The following commands must be executed with these environment variables (keep them in secret!):</p>
-<ul>
-<li><code>AIVEN_TOKEN</code> — your <a href="https://docs.aiven.io/docs/platform/howto/create_authentication_token">authentication token</a></li>
-<li><code>AIVEN_PROJECT_NAME</code> — your Aiven project name to run services in</li>
-</ul>
-<p>Setup everything:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>make<span class="w"> </span>e2e-setup-kind
-</code></pre></div>
+<p>For this section you'll need to set <code>export AIVEN_TOKEN=...</code> and an <code>export AIVEN_PROJECT_NAME=...</code> as well as <code>export ENABLE_WEBHOOKS=false</code> (see <a href="developer-guide.html#prerequisites">Prerequisites</a>).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
+<p>If you encounter any issues with webhooks, you have the option to disable them by running <code>export ENABLE_WEBOOKS=false</code></p>
 </div>
-<p>Additionally, webhooks can be disabled,
-if there are any problems with them.</p>
-<div class="highlight"><pre><span></span><code>```shell
-WEBHOOKS_ENABLED=false make e2e-setup-kind
-```
+<h3 id="unit">Unit<a class="headerlink" href="#unit" title="Permanent link">&para;</a></h3>
+<p>Running all unit tests is possible by running <code>make test</code>. To run a targeted test, use <code>run=TestGrafana make test</code>.</p>
+<h3 id="e2e">e2e<a class="headerlink" href="#e2e" title="Permanent link">&para;</a></h3>
+<p>Setup the test environment:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>make<span class="w"> </span>e2e-setup-kind
 </code></pre></div>
-<p>Run e2e tests (creates real services in <code>AIVEN_PROJECT_NAME</code>):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>make<span class="w"> </span>test-e2e-preinstalled
+<p>The e2e tests are configured to run against a project called <code>aiven-ci-kubernetes-operator</code>. To run the test against</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>make<span class="w"> </span>test-e2e-preinstalled
 </code></pre></div>
-<p>When you're done, just drop the cluster:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>kind<span class="w"> </span>delete<span class="w"> </span>cluster
+<p>To remove the kind cluster, simply execute the following command:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>kind<span class="w"> </span>delete<span class="w"> </span>cluster
 </code></pre></div>
+<h2 id="resource-generation">Resource generation<a class="headerlink" href="#resource-generation" title="Permanent link">&para;</a></h2>
+<p>Please see <a href="resource-generation.html">this page</a> for more information.</p>
 <h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
 <p>The documentation is written in markdown and generated by <a href="https://www.mkdocs.org/">mkdocs</a>
 and <a href="https://squidfunk.github.io/mkdocs-material/">mkdocs-material</a>.</p>
 <p>To run the documentation live preview:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>make<span class="w"> </span>serve-docs
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>make<span class="w"> </span>serve-docs
 </code></pre></div>
 <p>And open the <code>http://localhost:8000/aiven-operator/</code> page in your web browser.</p>
 <p>The documentation API Reference section is generated automatically from
 the source code during the documentation deployment. To generate it locally, run the following command:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>make<span class="w"> </span>docs
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>make<span class="w"> </span>docs
 </code></pre></div>
 
 
@@ -1876,7 +2011,7 @@ the source code during the documentation deployment. To generate it locally, run
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.e1c3ead8.min.js"></script>
+      <script src="../assets/javascripts/bundle.8fd75fb4.min.js"></script>
       
     
   </body>
