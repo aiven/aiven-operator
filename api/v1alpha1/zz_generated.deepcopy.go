@@ -1246,6 +1246,16 @@ func (in *KafkaTopicConfig) DeepCopyInto(out *KafkaTopicConfig) {
 		*out = new(int64)
 		**out = **in
 	}
+	if in.LocalRetentionBytes != nil {
+		in, out := &in.LocalRetentionBytes, &out.LocalRetentionBytes
+		*out = new(int64)
+		**out = **in
+	}
+	if in.LocalRetentionMs != nil {
+		in, out := &in.LocalRetentionMs, &out.LocalRetentionMs
+		*out = new(int64)
+		**out = **in
+	}
 	if in.MaxCompactionLagMs != nil {
 		in, out := &in.MaxCompactionLagMs, &out.MaxCompactionLagMs
 		*out = new(int64)
@@ -1283,6 +1293,11 @@ func (in *KafkaTopicConfig) DeepCopyInto(out *KafkaTopicConfig) {
 	}
 	if in.Preallocate != nil {
 		in, out := &in.Preallocate, &out.Preallocate
+		*out = new(bool)
+		**out = **in
+	}
+	if in.RemoteStorageEnable != nil {
+		in, out := &in.RemoteStorageEnable, &out.RemoteStorageEnable
 		*out = new(bool)
 		**out = **in
 	}

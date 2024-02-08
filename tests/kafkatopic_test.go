@@ -44,6 +44,9 @@ spec:
   partitions: 1
   config:
     min_cleanable_dirty_ratio: 0.2
+    local_retention_bytes: 1024
+    local_retention_ms: 1000000
+    remote_storage_enable: true
 
 ---
 
@@ -120,6 +123,9 @@ func TestKafkaTopic(t *testing.T) {
 
 	// Validates MinCleanableDirtyRatio
 	require.Equal(t, anyPointer(0.2), fooTopic.Spec.Config.MinCleanableDirtyRatio)
+	require.Equal(t, anyPointer(int64(1024)), fooTopic.Spec.Config.LocalRetentionBytes)
+	require.Equal(t, anyPointer(int64(1000000)), fooTopic.Spec.Config.LocalRetentionMs)
+	require.Equal(t, anyPointer(true), fooTopic.Spec.Config.RemoteStorageEnable)
 
 	// KafkaTopic with name `bar_topic_name_with_underscores`
 	barAvn, err := avnClient.KafkaTopics.Get(ctx, testProject, ksName, barTopic.GetTopicName())
@@ -134,6 +140,9 @@ func TestKafkaTopic(t *testing.T) {
 
 	// Validates MinCleanableDirtyRatio (not set)
 	assert.Nil(t, barTopic.Spec.Config.MinCleanableDirtyRatio)
+	assert.Nil(t, barTopic.Spec.Config.LocalRetentionBytes)
+	assert.Nil(t, barTopic.Spec.Config.LocalRetentionMs)
+	assert.Nil(t, barTopic.Spec.Config.RemoteStorageEnable)
 
 	// We need to validate deletion,
 	// because we can get false positive here:
