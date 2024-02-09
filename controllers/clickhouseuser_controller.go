@@ -10,6 +10,7 @@ import (
 	"strconv"
 
 	"github.com/aiven/aiven-go-client/v2"
+	avngen "github.com/aiven/go-client-codegen"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -42,7 +43,7 @@ func (r *ClickhouseUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 type clickhouseUserHandler struct{}
 
-func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, refs []client.Object) error {
+func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
 	user, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -69,7 +70,7 @@ func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 	return nil
 }
 
-func (h *clickhouseUserHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+func (h *clickhouseUserHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -88,7 +89,7 @@ func (h *clickhouseUserHandler) delete(ctx context.Context, avn *aiven.Client, o
 	return true, nil
 }
 
-func (h *clickhouseUserHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *clickhouseUserHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -132,7 +133,7 @@ func (h *clickhouseUserHandler) get(ctx context.Context, avn *aiven.Client, obj 
 	return secret, nil
 }
 
-func (h *clickhouseUserHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+func (h *clickhouseUserHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -141,7 +142,7 @@ func (h *clickhouseUserHandler) checkPreconditions(ctx context.Context, avn *aiv
 	meta.SetStatusCondition(&user.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsRunning(ctx, avn, user.Spec.Project, user.Spec.ServiceName)
+	return checkServiceIsRunning(ctx, avn, avnGen, user.Spec.Project, user.Spec.ServiceName)
 }
 
 func (h *clickhouseUserHandler) convert(i client.Object) (*v1alpha1.ClickhouseUser, error) {

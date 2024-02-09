@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/aiven/aiven-go-client/v2"
+	avngen "github.com/aiven/go-client-codegen"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -24,7 +25,7 @@ type genericServiceHandler struct {
 	fabric serviceAdapterFabric
 }
 
-func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, refs []client.Object) error {
+func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
 	o, err := h.fabric(avn, obj)
 	if err != nil {
 		return err
@@ -140,7 +141,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 	return nil
 }
 
-func (h *genericServiceHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+func (h *genericServiceHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	o, err := h.fabric(avn, obj)
 	if err != nil {
 		return false, err
@@ -159,7 +160,7 @@ func (h *genericServiceHandler) delete(ctx context.Context, avn *aiven.Client, o
 	return false, fmt.Errorf("failed to delete service in Aiven: %w", err)
 }
 
-func (h *genericServiceHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *genericServiceHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	o, err := h.fabric(avn, obj)
 	if err != nil {
 		return nil, err
@@ -186,7 +187,7 @@ func (h *genericServiceHandler) get(ctx context.Context, avn *aiven.Client, obj 
 }
 
 // checkPreconditions not required for now by services to be implemented
-func (h *genericServiceHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+func (h *genericServiceHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	o, err := h.fabric(avn, obj)
 	if err != nil {
 		return false, err
@@ -197,7 +198,7 @@ func (h *genericServiceHandler) checkPreconditions(ctx context.Context, avn *aiv
 		// Validates that read_replica is running
 		// If not, the wrapper controller will try later
 		if s.IntegrationType == "read_replica" {
-			r, err := checkServiceIsRunning(ctx, avn, spec.Project, s.SourceServiceName)
+			r, err := checkServiceIsRunning(ctx, avn, avnGen, spec.Project, s.SourceServiceName)
 			if !r || err != nil {
 				return false, err
 			}

@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/aiven/aiven-go-client/v2"
+	avngen "github.com/aiven/go-client-codegen"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -59,7 +60,7 @@ func (h ProjectHandler) getLongCardID(ctx context.Context, client *aiven.Client,
 }
 
 // create creates a project on Aiven side
-func (h ProjectHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, refs []client.Object) error {
+func (h ProjectHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
 	project, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -150,7 +151,7 @@ func (h ProjectHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, o
 	return nil
 }
 
-func (h ProjectHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+func (h ProjectHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	project, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -187,7 +188,7 @@ func (h ProjectHandler) exists(ctx context.Context, avn *aiven.Client, project *
 }
 
 // delete deletes Aiven project
-func (h ProjectHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+func (h ProjectHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	project, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -227,6 +228,6 @@ func (h ProjectHandler) convert(i client.Object) (*v1alpha1.Project, error) {
 	return p, nil
 }
 
-func (h ProjectHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+func (h ProjectHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	return true, nil
 }

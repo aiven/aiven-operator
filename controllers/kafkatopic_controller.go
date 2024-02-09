@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/aiven/aiven-go-client/v2"
+	avngen "github.com/aiven/go-client-codegen"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -37,7 +38,7 @@ func (r *KafkaTopicReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, refs []client.Object) error {
+func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
 	topic, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -99,7 +100,7 @@ func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avn *aiven.Client
 	return nil
 }
 
-func (h KafkaTopicHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+func (h KafkaTopicHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	topic, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -135,7 +136,7 @@ func (h KafkaTopicHandler) exists(ctx context.Context, avn *aiven.Client, topic 
 	return t != nil, nil
 }
 
-func (h KafkaTopicHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+func (h KafkaTopicHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	topic, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -159,7 +160,7 @@ func (h KafkaTopicHandler) get(ctx context.Context, avn *aiven.Client, obj clien
 	return nil, err
 }
 
-func (h KafkaTopicHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+func (h KafkaTopicHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	topic, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -168,7 +169,7 @@ func (h KafkaTopicHandler) checkPreconditions(ctx context.Context, avn *aiven.Cl
 	meta.SetStatusCondition(&topic.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsRunning(ctx, avn, topic.Spec.Project, topic.Spec.ServiceName)
+	return checkServiceIsRunning(ctx, avn, avnGen, topic.Spec.Project, topic.Spec.ServiceName)
 }
 
 func (h KafkaTopicHandler) getState(ctx context.Context, avn *aiven.Client, topic *v1alpha1.KafkaTopic) (string, error) {

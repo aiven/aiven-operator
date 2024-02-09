@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/aiven/aiven-go-client/v2"
+	avngen "github.com/aiven/go-client-codegen"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -41,7 +42,7 @@ func (r *ConnectionPoolReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, _ []client.Object) error {
+func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
 	cp, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -93,7 +94,7 @@ func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avn *aiven.Cl
 	return nil
 }
 
-func (h ConnectionPoolHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+func (h ConnectionPoolHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	cp, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -119,7 +120,7 @@ func (h ConnectionPoolHandler) exists(ctx context.Context, avn *aiven.Client, cp
 	return conPool != nil, nil
 }
 
-func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	connPool, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -198,7 +199,7 @@ func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, obj c
 	return newSecret(connPool, stringData, false), nil
 }
 
-func (h ConnectionPoolHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+func (h ConnectionPoolHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	cp, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -207,7 +208,7 @@ func (h ConnectionPoolHandler) checkPreconditions(ctx context.Context, avn *aive
 	meta.SetStatusCondition(&cp.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	check, err := checkServiceIsRunning(ctx, avn, cp.Spec.Project, cp.Spec.ServiceName)
+	check, err := checkServiceIsRunning(ctx, avn, avnGen, cp.Spec.Project, cp.Spec.ServiceName)
 	if err != nil {
 		return false, err
 	}

@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/aiven/aiven-go-client/v2"
+	avngen "github.com/aiven/go-client-codegen"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -37,7 +38,7 @@ func (r *KafkaSchemaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, refs []client.Object) error {
+func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
 	schema, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -93,7 +94,7 @@ func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, avn *aiven.Clien
 	return nil
 }
 
-func (h KafkaSchemaHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+func (h KafkaSchemaHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	schema, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -107,7 +108,7 @@ func (h KafkaSchemaHandler) delete(ctx context.Context, avn *aiven.Client, obj c
 	return true, nil
 }
 
-func (h KafkaSchemaHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+func (h KafkaSchemaHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	schema, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -122,13 +123,13 @@ func (h KafkaSchemaHandler) get(ctx context.Context, avn *aiven.Client, obj clie
 	return nil, nil
 }
 
-func (h KafkaSchemaHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+func (h KafkaSchemaHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	schema, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
 
-	return checkServiceIsRunning(ctx, avn, schema.Spec.Project, schema.Spec.ServiceName)
+	return checkServiceIsRunning(ctx, avn, avnGen, schema.Spec.Project, schema.Spec.ServiceName)
 }
 
 func (h KafkaSchemaHandler) convert(i client.Object) (*v1alpha1.KafkaSchema, error) {

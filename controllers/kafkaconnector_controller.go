@@ -10,6 +10,7 @@ import (
 	"text/template"
 
 	"github.com/aiven/aiven-go-client/v2"
+	avngen "github.com/aiven/go-client-codegen"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -44,7 +45,7 @@ func (r *KafkaConnectorReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, refs []client.Object) error {
+func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
 	conn, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -134,7 +135,7 @@ func (h KafkaConnectorHandler) buildConnectorConfig(conn *v1alpha1.KafkaConnecto
 	return m, nil
 }
 
-func (h KafkaConnectorHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+func (h KafkaConnectorHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	conn, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -154,7 +155,7 @@ func (h KafkaConnectorHandler) exists(ctx context.Context, avn *aiven.Client, co
 	return connector != nil, nil
 }
 
-func (h KafkaConnectorHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+func (h KafkaConnectorHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	conn, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -206,7 +207,7 @@ func (h KafkaConnectorHandler) get(ctx context.Context, avn *aiven.Client, obj c
 	return nil, nil
 }
 
-func (h KafkaConnectorHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+func (h KafkaConnectorHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	conn, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -215,7 +216,7 @@ func (h KafkaConnectorHandler) checkPreconditions(ctx context.Context, avn *aive
 	meta.SetStatusCondition(&conn.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsRunning(ctx, avn, conn.Spec.Project, conn.Spec.ServiceName)
+	return checkServiceIsRunning(ctx, avn, avnGen, conn.Spec.Project, conn.Spec.ServiceName)
 }
 
 func (h KafkaConnectorHandler) convert(o client.Object) (*v1alpha1.KafkaConnector, error) {
