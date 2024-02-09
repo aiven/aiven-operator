@@ -17,13 +17,14 @@ cd aiven-operator
 
 Before proceeding, please ensure that you have the following dependencies installed:
 
-- Docker or Podman
+- [Docker](https://docs.docker.com/) or [Podman](https://podman.io/)
 - [Helm](https://helm.sh/)
 - [Aiven CLI](https://aiven.io/docs/tools/cli) (make sure you are logged in)
 - [jq](https://jqlang.github.io/jq/)
 - [kcat](https://github.com/edenhill/kcat)
 - base64 (Note: The macOS version does not support the `-w0` flag, which may cause some tests to not work properly)
 - [kind](https://kind.sigs.k8s.io/)
+- [trunk.io](https://docs.trunk.io/)
 
 Create an Aiven authentication token and an Aiven project, you'll need them in the following sections:
 
