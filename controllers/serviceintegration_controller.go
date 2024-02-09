@@ -53,25 +53,24 @@ func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avn *aive
 	}
 
 	var reason string
-	var integration *aiven.ServiceIntegration
 	if si.Status.ID == "" {
 		userConfigMap, err := CreateUserConfiguration(userConfig)
 		if err != nil {
 			return err
 		}
 
-		integration, err = avn.ServiceIntegrations.Create(
+		integration, err := avnGen.ServiceIntegrationCreate(
 			ctx,
 			si.Spec.Project,
-			aiven.CreateServiceIntegrationRequest{
-				DestinationEndpointID: anyOptional(si.Spec.DestinationEndpointID),
-				DestinationService:    anyOptional(si.Spec.DestinationServiceName),
-				DestinationProject:    anyOptional(si.Spec.DestinationProjectName),
-				IntegrationType:       si.Spec.IntegrationType,
-				SourceEndpointID:      anyOptional(si.Spec.SourceEndpointID),
-				SourceService:         anyOptional(si.Spec.SourceServiceName),
-				SourceProject:         anyOptional(si.Spec.SourceProjectName),
-				UserConfig:            userConfigMap,
+			&serviceintegration.ServiceIntegrationCreateIn{
+				DestEndpointId:   si.Spec.DestinationEndpointID,
+				DestService:      si.Spec.DestinationServiceName,
+				DestProject:      si.Spec.DestinationProjectName,
+				IntegrationType:  serviceintegration.IntegrationType(si.Spec.IntegrationType),
+				SourceEndpointId: si.Spec.SourceEndpointID,
+				SourceService:    si.Spec.SourceServiceName,
+				SourceProject:    si.Spec.SourceProjectName,
+				UserConfig:       &userConfigMap,
 			},
 		)
 		if err != nil {
@@ -79,6 +78,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avn *aive
 		}
 
 		reason = "Created"
+		si.Status.ID = integration.ServiceIntegrationId
 	} else {
 		// Not all service integrations have user_config available; skip the update if user_config is unavailable.
 		withUserConfig := []string{"clickhouse_kafka", "clickhouse_postgresql", "datadog", "kafka_connect", "kafka_logs", "kafka_mirrormaker", "logs", "metrics", "external_aws_cloudwatch_metrics"}
@@ -91,11 +91,11 @@ func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avn *aive
 			return err
 		}
 
-		integration, err = avn.ServiceIntegrations.Update(
+		updatedIntegration, err := avnGen.ServiceIntegrationUpdate(
 			ctx,
 			si.Spec.Project,
 			si.Status.ID,
-			aiven.UpdateServiceIntegrationRequest{
+			&serviceintegration.ServiceIntegrationUpdateIn{
 				UserConfig: userConfigMap,
 			},
 		)
@@ -106,9 +106,8 @@ func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avn *aive
 			}
 			return err
 		}
+		si.Status.ID = updatedIntegration.ServiceIntegrationId
 	}
-
-	si.Status.ID = integration.ServiceIntegrationID
 
 	meta.SetStatusCondition(&si.Status.Conditions,
 		getInitializedCondition(reason,

@@ -50,7 +50,7 @@ var (
 )
 
 func checkServiceIsRunning(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, project, serviceName string) (bool, error) {
-	s, err := avn.Services.Get(ctx, project, serviceName)
+	s, err := avnGen.ServiceGet(ctx, project, serviceName)
 	if err != nil {
 		// if service is not found, it is not running
 		if aiven.IsNotFound(err) {
