@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/aiven/aiven-go-client/v2"
+	avngen "github.com/aiven/go-client-codegen"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -45,7 +46,7 @@ func (r *ProjectVPCReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h *ProjectVPCHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, refs []client.Object) error {
+func (h *ProjectVPCHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
 	projectVPC, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -75,7 +76,7 @@ func (h *ProjectVPCHandler) createOrUpdate(ctx context.Context, avn *aiven.Clien
 	return nil
 }
 
-func (h *ProjectVPCHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+func (h *ProjectVPCHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	projectVPC, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -115,7 +116,7 @@ func (h *ProjectVPCHandler) delete(ctx context.Context, avn *aiven.Client, obj c
 	return false, nil
 }
 
-func (h *ProjectVPCHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *ProjectVPCHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	projectVPC, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -138,7 +139,7 @@ func (h *ProjectVPCHandler) get(ctx context.Context, avn *aiven.Client, obj clie
 	return nil, nil
 }
 
-func (h *ProjectVPCHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+func (h *ProjectVPCHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	return true, nil
 }
 

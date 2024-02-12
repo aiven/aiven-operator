@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/aiven/aiven-go-client/v2"
+	avngen "github.com/aiven/go-client-codegen"
 	"github.com/liip/sheriff"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -48,8 +49,8 @@ var (
 	errTerminationProtectionOn = errors.New("termination protection is on")
 )
 
-func checkServiceIsRunning(ctx context.Context, c *aiven.Client, project, serviceName string) (bool, error) {
-	s, err := c.Services.Get(ctx, project, serviceName)
+func checkServiceIsRunning(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, project, serviceName string) (bool, error) {
+	s, err := avnGen.ServiceGet(ctx, project, serviceName)
 	if err != nil {
 		// if service is not found, it is not running
 		if aiven.IsNotFound(err) {
@@ -125,9 +126,14 @@ func isAivenServerError(err error) bool {
 	return ok && e.Status >= http.StatusInternalServerError
 }
 
-// NewAivenClient returns Aiven client
+// NewAivenClient returns Aiven client (aiven/aiven-go-client/v2)
 func NewAivenClient(token string) (*aiven.Client, error) {
 	return aiven.NewTokenClient(token, "k8s-operator/"+version)
+}
+
+// NewAivenGeneratedClient returns Aiven generated client client (aiven/go-client-codegen)
+func NewAivenGeneratedClient(token string) (avngen.Client, error) {
+	return avngen.NewClient(avngen.TokenOpt(token), avngen.UserAgentOpt("k8s-operator/"+version))
 }
 
 func fromAnyPointer[T any](v *T) T {

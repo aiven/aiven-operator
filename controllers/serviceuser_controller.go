@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/aiven/aiven-go-client/v2"
+	avngen "github.com/aiven/go-client-codegen"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -38,7 +39,7 @@ func (r *ServiceUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ServiceUserHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, obj client.Object, refs []client.Object) error {
+func (h ServiceUserHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
 	user, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -76,7 +77,7 @@ func (h ServiceUserHandler) createOrUpdate(ctx context.Context, avn *aiven.Clien
 	return nil
 }
 
-func (h ServiceUserHandler) delete(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+func (h ServiceUserHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -90,7 +91,7 @@ func (h ServiceUserHandler) delete(ctx context.Context, avn *aiven.Client, obj c
 	return true, nil
 }
 
-func (h ServiceUserHandler) get(ctx context.Context, avn *aiven.Client, obj client.Object) (*corev1.Secret, error) {
+func (h ServiceUserHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -151,7 +152,7 @@ func (h ServiceUserHandler) get(ctx context.Context, avn *aiven.Client, obj clie
 	return newSecret(user, stringData, false), nil
 }
 
-func (h ServiceUserHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, obj client.Object) (bool, error) {
+func (h ServiceUserHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -160,7 +161,7 @@ func (h ServiceUserHandler) checkPreconditions(ctx context.Context, avn *aiven.C
 	meta.SetStatusCondition(&user.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsRunning(ctx, avn, user.Spec.Project, user.Spec.ServiceName)
+	return checkServiceIsRunning(ctx, avn, avnGen, user.Spec.Project, user.Spec.ServiceName)
 }
 
 func (h ServiceUserHandler) convert(i client.Object) (*v1alpha1.ServiceUser, error) {
