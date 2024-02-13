@@ -111,4 +111,5 @@ func TestCassandra(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["CASSANDRA_PASSWORD"])
 	assert.NotEmpty(t, secret.Data["CASSANDRA_URI"])
 	assert.NotEmpty(t, secret.Data["CASSANDRA_HOSTS"])
+	assert.NotEmpty(t, secret.Data["CASSANDRA_CA_CERT"])
 }

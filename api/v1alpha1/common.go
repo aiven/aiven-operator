@@ -24,7 +24,7 @@ type AuthSecretReference struct {
 
 // ConnInfoSecretTarget contains information secret name
 type ConnInfoSecretTarget struct {
-	// Name of the secret resource to be created. By default, is equal to the resource name
+	// Name of the secret resource to be created. By default, it is equal to the resource name
 	Name string `json:"name"`
 	// +kubebuilder:pruning:PreserveUnknownFields
 	// Annotations added to the secret

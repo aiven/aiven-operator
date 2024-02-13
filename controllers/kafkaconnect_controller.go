@@ -74,3 +74,7 @@ func (a *kafkaConnectAdapter) getServiceType() string {
 func (a *kafkaConnectAdapter) getDiskSpace() string {
 	return ""
 }
+
+func (a *kafkaConnectAdapter) GetConnInfoSecretTarget() v1alpha1.ConnInfoSecretTarget {
+	return v1alpha1.ConnInfoSecretTarget{}
+}

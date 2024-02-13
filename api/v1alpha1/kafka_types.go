@@ -21,7 +21,7 @@ type KafkaSpec struct {
 	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 
 	// Information regarding secret creation.
-	// Exposed keys: `KAFKA_HOST`, `KAFKA_PORT`, `KAFKA_USERNAME`, `KAFKA_PASSWORD`, `KAFKA_ACCESS_CERT`, `KAFKA_ACCESS_KEY`, `KAFKA_SASL_HOST`, `KAFKA_SASL_PORT`, `KAFKA_SCHEMA_REGISTRY_HOST`, `KAFKA_SCHEMA_REGISTRY_PORT`, `KAFKA_CONNECT_HOST`, `KAFKA_CONNECT_PORT`, `KAFKA_REST_HOST`, `KAFKA_REST_PORT`
+	// Exposed keys: `KAFKA_HOST`, `KAFKA_PORT`, `KAFKA_USERNAME`, `KAFKA_PASSWORD`, `KAFKA_ACCESS_CERT`, `KAFKA_ACCESS_KEY`, `KAFKA_SASL_HOST`, `KAFKA_SASL_PORT`, `KAFKA_SCHEMA_REGISTRY_HOST`, `KAFKA_SCHEMA_REGISTRY_PORT`, `KAFKA_CONNECT_HOST`, `KAFKA_CONNECT_PORT`, `KAFKA_REST_HOST`, `KAFKA_REST_PORT`, `KAFKA_CA_CERT`
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="connInfoSecretTargetDisabled is immutable."

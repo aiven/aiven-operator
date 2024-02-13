@@ -106,4 +106,5 @@ func TestClickhouse(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["CLICKHOUSE_PORT"])
 	assert.NotEmpty(t, secret.Data["CLICKHOUSE_USER"])
 	assert.NotEmpty(t, secret.Data["CLICKHOUSE_PASSWORD"])
+	assert.NotEmpty(t, secret.Data["CLICKHOUSE_CA_CERT"])
 }
