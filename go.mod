@@ -1,11 +1,10 @@
 module github.com/aiven/aiven-operator
 
-go 1.22
+go 1.21
 
 require (
 	github.com/aiven/aiven-go-client/v2 v2.12.0
 	github.com/aiven/go-api-schemas v1.59.0
-	github.com/aiven/go-client-codegen v0.0.0-20240209135349-3182cbc52bc8
 	github.com/dave/jennifer v1.7.0
 	github.com/docker/go-units v0.5.0
 	github.com/ghodss/yaml v1.0.0
@@ -28,6 +27,7 @@ require (
 )
 
 require (
+	github.com/aiven/go-client-codegen v0.0.0-20240209135349-3182cbc52bc8 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
