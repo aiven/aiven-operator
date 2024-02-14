@@ -2,6 +2,10 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `KafkaTopic` field `config.local_retention_bytes`, type `integer`: local.retention.bytes value
+- Add `KafkaTopic` field `config.local_retention_ms`, type `integer`: local.retention.ms value
+- Add `KafkaTopic` field `config.remote_storage_enable`, type `boolean`: remote_storage_enable
+
 ## v0.17.0 - 2024-02-01
 
 - Bump k8s deps to 1.26.13

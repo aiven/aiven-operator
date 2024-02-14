@@ -92,6 +92,14 @@ spec:
                       description: index.interval.bytes value
                       format: int64
                       type: integer
+                    local_retention_bytes:
+                      description: local.retention.bytes value
+                      format: int64
+                      type: integer
+                    local_retention_ms:
+                      description: local.retention.ms value
+                      format: int64
+                      type: integer
                     max_compaction_lag_ms:
                       description: max.compaction.lag.ms value
                       format: int64
@@ -126,6 +134,9 @@ spec:
                       type: integer
                     preallocate:
                       description: preallocate value
+                      type: boolean
+                    remote_storage_enable:
+                      description: remote_storage_enable
                       type: boolean
                     retention_bytes:
                       description: retention.bytes value

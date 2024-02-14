@@ -91,6 +91,12 @@ type KafkaTopicConfig struct {
 	// index.interval.bytes value
 	IndexIntervalBytes *int64 `json:"index_interval_bytes,omitempty"`
 
+	// local.retention.bytes value
+	LocalRetentionBytes *int64 `json:"local_retention_bytes,omitempty"`
+
+	// local.retention.ms value
+	LocalRetentionMs *int64 `json:"local_retention_ms,omitempty"`
+
 	// max.compaction.lag.ms value
 	MaxCompactionLagMs *int64 `json:"max_compaction_lag_ms,omitempty"`
 
@@ -120,6 +126,9 @@ type KafkaTopicConfig struct {
 
 	// preallocate value
 	Preallocate *bool `json:"preallocate,omitempty"`
+
+	// remote_storage_enable
+	RemoteStorageEnable *bool `json:"remote_storage_enable,omitempty"`
 
 	// retention.bytes value
 	RetentionBytes *int64 `json:"retention_bytes,omitempty"`

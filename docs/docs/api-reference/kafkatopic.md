@@ -83,6 +83,8 @@ Kafka topic configuration.
 - [`flush_messages`](#spec.config.flush_messages-property){: name='spec.config.flush_messages-property'} (integer). flush.messages value.
 - [`flush_ms`](#spec.config.flush_ms-property){: name='spec.config.flush_ms-property'} (integer). flush.ms value.
 - [`index_interval_bytes`](#spec.config.index_interval_bytes-property){: name='spec.config.index_interval_bytes-property'} (integer). index.interval.bytes value.
+- [`local_retention_bytes`](#spec.config.local_retention_bytes-property){: name='spec.config.local_retention_bytes-property'} (integer). local.retention.bytes value.
+- [`local_retention_ms`](#spec.config.local_retention_ms-property){: name='spec.config.local_retention_ms-property'} (integer). local.retention.ms value.
 - [`max_compaction_lag_ms`](#spec.config.max_compaction_lag_ms-property){: name='spec.config.max_compaction_lag_ms-property'} (integer). max.compaction.lag.ms value.
 - [`max_message_bytes`](#spec.config.max_message_bytes-property){: name='spec.config.max_message_bytes-property'} (integer). max.message.bytes value.
 - [`message_downconversion_enable`](#spec.config.message_downconversion_enable-property){: name='spec.config.message_downconversion_enable-property'} (boolean). message.downconversion.enable value.
@@ -93,6 +95,7 @@ Kafka topic configuration.
 - [`min_compaction_lag_ms`](#spec.config.min_compaction_lag_ms-property){: name='spec.config.min_compaction_lag_ms-property'} (integer). min.compaction.lag.ms value.
 - [`min_insync_replicas`](#spec.config.min_insync_replicas-property){: name='spec.config.min_insync_replicas-property'} (integer). min.insync.replicas value.
 - [`preallocate`](#spec.config.preallocate-property){: name='spec.config.preallocate-property'} (boolean). preallocate value.
+- [`remote_storage_enable`](#spec.config.remote_storage_enable-property){: name='spec.config.remote_storage_enable-property'} (boolean). remote_storage_enable.
 - [`retention_bytes`](#spec.config.retention_bytes-property){: name='spec.config.retention_bytes-property'} (integer). retention.bytes value.
 - [`retention_ms`](#spec.config.retention_ms-property){: name='spec.config.retention_ms-property'} (integer). retention.ms value.
 - [`segment_bytes`](#spec.config.segment_bytes-property){: name='spec.config.segment_bytes-property'} (integer). segment.bytes value.
