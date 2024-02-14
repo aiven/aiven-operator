@@ -31,6 +31,7 @@ const (
 	createTimeout      = time.Second * 15
 	waitRunningTimeout = time.Minute * 10
 	yamlBufferSize     = 100
+	defaultNamespace   = "default"
 )
 
 type Session interface {
