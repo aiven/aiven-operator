@@ -73,8 +73,8 @@ Authentication reference to Aiven token in a secret.
 
 **Required**
 
-- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1).
-- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1).
+- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1). 
+- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1). 
 
 ## clickhouseKafka {: #spec.clickhouseKafka }
 
@@ -286,7 +286,7 @@ Kafka MirrorMaker configuration values.
 
 **Optional**
 
-- [`cluster_alias`](#spec.kafkaMirrormaker.cluster_alias-property){: name='spec.kafkaMirrormaker.cluster*alias-property'} (string, Pattern: `^[a-zA-Z0-9*.-]+$`, MaxLength: 128). The alias under which the Kafka cluster is known to MirrorMaker. Can contain the following symbols: ASCII alphanumerics, `.`, `\_`, and `-`.
+- [`cluster_alias`](#spec.kafkaMirrormaker.cluster_alias-property){: name='spec.kafkaMirrormaker.cluster_alias-property'} (string, Pattern: `^[a-zA-Z0-9_.-]+$`, MaxLength: 128). The alias under which the Kafka cluster is known to MirrorMaker. Can contain the following symbols: ASCII alphanumerics, `.`, `_`, and `-`.
 - [`kafka_mirrormaker`](#spec.kafkaMirrormaker.kafka_mirrormaker-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker-property'} (object). Kafka MirrorMaker configuration values. See below for [nested schema](#spec.kafkaMirrormaker.kafka_mirrormaker).
 
 ### kafka_mirrormaker {: #spec.kafkaMirrormaker.kafka_mirrormaker }
@@ -362,3 +362,4 @@ Configuration options for Telegraf MySQL input plugin.
 - [`perf_events_statements_digest_text_limit`](#spec.metrics.source_mysql.telegraf.perf_events_statements_digest_text_limit-property){: name='spec.metrics.source_mysql.telegraf.perf_events_statements_digest_text_limit-property'} (integer, Minimum: 1, Maximum: 2048). Truncates digest text from perf_events_statements into this many characters.
 - [`perf_events_statements_limit`](#spec.metrics.source_mysql.telegraf.perf_events_statements_limit-property){: name='spec.metrics.source_mysql.telegraf.perf_events_statements_limit-property'} (integer, Minimum: 1, Maximum: 4000). Limits metrics from perf_events_statements.
 - [`perf_events_statements_time_limit`](#spec.metrics.source_mysql.telegraf.perf_events_statements_time_limit-property){: name='spec.metrics.source_mysql.telegraf.perf_events_statements_time_limit-property'} (integer, Minimum: 1, Maximum: 2592000). Only include perf_events_statements whose last seen is less than this many seconds.
+

@@ -68,7 +68,6 @@ generate: userconfigs boilerplate imports manifests docs charts fmt ## Run all c
 .PHONY: fmt
 fmt: ## Format code.
 	go fmt ./...
-	trunk fmt
 
 .PHONY: vet
 vet: ## Run go vet against code.

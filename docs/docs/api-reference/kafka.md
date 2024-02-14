@@ -78,8 +78,8 @@ Authentication reference to Aiven token in a secret.
 
 **Required**
 
-- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1).
-- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1).
+- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1). 
+- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1). 
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 
@@ -105,11 +105,11 @@ ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID aut
 
 **Required**
 
-- [`name`](#spec.projectVPCRef.name-property){: name='spec.projectVPCRef.name-property'} (string, MinLength: 1).
+- [`name`](#spec.projectVPCRef.name-property){: name='spec.projectVPCRef.name-property'} (string, MinLength: 1). 
 
 **Optional**
 
-- [`namespace`](#spec.projectVPCRef.namespace-property){: name='spec.projectVPCRef.namespace-property'} (string, MinLength: 1).
+- [`namespace`](#spec.projectVPCRef.namespace-property){: name='spec.projectVPCRef.namespace-property'} (string, MinLength: 1). 
 
 ## serviceIntegrations {: #spec.serviceIntegrations }
 
@@ -119,8 +119,8 @@ Service integrations to specify when creating a service. Not applied after initi
 
 **Required**
 
-- [`integrationType`](#spec.serviceIntegrations.integrationType-property){: name='spec.serviceIntegrations.integrationType-property'} (string, Enum: `read_replica`).
-- [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64).
+- [`integrationType`](#spec.serviceIntegrations.integrationType-property){: name='spec.serviceIntegrations.integrationType-property'} (string, Enum: `read_replica`). 
+- [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64). 
 
 ## technicalEmails {: #spec.technicalEmails }
 
@@ -263,7 +263,7 @@ Kafka Connect configuration values.
 - [`producer_compression_type`](#spec.userConfig.kafka_connect_config.producer_compression_type-property){: name='spec.userConfig.kafka_connect_config.producer_compression_type-property'} (string, Enum: `gzip`, `snappy`, `lz4`, `zstd`, `none`). Specify the default compression type for producers. This configuration accepts the standard compression codecs (`gzip`, `snappy`, `lz4`, `zstd`). It additionally accepts `none` which is the default and equivalent to no compression.
 - [`producer_linger_ms`](#spec.userConfig.kafka_connect_config.producer_linger_ms-property){: name='spec.userConfig.kafka_connect_config.producer_linger_ms-property'} (integer, Minimum: 0, Maximum: 5000). This setting gives the upper bound on the delay for batching: once there is batch.size worth of records for a partition it will be sent immediately regardless of this setting, however if there are fewer than this many bytes accumulated for this partition the producer will `linger` for the specified time waiting for more records to show up. Defaults to 0.
 - [`producer_max_request_size`](#spec.userConfig.kafka_connect_config.producer_max_request_size-property){: name='spec.userConfig.kafka_connect_config.producer_max_request_size-property'} (integer, Minimum: 131072, Maximum: 67108864). This setting will limit the number of record batches the producer will send in a single request to avoid sending huge requests.
-- [`scheduled_rebalance_max_delay_ms`](#spec.userConfig.kafka_connect_config.scheduled_rebalance_max_delay_ms-property){: name='spec.userConfig.kafka_connect_config.scheduled_rebalance_max_delay_ms-property'} (integer, Minimum: 0, Maximum: 600000). The maximum delay that is scheduled in order to wait for the return of one or more departed workers before rebalancing and reassigning their connectors and tasks to the group. During this period the connectors and tasks of the departed workers remain unassigned. Defaults to 5 minutes.
+- [`scheduled_rebalance_max_delay_ms`](#spec.userConfig.kafka_connect_config.scheduled_rebalance_max_delay_ms-property){: name='spec.userConfig.kafka_connect_config.scheduled_rebalance_max_delay_ms-property'} (integer, Minimum: 0, Maximum: 600000). The maximum delay that is scheduled in order to wait for the return of one or more departed workers before rebalancing and reassigning their connectors and tasks to the group. During this period the connectors and tasks of the departed workers remain unassigned.  Defaults to 5 minutes.
 - [`session_timeout_ms`](#spec.userConfig.kafka_connect_config.session_timeout_ms-property){: name='spec.userConfig.kafka_connect_config.session_timeout_ms-property'} (integer, Minimum: 1, Maximum: 2147483647). The timeout in milliseconds used to detect failures when using Kafka’s group management facilities (defaults to 10000).
 
 ### kafka_rest_config {: #spec.userConfig.kafka_rest_config }
@@ -359,3 +359,4 @@ Deprecated. Local cache configuration.
 **Required**
 
 - [`size`](#spec.userConfig.tiered_storage.local_cache.size-property){: name='spec.userConfig.tiered_storage.local_cache.size-property'} (integer, Minimum: 1, Maximum: 107374182400). Deprecated. Local cache size in bytes.
+

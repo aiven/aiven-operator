@@ -85,8 +85,8 @@ Authentication reference to Aiven token in a secret.
 
 **Required**
 
-- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1).
-- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1).
+- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1). 
+- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1). 
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 
@@ -112,11 +112,11 @@ ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID aut
 
 **Required**
 
-- [`name`](#spec.projectVPCRef.name-property){: name='spec.projectVPCRef.name-property'} (string, MinLength: 1).
+- [`name`](#spec.projectVPCRef.name-property){: name='spec.projectVPCRef.name-property'} (string, MinLength: 1). 
 
 **Optional**
 
-- [`namespace`](#spec.projectVPCRef.namespace-property){: name='spec.projectVPCRef.namespace-property'} (string, MinLength: 1).
+- [`namespace`](#spec.projectVPCRef.namespace-property){: name='spec.projectVPCRef.namespace-property'} (string, MinLength: 1). 
 
 ## serviceIntegrations {: #spec.serviceIntegrations }
 
@@ -126,8 +126,8 @@ Service integrations to specify when creating a service. Not applied after initi
 
 **Required**
 
-- [`integrationType`](#spec.serviceIntegrations.integrationType-property){: name='spec.serviceIntegrations.integrationType-property'} (string, Enum: `read_replica`).
-- [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64).
+- [`integrationType`](#spec.serviceIntegrations.integrationType-property){: name='spec.serviceIntegrations.integrationType-property'} (string, Enum: `read_replica`). 
+- [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64). 
 
 ## technicalEmails {: #spec.technicalEmails }
 
@@ -178,7 +178,7 @@ Cassandra specific user configuration options.
 - [`privatelink_access`](#spec.userConfig.privatelink_access-property){: name='spec.userConfig.privatelink_access-property'} (object). Allow access to selected service components through Privatelink. See below for [nested schema](#spec.userConfig.privatelink_access).
 - [`project_to_fork_from`](#spec.userConfig.project_to_fork_from-property){: name='spec.userConfig.project_to_fork_from-property'} (string, Immutable, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.
 - [`public_access`](#spec.userConfig.public_access-property){: name='spec.userConfig.public_access-property'} (object). Allow access to selected service ports from the public Internet. See below for [nested schema](#spec.userConfig.public_access).
-- [`recovery_basebackup_name`](#spec.userConfig.recovery_basebackup_name-property){: name='spec.userConfig.recovery*basebackup_name-property'} (string, Pattern: `^[a-zA-Z0-9-*:.]+$`, MaxLength: 128). Name of the basebackup to restore in forked service.
+- [`recovery_basebackup_name`](#spec.userConfig.recovery_basebackup_name-property){: name='spec.userConfig.recovery_basebackup_name-property'} (string, Pattern: `^[a-zA-Z0-9-_:.]+$`, MaxLength: 128). Name of the basebackup to restore in forked service.
 - [`service_log`](#spec.userConfig.service_log-property){: name='spec.userConfig.service_log-property'} (boolean). Store logs for the service so that they are available in the HTTP API and console.
 - [`service_to_fork_from`](#spec.userConfig.service_to_fork_from-property){: name='spec.userConfig.service_to_fork_from-property'} (string, Immutable, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.
 - [`smtp_server`](#spec.userConfig.smtp_server-property){: name='spec.userConfig.smtp_server-property'} (object). SMTP server settings. See below for [nested schema](#spec.userConfig.smtp_server).
@@ -227,7 +227,7 @@ Generic OAuth integration.
 - [`allowed_domains`](#spec.userConfig.auth_generic_oauth.allowed_domains-property){: name='spec.userConfig.auth_generic_oauth.allowed_domains-property'} (array of strings, MaxItems: 50). Allowed domains.
 - [`allowed_organizations`](#spec.userConfig.auth_generic_oauth.allowed_organizations-property){: name='spec.userConfig.auth_generic_oauth.allowed_organizations-property'} (array of strings, MaxItems: 50). Require user to be member of one of the listed organizations.
 - [`auto_login`](#spec.userConfig.auth_generic_oauth.auto_login-property){: name='spec.userConfig.auth_generic_oauth.auto_login-property'} (boolean). Allow users to bypass the login screen and automatically log in.
-- [`name`](#spec.userConfig.auth_generic_oauth.name-property){: name='spec.userConfig.auth*generic_oauth.name-property'} (string, Pattern: `^[a-zA-Z0-9*\- ]+$`, MaxLength: 128). Name of the OAuth integration.
+- [`name`](#spec.userConfig.auth_generic_oauth.name-property){: name='spec.userConfig.auth_generic_oauth.name-property'} (string, Pattern: `^[a-zA-Z0-9_\- ]+$`, MaxLength: 128). Name of the OAuth integration.
 - [`scopes`](#spec.userConfig.auth_generic_oauth.scopes-property){: name='spec.userConfig.auth_generic_oauth.scopes-property'} (array of strings, MaxItems: 50). OAuth scopes.
 
 ### auth_github {: #spec.userConfig.auth_github }
@@ -377,3 +377,4 @@ SMTP server settings.
 - [`skip_verify`](#spec.userConfig.smtp_server.skip_verify-property){: name='spec.userConfig.smtp_server.skip_verify-property'} (boolean). Skip verifying server certificate. Defaults to false.
 - [`starttls_policy`](#spec.userConfig.smtp_server.starttls_policy-property){: name='spec.userConfig.smtp_server.starttls_policy-property'} (string, Enum: `OpportunisticStartTLS`, `MandatoryStartTLS`, `NoStartTLS`). Either OpportunisticStartTLS, MandatoryStartTLS or NoStartTLS. Default is OpportunisticStartTLS.
 - [`username`](#spec.userConfig.smtp_server.username-property){: name='spec.userConfig.smtp_server.username-property'} (string, Pattern: `^[^\x00-\x1F]+$`, MaxLength: 255). Username for SMTP authentication.
+

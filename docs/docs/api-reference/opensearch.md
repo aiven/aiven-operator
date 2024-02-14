@@ -78,8 +78,8 @@ Authentication reference to Aiven token in a secret.
 
 **Required**
 
-- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1).
-- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1).
+- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1). 
+- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1). 
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 
@@ -105,11 +105,11 @@ ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID aut
 
 **Required**
 
-- [`name`](#spec.projectVPCRef.name-property){: name='spec.projectVPCRef.name-property'} (string, MinLength: 1).
+- [`name`](#spec.projectVPCRef.name-property){: name='spec.projectVPCRef.name-property'} (string, MinLength: 1). 
 
 **Optional**
 
-- [`namespace`](#spec.projectVPCRef.namespace-property){: name='spec.projectVPCRef.namespace-property'} (string, MinLength: 1).
+- [`namespace`](#spec.projectVPCRef.namespace-property){: name='spec.projectVPCRef.namespace-property'} (string, MinLength: 1). 
 
 ## serviceIntegrations {: #spec.serviceIntegrations }
 
@@ -119,8 +119,8 @@ Service integrations to specify when creating a service. Not applied after initi
 
 **Required**
 
-- [`integrationType`](#spec.serviceIntegrations.integrationType-property){: name='spec.serviceIntegrations.integrationType-property'} (string, Enum: `read_replica`).
-- [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64).
+- [`integrationType`](#spec.serviceIntegrations.integrationType-property){: name='spec.serviceIntegrations.integrationType-property'} (string, Enum: `read_replica`). 
+- [`sourceServiceName`](#spec.serviceIntegrations.sourceServiceName-property){: name='spec.serviceIntegrations.sourceServiceName-property'} (string, MinLength: 1, MaxLength: 64). 
 
 ## technicalEmails {: #spec.technicalEmails }
 
@@ -156,7 +156,7 @@ OpenSearch specific user configuration options.
 - [`privatelink_access`](#spec.userConfig.privatelink_access-property){: name='spec.userConfig.privatelink_access-property'} (object). Allow access to selected service components through Privatelink. See below for [nested schema](#spec.userConfig.privatelink_access).
 - [`project_to_fork_from`](#spec.userConfig.project_to_fork_from-property){: name='spec.userConfig.project_to_fork_from-property'} (string, Immutable, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.
 - [`public_access`](#spec.userConfig.public_access-property){: name='spec.userConfig.public_access-property'} (object). Allow access to selected service ports from the public Internet. See below for [nested schema](#spec.userConfig.public_access).
-- [`recovery_basebackup_name`](#spec.userConfig.recovery_basebackup_name-property){: name='spec.userConfig.recovery*basebackup_name-property'} (string, Pattern: `^[a-zA-Z0-9-*:.]+$`, MaxLength: 128). Name of the basebackup to restore in forked service.
+- [`recovery_basebackup_name`](#spec.userConfig.recovery_basebackup_name-property){: name='spec.userConfig.recovery_basebackup_name-property'} (string, Pattern: `^[a-zA-Z0-9-_:.]+$`, MaxLength: 128). Name of the basebackup to restore in forked service.
 - [`saml`](#spec.userConfig.saml-property){: name='spec.userConfig.saml-property'} (object). OpenSearch SAML configuration. See below for [nested schema](#spec.userConfig.saml).
 - [`service_log`](#spec.userConfig.service_log-property){: name='spec.userConfig.service_log-property'} (boolean). Store logs for the service so that they are available in the HTTP API and console.
 - [`service_to_fork_from`](#spec.userConfig.service_to_fork_from-property){: name='spec.userConfig.service_to_fork_from-property'} (string, Immutable, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.
@@ -171,7 +171,7 @@ Index patterns.
 **Required**
 
 - [`max_index_count`](#spec.userConfig.index_patterns.max_index_count-property){: name='spec.userConfig.index_patterns.max_index_count-property'} (integer, Minimum: 0). Maximum number of indexes to keep.
-- [`pattern`](#spec.userConfig.index_patterns.pattern-property){: name='spec.userConfig.index*patterns.pattern-property'} (string, Pattern: `^[A-Za-z0-9-*.\*?]+$`, MaxLength: 1024). fnmatch pattern.
+- [`pattern`](#spec.userConfig.index_patterns.pattern-property){: name='spec.userConfig.index_patterns.pattern-property'} (string, Pattern: `^[A-Za-z0-9-_.*?]+$`, MaxLength: 1024). fnmatch pattern.
 
 **Optional**
 
@@ -240,7 +240,7 @@ OpenSearch settings.
 - [`auth_failure_listeners`](#spec.userConfig.opensearch.auth_failure_listeners-property){: name='spec.userConfig.opensearch.auth_failure_listeners-property'} (object). Opensearch Security Plugin Settings. See below for [nested schema](#spec.userConfig.opensearch.auth_failure_listeners).
 - [`cluster_max_shards_per_node`](#spec.userConfig.opensearch.cluster_max_shards_per_node-property){: name='spec.userConfig.opensearch.cluster_max_shards_per_node-property'} (integer, Minimum: 100, Maximum: 10000). Controls the number of shards allowed in the cluster per data node.
 - [`cluster_routing_allocation_node_concurrent_recoveries`](#spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property){: name='spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property'} (integer, Minimum: 2, Maximum: 16). How many concurrent incoming/outgoing shard recoveries (normally replicas) are allowed to happen on a node. Defaults to 2.
-- [`email_sender_name`](#spec.userConfig.opensearch.email_sender_name-property){: name='spec.userConfig.opensearch.email*sender_name-property'} (string, Pattern: `^[a-zA-Z0-9-*]+$`, MaxLength: 40). Sender name placeholder to be used in Opensearch Dashboards and Opensearch keystore.
+- [`email_sender_name`](#spec.userConfig.opensearch.email_sender_name-property){: name='spec.userConfig.opensearch.email_sender_name-property'} (string, Pattern: `^[a-zA-Z0-9-_]+$`, MaxLength: 40). Sender name placeholder to be used in Opensearch Dashboards and Opensearch keystore.
 - [`email_sender_password`](#spec.userConfig.opensearch.email_sender_password-property){: name='spec.userConfig.opensearch.email_sender_password-property'} (string, Pattern: `^[^\x00-\x1F]+$`, MaxLength: 1024). Sender password for Opensearch alerts to authenticate with SMTP server.
 - [`email_sender_username`](#spec.userConfig.opensearch.email_sender_username-property){: name='spec.userConfig.opensearch.email_sender_username-property'} (string, Pattern: `^[^\x00-\x1F]+$`, MaxLength: 320). Sender username for Opensearch alerts.
 - [`enable_security_audit`](#spec.userConfig.opensearch.enable_security_audit-property){: name='spec.userConfig.opensearch.enable_security_audit-property'} (boolean). Enable/Disable security audit.
@@ -285,7 +285,7 @@ Opensearch Security Plugin Settings.
 
 **Optional**
 
-- [`internal_authentication_backend_limiting`](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting-property){: name='spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting-property'} (object). See below for [nested schema](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting).
+- [`internal_authentication_backend_limiting`](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting-property){: name='spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting-property'} (object).  See below for [nested schema](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting).
 - [`ip_rate_limiting`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting-property'} (object). IP address rate limiting settings. See below for [nested schema](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting).
 
 ##### internal_authentication_backend_limiting {: #spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting }
@@ -383,3 +383,4 @@ OpenSearch SAML configuration.
 - [`idp_pemtrustedcas_content`](#spec.userConfig.saml.idp_pemtrustedcas_content-property){: name='spec.userConfig.saml.idp_pemtrustedcas_content-property'} (string, MaxLength: 16384). This parameter specifies the PEM-encoded root certificate authority (CA) content for the SAML identity provider (IdP) server verification. The root CA content is used to verify the SSL/TLS certificate presented by the server.
 - [`roles_key`](#spec.userConfig.saml.roles_key-property){: name='spec.userConfig.saml.roles_key-property'} (string, MinLength: 1, MaxLength: 256). Optional. Specifies the attribute in the SAML response where role information is stored, if available. Role attributes are not required for SAML authentication, but can be included in SAML assertions by most Identity Providers (IdPs) to determine user access levels or permissions.
 - [`subject_key`](#spec.userConfig.saml.subject_key-property){: name='spec.userConfig.saml.subject_key-property'} (string, MinLength: 1, MaxLength: 256). Optional. Specifies the attribute in the SAML response where the subject identifier is stored. If not configured, the NameID attribute is used by default.
+
