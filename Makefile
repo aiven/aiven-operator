@@ -167,7 +167,6 @@ serve-docs: ## Run live preview.
 LOCALBIN ?= $(shell pwd)/bin
 $(LOCALBIN):
 	mkdir -p $(LOCALBIN)
-TOOLS_DIR := hack/tools
 
 ## Tool Binaries
 KUBECTL ?= kubectl
@@ -175,12 +174,14 @@ KUSTOMIZE ?= $(LOCALBIN)/kustomize-$(KUSTOMIZE_VERSION)
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen-$(CONTROLLER_TOOLS_VERSION)
 ENVTEST ?= $(LOCALBIN)/setup-envtest-$(ENVTEST_VERSION)
 GOLANGCI_LINT = $(LOCALBIN)/golangci-lint-$(GOLANGCI_LINT_VERSION)
+SELPROJ = $(LOCALBIN)/selproj-$(SELPROJ_VERSION)
 
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v4.5.7
 CONTROLLER_TOOLS_VERSION ?= v0.9.2
 ENVTEST_VERSION ?= release-0.16
 GOLANGCI_LINT_VERSION ?= v1.54.2
+SELPROJ_VERSION ?= v0.1.0
 
 .PHONY: kustomize
 kustomize: $(KUSTOMIZE) ## Download kustomize locally if necessary.
@@ -204,7 +205,15 @@ $(ENVTEST): $(LOCALBIN)
 .PHONY: golangci-lint
 golangci-lint: $(GOLANGCI_LINT) ## Download golangci-lint locally if necessary.
 $(GOLANGCI_LINT): $(LOCALBIN)
-	$(call go-install-tool,$(GOLANGCI_LINT),github.com/golangci/golangci-lint/cmd/golangci-lint,${GOLANGCI_LINT_VERSION})
+	$(call go-install-tool,$(GOLANGCI_LINT),github.com/golangci/golangci-lint/cmd/golangci-lint,$(GOLANGCI_LINT_VERSION))
+
+.PHONY: selproj ci-selproj
+selproj: $(SELPROJ)
+$(SELPROJ): $(LOCALBIN)
+	$(call go-install-tool,$(SELPROJ),github.com/aiven/go-utils/selproj,$(SELPROJ_VERSION))
+
+ci-selproj: selproj
+	$(SELPROJ)
 
 ENABLE_WEBHOOKS ?= true
 CERT_MANAGER_TAG ?= v1.11.0
