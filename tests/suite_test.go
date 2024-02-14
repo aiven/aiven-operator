@@ -33,9 +33,8 @@ var (
 )
 
 const (
-	secretRefName    = "aiven-token"
-	secretRefKey     = "token"
-	defaultNamespace = "default"
+	secretRefName = "aiven-token"
+	secretRefKey  = "token"
 )
 
 func TestMain(m *testing.M) {
