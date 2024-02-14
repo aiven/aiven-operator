@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	retryInterval      = time.Second * 5
+	retryInterval      = time.Second * 10
 	createTimeout      = time.Second * 15
 	waitRunningTimeout = time.Minute * 10
 	yamlBufferSize     = 100
@@ -111,7 +111,7 @@ func (s *session) GetRunning(obj client.Object, keys ...string) error {
 	ctx, cancel := context.WithTimeout(s.ctx, waitRunningTimeout)
 	defer cancel()
 
-	return retryForever(ctx, func() (bool, error) {
+	return retryForever(ctx, fmt.Sprintf("verify %s is running", key), func() (bool, error) {
 		err := s.k8s.Get(ctx, key, obj)
 		if err != nil {
 			// The error is quite verbose
@@ -190,7 +190,7 @@ func (s *session) delete(o client.Object) error {
 
 	// Waits being deleted from kube
 	key := types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()}
-	return retryForever(s.ctx, func() (bool, error) {
+	return retryForever(s.ctx, fmt.Sprintf("delete %s", o.GetName()), func() (bool, error) {
 		err := s.k8s.Get(s.ctx, key, o)
 		return !isNotFound(err), nil
 	})
@@ -204,17 +204,20 @@ func (s *session) recover() {
 	}
 }
 
-func retryForever(ctx context.Context, f func() (bool, error)) (err error) {
+func retryForever(ctx context.Context, operation string, f func() (bool, error)) (err error) {
 	retry := false
+	log.Printf("Starting operation: %s\n", operation)
+
 	for {
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("context timeout while retrying operation, error=%q", err)
+			return fmt.Errorf("context timeout while retrying operation: %s, error=%q", operation, err)
 		case <-time.After(retryInterval):
 			retry, err = f()
 			if retry {
 				continue
 			}
+			log.Printf("Operation %s finished\n", operation)
 			return err
 		}
 	}
