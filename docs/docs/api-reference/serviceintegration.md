@@ -286,7 +286,7 @@ Kafka MirrorMaker configuration values.
 
 **Optional**
 
-- [`cluster_alias`](#spec.kafkaMirrormaker.cluster_alias-property){: name='spec.kafkaMirrormaker.cluster*alias-property'} (string, Pattern: `^[a-zA-Z0-9*.-]+$`, MaxLength: 128). The alias under which the Kafka cluster is known to MirrorMaker. Can contain the following symbols: ASCII alphanumerics, `.`, `\_`, and `-`.
+- [`cluster_alias`](#spec.kafkaMirrormaker.cluster_alias-property){: name='spec.kafkaMirrormaker.cluster_alias-property'} (string, Pattern: `^[a-zA-Z0-9_.-]+$`, MaxLength: 128). The alias under which the Kafka cluster is known to MirrorMaker. Can contain the following symbols: ASCII alphanumerics, `.`, `_`, and `-`.
 - [`kafka_mirrormaker`](#spec.kafkaMirrormaker.kafka_mirrormaker-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker-property'} (object). Kafka MirrorMaker configuration values. See below for [nested schema](#spec.kafkaMirrormaker.kafka_mirrormaker).
 
 ### kafka_mirrormaker {: #spec.kafkaMirrormaker.kafka_mirrormaker }
