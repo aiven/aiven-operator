@@ -351,11 +351,11 @@ title: "{{ .Kind }}"
 {{ .GetUsageExample }}
 {{ end }}
 
-{{- template "renderSchema" . }}
+{{- template "renderSchema" . -}}
 
-{{ define "renderSchema" }}
+{{ define "renderSchema" -}}
 {{ if .Items }}
-	{{- template "renderSchema" .Items }}
+    {{- template "renderSchema" .Items -}}
 {{ else }}
 {{ .GetHeader }}
 
@@ -365,33 +365,33 @@ title: "{{ .Kind }}"
 {{ end }}
 
 {{ $req := .ListRequired }}
-{{ if $req }}
+{{- if $req }}
 **Required**
 
 {{ range $req }}
-	{{- template "renderProp" . }}
-{{- end }}
-{{ end }}
+    {{- template "renderProp" . -}}
+{{- end -}}
+{{ end -}}
 
-{{ $opt := .ListOptional }}
-{{ if $opt }}
+{{- $opt := .ListOptional }}
+{{- if $opt }}
 **Optional**
 
 {{ range $opt }}
-	{{- template "renderProp" . }}
-{{- end }}
-{{ end }}
+    {{- template "renderProp" . -}}
+{{- end -}}
+{{ end -}}
 
-{{ range .ListProperties 0 }}
-	{{- if .IsNested }}
-		{{- template "renderSchema" . }}
-	{{- end }}
-{{- end }}
-{{ end }}
+{{ range .ListProperties 0 -}}
+    {{- if .IsNested -}}
+        {{- template "renderSchema" . -}}
+    {{- end -}}
+{{- end -}}
+{{ end -}}
 
 {{ define "renderProp" -}}
-- {{ .GetPropertyLink }} ({{ .GetDef }}). {{ .GetDescription }}{{ if .IsNested }} See below for [nested schema](#{{ .GetID }}).{{ end }}
-{{ end }}
+- {{ .GetPropertyLink }} ({{ .GetDef }}).{{ if .GetDescription }} {{ .GetDescription }}{{ end }}{{ if .IsNested }} See below for [nested schema](#{{ .GetID }}).{{ end }}
+{{ end -}}
 `
 
 // reTrailingZeros finds trailing zeros
