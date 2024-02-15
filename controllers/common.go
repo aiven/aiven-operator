@@ -144,14 +144,6 @@ func fromAnyPointer[T any](v *T) T {
 	return t
 }
 
-func anyOptional[T comparable](v T) *T {
-	var zero T
-	if zero == v {
-		return nil
-	}
-	return &v
-}
-
 type objWithSecret interface {
 	GetName() string
 	GetNamespace() string
