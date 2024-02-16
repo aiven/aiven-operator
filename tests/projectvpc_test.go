@@ -147,7 +147,7 @@ func TestProjectVPCID(t *testing.T) {
 
 	// Gets Aiven object
 	var kafkaAvnUpd *aiven.Service
-	require.NoError(t, retryForever(ctx, func() (bool, error) {
+	require.NoError(t, retryForever(ctx, fmt.Sprintf("migrate %s to VPC with ID %s", kafkaName, vpc2.Status.ID), func() (bool, error) {
 		kafkaAvnUpd, err = avnClient.Services.Get(ctx, testProject, kafkaName)
 		if err != nil {
 			return false, err
