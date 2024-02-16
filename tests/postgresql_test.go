@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/aiven/aiven-go-client/v2"
+	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
@@ -246,4 +249,69 @@ func TestPgCustomPrefix(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["MY_PG_SSLMODE"])
 	assert.NotEmpty(t, secret.Data["MY_PG_DATABASE_URI"])
 	assert.NotEmpty(t, secret.Data["MY_PG_CA_CERT"])
+}
+
+func getPgUpgradeVersionYaml(project, pgName, cloudName, version string) string {
+	return fmt.Sprintf(`
+  apiVersion: aiven.io/v1alpha1
+  kind: PostgreSQL
+  metadata:
+    name: %[2]s
+  spec:
+    authSecretRef:
+      name: aiven-token
+      key: token
+    project: %[1]s
+    cloudName: %[3]s
+    plan: startup-4
+    userConfig:
+      pg_version: "%[4]s"
+`, project, pgName, cloudName, version)
+}
+
+func TestPgUpgradeVersion(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	pgVersions := service.TargetVersionTypeChoices()
+	startingVersion := pgVersions[len(pgVersions)-2]
+	targetVersion := pgVersions[len(pgVersions)-1]
+
+	ctx := context.Background()
+	pgName := randName("upgrade-test")
+	yaml := getPgUpgradeVersionYaml(cfg.Project, pgName, cfg.PrimaryCloudName, startingVersion)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
+
+	defer s.Destroy()
+
+	require.NoError(t, s.Apply(yaml))
+
+	pg := new(v1alpha1.PostgreSQL)
+	require.NoError(t, s.GetRunning(pg, pgName))
+
+	pgAvn, err := avnClient.Services.Get(ctx, cfg.Project, pgName)
+	require.NoError(t, err)
+	assert.Equal(t, startingVersion, pgAvn.UserConfig["pg_version"])
+	assert.Equal(t, anyPointer(startingVersion), pg.Spec.UserConfig.PgVersion)
+
+	require.NotNil(t, pg.Spec.UserConfig)
+	assert.NotNil(t, pgAvn.UserConfig)
+
+	updatedYaml := getPgUpgradeVersionYaml(cfg.Project, pgName, cfg.PrimaryCloudName, targetVersion)
+	require.NoError(t, s.Apply(updatedYaml))
+
+	// Verify that the service was upgraded successfully
+	var pgAvnUpd *aiven.Service
+	require.NoError(t, retryForever(ctx, "check that PG version was upgraded", func() (bool, error) {
+		pgAvnUpd, err = avnClient.Services.Get(ctx, cfg.Project, pgName)
+		if err != nil {
+			return false, err
+		}
+
+		return pgAvnUpd.UserConfig["pg_version"] != startingVersion, nil
+	}))
+
+	pgUpd := new(v1alpha1.PostgreSQL)
+	require.NoError(t, k8sClient.Get(ctx, types.NamespacedName{Name: pgName, Namespace: "default"}, pgUpd))
+	assert.Equal(t, targetVersion, *pgUpd.Spec.UserConfig.PgVersion)
 }
