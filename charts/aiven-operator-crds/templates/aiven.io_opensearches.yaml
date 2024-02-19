@@ -57,7 +57,8 @@ spec:
                 connInfoSecretTarget:
                   description:
                     "Information regarding secret creation. Exposed keys:
-                    `OPENSEARCH_HOST`, `OPENSEARCH_PORT`, `OPENSEARCH_USER`, `OPENSEARCH_PASSWORD`"
+                    `OPENSEARCH_HOST`, `OPENSEARCH_PORT`, `OPENSEARCH_USER`, `OPENSEARCH_PASSWORD`,
+                    `OPENSEARCH_CA_CERT`"
                   properties:
                     annotations:
                       additionalProperties:
@@ -74,7 +75,7 @@ spec:
                     name:
                       description:
                         Name of the secret resource to be created. By default,
-                        is equal to the resource name
+                        it is equal to the resource name
                       type: string
                     prefix:
                       description:

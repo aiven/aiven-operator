@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/aiven/aiven-go-client/v2 v2.12.0
 	github.com/aiven/go-api-schemas v1.59.0
-	github.com/aiven/go-client-codegen v0.0.0-20240209135349-3182cbc52bc8
+	github.com/aiven/go-client-codegen v0.0.0-20240213112349-71431469935b
 	github.com/dave/jennifer v1.7.0
 	github.com/docker/go-units v0.5.0
 	github.com/ghodss/yaml v1.0.0

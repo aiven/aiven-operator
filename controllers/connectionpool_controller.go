@@ -131,6 +131,11 @@ func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, avnGe
 		return nil, fmt.Errorf("cannot get ConnectionPool: %w", err)
 	}
 
+	cert, err := avnGen.ProjectKmsGetCA(ctx, connPool.Spec.Project)
+	if err != nil {
+		return nil, fmt.Errorf("cannot retrieve project CA certificate: %w", err)
+	}
+
 	// The pool comes with its own port
 	poolURI, err := url.Parse(cp.ConnectionURI)
 	if err != nil {
@@ -159,6 +164,7 @@ func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, avnGe
 			prefix + "PASSWORD":     s.URIParams["password"],
 			prefix + "SSLMODE":      s.URIParams["sslmode"],
 			prefix + "DATABASE_URI": cp.ConnectionURI,
+			prefix + "CA_CERT":      cert,
 			// todo: remove in future releases
 			"PGHOST":       s.URIParams["host"],
 			"PGPORT":       poolURI.Port(),
@@ -187,6 +193,7 @@ func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, avnGe
 		prefix + "PASSWORD":     u.Password,
 		prefix + "SSLMODE":      s.URIParams["sslmode"],
 		prefix + "DATABASE_URI": cp.ConnectionURI,
+		prefix + "CA_CERT":      cert,
 		// todo: remove in future releases
 		"PGHOST":       s.URIParams["host"],
 		"PGPORT":       poolURI.Port(),

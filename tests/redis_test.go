@@ -106,4 +106,5 @@ func TestRedis(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["REDIS_PORT"])
 	assert.NotEmpty(t, secret.Data["REDIS_USER"])
 	assert.NotEmpty(t, secret.Data["REDIS_PASSWORD"])
+	assert.NotEmpty(t, secret.Data["REDIS_CA_CERT"])
 }

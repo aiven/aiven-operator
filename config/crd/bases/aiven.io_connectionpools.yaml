@@ -74,7 +74,7 @@ spec:
                     "Information regarding secret creation. Exposed keys:
                     `CONNECTIONPOOL_NAME`, `CONNECTIONPOOL_HOST`, `CONNECTIONPOOL_PORT`,
                     `CONNECTIONPOOL_DATABASE`, `CONNECTIONPOOL_USER`, `CONNECTIONPOOL_PASSWORD`,
-                    `CONNECTIONPOOL_SSLMODE`, `CONNECTIONPOOL_DATABASE_URI`"
+                    `CONNECTIONPOOL_SSLMODE`, `CONNECTIONPOOL_DATABASE_URI`, `CONNECTIONPOOL_CA_CERT`"
                   properties:
                     annotations:
                       additionalProperties:
@@ -91,7 +91,7 @@ spec:
                     name:
                       description:
                         Name of the secret resource to be created. By default,
-                        is equal to the resource name
+                        it is equal to the resource name
                       type: string
                     prefix:
                       description:

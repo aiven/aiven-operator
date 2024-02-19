@@ -112,6 +112,7 @@ func TestKafka(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["PASSWORD"])
 	assert.NotEmpty(t, secret.Data["ACCESS_CERT"])
 	assert.NotEmpty(t, secret.Data["ACCESS_KEY"])
+	assert.NotEmpty(t, secret.Data["CA_CERT"])
 
 	// New secrets
 	assert.NotEmpty(t, secret.Data["KAFKA_HOST"])
@@ -120,6 +121,7 @@ func TestKafka(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["KAFKA_PASSWORD"])
 	assert.NotEmpty(t, secret.Data["KAFKA_ACCESS_CERT"])
 	assert.NotEmpty(t, secret.Data["KAFKA_ACCESS_KEY"])
+	assert.NotEmpty(t, secret.Data["KAFKA_CA_CERT"])
 
 	// SASL test
 	assert.Equal(t, anyPointer(true), ks.Spec.UserConfig.KafkaAuthenticationMethods.Sasl)

@@ -142,6 +142,7 @@ func TestPgReadReplica(t *testing.T) {
 		assert.NotEmpty(t, secret.Data["POSTGRESQL_PASSWORD"])
 		assert.NotEmpty(t, secret.Data["POSTGRESQL_SSLMODE"])
 		assert.NotEmpty(t, secret.Data["POSTGRESQL_DATABASE_URI"])
+		assert.NotEmpty(t, secret.Data["POSTGRESQL_CA_CERT"])
 	}
 }
 
@@ -244,4 +245,5 @@ func TestPgCustomPrefix(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["MY_PG_PASSWORD"])
 	assert.NotEmpty(t, secret.Data["MY_PG_SSLMODE"])
 	assert.NotEmpty(t, secret.Data["MY_PG_DATABASE_URI"])
+	assert.NotEmpty(t, secret.Data["MY_PG_CA_CERT"])
 }

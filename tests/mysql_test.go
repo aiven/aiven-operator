@@ -111,4 +111,5 @@ func TestMySQL(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["MYSQL_SSL_MODE"])
 	assert.NotEmpty(t, secret.Data["MYSQL_URI"])
 	assert.NotEmpty(t, secret.Data["MYSQL_REPLICA_URI"]) // business-4 has replica
+	assert.NotEmpty(t, secret.Data["MYSQL_CA_CERT"])
 }

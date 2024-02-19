@@ -165,6 +165,7 @@ func TestConnectionPool(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_PASSWORD"])
 	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_SSLMODE"])
 	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_DATABASE_URI"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_CA_CERT"])
 
 	// URI contains valid values
 	uri := string(secret.Data["CONNECTIONPOOL_DATABASE_URI"])

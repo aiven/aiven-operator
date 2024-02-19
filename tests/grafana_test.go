@@ -110,4 +110,5 @@ func TestGrafana(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["GRAFANA_PASSWORD"])
 	assert.NotEmpty(t, secret.Data["GRAFANA_URI"])
 	assert.NotEmpty(t, secret.Data["GRAFANA_HOSTS"])
+	assert.NotEmpty(t, secret.Data["GRAFANA_CA_CERT"])
 }

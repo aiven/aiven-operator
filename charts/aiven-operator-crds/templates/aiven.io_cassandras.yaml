@@ -71,7 +71,7 @@ spec:
                   description:
                     "Information regarding secret creation. Exposed keys:
                     `CASSANDRA_HOST`, `CASSANDRA_PORT`, `CASSANDRA_USER`, `CASSANDRA_PASSWORD`,
-                    `CASSANDRA_URI`, `CASSANDRA_HOSTS`"
+                    `CASSANDRA_URI`, `CASSANDRA_HOSTS`, `CASSANDRA_CA_CERT`"
                   properties:
                     annotations:
                       additionalProperties:
@@ -88,7 +88,7 @@ spec:
                     name:
                       description:
                         Name of the secret resource to be created. By default,
-                        is equal to the resource name
+                        it is equal to the resource name
                       type: string
                     prefix:
                       description:

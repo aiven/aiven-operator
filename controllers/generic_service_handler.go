@@ -166,7 +166,8 @@ func (h *genericServiceHandler) get(ctx context.Context, avn *aiven.Client, avnG
 		return nil, err
 	}
 
-	s, err := avn.Services.Get(ctx, o.getServiceCommonSpec().Project, o.getObjectMeta().Name)
+	spec := o.getServiceCommonSpec()
+	s, err := avn.Services.Get(ctx, spec.Project, o.getObjectMeta().Name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get service from Aiven: %w", err)
 	}
@@ -181,7 +182,24 @@ func (h *genericServiceHandler) get(ctx context.Context, avn *aiven.Client, avnG
 
 		// Some services get secrets after they are running only,
 		// like ip addresses (hosts)
-		return o.newSecret(ctx, s)
+		secret, err := o.newSecret(ctx, s)
+		if err != nil || secret == nil {
+			return secret, err
+		}
+
+		cert, err := avnGen.ProjectKmsGetCA(ctx, spec.Project)
+		if err != nil {
+			return nil, fmt.Errorf("cannot retrieve project CA certificate: %w", err)
+		}
+
+		// We don't expect the StringData map to be empty, it must panic.
+		prefix := getSecretPrefix(o)
+		secret.StringData[prefix+"CA_CERT"] = cert
+		if o.getServiceType() == "kafka" {
+			// todo: backward compatibility, remove in future releases
+			secret.StringData["CA_CERT"] = cert
+		}
+		return secret, nil
 	}
 	return nil, nil
 }
@@ -212,6 +230,7 @@ type serviceAdapterFabric func(*aiven.Client, client.Object) (serviceAdapter, er
 
 // serviceAdapter turns client.Object into a generic thing
 type serviceAdapter interface {
+	objWithSecret
 	getObjectMeta() *metav1.ObjectMeta
 	getServiceStatus() *v1alpha1.ServiceStatus
 	getServiceCommonSpec() *v1alpha1.ServiceCommonSpec
