@@ -58,7 +58,7 @@ type Pg struct {
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=2147483647
-	// Specifies the minimum number of inserted, updated or deleted tuples needed to trigger an  ANALYZE in any one table. The default is 50 tuples.
+	// Specifies the minimum number of inserted, updated or deleted tuples needed to trigger an ANALYZE in any one table. The default is 50 tuples.
 	AutovacuumAnalyzeThreshold *int `groups:"create,update" json:"autovacuum_analyze_threshold,omitempty"`
 
 	// +kubebuilder:validation:Minimum=200000000
