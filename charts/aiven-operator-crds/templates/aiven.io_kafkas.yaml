@@ -753,7 +753,7 @@ spec:
                             to wait for the return of one or more departed workers before
                             rebalancing and reassigning their connectors and tasks to
                             the group. During this period the connectors and tasks of
-                            the departed workers remain unassigned.  Defaults to 5 minutes.
+                            the departed workers remain unassigned. Defaults to 5 minutes.
                           maximum: 600000
                           minimum: 0
                           type: integer

@@ -394,8 +394,8 @@ spec:
                             "Specifies whether flushing a page from the InnoDB
                             buffer pool also flushes other dirty pages in the same extent
                             (default is 1): 0 - dirty pages in the same extent are not
-                            flushed,  1 - flush contiguous dirty pages in the same extent,  2
-                            - flush dirty pages in the same extent"
+                            flushed, 1 - flush contiguous dirty pages in the same extent,
+                            2 - flush dirty pages in the same extent"
                           maximum: 2
                           minimum: 0
                           type: integer
