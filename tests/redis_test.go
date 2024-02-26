@@ -47,8 +47,8 @@ func TestRedis(t *testing.T) {
 	// GIVEN
 	ctx := context.Background()
 	name := randName("redis")
-	yml := getRedisYaml(testProject, name, testPrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, testProject)
+	yml := getRedisYaml(cfg.Project, name, cfg.PrimaryCloudName)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterwards
 	defer s.Destroy()
@@ -62,7 +62,7 @@ func TestRedis(t *testing.T) {
 	require.NoError(t, s.GetRunning(rs, name))
 
 	// THEN
-	rsAvn, err := avnClient.Services.Get(ctx, testProject, name)
+	rsAvn, err := avnClient.Services.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Equal(t, rsAvn.Name, rs.GetName())
 	assert.Equal(t, "RUNNING", rs.Status.State)
@@ -70,7 +70,7 @@ func TestRedis(t *testing.T) {
 	assert.Equal(t, rsAvn.Plan, rs.Spec.Plan)
 	assert.Equal(t, rsAvn.CloudName, rs.Spec.CloudName)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, rs.Spec.Tags)
-	rsResp, err := avnClient.ServiceTags.Get(ctx, testProject, name)
+	rsResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Equal(t, rsResp.Tags, rs.Spec.Tags)
 

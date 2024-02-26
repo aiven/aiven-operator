@@ -83,8 +83,8 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	pgName := randName("clickhouse-postgresql")
 	siName := randName("clickhouse-postgresql")
 
-	yml := getClickhousePostgreSQLYaml(testProject, chName, pgName, siName, testPrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, testProject)
+	yml := getClickhousePostgreSQLYaml(cfg.Project, chName, pgName, siName, cfg.PrimaryCloudName)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterwards
 	defer s.Destroy()
@@ -105,7 +105,7 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 
 	// THEN
 	// Validates Clickhouse
-	chAvn, err := avnClient.Services.Get(ctx, testProject, chName)
+	chAvn, err := avnClient.Services.Get(ctx, cfg.Project, chName)
 	require.NoError(t, err)
 	assert.Equal(t, chAvn.Name, ch.GetName())
 	assert.Equal(t, chAvn.State, ch.Status.State)
@@ -115,7 +115,7 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	assert.Equal(t, chAvn.MaintenanceWindow.TimeOfDay, ch.Spec.MaintenanceWindowTime)
 
 	// Validates PostgreSQL
-	pgAvn, err := avnClient.Services.Get(ctx, testProject, pgName)
+	pgAvn, err := avnClient.Services.Get(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
 	assert.Equal(t, pgAvn.Name, pg.GetName())
 	assert.Equal(t, pgAvn.State, pg.Status.State)
@@ -126,7 +126,7 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	assert.Equal(t, pgAvn.UserConfig["pg_version"].(string), *pg.Spec.UserConfig.PgVersion)
 
 	// Validates ServiceIntegration
-	siAvn, err := avnClient.ServiceIntegrations.Get(ctx, testProject, si.Status.ID)
+	siAvn, err := avnClient.ServiceIntegrations.Get(ctx, cfg.Project, si.Status.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "clickhouse_postgresql", siAvn.IntegrationType)
 	assert.Equal(t, siAvn.IntegrationType, si.Spec.IntegrationType)
@@ -198,8 +198,8 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 	ktName := randName("kafka-logs")
 	siName := randName("kafka-logs")
 
-	yml := getKafkaLogsYaml(testProject, ksName, ktName, siName, testPrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, testProject)
+	yml := getKafkaLogsYaml(cfg.Project, ksName, ktName, siName, cfg.PrimaryCloudName)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterwards
 	defer s.Destroy()
@@ -220,7 +220,7 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 
 	// THEN
 	// Validates Kafka
-	ksAvn, err := avnClient.Services.Get(ctx, testProject, ksName)
+	ksAvn, err := avnClient.Services.Get(ctx, cfg.Project, ksName)
 	require.NoError(t, err)
 	assert.Equal(t, ksAvn.Name, ks.GetName())
 	assert.Equal(t, ksAvn.State, ks.Status.State)
@@ -228,7 +228,7 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 	assert.Equal(t, ksAvn.CloudName, ks.Spec.CloudName)
 
 	// Validates KafkaTopic
-	ktAvn, err := avnClient.KafkaTopics.Get(ctx, testProject, ksName, ktName)
+	ktAvn, err := avnClient.KafkaTopics.Get(ctx, cfg.Project, ksName, ktName)
 	require.NoError(t, err)
 	assert.Equal(t, ktAvn.TopicName, kt.GetName())
 	assert.Equal(t, ktAvn.State, kt.Status.State)
@@ -236,7 +236,7 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 	assert.Len(t, ktAvn.Partitions, kt.Spec.Partitions)
 
 	// Validates ServiceIntegration
-	siAvn, err := avnClient.ServiceIntegrations.Get(ctx, testProject, si.Status.ID)
+	siAvn, err := avnClient.ServiceIntegrations.Get(ctx, cfg.Project, si.Status.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "kafka_logs", siAvn.IntegrationType)
 	assert.Equal(t, siAvn.IntegrationType, si.Spec.IntegrationType)
@@ -318,8 +318,8 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	kcName := randName("kafka-connect")
 	siName := randName("kafka-connect")
 
-	yml := getSIKafkaConnectYaml(testProject, ksName, kcName, siName, testPrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, testProject)
+	yml := getSIKafkaConnectYaml(cfg.Project, ksName, kcName, siName, cfg.PrimaryCloudName)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterwards
 	defer s.Destroy()
@@ -340,7 +340,7 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 
 	// THEN
 	// Validates Kafka
-	ksAvn, err := avnClient.Services.Get(ctx, testProject, ksName)
+	ksAvn, err := avnClient.Services.Get(ctx, cfg.Project, ksName)
 	require.NoError(t, err)
 	assert.Equal(t, ksAvn.Name, ks.GetName())
 	assert.Equal(t, ksAvn.State, ks.Status.State)
@@ -348,7 +348,7 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	assert.Equal(t, ksAvn.CloudName, ks.Spec.CloudName)
 
 	// Validates KafkaConnect
-	kcAvn, err := avnClient.Services.Get(ctx, testProject, kcName)
+	kcAvn, err := avnClient.Services.Get(ctx, cfg.Project, kcName)
 	require.NoError(t, err)
 	assert.Equal(t, kcAvn.Name, kc.GetName())
 	assert.Equal(t, kcAvn.State, kc.Status.State)
@@ -358,7 +358,7 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	assert.True(t, *kc.Spec.UserConfig.PublicAccess.KafkaConnect)
 
 	// Validates ServiceIntegration
-	siAvn, err := avnClient.ServiceIntegrations.Get(ctx, testProject, si.Status.ID)
+	siAvn, err := avnClient.ServiceIntegrations.Get(ctx, cfg.Project, si.Status.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "kafka_connect", siAvn.IntegrationType)
 	assert.Equal(t, siAvn.IntegrationType, si.Spec.IntegrationType)
@@ -426,8 +426,8 @@ func TestServiceIntegrationDatadog(t *testing.T) {
 	pgName := randName("datadog")
 	siName := randName("datadog")
 
-	yml := getDatadogYaml(testProject, pgName, siName, endpointID, testPrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, testProject)
+	yml := getDatadogYaml(cfg.Project, pgName, siName, endpointID, cfg.PrimaryCloudName)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterwards
 	defer s.Destroy()
@@ -445,14 +445,14 @@ func TestServiceIntegrationDatadog(t *testing.T) {
 
 	// THEN
 	// Validates PostgreSQL
-	pgAvn, err := avnClient.Services.Get(ctx, testProject, pgName)
+	pgAvn, err := avnClient.Services.Get(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
 	assert.Equal(t, pgAvn.Name, pg.GetName())
 	assert.Equal(t, pgAvn.State, pg.Status.State)
 	assert.Equal(t, pgAvn.Plan, pg.Spec.Plan)
 
 	// Validates Datadog
-	siAvn, err := avnClient.ServiceIntegrations.Get(ctx, testProject, si.Status.ID)
+	siAvn, err := avnClient.ServiceIntegrations.Get(ctx, cfg.Project, si.Status.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "datadog", siAvn.IntegrationType)
 	assert.Equal(t, siAvn.IntegrationType, si.Spec.IntegrationType)
@@ -500,10 +500,10 @@ func TestWebhookMultipleUserConfigsDenied(t *testing.T) {
 
 	// GIVEN
 	siName := randName("datadog")
-	yml := getWebhookMultipleUserConfigsDeniedYaml(testProject, siName)
+	yml := getWebhookMultipleUserConfigsDeniedYaml(cfg.Project, siName)
 
 	// WHEN
-	s := NewSession(k8sClient, avnClient, testProject)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// THEN
 	err := s.Apply(yml)

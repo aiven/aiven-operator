@@ -51,10 +51,10 @@ func TestCassandra(t *testing.T) {
 	// GIVEN
 	ctx := context.Background()
 	name := randName("cassandra")
-	yml := getCassandraYaml(testProject, name, testPrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, testProject)
+	yml := getCassandraYaml(cfg.Project, name, cfg.PrimaryCloudName)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
-	// Cleans test afterwards
+	// Cleans test afterward
 	defer s.Destroy()
 
 	// WHEN
@@ -66,7 +66,7 @@ func TestCassandra(t *testing.T) {
 	require.NoError(t, s.GetRunning(cs, name))
 
 	// THEN
-	csAvn, err := avnClient.Services.Get(ctx, testProject, name)
+	csAvn, err := avnClient.Services.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Equal(t, csAvn.Name, cs.GetName())
 	assert.Equal(t, "RUNNING", cs.Status.State)
@@ -76,7 +76,7 @@ func TestCassandra(t *testing.T) {
 	assert.Equal(t, "450Gib", cs.Spec.DiskSpace)
 	assert.Equal(t, 460800, csAvn.DiskSpaceMB)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, cs.Spec.Tags)
-	csResp, err := avnClient.ServiceTags.Get(ctx, testProject, name)
+	csResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Equal(t, csResp.Tags, cs.Spec.Tags)
 

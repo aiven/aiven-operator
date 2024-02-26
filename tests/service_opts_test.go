@@ -44,8 +44,8 @@ func TestServiceTechnicalEmails(t *testing.T) {
 	// GIVEN
 	ctx := context.Background()
 	name := randName("grafana")
-	yml := getTechnicalEmailsYaml(testProject, name, testPrimaryCloudName, true)
-	s := NewSession(k8sClient, avnClient, testProject)
+	yml := getTechnicalEmailsYaml(cfg.Project, name, cfg.PrimaryCloudName, true)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterwards
 	defer s.Destroy()
@@ -60,14 +60,14 @@ func TestServiceTechnicalEmails(t *testing.T) {
 
 	// THEN
 	// Technical emails are set
-	grafanaAvn, err := avnClient.Services.Get(ctx, testProject, name)
+	grafanaAvn, err := avnClient.Services.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Len(t, grafana.Spec.TechnicalEmails, 1)
 	assert.Equal(t, "test@example.com", grafanaAvn.TechnicalEmails[0].Email)
 
 	// WHEN
 	// Technical emails are removed from manifest
-	updatedYml := getTechnicalEmailsYaml(testProject, name, testPrimaryCloudName, false)
+	updatedYml := getTechnicalEmailsYaml(cfg.Project, name, cfg.PrimaryCloudName, false)
 
 	// Applies updated manifest
 	require.NoError(t, s.Apply(updatedYml))
@@ -77,7 +77,7 @@ func TestServiceTechnicalEmails(t *testing.T) {
 
 	// THEN
 	// Technical emails are removed from service
-	grafanaAvnUpdated, err := avnClient.Services.Get(ctx, testProject, name)
+	grafanaAvnUpdated, err := avnClient.Services.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Empty(t, grafanaAvnUpdated.TechnicalEmails)
 }
@@ -110,11 +110,11 @@ func runTest(t *testing.T, scenario TestScenario) {
 	defer recoverPanic(t)
 
 	// GIVEN
-	baseYaml := getConnInfoBaseYaml(testProject, scenario.serviceName, testPrimaryCloudName)
+	baseYaml := getConnInfoBaseYaml(cfg.Project, scenario.serviceName, cfg.PrimaryCloudName)
 	createYaml := getYamlWithDisabledOption(baseYaml, scenario.connInfoSecretTargetDisabledChange[0])
 	updateYaml := getYamlWithDisabledOption(baseYaml, scenario.connInfoSecretTargetDisabledChange[1])
 
-	s := NewSession(k8sClient, avnClient, testProject)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterwards
 	defer s.Destroy()

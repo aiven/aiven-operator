@@ -50,8 +50,8 @@ func TestMySQL(t *testing.T) {
 	// GIVEN
 	ctx := context.Background()
 	name := randName("mysql")
-	yml := getMySQLYaml(testProject, name, testPrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, testProject)
+	yml := getMySQLYaml(cfg.Project, name, cfg.PrimaryCloudName)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterwards
 	defer s.Destroy()
@@ -65,7 +65,7 @@ func TestMySQL(t *testing.T) {
 	require.NoError(t, s.GetRunning(ms, name))
 
 	// THEN
-	msAvn, err := avnClient.Services.Get(ctx, testProject, name)
+	msAvn, err := avnClient.Services.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Equal(t, msAvn.Name, ms.GetName())
 	assert.Equal(t, "RUNNING", ms.Status.State)
@@ -75,7 +75,7 @@ func TestMySQL(t *testing.T) {
 	assert.Equal(t, "100Gib", ms.Spec.DiskSpace)
 	assert.Equal(t, 102400, msAvn.DiskSpaceMB)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, ms.Spec.Tags)
-	msResp, err := avnClient.ServiceTags.Get(ctx, testProject, name)
+	msResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Equal(t, msResp.Tags, ms.Spec.Tags)
 

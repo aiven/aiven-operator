@@ -54,8 +54,8 @@ func TestDatabase(t *testing.T) {
 	ctx := context.Background()
 	pgName := randName("database")
 	dbName := randName("database")
-	yml := getDatabaseYaml(testProject, pgName, dbName, testPrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, testProject)
+	yml := getDatabaseYaml(cfg.Project, pgName, dbName, cfg.PrimaryCloudName)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterwards
 	defer s.Destroy()
@@ -73,7 +73,7 @@ func TestDatabase(t *testing.T) {
 
 	// THEN
 	// Validates PostgreSQL
-	pgAvn, err := avnClient.Services.Get(ctx, testProject, pgName)
+	pgAvn, err := avnClient.Services.Get(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
 	assert.Equal(t, pgAvn.Name, pg.GetName())
 	assert.Equal(t, "RUNNING", pg.Status.State)
@@ -82,7 +82,7 @@ func TestDatabase(t *testing.T) {
 	assert.Equal(t, pgAvn.CloudName, pg.Spec.CloudName)
 
 	// Validates Database
-	dbAvn, err := avnClient.Databases.Get(ctx, testProject, pgName, dbName)
+	dbAvn, err := avnClient.Databases.Get(ctx, cfg.Project, pgName, dbName)
 	require.NoError(t, err)
 	assert.Equal(t, dbName, db.GetName())
 	assert.Equal(t, dbAvn.DatabaseName, db.GetName())
@@ -96,7 +96,7 @@ func TestDatabase(t *testing.T) {
 	// if service is deleted, db is destroyed in Aiven. No service — no db. No db — no db.
 	// And we make sure that controller can delete db itself
 	assert.NoError(t, s.Delete(db, func() error {
-		_, err = avnClient.Databases.Get(ctx, testProject, pgName, dbName)
+		_, err = avnClient.Databases.Get(ctx, cfg.Project, pgName, dbName)
 		return err
 	}))
 }

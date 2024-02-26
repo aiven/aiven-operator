@@ -55,8 +55,8 @@ func TestKafkaWithProjectVPCRef(t *testing.T) {
 	ctx := context.Background()
 	vpcName := randName("kafka-vpc")
 	kafkaName := randName("kafka-vpc")
-	yml := getKafkaWithProjectVPCRefYaml(testProject, vpcName, kafkaName, testPrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, testProject)
+	yml := getKafkaWithProjectVPCRefYaml(cfg.Project, vpcName, kafkaName, cfg.PrimaryCloudName)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterwards
 	defer s.Destroy()
@@ -73,7 +73,7 @@ func TestKafkaWithProjectVPCRef(t *testing.T) {
 	require.NoError(t, s.GetRunning(vpc, vpcName))
 
 	// THEN
-	kafkaAvn, err := avnClient.Services.Get(ctx, testProject, kafkaName)
+	kafkaAvn, err := avnClient.Services.Get(ctx, cfg.Project, kafkaName)
 	require.NoError(t, err)
 	assert.Equal(t, kafkaAvn.Name, kafka.GetName())
 	assert.Equal(t, "RUNNING", kafka.Status.State)
@@ -86,7 +86,7 @@ func TestKafkaWithProjectVPCRef(t *testing.T) {
 	assert.Equal(t, vpcName, kafka.Spec.ProjectVPCRef.Name)
 	assert.Equal(t, anyPointer(vpc.Status.ID), kafkaAvn.ProjectVPCID)
 
-	vpcAvn, err := avnClient.VPCs.Get(ctx, testProject, vpc.Status.ID)
+	vpcAvn, err := avnClient.VPCs.Get(ctx, cfg.Project, vpc.Status.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "ACTIVE", vpcAvn.State)
 	assert.Equal(t, vpcAvn.State, vpc.Status.State)

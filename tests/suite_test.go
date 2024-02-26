@@ -6,10 +6,10 @@ import (
 	"log"
 	"os"
 	"runtime/debug"
-	"strconv"
 	"testing"
 
 	"github.com/aiven/aiven-go-client/v2"
+	"github.com/kelseyhightower/envconfig"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -23,13 +23,9 @@ import (
 )
 
 var (
-	testEnv                *envtest.Environment
-	testProject            string
-	testPrimaryCloudName   string
-	testSecondaryCloudName string
-	testTertiaryCloudName  string
-	k8sClient              client.Client
-	avnClient              *aiven.Client
+	cfg       *testConfig
+	k8sClient client.Client
+	avnClient *aiven.Client
 )
 
 const (
@@ -37,57 +33,50 @@ const (
 	secretRefKey  = "token"
 )
 
+type testConfig struct {
+	Token              string `envconfig:"AIVEN_TOKEN" required:"true"`
+	Project            string `envconfig:"AIVEN_PROJECT_NAME" required:"true"`
+	PrimaryCloudName   string `envconfig:"AIVEN_CLOUD_NAME" default:"google-europe-west1"`
+	SecondaryCloudName string `envconfig:"AIVEN_SECONDARY_CLOUD_NAME" default:"google-europe-west2"`
+	TertiaryCloudName  string `envconfig:"AIVEN_TERTIARY_CLOUD_NAME" default:"google-europe-west3"`
+	DebugLogging       bool   `envconfig:"ENABLE_DEBUG_LOGGING"`
+}
+
 func TestMain(m *testing.M) {
-	err := setupSuite()
+	env, err := setupSuite()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	defer teardownSuite()
+	defer teardownSuite(env)
 	os.Exit(m.Run())
 }
 
-func teardownSuite() {
-	err := testEnv.Stop()
+func teardownSuite(env *envtest.Environment) {
+	if env == nil {
+		return
+	}
+
+	err := env.Stop()
 	if err != nil {
 		log.Printf("failed to teardown: %s", err)
 	}
 }
 
-func setupSuite() error {
-	aivenToken := os.Getenv("AIVEN_TOKEN")
-	if aivenToken == "" {
-		return fmt.Errorf("missing AIVEN_TOKEN set")
+func setupSuite() (*envtest.Environment, error) {
+	cfg = new(testConfig)
+	err := envconfig.Process("", cfg)
+	if err != nil {
+		return nil, err
 	}
 
-	testProject = os.Getenv("AIVEN_PROJECT_NAME")
-	if testProject == "" {
-		return fmt.Errorf("missing AIVEN_PROJECT_NAME set")
-	}
-
-	testPrimaryCloudName = os.Getenv("AIVEN_CLOUD_NAME")
-	if testPrimaryCloudName == "" {
-		testPrimaryCloudName = "google-europe-west1"
-	}
-
-	testSecondaryCloudName = os.Getenv("AIVEN_SECONDARY_CLOUD_NAME")
-	if testSecondaryCloudName == "" {
-		testSecondaryCloudName = "google-europe-west2"
-	}
-
-	testTertiaryCloudName = os.Getenv("AIVEN_TERTIARY_CLOUD_NAME")
-	if testTertiaryCloudName == "" {
-		testTertiaryCloudName = "google-europe-west3"
-	}
-
-	enableLogs, _ := strconv.ParseBool(os.Getenv("ENABLE_DEBUG_LOGGING"))
-	if enableLogs {
+	if cfg.DebugLogging {
 		ctrl.SetLogger(zap.New(func(o *zap.Options) {
 			o.Development = true
 		}))
 	}
 
-	testEnv = &envtest.Environment{
+	env := &envtest.Environment{
 		ErrorIfCRDPathMissing: true,
 		CRDDirectoryPaths:     []string{"../config/crd/bases"},
 		WebhookInstallOptions: envtest.WebhookInstallOptions{
@@ -95,29 +84,29 @@ func setupSuite() error {
 		},
 	}
 
-	cfg, err := testEnv.Start()
+	c, err := env.Start()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = v1alpha1.AddToScheme(scheme.Scheme)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	avnClient, err = controllers.NewAivenClient(aivenToken)
+	avnClient, err = controllers.NewAivenClient(cfg.Token)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	mgr, err := ctrl.NewManager(cfg, ctrl.Options{
+	mgr, err := ctrl.NewManager(c, ctrl.Options{
 		Scheme:             scheme.Scheme,
 		MetricsBindAddress: "0",
-		CertDir:            testEnv.WebhookInstallOptions.LocalServingCertDir,
-		Port:               testEnv.WebhookInstallOptions.LocalServingPort,
+		CertDir:            env.WebhookInstallOptions.LocalServingCertDir,
+		Port:               env.WebhookInstallOptions.LocalServingPort,
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 	k8sClient = mgr.GetClient()
 	secret := &corev1.Secret{
@@ -126,24 +115,24 @@ func setupSuite() error {
 			Namespace: defaultNamespace,
 		},
 		StringData: map[string]string{
-			secretRefKey: aivenToken,
+			secretRefKey: cfg.Token,
 		},
 	}
 
 	ctx := context.Background()
 	err = k8sClient.Create(ctx, secret)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = controllers.SetupControllers(mgr, aivenToken)
+	err = controllers.SetupControllers(mgr, cfg.Token)
 	if err != nil {
-		return fmt.Errorf("unable to setup controllers: %w", err)
+		return nil, fmt.Errorf("unable to setup controllers: %w", err)
 	}
 
 	err = v1alpha1.SetupWebhooks(mgr)
 	if err != nil {
-		return fmt.Errorf("unable to setup webhooks: %w", err)
+		return nil, fmt.Errorf("unable to setup webhooks: %w", err)
 	}
 
 	go func() {
@@ -152,7 +141,7 @@ func setupSuite() error {
 			log.Fatal(err)
 		}
 	}()
-	return nil
+	return env, nil
 }
 
 func recoverPanic(t *testing.T) {

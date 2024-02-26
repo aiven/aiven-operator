@@ -50,8 +50,8 @@ func TestKafkaConnect(t *testing.T) {
 	// GIVEN
 	ctx := context.Background()
 	name := randName("kafka-connect")
-	yml := getKafkaConnectYaml(testProject, name, testPrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, testProject)
+	yml := getKafkaConnectYaml(cfg.Project, name, cfg.PrimaryCloudName)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterwards
 	defer s.Destroy()
@@ -65,7 +65,7 @@ func TestKafkaConnect(t *testing.T) {
 	require.NoError(t, s.GetRunning(kc, name))
 
 	// THEN
-	kcAvn, err := avnClient.Services.Get(ctx, testProject, name)
+	kcAvn, err := avnClient.Services.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Equal(t, kcAvn.Name, kc.GetName())
 	assert.Equal(t, "RUNNING", kc.Status.State)

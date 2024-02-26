@@ -71,8 +71,8 @@ func TestKafkaSchema(t *testing.T) {
 	kafkaName := randName("kafka-schema")
 	schemaName := randName("kafka-schema")
 	subjectName := randName("kafka-schema")
-	yml := getKafkaSchemaYaml(testProject, kafkaName, schemaName, subjectName, testPrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, testProject)
+	yml := getKafkaSchemaYaml(cfg.Project, kafkaName, schemaName, subjectName, cfg.PrimaryCloudName)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterwards
 	defer s.Destroy()
@@ -87,7 +87,7 @@ func TestKafkaSchema(t *testing.T) {
 
 	// THEN
 	// Kafka test
-	kafkaAvn, err := avnClient.Services.Get(ctx, testProject, kafkaName)
+	kafkaAvn, err := avnClient.Services.Get(ctx, cfg.Project, kafkaName)
 	require.NoError(t, err)
 	assert.Equal(t, kafkaAvn.Name, kafka.GetName())
 	assert.Equal(t, "RUNNING", kafka.Status.State)
@@ -137,7 +137,7 @@ func TestKafkaSchema(t *testing.T) {
 
 	// Validates deleting, because deleted kafka drops schemas, and we want be sure deletion works
 	assert.NoError(t, s.Delete(schema, func() error {
-		_, err := avnClient.KafkaSubjectSchemas.Get(ctx, testProject, kafkaName, subjectName, 1)
+		_, err := avnClient.KafkaSubjectSchemas.Get(ctx, cfg.Project, kafkaName, subjectName, 1)
 		return err
 	}))
 }

@@ -52,8 +52,8 @@ func TestKafka(t *testing.T) {
 	// GIVEN
 	ctx := context.Background()
 	name := randName("kafka")
-	yml := getKafkaYaml(testProject, name, testPrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, testProject)
+	yml := getKafkaYaml(cfg.Project, name, cfg.PrimaryCloudName)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterwards
 	defer s.Destroy()
@@ -67,7 +67,7 @@ func TestKafka(t *testing.T) {
 	require.NoError(t, s.GetRunning(ks, name))
 
 	// THEN
-	ksAvn, err := avnClient.Services.Get(ctx, testProject, name)
+	ksAvn, err := avnClient.Services.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Equal(t, ksAvn.Name, ks.GetName())
 	assert.Equal(t, "RUNNING", ks.Status.State)
@@ -77,7 +77,7 @@ func TestKafka(t *testing.T) {
 	assert.Equal(t, "600Gib", ks.Spec.DiskSpace)
 	assert.Equal(t, 614400, ksAvn.DiskSpaceMB)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, ks.Spec.Tags)
-	ksResp, err := avnClient.ServiceTags.Get(ctx, testProject, name)
+	ksResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Equal(t, ksResp.Tags, ks.Spec.Tags)
 
