@@ -63,8 +63,8 @@ func TestServiceUserKafka(t *testing.T) {
 	ctx := context.Background()
 	kafkaName := randName("service-user")
 	userName := randName("service-user")
-	yml := getServiceUserKafkaYaml(testProject, kafkaName, userName, testPrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, testProject)
+	yml := getServiceUserKafkaYaml(cfg.Project, kafkaName, userName, cfg.PrimaryCloudName)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterward
 	defer s.Destroy()
@@ -82,7 +82,7 @@ func TestServiceUserKafka(t *testing.T) {
 
 	// THEN
 	// Validates Kafka
-	kafkaAvn, err := avnClient.Services.Get(ctx, testProject, kafkaName)
+	kafkaAvn, err := avnClient.Services.Get(ctx, cfg.Project, kafkaName)
 	require.NoError(t, err)
 	assert.Equal(t, kafkaAvn.Name, kafka.GetName())
 	assert.Equal(t, "RUNNING", kafka.Status.State)
@@ -91,7 +91,7 @@ func TestServiceUserKafka(t *testing.T) {
 	assert.Equal(t, kafkaAvn.CloudName, kafka.Spec.CloudName)
 
 	// Validates ServiceUser
-	userAvn, err := avnClient.ServiceUsers.Get(ctx, testProject, kafkaName, userName)
+	userAvn, err := avnClient.ServiceUsers.Get(ctx, cfg.Project, kafkaName, userName)
 	require.NoError(t, err)
 	assert.Equal(t, userName, user.GetName())
 	assert.Equal(t, userName, userAvn.Username)
@@ -132,7 +132,7 @@ func TestServiceUserKafka(t *testing.T) {
 	// if service is deleted, pool is destroyed in Aiven. No service — no pool. No pool — no pool.
 	// And we make sure that the controller can delete db itself
 	assert.NoError(t, s.Delete(user, func() error {
-		_, err = avnClient.ServiceUsers.Get(ctx, testProject, kafkaName, userName)
+		_, err = avnClient.ServiceUsers.Get(ctx, cfg.Project, kafkaName, userName)
 		return err
 	}))
 }
@@ -184,8 +184,8 @@ func TestServiceUserPg(t *testing.T) {
 	ctx := context.Background()
 	pgName := randName("connection-pool")
 	userName := randName("connection-pool")
-	yml := getServiceUserPgYaml(testProject, pgName, userName, testPrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, testProject)
+	yml := getServiceUserPgYaml(cfg.Project, pgName, userName, cfg.PrimaryCloudName)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterwards
 	defer s.Destroy()
@@ -203,7 +203,7 @@ func TestServiceUserPg(t *testing.T) {
 
 	// THEN
 	// Validates PostgreSQL
-	pgAvn, err := avnClient.Services.Get(ctx, testProject, pgName)
+	pgAvn, err := avnClient.Services.Get(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
 	assert.Equal(t, pgAvn.Name, pg.GetName())
 	assert.Equal(t, "RUNNING", pg.Status.State)
@@ -212,7 +212,7 @@ func TestServiceUserPg(t *testing.T) {
 	assert.Equal(t, pgAvn.CloudName, pg.Spec.CloudName)
 
 	// Validates ServiceUser
-	userAvn, err := avnClient.ServiceUsers.Get(ctx, testProject, pgName, userName)
+	userAvn, err := avnClient.ServiceUsers.Get(ctx, cfg.Project, pgName, userName)
 	require.NoError(t, err)
 	assert.Equal(t, userName, user.GetName())
 	assert.Equal(t, userName, userAvn.Username)
@@ -247,7 +247,7 @@ func TestServiceUserPg(t *testing.T) {
 	// if service is deleted, pool is destroyed in Aiven. No service — no pool. No pool — no pool.
 	// And we make sure that the controller can delete db itself
 	assert.NoError(t, s.Delete(user, func() error {
-		_, err = avnClient.ServiceUsers.Get(ctx, testProject, pgName, userName)
+		_, err = avnClient.ServiceUsers.Get(ctx, cfg.Project, pgName, userName)
 		return err
 	}))
 }

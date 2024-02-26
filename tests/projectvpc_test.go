@@ -73,8 +73,8 @@ func TestProjectVPCID(t *testing.T) {
 	ctx := context.Background()
 	vpcName1 := randName("project-vpc-id")
 	vpcName2 := randName("project-vpc-id")
-	vpcYaml := getProjectVPCsYaml(testProject, vpcName1, testSecondaryCloudName, vpcName2, testTertiaryCloudName)
-	vpcSession := NewSession(k8sClient, avnClient, testProject)
+	vpcYaml := getProjectVPCsYaml(cfg.Project, vpcName1, cfg.SecondaryCloudName, vpcName2, cfg.TertiaryCloudName)
+	vpcSession := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterwards
 	defer vpcSession.Destroy()
@@ -92,7 +92,7 @@ func TestProjectVPCID(t *testing.T) {
 
 	// THEN
 	// Validates VPC
-	vpc1Avn, err := avnClient.VPCs.Get(ctx, testProject, vpc1.Status.ID)
+	vpc1Avn, err := avnClient.VPCs.Get(ctx, cfg.Project, vpc1.Status.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "ACTIVE", vpc1Avn.State)
 	assert.Equal(t, vpc1Avn.State, vpc1.Status.State)
@@ -100,7 +100,7 @@ func TestProjectVPCID(t *testing.T) {
 	assert.Equal(t, "10.0.0.0/24", vpc1.Spec.NetworkCidr)
 	assert.Equal(t, vpc1Avn.NetworkCIDR, vpc1.Spec.NetworkCidr)
 
-	vpc2Avn, err := avnClient.VPCs.Get(ctx, testProject, vpc2.Status.ID)
+	vpc2Avn, err := avnClient.VPCs.Get(ctx, cfg.Project, vpc2.Status.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "ACTIVE", vpc2Avn.State)
 	assert.Equal(t, vpc2Avn.State, vpc2.Status.State)
@@ -110,8 +110,8 @@ func TestProjectVPCID(t *testing.T) {
 
 	// Creates Kafka with given vpcID
 	kafkaName := randName("project-vpc-id")
-	kafkaYaml := getKafkaForProjectVPCYaml(testProject, vpc1.Status.ID, kafkaName, testSecondaryCloudName)
-	kafkaSession := NewSession(k8sClient, avnClient, testProject)
+	kafkaYaml := getKafkaForProjectVPCYaml(cfg.Project, vpc1.Status.ID, kafkaName, cfg.SecondaryCloudName)
+	kafkaSession := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterwards
 	defer kafkaSession.Destroy()
@@ -125,7 +125,7 @@ func TestProjectVPCID(t *testing.T) {
 	require.NoError(t, kafkaSession.GetRunning(kafka, kafkaName))
 
 	// THEN
-	kafkaAvn, err := avnClient.Services.Get(ctx, testProject, kafkaName)
+	kafkaAvn, err := avnClient.Services.Get(ctx, cfg.Project, kafkaName)
 	require.NoError(t, err)
 	assert.Equal(t, kafkaAvn.Name, kafka.GetName())
 	assert.Equal(t, "RUNNING", kafka.Status.State)
@@ -138,7 +138,7 @@ func TestProjectVPCID(t *testing.T) {
 	assert.Equal(t, anyPointer(vpc1.Status.ID), kafkaAvn.ProjectVPCID)
 
 	// Migrates the service to vpc2
-	kafkaYamlUpd := getKafkaForProjectVPCYaml(testProject, vpc2.Status.ID, kafkaName, testTertiaryCloudName)
+	kafkaYamlUpd := getKafkaForProjectVPCYaml(cfg.Project, vpc2.Status.ID, kafkaName, cfg.TertiaryCloudName)
 	require.NoError(t, kafkaSession.Apply(kafkaYamlUpd))
 
 	// This migration takes too long, so we don't wait it's being in the RUNNING state in kube
@@ -148,13 +148,13 @@ func TestProjectVPCID(t *testing.T) {
 	// Gets Aiven object
 	var kafkaAvnUpd *aiven.Service
 	require.NoError(t, retryForever(ctx, fmt.Sprintf("migrate %s to VPC with ID %s", kafkaName, vpc2.Status.ID), func() (bool, error) {
-		kafkaAvnUpd, err = avnClient.Services.Get(ctx, testProject, kafkaName)
+		kafkaAvnUpd, err = avnClient.Services.Get(ctx, cfg.Project, kafkaName)
 		if err != nil {
 			return false, err
 		}
 
 		// Just waits object being updated in Aiven
-		return kafkaAvnUpd.CloudName != testTertiaryCloudName, nil
+		return kafkaAvnUpd.CloudName != cfg.TertiaryCloudName, nil
 	}))
 
 	// Gets kube object

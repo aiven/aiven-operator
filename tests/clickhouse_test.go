@@ -47,8 +47,8 @@ func TestClickhouse(t *testing.T) {
 	// GIVEN
 	ctx := context.Background()
 	name := randName("clickhouse")
-	yml := getClickhouseYaml(testProject, name, testPrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, testProject)
+	yml := getClickhouseYaml(cfg.Project, name, cfg.PrimaryCloudName)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterwards
 	defer s.Destroy()
@@ -62,7 +62,7 @@ func TestClickhouse(t *testing.T) {
 	require.NoError(t, s.GetRunning(ch, name))
 
 	// THEN
-	chAvn, err := avnClient.Services.Get(ctx, testProject, name)
+	chAvn, err := avnClient.Services.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Equal(t, chAvn.Name, ch.GetName())
 	assert.Equal(t, "RUNNING", ch.Status.State)
@@ -70,7 +70,7 @@ func TestClickhouse(t *testing.T) {
 	assert.Equal(t, chAvn.Plan, ch.Spec.Plan)
 	assert.Equal(t, chAvn.CloudName, ch.Spec.CloudName)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, ch.Spec.Tags)
-	chResp, err := avnClient.ServiceTags.Get(ctx, testProject, name)
+	chResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Equal(t, chResp.Tags, ch.Spec.Tags)
 

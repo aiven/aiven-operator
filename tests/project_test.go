@@ -39,7 +39,7 @@ func TestProject(t *testing.T) {
 	ctx := context.Background()
 	name := randName("project")
 	yml := getProjectYaml(name)
-	s := NewSession(k8sClient, avnClient, testProject)
+	s := NewSession(k8sClient, avnClient, cfg.Project)
 
 	// Cleans test afterwards
 	defer s.Destroy()

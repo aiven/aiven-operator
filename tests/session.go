@@ -115,7 +115,7 @@ func (s *session) GetRunning(obj client.Object, keys ...string) error {
 		err := s.k8s.Get(ctx, key, obj)
 		if err != nil {
 			// The error is quite verbose
-			log.Printf("waiting resource running: %s", err)
+			log.Printf("waiting resource %q running: %s", key, err)
 
 			// Do not retry kube errors
 			return isNotFound(err), err
@@ -206,21 +206,29 @@ func (s *session) recover() {
 
 func retryForever(ctx context.Context, operation string, f func() (bool, error)) (err error) {
 	retry := false
-	log.Printf("Starting operation: %s\n", operation)
+	log.Printf("Operation %q started\n", operation)
 
+outer:
 	for {
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("context timeout while retrying operation: %s, error=%q", operation, err)
+			err = ctx.Err()
+			break outer
 		case <-time.After(retryInterval):
 			retry, err = f()
-			if retry {
-				continue
+			if !retry {
+				break outer
 			}
-			log.Printf("Operation %s finished\n", operation)
-			return err
 		}
 	}
+
+	if err != nil {
+		log.Printf("Operation %q failed: %s\n", operation, err)
+		return err
+	}
+
+	log.Printf("Operation %q succeeded\n", operation)
+	return nil
 }
 
 const (
