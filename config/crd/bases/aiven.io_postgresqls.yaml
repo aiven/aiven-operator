@@ -664,6 +664,7 @@ spec:
                         timezone:
                           description: PostgreSQL service timezone
                           maxLength: 64
+                          pattern: ^[\w/]*$
                           type: string
                         track_activity_query_size:
                           description:
@@ -752,6 +753,7 @@ spec:
                         use service_to_fork_from). This has effect only when a new service
                         is being created.
                       maxLength: 64
+                      pattern: ^[a-z][-a-z0-9]{0,63}$|^$
                       type: string
                       x-kubernetes-validations:
                         - message: Value is immutable
@@ -897,6 +899,7 @@ spec:
                         Name of another project to fork a service from. This
                         has effect only when a new service is being created.
                       maxLength: 63
+                      pattern: ^[a-z][-a-z0-9]{0,63}$|^$
                       type: string
                       x-kubernetes-validations:
                         - message: Value is immutable
@@ -944,6 +947,7 @@ spec:
                         Name of another service to fork from. This has effect
                         only when a new service is being created.
                       maxLength: 64
+                      pattern: ^[a-z][-a-z0-9]{0,63}$|^$
                       type: string
                       x-kubernetes-validations:
                         - message: Value is immutable
