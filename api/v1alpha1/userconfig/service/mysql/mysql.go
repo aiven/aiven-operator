@@ -58,6 +58,7 @@ type Mysql struct {
 
 	// +kubebuilder:validation:MinLength=2
 	// +kubebuilder:validation:MaxLength=100
+	// +kubebuilder:validation:Pattern=`^([-+][\d:]*|[\w/]*)$`
 	// Default server time zone as an offset from UTC (from -12:00 to +12:00), a time zone name, or 'SYSTEM' to use the MySQL server default.
 	DefaultTimeZone *string `groups:"create,update" json:"default_time_zone,omitempty"`
 
@@ -281,6 +282,7 @@ type MysqlUserConfig struct {
 	PrivatelinkAccess *PrivatelinkAccess `groups:"create,update" json:"privatelink_access,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=63
+	// +kubebuilder:validation:Pattern=`^[a-z][-a-z0-9]{0,63}$|^$`
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Name of another project to fork a service from. This has effect only when a new service is being created.
 	ProjectToForkFrom *string `groups:"create" json:"project_to_fork_from,omitempty"`
@@ -297,6 +299,7 @@ type MysqlUserConfig struct {
 	ServiceLog *bool `groups:"create,update" json:"service_log,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=64
+	// +kubebuilder:validation:Pattern=`^[a-z][-a-z0-9]{0,63}$|^$`
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Name of another service to fork from. This has effect only when a new service is being created.
 	ServiceToForkFrom *string `groups:"create" json:"service_to_fork_from,omitempty"`

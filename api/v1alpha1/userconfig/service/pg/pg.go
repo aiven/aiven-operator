@@ -254,6 +254,7 @@ type Pg struct {
 	TempFileLimit *int `groups:"create,update" json:"temp_file_limit,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=64
+	// +kubebuilder:validation:Pattern=`^[\w/]*$`
 	// PostgreSQL service timezone
 	Timezone *string `groups:"create,update" json:"timezone,omitempty"`
 
@@ -451,6 +452,7 @@ type PgUserConfig struct {
 	PgReadReplica *bool `groups:"create,update" json:"pg_read_replica,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=64
+	// +kubebuilder:validation:Pattern=`^[a-z][-a-z0-9]{0,63}$|^$`
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Name of the PG Service from which to fork (deprecated, use service_to_fork_from). This has effect only when a new service is being created.
 	PgServiceToForkFrom *string `groups:"create" json:"pg_service_to_fork_from,omitempty"`
@@ -475,6 +477,7 @@ type PgUserConfig struct {
 	PrivatelinkAccess *PrivatelinkAccess `groups:"create,update" json:"privatelink_access,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=63
+	// +kubebuilder:validation:Pattern=`^[a-z][-a-z0-9]{0,63}$|^$`
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Name of another project to fork a service from. This has effect only when a new service is being created.
 	ProjectToForkFrom *string `groups:"create" json:"project_to_fork_from,omitempty"`
@@ -491,6 +494,7 @@ type PgUserConfig struct {
 	ServiceLog *bool `groups:"create,update" json:"service_log,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=64
+	// +kubebuilder:validation:Pattern=`^[a-z][-a-z0-9]{0,63}$|^$`
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Name of another service to fork from. This has effect only when a new service is being created.
 	ServiceToForkFrom *string `groups:"create" json:"service_to_fork_from,omitempty"`

@@ -6,6 +6,40 @@
 - Add `KafkaTopic` field `config.local_retention_bytes`, type `integer`: local.retention.bytes value
 - Add `KafkaTopic` field `config.local_retention_ms`, type `integer`: local.retention.ms value
 - Add `KafkaTopic` field `config.remote_storage_enable`, type `boolean`: remote_storage_enable
+- Change `Cassandra` field `userConfig.cassandra_version`: pattern `^[0-9]+(\.[0-9]+)?$`
+- Change `Cassandra` field `userConfig.project_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `Cassandra` field `userConfig.service_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `Cassandra` field `userConfig.service_to_join_with`: pattern `^[a-z][-a-z0-9]{0,63}$`
+- Change `Clickhouse` field `userConfig.project_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `Clickhouse` field `userConfig.service_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `Grafana` field `userConfig.project_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `Grafana` field `userConfig.service_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `Kafka` field `userConfig.kafka.sasl_oauthbearer_expected_audience`: pattern `^[^\r\n]*$`
+- Change `Kafka` field `userConfig.kafka.sasl_oauthbearer_expected_issuer`: pattern `^[^\r\n]*$`
+- Change `Kafka` field `userConfig.kafka.sasl_oauthbearer_sub_claim_name`: pattern `^[^\r\n]*$`
+- Change `MySQL` field `userConfig.mysql.default_time_zone`: pattern `^([-+][\d:]*|[\w/]*)$`
+- Change `MySQL` field `userConfig.project_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `MySQL` field `userConfig.service_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `OpenSearch` field `userConfig.openid.client_id`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.openid.client_secret`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.openid.header`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.openid.jwt_header`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.openid.jwt_url_parameter`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.openid.roles_key`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.openid.scope`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.openid.subject_key`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.project_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `OpenSearch` field `userConfig.saml.idp_entity_id`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.saml.roles_key`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.saml.sp_entity_id`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.saml.subject_key`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.service_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `PostgreSQL` field `userConfig.pg.timezone`: pattern `^[\w/]*$`
+- Change `PostgreSQL` field `userConfig.pg_service_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `PostgreSQL` field `userConfig.project_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `PostgreSQL` field `userConfig.service_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `Redis` field `userConfig.project_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `Redis` field `userConfig.service_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
 
 ## v0.17.0 - 2024-02-01
 

@@ -273,6 +273,7 @@ spec:
                       enum:
                         - "4"
                         - "4.1"
+                      pattern: ^[0-9]+(\.[0-9]+)?$
                       type: string
                     ip_filter:
                       description:
@@ -319,6 +320,7 @@ spec:
                         Name of another project to fork a service from. This
                         has effect only when a new service is being created.
                       maxLength: 63
+                      pattern: ^[a-z][-a-z0-9]{0,63}$|^$
                       type: string
                       x-kubernetes-validations:
                         - message: Value is immutable
@@ -345,6 +347,7 @@ spec:
                         Name of another service to fork from. This has effect
                         only when a new service is being created.
                       maxLength: 64
+                      pattern: ^[a-z][-a-z0-9]{0,63}$|^$
                       type: string
                       x-kubernetes-validations:
                         - message: Value is immutable
@@ -355,6 +358,7 @@ spec:
                         cluster try to join an existing one from another service. Can
                         only be set on service creation.
                       maxLength: 64
+                      pattern: ^[a-z][-a-z0-9]{0,63}$
                       type: string
                     static_ips:
                       description: Use static public IP addresses

@@ -52,11 +52,13 @@ type IpFilter struct {
 type Openid struct {
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// The ID of the OpenID Connect client configured in your IdP. Required.
 	ClientId string `groups:"create,update" json:"client_id"`
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// The client secret of the OpenID Connect client configured in your IdP. Required.
 	ClientSecret string `groups:"create,update" json:"client_secret"`
 
@@ -69,16 +71,19 @@ type Openid struct {
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// HTTP header name of the JWT token. Optional. Default is Authorization.
 	Header *string `groups:"create,update" json:"header,omitempty"`
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// The HTTP header that stores the token. Typically the Authorization header with the Bearer schema: Authorization: Bearer <token>. Optional. Default is Authorization.
 	JwtHeader *string `groups:"create,update" json:"jwt_header,omitempty"`
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// If the token is not transmitted in the HTTP header, but as an URL parameter, define the name of the parameter here. Optional.
 	JwtUrlParameter *string `groups:"create,update" json:"jwt_url_parameter,omitempty"`
 
@@ -92,16 +97,19 @@ type Openid struct {
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// The key in the JSON payload that stores the user’s roles. The value of this key must be a comma-separated list of roles. Required only if you want to use roles in the JWT
 	RolesKey *string `groups:"create,update" json:"roles_key,omitempty"`
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// The scope of the identity token issued by the IdP. Optional. Default is openid profile email address phone.
 	Scope *string `groups:"create,update" json:"scope,omitempty"`
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// The key in the JSON payload that stores the user’s name. If not defined, the subject registered claim is used. Most IdP providers use the preferred_username claim. Optional.
 	SubjectKey *string `groups:"create,update" json:"subject_key,omitempty"`
 }
@@ -433,6 +441,7 @@ type Saml struct {
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// The unique identifier for the Identity Provider (IdP) entity that is used for SAML authentication. This value is typically provided by the IdP.
 	IdpEntityId string `groups:"create,update" json:"idp_entity_id"`
 
@@ -447,16 +456,19 @@ type Saml struct {
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=256
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// Optional. Specifies the attribute in the SAML response where role information is stored, if available. Role attributes are not required for SAML authentication, but can be included in SAML assertions by most Identity Providers (IdPs) to determine user access levels or permissions.
 	RolesKey *string `groups:"create,update" json:"roles_key,omitempty"`
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// The unique identifier for the Service Provider (SP) entity that is used for SAML authentication. This value is typically provided by the SP.
 	SpEntityId string `groups:"create,update" json:"sp_entity_id"`
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=256
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// Optional. Specifies the attribute in the SAML response where the subject identifier is stored. If not configured, the NameID attribute is used by default.
 	SubjectKey *string `groups:"create,update" json:"subject_key,omitempty"`
 }
@@ -511,6 +523,7 @@ type OpensearchUserConfig struct {
 	PrivatelinkAccess *PrivatelinkAccess `groups:"create,update" json:"privatelink_access,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=63
+	// +kubebuilder:validation:Pattern=`^[a-z][-a-z0-9]{0,63}$|^$`
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Name of another project to fork a service from. This has effect only when a new service is being created.
 	ProjectToForkFrom *string `groups:"create" json:"project_to_fork_from,omitempty"`
@@ -530,6 +543,7 @@ type OpensearchUserConfig struct {
 	ServiceLog *bool `groups:"create,update" json:"service_log,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=64
+	// +kubebuilder:validation:Pattern=`^[a-z][-a-z0-9]{0,63}$|^$`
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Name of another service to fork from. This has effect only when a new service is being created.
 	ServiceToForkFrom *string `groups:"create" json:"service_to_fork_from,omitempty"`

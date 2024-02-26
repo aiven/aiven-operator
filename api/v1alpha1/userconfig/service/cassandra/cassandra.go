@@ -61,6 +61,7 @@ type CassandraUserConfig struct {
 	// cassandra configuration values
 	Cassandra *Cassandra `groups:"create,update" json:"cassandra,omitempty"`
 
+	// +kubebuilder:validation:Pattern=`^[0-9]+(\.[0-9]+)?$`
 	// +kubebuilder:validation:Enum="4";"4.1"
 	// Cassandra version
 	CassandraVersion *string `groups:"create,update" json:"cassandra_version,omitempty"`
@@ -76,6 +77,7 @@ type CassandraUserConfig struct {
 	PrivateAccess *PrivateAccess `groups:"create,update" json:"private_access,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=63
+	// +kubebuilder:validation:Pattern=`^[a-z][-a-z0-9]{0,63}$|^$`
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Name of another project to fork a service from. This has effect only when a new service is being created.
 	ProjectToForkFrom *string `groups:"create" json:"project_to_fork_from,omitempty"`
@@ -87,11 +89,13 @@ type CassandraUserConfig struct {
 	ServiceLog *bool `groups:"create,update" json:"service_log,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=64
+	// +kubebuilder:validation:Pattern=`^[a-z][-a-z0-9]{0,63}$|^$`
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Name of another service to fork from. This has effect only when a new service is being created.
 	ServiceToForkFrom *string `groups:"create" json:"service_to_fork_from,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=64
+	// +kubebuilder:validation:Pattern=`^[a-z][-a-z0-9]{0,63}$`
 	// When bootstrapping, instead of creating a new Cassandra cluster try to join an existing one from another service. Can only be set on service creation.
 	ServiceToJoinWith *string `groups:"create,update" json:"service_to_join_with,omitempty"`
 
