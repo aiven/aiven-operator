@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/aiven/aiven-go-client/v2"
+	avngen "github.com/aiven/go-client-codegen"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -60,7 +61,7 @@ func (a *kafkaConnectAdapter) getServiceCommonSpec() *v1alpha1.ServiceCommonSpec
 }
 
 func (a *kafkaConnectAdapter) getUserConfig() any {
-	return &a.Spec.UserConfig
+	return a.Spec.UserConfig
 }
 
 func (a *kafkaConnectAdapter) newSecret(ctx context.Context, s *aiven.Service) (*corev1.Secret, error) {
@@ -77,4 +78,8 @@ func (a *kafkaConnectAdapter) getDiskSpace() string {
 
 func (a *kafkaConnectAdapter) GetConnInfoSecretTarget() v1alpha1.ConnInfoSecretTarget {
 	return v1alpha1.ConnInfoSecretTarget{}
+}
+
+func (a *kafkaConnectAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *aiven.Service) error {
+	return nil
 }

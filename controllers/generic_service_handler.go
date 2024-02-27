@@ -43,7 +43,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 		}
 	}
 
-	_, err = avn.Services.Get(ctx, spec.Project, ometa.Name)
+	oldService, err := avn.Services.Get(ctx, spec.Project, ometa.Name)
 	exists := err == nil
 	if !exists && !aiven.IsNotFound(err) {
 		return fmt.Errorf("failed to fetch service: %w", err)
@@ -92,6 +92,12 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 	} else {
 		reason = "Updated"
 		userConfig, err := UpdateUserConfiguration(o.getUserConfig())
+		if err != nil {
+			return err
+		}
+
+		// Perform upgrade task if necessary (at the moment, this is relevant only for PostgreSQL)
+		err = o.performUpgradeTaskIfNeeded(ctx, avn, avnGen, oldService)
 		if err != nil {
 			return err
 		}
@@ -238,4 +244,5 @@ type serviceAdapter interface {
 	getDiskSpace() string
 	getUserConfig() any
 	newSecret(ctx context.Context, s *aiven.Service) (*corev1.Secret, error)
+	performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *aiven.Service) error
 }

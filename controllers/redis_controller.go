@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/aiven/aiven-go-client/v2"
+	avngen "github.com/aiven/go-client-codegen"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -64,7 +65,7 @@ func (a *redisAdapter) getServiceCommonSpec() *v1alpha1.ServiceCommonSpec {
 }
 
 func (a *redisAdapter) getUserConfig() any {
-	return &a.Spec.UserConfig
+	return a.Spec.UserConfig
 }
 
 func (a *redisAdapter) newSecret(ctx context.Context, s *aiven.Service) (*corev1.Secret, error) {
@@ -92,4 +93,8 @@ func (a *redisAdapter) getServiceType() string {
 
 func (a *redisAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
+}
+
+func (a *redisAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *aiven.Service) error {
+	return nil
 }
