@@ -301,3 +301,7 @@ define go-install-tool
 		mv "$$(echo "$(1)" | sed "s/-$(3)$$//")" $(1) ;\
 	}
 endef
+
+PHONY: sweep
+sweep: ## Run sweep to remove all resources created by e2e tests.
+	go run ./sweeper/...
