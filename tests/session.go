@@ -46,17 +46,15 @@ var _ Session = &session{}
 
 type session struct {
 	k8s     client.Client
-	avn     *aiven.Client
 	ctx     context.Context
 	objs    map[string]client.Object
 	project string
 }
 
-func NewSession(k8s client.Client, avn *aiven.Client, project string) Session {
+func NewSession(ctx context.Context, k8s client.Client, project string) Session {
 	s := &session{
 		k8s:     k8s,
-		avn:     avn,
-		ctx:     context.Background(),
+		ctx:     ctx,
 		objs:    make(map[string]client.Object),
 		project: project,
 	}

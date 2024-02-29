@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -52,13 +51,15 @@ func TestKafkaWithProjectVPCRef(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
-	ctx := context.Background()
+	ctx, cancel := testCtx()
+	defer cancel()
+
 	vpcName := randName("kafka-vpc")
 	kafkaName := randName("kafka-vpc")
 	yml := getKafkaWithProjectVPCRefYaml(cfg.Project, vpcName, kafkaName, cfg.PrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, cfg.Project)
+	s := NewSession(ctx, k8sClient, cfg.Project)
 
-	// Cleans test afterwards
+	// Cleans test afterward
 	defer s.Destroy()
 
 	// WHEN

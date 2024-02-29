@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -42,12 +41,14 @@ func TestServiceTechnicalEmails(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
-	ctx := context.Background()
+	ctx, cancel := testCtx()
+	defer cancel()
+
 	name := randName("grafana")
 	yml := getTechnicalEmailsYaml(cfg.Project, name, cfg.PrimaryCloudName, true)
-	s := NewSession(k8sClient, avnClient, cfg.Project)
+	s := NewSession(ctx, k8sClient, cfg.Project)
 
-	// Cleans test afterwards
+	// Cleans test afterward
 	defer s.Destroy()
 
 	// WHEN
@@ -114,9 +115,12 @@ func runTest(t *testing.T, scenario TestScenario) {
 	createYaml := getYamlWithDisabledOption(baseYaml, scenario.connInfoSecretTargetDisabledChange[0])
 	updateYaml := getYamlWithDisabledOption(baseYaml, scenario.connInfoSecretTargetDisabledChange[1])
 
-	s := NewSession(k8sClient, avnClient, cfg.Project)
+	ctx, cancel := testCtx()
+	defer cancel()
 
-	// Cleans test afterwards
+	s := NewSession(ctx, k8sClient, cfg.Project)
+
+	// Cleans test afterward
 	defer s.Destroy()
 
 	// WHEN

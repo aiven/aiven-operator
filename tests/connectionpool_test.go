@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -79,15 +78,17 @@ func TestConnectionPool(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
-	ctx := context.Background()
+	ctx, cancel := testCtx()
+	defer cancel()
+
 	pgName := randName("connection-pool")
 	dbName := randName("connection-pool")
 	userName := randName("connection-pool")
 	poolName := randName("connection-pool")
 	yml := getConnectionPoolYaml(cfg.Project, pgName, dbName, userName, poolName, cfg.PrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, cfg.Project)
+	s := NewSession(ctx, k8sClient, cfg.Project)
 
-	// Cleans test afterwards
+	// Cleans test afterward
 	defer s.Destroy()
 
 	// WHEN

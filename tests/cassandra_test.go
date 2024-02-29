@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -49,10 +48,12 @@ func TestCassandra(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
-	ctx := context.Background()
+	ctx, cancel := testCtx()
+	defer cancel()
+
 	name := randName("cassandra")
 	yml := getCassandraYaml(cfg.Project, name, cfg.PrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, cfg.Project)
+	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
 	defer s.Destroy()

@@ -56,7 +56,7 @@ jobs:
 
   sweep:
     if: always()
-    needs: [test, setup_aiven_project_suffix]
+    needs: [setup_aiven_project_suffix, test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

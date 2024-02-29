@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -68,14 +67,16 @@ func TestKafkaACL(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
-	ctx := context.Background()
+	ctx, cancel := testCtx()
+	defer cancel()
+
 	kafkaName := randName("kafka-acl")
 	topicName := randName("kafka-acl")
 	aclName := randName("kafka-acl")
 	yml := getKafkaACLYaml(cfg.Project, kafkaName, topicName, aclName, cfg.PrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, cfg.Project)
+	s := NewSession(ctx, k8sClient, cfg.Project)
 
-	// Cleans test afterwards
+	// Cleans test afterward
 	defer s.Destroy()
 
 	// WHEN

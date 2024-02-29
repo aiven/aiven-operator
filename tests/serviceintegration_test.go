@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"testing"
@@ -78,15 +77,17 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
-	ctx := context.Background()
+	ctx, cancel := testCtx()
+	defer cancel()
+
 	chName := randName("clickhouse-postgresql")
 	pgName := randName("clickhouse-postgresql")
 	siName := randName("clickhouse-postgresql")
 
 	yml := getClickhousePostgreSQLYaml(cfg.Project, chName, pgName, siName, cfg.PrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, cfg.Project)
+	s := NewSession(ctx, k8sClient, cfg.Project)
 
-	// Cleans test afterwards
+	// Cleans test afterward
 	defer s.Destroy()
 
 	// WHEN
@@ -193,15 +194,17 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
-	ctx := context.Background()
+	ctx, cancel := testCtx()
+	defer cancel()
+
 	ksName := randName("kafka-logs")
 	ktName := randName("kafka-logs")
 	siName := randName("kafka-logs")
 
 	yml := getKafkaLogsYaml(cfg.Project, ksName, ktName, siName, cfg.PrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, cfg.Project)
+	s := NewSession(ctx, k8sClient, cfg.Project)
 
-	// Cleans test afterwards
+	// Cleans test afterward
 	defer s.Destroy()
 
 	// WHEN
@@ -313,15 +316,17 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
-	ctx := context.Background()
+	ctx, cancel := testCtx()
+	defer cancel()
+
 	ksName := randName("kafka-connect")
 	kcName := randName("kafka-connect")
 	siName := randName("kafka-connect")
 
 	yml := getSIKafkaConnectYaml(cfg.Project, ksName, kcName, siName, cfg.PrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, cfg.Project)
+	s := NewSession(ctx, k8sClient, cfg.Project)
 
-	// Cleans test afterwards
+	// Cleans test afterward
 	defer s.Destroy()
 
 	// WHEN
@@ -422,14 +427,16 @@ func TestServiceIntegrationDatadog(t *testing.T) {
 	}
 
 	// GIVEN
-	ctx := context.Background()
+	ctx, cancel := testCtx()
+
+	defer cancel()
 	pgName := randName("datadog")
 	siName := randName("datadog")
 
 	yml := getDatadogYaml(cfg.Project, pgName, siName, endpointID, cfg.PrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, cfg.Project)
+	s := NewSession(ctx, k8sClient, cfg.Project)
 
-	// Cleans test afterwards
+	// Cleans test afterward
 	defer s.Destroy()
 
 	// WHEN
@@ -498,12 +505,15 @@ func TestWebhookMultipleUserConfigsDenied(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
 
+	ctx, cancel := testCtx()
+	defer cancel()
+
 	// GIVEN
 	siName := randName("datadog")
 	yml := getWebhookMultipleUserConfigsDeniedYaml(cfg.Project, siName)
 
 	// WHEN
-	s := NewSession(k8sClient, avnClient, cfg.Project)
+	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// THEN
 	err := s.Apply(yml)
