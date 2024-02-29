@@ -36,3 +36,20 @@ jobs:
           AIVEN_TOKEN: ${{ secrets.AIVEN_TOKEN }}
           AIVEN_PROJECT_NAME: >-
             ${{ secrets.AIVEN_PROJECT_NAME_PREFIX }}${{ needs.setup_aiven_project_suffix.outputs.project_name_suffix }}
+
+  sweep:
+    if: always()
+    needs: [test, setup_aiven_project_suffix]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - run: make sweep
+        env:
+          AIVEN_TOKEN: ${{ secrets.AIVEN_TOKEN }}
+          AIVEN_PROJECT_NAME: >-
+            ${{ secrets.AIVEN_PROJECT_NAME_PREFIX }}${{ needs.setup_aiven_project_suffix.outputs.project_name_suffix }}
