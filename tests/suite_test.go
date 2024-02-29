@@ -7,6 +7,7 @@ import (
 	"os"
 	"runtime/debug"
 	"testing"
+	"time"
 
 	"github.com/aiven/aiven-go-client/v2"
 	"github.com/kelseyhightower/envconfig"
@@ -34,15 +35,23 @@ const (
 )
 
 type testConfig struct {
-	Token              string `envconfig:"AIVEN_TOKEN" required:"true"`
-	Project            string `envconfig:"AIVEN_PROJECT_NAME" required:"true"`
-	PrimaryCloudName   string `envconfig:"AIVEN_CLOUD_NAME" default:"google-europe-west1"`
-	SecondaryCloudName string `envconfig:"AIVEN_SECONDARY_CLOUD_NAME" default:"google-europe-west2"`
-	TertiaryCloudName  string `envconfig:"AIVEN_TERTIARY_CLOUD_NAME" default:"google-europe-west3"`
-	DebugLogging       bool   `envconfig:"ENABLE_DEBUG_LOGGING"`
+	Token              string        `envconfig:"AIVEN_TOKEN" required:"true"`
+	Project            string        `envconfig:"AIVEN_PROJECT_NAME" required:"true"`
+	PrimaryCloudName   string        `envconfig:"AIVEN_CLOUD_NAME" default:"google-europe-west1"`
+	SecondaryCloudName string        `envconfig:"AIVEN_SECONDARY_CLOUD_NAME" default:"google-europe-west2"`
+	TertiaryCloudName  string        `envconfig:"AIVEN_TERTIARY_CLOUD_NAME" default:"google-europe-west3"`
+	DebugLogging       bool          `envconfig:"ENABLE_DEBUG_LOGGING"`
+	TestCaseTimeout    time.Duration `envconfig:"TEST_CASE_TIMEOUT" default:"20m"`
 }
 
 func TestMain(m *testing.M) {
+	if os.Getenv("LIST_ONLY") != "" {
+		// For go test ./... -list=.
+		// Lists test names without running them.
+		m.Run()
+		return
+	}
+
 	env, err := setupSuite()
 	if err != nil {
 		log.Fatal(err)
@@ -119,7 +128,9 @@ func setupSuite() (*envtest.Environment, error) {
 		},
 	}
 
-	ctx := context.Background()
+	ctx, cancel := testCtx()
+	defer cancel()
+
 	err = k8sClient.Create(ctx, secret)
 	if err != nil {
 		return nil, err
@@ -150,4 +161,8 @@ func recoverPanic(t *testing.T) {
 		t.Logf("stacktrace: \n%s", string(debug.Stack()))
 		t.Fail()
 	}
+}
+
+func testCtx() (context.Context, func()) {
+	return context.WithTimeout(context.Background(), cfg.TestCaseTimeout)
 }

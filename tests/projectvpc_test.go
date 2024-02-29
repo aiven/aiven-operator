@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -70,13 +69,15 @@ func TestProjectVPCID(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
-	ctx := context.Background()
+	ctx, cancel := testCtx()
+	defer cancel()
+
 	vpcName1 := randName("project-vpc-id")
 	vpcName2 := randName("project-vpc-id")
 	vpcYaml := getProjectVPCsYaml(cfg.Project, vpcName1, cfg.SecondaryCloudName, vpcName2, cfg.TertiaryCloudName)
-	vpcSession := NewSession(k8sClient, avnClient, cfg.Project)
+	vpcSession := NewSession(ctx, k8sClient, cfg.Project)
 
-	// Cleans test afterwards
+	// Cleans test afterward
 	defer vpcSession.Destroy()
 
 	// WHEN
@@ -111,9 +112,9 @@ func TestProjectVPCID(t *testing.T) {
 	// Creates Kafka with given vpcID
 	kafkaName := randName("project-vpc-id")
 	kafkaYaml := getKafkaForProjectVPCYaml(cfg.Project, vpc1.Status.ID, kafkaName, cfg.SecondaryCloudName)
-	kafkaSession := NewSession(k8sClient, avnClient, cfg.Project)
+	kafkaSession := NewSession(ctx, k8sClient, cfg.Project)
 
-	// Cleans test afterwards
+	// Cleans test afterward
 	defer kafkaSession.Destroy()
 
 	// WHEN
@@ -142,8 +143,6 @@ func TestProjectVPCID(t *testing.T) {
 	require.NoError(t, kafkaSession.Apply(kafkaYamlUpd))
 
 	// This migration takes too long, so we don't wait it's being in the RUNNING state in kube
-	ctx, cancel := context.WithTimeout(ctx, waitRunningTimeout)
-	defer cancel()
 
 	// Gets Aiven object
 	var kafkaAvnUpd *aiven.Service

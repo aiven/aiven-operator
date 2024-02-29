@@ -46,17 +46,15 @@ var _ Session = &session{}
 
 type session struct {
 	k8s     client.Client
-	avn     *aiven.Client
 	ctx     context.Context
 	objs    map[string]client.Object
 	project string
 }
 
-func NewSession(k8s client.Client, avn *aiven.Client, project string) Session {
+func NewSession(ctx context.Context, k8s client.Client, project string) Session {
 	s := &session{
 		k8s:     k8s,
-		avn:     avn,
-		ctx:     context.Background(),
+		ctx:     ctx,
 		objs:    make(map[string]client.Object),
 		project: project,
 	}
@@ -142,6 +140,10 @@ func (s *session) GetSecret(keys ...string) (*corev1.Secret, error) {
 // Tolerant to "not found" error,
 // because resource may have been deleted manually
 func (s *session) Destroy() {
+	if err := recover(); err != nil {
+		log.Printf("panicked, deleting resources: %s", err)
+	}
+
 	var wg sync.WaitGroup
 	wg.Add(len(s.objs))
 	for n := range s.objs {
@@ -183,15 +185,18 @@ func (s *session) delete(o client.Object) error {
 		return fmt.Errorf("resource %q not applied", o.GetName())
 	}
 
-	err := s.k8s.Delete(s.ctx, o)
+	// Delete operation doesn't share the context,
+	// because it shouldn't leave artifacts
+	ctx := context.Background()
+	err := s.k8s.Delete(ctx, o)
 	if err != nil {
 		return fmt.Errorf("kubernetes error: %w", err)
 	}
 
 	// Waits being deleted from kube
 	key := types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()}
-	return retryForever(s.ctx, fmt.Sprintf("delete %s", o.GetName()), func() (bool, error) {
-		err := s.k8s.Get(s.ctx, key, o)
+	return retryForever(ctx, fmt.Sprintf("delete %s", o.GetName()), func() (bool, error) {
+		err := s.k8s.Get(ctx, key, o)
 		return !isNotFound(err), nil
 	})
 }

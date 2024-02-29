@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"testing"
@@ -67,14 +66,16 @@ func TestKafkaSchema(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
-	ctx := context.Background()
+	ctx, cancel := testCtx()
+	defer cancel()
+
 	kafkaName := randName("kafka-schema")
 	schemaName := randName("kafka-schema")
 	subjectName := randName("kafka-schema")
 	yml := getKafkaSchemaYaml(cfg.Project, kafkaName, schemaName, subjectName, cfg.PrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, cfg.Project)
+	s := NewSession(ctx, k8sClient, cfg.Project)
 
-	// Cleans test afterwards
+	// Cleans test afterward
 	defer s.Destroy()
 
 	// WHEN

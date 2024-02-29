@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -69,13 +68,15 @@ func TestPgReadReplica(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
-	ctx := context.Background()
+	ctx, cancel := testCtx()
+	defer cancel()
+
 	masterName := randName("pg-master")
 	replicaName := randName("pg-replica")
 	yml := getPgReadReplicaYaml(cfg.Project, masterName, replicaName, cfg.PrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, cfg.Project)
+	s := NewSession(ctx, k8sClient, cfg.Project)
 
-	// Cleans test afterwards
+	// Cleans test afterward
 	defer s.Destroy()
 
 	// WHEN
@@ -186,12 +187,14 @@ func TestPgCustomPrefix(t *testing.T) {
 	defer recoverPanic(t)
 
 	// GIVEN
-	ctx := context.Background()
+	ctx, cancel := testCtx()
+	defer cancel()
+
 	pgName := randName("secret-prefix")
 	yml := getPgCustomPrefixYaml(cfg.Project, pgName, cfg.PrimaryCloudName)
-	s := NewSession(k8sClient, avnClient, cfg.Project)
+	s := NewSession(ctx, k8sClient, cfg.Project)
 
-	// Cleans test afterwards
+	// Cleans test afterward
 	defer s.Destroy()
 
 	// WHEN
@@ -277,10 +280,12 @@ func TestPgUpgradeVersion(t *testing.T) {
 	startingVersion := pgVersions[len(pgVersions)-2]
 	targetVersion := pgVersions[len(pgVersions)-1]
 
-	ctx := context.Background()
+	ctx, cancel := testCtx()
+	defer cancel()
+
 	pgName := randName("upgrade-test")
 	yaml := getPgUpgradeVersionYaml(cfg.Project, pgName, cfg.PrimaryCloudName, startingVersion)
-	s := NewSession(k8sClient, avnClient, cfg.Project)
+	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	defer s.Destroy()
 
