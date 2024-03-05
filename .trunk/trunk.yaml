@@ -7,7 +7,7 @@ plugins:
   sources:
     - id: trunk
       uri: https://github.com/trunk-io/plugins
-      ref: v1.4.3
+      ref: v1.4.4
 
 lint:
   enabled:
