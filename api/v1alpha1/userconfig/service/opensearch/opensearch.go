@@ -313,6 +313,9 @@ type Opensearch struct {
 	// Compatibility mode sets OpenSearch to report its version as 7.10 so clients continue to work. Default is false
 	OverrideMainResponseVersion *bool `groups:"create,update" json:"override_main_response_version,omitempty"`
 
+	// Enable or disable filtering of alerting by backend roles. Requires Security plugin. Defaults to false
+	PluginsAlertingFilterByBackendRoles *bool `groups:"create,update" json:"plugins_alerting_filter_by_backend_roles,omitempty"`
+
 	// +kubebuilder:validation:MaxItems=32
 	// Whitelisted addresses for reindexing. Changing this value will cause all OpenSearch instances to restart.
 	ReindexRemoteWhitelist []string `groups:"create,update" json:"reindex_remote_whitelist,omitempty"`

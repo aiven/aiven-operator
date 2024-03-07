@@ -696,6 +696,11 @@ spec:
                             its version as 7.10 so clients continue to work. Default
                             is false
                           type: boolean
+                        plugins_alerting_filter_by_backend_roles:
+                          description:
+                            Enable or disable filtering of alerting by backend
+                            roles. Requires Security plugin. Defaults to false
+                          type: boolean
                         reindex_remote_whitelist:
                           description:
                             Whitelisted addresses for reindexing. Changing
