@@ -41,6 +41,8 @@
 - Change `PostgreSQL` field `userConfig.service_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
 - Change `Redis` field `userConfig.project_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
 - Change `Redis` field `userConfig.service_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Add `OpenSearch` field `userConfig.opensearch.plugins_alerting_filter_by_backend_roles`, type `boolean`:
+  Enable or disable filtering of alerting by backend roles. Requires Security plugin
 
 ## v0.17.0 - 2024-02-01
 

@@ -390,6 +390,11 @@ func (in *Opensearch) DeepCopyInto(out *Opensearch) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.PluginsAlertingFilterByBackendRoles != nil {
+		in, out := &in.PluginsAlertingFilterByBackendRoles, &out.PluginsAlertingFilterByBackendRoles
+		*out = new(bool)
+		**out = **in
+	}
 	if in.ReindexRemoteWhitelist != nil {
 		in, out := &in.ReindexRemoteWhitelist, &out.ReindexRemoteWhitelist
 		*out = make([]string, len(*in))
