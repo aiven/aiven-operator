@@ -132,7 +132,7 @@ type RedisUserConfig struct {
 	RedisMaxmemoryPolicy *string `groups:"create,update" json:"redis_maxmemory_policy,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=32
-	// +kubebuilder:validation:Pattern=`^[KEg\$lshzxeA]*$`
+	// +kubebuilder:validation:Pattern=`^[KEg\$lshzxentdmA]*$`
 	// Set notify-keyspace-events option
 	RedisNotifyKeyspaceEvents *string `groups:"create,update" json:"redis_notify_keyspace_events,omitempty"`
 
