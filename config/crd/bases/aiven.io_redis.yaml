@@ -397,7 +397,7 @@ spec:
                     redis_notify_keyspace_events:
                       description: Set notify-keyspace-events option
                       maxLength: 32
-                      pattern: ^[KEg\$lshzxeA]*$
+                      pattern: ^[KEg\$lshzxentdmA]*$
                       type: string
                     redis_number_of_databases:
                       description:
