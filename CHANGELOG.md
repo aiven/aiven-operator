@@ -45,6 +45,7 @@
   Enable or disable filtering of alerting by backend roles. Requires Security plugin
 - Change `Redis` field `userConfig.redis_notify_keyspace_events`: pattern ~~`^[KEg\$lshzxeA]*$`~~ →
   `^[KEg\$lshzxentdmA]*$`
+- Add `PostgreSQL` field `userConfig.pgaudit`, type `object`: System-wide settings for the pgaudit extension
 
 ## v0.17.0 - 2024-02-01
 
