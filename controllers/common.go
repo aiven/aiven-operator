@@ -53,7 +53,7 @@ func checkServiceIsRunning(ctx context.Context, avn *aiven.Client, avnGen avngen
 	s, err := avnGen.ServiceGet(ctx, project, serviceName)
 	if err != nil {
 		// if service is not found, it is not running
-		if aiven.IsNotFound(err) {
+		if isNotFound(err) {
 			// this will swallow an error if the project doesn't exist and object is not project
 			return false, nil
 		}
@@ -122,8 +122,16 @@ func optionalStringPointer(u string) *string {
 }
 
 func isAivenServerError(err error) bool {
-	e, ok := err.(aiven.Error)
-	return ok && e.Status >= http.StatusInternalServerError
+	var status int
+	var old aiven.Error
+	var gen avngen.Error
+	switch {
+	case errors.As(err, &old):
+		status = old.Status
+	case errors.As(err, &gen):
+		status = gen.Status
+	}
+	return status >= http.StatusInternalServerError
 }
 
 // NewAivenClient returns Aiven client (aiven/aiven-go-client/v2)
@@ -221,4 +229,14 @@ func CreateUserConfiguration(userConfig any) (map[string]any, error) {
 
 func UpdateUserConfiguration(userConfig any) (map[string]any, error) {
 	return userConfigurationToAPI(userConfig, "update")
+}
+
+// isNotFound works both for old and new client errors
+func isNotFound(err error) bool {
+	return aiven.IsNotFound(err) || avngen.IsNotFound(err)
+}
+
+// isAlreadyExists works both for old and new client errors
+func isAlreadyExists(err error) bool {
+	return aiven.IsAlreadyExists(err) || avngen.IsAlreadyExists(err)
 }

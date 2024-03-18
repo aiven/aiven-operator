@@ -55,7 +55,7 @@ func (h ServiceUserHandler) createOrUpdate(ctx context.Context, avn *aiven.Clien
 				RedisACLKeys:       []string{},
 			},
 		})
-	if err != nil && !aiven.IsAlreadyExists(err) {
+	if err != nil && !isAlreadyExists(err) {
 		return fmt.Errorf("cannot createOrUpdate service user on aiven side: %w", err)
 	}
 
@@ -84,7 +84,7 @@ func (h ServiceUserHandler) delete(ctx context.Context, avn *aiven.Client, avnGe
 	}
 
 	err = avn.ServiceUsers.Delete(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
-	if !aiven.IsNotFound(err) {
+	if !isNotFound(err) {
 		return false, err
 	}
 

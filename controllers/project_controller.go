@@ -180,7 +180,7 @@ func (h ProjectHandler) get(ctx context.Context, avn *aiven.Client, avnGen avnge
 // exists checks if project already exists on Aiven side
 func (h ProjectHandler) exists(ctx context.Context, avn *aiven.Client, project *v1alpha1.Project) (bool, error) {
 	pr, err := avn.Projects.Get(ctx, project.Name)
-	if aiven.IsNotFound(err) {
+	if isNotFound(err) {
 		return false, nil
 	}
 
@@ -199,7 +199,7 @@ func (h ProjectHandler) delete(ctx context.Context, avn *aiven.Client, avnGen av
 		var skip bool
 
 		// If project not found then there is nothing to delete
-		if aiven.IsNotFound(err) {
+		if isNotFound(err) {
 			skip = true
 		}
 

@@ -101,7 +101,7 @@ func (h KafkaSchemaHandler) delete(ctx context.Context, avn *aiven.Client, avnGe
 	}
 
 	err = avn.KafkaSubjectSchemas.Delete(ctx, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName)
-	if err != nil && !aiven.IsNotFound(err) {
+	if err != nil && !isNotFound(err) {
 		return false, fmt.Errorf("aiven client delete Kafka Schema error: %w", err)
 	}
 

@@ -90,7 +90,7 @@ func (h DatabaseHandler) delete(ctx context.Context, avn *aiven.Client, avnGen a
 		db.Spec.Project,
 		db.Spec.ServiceName,
 		db.Name)
-	if err != nil && !aiven.IsNotFound(err) {
+	if err != nil && !isNotFound(err) {
 		return false, err
 	}
 
@@ -99,7 +99,7 @@ func (h DatabaseHandler) delete(ctx context.Context, avn *aiven.Client, avnGen a
 
 func (h DatabaseHandler) exists(ctx context.Context, avn *aiven.Client, db *v1alpha1.Database) (bool, error) {
 	d, err := avn.Databases.Get(ctx, db.Spec.Project, db.Spec.ServiceName, db.Name)
-	if aiven.IsNotFound(err) {
+	if isNotFound(err) {
 		return false, nil
 	}
 

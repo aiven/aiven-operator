@@ -83,7 +83,7 @@ func (h *ProjectVPCHandler) delete(ctx context.Context, avn *aiven.Client, avnGe
 	}
 
 	vpc, err := avn.VPCs.Get(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
-	if aiven.IsNotFound(err) {
+	if isNotFound(err) {
 		return true, nil
 	}
 

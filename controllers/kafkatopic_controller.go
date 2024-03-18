@@ -66,7 +66,7 @@ func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avn *aiven.Client
 			Tags:        tags,
 			Config:      convertKafkaTopicConfig(topic),
 		})
-		if err != nil && !aiven.IsAlreadyExists(err) {
+		if err != nil && !isAlreadyExists(err) {
 			return err
 		}
 
@@ -112,7 +112,7 @@ func (h KafkaTopicHandler) delete(ctx context.Context, avn *aiven.Client, avnGen
 
 	// Delete project on Aiven side
 	err = avn.KafkaTopics.Delete(ctx, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName())
-	if err != nil && !aiven.IsNotFound(err) {
+	if err != nil && !isNotFound(err) {
 		return false, err
 	}
 
@@ -121,7 +121,7 @@ func (h KafkaTopicHandler) delete(ctx context.Context, avn *aiven.Client, avnGen
 
 func (h KafkaTopicHandler) exists(ctx context.Context, avn *aiven.Client, topic *v1alpha1.KafkaTopic) (bool, error) {
 	t, err := avn.KafkaTopics.Get(ctx, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName())
-	if err != nil && !aiven.IsNotFound(err) {
+	if err != nil && !isNotFound(err) {
 		if aivenError, ok := err.(aiven.Error); ok {
 			// Getting topic info can sometimes temporarily fail with 501 and 502. Don't
 			// treat that as fatal error but keep on retrying instead.

@@ -62,7 +62,7 @@ func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avn *aiven.Cl
 				PoolSize: cp.Spec.PoolSize,
 				Username: optionalStringPointer(cp.Spec.Username),
 			})
-		if err != nil && !aiven.IsAlreadyExists(err) {
+		if err != nil && !isAlreadyExists(err) {
 			return err
 		}
 		reason = "Created"
@@ -101,7 +101,7 @@ func (h ConnectionPoolHandler) delete(ctx context.Context, avn *aiven.Client, av
 	}
 
 	err = avn.ConnectionPools.Delete(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
-	if err != nil && !aiven.IsNotFound(err) {
+	if err != nil && !isNotFound(err) {
 		return false, err
 	}
 
@@ -111,7 +111,7 @@ func (h ConnectionPoolHandler) delete(ctx context.Context, avn *aiven.Client, av
 func (h ConnectionPoolHandler) exists(ctx context.Context, avn *aiven.Client, cp *v1alpha1.ConnectionPool) (bool, error) {
 	conPool, err := avn.ConnectionPools.Get(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
 	if err != nil {
-		if aiven.IsNotFound(err) {
+		if isNotFound(err) {
 			return false, nil
 		}
 		return false, err
