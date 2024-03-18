@@ -266,7 +266,7 @@ func (i *instanceReconcilerHelper) reconcileInstance(ctx context.Context, o v1al
 	i.rec.Event(o, corev1.EventTypeNormal, eventWaitingForTheInstanceToBeRunning, "waiting for the instance to be running")
 	err = i.updateInstanceStateAndSecretUntilRunning(ctx, o)
 	if err != nil {
-		if aiven.IsNotFound(err) {
+		if isNotFound(err) {
 			return true, nil
 		}
 
@@ -389,7 +389,7 @@ func (i *instanceReconcilerHelper) finalize(ctx context.Context, o v1alpha1.Aive
 		if i.isInvalidTokenError(err) && !IsAlreadyRunning(o) {
 			i.log.Info("invalid token error on deletion, removing finalizer", "apiError", err)
 			finalised = true
-		} else if aiven.IsNotFound(err) {
+		} else if isNotFound(err) {
 			i.rec.Event(o, corev1.EventTypeWarning, eventUnableToDeleteAtAiven, err.Error())
 			return false, fmt.Errorf("unable to delete instance at aiven: %w", err)
 		} else if isAivenServerError(err) {

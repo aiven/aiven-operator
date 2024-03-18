@@ -45,7 +45,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 
 	oldService, err := avn.Services.Get(ctx, spec.Project, ometa.Name)
 	exists := err == nil
-	if !exists && !aiven.IsNotFound(err) {
+	if !exists && !isNotFound(err) {
 		return fmt.Errorf("failed to fetch service: %w", err)
 	}
 
@@ -159,7 +159,7 @@ func (h *genericServiceHandler) delete(ctx context.Context, avn *aiven.Client, a
 	}
 
 	err = avn.Services.Delete(ctx, spec.Project, o.getObjectMeta().Name)
-	if err == nil || aiven.IsNotFound(err) {
+	if err == nil || isNotFound(err) {
 		return true, nil
 	}
 

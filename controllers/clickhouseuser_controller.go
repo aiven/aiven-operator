@@ -82,7 +82,7 @@ func (h *clickhouseUserHandler) delete(ctx context.Context, avn *aiven.Client, a
 	}
 
 	err = avn.ClickhouseUser.Delete(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID)
-	if !aiven.IsNotFound(err) {
+	if !isNotFound(err) {
 		return false, err
 	}
 

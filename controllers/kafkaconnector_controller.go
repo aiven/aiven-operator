@@ -64,7 +64,7 @@ func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avn *aiven.Cl
 	var reason string
 	if !exists {
 		err = avn.KafkaConnectors.Create(ctx, conn.Spec.Project, conn.Spec.ServiceName, connCfg)
-		if err != nil && !aiven.IsAlreadyExists(err) {
+		if err != nil && !isAlreadyExists(err) {
 			return err
 		}
 		reason = "Created"
@@ -141,7 +141,7 @@ func (h KafkaConnectorHandler) delete(ctx context.Context, avn *aiven.Client, av
 		return false, err
 	}
 	err = avn.KafkaConnectors.Delete(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
-	if err != nil && !aiven.IsNotFound(err) {
+	if err != nil && !isNotFound(err) {
 		return false, fmt.Errorf("unable to delete kafka connector: %w", err)
 	}
 	return true, nil
@@ -149,7 +149,7 @@ func (h KafkaConnectorHandler) delete(ctx context.Context, avn *aiven.Client, av
 
 func (h KafkaConnectorHandler) exists(ctx context.Context, avn *aiven.Client, conn *v1alpha1.KafkaConnector) (bool, error) {
 	connector, err := avn.KafkaConnectors.Status(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
-	if err != nil && !aiven.IsNotFound(err) {
+	if err != nil && !isNotFound(err) {
 		return false, err
 	}
 	return connector != nil, nil

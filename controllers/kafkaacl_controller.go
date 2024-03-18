@@ -94,7 +94,7 @@ func (h KafkaACLHandler) delete(ctx context.Context, avn *aiven.Client, avnGen a
 		err = avn.KafkaACLs.Delete(ctx, acl.Spec.Project, acl.Spec.ServiceName, id)
 	}
 
-	if err != nil && !aiven.IsNotFound(err) {
+	if err != nil && !isNotFound(err) {
 		return false, fmt.Errorf("aiven client delete Kafka ACL error: %w", err)
 	}
 
@@ -123,7 +123,7 @@ func (h KafkaACLHandler) getID(ctx context.Context, avn *aiven.Client, acl *v1al
 		}
 	}
 
-	// Error should mimic client error to play well with aiven.IsNotFound(err)
+	// Error should mimic client error to play well with isNotFound(err)
 	return "", aiven.Error{Status: http.StatusNotFound, Message: fmt.Sprintf("Kafka ACL %q not found", acl.Name)}
 }
 
