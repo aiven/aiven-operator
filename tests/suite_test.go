@@ -13,6 +13,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -33,6 +34,10 @@ const (
 	secretRefName = "aiven-token"
 	secretRefKey  = "token"
 )
+
+// operatorVersion defines the version of the operator that is used in the tests.
+// It is defined as "test" to be able to differentiate it from the actual operator version when running tests.
+const operatorVersion = "test"
 
 type testConfig struct {
 	Token              string        `envconfig:"AIVEN_TOKEN" required:"true"`
@@ -103,11 +108,6 @@ func setupSuite() (*envtest.Environment, error) {
 		return nil, err
 	}
 
-	avnClient, err = controllers.NewAivenClient(cfg.Token)
-	if err != nil {
-		return nil, err
-	}
-
 	mgr, err := ctrl.NewManager(c, ctrl.Options{
 		Scheme:             scheme.Scheme,
 		MetricsBindAddress: "0",
@@ -131,12 +131,26 @@ func setupSuite() (*envtest.Environment, error) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
+	discoveryClient, err := discovery.NewDiscoveryClientForConfig(mgr.GetConfig())
+	if err != nil {
+		return nil, fmt.Errorf("unable to create discovery client: %w", err)
+	}
+	kubeVersion, err := discoveryClient.ServerVersion()
+	if err != nil {
+		return nil, fmt.Errorf("unable to get k8s version: %w", err)
+	}
+
+	avnClient, err = controllers.NewAivenClient(cfg.Token, kubeVersion.String()+"-test", operatorVersion+"-test")
+	if err != nil {
+		return nil, err
+	}
+
 	err = k8sClient.Create(ctx, secret)
 	if err != nil {
 		return nil, err
 	}
 
-	err = controllers.SetupControllers(mgr, cfg.Token)
+	err = controllers.SetupControllers(mgr, cfg.Token, kubeVersion.String(), operatorVersion)
 	if err != nil {
 		return nil, fmt.Errorf("unable to setup controllers: %w", err)
 	}

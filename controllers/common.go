@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -44,12 +45,9 @@ const (
 	errConditionCreateOrUpdate errCondition = "CreateOrUpdate"
 )
 
-var (
-	version                    = "dev"
-	errTerminationProtectionOn = errors.New("termination protection is on")
-)
+var errTerminationProtectionOn = errors.New("termination protection is on")
 
-func checkServiceIsRunning(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, project, serviceName string) (bool, error) {
+func checkServiceIsRunning(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, project, serviceName string) (bool, error) {
 	s, err := avnGen.ServiceGet(ctx, project, serviceName)
 	if err != nil {
 		// if service is not found, it is not running
@@ -135,13 +133,13 @@ func isAivenServerError(err error) bool {
 }
 
 // NewAivenClient returns Aiven client (aiven/aiven-go-client/v2)
-func NewAivenClient(token string) (*aiven.Client, error) {
-	return aiven.NewTokenClient(token, "k8s-operator/"+version)
+func NewAivenClient(token, kubeVersion, operatorVersion string) (*aiven.Client, error) {
+	return aiven.NewTokenClient(token, fmt.Sprintf("k8s-operator/%s/%s", kubeVersion, operatorVersion))
 }
 
 // NewAivenGeneratedClient returns Aiven generated client client (aiven/go-client-codegen)
-func NewAivenGeneratedClient(token string) (avngen.Client, error) {
-	return avngen.NewClient(avngen.TokenOpt(token), avngen.UserAgentOpt("k8s-operator/"+version))
+func NewAivenGeneratedClient(token, kubeVersion, operatorVersion string) (avngen.Client, error) {
+	return avngen.NewClient(avngen.TokenOpt(token), avngen.UserAgentOpt(fmt.Sprintf("k8s-operator/%s/%s", kubeVersion, operatorVersion)))
 }
 
 func fromAnyPointer[T any](v *T) T {
