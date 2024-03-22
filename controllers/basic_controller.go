@@ -36,11 +36,13 @@ type (
 	Controller struct {
 		client.Client
 
-		Log          logr.Logger
-		Scheme       *runtime.Scheme
-		Recorder     record.EventRecorder
-		DefaultToken string
-		AvGenClient  avngen.Client
+		Log             logr.Logger
+		Scheme          *runtime.Scheme
+		Recorder        record.EventRecorder
+		DefaultToken    string
+		AvGenClient     avngen.Client
+		KubeVersion     string
+		OperatorVersion string
 	}
 
 	// Handlers represents Aiven API handlers
@@ -123,13 +125,13 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 		return ctrl.Result{}, errNoTokenProvided
 	}
 
-	avn, err := NewAivenClient(token)
+	avn, err := NewAivenClient(token, c.KubeVersion, c.OperatorVersion)
 	if err != nil {
 		c.Recorder.Event(o, corev1.EventTypeWarning, eventUnableToCreateClient, err.Error())
 		return ctrl.Result{}, fmt.Errorf("cannot initialize aiven client: %w", err)
 	}
 
-	avnGen, err := NewAivenGeneratedClient(token)
+	avnGen, err := NewAivenGeneratedClient(token, c.KubeVersion, c.OperatorVersion)
 	if err != nil {
 		c.Recorder.Event(o, corev1.EventTypeWarning, eventUnableToCreateClient, err.Error())
 		return ctrl.Result{}, fmt.Errorf("cannot initialize aiven generated client: %w", err)

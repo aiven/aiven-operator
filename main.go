@@ -9,6 +9,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	"k8s.io/client-go/discovery"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -27,6 +28,9 @@ var (
 	scheme   = runtime.NewScheme()
 	setupLog = ctrl.Log.WithName("setup")
 )
+
+// operatorVersion is the current version of the operator.
+const operatorVersion = "0.17.0"
 
 const port = 9443
 
@@ -79,8 +83,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	discoveryClient, err := discovery.NewDiscoveryClientForConfig(mgr.GetConfig())
+	if err != nil {
+		setupLog.Error(err, "unable to create discovery client")
+		os.Exit(1)
+	}
+	kubeVersion, err := discoveryClient.ServerVersion()
+	if err != nil {
+		setupLog.Error(err, "unable to get kube version")
+		os.Exit(1)
+	}
+
 	defaultToken := os.Getenv("DEFAULT_AIVEN_TOKEN")
-	err = controllers.SetupControllers(mgr, defaultToken)
+	err = controllers.SetupControllers(mgr, defaultToken, kubeVersion.String(), operatorVersion)
 	if err != nil {
 		setupLog.Error(err, "controllers setup error")
 	}

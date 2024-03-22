@@ -6,6 +6,21 @@ on:
       - v*
 
 jobs:
+  bump_version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: |
+          sed -i "s/const operatorVersion = \".*\"/const operatorVersion = \"${GITHUB_REF_NAME#v}\"/" main.go
+      - uses: Amraneze/push-to-protected-branch@v1.5.0
+        with:
+          repository: ${{ github.repository }}
+          branch_name: ${{ github.ref_name }}
+          github_token: ${{ secrets.AIVEN_CI_PAT__VALID_WHILE_ALEKS_IS_EMPLOYED }}
+          commit_message: "chore(version): bump operator version"
+          files_to_commit: main.go
   build_default_release_manifest:
     runs-on: ubuntu-latest
     steps:
