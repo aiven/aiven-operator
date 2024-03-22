@@ -194,6 +194,7 @@ Datadog Opensearch Options.
 
 **Optional**
 
+- [`cluster_stats_enabled`](#spec.datadog.opensearch.cluster_stats_enabled-property){: name='spec.datadog.opensearch.cluster_stats_enabled-property'} (boolean). Enable Datadog Opensearch Cluster Monitoring.
 - [`index_stats_enabled`](#spec.datadog.opensearch.index_stats_enabled-property){: name='spec.datadog.opensearch.index_stats_enabled-property'} (boolean). Enable Datadog Opensearch Index Monitoring.
 - [`pending_task_stats_enabled`](#spec.datadog.opensearch.pending_task_stats_enabled-property){: name='spec.datadog.opensearch.pending_task_stats_enabled-property'} (boolean). Enable Datadog Opensearch Pending Task Monitoring.
 - [`pshard_stats_enabled`](#spec.datadog.opensearch.pshard_stats_enabled-property){: name='spec.datadog.opensearch.pshard_stats_enabled-property'} (boolean). Enable Datadog Opensearch Primary Shard Monitoring.

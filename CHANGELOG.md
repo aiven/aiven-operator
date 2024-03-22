@@ -46,6 +46,8 @@
 - Change `Redis` field `userConfig.redis_notify_keyspace_events`: pattern ~~`^[KEg\$lshzxeA]*$`~~ →
   `^[KEg\$lshzxentdmA]*$`
 - Add `PostgreSQL` field `userConfig.pgaudit`, type `object`: System-wide settings for the pgaudit extension
+- Add `ServiceIntegration` field `datadog.opensearch.cluster_stats_enabled`, type `boolean`: Enable Datadog
+  Opensearch Cluster Monitoring
 
 ## v0.17.0 - 2024-02-01
 

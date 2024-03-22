@@ -297,6 +297,9 @@ spec:
                     opensearch:
                       description: Datadog Opensearch Options
                       properties:
+                        cluster_stats_enabled:
+                          description: Enable Datadog Opensearch Cluster Monitoring
+                          type: boolean
                         index_stats_enabled:
                           description: Enable Datadog Opensearch Index Monitoring
                           type: boolean

@@ -17,6 +17,9 @@ type DatadogTags struct {
 
 // Datadog Opensearch Options
 type Opensearch struct {
+	// Enable Datadog Opensearch Cluster Monitoring
+	ClusterStatsEnabled *bool `groups:"create,update" json:"cluster_stats_enabled,omitempty"`
+
 	// Enable Datadog Opensearch Index Monitoring
 	IndexStatsEnabled *bool `groups:"create,update" json:"index_stats_enabled,omitempty"`
 
