@@ -57,6 +57,27 @@ webhooks:
       service:
         name: {{ include "aiven-operator.fullname" . }}-webhook-service
         namespace: {{ include "aiven-operator.namespace" . }}
+        path: /validate-aiven-io-v1alpha1-clickhousedatabase
+    failurePolicy: Fail
+    name: vclickhousedatabase.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+          - DELETE
+        resources:
+          - clickhousedatabases
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
         path: /validate-aiven-io-v1alpha1-clickhouseuser
     failurePolicy: Fail
     name: vclickhouseuser.kb.io

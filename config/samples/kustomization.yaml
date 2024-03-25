@@ -20,4 +20,5 @@ resources:
   - _v1alpha1_mysql.yaml
   - _v1alpha1_cassandra.yaml
   - _v1alpha1_grafana.yaml
+  - _v1alpha1_clickhousedatabase.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

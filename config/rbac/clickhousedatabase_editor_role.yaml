@@ -1,0 +1,31 @@
+# permissions for end users to edit clickhousedatabases.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: clickhousedatabase-editor-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: aiven-operator
+    app.kubernetes.io/part-of: aiven-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: clickhousedatabase-editor-role
+rules:
+  - apiGroups:
+      - aiven.io
+    resources:
+      - clickhousedatabases
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - clickhousedatabases/status
+    verbs:
+      - get

@@ -1,5 +1,5 @@
 apiVersion: aiven.io/v1alpha1
-kind: Database
+kind: ClickhouseDatabase
 metadata:
   name: my-db
 spec:
@@ -8,7 +8,4 @@ spec:
     key: token
 
   project: aiven-project-name
-  serviceName: my-service
-
-  lcCtype: en_US.UTF-8
-  lcCollate: en_US.UTF-8
+  serviceName: my-clickhouse

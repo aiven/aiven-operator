@@ -2,6 +2,7 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `ClickhouseDatabase` kind
 - Replace `Database` kind validations and default values with CRD validation rules
 - Perform upgrade tasks to check if PG service can be upgraded before updating the service
 - Expose project CA certificate to service secrets: `REDIS_CA_CERT`, `MYSQL_CA_CERT`, etc.
