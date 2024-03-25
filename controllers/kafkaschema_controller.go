@@ -23,6 +23,10 @@ type KafkaSchemaReconciler struct {
 	Controller
 }
 
+func newKafkaSchemaReconciler(c Controller) reconcilerType {
+	return &KafkaSchemaReconciler{Controller: c}
+}
+
 type KafkaSchemaHandler struct{}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkaschemas,verbs=get;list;watch;create;update;patch;delete

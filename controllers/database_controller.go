@@ -23,6 +23,10 @@ type DatabaseReconciler struct {
 	Controller
 }
 
+func newDatabaseReconciler(c Controller) reconcilerType {
+	return &DatabaseReconciler{Controller: c}
+}
+
 // DatabaseHandler handles an Aiven Database
 type DatabaseHandler struct{}
 

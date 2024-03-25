@@ -23,6 +23,10 @@ type KafkaTopicReconciler struct {
 	Controller
 }
 
+func newKafkaTopicReconciler(c Controller) reconcilerType {
+	return &KafkaTopicReconciler{Controller: c}
+}
+
 type KafkaTopicHandler struct{}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkatopics,verbs=get;list;watch;create;update;patch;delete

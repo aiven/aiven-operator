@@ -21,6 +21,10 @@ type RedisReconciler struct {
 	Controller
 }
 
+func newRedisReconciler(c Controller) reconcilerType {
+	return &RedisReconciler{Controller: c}
+}
+
 type RedisHandler struct{}
 
 //+kubebuilder:rbac:groups=aiven.io,resources=redis,verbs=get;list;watch;create;update;patch;delete

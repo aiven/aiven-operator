@@ -24,6 +24,10 @@ type KafkaACLReconciler struct {
 	Controller
 }
 
+func newKafkaACLReconciler(c Controller) reconcilerType {
+	return &KafkaACLReconciler{Controller: c}
+}
+
 type KafkaACLHandler struct{}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=kafkaacls,verbs=get;list;watch;create;update;patch;delete

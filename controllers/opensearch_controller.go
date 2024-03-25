@@ -21,6 +21,10 @@ type OpenSearchReconciler struct {
 	Controller
 }
 
+func newOpenSearchReconciler(c Controller) reconcilerType {
+	return &OpenSearchReconciler{Controller: c}
+}
+
 type OpenSearchHandler struct{}
 
 //+kubebuilder:rbac:groups=aiven.io,resources=opensearches,verbs=get;list;watch;create;update;patch;delete

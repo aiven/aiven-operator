@@ -24,6 +24,10 @@ type ProjectReconciler struct {
 	Controller
 }
 
+func newProjectReconciler(c Controller) reconcilerType {
+	return &ProjectReconciler{Controller: c}
+}
+
 // ProjectHandler handles an Aiven project
 type ProjectHandler struct{}
 
