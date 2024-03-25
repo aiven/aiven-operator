@@ -24,7 +24,7 @@ import (
 const (
 	conditionTypeRunning     = "Running"
 	conditionTypeInitialized = "Initialized"
-	conditionTypeError       = "Error"
+	ConditionTypeError       = "Error"
 
 	secretProtectionFinalizer = "finalizers.aiven.io/needed-to-delete-services"
 	instanceDeletionFinalizer = "finalizers.aiven.io/delete-remote-resource"
@@ -80,7 +80,7 @@ func getRunningCondition(status metav1.ConditionStatus, reason, message string) 
 
 func getErrorCondition(reason errCondition, err error) metav1.Condition {
 	return metav1.Condition{
-		Type:    conditionTypeError,
+		Type:    ConditionTypeError,
 		Status:  metav1.ConditionUnknown,
 		Reason:  string(reason),
 		Message: err.Error(),

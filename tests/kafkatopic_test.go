@@ -24,7 +24,11 @@ spec:
 
   project: %[1]s
   cloudName: %[3]s
-  plan: startup-2
+  plan: business-4
+
+  userConfig:
+    tiered_storage:
+      enabled: true
 
 ---
 
