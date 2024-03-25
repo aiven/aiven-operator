@@ -58,26 +58,40 @@ spec:
                     - name
                   type: object
                 lcCollate:
+                  default: en_US.UTF-8
                   description:
                     "Default string sort order (LC_COLLATE) of the database.
                     Default value: en_US.UTF-8"
                   maxLength: 128
                   type: string
+                  x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
                 lcCtype:
+                  default: en_US.UTF-8
                   description:
                     "Default character classification (LC_CTYPE) of the database.
                     Default value: en_US.UTF-8"
                   maxLength: 128
                   type: string
+                  x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
                 project:
                   description: Project to link the database to
                   format: ^[a-zA-Z0-9_-]*$
                   maxLength: 63
                   type: string
+                  x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
                 serviceName:
                   description: PostgreSQL service to link the database to
                   maxLength: 63
                   type: string
+                  x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
                 terminationProtection:
                   description:
                     It is a Kubernetes side deletion protections, which prevents

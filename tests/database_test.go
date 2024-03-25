@@ -38,10 +38,6 @@ spec:
 
   project: %[1]s
   serviceName: %[2]s
-
-  lcCtype: en_US.UTF-8
-  lcCollate: en_US.UTF-8
-
 `, project, pgName, dbName, cloudName)
 }
 
@@ -87,9 +83,9 @@ func TestDatabase(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, dbName, db.GetName())
 	assert.Equal(t, dbAvn.DatabaseName, db.GetName())
-	assert.Equal(t, "en_US.UTF-8", db.Spec.LcCtype)
+	assert.Equal(t, "en_US.UTF-8", db.Spec.LcCtype) // the default value
 	assert.Equal(t, dbAvn.LcType, db.Spec.LcCtype)
-	assert.Equal(t, "en_US.UTF-8", db.Spec.LcCollate)
+	assert.Equal(t, "en_US.UTF-8", db.Spec.LcCollate) // the default value
 	assert.Equal(t, dbAvn.LcCollate, db.Spec.LcCollate)
 
 	// We need to validate deletion,

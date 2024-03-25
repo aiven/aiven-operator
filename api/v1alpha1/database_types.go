@@ -10,18 +10,24 @@ import (
 type DatabaseSpec struct {
 	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Project to link the database to
 	Project string `json:"project"`
 
 	// +kubebuilder:validation:MaxLength=63
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// PostgreSQL service to link the database to
 	ServiceName string `json:"serviceName"`
 
 	// +kubebuilder:validation:MaxLength=128
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// +kubebuilder:default=en_US.UTF-8
 	// Default string sort order (LC_COLLATE) of the database. Default value: en_US.UTF-8
 	LcCollate string `json:"lcCollate,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=128
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// +kubebuilder:default=en_US.UTF-8
 	// Default character classification (LC_CTYPE) of the database. Default value: en_US.UTF-8
 	LcCtype string `json:"lcCtype,omitempty"`
 
