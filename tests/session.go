@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -23,6 +24,7 @@ import (
 	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 	"github.com/aiven/aiven-operator/controllers"
 )
 
@@ -118,6 +120,16 @@ func (s *session) GetRunning(obj client.Object, keys ...string) error {
 			// Do not retry kube errors
 			return isNotFound(err), err
 		}
+
+		// Exits on condition errors
+		if o, ok := obj.(v1alpha1.AivenManagedObject); ok {
+			for _, c := range *o.Conditions() {
+				if c.Type == controllers.ConditionTypeError {
+					return false, errors.New(c.Message)
+				}
+			}
+		}
+
 		return !controllers.IsAlreadyRunning(obj), nil
 	})
 }
