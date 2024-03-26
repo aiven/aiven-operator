@@ -26,6 +26,10 @@ type KafkaConnectorReconciler struct {
 	Controller
 }
 
+func newKafkaConnectorReconciler(c Controller) reconcilerType {
+	return &KafkaConnectorReconciler{Controller: c}
+}
+
 type KafkaConnectorHandler struct {
 	k8s client.Client
 }

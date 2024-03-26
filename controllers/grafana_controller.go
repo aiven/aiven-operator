@@ -22,6 +22,10 @@ type GrafanaReconciler struct {
 	Controller
 }
 
+func newGrafanaReconciler(c Controller) reconcilerType {
+	return &GrafanaReconciler{Controller: c}
+}
+
 // +kubebuilder:rbac:groups=aiven.io,resources=grafanas,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aiven.io,resources=grafanas/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=aiven.io,resources=grafanas/finalizers,verbs=get;list;watch;create;update;patch;delete

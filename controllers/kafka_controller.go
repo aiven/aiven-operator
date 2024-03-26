@@ -22,6 +22,10 @@ type KafkaReconciler struct {
 	Controller
 }
 
+func newKafkaReconciler(c Controller) reconcilerType {
+	return &KafkaReconciler{Controller: c}
+}
+
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkas,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkas/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkas/finalizers,verbs=get;list;watch;create;update;patch;delete

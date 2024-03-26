@@ -21,6 +21,10 @@ type MySQLReconciler struct {
 	Controller
 }
 
+func newMySQLReconciler(c Controller) reconcilerType {
+	return &MySQLReconciler{Controller: c}
+}
+
 //+kubebuilder:rbac:groups=aiven.io,resources=mysqls,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=mysqls/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=aiven.io,resources=mysqls/finalizers,verbs=get;list;watch;create;update;patch;delete

@@ -25,6 +25,10 @@ type ClickhouseUserReconciler struct {
 	Controller
 }
 
+func newClickhouseUserReconciler(c Controller) reconcilerType {
+	return &ClickhouseUserReconciler{Controller: c}
+}
+
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouseusers,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouseusers/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouseusers/finalizers,verbs=get;list;watch;create;update;patch;delete

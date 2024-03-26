@@ -23,6 +23,10 @@ type ServiceUserReconciler struct {
 	Controller
 }
 
+func newServiceUserReconciler(c Controller) reconcilerType {
+	return &ServiceUserReconciler{Controller: c}
+}
+
 type ServiceUserHandler struct{}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=serviceusers,verbs=update;get;list;watch;create;delete

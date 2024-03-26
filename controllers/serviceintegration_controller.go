@@ -26,6 +26,10 @@ type ServiceIntegrationReconciler struct {
 	Controller
 }
 
+func newServiceIntegrationReconciler(c Controller) reconcilerType {
+	return &ServiceIntegrationReconciler{Controller: c}
+}
+
 type ServiceIntegrationHandler struct{}
 
 // +kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations,verbs=get;list;watch;create;update;patch;delete

@@ -24,6 +24,10 @@ type PostgreSQLReconciler struct {
 	Controller
 }
 
+func newPostgreSQLReconciler(c Controller) reconcilerType {
+	return &PostgreSQLReconciler{Controller: c}
+}
+
 const waitForTaskToCompleteInterval = time.Second * 10
 
 //+kubebuilder:rbac:groups=aiven.io,resources=postgresqls,verbs=get;list;watch;create;update;patch;delete

@@ -29,6 +29,10 @@ type ProjectVPCReconciler struct {
 	Controller
 }
 
+func newProjectVPCReconciler(c Controller) reconcilerType {
+	return &ProjectVPCReconciler{Controller: c}
+}
+
 type ProjectVPCHandler struct {
 	log logr.Logger
 }

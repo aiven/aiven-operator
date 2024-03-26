@@ -24,6 +24,10 @@ type ConnectionPoolReconciler struct {
 	Controller
 }
 
+func newConnectionPoolReconciler(c Controller) reconcilerType {
+	return &ConnectionPoolReconciler{Controller: c}
+}
+
 // ConnectionPoolHandler handles an Aiven ConnectionPool
 type ConnectionPoolHandler struct{}
 
