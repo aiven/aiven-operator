@@ -26,6 +26,7 @@ func SetupControllers(mgr ctrl.Manager, defaultToken, kubeVersion, operatorVersi
 	builders := map[string]reconcilerBuilder{
 		"Cassandra":          newCassandraReconciler,
 		"Clickhouse":         newClickhouseReconciler,
+		"ClickhouseDatabase": newClickhouseDatabaseReconciler,
 		"ClickhouseUser":     newClickhouseUserReconciler,
 		"ConnectionPool":     newConnectionPoolReconciler,
 		"Database":           newDatabaseReconciler,
