@@ -3,11 +3,20 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: daily
+      interval: weekly
+    groups:
+      main:
+        applies-to: version-updates
+        patterns:
+          - '*'
+      sec:
+        applies-to: security-updates
+        patterns:
+          - '*'
   - package-ecosystem: gomod
     directory: /
     schedule:
-      interval: daily
+      interval: weekly
     ignore:
       - dependency-name: k8s.io/api
         update-types:
@@ -25,3 +34,12 @@ updates:
         update-types:
           - version-update:semver-major
           - version-update:semver-minor
+    groups:
+      main:
+        applies-to: version-updates
+        patterns:
+          - '*'
+      sec:
+        applies-to: security-updates
+        patterns:
+          - '*'
