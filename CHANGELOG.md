@@ -2,6 +2,7 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `KafkaSchemaRegistryACL` kind
 - Add `ClickhouseDatabase` kind
 - Fix secret creation for kinds with no secrets
 - Replace `Database` kind validations and default values with CRD validation rules

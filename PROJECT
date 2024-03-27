@@ -259,4 +259,12 @@ resources:
   kind: ClickhouseDatabase
   path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
+  kind: KafkaSchemaRegistryACL
+  path: github.com/aiven/aiven-operator/api/v1alpha1
+  version: v1alpha1
 version: "3"

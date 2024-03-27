@@ -21,4 +21,5 @@ resources:
   - _v1alpha1_cassandra.yaml
   - _v1alpha1_grafana.yaml
   - _v1alpha1_clickhousedatabase.yaml
+  - _v1alpha1_kafkaschemaregistryacl.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

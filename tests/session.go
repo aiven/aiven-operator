@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/aiven/aiven-go-client/v2"
+	avngen "github.com/aiven/go-client-codegen"
 	"golang.org/x/sync/errgroup"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -183,7 +184,7 @@ func (s *session) Delete(o client.Object, exists func() error) error {
 		return err
 	}
 	err = exists()
-	if aiven.IsNotFound(err) {
+	if aiven.IsNotFound(err) || avngen.IsNotFound(err) {
 		return nil
 	}
 	return err
@@ -252,6 +253,7 @@ const (
 	randIDSize = 7
 	// randIDChars Aiven allowed chars for "names"
 	randIDChars = "0123456789abcdefghijklmnopqrstuvwxyz"
+	nameMaxSize = 255
 )
 
 // randID generates Aiven compatible random id
@@ -265,7 +267,11 @@ func randID() string {
 }
 
 func randName(name string) string {
-	return fmt.Sprintf("test-%s-%s", randID(), name)
+	s := fmt.Sprintf("test-%s-%s", randID(), name)
+	if len(s) > nameMaxSize {
+		panic(fmt.Sprintf("invalid name, max length %d: %q", nameMaxSize, s))
+	}
+	return s
 }
 
 func isNotFound(err error) bool {

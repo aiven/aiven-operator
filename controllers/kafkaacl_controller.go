@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"strconv"
 
 	"github.com/aiven/aiven-go-client/v2"
@@ -128,7 +127,7 @@ func (h KafkaACLHandler) getID(ctx context.Context, avn *aiven.Client, acl *v1al
 	}
 
 	// Error should mimic client error to play well with isNotFound(err)
-	return "", aiven.Error{Status: http.StatusNotFound, Message: fmt.Sprintf("Kafka ACL %q not found", acl.Name)}
+	return "", NewNotFound(fmt.Sprintf("Kafka ACL %q not found", acl.Name))
 }
 
 func (h KafkaACLHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
