@@ -46,7 +46,7 @@ type ClickhouseDatabase struct {
 var _ AivenManagedObject = &ClickhouseDatabase{}
 
 func (*ClickhouseDatabase) NoSecret() bool {
-	return false
+	return true
 }
 
 func (in *ClickhouseDatabase) AuthSecretRef() *AuthSecretReference {
