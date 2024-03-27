@@ -78,10 +78,6 @@ func (h *ClickhouseDatabaseHandler) delete(ctx context.Context, avn *aiven.Clien
 		return false, err
 	}
 
-	if fromAnyPointer(db.Spec.TerminationProtection) {
-		return false, errTerminationProtectionOn
-	}
-
 	err = avn.ClickhouseDatabase.Delete(ctx, db.Spec.Project, db.Spec.ServiceName, db.Name)
 	if err != nil && !isNotFound(err) {
 		return false, err
