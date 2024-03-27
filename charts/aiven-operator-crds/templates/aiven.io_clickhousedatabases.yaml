@@ -72,13 +72,6 @@ spec:
                   x-kubernetes-validations:
                     - message: Value is immutable
                       rule: self == oldSelf
-                terminationProtection:
-                  description:
-                    It is a Kubernetes side deletion protections, which prevents
-                    the database from being deleted by Kubernetes. It is recommended
-                    to enable this for any production databases containing critical
-                    data.
-                  type: boolean
               required:
                 - project
                 - serviceName
