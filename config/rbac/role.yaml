@@ -345,6 +345,32 @@ rules:
   - apiGroups:
       - aiven.io
     resources:
+      - kafkaschemaregistryacls
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - kafkaschemaregistryacls/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - aiven.io
+    resources:
+      - kafkaschemaregistryacls/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - aiven.io
+    resources:
       - kafkaschemas
     verbs:
       - create

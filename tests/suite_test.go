@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/aiven/aiven-go-client/v2"
+	avngen "github.com/aiven/go-client-codegen"
 	"github.com/kelseyhightower/envconfig"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,6 +29,7 @@ var (
 	cfg       *testConfig
 	k8sClient client.Client
 	avnClient *aiven.Client
+	avnGen    avngen.Client
 )
 
 const (
@@ -141,6 +143,11 @@ func setupSuite() (*envtest.Environment, error) {
 	}
 
 	avnClient, err = controllers.NewAivenClient(cfg.Token, kubeVersion.String()+"-test", operatorVersion+"-test")
+	if err != nil {
+		return nil, err
+	}
+
+	avnGen, err = controllers.NewAivenGeneratedClient(cfg.Token, kubeVersion.String()+"-test", operatorVersion+"-test")
 	if err != nil {
 		return nil, err
 	}

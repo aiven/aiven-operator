@@ -238,3 +238,7 @@ func isNotFound(err error) bool {
 func isAlreadyExists(err error) bool {
 	return aiven.IsAlreadyExists(err) || avngen.IsAlreadyExists(err)
 }
+
+func NewNotFound(msg string) error {
+	return aiven.Error{Status: http.StatusNotFound, Message: msg}
+}

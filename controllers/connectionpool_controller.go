@@ -227,6 +227,9 @@ func (h ConnectionPoolHandler) checkPreconditions(ctx context.Context, avn *aive
 	if check {
 		db, err := avn.Databases.Get(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.DatabaseName)
 		if err != nil {
+			if isNotFound(err) {
+				return false, nil
+			}
 			return false, err
 		}
 

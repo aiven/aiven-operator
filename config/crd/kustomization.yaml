@@ -23,6 +23,7 @@ resources:
   - bases/aiven.io_cassandras.yaml
   - bases/aiven.io_grafanas.yaml
   - bases/aiven.io_clickhousedatabases.yaml
+  - bases/aiven.io_kafkaschemaregistryacls.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:
