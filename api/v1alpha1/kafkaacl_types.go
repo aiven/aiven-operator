@@ -68,7 +68,7 @@ func (in *KafkaACL) Conditions() *[]metav1.Condition {
 }
 
 func (*KafkaACL) NoSecret() bool {
-	return false
+	return true
 }
 
 // +kubebuilder:object:root=true

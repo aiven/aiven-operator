@@ -123,7 +123,7 @@ type ServiceIntegration struct {
 var _ AivenManagedObject = &ServiceIntegration{}
 
 func (*ServiceIntegration) NoSecret() bool {
-	return false
+	return true
 }
 
 func (in *ServiceIntegration) AuthSecretRef() *AuthSecretReference {

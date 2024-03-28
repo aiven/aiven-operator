@@ -63,7 +63,7 @@ type Database struct {
 var _ AivenManagedObject = &Database{}
 
 func (*Database) NoSecret() bool {
-	return false
+	return true
 }
 
 func (in *Database) AuthSecretRef() *AuthSecretReference {

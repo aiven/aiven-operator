@@ -185,7 +185,7 @@ func (in *KafkaTopic) Conditions() *[]metav1.Condition {
 }
 
 func (*KafkaTopic) NoSecret() bool {
-	return false
+	return true
 }
 
 // +kubebuilder:object:root=true

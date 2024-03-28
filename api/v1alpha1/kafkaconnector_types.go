@@ -95,7 +95,7 @@ func (in *KafkaConnector) Conditions() *[]metav1.Condition {
 }
 
 func (*KafkaConnector) NoSecret() bool {
-	return false
+	return true
 }
 
 //+kubebuilder:object:root=true
