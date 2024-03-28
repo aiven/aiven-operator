@@ -3,7 +3,7 @@ name: trunk upgrade
 
 on:
   schedule:
-    - cron: 0 8 * * 1-5
+    - cron: 0 8 * * 1
   workflow_dispatch: {}
 
 permissions: read-all
