@@ -35,8 +35,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/aiven/aiven-go-client/v2 v2.14.0 h1:4FEbB3baj+jA3Gd3vXpzoN6Vi9lGLCcIAYo75vSnx4k=
 github.com/aiven/aiven-go-client/v2 v2.14.0/go.mod h1:x0xhzxWEKAwKv0xY5FvECiI6tesWshcPHvjwl0B/1SU=
-github.com/aiven/go-api-schemas v1.66.0 h1:Bn7E4CLcV9GMOdwmVtPEPud/9AKh/1fw7qT3epV+LXE=
-github.com/aiven/go-api-schemas v1.66.0/go.mod h1:/bPxBUHza/2Aeer6hIIdB++GxKiw9K1KCBtRa2rtZ5I=
+github.com/aiven/go-api-schemas v1.67.0 h1:cxnxUwXjncGTOsploEq5NsNpKa1d+GMP2/oxwzYxiU8=
+github.com/aiven/go-api-schemas v1.67.0/go.mod h1:/bPxBUHza/2Aeer6hIIdB++GxKiw9K1KCBtRa2rtZ5I=
 github.com/aiven/go-client-codegen v0.4.0 h1:8wY+JjcrFY0KvlRc0pwKEwY/JYAaxmtePkzi8reXX+A=
 github.com/aiven/go-client-codegen v0.4.0/go.mod h1:R6nTHRxO0+R6vy6eOMYa2TVy2Ma3zewE/aeogV9NGuo=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
