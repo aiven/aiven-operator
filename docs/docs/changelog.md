@@ -1,7 +1,7 @@
 # Changelog
 
 
-## v0.18.0 - 2024-04-02
+## v0.18.1 - 2024-04-02
 
 - Add `KafkaSchemaRegistryACL` kind
 - Add `ClickhouseDatabase` kind
