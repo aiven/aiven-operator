@@ -88,6 +88,7 @@ nav:
       - api-reference/index.md
       - api-reference/cassandra.md
       - api-reference/clickhouse.md
+      - api-reference/clickhousedatabase.md
       - api-reference/clickhouseuser.md
       - api-reference/connectionpool.md
       - api-reference/database.md
@@ -97,6 +98,7 @@ nav:
       - api-reference/kafkaconnect.md
       - api-reference/kafkaconnector.md
       - api-reference/kafkaschema.md
+      - api-reference/kafkaschemaregistryacl.md
       - api-reference/kafkatopic.md
       - api-reference/mysql.md
       - api-reference/opensearch.md
