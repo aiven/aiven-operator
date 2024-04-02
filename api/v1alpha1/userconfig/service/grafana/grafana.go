@@ -298,8 +298,7 @@ type SmtpServer struct {
 }
 type GrafanaUserConfig struct {
 	// +kubebuilder:validation:MaxItems=1
-	// +kubebuilder:deprecatedversion:warning="additional_backup_regions is deprecated"
-	// Deprecated. Additional Cloud Regions for Backup Replication
+	// Additional Cloud Regions for Backup Replication
 	AdditionalBackupRegions []string `groups:"create,update" json:"additional_backup_regions,omitempty"`
 
 	// Enable or disable Grafana legacy alerting functionality. This should not be enabled with unified_alerting_enabled.

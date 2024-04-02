@@ -147,7 +147,7 @@ Cassandra specific user configuration options.
 
 **Optional**
 
-- [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Deprecated. Additional Cloud Regions for Backup Replication.
+- [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.
 - [`alerting_enabled`](#spec.userConfig.alerting_enabled-property){: name='spec.userConfig.alerting_enabled-property'} (boolean). Enable or disable Grafana legacy alerting functionality. This should not be enabled with unified_alerting_enabled.
 - [`alerting_error_or_timeout`](#spec.userConfig.alerting_error_or_timeout-property){: name='spec.userConfig.alerting_error_or_timeout-property'} (string, Enum: `alerting`, `keep_state`). Default error or timeout setting for new alerting rules.
 - [`alerting_max_annotations_to_keep`](#spec.userConfig.alerting_max_annotations_to_keep-property){: name='spec.userConfig.alerting_max_annotations_to_keep-property'} (integer, Minimum: 0, Maximum: 1000000). Max number of alert annotations that Grafana stores. 0 (default) keeps all alert annotations.
