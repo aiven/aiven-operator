@@ -30,7 +30,7 @@ var (
 )
 
 // operatorVersion is the current version of the operator.
-const operatorVersion = "0.17.0"
+var operatorVersion = "dev"
 
 const port = 9443
 
