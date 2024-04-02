@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.8">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.f2e4d321.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.bcfcd587.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -320,20 +320,20 @@
     
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
         
           
-          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -402,20 +402,20 @@
     
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3" >
         
           
-          <label class="md-nav__link" for="__nav_1_3" id="__nav_1_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_1_3" id="__nav_1_3_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -576,20 +576,20 @@
     
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_4" >
         
           
-          <label class="md-nav__link" for="__nav_1_4" id="__nav_1_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_1_4" id="__nav_1_4_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -694,20 +694,20 @@
     
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -902,20 +902,20 @@
     
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_9" >
         
           
-          <label class="md-nav__link" for="__nav_2_9" id="__nav_2_9_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2_9" id="__nav_2_9_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1022,14 +1022,17 @@
     
     
     
-    
-    
+      
+        
+        
       
       
+        
+      
+    
     
     <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
-        
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
@@ -2068,7 +2071,7 @@
 <ul>
 <li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
 <li><a href="#spec.cloudName-property" name="spec.cloudName-property"><code>cloudName</code></a> (string, MaxLength: 256). Cloud the service runs in.</li>
-<li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Information regarding secret creation. Exposed keys: <code>OPENSEARCH_HOST</code>, <code>OPENSEARCH_PORT</code>, <code>OPENSEARCH_USER</code>, <code>OPENSEARCH_PASSWORD</code>. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
+<li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Information regarding secret creation. Exposed keys: <code>OPENSEARCH_HOST</code>, <code>OPENSEARCH_PORT</code>, <code>OPENSEARCH_USER</code>, <code>OPENSEARCH_PASSWORD</code>, <code>OPENSEARCH_CA_CERT</code>. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
 <li><a href="#spec.connInfoSecretTargetDisabled-property" name="spec.connInfoSecretTargetDisabled-property"><code>connInfoSecretTargetDisabled</code></a> (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.</li>
 <li><a href="#spec.disk_space-property" name="spec.disk_space-property"><code>disk_space</code></a> (string, Format: <code>^[1-9][0-9]*(GiB|G)*</code>). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</li>
 <li><a href="#spec.maintenanceWindowDow-property" name="spec.maintenanceWindowDow-property"><code>maintenanceWindowDow</code></a> (string, Enum: <code>monday</code>, <code>tuesday</code>, <code>wednesday</code>, <code>thursday</code>, <code>friday</code>, <code>saturday</code>, <code>sunday</code>). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.</li>
@@ -2091,10 +2094,10 @@
 </ul>
 <h2 id="spec.connInfoSecretTarget">connInfoSecretTarget<a class="headerlink" href="#spec.connInfoSecretTarget" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
-<p>Information regarding secret creation. Exposed keys: <code>OPENSEARCH_HOST</code>, <code>OPENSEARCH_PORT</code>, <code>OPENSEARCH_USER</code>, <code>OPENSEARCH_PASSWORD</code>.</p>
+<p>Information regarding secret creation. Exposed keys: <code>OPENSEARCH_HOST</code>, <code>OPENSEARCH_PORT</code>, <code>OPENSEARCH_USER</code>, <code>OPENSEARCH_PASSWORD</code>, <code>OPENSEARCH_CA_CERT</code>.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.connInfoSecretTarget.name-property" name="spec.connInfoSecretTarget.name-property"><code>name</code></a> (string). Name of the secret resource to be created. By default, is equal to the resource name.</li>
+<li><a href="#spec.connInfoSecretTarget.name-property" name="spec.connInfoSecretTarget.name-property"><code>name</code></a> (string). Name of the secret resource to be created. By default, it is equal to the resource name.</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
@@ -2147,12 +2150,12 @@
 <li><a href="#spec.userConfig.opensearch_version-property" name="spec.userConfig.opensearch_version-property"><code>opensearch_version</code></a> (string, Enum: <code>1</code>, <code>2</code>). OpenSearch major version.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
-<li><a href="#spec.userConfig.project_to_fork_from-property" name="spec.userConfig.project_to_fork_from-property"><code>project_to_fork_from</code></a> (string, Immutable, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.</li>
+<li><a href="#spec.userConfig.project_to_fork_from-property" name="spec.userConfig.project_to_fork_from-property"><code>project_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.</li>
 <li><a href="#spec.userConfig.public_access-property" name="spec.userConfig.public_access-property"><code>public_access</code></a> (object). Allow access to selected service ports from the public Internet. See below for <a href="#spec.userConfig.public_access">nested schema</a>.</li>
-<li><a href="#spec.userConfig.recovery_basebackup_name-property" name="spec.userConfig.recovery*basebackup_name-property"><code>recovery_basebackup_name</code></a> (string, Pattern: <code>^[a-zA-Z0-9-*:.]+$</code>, MaxLength: 128). Name of the basebackup to restore in forked service.</li>
+<li><a href="#spec.userConfig.recovery_basebackup_name-property" name="spec.userConfig.recovery_basebackup_name-property"><code>recovery_basebackup_name</code></a> (string, Pattern: <code>^[a-zA-Z0-9-_:.]+$</code>, MaxLength: 128). Name of the basebackup to restore in forked service.</li>
 <li><a href="#spec.userConfig.saml-property" name="spec.userConfig.saml-property"><code>saml</code></a> (object). OpenSearch SAML configuration. See below for <a href="#spec.userConfig.saml">nested schema</a>.</li>
 <li><a href="#spec.userConfig.service_log-property" name="spec.userConfig.service_log-property"><code>service_log</code></a> (boolean). Store logs for the service so that they are available in the HTTP API and console.</li>
-<li><a href="#spec.userConfig.service_to_fork_from-property" name="spec.userConfig.service_to_fork_from-property"><code>service_to_fork_from</code></a> (string, Immutable, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.</li>
+<li><a href="#spec.userConfig.service_to_fork_from-property" name="spec.userConfig.service_to_fork_from-property"><code>service_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.</li>
 <li><a href="#spec.userConfig.static_ips-property" name="spec.userConfig.static_ips-property"><code>static_ips</code></a> (boolean). Use static public IP addresses.</li>
 </ul>
 <h3 id="spec.userConfig.index_patterns">index_patterns<a class="headerlink" href="#spec.userConfig.index_patterns" title="Permanent link">&para;</a></h3>
@@ -2161,7 +2164,7 @@
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.index_patterns.max_index_count-property" name="spec.userConfig.index_patterns.max_index_count-property"><code>max_index_count</code></a> (integer, Minimum: 0). Maximum number of indexes to keep.</li>
-<li><a href="#spec.userConfig.index_patterns.pattern-property" name="spec.userConfig.index*patterns.pattern-property"><code>pattern</code></a> (string, Pattern: <code>^[A-Za-z0-9-*.\*?]+$</code>, MaxLength: 1024). fnmatch pattern.</li>
+<li><a href="#spec.userConfig.index_patterns.pattern-property" name="spec.userConfig.index_patterns.pattern-property"><code>pattern</code></a> (string, Pattern: <code>^[A-Za-z0-9-_.*?]+$</code>, MaxLength: 1024). fnmatch pattern.</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
@@ -2192,21 +2195,21 @@
 <p>OpenSearch OpenID Connect Configuration.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.userConfig.openid.client_id-property" name="spec.userConfig.openid.client_id-property"><code>client_id</code></a> (string, MinLength: 1, MaxLength: 1024). The ID of the OpenID Connect client configured in your IdP. Required.</li>
-<li><a href="#spec.userConfig.openid.client_secret-property" name="spec.userConfig.openid.client_secret-property"><code>client_secret</code></a> (string, MinLength: 1, MaxLength: 1024). The client secret of the OpenID Connect client configured in your IdP. Required.</li>
+<li><a href="#spec.userConfig.openid.client_id-property" name="spec.userConfig.openid.client_id-property"><code>client_id</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 1024). The ID of the OpenID Connect client configured in your IdP. Required.</li>
+<li><a href="#spec.userConfig.openid.client_secret-property" name="spec.userConfig.openid.client_secret-property"><code>client_secret</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 1024). The client secret of the OpenID Connect client configured in your IdP. Required.</li>
 <li><a href="#spec.userConfig.openid.connect_url-property" name="spec.userConfig.openid.connect_url-property"><code>connect_url</code></a> (string, MaxLength: 2048). The URL of your IdP where the Security plugin can find the OpenID Connect metadata/configuration settings.</li>
 <li><a href="#spec.userConfig.openid.enabled-property" name="spec.userConfig.openid.enabled-property"><code>enabled</code></a> (boolean). Enables or disables OpenID Connect authentication for OpenSearch. When enabled, users can authenticate using OpenID Connect with an Identity Provider.</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.userConfig.openid.header-property" name="spec.userConfig.openid.header-property"><code>header</code></a> (string, MinLength: 1, MaxLength: 1024). HTTP header name of the JWT token. Optional. Default is Authorization.</li>
-<li><a href="#spec.userConfig.openid.jwt_header-property" name="spec.userConfig.openid.jwt_header-property"><code>jwt_header</code></a> (string, MinLength: 1, MaxLength: 1024). The HTTP header that stores the token. Typically the Authorization header with the Bearer schema: Authorization: Bearer <token>. Optional. Default is Authorization.</li>
-<li><a href="#spec.userConfig.openid.jwt_url_parameter-property" name="spec.userConfig.openid.jwt_url_parameter-property"><code>jwt_url_parameter</code></a> (string, MinLength: 1, MaxLength: 1024). If the token is not transmitted in the HTTP header, but as an URL parameter, define the name of the parameter here. Optional.</li>
+<li><a href="#spec.userConfig.openid.header-property" name="spec.userConfig.openid.header-property"><code>header</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 1024). HTTP header name of the JWT token. Optional. Default is Authorization.</li>
+<li><a href="#spec.userConfig.openid.jwt_header-property" name="spec.userConfig.openid.jwt_header-property"><code>jwt_header</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 1024). The HTTP header that stores the token. Typically the Authorization header with the Bearer schema: Authorization: Bearer <token>. Optional. Default is Authorization.</li>
+<li><a href="#spec.userConfig.openid.jwt_url_parameter-property" name="spec.userConfig.openid.jwt_url_parameter-property"><code>jwt_url_parameter</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 1024). If the token is not transmitted in the HTTP header, but as an URL parameter, define the name of the parameter here. Optional.</li>
 <li><a href="#spec.userConfig.openid.refresh_rate_limit_count-property" name="spec.userConfig.openid.refresh_rate_limit_count-property"><code>refresh_rate_limit_count</code></a> (integer, Minimum: 10). The maximum number of unknown key IDs in the time frame. Default is 10. Optional.</li>
 <li><a href="#spec.userConfig.openid.refresh_rate_limit_time_window_ms-property" name="spec.userConfig.openid.refresh_rate_limit_time_window_ms-property"><code>refresh_rate_limit_time_window_ms</code></a> (integer, Minimum: 10000). The time frame to use when checking the maximum number of unknown key IDs, in milliseconds. Optional.Default is 10000 (10 seconds).</li>
-<li><a href="#spec.userConfig.openid.roles_key-property" name="spec.userConfig.openid.roles_key-property"><code>roles_key</code></a> (string, MinLength: 1, MaxLength: 1024). The key in the JSON payload that stores the user’s roles. The value of this key must be a comma-separated list of roles. Required only if you want to use roles in the JWT.</li>
-<li><a href="#spec.userConfig.openid.scope-property" name="spec.userConfig.openid.scope-property"><code>scope</code></a> (string, MinLength: 1, MaxLength: 1024). The scope of the identity token issued by the IdP. Optional. Default is openid profile email address phone.</li>
-<li><a href="#spec.userConfig.openid.subject_key-property" name="spec.userConfig.openid.subject_key-property"><code>subject_key</code></a> (string, MinLength: 1, MaxLength: 1024). The key in the JSON payload that stores the user’s name. If not defined, the subject registered claim is used. Most IdP providers use the preferred_username claim. Optional.</li>
+<li><a href="#spec.userConfig.openid.roles_key-property" name="spec.userConfig.openid.roles_key-property"><code>roles_key</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 1024). The key in the JSON payload that stores the user’s roles. The value of this key must be a comma-separated list of roles. Required only if you want to use roles in the JWT.</li>
+<li><a href="#spec.userConfig.openid.scope-property" name="spec.userConfig.openid.scope-property"><code>scope</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 1024). The scope of the identity token issued by the IdP. Optional. Default is openid profile email address phone.</li>
+<li><a href="#spec.userConfig.openid.subject_key-property" name="spec.userConfig.openid.subject_key-property"><code>subject_key</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 1024). The key in the JSON payload that stores the user’s name. If not defined, the subject registered claim is used. Most IdP providers use the preferred_username claim. Optional.</li>
 </ul>
 <h3 id="spec.userConfig.opensearch">opensearch<a class="headerlink" href="#spec.userConfig.opensearch" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
@@ -2218,7 +2221,7 @@
 <li><a href="#spec.userConfig.opensearch.auth_failure_listeners-property" name="spec.userConfig.opensearch.auth_failure_listeners-property"><code>auth_failure_listeners</code></a> (object). Opensearch Security Plugin Settings. See below for <a href="#spec.userConfig.opensearch.auth_failure_listeners">nested schema</a>.</li>
 <li><a href="#spec.userConfig.opensearch.cluster_max_shards_per_node-property" name="spec.userConfig.opensearch.cluster_max_shards_per_node-property"><code>cluster_max_shards_per_node</code></a> (integer, Minimum: 100, Maximum: 10000). Controls the number of shards allowed in the cluster per data node.</li>
 <li><a href="#spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property" name="spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property"><code>cluster_routing_allocation_node_concurrent_recoveries</code></a> (integer, Minimum: 2, Maximum: 16). How many concurrent incoming/outgoing shard recoveries (normally replicas) are allowed to happen on a node. Defaults to 2.</li>
-<li><a href="#spec.userConfig.opensearch.email_sender_name-property" name="spec.userConfig.opensearch.email*sender_name-property"><code>email_sender_name</code></a> (string, Pattern: <code>^[a-zA-Z0-9-*]+$</code>, MaxLength: 40). Sender name placeholder to be used in Opensearch Dashboards and Opensearch keystore.</li>
+<li><a href="#spec.userConfig.opensearch.email_sender_name-property" name="spec.userConfig.opensearch.email_sender_name-property"><code>email_sender_name</code></a> (string, Pattern: <code>^[a-zA-Z0-9-_]+$</code>, MaxLength: 40). Sender name placeholder to be used in Opensearch Dashboards and Opensearch keystore.</li>
 <li><a href="#spec.userConfig.opensearch.email_sender_password-property" name="spec.userConfig.opensearch.email_sender_password-property"><code>email_sender_password</code></a> (string, Pattern: <code>^[^\x00-\x1F]+$</code>, MaxLength: 1024). Sender password for Opensearch alerts to authenticate with SMTP server.</li>
 <li><a href="#spec.userConfig.opensearch.email_sender_username-property" name="spec.userConfig.opensearch.email_sender_username-property"><code>email_sender_username</code></a> (string, Pattern: <code>^[^\x00-\x1F]+$</code>, MaxLength: 320). Sender username for Opensearch alerts.</li>
 <li><a href="#spec.userConfig.opensearch.enable_security_audit-property" name="spec.userConfig.opensearch.enable_security_audit-property"><code>enable_security_audit</code></a> (boolean). Enable/Disable security audit.</li>
@@ -2240,6 +2243,7 @@
 <li><a href="#spec.userConfig.opensearch.ism_history_rollover_check_period-property" name="spec.userConfig.opensearch.ism_history_rollover_check_period-property"><code>ism_history_rollover_check_period</code></a> (integer, Minimum: 1, Maximum: 2147483647). The time between rollover checks for the audit history index in hours.</li>
 <li><a href="#spec.userConfig.opensearch.ism_history_rollover_retention_period-property" name="spec.userConfig.opensearch.ism_history_rollover_retention_period-property"><code>ism_history_rollover_retention_period</code></a> (integer, Minimum: 1, Maximum: 2147483647). How long audit history indices are kept in days.</li>
 <li><a href="#spec.userConfig.opensearch.override_main_response_version-property" name="spec.userConfig.opensearch.override_main_response_version-property"><code>override_main_response_version</code></a> (boolean). Compatibility mode sets OpenSearch to report its version as 7.10 so clients continue to work. Default is false.</li>
+<li><a href="#spec.userConfig.opensearch.plugins_alerting_filter_by_backend_roles-property" name="spec.userConfig.opensearch.plugins_alerting_filter_by_backend_roles-property"><code>plugins_alerting_filter_by_backend_roles</code></a> (boolean). Enable or disable filtering of alerting by backend roles. Requires Security plugin. Defaults to false.</li>
 <li><a href="#spec.userConfig.opensearch.reindex_remote_whitelist-property" name="spec.userConfig.opensearch.reindex_remote_whitelist-property"><code>reindex_remote_whitelist</code></a> (array of strings, MaxItems: 32). Whitelisted addresses for reindexing. Changing this value will cause all OpenSearch instances to restart.</li>
 <li><a href="#spec.userConfig.opensearch.script_max_compilations_rate-property" name="spec.userConfig.opensearch.script_max_compilations_rate-property"><code>script_max_compilations_rate</code></a> (string, MaxLength: 1024). Script compilation circuit breaker limits the number of inline script compilations within a period of time. Default is use-context.</li>
 <li><a href="#spec.userConfig.opensearch.search_max_buckets-property" name="spec.userConfig.opensearch.search_max_buckets-property"><code>search_max_buckets</code></a> (integer, Minimum: 1, Maximum: 1000000). Maximum number of aggregation buckets allowed in a single response. OpenSearch default value is used when this is not defined.</li>
@@ -2329,15 +2333,15 @@
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.saml.enabled-property" name="spec.userConfig.saml.enabled-property"><code>enabled</code></a> (boolean). Enables or disables SAML-based authentication for OpenSearch. When enabled, users can authenticate using SAML with an Identity Provider.</li>
-<li><a href="#spec.userConfig.saml.idp_entity_id-property" name="spec.userConfig.saml.idp_entity_id-property"><code>idp_entity_id</code></a> (string, MinLength: 1, MaxLength: 1024). The unique identifier for the Identity Provider (IdP) entity that is used for SAML authentication. This value is typically provided by the IdP.</li>
+<li><a href="#spec.userConfig.saml.idp_entity_id-property" name="spec.userConfig.saml.idp_entity_id-property"><code>idp_entity_id</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 1024). The unique identifier for the Identity Provider (IdP) entity that is used for SAML authentication. This value is typically provided by the IdP.</li>
 <li><a href="#spec.userConfig.saml.idp_metadata_url-property" name="spec.userConfig.saml.idp_metadata_url-property"><code>idp_metadata_url</code></a> (string, MinLength: 1, MaxLength: 2048). The URL of the SAML metadata for the Identity Provider (IdP). This is used to configure SAML-based authentication with the IdP.</li>
-<li><a href="#spec.userConfig.saml.sp_entity_id-property" name="spec.userConfig.saml.sp_entity_id-property"><code>sp_entity_id</code></a> (string, MinLength: 1, MaxLength: 1024). The unique identifier for the Service Provider (SP) entity that is used for SAML authentication. This value is typically provided by the SP.</li>
+<li><a href="#spec.userConfig.saml.sp_entity_id-property" name="spec.userConfig.saml.sp_entity_id-property"><code>sp_entity_id</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 1024). The unique identifier for the Service Provider (SP) entity that is used for SAML authentication. This value is typically provided by the SP.</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.userConfig.saml.idp_pemtrustedcas_content-property" name="spec.userConfig.saml.idp_pemtrustedcas_content-property"><code>idp_pemtrustedcas_content</code></a> (string, MaxLength: 16384). This parameter specifies the PEM-encoded root certificate authority (CA) content for the SAML identity provider (IdP) server verification. The root CA content is used to verify the SSL/TLS certificate presented by the server.</li>
-<li><a href="#spec.userConfig.saml.roles_key-property" name="spec.userConfig.saml.roles_key-property"><code>roles_key</code></a> (string, MinLength: 1, MaxLength: 256). Optional. Specifies the attribute in the SAML response where role information is stored, if available. Role attributes are not required for SAML authentication, but can be included in SAML assertions by most Identity Providers (IdPs) to determine user access levels or permissions.</li>
-<li><a href="#spec.userConfig.saml.subject_key-property" name="spec.userConfig.saml.subject_key-property"><code>subject_key</code></a> (string, MinLength: 1, MaxLength: 256). Optional. Specifies the attribute in the SAML response where the subject identifier is stored. If not configured, the NameID attribute is used by default.</li>
+<li><a href="#spec.userConfig.saml.roles_key-property" name="spec.userConfig.saml.roles_key-property"><code>roles_key</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 256). Optional. Specifies the attribute in the SAML response where role information is stored, if available. Role attributes are not required for SAML authentication, but can be included in SAML assertions by most Identity Providers (IdPs) to determine user access levels or permissions.</li>
+<li><a href="#spec.userConfig.saml.subject_key-property" name="spec.userConfig.saml.subject_key-property"><code>subject_key</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 256). Optional. Specifies the attribute in the SAML response where the subject identifier is stored. If not configured, the NameID attribute is used by default.</li>
 </ul>
 
 
@@ -2441,7 +2445,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.8fd75fb4.min.js"></script>
+      <script src="../assets/javascripts/bundle.1e8ae164.min.js"></script>
       
     
   </body>

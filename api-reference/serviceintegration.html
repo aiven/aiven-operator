@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.8">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.f2e4d321.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.bcfcd587.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -320,20 +320,20 @@
     
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
         
           
-          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -402,20 +402,20 @@
     
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3" >
         
           
-          <label class="md-nav__link" for="__nav_1_3" id="__nav_1_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_1_3" id="__nav_1_3_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -576,20 +576,20 @@
     
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_4" >
         
           
-          <label class="md-nav__link" for="__nav_1_4" id="__nav_1_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_1_4" id="__nav_1_4_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -694,20 +694,20 @@
     
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -902,20 +902,20 @@
     
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_9" >
         
           
-          <label class="md-nav__link" for="__nav_2_9" id="__nav_2_9_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2_9" id="__nav_2_9_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1022,14 +1022,17 @@
     
     
     
-    
-    
+      
+        
+        
       
       
+        
+      
+    
     
     <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
-        
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
@@ -2319,6 +2322,7 @@
 <p>Datadog Opensearch Options.</p>
 <p><strong>Optional</strong></p>
 <ul>
+<li><a href="#spec.datadog.opensearch.cluster_stats_enabled-property" name="spec.datadog.opensearch.cluster_stats_enabled-property"><code>cluster_stats_enabled</code></a> (boolean). Enable Datadog Opensearch Cluster Monitoring.</li>
 <li><a href="#spec.datadog.opensearch.index_stats_enabled-property" name="spec.datadog.opensearch.index_stats_enabled-property"><code>index_stats_enabled</code></a> (boolean). Enable Datadog Opensearch Index Monitoring.</li>
 <li><a href="#spec.datadog.opensearch.pending_task_stats_enabled-property" name="spec.datadog.opensearch.pending_task_stats_enabled-property"><code>pending_task_stats_enabled</code></a> (boolean). Enable Datadog Opensearch Pending Task Monitoring.</li>
 <li><a href="#spec.datadog.opensearch.pshard_stats_enabled-property" name="spec.datadog.opensearch.pshard_stats_enabled-property"><code>pshard_stats_enabled</code></a> (boolean). Enable Datadog Opensearch Primary Shard Monitoring.</li>
@@ -2387,7 +2391,7 @@
 <p>Kafka MirrorMaker configuration values.</p>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.kafkaMirrormaker.cluster_alias-property" name="spec.kafkaMirrormaker.cluster*alias-property"><code>cluster_alias</code></a> (string, Pattern: <code>^[a-zA-Z0-9*.-]+$</code>, MaxLength: 128). The alias under which the Kafka cluster is known to MirrorMaker. Can contain the following symbols: ASCII alphanumerics, <code>.</code>, <code>\_</code>, and <code>-</code>.</li>
+<li><a href="#spec.kafkaMirrormaker.cluster_alias-property" name="spec.kafkaMirrormaker.cluster_alias-property"><code>cluster_alias</code></a> (string, Pattern: <code>^[a-zA-Z0-9_.-]+$</code>, MaxLength: 128). The alias under which the Kafka cluster is known to MirrorMaker. Can contain the following symbols: ASCII alphanumerics, <code>.</code>, <code>_</code>, and <code>-</code>.</li>
 <li><a href="#spec.kafkaMirrormaker.kafka_mirrormaker-property" name="spec.kafkaMirrormaker.kafka_mirrormaker-property"><code>kafka_mirrormaker</code></a> (object). Kafka MirrorMaker configuration values. See below for <a href="#spec.kafkaMirrormaker.kafka_mirrormaker">nested schema</a>.</li>
 </ul>
 <h3 id="spec.kafkaMirrormaker.kafka_mirrormaker">kafka_mirrormaker<a class="headerlink" href="#spec.kafkaMirrormaker.kafka_mirrormaker" title="Permanent link">&para;</a></h3>
@@ -2551,7 +2555,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.8fd75fb4.min.js"></script>
+      <script src="../assets/javascripts/bundle.1e8ae164.min.js"></script>
       
     
   </body>

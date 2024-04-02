@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.8">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.f2e4d321.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.bcfcd587.min.css">
       
         
         <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
@@ -322,14 +322,17 @@
     
     
     
-    
-    
+      
+        
+        
       
       
+        
+      
+    
     
     <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
-        
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
@@ -425,6 +428,15 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0180-2024-04-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      v0.18.0 - 2024-04-02
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v0170-2024-02-01" class="md-nav__link">
@@ -642,14 +654,17 @@
     
     
     
-    
-    
       
       
+        
+          
+          
+        
+      
+    
     
     <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
-        
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3" >
@@ -816,14 +831,17 @@
     
     
     
-    
-    
       
       
+        
+          
+          
+        
+      
+    
     
     <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
-        
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_4" >
@@ -934,20 +952,20 @@
     
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1142,20 +1160,20 @@
     
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_9" >
         
           
-          <label class="md-nav__link" for="__nav_2_9" id="__nav_2_9_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2_9" id="__nav_2_9_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1260,20 +1278,20 @@
     
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1766,6 +1784,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0180-2024-04-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      v0.18.0 - 2024-04-02
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0170-2024-02-01" class="md-nav__link">
     <span class="md-ellipsis">
       v0.17.0 - 2024-02-01
@@ -1990,6 +2017,59 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0180-2024-04-02">v0.18.0 - 2024-04-02<a class="headerlink" href="#v0180-2024-04-02" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Add <code>KafkaSchemaRegistryACL</code> kind</li>
+<li>Add <code>ClickhouseDatabase</code> kind</li>
+<li>Fix secret creation for kinds with no secrets</li>
+<li>Replace <code>Database</code> kind validations and default values with CRD validation rules</li>
+<li>Perform upgrade tasks to check if PG service can be upgraded before updating the service</li>
+<li>Expose project CA certificate to service secrets: <code>REDIS_CA_CERT</code>, <code>MYSQL_CA_CERT</code>, etc.</li>
+<li>Add <code>KafkaTopic</code> field <code>config.local_retention_bytes</code>, type <code>integer</code>: local.retention.bytes value</li>
+<li>Add <code>KafkaTopic</code> field <code>config.local_retention_ms</code>, type <code>integer</code>: local.retention.ms value</li>
+<li>Add <code>KafkaTopic</code> field <code>config.remote_storage_enable</code>, type <code>boolean</code>: remote_storage_enable</li>
+<li>Change <code>Cassandra</code> field <code>userConfig.cassandra_version</code>: pattern <code>^[0-9]+(\.[0-9]+)?$</code></li>
+<li>Change <code>Cassandra</code> field <code>userConfig.project_to_fork_from</code>: pattern <code>^[a-z][-a-z0-9]{0,63}$|^$</code></li>
+<li>Change <code>Cassandra</code> field <code>userConfig.service_to_fork_from</code>: pattern <code>^[a-z][-a-z0-9]{0,63}$|^$</code></li>
+<li>Change <code>Cassandra</code> field <code>userConfig.service_to_join_with</code>: pattern <code>^[a-z][-a-z0-9]{0,63}$</code></li>
+<li>Change <code>Clickhouse</code> field <code>userConfig.project_to_fork_from</code>: pattern <code>^[a-z][-a-z0-9]{0,63}$|^$</code></li>
+<li>Change <code>Clickhouse</code> field <code>userConfig.service_to_fork_from</code>: pattern <code>^[a-z][-a-z0-9]{0,63}$|^$</code></li>
+<li>Change <code>Grafana</code> field <code>userConfig.project_to_fork_from</code>: pattern <code>^[a-z][-a-z0-9]{0,63}$|^$</code></li>
+<li>Change <code>Grafana</code> field <code>userConfig.service_to_fork_from</code>: pattern <code>^[a-z][-a-z0-9]{0,63}$|^$</code></li>
+<li>Change <code>Kafka</code> field <code>userConfig.kafka.sasl_oauthbearer_expected_audience</code>: pattern <code>^[^\r\n]*$</code></li>
+<li>Change <code>Kafka</code> field <code>userConfig.kafka.sasl_oauthbearer_expected_issuer</code>: pattern <code>^[^\r\n]*$</code></li>
+<li>Change <code>Kafka</code> field <code>userConfig.kafka.sasl_oauthbearer_sub_claim_name</code>: pattern <code>^[^\r\n]*$</code></li>
+<li>Change <code>MySQL</code> field <code>userConfig.mysql.default_time_zone</code>: pattern <code>^([-+][\d:]*|[\w/]*)$</code></li>
+<li>Change <code>MySQL</code> field <code>userConfig.project_to_fork_from</code>: pattern <code>^[a-z][-a-z0-9]{0,63}$|^$</code></li>
+<li>Change <code>MySQL</code> field <code>userConfig.service_to_fork_from</code>: pattern <code>^[a-z][-a-z0-9]{0,63}$|^$</code></li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.openid.client_id</code>: pattern <code>^[^\r\n]*$</code></li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.openid.client_secret</code>: pattern <code>^[^\r\n]*$</code></li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.openid.header</code>: pattern <code>^[^\r\n]*$</code></li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.openid.jwt_header</code>: pattern <code>^[^\r\n]*$</code></li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.openid.jwt_url_parameter</code>: pattern <code>^[^\r\n]*$</code></li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.openid.roles_key</code>: pattern <code>^[^\r\n]*$</code></li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.openid.scope</code>: pattern <code>^[^\r\n]*$</code></li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.openid.subject_key</code>: pattern <code>^[^\r\n]*$</code></li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.project_to_fork_from</code>: pattern <code>^[a-z][-a-z0-9]{0,63}$|^$</code></li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.saml.idp_entity_id</code>: pattern <code>^[^\r\n]*$</code></li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.saml.roles_key</code>: pattern <code>^[^\r\n]*$</code></li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.saml.sp_entity_id</code>: pattern <code>^[^\r\n]*$</code></li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.saml.subject_key</code>: pattern <code>^[^\r\n]*$</code></li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.service_to_fork_from</code>: pattern <code>^[a-z][-a-z0-9]{0,63}$|^$</code></li>
+<li>Change <code>PostgreSQL</code> field <code>userConfig.pg.timezone</code>: pattern <code>^[\w/]*$</code></li>
+<li>Change <code>PostgreSQL</code> field <code>userConfig.pg_service_to_fork_from</code>: pattern <code>^[a-z][-a-z0-9]{0,63}$|^$</code></li>
+<li>Change <code>PostgreSQL</code> field <code>userConfig.project_to_fork_from</code>: pattern <code>^[a-z][-a-z0-9]{0,63}$|^$</code></li>
+<li>Change <code>PostgreSQL</code> field <code>userConfig.service_to_fork_from</code>: pattern <code>^[a-z][-a-z0-9]{0,63}$|^$</code></li>
+<li>Change <code>Redis</code> field <code>userConfig.project_to_fork_from</code>: pattern <code>^[a-z][-a-z0-9]{0,63}$|^$</code></li>
+<li>Change <code>Redis</code> field <code>userConfig.service_to_fork_from</code>: pattern <code>^[a-z][-a-z0-9]{0,63}$|^$</code></li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.opensearch.plugins_alerting_filter_by_backend_roles</code>, type <code>boolean</code>:
+  Enable or disable filtering of alerting by backend roles. Requires Security plugin</li>
+<li>Change <code>Redis</code> field <code>userConfig.redis_notify_keyspace_events</code>: pattern <del><code>^[KEg\$lshzxeA]*$</code></del> →
+  <code>^[KEg\$lshzxentdmA]*$</code></li>
+<li>Add <code>PostgreSQL</code> field <code>userConfig.pgaudit</code>, type <code>object</code>: System-wide settings for the pgaudit extension</li>
+<li>Add <code>ServiceIntegration</code> field <code>datadog.opensearch.cluster_stats_enabled</code>, type <code>boolean</code>: Enable Datadog
+  Opensearch Cluster Monitoring</li>
+</ul>
 <h2 id="v0170-2024-02-01">v0.17.0 - 2024-02-01<a class="headerlink" href="#v0170-2024-02-01" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Bump k8s deps to 1.26.13</li>
@@ -2416,7 +2496,7 @@ as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-be
     <script id="__config" type="application/json">{"base": ".", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="assets/javascripts/bundle.8fd75fb4.min.js"></script>
+      <script src="assets/javascripts/bundle.1e8ae164.min.js"></script>
       
     
   </body>

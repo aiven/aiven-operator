@@ -16,7 +16,7 @@ spec:
       baz: egg
 
   project: aiven-project-name
-  serviceName: google-europe-west1
+  serviceName: my-service
   databaseName: my-db
   username: my-user
   poolMode: transaction

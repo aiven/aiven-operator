@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.8">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.f2e4d321.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.bcfcd587.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -320,20 +320,20 @@
     
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
         
           
-          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -402,20 +402,20 @@
     
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3" >
         
           
-          <label class="md-nav__link" for="__nav_1_3" id="__nav_1_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_1_3" id="__nav_1_3_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -576,20 +576,20 @@
     
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_4" >
         
           
-          <label class="md-nav__link" for="__nav_1_4" id="__nav_1_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_1_4" id="__nav_1_4_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -694,20 +694,20 @@
     
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -902,20 +902,20 @@
     
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_9" >
         
           
-          <label class="md-nav__link" for="__nav_2_9" id="__nav_2_9_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2_9" id="__nav_2_9_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1022,14 +1022,17 @@
     
     
     
-    
-    
+      
+        
+        
       
       
+        
+      
+    
     
     <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
-        
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
@@ -1890,7 +1893,7 @@
 <ul>
 <li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
 <li><a href="#spec.cloudName-property" name="spec.cloudName-property"><code>cloudName</code></a> (string, MaxLength: 256). Cloud the service runs in.</li>
-<li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Information regarding secret creation. Exposed keys: <code>CASSANDRA_HOST</code>, <code>CASSANDRA_PORT</code>, <code>CASSANDRA_USER</code>, <code>CASSANDRA_PASSWORD</code>, <code>CASSANDRA_URI</code>, <code>CASSANDRA_HOSTS</code>. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
+<li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Information regarding secret creation. Exposed keys: <code>CASSANDRA_HOST</code>, <code>CASSANDRA_PORT</code>, <code>CASSANDRA_USER</code>, <code>CASSANDRA_PASSWORD</code>, <code>CASSANDRA_URI</code>, <code>CASSANDRA_HOSTS</code>, <code>CASSANDRA_CA_CERT</code>. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
 <li><a href="#spec.connInfoSecretTargetDisabled-property" name="spec.connInfoSecretTargetDisabled-property"><code>connInfoSecretTargetDisabled</code></a> (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.</li>
 <li><a href="#spec.disk_space-property" name="spec.disk_space-property"><code>disk_space</code></a> (string, Format: <code>^[1-9][0-9]*(GiB|G)*</code>). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</li>
 <li><a href="#spec.maintenanceWindowDow-property" name="spec.maintenanceWindowDow-property"><code>maintenanceWindowDow</code></a> (string, Enum: <code>monday</code>, <code>tuesday</code>, <code>wednesday</code>, <code>thursday</code>, <code>friday</code>, <code>saturday</code>, <code>sunday</code>). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.</li>
@@ -1913,10 +1916,10 @@
 </ul>
 <h2 id="spec.connInfoSecretTarget">connInfoSecretTarget<a class="headerlink" href="#spec.connInfoSecretTarget" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
-<p>Information regarding secret creation. Exposed keys: <code>CASSANDRA_HOST</code>, <code>CASSANDRA_PORT</code>, <code>CASSANDRA_USER</code>, <code>CASSANDRA_PASSWORD</code>, <code>CASSANDRA_URI</code>, <code>CASSANDRA_HOSTS</code>.</p>
+<p>Information regarding secret creation. Exposed keys: <code>CASSANDRA_HOST</code>, <code>CASSANDRA_PORT</code>, <code>CASSANDRA_USER</code>, <code>CASSANDRA_PASSWORD</code>, <code>CASSANDRA_URI</code>, <code>CASSANDRA_HOSTS</code>, <code>CASSANDRA_CA_CERT</code>.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.connInfoSecretTarget.name-property" name="spec.connInfoSecretTarget.name-property"><code>name</code></a> (string). Name of the secret resource to be created. By default, is equal to the resource name.</li>
+<li><a href="#spec.connInfoSecretTarget.name-property" name="spec.connInfoSecretTarget.name-property"><code>name</code></a> (string). Name of the secret resource to be created. By default, it is equal to the resource name.</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1959,15 +1962,15 @@
 <li><a href="#spec.userConfig.backup_hour-property" name="spec.userConfig.backup_hour-property"><code>backup_hour</code></a> (integer, Minimum: 0, Maximum: 23). The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.</li>
 <li><a href="#spec.userConfig.backup_minute-property" name="spec.userConfig.backup_minute-property"><code>backup_minute</code></a> (integer, Minimum: 0, Maximum: 59). The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.</li>
 <li><a href="#spec.userConfig.cassandra-property" name="spec.userConfig.cassandra-property"><code>cassandra</code></a> (object). cassandra configuration values. See below for <a href="#spec.userConfig.cassandra">nested schema</a>.</li>
-<li><a href="#spec.userConfig.cassandra_version-property" name="spec.userConfig.cassandra_version-property"><code>cassandra_version</code></a> (string, Enum: <code>4</code>, <code>4.1</code>). Cassandra version.</li>
+<li><a href="#spec.userConfig.cassandra_version-property" name="spec.userConfig.cassandra_version-property"><code>cassandra_version</code></a> (string, Enum: <code>4</code>, <code>4.1</code>, Pattern: <code>^[0-9]+(\.[0-9]+)?$</code>). Cassandra version.</li>
 <li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
 <li><a href="#spec.userConfig.migrate_sstableloader-property" name="spec.userConfig.migrate_sstableloader-property"><code>migrate_sstableloader</code></a> (boolean). Sets the service into migration mode enabling the sstableloader utility to be used to upload Cassandra data files. Available only on service create.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
-<li><a href="#spec.userConfig.project_to_fork_from-property" name="spec.userConfig.project_to_fork_from-property"><code>project_to_fork_from</code></a> (string, Immutable, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.</li>
+<li><a href="#spec.userConfig.project_to_fork_from-property" name="spec.userConfig.project_to_fork_from-property"><code>project_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.</li>
 <li><a href="#spec.userConfig.public_access-property" name="spec.userConfig.public_access-property"><code>public_access</code></a> (object). Allow access to selected service ports from the public Internet. See below for <a href="#spec.userConfig.public_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.service_log-property" name="spec.userConfig.service_log-property"><code>service_log</code></a> (boolean). Store logs for the service so that they are available in the HTTP API and console.</li>
-<li><a href="#spec.userConfig.service_to_fork_from-property" name="spec.userConfig.service_to_fork_from-property"><code>service_to_fork_from</code></a> (string, Immutable, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.</li>
-<li><a href="#spec.userConfig.service_to_join_with-property" name="spec.userConfig.service_to_join_with-property"><code>service_to_join_with</code></a> (string, MaxLength: 64). When bootstrapping, instead of creating a new Cassandra cluster try to join an existing one from another service. Can only be set on service creation.</li>
+<li><a href="#spec.userConfig.service_to_fork_from-property" name="spec.userConfig.service_to_fork_from-property"><code>service_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.</li>
+<li><a href="#spec.userConfig.service_to_join_with-property" name="spec.userConfig.service_to_join_with-property"><code>service_to_join_with</code></a> (string, Pattern: <code>^[a-z][-a-z0-9]{0,63}$</code>, MaxLength: 64). When bootstrapping, instead of creating a new Cassandra cluster try to join an existing one from another service. Can only be set on service creation.</li>
 <li><a href="#spec.userConfig.static_ips-property" name="spec.userConfig.static_ips-property"><code>static_ips</code></a> (boolean). Use static public IP addresses.</li>
 </ul>
 <h3 id="spec.userConfig.cassandra">cassandra<a class="headerlink" href="#spec.userConfig.cassandra" title="Permanent link">&para;</a></h3>
@@ -2106,7 +2109,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.8fd75fb4.min.js"></script>
+      <script src="../assets/javascripts/bundle.1e8ae164.min.js"></script>
       
     
   </body>
