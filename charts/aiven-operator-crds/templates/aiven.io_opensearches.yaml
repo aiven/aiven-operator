@@ -208,7 +208,7 @@ spec:
                   description: OpenSearch specific user configuration options
                   properties:
                     additional_backup_regions:
-                      description: Deprecated. Additional Cloud Regions for Backup Replication
+                      description: Additional Cloud Regions for Backup Replication
                       items:
                         type: string
                       maxItems: 1
