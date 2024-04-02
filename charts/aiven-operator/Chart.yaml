@@ -2,10 +2,12 @@ apiVersion: v2
 name: aiven-operator
 description: A Helm chart to deploy the aiven operator
 type: application
-version: v0.17.0
-appVersion: v0.17.0
+version: v0.18.0
+appVersion: v0.18.0
 maintainers:
-  - name: ivan-savciuc
-    url: https://www.aiven.io
   - name: byashimov
+    url: https://www.aiven.io
+  - name: jeff-held-aiven
+    url: https://www.aiven.io
+  - name: rriski
     url: https://www.aiven.io

@@ -1,5 +1,59 @@
 # Changelog
 
+
+## v0.18.0 - 2024-04-02
+
+- Add `KafkaSchemaRegistryACL` kind
+- Add `ClickhouseDatabase` kind
+- Fix secret creation for kinds with no secrets
+- Replace `Database` kind validations and default values with CRD validation rules
+- Perform upgrade tasks to check if PG service can be upgraded before updating the service
+- Expose project CA certificate to service secrets: `REDIS_CA_CERT`, `MYSQL_CA_CERT`, etc.
+- Add `KafkaTopic` field `config.local_retention_bytes`, type `integer`: local.retention.bytes value
+- Add `KafkaTopic` field `config.local_retention_ms`, type `integer`: local.retention.ms value
+- Add `KafkaTopic` field `config.remote_storage_enable`, type `boolean`: remote_storage_enable
+- Change `Cassandra` field `userConfig.cassandra_version`: pattern `^[0-9]+(\.[0-9]+)?$`
+- Change `Cassandra` field `userConfig.project_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `Cassandra` field `userConfig.service_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `Cassandra` field `userConfig.service_to_join_with`: pattern `^[a-z][-a-z0-9]{0,63}$`
+- Change `Clickhouse` field `userConfig.project_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `Clickhouse` field `userConfig.service_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `Grafana` field `userConfig.project_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `Grafana` field `userConfig.service_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `Kafka` field `userConfig.kafka.sasl_oauthbearer_expected_audience`: pattern `^[^\r\n]*$`
+- Change `Kafka` field `userConfig.kafka.sasl_oauthbearer_expected_issuer`: pattern `^[^\r\n]*$`
+- Change `Kafka` field `userConfig.kafka.sasl_oauthbearer_sub_claim_name`: pattern `^[^\r\n]*$`
+- Change `MySQL` field `userConfig.mysql.default_time_zone`: pattern `^([-+][\d:]*|[\w/]*)$`
+- Change `MySQL` field `userConfig.project_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `MySQL` field `userConfig.service_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `OpenSearch` field `userConfig.openid.client_id`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.openid.client_secret`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.openid.header`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.openid.jwt_header`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.openid.jwt_url_parameter`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.openid.roles_key`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.openid.scope`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.openid.subject_key`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.project_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `OpenSearch` field `userConfig.saml.idp_entity_id`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.saml.roles_key`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.saml.sp_entity_id`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.saml.subject_key`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.service_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `PostgreSQL` field `userConfig.pg.timezone`: pattern `^[\w/]*$`
+- Change `PostgreSQL` field `userConfig.pg_service_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `PostgreSQL` field `userConfig.project_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `PostgreSQL` field `userConfig.service_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `Redis` field `userConfig.project_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Change `Redis` field `userConfig.service_to_fork_from`: pattern `^[a-z][-a-z0-9]{0,63}$|^$`
+- Add `OpenSearch` field `userConfig.opensearch.plugins_alerting_filter_by_backend_roles`, type `boolean`:
+  Enable or disable filtering of alerting by backend roles. Requires Security plugin
+- Change `Redis` field `userConfig.redis_notify_keyspace_events`: pattern ~~`^[KEg\$lshzxeA]*$`~~ →
+  `^[KEg\$lshzxentdmA]*$`
+- Add `PostgreSQL` field `userConfig.pgaudit`, type `object`: System-wide settings for the pgaudit extension
+- Add `ServiceIntegration` field `datadog.opensearch.cluster_stats_enabled`, type `boolean`: Enable Datadog
+  Opensearch Cluster Monitoring
+
 ## v0.17.0 - 2024-02-01
 
 - Bump k8s deps to 1.26.13

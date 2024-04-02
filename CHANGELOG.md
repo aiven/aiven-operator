@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.18.0 - 2024-04-02
+
 - Add `KafkaSchemaRegistryACL` kind
 - Add `ClickhouseDatabase` kind
 - Fix secret creation for kinds with no secrets
