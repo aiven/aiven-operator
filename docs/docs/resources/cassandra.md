@@ -7,7 +7,7 @@ weight: 55
 Aiven for Apache Cassandra® is a distributed database designed to handle large volumes of writes.
 
 !!! note
-Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites.md) with the operator installed (see instructions for [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md)) and a [Kubernetes Secret with an Aiven authentication token](../authentication.md).
+    Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites.md) with the operator installed (see instructions for [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md)), and a [Kubernetes Secret with an Aiven authentication token](../authentication.md).
 
 ## Creating a Cassandra instance
 

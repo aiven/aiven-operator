@@ -44,7 +44,7 @@ helm install aiven-operator aiven/aiven-operator
 ```
 
 !!! note
-Installation will fail if webhooks are enabled and the CRDs for the cert-manager are not installed.
+    Installation will fail if webhooks are enabled and the CRDs for the cert-manager are not installed.
 
 Verify the installation:
 
@@ -80,7 +80,7 @@ If the person installing the Helm chart does not have the necessary permissions 
 ## Uninstalling
 
 !!! important
-Please see [this page](uninstalling.md) for more information.
+    Please see [this page](uninstalling.md) for more information.
 
 Find out the name of your deployment:
 

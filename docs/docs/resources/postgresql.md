@@ -12,8 +12,8 @@ extender for location queries. Aiven for PostgreSQL is the perfect fit for your 
 With Aiven Kubernetes Operator, you can manage Aiven for PostgreSQL through the well defined Kubernetes API.
 
 !!! note
-Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites.md) with the operator installed (see instructions for [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md)),
-and a [Kubernetes Secret with an Aiven authentication token](../authentication.md).
+    Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites.md) with the operator installed (see instructions for [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md)),
+    and a [Kubernetes Secret with an Aiven authentication token](../authentication.md).
 
 ## Creating a PostgreSQL instance
 
@@ -361,7 +361,7 @@ spec:
 ```
 
 !!! note
-You can create the replica service in a different region or on a different cloud provider.
+    You can create the replica service in a different region or on a different cloud provider.
 
 2\. Apply the configuration with the following command:
 
