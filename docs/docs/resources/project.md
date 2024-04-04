@@ -5,8 +5,8 @@ weight: 5
 ---
 
 !!! note
-Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites.md) with the operator installed (see instructions for [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md))
-and a [Kubernetes Secret with an Aiven authentication token](../authentication.md).
+    Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites.md) with the operator installed (see instructions for [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md)), 
+    and a [Kubernetes Secret with an Aiven authentication token](../authentication.md).
 
 The `Project` CRD allows you to create Aiven Projects, where your resources can be located.
 
