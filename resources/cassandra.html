@@ -1694,8 +1694,8 @@
 <p>Aiven for Apache Cassandra® is a distributed database designed to handle large volumes of writes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
+<p>Before going through this guide, make sure you have a <a href="../installation/prerequisites.html">Kubernetes cluster</a> with the operator installed (see instructions for <a href="../installation/helm.html">helm</a> or <a href="../installation/kubectl.html">kubectl</a>), and a <a href="../authentication.html">Kubernetes Secret with an Aiven authentication token</a>.</p>
 </div>
-<p>Before going through this guide, make sure you have a <a href="../installation/prerequisites.html">Kubernetes cluster</a> with the operator installed (see instructions for <a href="../installation/helm.html">helm</a> or <a href="../installation/kubectl.html">kubectl</a>) and a <a href="../authentication.html">Kubernetes Secret with an Aiven authentication token</a>.</p>
 <h2 id="creating-a-cassandra-instance">Creating a Cassandra instance<a class="headerlink" href="#creating-a-cassandra-instance" title="Permanent link">&para;</a></h2>
 <p>1. Create a file named <code>cassandra-sample.yaml</code>, and add the following content:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
