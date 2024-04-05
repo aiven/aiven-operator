@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Unified User-Agent format with the Terraform Provider
+
 ## v0.18.1 - 2024-04-02
 
 - Add `KafkaSchemaRegistryACL` kind

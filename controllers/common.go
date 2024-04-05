@@ -132,14 +132,26 @@ func isAivenServerError(err error) bool {
 	return status >= http.StatusInternalServerError
 }
 
+// userAgent is a helper function to create a User-Agent string used for the Go client.
+func userAgent(kubeVersion, operatorVersion string) string {
+	// Remove the leading "v" from the version strings, if present.
+	// This is to unify the version format across the Terraform Provider and the Kubernetes Operator.
+	//
+	// Cf. terraform-provider-aiven/A.B.C/X.Y.Z vs. k8s-operator/vA.B.C/vX.Y.Z.
+	kubeVersion = strings.TrimPrefix(kubeVersion, "v")
+	operatorVersion = strings.TrimPrefix(operatorVersion, "v")
+
+	return fmt.Sprintf("k8s-operator/%s/%s", kubeVersion, operatorVersion)
+}
+
 // NewAivenClient returns Aiven client (aiven/aiven-go-client/v2)
 func NewAivenClient(token, kubeVersion, operatorVersion string) (*aiven.Client, error) {
-	return aiven.NewTokenClient(token, fmt.Sprintf("k8s-operator/%s/%s", kubeVersion, operatorVersion))
+	return aiven.NewTokenClient(token, userAgent(kubeVersion, operatorVersion))
 }
 
 // NewAivenGeneratedClient returns Aiven generated client client (aiven/go-client-codegen)
 func NewAivenGeneratedClient(token, kubeVersion, operatorVersion string) (avngen.Client, error) {
-	return avngen.NewClient(avngen.TokenOpt(token), avngen.UserAgentOpt(fmt.Sprintf("k8s-operator/%s/%s", kubeVersion, operatorVersion)))
+	return avngen.NewClient(avngen.TokenOpt(token), avngen.UserAgentOpt(userAgent(kubeVersion, operatorVersion)))
 }
 
 func fromAnyPointer[T any](v *T) T {
