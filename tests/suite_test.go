@@ -142,12 +142,12 @@ func setupSuite() (*envtest.Environment, error) {
 		return nil, fmt.Errorf("unable to get k8s version: %w", err)
 	}
 
-	avnClient, err = controllers.NewAivenClient(cfg.Token, kubeVersion.String()+"-test", operatorVersion+"-test")
+	avnClient, err = controllers.NewAivenClient(cfg.Token, kubeVersion.String(), operatorVersion)
 	if err != nil {
 		return nil, err
 	}
 
-	avnGen, err = controllers.NewAivenGeneratedClient(cfg.Token, kubeVersion.String()+"-test", operatorVersion+"-test")
+	avnGen, err = controllers.NewAivenGeneratedClient(cfg.Token, kubeVersion.String(), operatorVersion)
 	if err != nil {
 		return nil, err
 	}
