@@ -8,14 +8,7 @@ import (
 
 // KafkaConnectorSpec defines the desired state of KafkaConnector
 type KafkaConnectorSpec struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// Target project.
-	Project string `json:"project"`
-
-	// +kubebuilder:validation:MaxLength=63
-	// Service name.
-	ServiceName string `json:"serviceName"`
+	ProjectServiceFields `json:",inline"`
 
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`

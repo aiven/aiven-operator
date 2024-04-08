@@ -681,8 +681,8 @@ spec:
                       type: string
                   type: object
                 project:
-                  description: Project the integration belongs to
-                  format: ^[a-zA-Z0-9_-]*$
+                  description: Identifies the project this resource belongs to
+                  format: ^[a-zA-Z0-9_-]+$
                   maxLength: 63
                   type: string
                   x-kubernetes-validations:

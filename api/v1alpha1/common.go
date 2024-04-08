@@ -53,12 +53,29 @@ type ServiceTechEmail struct {
 	Email string `json:"email"`
 }
 
-type ServiceCommonSpec struct {
+type ProjectField struct {
 	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
+	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]+$"
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
-	// Target project.
+	// Identifies the project this resource belongs to
 	Project string `json:"project"`
+}
+
+type ServiceField struct {
+	// +kubebuilder:validation:MaxLength=63
+	// +kubebuilder:validation:Format="^[a-z][-a-z0-9]+$"
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// Specifies the name of the service that this resource belongs to
+	ServiceName string `json:"serviceName"`
+}
+
+type ProjectServiceFields struct {
+	ProjectField `json:",inline"`
+	ServiceField `json:",inline"`
+}
+
+type ServiceCommonSpec struct {
+	ProjectField `json:",inline"`
 
 	// +kubebuilder:validation:MaxLength=128
 	// Subscription plan.

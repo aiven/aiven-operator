@@ -9,16 +9,7 @@ import (
 // ClickhouseUserSpec defines the desired state of ClickhouseUser
 // +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type ClickhouseUserSpec struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
-	// Project to link the user to
-	Project string `json:"project"`
-
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
-	// Service to link the user to
-	ServiceName string `json:"serviceName"`
+	ProjectServiceFields `json:",inline"`
 
 	// Information regarding secret creation.
 	// Exposed keys: `CLICKHOUSEUSER_HOST`, `CLICKHOUSEUSER_PORT`, `CLICKHOUSEUSER_USER`, `CLICKHOUSEUSER_PASSWORD`

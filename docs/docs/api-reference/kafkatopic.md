@@ -45,9 +45,9 @@ KafkaTopicSpec defines the desired state of KafkaTopic.
 **Required**
 
 - [`partitions`](#spec.partitions-property){: name='spec.partitions-property'} (integer, Minimum: 1, Maximum: 1000000). Number of partitions to create in the topic.
-- [`project`](#spec.project-property){: name='spec.project-property'} (string, MaxLength: 63, Format: `^[a-zA-Z0-9_-]*$`). Target project.
+- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63, Format: `^[a-zA-Z0-9_-]+$`). Identifies the project this resource belongs to.
 - [`replication`](#spec.replication-property){: name='spec.replication-property'} (integer, Minimum: 2). Replication factor for the topic.
-- [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, MaxLength: 63). Service name.
+- [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, Immutable, MaxLength: 63, Format: `^[a-z][-a-z0-9]+$`). Specifies the name of the service that this resource belongs to.
 
 **Optional**
 

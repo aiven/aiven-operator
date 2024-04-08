@@ -9,14 +9,7 @@ import (
 // ConnectionPoolSpec defines the desired state of ConnectionPool
 // +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type ConnectionPoolSpec struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// Target project.
-	Project string `json:"project"`
-
-	// +kubebuilder:validation:MaxLength=63
-	// Service name.
-	ServiceName string `json:"serviceName"`
+	ProjectServiceFields `json:",inline"`
 
 	// +kubebuilder:validation:MaxLength=40
 	// Name of the database the pool connects to

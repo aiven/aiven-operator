@@ -78,15 +78,18 @@ spec:
                     - message: Value is immutable
                       rule: self == oldSelf
                 project:
-                  description: Project to link the database to
-                  format: ^[a-zA-Z0-9_-]*$
+                  description: Identifies the project this resource belongs to
+                  format: ^[a-zA-Z0-9_-]+$
                   maxLength: 63
                   type: string
                   x-kubernetes-validations:
                     - message: Value is immutable
                       rule: self == oldSelf
                 serviceName:
-                  description: PostgreSQL service to link the database to
+                  description:
+                    Specifies the name of the service that this resource
+                    belongs to
+                  format: ^[a-z][-a-z0-9]+$
                   maxLength: 63
                   type: string
                   x-kubernetes-validations:
