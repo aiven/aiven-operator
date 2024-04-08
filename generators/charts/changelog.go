@@ -34,6 +34,11 @@ type crdType struct {
 	} `yaml:"spec"`
 }
 
+type validation struct {
+	Message string `yaml:"message"`
+	Rule    string `yaml:"rule"`
+}
+
 type schema struct {
 	Kind        string             `yaml:"-"`
 	Properties  map[string]*schema `yaml:"properties"`
@@ -48,6 +53,7 @@ type schema struct {
 	MaxLength   *int               `yaml:"maxLength"`
 	Minimum     *float64           `yaml:"minimum"`
 	Maximum     *float64           `yaml:"maximum"`
+	Validations []validation       `yaml:"x-kubernetes-validations"`
 }
 
 func loadSchema(b []byte) (*schema, error) {
@@ -58,7 +64,7 @@ func loadSchema(b []byte) (*schema, error) {
 	}
 
 	if crd.Spec.Versions == nil {
-		return nil, fmt.Errorf("empty schema for kind %s", crd.Spec.Names.Kind)
+		return nil, nil
 	}
 
 	s := crd.Spec.Versions[0].Schema.OpenAPIV3Schema.Properties["spec"]
@@ -76,6 +82,22 @@ func genChangelog(wasBytes, hasBytes []byte) ([]changelog, error) {
 	hasSchema, err := loadSchema(hasBytes)
 	if err != nil {
 		return nil, err
+	}
+
+	if wasSchema == nil || hasSchema == nil {
+		c := changelog{value: fmt.Sprintf("`%s`", hasSchema.Kind)}
+
+		if wasSchema == nil {
+			c.title = "Add kind"
+			return []changelog{c}, nil
+		}
+
+		if hasSchema == nil {
+			c.title = "Remove kind"
+			return []changelog{c}, nil
+		}
+
+		return nil, fmt.Errorf("empty schemas")
 	}
 
 	changes := cmpSchemas(hasSchema.Kind, "", wasSchema, hasSchema)
@@ -114,20 +136,22 @@ func cmpSchemas(kind, parent string, wasSpec, hasSpec *schema) []changelog {
 			title := fmt.Sprintf("Add `%s` field `%s`, type `%s`", kind, fieldPath, nv.Type)
 			changes = append(changes, changelog{title: title, value: shortDescription(nv.Description)})
 		case !cmp.Equal(ov, nv):
-			switch ov.Type {
-			case "object":
+			c := fmtChanges(ov, nv)
+			if c != "" {
+				title := fmt.Sprintf("Change `%s` field `%s`", kind, fieldPath)
+				changes = append(changes, changelog{title: title, value: c})
+			}
+			if ov.Type == "object" {
 				changes = append(changes, cmpSchemas(kind, fieldPath, ov, nv)...)
-			default:
-				c := fmtChanges(ov, nv)
-				if c != "" {
-					title := fmt.Sprintf("Change `%s` field `%s`", kind, fieldPath)
-					changes = append(changes, changelog{title: title, value: c})
-				}
 			}
 		}
 	}
 	return changes
 }
+
+const (
+	immutableRule = "self == oldSelf"
+)
 
 func fmtChanges(was, has *schema) string {
 	changes := make(map[string]bool)
@@ -140,6 +164,7 @@ func fmtChanges(was, has *schema) string {
 	changes[fmtChange("minimum", was.Minimum, has.Minimum)] = true
 	changes[fmtChange("maximum", was.Maximum, has.Maximum)] = true
 	changes[fmtChange("enum", &was.Enum, &has.Enum)] = true
+	changes[fmtChange("immutable", hasRule(was, immutableRule), hasRule(has, immutableRule))] = true
 
 	if !isDeprecated(was.Description) && isDeprecated(has.Description) {
 		changes[deprecatedMark] = true
@@ -370,4 +395,14 @@ func mergedKeys[K constraints.Ordered, V any](maps ...map[K]V) []K {
 		}
 	}
 	return sortedKeys[K](unique)
+}
+
+func hasRule(s *schema, rule string) *bool {
+	for _, v := range s.Validations {
+		if v.Rule == rule {
+			t := true
+			return &t
+		}
+	}
+	return nil
 }

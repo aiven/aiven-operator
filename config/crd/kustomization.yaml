@@ -24,6 +24,7 @@ resources:
   - bases/aiven.io_grafanas.yaml
   - bases/aiven.io_clickhousedatabases.yaml
   - bases/aiven.io_kafkaschemaregistryacls.yaml
+  - bases/aiven.io_clickhouseroles.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:

@@ -9,9 +9,10 @@ import (
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	clickhouseuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/clickhouse"
+	"github.com/aiven/aiven-operator/controllers"
 )
 
-func getClickhouseYaml(project, cloudName, chName, dbName1, dbName2 string) string {
+func getClickhouseYaml(project, cloudName, chName, dbName1, dbName2, role1, role2 string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: Clickhouse
@@ -63,7 +64,37 @@ spec:
 
   project: %[1]s
   serviceName:  %[3]s
-`, project, cloudName, chName, dbName1, dbName2)
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseRole
+metadata:
+  name: %[6]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  serviceName:  %[3]s
+  role: reader
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseRole
+metadata:
+  name: %[7]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  serviceName:  %[3]s
+  role: writer
+`, project, cloudName, chName, dbName1, dbName2, role1, role2)
 }
 
 func TestClickhouse(t *testing.T) {
@@ -75,9 +106,11 @@ func TestClickhouse(t *testing.T) {
 	defer cancel()
 
 	chName := randName("clickhouse")
-	dbName1 := randName("clickhouse")
-	dbName2 := randName("clickhouse")
-	yml := getClickhouseYaml(cfg.Project, cfg.PrimaryCloudName, chName, dbName1, dbName2)
+	dbName1 := randName("database")
+	dbName2 := randName("database")
+	roleName1 := randName("role")
+	roleName2 := randName("role")
+	yml := getClickhouseYaml(cfg.Project, cfg.PrimaryCloudName, chName, dbName1, dbName2, roleName1, roleName2)
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
@@ -164,4 +197,34 @@ func TestClickhouse(t *testing.T) {
 		_, err = avnClient.ClickhouseDatabase.Get(ctx, cfg.Project, chName, dbName2)
 		return err
 	}))
+
+	// Validates ClickhouseRole
+	role1 := new(v1alpha1.ClickhouseRole)
+	require.NoError(t, s.GetRunning(role1, roleName1))
+	assert.Equal(t, "reader", role1.Spec.Role)
+
+	role2 := new(v1alpha1.ClickhouseRole)
+	require.NoError(t, s.GetRunning(role2, roleName2))
+	assert.Equal(t, "writer", role2.Spec.Role)
+
+	// Roles exist
+	err = controllers.ClickhouseRoleExists(ctx, avnClient, role1)
+	require.NoError(t, err)
+
+	err = controllers.ClickhouseRoleExists(ctx, avnClient, role2)
+	require.NoError(t, err)
+
+	// We need to validate deletion,
+	// because we can get false positive here:
+	// if service is deleted, the role is destroyed in Aiven.
+	assert.NoError(t, s.Delete(role2, func() error {
+		return controllers.ClickhouseRoleExists(ctx, avnClient, role2)
+	}))
+
+	// Role 1 exists, role 2 is removed
+	err = controllers.ClickhouseRoleExists(ctx, avnClient, role1)
+	assert.NoError(t, err)
+
+	err = controllers.ClickhouseRoleExists(ctx, avnClient, role2)
+	assert.ErrorContains(t, err, fmt.Sprintf("ClickhouseRole %q not found", roleName2))
 }
