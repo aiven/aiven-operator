@@ -8,14 +8,7 @@ import (
 
 // KafkaTopicSpec defines the desired state of KafkaTopic
 type KafkaTopicSpec struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// Target project.
-	Project string `json:"project"`
-
-	// +kubebuilder:validation:MaxLength=63
-	// Service name.
-	ServiceName string `json:"serviceName"`
+	ProjectServiceFields `json:",inline"`
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=249

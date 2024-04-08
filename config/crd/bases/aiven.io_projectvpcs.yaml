@@ -78,8 +78,8 @@ spec:
                     - message: Value is immutable
                       rule: self == oldSelf
                 project:
-                  description: The project the VPC belongs to
-                  format: ^[a-zA-Z0-9_-]*$
+                  description: Identifies the project this resource belongs to
+                  format: ^[a-zA-Z0-9_-]+$
                   maxLength: 63
                   type: string
                   x-kubernetes-validations:

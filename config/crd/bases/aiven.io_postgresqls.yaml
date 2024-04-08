@@ -140,8 +140,8 @@ spec:
                   maxLength: 128
                   type: string
                 project:
-                  description: Target project.
-                  format: ^[a-zA-Z0-9_-]*$
+                  description: Identifies the project this resource belongs to
+                  format: ^[a-zA-Z0-9_-]+$
                   maxLength: 63
                   type: string
                   x-kubernetes-validations:

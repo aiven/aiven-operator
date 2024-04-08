@@ -37,8 +37,8 @@ ClickhouseDatabaseSpec defines the desired state of ClickhouseDatabase.
 
 **Required**
 
-- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63, Format: `^[a-zA-Z0-9_-]*$`). Project to link the database to.
-- [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, Immutable, MaxLength: 63). Clickhouse service to link the database to.
+- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63, Format: `^[a-zA-Z0-9_-]+$`). Identifies the project this resource belongs to.
+- [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, Immutable, MaxLength: 63, Format: `^[a-z][-a-z0-9]+$`). Specifies the name of the service that this resource belongs to.
 
 **Optional**
 

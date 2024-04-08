@@ -8,11 +8,7 @@ import (
 
 // ProjectVPCSpec defines the desired state of ProjectVPC
 type ProjectVPCSpec struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
-	// The project the VPC belongs to
-	Project string `json:"project"`
+	ProjectField `json:",inline"`
 
 	// +kubebuilder:validation:MaxLength=256
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"

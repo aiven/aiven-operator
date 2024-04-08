@@ -62,7 +62,7 @@ spec:
                       rule: self == oldSelf
                 project:
                   description: Identifies the project this resource belongs to
-                  format: ^[a-zA-Z0-9_-]*$
+                  format: ^[a-zA-Z0-9_-]+$
                   maxLength: 63
                   type: string
                   x-kubernetes-validations:
@@ -79,6 +79,7 @@ spec:
                   description:
                     Specifies the name of the service that this resource
                     belongs to
+                  format: ^[a-z][-a-z0-9]+$
                   maxLength: 63
                   type: string
                   x-kubernetes-validations:

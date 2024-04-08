@@ -8,16 +8,7 @@ import (
 
 // KafkaSchemaRegistryACLSpec defines the desired state of KafkaSchemaRegistryACL
 type KafkaSchemaRegistryACLSpec struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
-	// Identifies the project this resource belongs to
-	Project string `json:"project"`
-
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
-	// Specifies the name of the service that this resource belongs to
-	ServiceName string `json:"serviceName"`
+	ProjectServiceFields `json:",inline"`
 
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`

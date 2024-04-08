@@ -8,16 +8,7 @@ import (
 
 // ClickhouseDatabaseSpec defines the desired state of ClickhouseDatabase
 type ClickhouseDatabaseSpec struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
-	// Project to link the database to
-	Project string `json:"project"`
-
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
-	// Clickhouse service to link the database to
-	ServiceName string `json:"serviceName"`
+	ProjectServiceFields `json:",inline"`
 
 	// Authentication reference to Aiven token in a secret
 	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`

@@ -9,14 +9,7 @@ import (
 // ServiceUserSpec defines the desired state of ServiceUser
 // +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type ServiceUserSpec struct {
-	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
-	// Project to link the user to
-	Project string `json:"project"`
-
-	// +kubebuilder:validation:MaxLength=63
-	// Service to link the user to
-	ServiceName string `json:"serviceName"`
+	ProjectServiceFields `json:",inline"`
 
 	// +kubebuilder:validation:Enum=caching_sha2_password;mysql_native_password
 	// Authentication details
