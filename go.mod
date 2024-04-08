@@ -3,7 +3,7 @@ module github.com/aiven/aiven-operator
 go 1.21
 
 require (
-	github.com/aiven/aiven-go-client/v2 v2.14.0
+	github.com/aiven/aiven-go-client/v2 v2.15.0
 	github.com/aiven/go-api-schemas v1.67.0
 	github.com/aiven/go-client-codegen v0.4.0
 	github.com/dave/jennifer v1.7.0
@@ -18,8 +18,8 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/xeipuuv/gojsonschema v1.2.0
 	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3
-	golang.org/x/sync v0.6.0
-	golang.org/x/tools v0.19.0
+	golang.org/x/sync v0.7.0
+	golang.org/x/tools v0.20.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.26.15
 	k8s.io/apimachinery v0.26.15
@@ -73,11 +73,11 @@ require (
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	golang.org/x/mod v0.16.0 // indirect
-	golang.org/x/net v0.22.0 // indirect
+	golang.org/x/mod v0.17.0 // indirect
+	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/oauth2 v0.7.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
-	golang.org/x/term v0.18.0 // indirect
+	golang.org/x/sys v0.19.0 // indirect
+	golang.org/x/term v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
