@@ -1,0 +1,12 @@
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clickhouserole
+    app.kubernetes.io/instance: clickhouserole-sample
+    app.kubernetes.io/part-of: aiven-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: aiven-operator
+  name: clickhouserole-sample
+spec:
+  # TODO(user): Add fields here

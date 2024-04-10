@@ -1,0 +1,58 @@
+---
+title: "ClickhouseRole"
+---
+
+## Usage example
+
+```yaml
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseRole
+metadata:
+  name: my-role
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  serviceName: my-clickhouse
+  role: my_role
+```
+
+## ClickhouseRole {: #ClickhouseRole }
+
+ClickhouseRole is the Schema for the clickhouseroles API.
+
+**Required**
+
+- [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `ClickhouseRole`.
+- [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
+- [`spec`](#spec-property){: name='spec-property'} (object). ClickhouseRoleSpec defines the desired state of ClickhouseRole. See below for [nested schema](#spec).
+
+## spec {: #spec }
+
+_Appears on [`ClickhouseRole`](#ClickhouseRole)._
+
+ClickhouseRoleSpec defines the desired state of ClickhouseRole.
+
+**Required**
+
+- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63, Format: `^[a-zA-Z0-9_-]+$`). Identifies the project this resource belongs to.
+- [`role`](#spec.role-property){: name='spec.role-property'} (string, Immutable, MaxLength: 255, Format: `^[a-zA-Z_][0-9a-zA-Z_]*$`). The role that is to be created.
+- [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, Immutable, MaxLength: 63, Format: `^[a-z][-a-z0-9]+$`). Specifies the name of the service that this resource belongs to.
+
+**Optional**
+
+- [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
+
+## authSecretRef {: #spec.authSecretRef }
+
+_Appears on [`spec`](#spec)._
+
+Authentication reference to Aiven token in a secret.
+
+**Required**
+
+- [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1).
+- [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1).

@@ -22,4 +22,5 @@ resources:
   - _v1alpha1_grafana.yaml
   - _v1alpha1_clickhousedatabase.yaml
   - _v1alpha1_kafkaschemaregistryacl.yaml
+  - _v1alpha1_clickhouserole.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

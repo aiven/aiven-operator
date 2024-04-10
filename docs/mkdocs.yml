@@ -89,6 +89,7 @@ nav:
       - api-reference/cassandra.md
       - api-reference/clickhouse.md
       - api-reference/clickhousedatabase.md
+      - api-reference/clickhouserole.md
       - api-reference/clickhouseuser.md
       - api-reference/connectionpool.md
       - api-reference/database.md

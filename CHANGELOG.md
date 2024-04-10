@@ -2,6 +2,7 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add kind: `ClickhouseRole`
 - Unified User-Agent format with the Terraform Provider
 
 ## v0.18.1 - 2024-04-02
