@@ -37,8 +37,9 @@ type ProjectVPCHandler struct {
 	log logr.Logger
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=projectvpcs,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=aiven.io,resources=projectvpcs/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=projectvpcs,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aiven.io,resources=projectvpcs/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=projectvpcs/finalizers,verbs=get;create;update
 
 func (r *ProjectVPCReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, &ProjectVPCHandler{log: r.Log}, &v1alpha1.ProjectVPC{})

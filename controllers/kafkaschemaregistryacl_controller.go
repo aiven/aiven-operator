@@ -30,7 +30,7 @@ func newKafkaSchemaRegistryACLReconciler(c Controller) reconcilerType {
 
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkaschemaregistryacls,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkaschemaregistryacls/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=aiven.io,resources=kafkaschemaregistryacls/finalizers,verbs=update
+//+kubebuilder:rbac:groups=aiven.io,resources=kafkaschemaregistryacls/finalizers,verbs=get;create;update
 
 func (r *KafkaSchemaRegistryACLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, KafkaSchemaRegistryACLHandler{}, &v1alpha1.KafkaSchemaRegistryACL{})

@@ -30,8 +30,9 @@ func newDatabaseReconciler(c Controller) reconcilerType {
 // DatabaseHandler handles an Aiven Database
 type DatabaseHandler struct{}
 
-// +kubebuilder:rbac:groups=aiven.io,resources=databases,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=aiven.io,resources=databases/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=databases,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aiven.io,resources=databases/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=databases/finalizers,verbs=get;create;update
 
 func (r *DatabaseReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, DatabaseHandler{}, &v1alpha1.Database{})

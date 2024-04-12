@@ -27,7 +27,7 @@ func newClickhouseReconciler(c Controller) reconcilerType {
 
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouses,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouses/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=aiven.io,resources=clickhouses/finalizers,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aiven.io,resources=clickhouses/finalizers,verbs=get;create;update
 
 func (r *ClickhouseReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newClickhouseAdapter), &v1alpha1.Clickhouse{})

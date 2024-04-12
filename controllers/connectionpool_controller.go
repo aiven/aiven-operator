@@ -31,9 +31,9 @@ func newConnectionPoolReconciler(c Controller) reconcilerType {
 // ConnectionPoolHandler handles an Aiven ConnectionPool
 type ConnectionPoolHandler struct{}
 
-// +kubebuilder:rbac:groups=aiven.io,resources=connectionpools,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=aiven.io,resources=connectionpools/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=aiven.io,resources=connectionpools/finalizers,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aiven.io,resources=connectionpools,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aiven.io,resources=connectionpools/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=connectionpools/finalizers,verbs=get;create;update
 
 func (r *ConnectionPoolReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, ConnectionPoolHandler{}, &v1alpha1.ConnectionPool{})

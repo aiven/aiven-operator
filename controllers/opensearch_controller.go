@@ -29,7 +29,7 @@ type OpenSearchHandler struct{}
 
 //+kubebuilder:rbac:groups=aiven.io,resources=opensearches,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=opensearches/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=aiven.io,resources=opensearches/finalizers,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aiven.io,resources=opensearches/finalizers,verbs=get;create;update
 
 func (r *OpenSearchReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newOpenSearchAdapter), &v1alpha1.OpenSearch{})

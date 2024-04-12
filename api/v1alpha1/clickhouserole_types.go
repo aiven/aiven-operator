@@ -29,6 +29,9 @@ type ClickhouseRoleStatus struct {
 //+kubebuilder:subresource:status
 
 // ClickhouseRole is the Schema for the clickhouseroles API
+// +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
+// +kubebuilder:printcolumn:name="Service Name",type="string",JSONPath=".spec.serviceName"
+// +kubebuilder:printcolumn:name="Role",type="string",JSONPath=".spec.role"
 type ClickhouseRole struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

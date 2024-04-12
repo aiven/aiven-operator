@@ -4,6 +4,8 @@
 
 - Add kind: `ClickhouseRole`
 - Unified User-Agent format with the Terraform Provider
+- Unify cluster role permissions
+- Add missing role permissions to `KafkaACL`
 
 ## v0.18.1 - 2024-04-02
 

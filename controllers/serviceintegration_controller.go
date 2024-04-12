@@ -32,8 +32,9 @@ func newServiceIntegrationReconciler(c Controller) reconcilerType {
 
 type ServiceIntegrationHandler struct{}
 
-// +kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations/finalizers,verbs=get;create;update
 
 func (r *ServiceIntegrationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, ServiceIntegrationHandler{}, &v1alpha1.ServiceIntegration{})

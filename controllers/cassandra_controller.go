@@ -26,9 +26,9 @@ func newCassandraReconciler(c Controller) reconcilerType {
 	return &CassandraReconciler{Controller: c}
 }
 
-// +kubebuilder:rbac:groups=aiven.io,resources=cassandras,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=aiven.io,resources=cassandras/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=aiven.io,resources=cassandras/finalizers,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aiven.io,resources=cassandras,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aiven.io,resources=cassandras/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=cassandras/finalizers,verbs=get;create;update
 
 func (r *CassandraReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newCassandraAdapter), &v1alpha1.Cassandra{})
