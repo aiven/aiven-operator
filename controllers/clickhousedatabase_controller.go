@@ -30,8 +30,9 @@ func newClickhouseDatabaseReconciler(c Controller) reconcilerType {
 // ClickhouseDatabaseHandler handles an Aiven ClickhouseDatabase
 type ClickhouseDatabaseHandler struct{}
 
-// +kubebuilder:rbac:groups=aiven.io,resources=clickhousedatabases,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=aiven.io,resources=clickhousedatabases/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=clickhousedatabases,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aiven.io,resources=clickhousedatabases/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=clickhousedatabases/finalizers,verbs=get;create;update
 
 func (r *ClickhouseDatabaseReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, &ClickhouseDatabaseHandler{}, &v1alpha1.ClickhouseDatabase{})

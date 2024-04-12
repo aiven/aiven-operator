@@ -42,7 +42,7 @@ type ClickhouseRoleReconciler struct {
 
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouseroles,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouseroles/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=aiven.io,resources=clickhouseroles/finalizers,verbs=update
+//+kubebuilder:rbac:groups=aiven.io,resources=clickhouseroles/finalizers,verbs=get;create;update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

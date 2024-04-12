@@ -28,7 +28,7 @@ func newKafkaReconciler(c Controller) reconcilerType {
 
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkas,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkas/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=aiven.io,resources=kafkas/finalizers,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aiven.io,resources=kafkas/finalizers,verbs=get;create;update
 
 func (r *KafkaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newKafkaAdapter), &v1alpha1.Kafka{})

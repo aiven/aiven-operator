@@ -16,11 +16,11 @@ spec:
   scope: Namespaced
   versions:
     - additionalPrinterColumns:
-        - jsonPath: .spec.serviceName
-          name: Service Name
-          type: string
         - jsonPath: .spec.project
           name: Project
+          type: string
+        - jsonPath: .spec.serviceName
+          name: Service Name
           type: string
       name: v1alpha1
       schema:

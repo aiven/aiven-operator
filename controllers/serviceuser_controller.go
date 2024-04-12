@@ -29,9 +29,9 @@ func newServiceUserReconciler(c Controller) reconcilerType {
 
 type ServiceUserHandler struct{}
 
-// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers,verbs=update;get;list;watch;create;delete
-// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers/status,verbs=get;update
-// +kubebuilder:rbac:groups=aiven.io,resources=serviceusers/finalizers,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aiven.io,resources=serviceusers,verbs=update;get;list;watch;create;delete
+//+kubebuilder:rbac:groups=aiven.io,resources=serviceusers/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=serviceusers/finalizers,verbs=get;create;update
 
 func (r *ServiceUserReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, ServiceUserHandler{}, &v1alpha1.ServiceUser{})

@@ -41,6 +41,11 @@ type KafkaSchemaRegistryACLStatus struct {
 //+kubebuilder:subresource:status
 
 // KafkaSchemaRegistryACL is the Schema for the kafkaschemaregistryacls API
+// +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
+// +kubebuilder:printcolumn:name="Service Name",type="string",JSONPath=".spec.serviceName"
+// +kubebuilder:printcolumn:name="Resource",type="string",JSONPath=".spec.resource"
+// +kubebuilder:printcolumn:name="Username",type="string",JSONPath=".spec.username"
+// +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state"
 type KafkaSchemaRegistryACL struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

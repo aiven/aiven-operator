@@ -29,8 +29,9 @@ func newKafkaACLReconciler(c Controller) reconcilerType {
 
 type KafkaACLHandler struct{}
 
-// +kubebuilder:rbac:groups=aiven.io,resources=kafkaacls,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=aiven.io,resources=kafkaacls/status,verbs=get;list;watch;create;delete
+//+kubebuilder:rbac:groups=aiven.io,resources=kafkaacls,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aiven.io,resources=kafkaacls/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=kafkaacls/finalizers,verbs=get;create;update
 
 func (r *KafkaACLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, KafkaACLHandler{}, &v1alpha1.KafkaACL{})

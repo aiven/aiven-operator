@@ -15,7 +15,17 @@ spec:
     singular: clickhouserole
   scope: Namespaced
   versions:
-    - name: v1alpha1
+    - additionalPrinterColumns:
+        - jsonPath: .spec.project
+          name: Project
+          type: string
+        - jsonPath: .spec.serviceName
+          name: Service Name
+          type: string
+        - jsonPath: .spec.role
+          name: Role
+          type: string
+      name: v1alpha1
       schema:
         openAPIV3Schema:
           description: ClickhouseRole is the Schema for the clickhouseroles API
