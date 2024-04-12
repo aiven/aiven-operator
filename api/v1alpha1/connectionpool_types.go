@@ -7,9 +7,9 @@ import (
 )
 
 // ConnectionPoolSpec defines the desired state of ConnectionPool
-// +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type ConnectionPoolSpec struct {
-	ProjectServiceFields `json:",inline"`
+	ServiceDependant `json:",inline"`
+	SecretFields     `json:",inline"`
 
 	// +kubebuilder:validation:MaxLength=40
 	// Name of the database the pool connects to
@@ -27,17 +27,6 @@ type ConnectionPoolSpec struct {
 	// +kubebuilder:validation:Enum=session;transaction;statement
 	// Mode the pool operates in (session, transaction, statement)
 	PoolMode string `json:"poolMode,omitempty"`
-
-	// Information regarding secret creation.
-	// Exposed keys: `CONNECTIONPOOL_NAME`, `CONNECTIONPOOL_HOST`, `CONNECTIONPOOL_PORT`, `CONNECTIONPOOL_DATABASE`, `CONNECTIONPOOL_USER`, `CONNECTIONPOOL_PASSWORD`, `CONNECTIONPOOL_SSLMODE`, `CONNECTIONPOOL_DATABASE_URI`, `CONNECTIONPOOL_CA_CERT`
-	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
-
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="connInfoSecretTargetDisabled is immutable."
-	// When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
-	ConnInfoSecretTargetDisabled *bool `json:"connInfoSecretTargetDisabled,omitempty"`
-
-	// Authentication reference to Aiven token in a secret
-	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // ConnectionPoolStatus defines the observed state of ConnectionPool
@@ -49,7 +38,8 @@ type ConnectionPoolStatus struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 
-// ConnectionPool is the Schema for the connectionpools API
+// ConnectionPool is the Schema for the connectionpools API.
+// Info "Exposes secret keys": `CONNECTIONPOOL_NAME`, `CONNECTIONPOOL_HOST`, `CONNECTIONPOOL_PORT`, `CONNECTIONPOOL_DATABASE`, `CONNECTIONPOOL_USER`, `CONNECTIONPOOL_PASSWORD`, `CONNECTIONPOOL_SSLMODE`, `CONNECTIONPOOL_DATABASE_URI`, `CONNECTIONPOOL_CA_CERT`
 // +kubebuilder:printcolumn:name="Service Name",type="string",JSONPath=".spec.serviceName"
 // +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
 // +kubebuilder:printcolumn:name="Database",type="string",JSONPath=".spec.databaseName"

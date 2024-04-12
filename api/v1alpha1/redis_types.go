@@ -9,24 +9,8 @@ import (
 )
 
 // RedisSpec defines the desired state of Redis
-// +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type RedisSpec struct {
 	ServiceCommonSpec `json:",inline"`
-
-	// +kubebuilder:validation:Format="^[1-9][0-9]*(GiB|G)*"
-	// The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.
-	DiskSpace string `json:"disk_space,omitempty"`
-
-	// Authentication reference to Aiven token in a secret
-	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
-
-	// Information regarding secret creation.
-	// Exposed keys: `REDIS_HOST`, `REDIS_PORT`, `REDIS_USER`, `REDIS_PASSWORD`, `REDIS_CA_CERT`
-	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
-
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="connInfoSecretTargetDisabled is immutable."
-	// When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
-	ConnInfoSecretTargetDisabled *bool `json:"connInfoSecretTargetDisabled,omitempty"`
 
 	// Redis specific user configuration options
 	UserConfig *redisuserconfig.RedisUserConfig `json:"userConfig,omitempty"`
@@ -35,7 +19,8 @@ type RedisSpec struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// Redis is the Schema for the redis API
+// Redis is the Schema for the redis API.
+// Info "Exposes secret keys": `REDIS_HOST`, `REDIS_PORT`, `REDIS_USER`, `REDIS_PASSWORD`, `REDIS_CA_CERT`
 // +kubebuilder:subresource:status
 type Redis struct {
 	metav1.TypeMeta   `json:",inline"`

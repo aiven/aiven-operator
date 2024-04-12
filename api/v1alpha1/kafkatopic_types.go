@@ -8,7 +8,7 @@ import (
 
 // KafkaTopicSpec defines the desired state of KafkaTopic
 type KafkaTopicSpec struct {
-	ProjectServiceFields `json:",inline"`
+	ServiceDependant `json:",inline"`
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=249
@@ -37,9 +37,6 @@ type KafkaTopicSpec struct {
 	// from being deleted by Kubernetes. It is recommended to enable this for any production
 	// databases containing critical data.
 	TerminationProtection *bool `json:"termination_protection,omitempty"`
-
-	// Authentication reference to Aiven token in a secret
-	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // GetTopicName returns topic name with a backward compatibility.

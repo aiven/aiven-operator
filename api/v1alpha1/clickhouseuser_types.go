@@ -7,20 +7,9 @@ import (
 )
 
 // ClickhouseUserSpec defines the desired state of ClickhouseUser
-// +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type ClickhouseUserSpec struct {
-	ProjectServiceFields `json:",inline"`
-
-	// Information regarding secret creation.
-	// Exposed keys: `CLICKHOUSEUSER_HOST`, `CLICKHOUSEUSER_PORT`, `CLICKHOUSEUSER_USER`, `CLICKHOUSEUSER_PASSWORD`
-	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
-
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="connInfoSecretTargetDisabled is immutable."
-	// When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
-	ConnInfoSecretTargetDisabled *bool `json:"connInfoSecretTargetDisabled,omitempty"`
-
-	// Authentication reference to Aiven token in a secret
-	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
+	ServiceDependant `json:",inline"`
+	SecretFields     `json:",inline"`
 }
 
 // ClickhouseUserStatus defines the observed state of ClickhouseUser
@@ -36,7 +25,8 @@ type ClickhouseUserStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// ClickhouseUser is the Schema for the clickhouseusers API
+// ClickhouseUser is the Schema for the clickhouseusers API.
+// Info "Exposes secret keys": `CLICKHOUSEUSER_HOST`, `CLICKHOUSEUSER_PORT`, `CLICKHOUSEUSER_USER`, `CLICKHOUSEUSER_PASSWORD`
 // +kubebuilder:printcolumn:name="Service Name",type="string",JSONPath=".spec.serviceName"
 // +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
 // +kubebuilder:printcolumn:name="Connection Information Secret",type="string",JSONPath=".spec.connInfoSecretTarget.name"

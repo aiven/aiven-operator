@@ -31,7 +31,11 @@ spec:
 
 ## Project {: #Project }
 
-Project is the Schema for the projects API.
+Project is the Schema for the projects API. 
+
+!!! Info "Exposes secret keys"
+
+    `PROJECT_CA_CERT`.
 
 **Required**
 
@@ -57,7 +61,7 @@ ProjectSpec defines the desired state of Project.
 - [`billingGroupId`](#spec.billingGroupId-property){: name='spec.billingGroupId-property'} (string, MinLength: 36, MaxLength: 36). BillingGroup ID.
 - [`cardId`](#spec.cardId-property){: name='spec.cardId-property'} (string, MaxLength: 64). Credit card ID; The ID may be either last 4 digits of the card or the actual ID.
 - [`cloud`](#spec.cloud-property){: name='spec.cloud-property'} (string, MaxLength: 256). Target cloud, example: aws-eu-central-1.
-- [`connInfoSecretTarget`](#spec.connInfoSecretTarget-property){: name='spec.connInfoSecretTarget-property'} (object). Information regarding secret creation. Exposed keys: `PROJECT_CA_CERT`. See below for [nested schema](#spec.connInfoSecretTarget).
+- [`connInfoSecretTarget`](#spec.connInfoSecretTarget-property){: name='spec.connInfoSecretTarget-property'} (object). Secret configuration. See below for [nested schema](#spec.connInfoSecretTarget).
 - [`connInfoSecretTargetDisabled`](#spec.connInfoSecretTargetDisabled-property){: name='spec.connInfoSecretTargetDisabled-property'} (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
 - [`copyFromProject`](#spec.copyFromProject-property){: name='spec.copyFromProject-property'} (string, MaxLength: 63). Project name from which to copy settings to the new project.
 - [`countryCode`](#spec.countryCode-property){: name='spec.countryCode-property'} (string, MinLength: 2, MaxLength: 2). Billing country code of the project.
@@ -79,7 +83,7 @@ Authentication reference to Aiven token in a secret.
 
 _Appears on [`spec`](#spec)._
 
-Information regarding secret creation. Exposed keys: `PROJECT_CA_CERT`.
+Secret configuration.
 
 **Required**
 

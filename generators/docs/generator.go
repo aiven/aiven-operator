@@ -220,8 +220,13 @@ func (s *schemaType) IsNested() bool {
 	return len(s.Properties) > 0 || (s.Items != nil && s.Items.IsNested())
 }
 
-// reInlineCode finds all code-like text
-var reInlineCode = regexp.MustCompile(`'(\S+)'`)
+var (
+	// reInlineCode to wrap inline code into backticks
+	reInlineCode = regexp.MustCompile(`'(\S+)'`)
+
+	// reAdmonitions to render markdown admonitions
+	reAdmonitions = regexp.MustCompile(`(?i)((?:note|tip|info|warning|danger|bug|success|example) "[^"]*"):\s*(.+)`)
+)
 
 // GetDescription Returns description with a dot suffix. Fallbacks to items description
 func (s *schemaType) GetDescription() string {
@@ -236,6 +241,8 @@ func (s *schemaType) GetDescription() string {
 	}
 
 	// Wraps code chunks with backticks
+	d = reAdmonitions.ReplaceAllString(d, "\n\n!!! $1\n\n    $2")
+	d = strings.ReplaceAll(d, "Exposes secret keys:", "\n!!! note\n\n    Exposes secret keys:")
 	return reInlineCode.ReplaceAllString(d, "`$1`")
 }
 

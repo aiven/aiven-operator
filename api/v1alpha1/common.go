@@ -69,13 +69,23 @@ type ServiceField struct {
 	ServiceName string `json:"serviceName"`
 }
 
-type ProjectServiceFields struct {
-	ProjectField `json:",inline"`
-	ServiceField `json:",inline"`
+type AuthSecretRefField struct {
+	// Authentication reference to Aiven token in a secret
+	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
-type ServiceCommonSpec struct {
-	ProjectField `json:",inline"`
+type ProjectDependant struct {
+	ProjectField       `json:",inline"`
+	AuthSecretRefField `json:",inline"`
+}
+
+type ServiceDependant struct {
+	ProjectDependant `json:",inline"`
+	ServiceField     `json:",inline"`
+}
+
+type BaseServiceFields struct {
+	ProjectDependant `json:",inline"`
 
 	// +kubebuilder:validation:MaxLength=128
 	// Subscription plan.
@@ -116,8 +126,18 @@ type ServiceCommonSpec struct {
 	TechnicalEmails []ServiceTechEmail `json:"technicalEmails,omitempty"`
 }
 
+// +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
+type SecretFields struct {
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="connInfoSecretTargetDisabled is immutable."
+	// When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
+	ConnInfoSecretTargetDisabled *bool `json:"connInfoSecretTargetDisabled,omitempty"`
+
+	// Secret configuration.
+	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
+}
+
 // Validate runs complex validation on ServiceCommonSpec
-func (in *ServiceCommonSpec) Validate() error {
+func (in *BaseServiceFields) Validate() error {
 	// todo: remove when resolved https://github.com/kubernetes-sigs/controller-tools/issues/461
 	if in.ProjectVPCID != "" && in.ProjectVPCRef != nil {
 		return fmt.Errorf("please set ProjectVPCID or ProjectVPCRef, not both")
@@ -126,11 +146,20 @@ func (in *ServiceCommonSpec) Validate() error {
 }
 
 // GetRefs is inherited by kafka, pg, os, etc
-func (in *ServiceCommonSpec) GetRefs(namespace string) (refs []*ResourceReferenceObject) {
+func (in *BaseServiceFields) GetRefs(namespace string) (refs []*ResourceReferenceObject) {
 	if in.ProjectVPCRef != nil {
 		refs = append(refs, in.ProjectVPCRef.ProjectVPC(namespace))
 	}
 	return refs
+}
+
+type ServiceCommonSpec struct {
+	BaseServiceFields `json:",inline"`
+	SecretFields      `json:",inline"`
+
+	// +kubebuilder:validation:Format="^[1-9][0-9]*(GiB|G)*"
+	// The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.
+	DiskSpace string `json:"disk_space,omitempty"`
 }
 
 // ResourceReference is a generic reference to another resource.

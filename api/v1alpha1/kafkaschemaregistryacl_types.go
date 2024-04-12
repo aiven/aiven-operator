@@ -8,10 +8,7 @@ import (
 
 // KafkaSchemaRegistryACLSpec defines the desired state of KafkaSchemaRegistryACL
 type KafkaSchemaRegistryACLSpec struct {
-	ProjectServiceFields `json:",inline"`
-
-	// Authentication reference to Aiven token in a secret
-	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
+	ServiceDependant `json:",inline"`
 
 	// +kubebuilder:validation:Enum=schema_registry_read;schema_registry_write
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"

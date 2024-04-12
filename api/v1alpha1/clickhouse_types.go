@@ -9,24 +9,8 @@ import (
 )
 
 // ClickhouseSpec defines the desired state of Clickhouse
-// +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type ClickhouseSpec struct {
 	ServiceCommonSpec `json:",inline"`
-
-	// +kubebuilder:validation:Format="^[1-9][0-9]*(GiB|G)*"
-	// The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.
-	DiskSpace string `json:"disk_space,omitempty"`
-
-	// Authentication reference to Aiven token in a secret
-	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
-
-	// Information regarding secret creation.
-	// Exposed keys: `CLICKHOUSE_HOST`, `CLICKHOUSE_PORT`, `CLICKHOUSE_USER`, `CLICKHOUSE_PASSWORD`, `CLICKHOUSE_CA_CERT`
-	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
-
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="connInfoSecretTargetDisabled is immutable."
-	// When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
-	ConnInfoSecretTargetDisabled *bool `json:"connInfoSecretTargetDisabled,omitempty"`
 
 	// OpenSearch specific user configuration options
 	UserConfig *clickhouseuserconfig.ClickhouseUserConfig `json:"userConfig,omitempty"`
@@ -35,7 +19,8 @@ type ClickhouseSpec struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// Clickhouse is the Schema for the clickhouses API
+// Clickhouse is the Schema for the clickhouses API.
+// Info "Exposes secret keys": `CLICKHOUSE_HOST`, `CLICKHOUSE_PORT`, `CLICKHOUSE_USER`, `CLICKHOUSE_PASSWORD`, `CLICKHOUSE_CA_CERT`
 type Clickhouse struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

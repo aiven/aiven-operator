@@ -8,7 +8,7 @@ import (
 
 // KafkaACLSpec defines the desired state of KafkaACL
 type KafkaACLSpec struct {
-	ProjectServiceFields `json:",inline"`
+	ServiceDependant `json:",inline"`
 
 	// +kubebuilder:validation:Enum=admin;read;readwrite;write
 	// Kafka permission to grant (admin, read, readwrite, write)
@@ -19,9 +19,6 @@ type KafkaACLSpec struct {
 
 	// Username pattern for the ACL entry
 	Username string `json:"username"`
-
-	// Authentication reference to Aiven token in a secret
-	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // KafkaACLStatus defines the observed state of KafkaACL

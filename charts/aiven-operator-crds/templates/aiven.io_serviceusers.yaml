@@ -28,7 +28,11 @@ spec:
       name: v1alpha1
       schema:
         openAPIV3Schema:
-          description: ServiceUser is the Schema for the serviceusers API
+          description:
+            'ServiceUser is the Schema for the serviceusers API. Info "Exposes
+            secret keys": `SERVICEUSER_HOST`, `SERVICEUSER_PORT`, `SERVICEUSER_USERNAME`,
+            `SERVICEUSER_PASSWORD`, `SERVICEUSER_CA_CERT`, `SERVICEUSER_ACCESS_CERT`,
+            `SERVICEUSER_ACCESS_KEY`'
           properties:
             apiVersion:
               description:
@@ -67,11 +71,7 @@ spec:
                     - mysql_native_password
                   type: string
                 connInfoSecretTarget:
-                  description:
-                    "Information regarding secret creation. Exposed keys:
-                    `SERVICEUSER_HOST`, `SERVICEUSER_PORT`, `SERVICEUSER_USERNAME`,
-                    `SERVICEUSER_PASSWORD`, `SERVICEUSER_CA_CERT`, `SERVICEUSER_ACCESS_CERT`,
-                    `SERVICEUSER_ACCESS_KEY`"
+                  description: Secret configuration.
                   properties:
                     annotations:
                       additionalProperties:

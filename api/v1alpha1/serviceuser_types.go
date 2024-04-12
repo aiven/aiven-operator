@@ -7,24 +7,13 @@ import (
 )
 
 // ServiceUserSpec defines the desired state of ServiceUser
-// +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type ServiceUserSpec struct {
-	ProjectServiceFields `json:",inline"`
+	ServiceDependant `json:",inline"`
+	SecretFields     `json:",inline"`
 
 	// +kubebuilder:validation:Enum=caching_sha2_password;mysql_native_password
 	// Authentication details
 	Authentication string `json:"authentication,omitempty"`
-
-	// Information regarding secret creation.
-	// Exposed keys: `SERVICEUSER_HOST`, `SERVICEUSER_PORT`, `SERVICEUSER_USERNAME`, `SERVICEUSER_PASSWORD`, `SERVICEUSER_CA_CERT`, `SERVICEUSER_ACCESS_CERT`, `SERVICEUSER_ACCESS_KEY`
-	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
-
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="connInfoSecretTargetDisabled is immutable."
-	// When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
-	ConnInfoSecretTargetDisabled *bool `json:"connInfoSecretTargetDisabled,omitempty"`
-
-	// Authentication reference to Aiven token in a secret
-	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // ServiceUserStatus defines the observed state of ServiceUser
@@ -39,7 +28,8 @@ type ServiceUserStatus struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 
-// ServiceUser is the Schema for the serviceusers API
+// ServiceUser is the Schema for the serviceusers API.
+// Info "Exposes secret keys": `SERVICEUSER_HOST`, `SERVICEUSER_PORT`, `SERVICEUSER_USERNAME`, `SERVICEUSER_PASSWORD`, `SERVICEUSER_CA_CERT`, `SERVICEUSER_ACCESS_CERT`, `SERVICEUSER_ACCESS_KEY`
 // +kubebuilder:printcolumn:name="Service Name",type="string",JSONPath=".spec.serviceName"
 // +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
 // +kubebuilder:printcolumn:name="Connection Information Secret",type="string",JSONPath=".spec.connInfoSecretTarget.name"

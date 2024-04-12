@@ -8,10 +8,7 @@ import (
 
 // ClickhouseDatabaseSpec defines the desired state of ClickhouseDatabase
 type ClickhouseDatabaseSpec struct {
-	ProjectServiceFields `json:",inline"`
-
-	// Authentication reference to Aiven token in a secret
-	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
+	ServiceDependant `json:",inline"`
 }
 
 // ClickhouseDatabaseStatus defines the observed state of ClickhouseDatabase

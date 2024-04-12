@@ -28,7 +28,10 @@ spec:
       name: v1alpha1
       schema:
         openAPIV3Schema:
-          description: ClickhouseUser is the Schema for the clickhouseusers API
+          description:
+            'ClickhouseUser is the Schema for the clickhouseusers API. Info
+            "Exposes secret keys": `CLICKHOUSEUSER_HOST`, `CLICKHOUSEUSER_PORT`, `CLICKHOUSEUSER_USER`,
+            `CLICKHOUSEUSER_PASSWORD`'
           properties:
             apiVersion:
               description:
@@ -61,10 +64,7 @@ spec:
                     - name
                   type: object
                 connInfoSecretTarget:
-                  description:
-                    "Information regarding secret creation. Exposed keys:
-                    `CLICKHOUSEUSER_HOST`, `CLICKHOUSEUSER_PORT`, `CLICKHOUSEUSER_USER`,
-                    `CLICKHOUSEUSER_PASSWORD`"
+                  description: Secret configuration.
                   properties:
                     annotations:
                       additionalProperties:

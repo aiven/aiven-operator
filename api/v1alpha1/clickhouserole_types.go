@@ -8,16 +8,13 @@ import (
 
 // ClickhouseRoleSpec defines the desired state of ClickhouseRole
 type ClickhouseRoleSpec struct {
-	ProjectServiceFields `json:",inline"`
+	ServiceDependant `json:",inline"`
 
 	// +kubebuilder:validation:MaxLength=255
 	// +kubebuilder:validation:Format="^[a-zA-Z_][0-9a-zA-Z_]*$"
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// The role that is to be created
 	Role string `json:"role"`
-
-	// Authentication reference to Aiven token in a secret
-	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // ClickhouseRoleStatus defines the observed state of ClickhouseRole

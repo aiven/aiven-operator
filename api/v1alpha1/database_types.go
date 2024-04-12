@@ -8,7 +8,7 @@ import (
 
 // DatabaseSpec defines the desired state of Database
 type DatabaseSpec struct {
-	ProjectServiceFields `json:",inline"`
+	ServiceDependant `json:",inline"`
 
 	// +kubebuilder:validation:MaxLength=128
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
@@ -26,9 +26,6 @@ type DatabaseSpec struct {
 	// from being deleted by Kubernetes. It is recommended to enable this for any production
 	// databases containing critical data.
 	TerminationProtection *bool `json:"terminationProtection,omitempty"`
-
-	// Authentication reference to Aiven token in a secret
-	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // DatabaseStatus defines the observed state of Database
