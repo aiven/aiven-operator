@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.19.0 - 2024-04-18
+
 - Add kind: `ClickhouseRole`
 - Unified User-Agent format with the Terraform Provider
 - Unify cluster role permissions
