@@ -1,6 +1,13 @@
 # Changelog
 
 
+## v0.19.0 - 2024-04-18
+
+- Add kind: `ClickhouseRole`
+- Unified User-Agent format with the Terraform Provider
+- Unify cluster role permissions
+- Add missing role permissions to `KafkaACL`
+
 ## v0.18.1 - 2024-04-02
 
 - Add `KafkaSchemaRegistryACL` kind
