@@ -37,7 +37,11 @@ spec:
       name: v1alpha1
       schema:
         openAPIV3Schema:
-          description: ConnectionPool is the Schema for the connectionpools API
+          description:
+            'ConnectionPool is the Schema for the connectionpools API. Info
+            "Exposes secret keys": `CONNECTIONPOOL_NAME`, `CONNECTIONPOOL_HOST`, `CONNECTIONPOOL_PORT`,
+            `CONNECTIONPOOL_DATABASE`, `CONNECTIONPOOL_USER`, `CONNECTIONPOOL_PASSWORD`,
+            `CONNECTIONPOOL_SSLMODE`, `CONNECTIONPOOL_DATABASE_URI`, `CONNECTIONPOOL_CA_CERT`'
           properties:
             apiVersion:
               description:
@@ -70,11 +74,7 @@ spec:
                     - name
                   type: object
                 connInfoSecretTarget:
-                  description:
-                    "Information regarding secret creation. Exposed keys:
-                    `CONNECTIONPOOL_NAME`, `CONNECTIONPOOL_HOST`, `CONNECTIONPOOL_PORT`,
-                    `CONNECTIONPOOL_DATABASE`, `CONNECTIONPOOL_USER`, `CONNECTIONPOOL_PASSWORD`,
-                    `CONNECTIONPOOL_SSLMODE`, `CONNECTIONPOOL_DATABASE_URI`, `CONNECTIONPOOL_CA_CERT`"
+                  description: Secret configuration.
                   properties:
                     annotations:
                       additionalProperties:

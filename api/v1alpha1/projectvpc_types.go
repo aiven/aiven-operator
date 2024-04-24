@@ -8,7 +8,7 @@ import (
 
 // ProjectVPCSpec defines the desired state of ProjectVPC
 type ProjectVPCSpec struct {
-	ProjectField `json:",inline"`
+	ProjectDependant `json:",inline"`
 
 	// +kubebuilder:validation:MaxLength=256
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
@@ -19,9 +19,6 @@ type ProjectVPCSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Network address range used by the VPC like 192.168.0.0/24
 	NetworkCidr string `json:"networkCidr"`
-
-	// Authentication reference to Aiven token in a secret
-	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // ProjectVPCStatus defines the observed state of ProjectVPC

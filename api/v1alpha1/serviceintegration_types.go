@@ -21,7 +21,7 @@ import (
 
 // ServiceIntegrationSpec defines the desired state of ServiceIntegration
 type ServiceIntegrationSpec struct {
-	ProjectField `json:",inline"`
+	ProjectDependant `json:",inline"`
 
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// +kubebuilder:validation:Enum=alertmanager;autoscaler;caching;cassandra_cross_service_cluster;clickhouse_kafka;clickhouse_postgresql;dashboard;datadog;datasource;external_aws_cloudwatch_logs;external_aws_cloudwatch_metrics;external_elasticsearch_logs;external_google_cloud_logging;external_opensearch_logs;flink;flink_external_kafka;internal_connectivity;jolokia;kafka_connect;kafka_logs;kafka_mirrormaker;logs;m3aggregator;m3coordinator;metrics;opensearch_cross_cluster_replication;opensearch_cross_cluster_search;prometheus;read_replica;rsyslog;schema_registry_proxy;stresstester;thanosquery;thanosstore;vmalert
@@ -84,9 +84,6 @@ type ServiceIntegrationSpec struct {
 
 	// External AWS CloudWatch Metrics integration Logs configuration values
 	ExternalAWSCloudwatchMetricsUserConfig *externalawscloudwatchmetricsuserconfig.ExternalAwsCloudwatchMetricsUserConfig `json:"externalAWSCloudwatchMetrics,omitempty"`
-
-	// Authentication reference to Aiven token in a secret
-	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // ServiceIntegrationStatus defines the observed state of ServiceIntegration

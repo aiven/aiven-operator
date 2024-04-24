@@ -7,8 +7,10 @@ import (
 )
 
 // ProjectSpec defines the desired state of Project
-// +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."
 type ProjectSpec struct {
+	AuthSecretRefField `json:",inline"`
+	SecretFields       `json:",inline"`
+
 	// +kubebuilder:validation:MaxLength=64
 	// Credit card ID; The ID may be either last 4 digits of the card or the actual ID
 	CardID string `json:"cardId,omitempty"`
@@ -55,19 +57,8 @@ type ProjectSpec struct {
 	// Technical contact emails of the project
 	TechnicalEmails []string `json:"technicalEmails,omitempty"`
 
-	// Information regarding secret creation.
-	// Exposed keys: `PROJECT_CA_CERT`
-	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
-
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="connInfoSecretTargetDisabled is immutable."
-	// When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
-	ConnInfoSecretTargetDisabled *bool `json:"connInfoSecretTargetDisabled,omitempty"`
-
 	// Tags are key-value pairs that allow you to categorize projects
 	Tags map[string]string `json:"tags,omitempty"`
-
-	// Authentication reference to Aiven token in a secret
-	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
 }
 
 // ProjectStatus defines the observed state of Project
@@ -94,7 +85,8 @@ type ProjectStatus struct {
 
 // +kubebuilder:object:root=true
 
-// Project is the Schema for the projects API
+// Project is the Schema for the projects API.
+// Info "Exposes secret keys": `PROJECT_CA_CERT`
 // +kubebuilder:subresource:status
 type Project struct {
 	metav1.TypeMeta   `json:",inline"`

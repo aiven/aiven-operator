@@ -61,7 +61,7 @@ func (a *kafkaConnectAdapter) getServiceStatus() *v1alpha1.ServiceStatus {
 }
 
 func (a *kafkaConnectAdapter) getServiceCommonSpec() *v1alpha1.ServiceCommonSpec {
-	return &a.Spec.ServiceCommonSpec
+	return &v1alpha1.ServiceCommonSpec{BaseServiceFields: a.Spec.BaseServiceFields}
 }
 
 func (a *kafkaConnectAdapter) getUserConfig() any {

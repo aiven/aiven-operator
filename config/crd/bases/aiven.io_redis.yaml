@@ -18,7 +18,9 @@ spec:
     - name: v1alpha1
       schema:
         openAPIV3Schema:
-          description: Redis is the Schema for the redis API
+          description:
+            'Redis is the Schema for the redis API. Info "Exposes secret
+            keys": `REDIS_HOST`, `REDIS_PORT`, `REDIS_USER`, `REDIS_PASSWORD`, `REDIS_CA_CERT`'
           properties:
             apiVersion:
               description:
@@ -55,9 +57,7 @@ spec:
                   maxLength: 256
                   type: string
                 connInfoSecretTarget:
-                  description:
-                    "Information regarding secret creation. Exposed keys:
-                    `REDIS_HOST`, `REDIS_PORT`, `REDIS_USER`, `REDIS_PASSWORD`, `REDIS_CA_CERT`"
+                  description: Secret configuration.
                   properties:
                     annotations:
                       additionalProperties:

@@ -10,10 +10,7 @@ import (
 
 // KafkaConnectSpec defines the desired state of KafkaConnect
 type KafkaConnectSpec struct {
-	ServiceCommonSpec `json:",inline"`
-
-	// Authentication reference to Aiven token in a secret
-	AuthSecretRef *AuthSecretReference `json:"authSecretRef,omitempty"`
+	BaseServiceFields `json:",inline"`
 
 	// KafkaConnect specific user configuration options
 	UserConfig *kafkaconnectuserconfig.KafkaConnectUserConfig `json:"userConfig,omitempty"`
