@@ -23,4 +23,5 @@ resources:
   - _v1alpha1_clickhousedatabase.yaml
   - _v1alpha1_kafkaschemaregistryacl.yaml
   - _v1alpha1_clickhouserole.yaml
+  - _v1alpha1_serviceintegrationendpoint.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

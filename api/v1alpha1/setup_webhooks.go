@@ -40,6 +40,9 @@ func SetupWebhooks(mgr ctrl.Manager) error {
 	if err := (&ServiceIntegration{}).SetupWebhookWithManager(mgr); err != nil {
 		return fmt.Errorf("webhook ServiceIntegration: %w", err)
 	}
+	if err := (&ServiceIntegrationEndpoint{}).SetupWebhookWithManager(mgr); err != nil {
+		return fmt.Errorf("webhook ServiceIntegrationEndpoint: %w", err)
+	}
 	if err := (&KafkaConnector{}).SetupWebhookWithManager(mgr); err != nil {
 		return fmt.Errorf("webhook KafkaConnector: %w", err)
 	}

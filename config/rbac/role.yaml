@@ -615,6 +615,34 @@ rules:
   - apiGroups:
       - aiven.io
     resources:
+      - serviceintegrationendpoints
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - serviceintegrationendpoints/finalizers
+    verbs:
+      - create
+      - get
+      - update
+  - apiGroups:
+      - aiven.io
+    resources:
+      - serviceintegrationendpoints/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - aiven.io
+    resources:
       - serviceintegrations
     verbs:
       - create

@@ -371,6 +371,26 @@ webhooks:
       service:
         name: webhook-service
         namespace: system
+        path: /mutate-aiven-io-v1alpha1-serviceintegrationendpoint
+    failurePolicy: Fail
+    name: mserviceintegrationendpoint.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - serviceintegrationendpoints
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
         path: /mutate-aiven-io-v1alpha1-serviceuser
     failurePolicy: Fail
     name: mserviceuser.kb.io
@@ -765,6 +785,26 @@ webhooks:
           - UPDATE
         resources:
           - serviceintegrations
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: system
+        path: /validate-aiven-io-v1alpha1-serviceintegrationendpoint
+    failurePolicy: Fail
+    name: vserviceintegrationendpoint.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - serviceintegrationendpoints
     sideEffects: None
   - admissionReviewVersions:
       - v1

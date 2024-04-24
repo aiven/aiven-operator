@@ -46,6 +46,7 @@ func SetupControllers(mgr ctrl.Manager, defaultToken, kubeVersion, operatorVersi
 		"ProjectVPC":                       newProjectVPCReconciler,
 		"Redis":                            newRedisReconciler,
 		"ServiceIntegration":               newServiceIntegrationReconciler,
+		"ServiceIntegrationEndpoint":       newServiceIntegrationEndpointReconciler,
 		"ServiceUser":                      newServiceUserReconciler,
 	}
 
