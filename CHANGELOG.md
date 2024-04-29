@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Change `Kafka` field `userConfig.kafka_version`: enum ~~`[3.4, 3.5, 3.6]`~~ → `[3.4, 3.5, 3.6, 3.7]`
+
 ## v0.19.0 - 2024-04-18
 
 - Add kind: `ClickhouseRole`
