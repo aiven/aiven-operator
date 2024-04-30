@@ -13,11 +13,6 @@ updates:
         applies-to: security-updates
         patterns:
           - "*"
-    ignore:
-      # Remove this when Trunk uses v19 for Commitlint
-      - dependency-name: wagoid/commitlint-github-action
-        update-types:
-          - version-update:semver-major
   - package-ecosystem: gomod
     directory: /
     schedule:
