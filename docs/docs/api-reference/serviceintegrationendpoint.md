@@ -2,6 +2,30 @@
 title: "ServiceIntegrationEndpoint"
 ---
 
+## Usage example
+
+```yaml
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegrationEndpoint
+metadata:
+  name: my-endpoint
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  endpointName: my-endpoint
+  endpointType: external_postgresql
+
+  externalPostgresql:
+    username: username
+    password: password
+    host: host
+    port: 5432
+    ssl_mode: disable
+```
+
 ## ServiceIntegrationEndpoint {: #ServiceIntegrationEndpoint }
 
 ServiceIntegrationEndpoint is the Schema for the serviceintegrationendpoints API.
