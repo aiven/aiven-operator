@@ -1,0 +1,112 @@
+package tests
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
+)
+
+func getServiceIntegrationEndpointYaml(project, endpointPgName, endpointRegistryName string) string {
+	return fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegrationEndpoint
+metadata:
+  name: %[2]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  endpointName: %[2]s
+  endpointType: external_postgresql
+
+  externalPostgresql:
+    username: admin_username
+    password: admin_password
+    host: example.example
+    port: 5432
+    ssl_mode: disable
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegrationEndpoint
+metadata:
+  name: %[3]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  endpointName: %[3]s
+  endpointType: external_schema_registry
+
+  externalSchemaRegistry:
+    url: https://schema-registry.example.com:8081
+    authentication: basic
+    basic_auth_username: username
+    basic_auth_password: password
+`, project, endpointPgName, endpointRegistryName)
+}
+
+func TestServiceIntegrationEndpoint(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	// GIVEN
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	endpointPgName := randName("postgresql")
+	endpointRegistryName := randName("schema-registry")
+
+	yml := getServiceIntegrationEndpointYaml(cfg.Project, endpointPgName, endpointRegistryName)
+	s := NewSession(ctx, k8sClient, cfg.Project)
+
+	// Cleans test afterward
+	defer s.Destroy()
+
+	// WHEN
+	// Applies given manifest
+	require.NoError(t, s.Apply(yml))
+
+	// THEN
+
+	// Validates ServiceIntegrationEndpoint externalPostgresql
+	endpointPg := new(v1alpha1.ServiceIntegrationEndpoint)
+	require.NoError(t, s.GetRunning(endpointPg, endpointPgName))
+	endpointPgAvn, err := avnGen.ServiceIntegrationEndpointGet(ctx, cfg.Project, endpointPg.Status.ID)
+	require.NoError(t, err)
+	assert.Equal(t, "external_postgresql", string(endpointPgAvn.EndpointType))
+	assert.Equal(t, "admin_username", endpointPg.Spec.ExternalPostgresql.Username)
+	assert.Equal(t, "admin_password", *endpointPg.Spec.ExternalPostgresql.Password)
+	assert.Equal(t, "example.example", endpointPg.Spec.ExternalPostgresql.Host)
+	assert.Equal(t, 5432, endpointPg.Spec.ExternalPostgresql.Port)
+	assert.EqualValues(t, endpointPgAvn.EndpointType, endpointPg.Spec.EndpointType)
+	assert.EqualValues(t, endpointPgAvn.UserConfig["username"], endpointPg.Spec.ExternalPostgresql.Username)
+	assert.EqualValues(t, endpointPgAvn.UserConfig["password"], *endpointPg.Spec.ExternalPostgresql.Password)
+	assert.EqualValues(t, endpointPgAvn.UserConfig["host"], endpointPg.Spec.ExternalPostgresql.Host)
+	assert.EqualValues(t, endpointPgAvn.UserConfig["port"], endpointPg.Spec.ExternalPostgresql.Port)
+
+	// Validates ServiceIntegrationEndpoint externalSchemaRegistry
+	endpointRegistry := new(v1alpha1.ServiceIntegrationEndpoint)
+	require.NoError(t, s.GetRunning(endpointRegistry, endpointRegistryName))
+	endpointRegistryAvn, err := avnGen.ServiceIntegrationEndpointGet(ctx, cfg.Project, endpointRegistry.Status.ID)
+	require.NoError(t, err)
+	assert.Equal(t, "external_schema_registry", string(endpointRegistryAvn.EndpointType))
+	assert.Equal(t, "https://schema-registry.example.com:8081", endpointRegistry.Spec.ExternalSchemaRegistry.Url)
+	assert.Equal(t, "basic", endpointRegistry.Spec.ExternalSchemaRegistry.Authentication)
+	assert.EqualValues(t, "username", *endpointRegistry.Spec.ExternalSchemaRegistry.BasicAuthUsername)
+	assert.EqualValues(t, "password", *endpointRegistry.Spec.ExternalSchemaRegistry.BasicAuthPassword)
+	assert.EqualValues(t, endpointRegistryAvn.EndpointType, endpointRegistry.Spec.EndpointType)
+	assert.EqualValues(t, endpointRegistryAvn.UserConfig["url"], endpointRegistry.Spec.ExternalSchemaRegistry.Url)
+	assert.EqualValues(t, endpointRegistryAvn.UserConfig["authentication"], endpointRegistry.Spec.ExternalSchemaRegistry.Authentication)
+	assert.EqualValues(t, endpointRegistryAvn.UserConfig["basic_auth_username"], *endpointRegistry.Spec.ExternalSchemaRegistry.BasicAuthUsername)
+	assert.EqualValues(t, endpointRegistryAvn.UserConfig["basic_auth_password"], *endpointRegistry.Spec.ExternalSchemaRegistry.BasicAuthPassword)
+}

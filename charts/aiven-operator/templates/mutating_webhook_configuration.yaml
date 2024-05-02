@@ -375,6 +375,26 @@ webhooks:
       service:
         name: {{ include "aiven-operator.fullname" . }}-webhook-service
         namespace: {{ include "aiven-operator.namespace" . }}
+        path: /mutate-aiven-io-v1alpha1-serviceintegrationendpoint
+    failurePolicy: Fail
+    name: mserviceintegrationendpoint.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - serviceintegrationendpoints
+    sideEffects: None
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
         path: /mutate-aiven-io-v1alpha1-serviceuser
     failurePolicy: Fail
     name: mserviceuser.kb.io

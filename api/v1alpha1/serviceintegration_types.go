@@ -127,8 +127,8 @@ func (in *ServiceIntegration) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
-func (in *ServiceIntegration) GetUserConfig() (any, error) {
-	configs := map[string]any{
+func (in *ServiceIntegration) getUserConfigFields() map[string]any {
+	return map[string]any{
 		"clickhouse_kafka":                in.Spec.ClickhouseKafkaUserConfig,
 		"clickhouse_postgresql":           in.Spec.ClickhousePostgreSQLUserConfig,
 		"datadog":                         in.Spec.DatadogUserConfig,
@@ -139,7 +139,15 @@ func (in *ServiceIntegration) GetUserConfig() (any, error) {
 		"logs":                            in.Spec.LogsUserConfig,
 		"metrics":                         in.Spec.MetricsUserConfig,
 	}
+}
 
+func (in *ServiceIntegration) HasUserConfig() bool {
+	_, ok := in.getUserConfigFields()[in.Spec.IntegrationType]
+	return ok
+}
+
+func (in *ServiceIntegration) GetUserConfig() (any, error) {
+	configs := in.getUserConfigFields()
 	thisType := in.Spec.IntegrationType
 
 	// Checks if it is the only configuration set

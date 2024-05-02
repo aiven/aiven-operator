@@ -1,0 +1,27 @@
+# permissions for end users to view serviceintegrationendpoints.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: serviceintegrationendpoint-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: aiven-operator
+    app.kubernetes.io/part-of: aiven-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: serviceintegrationendpoint-viewer-role
+rules:
+  - apiGroups:
+      - aiven.io
+    resources:
+      - serviceintegrationendpoints
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - serviceintegrationendpoints/status
+    verbs:
+      - get
