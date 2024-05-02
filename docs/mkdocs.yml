@@ -108,4 +108,5 @@ nav:
       - api-reference/projectvpc.md
       - api-reference/redis.md
       - api-reference/serviceintegration.md
+      - api-reference/serviceintegrationendpoint.md
       - api-reference/serviceuser.md
