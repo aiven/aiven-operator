@@ -1,0 +1,52 @@
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: my-service-integration
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  integrationType: clickhouse_postgresql
+  sourceServiceName: my-pg
+  destinationServiceName: my-clickhouse
+
+  clickhousePostgresql:
+    databases:
+      - database: defaultdb
+        schema: public
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: Clickhouse
+metadata:
+  name: my-clickhouse
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  cloudName: google-europe-west1
+  plan: startup-16
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: my-pg
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  cloudName: google-europe-west1
+  plan: startup-4
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00

@@ -4,34 +4,35 @@ title: "PostgreSQL"
 
 ## Usage example
 
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: PostgreSQL
-metadata:
-  name: my-postgresql
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  connInfoSecretTarget:
-    name: postgresql-secret
-    prefix: MY_SECRET_PREFIX_
-    annotations:
-      foo: bar
-    labels:
-      baz: egg
-
-  project: aiven-project-name
-  cloudName: google-europe-west1
-  plan: startup-4
-
-  maintenanceWindowDow: sunday
-  maintenanceWindowTime: 11:00:00
-
-  userConfig:
-    pg_version: "15"
-```
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: PostgreSQL
+    metadata:
+      name: my-postgresql
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      connInfoSecretTarget:
+        name: postgresql-secret
+        prefix: MY_SECRET_PREFIX_
+        annotations:
+          foo: bar
+        labels:
+          baz: egg
+    
+      project: aiven-project-name
+      cloudName: google-europe-west1
+      plan: startup-4
+    
+      maintenanceWindowDow: sunday
+      maintenanceWindowTime: 11:00:00
+    
+      userConfig:
+        pg_version: "15"
+    ```
 
 ## PostgreSQL {: #PostgreSQL }
 

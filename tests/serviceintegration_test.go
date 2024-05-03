@@ -12,66 +12,6 @@ import (
 	datadoguserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/datadog"
 )
 
-func getClickhousePostgreSQLYaml(project, chName, pgName, siName, cloudName string) string {
-	return fmt.Sprintf(`
-apiVersion: aiven.io/v1alpha1
-kind: Clickhouse
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[5]s
-  plan: startup-16
-  maintenanceWindowDow: friday
-  maintenanceWindowTime: 23:00:00
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: PostgreSQL
-metadata:
-  name: %[3]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[5]s
-  plan: startup-4
-  maintenanceWindowDow: friday
-  maintenanceWindowTime: 23:00:00
-
-  userConfig:
-    pg_version: "15"
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: ServiceIntegration
-metadata:
-  name: %[4]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  integrationType: clickhouse_postgresql
-  sourceServiceName: %[3]s
-  destinationServiceName: %[2]s
-
-  clickhousePostgresql:
-    databases:
-      - database: defaultdb
-        schema: public
-`, project, chName, pgName, siName, cloudName)
-}
-
 func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
@@ -80,11 +20,18 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	chName := randName("clickhouse-postgresql")
-	pgName := randName("clickhouse-postgresql")
+	chName := randName("clickhouse")
+	pgName := randName("postgresql")
 	siName := randName("clickhouse-postgresql")
 
-	yml := getClickhousePostgreSQLYaml(cfg.Project, chName, pgName, siName, cfg.PrimaryCloudName)
+	yml, err := loadExampleYaml("serviceintegration.clickhouse_postgresql.yaml", map[string]string{
+		"aiven-project-name":     cfg.Project,
+		"google-europe-west1":    cfg.PrimaryCloudName,
+		"my-pg":                  pgName,
+		"my-clickhouse":          chName,
+		"my-service-integration": siName,
+	})
+	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
@@ -137,58 +84,6 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	assert.True(t, siAvn.Enabled)
 }
 
-func getKafkaLogsYaml(project, ksName, ktName, siName, cloudName string) string {
-	return fmt.Sprintf(`
-apiVersion: aiven.io/v1alpha1
-kind: Kafka
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[5]s
-  plan: business-4
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: KafkaTopic
-metadata:
-  name: %[3]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  serviceName: %[2]s
-  replication: 2
-  partitions: 1
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: ServiceIntegration
-metadata:
-  name: %[4]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  integrationType: kafka_logs
-  sourceServiceName: %[2]s
-  destinationServiceName: %[2]s
-
-  kafkaLogs:
-    kafka_topic: %[3]s
-`, project, ksName, ktName, siName, cloudName)
-}
-
 func TestServiceIntegrationKafkaLogs(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
@@ -201,7 +96,14 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 	ktName := randName("kafka-logs")
 	siName := randName("kafka-logs")
 
-	yml := getKafkaLogsYaml(cfg.Project, ksName, ktName, siName, cfg.PrimaryCloudName)
+	yml, err := loadExampleYaml("serviceintegration.kafka_logs.yaml", map[string]string{
+		"aiven-project-name":     cfg.Project,
+		"google-europe-west1":    cfg.PrimaryCloudName,
+		"my-kafka":               ksName,
+		"my-kafka-topic":         ktName,
+		"my-service-integration": siName,
+	})
+	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
@@ -251,66 +153,6 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 	assert.Equal(t, ktName, si.Spec.KafkaLogsUserConfig.KafkaTopic)
 }
 
-func getSIKafkaConnectYaml(project, ksName, kcName, siName, cloudName string) string {
-	return fmt.Sprintf(`
-apiVersion: aiven.io/v1alpha1
-kind: Kafka
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[5]s
-  plan: business-4
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: KafkaConnect
-metadata:
-  name: %[3]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[5]s
-  plan: business-4
-
-  userConfig:
-    kafka_connect:
-      consumer_isolation_level: read_committed
-    public_access:
-      kafka_connect: true
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: ServiceIntegration
-metadata:
-  name: %[4]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  integrationType: kafka_connect
-  sourceServiceName: %[2]s
-  destinationServiceName: %[3]s
-
-  kafkaConnect:
-    kafka_connect:
-      group_id: "connect"
-      status_storage_topic: "__connect_status"
-      offset_storage_topic: "__connect_offsets"
-`, project, ksName, kcName, siName, cloudName)
-}
-
 func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
@@ -323,7 +165,14 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	kcName := randName("kafka-connect")
 	siName := randName("kafka-connect")
 
-	yml := getSIKafkaConnectYaml(cfg.Project, ksName, kcName, siName, cfg.PrimaryCloudName)
+	yml, err := loadExampleYaml("serviceintegration.kafka_connect.yaml", map[string]string{
+		"aiven-project-name":     cfg.Project,
+		"google-europe-west1":    cfg.PrimaryCloudName,
+		"my-kafka":               ksName,
+		"my-kafka-connect":       kcName,
+		"my-service-integration": siName,
+	})
+	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
@@ -377,45 +226,6 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	assert.Equal(t, "__connect_offsets", *si.Spec.KafkaConnectUserConfig.KafkaConnect.OffsetStorageTopic)
 }
 
-func getDatadogYaml(project, pgName, siName, endpointID, cloudName string) string {
-	return fmt.Sprintf(`
-apiVersion: aiven.io/v1alpha1
-kind: PostgreSQL
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[5]s
-  plan: startup-4
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: ServiceIntegration
-metadata:
-  name: %[3]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  integrationType: datadog
-  sourceServiceName: %[2]s
-  destinationEndpointId: %s
-
-  datadog:
-    datadog_dbm_enabled: True
-    datadog_tags:
-      - tag: env
-        comment: test
-`, project, pgName, siName, endpointID, cloudName)
-}
-
 // todo: refactor when ServiceIntegrationEndpoint released
 func TestServiceIntegrationDatadog(t *testing.T) {
 	t.Parallel()
@@ -433,7 +243,14 @@ func TestServiceIntegrationDatadog(t *testing.T) {
 	pgName := randName("datadog")
 	siName := randName("datadog")
 
-	yml := getDatadogYaml(cfg.Project, pgName, siName, endpointID, cfg.PrimaryCloudName)
+	yml, err := loadExampleYaml("serviceintegration.datadog.yaml", map[string]string{
+		"aiven-project-name":      cfg.Project,
+		"google-europe-west1":     cfg.PrimaryCloudName,
+		"my-pg":                   pgName,
+		"my-service-integration":  siName,
+		"destination-endpoint-id": endpointID,
+	})
+	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward

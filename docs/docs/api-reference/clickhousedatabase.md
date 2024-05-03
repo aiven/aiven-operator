@@ -4,19 +4,20 @@ title: "ClickhouseDatabase"
 
 ## Usage example
 
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: ClickhouseDatabase
-metadata:
-  name: my-db
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: aiven-project-name
-  serviceName: my-clickhouse
-```
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: ClickhouseDatabase
+    metadata:
+      name: my-db
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      serviceName: my-clickhouse
+    ```
 
 ## ClickhouseDatabase {: #ClickhouseDatabase }
 

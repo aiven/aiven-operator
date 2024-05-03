@@ -4,35 +4,36 @@ title: "KafkaSchema"
 
 ## Usage example
 
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: KafkaSchema
-metadata:
-  name: my-schema
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: my-aiven-project
-  serviceName: my-kafka
-  subjectName: mny-subject
-  compatibilityLevel: BACKWARD
-  schema: |
-    {
-        "doc": "example_doc",
-        "fields": [{
-            "default": 5,
-            "doc": "field_doc",
-            "name": "field_name",
-            "namespace": "field_namespace",
-            "type": "int"
-        }],
-        "name": "example_name",
-        "namespace": "example_namespace",
-        "type": "record"
-    }
-```
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: KafkaSchema
+    metadata:
+      name: my-schema
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: my-aiven-project
+      serviceName: my-kafka
+      subjectName: mny-subject
+      compatibilityLevel: BACKWARD
+      schema: |
+        {
+            "doc": "example_doc",
+            "fields": [{
+                "default": 5,
+                "doc": "field_doc",
+                "name": "field_name",
+                "namespace": "field_namespace",
+                "type": "int"
+            }],
+            "name": "example_name",
+            "namespace": "example_namespace",
+            "type": "record"
+        }
+    ```
 
 ## KafkaSchema {: #KafkaSchema }
 

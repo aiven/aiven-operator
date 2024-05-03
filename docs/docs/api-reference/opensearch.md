@@ -4,32 +4,33 @@ title: "OpenSearch"
 
 ## Usage example
 
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: OpenSearch
-metadata:
-  name: my-os
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  connInfoSecretTarget:
-    name: os-secret
-    prefix: MY_SECRET_PREFIX_
-    annotations:
-      foo: bar
-    labels:
-      baz: egg
-
-  project: my-aiven-project
-  cloudName: google-europe-west1
-  plan: startup-4
-  disk_space: 80Gib
-
-  maintenanceWindowDow: friday
-  maintenanceWindowTime: 23:00:00
-```
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: OpenSearch
+    metadata:
+      name: my-os
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      connInfoSecretTarget:
+        name: os-secret
+        prefix: MY_SECRET_PREFIX_
+        annotations:
+          foo: bar
+        labels:
+          baz: egg
+    
+      project: my-aiven-project
+      cloudName: google-europe-west1
+      plan: startup-4
+      disk_space: 80Gib
+    
+      maintenanceWindowDow: friday
+      maintenanceWindowTime: 23:00:00
+    ```
 
 ## OpenSearch {: #OpenSearch }
 

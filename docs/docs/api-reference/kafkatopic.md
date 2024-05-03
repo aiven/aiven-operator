@@ -4,26 +4,27 @@ title: "KafkaTopic"
 
 ## Usage example
 
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: KafkaTopic
-metadata:
-  name: kafka-topic
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: my-aiven-project
-  serviceName: my-kafka
-  topicName: my-kafka-topic
-
-  replication: 2
-  partitions: 1
-
-  config:
-    min_cleanable_dirty_ratio: 0.2
-```
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: KafkaTopic
+    metadata:
+      name: kafka-topic
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: my-aiven-project
+      serviceName: my-kafka
+      topicName: my-kafka-topic
+    
+      replication: 2
+      partitions: 1
+    
+      config:
+        min_cleanable_dirty_ratio: 0.2
+    ```
 
 ## KafkaTopic {: #KafkaTopic }
 

@@ -1,19 +1,19 @@
 apiVersion: aiven.io/v1alpha1
 kind: ServiceIntegrationEndpoint
 metadata:
-  name: my-endpoint
+  name: my-service-integration-endpoint
 spec:
   authSecretRef:
     name: aiven-token
     key: token
 
   project: aiven-project-name
-  endpointName: my-endpoint
+  endpointName: my-external-postgresql
   endpointType: external_postgresql
 
   externalPostgresql:
     username: username
     password: password
-    host: host
+    host: example.example
     port: 5432
     ssl_mode: disable

@@ -4,27 +4,28 @@ title: "ClickhouseUser"
 
 ## Usage example
 
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: ClickhouseUser
-metadata:
-  name: my-clickhouse-user
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  connInfoSecretTarget:
-    name: clickhouse-user-secret
-    prefix: MY_SECRET_PREFIX_
-    annotations:
-      foo: bar
-    labels:
-      baz: egg
-
-  project: my-aiven-project
-  serviceName: my-clickhouse
-```
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: ClickhouseUser
+    metadata:
+      name: my-clickhouse-user
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      connInfoSecretTarget:
+        name: clickhouse-user-secret
+        prefix: MY_SECRET_PREFIX_
+        annotations:
+          foo: bar
+        labels:
+          baz: egg
+    
+      project: my-aiven-project
+      serviceName: my-clickhouse
+    ```
 
 ## ClickhouseUser {: #ClickhouseUser }
 

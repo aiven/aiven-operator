@@ -4,39 +4,40 @@ title: "MySQL"
 
 ## Usage example
 
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: MySQL
-metadata:
-  name: my-mysql
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  connInfoSecretTarget:
-    name: mysql-secret
-    prefix: MY_SECRET_PREFIX_
-    annotations:
-      foo: bar
-    labels:
-      baz: egg
-
-  project: my-aiven-project
-  cloudName: google-europe-west1
-  plan: business-4
-
-  maintenanceWindowDow: sunday
-  maintenanceWindowTime: 11:00:00
-
-  userConfig:
-    backup_hour: 17
-    backup_minute: 11
-    ip_filter:
-      - network: 0.0.0.0
-        description: whatever
-      - network: 10.20.0.0/16
-```
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: MySQL
+    metadata:
+      name: my-mysql
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      connInfoSecretTarget:
+        name: mysql-secret
+        prefix: MY_SECRET_PREFIX_
+        annotations:
+          foo: bar
+        labels:
+          baz: egg
+    
+      project: my-aiven-project
+      cloudName: google-europe-west1
+      plan: business-4
+    
+      maintenanceWindowDow: sunday
+      maintenanceWindowTime: 11:00:00
+    
+      userConfig:
+        backup_hour: 17
+        backup_minute: 11
+        ip_filter:
+          - network: 0.0.0.0
+            description: whatever
+          - network: 10.20.0.0/16
+    ```
 
 ## MySQL {: #MySQL }
 

@@ -3,8 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"os"
-	"path"
 	"regexp"
 	"sort"
 	"strings"
@@ -25,14 +23,9 @@ const (
 var reEmptyLines = regexp.MustCompile(`\n{2,}`)
 
 // parseSchema creates documentation out of CRD
-func parseSchema(srcFile, examplesDir string) (*schemaType, error) {
-	crdData, err := os.ReadFile(srcFile)
-	if err != nil {
-		return nil, err
-	}
-
+func parseSchema(crdData []byte) (*schemaType, error) {
 	var crd crdType
-	err = yaml.Unmarshal(crdData, &crd)
+	err := yaml.Unmarshal(crdData, &crd)
 	if err != nil {
 		return nil, err
 	}
@@ -56,20 +49,6 @@ func parseSchema(srcFile, examplesDir string) (*schemaType, error) {
 	// Status is a meta field, brings nothing important to docs
 	delete(kind.Properties, "status")
 	kind.init()
-
-	// Adds usage example
-	// Mkdocs can embed files, but we use docker, we can include files only within the dir
-	// So if they are moved out elsewhere, this will be broken
-	// Ignores errors, because does "not exist" is not a problem
-	examplePath := path.Join(examplesDir, strings.ToLower(kind.Kind+".yaml"))
-	exampleData, _ := os.ReadFile(examplePath)
-	if exampleData != nil {
-		err = validateYAML(crdData, exampleData)
-		if err != nil {
-			return nil, err
-		}
-		kind.UsageExample = string(exampleData)
-	}
 
 	return kind, nil
 }
@@ -105,6 +84,10 @@ type crdType struct {
 	} `yaml:"spec"`
 }
 
+type usageExample struct {
+	Title, Value string
+}
+
 type schemaInternal struct {
 	// Internal
 	parent     *schemaType   // parent line
@@ -113,11 +96,11 @@ type schemaInternal struct {
 	level      int // For header level
 
 	// Meta data for rendering
-	Kind         string // CRD Kind
-	Name         string // field name
-	Version      string // API version, like v1alpha
-	Group        string // API group, like aiven.io
-	UsageExample string
+	Kind          string // CRD Kind
+	Name          string // field name
+	Version       string // API version, like v1alpha
+	Group         string // API group, like aiven.io
+	UsageExamples []usageExample
 }
 
 type schemaType struct {
@@ -336,26 +319,33 @@ func (s *schemaType) GetDef() string {
 	return strings.Join(chunks, ", ")
 }
 
-func (s *schemaType) GetUsageExample() string {
-	if s.UsageExample == "" {
-		return ""
-	}
-	return fmt.Sprintf("```yaml\n%s\n```", strings.TrimSpace(s.UsageExample))
-}
+var reIndent = regexp.MustCompile("(?m)^")
 
 var templateFuncs = template.FuncMap{
-	// Returns a seq of a given size
-	"seq": func(i int) []int { return make([]int, i) },
+	"indent": func(i int, src string) string {
+		return reIndent.ReplaceAllString(src, strings.Repeat(" ", i))
+	},
+	"backtick": func(i int) string {
+		return strings.Repeat("`", i)
+	},
+	"add": func(x, y int) int {
+		return x + y
+	},
 }
 
-var schemaTemplate = `---
+const schemaTemplate = `---
 title: "{{ .Kind }}"
 ---
 
-{{ if .GetUsageExample }}
-## Usage example
+{{ if .UsageExamples }}
+## Usage example{{ if ne (len .UsageExamples) 1 }}s{{ end }}
 
-{{ .GetUsageExample }}
+{{ range .UsageExamples }}
+??? example {{ if .Title }}"{{ .Title }}"{{ end }}
+    {{ backtick 3 }}yaml
+{{ .Value | indent 4 }}
+    {{ backtick 3 }}
+{{ end }}
 {{ end }}
 
 {{- template "renderSchema" . -}}
