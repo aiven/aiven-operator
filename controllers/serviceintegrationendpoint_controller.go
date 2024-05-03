@@ -130,11 +130,11 @@ func (h ServiceIntegrationEndpointHandler) delete(ctx context.Context, avn *aive
 	}
 
 	if si.Status.ID == "" {
-		return false, nil
+		return true, nil
 	}
 
 	err = avnGen.ServiceIntegrationEndpointDelete(ctx, si.Spec.Project, si.Status.ID)
-	if err != nil && avngen.IsNotFound(err) {
+	if avngen.OmitNotFound(err) != nil {
 		return false, fmt.Errorf("aiven client delete service integration endpoint error: %w", err)
 	}
 
