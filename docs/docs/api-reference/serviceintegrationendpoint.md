@@ -45,7 +45,7 @@ ServiceIntegrationEndpointSpec defines the desired state of ServiceIntegrationEn
 
 **Required**
 
-- [`endpointType`](#spec.endpointType-property){: name='spec.endpointType-property'} (string, Enum: `autoscaler`, `datadog`, `external_aws_cloudwatch_logs`, `external_aws_cloudwatch_metrics`, `external_aws_s3`, `external_clickhouse`, `external_elasticsearch_logs`, `external_google_cloud_bigquery`, `external_google_cloud_logging`, `external_kafka`, `external_mysql`, `external_opensearch_logs`, `external_postgresql`, `external_redis`, `external_schema_registry`, `jolokia`, `prometheus`, `rsyslog`, Immutable). Type of the service integration endpoint.
+- [`endpointType`](#spec.endpointType-property){: name='spec.endpointType-property'} (string, Enum: `autoscaler`, `datadog`, `external_aws_cloudwatch_logs`, `external_aws_cloudwatch_metrics`, `external_aws_s3`, `external_clickhouse`, `external_elasticsearch_logs`, `external_google_cloud_bigquery`, `external_google_cloud_logging`, `external_kafka`, `external_mysql`, `external_opensearch_logs`, `external_postgresql`, `external_redis`, `external_schema_registry`, `external_sumologic_logs`, `jolokia`, `prometheus`, `rsyslog`, Immutable). Type of the service integration endpoint.
 - [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63, Format: `^[a-zA-Z0-9_-]+$`). Identifies the project this resource belongs to.
 
 **Optional**

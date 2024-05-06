@@ -156,6 +156,7 @@ spec:
                     - external_postgresql
                     - external_redis
                     - external_schema_registry
+                    - external_sumologic_logs
                     - jolokia
                     - prometheus
                     - rsyslog

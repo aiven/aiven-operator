@@ -408,6 +408,7 @@ spec:
                     - external_opensearch_logs
                     - flink
                     - flink_external_kafka
+                    - flink_external_postgresql
                     - internal_connectivity
                     - jolokia
                     - kafka_connect
