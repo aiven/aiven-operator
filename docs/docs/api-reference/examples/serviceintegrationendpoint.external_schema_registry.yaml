@@ -1,0 +1,18 @@
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegrationEndpoint
+metadata:
+  name: my-service-integration-endpoint
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  endpointName: my-external-schema-registry
+  endpointType: external_schema_registry
+
+  externalSchemaRegistry:
+    url: https://schema-registry.example.com:8081
+    authentication: basic
+    basic_auth_username: username
+    basic_auth_password: password

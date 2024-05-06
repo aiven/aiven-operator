@@ -1,0 +1,47 @@
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: my-service-integration
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  integrationType: kafka_logs
+  sourceServiceName: my-kafka
+  destinationServiceName: my-kafka
+
+  kafkaLogs:
+    kafka_topic: my-kafka-topic
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: Kafka
+metadata:
+  name: my-kafka
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  cloudName: google-europe-west1
+  plan: business-4
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: KafkaTopic
+metadata:
+  name: my-kafka-topic
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  serviceName: my-kafka
+  replication: 2
+  partitions: 1

@@ -19,6 +19,7 @@ markdown_extensions:
         - docs/.snippets
   - pymdownx.tilde
   - pymdownx.details
+  - pymdownx.magiclink
   - tables
   - admonition
   - attr_list

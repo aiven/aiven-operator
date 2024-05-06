@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,52 +9,7 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getServiceIntegrationEndpointYaml(project, endpointPgName, endpointRegistryName string) string {
-	return fmt.Sprintf(`
-apiVersion: aiven.io/v1alpha1
-kind: ServiceIntegrationEndpoint
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  endpointName: %[2]s
-  endpointType: external_postgresql
-
-  externalPostgresql:
-    username: admin_username
-    password: admin_password
-    host: example.example
-    port: 5432
-    ssl_mode: disable
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: ServiceIntegrationEndpoint
-metadata:
-  name: %[3]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  endpointName: %[3]s
-  endpointType: external_schema_registry
-
-  externalSchemaRegistry:
-    url: https://schema-registry.example.com:8081
-    authentication: basic
-    basic_auth_username: username
-    basic_auth_password: password
-`, project, endpointPgName, endpointRegistryName)
-}
-
-func TestServiceIntegrationEndpoint(t *testing.T) {
+func TestServiceIntegrationEndpointExternalPostgres(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
 
@@ -64,9 +18,12 @@ func TestServiceIntegrationEndpoint(t *testing.T) {
 	defer cancel()
 
 	endpointPgName := randName("postgresql")
-	endpointRegistryName := randName("schema-registry")
 
-	yml := getServiceIntegrationEndpointYaml(cfg.Project, endpointPgName, endpointRegistryName)
+	yml, err := loadExampleYaml("serviceintegrationendpoint.external_postgresql.yaml", map[string]string{
+		"aiven-project-name":              cfg.Project,
+		"my-service-integration-endpoint": endpointPgName,
+	})
+	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
@@ -84,8 +41,8 @@ func TestServiceIntegrationEndpoint(t *testing.T) {
 	endpointPgAvn, err := avnGen.ServiceIntegrationEndpointGet(ctx, cfg.Project, endpointPg.Status.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "external_postgresql", string(endpointPgAvn.EndpointType))
-	assert.Equal(t, "admin_username", endpointPg.Spec.ExternalPostgresql.Username)
-	assert.Equal(t, "admin_password", *endpointPg.Spec.ExternalPostgresql.Password)
+	assert.Equal(t, "username", endpointPg.Spec.ExternalPostgresql.Username)
+	assert.Equal(t, "password", *endpointPg.Spec.ExternalPostgresql.Password)
 	assert.Equal(t, "example.example", endpointPg.Spec.ExternalPostgresql.Host)
 	assert.Equal(t, 5432, endpointPg.Spec.ExternalPostgresql.Port)
 	assert.EqualValues(t, endpointPgAvn.EndpointType, endpointPg.Spec.EndpointType)
@@ -93,6 +50,33 @@ func TestServiceIntegrationEndpoint(t *testing.T) {
 	assert.EqualValues(t, endpointPgAvn.UserConfig["password"], *endpointPg.Spec.ExternalPostgresql.Password)
 	assert.EqualValues(t, endpointPgAvn.UserConfig["host"], endpointPg.Spec.ExternalPostgresql.Host)
 	assert.EqualValues(t, endpointPgAvn.UserConfig["port"], endpointPg.Spec.ExternalPostgresql.Port)
+}
+
+func TestServiceIntegrationEndpoint(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	// GIVEN
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	endpointRegistryName := randName("schema-registry")
+
+	yml, err := loadExampleYaml("serviceintegrationendpoint.external_schema_registry.yaml", map[string]string{
+		"aiven-project-name":              cfg.Project,
+		"my-service-integration-endpoint": endpointRegistryName,
+	})
+	require.NoError(t, err)
+	s := NewSession(ctx, k8sClient, cfg.Project)
+
+	// Cleans test afterward
+	defer s.Destroy()
+
+	// WHEN
+	// Applies given manifest
+	require.NoError(t, s.Apply(yml))
+
+	// THEN
 
 	// Validates ServiceIntegrationEndpoint externalSchemaRegistry
 	endpointRegistry := new(v1alpha1.ServiceIntegrationEndpoint)

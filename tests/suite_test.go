@@ -5,13 +5,17 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
 	"runtime/debug"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/kelseyhightower/envconfig"
+	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/discovery"
@@ -186,4 +190,33 @@ func recoverPanic(t *testing.T) {
 
 func testCtx() (context.Context, func()) {
 	return context.WithTimeout(context.Background(), cfg.TestCaseTimeout)
+}
+
+const examplesDirPath = "../docs/docs/api-reference/examples"
+
+// loadExampleYaml loads kube manifest from example dir by given name.
+// Replaces k with v from the given kv map.
+func loadExampleYaml(name string, kv map[string]string) (string, error) {
+	filePath := path.Join(examplesDirPath, name)
+	file, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", err
+	}
+
+	// Must sort keys in reverse order, so
+	// foo-kafka won't affect foo-kafka-topic
+	keys := maps.Keys(kv)
+	slices.SortFunc(keys, func(a, b string) int {
+		return len(b) - len(a)
+	})
+
+	src := string(file)
+	for _, k := range keys {
+		if !strings.Contains(src, k) {
+			return "", fmt.Errorf("key %q not found in the example %q", k, filePath)
+		}
+		src = strings.ReplaceAll(src, k, kv[k])
+	}
+
+	return src, nil
 }

@@ -4,39 +4,40 @@ title: "Grafana"
 
 ## Usage example
 
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: Grafana
-metadata:
-  name: my-grafana
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  connInfoSecretTarget:
-    name: grafana-secret
-    prefix: MY_SECRET_PREFIX_
-    annotations:
-      foo: bar
-    labels:
-      baz: egg
-
-  project: my-aiven-project
-  cloudName: google-europe-west1
-  plan: startup-1
-
-  maintenanceWindowDow: sunday
-  maintenanceWindowTime: 11:00:00
-
-  userConfig:
-    public_access:
-      grafana: true
-    ip_filter:
-      - network: 0.0.0.0
-        description: whatever
-      - network: 10.20.0.0/16
-```
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: Grafana
+    metadata:
+      name: my-grafana
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      connInfoSecretTarget:
+        name: grafana-secret
+        prefix: MY_SECRET_PREFIX_
+        annotations:
+          foo: bar
+        labels:
+          baz: egg
+    
+      project: my-aiven-project
+      cloudName: google-europe-west1
+      plan: startup-1
+    
+      maintenanceWindowDow: sunday
+      maintenanceWindowTime: 11:00:00
+    
+      userConfig:
+        public_access:
+          grafana: true
+        ip_filter:
+          - network: 0.0.0.0
+            description: whatever
+          - network: 10.20.0.0/16
+    ```
 
 ## Grafana {: #Grafana }
 

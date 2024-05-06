@@ -4,31 +4,32 @@ title: "Kafka"
 
 ## Usage example
 
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: Kafka
-metadata:
-  name: my-kafka
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  connInfoSecretTarget:
-    name: kafka-secret
-    prefix: MY_SECRET_PREFIX_
-    annotations:
-      foo: bar
-    labels:
-      baz: egg
-
-  project: my-aiven-project
-  cloudName: google-europe-west1
-  plan: startup-2
-
-  maintenanceWindowDow: friday
-  maintenanceWindowTime: 23:00:00
-```
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: Kafka
+    metadata:
+      name: my-kafka
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      connInfoSecretTarget:
+        name: kafka-secret
+        prefix: MY_SECRET_PREFIX_
+        annotations:
+          foo: bar
+        labels:
+          baz: egg
+    
+      project: my-aiven-project
+      cloudName: google-europe-west1
+      plan: startup-2
+    
+      maintenanceWindowDow: friday
+      maintenanceWindowTime: 23:00:00
+    ```
 
 ## Kafka {: #Kafka }
 

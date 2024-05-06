@@ -4,20 +4,21 @@ title: "ClickhouseRole"
 
 ## Usage example
 
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: ClickhouseRole
-metadata:
-  name: my-role
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: my-aiven-project
-  serviceName: my-clickhouse
-  role: my_role
-```
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: ClickhouseRole
+    metadata:
+      name: my-role
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: my-aiven-project
+      serviceName: my-clickhouse
+      role: my_role
+    ```
 
 ## ClickhouseRole {: #ClickhouseRole }
 

@@ -4,31 +4,32 @@ title: "ConnectionPool"
 
 ## Usage example
 
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: ConnectionPool
-metadata:
-  name: my-connection-pool
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  connInfoSecretTarget:
-    name: connection-pool-secret
-    prefix: MY_SECRET_PREFIX_
-    annotations:
-      foo: bar
-    labels:
-      baz: egg
-
-  project: aiven-project-name
-  serviceName: my-service
-  databaseName: my-db
-  username: my-user
-  poolMode: transaction
-  poolSize: 25
-```
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: ConnectionPool
+    metadata:
+      name: my-connection-pool
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      connInfoSecretTarget:
+        name: connection-pool-secret
+        prefix: MY_SECRET_PREFIX_
+        annotations:
+          foo: bar
+        labels:
+          baz: egg
+    
+      project: aiven-project-name
+      serviceName: my-service
+      databaseName: my-db
+      username: my-user
+      poolMode: transaction
+      poolSize: 25
+    ```
 
 ## ConnectionPool {: #ConnectionPool }
 

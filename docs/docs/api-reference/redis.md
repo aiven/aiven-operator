@@ -4,34 +4,35 @@ title: "Redis"
 
 ## Usage example
 
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: Redis
-metadata:
-  name: k8s-redis
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  connInfoSecretTarget:
-    name: redis-token
-    prefix: MY_SECRET_PREFIX_
-    annotations:
-      foo: bar
-    labels:
-      baz: egg
-
-  project: my-aiven-project
-  cloudName: google-europe-west1
-  plan: startup-4
-
-  maintenanceWindowDow: friday
-  maintenanceWindowTime: 23:00:00
-
-  userConfig:
-    redis_maxmemory_policy: allkeys-random
-```
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: Redis
+    metadata:
+      name: k8s-redis
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      connInfoSecretTarget:
+        name: redis-token
+        prefix: MY_SECRET_PREFIX_
+        annotations:
+          foo: bar
+        labels:
+          baz: egg
+    
+      project: my-aiven-project
+      cloudName: google-europe-west1
+      plan: startup-4
+    
+      maintenanceWindowDow: friday
+      maintenanceWindowTime: 23:00:00
+    
+      userConfig:
+        redis_maxmemory_policy: allkeys-random
+    ```
 
 ## Redis {: #Redis }
 

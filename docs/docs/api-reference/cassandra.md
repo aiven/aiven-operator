@@ -4,40 +4,41 @@ title: "Cassandra"
 
 ## Usage example
 
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: Cassandra
-metadata:
-  name: my-cassandra
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  connInfoSecretTarget:
-    name: cassandra-secret
-    prefix: MY_SECRET_PREFIX_
-    annotations:
-      foo: bar
-    labels:
-      baz: egg
-
-  project: aiven-project-name
-  cloudName: google-europe-west1
-  plan: startup-4
-
-  maintenanceWindowDow: sunday
-  maintenanceWindowTime: 11:00:00
-
-  userConfig:
-    migrate_sstableloader: true
-    public_access:
-      prometheus: true
-    ip_filter:
-      - network: 0.0.0.0
-        description: whatever
-      - network: 10.20.0.0/16
-```
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: Cassandra
+    metadata:
+      name: my-cassandra
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      connInfoSecretTarget:
+        name: cassandra-secret
+        prefix: MY_SECRET_PREFIX_
+        annotations:
+          foo: bar
+        labels:
+          baz: egg
+    
+      project: aiven-project-name
+      cloudName: google-europe-west1
+      plan: startup-4
+    
+      maintenanceWindowDow: sunday
+      maintenanceWindowTime: 11:00:00
+    
+      userConfig:
+        migrate_sstableloader: true
+        public_access:
+          prometheus: true
+        ip_filter:
+          - network: 0.0.0.0
+            description: whatever
+          - network: 10.20.0.0/16
+    ```
 
 ## Cassandra {: #Cassandra }
 

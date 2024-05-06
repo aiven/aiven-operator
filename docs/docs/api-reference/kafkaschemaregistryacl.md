@@ -4,22 +4,23 @@ title: "KafkaSchemaRegistryACL"
 
 ## Usage example
 
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: KafkaSchemaRegistryACL
-metadata:
-  name: my-kafka-schema-registry-acl
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: aiven-project-name
-  serviceName: my-kafka
-  resource: Subject:my-topic
-  username: my-user
-  permission: schema_registry_read
-```
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: KafkaSchemaRegistryACL
+    metadata:
+      name: my-kafka-schema-registry-acl
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      serviceName: my-kafka
+      resource: Subject:my-topic
+      username: my-user
+      permission: schema_registry_read
+    ```
 
 ## KafkaSchemaRegistryACL {: #KafkaSchemaRegistryACL }
 

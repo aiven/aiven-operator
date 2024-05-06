@@ -2,29 +2,52 @@
 title: "ServiceIntegrationEndpoint"
 ---
 
-## Usage example
+## Usage examples
 
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: ServiceIntegrationEndpoint
-metadata:
-  name: my-endpoint
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
+??? example "external_postgresql"
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: ServiceIntegrationEndpoint
+    metadata:
+      name: my-service-integration-endpoint
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      endpointName: my-external-postgresql
+      endpointType: external_postgresql
+    
+      externalPostgresql:
+        username: username
+        password: password
+        host: example.example
+        port: 5432
+        ssl_mode: disable
+    ```
 
-  project: aiven-project-name
-  endpointName: my-endpoint
-  endpointType: external_postgresql
-
-  externalPostgresql:
-    username: username
-    password: password
-    host: host
-    port: 5432
-    ssl_mode: disable
-```
+??? example "external_schema_registry"
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: ServiceIntegrationEndpoint
+    metadata:
+      name: my-service-integration-endpoint
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      endpointName: my-external-schema-registry
+      endpointType: external_schema_registry
+    
+      externalSchemaRegistry:
+        url: https://schema-registry.example.com:8081
+        authentication: basic
+        basic_auth_username: username
+        basic_auth_password: password
+    ```
 
 ## ServiceIntegrationEndpoint {: #ServiceIntegrationEndpoint }
 

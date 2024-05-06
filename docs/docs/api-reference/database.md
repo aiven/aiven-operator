@@ -4,22 +4,23 @@ title: "Database"
 
 ## Usage example
 
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: Database
-metadata:
-  name: my-db
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: aiven-project-name
-  serviceName: my-service
-
-  lcCtype: en_US.UTF-8
-  lcCollate: en_US.UTF-8
-```
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: Database
+    metadata:
+      name: my-db
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      serviceName: my-service
+    
+      lcCtype: en_US.UTF-8
+      lcCollate: en_US.UTF-8
+    ```
 
 ## Database {: #Database }
 

@@ -2,27 +2,211 @@
 title: "ServiceIntegration"
 ---
 
-## Usage example
+## Usage examples
 
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: ServiceIntegration
-metadata:
-  name: my-service-integration
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
+??? example "clickhouse_postgresql"
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: ServiceIntegration
+    metadata:
+      name: my-service-integration
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      integrationType: clickhouse_postgresql
+      sourceServiceName: my-pg
+      destinationServiceName: my-clickhouse
+    
+      clickhousePostgresql:
+        databases:
+          - database: defaultdb
+            schema: public
+    
+    ---
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: Clickhouse
+    metadata:
+      name: my-clickhouse
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      cloudName: google-europe-west1
+      plan: startup-16
+      maintenanceWindowDow: friday
+      maintenanceWindowTime: 23:00:00
+    
+    ---
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: PostgreSQL
+    metadata:
+      name: my-pg
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      cloudName: google-europe-west1
+      plan: startup-4
+      maintenanceWindowDow: friday
+      maintenanceWindowTime: 23:00:00
+    ```
 
-  project: aiven-project-name
+??? example "datadog"
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: ServiceIntegration
+    metadata:
+      name: my-service-integration
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      integrationType: datadog
+      sourceServiceName: my-pg
+      destinationEndpointId: destination-endpoint-id
+    
+      datadog:
+        datadog_dbm_enabled: True
+        datadog_tags:
+          - tag: env
+            comment: test
+    
+    ---
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: PostgreSQL
+    metadata:
+      name: my-pg
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      cloudName: google-europe-west1
+      plan: startup-4
+    ```
 
-  integrationType: kafka_logs
-  sourceServiceName: my-source-service-name
-  destinationServiceName: my-destination-service-name
+??? example "kafka_connect"
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: ServiceIntegration
+    metadata:
+      name: my-service-integration
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      integrationType: kafka_connect
+      sourceServiceName: my-kafka
+      destinationServiceName: my-kafka-connect
+    
+      kafkaConnect:
+        kafka_connect:
+          group_id: connect
+          status_storage_topic: __connect_status
+          offset_storage_topic: __connect_offsets
+    
+    ---
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: Kafka
+    metadata:
+      name: my-kafka
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      cloudName: google-europe-west1
+      plan: business-4
+    
+    ---
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: KafkaConnect
+    metadata:
+      name: my-kafka-connect
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      cloudName: google-europe-west1
+      plan: business-4
+    
+      userConfig:
+        kafka_connect:
+          consumer_isolation_level: read_committed
+        public_access:
+          kafka_connect: true
+    ```
 
-  kafkaLogs:
-    kafka_topic: my-kafka-topic
-```
+??? example "kafka_logs"
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: ServiceIntegration
+    metadata:
+      name: my-service-integration
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      integrationType: kafka_logs
+      sourceServiceName: my-kafka
+      destinationServiceName: my-kafka
+    
+      kafkaLogs:
+        kafka_topic: my-kafka-topic
+    
+    ---
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: Kafka
+    metadata:
+      name: my-kafka
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      cloudName: google-europe-west1
+      plan: business-4
+    
+    ---
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: KafkaTopic
+    metadata:
+      name: my-kafka-topic
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      serviceName: my-kafka
+      replication: 2
+      partitions: 1
+    ```
 
 ## ServiceIntegration {: #ServiceIntegration }
 

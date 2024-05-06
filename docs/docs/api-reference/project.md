@@ -4,30 +4,31 @@ title: "Project"
 
 ## Usage example
 
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: Project
-metadata:
-  name: my-project
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  connInfoSecretTarget:
-    name: project-secret
-    prefix: MY_SECRET_PREFIX_
-    annotations:
-      foo: bar
-    labels:
-      baz: egg
-
-  tags:
-    env: prod
-
-  billingAddress: NYC
-  cloud: aws-eu-west-1
-```
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: Project
+    metadata:
+      name: my-project
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      connInfoSecretTarget:
+        name: project-secret
+        prefix: MY_SECRET_PREFIX_
+        annotations:
+          foo: bar
+        labels:
+          baz: egg
+    
+      tags:
+        env: prod
+    
+      billingAddress: NYC
+      cloud: aws-eu-west-1
+    ```
 
 ## Project {: #Project }
 
