@@ -40,7 +40,7 @@ Redis is the Schema for the redis API.
 
 !!! Info "Exposes secret keys"
 
-    `REDIS_HOST`, `REDIS_PORT`, `REDIS_USER`, `REDIS_PASSWORD`, `REDIS_CA_CERT`.
+    `REDIS_HOST`, `REDIS_PORT`, `REDIS_USER`, `REDIS_PASSWORD`.
 
 **Required**
 

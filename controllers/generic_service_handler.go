@@ -193,6 +193,12 @@ func (h *genericServiceHandler) get(ctx context.Context, avn *aiven.Client, avnG
 			return secret, err
 		}
 
+		// Redis shouldn't expose CA_CERT
+		// It can't be used to connect to redis
+		if o.getServiceType() == "redis" {
+			return secret, nil
+		}
+
 		cert, err := avnGen.ProjectKmsGetCA(ctx, spec.Project)
 		if err != nil {
 			return nil, fmt.Errorf("cannot retrieve project CA certificate: %w", err)

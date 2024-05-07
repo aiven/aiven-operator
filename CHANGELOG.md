@@ -6,6 +6,7 @@
 - Fix `ServiceIntegration` deletion when instance has no id set
 - Change `Kafka` field `userConfig.kafka_version`: enum ~~`[3.4, 3.5, 3.6]`~~ → `[3.4, 3.5, 3.6, 3.7]`
 - Add `ServiceIntegration` `flink_external_postgresql` type
+- Remove `REDIS_CA_CERT` secret key. Can't be used with the service type
 
 ## v0.19.0 - 2024-04-18
 

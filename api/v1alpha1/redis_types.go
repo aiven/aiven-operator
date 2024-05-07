@@ -20,7 +20,7 @@ type RedisSpec struct {
 //+kubebuilder:subresource:status
 
 // Redis is the Schema for the redis API.
-// Info "Exposes secret keys": `REDIS_HOST`, `REDIS_PORT`, `REDIS_USER`, `REDIS_PASSWORD`, `REDIS_CA_CERT`
+// Info "Exposes secret keys": `REDIS_HOST`, `REDIS_PORT`, `REDIS_USER`, `REDIS_PASSWORD`
 // +kubebuilder:subresource:status
 type Redis struct {
 	metav1.TypeMeta   `json:",inline"`
