@@ -193,9 +193,10 @@ func (h *genericServiceHandler) get(ctx context.Context, avn *aiven.Client, avnG
 			return secret, err
 		}
 
-		// Redis shouldn't expose CA_CERT
-		// It can't be used to connect to redis
-		if o.getServiceType() == "redis" {
+		switch o.getServiceType() {
+		case "kafka", "pg", "mysql", "cassandra":
+			// CA_CERT can be used with these service types only
+		default:
 			return secret, nil
 		}
 

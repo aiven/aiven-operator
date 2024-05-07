@@ -19,7 +19,7 @@ type GrafanaSpec struct {
 }
 
 // Grafana is the Schema for the grafanas API.
-// Info "Exposes secret keys": `GRAFANA_HOST`, `GRAFANA_PORT`, `GRAFANA_USER`, `GRAFANA_PASSWORD`, `GRAFANA_URI`, `GRAFANA_HOSTS`, `GRAFANA_CA_CERT`
+// Info "Exposes secret keys": `GRAFANA_HOST`, `GRAFANA_PORT`, `GRAFANA_USER`, `GRAFANA_PASSWORD`, `GRAFANA_URI`, `GRAFANA_HOSTS`
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"

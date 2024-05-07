@@ -20,7 +20,7 @@ type OpenSearchSpec struct {
 //+kubebuilder:subresource:status
 
 // OpenSearch is the Schema for the opensearches API.
-// Info "Exposes secret keys": `OPENSEARCH_HOST`, `OPENSEARCH_PORT`, `OPENSEARCH_USER`, `OPENSEARCH_PASSWORD`, `OPENSEARCH_CA_CERT`
+// Info "Exposes secret keys": `OPENSEARCH_HOST`, `OPENSEARCH_PORT`, `OPENSEARCH_USER`, `OPENSEARCH_PASSWORD`
 type OpenSearch struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
