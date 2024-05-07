@@ -20,7 +20,7 @@ spec:
         openAPIV3Schema:
           description:
             'Redis is the Schema for the redis API. Info "Exposes secret
-            keys": `REDIS_HOST`, `REDIS_PORT`, `REDIS_USER`, `REDIS_PASSWORD`, `REDIS_CA_CERT`'
+            keys": `REDIS_HOST`, `REDIS_PORT`, `REDIS_USER`, `REDIS_PASSWORD`'
           properties:
             apiVersion:
               description:
