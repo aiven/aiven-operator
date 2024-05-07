@@ -33,6 +33,7 @@ const (
 	retryInterval      = time.Second * 10
 	createTimeout      = time.Second * 15
 	waitRunningTimeout = time.Minute * 20
+	deleteTimeout      = time.Minute * 5
 	yamlBufferSize     = 100
 	defaultNamespace   = "default"
 )
@@ -200,7 +201,9 @@ func (s *session) delete(o client.Object) error {
 
 	// Delete operation doesn't share the context,
 	// because it shouldn't leave artifacts
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), deleteTimeout)
+	defer cancel()
+
 	err := s.k8s.Delete(ctx, o)
 	if err != nil {
 		return fmt.Errorf("kubernetes error: %w", err)
