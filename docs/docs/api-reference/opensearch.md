@@ -38,7 +38,7 @@ OpenSearch is the Schema for the opensearches API.
 
 !!! Info "Exposes secret keys"
 
-    `OPENSEARCH_HOST`, `OPENSEARCH_PORT`, `OPENSEARCH_USER`, `OPENSEARCH_PASSWORD`, `OPENSEARCH_CA_CERT`.
+    `OPENSEARCH_HOST`, `OPENSEARCH_PORT`, `OPENSEARCH_USER`, `OPENSEARCH_PASSWORD`.
 
 **Required**
 

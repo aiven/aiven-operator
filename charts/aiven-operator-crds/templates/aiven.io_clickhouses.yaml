@@ -20,8 +20,7 @@ spec:
         openAPIV3Schema:
           description:
             'Clickhouse is the Schema for the clickhouses API. Info "Exposes
-            secret keys": `CLICKHOUSE_HOST`, `CLICKHOUSE_PORT`, `CLICKHOUSE_USER`, `CLICKHOUSE_PASSWORD`,
-            `CLICKHOUSE_CA_CERT`'
+            secret keys": `CLICKHOUSE_HOST`, `CLICKHOUSE_PORT`, `CLICKHOUSE_USER`, `CLICKHOUSE_PASSWORD`'
           properties:
             apiVersion:
               description:

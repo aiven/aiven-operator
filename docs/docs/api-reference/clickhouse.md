@@ -37,7 +37,7 @@ Clickhouse is the Schema for the clickhouses API.
 
 !!! Info "Exposes secret keys"
 
-    `CLICKHOUSE_HOST`, `CLICKHOUSE_PORT`, `CLICKHOUSE_USER`, `CLICKHOUSE_PASSWORD`, `CLICKHOUSE_CA_CERT`.
+    `CLICKHOUSE_HOST`, `CLICKHOUSE_PORT`, `CLICKHOUSE_USER`, `CLICKHOUSE_PASSWORD`.
 
 **Required**
 
