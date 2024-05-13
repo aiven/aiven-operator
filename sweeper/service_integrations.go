@@ -23,7 +23,8 @@ func (sweeper *serviceIntegrationEndpointsSweeper) Sweep(ctx context.Context, pr
 	}
 
 	for _, s := range endpoints {
-		if err := sweeper.client.ServiceIntegrationEndpointDelete(ctx, projectName, s.EndpointId); avngen.OmitNotFound(err) != nil {
+		err := sweeper.client.ServiceIntegrationEndpointDelete(ctx, projectName, s.EndpointId)
+		if err != nil && !avngen.IsNotFound(err) {
 			return fmt.Errorf("error deleting service integration endpoint %q: %w", s.EndpointName, err)
 		}
 	}

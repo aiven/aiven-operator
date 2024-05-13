@@ -43,7 +43,8 @@ func (sweeper *servicesSweeper) Sweep(ctx context.Context, projectName string) e
 			}
 		}
 
-		if err := sweeper.client.ServiceDelete(ctx, projectName, s.ServiceName); avngen.OmitNotFound(err) != nil {
+		err := sweeper.client.ServiceDelete(ctx, projectName, s.ServiceName)
+		if err != nil && !avngen.IsNotFound(err) {
 			return fmt.Errorf("error deleting service %s: %w", s.ServiceName, err)
 		}
 	}
