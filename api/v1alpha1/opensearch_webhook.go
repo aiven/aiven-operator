@@ -43,15 +43,6 @@ func (in *OpenSearch) ValidateCreate() error {
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (in *OpenSearch) ValidateUpdate(old runtime.Object) error {
 	opensearchlog.Info("validate update", "name", in.Name)
-
-	if in.Spec.Project != old.(*OpenSearch).Spec.Project {
-		return errors.New("cannot update a OpenSearch service, project field is immutable and cannot be updated")
-	}
-
-	if in.Spec.ConnInfoSecretTarget.Name != old.(*OpenSearch).Spec.ConnInfoSecretTarget.Name {
-		return errors.New("cannot update a OpenSearch service, connInfoSecretTarget.name field is immutable and cannot be updated")
-	}
-
 	return in.Spec.Validate()
 }
 

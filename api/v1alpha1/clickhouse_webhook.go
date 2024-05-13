@@ -43,15 +43,6 @@ func (in *Clickhouse) ValidateCreate() error {
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (in *Clickhouse) ValidateUpdate(old runtime.Object) error {
 	clickhouselog.Info("validate update", "name", in.Name)
-
-	if in.Spec.Project != old.(*Clickhouse).Spec.Project {
-		return errors.New("cannot update a Clickhouse service, project field is immutable and cannot be updated")
-	}
-
-	if in.Spec.ConnInfoSecretTarget.Name != old.(*Clickhouse).Spec.ConnInfoSecretTarget.Name {
-		return errors.New("cannot update a Clickhouse service, connInfoSecretTarget.name field is immutable and cannot be updated")
-	}
-
 	return in.Spec.Validate()
 }
 

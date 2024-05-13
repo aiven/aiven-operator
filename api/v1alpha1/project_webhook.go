@@ -45,19 +45,6 @@ func (in *Project) ValidateCreate() error {
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (in *Project) ValidateUpdate(old runtime.Object) error {
 	projectlog.Info("validate update", "name", in.Name)
-
-	if in.Spec.CopyFromProject != old.(*Project).Spec.CopyFromProject {
-		return errors.New("'copyFromProject' can only be set during creation of a project")
-	}
-
-	if in.Spec.ConnInfoSecretTarget.Name != old.(*Project).Spec.ConnInfoSecretTarget.Name {
-		return errors.New("cannot update a Project, connInfoSecretTarget.name field is immutable and cannot be updated")
-	}
-
-	if in.Spec.BillingGroupID != old.(*Project).Spec.BillingGroupID {
-		return errors.New("'billingGroupId' can only be set during creation of a project")
-	}
-
 	return nil
 }
 

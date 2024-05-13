@@ -43,15 +43,6 @@ func (in *Kafka) ValidateCreate() error {
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (in *Kafka) ValidateUpdate(old runtime.Object) error {
 	kafkalog.Info("validate update", "name", in.Name)
-
-	if in.Spec.Project != old.(*Kafka).Spec.Project {
-		return errors.New("cannot update a Kafka service, project field is immutable and cannot be updated")
-	}
-
-	if in.Spec.ConnInfoSecretTarget.Name != old.(*Kafka).Spec.ConnInfoSecretTarget.Name {
-		return errors.New("cannot update a Kafka service, connInfoSecretTarget.name field is immutable and cannot be updated")
-	}
-
 	return in.Spec.Validate()
 }
 

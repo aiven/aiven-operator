@@ -3,8 +3,6 @@
 package v1alpha1
 
 import (
-	"errors"
-
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -47,19 +45,6 @@ func (in *ConnectionPool) ValidateCreate() error {
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (in *ConnectionPool) ValidateUpdate(old runtime.Object) error {
 	connectionpoollog.Info("validate update", "name", in.Name)
-
-	if in.Spec.Project != old.(*ConnectionPool).Spec.Project {
-		return errors.New("cannot update a ConnectionPool, project field is immutable and cannot be updated")
-	}
-
-	if in.Spec.ServiceName != old.(*ConnectionPool).Spec.ServiceName {
-		return errors.New("cannot update a ConnectionPool, serviceName field is immutable and cannot be updated")
-	}
-
-	if in.Spec.ConnInfoSecretTarget.Name != old.(*ConnectionPool).Spec.ConnInfoSecretTarget.Name {
-		return errors.New("cannot update a ConnectionPool, connInfoSecretTarget.name field is immutable and cannot be updated")
-	}
-
 	return nil
 }
 

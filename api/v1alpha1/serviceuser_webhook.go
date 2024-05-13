@@ -3,8 +3,6 @@
 package v1alpha1
 
 import (
-	"errors"
-
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -43,19 +41,6 @@ func (in *ServiceUser) ValidateCreate() error {
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (in *ServiceUser) ValidateUpdate(old runtime.Object) error {
 	serviceuserlog.Info("validate update", "name", in.Name)
-
-	if in.Spec.Project != old.(*ServiceUser).Spec.Project {
-		return errors.New("cannot update a Service User, project field is immutable and cannot be updated")
-	}
-
-	if in.Spec.ServiceName != old.(*ServiceUser).Spec.ServiceName {
-		return errors.New("cannot update a Service User, serviceName field is immutable and cannot be updated")
-	}
-
-	if in.Spec.ConnInfoSecretTarget.Name != old.(*ServiceUser).Spec.ConnInfoSecretTarget.Name {
-		return errors.New("cannot update a ServiceUser, connInfoSecretTarget.name field is immutable and cannot be updated")
-	}
-
 	return nil
 }
 

@@ -35,21 +35,12 @@ var _ webhook.Validator = &Cassandra{}
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (in *Cassandra) ValidateCreate() error {
 	cassandralog.Info("validate create", "name", in.Name)
-
 	return in.Spec.Validate()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (in *Cassandra) ValidateUpdate(old runtime.Object) error {
 	cassandralog.Info("validate update", "name", in.Name)
-
-	if in.Spec.Project != old.(*Cassandra).Spec.Project {
-		return errors.New("cannot update a Cassandra service, project field is immutable and cannot be updated")
-	}
-
-	if in.Spec.ConnInfoSecretTarget.Name != old.(*Cassandra).Spec.ConnInfoSecretTarget.Name {
-		return errors.New("cannot update a Cassandra service, connInfoSecretTarget.name field is immutable and cannot be updated")
-	}
 
 	return in.Spec.Validate()
 }

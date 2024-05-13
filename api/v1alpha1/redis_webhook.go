@@ -43,15 +43,6 @@ func (in *Redis) ValidateCreate() error {
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (in *Redis) ValidateUpdate(old runtime.Object) error {
 	redislog.Info("validate update", "name", in.Name)
-
-	if in.Spec.Project != old.(*Redis).Spec.Project {
-		return errors.New("cannot update a Redis service, project field is immutable and cannot be updated")
-	}
-
-	if in.Spec.ConnInfoSecretTarget.Name != old.(*Redis).Spec.ConnInfoSecretTarget.Name {
-		return errors.New("cannot update a Redis service, connInfoSecretTarget.name field is immutable and cannot be updated")
-	}
-
 	return in.Spec.Validate()
 }
 
