@@ -7,6 +7,7 @@
 - Change `Kafka` field `userConfig.kafka_version`: enum ~~`[3.4, 3.5, 3.6]`~~ → `[3.4, 3.5, 3.6, 3.7]`
 - Add `ServiceIntegration` `flink_external_postgresql` type
 - Remove `CA_CERT` secret key for `Grafana`, `OpenSearch`, `Redis`, and `Clickhouse`. Can't be used with these service types
+- Fix `ConnectionPool` doesn't check service user precondition
 
 ## v0.19.0 - 2024-04-18
 

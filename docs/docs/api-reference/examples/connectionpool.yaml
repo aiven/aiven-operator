@@ -7,17 +7,52 @@ spec:
     name: aiven-token
     key: token
 
-  connInfoSecretTarget:
-    name: connection-pool-secret
-    prefix: MY_SECRET_PREFIX_
-    annotations:
-      foo: bar
-    labels:
-      baz: egg
-
   project: aiven-project-name
-  serviceName: my-service
-  databaseName: my-db
-  username: my-user
+  serviceName: my-pg
+  databaseName: my-database
+  username: my-service-user
   poolMode: transaction
   poolSize: 25
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: my-pg
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  cloudName: google-europe-west1
+  plan: startup-4
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: Database
+metadata:
+  name: my-database
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  serviceName: my-pg
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUser
+metadata:
+  name: my-service-user
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  serviceName: my-pg
