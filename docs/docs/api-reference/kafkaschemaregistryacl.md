@@ -42,9 +42,9 @@ KafkaSchemaRegistryACLSpec defines the desired state of KafkaSchemaRegistryACL.
 **Required**
 
 - [`permission`](#spec.permission-property){: name='spec.permission-property'} (string, Enum: `schema_registry_read`, `schema_registry_write`, Immutable).
-- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63, Format: `^[a-zA-Z0-9_-]+$`). Identifies the project this resource belongs to.
+- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, Pattern: `^[a-zA-Z0-9_-]+$`, MaxLength: 63). Identifies the project this resource belongs to.
 - [`resource`](#spec.resource-property){: name='spec.resource-property'} (string, Immutable, MaxLength: 249). Resource name pattern for the Schema Registry ACL entry.
-- [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, Immutable, MaxLength: 63, Format: `^[a-z][-a-z0-9]+$`). Specifies the name of the service that this resource belongs to.
+- [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]+$`, MaxLength: 63). Specifies the name of the service that this resource belongs to.
 - [`username`](#spec.username-property){: name='spec.username-property'} (string, Immutable, MaxLength: 64). Username pattern for the ACL entry.
 
 **Optional**

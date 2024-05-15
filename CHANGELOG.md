@@ -9,6 +9,8 @@
 - Remove `CA_CERT` secret key for `Grafana`, `OpenSearch`, `Redis`, and `Clickhouse`. Can't be used with these service types
 - Fix `ConnectionPool` doesn't check service user precondition
 - Move immutable fields validation from webhooks to CRD validation rules
+- Fix service types `disk_space` field validation
+- Fix resources `project`, `serviceName` fields validation
 
 ## v0.19.0 - 2024-04-18
 

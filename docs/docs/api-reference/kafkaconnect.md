@@ -46,7 +46,7 @@ KafkaConnectSpec defines the desired state of KafkaConnect.
 **Required**
 
 - [`plan`](#spec.plan-property){: name='spec.plan-property'} (string, MaxLength: 128). Subscription plan.
-- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63, Format: `^[a-zA-Z0-9_-]+$`). Identifies the project this resource belongs to.
+- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, Pattern: `^[a-zA-Z0-9_-]+$`, MaxLength: 63). Identifies the project this resource belongs to.
 
 **Optional**
 
@@ -106,7 +106,7 @@ Defines the email addresses that will receive alerts about upcoming maintenance 
 
 **Required**
 
-- [`email`](#spec.technicalEmails.email-property){: name='spec.technicalEmails.email-property'} (string, Format: `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`). Email address.
+- [`email`](#spec.technicalEmails.email-property){: name='spec.technicalEmails.email-property'} (string). Email address.
 
 ## userConfig {: #spec.userConfig }
 

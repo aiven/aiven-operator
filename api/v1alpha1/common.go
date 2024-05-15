@@ -49,14 +49,14 @@ type ServiceStatus struct {
 }
 
 type ServiceTechEmail struct {
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+	// +kubebuilder:validation:Pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
 	// Email address.
 	Email string `json:"email"`
 }
 
 type ProjectField struct {
 	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]+$"
+	// +kubebuilder:validation:Pattern="^[a-zA-Z0-9_-]+$"
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Identifies the project this resource belongs to
 	Project string `json:"project"`
@@ -64,7 +64,7 @@ type ProjectField struct {
 
 type ServiceField struct {
 	// +kubebuilder:validation:MaxLength=63
-	// +kubebuilder:validation:Format="^[a-z][-a-z0-9]+$"
+	// +kubebuilder:validation:Pattern="^[a-z][-a-z0-9]+$"
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Specifies the name of the service that this resource belongs to
 	ServiceName string `json:"serviceName"`
@@ -158,8 +158,10 @@ type ServiceCommonSpec struct {
 	BaseServiceFields `json:",inline"`
 	SecretFields      `json:",inline"`
 
-	// +kubebuilder:validation:Format="^[1-9][0-9]*(GiB|G)*"
-	// The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.
+	// +kubebuilder:validation:Pattern="^[1-9][0-9]*(GiB|G)?$"
+	// The disk space of the service, possible values depend on the service type, the cloud provider and the project.
+	// Reducing will result in the service re-balancing.
+	// The removal of this field does not change the value.
 	DiskSpace string `json:"disk_space,omitempty"`
 }
 

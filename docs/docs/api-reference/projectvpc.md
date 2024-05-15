@@ -41,7 +41,7 @@ ProjectVPCSpec defines the desired state of ProjectVPC.
 
 - [`cloudName`](#spec.cloudName-property){: name='spec.cloudName-property'} (string, Immutable, MaxLength: 256). Cloud the VPC is in.
 - [`networkCidr`](#spec.networkCidr-property){: name='spec.networkCidr-property'} (string, Immutable, MaxLength: 36). Network address range used by the VPC like 192.168.0.0/24.
-- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63, Format: `^[a-zA-Z0-9_-]+$`). Identifies the project this resource belongs to.
+- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, Pattern: `^[a-zA-Z0-9_-]+$`, MaxLength: 63). Identifies the project this resource belongs to.
 
 **Optional**
 

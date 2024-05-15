@@ -14,7 +14,7 @@ spec:
 
   cloudName: google-europe-west1
   plan: startup-4
-  disk_space: 80Gib
+  disk_space: 80GiB
 
   maintenanceWindowDow: friday
   maintenanceWindowTime: 23:00:00
