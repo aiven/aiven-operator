@@ -42,8 +42,8 @@ KafkaACLSpec defines the desired state of KafkaACL.
 **Required**
 
 - [`permission`](#spec.permission-property){: name='spec.permission-property'} (string, Enum: `admin`, `read`, `readwrite`, `write`). Kafka permission to grant (admin, read, readwrite, write).
-- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63, Format: `^[a-zA-Z0-9_-]+$`). Identifies the project this resource belongs to.
-- [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, Immutable, MaxLength: 63, Format: `^[a-z][-a-z0-9]+$`). Specifies the name of the service that this resource belongs to.
+- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, Pattern: `^[a-zA-Z0-9_-]+$`, MaxLength: 63). Identifies the project this resource belongs to.
+- [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]+$`, MaxLength: 63). Specifies the name of the service that this resource belongs to.
 - [`topic`](#spec.topic-property){: name='spec.topic-property'} (string). Topic name pattern for the ACL entry.
 - [`username`](#spec.username-property){: name='spec.username-property'} (string). Username pattern for the ACL entry.
 

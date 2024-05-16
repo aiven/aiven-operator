@@ -79,8 +79,8 @@ spec:
                       rule: self == oldSelf
                 project:
                   description: Identifies the project this resource belongs to
-                  format: ^[a-zA-Z0-9_-]+$
                   maxLength: 63
+                  pattern: ^[a-zA-Z0-9_-]+$
                   type: string
                   x-kubernetes-validations:
                     - message: Value is immutable

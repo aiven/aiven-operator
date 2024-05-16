@@ -32,7 +32,7 @@ spec:
   project: %[1]s
   cloudName: %[3]s
   plan: startup-4
-  disk_space: 240Gib
+  disk_space: 240GiB
 
   tags:
     env: test
@@ -78,7 +78,7 @@ func TestOpenSearch(t *testing.T) {
 	assert.Equal(t, osAvn.State, os.Status.State)
 	assert.Equal(t, osAvn.Plan, os.Spec.Plan)
 	assert.Equal(t, osAvn.CloudName, os.Spec.CloudName)
-	assert.Equal(t, "240Gib", os.Spec.DiskSpace)
+	assert.Equal(t, "240GiB", os.Spec.DiskSpace)
 	assert.Equal(t, 245760, osAvn.DiskSpaceMB)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, os.Spec.Tags)
 	osResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)

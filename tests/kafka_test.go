@@ -25,7 +25,7 @@ spec:
   project: %[1]s
   cloudName: %[3]s
   plan: business-4
-  disk_space: 600Gib
+  disk_space: 600GiB
 
   tags:
     env: test
@@ -75,7 +75,7 @@ func TestKafka(t *testing.T) {
 	assert.Equal(t, ksAvn.State, ks.Status.State)
 	assert.Equal(t, ksAvn.Plan, ks.Spec.Plan)
 	assert.Equal(t, ksAvn.CloudName, ks.Spec.CloudName)
-	assert.Equal(t, "600Gib", ks.Spec.DiskSpace)
+	assert.Equal(t, "600GiB", ks.Spec.DiskSpace)
 	assert.Equal(t, 614400, ksAvn.DiskSpaceMB)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, ks.Spec.Tags)
 	ksResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)

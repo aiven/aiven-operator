@@ -25,7 +25,7 @@ spec:
   project: %[1]s
   cloudName: %[3]s
   plan: business-4
-  disk_space: 100Gib
+  disk_space: 100GiB
 
   tags:
     env: test
@@ -73,7 +73,7 @@ func TestMySQL(t *testing.T) {
 	assert.Equal(t, msAvn.State, ms.Status.State)
 	assert.Equal(t, msAvn.Plan, ms.Spec.Plan)
 	assert.Equal(t, msAvn.CloudName, ms.Spec.CloudName)
-	assert.Equal(t, "100Gib", ms.Spec.DiskSpace)
+	assert.Equal(t, "100GiB", ms.Spec.DiskSpace)
 	assert.Equal(t, 102400, msAvn.DiskSpaceMB)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, ms.Spec.Tags)
 	msResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)

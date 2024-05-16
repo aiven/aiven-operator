@@ -22,8 +22,8 @@ KafkaConnectorSpec defines the desired state of KafkaConnector.
 **Required**
 
 - [`connectorClass`](#spec.connectorClass-property){: name='spec.connectorClass-property'} (string, MaxLength: 1024). The Java class of the connector.
-- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, MaxLength: 63, Format: `^[a-zA-Z0-9_-]+$`). Identifies the project this resource belongs to.
-- [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, Immutable, MaxLength: 63, Format: `^[a-z][-a-z0-9]+$`). Specifies the name of the service that this resource belongs to.
+- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, Pattern: `^[a-zA-Z0-9_-]+$`, MaxLength: 63). Identifies the project this resource belongs to.
+- [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]+$`, MaxLength: 63). Specifies the name of the service that this resource belongs to.
 - [`userConfig`](#spec.userConfig-property){: name='spec.userConfig-property'} (object, AdditionalProperties: string). The connector specific configuration To build config values from secret the template function `{{ fromSecret "name" "key" }}` is provided when interpreting the keys.
 
 **Optional**

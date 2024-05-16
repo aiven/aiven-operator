@@ -51,11 +51,11 @@ func (in *KafkaTopic) GetTopicName() string {
 type KafkaTopicTag struct {
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=64
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
+	// +kubebuilder:validation:Pattern="^[a-zA-Z0-9_-]+$"
 	Key string `json:"key"`
 
 	// +kubebuilder:validation:MaxLength=256
-	// +kubebuilder:validation:Format="^[a-zA-Z0-9_-]*$"
+	// +kubebuilder:validation:Pattern="^[a-zA-Z0-9_-]+$"
 	Value string `json:"value,omitempty"`
 }
 

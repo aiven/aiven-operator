@@ -101,8 +101,9 @@ spec:
                   description:
                     The disk space of the service, possible values depend
                     on the service type, the cloud provider and the project. Reducing
-                    will result in the service re-balancing.
-                  format: ^[1-9][0-9]*(GiB|G)*
+                    will result in the service re-balancing. The removal of this field
+                    does not change the value.
+                  pattern: ^[1-9][0-9]*(GiB|G)?$
                   type: string
                 maintenanceWindowDow:
                   description:
@@ -129,8 +130,8 @@ spec:
                   type: string
                 project:
                   description: Identifies the project this resource belongs to
-                  format: ^[a-zA-Z0-9_-]+$
                   maxLength: 63
+                  pattern: ^[a-zA-Z0-9_-]+$
                   type: string
                   x-kubernetes-validations:
                     - message: Value is immutable
@@ -194,7 +195,7 @@ spec:
                     properties:
                       email:
                         description: Email address.
-                        format: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+                        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
                         type: string
                     required:
                       - email
