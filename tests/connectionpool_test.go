@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,69 +8,6 @@ import (
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
-
-func getConnectionPoolYaml(project, pgName, dbName, userName, poolName, cloudName string) string {
-	return fmt.Sprintf(`
-apiVersion: aiven.io/v1alpha1
-kind: PostgreSQL
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[6]s
-  plan: startup-4
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: Database
-metadata:
-  name: %[3]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  serviceName: %[2]s
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: ServiceUser
-metadata:
-  name: %[4]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  serviceName: %[2]s
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: ConnectionPool
-metadata:
-  name: %[5]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  serviceName: %[2]s
-  databaseName: %[3]s
-  username: %[4]s
-  poolMode: transaction
-  poolSize: 25
-`, project, pgName, dbName, userName, poolName, cloudName)
-}
 
 func TestConnectionPool(t *testing.T) {
 	t.Parallel()
@@ -81,11 +17,19 @@ func TestConnectionPool(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	pgName := randName("connection-pool")
-	dbName := randName("connection-pool")
-	userName := randName("connection-pool")
+	pgName := randName("pg")
+	dbName := randName("database")
+	userName := randName("service-user")
 	poolName := randName("connection-pool")
-	yml := getConnectionPoolYaml(cfg.Project, pgName, dbName, userName, poolName, cfg.PrimaryCloudName)
+	yml, err := loadExampleYaml("connectionpool.yaml", map[string]string{
+		"aiven-project-name":  cfg.Project,
+		"google-europe-west1": cfg.PrimaryCloudName,
+		"my-connection-pool":  poolName,
+		"my-pg":               pgName,
+		"my-database":         dbName,
+		"my-service-user":     userName,
+	})
+	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward

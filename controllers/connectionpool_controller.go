@@ -114,14 +114,10 @@ func (h ConnectionPoolHandler) delete(ctx context.Context, avn *aiven.Client, av
 
 func (h ConnectionPoolHandler) exists(ctx context.Context, avn *aiven.Client, cp *v1alpha1.ConnectionPool) (bool, error) {
 	conPool, err := avn.ConnectionPools.Get(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
-	if err != nil {
-		if isNotFound(err) {
-			return false, nil
-		}
-		return false, err
+	if isNotFound(err) {
+		return false, nil
 	}
-
-	return conPool != nil, nil
+	return conPool != nil, err
 }
 
 func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
@@ -219,24 +215,25 @@ func (h ConnectionPoolHandler) checkPreconditions(ctx context.Context, avn *aive
 	meta.SetStatusCondition(&cp.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	check, err := checkServiceIsRunning(ctx, avn, avnGen, cp.Spec.Project, cp.Spec.ServiceName)
+	isRunning, err := checkServiceIsRunning(ctx, avn, avnGen, cp.Spec.Project, cp.Spec.ServiceName)
 	if err != nil {
 		return false, err
 	}
 
-	if check {
-		db, err := avn.Databases.Get(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.DatabaseName)
-		if err != nil {
-			if isNotFound(err) {
-				return false, nil
-			}
-			return false, err
-		}
-
-		return db != nil, nil
+	if !isRunning {
+		return false, nil
 	}
 
-	return false, nil
+	_, err = avn.Databases.Get(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.DatabaseName)
+	if err == nil {
+		_, err = avnGen.ServiceUserGet(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.Username)
+	}
+
+	if isNotFound(err) {
+		return false, nil
+	}
+
+	return err == nil, err
 }
 
 func (h ConnectionPoolHandler) convert(i client.Object) (*v1alpha1.ConnectionPool, error) {
