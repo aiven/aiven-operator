@@ -24,6 +24,7 @@ type AuthSecretReference struct {
 
 // ConnInfoSecretTarget contains information secret name
 type ConnInfoSecretTarget struct {
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Name of the secret resource to be created. By default, it is equal to the resource name
 	Name string `json:"name"`
 	// +kubebuilder:pruning:PreserveUnknownFields

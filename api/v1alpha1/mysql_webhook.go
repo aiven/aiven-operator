@@ -43,15 +43,6 @@ func (in *MySQL) ValidateCreate() error {
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (in *MySQL) ValidateUpdate(old runtime.Object) error {
 	mysqllog.Info("validate update", "name", in.Name)
-
-	if in.Spec.Project != old.(*MySQL).Spec.Project {
-		return errors.New("cannot update a MySQL service, project field is immutable and cannot be updated")
-	}
-
-	if in.Spec.ConnInfoSecretTarget.Name != old.(*MySQL).Spec.ConnInfoSecretTarget.Name {
-		return errors.New("cannot update a MySQL service, connInfoSecretTarget.name field is immutable and cannot be updated")
-	}
-
 	return in.Spec.Validate()
 }
 

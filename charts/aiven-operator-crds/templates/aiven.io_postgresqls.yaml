@@ -91,6 +91,9 @@ spec:
                         Name of the secret resource to be created. By default,
                         it is equal to the resource name
                       type: string
+                      x-kubernetes-validations:
+                        - message: Value is immutable
+                          rule: self == oldSelf
                     prefix:
                       description:
                         Prefix for the secret's keys. Added "as is" without

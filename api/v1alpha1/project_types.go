@@ -37,6 +37,7 @@ type ProjectSpec struct {
 
 	// +kubebuilder:validation:MaxLength=36
 	// +kubebuilder:validation:MinLength=36
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// BillingGroup ID
 	BillingGroupID string `json:"billingGroupId,omitempty"`
 
@@ -50,6 +51,7 @@ type ProjectSpec struct {
 	Cloud string `json:"cloud,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=63
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Project name from which to copy settings to the new project
 	CopyFromProject string `json:"copyFromProject,omitempty"`
 

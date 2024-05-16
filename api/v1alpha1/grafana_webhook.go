@@ -42,15 +42,6 @@ func (in *Grafana) ValidateCreate() error {
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (in *Grafana) ValidateUpdate(old runtime.Object) error {
 	grafanalog.Info("validate update", "name", in.Name)
-
-	if in.Spec.Project != old.(*Grafana).Spec.Project {
-		return errors.New("cannot update a Grafana service, project field is immutable and cannot be updated")
-	}
-
-	if in.Spec.ConnInfoSecretTarget.Name != old.(*Grafana).Spec.ConnInfoSecretTarget.Name {
-		return errors.New("cannot update a Grafana service, connInfoSecretTarget.name field is immutable and cannot be updated")
-	}
-
 	return in.Spec.Validate()
 }
 

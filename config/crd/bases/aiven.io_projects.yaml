@@ -90,6 +90,9 @@ spec:
                   maxLength: 36
                   minLength: 36
                   type: string
+                  x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
                 cardId:
                   description:
                     Credit card ID; The ID may be either last 4 digits of
@@ -120,6 +123,9 @@ spec:
                         Name of the secret resource to be created. By default,
                         it is equal to the resource name
                       type: string
+                      x-kubernetes-validations:
+                        - message: Value is immutable
+                          rule: self == oldSelf
                     prefix:
                       description:
                         Prefix for the secret's keys. Added "as is" without
@@ -142,6 +148,9 @@ spec:
                   description: Project name from which to copy settings to the new project
                   maxLength: 63
                   type: string
+                  x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
                 countryCode:
                   description: Billing country code of the project
                   maxLength: 2
