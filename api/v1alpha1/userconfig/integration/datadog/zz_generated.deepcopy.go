@@ -35,6 +35,11 @@ func (in *DatadogUserConfig) DeepCopyInto(out *DatadogUserConfig) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.DatadogPgbouncerEnabled != nil {
+		in, out := &in.DatadogPgbouncerEnabled, &out.DatadogPgbouncerEnabled
+		*out = new(bool)
+		**out = **in
+	}
 	if in.DatadogTags != nil {
 		in, out := &in.DatadogTags, &out.DatadogTags
 		*out = make([]*DatadogTags, len(*in))

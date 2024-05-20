@@ -238,6 +238,9 @@ spec:
                     datadog_dbm_enabled:
                       description: Enable Datadog Database Monitoring
                       type: boolean
+                    datadog_pgbouncer_enabled:
+                      description: Enable Datadog PgBouncer Metric Tracking
+                      type: boolean
                     datadog_tags:
                       description: Custom tags provided by user
                       items:
