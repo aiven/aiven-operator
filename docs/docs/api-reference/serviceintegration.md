@@ -346,6 +346,7 @@ Datadog specific user configuration options.
 **Optional**
 
 - [`datadog_dbm_enabled`](#spec.datadog.datadog_dbm_enabled-property){: name='spec.datadog.datadog_dbm_enabled-property'} (boolean). Enable Datadog Database Monitoring.
+- [`datadog_pgbouncer_enabled`](#spec.datadog.datadog_pgbouncer_enabled-property){: name='spec.datadog.datadog_pgbouncer_enabled-property'} (boolean). Enable Datadog PgBouncer Metric Tracking.
 - [`datadog_tags`](#spec.datadog.datadog_tags-property){: name='spec.datadog.datadog_tags-property'} (array of objects, MaxItems: 32). Custom tags provided by user. See below for [nested schema](#spec.datadog.datadog_tags).
 - [`exclude_consumer_groups`](#spec.datadog.exclude_consumer_groups-property){: name='spec.datadog.exclude_consumer_groups-property'} (array of strings, MaxItems: 1024). List of custom metrics.
 - [`exclude_topics`](#spec.datadog.exclude_topics-property){: name='spec.datadog.exclude_topics-property'} (array of strings, MaxItems: 1024). List of topics to exclude.

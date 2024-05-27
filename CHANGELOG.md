@@ -11,6 +11,13 @@
 - Move immutable fields validation from webhooks to CRD validation rules
 - Fix service types `disk_space` field validation
 - Fix resources `project`, `serviceName` fields validation
+- Change `ServiceIntegrationEndpoint` field `datadog.site`: enum ~~`[datadoghq.com, datadoghq.eu, ddog-gov.com,
+us3.datadoghq.com, us5.datadoghq.com]`~~ → `[ap1.datadoghq.com, datadoghq.com, datadoghq.eu,
+ddog-gov.com, us3.datadoghq.com, us5.datadoghq.com]`
+- Change `ServiceIntegrationEndpoint` field `externalKafka.ssl_endpoint_identification_algorithm`: enum
+  ~~`[, https]`~~ → `[https]`
+- Add `ServiceIntegration` field `datadog.datadog_pgbouncer_enabled`, type `boolean`: Enable Datadog
+  PgBouncer Metric Tracking
 
 ## v0.19.0 - 2024-04-18
 

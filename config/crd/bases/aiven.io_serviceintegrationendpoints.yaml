@@ -127,6 +127,7 @@ spec:
                         - us3.datadoghq.com
                         - us5.datadoghq.com
                         - ddog-gov.com
+                        - ap1.datadoghq.com
                       type: string
                   required:
                     - datadog_api_key
@@ -346,7 +347,6 @@ spec:
                         server hostname using server certificate.
                       enum:
                         - https
-                        - ""
                       type: string
                   required:
                     - bootstrap_servers

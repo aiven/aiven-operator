@@ -39,6 +39,9 @@ type DatadogUserConfig struct {
 	// Enable Datadog Database Monitoring
 	DatadogDbmEnabled *bool `groups:"create,update" json:"datadog_dbm_enabled,omitempty"`
 
+	// Enable Datadog PgBouncer Metric Tracking
+	DatadogPgbouncerEnabled *bool `groups:"create,update" json:"datadog_pgbouncer_enabled,omitempty"`
+
 	// +kubebuilder:validation:MaxItems=32
 	// Custom tags provided by user
 	DatadogTags []*DatadogTags `groups:"create,update" json:"datadog_tags,omitempty"`
