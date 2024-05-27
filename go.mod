@@ -3,13 +3,13 @@ module github.com/aiven/aiven-operator
 go 1.21
 
 require (
-	github.com/aiven/aiven-go-client/v2 v2.20.0
-	github.com/aiven/go-api-schemas v1.71.0
-	github.com/aiven/go-client-codegen v0.6.0
+	github.com/aiven/aiven-go-client/v2 v2.23.0
+	github.com/aiven/go-api-schemas v1.73.0
+	github.com/aiven/go-client-codegen v0.9.0
 	github.com/dave/jennifer v1.7.0
 	github.com/docker/go-units v0.5.0
 	github.com/ghodss/yaml v1.0.0
-	github.com/go-logr/logr v1.4.1
+	github.com/go-logr/logr v1.4.2
 	github.com/google/go-cmp v0.6.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/liip/sheriff v0.12.0
@@ -48,7 +48,7 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/hashicorp/go-retryablehttp v0.7.5 // indirect
+	github.com/hashicorp/go-retryablehttp v0.7.6 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
