@@ -39,7 +39,7 @@ type ExternalKafkaUserConfig struct {
 	// PEM-encoded client key
 	SslClientKey *string `groups:"create,update" json:"ssl_client_key,omitempty"`
 
-	// +kubebuilder:validation:Enum="https";""
+	// +kubebuilder:validation:Enum="https"
 	// The endpoint identification algorithm to validate server hostname using server certificate.
 	SslEndpointIdentificationAlgorithm *string `groups:"create,update" json:"ssl_endpoint_identification_algorithm,omitempty"`
 }

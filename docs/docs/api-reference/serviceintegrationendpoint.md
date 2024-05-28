@@ -117,7 +117,7 @@ Datadog configuration values.
 - [`kafka_consumer_check_instances`](#spec.datadog.kafka_consumer_check_instances-property){: name='spec.datadog.kafka_consumer_check_instances-property'} (integer, Minimum: 1, Maximum: 100). Number of separate instances to fetch kafka consumer statistics with.
 - [`kafka_consumer_stats_timeout`](#spec.datadog.kafka_consumer_stats_timeout-property){: name='spec.datadog.kafka_consumer_stats_timeout-property'} (integer, Minimum: 2, Maximum: 300). Number of seconds that datadog will wait to get consumer statistics from brokers.
 - [`max_partition_contexts`](#spec.datadog.max_partition_contexts-property){: name='spec.datadog.max_partition_contexts-property'} (integer, Minimum: 200, Maximum: 200000). Maximum number of partition contexts to send.
-- [`site`](#spec.datadog.site-property){: name='spec.datadog.site-property'} (string, Enum: `datadoghq.com`, `datadoghq.eu`, `us3.datadoghq.com`, `us5.datadoghq.com`, `ddog-gov.com`). Datadog intake site. Defaults to datadoghq.com.
+- [`site`](#spec.datadog.site-property){: name='spec.datadog.site-property'} (string, Enum: `datadoghq.com`, `datadoghq.eu`, `us3.datadoghq.com`, `us5.datadoghq.com`, `ddog-gov.com`, `ap1.datadoghq.com`). Datadog intake site. Defaults to datadoghq.com.
 
 ### datadog_tags {: #spec.datadog.datadog_tags }
 
@@ -221,7 +221,7 @@ ExternalKafka configuration values.
 - [`ssl_ca_cert`](#spec.externalKafka.ssl_ca_cert-property){: name='spec.externalKafka.ssl_ca_cert-property'} (string, MaxLength: 16384). PEM-encoded CA certificate.
 - [`ssl_client_cert`](#spec.externalKafka.ssl_client_cert-property){: name='spec.externalKafka.ssl_client_cert-property'} (string, MaxLength: 16384). PEM-encoded client certificate.
 - [`ssl_client_key`](#spec.externalKafka.ssl_client_key-property){: name='spec.externalKafka.ssl_client_key-property'} (string, MaxLength: 16384). PEM-encoded client key.
-- [`ssl_endpoint_identification_algorithm`](#spec.externalKafka.ssl_endpoint_identification_algorithm-property){: name='spec.externalKafka.ssl_endpoint_identification_algorithm-property'} (string, Enum: `https`, ``). The endpoint identification algorithm to validate server hostname using server certificate.
+- [`ssl_endpoint_identification_algorithm`](#spec.externalKafka.ssl_endpoint_identification_algorithm-property){: name='spec.externalKafka.ssl_endpoint_identification_algorithm-property'} (string, Enum: `https`). The endpoint identification algorithm to validate server hostname using server certificate.
 
 ## externalOpensearchLogs {: #spec.externalOpensearchLogs }
 
