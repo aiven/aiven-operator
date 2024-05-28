@@ -26,7 +26,7 @@ title: "OpenSearch"
       project: my-aiven-project
       cloudName: google-europe-west1
       plan: startup-4
-      disk_space: 80gib
+      disk_space: 80GiB
     
       maintenanceWindowDow: friday
       maintenanceWindowTime: 23:00:00
