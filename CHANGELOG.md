@@ -18,6 +18,7 @@ ddog-gov.com, us3.datadoghq.com, us5.datadoghq.com]`
   ~~`[, https]`~~ → `[https]`
 - Add `ServiceIntegration` field `datadog.datadog_pgbouncer_enabled`, type `boolean`: Enable Datadog
   PgBouncer Metric Tracking
+- Remove `ClickhouseUser` webhook. Doesn't do any validation or mutation
 
 ## v0.19.0 - 2024-04-18
 
