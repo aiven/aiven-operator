@@ -65,7 +65,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 
 		req := aiven.CreateServiceRequest{
 			Cloud:                 spec.CloudName,
-			DiskSpaceMB:           v1alpha1.ConvertDiscSpace(o.getDiskSpace()),
+			DiskSpaceMB:           v1alpha1.ConvertDiskSpace(o.getDiskSpace()),
 			MaintenanceWindow:     getMaintenanceWindow(spec.MaintenanceWindowDow, spec.MaintenanceWindowTime),
 			Plan:                  spec.Plan,
 			ProjectVPCID:          toOptionalStringPointer(projectVPCID),
@@ -104,7 +104,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 
 		req := aiven.UpdateServiceRequest{
 			Cloud:                 spec.CloudName,
-			DiskSpaceMB:           v1alpha1.ConvertDiscSpace(o.getDiskSpace()),
+			DiskSpaceMB:           v1alpha1.ConvertDiskSpace(o.getDiskSpace()),
 			MaintenanceWindow:     getMaintenanceWindow(spec.MaintenanceWindowDow, spec.MaintenanceWindowTime),
 			Plan:                  spec.Plan,
 			Powered:               true,
