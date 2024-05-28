@@ -158,7 +158,7 @@ type ServiceCommonSpec struct {
 	BaseServiceFields `json:",inline"`
 	SecretFields      `json:",inline"`
 
-	// +kubebuilder:validation:Pattern="^[1-9][0-9]*(GiB|G)?$"
+	// +kubebuilder:validation:Pattern="(?i)^[1-9][0-9]*(GiB|G)?$"
 	// The disk space of the service, possible values depend on the service type, the cloud provider and the project.
 	// Reducing will result in the service re-balancing.
 	// The removal of this field does not change the value.
@@ -213,7 +213,7 @@ type ResourceReferenceObject struct {
 	NamespacedName   types.NamespacedName
 }
 
-func ConvertDiscSpace(v string) int {
+func ConvertDiskSpace(v string) int {
 	if v == "" {
 		return 0
 	}
