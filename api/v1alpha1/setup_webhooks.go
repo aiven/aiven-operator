@@ -55,9 +55,6 @@ func SetupWebhooks(mgr ctrl.Manager) error {
 	if err := (&Clickhouse{}).SetupWebhookWithManager(mgr); err != nil {
 		return fmt.Errorf("webhook Clickhouse: %w", err)
 	}
-	if err := (&ClickhouseUser{}).SetupWebhookWithManager(mgr); err != nil {
-		return fmt.Errorf("webhook ClickhouseUser: %w", err)
-	}
 	if err := (&MySQL{}).SetupWebhookWithManager(mgr); err != nil {
 		return fmt.Errorf("webhook MySQL: %w", err)
 	}
