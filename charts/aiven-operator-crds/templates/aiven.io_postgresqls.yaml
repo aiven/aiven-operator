@@ -518,10 +518,7 @@ spec:
                             - VERBOSE
                           type: string
                         log_line_prefix:
-                          description:
-                            Choose from one of the available log-formats.
-                            These can support popular log analyzers like pgbadger, pganalyze
-                            etc.
+                          description: Choose from one of the available log formats.
                           enum:
                             - "'pid=%p,user=%u,db=%d,app=%a,client=%h '"
                             - "'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '"
