@@ -1,0 +1,55 @@
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: my-service-integration
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  integrationType: kafka_connect
+  sourceServiceName: my-kafka
+  destinationServiceName: my-kafka-connect
+
+  kafkaConnect:
+    kafka_connect:
+      group_id: connect
+      status_storage_topic: __connect_status
+      offset_storage_topic: __connect_offsets
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: Kafka
+metadata:
+  name: my-kafka
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  cloudName: google-europe-west1
+  plan: business-4
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: KafkaConnect
+metadata:
+  name: my-kafka-connect
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  cloudName: google-europe-west1
+  plan: business-4
+
+  userConfig:
+    kafka_connect:
+      consumer_isolation_level: read_committed
+    public_access:
+      kafka_connect: true

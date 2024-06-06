@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.18">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.66ac8b77.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.6543a935.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -1777,6 +1777,27 @@
   
   
     <li class="md-nav__item">
+      <a href="serviceintegrationendpoint.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ServiceIntegrationEndpoint
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="serviceuser.html" class="md-nav__link">
         
   
@@ -2046,6 +2067,8 @@
   <h1>Grafana</h1>
 
 <h2 id="usage-example">Usage example<a class="headerlink" href="#usage-example" title="Permanent link">&para;</a></h2>
+<details class="example">
+<summary>Example</summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Grafana</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -2078,8 +2101,13 @@
 <a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">whatever</span>
 <a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">network</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.20.0.0/16</span>
 </code></pre></div>
+</details>
 <h2 id="Grafana">Grafana<a class="headerlink" href="#Grafana" title="Permanent link">&para;</a></h2>
-<p>Grafana is the Schema for the grafanas API.</p>
+<p>Grafana is the Schema for the grafanas API. </p>
+<div class="admonition info">
+<p class="admonition-title">Exposes secret keys</p>
+<p><code>GRAFANA_HOST</code>, <code>GRAFANA_PORT</code>, <code>GRAFANA_USER</code>, <code>GRAFANA_PASSWORD</code>, <code>GRAFANA_URI</code>, <code>GRAFANA_HOSTS</code>.</p>
+</div>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#apiVersion-property" name="apiVersion-property"><code>apiVersion</code></a> (string). Value <code>aiven.io/v1alpha1</code>.</li>
@@ -2093,15 +2121,15 @@
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.plan-property" name="spec.plan-property"><code>plan</code></a> (string, MaxLength: 128). Subscription plan.</li>
-<li><a href="#spec.project-property" name="spec.project-property"><code>project</code></a> (string, Immutable, MaxLength: 63, Format: <code>^[a-zA-Z0-9_-]+$</code>). Identifies the project this resource belongs to.</li>
+<li><a href="#spec.project-property" name="spec.project-property"><code>project</code></a> (string, Immutable, Pattern: <code>^[a-zA-Z0-9_-]+$</code>, MaxLength: 63). Identifies the project this resource belongs to.</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
 <li><a href="#spec.cloudName-property" name="spec.cloudName-property"><code>cloudName</code></a> (string, MaxLength: 256). Cloud the service runs in.</li>
-<li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Information regarding secret creation. Exposed keys: <code>GRAFANA_HOST</code>, <code>GRAFANA_PORT</code>, <code>GRAFANA_USER</code>, <code>GRAFANA_PASSWORD</code>, <code>GRAFANA_URI</code>, <code>GRAFANA_HOSTS</code>, <code>GRAFANA_CA_CERT</code>. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
+<li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Secret configuration. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
 <li><a href="#spec.connInfoSecretTargetDisabled-property" name="spec.connInfoSecretTargetDisabled-property"><code>connInfoSecretTargetDisabled</code></a> (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.</li>
-<li><a href="#spec.disk_space-property" name="spec.disk_space-property"><code>disk_space</code></a> (string, Format: <code>^[1-9][0-9]*(GiB|G)*</code>). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</li>
+<li><a href="#spec.disk_space-property" name="spec.disk_space-property"><code>disk_space</code></a> (string, Pattern: <code>(?i)^[1-9][0-9]*(GiB|G)?$</code>). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing. The removal of this field does not change the value.</li>
 <li><a href="#spec.maintenanceWindowDow-property" name="spec.maintenanceWindowDow-property"><code>maintenanceWindowDow</code></a> (string, Enum: <code>monday</code>, <code>tuesday</code>, <code>wednesday</code>, <code>thursday</code>, <code>friday</code>, <code>saturday</code>, <code>sunday</code>). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.</li>
 <li><a href="#spec.maintenanceWindowTime-property" name="spec.maintenanceWindowTime-property"><code>maintenanceWindowTime</code></a> (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.</li>
 <li><a href="#spec.projectVPCRef-property" name="spec.projectVPCRef-property"><code>projectVPCRef</code></a> (object). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See below for <a href="#spec.projectVPCRef">nested schema</a>.</li>
@@ -2122,10 +2150,10 @@
 </ul>
 <h2 id="spec.connInfoSecretTarget">connInfoSecretTarget<a class="headerlink" href="#spec.connInfoSecretTarget" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
-<p>Information regarding secret creation. Exposed keys: <code>GRAFANA_HOST</code>, <code>GRAFANA_PORT</code>, <code>GRAFANA_USER</code>, <code>GRAFANA_PASSWORD</code>, <code>GRAFANA_URI</code>, <code>GRAFANA_HOSTS</code>, <code>GRAFANA_CA_CERT</code>.</p>
+<p>Secret configuration.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.connInfoSecretTarget.name-property" name="spec.connInfoSecretTarget.name-property"><code>name</code></a> (string). Name of the secret resource to be created. By default, it is equal to the resource name.</li>
+<li><a href="#spec.connInfoSecretTarget.name-property" name="spec.connInfoSecretTarget.name-property"><code>name</code></a> (string, Immutable). Name of the secret resource to be created. By default, it is equal to the resource name.</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
@@ -2157,7 +2185,7 @@
 <p>Defines the email addresses that will receive alerts about upcoming maintenance updates or warnings about service instability.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.technicalEmails.email-property" name="spec.technicalEmails.email-property"><code>email</code></a> (string, Format: <code>^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$</code>). Email address.</li>
+<li><a href="#spec.technicalEmails.email-property" name="spec.technicalEmails.email-property"><code>email</code></a> (string). Email address.</li>
 </ul>
 <h2 id="spec.userConfig">userConfig<a class="headerlink" href="#spec.userConfig" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -2200,7 +2228,7 @@
 <li><a href="#spec.userConfig.service_to_fork_from-property" name="spec.userConfig.service_to_fork_from-property"><code>service_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.</li>
 <li><a href="#spec.userConfig.smtp_server-property" name="spec.userConfig.smtp_server-property"><code>smtp_server</code></a> (object). SMTP server settings. See below for <a href="#spec.userConfig.smtp_server">nested schema</a>.</li>
 <li><a href="#spec.userConfig.static_ips-property" name="spec.userConfig.static_ips-property"><code>static_ips</code></a> (boolean). Use static public IP addresses.</li>
-<li><a href="#spec.userConfig.unified_alerting_enabled-property" name="spec.userConfig.unified_alerting_enabled-property"><code>unified_alerting_enabled</code></a> (boolean). Enable or disable Grafana unified alerting functionality. By default this is enabled and any legacy alerts will be migrated on upgrade to Grafana 9+. To stay on legacy alerting, set unified_alerting_enabled to false and alerting_enabled to true. See https://grafana.com/docs/grafana/latest/alerting/set-up/migrating-alerts/ for more details.</li>
+<li><a href="#spec.userConfig.unified_alerting_enabled-property" name="spec.userConfig.unified_alerting_enabled-property"><code>unified_alerting_enabled</code></a> (boolean). Enable or disable Grafana unified alerting functionality. By default this is enabled and any legacy alerts will be migrated on upgrade to Grafana 9+. To stay on legacy alerting, set unified_alerting_enabled to false and alerting_enabled to true. See <a href="https://grafana.com/docs/grafana/latest/alerting/set-up/migrating-alerts/">https://grafana.com/docs/grafana/latest/alerting/set-up/migrating-alerts/</a> for more details.</li>
 <li><a href="#spec.userConfig.user_auto_assign_org-property" name="spec.userConfig.user_auto_assign_org-property"><code>user_auto_assign_org</code></a> (boolean). Auto-assign new users on signup to main organization. Defaults to false.</li>
 <li><a href="#spec.userConfig.user_auto_assign_org_role-property" name="spec.userConfig.user_auto_assign_org_role-property"><code>user_auto_assign_org_role</code></a> (string, Enum: <code>Viewer</code>, <code>Admin</code>, <code>Editor</code>). Set role for new signups. Defaults to Viewer.</li>
 <li><a href="#spec.userConfig.viewers_can_edit-property" name="spec.userConfig.viewers_can_edit-property"><code>viewers_can_edit</code></a> (boolean). Users with view-only permission can edit but not save dashboards.</li>
@@ -2461,7 +2489,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.3220b9d7.min.js"></script>
+      <script src="../assets/javascripts/bundle.081f42fc.min.js"></script>
       
     
   </body>

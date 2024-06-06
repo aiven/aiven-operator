@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.18">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.66ac8b77.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.6543a935.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -1618,6 +1618,27 @@
   
   
     <li class="md-nav__item">
+      <a href="serviceintegrationendpoint.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ServiceIntegrationEndpoint
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="serviceuser.html" class="md-nav__link">
         
   
@@ -1728,6 +1749,8 @@
   <h1>ClickhouseRole</h1>
 
 <h2 id="usage-example">Usage example<a class="headerlink" href="#usage-example" title="Permanent link">&para;</a></h2>
+<details class="example">
+<summary>Example</summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClickhouseRole</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -1741,6 +1764,7 @@
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-clickhouse</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my_role</span>
 </code></pre></div>
+</details>
 <h2 id="ClickhouseRole">ClickhouseRole<a class="headerlink" href="#ClickhouseRole" title="Permanent link">&para;</a></h2>
 <p>ClickhouseRole is the Schema for the clickhouseroles API.</p>
 <p><strong>Required</strong></p>
@@ -1755,9 +1779,9 @@
 <p>ClickhouseRoleSpec defines the desired state of ClickhouseRole.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.project-property" name="spec.project-property"><code>project</code></a> (string, Immutable, MaxLength: 63, Format: <code>^[a-zA-Z0-9_-]+$</code>). Identifies the project this resource belongs to.</li>
-<li><a href="#spec.role-property" name="spec.role-property"><code>role</code></a> (string, Immutable, MaxLength: 255, Format: <code>^[a-zA-Z_][0-9a-zA-Z_]*$</code>). The role that is to be created.</li>
-<li><a href="#spec.serviceName-property" name="spec.serviceName-property"><code>serviceName</code></a> (string, Immutable, MaxLength: 63, Format: <code>^[a-z][-a-z0-9]+$</code>). Specifies the name of the service that this resource belongs to.</li>
+<li><a href="#spec.project-property" name="spec.project-property"><code>project</code></a> (string, Immutable, Pattern: <code>^[a-zA-Z0-9_-]+$</code>, MaxLength: 63). Identifies the project this resource belongs to.</li>
+<li><a href="#spec.role-property" name="spec.role-property"><code>role</code></a> (string, Immutable, Pattern: <code>^[a-zA-Z_][0-9a-zA-Z_]*$</code>, MaxLength: 255). The role that is to be created.</li>
+<li><a href="#spec.serviceName-property" name="spec.serviceName-property"><code>serviceName</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]+$</code>, MaxLength: 63). Specifies the name of the service that this resource belongs to.</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
@@ -1873,7 +1897,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.3220b9d7.min.js"></script>
+      <script src="../assets/javascripts/bundle.081f42fc.min.js"></script>
       
     
   </body>

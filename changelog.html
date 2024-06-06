@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.18">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.66ac8b77.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.6543a935.min.css">
       
         
         <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
@@ -428,6 +428,15 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0200-2024-06-05" class="md-nav__link">
+    <span class="md-ellipsis">
+      v0.20.0 - 2024-06-05
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v0190-2024-04-18" class="md-nav__link">
@@ -1808,6 +1817,27 @@
   
   
     <li class="md-nav__item">
+      <a href="api-reference/serviceintegrationendpoint.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ServiceIntegrationEndpoint
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="api-reference/serviceuser.html" class="md-nav__link">
         
   
@@ -1854,6 +1884,15 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0200-2024-06-05" class="md-nav__link">
+    <span class="md-ellipsis">
+      v0.20.0 - 2024-06-05
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v0190-2024-04-18" class="md-nav__link">
@@ -2098,6 +2137,25 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0200-2024-06-05">v0.20.0 - 2024-06-05<a class="headerlink" href="#v0200-2024-06-05" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Add kind: <code>ServiceIntegrationEndpoint</code></li>
+<li>Add <code>ServiceIntegration</code> field <code>datadog.datadog_pgbouncer_enabled</code>, type <code>boolean</code>: Enable Datadog</li>
+<li>Add <code>ServiceIntegration</code> <code>flink_external_postgresql</code> type</li>
+<li>Fix <code>ServiceIntegration</code> deletion when instance has no id set PgBouncer Metric Tracking</li>
+<li>Fix <code>ConnectionPool</code> doesn't check service user precondition</li>
+<li>Fix service types <code>disk_space</code> field validation</li>
+<li>Fix resources <code>project</code>, <code>serviceName</code> fields validation</li>
+<li>Change <code>Kafka</code> field <code>userConfig.kafka_version</code>: enum <del><code>[3.4, 3.5, 3.6]</code></del> → <code>[3.4, 3.5, 3.6, 3.7]</code></li>
+<li>Change <code>ServiceIntegrationEndpoint</code> field <code>datadog.site</code>: enum <del><code>[datadoghq.com, datadoghq.eu, ddog-gov.com,
+us3.datadoghq.com, us5.datadoghq.com]</code></del> → <code>[ap1.datadoghq.com, datadoghq.com, datadoghq.eu,
+ddog-gov.com, us3.datadoghq.com, us5.datadoghq.com]</code></li>
+<li>Change <code>ServiceIntegrationEndpoint</code> field <code>externalKafka.ssl_endpoint_identification_algorithm</code>: enum
+  <del><code>[, https]</code></del> → <code>[https]</code></li>
+<li>Change immutable fields validation from webhooks to CRD validation rules</li>
+<li>Remove <code>CA_CERT</code> secret key for <code>Grafana</code>, <code>OpenSearch</code>, <code>Redis</code>, and <code>Clickhouse</code>. Can't be used with these service types</li>
+<li>Remove <code>ClickhouseUser</code> webhook. Doesn't do any validation or mutation</li>
+</ul>
 <h2 id="v0190-2024-04-18">v0.19.0 - 2024-04-18<a class="headerlink" href="#v0190-2024-04-18" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Add kind: <code>ClickhouseRole</code></li>
@@ -2585,7 +2643,7 @@ as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-be
     <script id="__config" type="application/json">{"base": ".", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="assets/javascripts/bundle.3220b9d7.min.js"></script>
+      <script src="assets/javascripts/bundle.081f42fc.min.js"></script>
       
     
   </body>

@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.18">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.66ac8b77.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.6543a935.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -1798,6 +1798,27 @@
   
   
     <li class="md-nav__item">
+      <a href="serviceintegrationendpoint.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ServiceIntegrationEndpoint
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="serviceuser.html" class="md-nav__link">
         
   
@@ -2088,6 +2109,8 @@
   <h1>OpenSearch</h1>
 
 <h2 id="usage-example">Usage example<a class="headerlink" href="#usage-example" title="Permanent link">&para;</a></h2>
+<details class="example">
+<summary>Example</summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OpenSearch</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -2108,13 +2131,18 @@
 <a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-aiven-project</span>
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span><span class="nt">cloudName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">google-europe-west1</span>
 <a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">  </span><span class="nt">plan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">startup-4</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">  </span><span class="nt">disk_space</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80Gib</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">  </span><span class="nt">disk_space</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80GiB</span>
 <a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
 <a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">  </span><span class="nt">maintenanceWindowDow</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">friday</span>
 <a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">  </span><span class="nt">maintenanceWindowTime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">23:00:00</span>
 </code></pre></div>
+</details>
 <h2 id="OpenSearch">OpenSearch<a class="headerlink" href="#OpenSearch" title="Permanent link">&para;</a></h2>
-<p>OpenSearch is the Schema for the opensearches API.</p>
+<p>OpenSearch is the Schema for the opensearches API. </p>
+<div class="admonition info">
+<p class="admonition-title">Exposes secret keys</p>
+<p><code>OPENSEARCH_HOST</code>, <code>OPENSEARCH_PORT</code>, <code>OPENSEARCH_USER</code>, <code>OPENSEARCH_PASSWORD</code>.</p>
+</div>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#apiVersion-property" name="apiVersion-property"><code>apiVersion</code></a> (string). Value <code>aiven.io/v1alpha1</code>.</li>
@@ -2128,15 +2156,15 @@
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.plan-property" name="spec.plan-property"><code>plan</code></a> (string, MaxLength: 128). Subscription plan.</li>
-<li><a href="#spec.project-property" name="spec.project-property"><code>project</code></a> (string, Immutable, MaxLength: 63, Format: <code>^[a-zA-Z0-9_-]+$</code>). Identifies the project this resource belongs to.</li>
+<li><a href="#spec.project-property" name="spec.project-property"><code>project</code></a> (string, Immutable, Pattern: <code>^[a-zA-Z0-9_-]+$</code>, MaxLength: 63). Identifies the project this resource belongs to.</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
 <li><a href="#spec.cloudName-property" name="spec.cloudName-property"><code>cloudName</code></a> (string, MaxLength: 256). Cloud the service runs in.</li>
-<li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Information regarding secret creation. Exposed keys: <code>OPENSEARCH_HOST</code>, <code>OPENSEARCH_PORT</code>, <code>OPENSEARCH_USER</code>, <code>OPENSEARCH_PASSWORD</code>, <code>OPENSEARCH_CA_CERT</code>. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
+<li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Secret configuration. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
 <li><a href="#spec.connInfoSecretTargetDisabled-property" name="spec.connInfoSecretTargetDisabled-property"><code>connInfoSecretTargetDisabled</code></a> (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.</li>
-<li><a href="#spec.disk_space-property" name="spec.disk_space-property"><code>disk_space</code></a> (string, Format: <code>^[1-9][0-9]*(GiB|G)*</code>). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing.</li>
+<li><a href="#spec.disk_space-property" name="spec.disk_space-property"><code>disk_space</code></a> (string, Pattern: <code>(?i)^[1-9][0-9]*(GiB|G)?$</code>). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing. The removal of this field does not change the value.</li>
 <li><a href="#spec.maintenanceWindowDow-property" name="spec.maintenanceWindowDow-property"><code>maintenanceWindowDow</code></a> (string, Enum: <code>monday</code>, <code>tuesday</code>, <code>wednesday</code>, <code>thursday</code>, <code>friday</code>, <code>saturday</code>, <code>sunday</code>). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.</li>
 <li><a href="#spec.maintenanceWindowTime-property" name="spec.maintenanceWindowTime-property"><code>maintenanceWindowTime</code></a> (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.</li>
 <li><a href="#spec.projectVPCRef-property" name="spec.projectVPCRef-property"><code>projectVPCRef</code></a> (object). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See below for <a href="#spec.projectVPCRef">nested schema</a>.</li>
@@ -2157,10 +2185,10 @@
 </ul>
 <h2 id="spec.connInfoSecretTarget">connInfoSecretTarget<a class="headerlink" href="#spec.connInfoSecretTarget" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
-<p>Information regarding secret creation. Exposed keys: <code>OPENSEARCH_HOST</code>, <code>OPENSEARCH_PORT</code>, <code>OPENSEARCH_USER</code>, <code>OPENSEARCH_PASSWORD</code>, <code>OPENSEARCH_CA_CERT</code>.</p>
+<p>Secret configuration.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.connInfoSecretTarget.name-property" name="spec.connInfoSecretTarget.name-property"><code>name</code></a> (string). Name of the secret resource to be created. By default, it is equal to the resource name.</li>
+<li><a href="#spec.connInfoSecretTarget.name-property" name="spec.connInfoSecretTarget.name-property"><code>name</code></a> (string, Immutable). Name of the secret resource to be created. By default, it is equal to the resource name.</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
@@ -2192,7 +2220,7 @@
 <p>Defines the email addresses that will receive alerts about upcoming maintenance updates or warnings about service instability.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.technicalEmails.email-property" name="spec.technicalEmails.email-property"><code>email</code></a> (string, Format: <code>^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$</code>). Email address.</li>
+<li><a href="#spec.technicalEmails.email-property" name="spec.technicalEmails.email-property"><code>email</code></a> (string). Email address.</li>
 </ul>
 <h2 id="spec.userConfig">userConfig<a class="headerlink" href="#spec.userConfig" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -2508,7 +2536,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.3220b9d7.min.js"></script>
+      <script src="../assets/javascripts/bundle.081f42fc.min.js"></script>
       
     
   </body>
