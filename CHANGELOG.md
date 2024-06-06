@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.20.0 - 2024-06-05
+
 - Add kind: `ServiceIntegrationEndpoint`
 - Fix `ServiceIntegration` deletion when instance has no id set
 - Change `Kafka` field `userConfig.kafka_version`: enum ~~`[3.4, 3.5, 3.6]`~~ → `[3.4, 3.5, 3.6, 3.7]`
