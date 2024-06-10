@@ -5,22 +5,22 @@
 ## v0.20.0 - 2024-06-05
 
 - Add kind: `ServiceIntegrationEndpoint`
-- Fix `ServiceIntegration` deletion when instance has no id set
-- Change `Kafka` field `userConfig.kafka_version`: enum ~~`[3.4, 3.5, 3.6]`~~ → `[3.4, 3.5, 3.6, 3.7]`
 - Add `ServiceIntegration` `flink_external_postgresql` type
-- Remove `CA_CERT` secret key for `Grafana`, `OpenSearch`, `Redis`, and `Clickhouse`. Can't be used with these service types
-- Fix `ConnectionPool` doesn't check service user precondition
-- Move immutable fields validation from webhooks to CRD validation rules
-- Fix service types `disk_space` field validation
-- Fix resources `project`, `serviceName` fields validation
-- Change `ServiceIntegrationEndpoint` field `datadog.site`: enum ~~`[datadoghq.com, datadoghq.eu, ddog-gov.com,
-us3.datadoghq.com, us5.datadoghq.com]`~~ → `[ap1.datadoghq.com, datadoghq.com, datadoghq.eu,
-ddog-gov.com, us3.datadoghq.com, us5.datadoghq.com]`
-- Change `ServiceIntegrationEndpoint` field `externalKafka.ssl_endpoint_identification_algorithm`: enum
-  ~~`[, https]`~~ → `[https]`
 - Add `ServiceIntegration` field `datadog.datadog_pgbouncer_enabled`, type `boolean`: Enable Datadog
   PgBouncer Metric Tracking
+- Fix `ServiceIntegration` deletion when instance has no id set
+- Fix service types `disk_space` field validation
+- Fix resources `project`, `serviceName` fields validation
+- Fix `ConnectionPool` doesn't check service user precondition
+- Remove `CA_CERT` secret key for `Grafana`, `OpenSearch`, `Redis`, and `Clickhouse`. Can't be used with these service types
+  ddog-gov.com, us3.datadoghq.com, us5.datadoghq.com]`
+- Change `ServiceIntegrationEndpoint` field `externalKafka.ssl_endpoint_identification_algorithm`: enum
+  ~~`[, https]`~~ → `[https]`
 - Remove `ClickhouseUser` webhook. Doesn't do any validation or mutation
+- Change `Kafka` field `userConfig.kafka_version`: enum ~~`[3.4, 3.5, 3.6]`~~ → `[3.4, 3.5, 3.6, 3.7]`
+- Change `ServiceIntegrationEndpoint` field `datadog.site`: enum ~~`[datadoghq.com, datadoghq.eu, ddog-gov.com,
+us3.datadoghq.com, us5.datadoghq.com]`~~ → `[ap1.datadoghq.com, datadoghq.com, datadoghq.eu,
+- Move immutable fields validation from webhooks to CRD validation rules
 
 ## v0.19.0 - 2024-04-18
 
