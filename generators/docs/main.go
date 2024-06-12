@@ -14,8 +14,6 @@ const (
 	// docsDirPath CRDs docs location to export to
 	docsDirPath     = "./docs/docs/api-reference/"
 	examplesDirPath = docsDirPath + "examples"
-	// allCRDYaml contains all crds, should ignore
-	allCRDYaml = "aiven.io_crd-all.gen.yaml"
 )
 
 func main() {
@@ -35,10 +33,6 @@ func generate(crdDir, docsDir, examplesDir string) error {
 	validators := make(map[string]schemaValidator)
 	for _, crd := range crd {
 		if crd.IsDir() {
-			continue
-		}
-
-		if crd.Name() == allCRDYaml {
 			continue
 		}
 
