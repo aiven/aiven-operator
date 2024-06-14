@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add kind: `ClickhouseGrant`
+
 ## v0.20.0 - 2024-06-05
 
 - Add kind: `ServiceIntegrationEndpoint`
