@@ -25,6 +25,7 @@ resources:
   - bases/aiven.io_clickhousedatabases.yaml
   - bases/aiven.io_kafkaschemaregistryacls.yaml
   - bases/aiven.io_clickhouseroles.yaml
+  - bases/aiven.io_clickhousegrants.yaml
   - bases/aiven.io_serviceintegrationendpoints.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
