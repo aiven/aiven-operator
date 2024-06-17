@@ -9,4 +9,4 @@ spec:
 
   project: my-aiven-project
   serviceName: my-clickhouse
-  role: my_role
+  role: my-role

@@ -11,7 +11,6 @@ type ClickhouseRoleSpec struct {
 	ServiceDependant `json:",inline"`
 
 	// +kubebuilder:validation:MaxLength=255
-	// +kubebuilder:validation:Pattern="^[a-zA-Z_][0-9a-zA-Z_]*$"
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// The role that is to be created
 	Role string `json:"role"`

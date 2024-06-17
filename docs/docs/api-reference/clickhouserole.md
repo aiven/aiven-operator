@@ -17,7 +17,7 @@ title: "ClickhouseRole"
     
       project: my-aiven-project
       serviceName: my-clickhouse
-      role: my_role
+      role: my-role
     ```
 
 ## ClickhouseRole {: #ClickhouseRole }
@@ -40,7 +40,7 @@ ClickhouseRoleSpec defines the desired state of ClickhouseRole.
 **Required**
 
 - [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, Pattern: `^[a-zA-Z0-9_-]+$`, MaxLength: 63). Identifies the project this resource belongs to.
-- [`role`](#spec.role-property){: name='spec.role-property'} (string, Immutable, Pattern: `^[a-zA-Z_][0-9a-zA-Z_]*$`, MaxLength: 255). The role that is to be created.
+- [`role`](#spec.role-property){: name='spec.role-property'} (string, Immutable, MaxLength: 255). The role that is to be created.
 - [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]+$`, MaxLength: 63). Specifies the name of the service that this resource belongs to.
 
 **Optional**

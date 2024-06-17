@@ -73,7 +73,6 @@ spec:
                 role:
                   description: The role that is to be created
                   maxLength: 255
-                  pattern: ^[a-zA-Z_][0-9a-zA-Z_]*$
                   type: string
                   x-kubernetes-validations:
                     - message: Value is immutable
