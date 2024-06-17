@@ -1,0 +1,40 @@
+
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseGrant
+metadata:
+  name: demo-ch-grant
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  serviceName: my-clickhouse
+
+  privilegeGrants:
+    - grantees:
+        - user: user1
+        - user: my-clickhouse-user-🦄
+      privileges:
+        - SELECT
+        - INSERT
+      database: my-db
+      # If table is not specified, the privileges are granted on all tables in the database
+      # If columns is not specified, the privileges are granted on all columns in the table
+    - grantees:
+        - role: my-role
+      privileges:
+        - SELECT
+      database: my-db
+      table: my-table
+      columns:
+        - col1
+        - col2
+
+  roleGrants:
+    - roles:
+        - other-role
+      grantees:
+        - user: my-user
+        - role: my-role
+
