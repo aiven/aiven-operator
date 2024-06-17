@@ -2,6 +2,9 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `Kafka` field `userConfig.letsencrypt_sasl_privatelink`, type `boolean`: Use Letsencrypt CA for
+  Kafka SASL via Privatelink
+
 ## v0.20.0 - 2024-06-05
 
 - Add kind: `ServiceIntegrationEndpoint`

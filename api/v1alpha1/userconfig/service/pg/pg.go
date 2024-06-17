@@ -143,7 +143,7 @@ type Pg struct {
 	LogErrorVerbosity *string `groups:"create,update" json:"log_error_verbosity,omitempty"`
 
 	// +kubebuilder:validation:Enum="'pid=%p,user=%u,db=%d,app=%a,client=%h '";"'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '";"'%m [%p] %q[user=%u,db=%d,app=%a] '"
-	// Choose from one of the available log-formats. These can support popular log analyzers like pgbadger, pganalyze etc.
+	// Choose from one of the available log formats.
 	LogLinePrefix *string `groups:"create,update" json:"log_line_prefix,omitempty"`
 
 	// +kubebuilder:validation:Minimum=-1

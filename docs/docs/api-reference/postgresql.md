@@ -36,7 +36,7 @@ title: "PostgreSQL"
 
 ## PostgreSQL {: #PostgreSQL }
 
-PostgreSQL is the Schema for the postgresql API. 
+PostgreSQL is the Schema for the postgresql API.
 
 !!! Info "Exposes secret keys"
 
@@ -66,7 +66,9 @@ PostgreSQLSpec defines the desired state of postgres instance.
 - [`cloudName`](#spec.cloudName-property){: name='spec.cloudName-property'} (string, MaxLength: 256). Cloud the service runs in.
 - [`connInfoSecretTarget`](#spec.connInfoSecretTarget-property){: name='spec.connInfoSecretTarget-property'} (object). Secret configuration. See below for [nested schema](#spec.connInfoSecretTarget).
 - [`connInfoSecretTargetDisabled`](#spec.connInfoSecretTargetDisabled-property){: name='spec.connInfoSecretTargetDisabled-property'} (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
-- [`disk_space`](#spec.disk_space-property){: name='spec.disk_space-property'} (string, Pattern: `(?i)^[1-9][0-9]*(GiB|G)?$`). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing. The removal of this field does not change the value.
+- [`disk_space`](#spec.disk_space-property){: name='spec.disk_space-property'} (string, Pattern: `(?i)^[1-9][0-9]*(GiB|G)?$`). The disk space of the service, possible values depend on the service type, the cloud provider and the project.
+Reducing will result in the service re-balancing.
+The removal of this field does not change the value.
 - [`maintenanceWindowDow`](#spec.maintenanceWindowDow-property){: name='spec.maintenanceWindowDow-property'} (string, Enum: `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.
 - [`maintenanceWindowTime`](#spec.maintenanceWindowTime-property){: name='spec.maintenanceWindowTime-property'} (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
 - [`projectVPCRef`](#spec.projectVPCRef-property){: name='spec.projectVPCRef-property'} (object). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See below for [nested schema](#spec.projectVPCRef).
@@ -102,7 +104,9 @@ Secret configuration.
 
 - [`annotations`](#spec.connInfoSecretTarget.annotations-property){: name='spec.connInfoSecretTarget.annotations-property'} (object, AdditionalProperties: string). Annotations added to the secret.
 - [`labels`](#spec.connInfoSecretTarget.labels-property){: name='spec.connInfoSecretTarget.labels-property'} (object, AdditionalProperties: string). Labels added to the secret.
-- [`prefix`](#spec.connInfoSecretTarget.prefix-property){: name='spec.connInfoSecretTarget.prefix-property'} (string). Prefix for the secret's keys. Added "as is" without any transformations. By default, is equal to the kind name in uppercase + underscore, e.g. `KAFKA_`, `REDIS_`, etc.
+- [`prefix`](#spec.connInfoSecretTarget.prefix-property){: name='spec.connInfoSecretTarget.prefix-property'} (string). Prefix for the secret's keys.
+Added "as is" without any transformations.
+By default, is equal to the kind name in uppercase + underscore, e.g. `KAFKA_`, `REDIS_`, etc.
 
 ## projectVPCRef {: #spec.projectVPCRef }
 
@@ -239,7 +243,7 @@ postgresql.conf configuration values.
 - [`jit`](#spec.userConfig.pg.jit-property){: name='spec.userConfig.pg.jit-property'} (boolean). Controls system-wide use of Just-in-Time Compilation (JIT).
 - [`log_autovacuum_min_duration`](#spec.userConfig.pg.log_autovacuum_min_duration-property){: name='spec.userConfig.pg.log_autovacuum_min_duration-property'} (integer, Minimum: -1, Maximum: 2147483647). Causes each action executed by autovacuum to be logged if it ran for at least the specified number of milliseconds. Setting this to zero logs all autovacuum actions. Minus-one (the default) disables logging autovacuum actions.
 - [`log_error_verbosity`](#spec.userConfig.pg.log_error_verbosity-property){: name='spec.userConfig.pg.log_error_verbosity-property'} (string, Enum: `TERSE`, `DEFAULT`, `VERBOSE`). Controls the amount of detail written in the server log for each message that is logged.
-- [`log_line_prefix`](#spec.userConfig.pg.log_line_prefix-property){: name='spec.userConfig.pg.log_line_prefix-property'} (string, Enum: `'pid=%p,user=%u,db=%d,app=%a,client=%h '`, `'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '`, `'%m [%p] %q[user=%u,db=%d,app=%a] '`). Choose from one of the available log-formats. These can support popular log analyzers like pgbadger, pganalyze etc.
+- [`log_line_prefix`](#spec.userConfig.pg.log_line_prefix-property){: name='spec.userConfig.pg.log_line_prefix-property'} (string, Enum: `'pid=%p,user=%u,db=%d,app=%a,client=%h '`, `'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '`, `'%m [%p] %q[user=%u,db=%d,app=%a] '`). Choose from one of the available log formats.
 - [`log_min_duration_statement`](#spec.userConfig.pg.log_min_duration_statement-property){: name='spec.userConfig.pg.log_min_duration_statement-property'} (integer, Minimum: -1, Maximum: 86400000). Log statements that take more than this number of milliseconds to run, -1 disables.
 - [`log_temp_files`](#spec.userConfig.pg.log_temp_files-property){: name='spec.userConfig.pg.log_temp_files-property'} (integer, Minimum: -1, Maximum: 2147483647). Log statements for each temporary file created larger than this number of kilobytes, -1 disables.
 - [`max_files_per_process`](#spec.userConfig.pg.max_files_per_process-property){: name='spec.userConfig.pg.max_files_per_process-property'} (integer, Minimum: 1000, Maximum: 4096). PostgreSQL maximum number of files that can be open per process.

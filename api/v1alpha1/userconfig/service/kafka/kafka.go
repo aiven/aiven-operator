@@ -487,6 +487,9 @@ type KafkaUserConfig struct {
 	// Kafka major version
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
 
+	// Use Letsencrypt CA for Kafka SASL via Privatelink
+	LetsencryptSaslPrivatelink *bool `groups:"create,update" json:"letsencrypt_sasl_privatelink,omitempty"`
+
 	// Allow access to selected service ports from private networks
 	PrivateAccess *PrivateAccess `groups:"create,update" json:"private_access,omitempty"`
 
