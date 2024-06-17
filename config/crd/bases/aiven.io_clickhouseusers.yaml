@@ -15,6 +15,9 @@ spec:
   scope: Namespaced
   versions:
     - additionalPrinterColumns:
+        - jsonPath: .spec.username
+          name: Username
+          type: string
         - jsonPath: .spec.serviceName
           name: Service Name
           type: string
@@ -119,6 +122,15 @@ spec:
                     belongs to
                   maxLength: 63
                   pattern: ^[a-z][-a-z0-9]+$
+                  type: string
+                  x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
+                username:
+                  description: |-
+                    Name of the Clickhouse user. Defaults to `metadata.name` if omitted.
+                    Note: `metadata.name` is ASCII-only. For UTF-8 names, use `spec.username`, but ASCII is advised for compatibility.
+                  maxLength: 63
                   type: string
                   x-kubernetes-validations:
                     - message: Value is immutable
