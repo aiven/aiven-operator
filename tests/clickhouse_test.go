@@ -12,91 +12,6 @@ import (
 	"github.com/aiven/aiven-operator/controllers"
 )
 
-func getClickhouseYaml(project, cloudName, chName, dbName1, dbName2, role1, role2 string) string {
-	return fmt.Sprintf(`
-apiVersion: aiven.io/v1alpha1
-kind: Clickhouse
-metadata:
-  name: %[3]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[2]s
-  plan: startup-16
-
-  tags:
-    env: test
-    instance: foo
-
-  userConfig:
-    ip_filter:
-      - network: 0.0.0.0/32
-        description: bar
-      - network: 10.20.0.0/16
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: ClickhouseDatabase
-metadata:
-  name: %[4]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  serviceName:  %[3]s
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: ClickhouseDatabase
-metadata:
-  name: %[5]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  serviceName:  %[3]s
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: ClickhouseRole
-metadata:
-  name: %[6]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  serviceName:  %[3]s
-  role: reader
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: ClickhouseRole
-metadata:
-  name: %[7]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  serviceName:  %[3]s
-  role: writer
-`, project, cloudName, chName, dbName1, dbName2, role1, role2)
-}
-
 func TestClickhouse(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
@@ -110,7 +25,43 @@ func TestClickhouse(t *testing.T) {
 	dbName2 := randName("database")
 	roleName1 := randName("role")
 	roleName2 := randName("role")
-	yml := getClickhouseYaml(cfg.Project, cfg.PrimaryCloudName, chName, dbName1, dbName2, roleName1, roleName2)
+
+	ymlClickhouse, err := loadExampleYaml("clickhouse.yaml", map[string]string{
+		"google-europe-west1": cfg.PrimaryCloudName,
+		"my-aiven-project":    cfg.Project,
+		"my-clickhouse":       chName,
+	})
+	require.NoError(t, err)
+	ymlDatabase1, err := loadExampleYaml("clickhousedatabase.yaml", map[string]string{
+		"my-aiven-project": cfg.Project,
+		"my-db":            dbName1,
+		"my-clickhouse":    chName,
+		// Remove 'databaseName' from the initial yaml
+		"databaseName: example-db": "",
+	})
+	require.NoError(t, err)
+	ymlDatabase2, err := loadExampleYaml("clickhousedatabase.yaml", map[string]string{
+		"my-aiven-project": cfg.Project,
+		"my-db":            dbName2,
+		"my-clickhouse":    chName,
+		// Remove 'databaseName' from the initial yaml
+		"databaseName: example-db": "",
+	})
+	require.NoError(t, err)
+	ymlRole1, err := loadExampleYaml("clickhouserole.yaml", map[string]string{
+		"my-aiven-project": cfg.Project,
+		"my-role":          roleName1,
+		"my-clickhouse":    chName,
+	})
+	require.NoError(t, err)
+	ymlRole2, err := loadExampleYaml("clickhouserole.yaml", map[string]string{
+		"my-aiven-project": cfg.Project,
+		"my-role":          roleName2,
+		"my-clickhouse":    chName,
+	})
+	require.NoError(t, err)
+
+	yml := fmt.Sprintf("%s---\n%s---\n%s---\n%s---\n%s", ymlClickhouse, ymlDatabase1, ymlDatabase2, ymlRole1, ymlRole2)
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
@@ -177,8 +128,10 @@ func TestClickhouse(t *testing.T) {
 	// Database exists
 	dbAvn1, err := avnClient.ClickhouseDatabase.Get(ctx, cfg.Project, chName, dbName1)
 	require.NoError(t, err)
-	assert.Equal(t, dbName1, db1.GetName())
-	assert.Equal(t, dbAvn1.Name, db1.GetName())
+
+	// Gets name from `metadata.name` when `databaseName` is not set
+	assert.Equal(t, dbName1, db1.ObjectMeta.Name)
+	assert.Equal(t, dbAvn1.Name, db1.ObjectMeta.Name)
 
 	// We need to validate deletion,
 	// because we can get false positive here:
@@ -188,8 +141,8 @@ func TestClickhouse(t *testing.T) {
 
 	dbAvn2, err := avnClient.ClickhouseDatabase.Get(ctx, cfg.Project, chName, dbName2)
 	require.NoError(t, err)
-	assert.Equal(t, dbName2, db2.GetName())
-	assert.Equal(t, dbAvn2.Name, db2.GetName())
+	assert.Equal(t, dbName2, db2.ObjectMeta.Name)
+	assert.Equal(t, dbAvn2.Name, db2.ObjectMeta.Name)
 
 	// Calls reconciler delete
 	assert.NoError(t, s.Delete(db2, func() error {
@@ -200,11 +153,11 @@ func TestClickhouse(t *testing.T) {
 	// Validates ClickhouseRole
 	role1 := new(v1alpha1.ClickhouseRole)
 	require.NoError(t, s.GetRunning(role1, roleName1))
-	assert.Equal(t, "reader", role1.Spec.Role)
+	assert.Equal(t, roleName1, role1.Spec.Role)
 
 	role2 := new(v1alpha1.ClickhouseRole)
 	require.NoError(t, s.GetRunning(role2, roleName2))
-	assert.Equal(t, "writer", role2.Spec.Role)
+	assert.Equal(t, roleName2, role2.Spec.Role)
 
 	// Roles exist
 	err = controllers.ClickhouseRoleExists(ctx, avnClient, role1)
@@ -226,4 +179,31 @@ func TestClickhouse(t *testing.T) {
 
 	err = controllers.ClickhouseRoleExists(ctx, avnClient, role2)
 	assert.ErrorContains(t, err, fmt.Sprintf("ClickhouseRole %q not found", roleName2))
+
+	// GIVEN
+	// New manifest with 'databaseName' field set
+	dbName3 := randName("database")
+	ymlDatabase3, err := loadExampleYaml("clickhousedatabase.yaml", map[string]string{
+		"name: my-db":              "name: metadata-name",
+		"my-aiven-project":         cfg.Project,
+		"my-clickhouse":            chName,
+		"databaseName: example-db": fmt.Sprintf("databaseName: %s", dbName3),
+	})
+
+	// WHEN
+	// Applies updated manifest
+	require.NoError(t, s.Apply(ymlDatabase3))
+
+	db3 := new(v1alpha1.ClickhouseDatabase)
+	require.NoError(t, s.GetRunning(db3, "metadata-name")) // GetRunning must be called with the metadata name
+
+	dbAvn3, err := avnClient.ClickhouseDatabase.Get(ctx, cfg.Project, chName, dbName3)
+	require.NoError(t, err)
+
+	// THEN
+	// 'databaseName' field is preferred over 'metadata.name'
+	assert.NotEqual(t, dbName3, db3.ObjectMeta.Name)
+	assert.NotEqual(t, dbAvn3.Name, db3.ObjectMeta.Name)
+	assert.Equal(t, dbName3, db3.Spec.DatabaseName)
+	assert.Equal(t, dbAvn3.Name, db3.Spec.DatabaseName)
 }

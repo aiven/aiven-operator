@@ -16,12 +16,21 @@ title: "Clickhouse"
         key: token
     
       connInfoSecretTarget:
-        name: clickhouse-secret
-        prefix: MY_SECRET_PREFIX_
+        name: my-clickhouse
         annotations:
           foo: bar
         labels:
           baz: egg
+    
+      tags:
+        env: test
+        instance: foo
+    
+      userConfig:
+        ip_filter:
+          - network: 0.0.0.0/32
+            description: bar
+          - network: 10.20.0.0/16
     
       project: my-aiven-project
       cloudName: google-europe-west1

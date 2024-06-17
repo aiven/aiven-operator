@@ -7,5 +7,6 @@ spec:
     name: aiven-token
     key: token
 
-  project: aiven-project-name
+  project: my-aiven-project
   serviceName: my-clickhouse
+  databaseName: example-db
