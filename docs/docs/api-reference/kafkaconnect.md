@@ -122,6 +122,7 @@ KafkaConnect specific user configuration options.
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
 - [`privatelink_access`](#spec.userConfig.privatelink_access-property){: name='spec.userConfig.privatelink_access-property'} (object). Allow access to selected service components through Privatelink. See below for [nested schema](#spec.userConfig.privatelink_access).
 - [`public_access`](#spec.userConfig.public_access-property){: name='spec.userConfig.public_access-property'} (object). Allow access to selected service ports from the public Internet. See below for [nested schema](#spec.userConfig.public_access).
+- [`secret_providers`](#spec.userConfig.secret_providers-property){: name='spec.userConfig.secret_providers-property'} (array of objects). Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name>}. See below for [nested schema](#spec.userConfig.secret_providers).
 - [`service_log`](#spec.userConfig.service_log-property){: name='spec.userConfig.service_log-property'} (boolean). Store logs for the service so that they are available in the HTTP API and console.
 - [`static_ips`](#spec.userConfig.static_ips-property){: name='spec.userConfig.static_ips-property'} (boolean). Use static public IP addresses.
 
@@ -197,3 +198,51 @@ Allow access to selected service ports from the public Internet.
 
 - [`kafka_connect`](#spec.userConfig.public_access.kafka_connect-property){: name='spec.userConfig.public_access.kafka_connect-property'} (boolean). Allow clients to connect to kafka_connect from the public internet for service nodes that are in a project VPC or another type of private network.
 - [`prometheus`](#spec.userConfig.public_access.prometheus-property){: name='spec.userConfig.public_access.prometheus-property'} (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network.
+
+### secret_providers {: #spec.userConfig.secret_providers }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name>}.
+
+**Required**
+
+- [`name`](#spec.userConfig.secret_providers.name-property){: name='spec.userConfig.secret_providers.name-property'} (string). Name of the secret provider. Used to reference secrets in connector config.
+
+**Optional**
+
+- [`aws`](#spec.userConfig.secret_providers.aws-property){: name='spec.userConfig.secret_providers.aws-property'} (object). AWS config for Secret Provider. See below for [nested schema](#spec.userConfig.secret_providers.aws).
+- [`vault`](#spec.userConfig.secret_providers.vault-property){: name='spec.userConfig.secret_providers.vault-property'} (object). Vault Config for Secret Provider. See below for [nested schema](#spec.userConfig.secret_providers.vault).
+
+#### aws {: #spec.userConfig.secret_providers.aws }
+
+_Appears on [`spec.userConfig.secret_providers`](#spec.userConfig.secret_providers)._
+
+AWS config for Secret Provider.
+
+**Required**
+
+- [`auth_method`](#spec.userConfig.secret_providers.aws.auth_method-property){: name='spec.userConfig.secret_providers.aws.auth_method-property'} (string, Enum: `credentials`). Auth method of the vault secret provider.
+- [`region`](#spec.userConfig.secret_providers.aws.region-property){: name='spec.userConfig.secret_providers.aws.region-property'} (string, MaxLength: 64). Region used to lookup secrets with AWS SecretManager.
+
+**Optional**
+
+- [`access_key`](#spec.userConfig.secret_providers.aws.access_key-property){: name='spec.userConfig.secret_providers.aws.access_key-property'} (string, MaxLength: 128). Access key used to authenticate with aws.
+- [`secret_key`](#spec.userConfig.secret_providers.aws.secret_key-property){: name='spec.userConfig.secret_providers.aws.secret_key-property'} (string, MaxLength: 128). Secret key used to authenticate with aws.
+
+#### vault {: #spec.userConfig.secret_providers.vault }
+
+_Appears on [`spec.userConfig.secret_providers`](#spec.userConfig.secret_providers)._
+
+Vault Config for Secret Provider.
+
+**Required**
+
+- [`address`](#spec.userConfig.secret_providers.vault.address-property){: name='spec.userConfig.secret_providers.vault.address-property'} (string, MinLength: 1, MaxLength: 65536). Address of the Vault server.
+- [`auth_method`](#spec.userConfig.secret_providers.vault.auth_method-property){: name='spec.userConfig.secret_providers.vault.auth_method-property'} (string, Enum: `token`). Auth method of the vault secret provider.
+
+**Optional**
+
+- [`engine_version`](#spec.userConfig.secret_providers.vault.engine_version-property){: name='spec.userConfig.secret_providers.vault.engine_version-property'} (integer, Enum: `1`, `2`). KV Secrets Engine version of the Vault server instance.
+- [`token`](#spec.userConfig.secret_providers.vault.token-property){: name='spec.userConfig.secret_providers.vault.token-property'} (string, MaxLength: 256). Token used to authenticate with vault and auth method `token`.
+

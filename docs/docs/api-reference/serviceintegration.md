@@ -279,7 +279,7 @@ Tables to create.
 **Required**
 
 - [`columns`](#spec.clickhouseKafka.tables.columns-property){: name='spec.clickhouseKafka.tables.columns-property'} (array of objects, MaxItems: 100). Table columns. See below for [nested schema](#spec.clickhouseKafka.tables.columns).
-- [`data_format`](#spec.clickhouseKafka.tables.data_format-property){: name='spec.clickhouseKafka.tables.data_format-property'} (string, Enum: `Avro`, `CSV`, `JSONAsString`, `JSONCompactEachRow`, `JSONCompactStringsEachRow`, `JSONEachRow`, `JSONStringsEachRow`, `MsgPack`, `TSKV`, `TSV`, `TabSeparated`, `RawBLOB`, `AvroConfluent`). Message data format.
+- [`data_format`](#spec.clickhouseKafka.tables.data_format-property){: name='spec.clickhouseKafka.tables.data_format-property'} (string, Enum: `Avro`, `CSV`, `JSONAsString`, `JSONCompactEachRow`, `JSONCompactStringsEachRow`, `JSONEachRow`, `JSONStringsEachRow`, `MsgPack`, `TSKV`, `TSV`, `TabSeparated`, `RawBLOB`, `AvroConfluent`, `Parquet`). Message data format.
 - [`group_name`](#spec.clickhouseKafka.tables.group_name-property){: name='spec.clickhouseKafka.tables.group_name-property'} (string, MinLength: 1, MaxLength: 249). Kafka consumers group.
 - [`name`](#spec.clickhouseKafka.tables.name-property){: name='spec.clickhouseKafka.tables.name-property'} (string, MinLength: 1, MaxLength: 40). Name of the table.
 - [`topics`](#spec.clickhouseKafka.tables.topics-property){: name='spec.clickhouseKafka.tables.topics-property'} (array of objects, MaxItems: 100). Kafka topics. See below for [nested schema](#spec.clickhouseKafka.tables.topics).
@@ -354,6 +354,7 @@ Datadog specific user configuration options.
 - [`include_topics`](#spec.datadog.include_topics-property){: name='spec.datadog.include_topics-property'} (array of strings, MaxItems: 1024). List of topics to include.
 - [`kafka_custom_metrics`](#spec.datadog.kafka_custom_metrics-property){: name='spec.datadog.kafka_custom_metrics-property'} (array of strings, MaxItems: 1024). List of custom metrics.
 - [`max_jmx_metrics`](#spec.datadog.max_jmx_metrics-property){: name='spec.datadog.max_jmx_metrics-property'} (integer, Minimum: 10, Maximum: 100000). Maximum number of JMX metrics to send.
+- [`mirrormaker_custom_metrics`](#spec.datadog.mirrormaker_custom_metrics-property){: name='spec.datadog.mirrormaker_custom_metrics-property'} (array of strings, MaxItems: 1024). List of custom metrics.
 - [`opensearch`](#spec.datadog.opensearch-property){: name='spec.datadog.opensearch-property'} (object). Datadog Opensearch Options. See below for [nested schema](#spec.datadog.opensearch).
 - [`redis`](#spec.datadog.redis-property){: name='spec.datadog.redis-property'} (object). Datadog Redis Options. See below for [nested schema](#spec.datadog.redis).
 
@@ -483,7 +484,9 @@ Kafka MirrorMaker configuration values.
 
 **Optional**
 
+- [`consumer_auto_offset_reset`](#spec.kafkaMirrormaker.kafka_mirrormaker.consumer_auto_offset_reset-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker.consumer_auto_offset_reset-property'} (string, Enum: `earliest`, `latest`). Set where consumer starts to consume data. Value `earliest`: Start replication from the earliest offset. Value `latest`: Start replication from the latest offset. Default is `earliest`.
 - [`consumer_fetch_min_bytes`](#spec.kafkaMirrormaker.kafka_mirrormaker.consumer_fetch_min_bytes-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker.consumer_fetch_min_bytes-property'} (integer, Minimum: 1, Maximum: 5242880). The minimum amount of data the server should return for a fetch request.
+- [`consumer_max_poll_records`](#spec.kafkaMirrormaker.kafka_mirrormaker.consumer_max_poll_records-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker.consumer_max_poll_records-property'} (integer, Minimum: 100, Maximum: 20000). Set consumer max.poll.records. The default is 500.
 - [`producer_batch_size`](#spec.kafkaMirrormaker.kafka_mirrormaker.producer_batch_size-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker.producer_batch_size-property'} (integer, Minimum: 0, Maximum: 5242880). The batch size in bytes producer will attempt to collect before publishing to broker.
 - [`producer_buffer_memory`](#spec.kafkaMirrormaker.kafka_mirrormaker.producer_buffer_memory-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker.producer_buffer_memory-property'} (integer, Minimum: 5242880, Maximum: 134217728). The amount of bytes producer can use for buffering data before publishing to broker.
 - [`producer_compression_type`](#spec.kafkaMirrormaker.kafka_mirrormaker.producer_compression_type-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker.producer_compression_type-property'} (string, Enum: `gzip`, `snappy`, `lz4`, `zstd`, `none`). Specify the default compression type for producers. This configuration accepts the standard compression codecs (`gzip`, `snappy`, `lz4`, `zstd`). It additionally accepts `none` which is the default and equivalent to no compression.

@@ -130,6 +130,7 @@ spec:
                               - TabSeparated
                               - RawBLOB
                               - AvroConfluent
+                              - Parquet
                             type: string
                           date_time_input_format:
                             description: Method to read DateTime from text input formats
@@ -299,6 +300,12 @@ spec:
                       maximum: 100000
                       minimum: 10
                       type: integer
+                    mirrormaker_custom_metrics:
+                      description: List of custom metrics
+                      items:
+                        type: string
+                      maxItems: 1024
+                      type: array
                     opensearch:
                       description: Datadog Opensearch Options
                       properties:
@@ -506,12 +513,29 @@ spec:
                     kafka_mirrormaker:
                       description: Kafka MirrorMaker configuration values
                       properties:
+                        consumer_auto_offset_reset:
+                          description:
+                            "Set where consumer starts to consume data. Value
+                            `earliest`: Start replication from the earliest offset.
+                            Value `latest`: Start replication from the latest offset.
+                            Default is `earliest`."
+                          enum:
+                            - earliest
+                            - latest
+                          type: string
                         consumer_fetch_min_bytes:
                           description:
                             The minimum amount of data the server should
                             return for a fetch request
                           maximum: 5242880
                           minimum: 1
+                          type: integer
+                        consumer_max_poll_records:
+                          description:
+                            Set consumer max.poll.records. The default is
+                            500.
+                          maximum: 20000
+                          minimum: 100
                           type: integer
                         producer_batch_size:
                           description:
