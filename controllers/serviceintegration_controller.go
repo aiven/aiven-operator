@@ -113,11 +113,11 @@ func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avn *aive
 
 	meta.SetStatusCondition(&si.Status.Conditions,
 		getInitializedCondition(reason,
-			"Instance was created or update on Aiven side"))
+			"Successfully created or updated the instance in Aiven"))
 
 	meta.SetStatusCondition(&si.Status.Conditions,
 		getRunningCondition(metav1.ConditionUnknown, reason,
-			"Instance was created or update on Aiven side, status remains unknown"))
+			"Successfully created or updated the instance in Aiven, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&si.ObjectMeta,
 		processedGenerationAnnotation, strconv.FormatInt(si.GetGeneration(), formatIntBaseDecimal))

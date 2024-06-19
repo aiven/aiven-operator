@@ -79,7 +79,7 @@ func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 
 	meta.SetStatusCondition(&user.Status.Conditions,
 		getInitializedCondition("Created",
-			"Instance was created or update on Aiven side"))
+			"Successfully created or updated the instance in Aiven"))
 
 	metav1.SetMetaDataAnnotation(&user.ObjectMeta,
 		processedGenerationAnnotation, strconv.FormatInt(user.GetGeneration(), formatIntBaseDecimal))

@@ -59,12 +59,12 @@ The output is similar to the following:
 Status:
   Conditions:
     Last Transition Time:  2023-02-22T15:43:44Z
-    Message:               Instance was created or update on Aiven side
+    Message:               Successfully created or updated the instance in Aiven
     Reason:                Created
     Status:                True
     Type:                  Initialized
     Last Transition Time:  2023-02-22T15:43:44Z
-    Message:               Instance was created or update on Aiven side, status remains unknown
+    Message:               Successfully created or updated the instance in Aiven, status remains unknown
     Reason:                Created
     Status:                Unknown
     Type:                  Running

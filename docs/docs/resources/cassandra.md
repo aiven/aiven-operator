@@ -66,7 +66,7 @@ The output is similar to the following:
 Status:
   Conditions:
     Last Transition Time:  2023-01-31T10:17:25Z
-    Message:               Instance was created or update on Aiven side
+    Message:               Successfully created or updated the instance in Aiven
     Reason:                Created
     Status:                True
     Type:                  Initialized

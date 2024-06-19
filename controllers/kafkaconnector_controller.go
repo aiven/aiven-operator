@@ -83,11 +83,11 @@ func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avn *aiven.Cl
 
 	meta.SetStatusCondition(&conn.Status.Conditions,
 		getInitializedCondition(reason,
-			"Instance was created or update on Aiven side"))
+			"Successfully created or updated the instance in Aiven"))
 
 	meta.SetStatusCondition(&conn.Status.Conditions,
 		getRunningCondition(metav1.ConditionUnknown, reason,
-			"Instance was created or update on Aiven side, status remains unknown"))
+			"Successfully created or updated the instance in Aiven, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&conn.ObjectMeta,
 		processedGenerationAnnotation, strconv.FormatInt(conn.GetGeneration(), formatIntBaseDecimal))

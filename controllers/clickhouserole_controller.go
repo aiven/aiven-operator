@@ -65,7 +65,7 @@ func (h *clickhouseRoleHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 
 	meta.SetStatusCondition(&role.Status.Conditions,
 		getInitializedCondition("Created",
-			"Instance was created or update on Aiven side"))
+			"Successfully created or updated the instance in Aiven"))
 
 	metav1.SetMetaDataAnnotation(&role.ObjectMeta,
 		processedGenerationAnnotation, strconv.FormatInt(role.GetGeneration(), formatIntBaseDecimal))
