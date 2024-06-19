@@ -88,10 +88,6 @@ func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avn *aiven.Cl
 		getInitializedCondition(reason,
 			"Instance was created or update on Aiven side"))
 
-	meta.SetStatusCondition(&cp.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, reason,
-			"Instance was created or update on Aiven side, status remains unknown"))
-
 	metav1.SetMetaDataAnnotation(&cp.ObjectMeta,
 		processedGenerationAnnotation, strconv.FormatInt(cp.GetGeneration(), formatIntBaseDecimal))
 

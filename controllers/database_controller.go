@@ -70,10 +70,6 @@ func (h DatabaseHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, 
 		getInitializedCondition("Created",
 			"Instance was created or update on Aiven side"))
 
-	meta.SetStatusCondition(&db.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "Created",
-			"Instance was created or update on Aiven side, status remains unknown"))
-
 	metav1.SetMetaDataAnnotation(&db.ObjectMeta,
 		processedGenerationAnnotation, strconv.FormatInt(db.GetGeneration(), formatIntBaseDecimal))
 
