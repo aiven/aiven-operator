@@ -85,6 +85,34 @@ rules:
   - apiGroups:
       - aiven.io
     resources:
+      - clickhousegrants
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - clickhousegrants/finalizers
+    verbs:
+      - create
+      - get
+      - update
+  - apiGroups:
+      - aiven.io
+    resources:
+      - clickhousegrants/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - aiven.io
+    resources:
       - clickhouseroles
     verbs:
       - create

@@ -29,6 +29,7 @@ func SetupControllers(mgr ctrl.Manager, defaultToken, kubeVersion, operatorVersi
 		"ClickhouseDatabase":               newClickhouseDatabaseReconciler,
 		"ClickhouseRole":                   newClickhouseRoleReconciler,
 		"ClickhouseUser":                   newClickhouseUserReconciler,
+		"ClickhouseGrant":                  newClickhouseGrantReconciler,
 		"ConnectionPool":                   newConnectionPoolReconciler,
 		"Database":                         newDatabaseReconciler,
 		"Grafana":                          newGrafanaReconciler,

@@ -92,6 +92,7 @@ nav:
       - api-reference/clickhousedatabase.md
       - api-reference/clickhouserole.md
       - api-reference/clickhouseuser.md
+      - api-reference/clickhousegrant.md
       - api-reference/connectionpool.md
       - api-reference/database.md
       - api-reference/grafana.md
