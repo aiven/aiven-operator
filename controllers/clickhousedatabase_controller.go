@@ -50,9 +50,10 @@ func (h *ClickhouseDatabaseHandler) createOrUpdate(ctx context.Context, avn *aiv
 		return err
 	}
 
-	_, err = avn.ClickhouseDatabase.Get(ctx, db.Spec.Project, db.Spec.ServiceName, db.Name)
+	dbName := db.GetDatabaseName()
+	_, err = avn.ClickhouseDatabase.Get(ctx, db.Spec.Project, db.Spec.ServiceName, dbName)
 	if isNotFound(err) {
-		err = avn.ClickhouseDatabase.Create(ctx, db.Spec.Project, db.Spec.ServiceName, db.Name)
+		err = avn.ClickhouseDatabase.Create(ctx, db.Spec.Project, db.Spec.ServiceName, dbName)
 	}
 
 	if err != nil {
@@ -79,7 +80,8 @@ func (h *ClickhouseDatabaseHandler) delete(ctx context.Context, avn *aiven.Clien
 		return false, err
 	}
 
-	err = avn.ClickhouseDatabase.Delete(ctx, db.Spec.Project, db.Spec.ServiceName, db.Name)
+	dbName := db.GetDatabaseName()
+	err = avn.ClickhouseDatabase.Delete(ctx, db.Spec.Project, db.Spec.ServiceName, dbName)
 	if err != nil && !isNotFound(err) {
 		return false, err
 	}
@@ -93,7 +95,8 @@ func (h *ClickhouseDatabaseHandler) get(ctx context.Context, avn *aiven.Client, 
 		return nil, err
 	}
 
-	_, err = avn.ClickhouseDatabase.Get(ctx, db.Spec.Project, db.Spec.ServiceName, db.Name)
+	dbName := db.GetDatabaseName()
+	_, err = avn.ClickhouseDatabase.Get(ctx, db.Spec.Project, db.Spec.ServiceName, dbName)
 	if err != nil {
 		return nil, err
 	}

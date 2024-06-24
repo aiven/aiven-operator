@@ -15,8 +15,9 @@ title: "ClickhouseDatabase"
         name: aiven-token
         key: token
     
-      project: aiven-project-name
+      project: my-aiven-project
       serviceName: my-clickhouse
+      databaseName: my-db
     ```
 
 ## ClickhouseDatabase {: #ClickhouseDatabase }
@@ -44,6 +45,8 @@ ClickhouseDatabaseSpec defines the desired state of ClickhouseDatabase.
 **Optional**
 
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
+- [`databaseName`](#spec.databaseName-property){: name='spec.databaseName-property'} (string, Immutable, MaxLength: 63). Specifies the Clickhouse database name. Defaults to `metadata.name` if omitted.
+Note: `metadata.name` is ASCII-only. For UTF-8 names, use `spec.databaseName`, but ASCII is advised for compatibility.
 
 ## authSecretRef {: #spec.authSecretRef }
 

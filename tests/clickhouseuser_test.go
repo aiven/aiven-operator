@@ -10,45 +10,6 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getClickhouseUserYaml(project, chName, userName, cloudName string) string {
-	return fmt.Sprintf(`
-apiVersion: aiven.io/v1alpha1
-kind: Clickhouse
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[4]s
-  plan: startup-16
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: ClickhouseUser
-metadata:
-  name: %[3]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  connInfoSecretTarget:
-    name: my-ch-user-secret
-    annotations:
-      foo: bar
-    labels:
-      baz: egg
-
-  project: %[1]s
-  serviceName: %[2]s
-
-`, project, chName, userName, cloudName)
-}
-
 func TestClickhouseUser(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
@@ -57,9 +18,18 @@ func TestClickhouseUser(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	chName := randName("clickhouse-user")
+	chName := randName("clickhouse")
 	userName := randName("clickhouse-user")
-	yml := getClickhouseUserYaml(cfg.Project, chName, userName, cfg.PrimaryCloudName)
+	yml, err := loadExampleYaml("clickhouseuser.yaml", map[string]string{
+		"google-europe-west1":    cfg.PrimaryCloudName,
+		"my-aiven-project":       cfg.Project,
+		"clickhouse-user-secret": userName,
+		"my-clickhouse-user":     userName,
+		"my-clickhouse":          chName,
+		// Remove 'username' from the initial yaml
+		"username: example-username": "",
+	})
+	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
@@ -87,8 +57,10 @@ func TestClickhouseUser(t *testing.T) {
 
 	userAvn, err := avnClient.ClickhouseUser.Get(ctx, cfg.Project, chName, user.Status.UUID)
 	require.NoError(t, err)
-	assert.Equal(t, userName, user.GetName())
-	assert.Equal(t, userAvn.Name, user.GetName())
+
+	// Gets name from `metadata.name` when `username` is not set
+	assert.Equal(t, userName, user.ObjectMeta.Name)
+	assert.Equal(t, userAvn.Name, user.ObjectMeta.Name)
 
 	secret, err := s.GetSecret(user.Spec.ConnInfoSecretTarget.Name)
 	require.NoError(t, err)
@@ -102,6 +74,38 @@ func TestClickhouseUser(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_USERNAME"])
 	assert.Equal(t, map[string]string{"foo": "bar"}, secret.Annotations)
 	assert.Equal(t, map[string]string{"baz": "egg"}, secret.Labels)
+	// Secret should use 'metadata.name' as 'username'
+	assert.EqualValues(t, secret.Data["USERNAME"], user.ObjectMeta.Name)
+	assert.EqualValues(t, secret.Data["CLICKHOUSEUSER_USERNAME"], user.ObjectMeta.Name)
+
+	// GIVEN
+	// New manifest with 'username' field set
+	updatedUserName := randName("clickhouse-user")
+	ymlUsernameSet, err := loadExampleYaml("clickhouseuser.yaml", map[string]string{
+		"google-europe-west1":        cfg.PrimaryCloudName,
+		"my-aiven-project":           cfg.Project,
+		"clickhouse-user-secret":     updatedUserName,
+		"name: my-clickhouse-user":   "name: metadata-name",
+		"my-clickhouse":              chName,
+		"username: example-username": fmt.Sprintf("username: %s", updatedUserName),
+	})
+	require.NoError(t, err)
+
+	// WHEN
+	// Applies updated manifest
+	updatedUser := new(v1alpha1.ClickhouseUser)
+	require.NoError(t, s.Apply(ymlUsernameSet))
+	require.NoError(t, s.GetRunning(updatedUser, "metadata-name")) // GetRunning must be called with the metadata name
+
+	userAvn, err = avnClient.ClickhouseUser.Get(ctx, cfg.Project, chName, updatedUser.Status.UUID)
+	require.NoError(t, err)
+
+	// THEN
+	// 'username' field is preferred over 'metadata.name'
+	assert.NotEqual(t, updatedUserName, updatedUser.ObjectMeta.Name)
+	assert.NotEqual(t, userAvn.Name, updatedUser.ObjectMeta.Name)
+	assert.Equal(t, updatedUserName, updatedUser.Spec.Username)
+	assert.Equal(t, userAvn.Name, updatedUser.Spec.Username)
 
 	// We need to validate deletion,
 	// because we can get false positive here:

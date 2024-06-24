@@ -15,6 +15,9 @@ spec:
   scope: Namespaced
   versions:
     - additionalPrinterColumns:
+        - jsonPath: .spec.databaseName
+          name: Database name
+          type: string
         - jsonPath: .spec.serviceName
           name: Service Name
           type: string
@@ -59,6 +62,15 @@ spec:
                     - key
                     - name
                   type: object
+                databaseName:
+                  description: |-
+                    Specifies the Clickhouse database name. Defaults to `metadata.name` if omitted.
+                    Note: `metadata.name` is ASCII-only. For UTF-8 names, use `spec.databaseName`, but ASCII is advised for compatibility.
+                  maxLength: 63
+                  type: string
+                  x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
                 project:
                   description: Identifies the project this resource belongs to
                   maxLength: 63
@@ -81,6 +93,9 @@ spec:
                 - project
                 - serviceName
               type: object
+              x-kubernetes-validations:
+                - message: databaseName is required once set
+                  rule: "!has(oldSelf.databaseName) || has(self.databaseName)"
             status:
               description: ClickhouseDatabaseStatus defines the observed state of ClickhouseDatabase
               properties:

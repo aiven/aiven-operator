@@ -17,7 +17,6 @@ title: "ClickhouseUser"
     
       connInfoSecretTarget:
         name: clickhouse-user-secret
-        prefix: MY_SECRET_PREFIX_
         annotations:
           foo: bar
         labels:
@@ -25,6 +24,22 @@ title: "ClickhouseUser"
     
       project: my-aiven-project
       serviceName: my-clickhouse
+      username: example-username
+    
+    ---
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: Clickhouse
+    metadata:
+      name: my-clickhouse
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: my-aiven-project
+      cloudName: google-europe-west1
+      plan: startup-16
     ```
 
 ## ClickhouseUser {: #ClickhouseUser }
@@ -58,6 +73,8 @@ ClickhouseUserSpec defines the desired state of ClickhouseUser.
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
 - [`connInfoSecretTarget`](#spec.connInfoSecretTarget-property){: name='spec.connInfoSecretTarget-property'} (object). Secret configuration. See below for [nested schema](#spec.connInfoSecretTarget).
 - [`connInfoSecretTargetDisabled`](#spec.connInfoSecretTargetDisabled-property){: name='spec.connInfoSecretTargetDisabled-property'} (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
+- [`username`](#spec.username-property){: name='spec.username-property'} (string, Immutable, MaxLength: 63). Name of the Clickhouse user. Defaults to `metadata.name` if omitted.
+Note: `metadata.name` is ASCII-only. For UTF-8 names, use `spec.username`, but ASCII is advised for compatibility.
 
 ## authSecretRef {: #spec.authSecretRef }
 

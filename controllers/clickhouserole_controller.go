@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -19,12 +18,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
-)
-
-// https://clickhouse.com/docs/en/sql-reference/syntax#identifiers
-var (
-	identifierRegex      = regexp.MustCompile(`^[a-zA-Z_][0-9a-zA-Z_]+$`)
-	errInvalidIdentifier = errors.New("invalid identifier")
 )
 
 // default database used for statements that do not target a particular database
@@ -133,12 +126,15 @@ func (h *clickhouseRoleHandler) convert(i client.Object) (*v1alpha1.ClickhouseRo
 	return role, nil
 }
 
-func runQuery(ctx context.Context, avn *aiven.Client, r *v1alpha1.ClickhouseRole, query string) error {
-	if !identifierRegex.MatchString(r.Spec.Role) {
-		return fmt.Errorf("%w: %q", errInvalidIdentifier, r.Spec.Role)
-	}
+// Escapes database identifiers like table or column names
+func escape(identifier string) string {
+	// See https://github.com/ClickHouse/clickhouse-go/blob/8ad6ec6b95d8b0c96d00115bc2d69ff13083f94b/lib/column/column.go#L32
+	replacer := strings.NewReplacer("`", "\\`", "\\", "\\\\")
+	return "`" + replacer.Replace(identifier) + "`"
+}
 
-	q := fmt.Sprintf("%s %s", query, r.Spec.Role)
+func runQuery(ctx context.Context, avn *aiven.Client, r *v1alpha1.ClickhouseRole, query string) error {
+	q := fmt.Sprintf("%s %s", query, escape(r.Spec.Role))
 	_, err := avn.ClickHouseQuery.Query(ctx, r.Spec.Project, r.Spec.ServiceName, defaultDatabase, q)
 	return err
 }

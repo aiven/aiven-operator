@@ -53,12 +53,29 @@ func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 		return err
 	}
 
-	r, err := avn.ClickhouseUser.Create(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
+	list, err := avn.ClickhouseUser.List(ctx, user.Spec.Project, user.Spec.ServiceName)
 	if err != nil {
 		return err
 	}
 
-	user.Status.UUID = r.User.UUID
+	var uuid string
+	for _, u := range list.Users {
+		if u.Name == user.GetUsername() {
+			uuid = u.UUID
+			break
+		}
+	}
+
+	if uuid == "" {
+		r, err := avn.ClickhouseUser.Create(ctx, user.Spec.Project, user.Spec.ServiceName, user.GetUsername())
+		if err != nil {
+			return err
+		}
+
+		uuid = r.User.UUID
+	}
+
+	user.Status.UUID = uuid
 
 	meta.SetStatusCondition(&user.Status.Conditions,
 		getInitializedCondition("Created",
@@ -119,12 +136,12 @@ func (h *clickhouseUserHandler) get(ctx context.Context, avn *aiven.Client, avnG
 		prefix + "HOST":     s.URIParams["host"],
 		prefix + "PORT":     s.URIParams["port"],
 		prefix + "PASSWORD": password,
-		prefix + "USERNAME": user.Name,
+		prefix + "USERNAME": user.GetUsername(),
 		// todo: remove in future releases
 		"HOST":     s.URIParams["host"],
 		"PORT":     s.URIParams["port"],
 		"PASSWORD": password,
-		"USERNAME": user.Name,
+		"USERNAME": user.GetUsername(),
 	}
 
 	secret := newSecret(user, stringData, false)
