@@ -157,10 +157,12 @@ Kafka specific user configuration options.
 - [`kafka_authentication_methods`](#spec.userConfig.kafka_authentication_methods-property){: name='spec.userConfig.kafka_authentication_methods-property'} (object). Kafka authentication methods. See below for [nested schema](#spec.userConfig.kafka_authentication_methods).
 - [`kafka_connect`](#spec.userConfig.kafka_connect-property){: name='spec.userConfig.kafka_connect-property'} (boolean). Enable Kafka Connect service.
 - [`kafka_connect_config`](#spec.userConfig.kafka_connect_config-property){: name='spec.userConfig.kafka_connect_config-property'} (object). Kafka Connect configuration values. See below for [nested schema](#spec.userConfig.kafka_connect_config).
+- [`kafka_connect_secret_providers`](#spec.userConfig.kafka_connect_secret_providers-property){: name='spec.userConfig.kafka_connect_secret_providers-property'} (array of objects). Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name>}. See below for [nested schema](#spec.userConfig.kafka_connect_secret_providers).
 - [`kafka_rest`](#spec.userConfig.kafka_rest-property){: name='spec.userConfig.kafka_rest-property'} (boolean). Enable Kafka-REST service.
 - [`kafka_rest_authorization`](#spec.userConfig.kafka_rest_authorization-property){: name='spec.userConfig.kafka_rest_authorization-property'} (boolean). Enable authorization in Kafka-REST service.
 - [`kafka_rest_config`](#spec.userConfig.kafka_rest_config-property){: name='spec.userConfig.kafka_rest_config-property'} (object). Kafka REST configuration. See below for [nested schema](#spec.userConfig.kafka_rest_config).
 - [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string, Enum: `3.4`, `3.5`, `3.6`, `3.7`). Kafka major version.
+- [`letsencrypt_sasl_privatelink`](#spec.userConfig.letsencrypt_sasl_privatelink-property){: name='spec.userConfig.letsencrypt_sasl_privatelink-property'} (boolean). Use Letsencrypt CA for Kafka SASL via Privatelink.
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
 - [`privatelink_access`](#spec.userConfig.privatelink_access-property){: name='spec.userConfig.privatelink_access-property'} (object). Allow access to selected service components through Privatelink. See below for [nested schema](#spec.userConfig.privatelink_access).
 - [`public_access`](#spec.userConfig.public_access-property){: name='spec.userConfig.public_access-property'} (object). Allow access to selected service ports from the public Internet. See below for [nested schema](#spec.userConfig.public_access).
@@ -274,6 +276,53 @@ Kafka Connect configuration values.
 - [`producer_max_request_size`](#spec.userConfig.kafka_connect_config.producer_max_request_size-property){: name='spec.userConfig.kafka_connect_config.producer_max_request_size-property'} (integer, Minimum: 131072, Maximum: 67108864). This setting will limit the number of record batches the producer will send in a single request to avoid sending huge requests.
 - [`scheduled_rebalance_max_delay_ms`](#spec.userConfig.kafka_connect_config.scheduled_rebalance_max_delay_ms-property){: name='spec.userConfig.kafka_connect_config.scheduled_rebalance_max_delay_ms-property'} (integer, Minimum: 0, Maximum: 600000). The maximum delay that is scheduled in order to wait for the return of one or more departed workers before rebalancing and reassigning their connectors and tasks to the group. During this period the connectors and tasks of the departed workers remain unassigned. Defaults to 5 minutes.
 - [`session_timeout_ms`](#spec.userConfig.kafka_connect_config.session_timeout_ms-property){: name='spec.userConfig.kafka_connect_config.session_timeout_ms-property'} (integer, Minimum: 1, Maximum: 2147483647). The timeout in milliseconds used to detect failures when using Kafka’s group management facilities (defaults to 10000).
+
+### kafka_connect_secret_providers {: #spec.userConfig.kafka_connect_secret_providers }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name>}.
+
+**Required**
+
+- [`name`](#spec.userConfig.kafka_connect_secret_providers.name-property){: name='spec.userConfig.kafka_connect_secret_providers.name-property'} (string). Name of the secret provider. Used to reference secrets in connector config.
+
+**Optional**
+
+- [`aws`](#spec.userConfig.kafka_connect_secret_providers.aws-property){: name='spec.userConfig.kafka_connect_secret_providers.aws-property'} (object). AWS config for Secret Provider. See below for [nested schema](#spec.userConfig.kafka_connect_secret_providers.aws).
+- [`vault`](#spec.userConfig.kafka_connect_secret_providers.vault-property){: name='spec.userConfig.kafka_connect_secret_providers.vault-property'} (object). Vault Config for Secret Provider. See below for [nested schema](#spec.userConfig.kafka_connect_secret_providers.vault).
+
+#### aws {: #spec.userConfig.kafka_connect_secret_providers.aws }
+
+_Appears on [`spec.userConfig.kafka_connect_secret_providers`](#spec.userConfig.kafka_connect_secret_providers)._
+
+AWS config for Secret Provider.
+
+**Required**
+
+- [`auth_method`](#spec.userConfig.kafka_connect_secret_providers.aws.auth_method-property){: name='spec.userConfig.kafka_connect_secret_providers.aws.auth_method-property'} (string, Enum: `credentials`). Auth method of the vault secret provider.
+- [`region`](#spec.userConfig.kafka_connect_secret_providers.aws.region-property){: name='spec.userConfig.kafka_connect_secret_providers.aws.region-property'} (string, MaxLength: 64). Region used to lookup secrets with AWS SecretManager.
+
+**Optional**
+
+- [`access_key`](#spec.userConfig.kafka_connect_secret_providers.aws.access_key-property){: name='spec.userConfig.kafka_connect_secret_providers.aws.access_key-property'} (string, MaxLength: 128). Access key used to authenticate with aws.
+- [`secret_key`](#spec.userConfig.kafka_connect_secret_providers.aws.secret_key-property){: name='spec.userConfig.kafka_connect_secret_providers.aws.secret_key-property'} (string, MaxLength: 128). Secret key used to authenticate with aws.
+
+#### vault {: #spec.userConfig.kafka_connect_secret_providers.vault }
+
+_Appears on [`spec.userConfig.kafka_connect_secret_providers`](#spec.userConfig.kafka_connect_secret_providers)._
+
+Vault Config for Secret Provider.
+
+**Required**
+
+- [`address`](#spec.userConfig.kafka_connect_secret_providers.vault.address-property){: name='spec.userConfig.kafka_connect_secret_providers.vault.address-property'} (string, MinLength: 1, MaxLength: 65536). Address of the Vault server.
+- [`auth_method`](#spec.userConfig.kafka_connect_secret_providers.vault.auth_method-property){: name='spec.userConfig.kafka_connect_secret_providers.vault.auth_method-property'} (string, Enum: `token`). Auth method of the vault secret provider.
+
+**Optional**
+
+- [`engine_version`](#spec.userConfig.kafka_connect_secret_providers.vault.engine_version-property){: name='spec.userConfig.kafka_connect_secret_providers.vault.engine_version-property'} (integer, Enum: `1`, `2`). KV Secrets Engine version of the Vault server instance.
+- [`token`](#spec.userConfig.kafka_connect_secret_providers.vault.token-property){: name='spec.userConfig.kafka_connect_secret_providers.vault.token-property'} (string, MaxLength: 256). Token used to authenticate with vault and auth method `token`.
 
 ### kafka_rest_config {: #spec.userConfig.kafka_rest_config }
 
