@@ -14,17 +14,17 @@ title: "ServiceIntegrationEndpoint"
       authSecretRef:
         name: aiven-token
         key: token
-    
+
       project: aiven-project-name
       endpointName: my-external-postgresql
       endpointType: external_postgresql
-    
+
       externalPostgresql:
         username: username
         password: password
         host: example.example
         port: 5432
-        ssl_mode: disable
+        ssl_mode: require
     ```
 
 ??? example "external_schema_registry"
@@ -37,11 +37,11 @@ title: "ServiceIntegrationEndpoint"
       authSecretRef:
         name: aiven-token
         key: token
-    
+
       project: aiven-project-name
       endpointName: my-external-schema-registry
       endpointType: external_schema_registry
-    
+
       externalSchemaRegistry:
         url: https://schema-registry.example.com:8081
         authentication: basic

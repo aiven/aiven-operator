@@ -16,4 +16,4 @@ spec:
     password: password
     host: example.example
     port: 5432
-    ssl_mode: disable
+    ssl_mode: require
