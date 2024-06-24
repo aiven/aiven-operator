@@ -80,6 +80,11 @@ func (in *DatadogUserConfig) DeepCopyInto(out *DatadogUserConfig) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.MirrormakerCustomMetrics != nil {
+		in, out := &in.MirrormakerCustomMetrics, &out.MirrormakerCustomMetrics
+		*out = make([]string, len(*in))
+		copy(*out, *in)
+	}
 	if in.Opensearch != nil {
 		in, out := &in.Opensearch, &out.Opensearch
 		*out = new(Opensearch)
