@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.21.0 - 2024-06-25
+
 - Add kind: `ClickhouseGrant`
 - Add `KafkaConnect` field `userConfig.secret_providers`, type `array`: Configure external secret providers
   in order to reference external secrets in connector configuration
