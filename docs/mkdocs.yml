@@ -76,6 +76,7 @@ nav:
       - resources/project.md
       - resources/project-vpc.md
       - resources/cassandra.md
+      - resources/clickhouse.md
       - resources/mysql.md
       - resources/opensearch.md
       - resources/postgresql.md
