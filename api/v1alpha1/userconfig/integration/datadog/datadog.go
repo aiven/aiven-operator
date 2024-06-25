@@ -71,6 +71,10 @@ type DatadogUserConfig struct {
 	// Maximum number of JMX metrics to send
 	MaxJmxMetrics *int `groups:"create,update" json:"max_jmx_metrics,omitempty"`
 
+	// +kubebuilder:validation:MaxItems=1024
+	// List of custom metrics
+	MirrormakerCustomMetrics []string `groups:"create,update" json:"mirrormaker_custom_metrics,omitempty"`
+
 	// Datadog Opensearch Options
 	Opensearch *Opensearch `groups:"create,update" json:"opensearch,omitempty"`
 

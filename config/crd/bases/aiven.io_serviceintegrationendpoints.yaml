@@ -416,11 +416,11 @@ spec:
                       maxLength: 16384
                       type: string
                     ssl_mode:
-                      description: SSL Mode
+                      description:
+                        SSL mode to use for the connection.  Please note
+                        that Aiven requires TLS for all connections to external PostgreSQL
+                        services.
                       enum:
-                        - disable
-                        - allow
-                        - prefer
                         - require
                         - verify-ca
                         - verify-full

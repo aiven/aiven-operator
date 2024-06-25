@@ -395,6 +395,83 @@ spec:
                             VPC or another type of private network
                           type: boolean
                       type: object
+                    secret_providers:
+                      description:
+                        "Configure external secret providers in order to
+                        reference external secrets in connector configuration. Currently
+                        Hashicorp Vault (provider: vault, auth_method: token) and AWS
+                        Secrets Manager (provider: aws, auth_method: credentials) are
+                        supported. Secrets can be referenced in connector config with
+                        ${<provider_name>:<secret_path>:<key_name>}"
+                      items:
+                        description: SecretProvider
+                        properties:
+                          aws:
+                            description: AWS config for Secret Provider
+                            properties:
+                              access_key:
+                                description: Access key used to authenticate with aws
+                                maxLength: 128
+                                type: string
+                              auth_method:
+                                description: Auth method of the vault secret provider
+                                enum:
+                                  - credentials
+                                type: string
+                              region:
+                                description:
+                                  Region used to lookup secrets with AWS
+                                  SecretManager
+                                maxLength: 64
+                                type: string
+                              secret_key:
+                                description: Secret key used to authenticate with aws
+                                maxLength: 128
+                                type: string
+                            required:
+                              - auth_method
+                              - region
+                            type: object
+                          name:
+                            description:
+                              Name of the secret provider. Used to reference
+                              secrets in connector config.
+                            type: string
+                          vault:
+                            description: Vault Config for Secret Provider
+                            properties:
+                              address:
+                                description: Address of the Vault server
+                                maxLength: 65536
+                                minLength: 1
+                                type: string
+                              auth_method:
+                                description: Auth method of the vault secret provider
+                                enum:
+                                  - token
+                                type: string
+                              engine_version:
+                                description:
+                                  KV Secrets Engine version of the Vault
+                                  server instance
+                                enum:
+                                  - 1
+                                  - 2
+                                type: integer
+                              token:
+                                description:
+                                  Token used to authenticate with vault and
+                                  auth method `token`.
+                                maxLength: 256
+                                type: string
+                            required:
+                              - address
+                              - auth_method
+                            type: object
+                        required:
+                          - name
+                        type: object
+                      type: array
                     service_log:
                       description:
                         Store logs for the service so that they are available

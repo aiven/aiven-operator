@@ -122,6 +122,57 @@ type PublicAccess struct {
 	// Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network
 	Prometheus *bool `groups:"create,update" json:"prometheus,omitempty"`
 }
+
+// AWS config for Secret Provider
+type Aws struct {
+	// +kubebuilder:validation:MaxLength=128
+	// Access key used to authenticate with aws
+	AccessKey *string `groups:"create,update" json:"access_key,omitempty"`
+
+	// +kubebuilder:validation:Enum="credentials"
+	// Auth method of the vault secret provider
+	AuthMethod string `groups:"create,update" json:"auth_method"`
+
+	// +kubebuilder:validation:MaxLength=64
+	// Region used to lookup secrets with AWS SecretManager
+	Region string `groups:"create,update" json:"region"`
+
+	// +kubebuilder:validation:MaxLength=128
+	// Secret key used to authenticate with aws
+	SecretKey *string `groups:"create,update" json:"secret_key,omitempty"`
+}
+
+// Vault Config for Secret Provider
+type Vault struct {
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=65536
+	// Address of the Vault server
+	Address string `groups:"create,update" json:"address"`
+
+	// +kubebuilder:validation:Enum="token"
+	// Auth method of the vault secret provider
+	AuthMethod string `groups:"create,update" json:"auth_method"`
+
+	// +kubebuilder:validation:Enum=1;2
+	// KV Secrets Engine version of the Vault server instance
+	EngineVersion *int `groups:"create,update" json:"engine_version,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=256
+	// Token used to authenticate with vault and auth method `token`.
+	Token *string `groups:"create,update" json:"token,omitempty"`
+}
+
+// SecretProvider
+type SecretProviders struct {
+	// AWS config for Secret Provider
+	Aws *Aws `groups:"create,update" json:"aws,omitempty"`
+
+	// Name of the secret provider. Used to reference secrets in connector config.
+	Name string `groups:"create,update" json:"name"`
+
+	// Vault Config for Secret Provider
+	Vault *Vault `groups:"create,update" json:"vault,omitempty"`
+}
 type KafkaConnectUserConfig struct {
 	// +kubebuilder:validation:MaxItems=1
 	// +kubebuilder:deprecatedversion:warning="additional_backup_regions is deprecated"
@@ -143,6 +194,9 @@ type KafkaConnectUserConfig struct {
 
 	// Allow access to selected service ports from the public Internet
 	PublicAccess *PublicAccess `groups:"create,update" json:"public_access,omitempty"`
+
+	// Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name>}
+	SecretProviders []*SecretProviders `groups:"create,update" json:"secret_providers,omitempty"`
 
 	// Store logs for the service so that they are available in the HTTP API and console.
 	ServiceLog *bool `groups:"create,update" json:"service_log,omitempty"`

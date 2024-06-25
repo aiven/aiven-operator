@@ -30,8 +30,8 @@ type ExternalPostgresqlUserConfig struct {
 	// Client key
 	SslClientKey *string `groups:"create,update" json:"ssl_client_key,omitempty"`
 
-	// +kubebuilder:validation:Enum="disable";"allow";"prefer";"require";"verify-ca";"verify-full"
-	// SSL Mode
+	// +kubebuilder:validation:Enum="require";"verify-ca";"verify-full"
+	// SSL mode to use for the connection.  Please note that Aiven requires TLS for all connections to external PostgreSQL services.
 	SslMode *string `groups:"create,update" json:"ssl_mode,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=16384

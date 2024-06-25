@@ -3,6 +3,20 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - Add kind: `ClickhouseGrant`
+- Add `KafkaConnect` field `userConfig.secret_providers`, type `array`: Configure external secret providers
+  in order to reference external secrets in connector configuration
+- Add `Kafka` field `userConfig.kafka_connect_secret_providers`, type `array`: Configure external secret
+  providers in order to reference external secrets in connector configuration
+- Add `Kafka` field `userConfig.letsencrypt_sasl_privatelink`, type `boolean`: Use Letsencrypt CA for
+  Kafka SASL via Privatelink
+- Add `ServiceIntegration` field `datadog.mirrormaker_custom_metrics`, type `array`: List of custom metrics
+- Add `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.consumer_auto_offset_reset`, type
+  `string`: Set where consumer starts to consume data
+- Add `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.consumer_max_poll_records`, type
+  `integer`: Set consumer max.poll.records. The default is 500
+- Change `PostgreSQL` field `userConfig.pgaudit`: deprecated
+- Breaking change `ServiceIntegrationEndpoint` field `externalPostgresql.ssl_mode`: enum ~~`[allow, disable, prefer,
+require, verify-ca, verify-full]`~~ → `[require, verify-ca, verify-full]`
 
 ## v0.20.0 - 2024-06-05
 

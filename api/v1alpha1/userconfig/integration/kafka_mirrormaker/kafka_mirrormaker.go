@@ -5,10 +5,19 @@ package kafkamirrormakeruserconfig
 
 // Kafka MirrorMaker configuration values
 type KafkaMirrormaker struct {
+	// +kubebuilder:validation:Enum="earliest";"latest"
+	// Set where consumer starts to consume data. Value `earliest`: Start replication from the earliest offset. Value `latest`: Start replication from the latest offset. Default is `earliest`.
+	ConsumerAutoOffsetReset *string `groups:"create,update" json:"consumer_auto_offset_reset,omitempty"`
+
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=5242880
 	// The minimum amount of data the server should return for a fetch request
 	ConsumerFetchMinBytes *int `groups:"create,update" json:"consumer_fetch_min_bytes,omitempty"`
+
+	// +kubebuilder:validation:Minimum=100
+	// +kubebuilder:validation:Maximum=20000
+	// Set consumer max.poll.records. The default is 500.
+	ConsumerMaxPollRecords *int `groups:"create,update" json:"consumer_max_poll_records,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=5242880
