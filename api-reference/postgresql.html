@@ -2100,6 +2100,16 @@
 <a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">    </span><span class="nt">pg_version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;15&quot;</span>
 </code></pre></div>
 </details>
+<p>Apply the resource with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>example.yaml
+</code></pre></div>
+<p>Verify the newly created <code>PostgreSQL</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>postgresqls<span class="w"> </span>my-postgresql
+</code></pre></div>
+<p>The output is similar to the following:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Name<span class="w">             </span>Project<span class="w">               </span>Region<span class="w">                 </span>Plan<span class="w">         </span>State<span class="w">      </span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>my-postgresql<span class="w">    </span>aiven-project-name<span class="w">    </span>google-europe-west1<span class="w">    </span>startup-4<span class="w">    </span>RUNNING<span class="w">    </span>
+</code></pre></div></p>
 <h2 id="PostgreSQL">PostgreSQL<a class="headerlink" href="#PostgreSQL" title="Permanent link">&para;</a></h2>
 <p>PostgreSQL is the Schema for the postgresql API.</p>
 <div class="admonition info">

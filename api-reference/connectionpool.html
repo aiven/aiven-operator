@@ -1850,6 +1850,16 @@
 <a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-pg</span>
 </code></pre></div>
 </details>
+<p>Apply the resource with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>example.yaml
+</code></pre></div>
+<p>Verify the newly created <code>ConnectionPool</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>connectionpools<span class="w"> </span>my-connection-pool
+</code></pre></div>
+<p>The output is similar to the following:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Name<span class="w">                  </span>Service<span class="w"> </span>Name<span class="w">    </span>Project<span class="w">               </span>Database<span class="w">       </span>Username<span class="w">           </span>Pool<span class="w"> </span>Size<span class="w">    </span>Pool<span class="w"> </span>Mode<span class="w">      </span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>my-connection-pool<span class="w">    </span>my-pg<span class="w">           </span>aiven-project-name<span class="w">    </span>my-database<span class="w">    </span>my-service-user<span class="w">    </span><span class="m">25</span><span class="w">           </span>transaction<span class="w">    </span>
+</code></pre></div></p>
 <h2 id="ConnectionPool">ConnectionPool<a class="headerlink" href="#ConnectionPool" title="Permanent link">&para;</a></h2>
 <p>ConnectionPool is the Schema for the connectionpools API.</p>
 <div class="admonition info">

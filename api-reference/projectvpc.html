@@ -1786,6 +1786,16 @@
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="nt">networkCidr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0.0.0/24</span>
 </code></pre></div>
 </details>
+<p>Apply the resource with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>example.yaml
+</code></pre></div>
+<p>Verify the newly created <code>ProjectVPC</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>projectvpcs<span class="w"> </span>my-project-vpc
+</code></pre></div>
+<p>The output is similar to the following:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Name<span class="w">              </span>Project<span class="w">               </span>Cloud<span class="w">                  </span>Network<span class="w"> </span>CIDR<span class="w">    </span>State<span class="w">      </span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>my-project-vpc<span class="w">    </span>aiven-project-name<span class="w">    </span>google-europe-west1<span class="w">    </span><span class="m">10</span>.0.0.0/24<span class="w">     </span>RUNNING<span class="w">    </span>
+</code></pre></div></p>
 <h2 id="ProjectVPC">ProjectVPC<a class="headerlink" href="#ProjectVPC" title="Permanent link">&para;</a></h2>
 <p>ProjectVPC is the Schema for the projectvpcs API.</p>
 <p><strong>Required</strong></p>

@@ -2079,6 +2079,16 @@
 <a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="nt">basic_auth_password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">password</span>
 </code></pre></div>
 </details>
+<p>Apply the resource with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>example.yaml
+</code></pre></div>
+<p>Verify the newly created <code>ServiceIntegrationEndpoint</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>serviceintegrationendpoints<span class="w"> </span>my-service-integration-endpoint
+</code></pre></div>
+<p>The output is similar to the following:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Name<span class="w">                               </span>Project<span class="w">               </span>Endpoint<span class="w"> </span>Name<span class="w">             </span>Endpoint<span class="w"> </span>Type<span class="w">          </span>ID<span class="w">      </span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>my-service-integration-endpoint<span class="w">    </span>aiven-project-name<span class="w">    </span>my-external-postgresql<span class="w">    </span>external_postgresql<span class="w">    </span>&lt;id&gt;<span class="w">    </span>
+</code></pre></div></p>
 <h2 id="ServiceIntegrationEndpoint">ServiceIntegrationEndpoint<a class="headerlink" href="#ServiceIntegrationEndpoint" title="Permanent link">&para;</a></h2>
 <p>ServiceIntegrationEndpoint is the Schema for the serviceintegrationendpoints API.</p>
 <p><strong>Required</strong></p>

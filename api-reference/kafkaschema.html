@@ -1801,6 +1801,16 @@
 <a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">    </span><span class="no">}</span>
 </code></pre></div>
 </details>
+<p>Apply the resource with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>example.yaml
+</code></pre></div>
+<p>Verify the newly created <code>KafkaSchema</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>kafkaschemas<span class="w"> </span>my-schema
+</code></pre></div>
+<p>The output is similar to the following:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Name<span class="w">         </span>Service<span class="w"> </span>Name<span class="w">    </span>Project<span class="w">             </span>Subject<span class="w">        </span>Compatibility<span class="w"> </span>Level<span class="w">    </span>Version<span class="w">      </span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>my-schema<span class="w">    </span>my-kafka<span class="w">        </span>my-aiven-project<span class="w">    </span>mny-subject<span class="w">    </span>BACKWARD<span class="w">               </span>&lt;version&gt;<span class="w">    </span>
+</code></pre></div></p>
 <h2 id="KafkaSchema">KafkaSchema<a class="headerlink" href="#KafkaSchema" title="Permanent link">&para;</a></h2>
 <p>KafkaSchema is the Schema for the kafkaschemas API.</p>
 <p><strong>Required</strong></p>

@@ -1788,6 +1788,16 @@
 <a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="nt">permission</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">admin</span>
 </code></pre></div>
 </details>
+<p>Apply the resource with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>example.yaml
+</code></pre></div>
+<p>Verify the newly created <code>KafkaACL</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>kafkaacls<span class="w"> </span>my-kafka-acl
+</code></pre></div>
+<p>The output is similar to the following:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Name<span class="w">            </span>Service<span class="w"> </span>Name<span class="w">    </span>Project<span class="w">             </span>Username<span class="w">    </span>Permission<span class="w">    </span>Topic<span class="w">       </span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>my-kafka-acl<span class="w">    </span>my-kafka<span class="w">        </span>my-aiven-project<span class="w">    </span>my-user<span class="w">     </span>admin<span class="w">         </span>my-topic<span class="w">    </span>
+</code></pre></div></p>
 <h2 id="KafkaACL">KafkaACL<a class="headerlink" href="#KafkaACL" title="Permanent link">&para;</a></h2>
 <p>KafkaACL is the Schema for the kafkaacls API.</p>
 <p><strong>Required</strong></p>

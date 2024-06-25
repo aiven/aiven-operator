@@ -2478,6 +2478,16 @@
 <a id="__codelineno-3-47" name="__codelineno-3-47" href="#__codelineno-3-47"></a><span class="w">  </span><span class="nt">partitions</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </code></pre></div>
 </details>
+<p>Apply the resource with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>example.yaml
+</code></pre></div>
+<p>Verify the newly created <code>ServiceIntegration</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>serviceintegrations<span class="w"> </span>my-service-integration
+</code></pre></div>
+<p>The output is similar to the following:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Name<span class="w">                      </span>Project<span class="w">               </span>Type<span class="w">                     </span>Source<span class="w"> </span>Service<span class="w"> </span>Name<span class="w">    </span>Destination<span class="w"> </span>Service<span class="w"> </span>Name<span class="w">    </span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>my-service-integration<span class="w">    </span>aiven-project-name<span class="w">    </span>clickhouse_postgresql<span class="w">    </span>my-pg<span class="w">                  </span>my-clickhouse<span class="w">               </span>
+</code></pre></div></p>
 <h2 id="ServiceIntegration">ServiceIntegration<a class="headerlink" href="#ServiceIntegration" title="Permanent link">&para;</a></h2>
 <p>ServiceIntegration is the Schema for the serviceintegrations API.</p>
 <p><strong>Required</strong></p>

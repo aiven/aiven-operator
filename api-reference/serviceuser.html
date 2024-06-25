@@ -1809,6 +1809,16 @@
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-service-name</span>
 </code></pre></div>
 </details>
+<p>Apply the resource with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>example.yaml
+</code></pre></div>
+<p>Verify the newly created <code>ServiceUser</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>serviceusers<span class="w"> </span>my-service-user
+</code></pre></div>
+<p>The output is similar to the following:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Name<span class="w">               </span>Service<span class="w"> </span>Name<span class="w">       </span>Project<span class="w">               </span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>my-service-user<span class="w">    </span>my-service-name<span class="w">    </span>aiven-project-name<span class="w">    </span>
+</code></pre></div></p>
 <h2 id="ServiceUser">ServiceUser<a class="headerlink" href="#ServiceUser" title="Permanent link">&para;</a></h2>
 <p>ServiceUser is the Schema for the serviceusers API.</p>
 <div class="admonition info">

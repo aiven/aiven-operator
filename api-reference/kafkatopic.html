@@ -1828,6 +1828,16 @@
 <a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="nt">min_cleanable_dirty_ratio</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.2</span>
 </code></pre></div>
 </details>
+<p>Apply the resource with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>example.yaml
+</code></pre></div>
+<p>Verify the newly created <code>KafkaTopic</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>kafkatopics<span class="w"> </span>kafka-topic
+</code></pre></div>
+<p>The output is similar to the following:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Name<span class="w">           </span>Service<span class="w"> </span>Name<span class="w">    </span>Project<span class="w">             </span>Partitions<span class="w">    </span>Replication<span class="w">    </span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>kafka-topic<span class="w">    </span>my-kafka<span class="w">        </span>my-aiven-project<span class="w">    </span><span class="m">1</span><span class="w">             </span><span class="m">2</span><span class="w">              </span>
+</code></pre></div></p>
 <h2 id="KafkaTopic">KafkaTopic<a class="headerlink" href="#KafkaTopic" title="Permanent link">&para;</a></h2>
 <p>KafkaTopic is the Schema for the kafkatopics API.</p>
 <p><strong>Required</strong></p>

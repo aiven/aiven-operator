@@ -2015,6 +2015,16 @@
 <a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">network</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.20.0.0/16</span>
 </code></pre></div>
 </details>
+<p>Apply the resource with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>example.yaml
+</code></pre></div>
+<p>Verify the newly created <code>MySQL</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>mysqls<span class="w"> </span>my-mysql
+</code></pre></div>
+<p>The output is similar to the following:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Name<span class="w">        </span>Project<span class="w">             </span>Region<span class="w">                 </span>Plan<span class="w">          </span>State<span class="w">      </span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>my-mysql<span class="w">    </span>my-aiven-project<span class="w">    </span>google-europe-west1<span class="w">    </span>business-4<span class="w">    </span>RUNNING<span class="w">    </span>
+</code></pre></div></p>
 <h2 id="MySQL">MySQL<a class="headerlink" href="#MySQL" title="Permanent link">&para;</a></h2>
 <p>MySQL is the Schema for the mysqls API.</p>
 <div class="admonition info">
