@@ -15,6 +15,15 @@ spec:
   scope: Namespaced
   versions:
     - additionalPrinterColumns:
+        - jsonPath: .spec.project
+          name: Project
+          type: string
+        - jsonPath: .spec.cloudName
+          name: Region
+          type: string
+        - jsonPath: .spec.plan
+          name: Plan
+          type: string
         - jsonPath: .status.state
           name: State
           type: string
