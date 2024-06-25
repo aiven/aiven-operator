@@ -20,6 +20,24 @@ title: "ClickhouseDatabase"
       databaseName: example-db
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `ClickhouseDatabase`:
+
+```shell
+kubectl get clickhousedatabases my-db
+```
+
+The output is similar to the following:
+```shell
+Name     Database name    Service Name     Project             
+my-db    example-db       my-clickhouse    my-aiven-project    
+```
+
 ## ClickhouseDatabase {: #ClickhouseDatabase }
 
 ClickhouseDatabase is the Schema for the databases API.

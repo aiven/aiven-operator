@@ -31,6 +31,24 @@ title: "Kafka"
       maintenanceWindowTime: 23:00:00
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `Kafka`:
+
+```shell
+kubectl get kafkas my-kafka
+```
+
+The output is similar to the following:
+```shell
+Name        Project             Region                 Plan         State      
+my-kafka    my-aiven-project    google-europe-west1    startup-2    RUNNING    
+```
+
 ## Kafka {: #Kafka }
 
 Kafka is the Schema for the kafkas API.

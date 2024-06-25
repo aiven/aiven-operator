@@ -27,6 +27,24 @@ title: "ServiceUser"
       serviceName: my-service-name
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `ServiceUser`:
+
+```shell
+kubectl get serviceusers my-service-user
+```
+
+The output is similar to the following:
+```shell
+Name               Service Name       Project               
+my-service-user    my-service-name    aiven-project-name    
+```
+
 ## ServiceUser {: #ServiceUser }
 
 ServiceUser is the Schema for the serviceusers API.

@@ -34,6 +34,24 @@ title: "Redis"
         redis_maxmemory_policy: allkeys-random
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `Redis`:
+
+```shell
+kubectl get redis k8s-redis
+```
+
+The output is similar to the following:
+```shell
+Name         Project             Region                 Plan         State      
+k8s-redis    my-aiven-project    google-europe-west1    startup-4    RUNNING    
+```
+
 ## Redis {: #Redis }
 
 Redis is the Schema for the redis API.

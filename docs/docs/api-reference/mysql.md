@@ -39,6 +39,24 @@ title: "MySQL"
           - network: 10.20.0.0/16
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `MySQL`:
+
+```shell
+kubectl get mysqls my-mysql
+```
+
+The output is similar to the following:
+```shell
+Name        Project             Region                 Plan          State      
+my-mysql    my-aiven-project    google-europe-west1    business-4    RUNNING    
+```
+
 ## MySQL {: #MySQL }
 
 MySQL is the Schema for the mysqls API.

@@ -34,6 +34,24 @@ title: "PostgreSQL"
         pg_version: "15"
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `PostgreSQL`:
+
+```shell
+kubectl get postgresqls my-postgresql
+```
+
+The output is similar to the following:
+```shell
+Name             Project               Region                 Plan         State      
+my-postgresql    aiven-project-name    google-europe-west1    startup-4    RUNNING    
+```
+
 ## PostgreSQL {: #PostgreSQL }
 
 PostgreSQL is the Schema for the postgresql API.

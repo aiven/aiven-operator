@@ -30,6 +30,24 @@ title: "Project"
       cloud: aws-eu-west-1
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `Project`:
+
+```shell
+kubectl get projects my-project
+```
+
+The output is similar to the following:
+```shell
+Name          
+my-project    
+```
+
 ## Project {: #Project }
 
 Project is the Schema for the projects API.

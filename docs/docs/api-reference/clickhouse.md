@@ -40,6 +40,24 @@ title: "Clickhouse"
       maintenanceWindowTime: 23:00:00
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `Clickhouse`:
+
+```shell
+kubectl get clickhouses my-clickhouse
+```
+
+The output is similar to the following:
+```shell
+Name             Project             Region                 Plan          State      
+my-clickhouse    my-aiven-project    google-europe-west1    startup-16    RUNNING    
+```
+
 ## Clickhouse {: #Clickhouse }
 
 Clickhouse is the Schema for the clickhouses API.

@@ -26,6 +26,24 @@ title: "KafkaTopic"
         min_cleanable_dirty_ratio: 0.2
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `KafkaTopic`:
+
+```shell
+kubectl get kafkatopics kafka-topic
+```
+
+The output is similar to the following:
+```shell
+Name           Service Name    Project             Partitions    Replication    
+kafka-topic    my-kafka        my-aiven-project    1             2              
+```
+
 ## KafkaTopic {: #KafkaTopic }
 
 KafkaTopic is the Schema for the kafkatopics API.

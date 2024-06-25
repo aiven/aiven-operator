@@ -42,6 +42,24 @@ title: "ClickhouseUser"
       plan: startup-16
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `ClickhouseUser`:
+
+```shell
+kubectl get clickhouseusers my-clickhouse-user
+```
+
+The output is similar to the following:
+```shell
+Name                  Username            Service Name     Project             
+my-clickhouse-user    example-username    my-clickhouse    my-aiven-project    
+```
+
 ## ClickhouseUser {: #ClickhouseUser }
 
 ClickhouseUser is the Schema for the clickhouseusers API.

@@ -208,6 +208,24 @@ title: "ServiceIntegration"
       partitions: 1
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `ServiceIntegration`:
+
+```shell
+kubectl get serviceintegrations my-service-integration
+```
+
+The output is similar to the following:
+```shell
+Name                      Project               Type                     Source Service Name    Destination Service Name    
+my-service-integration    aiven-project-name    clickhouse_postgresql    my-pg                  my-clickhouse               
+```
+
 ## ServiceIntegration {: #ServiceIntegration }
 
 ServiceIntegration is the Schema for the serviceintegrations API.

@@ -46,6 +46,24 @@ title: "ClickhouseGrant"
             - role: my-role
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `ClickhouseGrant`:
+
+```shell
+kubectl get clickhousegrants demo-ch-grant
+```
+
+The output is similar to the following:
+```shell
+Name             Project             Service Name     
+demo-ch-grant    my-aiven-project    my-clickhouse    
+```
+
 ## ClickhouseGrant {: #ClickhouseGrant }
 
 ClickhouseGrant is the Schema for the ClickhouseGrants API.

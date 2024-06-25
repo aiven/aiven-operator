@@ -40,6 +40,8 @@ func parseSchema(crdData []byte) (*schemaType, error) {
 	kind.Name = kind.Kind
 	kind.Version = crd.Spec.Versions[0].Name
 	kind.Group = crd.Spec.Group
+	kind.Plural = crd.Spec.Names.Plural
+	kind.Columns = crd.Spec.Versions[0].AdditionalPrinterColumns
 
 	// Those fields are generic, but can have only explicit values
 	kind.Properties["apiVersion"].Description = fmt.Sprintf("Value `%s/%s`", kind.Group, kind.Version)
@@ -73,19 +75,28 @@ type crdType struct {
 	Spec struct {
 		Group string `yaml:"group"`
 		Names struct {
-			Kind string `yaml:"kind"`
+			Kind   string `yaml:"kind"`
+			Plural string `yaml:"plural"`
 		} `yaml:"names"`
 		Versions []struct {
 			Name   string `yaml:"name"`
 			Schema struct {
 				OpenAPIV3Schema *schemaType `yaml:"openAPIV3Schema"`
 			} `yaml:"schema"`
+			AdditionalPrinterColumns []specTableColumn `yaml:"additionalPrinterColumns"`
 		} `yaml:"versions"`
 	} `yaml:"spec"`
 }
 
 type usageExample struct {
 	Title, Value string
+}
+
+// specTableColumn the column fields printed on "kubectl get foo name" command
+type specTableColumn struct {
+	Name string `yaml:"name"`
+	Type string `yaml:"type"`
+	Path string `yaml:"jsonPath"`
 }
 
 type schemaInternal struct {
@@ -100,6 +111,8 @@ type schemaInternal struct {
 	Name          string // field name
 	Version       string // API version, like v1alpha
 	Group         string // API group, like aiven.io
+	Plural        string
+	Columns       []specTableColumn
 	UsageExamples []usageExample
 }
 
@@ -319,6 +332,71 @@ func (s *schemaType) GetDef() string {
 	return strings.Join(chunks, ", ")
 }
 
+// exampleType example.yaml files model
+type exampleType struct {
+	Kind     string `yaml:"kind"`
+	Metadata struct {
+		Name string `yaml:"name"`
+	}
+	Spec  map[string]any `yaml:"spec"`
+	Table []exampleTableColumn
+}
+
+// exampleTableColumn columns and values from the exampleType
+type exampleTableColumn struct {
+	Title, Value string
+}
+
+// GetExample returns exampleType with formed output table
+func (s *schemaType) GetExample() *exampleType {
+	var example *exampleType
+	for _, e := range loadYAMLs[exampleType]([]byte(s.UsageExamples[0].Value)) {
+		if e.Kind == s.Kind {
+			example = e
+			break
+		}
+	}
+
+	if example == nil {
+		return nil
+	}
+
+	// Adds the Name column
+	example.Table = append(example.Table, exampleTableColumn{Title: "Name", Value: example.Metadata.Name})
+
+	// Takes columns from the spec and values from the example
+	for _, c := range s.Columns {
+		column := exampleTableColumn{}
+		if strings.HasPrefix(c.Path, ".spec.") {
+			k := strings.TrimPrefix(c.Path, ".spec.")
+			column.Value = fmt.Sprintf("%v", example.Spec[k])
+		} else {
+			switch c.Path {
+			case ".status.state":
+				column.Value = "RUNNING"
+			default:
+				column.Value = fmt.Sprintf("<%s>", strings.TrimPrefix(c.Path, ".status."))
+			}
+		}
+
+		switch column.Value {
+		case "", "<nil>":
+			// Not set
+			continue
+		}
+
+		column.Title = c.Name
+		example.Table = append(example.Table, column)
+	}
+
+	return example
+}
+
+// rfill adds right padding
+func rfill(x, y string) string {
+	return fmt.Sprintf("%-*s", max(len(x), len(y)), x)
+}
+
 var reIndent = regexp.MustCompile("(?m)^")
 
 var templateFuncs = template.FuncMap{
@@ -326,11 +404,10 @@ var templateFuncs = template.FuncMap{
 		return reIndent.ReplaceAllString(src, strings.Repeat(" ", i))
 	},
 	"backtick": func(i int) string {
+		// we can't use backticks in go strings, so we render them
 		return strings.Repeat("`", i)
 	},
-	"add": func(x, y int) int {
-		return x + y
-	},
+	"rfill": rfill,
 }
 
 const schemaTemplate = `---
@@ -345,6 +422,27 @@ title: "{{ .Kind }}"
     {{ backtick 3 }}yaml
 {{ .Value | indent 4 }}
     {{ backtick 3 }}
+{{ end }}
+
+{{ $example := .GetExample }}
+{{ if $example }}
+Apply the resource with:
+
+{{ backtick 3 }}shell
+kubectl apply -f example.yaml
+{{ backtick 3 }}
+
+Verify the newly created {{ backtick 1 }}{{ .Kind }}{{ backtick 1 }}:
+
+{{ backtick 3 }}shell
+kubectl get {{ .Plural }} {{ $example.Metadata.Name }}
+{{ backtick 3 }}
+
+The output is similar to the following:
+{{ backtick 3 }}shell
+{{ range $example.Table }}{{ rfill .Title .Value }}    {{ end }}
+{{ range $example.Table }}{{ rfill .Value .Title }}    {{ end }}
+{{ backtick 3 }}
 {{ end }}
 {{ end }}
 
@@ -403,4 +501,20 @@ func prettyDigit(kind string, value float64) string {
 	s := fmt.Sprintf("%.5f", value)
 	s = reTrailingZeros.ReplaceAllString(s, "$1")
 	return strings.TrimSuffix(s, ".")
+}
+
+// loadYAMLs loads a list of yamls
+func loadYAMLs[T any](b []byte) []*T {
+	decoder := yaml.NewDecoder(bytes.NewReader(b))
+	list := make([]*T, 0)
+	for {
+		doc := new(T)
+		err := decoder.Decode(&doc)
+		if err != nil {
+			break
+		}
+
+		list = append(list, doc)
+	}
+	return list
 }
