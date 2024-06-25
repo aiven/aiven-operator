@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
     
     
       
@@ -172,7 +172,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             Initializing search
@@ -1189,6 +1189,27 @@
   
   
     <li class="md-nav__item">
+      <a href="clickhousegrant.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ClickhouseGrant
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="connectionpool.html" class="md-nav__link">
         
   
@@ -1408,6 +1429,39 @@
       kafka_connect_config
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.kafka_connect_secret_providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      kafka_connect_secret_providers
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="kafka_connect_secret_providers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.kafka_connect_secret_providers.aws" class="md-nav__link">
+    <span class="md-ellipsis">
+      aws
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.kafka_connect_secret_providers.vault" class="md-nav__link">
+    <span class="md-ellipsis">
+      vault
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1959,6 +2013,39 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#spec.userConfig.kafka_connect_secret_providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      kafka_connect_secret_providers
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="kafka_connect_secret_providers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.kafka_connect_secret_providers.aws" class="md-nav__link">
+    <span class="md-ellipsis">
+      aws
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.kafka_connect_secret_providers.vault" class="md-nav__link">
+    <span class="md-ellipsis">
+      vault
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#spec.userConfig.kafka_rest_config" class="md-nav__link">
     <span class="md-ellipsis">
       kafka_rest_config
@@ -2089,7 +2176,7 @@
 </code></pre></div>
 </details>
 <h2 id="Kafka">Kafka<a class="headerlink" href="#Kafka" title="Permanent link">&para;</a></h2>
-<p>Kafka is the Schema for the kafkas API. </p>
+<p>Kafka is the Schema for the kafkas API.</p>
 <div class="admonition info">
 <p class="admonition-title">Exposes secret keys</p>
 <p><code>KAFKA_HOST</code>, <code>KAFKA_PORT</code>, <code>KAFKA_USERNAME</code>, <code>KAFKA_PASSWORD</code>, <code>KAFKA_ACCESS_CERT</code>, <code>KAFKA_ACCESS_KEY</code>, <code>KAFKA_SASL_HOST</code>, <code>KAFKA_SASL_PORT</code>, <code>KAFKA_SCHEMA_REGISTRY_HOST</code>, <code>KAFKA_SCHEMA_REGISTRY_PORT</code>, <code>KAFKA_CONNECT_HOST</code>, <code>KAFKA_CONNECT_PORT</code>, <code>KAFKA_REST_HOST</code>, <code>KAFKA_REST_PORT</code>, <code>KAFKA_CA_CERT</code>.</p>
@@ -2115,7 +2202,9 @@
 <li><a href="#spec.cloudName-property" name="spec.cloudName-property"><code>cloudName</code></a> (string, MaxLength: 256). Cloud the service runs in.</li>
 <li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Secret configuration. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
 <li><a href="#spec.connInfoSecretTargetDisabled-property" name="spec.connInfoSecretTargetDisabled-property"><code>connInfoSecretTargetDisabled</code></a> (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.</li>
-<li><a href="#spec.disk_space-property" name="spec.disk_space-property"><code>disk_space</code></a> (string, Pattern: <code>(?i)^[1-9][0-9]*(GiB|G)?$</code>). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing. The removal of this field does not change the value.</li>
+<li><a href="#spec.disk_space-property" name="spec.disk_space-property"><code>disk_space</code></a> (string, Pattern: <code>(?i)^[1-9][0-9]*(GiB|G)?$</code>). The disk space of the service, possible values depend on the service type, the cloud provider and the project.
+Reducing will result in the service re-balancing.
+The removal of this field does not change the value.</li>
 <li><a href="#spec.karapace-property" name="spec.karapace-property"><code>karapace</code></a> (boolean). Switch the service to use Karapace for schema registry and REST proxy.</li>
 <li><a href="#spec.maintenanceWindowDow-property" name="spec.maintenanceWindowDow-property"><code>maintenanceWindowDow</code></a> (string, Enum: <code>monday</code>, <code>tuesday</code>, <code>wednesday</code>, <code>thursday</code>, <code>friday</code>, <code>saturday</code>, <code>sunday</code>). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.</li>
 <li><a href="#spec.maintenanceWindowTime-property" name="spec.maintenanceWindowTime-property"><code>maintenanceWindowTime</code></a> (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.</li>
@@ -2146,7 +2235,9 @@
 <ul>
 <li><a href="#spec.connInfoSecretTarget.annotations-property" name="spec.connInfoSecretTarget.annotations-property"><code>annotations</code></a> (object, AdditionalProperties: string). Annotations added to the secret.</li>
 <li><a href="#spec.connInfoSecretTarget.labels-property" name="spec.connInfoSecretTarget.labels-property"><code>labels</code></a> (object, AdditionalProperties: string). Labels added to the secret.</li>
-<li><a href="#spec.connInfoSecretTarget.prefix-property" name="spec.connInfoSecretTarget.prefix-property"><code>prefix</code></a> (string). Prefix for the secret's keys. Added "as is" without any transformations. By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFKA_</code>, <code>REDIS_</code>, etc.</li>
+<li><a href="#spec.connInfoSecretTarget.prefix-property" name="spec.connInfoSecretTarget.prefix-property"><code>prefix</code></a> (string). Prefix for the secret's keys.
+Added "as is" without any transformations.
+By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFKA_</code>, <code>REDIS_</code>, etc.</li>
 </ul>
 <h2 id="spec.projectVPCRef">projectVPCRef<a class="headerlink" href="#spec.projectVPCRef" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -2187,10 +2278,12 @@
 <li><a href="#spec.userConfig.kafka_authentication_methods-property" name="spec.userConfig.kafka_authentication_methods-property"><code>kafka_authentication_methods</code></a> (object). Kafka authentication methods. See below for <a href="#spec.userConfig.kafka_authentication_methods">nested schema</a>.</li>
 <li><a href="#spec.userConfig.kafka_connect-property" name="spec.userConfig.kafka_connect-property"><code>kafka_connect</code></a> (boolean). Enable Kafka Connect service.</li>
 <li><a href="#spec.userConfig.kafka_connect_config-property" name="spec.userConfig.kafka_connect_config-property"><code>kafka_connect_config</code></a> (object). Kafka Connect configuration values. See below for <a href="#spec.userConfig.kafka_connect_config">nested schema</a>.</li>
+<li><a href="#spec.userConfig.kafka_connect_secret_providers-property" name="spec.userConfig.kafka_connect_secret_providers-property"><code>kafka_connect_secret_providers</code></a>. See below for } (array of objects). Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name><a href="#spec.userConfig.kafka_connect_secret_providers">nested schema</a>.</li>
 <li><a href="#spec.userConfig.kafka_rest-property" name="spec.userConfig.kafka_rest-property"><code>kafka_rest</code></a> (boolean). Enable Kafka-REST service.</li>
 <li><a href="#spec.userConfig.kafka_rest_authorization-property" name="spec.userConfig.kafka_rest_authorization-property"><code>kafka_rest_authorization</code></a> (boolean). Enable authorization in Kafka-REST service.</li>
 <li><a href="#spec.userConfig.kafka_rest_config-property" name="spec.userConfig.kafka_rest_config-property"><code>kafka_rest_config</code></a> (object). Kafka REST configuration. See below for <a href="#spec.userConfig.kafka_rest_config">nested schema</a>.</li>
 <li><a href="#spec.userConfig.kafka_version-property" name="spec.userConfig.kafka_version-property"><code>kafka_version</code></a> (string, Enum: <code>3.4</code>, <code>3.5</code>, <code>3.6</code>, <code>3.7</code>). Kafka major version.</li>
+<li><a href="#spec.userConfig.letsencrypt_sasl_privatelink-property" name="spec.userConfig.letsencrypt_sasl_privatelink-property"><code>letsencrypt_sasl_privatelink</code></a> (boolean). Use Letsencrypt CA for Kafka SASL via Privatelink.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.public_access-property" name="spec.userConfig.public_access-property"><code>public_access</code></a> (object). Allow access to selected service ports from the public Internet. See below for <a href="#spec.userConfig.public_access">nested schema</a>.</li>
@@ -2292,6 +2385,44 @@
 <li><a href="#spec.userConfig.kafka_connect_config.producer_max_request_size-property" name="spec.userConfig.kafka_connect_config.producer_max_request_size-property"><code>producer_max_request_size</code></a> (integer, Minimum: 131072, Maximum: 67108864). This setting will limit the number of record batches the producer will send in a single request to avoid sending huge requests.</li>
 <li><a href="#spec.userConfig.kafka_connect_config.scheduled_rebalance_max_delay_ms-property" name="spec.userConfig.kafka_connect_config.scheduled_rebalance_max_delay_ms-property"><code>scheduled_rebalance_max_delay_ms</code></a> (integer, Minimum: 0, Maximum: 600000). The maximum delay that is scheduled in order to wait for the return of one or more departed workers before rebalancing and reassigning their connectors and tasks to the group. During this period the connectors and tasks of the departed workers remain unassigned. Defaults to 5 minutes.</li>
 <li><a href="#spec.userConfig.kafka_connect_config.session_timeout_ms-property" name="spec.userConfig.kafka_connect_config.session_timeout_ms-property"><code>session_timeout_ms</code></a> (integer, Minimum: 1, Maximum: 2147483647). The timeout in milliseconds used to detect failures when using Kafka’s group management facilities (defaults to 10000).</li>
+</ul>
+<h3 id="spec.userConfig.kafka_connect_secret_providers">kafka_connect_secret_providers<a class="headerlink" href="#spec.userConfig.kafka_connect_secret_providers" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
+<p>Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name>}.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.userConfig.kafka_connect_secret_providers.name-property" name="spec.userConfig.kafka_connect_secret_providers.name-property"><code>name</code></a> (string). Name of the secret provider. Used to reference secrets in connector config.</li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.kafka_connect_secret_providers.aws-property" name="spec.userConfig.kafka_connect_secret_providers.aws-property"><code>aws</code></a> (object). AWS config for Secret Provider. See below for <a href="#spec.userConfig.kafka_connect_secret_providers.aws">nested schema</a>.</li>
+<li><a href="#spec.userConfig.kafka_connect_secret_providers.vault-property" name="spec.userConfig.kafka_connect_secret_providers.vault-property"><code>vault</code></a> (object). Vault Config for Secret Provider. See below for <a href="#spec.userConfig.kafka_connect_secret_providers.vault">nested schema</a>.</li>
+</ul>
+<h4 id="spec.userConfig.kafka_connect_secret_providers.aws">aws<a class="headerlink" href="#spec.userConfig.kafka_connect_secret_providers.aws" title="Permanent link">&para;</a></h4>
+<p><em>Appears on <a href="#spec.userConfig.kafka_connect_secret_providers"><code>spec.userConfig.kafka_connect_secret_providers</code></a>.</em></p>
+<p>AWS config for Secret Provider.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.userConfig.kafka_connect_secret_providers.aws.auth_method-property" name="spec.userConfig.kafka_connect_secret_providers.aws.auth_method-property"><code>auth_method</code></a> (string, Enum: <code>credentials</code>). Auth method of the vault secret provider.</li>
+<li><a href="#spec.userConfig.kafka_connect_secret_providers.aws.region-property" name="spec.userConfig.kafka_connect_secret_providers.aws.region-property"><code>region</code></a> (string, MaxLength: 64). Region used to lookup secrets with AWS SecretManager.</li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.kafka_connect_secret_providers.aws.access_key-property" name="spec.userConfig.kafka_connect_secret_providers.aws.access_key-property"><code>access_key</code></a> (string, MaxLength: 128). Access key used to authenticate with aws.</li>
+<li><a href="#spec.userConfig.kafka_connect_secret_providers.aws.secret_key-property" name="spec.userConfig.kafka_connect_secret_providers.aws.secret_key-property"><code>secret_key</code></a> (string, MaxLength: 128). Secret key used to authenticate with aws.</li>
+</ul>
+<h4 id="spec.userConfig.kafka_connect_secret_providers.vault">vault<a class="headerlink" href="#spec.userConfig.kafka_connect_secret_providers.vault" title="Permanent link">&para;</a></h4>
+<p><em>Appears on <a href="#spec.userConfig.kafka_connect_secret_providers"><code>spec.userConfig.kafka_connect_secret_providers</code></a>.</em></p>
+<p>Vault Config for Secret Provider.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.userConfig.kafka_connect_secret_providers.vault.address-property" name="spec.userConfig.kafka_connect_secret_providers.vault.address-property"><code>address</code></a> (string, MinLength: 1, MaxLength: 65536). Address of the Vault server.</li>
+<li><a href="#spec.userConfig.kafka_connect_secret_providers.vault.auth_method-property" name="spec.userConfig.kafka_connect_secret_providers.vault.auth_method-property"><code>auth_method</code></a> (string, Enum: <code>token</code>). Auth method of the vault secret provider.</li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.kafka_connect_secret_providers.vault.engine_version-property" name="spec.userConfig.kafka_connect_secret_providers.vault.engine_version-property"><code>engine_version</code></a> (integer, Enum: <code>1</code>, <code>2</code>). KV Secrets Engine version of the Vault server instance.</li>
+<li><a href="#spec.userConfig.kafka_connect_secret_providers.vault.token-property" name="spec.userConfig.kafka_connect_secret_providers.vault.token-property"><code>token</code></a> (string, MaxLength: 256). Token used to authenticate with vault and auth method <code>token</code>.</li>
 </ul>
 <h3 id="spec.userConfig.kafka_rest_config">kafka_rest_config<a class="headerlink" href="#spec.userConfig.kafka_rest_config" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
@@ -2468,7 +2599,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.081f42fc.min.js"></script>
+      <script src="../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
     
   </body>

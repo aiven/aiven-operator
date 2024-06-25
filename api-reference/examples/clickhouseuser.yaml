@@ -9,7 +9,6 @@ spec:
 
   connInfoSecretTarget:
     name: clickhouse-user-secret
-    prefix: MY_SECRET_PREFIX_
     annotations:
       foo: bar
     labels:
@@ -17,3 +16,19 @@ spec:
 
   project: my-aiven-project
   serviceName: my-clickhouse
+  username: example-username
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: Clickhouse
+metadata:
+  name: my-clickhouse
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  cloudName: google-europe-west1
+  plan: startup-16

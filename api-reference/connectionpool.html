@@ -11,14 +11,14 @@
         <link rel="canonical" href="https://aiven.github.io/aiven-operator/api-reference/connectionpool.html">
       
       
-        <link rel="prev" href="clickhouseuser.html">
+        <link rel="prev" href="clickhousegrant.html">
       
       
         <link rel="next" href="database.html">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
     
     
       
@@ -172,7 +172,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             Initializing search
@@ -1186,6 +1186,27 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="clickhousegrant.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ClickhouseGrant
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1830,7 +1851,7 @@
 </code></pre></div>
 </details>
 <h2 id="ConnectionPool">ConnectionPool<a class="headerlink" href="#ConnectionPool" title="Permanent link">&para;</a></h2>
-<p>ConnectionPool is the Schema for the connectionpools API. </p>
+<p>ConnectionPool is the Schema for the connectionpools API.</p>
 <div class="admonition info">
 <p class="admonition-title">Exposes secret keys</p>
 <p><code>CONNECTIONPOOL_NAME</code>, <code>CONNECTIONPOOL_HOST</code>, <code>CONNECTIONPOOL_PORT</code>, <code>CONNECTIONPOOL_DATABASE</code>, <code>CONNECTIONPOOL_USER</code>, <code>CONNECTIONPOOL_PASSWORD</code>, <code>CONNECTIONPOOL_SSLMODE</code>, <code>CONNECTIONPOOL_DATABASE_URI</code>, <code>CONNECTIONPOOL_CA_CERT</code>.</p>
@@ -1879,7 +1900,9 @@
 <ul>
 <li><a href="#spec.connInfoSecretTarget.annotations-property" name="spec.connInfoSecretTarget.annotations-property"><code>annotations</code></a> (object, AdditionalProperties: string). Annotations added to the secret.</li>
 <li><a href="#spec.connInfoSecretTarget.labels-property" name="spec.connInfoSecretTarget.labels-property"><code>labels</code></a> (object, AdditionalProperties: string). Labels added to the secret.</li>
-<li><a href="#spec.connInfoSecretTarget.prefix-property" name="spec.connInfoSecretTarget.prefix-property"><code>prefix</code></a> (string). Prefix for the secret's keys. Added "as is" without any transformations. By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFKA_</code>, <code>REDIS_</code>, etc.</li>
+<li><a href="#spec.connInfoSecretTarget.prefix-property" name="spec.connInfoSecretTarget.prefix-property"><code>prefix</code></a> (string). Prefix for the secret's keys.
+Added "as is" without any transformations.
+By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFKA_</code>, <code>REDIS_</code>, etc.</li>
 </ul>
 
 
@@ -1919,7 +1942,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="clickhouseuser.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: ClickhouseUser">
+          <a href="clickhousegrant.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: ClickhouseGrant">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -1929,7 +1952,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                ClickhouseUser
+                ClickhouseGrant
               </div>
             </div>
           </a>
@@ -1983,7 +2006,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.081f42fc.min.js"></script>
+      <script src="../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
     
   </body>

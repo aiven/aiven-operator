@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
     
     
       
@@ -172,7 +172,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             Initializing search
@@ -1189,6 +1189,27 @@
   
   
     <li class="md-nav__item">
+      <a href="clickhousegrant.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ClickhouseGrant
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="connectionpool.html" class="md-nav__link">
         
   
@@ -1450,6 +1471,39 @@
       public_access
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.secret_providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      secret_providers
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="secret_providers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.secret_providers.aws" class="md-nav__link">
+    <span class="md-ellipsis">
+      aws
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.secret_providers.vault" class="md-nav__link">
+    <span class="md-ellipsis">
+      vault
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1889,6 +1943,39 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.secret_providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      secret_providers
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="secret_providers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.secret_providers.aws" class="md-nav__link">
+    <span class="md-ellipsis">
+      aws
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.secret_providers.vault" class="md-nav__link">
+    <span class="md-ellipsis">
+      vault
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2021,6 +2108,7 @@
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.public_access-property" name="spec.userConfig.public_access-property"><code>public_access</code></a> (object). Allow access to selected service ports from the public Internet. See below for <a href="#spec.userConfig.public_access">nested schema</a>.</li>
+<li><a href="#spec.userConfig.secret_providers-property" name="spec.userConfig.secret_providers-property"><code>secret_providers</code></a>. See below for } (array of objects). Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name><a href="#spec.userConfig.secret_providers">nested schema</a>.</li>
 <li><a href="#spec.userConfig.service_log-property" name="spec.userConfig.service_log-property"><code>service_log</code></a> (boolean). Store logs for the service so that they are available in the HTTP API and console.</li>
 <li><a href="#spec.userConfig.static_ips-property" name="spec.userConfig.static_ips-property"><code>static_ips</code></a> (boolean). Use static public IP addresses.</li>
 </ul>
@@ -2081,6 +2169,44 @@
 <ul>
 <li><a href="#spec.userConfig.public_access.kafka_connect-property" name="spec.userConfig.public_access.kafka_connect-property"><code>kafka_connect</code></a> (boolean). Allow clients to connect to kafka_connect from the public internet for service nodes that are in a project VPC or another type of private network.</li>
 <li><a href="#spec.userConfig.public_access.prometheus-property" name="spec.userConfig.public_access.prometheus-property"><code>prometheus</code></a> (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network.</li>
+</ul>
+<h3 id="spec.userConfig.secret_providers">secret_providers<a class="headerlink" href="#spec.userConfig.secret_providers" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
+<p>Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name>}.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.userConfig.secret_providers.name-property" name="spec.userConfig.secret_providers.name-property"><code>name</code></a> (string). Name of the secret provider. Used to reference secrets in connector config.</li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.secret_providers.aws-property" name="spec.userConfig.secret_providers.aws-property"><code>aws</code></a> (object). AWS config for Secret Provider. See below for <a href="#spec.userConfig.secret_providers.aws">nested schema</a>.</li>
+<li><a href="#spec.userConfig.secret_providers.vault-property" name="spec.userConfig.secret_providers.vault-property"><code>vault</code></a> (object). Vault Config for Secret Provider. See below for <a href="#spec.userConfig.secret_providers.vault">nested schema</a>.</li>
+</ul>
+<h4 id="spec.userConfig.secret_providers.aws">aws<a class="headerlink" href="#spec.userConfig.secret_providers.aws" title="Permanent link">&para;</a></h4>
+<p><em>Appears on <a href="#spec.userConfig.secret_providers"><code>spec.userConfig.secret_providers</code></a>.</em></p>
+<p>AWS config for Secret Provider.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.userConfig.secret_providers.aws.auth_method-property" name="spec.userConfig.secret_providers.aws.auth_method-property"><code>auth_method</code></a> (string, Enum: <code>credentials</code>). Auth method of the vault secret provider.</li>
+<li><a href="#spec.userConfig.secret_providers.aws.region-property" name="spec.userConfig.secret_providers.aws.region-property"><code>region</code></a> (string, MaxLength: 64). Region used to lookup secrets with AWS SecretManager.</li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.secret_providers.aws.access_key-property" name="spec.userConfig.secret_providers.aws.access_key-property"><code>access_key</code></a> (string, MaxLength: 128). Access key used to authenticate with aws.</li>
+<li><a href="#spec.userConfig.secret_providers.aws.secret_key-property" name="spec.userConfig.secret_providers.aws.secret_key-property"><code>secret_key</code></a> (string, MaxLength: 128). Secret key used to authenticate with aws.</li>
+</ul>
+<h4 id="spec.userConfig.secret_providers.vault">vault<a class="headerlink" href="#spec.userConfig.secret_providers.vault" title="Permanent link">&para;</a></h4>
+<p><em>Appears on <a href="#spec.userConfig.secret_providers"><code>spec.userConfig.secret_providers</code></a>.</em></p>
+<p>Vault Config for Secret Provider.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.userConfig.secret_providers.vault.address-property" name="spec.userConfig.secret_providers.vault.address-property"><code>address</code></a> (string, MinLength: 1, MaxLength: 65536). Address of the Vault server.</li>
+<li><a href="#spec.userConfig.secret_providers.vault.auth_method-property" name="spec.userConfig.secret_providers.vault.auth_method-property"><code>auth_method</code></a> (string, Enum: <code>token</code>). Auth method of the vault secret provider.</li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.secret_providers.vault.engine_version-property" name="spec.userConfig.secret_providers.vault.engine_version-property"><code>engine_version</code></a> (integer, Enum: <code>1</code>, <code>2</code>). KV Secrets Engine version of the Vault server instance.</li>
+<li><a href="#spec.userConfig.secret_providers.vault.token-property" name="spec.userConfig.secret_providers.vault.token-property"><code>token</code></a> (string, MaxLength: 256). Token used to authenticate with vault and auth method <code>token</code>.</li>
 </ul>
 
 
@@ -2184,7 +2310,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.081f42fc.min.js"></script>
+      <script src="../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
     
   </body>

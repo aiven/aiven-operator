@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
     
     
       
@@ -172,7 +172,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             Initializing search
@@ -1189,6 +1189,27 @@
   
   
     <li class="md-nav__item">
+      <a href="clickhousegrant.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ClickhouseGrant
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="connectionpool.html" class="md-nav__link">
         
   
@@ -2080,7 +2101,7 @@
 </code></pre></div>
 </details>
 <h2 id="PostgreSQL">PostgreSQL<a class="headerlink" href="#PostgreSQL" title="Permanent link">&para;</a></h2>
-<p>PostgreSQL is the Schema for the postgresql API. </p>
+<p>PostgreSQL is the Schema for the postgresql API.</p>
 <div class="admonition info">
 <p class="admonition-title">Exposes secret keys</p>
 <p><code>POSTGRESQL_HOST</code>, <code>POSTGRESQL_PORT</code>, <code>POSTGRESQL_DATABASE</code>, <code>POSTGRESQL_USER</code>, <code>POSTGRESQL_PASSWORD</code>, <code>POSTGRESQL_SSLMODE</code>, <code>POSTGRESQL_DATABASE_URI</code>, <code>POSTGRESQL_CA_CERT</code>.</p>
@@ -2106,7 +2127,9 @@
 <li><a href="#spec.cloudName-property" name="spec.cloudName-property"><code>cloudName</code></a> (string, MaxLength: 256). Cloud the service runs in.</li>
 <li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Secret configuration. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
 <li><a href="#spec.connInfoSecretTargetDisabled-property" name="spec.connInfoSecretTargetDisabled-property"><code>connInfoSecretTargetDisabled</code></a> (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.</li>
-<li><a href="#spec.disk_space-property" name="spec.disk_space-property"><code>disk_space</code></a> (string, Pattern: <code>(?i)^[1-9][0-9]*(GiB|G)?$</code>). The disk space of the service, possible values depend on the service type, the cloud provider and the project. Reducing will result in the service re-balancing. The removal of this field does not change the value.</li>
+<li><a href="#spec.disk_space-property" name="spec.disk_space-property"><code>disk_space</code></a> (string, Pattern: <code>(?i)^[1-9][0-9]*(GiB|G)?$</code>). The disk space of the service, possible values depend on the service type, the cloud provider and the project.
+Reducing will result in the service re-balancing.
+The removal of this field does not change the value.</li>
 <li><a href="#spec.maintenanceWindowDow-property" name="spec.maintenanceWindowDow-property"><code>maintenanceWindowDow</code></a> (string, Enum: <code>monday</code>, <code>tuesday</code>, <code>wednesday</code>, <code>thursday</code>, <code>friday</code>, <code>saturday</code>, <code>sunday</code>). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.</li>
 <li><a href="#spec.maintenanceWindowTime-property" name="spec.maintenanceWindowTime-property"><code>maintenanceWindowTime</code></a> (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.</li>
 <li><a href="#spec.projectVPCRef-property" name="spec.projectVPCRef-property"><code>projectVPCRef</code></a> (object). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See below for <a href="#spec.projectVPCRef">nested schema</a>.</li>
@@ -2136,7 +2159,9 @@
 <ul>
 <li><a href="#spec.connInfoSecretTarget.annotations-property" name="spec.connInfoSecretTarget.annotations-property"><code>annotations</code></a> (object, AdditionalProperties: string). Annotations added to the secret.</li>
 <li><a href="#spec.connInfoSecretTarget.labels-property" name="spec.connInfoSecretTarget.labels-property"><code>labels</code></a> (object, AdditionalProperties: string). Labels added to the secret.</li>
-<li><a href="#spec.connInfoSecretTarget.prefix-property" name="spec.connInfoSecretTarget.prefix-property"><code>prefix</code></a> (string). Prefix for the secret's keys. Added "as is" without any transformations. By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFKA_</code>, <code>REDIS_</code>, etc.</li>
+<li><a href="#spec.connInfoSecretTarget.prefix-property" name="spec.connInfoSecretTarget.prefix-property"><code>prefix</code></a> (string). Prefix for the secret's keys.
+Added "as is" without any transformations.
+By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFKA_</code>, <code>REDIS_</code>, etc.</li>
 </ul>
 <h2 id="spec.projectVPCRef">projectVPCRef<a class="headerlink" href="#spec.projectVPCRef" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -2183,7 +2208,7 @@
 <li><a href="#spec.userConfig.pg_service_to_fork_from-property" name="spec.userConfig.pg_service_to_fork_from-property"><code>pg_service_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 64). Name of the PG Service from which to fork (deprecated, use service_to_fork_from). This has effect only when a new service is being created.</li>
 <li><a href="#spec.userConfig.pg_stat_monitor_enable-property" name="spec.userConfig.pg_stat_monitor_enable-property"><code>pg_stat_monitor_enable</code></a> (boolean). Enable the pg_stat_monitor extension. Enabling this extension will cause the cluster to be restarted.When this extension is enabled, pg_stat_statements results for utility commands are unreliable.</li>
 <li><a href="#spec.userConfig.pg_version-property" name="spec.userConfig.pg_version-property"><code>pg_version</code></a> (string, Enum: <code>12</code>, <code>13</code>, <code>14</code>, <code>15</code>, <code>16</code>). PostgreSQL major version.</li>
-<li><a href="#spec.userConfig.pgaudit-property" name="spec.userConfig.pgaudit-property"><code>pgaudit</code></a> (object). System-wide settings for the pgaudit extension. See below for <a href="#spec.userConfig.pgaudit">nested schema</a>.</li>
+<li><a href="#spec.userConfig.pgaudit-property" name="spec.userConfig.pgaudit-property"><code>pgaudit</code></a> (object). Deprecated. System-wide settings for the pgaudit extension. See below for <a href="#spec.userConfig.pgaudit">nested schema</a>.</li>
 <li><a href="#spec.userConfig.pgbouncer-property" name="spec.userConfig.pgbouncer-property"><code>pgbouncer</code></a> (object). PGBouncer connection pooling settings. See below for <a href="#spec.userConfig.pgbouncer">nested schema</a>.</li>
 <li><a href="#spec.userConfig.pglookout-property" name="spec.userConfig.pglookout-property"><code>pglookout</code></a> (object). System-wide settings for pglookout. See below for <a href="#spec.userConfig.pglookout">nested schema</a>.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
@@ -2252,7 +2277,7 @@
 <li><a href="#spec.userConfig.pg.jit-property" name="spec.userConfig.pg.jit-property"><code>jit</code></a> (boolean). Controls system-wide use of Just-in-Time Compilation (JIT).</li>
 <li><a href="#spec.userConfig.pg.log_autovacuum_min_duration-property" name="spec.userConfig.pg.log_autovacuum_min_duration-property"><code>log_autovacuum_min_duration</code></a> (integer, Minimum: -1, Maximum: 2147483647). Causes each action executed by autovacuum to be logged if it ran for at least the specified number of milliseconds. Setting this to zero logs all autovacuum actions. Minus-one (the default) disables logging autovacuum actions.</li>
 <li><a href="#spec.userConfig.pg.log_error_verbosity-property" name="spec.userConfig.pg.log_error_verbosity-property"><code>log_error_verbosity</code></a> (string, Enum: <code>TERSE</code>, <code>DEFAULT</code>, <code>VERBOSE</code>). Controls the amount of detail written in the server log for each message that is logged.</li>
-<li><a href="#spec.userConfig.pg.log_line_prefix-property" name="spec.userConfig.pg.log_line_prefix-property"><code>log_line_prefix</code></a> (string, Enum: <code>'pid=%p,user=%u,db=%d,app=%a,client=%h '</code>, <code>'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '</code>, <code>'%m [%p] %q[user=%u,db=%d,app=%a] '</code>). Choose from one of the available log-formats. These can support popular log analyzers like pgbadger, pganalyze etc.</li>
+<li><a href="#spec.userConfig.pg.log_line_prefix-property" name="spec.userConfig.pg.log_line_prefix-property"><code>log_line_prefix</code></a> (string, Enum: <code>'pid=%p,user=%u,db=%d,app=%a,client=%h '</code>, <code>'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '</code>, <code>'%m [%p] %q[user=%u,db=%d,app=%a] '</code>). Choose from one of the available log formats.</li>
 <li><a href="#spec.userConfig.pg.log_min_duration_statement-property" name="spec.userConfig.pg.log_min_duration_statement-property"><code>log_min_duration_statement</code></a> (integer, Minimum: -1, Maximum: 86400000). Log statements that take more than this number of milliseconds to run, -1 disables.</li>
 <li><a href="#spec.userConfig.pg.log_temp_files-property" name="spec.userConfig.pg.log_temp_files-property"><code>log_temp_files</code></a> (integer, Minimum: -1, Maximum: 2147483647). Log statements for each temporary file created larger than this number of kilobytes, -1 disables.</li>
 <li><a href="#spec.userConfig.pg.max_files_per_process-property" name="spec.userConfig.pg.max_files_per_process-property"><code>max_files_per_process</code></a> (integer, Minimum: 1000, Maximum: 4096). PostgreSQL maximum number of files that can be open per process.</li>
@@ -2296,23 +2321,23 @@
 </ul>
 <h3 id="spec.userConfig.pgaudit">pgaudit<a class="headerlink" href="#spec.userConfig.pgaudit" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
-<p>System-wide settings for the pgaudit extension.</p>
+<p>Deprecated. System-wide settings for the pgaudit extension.</p>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.userConfig.pgaudit.feature_enabled-property" name="spec.userConfig.pgaudit.feature_enabled-property"><code>feature_enabled</code></a> (boolean). Enable pgaudit extension. When enabled, pgaudit extension will be automatically installed.Otherwise, extension will be uninstalled but auditing configurations will be preserved.</li>
-<li><a href="#spec.userConfig.pgaudit.log-property" name="spec.userConfig.pgaudit.log-property"><code>log</code></a> (array of strings). Specifies which classes of statements will be logged by session audit logging.</li>
-<li><a href="#spec.userConfig.pgaudit.log_catalog-property" name="spec.userConfig.pgaudit.log_catalog-property"><code>log_catalog</code></a> (boolean). Specifies that session logging should be enabled in the casewhere all relations in a statement are in pg_catalog.</li>
-<li><a href="#spec.userConfig.pgaudit.log_client-property" name="spec.userConfig.pgaudit.log_client-property"><code>log_client</code></a> (boolean). Specifies whether log messages will be visible to a client process such as psql.</li>
-<li><a href="#spec.userConfig.pgaudit.log_level-property" name="spec.userConfig.pgaudit.log_level-property"><code>log_level</code></a> (string, Enum: <code>debug1</code>, <code>debug2</code>, <code>debug3</code>, <code>debug4</code>, <code>debug5</code>, <code>info</code>, <code>notice</code>, <code>warning</code>, <code>log</code>). Specifies the log level that will be used for log entries.</li>
-<li><a href="#spec.userConfig.pgaudit.log_max_string_length-property" name="spec.userConfig.pgaudit.log_max_string_length-property"><code>log_max_string_length</code></a> (integer, Minimum: -1, Maximum: 102400). Crop parameters representation and whole statements if they exceed this threshold. A (default) value of -1 disable the truncation.</li>
-<li><a href="#spec.userConfig.pgaudit.log_nested_statements-property" name="spec.userConfig.pgaudit.log_nested_statements-property"><code>log_nested_statements</code></a> (boolean). This GUC allows to turn off logging nested statements, that is, statements that are executed as part of another ExecutorRun.</li>
-<li><a href="#spec.userConfig.pgaudit.log_parameter-property" name="spec.userConfig.pgaudit.log_parameter-property"><code>log_parameter</code></a> (boolean). Specifies that audit logging should include the parameters that were passed with the statement.</li>
-<li><a href="#spec.userConfig.pgaudit.log_parameter_max_size-property" name="spec.userConfig.pgaudit.log_parameter_max_size-property"><code>log_parameter_max_size</code></a> (integer). Specifies that parameter values longer than this setting (in bytes) should not be logged, but replaced with <long param suppressed>.</li>
-<li><a href="#spec.userConfig.pgaudit.log_relation-property" name="spec.userConfig.pgaudit.log_relation-property"><code>log_relation</code></a> (boolean). Specifies whether session audit logging should create a separate log entry for each relation (TABLE, VIEW, etc.) referenced in a SELECT or DML statement.</li>
-<li><a href="#spec.userConfig.pgaudit.log_rows-property" name="spec.userConfig.pgaudit.log_rows-property"><code>log_rows</code></a> (boolean). Specifies that audit logging should include the rows retrieved or affected by a statement. When enabled the rows field will be included after the parameter field.</li>
-<li><a href="#spec.userConfig.pgaudit.log_statement-property" name="spec.userConfig.pgaudit.log_statement-property"><code>log_statement</code></a> (boolean). Specifies whether logging will include the statement text and parameters (if enabled).</li>
-<li><a href="#spec.userConfig.pgaudit.log_statement_once-property" name="spec.userConfig.pgaudit.log_statement_once-property"><code>log_statement_once</code></a> (boolean). Specifies whether logging will include the statement text and parameters with the first log entry for a statement/substatement combination or with every entry.</li>
-<li><a href="#spec.userConfig.pgaudit.role-property" name="spec.userConfig.pgaudit.role-property"><code>role</code></a> (string, Pattern: <code>^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$</code>, MaxLength: 64). Specifies the master role to use for object audit logging.</li>
+<li><a href="#spec.userConfig.pgaudit.feature_enabled-property" name="spec.userConfig.pgaudit.feature_enabled-property"><code>feature_enabled</code></a> (boolean). Deprecated. Enable pgaudit extension. When enabled, pgaudit extension will be automatically installed.Otherwise, extension will be uninstalled but auditing configurations will be preserved.</li>
+<li><a href="#spec.userConfig.pgaudit.log-property" name="spec.userConfig.pgaudit.log-property"><code>log</code></a> (array of strings). Deprecated. Specifies which classes of statements will be logged by session audit logging.</li>
+<li><a href="#spec.userConfig.pgaudit.log_catalog-property" name="spec.userConfig.pgaudit.log_catalog-property"><code>log_catalog</code></a> (boolean). Deprecated. Specifies that session logging should be enabled in the casewhere all relations in a statement are in pg_catalog.</li>
+<li><a href="#spec.userConfig.pgaudit.log_client-property" name="spec.userConfig.pgaudit.log_client-property"><code>log_client</code></a> (boolean). Deprecated. Specifies whether log messages will be visible to a client process such as psql.</li>
+<li><a href="#spec.userConfig.pgaudit.log_level-property" name="spec.userConfig.pgaudit.log_level-property"><code>log_level</code></a> (string). Deprecated. Specifies the log level that will be used for log entries.</li>
+<li><a href="#spec.userConfig.pgaudit.log_max_string_length-property" name="spec.userConfig.pgaudit.log_max_string_length-property"><code>log_max_string_length</code></a> (integer, Minimum: -1, Maximum: 102400). Deprecated. Crop parameters representation and whole statements if they exceed this threshold. A (default) value of -1 disable the truncation.</li>
+<li><a href="#spec.userConfig.pgaudit.log_nested_statements-property" name="spec.userConfig.pgaudit.log_nested_statements-property"><code>log_nested_statements</code></a> (boolean). Deprecated. This GUC allows to turn off logging nested statements, that is, statements that are executed as part of another ExecutorRun.</li>
+<li><a href="#spec.userConfig.pgaudit.log_parameter-property" name="spec.userConfig.pgaudit.log_parameter-property"><code>log_parameter</code></a> (boolean). Deprecated. Specifies that audit logging should include the parameters that were passed with the statement.</li>
+<li><a href="#spec.userConfig.pgaudit.log_parameter_max_size-property" name="spec.userConfig.pgaudit.log_parameter_max_size-property"><code>log_parameter_max_size</code></a> (integer). Deprecated. Specifies that parameter values longer than this setting (in bytes) should not be logged, but replaced with <long param suppressed>.</li>
+<li><a href="#spec.userConfig.pgaudit.log_relation-property" name="spec.userConfig.pgaudit.log_relation-property"><code>log_relation</code></a> (boolean). Deprecated. Specifies whether session audit logging should create a separate log entry for each relation (TABLE, VIEW, etc.) referenced in a SELECT or DML statement.</li>
+<li><a href="#spec.userConfig.pgaudit.log_rows-property" name="spec.userConfig.pgaudit.log_rows-property"><code>log_rows</code></a> (boolean). Deprecated. Specifies that audit logging should include the rows retrieved or affected by a statement. When enabled the rows field will be included after the parameter field.</li>
+<li><a href="#spec.userConfig.pgaudit.log_statement-property" name="spec.userConfig.pgaudit.log_statement-property"><code>log_statement</code></a> (boolean). Deprecated. Specifies whether logging will include the statement text and parameters (if enabled).</li>
+<li><a href="#spec.userConfig.pgaudit.log_statement_once-property" name="spec.userConfig.pgaudit.log_statement_once-property"><code>log_statement_once</code></a> (boolean). Deprecated. Specifies whether logging will include the statement text and parameters with the first log entry for a statement/substatement combination or with every entry.</li>
+<li><a href="#spec.userConfig.pgaudit.role-property" name="spec.userConfig.pgaudit.role-property"><code>role</code></a> (string, Pattern: <code>^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$</code>, MaxLength: 64). Deprecated. Specifies the master role to use for object audit logging.</li>
 </ul>
 <h3 id="spec.userConfig.pgbouncer">pgbouncer<a class="headerlink" href="#spec.userConfig.pgbouncer" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
@@ -2472,7 +2497,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.081f42fc.min.js"></script>
+      <script src="../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
     
   </body>

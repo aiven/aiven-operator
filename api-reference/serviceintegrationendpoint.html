@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
     
     
       
@@ -172,7 +172,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             Initializing search
@@ -1189,6 +1189,27 @@
   
   
     <li class="md-nav__item">
+      <a href="clickhousegrant.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ClickhouseGrant
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="connectionpool.html" class="md-nav__link">
         
   
@@ -2033,7 +2054,7 @@
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">password</span>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example.example</span>
 <a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5432</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="nt">ssl_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">disable</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="nt">ssl_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">require</span>
 </code></pre></div>
 </details>
 <details class="example">
@@ -2229,7 +2250,7 @@
 <li><a href="#spec.externalPostgresql.password-property" name="spec.externalPostgresql.password-property"><code>password</code></a> (string, MaxLength: 256). Password.</li>
 <li><a href="#spec.externalPostgresql.ssl_client_certificate-property" name="spec.externalPostgresql.ssl_client_certificate-property"><code>ssl_client_certificate</code></a> (string, MaxLength: 16384). Client certificate.</li>
 <li><a href="#spec.externalPostgresql.ssl_client_key-property" name="spec.externalPostgresql.ssl_client_key-property"><code>ssl_client_key</code></a> (string, MaxLength: 16384). Client key.</li>
-<li><a href="#spec.externalPostgresql.ssl_mode-property" name="spec.externalPostgresql.ssl_mode-property"><code>ssl_mode</code></a> (string, Enum: <code>disable</code>, <code>allow</code>, <code>prefer</code>, <code>require</code>, <code>verify-ca</code>, <code>verify-full</code>). SSL Mode.</li>
+<li><a href="#spec.externalPostgresql.ssl_mode-property" name="spec.externalPostgresql.ssl_mode-property"><code>ssl_mode</code></a> (string, Enum: <code>require</code>, <code>verify-ca</code>, <code>verify-full</code>). SSL mode to use for the connection.  Please note that Aiven requires TLS for all connections to external PostgreSQL services.</li>
 <li><a href="#spec.externalPostgresql.ssl_root_cert-property" name="spec.externalPostgresql.ssl_root_cert-property"><code>ssl_root_cert</code></a> (string, MaxLength: 16384). SSL Root Cert.</li>
 </ul>
 <h2 id="spec.externalSchemaRegistry">externalSchemaRegistry<a class="headerlink" href="#spec.externalSchemaRegistry" title="Permanent link">&para;</a></h2>
@@ -2382,7 +2403,7 @@
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.081f42fc.min.js"></script>
+      <script src="../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
     
   </body>
