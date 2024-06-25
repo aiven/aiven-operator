@@ -21,6 +21,10 @@ type ClickhouseSpec struct {
 
 // Clickhouse is the Schema for the clickhouses API.
 // Info "Exposes secret keys": `CLICKHOUSE_HOST`, `CLICKHOUSE_PORT`, `CLICKHOUSE_USER`, `CLICKHOUSE_PASSWORD`
+// +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
+// +kubebuilder:printcolumn:name="Region",type="string",JSONPath=".spec.cloudName"
+// +kubebuilder:printcolumn:name="Plan",type="string",JSONPath=".spec.plan"
+// +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state"
 type Clickhouse struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

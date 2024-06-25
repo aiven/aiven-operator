@@ -21,7 +21,10 @@ type RedisSpec struct {
 
 // Redis is the Schema for the redis API.
 // Info "Exposes secret keys": `REDIS_HOST`, `REDIS_PORT`, `REDIS_USER`, `REDIS_PASSWORD`
-// +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
+// +kubebuilder:printcolumn:name="Region",type="string",JSONPath=".spec.cloudName"
+// +kubebuilder:printcolumn:name="Plan",type="string",JSONPath=".spec.plan"
+// +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state"
 type Redis struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
