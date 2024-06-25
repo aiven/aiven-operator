@@ -14,23 +14,8 @@
   `string`: Set where consumer starts to consume data
 - Add `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.consumer_max_poll_records`, type
   `integer`: Set consumer max.poll.records. The default is 500
-- Change `PostgreSQL` field `userConfig.pgaudit.feature_enabled`: deprecated
-- Change `PostgreSQL` field `userConfig.pgaudit.log_catalog`: deprecated
-- Change `PostgreSQL` field `userConfig.pgaudit.log_client`: deprecated
-- Change `PostgreSQL` field `userConfig.pgaudit.log_level`: deprecated, enum ~~`[debug1, debug2, debug3,
-debug4, debug5, info, log, notice, warning]`~~
-- Change `PostgreSQL` field `userConfig.pgaudit.log_max_string_length`: deprecated
-- Change `PostgreSQL` field `userConfig.pgaudit.log_nested_statements`: deprecated
-- Change `PostgreSQL` field `userConfig.pgaudit.log_parameter_max_size`: deprecated
-- Change `PostgreSQL` field `userConfig.pgaudit.log_parameter`: deprecated
-- Change `PostgreSQL` field `userConfig.pgaudit.log_relation`: deprecated
-- Change `PostgreSQL` field `userConfig.pgaudit.log_rows`: deprecated
-- Change `PostgreSQL` field `userConfig.pgaudit.log_statement_once`: deprecated
-- Change `PostgreSQL` field `userConfig.pgaudit.log_statement`: deprecated
-- Change `PostgreSQL` field `userConfig.pgaudit.log`: deprecated
-- Change `PostgreSQL` field `userConfig.pgaudit.role`: deprecated
 - Change `PostgreSQL` field `userConfig.pgaudit`: deprecated
-- Change `ServiceIntegrationEndpoint` field `externalPostgresql.ssl_mode`: enum ~~`[allow, disable, prefer,
+- Breaking change `ServiceIntegrationEndpoint` field `externalPostgresql.ssl_mode`: enum ~~`[allow, disable, prefer,
 require, verify-ca, verify-full]`~~ → `[require, verify-ca, verify-full]`
 
 ## v0.20.0 - 2024-06-05
