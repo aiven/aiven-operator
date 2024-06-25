@@ -49,6 +49,24 @@ title: "ServiceIntegrationEndpoint"
         basic_auth_password: password
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `ServiceIntegrationEndpoint`:
+
+```shell
+kubectl get serviceintegrationendpoints my-service-integration-endpoint
+```
+
+The output is similar to the following:
+```shell
+Name                               Project               Endpoint Name             Endpoint Type          ID      
+my-service-integration-endpoint    aiven-project-name    my-external-postgresql    external_postgresql    <id>    
+```
+
 ## ServiceIntegrationEndpoint {: #ServiceIntegrationEndpoint }
 
 ServiceIntegrationEndpoint is the Schema for the serviceintegrationendpoints API.

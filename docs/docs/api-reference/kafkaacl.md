@@ -22,6 +22,24 @@ title: "KafkaACL"
       permission: admin
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `KafkaACL`:
+
+```shell
+kubectl get kafkaacls my-kafka-acl
+```
+
+The output is similar to the following:
+```shell
+Name            Service Name    Project             Username    Permission    Topic       
+my-kafka-acl    my-kafka        my-aiven-project    my-user     admin         my-topic    
+```
+
 ## KafkaACL {: #KafkaACL }
 
 KafkaACL is the Schema for the kafkaacls API.

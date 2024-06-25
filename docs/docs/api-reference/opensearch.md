@@ -32,6 +32,24 @@ title: "OpenSearch"
       maintenanceWindowTime: 23:00:00
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `OpenSearch`:
+
+```shell
+kubectl get opensearches my-os
+```
+
+The output is similar to the following:
+```shell
+Name     Project             Region                 Plan         State      
+my-os    my-aiven-project    google-europe-west1    startup-4    RUNNING    
+```
+
 ## OpenSearch {: #OpenSearch }
 
 OpenSearch is the Schema for the opensearches API.

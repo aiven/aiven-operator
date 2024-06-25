@@ -35,6 +35,24 @@ title: "KafkaSchema"
         }
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `KafkaSchema`:
+
+```shell
+kubectl get kafkaschemas my-schema
+```
+
+The output is similar to the following:
+```shell
+Name         Service Name    Project             Subject        Compatibility Level    Version      
+my-schema    my-kafka        my-aiven-project    mny-subject    BACKWARD               <version>    
+```
+
 ## KafkaSchema {: #KafkaSchema }
 
 KafkaSchema is the Schema for the kafkaschemas API.

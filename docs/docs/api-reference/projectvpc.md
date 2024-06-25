@@ -20,6 +20,24 @@ title: "ProjectVPC"
       networkCidr: 10.0.0.0/24
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `ProjectVPC`:
+
+```shell
+kubectl get projectvpcs my-project-vpc
+```
+
+The output is similar to the following:
+```shell
+Name              Project               Cloud                  Network CIDR    State      
+my-project-vpc    aiven-project-name    google-europe-west1    10.0.0.0/24     RUNNING    
+```
+
 ## ProjectVPC {: #ProjectVPC }
 
 ProjectVPC is the Schema for the projectvpcs API.

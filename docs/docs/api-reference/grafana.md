@@ -39,6 +39,24 @@ title: "Grafana"
           - network: 10.20.0.0/16
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `Grafana`:
+
+```shell
+kubectl get grafanas my-grafana
+```
+
+The output is similar to the following:
+```shell
+Name          Project             Region                 Plan         State      
+my-grafana    my-aiven-project    google-europe-west1    startup-1    RUNNING    
+```
+
 ## Grafana {: #Grafana }
 
 Grafana is the Schema for the grafanas API.

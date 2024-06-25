@@ -22,6 +22,24 @@ title: "Database"
       lcCollate: en_US.UTF-8
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `Database`:
+
+```shell
+kubectl get databases my-db
+```
+
+The output is similar to the following:
+```shell
+Name     Project               Service Name    
+my-db    aiven-project-name    my-service      
+```
+
 ## Database {: #Database }
 
 Database is the Schema for the databases API.

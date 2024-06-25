@@ -20,6 +20,24 @@ title: "ClickhouseRole"
       role: my-role
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `ClickhouseRole`:
+
+```shell
+kubectl get clickhouseroles my-role
+```
+
+The output is similar to the following:
+```shell
+Name       Project             Service Name     Role       
+my-role    my-aiven-project    my-clickhouse    my-role    
+```
+
 ## ClickhouseRole {: #ClickhouseRole }
 
 ClickhouseRole is the Schema for the clickhouseroles API.

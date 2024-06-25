@@ -66,6 +66,24 @@ title: "ConnectionPool"
       serviceName: my-pg
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `ConnectionPool`:
+
+```shell
+kubectl get connectionpools my-connection-pool
+```
+
+The output is similar to the following:
+```shell
+Name                  Service Name    Project               Database       Username           Pool Size    Pool Mode      
+my-connection-pool    my-pg           aiven-project-name    my-database    my-service-user    25           transaction    
+```
+
 ## ConnectionPool {: #ConnectionPool }
 
 ConnectionPool is the Schema for the connectionpools API.

@@ -22,6 +22,24 @@ title: "KafkaSchemaRegistryACL"
       permission: schema_registry_read
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `KafkaSchemaRegistryACL`:
+
+```shell
+kubectl get kafkaschemaregistryacls my-kafka-schema-registry-acl
+```
+
+The output is similar to the following:
+```shell
+Name                            Project               Service Name    Resource            Username    State      
+my-kafka-schema-registry-acl    aiven-project-name    my-kafka        Subject:my-topic    my-user     RUNNING    
+```
+
 ## KafkaSchemaRegistryACL {: #KafkaSchemaRegistryACL }
 
 KafkaSchemaRegistryACL is the Schema for the kafkaschemaregistryacls API.

@@ -40,6 +40,24 @@ title: "Cassandra"
           - network: 10.20.0.0/16
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `Cassandra`:
+
+```shell
+kubectl get cassandras my-cassandra
+```
+
+The output is similar to the following:
+```shell
+Name            Project               Region                 Plan         State      
+my-cassandra    aiven-project-name    google-europe-west1    startup-4    RUNNING    
+```
+
 ## Cassandra {: #Cassandra }
 
 Cassandra is the Schema for the cassandras API.

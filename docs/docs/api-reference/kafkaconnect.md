@@ -26,6 +26,24 @@ title: "KafkaConnect"
           kafka_connect: true
     ```
 
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `KafkaConnect`:
+
+```shell
+kubectl get kafkaconnects my-kafka-connect
+```
+
+The output is similar to the following:
+```shell
+Name                Project             Region                 Plan          State      
+my-kafka-connect    my-aiven-project    google-europe-west1    business-4    RUNNING    
+```
+
 ## KafkaConnect {: #KafkaConnect }
 
 KafkaConnect is the Schema for the kafkaconnects API.
