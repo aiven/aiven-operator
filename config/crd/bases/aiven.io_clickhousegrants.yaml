@@ -60,7 +60,10 @@ spec:
                     - name
                   type: object
                 privilegeGrants:
-                  description: Configuration to grant a privilege.
+                  description:
+                    Configuration to grant a privilege. Privileges not in
+                    the manifest are revoked. Existing privileges are retained; new
+                    ones are granted.
                   items:
                     description: |-
                       PrivilegeGrant represents the privileges to be granted to users or roles.
@@ -98,11 +101,14 @@ spec:
                           type: string
                         type: array
                       table:
-                        description: The tables that the grant refers to.
+                        description:
+                          'The tables that the grant refers to. To grant
+                          a privilege on all tables in a database, omit this field instead
+                          of writing `table: "*"`.'
                         type: string
                       withGrantOption:
                         description: |-
-                          If true, then the grantee (user or role) get the permission to execute the `GRANT`` query.
+                          If true, then the grantee (user or role) get the permission to execute the `GRANT` query.
                           Users can grant privileges of the same scope they have and less.
                           See https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax
                         type: boolean
@@ -124,7 +130,10 @@ spec:
                     - message: Value is immutable
                       rule: self == oldSelf
                 roleGrants:
-                  description: Configuration to grant a role.
+                  description:
+                    Configuration to grant a role. Role grants not in the
+                    manifest are revoked. Existing role grants are retained; new ones
+                    are granted.
                   items:
                     description: |-
                       RoleGrant represents the roles to be assigned to users or roles.
