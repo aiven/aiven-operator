@@ -17,7 +17,7 @@ title: "ClickhouseDatabase"
     
       project: my-aiven-project
       serviceName: my-clickhouse
-      databaseName: my-db
+      databaseName: example-db
     ```
 
 ## ClickhouseDatabase {: #ClickhouseDatabase }

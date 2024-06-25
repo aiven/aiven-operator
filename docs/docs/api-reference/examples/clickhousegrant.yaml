@@ -19,8 +19,8 @@ spec:
         - SELECT
         - INSERT
       database: my-db
-      # If table is not specified, the privileges are granted on all tables in the database
-      # If columns is not specified, the privileges are granted on all columns in the table
+      # If table is omitted, the privileges are granted on all tables in the database
+      # If columns is omitted, the privileges are granted on all columns in the table
     - grantees:
         - role: my-role
       privileges:

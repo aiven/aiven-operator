@@ -35,11 +35,11 @@ type PrivilegeGrant struct {
 	Privileges []string `json:"privileges"`
 	// The database that the grant refers to.
 	Database string `json:"database"`
-	// The tables that the grant refers to.
+	// The tables that the grant refers to. To grant a privilege on all tables in a database, omit this field instead of writing `table: "*"`.
 	Table string `json:"table,omitempty"`
 	// The column that the grant refers to.
 	Columns []string `json:"columns,omitempty"`
-	// If true, then the grantee (user or role) get the permission to execute the `GRANT`` query.
+	// If true, then the grantee (user or role) get the permission to execute the `GRANT` query.
 	// Users can grant privileges of the same scope they have and less.
 	// See https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax
 	WithGrantOption bool `json:"withGrantOption,omitempty"`
@@ -63,9 +63,9 @@ type RoleGrant struct {
 type ClickhouseGrantSpec struct {
 	ServiceDependant `json:",inline,omitempty"`
 
-	// Configuration to grant a privilege.
+	// Configuration to grant a privilege. Privileges not in the manifest are revoked. Existing privileges are retained; new ones are granted.
 	PrivilegeGrants []PrivilegeGrant `json:"privilegeGrants,omitempty"`
-	// Configuration to grant a role.
+	// Configuration to grant a role. Role grants not in the manifest are revoked. Existing role grants are retained; new ones are granted.
 	RoleGrants []RoleGrant `json:"roleGrants,omitempty"`
 }
 

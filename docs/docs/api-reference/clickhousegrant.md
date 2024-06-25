@@ -26,8 +26,8 @@ title: "ClickhouseGrant"
             - SELECT
             - INSERT
           database: my-db
-          # If table is not specified, the privileges are granted on all tables in the database
-          # If columns is not specified, the privileges are granted on all columns in the table
+          # If table is omitted, the privileges are granted on all tables in the database
+          # If columns is omitted, the privileges are granted on all columns in the table
         - grantees:
             - role: my-role
           privileges:
@@ -71,8 +71,8 @@ ClickhouseGrantSpec defines the desired state of ClickhouseGrant.
 **Optional**
 
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
-- [`privilegeGrants`](#spec.privilegeGrants-property){: name='spec.privilegeGrants-property'} (array of objects). Configuration to grant a privilege. See below for [nested schema](#spec.privilegeGrants).
-- [`roleGrants`](#spec.roleGrants-property){: name='spec.roleGrants-property'} (array of objects). Configuration to grant a role. See below for [nested schema](#spec.roleGrants).
+- [`privilegeGrants`](#spec.privilegeGrants-property){: name='spec.privilegeGrants-property'} (array of objects). Configuration to grant a privilege. Privileges not in the manifest are revoked. Existing privileges are retained; new ones are granted. See below for [nested schema](#spec.privilegeGrants).
+- [`roleGrants`](#spec.roleGrants-property){: name='spec.roleGrants-property'} (array of objects). Configuration to grant a role. Role grants not in the manifest are revoked. Existing role grants are retained; new ones are granted. See below for [nested schema](#spec.roleGrants).
 
 ## authSecretRef {: #spec.authSecretRef }
 
@@ -89,7 +89,7 @@ Authentication reference to Aiven token in a secret.
 
 _Appears on [`spec`](#spec)._
 
-Configuration to grant a privilege.
+Configuration to grant a privilege. Privileges not in the manifest are revoked. Existing privileges are retained; new ones are granted.
 
 **Required**
 
@@ -101,8 +101,8 @@ See https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role
 **Optional**
 
 - [`columns`](#spec.privilegeGrants.columns-property){: name='spec.privilegeGrants.columns-property'} (array of strings). The column that the grant refers to.
-- [`table`](#spec.privilegeGrants.table-property){: name='spec.privilegeGrants.table-property'} (string). The tables that the grant refers to.
-- [`withGrantOption`](#spec.privilegeGrants.withGrantOption-property){: name='spec.privilegeGrants.withGrantOption-property'} (boolean). If true, then the grantee (user or role) get the permission to execute the `GRANT`` query.
+- [`table`](#spec.privilegeGrants.table-property){: name='spec.privilegeGrants.table-property'} (string). The tables that the grant refers to. To grant a privilege on all tables in a database, omit this field instead of writing `table: "*"`.
+- [`withGrantOption`](#spec.privilegeGrants.withGrantOption-property){: name='spec.privilegeGrants.withGrantOption-property'} (boolean). If true, then the grantee (user or role) get the permission to execute the `GRANT` query.
 Users can grant privileges of the same scope they have and less.
 See https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax.
 
@@ -121,7 +121,7 @@ List of grantees (users or roles) to grant the privilege to.
 
 _Appears on [`spec`](#spec)._
 
-Configuration to grant a role.
+Configuration to grant a role. Role grants not in the manifest are revoked. Existing role grants are retained; new ones are granted.
 
 **Required**
 
