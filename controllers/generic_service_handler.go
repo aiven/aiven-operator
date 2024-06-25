@@ -135,9 +135,10 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 
 	status := o.getServiceStatus()
 	meta.SetStatusCondition(&status.Conditions,
-		getInitializedCondition(reason, "Instance was created or update on Aiven side"))
+		getInitializedCondition(reason, "Successfully created or updated the instance in Aiven"))
 	meta.SetStatusCondition(&status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, reason, "Instance was created or update on Aiven side, status remains unknown"))
+		getRunningCondition(metav1.ConditionUnknown, reason,
+			"Successfully created or updated the instance in Aiven, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(
 		o.getObjectMeta(),

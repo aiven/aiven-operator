@@ -78,11 +78,11 @@ func (h KafkaSchemaRegistryACLHandler) createOrUpdate(ctx context.Context, avn *
 
 	meta.SetStatusCondition(&acl.Status.Conditions,
 		getInitializedCondition("Created",
-			"Instance was created or update on Aiven side"))
+			"Successfully created or updated the instance in Aiven"))
 
 	meta.SetStatusCondition(&acl.Status.Conditions,
 		getRunningCondition(metav1.ConditionUnknown, "Created",
-			"Instance was created or update on Aiven side, status remains unknown"))
+			"Successfully created or updated the instance in Aiven, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&acl.ObjectMeta,
 		processedGenerationAnnotation, strconv.FormatInt(acl.GetGeneration(), formatIntBaseDecimal))

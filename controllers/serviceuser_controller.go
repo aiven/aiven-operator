@@ -69,11 +69,7 @@ func (h ServiceUserHandler) createOrUpdate(ctx context.Context, avn *aiven.Clien
 
 	meta.SetStatusCondition(&user.Status.Conditions,
 		getInitializedCondition("Created",
-			"Instance was created or update on Aiven side"))
-
-	meta.SetStatusCondition(&user.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "Created",
-			"Instance was created or update on Aiven side, status remains unknown"))
+			"Successfully created or updated the instance in Aiven"))
 
 	metav1.SetMetaDataAnnotation(&user.ObjectMeta,
 		processedGenerationAnnotation, strconv.FormatInt(user.GetGeneration(), formatIntBaseDecimal))

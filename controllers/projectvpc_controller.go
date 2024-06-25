@@ -69,11 +69,11 @@ func (h *ProjectVPCHandler) createOrUpdate(ctx context.Context, avn *aiven.Clien
 
 	meta.SetStatusCondition(&projectVPC.Status.Conditions,
 		getInitializedCondition("Created",
-			"Instance was created or update on Aiven side"))
+			"Successfully created or updated the instance in Aiven"))
 
 	meta.SetStatusCondition(&projectVPC.Status.Conditions,
 		getRunningCondition(metav1.ConditionUnknown, "Created",
-			"Instance was created or update on Aiven side, status remains unknown"))
+			"Successfully created or updated the instance in Aiven, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(&projectVPC.ObjectMeta,
 		processedGenerationAnnotation, strconv.FormatInt(projectVPC.GetGeneration(), formatIntBaseDecimal))

@@ -7,7 +7,7 @@ weight: 50
 Aiven for Redis®\* is a fully managed in-memory NoSQL database that you can deploy in the cloud of your choice to store and access data quickly and efficiently.
 
 !!! note
-    Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites.md) with the operator installed (see instructions for [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md)), 
+    Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites.md) with the operator installed (see instructions for [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md)),
     and a [Kubernetes Secret with an Aiven authentication token](../authentication.md).
 
 ## Creating a Redis instance
@@ -65,12 +65,12 @@ The output is similar to the following:
 Status:
   Conditions:
     Last Transition Time:  2023-01-19T14:48:59Z
-    Message:               Instance was created or update on Aiven side
+    Message:               Successfully created or updated the instance in Aiven
     Reason:                Created
     Status:                True
     Type:                  Initialized
     Last Transition Time:  2023-01-19T14:48:59Z
-    Message:               Instance was created or update on Aiven side, status remains unknown
+    Message:               Successfully created or updated the instance in Aiven, status remains unknown
     Reason:                Created
     Status:                Unknown
     Type:                  Running
