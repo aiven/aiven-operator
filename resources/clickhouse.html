@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://aiven.github.io/aiven-operator/resources/cassandra.html">
+        <link rel="canonical" href="https://aiven.github.io/aiven-operator/resources/clickhouse.html">
       
       
-        <link rel="prev" href="project-vpc.html">
+        <link rel="prev" href="cassandra.html">
       
       
-        <link rel="next" href="clickhouse.html">
+        <link rel="next" href="mysql.html">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Cassandra - Aiven Operator</title>
+        <title>ClickHouse - Aiven Operator</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#creating-a-cassandra-instance" class="md-skip">
+        <a href="#create-a-clickhouse-instance" class="md-skip">
           Skip to content
         </a>
       
@@ -109,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Cassandra
+              ClickHouse
             
           </span>
         </div>
@@ -776,6 +776,27 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="cassandra.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cassandra
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -790,18 +811,18 @@
           
   
   <span class="md-ellipsis">
-    Cassandra
+    ClickHouse
   </span>
   
 
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="cassandra.html" class="md-nav__link md-nav__link--active">
+      <a href="clickhouse.html" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
-    Cassandra
+    ClickHouse
   </span>
   
 
@@ -821,27 +842,36 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#creating-a-cassandra-instance" class="md-nav__link">
+  <a href="#create-a-clickhouse-instance" class="md-nav__link">
     <span class="md-ellipsis">
-      Creating a Cassandra instance
+      Create a ClickHouse instance
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-the-connection-secret" class="md-nav__link">
+  <a href="#use-the-connection-secret" class="md-nav__link">
     <span class="md-ellipsis">
-      Using the connection Secret
+      Use the connection Secret
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#creating-a-cassandra-user" class="md-nav__link">
+  <a href="#create-a-clickhouse-database" class="md-nav__link">
     <span class="md-ellipsis">
-      Creating a Cassandra user
+      Create a ClickHouse database
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-a-clickhouse-user-and-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create a ClickHouse user and role
     </span>
   </a>
   
@@ -851,27 +881,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="clickhouse.html" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ClickHouse
-  </span>
-  
-
-      </a>
     </li>
   
 
@@ -1721,27 +1730,36 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#creating-a-cassandra-instance" class="md-nav__link">
+  <a href="#create-a-clickhouse-instance" class="md-nav__link">
     <span class="md-ellipsis">
-      Creating a Cassandra instance
+      Create a ClickHouse instance
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-the-connection-secret" class="md-nav__link">
+  <a href="#use-the-connection-secret" class="md-nav__link">
     <span class="md-ellipsis">
-      Using the connection Secret
+      Use the connection Secret
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#creating-a-cassandra-user" class="md-nav__link">
+  <a href="#create-a-clickhouse-database" class="md-nav__link">
     <span class="md-ellipsis">
-      Creating a Cassandra user
+      Create a ClickHouse database
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-a-clickhouse-user-and-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create a ClickHouse user and role
     </span>
   </a>
   
@@ -1766,83 +1784,85 @@
     
       
     
-    <a href="https://github.com/aiven/aiven-operator/raw/main/docs/docs/resources/cassandra.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/aiven/aiven-operator/raw/main/docs/docs/resources/clickhouse.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
     </a>
   
 
 
-  <h1>Cassandra</h1>
+  <h1>ClickHouse</h1>
 
-<p>Aiven for Apache Cassandra® is a distributed database designed to handle large volumes of writes.</p>
+<p>Aiven for ClickHouse® is a fully managed distributed columnar database based on open source ClickHouse.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Before going through this guide, make sure you have a <a href="../installation/prerequisites.html">Kubernetes cluster</a> with the operator installed (see instructions for <a href="../installation/helm.html">helm</a> or <a href="../installation/kubectl.html">kubectl</a>), and a <a href="../authentication.html">Kubernetes Secret with an Aiven authentication token</a>.</p>
+<p>Before going through this guide, make sure you have a <a href="../installation/prerequisites.html">Kubernetes cluster</a> with the operator installed
+(see instructions for <a href="../installation/helm.html">helm</a> or <a href="../installation/kubectl.html">kubectl</a>), and a <a href="../authentication.html">Kubernetes Secret with an Aiven authentication token</a>.</p>
 </div>
-<h2 id="creating-a-cassandra-instance">Creating a Cassandra instance<a class="headerlink" href="#creating-a-cassandra-instance" title="Permanent link">&para;</a></h2>
-<p>1. Create a file named <code>cassandra-sample.yaml</code>, and add the following content:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Cassandra</span>
+<h2 id="create-a-clickhouse-instance">Create a ClickHouse instance<a class="headerlink" href="#create-a-clickhouse-instance" title="Permanent link">&para;</a></h2>
+<p>1. Create a file named <code>clickhouse-sample.yaml</code>, and add the following:</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Clickhouse</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nt">metadata</span><span class="p">:</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cassandra-sample</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example-clickhouse</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nt">spec</span><span class="p">:</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="c1"># gets the authentication token from the `aiven-token` Secret</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="c1"># outputs the Cassandra connection on the `cassandra-secret` Secret</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cassandra-secret</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="c1"># add your Project name here</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;your-project-name&gt;</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="c1"># cloud provider and plan of your choice</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span><span class="c1"># you can check all of the possibilities here https://aiven.io/pricing</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">  </span><span class="nt">cloudName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">google-europe-west1</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">  </span><span class="nt">plan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">startup-4</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">  </span><span class="c1"># general Aiven configuration</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">  </span><span class="nt">maintenanceWindowDow</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">friday</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">  </span><span class="nt">maintenanceWindowTime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">23:00:00</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="c1"># Outputs the ClickHouse connection to the `clickhouse-secret` Secret.</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clickhouse-secret</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="c1"># Your Aiven project.</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PROJECT_NAME</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="c1"># Choose a cloud provider and plan.</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="c1"># View the options on the pricing page at https://aiven.io/pricing.</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="nt">cloudName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">google-europe-west1</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">  </span><span class="nt">plan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">startup-16</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="c1"># Configure the maintenance window.</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span><span class="nt">maintenanceWindowDow</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">friday</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">  </span><span class="nt">maintenanceWindowTime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">23:00:00</span>
 </code></pre></div>
-<p>2. Create the service by applying the configuration:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>cassandra-sample.yaml
-</code></pre></div>
-<p>The output is:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cassandra.aiven.io/cassandra-sample<span class="w"> </span>created
-</code></pre></div>
-<p>3. Review the resource you created with this command:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>cassandra.aiven.io<span class="w"> </span>cassandra-sample
+Where <code>PROJECT_NAME</code> is the name of your <a href="https://aiven.io/docs/platform/concepts/orgs-units-projects#projects">Aiven project</a>.</p>
+<p>2. To create the service, run:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>clickhouse-sample.yaml
 </code></pre></div>
 <p>The output is similar to the following:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>clickhouse.aiven.io/example-clickhouse<span class="w"> </span>created
+</code></pre></div>
+<p>3. To review the resource you created, run:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>clickhouse.aiven.io<span class="w"> </span>example-clickhouse
+</code></pre></div>
+<p>The output is similar to the following:</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>...
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>Status:
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>Conditions:
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span>Last<span class="w"> </span>Transition<span class="w"> </span>Time:<span class="w">  </span><span class="m">2023</span>-01-31T10:17:25Z
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span>Message:<span class="w">               </span>Successfully<span class="w"> </span>created<span class="w"> </span>or<span class="w"> </span>updated<span class="w"> </span>the<span class="w"> </span>instance<span class="w"> </span><span class="k">in</span><span class="w"> </span>Aiven
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span>Last<span class="w"> </span>Transition<span class="w"> </span>Time:<span class="w">  </span><span class="m">2024</span>-06-25T07:58:37Z
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span>Message:<span class="w">               </span>Instance<span class="w"> </span>was<span class="w"> </span>created<span class="w"> </span>or<span class="w"> </span>update<span class="w"> </span>on<span class="w"> </span>Aiven<span class="w"> </span>side
 <a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span>Reason:<span class="w">                </span>Created
 <a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span>Status:<span class="w">                </span>True
 <a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span>Type:<span class="w">                  </span>Initialized
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span>Last<span class="w"> </span>Transition<span class="w"> </span>Time:<span class="w">  </span><span class="m">2023</span>-01-31T10:24:00Z
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span>Last<span class="w"> </span>Transition<span class="w"> </span>Time:<span class="w">  </span><span class="m">2024</span>-06-25T08:01:47Z
 <a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span>Message:<span class="w">               </span>Instance<span class="w"> </span>is<span class="w"> </span>running<span class="w"> </span>on<span class="w"> </span>Aiven<span class="w"> </span>side
 <a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span>Reason:<span class="w">                </span>CheckRunning
 <a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span>Status:<span class="w">                </span>True
 <a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">    </span>Type:<span class="w">                  </span>Running
 <a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">  </span>State:<span class="w">                   </span>RUNNING
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>...
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>Events:
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">  </span>Type<span class="w">    </span>Reason<span class="w">                   </span>Age<span class="w">                    </span>From<span class="w">                   </span>Message
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">  </span>----<span class="w">    </span>------<span class="w">                   </span>----<span class="w">                   </span>----<span class="w">                   </span>-------
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">  </span>Normal<span class="w">  </span>CreatedOrUpdatedAtAiven<span class="w">  </span>3m24s<span class="w"> </span><span class="o">(</span>x5<span class="w"> </span>over<span class="w"> </span>3m45s<span class="o">)</span><span class="w">  </span>clickhouse-reconciler<span class="w">  </span>waiting<span class="w"> </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>instance<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>running
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">  </span>Normal<span class="w">  </span>ReconcilationStarted<span class="w">     </span>3m14s<span class="w"> </span><span class="o">(</span>x6<span class="w"> </span>over<span class="w"> </span>3m47s<span class="o">)</span><span class="w">  </span>clickhouse-reconciler<span class="w">  </span>starting<span class="w"> </span>reconciliation
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">  </span>Normal<span class="w">  </span>InstanceFinalizerAdded<span class="w">   </span>3m14s<span class="w"> </span><span class="o">(</span>x6<span class="w"> </span>over<span class="w"> </span>3m47s<span class="o">)</span><span class="w">  </span>clickhouse-reconciler<span class="w">  </span>waiting<span class="w"> </span><span class="k">for</span><span class="w"> </span>preconditions<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>instance
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>...
 </code></pre></div>
-<p>The resource can be in the <code>REBUILDING</code> state for a few minutes. Once the state changes to <code>RUNNING</code>, you can access the resource.</p>
-<h2 id="using-the-connection-secret">Using the connection Secret<a class="headerlink" href="#using-the-connection-secret" title="Permanent link">&para;</a></h2>
-<p>For your convenience, the operator automatically stores the Cassandra connection information in a Secret created with the
-name specified on the <code>connInfoSecretTarget</code> field.</p>
-<p>To view the details of the Secret, use the following command:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>secret<span class="w"> </span>cassandra-secret
+The resource can be in the <code>REBUILDING</code> state for a few minutes. Once the state changes to <code>RUNNING</code>, you can access the service.</p>
+<h2 id="use-the-connection-secret">Use the connection Secret<a class="headerlink" href="#use-the-connection-secret" title="Permanent link">&para;</a></h2>
+<p>Aiven Operator automatically stores the ClickHouse connection information in a Secret created with the name in the <code>connInfoSecretTarget</code> field.</p>
+<p>To view the details of the Secret, run:</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>secret<span class="w"> </span>clickhouse-secret
 </code></pre></div>
-<p>The output is similar to the following:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Name:<span class="w">         </span>cassandra-secret
+The output is similar to the following:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Name:<span class="w">         </span>clickhouse-secret
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>Namespace:<span class="w">    </span>default
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>Labels:<span class="w">       </span>&lt;none&gt;
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>Annotations:<span class="w">  </span>&lt;none&gt;
@@ -1851,63 +1871,158 @@ name specified on the <code>connInfoSecretTarget</code> field.</p>
 <a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
 <a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="nv">Data</span>
 <a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="o">====</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>CASSANDRA_HOSTS:<span class="w">     </span><span class="m">59</span><span class="w"> </span>bytes
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>CASSANDRA_PASSWORD:<span class="w">  </span><span class="m">24</span><span class="w"> </span>bytes
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>CASSANDRA_PORT:<span class="w">      </span><span class="m">5</span><span class="w"> </span>bytes
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>CASSANDRA_URI:<span class="w">       </span><span class="m">66</span><span class="w"> </span>bytes
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>CASSANDRA_USER:<span class="w">      </span><span class="m">8</span><span class="w"> </span>bytes
-<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>CASSANDRA_HOST:<span class="w">      </span><span class="m">60</span><span class="w"> </span>bytes
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>CLICKHOUSE_USER:<span class="w">      </span><span class="m">8</span><span class="w"> </span>bytes
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>HOST:<span class="w">                 </span><span class="m">46</span><span class="w"> </span>bytes
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>PASSWORD:<span class="w">             </span><span class="m">24</span><span class="w"> </span>bytes
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>PORT:<span class="w">                 </span><span class="m">5</span><span class="w"> </span>bytes
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>USER:<span class="w">                 </span><span class="m">8</span><span class="w"> </span>bytes
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>CLICKHOUSE_HOST:<span class="w">      </span><span class="m">46</span><span class="w"> </span>bytes
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>CLICKHOUSE_PASSWORD:<span class="w">  </span><span class="m">24</span><span class="w"> </span>bytes
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>CLICKHOUSE_PORT:<span class="w">      </span><span class="m">5</span><span class="w"> </span>bytes
 </code></pre></div>
-<p>You can use the <a href="https://github.com/jqlang/jq">jq</a> to quickly decode the Secret:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>cassandra-secret<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data | map_values(@base64d)&#39;</span>
+<p>You can use the  JSON processor <a href="https://github.com/jqlang/jq">jq</a> to decode the Secret:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>clickhouse-secret<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data | map_values(@base64d)&#39;</span>
 </code></pre></div>
 <p>The output is similar to the following:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&quot;CASSANDRA_HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">&quot;CASSANDRA_HOSTS&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="nt">&quot;CASSANDRA_PASSWORD&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="nt">&quot;CASSANDRA_PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;14609&quot;</span><span class="p">,</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="nt">&quot;CASSANDRA_URI&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="nt">&quot;CASSANDRA_USER&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;avnadmin&quot;</span>
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="p">}</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&quot;CLICKHOUSE_HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HOST&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">&quot;CLICKHOUSE_PASSWORD&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SERVICE_PASSWORD&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="nt">&quot;CLICKHOUSE_PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;12691&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="nt">&quot;CLICKHOUSE_USER&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;avnadmin&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="nt">&quot;HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HOST&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="nt">&quot;PASSWORD&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ADMIN_USER_PASSWORD&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">  </span><span class="nt">&quot;PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;12691&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">  </span><span class="nt">&quot;USER&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;avnadmin&quot;</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="p">}</span>
 </code></pre></div>
-<h2 id="creating-a-cassandra-user">Creating a Cassandra user<a class="headerlink" href="#creating-a-cassandra-user" title="Permanent link">&para;</a></h2>
-<p>You can create service users for your instance of Aiven for Apache Cassandra. Service users are unique to this instance and are not shared with any other services.</p>
-<p>1. Create a file named cassandra-service-user.yaml:</p>
+<h2 id="create-a-clickhouse-database">Create a ClickHouse database<a class="headerlink" href="#create-a-clickhouse-database" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Tables cannot be created using Aiven Operator. To create a table,
+use the <a href="https://aiven.io/docs/products/clickhouse/howto/manage-databases-tables#create-a-table">Aiven Console or CLI</a>.</p>
+</div>
+<p>1. Create a file named <code>clickhouse-db.yaml</code> and add the following:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceUser</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClickhouseDatabase</span>
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="nt">metadata</span><span class="p">:</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cassandra-service-user</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example-database</span>
 <a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="nt">spec</span><span class="p">:</span>
 <a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
 <a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
 <a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cassandra-service-user-secret</span>
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>
-<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;your-project-name&gt;</span>
-<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cassandra-sample</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example-clickhouse</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PROJECT_NAME</span>
 </code></pre></div>
-<p>2. Create the user by applying the configuration:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>cassandra-service-user.yaml
+<p>Where <code>PROJECT_NAME</code> is the name of your Aiven project.</p>
+<p>2. To create the database, run:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>clickhouse-db.yaml
 </code></pre></div>
-<p>The <code>ServiceUser</code> resource generates a Secret with connection information.</p>
-<p>3. View the details of the Secret using the following command:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>cassandra-service-user-secret<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data | map_values(@base64d)&#39;</span>
+<p>3. To view details about the resource, run:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>ClickhouseDatabase<span class="w"> </span>example-database
 </code></pre></div>
 <p>The output is similar to the following:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">{</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="nt">&quot;ACCESS_CERT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span><span class="nt">&quot;ACCESS_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">  </span><span class="nt">&quot;CA_CERT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">  </span><span class="nt">&quot;HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">  </span><span class="nt">&quot;PASSWORD&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">  </span><span class="nt">&quot;PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;14609&quot;</span><span class="p">,</span>
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">  </span><span class="nt">&quot;USERNAME&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cassandra-service-user&quot;</span>
-<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>...
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>Spec:
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span>Auth<span class="w"> </span>Secret<span class="w"> </span>Ref:
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span>Key:<span class="w">         </span>token
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span>Name:<span class="w">        </span>aiven-token
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">  </span>Project:<span class="w">       </span>example-project
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">  </span>Service<span class="w"> </span>Name:<span class="w">  </span>example-clickhouse
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>Status:
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">  </span>Conditions:
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">    </span>Last<span class="w"> </span>Transition<span class="w"> </span>Time:<span class="w">  </span><span class="m">2024</span>-06-25T13:58:35Z
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">    </span>Message:<span class="w">               </span>Checking<span class="w"> </span>preconditions
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">    </span>Reason:<span class="w">                </span>Preconditions
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">    </span>Status:<span class="w">                </span>True
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">    </span>Type:<span class="w">                  </span>Initialized
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">    </span>Last<span class="w"> </span>Transition<span class="w"> </span>Time:<span class="w">  </span><span class="m">2024</span>-06-25T14:32:05Z
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">    </span>Message:<span class="w">               </span>Instance<span class="w"> </span>is<span class="w"> </span>running<span class="w"> </span>on<span class="w"> </span>Aiven<span class="w"> </span>side
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">    </span>Reason:<span class="w">                </span>CheckRunning
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="w">    </span>Status:<span class="w">                </span>True
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="w">    </span>Type:<span class="w">                  </span>Running
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>...
 </code></pre></div>
-<p>You can connect to the Cassandra instance using these credentials and the host information from the <code>cassandra-secret</code> Secret.</p>
+<h2 id="create-a-clickhouse-user-and-role">Create a ClickHouse user and role<a class="headerlink" href="#create-a-clickhouse-user-and-role" title="Permanent link">&para;</a></h2>
+<p>You can create service users and roles for an instance of ClickHouse, and grant privileges to them. Users and roles are not shared with any other services.</p>
+<p>1. Create a file named <code>clickhouse-service-users.yaml</code> and add the following configuration for a service user:</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClickhouseUser</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example-user</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clickhouse-service-user-secret</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example-clickhouse</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PROJECT_NAME</span>
+</code></pre></div>
+Where <code>PROJECT_NAME</code> is the name of your Aiven project.</p>
+<p>This resource generates a Secret with connection information and stores it in <code>clickhouse-service-user-secret</code>.</p>
+<p>2. To create a role add the following to the same file:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nn">---</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClickhouseRole</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example-role</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example-clickhouse</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PROJECT_NAME</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="w">  </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read-only</span>
+</code></pre></div>
+<p>3. Grant <a href="https://clickhouse.com/docs/en/sql-reference/statements/grant">privileges</a> to the role,
+and assign the role to the user by adding the following to the same file:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="nn">---</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClickhouseGrant</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example-grant</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PROJECT_NAME</span>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example-clickhouse</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="w">  </span><span class="nt">privilegeGrants</span><span class="p">:</span>
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">grantees</span><span class="p">:</span>
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read-only</span>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="w">      </span><span class="nt">privileges</span><span class="p">:</span>
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SELECT</span>
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="w">      </span><span class="nt">database</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example-database</span>
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>
+<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a><span class="w">  </span><span class="nt">roleGrants</span><span class="p">:</span>
+<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">roles</span><span class="p">:</span>
+<a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read-only</span>
+<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a><span class="w">      </span><span class="nt">grantees</span><span class="p">:</span>
+<a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example-user</span>
+</code></pre></div>
+<p>4. To create the user, role, and grant, run:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>clickhouse-service-users.yaml
+</code></pre></div>
+<p>5. To get credentials and host information for connecting to this instance, view the connection
+    information stored in the Secret by running:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>clickhouse-service-user-secret<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data | map_values(@base64d)&#39;</span>
+</code></pre></div>
+<p>The output is similar to the following:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="p">{</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">  </span><span class="nt">&quot;CLICKHOUSEUSER_HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HOST&quot;</span><span class="p">,</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">  </span><span class="nt">&quot;CLICKHOUSEUSER_PASSWORD&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PASSWORD&quot;</span><span class="p">,</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">  </span><span class="nt">&quot;CLICKHOUSEUSER_PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;12691&quot;</span><span class="p">,</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">  </span><span class="nt">&quot;CLICKHOUSEUSER_USERNAME&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;example-user&quot;</span><span class="p">,</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">  </span><span class="nt">&quot;HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HOST&quot;</span><span class="p">,</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">  </span><span class="nt">&quot;PASSWORD&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PASSWORD&quot;</span><span class="p">,</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="w">  </span><span class="nt">&quot;PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;12691&quot;</span><span class="p">,</span>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="w">  </span><span class="nt">&quot;USERNAME&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;example-user&quot;</span>
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="p">}</span>
+</code></pre></div>
 
 
 
@@ -1946,7 +2061,7 @@ name specified on the <code>connInfoSecretTarget</code> field.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="project-vpc.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Aiven Project VPC">
+          <a href="cassandra.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Cassandra">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -1956,20 +2071,20 @@ name specified on the <code>connInfoSecretTarget</code> field.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Aiven Project VPC
+                Cassandra
               </div>
             </div>
           </a>
         
         
           
-          <a href="clickhouse.html" class="md-footer__link md-footer__link--next" aria-label="Next: ClickHouse">
+          <a href="mysql.html" class="md-footer__link md-footer__link--next" aria-label="Next: MySQL">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                ClickHouse
+                MySQL
               </div>
             </div>
             <div class="md-footer__button md-icon">
