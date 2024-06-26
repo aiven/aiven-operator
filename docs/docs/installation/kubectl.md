@@ -1,6 +1,6 @@
 ---
-title: "Installing with kubectl"
-linkTitle: "Installing with kubectl"
+title: "Install with kubectl"
+linkTitle: "Install with kubectl"
 weight: 15
 ---
 

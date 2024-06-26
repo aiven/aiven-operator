@@ -14,7 +14,7 @@ This section involves a few different Kubernetes CRDs:
 4. A `PostgreSQL` used as a sink to receive messages from `Kafka`
 5. A `KafkaConnector` to finally connect the `Kafka` with the `PostgreSQL`
 
-## Creating the resources
+## Create the resources
 
 Create a file named `kafka-sample-connect.yaml` with the following content:
 
@@ -34,7 +34,7 @@ spec:
     name: kafka-auth
 
   # add your Project name here
-  project: <your-project-name>
+  project: PROJECT_NAME
 
   # cloud provider and plan of your choice
   # you can check all of the possibilities here https://aiven.io/pricing
@@ -60,7 +60,7 @@ spec:
     name: aiven-token
     key: token
 
-  project: <your-project-name>
+  project: PROJECT_NAME
   serviceName: kafka-sample-connect
 
   replication: 2
@@ -81,7 +81,7 @@ spec:
     key: token
 
   # add your Project name here
-  project: <your-project-name>
+  project: PROJECT_NAME
 
   # cloud provider and plan of your choice
   # you can check all of the possibilities here https://aiven.io/pricing
@@ -106,7 +106,7 @@ spec:
     name: aiven-token
     key: token
 
-  project: <your-project-name>
+  project: PROJECT_NAME
 
   # indicates the type of the integration
   integrationType: kafka_connect
@@ -134,7 +134,7 @@ spec:
     name: pg-connection
 
   # add your Project name here
-  project: <your-project-name>
+  project: PROJECT_NAME
 
   # cloud provider and plan of your choice
   # you can check all of the possibilities here https://aiven.io/pricing
@@ -160,7 +160,7 @@ spec:
     name: aiven-token
     key: token
 
-  project: <your-project-name>
+  project: PROJECT_NAME
 
   # the Kafka cluster name
   serviceName: kafka-sample-connect

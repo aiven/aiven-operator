@@ -14,7 +14,7 @@ Within the Aiven Kubernetes Operator, you can create a `ProjectVPC` on Aiven's s
     Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites.md) with the operator installed (see instructions for [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md)),
     and a [Kubernetes Secret with an Aiven authentication token](../authentication.md).
 
-## Creating an Aiven VPC
+## Create an Aiven VPC
 
 1\. Create a file named `vpc-sample.yaml` with the following content:
 
@@ -29,7 +29,7 @@ spec:
     name: aiven-token
     key: token
 
-  project: <your-project-name>
+  project: PROJECT_NAME
 
   # creates a VPC to link an AWS account on the South Africa region
   cloudName: aws-af-south-1
@@ -54,10 +54,10 @@ The output is similar to the following:
 
 ```{ .shell .no-copy }
 NAME         PROJECT          CLOUD            NETWORK CIDR
-vpc-sample   <your-project>   aws-af-south-1   192.168.0.0/24
+vpc-sample   PROJECT_NAME   aws-af-south-1   192.168.0.0/24
 ```
 
-## Using the Aiven VPC
+## Use the Aiven VPC
 
 Follow the
 official [VPC documentation](https://aiven.io/docs/platform/howto/manage-vpc-peering) to

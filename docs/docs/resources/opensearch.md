@@ -10,7 +10,7 @@ OpenSearch® is an open source search and analytics suite including search engin
     Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites.md) with the operator installed (see instructions for [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md)),
     and a [Kubernetes Secret with an Aiven authentication token](../authentication.md).
 
-## Creating an OpenSearch instance
+## Create an OpenSearch instance
 
 1\. Create a file named `os-sample.yaml`, and add the following content:
 
@@ -30,7 +30,7 @@ spec:
     name: os-secret
 
   # add your Project name here
-  project: <your-project-name>
+  project: PROJECT_NAME
 
   # cloud provider and plan of your choice
   # you can check all of the possibilities here https://aiven.io/pricing
@@ -76,7 +76,7 @@ Status:
 
 The resource will be in the `REBUILDING` state for a few minutes. Once the state changes to `RUNNING`, you can access the resource.
 
-## Using the connection Secret
+## Use the connection Secret
 
 For your convenience, the operator automatically stores the OpenSearch connection information in a Secret created with the
 name specified on the `connInfoSecretTarget` field.
@@ -122,7 +122,7 @@ The output is similar to the following:
 }
 ```
 
-## Creating an OpenSearch user
+## Create an OpenSearch user
 
 You can create service users for your instance of Aiven for OpenSearch. Service users are unique to this instance and are not shared with any other services.
 
@@ -141,7 +141,7 @@ spec:
   connInfoSecretTarget:
     name: os-service-user-secret
 
-  project: <your-project-name>
+  project: PROJECT_NAME
   serviceName: os-sample
 ```
 

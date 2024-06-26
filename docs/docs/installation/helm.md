@@ -1,6 +1,6 @@
 ---
-title: "Installing with Helm (recommended)"
-linkTitle: "Installing with Helm (recommended)"
+title: "Install with Helm (recommended)"
+linkTitle: "Install with Helm (recommended)"
 weight: 10
 ---
 
@@ -16,7 +16,7 @@ First add the [Aiven Helm repository](https://github.com/aiven/aiven-charts):
 helm repo add aiven https://aiven.github.io/aiven-charts && helm repo update
 ```
 
-### Installing Custom Resource Definitions
+### Install Custom Resource Definitions
 
 ```shell
 helm install aiven-operator-crds aiven/aiven-operator-crds
@@ -37,7 +37,7 @@ databases                          aiven.io/v1alpha1   true         Database
 ... < several omitted lines >
 ```
 
-### Installing the Operator
+### Install the Operator
 
 ```shell
 helm install aiven-operator aiven/aiven-operator
@@ -73,7 +73,7 @@ helm install aiven-operator aiven/aiven-operator --set webhooks.enabled=false
 
 Please refer to the [values.yaml](https://github.com/aiven/aiven-charts/blob/main/charts/aiven-operator/values.yaml) of the chart.
 
-#### Installing without full cluster administrator access
+#### Install without full cluster administrator access
 
 If the person installing the Helm chart does not have the necessary permissions to create cluster-wide resources such as `ClusterRole` and `ClusterRoleBinding`, a cluster administrator can manually install these roles. This ensures that the operator can function properly.
 

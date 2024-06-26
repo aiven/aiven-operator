@@ -4,11 +4,11 @@ linkTitle: "Troubleshooting"
 weight: 80
 ---
 
-## Verifying operator status
+## Verify operator status
 
 Use the following checks to help you troubleshoot the Aiven Operator for Kubernetes.
 
-### Checking the Pods
+### Check the Pods
 
 Verify that all the operator Pods are `READY`, and the `STATUS` is `Running`.
 
@@ -39,7 +39,7 @@ cert-manager-cainjector-64c949654c-n2z8l   1/1     Running   0          77s
 cert-manager-webhook-6bdffc7c9d-47w6z      1/1     Running   0          76s
 ```
 
-### Visualizing the operator logs
+### Visualize the operator logs
 
 Use the following command to visualize all the logs from the operator.
 
@@ -47,7 +47,7 @@ Use the following command to visualize all the logs from the operator.
 kubectl logs -n aiven-operator-system -l control-plane=controller-manager
 ```
 
-### Verifying the operator version
+### Verify the operator version
 
 ```shell
 kubectl get pod -n aiven-operator-system -l control-plane=controller-manager -o jsonpath="{.items[0].spec.containers[0].image}"

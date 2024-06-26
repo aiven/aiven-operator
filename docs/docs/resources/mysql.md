@@ -8,7 +8,7 @@ Aiven for MySQL is a fully managed relational database service, deployable in th
 
 > Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites.md) with the operator installed (see instructions for [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md)) and a [Kubernetes Secret with an Aiven authentication token](../authentication.md).
 
-## Creating a MySQL instance
+## Create a MySQL instance
 
 1\. Create a file named `mysql-sample.yaml`, and add the following content:
 
@@ -28,7 +28,7 @@ spec:
     name: mysql-secret
 
   # add your Project name here
-  project: <your-project-name>
+  project: PROJECT_NAME
 
   # cloud provider and plan of your choice
   # you can check all of the possibilities here https://aiven.io/pricing
@@ -74,7 +74,7 @@ Status:
 
 The resource will be in the `REBUILDING` state for a few minutes. Once the state changes to `RUNNING`, you can access the resource.
 
-## Using the connection Secret
+## Use the connection Secret
 
 For your convenience, the operator automatically stores the MySQL connection information in a Secret created with the
 name specified on the `connInfoSecretTarget` field.
@@ -126,7 +126,7 @@ The output is similar to the following:
 }
 ```
 
-## Creating a MySQL user
+## Create a MySQL user
 
 You can create service users for your instance of Aiven for MySQL. Service users are unique to this instance and are not shared with any other services.
 
@@ -145,7 +145,7 @@ spec:
   connInfoSecretTarget:
     name: mysql-service-user-secret
 
-  project: <your-project-name>
+  project: PROJECT_NAME
   serviceName: mysql-sample
 ```
 
