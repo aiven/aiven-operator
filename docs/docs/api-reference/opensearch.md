@@ -50,6 +50,28 @@ Name     Project             Region                 Plan         State
 my-os    my-aiven-project    google-europe-west1    startup-4    RUNNING    
 ```
 
+To view the details of the `Secret`, use the following command:
+```shell
+kubectl describe secret os-secret
+```
+
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the `Secret`:
+
+```shell
+kubectl get secret os-secret -o json | jq '.data | map_values(@base64d)'
+```
+
+The output is similar to the following:
+
+```{ .json .no-copy }
+{
+	"OPENSEARCH_HOST": "<secret>",
+	"OPENSEARCH_PORT": "<secret>",
+	"OPENSEARCH_USER": "<secret>",
+	"OPENSEARCH_PASSWORD": "<secret>",
+}
+```
+
 ## OpenSearch {: #OpenSearch }
 
 OpenSearch is the Schema for the opensearches API.

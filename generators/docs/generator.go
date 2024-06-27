@@ -17,6 +17,8 @@ const (
 	maxPatternLength = 42
 	// minHeaderLevel doesn't let print headers less than
 	minHeaderLevel = 2
+	// secretKeysPrefix precede secret keys in the description
+	secretKeysPrefix = "Exposes secret keys:"
 )
 
 // reEmptyLines finds multiple newlines
@@ -238,7 +240,7 @@ func (s *schemaType) GetDescription() string {
 
 	// Wraps code chunks with backticks
 	d = reAdmonitions.ReplaceAllString(d, "\n\n!!! $1\n\n    $2")
-	d = strings.ReplaceAll(d, "Exposes secret keys:", "\n!!! note\n\n    Exposes secret keys:")
+	d = strings.ReplaceAll(d, secretKeysPrefix, "\n!!! note\n\n    "+secretKeysPrefix)
 	return reInlineCode.ReplaceAllString(d, "`$1`")
 }
 
@@ -338,14 +340,20 @@ type exampleType struct {
 	Metadata struct {
 		Name string `yaml:"name"`
 	}
-	Spec  map[string]any `yaml:"spec"`
-	Table []exampleTableColumn
+	Spec   map[string]any       `yaml:"spec"`
+	Table  []exampleTableColumn `yaml:"-"`
+	Secret struct {
+		Name string
+		Keys []string
+	} `yaml:"-"`
 }
 
 // exampleTableColumn columns and values from the exampleType
 type exampleTableColumn struct {
 	Title, Value string
 }
+
+var reExampleSecretKeys = regexp.MustCompile("(?:`)([A-Z_]+)")
 
 // GetExample returns exampleType with formed output table
 func (s *schemaType) GetExample() *exampleType {
@@ -387,6 +395,16 @@ func (s *schemaType) GetExample() *exampleType {
 
 		column.Title = c.Name
 		example.Table = append(example.Table, column)
+	}
+
+	if secret, ok := example.Spec["connInfoSecretTarget"]; ok {
+		// The secret's kube name
+		example.Secret.Name = secret.(map[string]any)["name"].(string)
+
+		// Secret keys
+		for _, m := range reExampleSecretKeys.FindAllStringSubmatch(s.Description, -1) {
+			example.Secret.Keys = append(example.Secret.Keys, m[1])
+		}
 	}
 
 	return example
@@ -443,6 +461,30 @@ The output is similar to the following:
 {{ range $example.Table }}{{ rfill .Title .Value }}    {{ end }}
 {{ range $example.Table }}{{ rfill .Value .Title }}    {{ end }}
 {{ backtick 3 }}
+
+{{ if $example.Secret.Name }}
+To view the details of the {{ backtick 1 }}Secret{{ backtick 1 }}, use the following command:
+{{ backtick 3 }}shell
+kubectl describe secret {{ $example.Secret.Name }}
+{{ backtick 3 }}
+
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the {{ backtick 1 }}Secret{{ backtick 1 }}:
+
+{{ backtick 3 }}shell
+kubectl get secret {{ $example.Secret.Name }} -o json | jq '.data | map_values(@base64d)'
+{{ backtick 3 }}
+
+The output is similar to the following:
+
+{{ backtick 3 }}{ .json .no-copy }
+{
+	{{- range $example.Secret.Keys  }}
+	"{{ . }}": "<secret>",{{ end }}
+}
+{{ backtick 3 }}
+
+{{ end }}
+
 {{ end }}
 {{ end }}
 

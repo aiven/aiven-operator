@@ -58,6 +58,31 @@ Name            Project               Region                 Plan         State
 my-cassandra    aiven-project-name    google-europe-west1    startup-4    RUNNING    
 ```
 
+To view the details of the `Secret`, use the following command:
+```shell
+kubectl describe secret cassandra-secret
+```
+
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the `Secret`:
+
+```shell
+kubectl get secret cassandra-secret -o json | jq '.data | map_values(@base64d)'
+```
+
+The output is similar to the following:
+
+```{ .json .no-copy }
+{
+	"CASSANDRA_HOST": "<secret>",
+	"CASSANDRA_PORT": "<secret>",
+	"CASSANDRA_USER": "<secret>",
+	"CASSANDRA_PASSWORD": "<secret>",
+	"CASSANDRA_URI": "<secret>",
+	"CASSANDRA_HOSTS": "<secret>",
+	"CASSANDRA_CA_CERT": "<secret>",
+}
+```
+
 ## Cassandra {: #Cassandra }
 
 Cassandra is the Schema for the cassandras API.

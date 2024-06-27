@@ -58,6 +58,28 @@ Name             Project             Region                 Plan          State
 my-clickhouse    my-aiven-project    google-europe-west1    startup-16    RUNNING    
 ```
 
+To view the details of the `Secret`, use the following command:
+```shell
+kubectl describe secret my-clickhouse
+```
+
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the `Secret`:
+
+```shell
+kubectl get secret my-clickhouse -o json | jq '.data | map_values(@base64d)'
+```
+
+The output is similar to the following:
+
+```{ .json .no-copy }
+{
+	"CLICKHOUSE_HOST": "<secret>",
+	"CLICKHOUSE_PORT": "<secret>",
+	"CLICKHOUSE_USER": "<secret>",
+	"CLICKHOUSE_PASSWORD": "<secret>",
+}
+```
+
 ## Clickhouse {: #Clickhouse }
 
 Clickhouse is the Schema for the clickhouses API.

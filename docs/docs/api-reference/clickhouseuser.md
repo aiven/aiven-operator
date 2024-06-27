@@ -60,6 +60,28 @@ Name                  Username            Service Name     Project
 my-clickhouse-user    example-username    my-clickhouse    my-aiven-project    
 ```
 
+To view the details of the `Secret`, use the following command:
+```shell
+kubectl describe secret clickhouse-user-secret
+```
+
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the `Secret`:
+
+```shell
+kubectl get secret clickhouse-user-secret -o json | jq '.data | map_values(@base64d)'
+```
+
+The output is similar to the following:
+
+```{ .json .no-copy }
+{
+	"CLICKHOUSEUSER_HOST": "<secret>",
+	"CLICKHOUSEUSER_PORT": "<secret>",
+	"CLICKHOUSEUSER_USER": "<secret>",
+	"CLICKHOUSEUSER_PASSWORD": "<secret>",
+}
+```
+
 ## ClickhouseUser {: #ClickhouseUser }
 
 ClickhouseUser is the Schema for the clickhouseusers API.

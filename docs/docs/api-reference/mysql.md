@@ -57,6 +57,33 @@ Name        Project             Region                 Plan          State
 my-mysql    my-aiven-project    google-europe-west1    business-4    RUNNING    
 ```
 
+To view the details of the `Secret`, use the following command:
+```shell
+kubectl describe secret mysql-secret
+```
+
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the `Secret`:
+
+```shell
+kubectl get secret mysql-secret -o json | jq '.data | map_values(@base64d)'
+```
+
+The output is similar to the following:
+
+```{ .json .no-copy }
+{
+	"MYSQL_HOST": "<secret>",
+	"MYSQL_PORT": "<secret>",
+	"MYSQL_DATABASE": "<secret>",
+	"MYSQL_USER": "<secret>",
+	"MYSQL_PASSWORD": "<secret>",
+	"MYSQL_SSL_MODE": "<secret>",
+	"MYSQL_URI": "<secret>",
+	"MYSQL_REPLICA_URI": "<secret>",
+	"MYSQL_CA_CERT": "<secret>",
+}
+```
+
 ## MySQL {: #MySQL }
 
 MySQL is the Schema for the mysqls API.

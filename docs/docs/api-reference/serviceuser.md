@@ -45,6 +45,31 @@ Name               Service Name       Project
 my-service-user    my-service-name    aiven-project-name    
 ```
 
+To view the details of the `Secret`, use the following command:
+```shell
+kubectl describe secret service-user-secret
+```
+
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the `Secret`:
+
+```shell
+kubectl get secret service-user-secret -o json | jq '.data | map_values(@base64d)'
+```
+
+The output is similar to the following:
+
+```{ .json .no-copy }
+{
+	"SERVICEUSER_HOST": "<secret>",
+	"SERVICEUSER_PORT": "<secret>",
+	"SERVICEUSER_USERNAME": "<secret>",
+	"SERVICEUSER_PASSWORD": "<secret>",
+	"SERVICEUSER_CA_CERT": "<secret>",
+	"SERVICEUSER_ACCESS_CERT": "<secret>",
+	"SERVICEUSER_ACCESS_KEY": "<secret>",
+}
+```
+
 ## ServiceUser {: #ServiceUser }
 
 ServiceUser is the Schema for the serviceusers API.
