@@ -52,6 +52,32 @@ Name             Project               Region                 Plan         State
 my-postgresql    aiven-project-name    google-europe-west1    startup-4    RUNNING    
 ```
 
+To view the details of the `Secret`, use the following command:
+```shell
+kubectl describe secret postgresql-secret
+```
+
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the `Secret`:
+
+```shell
+kubectl get secret postgresql-secret -o json | jq '.data | map_values(@base64d)'
+```
+
+The output is similar to the following:
+
+```{ .json .no-copy }
+{
+	"POSTGRESQL_HOST": "<secret>",
+	"POSTGRESQL_PORT": "<secret>",
+	"POSTGRESQL_DATABASE": "<secret>",
+	"POSTGRESQL_USER": "<secret>",
+	"POSTGRESQL_PASSWORD": "<secret>",
+	"POSTGRESQL_SSLMODE": "<secret>",
+	"POSTGRESQL_DATABASE_URI": "<secret>",
+	"POSTGRESQL_CA_CERT": "<secret>",
+}
+```
+
 ## PostgreSQL {: #PostgreSQL }
 
 PostgreSQL is the Schema for the postgresql API.

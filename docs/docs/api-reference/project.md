@@ -48,6 +48,25 @@ Name
 my-project    
 ```
 
+To view the details of the `Secret`, use the following command:
+```shell
+kubectl describe secret project-secret
+```
+
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the `Secret`:
+
+```shell
+kubectl get secret project-secret -o json | jq '.data | map_values(@base64d)'
+```
+
+The output is similar to the following:
+
+```{ .json .no-copy }
+{
+	"PROJECT_CA_CERT": "<secret>",
+}
+```
+
 ## Project {: #Project }
 
 Project is the Schema for the projects API.

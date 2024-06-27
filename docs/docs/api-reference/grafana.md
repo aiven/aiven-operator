@@ -57,6 +57,30 @@ Name          Project             Region                 Plan         State
 my-grafana    my-aiven-project    google-europe-west1    startup-1    RUNNING    
 ```
 
+To view the details of the `Secret`, use the following command:
+```shell
+kubectl describe secret grafana-secret
+```
+
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the `Secret`:
+
+```shell
+kubectl get secret grafana-secret -o json | jq '.data | map_values(@base64d)'
+```
+
+The output is similar to the following:
+
+```{ .json .no-copy }
+{
+	"GRAFANA_HOST": "<secret>",
+	"GRAFANA_PORT": "<secret>",
+	"GRAFANA_USER": "<secret>",
+	"GRAFANA_PASSWORD": "<secret>",
+	"GRAFANA_URI": "<secret>",
+	"GRAFANA_HOSTS": "<secret>",
+}
+```
+
 ## Grafana {: #Grafana }
 
 Grafana is the Schema for the grafanas API.

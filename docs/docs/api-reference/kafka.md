@@ -49,6 +49,39 @@ Name        Project             Region                 Plan         State
 my-kafka    my-aiven-project    google-europe-west1    startup-2    RUNNING    
 ```
 
+To view the details of the `Secret`, use the following command:
+```shell
+kubectl describe secret kafka-secret
+```
+
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the `Secret`:
+
+```shell
+kubectl get secret kafka-secret -o json | jq '.data | map_values(@base64d)'
+```
+
+The output is similar to the following:
+
+```{ .json .no-copy }
+{
+	"KAFKA_HOST": "<secret>",
+	"KAFKA_PORT": "<secret>",
+	"KAFKA_USERNAME": "<secret>",
+	"KAFKA_PASSWORD": "<secret>",
+	"KAFKA_ACCESS_CERT": "<secret>",
+	"KAFKA_ACCESS_KEY": "<secret>",
+	"KAFKA_SASL_HOST": "<secret>",
+	"KAFKA_SASL_PORT": "<secret>",
+	"KAFKA_SCHEMA_REGISTRY_HOST": "<secret>",
+	"KAFKA_SCHEMA_REGISTRY_PORT": "<secret>",
+	"KAFKA_CONNECT_HOST": "<secret>",
+	"KAFKA_CONNECT_PORT": "<secret>",
+	"KAFKA_REST_HOST": "<secret>",
+	"KAFKA_REST_PORT": "<secret>",
+	"KAFKA_CA_CERT": "<secret>",
+}
+```
+
 ## Kafka {: #Kafka }
 
 Kafka is the Schema for the kafkas API.
