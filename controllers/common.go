@@ -254,3 +254,10 @@ func isAlreadyExists(err error) bool {
 func NewNotFound(msg string) error {
 	return aiven.Error{Status: http.StatusNotFound, Message: msg}
 }
+
+func isDeleted(err error) (bool, error) {
+	if isNotFound(err) {
+		return true, nil
+	}
+	return err == nil, err
+}
