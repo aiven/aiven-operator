@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"slices"
 	"strconv"
+	"strings"
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
@@ -22,6 +23,8 @@ import (
 	"github.com/aiven/aiven-operator/utils"
 	chUtils "github.com/aiven/aiven-operator/utils/clickhouse"
 )
+
+const notFoundRole = "There is no role"
 
 // ClickhouseGrantReconciler reconciles a ClickhouseGrant object
 type ClickhouseGrantReconciler struct {
@@ -96,11 +99,11 @@ func (h *ClickhouseGrantHandler) delete(ctx context.Context, avn *aiven.Client, 
 	}
 
 	_, err = g.Spec.ExecuteStatements(ctx, avnGen, chUtils.REVOKE)
-	if err != nil {
-		return false, err
+	if err == nil || strings.Contains(err.Error(), notFoundRole) {
+		return true, nil
 	}
 
-	return true, nil
+	return isDeleted(err)
 }
 
 func (h *ClickhouseGrantHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {

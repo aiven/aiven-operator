@@ -2,6 +2,9 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Ignore `ClickhouseRole` deletion error (missing database)
+- Ignore `ClickhouseGrant` deletion errors (missing database, service, role)
+
 ## v0.21.0 - 2024-06-25
 
 - Add kind: `ClickhouseGrant`

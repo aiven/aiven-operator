@@ -80,7 +80,7 @@ func (h *clickhouseRoleHandler) delete(ctx context.Context, avn *aiven.Client, a
 	}
 
 	err = clickhouseRoleDelete(ctx, avn, role)
-	return err == nil, err
+	return isDeleted(err)
 }
 
 func (h *clickhouseRoleHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
