@@ -180,42 +180,44 @@ func (h *genericServiceHandler) get(ctx context.Context, avn *aiven.Client, avnG
 	}
 
 	status := o.getServiceStatus()
-	status.State = s.State
-	if s.State == "RUNNING" {
-		meta.SetStatusCondition(&status.Conditions,
-			getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
+	if !serviceIsRunning(s.State) {
+		status.State = s.State
+		return nil, nil
+	}
 
-		metav1.SetMetaDataAnnotation(o.getObjectMeta(), instanceIsRunningAnnotation, "true")
+	status.State = "RUNNING" // overrides REBALANCING
+	meta.SetStatusCondition(&status.Conditions,
+		getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
 
-		// Some services get secrets after they are running only,
-		// like ip addresses (hosts)
-		secret, err := o.newSecret(ctx, s)
-		if err != nil || secret == nil {
-			return secret, err
-		}
+	metav1.SetMetaDataAnnotation(o.getObjectMeta(), instanceIsRunningAnnotation, "true")
 
-		switch o.getServiceType() {
-		case "kafka", "pg", "mysql", "cassandra":
-			// CA_CERT can be used with these service types only
-		default:
-			return secret, nil
-		}
+	// Some services get secrets after they are running only,
+	// like ip addresses (hosts)
+	secret, err := o.newSecret(ctx, s)
+	if err != nil || secret == nil {
+		return secret, err
+	}
 
-		cert, err := avnGen.ProjectKmsGetCA(ctx, spec.Project)
-		if err != nil {
-			return nil, fmt.Errorf("cannot retrieve project CA certificate: %w", err)
-		}
-
-		// We don't expect the StringData map to be empty, it must panic.
-		prefix := getSecretPrefix(o)
-		secret.StringData[prefix+"CA_CERT"] = cert
-		if o.getServiceType() == "kafka" {
-			// todo: backward compatibility, remove in future releases
-			secret.StringData["CA_CERT"] = cert
-		}
+	switch o.getServiceType() {
+	case "kafka", "pg", "mysql", "cassandra":
+		// CA_CERT can be used with these service types only
+	default:
 		return secret, nil
 	}
-	return nil, nil
+
+	cert, err := avnGen.ProjectKmsGetCA(ctx, spec.Project)
+	if err != nil {
+		return nil, fmt.Errorf("cannot retrieve project CA certificate: %w", err)
+	}
+
+	// We don't expect the StringData map to be empty, it must panic.
+	prefix := getSecretPrefix(o)
+	secret.StringData[prefix+"CA_CERT"] = cert
+	if o.getServiceType() == "kafka" {
+		// todo: backward compatibility, remove in future releases
+		secret.StringData["CA_CERT"] = cert
+	}
+	return secret, nil
 }
 
 // checkPreconditions not required for now by services to be implemented

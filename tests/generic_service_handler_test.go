@@ -13,6 +13,11 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
+const serviceRunningState = "RUNNING"
+
+// serviceRunningStatesAiven these Aiven service states match to RUNNING state in kube
+var serviceRunningStatesAiven = []string{"RUNNING", "REBALANCING"}
+
 func getCreateServiceYaml(project, pgName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1

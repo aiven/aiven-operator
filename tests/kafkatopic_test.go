@@ -107,7 +107,7 @@ func TestKafkaTopic(t *testing.T) {
 	ksAvn, err := avnClient.Services.Get(ctx, cfg.Project, ksName)
 	require.NoError(t, err)
 	assert.Equal(t, ksAvn.Name, ks.GetName())
-	assert.Equal(t, ksAvn.State, ks.Status.State)
+	assert.Contains(t, serviceRunningStatesAiven, ksAvn.State)
 	assert.Equal(t, ksAvn.Plan, ks.Spec.Plan)
 	assert.Equal(t, ksAvn.CloudName, ks.Spec.CloudName)
 

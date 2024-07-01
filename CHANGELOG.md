@@ -4,6 +4,7 @@
 
 - Ignore `ClickhouseRole` deletion error (missing database)
 - Ignore `ClickhouseGrant` deletion errors (missing database, service, role)
+- Do not block service operations in `REBALANCING` state
 
 ## v0.21.0 - 2024-06-25
 

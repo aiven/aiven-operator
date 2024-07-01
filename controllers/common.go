@@ -11,6 +11,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/liip/sheriff"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -57,7 +58,16 @@ func checkServiceIsRunning(ctx context.Context, _ *aiven.Client, avnGen avngen.C
 		}
 		return false, err
 	}
-	return s.State == "RUNNING", nil
+	return serviceIsRunning(s.State), nil
+}
+
+// serviceIsRunning returns "true" when a service is in operational state, i.e. "running"
+func serviceIsRunning[T service.ServiceStateType | string](state T) bool {
+	switch service.ServiceStateType(state) {
+	case service.ServiceStateTypeRunning, service.ServiceStateTypeRebalancing:
+		return true
+	}
+	return false
 }
 
 func getInitializedCondition(reason, message string) metav1.Condition {
