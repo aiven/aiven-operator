@@ -15,7 +15,7 @@ With Aiven Kubernetes Operator, you can manage Aiven for PostgreSQL through the 
     Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites.md) with the operator installed (see instructions for [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md)),
     and a [Kubernetes Secret with an Aiven authentication token](../authentication.md).
 
-## Creating a PostgreSQL instance
+## Create a PostgreSQL instance
 
 1\. Create a file named `pg-sample.yaml` with the following content:
 
@@ -35,7 +35,7 @@ spec:
     name: pg-connection
 
   # add your Project name here
-  project: <your-project-name>
+  project: PROJECT_NAME
 
   # cloud provider and plan of your choice
   # you can check all of the possibilities here https://aiven.io/pricing
@@ -73,7 +73,7 @@ pg-sample   your-project   google-europe-west1   startup-4   RUNNING
 The resource can stay in the `BUILDING` state for a couple of minutes. Once the state changes to `RUNNING`, you are
 ready to access it.
 
-## Using the connection Secret
+## Use the connection Secret
 
 For your convenience, the operator automatically stores the PostgreSQL connection information in a Secret created with
 the name specified on the `connInfoSecretTarget` field.
@@ -122,7 +122,7 @@ The output is similar to the following:
 }
 ```
 
-## Testing the connection
+## Test the connection
 
 You can verify your PostgreSQL connection from a Kubernetes workload by deploying a Pod that runs the `psql` command.
 
@@ -165,7 +165,7 @@ The output is similar to the following:
 
 You have now connected to the PostgreSQL, and executed the `SELECT version();` query.
 
-## Creating a PostgreSQL database
+## Create a PostgreSQL database
 
 The `Database` Kubernetes resource allows you to create a logical database within the PostgreSQL instance.
 
@@ -184,14 +184,14 @@ spec:
   # the name of the previously created PostgreSQL instance
   serviceName: pg-sample
 
-  project: <your-project-name>
+  project: PROJECT_NAME
   lcCollate: en_US.UTF-8
   lcCtype: en_US.UTF-8
 ```
 
 You can now connect to the `pg-database-sample` using the credentials stored in the `pg-connection` Secret.
 
-## Creating a PostgreSQL user
+## Create a PostgreSQL user
 
 Aiven uses the concept of _service user_ that allows you to create users for different services. You can create one for
 the PostgreSQL instance.
@@ -211,7 +211,7 @@ spec:
   connInfoSecretTarget:
     name: pg-service-user-connection
 
-  project: <your-project-name>
+  project: PROJECT_NAME
   serviceName: pg-sample
 ```
 
@@ -240,7 +240,7 @@ The output has the password and username:
 You can now connect to the PostgreSQL instance using the credentials generated above, and the host information from
 the `pg-connection` Secret.
 
-## Creating a PostgreSQL connection pool
+## Create a PostgreSQL connection pool
 
 Connection pooling allows you to maintain very large numbers of connections to a database while minimizing the
 consumption of server resources. For more
@@ -265,7 +265,7 @@ spec:
   connInfoSecretTarget:
     name: pg-connection-pool-connection
 
-  project: <your-project-name>
+  project: PROJECT_NAME
   serviceName: pg-sample
   databaseName: pg-database-sample
   username: pg-service-user
@@ -294,7 +294,7 @@ The output is similar to the following:
 }
 ```
 
-## Creating a PostgreSQL read-only replica
+## Create a PostgreSQL read-only replica
 
 Read-only replicas can be used to reduce the load on the primary service by making read-only queries against the replica service.
 
@@ -316,7 +316,7 @@ spec:
     key: token
 
   # add your project's name here
-  project: <your-project-name>
+  project: PROJECT_NAME
 
   # add the cloud provider and plan of your choice
   # you can see all of the options at https://aiven.io/pricing
@@ -341,7 +341,7 @@ spec:
     key: token
 
   # add your project's name here
-  project: <your-project-name>
+  project: PROJECT_NAME
 
   # add the cloud provider and plan of your choice
   # you can see all of the options at https://aiven.io/pricing
@@ -386,7 +386,7 @@ The output is similar to the following:
 
 ```{ .shell .no-copy }
 NAME                  PROJECT             REGION                PLAN        STATE
-primary-pg-service   <your-project-name>  google-europe-west1   startup-4   RUNNING
+primary-pg-service   PROJECT_NAME  google-europe-west1   startup-4   RUNNING
 ```
 
 The resource can be in the `BUILDING` state for a few minutes. After the state of the primary service changes to `RUNNING`, the read-only replica is created. You can check the status of the replica using the same command with the name of the replica:

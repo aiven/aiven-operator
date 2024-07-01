@@ -21,7 +21,7 @@ metadata:
   name: project-sample
 spec:
   # the source Project to copy the billing information from
-  copyFromProject: <your-source-project>
+  copyFromProject: SOURCE_PROJECT
 
   authSecretRef:
     name: aiven-token

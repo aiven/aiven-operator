@@ -12,7 +12,7 @@ you can get up and running with a suitably sized Apache Kafka service in a few m
     operator installed (see instructions for [helm](../../installation/helm.md) or [kubectl](../../installation/kubectl.md)),
     and a [Kubernetes Secret with an Aiven authentication token](../../authentication.md).
 
-## Creating a Kafka instance
+## Create a Kafka instance
 
 1\. Create a file named `kafka-sample.yaml`, and add the following content:
 
@@ -32,7 +32,7 @@ spec:
     name: kafka-auth
 
   # add your Project name here
-  project: <your-project-name>
+  project: PROJECT_NAME
 
   # cloud provider and plan of your choice
   # you can check all of the possibilities here https://aiven.io/pricing
@@ -65,12 +65,12 @@ The output has the project name and state, similar to the following:
 ```{ .shell .no-copy }
 
 NAME           PROJECT          REGION                PLAN        STATE
-kafka-sample   <your-project>   google-europe-west1   startup-2   RUNNING
+kafka-sample   PROJECT_NAME   google-europe-west1   startup-2   RUNNING
 ```
 
 After a couple of minutes, the `STATE` field is changed to `RUNNING`, and is ready to be used.
 
-## Using the connection Secret
+## Use the connection Secret
 
 For your convenience, the operator automatically stores the Kafka connection information in a Secret created with the
 name specified on the `connInfoSecretTarget` field.
@@ -119,7 +119,7 @@ The output is similar to the following:
 }
 ```
 
-## Testing the connection
+## Test the connection
 
 You can verify your access to the Kafka cluster from a Pod using the authentication data from the `kafka-auth` Secret. [kcat](https://github.com/edenhill/kcat) is used for our examples below.
 
@@ -197,7 +197,7 @@ Metadata for all topics (from broker -1: ssl://kafka-sample-your-project.aivencl
  0 topics:
 ```
 
-## Creating a `KafkaTopic` and `KafkaACL`
+## Create a `KafkaTopic` and `KafkaACL`
 
 To properly produce and consume content on Kafka, you need topics and ACLs. The operator supports both with
 the `KafkaTopic` and `KafkaACL` resources.
@@ -216,7 +216,7 @@ spec:
     name: aiven-token
     key: token
 
-  project: <your-project-name>
+  project: PROJECT_NAME
   serviceName: kafka-sample
 
   # here we can specify how many partitions the topic should have
@@ -258,7 +258,7 @@ spec:
     name: kafka-crab-connection
 
   # the Aiven project the user is related to
-  project: <your-project-name>
+  project: PROJECT_NAME
 
   # the name of our Kafka Service
   serviceName: kafka-sample
@@ -273,7 +273,7 @@ spec:
     name: aiven-token
     key: token
 
-  project: <your-project-name>
+  project: PROJECT_NAME
   serviceName: kafka-sample
 
   # the username from the ServiceUser above
@@ -292,7 +292,7 @@ To create the `crab` user and its permissions, execute the following command:
 kubectl apply -f kafka-acl-user-crab.yaml
 ```
 
-## Producing and consuming events
+## Produce and consume events
 
 Using the previously created `KafkaTopic`, `ServiceUser`, `KafkaACL`, you can produce and consume events.
 

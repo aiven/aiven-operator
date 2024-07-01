@@ -4,7 +4,7 @@ linkTitle: "Developer guide"
 weight: 10
 ---
 
-## Getting Started
+## Get Started
 
 To get started, make sure you have a working [Go environment](https://golang.org/doc/install) and clone the repository:
 
@@ -103,7 +103,7 @@ kubectl apply -f aiven-pg.yaml
 You should see the service be created on Aiven's side using either [Aiven Console](https://console.aiven.io/) or Aiven CLI:
 
 ```{ .sh .no-copy }
-$ avn project switch <your-project-name>
+$ avn project switch PROJECT_NAME
 $ avn service list
 SERVICE_NAME      SERVICE_TYPE  STATE       CLOUD_NAME           PLAN      CREATE_TIME           UPDATE_TIME           NOTIFICATIONS
 ================  ============  ==========  ===================  ========  ====================  ====================  =============

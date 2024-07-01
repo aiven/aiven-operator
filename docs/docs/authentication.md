@@ -5,7 +5,7 @@ weight: 10
 ---
 
 To get authenticated and authorized, set up the communication between the Aiven Operator for Kubernetes and Aiven by
-using a token stored in a Kubernetes secret. You can then refer to the secret name on every custom resource in
+using a token stored in a Kubernetes Secret. You can then refer to the Secret name on every custom resource in
 the `authSecretRef` field.
 
 **If you don't have an Aiven account yet, sign
@@ -19,10 +19,10 @@ authentication token.
 
 2\. Create the Kubernetes Secret
 
-The following command creates a secret named `aiven-token` with a `token` field containing the authentication token:
+The following command creates a Secret named `aiven-token` with a `token` field containing the authentication token:
 
 ```shell
-kubectl create secret generic aiven-token --from-literal=token="<your-token-here>"
+kubectl create secret generic aiven-token --from-literal=token="TOKEN"
 ```
 
 When managing your Aiven resources, we will be using the created Secret in the `authSecretRef` field. It will look like
@@ -52,6 +52,6 @@ kind: PostgreSQL
 metadata:
   name: pg-sample
 spec:
-  project: <your-project-name-here>
+  project: PROJECT_NAME
   [ ... ]
 ```

@@ -38,7 +38,7 @@ spec:
     name: kafka-auth
 
   # add your Project name here
-  project: <your-project-name>
+  project: PROJECT_NAME
 
   # cloud provider and plan of your choice
   # you can check all of the possibilities here https://aiven.io/pricing
@@ -63,7 +63,7 @@ spec:
     name: aiven-token
     key: token
 
-  project: <your-project-name>
+  project: PROJECT_NAME
   serviceName: kafka-sample
 
   # here we can specify how many partitions the topic should have
@@ -96,7 +96,7 @@ spec:
     name: aiven-token
     key: token
 
-  project: <your-project-name>
+  project: PROJECT_NAME
 
   # indicates the type of the integration
   integrationType: kafka_logs

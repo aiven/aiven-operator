@@ -10,7 +10,7 @@ Aiven for Redis®\* is a fully managed in-memory NoSQL database that you can dep
     Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites.md) with the operator installed (see instructions for [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md)),
     and a [Kubernetes Secret with an Aiven authentication token](../authentication.md).
 
-## Creating a Redis instance
+## Create a Redis instance
 
 1\. Create a file named `redis-sample.yaml`, and add the following content:
 
@@ -30,7 +30,7 @@ spec:
     name: redis-secret
 
   # add your Project name here
-  project: <your-project-name>
+  project: PROJECT_NAME
 
   # cloud provider and plan of your choice
   # you can check all of the possibilities here https://aiven.io/pricing
@@ -80,7 +80,7 @@ Status:
 
 The resource will be in the `REBUILDING` state for a few minutes. Once the state changes to `RUNNING`, you can access the resource.
 
-## Using the connection Secret
+## Use the connection Secret
 
 For your convenience, the operator automatically stores the Redis connection information in a Secret created with the
 name specified on the `connInfoSecretTarget` field.

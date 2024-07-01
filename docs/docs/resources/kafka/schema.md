@@ -4,7 +4,7 @@ linkTitle: "Kafka Schema"
 weight: 40
 ---
 
-## Creating a `KafkaSchema`
+## Create a `KafkaSchema`
 
 Aiven develops and maintain [Karapace](https://github.com/aiven/karapace), an open source implementation of Kafka REST
 and schema registry. Is available out of the box for our managed Kafka service.
@@ -28,7 +28,7 @@ spec:
   connInfoSecretTarget:
     name: kafka-auth
 
-  project: <your-project-name>
+  project: PROJECT_NAME
   cloudName: google-europe-west1
   plan: startup-2
   maintenanceWindowDow: friday
@@ -61,7 +61,7 @@ spec:
     name: aiven-token
     key: token
 
-  project: <your-project-name>
+  project: PROJECT_NAME
   serviceName: kafka-sample-schema
 
   # the name of the Schema
@@ -100,7 +100,7 @@ The output is similar to the following:
 
 ```{ .shell .no-copy }
 NAME           SERVICE NAME   PROJECT          SUBJECT    COMPATIBILITY LEVEL   VERSION
-kafka-schema   kafka-sample   <your-project>   MySchema   BACKWARD              1
+kafka-schema   kafka-sample   PROJECT_NAME   MySchema   BACKWARD              1
 ```
 
 Now you can follow the instructions to [use a schema registry in Java](https://aiven.io/docs/products/kafka/howto/schema-registry) on how to use the schema created.
