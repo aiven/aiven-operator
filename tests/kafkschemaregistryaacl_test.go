@@ -100,7 +100,7 @@ func TestKafkaSchemaRegistryACL(t *testing.T) {
 	kafkaAvn, err := avnGen.ServiceGet(ctx, cfg.Project, kafkaName)
 	require.NoError(t, err)
 	assert.Equal(t, kafkaAvn.ServiceName, kafka.GetName())
-	assert.Equal(t, "RUNNING", kafka.Status.State)
+	assert.Equal(t, serviceRunningState, kafka.Status.State)
 	assert.EqualValues(t, kafkaAvn.State, kafka.Status.State)
 	assert.Equal(t, kafkaAvn.Plan, kafka.Spec.Plan)
 	assert.Equal(t, kafkaAvn.CloudName, kafka.Spec.CloudName)

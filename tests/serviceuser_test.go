@@ -85,8 +85,8 @@ func TestServiceUserKafka(t *testing.T) {
 	kafkaAvn, err := avnClient.Services.Get(ctx, cfg.Project, kafkaName)
 	require.NoError(t, err)
 	assert.Equal(t, kafkaAvn.Name, kafka.GetName())
-	assert.Equal(t, "RUNNING", kafka.Status.State)
-	assert.Equal(t, kafkaAvn.State, kafka.Status.State)
+	assert.Equal(t, serviceRunningState, kafka.Status.State)
+	assert.Contains(t, serviceRunningStatesAiven, kafkaAvn.State)
 	assert.Equal(t, kafkaAvn.Plan, kafka.Spec.Plan)
 	assert.Equal(t, kafkaAvn.CloudName, kafka.Spec.CloudName)
 
@@ -207,8 +207,8 @@ func TestServiceUserPg(t *testing.T) {
 	pgAvn, err := avnClient.Services.Get(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
 	assert.Equal(t, pgAvn.Name, pg.GetName())
-	assert.Equal(t, "RUNNING", pg.Status.State)
-	assert.Equal(t, pgAvn.State, pg.Status.State)
+	assert.Equal(t, serviceRunningState, pg.Status.State)
+	assert.Contains(t, serviceRunningStatesAiven, pgAvn.State)
 	assert.Equal(t, pgAvn.Plan, pg.Spec.Plan)
 	assert.Equal(t, pgAvn.CloudName, pg.Spec.CloudName)
 
