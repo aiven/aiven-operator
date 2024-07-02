@@ -70,7 +70,13 @@ func (h KafkaSchemaRegistryACLHandler) createOrUpdate(ctx context.Context, avn *
 
 		for _, v := range list {
 			if in.Permission == v.Permission && in.Resource == v.Resource && in.Username == v.Username {
-				acl.Status.ACLId = v.Id
+				// fixme: The ID is optional in the response.
+				//  It must be a mistake.
+				//  https://api.aiven.io/doc/#tag/Service:_Kafka/operation/ServiceSchemaRegistryAclAdd
+				if v.Id == nil {
+					return fmt.Errorf("received empty ID in response")
+				}
+				acl.Status.ACLId = *v.Id
 				break
 			}
 		}
@@ -111,7 +117,7 @@ func (h KafkaSchemaRegistryACLHandler) exists(ctx context.Context, avnGen avngen
 	}
 
 	for _, v := range list {
-		if v.Id == acl.Status.ACLId {
+		if v.Id != nil && *v.Id == acl.Status.ACLId {
 			return true, nil
 		}
 	}
