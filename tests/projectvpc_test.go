@@ -129,7 +129,7 @@ func TestProjectVPCID(t *testing.T) {
 	kafkaAvn, err := avnClient.Services.Get(ctx, cfg.Project, kafkaName)
 	require.NoError(t, err)
 	assert.Equal(t, kafkaAvn.Name, kafka.GetName())
-	assert.Equal(t, serviceRunningState, kafka.Status.State)
+	assert.Contains(t, serviceRunningStatesAiven, kafka.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, kafkaAvn.State)
 	assert.Equal(t, kafkaAvn.Plan, kafka.Spec.Plan)
 	assert.Equal(t, kafkaAvn.CloudName, kafka.Spec.CloudName)

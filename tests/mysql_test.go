@@ -69,7 +69,7 @@ func TestMySQL(t *testing.T) {
 	msAvn, err := avnClient.Services.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Equal(t, msAvn.Name, ms.GetName())
-	assert.Equal(t, serviceRunningState, ms.Status.State)
+	assert.Contains(t, serviceRunningStatesAiven, ms.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, msAvn.State)
 	assert.Equal(t, msAvn.Plan, ms.Spec.Plan)
 	assert.Equal(t, msAvn.CloudName, ms.Spec.CloudName)

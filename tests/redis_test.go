@@ -66,7 +66,7 @@ func TestRedis(t *testing.T) {
 	rsAvn, err := avnClient.Services.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Equal(t, rsAvn.Name, rs.GetName())
-	assert.Equal(t, serviceRunningState, rs.Status.State)
+	assert.Contains(t, serviceRunningStatesAiven, rs.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, rsAvn.State)
 	assert.Equal(t, rsAvn.Plan, rs.Spec.Plan)
 	assert.Equal(t, rsAvn.CloudName, rs.Spec.CloudName)

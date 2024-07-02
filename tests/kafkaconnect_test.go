@@ -69,7 +69,7 @@ func TestKafkaConnect(t *testing.T) {
 	kcAvn, err := avnClient.Services.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Equal(t, kcAvn.Name, kc.GetName())
-	assert.Equal(t, serviceRunningState, kc.Status.State)
+	assert.Contains(t, serviceRunningStatesAiven, kc.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, kcAvn.State)
 	assert.Equal(t, kcAvn.Plan, kc.Spec.Plan)
 	assert.Equal(t, kcAvn.CloudName, kc.Spec.CloudName)

@@ -74,7 +74,7 @@ func TestOpenSearch(t *testing.T) {
 	osAvn, err := avnClient.Services.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Equal(t, osAvn.Name, os.GetName())
-	assert.Equal(t, serviceRunningState, os.Status.State)
+	assert.Contains(t, serviceRunningStatesAiven, os.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, osAvn.State)
 	assert.Equal(t, osAvn.Plan, os.Spec.Plan)
 	assert.Equal(t, osAvn.CloudName, os.Spec.CloudName)

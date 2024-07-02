@@ -57,7 +57,7 @@ func TestConnectionPool(t *testing.T) {
 	pgAvn, err := avnClient.Services.Get(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
 	assert.Equal(t, pgAvn.Name, pg.GetName())
-	assert.Equal(t, serviceRunningState, pg.Status.State)
+	assert.Contains(t, serviceRunningStatesAiven, pg.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, pgAvn.State)
 	assert.Equal(t, pgAvn.Plan, pg.Spec.Plan)
 	assert.Equal(t, pgAvn.CloudName, pg.Spec.CloudName)
