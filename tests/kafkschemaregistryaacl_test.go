@@ -123,7 +123,7 @@ func TestKafkaSchemaRegistryACL(t *testing.T) {
 
 	var aclAvn *kafkaschemaregistry.AclOut
 	for _, v := range aclListAvn {
-		if v.Id == acl.Status.ACLId {
+		if v.Id != nil && *v.Id == acl.Status.ACLId {
 			aclAvn = &v
 			break
 		}
@@ -146,7 +146,7 @@ func TestKafkaSchemaRegistryACL(t *testing.T) {
 		}
 
 		for _, v := range list {
-			if v.Id == acl.Status.ACLId {
+			if v.Id != nil && *v.Id == acl.Status.ACLId {
 				return nil
 			}
 		}
