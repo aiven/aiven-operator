@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.22.0 - 2024-07-02
+
 - Ignore `ClickhouseRole` deletion error (missing database)
 - Ignore `ClickhouseGrant` deletion errors (missing database, service, role)
 - Do not block service operations in `REBALANCING` state
