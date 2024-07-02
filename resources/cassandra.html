@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#creating-a-cassandra-instance" class="md-skip">
+        <a href="#create-a-cassandra-instance" class="md-skip">
           Skip to content
         </a>
       
@@ -465,7 +465,7 @@
         
   
   <span class="md-ellipsis">
-    Installing with Helm (recommended)
+    Install with Helm (recommended)
   </span>
   
 
@@ -486,7 +486,7 @@
         
   
   <span class="md-ellipsis">
-    Installing with kubectl
+    Install with kubectl
   </span>
   
 
@@ -549,7 +549,7 @@
         
   
   <span class="md-ellipsis">
-    Uninstalling
+    Uninstall
   </span>
   
 
@@ -821,27 +821,27 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#creating-a-cassandra-instance" class="md-nav__link">
+  <a href="#create-a-cassandra-instance" class="md-nav__link">
     <span class="md-ellipsis">
-      Creating a Cassandra instance
+      Create a Cassandra instance
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-the-connection-secret" class="md-nav__link">
+  <a href="#use-the-connection-secret" class="md-nav__link">
     <span class="md-ellipsis">
-      Using the connection Secret
+      Use the connection Secret
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#creating-a-cassandra-user" class="md-nav__link">
+  <a href="#create-a-cassandra-user" class="md-nav__link">
     <span class="md-ellipsis">
-      Creating a Cassandra user
+      Create a Cassandra user
     </span>
   </a>
   
@@ -1721,27 +1721,27 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#creating-a-cassandra-instance" class="md-nav__link">
+  <a href="#create-a-cassandra-instance" class="md-nav__link">
     <span class="md-ellipsis">
-      Creating a Cassandra instance
+      Create a Cassandra instance
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-the-connection-secret" class="md-nav__link">
+  <a href="#use-the-connection-secret" class="md-nav__link">
     <span class="md-ellipsis">
-      Using the connection Secret
+      Use the connection Secret
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#creating-a-cassandra-user" class="md-nav__link">
+  <a href="#create-a-cassandra-user" class="md-nav__link">
     <span class="md-ellipsis">
-      Creating a Cassandra user
+      Create a Cassandra user
     </span>
   </a>
   
@@ -1780,7 +1780,7 @@
 <p class="admonition-title">Note</p>
 <p>Before going through this guide, make sure you have a <a href="../installation/prerequisites.html">Kubernetes cluster</a> with the operator installed (see instructions for <a href="../installation/helm.html">helm</a> or <a href="../installation/kubectl.html">kubectl</a>), and a <a href="../authentication.html">Kubernetes Secret with an Aiven authentication token</a>.</p>
 </div>
-<h2 id="creating-a-cassandra-instance">Creating a Cassandra instance<a class="headerlink" href="#creating-a-cassandra-instance" title="Permanent link">&para;</a></h2>
+<h2 id="create-a-cassandra-instance">Create a Cassandra instance<a class="headerlink" href="#create-a-cassandra-instance" title="Permanent link">&para;</a></h2>
 <p>1. Create a file named <code>cassandra-sample.yaml</code>, and add the following content:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Cassandra</span>
@@ -1797,7 +1797,7 @@
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cassandra-secret</span>
 <a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="c1"># add your Project name here</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;your-project-name&gt;</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PROJECT_NAME</span>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
 <a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="c1"># cloud provider and plan of your choice</span>
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span><span class="c1"># you can check all of the possibilities here https://aiven.io/pricing</span>
@@ -1835,7 +1835,7 @@
 <a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>...
 </code></pre></div>
 <p>The resource can be in the <code>REBUILDING</code> state for a few minutes. Once the state changes to <code>RUNNING</code>, you can access the resource.</p>
-<h2 id="using-the-connection-secret">Using the connection Secret<a class="headerlink" href="#using-the-connection-secret" title="Permanent link">&para;</a></h2>
+<h2 id="use-the-connection-secret">Use the connection Secret<a class="headerlink" href="#use-the-connection-secret" title="Permanent link">&para;</a></h2>
 <p>For your convenience, the operator automatically stores the Cassandra connection information in a Secret created with the
 name specified on the <code>connInfoSecretTarget</code> field.</p>
 <p>To view the details of the Secret, use the following command:</p>
@@ -1871,7 +1871,7 @@ name specified on the <code>connInfoSecretTarget</code> field.</p>
 <a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="nt">&quot;CASSANDRA_USER&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;avnadmin&quot;</span>
 <a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="p">}</span>
 </code></pre></div>
-<h2 id="creating-a-cassandra-user">Creating a Cassandra user<a class="headerlink" href="#creating-a-cassandra-user" title="Permanent link">&para;</a></h2>
+<h2 id="create-a-cassandra-user">Create a Cassandra user<a class="headerlink" href="#create-a-cassandra-user" title="Permanent link">&para;</a></h2>
 <p>You can create service users for your instance of Aiven for Apache Cassandra. Service users are unique to this instance and are not shared with any other services.</p>
 <p>1. Create a file named cassandra-service-user.yaml:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
@@ -1886,7 +1886,7 @@ name specified on the <code>connInfoSecretTarget</code> field.</p>
 <a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
 <a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cassandra-service-user-secret</span>
 <a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>
-<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;your-project-name&gt;</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PROJECT_NAME</span>
 <a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cassandra-sample</span>
 </code></pre></div>
 <p>2. Create the user by applying the configuration:</p>

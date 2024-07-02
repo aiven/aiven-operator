@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#creating-a-redis-instance" class="md-skip">
+        <a href="#create-a-redis-instance" class="md-skip">
           Skip to content
         </a>
       
@@ -465,7 +465,7 @@
         
   
   <span class="md-ellipsis">
-    Installing with Helm (recommended)
+    Install with Helm (recommended)
   </span>
   
 
@@ -486,7 +486,7 @@
         
   
   <span class="md-ellipsis">
-    Installing with kubectl
+    Install with kubectl
   </span>
   
 
@@ -549,7 +549,7 @@
         
   
   <span class="md-ellipsis">
-    Uninstalling
+    Uninstall
   </span>
   
 
@@ -926,18 +926,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#creating-a-redis-instance" class="md-nav__link">
+  <a href="#create-a-redis-instance" class="md-nav__link">
     <span class="md-ellipsis">
-      Creating a Redis instance
+      Create a Redis instance
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-the-connection-secret" class="md-nav__link">
+  <a href="#use-the-connection-secret" class="md-nav__link">
     <span class="md-ellipsis">
-      Using the connection Secret
+      Use the connection Secret
     </span>
   </a>
   
@@ -1712,18 +1712,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#creating-a-redis-instance" class="md-nav__link">
+  <a href="#create-a-redis-instance" class="md-nav__link">
     <span class="md-ellipsis">
-      Creating a Redis instance
+      Create a Redis instance
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-the-connection-secret" class="md-nav__link">
+  <a href="#use-the-connection-secret" class="md-nav__link">
     <span class="md-ellipsis">
-      Using the connection Secret
+      Use the connection Secret
     </span>
   </a>
   
@@ -1763,7 +1763,7 @@
 <p>Before going through this guide, make sure you have a <a href="../installation/prerequisites.html">Kubernetes cluster</a> with the operator installed (see instructions for <a href="../installation/helm.html">helm</a> or <a href="../installation/kubectl.html">kubectl</a>),
 and a <a href="../authentication.html">Kubernetes Secret with an Aiven authentication token</a>.</p>
 </div>
-<h2 id="creating-a-redis-instance">Creating a Redis instance<a class="headerlink" href="#creating-a-redis-instance" title="Permanent link">&para;</a></h2>
+<h2 id="create-a-redis-instance">Create a Redis instance<a class="headerlink" href="#create-a-redis-instance" title="Permanent link">&para;</a></h2>
 <p>1. Create a file named <code>redis-sample.yaml</code>, and add the following content:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Redis</span>
@@ -1780,7 +1780,7 @@ and a <a href="../authentication.html">Kubernetes Secret with an Aiven authentic
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis-secret</span>
 <a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="c1"># add your Project name here</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;your-project-name&gt;</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PROJECT_NAME</span>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
 <a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="c1"># cloud provider and plan of your choice</span>
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span><span class="c1"># you can check all of the possibilities here https://aiven.io/pricing</span>
@@ -1819,7 +1819,7 @@ and a <a href="../authentication.html">Kubernetes Secret with an Aiven authentic
 <a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>...
 </code></pre></div>
 <p>The resource will be in the <code>REBUILDING</code> state for a few minutes. Once the state changes to <code>RUNNING</code>, you can access the resource.</p>
-<h2 id="using-the-connection-secret">Using the connection Secret<a class="headerlink" href="#using-the-connection-secret" title="Permanent link">&para;</a></h2>
+<h2 id="use-the-connection-secret">Use the connection Secret<a class="headerlink" href="#use-the-connection-secret" title="Permanent link">&para;</a></h2>
 <p>For your convenience, the operator automatically stores the Redis connection information in a Secret created with the
 name specified on the <code>connInfoSecretTarget</code> field.</p>
 <p>To view the details of the Secret, use the following command:</p>

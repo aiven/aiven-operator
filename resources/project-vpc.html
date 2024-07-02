@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#creating-an-aiven-vpc" class="md-skip">
+        <a href="#create-an-aiven-vpc" class="md-skip">
           Skip to content
         </a>
       
@@ -465,7 +465,7 @@
         
   
   <span class="md-ellipsis">
-    Installing with Helm (recommended)
+    Install with Helm (recommended)
   </span>
   
 
@@ -486,7 +486,7 @@
         
   
   <span class="md-ellipsis">
-    Installing with kubectl
+    Install with kubectl
   </span>
   
 
@@ -549,7 +549,7 @@
         
   
   <span class="md-ellipsis">
-    Uninstalling
+    Uninstall
   </span>
   
 
@@ -800,18 +800,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#creating-an-aiven-vpc" class="md-nav__link">
+  <a href="#create-an-aiven-vpc" class="md-nav__link">
     <span class="md-ellipsis">
-      Creating an Aiven VPC
+      Create an Aiven VPC
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-the-aiven-vpc" class="md-nav__link">
+  <a href="#use-the-aiven-vpc" class="md-nav__link">
     <span class="md-ellipsis">
-      Using the Aiven VPC
+      Use the Aiven VPC
     </span>
   </a>
   
@@ -1712,18 +1712,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#creating-an-aiven-vpc" class="md-nav__link">
+  <a href="#create-an-aiven-vpc" class="md-nav__link">
     <span class="md-ellipsis">
-      Creating an Aiven VPC
+      Create an Aiven VPC
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-the-aiven-vpc" class="md-nav__link">
+  <a href="#use-the-aiven-vpc" class="md-nav__link">
     <span class="md-ellipsis">
-      Using the Aiven VPC
+      Use the Aiven VPC
     </span>
   </a>
   
@@ -1766,7 +1766,7 @@ directly without going through the public internet.</p>
 <p>Before going through this guide, make sure you have a <a href="../installation/prerequisites.html">Kubernetes cluster</a> with the operator installed (see instructions for <a href="../installation/helm.html">helm</a> or <a href="../installation/kubectl.html">kubectl</a>),
 and a <a href="../authentication.html">Kubernetes Secret with an Aiven authentication token</a>.</p>
 </div>
-<h2 id="creating-an-aiven-vpc">Creating an Aiven VPC<a class="headerlink" href="#creating-an-aiven-vpc" title="Permanent link">&para;</a></h2>
+<h2 id="create-an-aiven-vpc">Create an Aiven VPC<a class="headerlink" href="#create-an-aiven-vpc" title="Permanent link">&para;</a></h2>
 <p>1. Create a file named <code>vpc-sample.yaml</code> with the following content:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ProjectVPC</span>
@@ -1778,7 +1778,7 @@ and a <a href="../authentication.html">Kubernetes Secret with an Aiven authentic
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;your-project-name&gt;</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PROJECT_NAME</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="c1"># creates a VPC to link an AWS account on the South Africa region</span>
 <a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="nt">cloudName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aws-af-south-1</span>
@@ -1794,9 +1794,9 @@ and a <a href="../authentication.html">Kubernetes Secret with an Aiven authentic
 </code></pre></div>
 <p>The output is similar to the following:</p>
 <div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>NAME<span class="w">         </span>PROJECT<span class="w">          </span>CLOUD<span class="w">            </span>NETWORK<span class="w"> </span>CIDR
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>vpc-sample<span class="w">   </span>&lt;your-project&gt;<span class="w">   </span>aws-af-south-1<span class="w">   </span><span class="m">192</span>.168.0.0/24
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>vpc-sample<span class="w">   </span>PROJECT_NAME<span class="w">   </span>aws-af-south-1<span class="w">   </span><span class="m">192</span>.168.0.0/24
 </code></pre></div>
-<h2 id="using-the-aiven-vpc">Using the Aiven VPC<a class="headerlink" href="#using-the-aiven-vpc" title="Permanent link">&para;</a></h2>
+<h2 id="use-the-aiven-vpc">Use the Aiven VPC<a class="headerlink" href="#use-the-aiven-vpc" title="Permanent link">&para;</a></h2>
 <p>Follow the
 official <a href="https://aiven.io/docs/platform/howto/manage-vpc-peering">VPC documentation</a> to
 complete the VPC peering on your cloud of choice.</p>

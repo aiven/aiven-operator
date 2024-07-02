@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#getting-started" class="md-skip">
+        <a href="#get-started" class="md-skip">
           Skip to content
         </a>
       
@@ -473,7 +473,7 @@
         
   
   <span class="md-ellipsis">
-    Installing with Helm (recommended)
+    Install with Helm (recommended)
   </span>
   
 
@@ -494,7 +494,7 @@
         
   
   <span class="md-ellipsis">
-    Installing with kubectl
+    Install with kubectl
   </span>
   
 
@@ -557,7 +557,7 @@
         
   
   <span class="md-ellipsis">
-    Uninstalling
+    Uninstall
   </span>
   
 
@@ -690,13 +690,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#getting-started" class="md-nav__link">
+  <a href="#get-started" class="md-nav__link">
     <span class="md-ellipsis">
-      Getting Started
+      Get Started
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Getting Started">
+    <nav class="md-nav" aria-label="Get Started">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1792,13 +1792,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#getting-started" class="md-nav__link">
+  <a href="#get-started" class="md-nav__link">
     <span class="md-ellipsis">
-      Getting Started
+      Get Started
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Getting Started">
+    <nav class="md-nav" aria-label="Get Started">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1912,7 +1912,7 @@
 
   <h1>Developer guide</h1>
 
-<h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
+<h2 id="get-started">Get Started<a class="headerlink" href="#get-started" title="Permanent link">&para;</a></h2>
 <p>To get started, make sure you have a working <a href="https://golang.org/doc/install">Go environment</a> and clone the repository:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:aiven/aiven-operator.git
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>aiven-operator
@@ -2000,7 +2000,7 @@ named <code>aiven-token</code> (use the Aiven authentication token created earli
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>aiven-pg.yaml
 </code></pre></div>
 <p>You should see the service be created on Aiven's side using either <a href="https://console.aiven.io/">Aiven Console</a> or Aiven CLI:</p>
-<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>$<span class="w"> </span>avn<span class="w"> </span>project<span class="w"> </span>switch<span class="w"> </span>&lt;your-project-name&gt;
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>$<span class="w"> </span>avn<span class="w"> </span>project<span class="w"> </span>switch<span class="w"> </span>PROJECT_NAME
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>$<span class="w"> </span>avn<span class="w"> </span>service<span class="w"> </span>list
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>SERVICE_NAME<span class="w">      </span>SERVICE_TYPE<span class="w">  </span>STATE<span class="w">       </span>CLOUD_NAME<span class="w">           </span>PLAN<span class="w">      </span>CREATE_TIME<span class="w">           </span>UPDATE_TIME<span class="w">           </span><span class="nv">NOTIFICATIONS</span>
 <a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="o">================</span><span class="w">  </span><span class="o">============</span><span class="w">  </span><span class="o">==========</span><span class="w">  </span><span class="o">===================</span><span class="w">  </span><span class="o">========</span><span class="w">  </span><span class="o">====================</span><span class="w">  </span><span class="o">====================</span><span class="w">  </span><span class="o">=============</span>

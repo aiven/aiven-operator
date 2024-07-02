@@ -22,7 +22,7 @@
     
     
       
-        <title>Uninstalling - Aiven Operator</title>
+        <title>Uninstall - Aiven Operator</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#dealing-with-expired-tokens" class="md-skip">
+        <a href="#expired-tokens" class="md-skip">
           Skip to content
         </a>
       
@@ -109,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Uninstalling
+              Uninstall
             
           </span>
         </div>
@@ -475,7 +475,7 @@
         
   
   <span class="md-ellipsis">
-    Installing with Helm (recommended)
+    Install with Helm (recommended)
   </span>
   
 
@@ -496,7 +496,7 @@
         
   
   <span class="md-ellipsis">
-    Installing with kubectl
+    Install with kubectl
   </span>
   
 
@@ -566,7 +566,7 @@
           
   
   <span class="md-ellipsis">
-    Uninstalling
+    Uninstall
   </span>
   
 
@@ -577,7 +577,7 @@
         
   
   <span class="md-ellipsis">
-    Uninstalling
+    Uninstall
   </span>
   
 
@@ -597,9 +597,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#dealing-with-expired-tokens" class="md-nav__link">
+  <a href="#expired-tokens" class="md-nav__link">
     <span class="md-ellipsis">
-      Dealing with expired tokens
+      Expired tokens
     </span>
   </a>
   
@@ -1717,9 +1717,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#dealing-with-expired-tokens" class="md-nav__link">
+  <a href="#expired-tokens" class="md-nav__link">
     <span class="md-ellipsis">
-      Dealing with expired tokens
+      Expired tokens
     </span>
   </a>
   
@@ -1760,7 +1760,7 @@
   
 
 
-  <h1>Uninstalling</h1>
+  <h1>Uninstall</h1>
 
 <div class="admonition danger">
 <p class="admonition-title">Danger</p>
@@ -1771,18 +1771,17 @@
 <li><a href="helm.html#uninstalling">Helm</a></li>
 <li><a href="kubectl.html#uninstalling">kubectl</a></li>
 </ul>
-<h2 id="dealing-with-expired-tokens">Dealing with expired tokens<a class="headerlink" href="#dealing-with-expired-tokens" title="Permanent link">&para;</a></h2>
+<h2 id="expired-tokens">Expired tokens<a class="headerlink" href="#expired-tokens" title="Permanent link">&para;</a></h2>
 <p>Aiven resources need to have an accompanying secret that contains the token that is used to authorize the manipulation of that resource.
 If that token expired then you will not be able to delete the custom resource and deletion will also hang until the situation is resolved.
 The recommended approach to deal with that situation is to patch a valid token into the secret again so that proper cleanup of aiven resources can take place.</p>
 <h2 id="hanging-deletions">Hanging deletions<a class="headerlink" href="#hanging-deletions" title="Permanent link">&para;</a></h2>
-<p>To protect the secrets that the operator is using from deletion, it adds the <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/finalizers/">finalizer</a> <code>finalizers.aiven.io/needed-to-delete-services</code> to the secret.
-This solves a race condition that happens when deleting a namespace, where there is a possibility of the secret getting deleted before the resource that uses it.
-When the controller is deleted it may not cleanup the finalizers from all secrets.
-If there is a secret with this finalizer blocking deletion of a namespace, for now please do</p>
+<p>To protect the Secrets that the operator is using from deletion, it adds the <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/finalizers/">finalizer</a> <code>finalizers.aiven.io/needed-to-delete-services</code> to the Secret.
+This solves a race condition that happens when deleting a namespace, where there is a possibility of the Secret getting deleted before the resource that uses it.
+When the controller is deleted it may not cleanup the finalizers from all Secrets.
+If there is a Secret with this finalizer blocking deletion of a namespace, you can remove the finalizer by running:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>kubectl<span class="w"> </span>patch<span class="w"> </span>secret<span class="w"> </span>&lt;offending-secret&gt;<span class="w"> </span>-p<span class="w"> </span><span class="s1">&#39;{&quot;metadata&quot;:{&quot;finalizers&quot;:null}}&#39;</span><span class="w"> </span>--type<span class="o">=</span>merge
 </code></pre></div>
-<p>to remove the finalizer.</p>
 
 
 

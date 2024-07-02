@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#creating-a-kafkaschema" class="md-skip">
+        <a href="#create-a-kafkaschema" class="md-skip">
           Skip to content
         </a>
       
@@ -465,7 +465,7 @@
         
   
   <span class="md-ellipsis">
-    Installing with Helm (recommended)
+    Install with Helm (recommended)
   </span>
   
 
@@ -486,7 +486,7 @@
         
   
   <span class="md-ellipsis">
-    Installing with kubectl
+    Install with kubectl
   </span>
   
 
@@ -549,7 +549,7 @@
         
   
   <span class="md-ellipsis">
-    Uninstalling
+    Uninstall
   </span>
   
 
@@ -1034,9 +1034,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#creating-a-kafkaschema" class="md-nav__link">
+  <a href="#create-a-kafkaschema" class="md-nav__link">
     <span class="md-ellipsis">
-      Creating a KafkaSchema
+      Create a KafkaSchema
     </span>
   </a>
   
@@ -1705,9 +1705,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#creating-a-kafkaschema" class="md-nav__link">
+  <a href="#create-a-kafkaschema" class="md-nav__link">
     <span class="md-ellipsis">
-      Creating a KafkaSchema
+      Create a KafkaSchema
     </span>
   </a>
   
@@ -1741,7 +1741,7 @@
 
   <h1>Kafka Schema</h1>
 
-<h2 id="creating-a-kafkaschema">Creating a <code>KafkaSchema</code><a class="headerlink" href="#creating-a-kafkaschema" title="Permanent link">&para;</a></h2>
+<h2 id="create-a-kafkaschema">Create a <code>KafkaSchema</code><a class="headerlink" href="#create-a-kafkaschema" title="Permanent link">&para;</a></h2>
 <p>Aiven develops and maintain <a href="https://github.com/aiven/karapace">Karapace</a>, an open source implementation of Kafka REST
 and schema registry. Is available out of the box for our managed Kafka service.</p>
 <blockquote>
@@ -1761,7 +1761,7 @@ and schema registry. Is available out of the box for our managed Kafka service.<
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kafka-auth</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;your-project-name&gt;</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PROJECT_NAME</span>
 <a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="nt">cloudName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">google-europe-west1</span>
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="nt">plan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">startup-2</span>
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="nt">maintenanceWindowDow</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">friday</span>
@@ -1787,7 +1787,7 @@ and schema registry. Is available out of the box for our managed Kafka service.<
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
 <a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;your-project-name&gt;</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PROJECT_NAME</span>
 <a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kafka-sample-schema</span>
 <a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
 <a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">  </span><span class="c1"># the name of the Schema</span>
@@ -1817,7 +1817,7 @@ and schema registry. Is available out of the box for our managed Kafka service.<
 </code></pre></div>
 <p>The output is similar to the following:</p>
 <div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>NAME<span class="w">           </span>SERVICE<span class="w"> </span>NAME<span class="w">   </span>PROJECT<span class="w">          </span>SUBJECT<span class="w">    </span>COMPATIBILITY<span class="w"> </span>LEVEL<span class="w">   </span>VERSION
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>kafka-schema<span class="w">   </span>kafka-sample<span class="w">   </span>&lt;your-project&gt;<span class="w">   </span>MySchema<span class="w">   </span>BACKWARD<span class="w">              </span><span class="m">1</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>kafka-schema<span class="w">   </span>kafka-sample<span class="w">   </span>PROJECT_NAME<span class="w">   </span>MySchema<span class="w">   </span>BACKWARD<span class="w">              </span><span class="m">1</span>
 </code></pre></div>
 <p>Now you can follow the instructions to <a href="https://aiven.io/docs/products/kafka/howto/schema-registry">use a schema registry in Java</a> on how to use the schema created.</p>
 

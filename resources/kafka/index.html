@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#creating-a-kafka-instance" class="md-skip">
+        <a href="#create-a-kafka-instance" class="md-skip">
           Skip to content
         </a>
       
@@ -465,7 +465,7 @@
         
   
   <span class="md-ellipsis">
-    Installing with Helm (recommended)
+    Install with Helm (recommended)
   </span>
   
 
@@ -486,7 +486,7 @@
         
   
   <span class="md-ellipsis">
-    Installing with kubectl
+    Install with kubectl
   </span>
   
 
@@ -549,7 +549,7 @@
         
   
   <span class="md-ellipsis">
-    Uninstalling
+    Uninstall
   </span>
   
 
@@ -1013,45 +1013,45 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#creating-a-kafka-instance" class="md-nav__link">
+  <a href="#create-a-kafka-instance" class="md-nav__link">
     <span class="md-ellipsis">
-      Creating a Kafka instance
+      Create a Kafka instance
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-the-connection-secret" class="md-nav__link">
+  <a href="#use-the-connection-secret" class="md-nav__link">
     <span class="md-ellipsis">
-      Using the connection Secret
+      Use the connection Secret
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#testing-the-connection" class="md-nav__link">
+  <a href="#test-the-connection" class="md-nav__link">
     <span class="md-ellipsis">
-      Testing the connection
+      Test the connection
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#creating-a-kafkatopic-and-kafkaacl" class="md-nav__link">
+  <a href="#create-a-kafkatopic-and-kafkaacl" class="md-nav__link">
     <span class="md-ellipsis">
-      Creating a KafkaTopic and KafkaACL
+      Create a KafkaTopic and KafkaACL
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#producing-and-consuming-events" class="md-nav__link">
+  <a href="#produce-and-consume-events" class="md-nav__link">
     <span class="md-ellipsis">
-      Producing and consuming events
+      Produce and consume events
     </span>
   </a>
   
@@ -1741,45 +1741,45 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#creating-a-kafka-instance" class="md-nav__link">
+  <a href="#create-a-kafka-instance" class="md-nav__link">
     <span class="md-ellipsis">
-      Creating a Kafka instance
+      Create a Kafka instance
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-the-connection-secret" class="md-nav__link">
+  <a href="#use-the-connection-secret" class="md-nav__link">
     <span class="md-ellipsis">
-      Using the connection Secret
+      Use the connection Secret
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#testing-the-connection" class="md-nav__link">
+  <a href="#test-the-connection" class="md-nav__link">
     <span class="md-ellipsis">
-      Testing the connection
+      Test the connection
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#creating-a-kafkatopic-and-kafkaacl" class="md-nav__link">
+  <a href="#create-a-kafkatopic-and-kafkaacl" class="md-nav__link">
     <span class="md-ellipsis">
-      Creating a KafkaTopic and KafkaACL
+      Create a KafkaTopic and KafkaACL
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#producing-and-consuming-events" class="md-nav__link">
+  <a href="#produce-and-consume-events" class="md-nav__link">
     <span class="md-ellipsis">
-      Producing and consuming events
+      Produce and consume events
     </span>
   </a>
   
@@ -1821,7 +1821,7 @@ you can get up and running with a suitably sized Apache Kafka service in a few m
 operator installed (see instructions for <a href="../../installation/helm.html">helm</a> or <a href="../../installation/kubectl.html">kubectl</a>),
 and a <a href="../../authentication.html">Kubernetes Secret with an Aiven authentication token</a>.</p>
 </div>
-<h2 id="creating-a-kafka-instance">Creating a Kafka instance<a class="headerlink" href="#creating-a-kafka-instance" title="Permanent link">&para;</a></h2>
+<h2 id="create-a-kafka-instance">Create a Kafka instance<a class="headerlink" href="#create-a-kafka-instance" title="Permanent link">&para;</a></h2>
 <p>1. Create a file named <code>kafka-sample.yaml</code>, and add the following content:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Kafka</span>
@@ -1838,7 +1838,7 @@ and a <a href="../../authentication.html">Kubernetes Secret with an Aiven authen
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kafka-auth</span>
 <a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="c1"># add your Project name here</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;your-project-name&gt;</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PROJECT_NAME</span>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
 <a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="c1"># cloud provider and plan of your choice</span>
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span><span class="c1"># you can check all of the possibilities here https://aiven.io/pricing</span>
@@ -1861,10 +1861,10 @@ and a <a href="../../authentication.html">Kubernetes Secret with an Aiven authen
 </code></pre></div>
 <p>The output has the project name and state, similar to the following:</p>
 <div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>NAME<span class="w">           </span>PROJECT<span class="w">          </span>REGION<span class="w">                </span>PLAN<span class="w">        </span>STATE
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>kafka-sample<span class="w">   </span>&lt;your-project&gt;<span class="w">   </span>google-europe-west1<span class="w">   </span>startup-2<span class="w">   </span>RUNNING
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>kafka-sample<span class="w">   </span>PROJECT_NAME<span class="w">   </span>google-europe-west1<span class="w">   </span>startup-2<span class="w">   </span>RUNNING
 </code></pre></div>
 <p>After a couple of minutes, the <code>STATE</code> field is changed to <code>RUNNING</code>, and is ready to be used.</p>
-<h2 id="using-the-connection-secret">Using the connection Secret<a class="headerlink" href="#using-the-connection-secret" title="Permanent link">&para;</a></h2>
+<h2 id="use-the-connection-secret">Use the connection Secret<a class="headerlink" href="#use-the-connection-secret" title="Permanent link">&para;</a></h2>
 <p>For your convenience, the operator automatically stores the Kafka connection information in a Secret created with the
 name specified on the <code>connInfoSecretTarget</code> field.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>secret<span class="w"> </span>kafka-auth
@@ -1900,7 +1900,7 @@ name specified on the <code>connInfoSecretTarget</code> field.</p>
 <a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">  </span><span class="nt">&quot;USERNAME&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;avnadmin&quot;</span>
 <a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="p">}</span>
 </code></pre></div>
-<h2 id="testing-the-connection">Testing the connection<a class="headerlink" href="#testing-the-connection" title="Permanent link">&para;</a></h2>
+<h2 id="test-the-connection">Test the connection<a class="headerlink" href="#test-the-connection" title="Permanent link">&para;</a></h2>
 <p>You can verify your access to the Kafka cluster from a Pod using the authentication data from the <code>kafka-auth</code> Secret. <a href="https://github.com/edenhill/kcat">kcat</a> is used for our examples below.</p>
 <p>1. Create a file named <code>kafka-test-connection.yaml</code>, and add the following content:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
@@ -1964,7 +1964,7 @@ name specified on the <code>connInfoSecretTarget</code> field.</p>
 <a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span>broker<span class="w"> </span><span class="m">1</span><span class="w"> </span>at<span class="w"> </span><span class="m">34</span>.78.146.156:13041
 <a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w"> </span><span class="m">0</span><span class="w"> </span>topics:
 </code></pre></div>
-<h2 id="creating-a-kafkatopic-and-kafkaacl">Creating a <code>KafkaTopic</code> and <code>KafkaACL</code><a class="headerlink" href="#creating-a-kafkatopic-and-kafkaacl" title="Permanent link">&para;</a></h2>
+<h2 id="create-a-kafkatopic-and-kafkaacl">Create a <code>KafkaTopic</code> and <code>KafkaACL</code><a class="headerlink" href="#create-a-kafkatopic-and-kafkaacl" title="Permanent link">&para;</a></h2>
 <p>To properly produce and consume content on Kafka, you need topics and ACLs. The operator supports both with
 the <code>KafkaTopic</code> and <code>KafkaACL</code> resources.</p>
 <p>Below, here is how to create a Kafka topic named <code>random-strings</code> where random string messages will be sent.</p>
@@ -1978,7 +1978,7 @@ the <code>KafkaTopic</code> and <code>KafkaACL</code> resources.</p>
 <a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
 <a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
 <a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>
-<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;your-project-name&gt;</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PROJECT_NAME</span>
 <a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kafka-sample</span>
 <a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>
 <a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">  </span><span class="c1"># here we can specify how many partitions the topic should have</span>
@@ -2013,7 +2013,7 @@ avoid using the <code>avnadmin</code> superuser), and the <code>KafkaACL</code> 
 <a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kafka-crab-connection</span>
 <a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>
 <a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a><span class="w">  </span><span class="c1"># the Aiven project the user is related to</span>
-<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;your-project-name&gt;</span>
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PROJECT_NAME</span>
 <a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>
 <a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="w">  </span><span class="c1"># the name of our Kafka Service</span>
 <a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kafka-sample</span>
@@ -2028,7 +2028,7 @@ avoid using the <code>avnadmin</code> superuser), and the <code>KafkaACL</code> 
 <a id="__codelineno-14-30" name="__codelineno-14-30" href="#__codelineno-14-30"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
 <a id="__codelineno-14-31" name="__codelineno-14-31" href="#__codelineno-14-31"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
 <a id="__codelineno-14-32" name="__codelineno-14-32" href="#__codelineno-14-32"></a>
-<a id="__codelineno-14-33" name="__codelineno-14-33" href="#__codelineno-14-33"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;your-project-name&gt;</span>
+<a id="__codelineno-14-33" name="__codelineno-14-33" href="#__codelineno-14-33"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PROJECT_NAME</span>
 <a id="__codelineno-14-34" name="__codelineno-14-34" href="#__codelineno-14-34"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kafka-sample</span>
 <a id="__codelineno-14-35" name="__codelineno-14-35" href="#__codelineno-14-35"></a>
 <a id="__codelineno-14-36" name="__codelineno-14-36" href="#__codelineno-14-36"></a><span class="w">  </span><span class="c1"># the username from the ServiceUser above</span>
@@ -2043,7 +2043,7 @@ avoid using the <code>avnadmin</code> superuser), and the <code>KafkaACL</code> 
 <p>To create the <code>crab</code> user and its permissions, execute the following command:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>kafka-acl-user-crab.yaml
 </code></pre></div>
-<h2 id="producing-and-consuming-events">Producing and consuming events<a class="headerlink" href="#producing-and-consuming-events" title="Permanent link">&para;</a></h2>
+<h2 id="produce-and-consume-events">Produce and consume events<a class="headerlink" href="#produce-and-consume-events" title="Permanent link">&para;</a></h2>
 <p>Using the previously created <code>KafkaTopic</code>, <code>ServiceUser</code>, <code>KafkaACL</code>, you can produce and consume events.</p>
 <p>You can use <a href="https://github.com/edenhill/kcat">kcat</a> to produce a message into Kafka, and the <code>-t random-strings</code> argument to select the desired topic,
 and use the content of the <code>/etc/issue</code> file as the message's body.</p>
