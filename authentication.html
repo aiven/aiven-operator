@@ -1686,11 +1686,14 @@
   <h1>Authenticating</h1>
 
 <p>To get authenticated and authorized, set up the communication between the Aiven Operator for Kubernetes and Aiven by
-using a token stored in a Kubernetes Secret. You can then refer to the Secret name on every custom resource in
+using a token stored in a Kubernetes Secret. You can then refer to the <code>Secret</code> name on every custom resource in
 the <code>authSecretRef</code> field.</p>
-<p><strong>If you don't have an Aiven account yet, sign
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If you don't have an Aiven account yet, sign
 up <a href="https://console.aiven.io/signup?utm_source=github&amp;utm_medium=organic&amp;utm_campaign=k8s-operator&amp;utm_content=signup">here</a>
-for a free trial. 🦀</strong></p>
+for a free trial 🦀</p>
+</div>
 <p>1. Generate an authentication token</p>
 <p>Refer to <a href="https://aiven.io/docs/platform/concepts/authentication-tokens">our documentation article</a> to generate your
 authentication token.</p>
