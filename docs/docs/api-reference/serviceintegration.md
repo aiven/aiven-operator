@@ -208,6 +208,9 @@ title: "ServiceIntegration"
       partitions: 1
     ```
 
+!!! info
+	To create this resource, a `Secret` containing Aiven token must be [created](/aiven-operator/authentication.html) first.
+
 Apply the resource with:
 
 ```shell

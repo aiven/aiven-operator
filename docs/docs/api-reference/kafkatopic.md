@@ -26,6 +26,9 @@ title: "KafkaTopic"
         min_cleanable_dirty_ratio: 0.2
     ```
 
+!!! info
+	To create this resource, a `Secret` containing Aiven token must be [created](/aiven-operator/authentication.html) first.
+
 Apply the resource with:
 
 ```shell

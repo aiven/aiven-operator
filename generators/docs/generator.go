@@ -421,9 +421,12 @@ var templateFuncs = template.FuncMap{
 	"indent": func(i int, src string) string {
 		return reIndent.ReplaceAllString(src, strings.Repeat(" ", i))
 	},
-	"backtick": func(i int) string {
+	"code": func(s string) string {
+		return fmt.Sprintf("`%s`", s)
+	},
+	"codeblock": func() string {
 		// we can't use backticks in go strings, so we render them
-		return strings.Repeat("`", i)
+		return "```"
 	},
 	"rfill": rfill,
 }
@@ -437,51 +440,55 @@ title: "{{ .Kind }}"
 
 {{ range .UsageExamples }}
 ??? example {{ if .Title }}"{{ .Title }}"{{ end }}
-    {{ backtick 3 }}yaml
+    {{ codeblock }}yaml
 {{ .Value | indent 4 }}
-    {{ backtick 3 }}
+    {{ codeblock }}
 {{ end }}
 
 {{ $example := .GetExample }}
 {{ if $example }}
+
+!!! info
+	To create this resource, a {{ code "Secret" }} containing Aiven token must be [created](/aiven-operator/authentication.html) first.
+
 Apply the resource with:
 
-{{ backtick 3 }}shell
+{{ codeblock }}shell
 kubectl apply -f example.yaml
-{{ backtick 3 }}
+{{ codeblock }}
 
-Verify the newly created {{ backtick 1 }}{{ .Kind }}{{ backtick 1 }}:
+Verify the newly created {{ code .Kind }}:
 
-{{ backtick 3 }}shell
+{{ codeblock }}shell
 kubectl get {{ .Plural }} {{ $example.Metadata.Name }}
-{{ backtick 3 }}
+{{ codeblock }}
 
 The output is similar to the following:
-{{ backtick 3 }}shell
+{{ codeblock }}shell
 {{ range $example.Table }}{{ rfill .Title .Value }}    {{ end }}
 {{ range $example.Table }}{{ rfill .Value .Title }}    {{ end }}
-{{ backtick 3 }}
+{{ codeblock }}
 
 {{ if $example.Secret.Name }}
-To view the details of the {{ backtick 1 }}Secret{{ backtick 1 }}, use the following command:
-{{ backtick 3 }}shell
+To view the details of the {{ code "Secret" }}, use the following command:
+{{ codeblock }}shell
 kubectl describe secret {{ $example.Secret.Name }}
-{{ backtick 3 }}
+{{ codeblock }}
 
-You can use the [jq](https://github.com/jqlang/jq) to quickly decode the {{ backtick 1 }}Secret{{ backtick 1 }}:
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the {{ code "Secret" }}:
 
-{{ backtick 3 }}shell
+{{ codeblock }}shell
 kubectl get secret {{ $example.Secret.Name }} -o json | jq '.data | map_values(@base64d)'
-{{ backtick 3 }}
+{{ codeblock }}
 
 The output is similar to the following:
 
-{{ backtick 3 }}{ .json .no-copy }
+{{ codeblock }}{ .json .no-copy }
 {
 	{{- range $example.Secret.Keys  }}
 	"{{ . }}": "<secret>",{{ end }}
 }
-{{ backtick 3 }}
+{{ codeblock }}
 
 {{ end }}
 
