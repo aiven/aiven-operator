@@ -16,6 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
+	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -148,7 +149,11 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 	}
 
 	requeue, err := helper.reconcile(ctx, o)
-	return ctrl.Result{Requeue: requeue, RequeueAfter: requeueTimeout}, err
+	result := ctrl.Result{Requeue: requeue}
+	if requeue {
+		result.RequeueAfter = requeueTimeout
+	}
+	return result, err
 }
 
 // a helper that closes over all instance specific fields
@@ -198,21 +203,34 @@ func (i *instanceReconcilerHelper) reconcile(ctx context.Context, o v1alpha1.Aiv
 	// First need to update the object, and then update the status.
 	// So dependent resources won't see READY before it has been updated with new values
 
-	// When updated, object status is vanished.
-	// So we waste a copy for that,
-	// while the original object must already have all the fields updated in runtime
-	clone := o.DeepCopyObject().(client.Object)
-	errUpdate := i.k8s.Update(ctx, clone)
-
 	// Now we can update the status
-	o.SetResourceVersion(clone.GetResourceVersion())
-	errStatus := i.k8s.Status().Update(ctx, o)
-	errMerged := errors.Join(err, errUpdate, errStatus)
-	if errMerged != nil {
-		return true, errMerged
-	}
+	errUpdate := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		// When updated, object status is vanished.
+		// So we waste a copy for that,
+		// while the original object must already have all the fields updated in runtime
+		// Additionally, it gets the "latest version" to resolve optimistic concurrency control conflict
+		latest := o.DeepCopyObject().(client.Object)
+		err = i.k8s.Get(ctx, types.NamespacedName{
+			Name:      latest.GetName(),
+			Namespace: latest.GetNamespace(),
+		}, latest)
+		if err != nil {
+			return err
+		}
 
-	return requeue, nil
+		updated := o.DeepCopyObject().(client.Object)
+		updated.SetResourceVersion(latest.GetResourceVersion())
+		err := i.k8s.Update(ctx, updated)
+		if err != nil {
+			return err
+		}
+
+		o.SetResourceVersion(updated.GetResourceVersion())
+		return i.k8s.Status().Update(ctx, o)
+	})
+
+	errMerged := errors.Join(err, errUpdate)
+	return requeue || errMerged != nil, errMerged
 }
 
 func (i *instanceReconcilerHelper) reconcileInstance(ctx context.Context, o v1alpha1.AivenManagedObject) (bool, error) {
