@@ -4,10 +4,11 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"slices"
 	"strconv"
-	"strings"
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
@@ -158,25 +159,25 @@ func diffClickhouseGrantSpecToApi(specPrivilegeGrants []v1alpha1.PrivilegeGrant,
 	var roleGrantsToRevoke, roleGrantsToAdd []v1alpha1.RoleGrant
 
 	for _, apiGrant := range apiPrivilegeGrants {
-		if !containsPrivilegeGrant(specPrivilegeGrants, apiGrant) {
+		if !containsGrant(specPrivilegeGrants, apiGrant) {
 			privilegeGrantsToRevoke = append(privilegeGrantsToRevoke, apiGrant)
 		}
 	}
 
 	for _, specGrant := range specPrivilegeGrants {
-		if !containsPrivilegeGrant(apiPrivilegeGrants, specGrant) {
+		if !containsGrant(apiPrivilegeGrants, specGrant) {
 			privilegeGrantsToAdd = append(privilegeGrantsToAdd, specGrant)
 		}
 	}
 
 	for _, apiGrant := range apiRoleGrants {
-		if !containsRoleGrant(specRoleGrants, apiGrant) {
+		if !containsGrant(specRoleGrants, apiGrant) {
 			roleGrantsToRevoke = append(roleGrantsToRevoke, apiGrant)
 		}
 	}
 
 	for _, specGrant := range specRoleGrants {
-		if !containsRoleGrant(apiRoleGrants, specGrant) {
+		if !containsGrant(apiRoleGrants, specGrant) {
 			roleGrantsToAdd = append(roleGrantsToAdd, specGrant)
 		}
 	}
@@ -184,18 +185,37 @@ func diffClickhouseGrantSpecToApi(specPrivilegeGrants []v1alpha1.PrivilegeGrant,
 	return privilegeGrantsToRevoke, privilegeGrantsToAdd, roleGrantsToRevoke, roleGrantsToAdd
 }
 
-func containsPrivilegeGrant(grants []v1alpha1.PrivilegeGrant, grant chUtils.Grant) bool {
-	for _, g := range grants {
-		if cmp.Equal(g, grant) {
-			return true
-		}
-	}
-	return false
+// normalizeGrant v1alpha1.PrivilegeGrant and []v1alpha1.RoleGrant
+// have array fields with scalars and objects.
+// To compare two grants list fields must be sorted
+func normalizeGrant(grant any) (result map[string]any) {
+	b, _ := json.Marshal(grant)
+	_ = json.Unmarshal(b, &result)
+	return sortValues(result)
 }
 
-func containsRoleGrant(grants []v1alpha1.RoleGrant, grant v1alpha1.RoleGrant) bool {
+func sortValues[T map[string]any](m T) T {
+	for k, v := range m {
+		switch val := v.(type) {
+		case T:
+			m[k] = sortValues(val)
+		case []any:
+			sorted := make([]string, len(val))
+			for i, s := range val {
+				sorted[i] = fmt.Sprintf("%v", s)
+			}
+
+			slices.Sort(sorted)
+			m[k] = sorted
+		}
+	}
+	return m
+}
+
+func containsGrant[T any](grants []T, grant T) bool {
+	s := normalizeGrant(grant)
 	for _, g := range grants {
-		if cmp.Equal(g, grant) {
+		if cmp.Equal(s, normalizeGrant(g)) {
 			return true
 		}
 	}
