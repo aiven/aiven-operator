@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Ignore `http.StatusBadRequest` on `ClickhouseGrant` deletion
+
 ## v0.22.0 - 2024-07-02
 
 - Ignore `ClickhouseRole` deletion error (missing database)
