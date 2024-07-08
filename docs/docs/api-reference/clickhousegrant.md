@@ -69,7 +69,11 @@ demo-ch-grant    my-aiven-project    my-clickhouse
 
 ## ClickhouseGrant {: #ClickhouseGrant }
 
-ClickhouseGrant is the Schema for the ClickhouseGrants API.
+ClickhouseGrant is the Schema for the ClickhouseGrants API
+
+!!! Warning "Ambiguity in the `GRANT` syntax"
+
+    Due to [an ambiguity](https://github.com/aiven/ospo-tracker/issues/350) in the `GRANT` syntax in Clickhouse, you should not have users and roles with the same name. It is not clear if a grant refers to the user or the role.
 
 **Required**
 

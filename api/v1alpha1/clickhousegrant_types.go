@@ -78,6 +78,7 @@ type ClickhouseGrantStatus struct {
 //+kubebuilder:subresource:status
 
 // ClickhouseGrant is the Schema for the ClickhouseGrants API
+// Warning "Ambiguity in the `GRANT` syntax": Due to [an ambiguity](https://github.com/aiven/ospo-tracker/issues/350) in the `GRANT` syntax in Clickhouse, you should not have users and roles with the same name. It is not clear if a grant refers to the user or the role.
 // +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
 // +kubebuilder:printcolumn:name="Service Name",type="string",JSONPath=".spec.serviceName"
 type ClickhouseGrant struct {
