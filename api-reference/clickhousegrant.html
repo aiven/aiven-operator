@@ -1944,7 +1944,11 @@
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>demo-ch-grant<span class="w">    </span>my-aiven-project<span class="w">    </span>my-clickhouse<span class="w">    </span>
 </code></pre></div></p>
 <h2 id="ClickhouseGrant">ClickhouseGrant<a class="headerlink" href="#ClickhouseGrant" title="Permanent link">&para;</a></h2>
-<p>ClickhouseGrant is the Schema for the ClickhouseGrants API.</p>
+<p>ClickhouseGrant is the Schema for the ClickhouseGrants API</p>
+<div class="admonition warning">
+<p class="admonition-title">Ambiguity in the <code>GRANT</code> syntax</p>
+<p>Due to <a href="https://github.com/aiven/ospo-tracker/issues/350">an ambiguity</a> in the <code>GRANT</code> syntax in Clickhouse, you should not have users and roles with the same name. It is not clear if a grant refers to the user or the role.</p>
+</div>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#apiVersion-property" name="apiVersion-property"><code>apiVersion</code></a> (string). Value <code>aiven.io/v1alpha1</code>.</li>
