@@ -253,7 +253,7 @@ func UpdateUserConfiguration(userConfig any) (map[string]any, error) {
 
 // isNotFound works both for old and new client errors
 func isNotFound(err error) bool {
-	return aiven.IsNotFound(err) || avngen.IsNotFound(err)
+	return isAivenError(err, http.StatusNotFound)
 }
 
 // isAlreadyExists works both for old and new client errors
@@ -270,4 +270,19 @@ func isDeleted(err error) (bool, error) {
 		return true, nil
 	}
 	return err == nil, err
+}
+
+// isAivenError returns true if the error comes from the old or new client and has given http code
+func isAivenError(err error, code int) bool {
+	var oldErr aiven.Error
+	if errors.As(err, &oldErr) {
+		return oldErr.Status == code
+	}
+
+	var newErr avngen.Error
+	if errors.As(err, &newErr) {
+		return newErr.Status == code
+	}
+
+	return false
 }

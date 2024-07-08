@@ -24,8 +24,6 @@ import (
 	chUtils "github.com/aiven/aiven-operator/utils/clickhouse"
 )
 
-const notFoundRole = "There is no role"
-
 // ClickhouseGrantReconciler reconciles a ClickhouseGrant object
 type ClickhouseGrantReconciler struct {
 	Controller
@@ -99,7 +97,8 @@ func (h *ClickhouseGrantHandler) delete(ctx context.Context, avn *aiven.Client, 
 	}
 
 	_, err = g.Spec.ExecuteStatements(ctx, avnGen, chUtils.REVOKE)
-	if err == nil || strings.Contains(err.Error(), notFoundRole) {
+	if isAivenError(err, http.StatusBadRequest) {
+		// "not found in user directories", "There is no role", etc
 		return true, nil
 	}
 
