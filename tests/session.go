@@ -42,7 +42,7 @@ type Session interface {
 	Apply(src string) error
 	GetRunning(obj client.Object, keys ...string) error
 	GetSecret(keys ...string) (*corev1.Secret, error)
-	Destroy()
+	Destroy(t testingT)
 	Delete(o client.Object, exists func() error) error
 }
 
@@ -150,12 +150,16 @@ func (s *session) GetSecret(keys ...string) (*corev1.Secret, error) {
 	return secret, nil
 }
 
+type testingT interface {
+	Errorf(format string, args ...any)
+}
+
 // Destroy deletes all applied resources.
 // Tolerant to "not found" error,
 // because resource may have been deleted manually
-func (s *session) Destroy() {
+func (s *session) Destroy(t testingT) {
 	if err := recover(); err != nil {
-		log.Printf("panicked, deleting resources: %s", err)
+		t.Errorf("panicked, deleting resources: %s\n%s", err, debug.Stack())
 	}
 
 	var wg sync.WaitGroup
@@ -166,7 +170,7 @@ func (s *session) Destroy() {
 			defer s.recover()
 			err := s.delete(s.objs[n])
 			if !(err == nil || isNotFound(err)) {
-				log.Printf("failed to delete %q: %s", n, err)
+				t.Errorf("failed to delete %q: %s", n, err)
 			}
 		}(n)
 	}
@@ -356,4 +360,12 @@ func parseObjs(src string) (map[string]client.Object, error) {
 		objs[n] = &o
 	}
 	return objs, nil
+}
+
+func ptrValue[T any](v *T) T {
+	if v == nil {
+		var empty T
+		return empty
+	}
+	return *v
 }

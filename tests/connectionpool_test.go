@@ -33,7 +33,7 @@ func TestConnectionPool(t *testing.T) {
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
-	defer s.Destroy()
+	defer s.Destroy(t)
 
 	// WHEN
 	// Applies given manifest
