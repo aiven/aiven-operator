@@ -17,7 +17,7 @@ import (
 	chUtils "github.com/aiven/aiven-operator/utils/clickhouse"
 )
 
-func chConnFromSecret(ctx context.Context, secret *corev1.Secret) (clickhouse.Conn, error) {
+func chConnFromSecret(secret *corev1.Secret) (clickhouse.Conn, error) {
 	c, err := clickhouse.Open(&clickhouse.Options{
 		Addr: []string{fmt.Sprintf("%s:%s", string(secret.Data["HOST"]), string(secret.Data["PORT"]))},
 		Auth: clickhouse.Auth{
@@ -141,18 +141,16 @@ func TestClickhouseGrant(t *testing.T) {
 
 	// Waits kube objects
 	ch := new(v1alpha1.Clickhouse)
-	// user := new(v1alpha1.ClickhouseUser)
 	db := new(v1alpha1.ClickhouseDatabase)
 	grant := new(v1alpha1.ClickhouseGrant)
 
 	require.NoError(t, s.GetRunning(ch, chName))
-	// require.NoError(t, s.GetRunning(user, userName))
 	require.NoError(t, s.GetRunning(db, dbName))
 
 	// Constructs connection to ClickHouse from service secret
 	secret, err := s.GetSecret(ch.GetName())
 	require.NoError(t, err, "Failed to get secret")
-	conn, err := chConnFromSecret(ctx, secret)
+	conn, err := chConnFromSecret(secret)
 	require.NoError(t, err, "failed to connect to ClickHouse")
 
 	// THEN
@@ -331,3 +329,86 @@ var expectedRoleGrants = []ClickhouseRoleGrant{
 }
 
 func ptr(s string) *string { return &s }
+
+func fromPtr[T any](v *T) T {
+	if v == nil {
+		var empty T
+		return empty
+	}
+	return *v
+}
+
+func TestClickhouseGrantExample(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	// GIVEN
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	chName := randName("clickhouse-service")
+	dbName := randName("clickhouse-db")
+	userName := randName("clickhouse-user")
+	grantName := randName("clickhouse-grant")
+	roleName := randName("clickhouse-role")
+
+	yml, err := loadExampleYaml("clickhousegrant.yaml", map[string]string{
+		"aiven-project-name":    cfg.Project,
+		"my-clickhouse-service": chName,
+		"my-clickhouse-db":      dbName,
+		"my-clickhouse-user":    userName,
+		"my-clickhouse-grant":   grantName,
+		"my-clickhouse-role":    roleName,
+	})
+	require.NoError(t, err)
+	s := NewSession(ctx, k8sClient, cfg.Project)
+
+	// Cleans test afterward
+	defer s.Destroy()
+
+	// WHEN
+	// Applies given manifest
+	require.NoError(t, s.Apply(yml))
+
+	ch := new(v1alpha1.Clickhouse)
+	require.NoError(t, s.GetRunning(ch, chName))
+
+	user := new(v1alpha1.ClickhouseUser)
+	require.NoError(t, s.GetRunning(user, userName))
+
+	db := new(v1alpha1.ClickhouseDatabase)
+	require.NoError(t, s.GetRunning(db, dbName))
+
+	role := new(v1alpha1.ClickhouseRole)
+	require.NoError(t, s.GetRunning(role, roleName))
+
+	grant := new(v1alpha1.ClickhouseGrant)
+	require.NoError(t, s.GetRunning(grant, grantName))
+
+	// Creates connection
+	secret, err := s.GetSecret(ch.GetName())
+	require.NoError(t, err, "Failed to get secret")
+
+	conn, err := chConnFromSecret(secret)
+	require.NoError(t, err, "failed to connect to ClickHouse")
+
+	results, err := queryAndCollectResults[ClickhouseGrant](ctx, conn, chUtils.QueryNonAivenPrivileges)
+	require.NoError(t, err)
+
+	// Privileges validation
+	expected := map[string]bool{
+		fmt.Sprintf("%s/%s/INSERT", dbName, roleName):       true,
+		fmt.Sprintf("%s/%s/SELECT", dbName, roleName):       true,
+		fmt.Sprintf("%s/%s/CREATE TABLE", dbName, roleName): true,
+		fmt.Sprintf("%s/%s/CREATE VIEW", dbName, roleName):  true,
+	}
+
+	// Finds and removes grants from the expected list
+	for _, r := range results {
+		key := fmt.Sprintf("%s/%s/%s", fromPtr(r.Database), fromPtr(r.RoleName), r.AccessType)
+		delete(expected, key)
+	}
+
+	// Nothing left == all found
+	assert.Empty(t, expected)
+}

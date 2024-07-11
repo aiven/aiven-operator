@@ -237,7 +237,7 @@ func constructPrivilegesPart(g PrivilegeGrant) string {
 }
 
 func (g RoleGrant) ConstructParts(t chUtils.StatementType) (string, string, string) {
-	rolesPart := strings.Join(g.Roles, ", ")
+	rolesPart := strings.Join(escapeList(g.Roles), ", ")
 	granteesPart := constructGranteePart(g.Grantees)
 	options := ""
 	if g.WithAdminOption && t == chUtils.GRANT {
@@ -314,4 +314,12 @@ func escape(identifier string) string {
 	// See https://github.com/ClickHouse/clickhouse-go/blob/8ad6ec6b95d8b0c96d00115bc2d69ff13083f94b/lib/column/column.go#L32
 	replacer := strings.NewReplacer("`", "\\`", "\\", "\\\\")
 	return "`" + replacer.Replace(identifier) + "`"
+}
+
+func escapeList(list []string) []string {
+	result := make([]string, len(list))
+	for i, v := range list {
+		result[i] = escape(v)
+	}
+	return result
 }
