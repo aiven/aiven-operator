@@ -2,9 +2,9 @@
 title: "ClickhouseGrant"
 ---
 
-## Usage example
+## Usage examples
 
-??? example 
+??? example "example_2"
     ```yaml
     apiVersion: aiven.io/v1alpha1
     kind: ClickhouseGrant
@@ -44,6 +44,94 @@ title: "ClickhouseGrant"
           grantees:
             - user: my-user
             - role: my-role
+    ```
+
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: ClickhouseGrant
+    metadata:
+      name: my-clickhouse-grant
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      serviceName: my-clickhouse-service
+    
+      privilegeGrants:
+        - grantees:
+            - role: my-clickhouse-role
+          privileges:
+            - INSERT
+            - SELECT
+            - CREATE TABLE
+            - CREATE VIEW
+          database: my-clickhouse-db
+      roleGrants:
+        - grantees:
+            - user: my-clickhouse-user
+          roles:
+            - my-clickhouse-role
+    
+    ---
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: Clickhouse
+    metadata:
+      name: my-clickhouse-service
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      cloudName: google-europe-west1
+      plan: startup-16
+    
+    ---
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: ClickhouseDatabase
+    metadata:
+      name: my-clickhouse-db
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      serviceName: my-clickhouse-service
+    
+    ---
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: ClickhouseUser
+    metadata:
+      name: my-clickhouse-user
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      serviceName: my-clickhouse-service
+    
+    ---
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: ClickhouseRole
+    metadata:
+      name: my-clickhouse-role
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      serviceName: my-clickhouse-service
+      role: my-clickhouse-role
     ```
 
 !!! info
