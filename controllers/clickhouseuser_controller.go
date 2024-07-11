@@ -4,8 +4,6 @@ package controllers
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/base64"
 	"fmt"
 	"strconv"
 
@@ -121,8 +119,7 @@ func (h *clickhouseUserHandler) get(ctx context.Context, avn *aiven.Client, avnG
 	// while password is returned on create only.
 	// And all other GET methods return empty password, even this one.
 	// So the only way to have a secret here is to reset it manually
-	password := randPassword(maxUserPasswordLength)
-	_, err = avn.ClickhouseUser.ResetPassword(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID, password)
+	password, err := avn.ClickhouseUser.ResetPassword(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -168,13 +165,4 @@ func (h *clickhouseUserHandler) convert(i client.Object) (*v1alpha1.ClickhouseUs
 		return nil, fmt.Errorf("cannot convert object to ClickhouseUser")
 	}
 	return user, nil
-}
-
-const maxUserPasswordLength = 24
-
-func randPassword(len int) string {
-	buff := make([]byte, len)
-	_, _ = rand.Read(buff)
-	str := base64.StdEncoding.EncodeToString(buff)
-	return str[:len]
 }
