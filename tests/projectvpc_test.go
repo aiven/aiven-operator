@@ -78,7 +78,7 @@ func TestProjectVPCID(t *testing.T) {
 	vpcSession := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
-	defer vpcSession.Destroy()
+	defer vpcSession.Destroy(t)
 
 	// WHEN
 	// Applies given manifest
@@ -115,7 +115,7 @@ func TestProjectVPCID(t *testing.T) {
 	kafkaSession := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
-	defer kafkaSession.Destroy()
+	defer kafkaSession.Destroy(t)
 
 	// WHEN
 	// Applies given manifest

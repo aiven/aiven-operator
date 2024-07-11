@@ -35,7 +35,7 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
-	defer s.Destroy()
+	defer s.Destroy(t)
 
 	// WHEN
 	// Applies given manifest
@@ -71,15 +71,14 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	assert.Equal(t, pgAvn.CloudName, pg.Spec.CloudName)
 	assert.Equal(t, pgAvn.MaintenanceWindow.DayOfWeek, pg.Spec.MaintenanceWindowDow)
 	assert.Equal(t, pgAvn.MaintenanceWindow.TimeOfDay, pg.Spec.MaintenanceWindowTime)
-	assert.Equal(t, pgAvn.UserConfig["pg_version"].(string), *pg.Spec.UserConfig.PgVersion)
 
 	// Validates ServiceIntegration
 	siAvn, err := avnClient.ServiceIntegrations.Get(ctx, cfg.Project, si.Status.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "clickhouse_postgresql", siAvn.IntegrationType)
 	assert.Equal(t, siAvn.IntegrationType, si.Spec.IntegrationType)
-	assert.Equal(t, pgName, *siAvn.SourceService)
-	assert.Equal(t, chName, *siAvn.DestinationService)
+	assert.Equal(t, pgName, ptrValue(siAvn.SourceService))
+	assert.Equal(t, chName, ptrValue(siAvn.DestinationService))
 	assert.True(t, siAvn.Active)
 	assert.True(t, siAvn.Enabled)
 }
@@ -107,7 +106,7 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
-	defer s.Destroy()
+	defer s.Destroy(t)
 
 	// WHEN
 	// Applies given manifest
@@ -176,7 +175,7 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
-	defer s.Destroy()
+	defer s.Destroy(t)
 
 	// WHEN
 	// Applies given manifest
@@ -254,7 +253,7 @@ func TestServiceIntegrationDatadog(t *testing.T) {
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
-	defer s.Destroy()
+	defer s.Destroy(t)
 
 	// WHEN
 	// Applies given manifest

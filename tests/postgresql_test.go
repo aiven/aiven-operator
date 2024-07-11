@@ -77,7 +77,7 @@ func TestPgReadReplica(t *testing.T) {
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
-	defer s.Destroy()
+	defer s.Destroy(t)
 
 	// WHEN
 	// Applies given manifest
@@ -195,7 +195,7 @@ func TestPgCustomPrefix(t *testing.T) {
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
-	defer s.Destroy()
+	defer s.Destroy(t)
 
 	// WHEN
 	// Applies given manifest
@@ -287,7 +287,7 @@ func TestPgUpgradeVersion(t *testing.T) {
 	yaml := getPgUpgradeVersionYaml(cfg.Project, pgName, cfg.PrimaryCloudName, startingVersion)
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
-	defer s.Destroy()
+	defer s.Destroy(t)
 
 	require.NoError(t, s.Apply(yaml))
 
