@@ -6,6 +6,7 @@
 - Retry conflict error when k8s object saved to the storage
 - Fix `ClickhouseGrant` invalid remote and local privileges comparison
 - Fix `ClickhouseGrant`: doesn't escape role name to grant
+- Fix `ClickhouseUser`: password was reset due to an incorrect processing cycle
 
 ## v0.22.0 - 2024-07-02
 

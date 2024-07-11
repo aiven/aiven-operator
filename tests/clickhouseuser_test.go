@@ -1,9 +1,12 @@
 package tests
 
 import (
+	"context"
+	"crypto/tls"
 	"fmt"
 	"testing"
 
+	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -78,6 +81,30 @@ func TestClickhouseUser(t *testing.T) {
 	assert.EqualValues(t, secret.Data["USERNAME"], user.ObjectMeta.Name)
 	assert.EqualValues(t, secret.Data["CLICKHOUSEUSER_USERNAME"], user.ObjectMeta.Name)
 
+	// Secrets validation
+	pinger := func() error {
+		return pingClickhouse(
+			ctx,
+			secret.Data["CLICKHOUSEUSER_HOST"],
+			secret.Data["CLICKHOUSEUSER_PORT"],
+			secret.Data["CLICKHOUSEUSER_USERNAME"],
+			secret.Data["CLICKHOUSEUSER_PASSWORD"],
+		)
+	}
+	assert.NoError(t, pinger())
+
+	// We need to validate deletion,
+	// because we can get false positive here:
+	// if service is deleted, user is destroyed in Aiven. No service — no user. No user — no user.
+	// And we make sure that controller can delete user itself
+	assert.NoError(t, s.Delete(user, func() error {
+		_, err = avnClient.ClickhouseUser.Get(ctx, cfg.Project, chName, user.Status.UUID)
+		return err
+	}))
+
+	// User has been deleted, no access
+	assert.ErrorContains(t, pinger(), "Authentication failed: password is incorrect, or there is no user with such name.")
+
 	// GIVEN
 	// New manifest with 'username' field set
 	updatedUserName := randName("clickhouse-user")
@@ -97,22 +124,26 @@ func TestClickhouseUser(t *testing.T) {
 	require.NoError(t, s.Apply(ymlUsernameSet))
 	require.NoError(t, s.GetRunning(updatedUser, "metadata-name")) // GetRunning must be called with the metadata name
 
-	userAvn, err = avnClient.ClickhouseUser.Get(ctx, cfg.Project, chName, updatedUser.Status.UUID)
+	updatedUserAvn, err := avnClient.ClickhouseUser.Get(ctx, cfg.Project, chName, updatedUser.Status.UUID)
 	require.NoError(t, err)
 
 	// THEN
 	// 'username' field is preferred over 'metadata.name'
 	assert.NotEqual(t, updatedUserName, updatedUser.ObjectMeta.Name)
-	assert.NotEqual(t, userAvn.Name, updatedUser.ObjectMeta.Name)
+	assert.NotEqual(t, updatedUserAvn.Name, updatedUser.ObjectMeta.Name)
 	assert.Equal(t, updatedUserName, updatedUser.Spec.Username)
-	assert.Equal(t, userAvn.Name, updatedUser.Spec.Username)
+	assert.Equal(t, updatedUserAvn.Name, updatedUser.Spec.Username)
+}
 
-	// We need to validate deletion,
-	// because we can get false positive here:
-	// if service is deleted, user is destroyed in Aiven. No service — no user. No user — no user.
-	// And we make sure that controller can delete user itself
-	assert.NoError(t, s.Delete(user, func() error {
-		_, err = avnClient.ClickhouseUser.Get(ctx, cfg.Project, chName, user.Status.UUID)
+func pingClickhouse[T string | []byte](ctx context.Context, host, port, username, password T) error {
+	conn, err := clickhouse.Open(&clickhouse.Options{
+		Protocol: clickhouse.Native,
+		Addr:     []string{fmt.Sprintf("%s:%s", host, port)},
+		Auth:     clickhouse.Auth{Username: string(username), Password: string(password)},
+		TLS:      &tls.Config{InsecureSkipVerify: true},
+	})
+	if err != nil {
 		return err
-	}))
+	}
+	return conn.Ping(ctx)
 }

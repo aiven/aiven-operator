@@ -189,6 +189,10 @@ func (i *instanceReconcilerHelper) reconcile(ctx context.Context, o v1alpha1.Aiv
 		return false, nil
 	}
 
+	if isAlreadyProcessed(o) && IsAlreadyRunning(o) {
+		return false, nil
+	}
+
 	// Create or update.
 	// Even if reconcile fails, we need to update the object in kube
 	// to save conditions and other data.
