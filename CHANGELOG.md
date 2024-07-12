@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.23.0 - 2024-07-12
+
 - Ignore `http.StatusBadRequest` on `ClickhouseGrant` deletion
 - Retry conflict error when k8s object saved to the storage
 - Fix `ClickhouseGrant` invalid remote and local privileges comparison
