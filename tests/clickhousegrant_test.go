@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/meta"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	chUtils "github.com/aiven/aiven-operator/utils/clickhouse"
@@ -142,7 +141,6 @@ func TestClickhouseGrant(t *testing.T) {
 	// Waits kube objects
 	ch := new(v1alpha1.Clickhouse)
 	db := new(v1alpha1.ClickhouseDatabase)
-	grant := new(v1alpha1.ClickhouseGrant)
 
 	require.NoError(t, s.GetRunning(ch, chName))
 	require.NoError(t, s.GetRunning(db, dbName))
@@ -154,26 +152,9 @@ func TestClickhouseGrant(t *testing.T) {
 	require.NoError(t, err, "failed to connect to ClickHouse")
 
 	// THEN
-	// Initially grant isn't created because the table that it is targeting doesn't exist
-	err = s.GetRunning(grant, "test-grant")
-	require.ErrorContains(t, err, "unable to wait for preconditions: missing tables defined in spec: [{Database:clickhouse-db Table:example-table}]")
-
-	// Create example-table in clickhouse-db
-	createTableQuery := fmt.Sprintf("CREATE TABLE `%s`.`example-table` (col1 String, col2 Int32) ENGINE = MergeTree() ORDER BY col1", dbName)
-	_, err = conn.Query(ctx, createTableQuery)
-	require.NoError(t, err)
-
-	// Clear conditions to stop erroring out in GetRunning. The condition is also removed in ClickhouseGrant
-	// checkPreconditions but due to timing issues the tests may fail if we don't remove it here.
-	meta.RemoveStatusCondition(grant.Conditions(), "Error")
-	errStatus := k8sClient.Status().Update(ctx, grant)
-	require.NoError(t, errStatus)
-
-	grant = new(v1alpha1.ClickhouseGrant)
-	// ... and wait for the grant to be created and running
+	grant := new(v1alpha1.ClickhouseGrant)
 	require.NoError(t, s.GetRunning(grant, "test-grant"))
 
-	// THEN
 	// Query and collect ClickhouseGrant results
 	results, err := queryAndCollectResults[ClickhouseGrant](ctx, conn, chUtils.QueryNonAivenPrivileges)
 	require.NoError(t, err)
@@ -338,6 +319,62 @@ func fromPtr[T any](v *T) T {
 	return *v
 }
 
+func clickhouseGrantExampleExtra(project, serviceName, db, user, role, grant string) string {
+	return fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseUser
+metadata:
+    name: %[4]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  serviceName: %[2]s
+---
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseRole
+metadata:
+  name: writer
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  serviceName: %[2]s
+  role: %[5]s
+---
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseGrant
+metadata:
+  name: %[6]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  serviceName: %[2]s
+  privilegeGrants:
+    - grantees:
+        - user: %[4]s
+        - role: %[5]s
+      privileges:
+        - SELECT
+        - INSERT
+      database: %[3]s
+      withGrantOption: true
+  roleGrants:
+    - roles:
+        - %[5]s
+      grantees:
+        - user: %[4]s
+      withAdminOption: true
+`, project, serviceName, db, user, role, grant)
+}
+
 func TestClickhouseGrantExample(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
@@ -349,18 +386,24 @@ func TestClickhouseGrantExample(t *testing.T) {
 	chName := randName("clickhouse-service")
 	dbName := randName("clickhouse-db")
 	userName := randName("clickhouse-user")
-	grantName := randName("clickhouse-grant")
 	roleName := randName("clickhouse-role")
+	grantName := randName("clickhouse-grant")
 
 	yml, err := loadExampleYaml("clickhousegrant.yaml", map[string]string{
 		"aiven-project-name":    cfg.Project,
 		"my-clickhouse-service": chName,
 		"my-clickhouse-db":      dbName,
 		"my-clickhouse-user":    userName,
-		"my-clickhouse-grant":   grantName,
 		"my-clickhouse-role":    roleName,
+		"my-clickhouse-grant":   grantName,
 	})
 	require.NoError(t, err)
+
+	extraUserName := randName("clickhouse-extra-user")
+	extraRoleName := randName("clickhouse-extra-role")
+	extraGrantName := randName("clickhouse-extra-grant")
+	extraYml := clickhouseGrantExampleExtra(cfg.Project, chName, dbName, extraUserName, extraRoleName, extraGrantName)
+
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
@@ -368,7 +411,8 @@ func TestClickhouseGrantExample(t *testing.T) {
 
 	// WHEN
 	// Applies given manifest
-	require.NoError(t, s.Apply(yml))
+	allYml := fmt.Sprintf("%s\n---\n%s", yml, extraYml)
+	require.NoError(t, s.Apply(allYml))
 
 	ch := new(v1alpha1.Clickhouse)
 	require.NoError(t, s.GetRunning(ch, chName))
@@ -395,6 +439,9 @@ func TestClickhouseGrantExample(t *testing.T) {
 	results, err := queryAndCollectResults[ClickhouseGrant](ctx, conn, chUtils.QueryNonAivenPrivileges)
 	require.NoError(t, err)
 
+	// Validates the state
+	assert.Equal(t, grant.Spec.Grants, *grant.Status.State)
+
 	// Privileges validation
 	expected := map[string]bool{
 		fmt.Sprintf("%s/%s/INSERT", dbName, roleName):       true,
@@ -411,4 +458,8 @@ func TestClickhouseGrantExample(t *testing.T) {
 
 	// Nothing left == all found
 	assert.Empty(t, expected)
+
+	// Validates concurrency
+	extraGrant := new(v1alpha1.ClickhouseGrant)
+	require.NoError(t, s.GetRunning(extraGrant, grantName))
 }

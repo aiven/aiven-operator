@@ -9,6 +9,8 @@
 - Fix `ClickhouseGrant` invalid remote and local privileges comparison
 - Fix `ClickhouseGrant`: doesn't escape role name to grant
 - Fix `ClickhouseUser`: password was reset due to an incorrect processing cycle
+- Fix `ClickhouseGrant`: grant privileges for an unknown table (Clickhouse can do that)
+- Fix `ClickhouseGrant`: track the state to revoke only known privileges
 
 ## v0.22.0 - 2024-07-02
 

@@ -26,7 +26,7 @@ spec:
         openAPIV3Schema:
           description: |-
             ClickhouseGrant is the Schema for the ClickhouseGrants API
-            Warning "Ambiguity in the `GRANT` syntax": Due to [an ambiguity](https://github.com/aiven/ospo-tracker/issues/350) in the `GRANT` syntax in Clickhouse, you should not have users and roles with the same name. It is not clear if a grant refers to the user or the role.
+            Warning: Due to the way ClickHouse operates, updating this resource first revokes the existing privileges.
           properties:
             apiVersion:
               description: |-
@@ -69,7 +69,7 @@ spec:
                   items:
                     description: |-
                       PrivilegeGrant represents the privileges to be granted to users or roles.
-                      See https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax.
+                      [See](https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax).
                     properties:
                       columns:
                         description: The column that the grant refers to.
@@ -84,9 +84,12 @@ spec:
                           List of grantees (users or roles) to grant the
                           privilege to.
                         items:
-                          description:
-                            Grantee represents a user or a role to which
-                            privileges or roles are granted.
+                          description: |-
+                            Grantee represents a user or a role to which privileges or roles are granted.
+                            Warning "Ambiguity in the `GRANT` syntax":
+                            Due to [an ambiguity](https://github.com/aiven/ospo-tracker/issues/350) in the GRANT syntax in ClickHouse,
+                            users and roles should not share the same name.
+                            It is unclear whether a grant applies to the user or the role.
                           properties:
                             role:
                               type: string
@@ -98,7 +101,7 @@ spec:
                       privileges:
                         description: |-
                           The privileges to grant, i.e. `INSERT`, `SELECT`.
-                          See https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax.
+                          [See](https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax).
                         items:
                           type: string
                         type: array
@@ -112,7 +115,7 @@ spec:
                         description: |-
                           If true, then the grantee (user or role) get the permission to execute the `GRANT` query.
                           Users can grant privileges of the same scope they have and less.
-                          See https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax
+                          [See](https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax)
                         type: boolean
                     required:
                       - database
@@ -139,16 +142,19 @@ spec:
                   items:
                     description: |-
                       RoleGrant represents the roles to be assigned to users or roles.
-                      See https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax.
+                      [See](https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax)
                     properties:
                       grantees:
                         description:
                           List of grantees (users or roles) to grant the
                           privilege to.
                         items:
-                          description:
-                            Grantee represents a user or a role to which
-                            privileges or roles are granted.
+                          description: |-
+                            Grantee represents a user or a role to which privileges or roles are granted.
+                            Warning "Ambiguity in the `GRANT` syntax":
+                            Due to [an ambiguity](https://github.com/aiven/ospo-tracker/issues/350) in the GRANT syntax in ClickHouse,
+                            users and roles should not share the same name.
+                            It is unclear whether a grant applies to the user or the role.
                           properties:
                             role:
                               type: string
@@ -166,7 +172,7 @@ spec:
                       withAdminOption:
                         description: |-
                           If true, the grant is executed with `ADMIN OPTION` privilege.
-                          See https://clickhouse.com/docs/en/sql-reference/statements/grant#admin-option.
+                          [See](https://clickhouse.com/docs/en/sql-reference/statements/grant#admin-option)
                         type: boolean
                     required:
                       - grantees
@@ -260,6 +266,120 @@ spec:
                       - type
                     type: object
                   type: array
+                state:
+                  description: The previous applied grants to revoke. Do not edit
+                  properties:
+                    privilegeGrants:
+                      description:
+                        Configuration to grant a privilege. Privileges not
+                        in the manifest are revoked. Existing privileges are retained;
+                        new ones are granted.
+                      items:
+                        description: |-
+                          PrivilegeGrant represents the privileges to be granted to users or roles.
+                          [See](https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax).
+                        properties:
+                          columns:
+                            description: The column that the grant refers to.
+                            items:
+                              type: string
+                            type: array
+                          database:
+                            description: The database that the grant refers to.
+                            type: string
+                          grantees:
+                            description:
+                              List of grantees (users or roles) to grant
+                              the privilege to.
+                            items:
+                              description: |-
+                                Grantee represents a user or a role to which privileges or roles are granted.
+                                Warning "Ambiguity in the `GRANT` syntax":
+                                Due to [an ambiguity](https://github.com/aiven/ospo-tracker/issues/350) in the GRANT syntax in ClickHouse,
+                                users and roles should not share the same name.
+                                It is unclear whether a grant applies to the user or the role.
+                              properties:
+                                role:
+                                  type: string
+                                user:
+                                  type: string
+                              type: object
+                            minItems: 1
+                            type: array
+                          privileges:
+                            description: |-
+                              The privileges to grant, i.e. `INSERT`, `SELECT`.
+                              [See](https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax).
+                            items:
+                              type: string
+                            type: array
+                          table:
+                            description:
+                              'The tables that the grant refers to. To grant
+                              a privilege on all tables in a database, omit this field
+                              instead of writing `table: "*"`.'
+                            type: string
+                          withGrantOption:
+                            description: |-
+                              If true, then the grantee (user or role) get the permission to execute the `GRANT` query.
+                              Users can grant privileges of the same scope they have and less.
+                              [See](https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax)
+                            type: boolean
+                        required:
+                          - database
+                          - grantees
+                          - privileges
+                        type: object
+                        x-kubernetes-validations:
+                          - message: "`table` must be set if `columns` are set"
+                            rule: "!has(self.columns) || (has(self.columns) && has(self.table))"
+                      type: array
+                    roleGrants:
+                      description:
+                        Configuration to grant a role. Role grants not in
+                        the manifest are revoked. Existing role grants are retained;
+                        new ones are granted.
+                      items:
+                        description: |-
+                          RoleGrant represents the roles to be assigned to users or roles.
+                          [See](https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax)
+                        properties:
+                          grantees:
+                            description:
+                              List of grantees (users or roles) to grant
+                              the privilege to.
+                            items:
+                              description: |-
+                                Grantee represents a user or a role to which privileges or roles are granted.
+                                Warning "Ambiguity in the `GRANT` syntax":
+                                Due to [an ambiguity](https://github.com/aiven/ospo-tracker/issues/350) in the GRANT syntax in ClickHouse,
+                                users and roles should not share the same name.
+                                It is unclear whether a grant applies to the user or the role.
+                              properties:
+                                role:
+                                  type: string
+                                user:
+                                  type: string
+                              type: object
+                            minItems: 1
+                            type: array
+                          roles:
+                            description: List of roles to grant to the grantees.
+                            items:
+                              type: string
+                            minItems: 1
+                            type: array
+                          withAdminOption:
+                            description: |-
+                              If true, the grant is executed with `ADMIN OPTION` privilege.
+                              [See](https://clickhouse.com/docs/en/sql-reference/statements/grant#admin-option)
+                            type: boolean
+                        required:
+                          - grantees
+                          - roles
+                        type: object
+                      type: array
+                  type: object
               required:
                 - conditions
               type: object
