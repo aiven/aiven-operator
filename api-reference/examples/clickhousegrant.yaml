@@ -1,40 +1,84 @@
-
 apiVersion: aiven.io/v1alpha1
 kind: ClickhouseGrant
 metadata:
-  name: demo-ch-grant
+  name: my-clickhouse-grant
 spec:
   authSecretRef:
     name: aiven-token
     key: token
 
-  project: my-aiven-project
-  serviceName: my-clickhouse
+  project: aiven-project-name
+  serviceName: my-clickhouse-service
 
   privilegeGrants:
     - grantees:
-        - user: user1
-        - user: my-clickhouse-user-🦄
+        - role: my-clickhouse-role
       privileges:
-        - SELECT
         - INSERT
-      database: my-db
-      # If table is omitted, the privileges are granted on all tables in the database
-      # If columns is omitted, the privileges are granted on all columns in the table
-    - grantees:
-        - role: my-role
-      privileges:
         - SELECT
-      database: my-db
-      table: my-table
-      columns:
-        - col1
-        - col2
-
+        - CREATE TABLE
+        - CREATE VIEW
+      database: my-clickhouse-db
   roleGrants:
-    - roles:
-        - other-role
-      grantees:
-        - user: my-user
-        - role: my-role
+    - grantees:
+        - user: my-clickhouse-user
+      roles:
+        - my-clickhouse-role
 
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: Clickhouse
+metadata:
+  name: my-clickhouse-service
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  cloudName: google-europe-west1
+  plan: startup-16
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseDatabase
+metadata:
+  name: my-clickhouse-db
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  serviceName: my-clickhouse-service
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseUser
+metadata:
+  name: my-clickhouse-user
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  serviceName: my-clickhouse-service
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseRole
+metadata:
+  name: my-clickhouse-role
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  serviceName: my-clickhouse-service
+  role: my-clickhouse-role
