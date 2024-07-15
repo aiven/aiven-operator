@@ -2,6 +2,9 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Fix `PostgreSQL`: wait for a valid backup to create read replica
+- Fix `ClickhouseGrant`: grant privileges for an unknown table (Clickhouse can do that)
+- Fix `ClickhouseGrant`: track the state to revoke only known privileges
 - Add `Cassandra` field `userConfig.cassandra.read_request_timeout_in_ms`, type `integer`: How long the
   coordinator waits for read operations to complete before timing it out
 - Add `Cassandra` field `userConfig.cassandra.write_request_timeout_in_ms`, type `integer`: How long
@@ -22,8 +25,6 @@
 - Fix `ClickhouseGrant` invalid remote and local privileges comparison
 - Fix `ClickhouseGrant`: doesn't escape role name to grant
 - Fix `ClickhouseUser`: password was reset due to an incorrect processing cycle
-- Fix `ClickhouseGrant`: grant privileges for an unknown table (Clickhouse can do that)
-- Fix `ClickhouseGrant`: track the state to revoke only known privileges
 
 ## v0.22.0 - 2024-07-02
 
