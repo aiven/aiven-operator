@@ -151,7 +151,7 @@ KafkaConnect specific user configuration options.
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
 
-Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`.
+CIDR address block, either as a string, or in a dict with an optional description field.
 
 **Required**
 
@@ -224,7 +224,7 @@ Allow access to selected service ports from the public Internet.
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
 
-Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name>}.
+SecretProvider.
 
 **Required**
 

@@ -227,7 +227,7 @@ MySQL specific user configuration options.
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
 
-Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`.
+CIDR address block, either as a string, or in a dict with an optional description field.
 
 **Required**
 
