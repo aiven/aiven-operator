@@ -202,7 +202,8 @@ Authentication reference to Aiven token in a secret.
 
 _Appears on [`spec`](#spec)._
 
-Configuration to grant a privilege. Privileges not in the manifest are revoked. Existing privileges are retained; new ones are granted.
+PrivilegeGrant represents the privileges to be granted to users or roles.
+See https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax.
 
 **Required**
 
@@ -223,7 +224,7 @@ See https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privi
 
 _Appears on [`spec.privilegeGrants`](#spec.privilegeGrants)._
 
-List of grantees (users or roles) to grant the privilege to.
+Grantee represents a user or a role to which privileges or roles are granted.
 
 **Optional**
 
@@ -234,7 +235,8 @@ List of grantees (users or roles) to grant the privilege to.
 
 _Appears on [`spec`](#spec)._
 
-Configuration to grant a role. Role grants not in the manifest are revoked. Existing role grants are retained; new ones are granted.
+RoleGrant represents the roles to be assigned to users or roles.
+See https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax.
 
 **Required**
 
@@ -250,7 +252,7 @@ See https://clickhouse.com/docs/en/sql-reference/statements/grant#admin-option.
 
 _Appears on [`spec.roleGrants`](#spec.roleGrants)._
 
-List of grantees (users or roles) to grant the privilege to.
+Grantee represents a user or a role to which privileges or roles are granted.
 
 **Optional**
 

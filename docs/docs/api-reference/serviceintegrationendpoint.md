@@ -144,7 +144,7 @@ Datadog configuration values.
 
 _Appears on [`spec.datadog`](#spec.datadog)._
 
-Custom tags provided by user.
+Datadog tag defined by user.
 
 **Required**
 

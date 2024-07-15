@@ -160,7 +160,10 @@ func (s *schemaType) init() {
 		s.Items.Name = s.Name
 		s.Items.level = s.level
 		s.Items.parent = s.parent
-		s.Items.Description = s.Description
+		if s.Items.Description == "" {
+			// Takes parent description if doesn't have one
+			s.Items.Description = s.Description
+		}
 		s.Items.init()
 	}
 

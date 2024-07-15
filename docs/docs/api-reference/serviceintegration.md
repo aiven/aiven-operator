@@ -295,7 +295,7 @@ Clickhouse Kafka configuration values.
 
 _Appears on [`spec.clickhouseKafka`](#spec.clickhouseKafka)._
 
-Tables to create.
+Table to create.
 
 **Required**
 
@@ -320,7 +320,7 @@ Tables to create.
 
 _Appears on [`spec.clickhouseKafka.tables`](#spec.clickhouseKafka.tables)._
 
-Table columns.
+Table column.
 
 **Required**
 
@@ -331,7 +331,7 @@ Table columns.
 
 _Appears on [`spec.clickhouseKafka.tables`](#spec.clickhouseKafka.tables)._
 
-Kafka topics.
+Kafka topic.
 
 **Required**
 
@@ -351,7 +351,7 @@ Clickhouse PostgreSQL configuration values.
 
 _Appears on [`spec.clickhousePostgresql`](#spec.clickhousePostgresql)._
 
-Databases to expose.
+Database to expose.
 
 **Optional**
 
@@ -383,7 +383,7 @@ Datadog specific user configuration options.
 
 _Appears on [`spec.datadog`](#spec.datadog)._
 
-Custom tags provided by user.
+Datadog tag defined by user.
 
 **Required**
 
@@ -431,7 +431,7 @@ External AWS CloudWatch Metrics integration Logs configuration values.
 
 _Appears on [`spec.externalAWSCloudwatchMetrics`](#spec.externalAWSCloudwatchMetrics)._
 
-Metrics to not send to AWS CloudWatch (takes precedence over extra_metrics).
+Metric name and subfield.
 
 **Required**
 
@@ -442,7 +442,7 @@ Metrics to not send to AWS CloudWatch (takes precedence over extra_metrics).
 
 _Appears on [`spec.externalAWSCloudwatchMetrics`](#spec.externalAWSCloudwatchMetrics)._
 
-Metrics to allow through to AWS CloudWatch (in addition to default metrics).
+Metric name and subfield.
 
 **Required**
 

@@ -218,7 +218,7 @@ OpenSearch specific user configuration options.
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
 
-Index patterns.
+Allows you to create glob style patterns and set a max number of indexes matching this pattern you want to keep. Creating indexes exceeding this value will cause the oldest one to get deleted. You could for example create a pattern looking like `logs.?` and then create index logs.1, logs.2 etc, it will delete logs.1 once you create logs.6. Do note `logs.?` does not apply to logs.10. Note: Setting max_index_count to 0 will do nothing and the pattern gets ignored.
 
 **Required**
 
@@ -245,7 +245,7 @@ Template settings for all new indexes.
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
 
-Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`.
+CIDR address block, either as a string, or in a dict with an optional description field.
 
 **Required**
 
