@@ -17,8 +17,6 @@ const (
 	maxPatternLength = 42
 	// minHeaderLevel doesn't let print headers less than
 	minHeaderLevel = 2
-	// secretKeysPrefix precede secret keys in the description
-	secretKeysPrefix = "Exposes secret keys:"
 )
 
 // reEmptyLines finds multiple newlines
@@ -226,25 +224,70 @@ var (
 	reInlineCode = regexp.MustCompile(`'(\S+)'`)
 
 	// reAdmonitions to render markdown admonitions
-	reAdmonitions = regexp.MustCompile(`(?i)((?:note|tip|info|warning|danger|bug|success|example) "[^"]*"):\s*(.+)`)
+	reAdmonitions = regexp.MustCompile(`(?mi)^(note|tip|info|warning|danger|bug|success|example)( "[^"]+")*:\s*(.+)$`)
 )
 
 // GetDescription Returns description with a dot suffix. Fallbacks to items description
 func (s *schemaType) GetDescription() string {
-	if s.Description == "" {
+	d := s.Description
+	if d == "" {
 		return ""
 	}
 
 	// Adds trailing dot to the description
-	d := s.Description
 	if !strings.HasSuffix(s.Description, ".") {
 		d += "."
 	}
 
 	// Wraps code chunks with backticks
-	d = reAdmonitions.ReplaceAllString(d, "\n\n!!! $1\n\n    $2")
-	d = strings.ReplaceAll(d, secretKeysPrefix, "\n!!! note\n\n    "+secretKeysPrefix)
+	d = fmtAdmonitions(d)
 	return reInlineCode.ReplaceAllString(d, "`$1`")
+}
+
+// fmtAdmonitions formats https://squidfunk.github.io/mkdocs-material/reference/admonitions/
+func fmtAdmonitions(src string) string {
+	// Marks admonitions
+	marked := ReplaceAllStringSubmatchFunc(reAdmonitions, src, func(parts []string) string {
+		// i.e.: !!! note
+		p := "!!! " + parts[1]
+
+		// If it has a non-empty title, adds it
+		if parts[2] != `""` {
+			p += parts[2]
+		}
+
+		// If an admonition is followed with body, adds a newline
+		if parts[3] != "" {
+			p += "\n" + parts[3]
+		}
+		return p
+	})
+
+	// Indents body lines
+	lines := strings.Split(marked, "\n")
+	start := -1
+	for i, o := range lines {
+		if start < 0 {
+			// Finds a block beginning
+			if strings.HasPrefix(o, "!!!") {
+				start = i
+				// Wraps the headline with newlines
+				lines[i] = fmt.Sprintf("\n%s\n", o)
+			}
+			continue
+		}
+
+		trimmed := strings.TrimSpace(o)
+		if trimmed == "" {
+			// End of block
+			start = -1
+			continue
+		}
+
+		// Adds left padding
+		lines[i] = "    " + trimmed
+	}
+	return strings.Join(lines, "\n")
 }
 
 // GetPropertyLink renders a link for property list
@@ -569,4 +612,26 @@ func loadYAMLs[T any](b []byte) []*T {
 		list = append(list, doc)
 	}
 	return list
+}
+
+// ReplaceAllStringSubmatchFunc Credits https://gist.github.com/elliotchance/d419395aa776d632d897
+func ReplaceAllStringSubmatchFunc(re *regexp.Regexp, str string, repl func([]string) string) string {
+	result := ""
+	lastIndex := 0
+
+	for _, v := range re.FindAllSubmatchIndex([]byte(str), -1) {
+		var groups []string
+		for i := 0; i < len(v); i += 2 {
+			if v[i] == -1 || v[i+1] == -1 {
+				groups = append(groups, "")
+			} else {
+				groups = append(groups, str[v[i]:v[i+1]])
+			}
+		}
+
+		result += str[lastIndex:v[0]] + repl(groups)
+		lastIndex = v[1]
+	}
+
+	return result + str[lastIndex:]
 }
