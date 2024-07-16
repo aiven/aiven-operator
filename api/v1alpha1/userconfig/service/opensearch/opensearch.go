@@ -310,6 +310,14 @@ type Opensearch struct {
 	// How long audit history indices are kept in days.
 	IsmHistoryRolloverRetentionPeriod *int `groups:"create,update" json:"ism_history_rollover_retention_period,omitempty"`
 
+	// Enable or disable KNN memory circuit breaker. Defaults to true.
+	KnnMemoryCircuitBreakerEnabled *bool `groups:"create,update" json:"knn_memory_circuit_breaker_enabled,omitempty"`
+
+	// +kubebuilder:validation:Minimum=3
+	// +kubebuilder:validation:Maximum=100
+	// Maximum amount of memory that can be used for KNN index. Defaults to 50% of the JVM heap size.
+	KnnMemoryCircuitBreakerLimit *int `groups:"create,update" json:"knn_memory_circuit_breaker_limit,omitempty"`
+
 	// Compatibility mode sets OpenSearch to report its version as 7.10 so clients continue to work. Default is false
 	OverrideMainResponseVersion *bool `groups:"create,update" json:"override_main_response_version,omitempty"`
 

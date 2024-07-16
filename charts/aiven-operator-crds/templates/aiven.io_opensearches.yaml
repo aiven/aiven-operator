@@ -707,6 +707,18 @@ spec:
                           maximum: 2147483647
                           minimum: 1
                           type: integer
+                        knn_memory_circuit_breaker_enabled:
+                          description:
+                            Enable or disable KNN memory circuit breaker.
+                            Defaults to true.
+                          type: boolean
+                        knn_memory_circuit_breaker_limit:
+                          description:
+                            Maximum amount of memory that can be used for
+                            KNN index. Defaults to 50% of the JVM heap size.
+                          maximum: 100
+                          minimum: 3
+                          type: integer
                         override_main_response_version:
                           description:
                             Compatibility mode sets OpenSearch to report

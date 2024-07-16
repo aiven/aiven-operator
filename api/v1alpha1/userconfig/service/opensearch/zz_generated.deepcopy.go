@@ -384,6 +384,16 @@ func (in *Opensearch) DeepCopyInto(out *Opensearch) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.KnnMemoryCircuitBreakerEnabled != nil {
+		in, out := &in.KnnMemoryCircuitBreakerEnabled, &out.KnnMemoryCircuitBreakerEnabled
+		*out = new(bool)
+		**out = **in
+	}
+	if in.KnnMemoryCircuitBreakerLimit != nil {
+		in, out := &in.KnnMemoryCircuitBreakerLimit, &out.KnnMemoryCircuitBreakerLimit
+		*out = new(int)
+		**out = **in
+	}
 	if in.OverrideMainResponseVersion != nil {
 		in, out := &in.OverrideMainResponseVersion, &out.OverrideMainResponseVersion
 		*out = new(bool)
