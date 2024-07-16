@@ -1841,9 +1841,12 @@
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
-<li><a href="#spec.databaseName-property" name="spec.databaseName-property"><code>databaseName</code></a> (string, Immutable, MaxLength: 63). Specifies the Clickhouse database name. Defaults to <code>metadata.name</code> if omitted.
-Note: <code>metadata.name</code> is ASCII-only. For UTF-8 names, use <code>spec.databaseName</code>, but ASCII is advised for compatibility.</li>
+<li><a href="#spec.databaseName-property" name="spec.databaseName-property"><code>databaseName</code></a> (string, Immutable, MaxLength: 63). Specifies the Clickhouse database name. Defaults to <code>metadata.name</code> if omitted.</li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>metadata.name</code> is ASCII-only. For UTF-8 names, use <code>spec.databaseName</code>, but ASCII is advised for compatibility.</p>
+</div>
 <h2 id="spec.authSecretRef">authSecretRef<a class="headerlink" href="#spec.authSecretRef" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Authentication reference to Aiven token in a secret.</p>

@@ -430,6 +430,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0240-2024-07-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      v0.24.0 - 2024-07-16
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0230-2024-07-12" class="md-nav__link">
     <span class="md-ellipsis">
       v0.23.0 - 2024-07-12
@@ -1955,6 +1964,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0240-2024-07-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      v0.24.0 - 2024-07-16
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0230-2024-07-12" class="md-nav__link">
     <span class="md-ellipsis">
       v0.23.0 - 2024-07-12
@@ -2233,6 +2251,24 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0240-2024-07-16">v0.24.0 - 2024-07-16<a class="headerlink" href="#v0240-2024-07-16" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Fix <code>PostgreSQL</code>: wait for a valid backup to create read replica</li>
+<li>Fix <code>ClickhouseGrant</code>: grant privileges for an unknown table (Clickhouse can do that)</li>
+<li>Fix <code>ClickhouseGrant</code>: track the state to revoke only known privileges</li>
+<li>Add <code>Cassandra</code> field <code>userConfig.cassandra.read_request_timeout_in_ms</code>, type <code>integer</code>: How long the
+  coordinator waits for read operations to complete before timing it out</li>
+<li>Add <code>Cassandra</code> field <code>userConfig.cassandra.write_request_timeout_in_ms</code>, type <code>integer</code>: How long
+  the coordinator waits for write requests to complete with at least one node in the local datacenter</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.opensearch.knn_memory_circuit_breaker_enabled</code>, type <code>boolean</code>:
+  Enable or disable KNN memory circuit breaker. Defaults to true</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.opensearch.knn_memory_circuit_breaker_limit</code>, type <code>integer</code>: Maximum
+  amount of memory that can be used for KNN index. Defaults to 50% of the JVM heap size</li>
+<li>Change <code>PostgreSQL</code> field <code>userConfig.pg.log_line_prefix</code>: enum <del><code>['%m [%p] %q[user=%u,db=%d,app=%a]
+', '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h ', 'pid=%p,user=%u,db=%d,app=%a,client=%h ']</code></del>
+  → <code>['%m [%p] %q[user=%u,db=%d,app=%a] ', '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h ',
+'pid=%p,user=%u,db=%d,app=%a,client=%h ', 'pid=%p,user=%u,db=%d,app=%a,client=%h,txid=%x,qid=%Q ']</code></li>
+</ul>
 <h2 id="v0230-2024-07-12">v0.23.0 - 2024-07-12<a class="headerlink" href="#v0230-2024-07-12" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Ignore <code>http.StatusBadRequest</code> on <code>ClickhouseGrant</code> deletion</li>

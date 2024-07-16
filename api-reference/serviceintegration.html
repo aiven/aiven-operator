@@ -2566,7 +2566,7 @@
 </ul>
 <h3 id="spec.clickhouseKafka.tables">tables<a class="headerlink" href="#spec.clickhouseKafka.tables" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.clickhouseKafka"><code>spec.clickhouseKafka</code></a>.</em></p>
-<p>Tables to create.</p>
+<p>Table to create.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.clickhouseKafka.tables.columns-property" name="spec.clickhouseKafka.tables.columns-property"><code>columns</code></a> (array of objects, MaxItems: 100). Table columns. See below for <a href="#spec.clickhouseKafka.tables.columns">nested schema</a>.</li>
@@ -2588,7 +2588,7 @@
 </ul>
 <h4 id="spec.clickhouseKafka.tables.columns">columns<a class="headerlink" href="#spec.clickhouseKafka.tables.columns" title="Permanent link">&para;</a></h4>
 <p><em>Appears on <a href="#spec.clickhouseKafka.tables"><code>spec.clickhouseKafka.tables</code></a>.</em></p>
-<p>Table columns.</p>
+<p>Table column.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.clickhouseKafka.tables.columns.name-property" name="spec.clickhouseKafka.tables.columns.name-property"><code>name</code></a> (string, MinLength: 1, MaxLength: 40). Column name.</li>
@@ -2596,7 +2596,7 @@
 </ul>
 <h4 id="spec.clickhouseKafka.tables.topics">topics<a class="headerlink" href="#spec.clickhouseKafka.tables.topics" title="Permanent link">&para;</a></h4>
 <p><em>Appears on <a href="#spec.clickhouseKafka.tables"><code>spec.clickhouseKafka.tables</code></a>.</em></p>
-<p>Kafka topics.</p>
+<p>Kafka topic.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.clickhouseKafka.tables.topics.name-property" name="spec.clickhouseKafka.tables.topics.name-property"><code>name</code></a> (string, MinLength: 1, MaxLength: 249). Name of the topic.</li>
@@ -2610,7 +2610,7 @@
 </ul>
 <h3 id="spec.clickhousePostgresql.databases">databases<a class="headerlink" href="#spec.clickhousePostgresql.databases" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.clickhousePostgresql"><code>spec.clickhousePostgresql</code></a>.</em></p>
-<p>Databases to expose.</p>
+<p>Database to expose.</p>
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.clickhousePostgresql.databases.database-property" name="spec.clickhousePostgresql.databases.database-property"><code>database</code></a> (string, MinLength: 1, MaxLength: 63). PostgreSQL database to expose.</li>
@@ -2636,7 +2636,7 @@
 </ul>
 <h3 id="spec.datadog.datadog_tags">datadog_tags<a class="headerlink" href="#spec.datadog.datadog_tags" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.datadog"><code>spec.datadog</code></a>.</em></p>
-<p>Custom tags provided by user.</p>
+<p>Datadog tag defined by user.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.datadog.datadog_tags.tag-property" name="spec.datadog.datadog_tags.tag-property"><code>tag</code></a> (string, MinLength: 1, MaxLength: 200). Tag format and usage are described here: <a href="https://docs.datadoghq.com/getting_started/tagging">https://docs.datadoghq.com/getting_started/tagging</a>. Tags with prefix <code>aiven-</code> are reserved for Aiven.</li>
@@ -2672,7 +2672,7 @@
 </ul>
 <h3 id="spec.externalAWSCloudwatchMetrics.dropped_metrics">dropped_metrics<a class="headerlink" href="#spec.externalAWSCloudwatchMetrics.dropped_metrics" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.externalAWSCloudwatchMetrics"><code>spec.externalAWSCloudwatchMetrics</code></a>.</em></p>
-<p>Metrics to not send to AWS CloudWatch (takes precedence over extra_metrics).</p>
+<p>Metric name and subfield.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.externalAWSCloudwatchMetrics.dropped_metrics.field-property" name="spec.externalAWSCloudwatchMetrics.dropped_metrics.field-property"><code>field</code></a> (string, MaxLength: 1000). Identifier of a value in the metric.</li>
@@ -2680,7 +2680,7 @@
 </ul>
 <h3 id="spec.externalAWSCloudwatchMetrics.extra_metrics">extra_metrics<a class="headerlink" href="#spec.externalAWSCloudwatchMetrics.extra_metrics" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.externalAWSCloudwatchMetrics"><code>spec.externalAWSCloudwatchMetrics</code></a>.</em></p>
-<p>Metrics to allow through to AWS CloudWatch (in addition to default metrics).</p>
+<p>Metric name and subfield.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.externalAWSCloudwatchMetrics.extra_metrics.field-property" name="spec.externalAWSCloudwatchMetrics.extra_metrics.field-property"><code>field</code></a> (string, MaxLength: 1000). Identifier of a value in the metric.</li>

@@ -2034,8 +2034,8 @@
 <h2 id="ClickhouseGrant">ClickhouseGrant<a class="headerlink" href="#ClickhouseGrant" title="Permanent link">&para;</a></h2>
 <p>ClickhouseGrant is the Schema for the ClickhouseGrants API</p>
 <div class="admonition warning">
-<p class="admonition-title">Ambiguity in the <code>GRANT</code> syntax</p>
-<p>Due to <a href="https://github.com/aiven/ospo-tracker/issues/350">an ambiguity</a> in the <code>GRANT</code> syntax in Clickhouse, you should not have users and roles with the same name. It is not clear if a grant refers to the user or the role.</p>
+<p class="admonition-title">Warning</p>
+<p>Due to the way ClickHouse operates, updating this resource first revokes the existing privileges.</p>
 </div>
 <p><strong>Required</strong></p>
 <ul>
@@ -2068,13 +2068,14 @@
 </ul>
 <h2 id="spec.privilegeGrants">privilegeGrants<a class="headerlink" href="#spec.privilegeGrants" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
-<p>Configuration to grant a privilege. Privileges not in the manifest are revoked. Existing privileges are retained; new ones are granted.</p>
+<p>PrivilegeGrant represents the privileges to be granted to users or roles.
+<a href="https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax">See</a>.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.privilegeGrants.database-property" name="spec.privilegeGrants.database-property"><code>database</code></a> (string). The database that the grant refers to.</li>
 <li><a href="#spec.privilegeGrants.grantees-property" name="spec.privilegeGrants.grantees-property"><code>grantees</code></a> (array of objects, MinItems: 1). List of grantees (users or roles) to grant the privilege to. See below for <a href="#spec.privilegeGrants.grantees">nested schema</a>.</li>
 <li><a href="#spec.privilegeGrants.privileges-property" name="spec.privilegeGrants.privileges-property"><code>privileges</code></a> (array of strings). The privileges to grant, i.e. <code>INSERT</code>, <code>SELECT</code>.
-See <a href="https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax">https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax</a>.</li>
+<a href="https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax">See</a>.</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
@@ -2082,11 +2083,17 @@ See <a href="https://clickhouse.com/docs/en/sql-reference/statements/grant#assig
 <li><a href="#spec.privilegeGrants.table-property" name="spec.privilegeGrants.table-property"><code>table</code></a> (string). The tables that the grant refers to. To grant a privilege on all tables in a database, omit this field instead of writing <code>table: "*"</code>.</li>
 <li><a href="#spec.privilegeGrants.withGrantOption-property" name="spec.privilegeGrants.withGrantOption-property"><code>withGrantOption</code></a> (boolean). If true, then the grantee (user or role) get the permission to execute the <code>GRANT</code> query.
 Users can grant privileges of the same scope they have and less.
-See <a href="https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax">https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax</a>.</li>
+<a href="https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax">See</a>.</li>
 </ul>
 <h3 id="spec.privilegeGrants.grantees">grantees<a class="headerlink" href="#spec.privilegeGrants.grantees" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.privilegeGrants"><code>spec.privilegeGrants</code></a>.</em></p>
-<p>List of grantees (users or roles) to grant the privilege to.</p>
+<p>Grantee represents a user or a role to which privileges or roles are granted.</p>
+<div class="admonition warning">
+<p class="admonition-title">Ambiguity in the <code>GRANT</code> syntax</p>
+<p>Due to <a href="https://github.com/aiven/ospo-tracker/issues/350">an ambiguity</a> in the GRANT syntax in ClickHouse,
+users and roles should not share the same name.
+It is unclear whether a grant applies to the user or the role.</p>
+</div>
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.privilegeGrants.grantees.role-property" name="spec.privilegeGrants.grantees.role-property"><code>role</code></a> (string).</li>
@@ -2094,7 +2101,8 @@ See <a href="https://clickhouse.com/docs/en/sql-reference/statements/grant#grant
 </ul>
 <h2 id="spec.roleGrants">roleGrants<a class="headerlink" href="#spec.roleGrants" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
-<p>Configuration to grant a role. Role grants not in the manifest are revoked. Existing role grants are retained; new ones are granted.</p>
+<p>RoleGrant represents the roles to be assigned to users or roles.
+<a href="https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax">See</a>.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.roleGrants.grantees-property" name="spec.roleGrants.grantees-property"><code>grantees</code></a> (array of objects, MinItems: 1). List of grantees (users or roles) to grant the privilege to. See below for <a href="#spec.roleGrants.grantees">nested schema</a>.</li>
@@ -2103,11 +2111,17 @@ See <a href="https://clickhouse.com/docs/en/sql-reference/statements/grant#grant
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.roleGrants.withAdminOption-property" name="spec.roleGrants.withAdminOption-property"><code>withAdminOption</code></a> (boolean). If true, the grant is executed with <code>ADMIN OPTION</code> privilege.
-See <a href="https://clickhouse.com/docs/en/sql-reference/statements/grant#admin-option">https://clickhouse.com/docs/en/sql-reference/statements/grant#admin-option</a>.</li>
+<a href="https://clickhouse.com/docs/en/sql-reference/statements/grant#admin-option">See</a>.</li>
 </ul>
 <h3 id="spec.roleGrants.grantees">grantees<a class="headerlink" href="#spec.roleGrants.grantees" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.roleGrants"><code>spec.roleGrants</code></a>.</em></p>
-<p>List of grantees (users or roles) to grant the privilege to.</p>
+<p>Grantee represents a user or a role to which privileges or roles are granted.</p>
+<div class="admonition warning">
+<p class="admonition-title">Ambiguity in the <code>GRANT</code> syntax</p>
+<p>Due to <a href="https://github.com/aiven/ospo-tracker/issues/350">an ambiguity</a> in the GRANT syntax in ClickHouse,
+users and roles should not share the same name.
+It is unclear whether a grant applies to the user or the role.</p>
+</div>
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.roleGrants.grantees.role-property" name="spec.roleGrants.grantees.role-property"><code>role</code></a> (string).</li>

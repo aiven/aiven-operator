@@ -2325,7 +2325,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 </ul>
 <h3 id="spec.userConfig.index_patterns">index_patterns<a class="headerlink" href="#spec.userConfig.index_patterns" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
-<p>Index patterns.</p>
+<p>Allows you to create glob style patterns and set a max number of indexes matching this pattern you want to keep. Creating indexes exceeding this value will cause the oldest one to get deleted. You could for example create a pattern looking like <code>logs.?</code> and then create index logs.1, logs.2 etc, it will delete logs.1 once you create logs.6. Do note <code>logs.?</code> does not apply to logs.10. Note: Setting max_index_count to 0 will do nothing and the pattern gets ignored.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.index_patterns.max_index_count-property" name="spec.userConfig.index_patterns.max_index_count-property"><code>max_index_count</code></a> (integer, Minimum: 0). Maximum number of indexes to keep.</li>
@@ -2346,7 +2346,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 </ul>
 <h3 id="spec.userConfig.ip_filter">ip_filter<a class="headerlink" href="#spec.userConfig.ip_filter" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
-<p>Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>.</p>
+<p>CIDR address block, either as a string, or in a dict with an optional description field.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.ip_filter.network-property" name="spec.userConfig.ip_filter.network-property"><code>network</code></a> (string, MaxLength: 43). CIDR address block.</li>
@@ -2407,6 +2407,8 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <li><a href="#spec.userConfig.opensearch.ism_history_max_docs-property" name="spec.userConfig.opensearch.ism_history_max_docs-property"><code>ism_history_max_docs</code></a> (integer, Minimum: 1). The maximum number of documents before rolling over the audit history index.</li>
 <li><a href="#spec.userConfig.opensearch.ism_history_rollover_check_period-property" name="spec.userConfig.opensearch.ism_history_rollover_check_period-property"><code>ism_history_rollover_check_period</code></a> (integer, Minimum: 1, Maximum: 2147483647). The time between rollover checks for the audit history index in hours.</li>
 <li><a href="#spec.userConfig.opensearch.ism_history_rollover_retention_period-property" name="spec.userConfig.opensearch.ism_history_rollover_retention_period-property"><code>ism_history_rollover_retention_period</code></a> (integer, Minimum: 1, Maximum: 2147483647). How long audit history indices are kept in days.</li>
+<li><a href="#spec.userConfig.opensearch.knn_memory_circuit_breaker_enabled-property" name="spec.userConfig.opensearch.knn_memory_circuit_breaker_enabled-property"><code>knn_memory_circuit_breaker_enabled</code></a> (boolean). Enable or disable KNN memory circuit breaker. Defaults to true.</li>
+<li><a href="#spec.userConfig.opensearch.knn_memory_circuit_breaker_limit-property" name="spec.userConfig.opensearch.knn_memory_circuit_breaker_limit-property"><code>knn_memory_circuit_breaker_limit</code></a> (integer, Minimum: 3, Maximum: 100). Maximum amount of memory that can be used for KNN index. Defaults to 50% of the JVM heap size.</li>
 <li><a href="#spec.userConfig.opensearch.override_main_response_version-property" name="spec.userConfig.opensearch.override_main_response_version-property"><code>override_main_response_version</code></a> (boolean). Compatibility mode sets OpenSearch to report its version as 7.10 so clients continue to work. Default is false.</li>
 <li><a href="#spec.userConfig.opensearch.plugins_alerting_filter_by_backend_roles-property" name="spec.userConfig.opensearch.plugins_alerting_filter_by_backend_roles-property"><code>plugins_alerting_filter_by_backend_roles</code></a> (boolean). Enable or disable filtering of alerting by backend roles. Requires Security plugin. Defaults to false.</li>
 <li><a href="#spec.userConfig.opensearch.reindex_remote_whitelist-property" name="spec.userConfig.opensearch.reindex_remote_whitelist-property"><code>reindex_remote_whitelist</code></a> (array of strings, MaxItems: 32). Whitelisted addresses for reindexing. Changing this value will cause all OpenSearch instances to restart.</li>

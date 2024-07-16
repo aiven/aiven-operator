@@ -1901,9 +1901,12 @@
 <li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
 <li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Secret configuration. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
 <li><a href="#spec.connInfoSecretTargetDisabled-property" name="spec.connInfoSecretTargetDisabled-property"><code>connInfoSecretTargetDisabled</code></a> (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.</li>
-<li><a href="#spec.username-property" name="spec.username-property"><code>username</code></a> (string, Immutable, MaxLength: 63). Name of the Clickhouse user. Defaults to <code>metadata.name</code> if omitted.
-Note: <code>metadata.name</code> is ASCII-only. For UTF-8 names, use <code>spec.username</code>, but ASCII is advised for compatibility.</li>
+<li><a href="#spec.username-property" name="spec.username-property"><code>username</code></a> (string, Immutable, MaxLength: 63). Name of the Clickhouse user. Defaults to <code>metadata.name</code> if omitted.</li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>metadata.name</code> is ASCII-only. For UTF-8 names, use <code>spec.username</code>, but ASCII is advised for compatibility.</p>
+</div>
 <h2 id="spec.authSecretRef">authSecretRef<a class="headerlink" href="#spec.authSecretRef" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Authentication reference to Aiven token in a secret.</p>

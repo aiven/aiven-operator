@@ -2280,7 +2280,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 </ul>
 <h3 id="spec.userConfig.ip_filter">ip_filter<a class="headerlink" href="#spec.userConfig.ip_filter" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
-<p>Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>.</p>
+<p>CIDR address block, either as a string, or in a dict with an optional description field.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.ip_filter.network-property" name="spec.userConfig.ip_filter.network-property"><code>network</code></a> (string, MaxLength: 43). CIDR address block.</li>
@@ -2330,7 +2330,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <li><a href="#spec.userConfig.pg.jit-property" name="spec.userConfig.pg.jit-property"><code>jit</code></a> (boolean). Controls system-wide use of Just-in-Time Compilation (JIT).</li>
 <li><a href="#spec.userConfig.pg.log_autovacuum_min_duration-property" name="spec.userConfig.pg.log_autovacuum_min_duration-property"><code>log_autovacuum_min_duration</code></a> (integer, Minimum: -1, Maximum: 2147483647). Causes each action executed by autovacuum to be logged if it ran for at least the specified number of milliseconds. Setting this to zero logs all autovacuum actions. Minus-one (the default) disables logging autovacuum actions.</li>
 <li><a href="#spec.userConfig.pg.log_error_verbosity-property" name="spec.userConfig.pg.log_error_verbosity-property"><code>log_error_verbosity</code></a> (string, Enum: <code>TERSE</code>, <code>DEFAULT</code>, <code>VERBOSE</code>). Controls the amount of detail written in the server log for each message that is logged.</li>
-<li><a href="#spec.userConfig.pg.log_line_prefix-property" name="spec.userConfig.pg.log_line_prefix-property"><code>log_line_prefix</code></a> (string, Enum: <code>'pid=%p,user=%u,db=%d,app=%a,client=%h '</code>, <code>'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '</code>, <code>'%m [%p] %q[user=%u,db=%d,app=%a] '</code>). Choose from one of the available log formats.</li>
+<li><a href="#spec.userConfig.pg.log_line_prefix-property" name="spec.userConfig.pg.log_line_prefix-property"><code>log_line_prefix</code></a> (string, Enum: <code>'pid=%p,user=%u,db=%d,app=%a,client=%h '</code>, <code>'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '</code>, <code>'%m [%p] %q[user=%u,db=%d,app=%a] '</code>, <code>'pid=%p,user=%u,db=%d,app=%a,client=%h,txid=%x,qid=%Q '</code>). Choose from one of the available log formats.</li>
 <li><a href="#spec.userConfig.pg.log_min_duration_statement-property" name="spec.userConfig.pg.log_min_duration_statement-property"><code>log_min_duration_statement</code></a> (integer, Minimum: -1, Maximum: 86400000). Log statements that take more than this number of milliseconds to run, -1 disables.</li>
 <li><a href="#spec.userConfig.pg.log_temp_files-property" name="spec.userConfig.pg.log_temp_files-property"><code>log_temp_files</code></a> (integer, Minimum: -1, Maximum: 2147483647). Log statements for each temporary file created larger than this number of kilobytes, -1 disables.</li>
 <li><a href="#spec.userConfig.pg.max_files_per_process-property" name="spec.userConfig.pg.max_files_per_process-property"><code>max_files_per_process</code></a> (integer, Minimum: 1000, Maximum: 4096). PostgreSQL maximum number of files that can be open per process.</li>

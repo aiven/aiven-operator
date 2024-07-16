@@ -2355,7 +2355,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 </ul>
 <h3 id="spec.userConfig.ip_filter">ip_filter<a class="headerlink" href="#spec.userConfig.ip_filter" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
-<p>Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>.</p>
+<p>CIDR address block, either as a string, or in a dict with an optional description field.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.ip_filter.network-property" name="spec.userConfig.ip_filter.network-property"><code>network</code></a> (string, MaxLength: 43). CIDR address block.</li>
@@ -2448,7 +2448,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 </ul>
 <h3 id="spec.userConfig.kafka_connect_secret_providers">kafka_connect_secret_providers<a class="headerlink" href="#spec.userConfig.kafka_connect_secret_providers" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
-<p>Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name>}.</p>
+<p>SecretProvider.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.kafka_connect_secret_providers.name-property" name="spec.userConfig.kafka_connect_secret_providers.name-property"><code>name</code></a> (string). Name of the secret provider. Used to reference secrets in connector config.</li>
