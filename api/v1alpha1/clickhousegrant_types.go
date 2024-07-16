@@ -3,11 +3,8 @@
 package v1alpha1
 
 import (
-	"context"
 	"fmt"
 	"strings"
-
-	avngen "github.com/aiven/go-client-codegen"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -18,20 +15,24 @@ import (
 // TODO: use oneOf in Grantee if https://github.com/kubernetes-sigs/controller-tools/issues/461 is resolved
 
 // Grantee represents a user or a role to which privileges or roles are granted.
+// Warning "Ambiguity in the `GRANT` syntax":
+// Due to [an ambiguity](https://github.com/aiven/ospo-tracker/issues/350) in the GRANT syntax in ClickHouse,
+// users and roles should not share the same name.
+// It is unclear whether a grant applies to the user or the role.
 type Grantee struct {
 	User string `json:"user,omitempty"`
 	Role string `json:"role,omitempty"`
 }
 
 // PrivilegeGrant represents the privileges to be granted to users or roles.
-// See https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax.
+// [See](https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax).
 // +kubebuilder:validation:XValidation:rule="!has(self.columns) || (has(self.columns) && has(self.table))",message="`table` must be set if `columns` are set"
 type PrivilegeGrant struct {
 	// List of grantees (users or roles) to grant the privilege to.
 	// +kubebuilder:validation:MinItems=1
 	Grantees []Grantee `json:"grantees"`
 	// The privileges to grant, i.e. `INSERT`, `SELECT`.
-	// See https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax.
+	// [See](https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax).
 	Privileges []string `json:"privileges"`
 	// The database that the grant refers to.
 	Database string `json:"database"`
@@ -41,12 +42,12 @@ type PrivilegeGrant struct {
 	Columns []string `json:"columns,omitempty"`
 	// If true, then the grantee (user or role) get the permission to execute the `GRANT` query.
 	// Users can grant privileges of the same scope they have and less.
-	// See https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax
+	// [See](https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax)
 	WithGrantOption bool `json:"withGrantOption,omitempty"`
 }
 
 // RoleGrant represents the roles to be assigned to users or roles.
-// See https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax.
+// [See](https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax)
 type RoleGrant struct {
 	// List of grantees (users or roles) to grant the privilege to.
 	// +kubebuilder:validation:MinItems=1
@@ -55,30 +56,46 @@ type RoleGrant struct {
 	// +kubebuilder:validation:MinItems=1
 	Roles []string `json:"roles"`
 	// If true, the grant is executed with `ADMIN OPTION` privilege.
-	// See https://clickhouse.com/docs/en/sql-reference/statements/grant#admin-option.
+	// [See](https://clickhouse.com/docs/en/sql-reference/statements/grant#admin-option)
 	WithAdminOption bool `json:"withAdminOption,omitempty"`
 }
 
-// ClickhouseGrantSpec defines the desired state of ClickhouseGrant
-type ClickhouseGrantSpec struct {
-	ServiceDependant `json:",inline,omitempty"`
-
+type Grants struct {
 	// Configuration to grant a privilege. Privileges not in the manifest are revoked. Existing privileges are retained; new ones are granted.
 	PrivilegeGrants []PrivilegeGrant `json:"privilegeGrants,omitempty"`
 	// Configuration to grant a role. Role grants not in the manifest are revoked. Existing role grants are retained; new ones are granted.
 	RoleGrants []RoleGrant `json:"roleGrants,omitempty"`
 }
 
+func (in *Grants) BuildStatements(statementType chUtils.StatementType) []string {
+	stmts := make([]string, 0, len(in.PrivilegeGrants)+len(in.RoleGrants))
+	for _, g := range in.PrivilegeGrants {
+		stmts = append(stmts, buildStatement(statementType, &g))
+	}
+	for _, g := range in.RoleGrants {
+		stmts = append(stmts, buildStatement(statementType, &g))
+	}
+	return stmts
+}
+
+// ClickhouseGrantSpec defines the desired state of ClickhouseGrant
+type ClickhouseGrantSpec struct {
+	ServiceDependant `json:",inline,omitempty"`
+	Grants           `json:",inline,omitempty"`
+}
+
 // ClickhouseGrantStatus defines the observed state of ClickhouseGrant
 type ClickhouseGrantStatus struct {
 	Conditions []metav1.Condition `json:"conditions"`
+	// The previous applied grants to revoke. Do not edit
+	State *Grants `json:"state,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
 // ClickhouseGrant is the Schema for the ClickhouseGrants API
-// Warning "Ambiguity in the `GRANT` syntax": Due to [an ambiguity](https://github.com/aiven/ospo-tracker/issues/350) in the `GRANT` syntax in Clickhouse, you should not have users and roles with the same name. It is not clear if a grant refers to the user or the role.
+// Warning: Due to the way ClickHouse operates, updating this resource first revokes the existing privileges.
 // +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
 // +kubebuilder:printcolumn:name="Service Name",type="string",JSONPath=".spec.serviceName"
 type ClickhouseGrant struct {
@@ -89,30 +106,8 @@ type ClickhouseGrant struct {
 	Status ClickhouseGrantStatus `json:"status,omitempty"`
 }
 
-func (in ClickhouseGrantSpec) buildStatements(statementType chUtils.StatementType) []string {
-	stmts := make([]string, 0, len(in.PrivilegeGrants)+len(in.RoleGrants))
-	for _, g := range in.PrivilegeGrants {
-		stmts = append(stmts, buildStatement(statementType, g))
-	}
-	for _, g := range in.RoleGrants {
-		stmts = append(stmts, buildStatement(statementType, g))
-	}
-	return stmts
-}
-
-func (in ClickhouseGrantSpec) ExecuteStatements(ctx context.Context, avnGen avngen.Client, statementType chUtils.StatementType) (bool, error) {
-	statements := in.buildStatements(statementType)
-	for _, stmt := range statements {
-		_, err := chUtils.ExecuteClickHouseQuery(ctx, avnGen, in.Project, in.ServiceName, stmt)
-		if err != nil {
-			return false, err
-		}
-	}
-	return true, nil
-}
-
-func (in ClickhouseGrantSpec) CollectGrantees() []string {
-	allGrantees := []string{}
+func (in *ClickhouseGrantSpec) CollectGrantees() []string {
+	var allGrantees []string
 	processGrantee := func(grantees []Grantee) {
 		for _, grantee := range grantees {
 			allGrantees = append(allGrantees, userOrRole(grantee))
@@ -128,7 +123,7 @@ func (in ClickhouseGrantSpec) CollectGrantees() []string {
 	return utils.UniqueSliceElements(allGrantees)
 }
 
-func (in ClickhouseGrantSpec) CollectDatabases() []string {
+func (in *ClickhouseGrantSpec) CollectDatabases() []string {
 	allDatabases := []string{}
 	for _, grant := range in.PrivilegeGrants {
 		if grant.Database != "" {
@@ -138,7 +133,7 @@ func (in ClickhouseGrantSpec) CollectDatabases() []string {
 	return utils.UniqueSliceElements(allDatabases)
 }
 
-func (in ClickhouseGrantSpec) CollectTables() []chUtils.DatabaseAndTable {
+func (in *ClickhouseGrantSpec) CollectTables() []chUtils.DatabaseAndTable {
 	allTables := []chUtils.DatabaseAndTable{}
 	for _, grant := range in.PrivilegeGrants {
 		if grant.Table != "" {
@@ -175,44 +170,7 @@ func init() {
 	SchemeBuilder.Register(&ClickhouseGrant{}, &ClickhouseGrantList{})
 }
 
-// Takes a slice of PrivilegeGrant and returns a new slice
-// where each grantee has its own PrivilegeGrant entry.
-func FlattenPrivilegeGrants(grants []PrivilegeGrant) []PrivilegeGrant {
-	var flattened []PrivilegeGrant
-	for _, grant := range grants {
-		for _, grantee := range grant.Grantees {
-			newGrant := PrivilegeGrant{
-				Grantees:        []Grantee{grantee},
-				Privileges:      grant.Privileges,
-				Database:        grant.Database,
-				Table:           grant.Table,
-				Columns:         grant.Columns,
-				WithGrantOption: grant.WithGrantOption,
-			}
-			flattened = append(flattened, newGrant)
-		}
-	}
-	return flattened
-}
-
-// Takes a slice of RoleGrant and returns a new slice
-// where each grantee has its own RoleGrant entry.
-func FlattenRoleGrants(grants []RoleGrant) []RoleGrant {
-	var flattened []RoleGrant
-	for _, grant := range grants {
-		for _, grantee := range grant.Grantees {
-			newGrant := RoleGrant{
-				Grantees:        []Grantee{grantee},
-				Roles:           grant.Roles,
-				WithAdminOption: grant.WithAdminOption,
-			}
-			flattened = append(flattened, newGrant)
-		}
-	}
-	return flattened
-}
-
-func (g PrivilegeGrant) ConstructParts(t chUtils.StatementType) (string, string, string) {
+func (g *PrivilegeGrant) ConstructParts(t chUtils.StatementType) (string, string, string) {
 	privilegesPart := constructPrivilegesPart(g)
 	granteesPart := constructGranteePart(g.Grantees)
 	options := ""
@@ -223,7 +181,7 @@ func (g PrivilegeGrant) ConstructParts(t chUtils.StatementType) (string, string,
 }
 
 // Helper function to construct the privileges part of the statement
-func constructPrivilegesPart(g PrivilegeGrant) string {
+func constructPrivilegesPart(g *PrivilegeGrant) string {
 	privileges := make([]string, 0, len(g.Privileges))
 	for _, privilege := range g.Privileges {
 		if (privilege == "SELECT" || privilege == "INSERT") && len(g.Columns) > 0 {
@@ -236,7 +194,7 @@ func constructPrivilegesPart(g PrivilegeGrant) string {
 	return strings.Join(privileges, ", ")
 }
 
-func (g RoleGrant) ConstructParts(t chUtils.StatementType) (string, string, string) {
+func (g *RoleGrant) ConstructParts(t chUtils.StatementType) (string, string, string) {
 	rolesPart := strings.Join(escapeList(g.Roles), ", ")
 	granteesPart := constructGranteePart(g.Grantees)
 	options := ""
@@ -246,16 +204,7 @@ func (g RoleGrant) ConstructParts(t chUtils.StatementType) (string, string, stri
 	return rolesPart, granteesPart, options
 }
 
-func ExecuteGrant[T chUtils.Grant](ctx context.Context, avnGen avngen.Client, t chUtils.StatementType, grant T, projectName string, serviceName string) error {
-	stmt := buildStatement(t, grant)
-	_, err := chUtils.ExecuteClickHouseQuery(ctx, avnGen, projectName, serviceName, stmt)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// Generates a ClickHouse GRANT or REVOKE statement for privilege or role grants. See https://clickhouse.com/docs/en/sql-reference/statements/grant.
+// Generates a ClickHouse GRANT or REVOKE statement for privilege or role grants. [See](https://clickhouse.com/docs/en/sql-reference/statements/grant).
 func buildStatement[T chUtils.Grant](t chUtils.StatementType, grant T) string {
 	mainPart, granteesPart, options := grant.ConstructParts(t)
 
@@ -268,7 +217,7 @@ func buildStatement[T chUtils.Grant](t chUtils.StatementType, grant T) string {
 	}
 
 	// Adjust the format string based on the type of grant (PrivilegeGrant needs "ON %s" part)
-	if p, ok := any(grant).(PrivilegeGrant); ok {
+	if p, ok := any(grant).(*PrivilegeGrant); ok {
 		// ON part is constructed only for PrivilegeGrant
 		onPart := constructOnPart(p)
 		if t == chUtils.GRANT {
@@ -283,7 +232,7 @@ func buildStatement[T chUtils.Grant](t chUtils.StatementType, grant T) string {
 }
 
 // Helper function to construct the ON part of the statement
-func constructOnPart(grant PrivilegeGrant) string {
+func constructOnPart(grant *PrivilegeGrant) string {
 	switch {
 	case grant.Table != "":
 		return escape(grant.Database) + "." + escape(grant.Table)
@@ -311,7 +260,7 @@ func userOrRole(grantee Grantee) string {
 
 // Escapes database identifiers like table or column names
 func escape(identifier string) string {
-	// See https://github.com/ClickHouse/clickhouse-go/blob/8ad6ec6b95d8b0c96d00115bc2d69ff13083f94b/lib/column/column.go#L32
+	// [See](https://github.com/ClickHouse/clickhouse-go/blob/8ad6ec6b95d8b0c96d00115bc2d69ff13083f94b/lib/column/column.go#L32)
 	replacer := strings.NewReplacer("`", "\\`", "\\", "\\\\")
 	return "`" + replacer.Replace(identifier) + "`"
 }

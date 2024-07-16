@@ -159,9 +159,9 @@ demo-ch-grant    my-aiven-project    my-clickhouse
 
 ClickhouseGrant is the Schema for the ClickhouseGrants API
 
-!!! Warning "Ambiguity in the `GRANT` syntax"
+!!! Warning
 
-    Due to [an ambiguity](https://github.com/aiven/ospo-tracker/issues/350) in the `GRANT` syntax in Clickhouse, you should not have users and roles with the same name. It is not clear if a grant refers to the user or the role.
+    Due to the way ClickHouse operates, updating this resource first revokes the existing privileges.
 
 **Required**
 
@@ -203,14 +203,14 @@ Authentication reference to Aiven token in a secret.
 _Appears on [`spec`](#spec)._
 
 PrivilegeGrant represents the privileges to be granted to users or roles.
-See https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax.
+[See](https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax).
 
 **Required**
 
 - [`database`](#spec.privilegeGrants.database-property){: name='spec.privilegeGrants.database-property'} (string). The database that the grant refers to.
 - [`grantees`](#spec.privilegeGrants.grantees-property){: name='spec.privilegeGrants.grantees-property'} (array of objects, MinItems: 1). List of grantees (users or roles) to grant the privilege to. See below for [nested schema](#spec.privilegeGrants.grantees).
 - [`privileges`](#spec.privilegeGrants.privileges-property){: name='spec.privilegeGrants.privileges-property'} (array of strings). The privileges to grant, i.e. `INSERT`, `SELECT`.
-See https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax.
+[See](https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax).
 
 **Optional**
 
@@ -218,13 +218,19 @@ See https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role
 - [`table`](#spec.privilegeGrants.table-property){: name='spec.privilegeGrants.table-property'} (string). The tables that the grant refers to. To grant a privilege on all tables in a database, omit this field instead of writing `table: "*"`.
 - [`withGrantOption`](#spec.privilegeGrants.withGrantOption-property){: name='spec.privilegeGrants.withGrantOption-property'} (boolean). If true, then the grantee (user or role) get the permission to execute the `GRANT` query.
 Users can grant privileges of the same scope they have and less.
-See https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax.
+[See](https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax).
 
 ### grantees {: #spec.privilegeGrants.grantees }
 
 _Appears on [`spec.privilegeGrants`](#spec.privilegeGrants)._
 
 Grantee represents a user or a role to which privileges or roles are granted.
+
+!!! Warning "Ambiguity in the `GRANT` syntax"
+
+    Due to [an ambiguity](https://github.com/aiven/ospo-tracker/issues/350) in the GRANT syntax in ClickHouse,
+    users and roles should not share the same name.
+    It is unclear whether a grant applies to the user or the role.
 
 **Optional**
 
@@ -236,7 +242,7 @@ Grantee represents a user or a role to which privileges or roles are granted.
 _Appears on [`spec`](#spec)._
 
 RoleGrant represents the roles to be assigned to users or roles.
-See https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax.
+[See](https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax).
 
 **Required**
 
@@ -246,13 +252,19 @@ See https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role
 **Optional**
 
 - [`withAdminOption`](#spec.roleGrants.withAdminOption-property){: name='spec.roleGrants.withAdminOption-property'} (boolean). If true, the grant is executed with `ADMIN OPTION` privilege.
-See https://clickhouse.com/docs/en/sql-reference/statements/grant#admin-option.
+[See](https://clickhouse.com/docs/en/sql-reference/statements/grant#admin-option).
 
 ### grantees {: #spec.roleGrants.grantees }
 
 _Appears on [`spec.roleGrants`](#spec.roleGrants)._
 
 Grantee represents a user or a role to which privileges or roles are granted.
+
+!!! Warning "Ambiguity in the `GRANT` syntax"
+
+    Due to [an ambiguity](https://github.com/aiven/ospo-tracker/issues/350) in the GRANT syntax in ClickHouse,
+    users and roles should not share the same name.
+    It is unclear whether a grant applies to the user or the role.
 
 **Optional**
 

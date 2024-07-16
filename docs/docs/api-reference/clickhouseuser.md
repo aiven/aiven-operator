@@ -117,7 +117,10 @@ ClickhouseUserSpec defines the desired state of ClickhouseUser.
 - [`connInfoSecretTarget`](#spec.connInfoSecretTarget-property){: name='spec.connInfoSecretTarget-property'} (object). Secret configuration. See below for [nested schema](#spec.connInfoSecretTarget).
 - [`connInfoSecretTargetDisabled`](#spec.connInfoSecretTargetDisabled-property){: name='spec.connInfoSecretTargetDisabled-property'} (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
 - [`username`](#spec.username-property){: name='spec.username-property'} (string, Immutable, MaxLength: 63). Name of the Clickhouse user. Defaults to `metadata.name` if omitted.
-Note: `metadata.name` is ASCII-only. For UTF-8 names, use `spec.username`, but ASCII is advised for compatibility.
+
+!!! Note
+
+    `metadata.name` is ASCII-only. For UTF-8 names, use `spec.username`, but ASCII is advised for compatibility.
 
 ## authSecretRef {: #spec.authSecretRef }
 
