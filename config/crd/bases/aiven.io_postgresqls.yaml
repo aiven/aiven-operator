@@ -522,6 +522,8 @@ spec:
                             - "'pid=%p,user=%u,db=%d,app=%a,client=%h '"
                             - "'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '"
                             - "'%m [%p] %q[user=%u,db=%d,app=%a] '"
+                            - "'pid=%p,user=%u,db=%d,app=%a,client=%h,txid=%x,qid=%Q
+                              '"
                           type: string
                         log_min_duration_statement:
                           description:

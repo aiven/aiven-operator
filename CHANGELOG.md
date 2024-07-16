@@ -2,6 +2,19 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `Cassandra` field `userConfig.cassandra.read_request_timeout_in_ms`, type `integer`: How long the
+  coordinator waits for read operations to complete before timing it out
+- Add `Cassandra` field `userConfig.cassandra.write_request_timeout_in_ms`, type `integer`: How long
+  the coordinator waits for write requests to complete with at least one node in the local datacenter
+- Add `OpenSearch` field `userConfig.opensearch.knn_memory_circuit_breaker_enabled`, type `boolean`:
+  Enable or disable KNN memory circuit breaker. Defaults to true
+- Add `OpenSearch` field `userConfig.opensearch.knn_memory_circuit_breaker_limit`, type `integer`: Maximum
+  amount of memory that can be used for KNN index. Defaults to 50% of the JVM heap size
+- Change `PostgreSQL` field `userConfig.pg.log_line_prefix`: enum ~~`['%m [%p] %q[user=%u,db=%d,app=%a]
+', '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h ', 'pid=%p,user=%u,db=%d,app=%a,client=%h ']`~~
+  → `['%m [%p] %q[user=%u,db=%d,app=%a] ', '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h ',
+'pid=%p,user=%u,db=%d,app=%a,client=%h ', 'pid=%p,user=%u,db=%d,app=%a,client=%h,txid=%x,qid=%Q ']`
+
 ## v0.23.0 - 2024-07-12
 
 - Ignore `http.StatusBadRequest` on `ClickhouseGrant` deletion

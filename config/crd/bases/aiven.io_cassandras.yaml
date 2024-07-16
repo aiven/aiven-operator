@@ -271,6 +271,21 @@ spec:
                             service belong. Can be set only when creating the service.
                           maxLength: 128
                           type: string
+                        read_request_timeout_in_ms:
+                          description:
+                            How long the coordinator waits for read operations
+                            to complete before timing it out. 5 seconds by default.
+                          maximum: 10000
+                          minimum: 1000
+                          type: integer
+                        write_request_timeout_in_ms:
+                          description:
+                            How long the coordinator waits for write requests
+                            to complete with at least one node in the local datacenter.
+                            2 seconds by default.
+                          maximum: 10000
+                          minimum: 1000
+                          type: integer
                       type: object
                     cassandra_version:
                       description: Cassandra version

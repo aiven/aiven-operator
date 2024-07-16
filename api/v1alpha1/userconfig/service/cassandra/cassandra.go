@@ -18,6 +18,16 @@ type Cassandra struct {
 	// +kubebuilder:validation:MaxLength=128
 	// Name of the datacenter to which nodes of this service belong. Can be set only when creating the service.
 	Datacenter *string `groups:"create,update" json:"datacenter,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1000
+	// +kubebuilder:validation:Maximum=10000
+	// How long the coordinator waits for read operations to complete before timing it out. 5 seconds by default.
+	ReadRequestTimeoutInMs *int `groups:"create,update" json:"read_request_timeout_in_ms,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1000
+	// +kubebuilder:validation:Maximum=10000
+	// How long the coordinator waits for write requests to complete with at least one node in the local datacenter. 2 seconds by default.
+	WriteRequestTimeoutInMs *int `groups:"create,update" json:"write_request_timeout_in_ms,omitempty"`
 }
 
 // CIDR address block, either as a string, or in a dict with an optional description field
