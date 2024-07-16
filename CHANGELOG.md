@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.24.0 - 2024-07-16
+
 - Fix `PostgreSQL`: wait for a valid backup to create read replica
 - Fix `ClickhouseGrant`: grant privileges for an unknown table (Clickhouse can do that)
 - Fix `ClickhouseGrant`: track the state to revoke only known privileges
