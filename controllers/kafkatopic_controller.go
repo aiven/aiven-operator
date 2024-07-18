@@ -9,6 +9,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -174,7 +175,24 @@ func (h KafkaTopicHandler) checkPreconditions(ctx context.Context, avn *aiven.Cl
 	meta.SetStatusCondition(&topic.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsRunning(ctx, avn, avnGen, topic.Spec.Project, topic.Spec.ServiceName)
+	s, err := avnGen.ServiceGet(ctx, topic.Spec.Project, topic.Spec.ServiceName)
+	if isNotFound(err) {
+		return false, nil
+	}
+
+	if err != nil {
+		return false, err
+	}
+
+	running := 0
+	for _, node := range s.NodeStates {
+		if node.State == service.NodeStateTypeRunning {
+			running++
+		}
+	}
+	// Replication factor requires enough nodes running.
+	// But we want to get the backend validation error if the value is too high
+	return running >= min(len(s.NodeStates), topic.Spec.Replication), nil
 }
 
 func (h KafkaTopicHandler) getState(ctx context.Context, avn *aiven.Client, topic *v1alpha1.KafkaTopic) (string, error) {
