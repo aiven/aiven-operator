@@ -58,16 +58,18 @@ func checkServiceIsRunning(ctx context.Context, _ *aiven.Client, avnGen avngen.C
 		}
 		return false, err
 	}
-	return serviceIsRunning(s.State), nil
+	return serviceIsOperational(s.State), nil
 }
 
-// serviceIsRunning returns "true" when a service is in operational state, i.e. "running"
+// serviceIsOperational returns "true" when a service is in operational state, i.e. "running"
+func serviceIsOperational[T service.ServiceStateType | string](state T) bool {
+	s := service.ServiceStateType(state)
+	return s == service.ServiceStateTypeRebalancing || serviceIsRunning(s)
+}
+
+// serviceIsRunning returns "true" when a service is RUNNING state on Aive side
 func serviceIsRunning[T service.ServiceStateType | string](state T) bool {
-	switch service.ServiceStateType(state) {
-	case service.ServiceStateTypeRunning, service.ServiceStateTypeRebalancing:
-		return true
-	}
-	return false
+	return service.ServiceStateType(state) == service.ServiceStateTypeRunning
 }
 
 func getInitializedCondition(reason, message string) metav1.Condition {

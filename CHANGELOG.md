@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Fix `KafkaTopic`: fails to create a topic with the replication factor set more than running Kafka nodes
+
 ## v0.24.0 - 2024-07-16
 
 - Fix `PostgreSQL`: wait for a valid backup to create read replica
