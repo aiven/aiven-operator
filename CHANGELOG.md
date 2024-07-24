@@ -3,6 +3,7 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - Fix `KafkaTopic`: fails to create a topic with the replication factor set more than running Kafka nodes
+- Fix `ServiceIntegration`: sends empty source and destination projects
 
 ## v0.24.0 - 2024-07-16
 

@@ -288,3 +288,11 @@ func isAivenError(err error, code int) bool {
 
 	return false
 }
+
+func toPtr[T comparable](v T) *T {
+	var empty T
+	if empty == v {
+		return nil
+	}
+	return &v
+}
