@@ -111,7 +111,7 @@ func (h *clickhouseRoleHandler) checkPreconditions(ctx context.Context, avn *aiv
 	meta.SetStatusCondition(&role.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsRunning(ctx, avn, avnGen, role.Spec.Project, role.Spec.ServiceName)
+	return checkServiceIsOperational(ctx, avn, avnGen, role.Spec.Project, role.Spec.ServiceName)
 }
 
 func (h *clickhouseRoleHandler) convert(i client.Object) (*v1alpha1.ClickhouseRole, error) {

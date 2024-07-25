@@ -161,7 +161,7 @@ func (h ServiceUserHandler) checkPreconditions(ctx context.Context, avn *aiven.C
 	meta.SetStatusCondition(&user.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsRunning(ctx, avn, avnGen, user.Spec.Project, user.Spec.ServiceName)
+	return checkServiceIsOperational(ctx, avn, avnGen, user.Spec.Project, user.Spec.ServiceName)
 }
 
 func (h ServiceUserHandler) convert(i client.Object) (*v1alpha1.ServiceUser, error) {
