@@ -232,7 +232,7 @@ func (h *genericServiceHandler) checkPreconditions(ctx context.Context, avn *aiv
 		// Validates that read_replica is running
 		// If not, the wrapper controller will try later
 		if s.IntegrationType == "read_replica" {
-			r, err := checkServiceIsOperational(ctx, avn, avnGen, spec.Project, s.SourceServiceName)
+			r, err := checkServiceIsOperational(ctx, avnGen, spec.Project, s.SourceServiceName)
 			if !r || err != nil {
 				return false, err
 			}

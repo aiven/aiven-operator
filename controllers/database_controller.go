@@ -136,7 +136,7 @@ func (h DatabaseHandler) checkPreconditions(ctx context.Context, avn *aiven.Clie
 	meta.SetStatusCondition(&db.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsOperational(ctx, avn, avnGen, db.Spec.Project, db.Spec.ServiceName)
+	return checkServiceIsOperational(ctx, avnGen, db.Spec.Project, db.Spec.ServiceName)
 }
 
 func (h DatabaseHandler) convert(i client.Object) (*v1alpha1.Database, error) {

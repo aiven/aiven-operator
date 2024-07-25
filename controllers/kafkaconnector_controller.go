@@ -220,7 +220,7 @@ func (h KafkaConnectorHandler) checkPreconditions(ctx context.Context, avn *aive
 	meta.SetStatusCondition(&conn.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsOperational(ctx, avn, avnGen, conn.Spec.Project, conn.Spec.ServiceName)
+	return checkServiceIsOperational(ctx, avnGen, conn.Spec.Project, conn.Spec.ServiceName)
 }
 
 func (h KafkaConnectorHandler) convert(o client.Object) (*v1alpha1.KafkaConnector, error) {

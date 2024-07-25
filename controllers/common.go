@@ -48,7 +48,7 @@ const (
 
 var errTerminationProtectionOn = errors.New("termination protection is on")
 
-func checkServiceIsOperational(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, project, serviceName string) (bool, error) {
+func checkServiceIsOperational(ctx context.Context, avnGen avngen.Client, project, serviceName string) (bool, error) {
 	s, err := avnGen.ServiceGet(ctx, project, serviceName)
 	if err != nil {
 		// if service is not found, it is not running

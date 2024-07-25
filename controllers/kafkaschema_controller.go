@@ -134,7 +134,7 @@ func (h KafkaSchemaHandler) checkPreconditions(ctx context.Context, avn *aiven.C
 		return false, err
 	}
 
-	return checkServiceIsOperational(ctx, avn, avnGen, schema.Spec.Project, schema.Spec.ServiceName)
+	return checkServiceIsOperational(ctx, avnGen, schema.Spec.Project, schema.Spec.ServiceName)
 }
 
 func (h KafkaSchemaHandler) convert(i client.Object) (*v1alpha1.KafkaSchema, error) {
