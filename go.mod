@@ -6,7 +6,8 @@ require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.26.0
 	github.com/aiven/aiven-go-client/v2 v2.24.0
 	github.com/aiven/go-api-schemas v1.79.0
-	github.com/aiven/go-client-codegen v0.18.0
+	github.com/aiven/go-client-codegen v0.18.1-0.20240725162756-dcc0909158b6
+	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/dave/jennifer v1.7.0
 	github.com/docker/go-units v0.5.0
 	github.com/ghodss/yaml v1.0.0

@@ -4,6 +4,8 @@
 
 - Fix `KafkaTopic`: fails to create a topic with the replication factor set more than running Kafka nodes
 - Fix `ServiceIntegration`: sends empty source and destination projects
+- Fix `KafkaSchema`: poll resource availability
+- Add `KafkaSchema` field `schemaType`, type `string`: Schema type
 
 ## v0.24.0 - 2024-07-16
 
