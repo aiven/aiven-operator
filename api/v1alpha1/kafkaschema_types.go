@@ -3,6 +3,7 @@
 package v1alpha1
 
 import (
+	"github.com/aiven/go-client-codegen/handler/kafkaschemaregistry"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -17,9 +18,13 @@ type KafkaSchemaSpec struct {
 	// Kafka Schema configuration should be a valid Avro Schema JSON format
 	Schema string `json:"schema"`
 
+	// +kubebuilder:validation:Enum=AVRO;JSON;PROTOBUF
+	// Schema type
+	SchemaType kafkaschemaregistry.SchemaType `json:"schemaType,omitempty"`
+
 	// +kubebuilder:validation:Enum=BACKWARD;BACKWARD_TRANSITIVE;FORWARD;FORWARD_TRANSITIVE;FULL;FULL_TRANSITIVE;NONE
 	// Kafka Schemas compatibility level
-	CompatibilityLevel string `json:"compatibilityLevel,omitempty"`
+	CompatibilityLevel kafkaschemaregistry.CompatibilityType `json:"compatibilityLevel,omitempty"`
 }
 
 // KafkaSchemaStatus defines the observed state of KafkaSchema
