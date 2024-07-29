@@ -6,9 +6,12 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/kafkaschemaregistry"
+	"github.com/avast/retry-go"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -43,20 +46,32 @@ func (r *KafkaSchemaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
+func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	schema, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
 
-	// createOrUpdate Kafka Schema Subject
-	_, err = avn.KafkaSubjectSchemas.Add(
+	// Must poll kafka until the registry ready.
+	// The client retries errors under the hood.
+	_, err = avnGen.ServiceSchemaRegistrySubjectVersionsGet(
 		ctx,
 		schema.Spec.Project,
 		schema.Spec.ServiceName,
 		schema.Spec.SubjectName,
-		aiven.KafkaSchemaSubject{
-			Schema: schema.Spec.Schema,
+	)
+	if err != nil && !isNotFound(err) {
+		return err
+	}
+
+	schemaID, err := avnGen.ServiceSchemaRegistrySubjectVersionPost(
+		ctx,
+		schema.Spec.Project,
+		schema.Spec.ServiceName,
+		schema.Spec.SubjectName,
+		&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionPostIn{
+			Schema:     schema.Spec.Schema,
+			SchemaType: kafkaschemaregistry.SchemaType(schema.Spec.SchemaType),
 		},
 	)
 	if err != nil {
@@ -65,25 +80,55 @@ func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, avn *aiven.Clien
 
 	// set compatibility level if defined for a newly created Kafka Schema Subject
 	if schema.Spec.CompatibilityLevel != "" {
-		_, err := avn.KafkaSubjectSchemas.UpdateConfiguration(
+		_, err := avnGen.ServiceSchemaRegistrySubjectConfigPut(
 			ctx,
 			schema.Spec.Project,
 			schema.Spec.ServiceName,
 			schema.Spec.SubjectName,
-			schema.Spec.CompatibilityLevel,
+			&kafkaschemaregistry.ServiceSchemaRegistrySubjectConfigPutIn{
+				Compatibility: kafkaschemaregistry.CompatibilityType(schema.Spec.CompatibilityLevel),
+			},
 		)
 		if err != nil {
 			return fmt.Errorf("cannot update Kafka Schema Configuration: %w", err)
 		}
 	}
 
-	// get last version
-	version, err := h.getLastVersion(ctx, avn, schema)
+	// Gets the last version
+	// Because of eventual consistency, we must poll the subject
+	const (
+		pollDelay    = 5 * time.Second
+		pollAttempts = 10
+	)
+
+	err = retry.Do(
+		func() error {
+			versions, err := avnGen.ServiceSchemaRegistrySubjectVersionsGet(ctx, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName)
+			if err != nil {
+				return err
+			}
+
+			for _, v := range versions {
+				version, err := avnGen.ServiceSchemaRegistrySubjectVersionGet(ctx, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, v)
+				if err != nil {
+					return err
+				}
+
+				if version.Id == schemaID {
+					schema.Status.Version = version.Version
+					return nil
+				}
+			}
+			return NewNotFound(fmt.Sprintf("the schema with id %d not found", schemaID))
+		},
+		retry.Context(ctx),
+		retry.RetryIf(isNotFound),
+		retry.Delay(pollDelay),
+		retry.Attempts(pollAttempts),
+	)
 	if err != nil {
 		return fmt.Errorf("cannot get Kafka Schema Subject version: %w", err)
 	}
-
-	schema.Status.Version = version
 
 	meta.SetStatusCondition(&schema.Status.Conditions,
 		getInitializedCondition("Added",
@@ -105,12 +150,8 @@ func (h KafkaSchemaHandler) delete(ctx context.Context, avn *aiven.Client, avnGe
 		return false, err
 	}
 
-	err = avn.KafkaSubjectSchemas.Delete(ctx, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName)
-	if err != nil && !isNotFound(err) {
-		return false, fmt.Errorf("aiven client delete Kafka Schema error: %w", err)
-	}
-
-	return true, nil
+	err = avnGen.ServiceSchemaRegistrySubjectDelete(ctx, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName)
+	return isDeleted(err)
 }
 
 func (h KafkaSchemaHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
@@ -144,24 +185,4 @@ func (h KafkaSchemaHandler) convert(i client.Object) (*v1alpha1.KafkaSchema, err
 	}
 
 	return schema, nil
-}
-
-func (h KafkaSchemaHandler) getLastVersion(ctx context.Context, avn *aiven.Client, schema *v1alpha1.KafkaSchema) (int, error) {
-	ver, err := avn.KafkaSubjectSchemas.GetVersions(
-		ctx,
-		schema.Spec.Project,
-		schema.Spec.ServiceName,
-		schema.Spec.SubjectName)
-	if err != nil {
-		return 0, err
-	}
-
-	var latestVersion int
-	for _, v := range ver.Versions {
-		if v > latestVersion {
-			latestVersion = v
-		}
-	}
-
-	return latestVersion, nil
 }

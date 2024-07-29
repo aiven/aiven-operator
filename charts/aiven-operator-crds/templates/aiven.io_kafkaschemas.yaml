@@ -92,6 +92,13 @@ spec:
                     Kafka Schema configuration should be a valid Avro Schema
                     JSON format
                   type: string
+                schemaType:
+                  description: Schema type
+                  enum:
+                    - AVRO
+                    - JSON
+                    - PROTOBUF
+                  type: string
                 serviceName:
                   description:
                     Specifies the name of the service that this resource
