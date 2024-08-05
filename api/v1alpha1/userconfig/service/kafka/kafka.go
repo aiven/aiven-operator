@@ -3,6 +3,12 @@
 
 package kafkauserconfig
 
+// Enable follower fetching
+type FollowerFetching struct {
+	// Whether to enable the follower fetching functionality
+	Enabled *bool `groups:"create,update" json:"enabled,omitempty"`
+}
+
 // CIDR address block, either as a string, or in a dict with an optional description field
 type IpFilter struct {
 	// +kubebuilder:validation:MaxLength=1024
@@ -16,211 +22,211 @@ type IpFilter struct {
 
 // Kafka broker configuration values
 type Kafka struct {
-	// Enable auto creation of topics
+	// Enable auto-creation of topics. (Default: true)
 	AutoCreateTopicsEnable *bool `groups:"create,update" json:"auto_create_topics_enable,omitempty"`
 
 	// +kubebuilder:validation:Enum="gzip";"snappy";"lz4";"zstd";"uncompressed";"producer"
-	// Specify the final compression type for a given topic. This configuration accepts the standard compression codecs ('gzip', 'snappy', 'lz4', 'zstd'). It additionally accepts 'uncompressed' which is equivalent to no compression; and 'producer' which means retain the original compression codec set by the producer.
+	// Specify the final compression type for a given topic. This configuration accepts the standard compression codecs ('gzip', 'snappy', 'lz4', 'zstd'). It additionally accepts 'uncompressed' which is equivalent to no compression; and 'producer' which means retain the original compression codec set by the producer.(Default: producer)
 	CompressionType *string `groups:"create,update" json:"compression_type,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1000
 	// +kubebuilder:validation:Maximum=3600000
-	// Idle connections timeout: the server socket processor threads close the connections that idle for longer than this.
+	// Idle connections timeout: the server socket processor threads close the connections that idle for longer than this. (Default: 600000 ms (10 minutes))
 	ConnectionsMaxIdleMs *int `groups:"create,update" json:"connections_max_idle_ms,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=10
-	// Replication factor for autocreated topics
+	// Replication factor for auto-created topics (Default: 3)
 	DefaultReplicationFactor *int `groups:"create,update" json:"default_replication_factor,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=300000
-	// The amount of time, in milliseconds, the group coordinator will wait for more consumers to join a new group before performing the first rebalance. A longer delay means potentially fewer rebalances, but increases the time until processing begins. The default value for this is 3 seconds. During development and testing it might be desirable to set this to 0 in order to not delay test execution time.
+	// The amount of time, in milliseconds, the group coordinator will wait for more consumers to join a new group before performing the first rebalance. A longer delay means potentially fewer rebalances, but increases the time until processing begins. The default value for this is 3 seconds. During development and testing it might be desirable to set this to 0 in order to not delay test execution time. (Default: 3000 ms (3 seconds))
 	GroupInitialRebalanceDelayMs *int `groups:"create,update" json:"group_initial_rebalance_delay_ms,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=1800000
-	// The maximum allowed session timeout for registered consumers. Longer timeouts give consumers more time to process messages in between heartbeats at the cost of a longer time to detect failures.
+	// The maximum allowed session timeout for registered consumers. Longer timeouts give consumers more time to process messages in between heartbeats at the cost of a longer time to detect failures. Default: 1800000 ms (30 minutes)
 	GroupMaxSessionTimeoutMs *int `groups:"create,update" json:"group_max_session_timeout_ms,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=60000
-	// The minimum allowed session timeout for registered consumers. Longer timeouts give consumers more time to process messages in between heartbeats at the cost of a longer time to detect failures.
+	// The minimum allowed session timeout for registered consumers. Longer timeouts give consumers more time to process messages in between heartbeats at the cost of a longer time to detect failures. (Default: 6000 ms (6 seconds))
 	GroupMinSessionTimeoutMs *int `groups:"create,update" json:"group_min_session_timeout_ms,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=315569260000
-	// How long are delete records retained?
+	// How long are delete records retained? (Default: 86400000 (1 day))
 	LogCleanerDeleteRetentionMs *int `groups:"create,update" json:"log_cleaner_delete_retention_ms,omitempty"`
 
 	// +kubebuilder:validation:Minimum=30000
-	// The maximum amount of time message will remain uncompacted. Only applicable for logs that are being compacted
+	// The maximum amount of time message will remain uncompacted. Only applicable for logs that are being compacted. (Default: 9223372036854775807 ms (Long.MAX_VALUE))
 	LogCleanerMaxCompactionLagMs *int `groups:"create,update" json:"log_cleaner_max_compaction_lag_ms,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0.2
 	// +kubebuilder:validation:Maximum=0.9
-	// Controls log compactor frequency. Larger value means more frequent compactions but also more space wasted for logs. Consider setting log.cleaner.max.compaction.lag.ms to enforce compactions sooner, instead of setting a very high value for this option.
+	// Controls log compactor frequency. Larger value means more frequent compactions but also more space wasted for logs. Consider setting log.cleaner.max.compaction.lag.ms to enforce compactions sooner, instead of setting a very high value for this option. (Default: 0.5)
 	LogCleanerMinCleanableRatio *float64 `groups:"create,update" json:"log_cleaner_min_cleanable_ratio,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
-	// The minimum time a message will remain uncompacted in the log. Only applicable for logs that are being compacted.
+	// The minimum time a message will remain uncompacted in the log. Only applicable for logs that are being compacted. (Default: 0 ms)
 	LogCleanerMinCompactionLagMs *int `groups:"create,update" json:"log_cleaner_min_compaction_lag_ms,omitempty"`
 
 	// +kubebuilder:validation:Enum="delete";"compact";"compact,delete"
-	// The default cleanup policy for segments beyond the retention window
+	// The default cleanup policy for segments beyond the retention window (Default: delete)
 	LogCleanupPolicy *string `groups:"create,update" json:"log_cleanup_policy,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
-	// The number of messages accumulated on a log partition before messages are flushed to disk
+	// The number of messages accumulated on a log partition before messages are flushed to disk (Default: 9223372036854775807 (Long.MAX_VALUE))
 	LogFlushIntervalMessages *int `groups:"create,update" json:"log_flush_interval_messages,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
-	// The maximum time in ms that a message in any topic is kept in memory before flushed to disk. If not set, the value in log.flush.scheduler.interval.ms is used
+	// The maximum time in ms that a message in any topic is kept in memory (page-cache) before flushed to disk. If not set, the value in log.flush.scheduler.interval.ms is used (Default: null)
 	LogFlushIntervalMs *int `groups:"create,update" json:"log_flush_interval_ms,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=104857600
-	// The interval with which Kafka adds an entry to the offset index
+	// The interval with which Kafka adds an entry to the offset index (Default: 4096 bytes (4 kibibytes))
 	LogIndexIntervalBytes *int `groups:"create,update" json:"log_index_interval_bytes,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1048576
 	// +kubebuilder:validation:Maximum=104857600
-	// The maximum size in bytes of the offset index
+	// The maximum size in bytes of the offset index (Default: 10485760 (10 mebibytes))
 	LogIndexSizeMaxBytes *int `groups:"create,update" json:"log_index_size_max_bytes,omitempty"`
 
 	// +kubebuilder:validation:Minimum=-2
-	// The maximum size of local log segments that can grow for a partition before it gets eligible for deletion. If set to -2, the value of log.retention.bytes is used. The effective value should always be less than or equal to log.retention.bytes value.
+	// The maximum size of local log segments that can grow for a partition before it gets eligible for deletion. If set to -2, the value of log.retention.bytes is used. The effective value should always be less than or equal to log.retention.bytes value. (Default: -2)
 	LogLocalRetentionBytes *int `groups:"create,update" json:"log_local_retention_bytes,omitempty"`
 
 	// +kubebuilder:validation:Minimum=-2
-	// The number of milliseconds to keep the local log segments before it gets eligible for deletion. If set to -2, the value of log.retention.ms is used. The effective value should always be less than or equal to log.retention.ms value.
+	// The number of milliseconds to keep the local log segments before it gets eligible for deletion. If set to -2, the value of log.retention.ms is used. The effective value should always be less than or equal to log.retention.ms value. (Default: -2)
 	LogLocalRetentionMs *int `groups:"create,update" json:"log_local_retention_ms,omitempty"`
 
-	// This configuration controls whether down-conversion of message formats is enabled to satisfy consume requests.
+	// This configuration controls whether down-conversion of message formats is enabled to satisfy consume requests. (Default: true)
 	LogMessageDownconversionEnable *bool `groups:"create,update" json:"log_message_downconversion_enable,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
-	// The maximum difference allowed between the timestamp when a broker receives a message and the timestamp specified in the message
+	// The maximum difference allowed between the timestamp when a broker receives a message and the timestamp specified in the message (Default: 9223372036854775807 (Long.MAX_VALUE))
 	LogMessageTimestampDifferenceMaxMs *int `groups:"create,update" json:"log_message_timestamp_difference_max_ms,omitempty"`
 
 	// +kubebuilder:validation:Enum="CreateTime";"LogAppendTime"
-	// Define whether the timestamp in the message is message create time or log append time.
+	// Define whether the timestamp in the message is message create time or log append time. (Default: CreateTime)
 	LogMessageTimestampType *string `groups:"create,update" json:"log_message_timestamp_type,omitempty"`
 
-	// Should pre allocate file when create new segment?
+	// Should pre allocate file when create new segment? (Default: false)
 	LogPreallocate *bool `groups:"create,update" json:"log_preallocate,omitempty"`
 
 	// +kubebuilder:validation:Minimum=-1
-	// The maximum size of the log before deleting messages
+	// The maximum size of the log before deleting messages (Default: -1)
 	LogRetentionBytes *int `groups:"create,update" json:"log_retention_bytes,omitempty"`
 
 	// +kubebuilder:validation:Minimum=-1
 	// +kubebuilder:validation:Maximum=2147483647
-	// The number of hours to keep a log file before deleting it
+	// The number of hours to keep a log file before deleting it (Default: 168 hours (1 week))
 	LogRetentionHours *int `groups:"create,update" json:"log_retention_hours,omitempty"`
 
 	// +kubebuilder:validation:Minimum=-1
-	// The number of milliseconds to keep a log file before deleting it (in milliseconds), If not set, the value in log.retention.minutes is used. If set to -1, no time limit is applied.
+	// The number of milliseconds to keep a log file before deleting it (in milliseconds), If not set, the value in log.retention.minutes is used. If set to -1, no time limit is applied. (Default: null, log.retention.hours applies)
 	LogRetentionMs *int `groups:"create,update" json:"log_retention_ms,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
-	// The maximum jitter to subtract from logRollTimeMillis (in milliseconds). If not set, the value in log.roll.jitter.hours is used
+	// The maximum jitter to subtract from logRollTimeMillis (in milliseconds). If not set, the value in log.roll.jitter.hours is used (Default: null)
 	LogRollJitterMs *int `groups:"create,update" json:"log_roll_jitter_ms,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
-	// The maximum time before a new log segment is rolled out (in milliseconds).
+	// The maximum time before a new log segment is rolled out (in milliseconds). (Default: null, log.roll.hours applies (Default: 168, 7 days))
 	LogRollMs *int `groups:"create,update" json:"log_roll_ms,omitempty"`
 
 	// +kubebuilder:validation:Minimum=10485760
 	// +kubebuilder:validation:Maximum=1073741824
-	// The maximum size of a single log file
+	// The maximum size of a single log file (Default: 1073741824 bytes (1 gibibyte))
 	LogSegmentBytes *int `groups:"create,update" json:"log_segment_bytes,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=3600000
-	// The amount of time to wait before deleting a file from the filesystem
+	// The amount of time to wait before deleting a file from the filesystem (Default: 60000 ms (1 minute))
 	LogSegmentDeleteDelayMs *int `groups:"create,update" json:"log_segment_delete_delay_ms,omitempty"`
 
 	// +kubebuilder:validation:Minimum=256
 	// +kubebuilder:validation:Maximum=2147483647
-	// The maximum number of connections allowed from each ip address (defaults to 2147483647).
+	// The maximum number of connections allowed from each ip address (Default: 2147483647).
 	MaxConnectionsPerIp *int `groups:"create,update" json:"max_connections_per_ip,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1000
 	// +kubebuilder:validation:Maximum=10000
-	// The maximum number of incremental fetch sessions that the broker will maintain.
+	// The maximum number of incremental fetch sessions that the broker will maintain. (Default: 1000)
 	MaxIncrementalFetchSessionCacheSlots *int `groups:"create,update" json:"max_incremental_fetch_session_cache_slots,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=100001200
-	// The maximum size of message that the server can receive.
+	// The maximum size of message that the server can receive. (Default: 1048588 bytes (1 mebibyte + 12 bytes))
 	MessageMaxBytes *int `groups:"create,update" json:"message_max_bytes,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=7
-	// When a producer sets acks to 'all' (or '-1'), min.insync.replicas specifies the minimum number of replicas that must acknowledge a write for the write to be considered successful.
+	// When a producer sets acks to 'all' (or '-1'), min.insync.replicas specifies the minimum number of replicas that must acknowledge a write for the write to be considered successful. (Default: 1)
 	MinInsyncReplicas *int `groups:"create,update" json:"min_insync_replicas,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=1000
-	// Number of partitions for autocreated topics
+	// Number of partitions for auto-created topics (Default: 1)
 	NumPartitions *int `groups:"create,update" json:"num_partitions,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=2147483647
-	// Log retention window in minutes for offsets topic
+	// Log retention window in minutes for offsets topic (Default: 10080 minutes (7 days))
 	OffsetsRetentionMinutes *int `groups:"create,update" json:"offsets_retention_minutes,omitempty"`
 
 	// +kubebuilder:validation:Minimum=10
 	// +kubebuilder:validation:Maximum=10000
-	// The purge interval (in number of requests) of the producer request purgatory(defaults to 1000).
+	// The purge interval (in number of requests) of the producer request purgatory (Default: 1000).
 	ProducerPurgatoryPurgeIntervalRequests *int `groups:"create,update" json:"producer_purgatory_purge_interval_requests,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1048576
 	// +kubebuilder:validation:Maximum=104857600
-	// The number of bytes of messages to attempt to fetch for each partition (defaults to 1048576). This is not an absolute maximum, if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that progress can be made.
+	// The number of bytes of messages to attempt to fetch for each partition . This is not an absolute maximum, if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that progress can be made. (Default: 1048576 bytes (1 mebibytes))
 	ReplicaFetchMaxBytes *int `groups:"create,update" json:"replica_fetch_max_bytes,omitempty"`
 
 	// +kubebuilder:validation:Minimum=10485760
 	// +kubebuilder:validation:Maximum=1048576000
-	// Maximum bytes expected for the entire fetch response (defaults to 10485760). Records are fetched in batches, and if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that progress can be made. As such, this is not an absolute maximum.
+	// Maximum bytes expected for the entire fetch response. Records are fetched in batches, and if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that progress can be made. As such, this is not an absolute maximum. (Default: 10485760 bytes (10 mebibytes))
 	ReplicaFetchResponseMaxBytes *int `groups:"create,update" json:"replica_fetch_response_max_bytes,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=128
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
-	// The (optional) comma-delimited setting for the broker to use to verify that the JWT was issued for one of the expected audiences.
+	// The (optional) comma-delimited setting for the broker to use to verify that the JWT was issued for one of the expected audiences. (Default: null)
 	SaslOauthbearerExpectedAudience *string `groups:"create,update" json:"sasl_oauthbearer_expected_audience,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=128
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
-	// Optional setting for the broker to use to verify that the JWT was created by the expected issuer.
+	// Optional setting for the broker to use to verify that the JWT was created by the expected issuer.(Default: null)
 	SaslOauthbearerExpectedIssuer *string `groups:"create,update" json:"sasl_oauthbearer_expected_issuer,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=2048
-	// OIDC JWKS endpoint URL. By setting this the SASL SSL OAuth2/OIDC authentication is enabled. See also other options for SASL OAuth2/OIDC.
+	// OIDC JWKS endpoint URL. By setting this the SASL SSL OAuth2/OIDC authentication is enabled. See also other options for SASL OAuth2/OIDC. (Default: null)
 	SaslOauthbearerJwksEndpointUrl *string `groups:"create,update" json:"sasl_oauthbearer_jwks_endpoint_url,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=128
-	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
-	// Name of the scope from which to extract the subject claim from the JWT. Defaults to sub.
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*\S[^\r\n]*$`
+	// Name of the scope from which to extract the subject claim from the JWT.(Default: sub)
 	SaslOauthbearerSubClaimName *string `groups:"create,update" json:"sasl_oauthbearer_sub_claim_name,omitempty"`
 
 	// +kubebuilder:validation:Minimum=10485760
 	// +kubebuilder:validation:Maximum=209715200
-	// The maximum number of bytes in a socket request (defaults to 104857600).
+	// The maximum number of bytes in a socket request (Default: 104857600 bytes).
 	SocketRequestMaxBytes *int `groups:"create,update" json:"socket_request_max_bytes,omitempty"`
 
-	// Enable verification that checks that the partition has been added to the transaction before writing transactional records to the partition
+	// Enable verification that checks that the partition has been added to the transaction before writing transactional records to the partition. (Default: false)
 	TransactionPartitionVerificationEnable *bool `groups:"create,update" json:"transaction_partition_verification_enable,omitempty"`
 
 	// +kubebuilder:validation:Minimum=600000
 	// +kubebuilder:validation:Maximum=3600000
-	// The interval at which to remove transactions that have expired due to transactional.id.expiration.ms passing (defaults to 3600000 (1 hour)).
+	// The interval at which to remove transactions that have expired due to transactional.id.expiration.ms passing (Default: 3600000 ms (1 hour)).
 	TransactionRemoveExpiredTransactionCleanupIntervalMs *int `groups:"create,update" json:"transaction_remove_expired_transaction_cleanup_interval_ms,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1048576
 	// +kubebuilder:validation:Maximum=2147483647
-	// The transaction topic segment bytes should be kept relatively small in order to facilitate faster log compaction and cache loads (defaults to 104857600 (100 mebibytes)).
+	// The transaction topic segment bytes should be kept relatively small in order to facilitate faster log compaction and cache loads (Default: 104857600 bytes (100 mebibytes)).
 	TransactionStateLogSegmentBytes *int `groups:"create,update" json:"transaction_state_log_segment_bytes,omitempty"`
 }
 
@@ -508,6 +514,9 @@ type KafkaUserConfig struct {
 	// +kubebuilder:validation:MaxLength=255
 	// Serve the web frontend using a custom CNAME pointing to the Aiven DNS name
 	CustomDomain *string `groups:"create,update" json:"custom_domain,omitempty"`
+
+	// Enable follower fetching
+	FollowerFetching *FollowerFetching `groups:"create,update" json:"follower_fetching,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=1024
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'

@@ -318,6 +318,13 @@ spec:
                             only at the moment)
                           maxLength: 2048
                           type: string
+                        ignore_roles:
+                          description:
+                            Comma-separated list of database roles, which
+                            should be ignored during migration (supported by PostgreSQL
+                            only at the moment)
+                          maxLength: 2048
+                          type: string
                         method:
                           description:
                             The migration method to be used (currently supported

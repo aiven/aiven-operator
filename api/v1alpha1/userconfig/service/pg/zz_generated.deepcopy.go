@@ -39,6 +39,11 @@ func (in *Migration) DeepCopyInto(out *Migration) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.IgnoreRoles != nil {
+		in, out := &in.IgnoreRoles, &out.IgnoreRoles
+		*out = new(string)
+		**out = **in
+	}
 	if in.Method != nil {
 		in, out := &in.Method, &out.Method
 		*out = new(string)
@@ -654,6 +659,11 @@ func (in *Pgbouncer) DeepCopyInto(out *Pgbouncer) {
 		in, out := &in.IgnoreStartupParameters, &out.IgnoreStartupParameters
 		*out = make([]string, len(*in))
 		copy(*out, *in)
+	}
+	if in.MaxPreparedStatements != nil {
+		in, out := &in.MaxPreparedStatements, &out.MaxPreparedStatements
+		*out = new(int)
+		**out = **in
 	}
 	if in.MinPoolSize != nil {
 		in, out := &in.MinPoolSize, &out.MinPoolSize

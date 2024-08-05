@@ -4,6 +4,18 @@
 
 - Fix `KafkaTopic`: fails to create a topic with the replication factor set more than running Kafka nodes
 - Fix `ServiceIntegration`: sends empty source and destination projects
+- Add `Kafka` field `userConfig.follower_fetching`, type `object`: Enable follower fetching
+- Change `Kafka` field `userConfig.kafka.sasl_oauthbearer_sub_claim_name`: pattern ~~`^[^\r\n]*$`~~ →
+  `^[^\r\n]*\S[^\r\n]*$`
+- Add `MySQL` field `userConfig.migration.ignore_roles`, type `string`: Comma-separated list of database
+  roles, which should be ignored during migration (supported by PostgreSQL only at the moment)
+- Add `PostgreSQL` field `userConfig.migration.ignore_roles`, type `string`: Comma-separated list of
+  database roles, which should be ignored during migration (supported by PostgreSQL only at the moment)
+- Add `PostgreSQL` field `userConfig.pgbouncer.max_prepared_statements`, type `integer`: PgBouncer tracks
+  protocol-level named prepared statements related commands sent by the client in transaction and
+  statement pooling modes when max_prepared_statements is set to a non-zero value
+- Add `Redis` field `userConfig.migration.ignore_roles`, type `string`: Comma-separated list of database
+  roles, which should be ignored during migration (supported by PostgreSQL only at the moment)
 
 ## v0.24.0 - 2024-07-16
 
