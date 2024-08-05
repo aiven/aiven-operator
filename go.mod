@@ -3,9 +3,9 @@ module github.com/aiven/aiven-operator
 go 1.22
 
 require (
-	github.com/ClickHouse/clickhouse-go/v2 v2.26.0
-	github.com/aiven/aiven-go-client/v2 v2.24.0
-	github.com/aiven/go-api-schemas v1.79.0
+	github.com/ClickHouse/clickhouse-go/v2 v2.27.0
+	github.com/aiven/aiven-go-client/v2 v2.25.0
+	github.com/aiven/go-api-schemas v1.80.0
 	github.com/aiven/go-client-codegen v0.18.0
 	github.com/dave/jennifer v1.7.0
 	github.com/docker/go-units v0.5.0
@@ -20,7 +20,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/xeipuuv/gojsonschema v1.2.0
 	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8
-	golang.org/x/sync v0.7.0
+	golang.org/x/sync v0.8.0
 	golang.org/x/tools v0.23.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.26.15
