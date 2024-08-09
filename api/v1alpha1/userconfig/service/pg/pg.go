@@ -28,6 +28,10 @@ type Migration struct {
 	// Comma-separated list of databases, which should be ignored during migration (supported by MySQL and PostgreSQL only at the moment)
 	IgnoreDbs *string `groups:"create,update" json:"ignore_dbs,omitempty"`
 
+	// +kubebuilder:validation:MaxLength=2048
+	// Comma-separated list of database roles, which should be ignored during migration (supported by PostgreSQL only at the moment)
+	IgnoreRoles *string `groups:"create,update" json:"ignore_roles,omitempty"`
+
 	// +kubebuilder:validation:Enum="dump";"replication"
 	// The migration method to be used (currently supported only by Redis, Dragonfly, MySQL and PostgreSQL service types)
 	Method *string `groups:"create,update" json:"method,omitempty"`
@@ -396,6 +400,11 @@ type Pgbouncer struct {
 	// +kubebuilder:validation:MaxItems=32
 	// List of parameters to ignore when given in startup packet
 	IgnoreStartupParameters []string `groups:"create,update" json:"ignore_startup_parameters,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=3000
+	// PgBouncer tracks protocol-level named prepared statements related commands sent by the client in transaction and statement pooling modes when max_prepared_statements is set to a non-zero value. Setting it to 0 disables prepared statements. max_prepared_statements defaults to 100, and its maximum is 3000.
+	MaxPreparedStatements *int `groups:"create,update" json:"max_prepared_statements,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=10000

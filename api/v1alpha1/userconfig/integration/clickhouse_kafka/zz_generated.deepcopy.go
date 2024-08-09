@@ -96,9 +96,19 @@ func (in *Tables) DeepCopyInto(out *Tables) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.PollMaxTimeoutMs != nil {
+		in, out := &in.PollMaxTimeoutMs, &out.PollMaxTimeoutMs
+		*out = new(int)
+		**out = **in
+	}
 	if in.SkipBrokenMessages != nil {
 		in, out := &in.SkipBrokenMessages, &out.SkipBrokenMessages
 		*out = new(int)
+		**out = **in
+	}
+	if in.ThreadPerConsumer != nil {
+		in, out := &in.ThreadPerConsumer, &out.ThreadPerConsumer
+		*out = new(bool)
 		**out = **in
 	}
 	if in.Topics != nil {

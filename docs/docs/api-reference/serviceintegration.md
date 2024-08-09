@@ -314,7 +314,9 @@ Table to create.
 - [`max_rows_per_message`](#spec.clickhouseKafka.tables.max_rows_per_message-property){: name='spec.clickhouseKafka.tables.max_rows_per_message-property'} (integer, Minimum: 1, Maximum: 1000000000). The maximum number of rows produced in one kafka message for row-based formats.
 - [`num_consumers`](#spec.clickhouseKafka.tables.num_consumers-property){: name='spec.clickhouseKafka.tables.num_consumers-property'} (integer, Minimum: 1, Maximum: 10). The number of consumers per table per replica.
 - [`poll_max_batch_size`](#spec.clickhouseKafka.tables.poll_max_batch_size-property){: name='spec.clickhouseKafka.tables.poll_max_batch_size-property'} (integer, Minimum: 0, Maximum: 1000000000). Maximum amount of messages to be polled in a single Kafka poll.
+- [`poll_max_timeout_ms`](#spec.clickhouseKafka.tables.poll_max_timeout_ms-property){: name='spec.clickhouseKafka.tables.poll_max_timeout_ms-property'} (integer, Minimum: 0, Maximum: 30000). Timeout in milliseconds for a single poll from Kafka. Takes the value of the stream_flush_interval_ms server setting by default (500ms).
 - [`skip_broken_messages`](#spec.clickhouseKafka.tables.skip_broken_messages-property){: name='spec.clickhouseKafka.tables.skip_broken_messages-property'} (integer, Minimum: 0, Maximum: 1000000000). Skip at least this number of broken messages from Kafka topic per block.
+- [`thread_per_consumer`](#spec.clickhouseKafka.tables.thread_per_consumer-property){: name='spec.clickhouseKafka.tables.thread_per_consumer-property'} (boolean). Provide an independent thread for each consumer. All consumers run in the same thread by default.
 
 #### columns {: #spec.clickhouseKafka.tables.columns }
 

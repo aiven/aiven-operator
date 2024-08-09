@@ -77,9 +77,17 @@ type Tables struct {
 	PollMaxBatchSize *int `groups:"create,update" json:"poll_max_batch_size,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=30000
+	// Timeout in milliseconds for a single poll from Kafka. Takes the value of the stream_flush_interval_ms server setting by default (500ms).
+	PollMaxTimeoutMs *int `groups:"create,update" json:"poll_max_timeout_ms,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=1000000000
 	// Skip at least this number of broken messages from Kafka topic per block
 	SkipBrokenMessages *int `groups:"create,update" json:"skip_broken_messages,omitempty"`
+
+	// Provide an independent thread for each consumer. All consumers run in the same thread by default.
+	ThreadPerConsumer *bool `groups:"create,update" json:"thread_per_consumer,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=100
 	// Kafka topics
