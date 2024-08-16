@@ -181,6 +181,14 @@ spec:
                             maximum: 1000000000
                             minimum: 0
                             type: integer
+                          poll_max_timeout_ms:
+                            description:
+                              Timeout in milliseconds for a single poll from
+                              Kafka. Takes the value of the stream_flush_interval_ms
+                              server setting by default (500ms).
+                            maximum: 30000
+                            minimum: 0
+                            type: integer
                           skip_broken_messages:
                             description:
                               Skip at least this number of broken messages
@@ -188,6 +196,11 @@ spec:
                             maximum: 1000000000
                             minimum: 0
                             type: integer
+                          thread_per_consumer:
+                            description:
+                              Provide an independent thread for each consumer.
+                              All consumers run in the same thread by default.
+                            type: boolean
                           topics:
                             description: Kafka topics
                             items:

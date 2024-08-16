@@ -314,6 +314,13 @@ spec:
                             only at the moment)
                           maxLength: 2048
                           type: string
+                        ignore_roles:
+                          description:
+                            Comma-separated list of database roles, which
+                            should be ignored during migration (supported by PostgreSQL
+                            only at the moment)
+                          maxLength: 2048
+                          type: string
                         method:
                           description:
                             The migration method to be used (currently supported
@@ -909,6 +916,17 @@ spec:
                             type: string
                           maxItems: 32
                           type: array
+                        max_prepared_statements:
+                          description:
+                            PgBouncer tracks protocol-level named prepared
+                            statements related commands sent by the client in transaction
+                            and statement pooling modes when max_prepared_statements
+                            is set to a non-zero value. Setting it to 0 disables prepared
+                            statements. max_prepared_statements defaults to 100, and
+                            its maximum is 3000.
+                          maximum: 3000
+                          minimum: 0
+                          type: integer
                         min_pool_size:
                           description:
                             Add more server connections to pool if below
