@@ -193,9 +193,12 @@ OpenSearch specific user configuration options.
 **Optional**
 
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.
+- [`azure_migration`](#spec.userConfig.azure_migration-property){: name='spec.userConfig.azure_migration-property'} (object). See below for [nested schema](#spec.userConfig.azure_migration).
 - [`custom_domain`](#spec.userConfig.custom_domain-property){: name='spec.userConfig.custom_domain-property'} (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name.
 - [`disable_replication_factor_adjustment`](#spec.userConfig.disable_replication_factor_adjustment-property){: name='spec.userConfig.disable_replication_factor_adjustment-property'} (boolean). DEPRECATED: Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can no longer be activated.
+- [`gcs_migration`](#spec.userConfig.gcs_migration-property){: name='spec.userConfig.gcs_migration-property'} (object). See below for [nested schema](#spec.userConfig.gcs_migration).
 - [`index_patterns`](#spec.userConfig.index_patterns-property){: name='spec.userConfig.index_patterns-property'} (array of objects, MaxItems: 512). Index patterns. See below for [nested schema](#spec.userConfig.index_patterns).
+- [`index_rollup`](#spec.userConfig.index_rollup-property){: name='spec.userConfig.index_rollup-property'} (object). Index rollup settings. See below for [nested schema](#spec.userConfig.index_rollup).
 - [`index_template`](#spec.userConfig.index_template-property){: name='spec.userConfig.index_template-property'} (object). Template settings for all new indexes. See below for [nested schema](#spec.userConfig.index_template).
 - [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
 - [`keep_index_refresh_interval`](#spec.userConfig.keep_index_refresh_interval-property){: name='spec.userConfig.keep_index_refresh_interval-property'} (boolean). Aiven automation resets index.refresh_interval to default value for every index to be sure that indices are always visible to search. If it doesn't fit your case, you can disable this by setting up this flag to true.
@@ -209,10 +212,46 @@ OpenSearch specific user configuration options.
 - [`project_to_fork_from`](#spec.userConfig.project_to_fork_from-property){: name='spec.userConfig.project_to_fork_from-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]{0,63}$|^$`, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.
 - [`public_access`](#spec.userConfig.public_access-property){: name='spec.userConfig.public_access-property'} (object). Allow access to selected service ports from the public Internet. See below for [nested schema](#spec.userConfig.public_access).
 - [`recovery_basebackup_name`](#spec.userConfig.recovery_basebackup_name-property){: name='spec.userConfig.recovery_basebackup_name-property'} (string, Pattern: `^[a-zA-Z0-9-_:.]+$`, MaxLength: 128). Name of the basebackup to restore in forked service.
+- [`s3_migration`](#spec.userConfig.s3_migration-property){: name='spec.userConfig.s3_migration-property'} (object). See below for [nested schema](#spec.userConfig.s3_migration).
 - [`saml`](#spec.userConfig.saml-property){: name='spec.userConfig.saml-property'} (object). OpenSearch SAML configuration. See below for [nested schema](#spec.userConfig.saml).
 - [`service_log`](#spec.userConfig.service_log-property){: name='spec.userConfig.service_log-property'} (boolean). Store logs for the service so that they are available in the HTTP API and console.
 - [`service_to_fork_from`](#spec.userConfig.service_to_fork_from-property){: name='spec.userConfig.service_to_fork_from-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]{0,63}$|^$`, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.
 - [`static_ips`](#spec.userConfig.static_ips-property){: name='spec.userConfig.static_ips-property'} (boolean). Use static public IP addresses.
+
+### azure_migration {: #spec.userConfig.azure_migration }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+**Required**
+
+- [`account`](#spec.userConfig.azure_migration.account-property){: name='spec.userConfig.azure_migration.account-property'} (string, Pattern: `^[^\r\n]*$`). Azure account name.
+- [`base_path`](#spec.userConfig.azure_migration.base_path-property){: name='spec.userConfig.azure_migration.base_path-property'} (string, Pattern: `^[^\r\n]*$`). The path to the repository data within its container. The value of this setting should not start or end with a /.
+- [`container`](#spec.userConfig.azure_migration.container-property){: name='spec.userConfig.azure_migration.container-property'} (string, Pattern: `^[^\r\n]*$`). Azure container name.
+- [`snapshot_name`](#spec.userConfig.azure_migration.snapshot_name-property){: name='spec.userConfig.azure_migration.snapshot_name-property'} (string, Pattern: `^[^\r\n]*$`). The snapshot name to restore from.
+
+**Optional**
+
+- [`chunk_size`](#spec.userConfig.azure_migration.chunk_size-property){: name='spec.userConfig.azure_migration.chunk_size-property'} (string, Pattern: `^[^\r\n]*$`). Big files can be broken down into chunks during snapshotting if needed. Should be the same as for the 3rd party repository.
+- [`compress`](#spec.userConfig.azure_migration.compress-property){: name='spec.userConfig.azure_migration.compress-property'} (boolean). when set to true metadata files are stored in compressed format.
+- [`endpoint_suffix`](#spec.userConfig.azure_migration.endpoint_suffix-property){: name='spec.userConfig.azure_migration.endpoint_suffix-property'} (string, Pattern: `^[^\r\n]*$`). Defines the DNS suffix for Azure Storage endpoints.
+- [`key`](#spec.userConfig.azure_migration.key-property){: name='spec.userConfig.azure_migration.key-property'} (string, Pattern: `^[^\r\n]*$`). Azure account secret key. One of key or sas_token should be specified.
+- [`sas_token`](#spec.userConfig.azure_migration.sas_token-property){: name='spec.userConfig.azure_migration.sas_token-property'} (string, Pattern: `^[^\r\n]*$`). A shared access signatures (SAS) token. One of key or sas_token should be specified.
+
+### gcs_migration {: #spec.userConfig.gcs_migration }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+**Required**
+
+- [`base_path`](#spec.userConfig.gcs_migration.base_path-property){: name='spec.userConfig.gcs_migration.base_path-property'} (string, Pattern: `^[^\r\n]*$`). The path to the repository data within its container. The value of this setting should not start or end with a /.
+- [`bucket`](#spec.userConfig.gcs_migration.bucket-property){: name='spec.userConfig.gcs_migration.bucket-property'} (string, Pattern: `^[^\r\n]*$`). The path to the repository data within its container.
+- [`credentials`](#spec.userConfig.gcs_migration.credentials-property){: name='spec.userConfig.gcs_migration.credentials-property'} (string, Pattern: `^[^\r\n]*$`). Google Cloud Storage credentials file content.
+- [`snapshot_name`](#spec.userConfig.gcs_migration.snapshot_name-property){: name='spec.userConfig.gcs_migration.snapshot_name-property'} (string, Pattern: `^[^\r\n]*$`). The snapshot name to restore from.
+
+**Optional**
+
+- [`chunk_size`](#spec.userConfig.gcs_migration.chunk_size-property){: name='spec.userConfig.gcs_migration.chunk_size-property'} (string, Pattern: `^[^\r\n]*$`). Big files can be broken down into chunks during snapshotting if needed. Should be the same as for the 3rd party repository.
+- [`compress`](#spec.userConfig.gcs_migration.compress-property){: name='spec.userConfig.gcs_migration.compress-property'} (boolean). when set to true metadata files are stored in compressed format.
 
 ### index_patterns {: #spec.userConfig.index_patterns }
 
@@ -228,6 +267,20 @@ Allows you to create glob style patterns and set a max number of indexes matchin
 **Optional**
 
 - [`sorting_algorithm`](#spec.userConfig.index_patterns.sorting_algorithm-property){: name='spec.userConfig.index_patterns.sorting_algorithm-property'} (string, Enum: `alphabetical`, `creation_date`). Deletion sorting algorithm.
+
+### index_rollup {: #spec.userConfig.index_rollup }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+Index rollup settings.
+
+**Optional**
+
+- [`rollup_dashboards_enabled`](#spec.userConfig.index_rollup.rollup_dashboards_enabled-property){: name='spec.userConfig.index_rollup.rollup_dashboards_enabled-property'} (boolean). Whether rollups are enabled in OpenSearch Dashboards. Defaults to true.
+- [`rollup_enabled`](#spec.userConfig.index_rollup.rollup_enabled-property){: name='spec.userConfig.index_rollup.rollup_enabled-property'} (boolean). Whether the rollup plugin is enabled. Defaults to true.
+- [`rollup_search_backoff_count`](#spec.userConfig.index_rollup.rollup_search_backoff_count-property){: name='spec.userConfig.index_rollup.rollup_search_backoff_count-property'} (integer, Minimum: 1). How many retries the plugin should attempt for failed rollup jobs. Defaults to 5.
+- [`rollup_search_backoff_millis`](#spec.userConfig.index_rollup.rollup_search_backoff_millis-property){: name='spec.userConfig.index_rollup.rollup_search_backoff_millis-property'} (integer, Minimum: 1). The backoff time between retries for failed rollup jobs. Defaults to 1000ms.
+- [`rollup_search_search_all_jobs`](#spec.userConfig.index_rollup.rollup_search_search_all_jobs-property){: name='spec.userConfig.index_rollup.rollup_search_search_all_jobs-property'} (boolean). Whether OpenSearch should return all jobs that match all specified search terms. If disabled, OpenSearch returns just one, as opposed to all, of the jobs that matches the search terms. Defaults to false.
 
 ### index_template {: #spec.userConfig.index_template }
 
@@ -265,7 +318,7 @@ OpenSearch OpenID Connect Configuration.
 
 - [`client_id`](#spec.userConfig.openid.client_id-property){: name='spec.userConfig.openid.client_id-property'} (string, Pattern: `^[^\r\n]*$`, MinLength: 1, MaxLength: 1024). The ID of the OpenID Connect client configured in your IdP. Required.
 - [`client_secret`](#spec.userConfig.openid.client_secret-property){: name='spec.userConfig.openid.client_secret-property'} (string, Pattern: `^[^\r\n]*$`, MinLength: 1, MaxLength: 1024). The client secret of the OpenID Connect client configured in your IdP. Required.
-- [`connect_url`](#spec.userConfig.openid.connect_url-property){: name='spec.userConfig.openid.connect_url-property'} (string, MaxLength: 2048). The URL of your IdP where the Security plugin can find the OpenID Connect metadata/configuration settings.
+- [`connect_url`](#spec.userConfig.openid.connect_url-property){: name='spec.userConfig.openid.connect_url-property'} (string, Pattern: `^[^\r\n]*$`, MaxLength: 2048). The URL of your IdP where the Security plugin can find the OpenID Connect metadata/configuration settings.
 - [`enabled`](#spec.userConfig.openid.enabled-property){: name='spec.userConfig.openid.enabled-property'} (boolean). Enables or disables OpenID Connect authentication for OpenSearch. When enabled, users can authenticate using OpenID Connect with an Identity Provider.
 
 **Optional**
@@ -318,7 +371,7 @@ OpenSearch settings.
 - [`override_main_response_version`](#spec.userConfig.opensearch.override_main_response_version-property){: name='spec.userConfig.opensearch.override_main_response_version-property'} (boolean). Compatibility mode sets OpenSearch to report its version as 7.10 so clients continue to work. Default is false.
 - [`plugins_alerting_filter_by_backend_roles`](#spec.userConfig.opensearch.plugins_alerting_filter_by_backend_roles-property){: name='spec.userConfig.opensearch.plugins_alerting_filter_by_backend_roles-property'} (boolean). Enable or disable filtering of alerting by backend roles. Requires Security plugin. Defaults to false.
 - [`reindex_remote_whitelist`](#spec.userConfig.opensearch.reindex_remote_whitelist-property){: name='spec.userConfig.opensearch.reindex_remote_whitelist-property'} (array of strings, MaxItems: 32). Whitelisted addresses for reindexing. Changing this value will cause all OpenSearch instances to restart.
-- [`script_max_compilations_rate`](#spec.userConfig.opensearch.script_max_compilations_rate-property){: name='spec.userConfig.opensearch.script_max_compilations_rate-property'} (string, MaxLength: 1024). Script compilation circuit breaker limits the number of inline script compilations within a period of time. Default is use-context.
+- [`script_max_compilations_rate`](#spec.userConfig.opensearch.script_max_compilations_rate-property){: name='spec.userConfig.opensearch.script_max_compilations_rate-property'} (string, Pattern: `^[^\r\n]*$`, MaxLength: 1024). Script compilation circuit breaker limits the number of inline script compilations within a period of time. Default is use-context.
 - [`search_max_buckets`](#spec.userConfig.opensearch.search_max_buckets-property){: name='spec.userConfig.opensearch.search_max_buckets-property'} (integer, Minimum: 1, Maximum: 1000000). Maximum number of aggregation buckets allowed in a single response. OpenSearch default value is used when this is not defined.
 - [`thread_pool_analyze_queue_size`](#spec.userConfig.opensearch.thread_pool_analyze_queue_size-property){: name='spec.userConfig.opensearch.thread_pool_analyze_queue_size-property'} (integer, Minimum: 10, Maximum: 2000). Size for the thread pool queue. See documentation for exact details.
 - [`thread_pool_analyze_size`](#spec.userConfig.opensearch.thread_pool_analyze_size-property){: name='spec.userConfig.opensearch.thread_pool_analyze_size-property'} (integer, Minimum: 1, Maximum: 128). Size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value.
@@ -420,6 +473,26 @@ Allow access to selected service ports from the public Internet.
 - [`opensearch_dashboards`](#spec.userConfig.public_access.opensearch_dashboards-property){: name='spec.userConfig.public_access.opensearch_dashboards-property'} (boolean). Allow clients to connect to opensearch_dashboards from the public internet for service nodes that are in a project VPC or another type of private network.
 - [`prometheus`](#spec.userConfig.public_access.prometheus-property){: name='spec.userConfig.public_access.prometheus-property'} (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network.
 
+### s3_migration {: #spec.userConfig.s3_migration }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+**Required**
+
+- [`access_key`](#spec.userConfig.s3_migration.access_key-property){: name='spec.userConfig.s3_migration.access_key-property'} (string, Pattern: `^[^\r\n]*$`). AWS Access key.
+- [`base_path`](#spec.userConfig.s3_migration.base_path-property){: name='spec.userConfig.s3_migration.base_path-property'} (string, Pattern: `^[^\r\n]*$`). The path to the repository data within its container. The value of this setting should not start or end with a /.
+- [`bucket`](#spec.userConfig.s3_migration.bucket-property){: name='spec.userConfig.s3_migration.bucket-property'} (string, Pattern: `^[^\r\n]*$`). S3 bucket name.
+- [`region`](#spec.userConfig.s3_migration.region-property){: name='spec.userConfig.s3_migration.region-property'} (string, Pattern: `^[^\r\n]*$`). S3 region.
+- [`secret_key`](#spec.userConfig.s3_migration.secret_key-property){: name='spec.userConfig.s3_migration.secret_key-property'} (string, Pattern: `^[^\r\n]*$`). AWS secret key.
+- [`snapshot_name`](#spec.userConfig.s3_migration.snapshot_name-property){: name='spec.userConfig.s3_migration.snapshot_name-property'} (string, Pattern: `^[^\r\n]*$`). The snapshot name to restore from.
+
+**Optional**
+
+- [`chunk_size`](#spec.userConfig.s3_migration.chunk_size-property){: name='spec.userConfig.s3_migration.chunk_size-property'} (string, Pattern: `^[^\r\n]*$`). Big files can be broken down into chunks during snapshotting if needed. Should be the same as for the 3rd party repository.
+- [`compress`](#spec.userConfig.s3_migration.compress-property){: name='spec.userConfig.s3_migration.compress-property'} (boolean). when set to true metadata files are stored in compressed format.
+- [`endpoint`](#spec.userConfig.s3_migration.endpoint-property){: name='spec.userConfig.s3_migration.endpoint-property'} (string, Pattern: `^[^\r\n]*$`). The S3 service endpoint to connect to. If you are using an S3-compatible service then you should set this to the service’s endpoint.
+- [`server_side_encryption`](#spec.userConfig.s3_migration.server_side_encryption-property){: name='spec.userConfig.s3_migration.server_side_encryption-property'} (boolean). When set to true files are encrypted on server side.
+
 ### saml {: #spec.userConfig.saml }
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
@@ -430,7 +503,7 @@ OpenSearch SAML configuration.
 
 - [`enabled`](#spec.userConfig.saml.enabled-property){: name='spec.userConfig.saml.enabled-property'} (boolean). Enables or disables SAML-based authentication for OpenSearch. When enabled, users can authenticate using SAML with an Identity Provider.
 - [`idp_entity_id`](#spec.userConfig.saml.idp_entity_id-property){: name='spec.userConfig.saml.idp_entity_id-property'} (string, Pattern: `^[^\r\n]*$`, MinLength: 1, MaxLength: 1024). The unique identifier for the Identity Provider (IdP) entity that is used for SAML authentication. This value is typically provided by the IdP.
-- [`idp_metadata_url`](#spec.userConfig.saml.idp_metadata_url-property){: name='spec.userConfig.saml.idp_metadata_url-property'} (string, MinLength: 1, MaxLength: 2048). The URL of the SAML metadata for the Identity Provider (IdP). This is used to configure SAML-based authentication with the IdP.
+- [`idp_metadata_url`](#spec.userConfig.saml.idp_metadata_url-property){: name='spec.userConfig.saml.idp_metadata_url-property'} (string, Pattern: `^[^\r\n]*$`, MinLength: 1, MaxLength: 2048). The URL of the SAML metadata for the Identity Provider (IdP). This is used to configure SAML-based authentication with the IdP.
 - [`sp_entity_id`](#spec.userConfig.saml.sp_entity_id-property){: name='spec.userConfig.saml.sp_entity_id-property'} (string, Pattern: `^[^\r\n]*$`, MinLength: 1, MaxLength: 1024). The unique identifier for the Service Provider (SP) entity that is used for SAML authentication. This value is typically provided by the SP.
 
 **Optional**

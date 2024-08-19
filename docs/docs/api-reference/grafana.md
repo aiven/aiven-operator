@@ -241,6 +241,7 @@ Cassandra specific user configuration options.
 - [`user_auto_assign_org`](#spec.userConfig.user_auto_assign_org-property){: name='spec.userConfig.user_auto_assign_org-property'} (boolean). Auto-assign new users on signup to main organization. Defaults to false.
 - [`user_auto_assign_org_role`](#spec.userConfig.user_auto_assign_org_role-property){: name='spec.userConfig.user_auto_assign_org_role-property'} (string, Enum: `Viewer`, `Admin`, `Editor`). Set role for new signups. Defaults to Viewer.
 - [`viewers_can_edit`](#spec.userConfig.viewers_can_edit-property){: name='spec.userConfig.viewers_can_edit-property'} (boolean). Users with view-only permission can edit but not save dashboards.
+- [`wal`](#spec.userConfig.wal-property){: name='spec.userConfig.wal-property'} (boolean). Setting to enable/disable Write-Ahead Logging. The default value is false (disabled).
 
 ### auth_azuread {: #spec.userConfig.auth_azuread }
 

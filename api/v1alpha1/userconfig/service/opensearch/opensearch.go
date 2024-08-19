@@ -3,6 +3,67 @@
 
 package opensearchuserconfig
 
+type AzureMigration struct {
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// Azure account name
+	Account string `groups:"create,update" json:"account"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// The path to the repository data within its container. The value of this setting should not start or end with a /
+	BasePath string `groups:"create,update" json:"base_path"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// Big files can be broken down into chunks during snapshotting if needed. Should be the same as for the 3rd party repository
+	ChunkSize *string `groups:"create,update" json:"chunk_size,omitempty"`
+
+	// when set to true metadata files are stored in compressed format
+	Compress *bool `groups:"create,update" json:"compress,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// Azure container name
+	Container string `groups:"create,update" json:"container"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// Defines the DNS suffix for Azure Storage endpoints.
+	EndpointSuffix *string `groups:"create,update" json:"endpoint_suffix,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// Azure account secret key. One of key or sas_token should be specified
+	Key *string `groups:"create,update" json:"key,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// A shared access signatures (SAS) token. One of key or sas_token should be specified
+	SasToken *string `groups:"create,update" json:"sas_token,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// The snapshot name to restore from
+	SnapshotName string `groups:"create,update" json:"snapshot_name"`
+}
+type GcsMigration struct {
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// The path to the repository data within its container. The value of this setting should not start or end with a /
+	BasePath string `groups:"create,update" json:"base_path"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// The path to the repository data within its container
+	Bucket string `groups:"create,update" json:"bucket"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// Big files can be broken down into chunks during snapshotting if needed. Should be the same as for the 3rd party repository
+	ChunkSize *string `groups:"create,update" json:"chunk_size,omitempty"`
+
+	// when set to true metadata files are stored in compressed format
+	Compress *bool `groups:"create,update" json:"compress,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// Google Cloud Storage credentials file content
+	Credentials string `groups:"create,update" json:"credentials"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// The snapshot name to restore from
+	SnapshotName string `groups:"create,update" json:"snapshot_name"`
+}
+
 // Allows you to create glob style patterns and set a max number of indexes matching this pattern you want to keep. Creating indexes exceeding this value will cause the oldest one to get deleted. You could for example create a pattern looking like 'logs.?' and then create index logs.1, logs.2 etc, it will delete logs.1 once you create logs.6. Do note 'logs.?' does not apply to logs.10. Note: Setting max_index_count to 0 will do nothing and the pattern gets ignored.
 type IndexPatterns struct {
 	// +kubebuilder:validation:Minimum=0
@@ -17,6 +78,26 @@ type IndexPatterns struct {
 	// +kubebuilder:validation:Enum="alphabetical";"creation_date"
 	// Deletion sorting algorithm
 	SortingAlgorithm *string `groups:"create,update" json:"sorting_algorithm,omitempty"`
+}
+
+// Index rollup settings
+type IndexRollup struct {
+	// Whether rollups are enabled in OpenSearch Dashboards. Defaults to true.
+	RollupDashboardsEnabled *bool `groups:"create,update" json:"rollup_dashboards_enabled,omitempty"`
+
+	// Whether the rollup plugin is enabled. Defaults to true.
+	RollupEnabled *bool `groups:"create,update" json:"rollup_enabled,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// How many retries the plugin should attempt for failed rollup jobs. Defaults to 5.
+	RollupSearchBackoffCount *int `groups:"create,update" json:"rollup_search_backoff_count,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// The backoff time between retries for failed rollup jobs. Defaults to 1000ms.
+	RollupSearchBackoffMillis *int `groups:"create,update" json:"rollup_search_backoff_millis,omitempty"`
+
+	// Whether OpenSearch should return all jobs that match all specified search terms. If disabled, OpenSearch returns just one, as opposed to all, of the jobs that matches the search terms. Defaults to false.
+	RollupSearchSearchAllJobs *bool `groups:"create,update" json:"rollup_search_search_all_jobs,omitempty"`
 }
 
 // Template settings for all new indexes
@@ -63,6 +144,7 @@ type Openid struct {
 	ClientSecret string `groups:"create,update" json:"client_secret"`
 
 	// +kubebuilder:validation:MaxLength=2048
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// The URL of your IdP where the Security plugin can find the OpenID Connect metadata/configuration settings.
 	ConnectUrl string `groups:"create,update" json:"connect_url"`
 
@@ -329,6 +411,7 @@ type Opensearch struct {
 	ReindexRemoteWhitelist []string `groups:"create,update" json:"reindex_remote_whitelist,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// Script compilation circuit breaker limits the number of inline script compilations within a period of time. Default is use-context
 	ScriptMaxCompilationsRate *string `groups:"create,update" json:"script_max_compilations_rate,omitempty"`
 
@@ -444,6 +527,45 @@ type PublicAccess struct {
 	// Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network
 	Prometheus *bool `groups:"create,update" json:"prometheus,omitempty"`
 }
+type S3Migration struct {
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// AWS Access key
+	AccessKey string `groups:"create,update" json:"access_key"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// The path to the repository data within its container. The value of this setting should not start or end with a /
+	BasePath string `groups:"create,update" json:"base_path"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// S3 bucket name
+	Bucket string `groups:"create,update" json:"bucket"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// Big files can be broken down into chunks during snapshotting if needed. Should be the same as for the 3rd party repository
+	ChunkSize *string `groups:"create,update" json:"chunk_size,omitempty"`
+
+	// when set to true metadata files are stored in compressed format
+	Compress *bool `groups:"create,update" json:"compress,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// The S3 service endpoint to connect to. If you are using an S3-compatible service then you should set this to the service’s endpoint
+	Endpoint *string `groups:"create,update" json:"endpoint,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// S3 region
+	Region string `groups:"create,update" json:"region"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// AWS secret key
+	SecretKey string `groups:"create,update" json:"secret_key"`
+
+	// When set to true files are encrypted on server side
+	ServerSideEncryption *bool `groups:"create,update" json:"server_side_encryption,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// The snapshot name to restore from
+	SnapshotName string `groups:"create,update" json:"snapshot_name"`
+}
 
 // OpenSearch SAML configuration
 type Saml struct {
@@ -458,6 +580,7 @@ type Saml struct {
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=2048
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// The URL of the SAML metadata for the Identity Provider (IdP). This is used to configure SAML-based authentication with the IdP.
 	IdpMetadataUrl string `groups:"create,update" json:"idp_metadata_url"`
 
@@ -488,6 +611,8 @@ type OpensearchUserConfig struct {
 	// Additional Cloud Regions for Backup Replication
 	AdditionalBackupRegions []string `groups:"create,update" json:"additional_backup_regions,omitempty"`
 
+	AzureMigration *AzureMigration `groups:"create,update" json:"azure_migration,omitempty"`
+
 	// +kubebuilder:validation:MaxLength=255
 	// Serve the web frontend using a custom CNAME pointing to the Aiven DNS name
 	CustomDomain *string `groups:"create,update" json:"custom_domain,omitempty"`
@@ -495,9 +620,14 @@ type OpensearchUserConfig struct {
 	// DEPRECATED: Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can no longer be activated.
 	DisableReplicationFactorAdjustment *bool `groups:"create,update" json:"disable_replication_factor_adjustment,omitempty"`
 
+	GcsMigration *GcsMigration `groups:"create,update" json:"gcs_migration,omitempty"`
+
 	// +kubebuilder:validation:MaxItems=512
 	// Index patterns
 	IndexPatterns []*IndexPatterns `groups:"create,update" json:"index_patterns,omitempty"`
+
+	// Index rollup settings
+	IndexRollup *IndexRollup `groups:"create,update" json:"index_rollup,omitempty"`
 
 	// Template settings for all new indexes
 	IndexTemplate *IndexTemplate `groups:"create,update" json:"index_template,omitempty"`
@@ -545,6 +675,8 @@ type OpensearchUserConfig struct {
 	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9-_:.]+$`
 	// Name of the basebackup to restore in forked service
 	RecoveryBasebackupName *string `groups:"create,update" json:"recovery_basebackup_name,omitempty"`
+
+	S3Migration *S3Migration `groups:"create,update" json:"s3_migration,omitempty"`
 
 	// OpenSearch SAML configuration
 	Saml *Saml `groups:"create,update" json:"saml,omitempty"`

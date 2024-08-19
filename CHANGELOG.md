@@ -16,6 +16,16 @@
   statement pooling modes when max_prepared_statements is set to a non-zero value
 - Add `Redis` field `userConfig.migration.ignore_roles`, type `string`: Comma-separated list of database
   roles, which should be ignored during migration (supported by PostgreSQL only at the moment)
+- Add `Grafana` field `userConfig.wal`, type `boolean`: Setting to enable/disable Write-Ahead Logging.
+  The default value is false (disabled)
+- Add `Kafka` field `userConfig.kafka_sasl_mechanisms`, type `object`: Kafka SASL mechanisms
+- Add `OpenSearch` field `userConfig.azure_migration`, type `object`:
+- Add `OpenSearch` field `userConfig.gcs_migration`, type `object`:
+- Add `OpenSearch` field `userConfig.index_rollup`, type `object`: Index rollup settings
+- Add `OpenSearch` field `userConfig.s3_migration`, type `object`:
+- Change `OpenSearch` field `userConfig.openid.connect_url`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.opensearch.script_max_compilations_rate`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.saml.idp_metadata_url`: pattern `^[^\r\n]*$`
 
 ## v0.24.0 - 2024-07-16
 
