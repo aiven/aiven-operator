@@ -216,7 +216,7 @@ type Kafka struct {
 	// The maximum number of bytes in a socket request (Default: 104857600 bytes).
 	SocketRequestMaxBytes *int `groups:"create,update" json:"socket_request_max_bytes,omitempty"`
 
-	// Enable verification that checks that the partition has been added to the transaction before writing transactional records to the partition. (Default: false)
+	// Enable verification that checks that the partition has been added to the transaction before writing transactional records to the partition. (Default: true)
 	TransactionPartitionVerificationEnable *bool `groups:"create,update" json:"transaction_partition_verification_enable,omitempty"`
 
 	// +kubebuilder:validation:Minimum=600000
@@ -416,6 +416,18 @@ type KafkaRestConfig struct {
 	SimpleconsumerPoolSizeMax *int `groups:"create,update" json:"simpleconsumer_pool_size_max,omitempty"`
 }
 
+// Kafka SASL mechanisms
+type KafkaSaslMechanisms struct {
+	// Enable PLAIN mechanism
+	Plain *bool `groups:"create,update" json:"plain,omitempty"`
+
+	// Enable SCRAM-SHA-256 mechanism
+	ScramSha256 *bool `groups:"create,update" json:"scram_sha_256,omitempty"`
+
+	// Enable SCRAM-SHA-512 mechanism
+	ScramSha512 *bool `groups:"create,update" json:"scram_sha_512,omitempty"`
+}
+
 // Allow access to selected service ports from private networks
 type PrivateAccess struct {
 	// Allow clients to connect to kafka with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
@@ -545,6 +557,9 @@ type KafkaUserConfig struct {
 
 	// Kafka REST configuration
 	KafkaRestConfig *KafkaRestConfig `groups:"create,update" json:"kafka_rest_config,omitempty"`
+
+	// Kafka SASL mechanisms
+	KafkaSaslMechanisms *KafkaSaslMechanisms `groups:"create,update" json:"kafka_sasl_mechanisms,omitempty"`
 
 	// +kubebuilder:validation:Enum="3.4";"3.5";"3.6";"3.7"
 	// Kafka major version

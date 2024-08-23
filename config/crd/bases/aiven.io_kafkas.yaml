@@ -620,7 +620,7 @@ spec:
                           description:
                             "Enable verification that checks that the partition
                             has been added to the transaction before writing transactional
-                            records to the partition. (Default: false)"
+                            records to the partition. (Default: true)"
                           type: boolean
                         transaction_remove_expired_transaction_cleanup_interval_ms:
                           description:
@@ -976,6 +976,19 @@ spec:
                           maximum: 250
                           minimum: 10
                           type: integer
+                      type: object
+                    kafka_sasl_mechanisms:
+                      description: Kafka SASL mechanisms
+                      properties:
+                        plain:
+                          description: Enable PLAIN mechanism
+                          type: boolean
+                        scram_sha_256:
+                          description: Enable SCRAM-SHA-256 mechanism
+                          type: boolean
+                        scram_sha_512:
+                          description: Enable SCRAM-SHA-512 mechanism
+                          type: boolean
                       type: object
                     kafka_version:
                       description: Kafka major version

@@ -441,4 +441,7 @@ type GrafanaUserConfig struct {
 
 	// Users with view-only permission can edit but not save dashboards
 	ViewersCanEdit *bool `groups:"create,update" json:"viewers_can_edit,omitempty"`
+
+	// Setting to enable/disable Write-Ahead Logging. The default value is false (disabled).
+	Wal *bool `groups:"create,update" json:"wal,omitempty"`
 }

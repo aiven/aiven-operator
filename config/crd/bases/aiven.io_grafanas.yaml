@@ -825,6 +825,11 @@ spec:
                         Users with view-only permission can edit but not
                         save dashboards
                       type: boolean
+                    wal:
+                      description:
+                        Setting to enable/disable Write-Ahead Logging. The
+                        default value is false (disabled).
+                      type: boolean
                   type: object
               required:
                 - plan

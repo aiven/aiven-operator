@@ -216,6 +216,7 @@ Kafka specific user configuration options.
 - [`kafka_rest`](#spec.userConfig.kafka_rest-property){: name='spec.userConfig.kafka_rest-property'} (boolean). Enable Kafka-REST service.
 - [`kafka_rest_authorization`](#spec.userConfig.kafka_rest_authorization-property){: name='spec.userConfig.kafka_rest_authorization-property'} (boolean). Enable authorization in Kafka-REST service.
 - [`kafka_rest_config`](#spec.userConfig.kafka_rest_config-property){: name='spec.userConfig.kafka_rest_config-property'} (object). Kafka REST configuration. See below for [nested schema](#spec.userConfig.kafka_rest_config).
+- [`kafka_sasl_mechanisms`](#spec.userConfig.kafka_sasl_mechanisms-property){: name='spec.userConfig.kafka_sasl_mechanisms-property'} (object). Kafka SASL mechanisms. See below for [nested schema](#spec.userConfig.kafka_sasl_mechanisms).
 - [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string, Enum: `3.4`, `3.5`, `3.6`, `3.7`). Kafka major version.
 - [`letsencrypt_sasl_privatelink`](#spec.userConfig.letsencrypt_sasl_privatelink-property){: name='spec.userConfig.letsencrypt_sasl_privatelink-property'} (boolean). Use Letsencrypt CA for Kafka SASL via Privatelink.
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
@@ -302,7 +303,7 @@ Kafka broker configuration values.
 - [`sasl_oauthbearer_jwks_endpoint_url`](#spec.userConfig.kafka.sasl_oauthbearer_jwks_endpoint_url-property){: name='spec.userConfig.kafka.sasl_oauthbearer_jwks_endpoint_url-property'} (string, MaxLength: 2048). OIDC JWKS endpoint URL. By setting this the SASL SSL OAuth2/OIDC authentication is enabled. See also other options for SASL OAuth2/OIDC. (Default: null).
 - [`sasl_oauthbearer_sub_claim_name`](#spec.userConfig.kafka.sasl_oauthbearer_sub_claim_name-property){: name='spec.userConfig.kafka.sasl_oauthbearer_sub_claim_name-property'} (string, Pattern: `^[^\r\n]*\S[^\r\n]*$`, MaxLength: 128). Name of the scope from which to extract the subject claim from the JWT.(Default: sub).
 - [`socket_request_max_bytes`](#spec.userConfig.kafka.socket_request_max_bytes-property){: name='spec.userConfig.kafka.socket_request_max_bytes-property'} (integer, Minimum: 10485760, Maximum: 209715200). The maximum number of bytes in a socket request (Default: 104857600 bytes).
-- [`transaction_partition_verification_enable`](#spec.userConfig.kafka.transaction_partition_verification_enable-property){: name='spec.userConfig.kafka.transaction_partition_verification_enable-property'} (boolean). Enable verification that checks that the partition has been added to the transaction before writing transactional records to the partition. (Default: false).
+- [`transaction_partition_verification_enable`](#spec.userConfig.kafka.transaction_partition_verification_enable-property){: name='spec.userConfig.kafka.transaction_partition_verification_enable-property'} (boolean). Enable verification that checks that the partition has been added to the transaction before writing transactional records to the partition. (Default: true).
 - [`transaction_remove_expired_transaction_cleanup_interval_ms`](#spec.userConfig.kafka.transaction_remove_expired_transaction_cleanup_interval_ms-property){: name='spec.userConfig.kafka.transaction_remove_expired_transaction_cleanup_interval_ms-property'} (integer, Minimum: 600000, Maximum: 3600000). The interval at which to remove transactions that have expired due to transactional.id.expiration.ms passing (Default: 3600000 ms (1 hour)).
 - [`transaction_state_log_segment_bytes`](#spec.userConfig.kafka.transaction_state_log_segment_bytes-property){: name='spec.userConfig.kafka.transaction_state_log_segment_bytes-property'} (integer, Minimum: 1048576, Maximum: 2147483647). The transaction topic segment bytes should be kept relatively small in order to facilitate faster log compaction and cache loads (Default: 104857600 bytes (100 mebibytes)).
 
@@ -407,6 +408,18 @@ Kafka REST configuration.
 - [`producer_linger_ms`](#spec.userConfig.kafka_rest_config.producer_linger_ms-property){: name='spec.userConfig.kafka_rest_config.producer_linger_ms-property'} (integer, Minimum: 0, Maximum: 5000). Wait for up to the given delay to allow batching records together.
 - [`producer_max_request_size`](#spec.userConfig.kafka_rest_config.producer_max_request_size-property){: name='spec.userConfig.kafka_rest_config.producer_max_request_size-property'} (integer, Minimum: 0, Maximum: 2147483647). The maximum size of a request in bytes. Note that Kafka broker can also cap the record batch size.
 - [`simpleconsumer_pool_size_max`](#spec.userConfig.kafka_rest_config.simpleconsumer_pool_size_max-property){: name='spec.userConfig.kafka_rest_config.simpleconsumer_pool_size_max-property'} (integer, Minimum: 10, Maximum: 250). Maximum number of SimpleConsumers that can be instantiated per broker.
+
+### kafka_sasl_mechanisms {: #spec.userConfig.kafka_sasl_mechanisms }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+Kafka SASL mechanisms.
+
+**Optional**
+
+- [`plain`](#spec.userConfig.kafka_sasl_mechanisms.plain-property){: name='spec.userConfig.kafka_sasl_mechanisms.plain-property'} (boolean). Enable PLAIN mechanism.
+- [`scram_sha_256`](#spec.userConfig.kafka_sasl_mechanisms.scram_sha_256-property){: name='spec.userConfig.kafka_sasl_mechanisms.scram_sha_256-property'} (boolean). Enable SCRAM-SHA-256 mechanism.
+- [`scram_sha_512`](#spec.userConfig.kafka_sasl_mechanisms.scram_sha_512-property){: name='spec.userConfig.kafka_sasl_mechanisms.scram_sha_512-property'} (boolean). Enable SCRAM-SHA-512 mechanism.
 
 ### private_access {: #spec.userConfig.private_access }
 
