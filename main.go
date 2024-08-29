@@ -4,6 +4,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"strings"
 
@@ -13,11 +14,13 @@ import (
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	"github.com/aiven/aiven-operator/controllers"
+	"github.com/aiven/aiven-operator/utils"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -59,7 +62,7 @@ func main() {
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
+	ctrlOptions := ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     metricsAddr,
 		Port:                   port,
@@ -77,7 +80,23 @@ func main() {
 		// if you are doing or is intended to do any operation such as perform cleanups
 		// after the manager stops then its usage might be unsafe.
 		// LeaderElectionReleaseOnCancel: true,
-	})
+	}
+
+	// restrict the operator access to only specific namespaces, if `WATCHED_NAMESPACES` variable is set
+	watchedNamespaces := os.Getenv("WATCHED_NAMESPACES")
+	if watchedNamespaces != "" {
+		namespaces := strings.Split(watchedNamespaces, ",")
+		for _, namespace := range namespaces {
+			if err := utils.ValidateNamespaceName(namespace); err != nil {
+				setupLog.Error(err, "invalid namespace")
+				os.Exit(1)
+			}
+		}
+		setupLog.Info(fmt.Sprintf("Watching namespaces: %s", strings.Join(namespaces, ", ")))
+		ctrlOptions.NewCache = cache.MultiNamespacedCacheBuilder(namespaces)
+	}
+
+	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrlOptions)
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)

@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"fmt"
+	"regexp"
+
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -44,4 +47,24 @@ func CheckSliceContainment[T comparable](needles, haystack []T) []T {
 	}
 
 	return missingElements
+}
+
+// ValidateNamespaceName checks if the namespace name is valid according to Kubernetes conventions
+// and returns an error if it's not valid.
+func ValidateNamespaceName(namespace string) error {
+	// Kubernetes namespace name validation regex
+	validNamespaceName := regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`)
+
+	// Check if the namespace name is between 1 and 63 characters long
+	if len(namespace) < 1 || len(namespace) > 63 {
+		return fmt.Errorf("invalid namespace name: '%s' (must be between 1 and 63 characters long)", namespace)
+	}
+
+	// Check if the namespace name matches the regex
+	if !validNamespaceName.MatchString(namespace) {
+		return fmt.Errorf("invalid namespace name: '%s' (must start and end with an alphanumeric character, and contain only lowercase letters, numbers, and dashes)", namespace)
+	}
+
+	// If all checks pass, return nil (no error)
+	return nil
 }

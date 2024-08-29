@@ -49,6 +49,10 @@ spec:
             - name: ENABLE_WEBHOOKS
               value: "false"
             {{- end }}
+            {{- with .Values.watchedNamespaces }}
+            - name: WATCHED_NAMESPACES
+              value: {{ . | uniq | join "," | quote }}
+            {{- end }}
           command:
             - /manager
           args:

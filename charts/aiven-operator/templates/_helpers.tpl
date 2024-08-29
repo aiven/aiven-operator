@@ -72,3 +72,19 @@ Common annotation our custom resource
 {{- define "aiven-operator.ca_injection_annotation" -}}
 cert-manager.io/inject-ca-from: {{ include "aiven-operator.namespace" . }}/{{ include "aiven-operator.fullname" . }}-webhook-certificate
 {{- end }}
+
+{{/*
+namespaceSelector for validating and mutating webhooks
+*/}}
+{{- define "aiven-operator.webhookNamespaceSelector" -}}
+{{- with .Values.watchedNamespaces }}
+namespaceSelector:
+  matchExpressions:
+    - values:
+      {{- range . }}
+        - {{ . }}
+      {{- end }}
+      key: kubernetes.io/metadata.name
+      operator: In
+{{- end }}
+{{- end }}

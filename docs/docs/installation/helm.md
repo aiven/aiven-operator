@@ -77,6 +77,12 @@ Please refer to the [values.yaml](https://github.com/aiven/aiven-charts/blob/mai
 
 If the person installing the Helm chart does not have the necessary permissions to create cluster-wide resources such as `ClusterRole` and `ClusterRoleBinding`, a cluster administrator can manually install these roles. This ensures that the operator can function properly.
 
+#### Restrict operator access to specific namespaces
+
+You can configure the operator to monitor resources within specific namespaces.
+If the ClusterRole is enabled, it will be bound to the operator's `ServiceAccount` within each watched namespace using a `RoleBinding`.
+This setup grants the operator the permissions specified in the `ClusterRole`, but only within the context of the specific namespaces where the `RoleBinding` is created.
+
 ## Uninstalling
 
 !!! important
