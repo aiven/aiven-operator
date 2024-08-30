@@ -1,4 +1,8 @@
 issues:
+  exclude-dirs:
+    - hack
+  exclude-files:
+    - api/v1alpha1/zz_generated.deepcopy.go
   exclude-rules:
     - path: _test\.go
       linters:
@@ -30,7 +34,3 @@ linters:
 
 run:
   timeout: 10m
-  skip-dirs:
-    - hack
-  skip-files:
-    - api/v1alpha1/zz_generated.deepcopy.go
