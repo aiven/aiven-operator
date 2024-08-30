@@ -308,7 +308,7 @@ func getNamespacedName(keys ...string) (types.NamespacedName, error) {
 	case 1:
 		name = keys[0]
 		namespace = defaultNamespace
-	case 2: //nolint:gomnd
+	case 2: //nolint:mnd
 		name = keys[0]
 		namespace = keys[1]
 	default:

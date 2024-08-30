@@ -12,8 +12,8 @@ issues:
         - golint
       text: underscore
     - linters:
-        - gomnd
-      text: "mnd: Magic number: 0o644"
+        - mnd
+      text: "Magic number: 0o644"
 
 linters:
   disable-all: true
@@ -30,7 +30,7 @@ linters:
     - unused
     - vet
     - goimports
-    - gomnd
+    - mnd
 
 run:
   timeout: 10m

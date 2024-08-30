@@ -170,7 +170,7 @@ func setUsageExamples(examplesDir string, validators map[string]schemaValidator,
 				Value: strings.TrimSpace(string(exampleData)),
 			}
 			title := strings.Split(match, ".")
-			// trunk-ignore(golangci-lint/gomnd): splits foo.title.yaml and takes the middle part
+			// nolint:mnd // splits foo.title.yaml and takes the middle part
 			if len(title) > 2 {
 				// Just takes the part after the kind name
 				example.Title = title[1]
