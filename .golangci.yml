@@ -28,9 +28,16 @@ linters:
     - staticcheck
     - unconvert
     - unused
-    - vet
     - goimports
+    - govet
     - mnd
+
+linters-settings:
+  govet:
+    enable-all: true
+    disable:
+      - fieldalignment
+      - shadow
 
 run:
   timeout: 10m
