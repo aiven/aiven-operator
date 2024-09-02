@@ -26,6 +26,10 @@
 - Change `OpenSearch` field `userConfig.openid.connect_url`: pattern `^[^\r\n]*$`
 - Change `OpenSearch` field `userConfig.opensearch.script_max_compilations_rate`: pattern `^[^\r\n]*$`
 - Change `OpenSearch` field `userConfig.saml.idp_metadata_url`: pattern `^[^\r\n]*$`
+- Add `Redis` field `userConfig.backup_hour`, type `integer`: The hour of day (in UTC) when backup for
+  the service is started
+- Add `Redis` field `userConfig.backup_minute`, type `integer`: The minute of an hour when backup for
+  the service is started
 
 ## v0.24.0 - 2024-07-16
 

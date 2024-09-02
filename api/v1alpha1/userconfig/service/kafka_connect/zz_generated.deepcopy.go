@@ -331,6 +331,11 @@ func (in *Vault) DeepCopyInto(out *Vault) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.PrefixPathDepth != nil {
+		in, out := &in.PrefixPathDepth, &out.PrefixPathDepth
+		*out = new(int)
+		**out = **in
+	}
 	if in.Token != nil {
 		in, out := &in.Token, &out.Token
 		*out = new(string)
