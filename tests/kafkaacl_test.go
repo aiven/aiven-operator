@@ -95,9 +95,9 @@ func TestKafkaACL(t *testing.T) {
 
 	// THEN
 	// Kafka
-	kafkaAvn, err := avnClient.Services.Get(ctx, cfg.Project, kafkaName)
+	kafkaAvn, err := avnGen.ServiceGet(ctx, cfg.Project, kafkaName)
 	require.NoError(t, err)
-	assert.Equal(t, kafkaAvn.Name, kafka.GetName())
+	assert.Equal(t, kafkaAvn.ServiceName, kafka.GetName())
 	assert.Equal(t, serviceRunningState, kafka.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, kafkaAvn.State)
 	assert.Equal(t, kafkaAvn.Plan, kafka.Spec.Plan)

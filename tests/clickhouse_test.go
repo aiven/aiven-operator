@@ -76,9 +76,9 @@ func TestClickhouse(t *testing.T) {
 	require.NoError(t, s.GetRunning(ch, chName))
 
 	// THEN
-	chAvn, err := avnClient.Services.Get(ctx, cfg.Project, chName)
+	chAvn, err := avnGen.ServiceGet(ctx, cfg.Project, chName)
 	require.NoError(t, err)
-	assert.Equal(t, chAvn.Name, ch.GetName())
+	assert.Equal(t, chAvn.ServiceName, ch.GetName())
 	assert.Equal(t, serviceRunningState, ch.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, chAvn.State)
 	assert.Equal(t, chAvn.Plan, ch.Spec.Plan)

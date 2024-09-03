@@ -68,15 +68,15 @@ func TestKafka(t *testing.T) {
 	require.NoError(t, s.GetRunning(ks, name))
 
 	// THEN
-	ksAvn, err := avnClient.Services.Get(ctx, cfg.Project, name)
+	ksAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
 	require.NoError(t, err)
-	assert.Equal(t, ksAvn.Name, ks.GetName())
+	assert.Equal(t, ksAvn.ServiceName, ks.GetName())
 	assert.Equal(t, serviceRunningState, ks.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, ksAvn.State)
 	assert.Equal(t, ksAvn.Plan, ks.Spec.Plan)
 	assert.Equal(t, ksAvn.CloudName, ks.Spec.CloudName)
 	assert.Equal(t, "600GiB", ks.Spec.DiskSpace)
-	assert.Equal(t, 614400, ksAvn.DiskSpaceMB)
+	assert.Equal(t, 614400, ksAvn.DiskSpaceMb)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, ks.Spec.Tags)
 	ksResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)

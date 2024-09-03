@@ -104,9 +104,9 @@ func TestKafkaTopic(t *testing.T) {
 
 	// THEN
 	// Validates Kafka
-	ksAvn, err := avnClient.Services.Get(ctx, cfg.Project, ksName)
+	ksAvn, err := avnGen.ServiceGet(ctx, cfg.Project, ksName)
 	require.NoError(t, err)
-	assert.Equal(t, ksAvn.Name, ks.GetName())
+	assert.Equal(t, ksAvn.ServiceName, ks.GetName())
 	assert.Contains(t, serviceRunningStatesAiven, ksAvn.State)
 	assert.Equal(t, ksAvn.Plan, ks.Spec.Plan)
 	assert.Equal(t, ksAvn.CloudName, ks.Spec.CloudName)

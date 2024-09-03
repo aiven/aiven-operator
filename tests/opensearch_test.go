@@ -71,15 +71,15 @@ func TestOpenSearch(t *testing.T) {
 	require.NoError(t, s.GetRunning(os, name))
 
 	// THEN
-	osAvn, err := avnClient.Services.Get(ctx, cfg.Project, name)
+	osAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
 	require.NoError(t, err)
-	assert.Equal(t, osAvn.Name, os.GetName())
+	assert.Equal(t, osAvn.ServiceName, os.GetName())
 	assert.Equal(t, serviceRunningState, os.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, osAvn.State)
 	assert.Equal(t, osAvn.Plan, os.Spec.Plan)
 	assert.Equal(t, osAvn.CloudName, os.Spec.CloudName)
 	assert.Equal(t, "240GiB", os.Spec.DiskSpace)
-	assert.Equal(t, 245760, osAvn.DiskSpaceMB)
+	assert.Equal(t, 245760, osAvn.DiskSpaceMb)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, os.Spec.Tags)
 	osResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)

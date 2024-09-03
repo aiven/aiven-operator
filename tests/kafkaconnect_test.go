@@ -29,7 +29,7 @@ spec:
   project: %[1]s
   cloudName: %[3]s
   plan: business-4
-  
+
   userConfig:
     kafka_connect:
       consumer_isolation_level: read_committed
@@ -66,9 +66,9 @@ func TestKafkaConnect(t *testing.T) {
 	require.NoError(t, s.GetRunning(kc, name))
 
 	// THEN
-	kcAvn, err := avnClient.Services.Get(ctx, cfg.Project, name)
+	kcAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
 	require.NoError(t, err)
-	assert.Equal(t, kcAvn.Name, kc.GetName())
+	assert.Equal(t, kcAvn.ServiceName, kc.GetName())
 	assert.Equal(t, serviceRunningState, kc.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, kcAvn.State)
 	assert.Equal(t, kcAvn.Plan, kc.Spec.Plan)

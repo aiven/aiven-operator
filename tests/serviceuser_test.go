@@ -82,9 +82,9 @@ func TestServiceUserKafka(t *testing.T) {
 
 	// THEN
 	// Validates Kafka
-	kafkaAvn, err := avnClient.Services.Get(ctx, cfg.Project, kafkaName)
+	kafkaAvn, err := avnGen.ServiceGet(ctx, cfg.Project, kafkaName)
 	require.NoError(t, err)
-	assert.Equal(t, kafkaAvn.Name, kafka.GetName())
+	assert.Equal(t, kafkaAvn.ServiceName, kafka.GetName())
 	assert.Equal(t, serviceRunningState, kafka.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, kafkaAvn.State)
 	assert.Equal(t, kafkaAvn.Plan, kafka.Spec.Plan)
@@ -120,8 +120,8 @@ func TestServiceUserKafka(t *testing.T) {
 	// This kafka has sasl enabled and cert auth disabled.
 	// Which means that the port is not the same as in uri params.
 	strPort := string(secret.Data["SERVICEUSER_PORT"])
-	assert.NotEmpty(t, kafkaAvn.URIParams["port"])
-	assert.NotEqual(t, kafkaAvn.URIParams["port"], strPort)
+	assert.NotEmpty(t, kafkaAvn.ServiceUriParams["port"])
+	assert.NotEqual(t, kafkaAvn.ServiceUriParams["port"], strPort)
 
 	intPort, err := strconv.ParseInt(strPort, 10, 32)
 	assert.NoError(t, err)
@@ -204,9 +204,9 @@ func TestServiceUserPg(t *testing.T) {
 
 	// THEN
 	// Validates PostgreSQL
-	pgAvn, err := avnClient.Services.Get(ctx, cfg.Project, pgName)
+	pgAvn, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
-	assert.Equal(t, pgAvn.Name, pg.GetName())
+	assert.Equal(t, pgAvn.ServiceName, pg.GetName())
 	assert.Equal(t, serviceRunningState, pg.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, pgAvn.State)
 	assert.Equal(t, pgAvn.Plan, pg.Spec.Plan)
@@ -240,8 +240,8 @@ func TestServiceUserPg(t *testing.T) {
 	assert.Equal(t, map[string]string{"baz": "egg"}, secret.Labels)
 
 	// Default port is exposed
-	assert.NotEmpty(t, pgAvn.URIParams["port"])
-	assert.Equal(t, pgAvn.URIParams["port"], string(secret.Data["PORT"]))
+	assert.NotEmpty(t, pgAvn.ServiceUriParams["port"])
+	assert.Equal(t, pgAvn.ServiceUriParams["port"], string(secret.Data["PORT"]))
 
 	// We need to validate deletion,
 	// because we can get false positive here:
