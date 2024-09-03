@@ -352,6 +352,9 @@ type Vault struct {
 	// KV Secrets Engine version of the Vault server instance
 	EngineVersion *int `groups:"create,update" json:"engine_version,omitempty"`
 
+	// Prefix path depth of the secrets Engine. Default is 1. If the secrets engine path has more than one segment it has to be increased to the number of segments.
+	PrefixPathDepth *int `groups:"create,update" json:"prefix_path_depth,omitempty"`
+
 	// +kubebuilder:validation:MaxLength=256
 	// Token used to authenticate with vault and auth method `token`.
 	Token *string `groups:"create,update" json:"token,omitempty"`

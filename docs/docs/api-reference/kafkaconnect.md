@@ -265,5 +265,6 @@ Vault Config for Secret Provider.
 **Optional**
 
 - [`engine_version`](#spec.userConfig.secret_providers.vault.engine_version-property){: name='spec.userConfig.secret_providers.vault.engine_version-property'} (integer, Enum: `1`, `2`). KV Secrets Engine version of the Vault server instance.
+- [`prefix_path_depth`](#spec.userConfig.secret_providers.vault.prefix_path_depth-property){: name='spec.userConfig.secret_providers.vault.prefix_path_depth-property'} (integer). Prefix path depth of the secrets Engine. Default is 1. If the secrets engine path has more than one segment it has to be increased to the number of segments.
 - [`token`](#spec.userConfig.secret_providers.vault.token-property){: name='spec.userConfig.secret_providers.vault.token-property'} (string, MaxLength: 256). Token used to authenticate with vault and auth method `token`.
 
