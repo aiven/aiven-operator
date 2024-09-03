@@ -105,7 +105,7 @@ func (a *postgreSQLAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *aiven.Service) error {
+func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *service.ServiceGetOut) error {
 	var currentVersion string = old.UserConfig["pg_version"].(string)
 	targetUserConfig := a.getUserConfig().(*pguserconfig.PgUserConfig)
 	if targetUserConfig == nil || targetUserConfig.PgVersion == nil {

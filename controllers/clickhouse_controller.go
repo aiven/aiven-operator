@@ -96,6 +96,6 @@ func (a *clickhouseAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *clickhouseAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *aiven.Service) error {
+func (a *clickhouseAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *service.ServiceGetOut) error {
 	return nil
 }

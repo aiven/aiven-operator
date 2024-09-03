@@ -44,7 +44,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 		}
 	}
 
-	oldService, err := avn.Services.Get(ctx, spec.Project, ometa.Name)
+	oldService, err := avnGen.ServiceGet(ctx, spec.Project, ometa.Name)
 	exists := err == nil
 	if !exists && !isNotFound(err) {
 		return fmt.Errorf("failed to fetch service: %w", err)
@@ -261,5 +261,5 @@ type serviceAdapter interface {
 	getDiskSpace() string
 	getUserConfig() any
 	newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error)
-	performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *aiven.Service) error
+	performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *service.ServiceGetOut) error
 }
