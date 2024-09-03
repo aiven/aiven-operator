@@ -7,6 +7,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -174,7 +175,7 @@ func (h *genericServiceHandler) get(ctx context.Context, avn *aiven.Client, avnG
 	}
 
 	spec := o.getServiceCommonSpec()
-	s, err := avn.Services.Get(ctx, spec.Project, o.getObjectMeta().Name)
+	s, err := avnGen.ServiceGet(ctx, spec.Project, o.getObjectMeta().Name, service.ServiceGetIncludeSecrets(true))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get service from Aiven: %w", err)
 	}
@@ -259,6 +260,6 @@ type serviceAdapter interface {
 	getServiceType() string
 	getDiskSpace() string
 	getUserConfig() any
-	newSecret(ctx context.Context, s *aiven.Service) (*corev1.Secret, error)
+	newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error)
 	performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *aiven.Service) error
 }

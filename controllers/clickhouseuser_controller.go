@@ -9,6 +9,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -110,7 +111,7 @@ func (h *clickhouseUserHandler) get(ctx context.Context, avn *aiven.Client, avnG
 		return nil, err
 	}
 
-	s, err := avn.Services.Get(ctx, user.Spec.Project, user.Spec.ServiceName)
+	s, err := avnGen.ServiceGet(ctx, user.Spec.Project, user.Spec.ServiceName, service.ServiceGetIncludeSecrets(true))
 	if err != nil {
 		return nil, err
 	}
@@ -126,13 +127,13 @@ func (h *clickhouseUserHandler) get(ctx context.Context, avn *aiven.Client, avnG
 
 	prefix := getSecretPrefix(user)
 	stringData := map[string]string{
-		prefix + "HOST":     s.URIParams["host"],
-		prefix + "PORT":     s.URIParams["port"],
+		prefix + "HOST":     s.ServiceUriParams["host"],
+		prefix + "PORT":     s.ServiceUriParams["port"],
 		prefix + "PASSWORD": password,
 		prefix + "USERNAME": user.GetUsername(),
 		// todo: remove in future releases
-		"HOST":     s.URIParams["host"],
-		"PORT":     s.URIParams["port"],
+		"HOST":     s.ServiceUriParams["host"],
+		"PORT":     s.ServiceUriParams["port"],
 		"PASSWORD": password,
 		"USERNAME": user.GetUsername(),
 	}

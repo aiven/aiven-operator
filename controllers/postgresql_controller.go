@@ -74,24 +74,24 @@ func (a *postgreSQLAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *postgreSQLAdapter) newSecret(ctx context.Context, s *aiven.Service) (*corev1.Secret, error) {
+func (a *postgreSQLAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
-		prefix + "HOST":         s.URIParams["host"],
-		prefix + "PORT":         s.URIParams["port"],
-		prefix + "DATABASE":     s.URIParams["dbname"],
-		prefix + "USER":         s.URIParams["user"],
-		prefix + "PASSWORD":     s.URIParams["password"],
-		prefix + "SSLMODE":      s.URIParams["sslmode"],
-		prefix + "DATABASE_URI": s.URI,
+		prefix + "HOST":         s.ServiceUriParams["host"],
+		prefix + "PORT":         s.ServiceUriParams["port"],
+		prefix + "DATABASE":     s.ServiceUriParams["dbname"],
+		prefix + "USER":         s.ServiceUriParams["user"],
+		prefix + "PASSWORD":     s.ServiceUriParams["password"],
+		prefix + "SSLMODE":      s.ServiceUriParams["sslmode"],
+		prefix + "DATABASE_URI": s.ServiceUri,
 		// todo: remove in future releases
-		"PGHOST":       s.URIParams["host"],
-		"PGPORT":       s.URIParams["port"],
-		"PGDATABASE":   s.URIParams["dbname"],
-		"PGUSER":       s.URIParams["user"],
-		"PGPASSWORD":   s.URIParams["password"],
-		"PGSSLMODE":    s.URIParams["sslmode"],
-		"DATABASE_URI": s.URI,
+		"PGHOST":       s.ServiceUriParams["host"],
+		"PGPORT":       s.ServiceUriParams["port"],
+		"PGDATABASE":   s.ServiceUriParams["dbname"],
+		"PGUSER":       s.ServiceUriParams["user"],
+		"PGPASSWORD":   s.ServiceUriParams["password"],
+		"PGSSLMODE":    s.ServiceUriParams["sslmode"],
+		"DATABASE_URI": s.ServiceUri,
 	}
 
 	return newSecret(a, stringData, false), nil

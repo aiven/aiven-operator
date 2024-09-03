@@ -8,6 +8,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -72,20 +73,20 @@ func (a *redisAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *redisAdapter) newSecret(ctx context.Context, s *aiven.Service) (*corev1.Secret, error) {
+func (a *redisAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
-		prefix + "HOST":     s.URIParams["host"],
-		prefix + "PASSWORD": s.URIParams["password"],
-		prefix + "PORT":     s.URIParams["port"],
-		prefix + "SSL":      s.URIParams["ssl"],
-		prefix + "USER":     s.URIParams["user"],
+		prefix + "HOST":     s.ServiceUriParams["host"],
+		prefix + "PASSWORD": s.ServiceUriParams["password"],
+		prefix + "PORT":     s.ServiceUriParams["port"],
+		prefix + "SSL":      s.ServiceUriParams["ssl"],
+		prefix + "USER":     s.ServiceUriParams["user"],
 		// todo: remove in future releases
-		"HOST":     s.URIParams["host"],
-		"PASSWORD": s.URIParams["password"],
-		"PORT":     s.URIParams["port"],
-		"SSL":      s.URIParams["ssl"],
-		"USER":     s.URIParams["user"],
+		"HOST":     s.ServiceUriParams["host"],
+		"PASSWORD": s.ServiceUriParams["password"],
+		"PORT":     s.ServiceUriParams["port"],
+		"SSL":      s.ServiceUriParams["ssl"],
+		"USER":     s.ServiceUriParams["user"],
 	}
 
 	return newSecret(a, stringData, false), nil
