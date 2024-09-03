@@ -94,6 +94,6 @@ func (a *mySQLAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *mySQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *service.ServiceGetOut) error {
+func (a *mySQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
 	return nil
 }

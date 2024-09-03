@@ -93,6 +93,6 @@ func (a *grafanaAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *grafanaAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *service.ServiceGetOut) error {
+func (a *grafanaAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
 	return nil
 }

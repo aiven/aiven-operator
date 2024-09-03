@@ -98,7 +98,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 		}
 
 		// Perform upgrade task if necessary (at the moment, this is relevant only for PostgreSQL)
-		err = o.performUpgradeTaskIfNeeded(ctx, avn, avnGen, oldService)
+		err = o.performUpgradeTaskIfNeeded(ctx, avnGen, oldService)
 		if err != nil {
 			return err
 		}
@@ -261,5 +261,5 @@ type serviceAdapter interface {
 	getDiskSpace() string
 	getUserConfig() any
 	newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error)
-	performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *service.ServiceGetOut) error
+	performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error
 }

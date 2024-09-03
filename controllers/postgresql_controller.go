@@ -105,7 +105,7 @@ func (a *postgreSQLAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *service.ServiceGetOut) error {
+func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
 	var currentVersion string = old.UserConfig["pg_version"].(string)
 	targetUserConfig := a.getUserConfig().(*pguserconfig.PgUserConfig)
 	if targetUserConfig == nil || targetUserConfig.PgVersion == nil {
@@ -118,7 +118,7 @@ func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn 
 		return nil
 	}
 
-	task, err := avnGen.ServiceTaskCreate(ctx, a.getServiceCommonSpec().Project, a.getObjectMeta().Name, &service.ServiceTaskCreateIn{
+	task, err := avn.ServiceTaskCreate(ctx, a.getServiceCommonSpec().Project, a.getObjectMeta().Name, &service.ServiceTaskCreateIn{
 		TargetVersion: service.TargetVersionType(targetVersion),
 		TaskType:      service.TaskTypeUpgradeCheck,
 	})
@@ -126,21 +126,21 @@ func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn 
 		return fmt.Errorf("cannot create PG upgrade check task: %q", err)
 	}
 
-	finalTaskResult, err := waitForTaskToComplete(ctx, func() (bool, *aiven.ServiceTask, error) {
-		t, getErr := avn.ServiceTask.Get(ctx, a.getServiceCommonSpec().Project, a.getObjectMeta().Name, task.TaskId)
+	finalTaskResult, err := waitForTaskToComplete(ctx, func() (bool, *service.ServiceTaskGetOut, error) {
+		t, getErr := avn.ServiceTaskGet(ctx, a.getServiceCommonSpec().Project, a.getObjectMeta().Name, task.TaskId)
 		if getErr != nil {
-			return true, nil, fmt.Errorf("error fetching service task %s: %q", t.Task.Id, getErr)
+			return true, nil, fmt.Errorf("error fetching service task %s: %q", t.TaskId, getErr)
 		}
 
-		if t.Task.Success == nil {
+		if !t.Success {
 			return false, nil, nil
 		}
-		return true, &t.Task, nil
+		return true, t, nil
 	})
 	if err != nil {
 		return err
 	}
-	if !*finalTaskResult.Success {
+	if !finalTaskResult.Success {
 		return fmt.Errorf("PG service upgrade check error, version upgrade from %s to %s, result: %s", currentVersion, targetVersion, finalTaskResult.Result)
 	}
 	return nil

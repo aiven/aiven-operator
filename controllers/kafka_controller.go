@@ -128,6 +128,6 @@ func (a *kafkaAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *kafkaAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *service.ServiceGetOut) error {
+func (a *kafkaAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
 	return nil
 }
