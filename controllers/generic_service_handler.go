@@ -186,7 +186,7 @@ func (h *genericServiceHandler) get(ctx context.Context, avn *aiven.Client, avnG
 		return nil, nil
 	}
 
-	status.State = "RUNNING" // overrides REBALANCING
+	status.State = service.ServiceStateTypeRunning // overrides REBALANCING
 	meta.SetStatusCondition(&status.Conditions,
 		getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
 
