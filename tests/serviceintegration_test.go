@@ -59,7 +59,7 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	assert.Contains(t, serviceRunningStatesAiven, chAvn.State)
 	assert.Equal(t, chAvn.Plan, ch.Spec.Plan)
 	assert.Equal(t, chAvn.CloudName, ch.Spec.CloudName)
-	assert.Equal(t, chAvn.Maintenance.Dow, ch.Spec.MaintenanceWindowDow)
+	assert.Equal(t, string(chAvn.Maintenance.Dow), ch.Spec.MaintenanceWindowDow)
 	assert.Equal(t, chAvn.Maintenance.Time, ch.Spec.MaintenanceWindowTime)
 
 	// Validates PostgreSQL
@@ -69,7 +69,7 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	assert.Contains(t, serviceRunningStatesAiven, pgAvn.State)
 	assert.Equal(t, pgAvn.Plan, pg.Spec.Plan)
 	assert.Equal(t, pgAvn.CloudName, pg.Spec.CloudName)
-	assert.Equal(t, pgAvn.Maintenance.Dow, pg.Spec.MaintenanceWindowDow)
+	assert.Equal(t, string(pgAvn.Maintenance.Dow), pg.Spec.MaintenanceWindowDow)
 	assert.Equal(t, pgAvn.Maintenance.Time, pg.Spec.MaintenanceWindowTime)
 
 	// Validates ServiceIntegration

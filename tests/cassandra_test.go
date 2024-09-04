@@ -75,7 +75,7 @@ func TestCassandra(t *testing.T) {
 	assert.Equal(t, csAvn.Plan, cs.Spec.Plan)
 	assert.Equal(t, csAvn.CloudName, cs.Spec.CloudName)
 	assert.Equal(t, "450GiB", cs.Spec.DiskSpace)
-	assert.Equal(t, 460800, csAvn.DiskSpaceMb)
+	assert.Equal(t, float64(460800), *csAvn.DiskSpaceMb)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, cs.Spec.Tags)
 	csResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)

@@ -85,7 +85,7 @@ func TestKafkaWithProjectVPCRef(t *testing.T) {
 	// Validates VPC
 	require.NotNil(t, kafka.Spec.ProjectVPCRef)
 	assert.Equal(t, vpcName, kafka.Spec.ProjectVPCRef.Name)
-	assert.Equal(t, anyPointer(vpc.Status.ID), kafkaAvn.ProjectVpcId)
+	assert.Equal(t, vpc.Status.ID, kafkaAvn.ProjectVpcId)
 
 	vpcAvn, err := avnClient.VPCs.Get(ctx, cfg.Project, vpc.Status.ID)
 	require.NoError(t, err)

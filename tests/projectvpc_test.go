@@ -136,7 +136,7 @@ func TestProjectVPCID(t *testing.T) {
 
 	// Validates VPC
 	assert.Equal(t, vpc1.Status.ID, kafka.Spec.ProjectVPCID)
-	assert.Equal(t, anyPointer(vpc1.Status.ID), kafkaAvn.ProjectVpcId)
+	assert.Equal(t, vpc1.Status.ID, kafkaAvn.ProjectVpcId)
 
 	// Migrates the service to vpc2
 	kafkaYamlUpd := getKafkaForProjectVPCYaml(cfg.Project, vpc2.Status.ID, kafkaName, cfg.TertiaryCloudName)

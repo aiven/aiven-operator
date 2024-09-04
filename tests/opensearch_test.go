@@ -79,7 +79,7 @@ func TestOpenSearch(t *testing.T) {
 	assert.Equal(t, osAvn.Plan, os.Spec.Plan)
 	assert.Equal(t, osAvn.CloudName, os.Spec.CloudName)
 	assert.Equal(t, "240GiB", os.Spec.DiskSpace)
-	assert.Equal(t, 245760, osAvn.DiskSpaceMb)
+	assert.Equal(t, float64(245760), *osAvn.DiskSpaceMb)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, os.Spec.Tags)
 	osResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)
