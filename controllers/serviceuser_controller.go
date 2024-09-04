@@ -9,6 +9,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -102,21 +103,21 @@ func (h ServiceUserHandler) get(ctx context.Context, avn *aiven.Client, avnGen a
 		return nil, err
 	}
 
-	s, err := avn.Services.Get(ctx, user.Spec.Project, user.Spec.ServiceName)
+	s, err := avnGen.ServiceGet(ctx, user.Spec.Project, user.Spec.ServiceName)
 	if err != nil {
 		return nil, err
 	}
 
-	var component *aiven.ServiceComponents
+	var component *service.ComponentOut
 	for _, c := range s.Components {
-		if c.Component == s.Type {
-			component = c
+		if c.Component == s.ServiceType {
+			component = &c
 			break
 		}
 	}
 
 	if component == nil {
-		return nil, fmt.Errorf("service component %q not found", s.Type)
+		return nil, fmt.Errorf("service component %q not found", s.ServiceType)
 	}
 
 	caCert, err := avn.CA.Get(ctx, user.Spec.Project)
