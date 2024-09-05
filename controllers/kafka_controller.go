@@ -9,6 +9,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -71,7 +72,7 @@ func (a *kafkaAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *kafkaAdapter) newSecret(ctx context.Context, s *aiven.Service) (*corev1.Secret, error) {
+func (a *kafkaAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
 	var userName, password string
 	if len(s.Users) > 0 {
 		userName = s.Users[0].Username
@@ -80,21 +81,21 @@ func (a *kafkaAdapter) newSecret(ctx context.Context, s *aiven.Service) (*corev1
 
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
-		prefix + "HOST":                s.URIParams["host"],
-		prefix + "PORT":                s.URIParams["port"],
+		prefix + "HOST":                s.ServiceUriParams["host"],
+		prefix + "PORT":                s.ServiceUriParams["port"],
 		prefix + "PASSWORD":            password,
 		prefix + "USERNAME":            userName,
-		prefix + "ACCESS_CERT":         s.ConnectionInfo.KafkaAccessCert,
-		prefix + "ACCESS_KEY":          s.ConnectionInfo.KafkaAccessKey,
-		prefix + "REST_URI":            s.ConnectionInfo.KafkaRestURI,
-		prefix + "SCHEMA_REGISTRY_URI": s.ConnectionInfo.SchemaRegistryURI,
+		prefix + "ACCESS_CERT":         *s.ConnectionInfo.KafkaAccessCert,
+		prefix + "ACCESS_KEY":          *s.ConnectionInfo.KafkaAccessKey,
+		prefix + "REST_URI":            *s.ConnectionInfo.KafkaRestUri,
+		prefix + "SCHEMA_REGISTRY_URI": *s.ConnectionInfo.SchemaRegistryUri,
 		// todo: remove in future releases
-		"HOST":        s.URIParams["host"],
-		"PORT":        s.URIParams["port"],
+		"HOST":        s.ServiceUriParams["host"],
+		"PORT":        s.ServiceUriParams["port"],
 		"PASSWORD":    password,
 		"USERNAME":    userName,
-		"ACCESS_CERT": s.ConnectionInfo.KafkaAccessCert,
-		"ACCESS_KEY":  s.ConnectionInfo.KafkaAccessKey,
+		"ACCESS_CERT": *s.ConnectionInfo.KafkaAccessCert,
+		"ACCESS_KEY":  *s.ConnectionInfo.KafkaAccessKey,
 	}
 
 	for _, c := range s.Components {
@@ -127,6 +128,6 @@ func (a *kafkaAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *kafkaAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *aiven.Service) error {
+func (a *kafkaAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
 	return nil
 }

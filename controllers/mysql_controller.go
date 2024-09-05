@@ -8,6 +8,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -70,16 +71,16 @@ func (a *mySQLAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *mySQLAdapter) newSecret(ctx context.Context, s *aiven.Service) (*corev1.Secret, error) {
+func (a *mySQLAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
 	stringData := map[string]string{
-		"HOST":        s.URIParams["host"],
-		"PORT":        s.URIParams["port"],
-		"DATABASE":    s.URIParams["dbname"],
-		"USER":        s.URIParams["user"],
-		"PASSWORD":    s.URIParams["password"],
-		"SSL_MODE":    s.URIParams["ssl-mode"],
-		"URI":         s.URI,
-		"REPLICA_URI": s.ConnectionInfo.MySQLReplicaURI,
+		"HOST":        s.ServiceUriParams["host"],
+		"PORT":        s.ServiceUriParams["port"],
+		"DATABASE":    s.ServiceUriParams["dbname"],
+		"USER":        s.ServiceUriParams["user"],
+		"PASSWORD":    s.ServiceUriParams["password"],
+		"SSL_MODE":    s.ServiceUriParams["ssl-mode"],
+		"URI":         s.ServiceUri,
+		"REPLICA_URI": *s.ConnectionInfo.MysqlReplicaUri,
 	}
 
 	return newSecret(a, stringData, true), nil
@@ -93,6 +94,6 @@ func (a *mySQLAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *mySQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *aiven.Service) error {
+func (a *mySQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
 	return nil
 }

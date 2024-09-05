@@ -66,9 +66,9 @@ func TestGrafana(t *testing.T) {
 	require.NoError(t, s.GetRunning(grafana, name))
 
 	// THEN
-	grafanaAvn, err := avnClient.Services.Get(ctx, cfg.Project, name)
+	grafanaAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
 	require.NoError(t, err)
-	assert.Equal(t, grafanaAvn.Name, grafana.GetName())
+	assert.Equal(t, grafanaAvn.ServiceName, grafana.GetName())
 	assert.Equal(t, serviceRunningState, grafana.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, grafanaAvn.State)
 	assert.Equal(t, grafanaAvn.Plan, grafana.Spec.Plan)

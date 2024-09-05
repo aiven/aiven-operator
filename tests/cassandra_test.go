@@ -67,15 +67,15 @@ func TestCassandra(t *testing.T) {
 	require.NoError(t, s.GetRunning(cs, name))
 
 	// THEN
-	csAvn, err := avnClient.Services.Get(ctx, cfg.Project, name)
+	csAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
 	require.NoError(t, err)
-	assert.Equal(t, csAvn.Name, cs.GetName())
+	assert.Equal(t, csAvn.ServiceName, cs.GetName())
 	assert.Equal(t, serviceRunningState, cs.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, csAvn.State)
 	assert.Equal(t, csAvn.Plan, cs.Spec.Plan)
 	assert.Equal(t, csAvn.CloudName, cs.Spec.CloudName)
 	assert.Equal(t, "450GiB", cs.Spec.DiskSpace)
-	assert.Equal(t, 460800, csAvn.DiskSpaceMB)
+	assert.Equal(t, float64(460800), *csAvn.DiskSpaceMb)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, cs.Spec.Tags)
 	csResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)

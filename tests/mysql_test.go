@@ -66,15 +66,15 @@ func TestMySQL(t *testing.T) {
 	require.NoError(t, s.GetRunning(ms, name))
 
 	// THEN
-	msAvn, err := avnClient.Services.Get(ctx, cfg.Project, name)
+	msAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
 	require.NoError(t, err)
-	assert.Equal(t, msAvn.Name, ms.GetName())
+	assert.Equal(t, msAvn.ServiceName, ms.GetName())
 	assert.Equal(t, serviceRunningState, ms.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, msAvn.State)
 	assert.Equal(t, msAvn.Plan, ms.Spec.Plan)
 	assert.Equal(t, msAvn.CloudName, ms.Spec.CloudName)
 	assert.Equal(t, "100GiB", ms.Spec.DiskSpace)
-	assert.Equal(t, 102400, msAvn.DiskSpaceMB)
+	assert.Equal(t, float64(102400), *msAvn.DiskSpaceMb)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, ms.Spec.Tags)
 	msResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)
 	require.NoError(t, err)

@@ -53,24 +53,24 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 
 	// THEN
 	// Validates Clickhouse
-	chAvn, err := avnClient.Services.Get(ctx, cfg.Project, chName)
+	chAvn, err := avnGen.ServiceGet(ctx, cfg.Project, chName)
 	require.NoError(t, err)
-	assert.Equal(t, chAvn.Name, ch.GetName())
+	assert.Equal(t, chAvn.ServiceName, ch.GetName())
 	assert.Contains(t, serviceRunningStatesAiven, chAvn.State)
 	assert.Equal(t, chAvn.Plan, ch.Spec.Plan)
 	assert.Equal(t, chAvn.CloudName, ch.Spec.CloudName)
-	assert.Equal(t, chAvn.MaintenanceWindow.DayOfWeek, ch.Spec.MaintenanceWindowDow)
-	assert.Equal(t, chAvn.MaintenanceWindow.TimeOfDay, ch.Spec.MaintenanceWindowTime)
+	assert.Equal(t, string(chAvn.Maintenance.Dow), ch.Spec.MaintenanceWindowDow)
+	assert.Equal(t, chAvn.Maintenance.Time, ch.Spec.MaintenanceWindowTime)
 
 	// Validates PostgreSQL
-	pgAvn, err := avnClient.Services.Get(ctx, cfg.Project, pgName)
+	pgAvn, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
-	assert.Equal(t, pgAvn.Name, pg.GetName())
+	assert.Equal(t, pgAvn.ServiceName, pg.GetName())
 	assert.Contains(t, serviceRunningStatesAiven, pgAvn.State)
 	assert.Equal(t, pgAvn.Plan, pg.Spec.Plan)
 	assert.Equal(t, pgAvn.CloudName, pg.Spec.CloudName)
-	assert.Equal(t, pgAvn.MaintenanceWindow.DayOfWeek, pg.Spec.MaintenanceWindowDow)
-	assert.Equal(t, pgAvn.MaintenanceWindow.TimeOfDay, pg.Spec.MaintenanceWindowTime)
+	assert.Equal(t, string(pgAvn.Maintenance.Dow), pg.Spec.MaintenanceWindowDow)
+	assert.Equal(t, pgAvn.Maintenance.Time, pg.Spec.MaintenanceWindowTime)
 
 	// Validates ServiceIntegration
 	siAvn, err := avnClient.ServiceIntegrations.Get(ctx, cfg.Project, si.Status.ID)
@@ -124,9 +124,9 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 
 	// THEN
 	// Validates Kafka
-	ksAvn, err := avnClient.Services.Get(ctx, cfg.Project, ksName)
+	ksAvn, err := avnGen.ServiceGet(ctx, cfg.Project, ksName)
 	require.NoError(t, err)
-	assert.Equal(t, ksAvn.Name, ks.GetName())
+	assert.Equal(t, ksAvn.ServiceName, ks.GetName())
 	assert.Contains(t, serviceRunningStatesAiven, ksAvn.State)
 	assert.Equal(t, ksAvn.Plan, ks.Spec.Plan)
 	assert.Equal(t, ksAvn.CloudName, ks.Spec.CloudName)
@@ -193,17 +193,17 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 
 	// THEN
 	// Validates Kafka
-	ksAvn, err := avnClient.Services.Get(ctx, cfg.Project, ksName)
+	ksAvn, err := avnGen.ServiceGet(ctx, cfg.Project, ksName)
 	require.NoError(t, err)
-	assert.Equal(t, ksAvn.Name, ks.GetName())
+	assert.Equal(t, ksAvn.ServiceName, ks.GetName())
 	assert.Contains(t, serviceRunningStatesAiven, ksAvn.State)
 	assert.Equal(t, ksAvn.Plan, ks.Spec.Plan)
 	assert.Equal(t, ksAvn.CloudName, ks.Spec.CloudName)
 
 	// Validates KafkaConnect
-	kcAvn, err := avnClient.Services.Get(ctx, cfg.Project, kcName)
+	kcAvn, err := avnGen.ServiceGet(ctx, cfg.Project, kcName)
 	require.NoError(t, err)
-	assert.Equal(t, kcAvn.Name, kc.GetName())
+	assert.Equal(t, kcAvn.ServiceName, kc.GetName())
 	assert.Contains(t, serviceRunningStatesAiven, kcAvn.State)
 	assert.Equal(t, kcAvn.Plan, kc.Spec.Plan)
 	assert.Equal(t, kcAvn.CloudName, kc.Spec.CloudName)
@@ -268,9 +268,9 @@ func TestServiceIntegrationDatadog(t *testing.T) {
 
 	// THEN
 	// Validates PostgreSQL
-	pgAvn, err := avnClient.Services.Get(ctx, cfg.Project, pgName)
+	pgAvn, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
-	assert.Equal(t, pgAvn.Name, pg.GetName())
+	assert.Equal(t, pgAvn.ServiceName, pg.GetName())
 	assert.Contains(t, serviceRunningStatesAiven, pgAvn.State)
 	assert.Equal(t, pgAvn.Plan, pg.Spec.Plan)
 

@@ -8,6 +8,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -70,18 +71,18 @@ func (a *clickhouseAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *clickhouseAdapter) newSecret(ctx context.Context, s *aiven.Service) (*corev1.Secret, error) {
+func (a *clickhouseAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
-		prefix + "HOST":     s.URIParams["host"],
-		prefix + "PASSWORD": s.URIParams["password"],
-		prefix + "PORT":     s.URIParams["port"],
-		prefix + "USER":     s.URIParams["user"],
+		prefix + "HOST":     s.ServiceUriParams["host"],
+		prefix + "PASSWORD": s.ServiceUriParams["password"],
+		prefix + "PORT":     s.ServiceUriParams["port"],
+		prefix + "USER":     s.ServiceUriParams["user"],
 		// todo: remove in future releases
-		"HOST":     s.URIParams["host"],
-		"PASSWORD": s.URIParams["password"],
-		"PORT":     s.URIParams["port"],
-		"USER":     s.URIParams["user"],
+		"HOST":     s.ServiceUriParams["host"],
+		"PASSWORD": s.ServiceUriParams["password"],
+		"PORT":     s.ServiceUriParams["port"],
+		"USER":     s.ServiceUriParams["user"],
 	}
 
 	return newSecret(a, stringData, false), nil
@@ -95,6 +96,6 @@ func (a *clickhouseAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *clickhouseAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *aiven.Service) error {
+func (a *clickhouseAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
 	return nil
 }

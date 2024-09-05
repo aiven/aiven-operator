@@ -10,6 +10,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -138,7 +139,7 @@ func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, avnGe
 		return nil, fmt.Errorf("can't parse ConnectionPool URI: %w", err)
 	}
 
-	s, err := avn.Services.Get(ctx, connPool.Spec.Project, connPool.Spec.ServiceName)
+	s, err := avnGen.ServiceGet(ctx, connPool.Spec.Project, connPool.Spec.ServiceName, service.ServiceGetIncludeSecrets(true))
 	if err != nil {
 		return nil, fmt.Errorf("cannot get service: %w", err)
 	}
@@ -153,21 +154,21 @@ func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, avnGe
 		prefix := getSecretPrefix(connPool)
 		stringData := map[string]string{
 			prefix + "NAME":         connPool.Name,
-			prefix + "HOST":         s.URIParams["host"],
+			prefix + "HOST":         s.ServiceUriParams["host"],
 			prefix + "PORT":         poolURI.Port(),
 			prefix + "DATABASE":     cp.Database,
-			prefix + "USER":         s.URIParams["user"],
-			prefix + "PASSWORD":     s.URIParams["password"],
-			prefix + "SSLMODE":      s.URIParams["sslmode"],
+			prefix + "USER":         s.ServiceUriParams["user"],
+			prefix + "PASSWORD":     s.ServiceUriParams["password"],
+			prefix + "SSLMODE":      s.ServiceUriParams["sslmode"],
 			prefix + "DATABASE_URI": cp.ConnectionURI,
 			prefix + "CA_CERT":      cert,
 			// todo: remove in future releases
-			"PGHOST":       s.URIParams["host"],
+			"PGHOST":       s.ServiceUriParams["host"],
 			"PGPORT":       poolURI.Port(),
 			"PGDATABASE":   cp.Database,
-			"PGUSER":       s.URIParams["user"],
-			"PGPASSWORD":   s.URIParams["password"],
-			"PGSSLMODE":    s.URIParams["sslmode"],
+			"PGUSER":       s.ServiceUriParams["user"],
+			"PGPASSWORD":   s.ServiceUriParams["password"],
+			"PGSSLMODE":    s.ServiceUriParams["sslmode"],
 			"DATABASE_URI": cp.ConnectionURI,
 		}
 
@@ -182,21 +183,21 @@ func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, avnGe
 	prefix := getSecretPrefix(connPool)
 	stringData := map[string]string{
 		prefix + "NAME":         connPool.Name,
-		prefix + "HOST":         s.URIParams["host"],
+		prefix + "HOST":         s.ServiceUriParams["host"],
 		prefix + "PORT":         poolURI.Port(),
 		prefix + "DATABASE":     cp.Database,
 		prefix + "USER":         cp.Username,
 		prefix + "PASSWORD":     u.Password,
-		prefix + "SSLMODE":      s.URIParams["sslmode"],
+		prefix + "SSLMODE":      s.ServiceUriParams["sslmode"],
 		prefix + "DATABASE_URI": cp.ConnectionURI,
 		prefix + "CA_CERT":      cert,
 		// todo: remove in future releases
-		"PGHOST":       s.URIParams["host"],
+		"PGHOST":       s.ServiceUriParams["host"],
 		"PGPORT":       poolURI.Port(),
 		"PGDATABASE":   cp.Database,
 		"PGUSER":       cp.Username,
 		"PGPASSWORD":   u.Password,
-		"PGSSLMODE":    s.URIParams["sslmode"],
+		"PGSSLMODE":    s.ServiceUriParams["sslmode"],
 		"DATABASE_URI": cp.ConnectionURI,
 	}
 	return newSecret(connPool, stringData, false), nil

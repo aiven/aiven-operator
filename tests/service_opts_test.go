@@ -61,10 +61,10 @@ func TestServiceTechnicalEmails(t *testing.T) {
 
 	// THEN
 	// Technical emails are set
-	grafanaAvn, err := avnClient.Services.Get(ctx, cfg.Project, name)
+	grafanaAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Len(t, grafana.Spec.TechnicalEmails, 1)
-	assert.Equal(t, "test@example.com", grafanaAvn.TechnicalEmails[0].Email)
+	assert.Equal(t, "test@example.com", grafanaAvn.TechEmails[0].Email)
 
 	// WHEN
 	// Technical emails are removed from manifest
@@ -78,9 +78,9 @@ func TestServiceTechnicalEmails(t *testing.T) {
 
 	// THEN
 	// Technical emails are removed from service
-	grafanaAvnUpdated, err := avnClient.Services.Get(ctx, cfg.Project, name)
+	grafanaAvnUpdated, err := avnGen.ServiceGet(ctx, cfg.Project, name)
 	require.NoError(t, err)
-	assert.Empty(t, grafanaAvnUpdated.TechnicalEmails)
+	assert.Empty(t, grafanaAvnUpdated.TechEmails)
 }
 
 func getConnInfoBaseYaml(project, name, cloudName string) string {

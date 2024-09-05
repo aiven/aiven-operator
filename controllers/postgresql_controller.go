@@ -74,24 +74,24 @@ func (a *postgreSQLAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *postgreSQLAdapter) newSecret(ctx context.Context, s *aiven.Service) (*corev1.Secret, error) {
+func (a *postgreSQLAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
-		prefix + "HOST":         s.URIParams["host"],
-		prefix + "PORT":         s.URIParams["port"],
-		prefix + "DATABASE":     s.URIParams["dbname"],
-		prefix + "USER":         s.URIParams["user"],
-		prefix + "PASSWORD":     s.URIParams["password"],
-		prefix + "SSLMODE":      s.URIParams["sslmode"],
-		prefix + "DATABASE_URI": s.URI,
+		prefix + "HOST":         s.ServiceUriParams["host"],
+		prefix + "PORT":         s.ServiceUriParams["port"],
+		prefix + "DATABASE":     s.ServiceUriParams["dbname"],
+		prefix + "USER":         s.ServiceUriParams["user"],
+		prefix + "PASSWORD":     s.ServiceUriParams["password"],
+		prefix + "SSLMODE":      s.ServiceUriParams["sslmode"],
+		prefix + "DATABASE_URI": s.ServiceUri,
 		// todo: remove in future releases
-		"PGHOST":       s.URIParams["host"],
-		"PGPORT":       s.URIParams["port"],
-		"PGDATABASE":   s.URIParams["dbname"],
-		"PGUSER":       s.URIParams["user"],
-		"PGPASSWORD":   s.URIParams["password"],
-		"PGSSLMODE":    s.URIParams["sslmode"],
-		"DATABASE_URI": s.URI,
+		"PGHOST":       s.ServiceUriParams["host"],
+		"PGPORT":       s.ServiceUriParams["port"],
+		"PGDATABASE":   s.ServiceUriParams["dbname"],
+		"PGUSER":       s.ServiceUriParams["user"],
+		"PGPASSWORD":   s.ServiceUriParams["password"],
+		"PGSSLMODE":    s.ServiceUriParams["sslmode"],
+		"DATABASE_URI": s.ServiceUri,
 	}
 
 	return newSecret(a, stringData, false), nil
@@ -105,7 +105,7 @@ func (a *postgreSQLAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *aiven.Service) error {
+func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
 	var currentVersion string = old.UserConfig["pg_version"].(string)
 	targetUserConfig := a.getUserConfig().(*pguserconfig.PgUserConfig)
 	if targetUserConfig == nil || targetUserConfig.PgVersion == nil {
@@ -118,7 +118,7 @@ func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn 
 		return nil
 	}
 
-	task, err := avnGen.ServiceTaskCreate(ctx, a.getServiceCommonSpec().Project, a.getObjectMeta().Name, &service.ServiceTaskCreateIn{
+	task, err := avn.ServiceTaskCreate(ctx, a.getServiceCommonSpec().Project, a.getObjectMeta().Name, &service.ServiceTaskCreateIn{
 		TargetVersion: service.TargetVersionType(targetVersion),
 		TaskType:      service.TaskTypeUpgradeCheck,
 	})
@@ -126,21 +126,21 @@ func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn 
 		return fmt.Errorf("cannot create PG upgrade check task: %q", err)
 	}
 
-	finalTaskResult, err := waitForTaskToComplete(ctx, func() (bool, *aiven.ServiceTask, error) {
-		t, getErr := avn.ServiceTask.Get(ctx, a.getServiceCommonSpec().Project, a.getObjectMeta().Name, task.TaskId)
+	finalTaskResult, err := waitForTaskToComplete(ctx, func() (bool, *service.ServiceTaskGetOut, error) {
+		t, getErr := avn.ServiceTaskGet(ctx, a.getServiceCommonSpec().Project, a.getObjectMeta().Name, task.TaskId)
 		if getErr != nil {
-			return true, nil, fmt.Errorf("error fetching service task %s: %q", t.Task.Id, getErr)
+			return true, nil, fmt.Errorf("error fetching service task %s: %q", t.TaskId, getErr)
 		}
 
-		if t.Task.Success == nil {
+		if !t.Success {
 			return false, nil, nil
 		}
-		return true, &t.Task, nil
+		return true, t, nil
 	})
 	if err != nil {
 		return err
 	}
-	if !*finalTaskResult.Success {
+	if !finalTaskResult.Success {
 		return fmt.Errorf("PG service upgrade check error, version upgrade from %s to %s, result: %s", currentVersion, targetVersion, finalTaskResult.Result)
 	}
 	return nil

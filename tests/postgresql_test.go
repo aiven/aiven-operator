@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/aiven/aiven-go-client/v2"
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -92,9 +91,9 @@ func TestPgReadReplica(t *testing.T) {
 
 	// THEN
 	// Validates instances
-	masterAvn, err := avnClient.Services.Get(ctx, cfg.Project, masterName)
+	masterAvn, err := avnGen.ServiceGet(ctx, cfg.Project, masterName)
 	require.NoError(t, err)
-	assert.Equal(t, masterAvn.Name, master.GetName())
+	assert.Equal(t, masterAvn.ServiceName, master.GetName())
 	assert.Equal(t, serviceRunningState, master.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, masterAvn.State)
 	assert.Equal(t, masterAvn.Plan, master.Spec.Plan)
@@ -106,9 +105,9 @@ func TestPgReadReplica(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, masterResp.Tags, master.Spec.Tags)
 
-	replicaAvn, err := avnClient.Services.Get(ctx, cfg.Project, replicaName)
+	replicaAvn, err := avnGen.ServiceGet(ctx, cfg.Project, replicaName)
 	require.NoError(t, err)
-	assert.Equal(t, replicaAvn.Name, replica.GetName())
+	assert.Equal(t, replicaAvn.ServiceName, replica.GetName())
 	assert.Equal(t, serviceRunningState, replica.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, replicaAvn.State)
 	assert.Equal(t, replicaAvn.Plan, replica.Spec.Plan)
@@ -207,9 +206,9 @@ func TestPgCustomPrefix(t *testing.T) {
 
 	// THEN
 	// Validates instance
-	pgAvn, err := avnClient.Services.Get(ctx, cfg.Project, pgName)
+	pgAvn, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
-	assert.Equal(t, pgAvn.Name, pg.GetName())
+	assert.Equal(t, pgAvn.ServiceName, pg.GetName())
 	assert.Equal(t, serviceRunningState, pg.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, pgAvn.State)
 	assert.Equal(t, pgAvn.Plan, pg.Spec.Plan)
@@ -296,7 +295,7 @@ func TestPgUpgradeVersion(t *testing.T) {
 	pg := new(v1alpha1.PostgreSQL)
 	require.NoError(t, s.GetRunning(pg, pgName))
 
-	pgAvn, err := avnClient.Services.Get(ctx, cfg.Project, pgName)
+	pgAvn, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
 	assert.Equal(t, startingVersion, pgAvn.UserConfig["pg_version"])
 	assert.Equal(t, anyPointer(startingVersion), pg.Spec.UserConfig.PgVersion)
@@ -308,9 +307,9 @@ func TestPgUpgradeVersion(t *testing.T) {
 	require.NoError(t, s.Apply(updatedYaml))
 
 	// Verify that the service was upgraded successfully
-	var pgAvnUpd *aiven.Service
+	var pgAvnUpd *service.ServiceGetOut
 	require.NoError(t, retryForever(ctx, "check that PG version was upgraded", func() (bool, error) {
-		pgAvnUpd, err = avnClient.Services.Get(ctx, cfg.Project, pgName)
+		pgAvnUpd, err = avnGen.ServiceGet(ctx, cfg.Project, pgName)
 		if err != nil {
 			return false, err
 		}

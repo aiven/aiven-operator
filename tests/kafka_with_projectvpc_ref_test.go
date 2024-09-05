@@ -74,9 +74,9 @@ func TestKafkaWithProjectVPCRef(t *testing.T) {
 	require.NoError(t, s.GetRunning(vpc, vpcName))
 
 	// THEN
-	kafkaAvn, err := avnClient.Services.Get(ctx, cfg.Project, kafkaName)
+	kafkaAvn, err := avnGen.ServiceGet(ctx, cfg.Project, kafkaName)
 	require.NoError(t, err)
-	assert.Equal(t, kafkaAvn.Name, kafka.GetName())
+	assert.Equal(t, kafkaAvn.ServiceName, kafka.GetName())
 	assert.Equal(t, serviceRunningState, kafka.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, kafkaAvn.State)
 	assert.Equal(t, kafkaAvn.Plan, kafka.Spec.Plan)
@@ -85,7 +85,7 @@ func TestKafkaWithProjectVPCRef(t *testing.T) {
 	// Validates VPC
 	require.NotNil(t, kafka.Spec.ProjectVPCRef)
 	assert.Equal(t, vpcName, kafka.Spec.ProjectVPCRef.Name)
-	assert.Equal(t, anyPointer(vpc.Status.ID), kafkaAvn.ProjectVPCID)
+	assert.Equal(t, vpc.Status.ID, kafkaAvn.ProjectVpcId)
 
 	vpcAvn, err := avnClient.VPCs.Get(ctx, cfg.Project, vpc.Status.ID)
 	require.NoError(t, err)

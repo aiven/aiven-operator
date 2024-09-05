@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -13,10 +14,10 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-const serviceRunningState = "RUNNING"
+const serviceRunningState = service.ServiceStateTypeRunning
 
 // serviceRunningStatesAiven these Aiven service states match to RUNNING state in kube
-var serviceRunningStatesAiven = []string{"RUNNING", "REBALANCING"}
+var serviceRunningStatesAiven = []service.ServiceStateType{service.ServiceStateTypeRunning, service.ServiceStateTypeRebalancing}
 
 func getCreateServiceYaml(project, pgName string) string {
 	return fmt.Sprintf(`

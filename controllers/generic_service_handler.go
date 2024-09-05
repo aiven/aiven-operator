@@ -7,6 +7,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -43,7 +44,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 		}
 	}
 
-	oldService, err := avn.Services.Get(ctx, spec.Project, ometa.Name)
+	oldService, err := avnGen.ServiceGet(ctx, spec.Project, ometa.Name)
 	exists := err == nil
 	if !exists && !isNotFound(err) {
 		return fmt.Errorf("failed to fetch service: %w", err)
@@ -97,7 +98,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 		}
 
 		// Perform upgrade task if necessary (at the moment, this is relevant only for PostgreSQL)
-		err = o.performUpgradeTaskIfNeeded(ctx, avn, avnGen, oldService)
+		err = o.performUpgradeTaskIfNeeded(ctx, avnGen, oldService)
 		if err != nil {
 			return err
 		}
@@ -174,7 +175,7 @@ func (h *genericServiceHandler) get(ctx context.Context, avn *aiven.Client, avnG
 	}
 
 	spec := o.getServiceCommonSpec()
-	s, err := avn.Services.Get(ctx, spec.Project, o.getObjectMeta().Name)
+	s, err := avnGen.ServiceGet(ctx, spec.Project, o.getObjectMeta().Name, service.ServiceGetIncludeSecrets(true))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get service from Aiven: %w", err)
 	}
@@ -185,7 +186,7 @@ func (h *genericServiceHandler) get(ctx context.Context, avn *aiven.Client, avnG
 		return nil, nil
 	}
 
-	status.State = "RUNNING" // overrides REBALANCING
+	status.State = service.ServiceStateTypeRunning // overrides REBALANCING
 	meta.SetStatusCondition(&status.Conditions,
 		getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
 
@@ -259,6 +260,6 @@ type serviceAdapter interface {
 	getServiceType() string
 	getDiskSpace() string
 	getUserConfig() any
-	newSecret(ctx context.Context, s *aiven.Service) (*corev1.Secret, error)
-	performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *aiven.Service) error
+	newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error)
+	performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error
 }

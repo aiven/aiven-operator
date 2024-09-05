@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/docker/go-units"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -45,7 +46,7 @@ type ServiceStatus struct {
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
 
 	// Service state
-	State string `json:"state,omitempty"`
+	State service.ServiceStateType `json:"state,omitempty"`
 }
 
 type ServiceTechEmail struct {

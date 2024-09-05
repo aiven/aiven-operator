@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/aiven/aiven-go-client/v2"
+	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/types"
@@ -126,9 +126,9 @@ func TestProjectVPCID(t *testing.T) {
 	require.NoError(t, kafkaSession.GetRunning(kafka, kafkaName))
 
 	// THEN
-	kafkaAvn, err := avnClient.Services.Get(ctx, cfg.Project, kafkaName)
+	kafkaAvn, err := avnGen.ServiceGet(ctx, cfg.Project, kafkaName)
 	require.NoError(t, err)
-	assert.Equal(t, kafkaAvn.Name, kafka.GetName())
+	assert.Equal(t, kafkaAvn.ServiceName, kafka.GetName())
 	assert.Equal(t, serviceRunningState, kafka.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, kafkaAvn.State)
 	assert.Equal(t, kafkaAvn.Plan, kafka.Spec.Plan)
@@ -136,7 +136,7 @@ func TestProjectVPCID(t *testing.T) {
 
 	// Validates VPC
 	assert.Equal(t, vpc1.Status.ID, kafka.Spec.ProjectVPCID)
-	assert.Equal(t, anyPointer(vpc1.Status.ID), kafkaAvn.ProjectVPCID)
+	assert.Equal(t, vpc1.Status.ID, kafkaAvn.ProjectVpcId)
 
 	// Migrates the service to vpc2
 	kafkaYamlUpd := getKafkaForProjectVPCYaml(cfg.Project, vpc2.Status.ID, kafkaName, cfg.TertiaryCloudName)
@@ -145,9 +145,9 @@ func TestProjectVPCID(t *testing.T) {
 	// This migration takes too long, so we don't wait it's being in the RUNNING state in kube
 
 	// Gets Aiven object
-	var kafkaAvnUpd *aiven.Service
+	var kafkaAvnUpd *service.ServiceGetOut
 	require.NoError(t, retryForever(ctx, fmt.Sprintf("migrate %s to VPC with ID %s", kafkaName, vpc2.Status.ID), func() (bool, error) {
-		kafkaAvnUpd, err = avnClient.Services.Get(ctx, cfg.Project, kafkaName)
+		kafkaAvnUpd, err = avnGen.ServiceGet(ctx, cfg.Project, kafkaName)
 		if err != nil {
 			return false, err
 		}
@@ -160,7 +160,7 @@ func TestProjectVPCID(t *testing.T) {
 	kafkaUpd := new(v1alpha1.Kafka)
 	require.NoError(t, k8sClient.Get(ctx, types.NamespacedName{Name: kafkaName, Namespace: "default"}, kafkaUpd))
 	assert.Equal(t, vpc2.Status.ID, kafkaUpd.Spec.ProjectVPCID)
-	assert.Equal(t, vpc2.Status.ID, *kafkaAvnUpd.ProjectVPCID)
+	assert.Equal(t, vpc2.Status.ID, kafkaAvnUpd.ProjectVpcId)
 	assert.Equal(t, vpc2.Spec.CloudName, kafkaUpd.Spec.CloudName)
 	assert.Equal(t, vpc2.Spec.CloudName, kafkaAvnUpd.CloudName)
 }

@@ -9,6 +9,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -71,14 +72,14 @@ func (a *cassandraAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *cassandraAdapter) newSecret(ctx context.Context, s *aiven.Service) (*corev1.Secret, error) {
+func (a *cassandraAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
 	stringData := map[string]string{
-		"HOST":     s.URIParams["host"],
-		"PORT":     s.URIParams["port"],
-		"USER":     s.URIParams["user"],
-		"PASSWORD": s.URIParams["password"],
-		"URI":      s.URI,
-		"HOSTS":    strings.Join(s.ConnectionInfo.CassandraHosts, ","),
+		"HOST":     s.ServiceUriParams["host"],
+		"PORT":     s.ServiceUriParams["port"],
+		"USER":     s.ServiceUriParams["user"],
+		"PASSWORD": s.ServiceUriParams["password"],
+		"URI":      s.ServiceUri,
+		"HOSTS":    strings.Join(s.ConnectionInfo.Cassandra, ","),
 	}
 
 	return newSecret(a, stringData, true), nil
@@ -92,6 +93,6 @@ func (a *cassandraAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *cassandraAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, old *aiven.Service) error {
+func (a *cassandraAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
 	return nil
 }
