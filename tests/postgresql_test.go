@@ -176,7 +176,7 @@ spec:
   tags:
     env: prod
     instance: pg
-  
+
   userConfig:
     pg_version: "14"
 `, project, pgName, cloudName)
@@ -277,8 +277,10 @@ func TestPgUpgradeVersion(t *testing.T) {
 	defer recoverPanic(t)
 
 	pgVersions := service.TargetVersionTypeChoices()
-	startingVersion := pgVersions[len(pgVersions)-2]
-	targetVersion := pgVersions[len(pgVersions)-1]
+	// The latest reported version from the upgrade check task may not be available in the operator yet.
+	// Therefore, we set targetVersion to the second to last version.
+	startingVersion := pgVersions[len(pgVersions)-3] // third to last
+	targetVersion := pgVersions[len(pgVersions)-2]   // second to last
 
 	ctx, cancel := testCtx()
 	defer cancel()
