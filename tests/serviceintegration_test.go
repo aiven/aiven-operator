@@ -73,12 +73,12 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	assert.Equal(t, pgAvn.Maintenance.Time, pg.Spec.MaintenanceWindowTime)
 
 	// Validates ServiceIntegration
-	siAvn, err := avnClient.ServiceIntegrations.Get(ctx, cfg.Project, si.Status.ID)
+	siAvn, err := avnGen.ServiceIntegrationGet(ctx, cfg.Project, si.Status.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "clickhouse_postgresql", siAvn.IntegrationType)
 	assert.Equal(t, siAvn.IntegrationType, si.Spec.IntegrationType)
-	assert.Equal(t, pgName, ptrValue(siAvn.SourceService))
-	assert.Equal(t, chName, ptrValue(siAvn.DestinationService))
+	assert.Equal(t, pgName, siAvn.SourceService)
+	assert.Equal(t, chName, *siAvn.DestService)
 	assert.True(t, siAvn.Active)
 	assert.True(t, siAvn.Enabled)
 }
@@ -140,12 +140,12 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 	assert.Len(t, ktAvn.Partitions, kt.Spec.Partitions)
 
 	// Validates ServiceIntegration
-	siAvn, err := avnClient.ServiceIntegrations.Get(ctx, cfg.Project, si.Status.ID)
+	siAvn, err := avnGen.ServiceIntegrationGet(ctx, cfg.Project, si.Status.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "kafka_logs", siAvn.IntegrationType)
 	assert.Equal(t, siAvn.IntegrationType, si.Spec.IntegrationType)
-	assert.Equal(t, ksName, *siAvn.SourceService)
-	assert.Equal(t, ksName, *siAvn.DestinationService)
+	assert.Equal(t, ksName, siAvn.SourceService)
+	assert.Equal(t, ksName, *siAvn.DestService)
 	assert.True(t, siAvn.Active)
 	assert.True(t, siAvn.Enabled)
 	require.NotNil(t, si.Spec.KafkaLogsUserConfig)
@@ -211,12 +211,12 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	assert.True(t, *kc.Spec.UserConfig.PublicAccess.KafkaConnect)
 
 	// Validates ServiceIntegration
-	siAvn, err := avnClient.ServiceIntegrations.Get(ctx, cfg.Project, si.Status.ID)
+	siAvn, err := avnGen.ServiceIntegrationGet(ctx, cfg.Project, si.Status.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "kafka_connect", siAvn.IntegrationType)
 	assert.Equal(t, siAvn.IntegrationType, si.Spec.IntegrationType)
-	assert.Equal(t, ksName, *siAvn.SourceService)
-	assert.Equal(t, kcName, *siAvn.DestinationService)
+	assert.Equal(t, ksName, siAvn.SourceService)
+	assert.Equal(t, kcName, *siAvn.DestService)
 	assert.True(t, siAvn.Active)
 	assert.True(t, siAvn.Enabled)
 	require.NotNil(t, si.Spec.KafkaConnectUserConfig)
@@ -275,7 +275,7 @@ func TestServiceIntegrationDatadog(t *testing.T) {
 	assert.Equal(t, pgAvn.Plan, pg.Spec.Plan)
 
 	// Validates Datadog
-	siAvn, err := avnClient.ServiceIntegrations.Get(ctx, cfg.Project, si.Status.ID)
+	siAvn, err := avnGen.ServiceIntegrationGet(ctx, cfg.Project, si.Status.ID)
 	require.NoError(t, err)
 	assert.Equal(t, "datadog", siAvn.IntegrationType)
 	assert.Equal(t, siAvn.IntegrationType, si.Spec.IntegrationType)
