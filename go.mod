@@ -7,7 +7,7 @@ require (
 	github.com/aiven/aiven-go-client/v2 v2.26.0
 	github.com/aiven/go-api-schemas v1.85.0
 	github.com/aiven/go-client-codegen v0.27.0
-	github.com/dave/jennifer v1.7.0
+	github.com/dave/jennifer v1.7.1
 	github.com/docker/go-units v0.5.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-logr/logr v1.4.2
