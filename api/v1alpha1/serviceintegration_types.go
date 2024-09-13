@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/aiven/go-client-codegen/handler/service"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	clickhousekafkauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/clickhouse_kafka"
@@ -26,7 +27,7 @@ type ServiceIntegrationSpec struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// +kubebuilder:validation:Enum=alertmanager;autoscaler;caching;cassandra_cross_service_cluster;clickhouse_kafka;clickhouse_postgresql;dashboard;datadog;datasource;external_aws_cloudwatch_logs;external_aws_cloudwatch_metrics;external_elasticsearch_logs;external_google_cloud_logging;external_opensearch_logs;flink;flink_external_kafka;flink_external_postgresql;internal_connectivity;jolokia;kafka_connect;kafka_logs;kafka_mirrormaker;logs;m3aggregator;m3coordinator;metrics;opensearch_cross_cluster_replication;opensearch_cross_cluster_search;prometheus;read_replica;rsyslog;schema_registry_proxy;stresstester;thanosquery;thanosstore;vmalert
 	// Type of the service integration accepted by Aiven API. Some values may not be supported by the operator
-	IntegrationType string `json:"integrationType"`
+	IntegrationType service.IntegrationType `json:"integrationType"`
 
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// +kubebuilder:validation:MaxLength=36
@@ -127,17 +128,17 @@ func (in *ServiceIntegration) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
-func (in *ServiceIntegration) getUserConfigFields() map[string]any {
-	return map[string]any{
-		"clickhouse_kafka":                in.Spec.ClickhouseKafkaUserConfig,
-		"clickhouse_postgresql":           in.Spec.ClickhousePostgreSQLUserConfig,
-		"datadog":                         in.Spec.DatadogUserConfig,
-		"external_aws_cloudwatch_metrics": in.Spec.ExternalAWSCloudwatchMetricsUserConfig,
-		"kafka_connect":                   in.Spec.KafkaConnectUserConfig,
-		"kafka_logs":                      in.Spec.KafkaLogsUserConfig,
-		"kafka_mirrormaker":               in.Spec.KafkaMirrormakerUserConfig,
-		"logs":                            in.Spec.LogsUserConfig,
-		"metrics":                         in.Spec.MetricsUserConfig,
+func (in *ServiceIntegration) getUserConfigFields() map[service.IntegrationType]any {
+	return map[service.IntegrationType]any{
+		service.IntegrationTypeClickhouseKafka:              in.Spec.ClickhouseKafkaUserConfig,
+		service.IntegrationTypeClickhousePostgresql:         in.Spec.ClickhousePostgreSQLUserConfig,
+		service.IntegrationTypeDatadog:                      in.Spec.DatadogUserConfig,
+		service.IntegrationTypeExternalAwsCloudwatchMetrics: in.Spec.ExternalAWSCloudwatchMetricsUserConfig,
+		service.IntegrationTypeKafkaConnect:                 in.Spec.KafkaConnectUserConfig,
+		service.IntegrationTypeKafkaLogs:                    in.Spec.KafkaLogsUserConfig,
+		service.IntegrationTypeKafkaMirrormaker:             in.Spec.KafkaMirrormakerUserConfig,
+		service.IntegrationTypeLogs:                         in.Spec.LogsUserConfig,
+		service.IntegrationTypeMetrics:                      in.Spec.MetricsUserConfig,
 	}
 }
 

@@ -3,7 +3,7 @@ package tests
 import (
 	"testing"
 
-	"github.com/aiven/go-client-codegen/handler/serviceintegration"
+	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -39,7 +39,7 @@ func TestServiceIntegrationEndpointExternalPostgres(t *testing.T) {
 	// Validates ServiceIntegrationEndpoint externalPostgresql
 	endpointPg := new(v1alpha1.ServiceIntegrationEndpoint)
 	require.NoError(t, s.GetRunning(endpointPg, endpointPgName))
-	endpointPgAvn, err := avnGen.ServiceIntegrationEndpointGet(ctx, cfg.Project, endpointPg.Status.ID, serviceintegration.ServiceIntegrationEndpointGetIncludeSecrets(true))
+	endpointPgAvn, err := avnGen.ServiceIntegrationEndpointGet(ctx, cfg.Project, endpointPg.Status.ID, service.ServiceIntegrationEndpointGetIncludeSecrets(true))
 	require.NoError(t, err)
 	assert.Equal(t, "external_postgresql", string(endpointPgAvn.EndpointType))
 	assert.Equal(t, "username", endpointPg.Spec.ExternalPostgresql.Username)
@@ -82,7 +82,7 @@ func TestServiceIntegrationEndpoint(t *testing.T) {
 	// Validates ServiceIntegrationEndpoint externalSchemaRegistry
 	endpointRegistry := new(v1alpha1.ServiceIntegrationEndpoint)
 	require.NoError(t, s.GetRunning(endpointRegistry, endpointRegistryName))
-	endpointRegistryAvn, err := avnGen.ServiceIntegrationEndpointGet(ctx, cfg.Project, endpointRegistry.Status.ID, serviceintegration.ServiceIntegrationEndpointGetIncludeSecrets(true))
+	endpointRegistryAvn, err := avnGen.ServiceIntegrationEndpointGet(ctx, cfg.Project, endpointRegistry.Status.ID, service.ServiceIntegrationEndpointGetIncludeSecrets(true))
 	require.NoError(t, err)
 	assert.Equal(t, "external_schema_registry", string(endpointRegistryAvn.EndpointType))
 	assert.Equal(t, "https://schema-registry.example.com:8081", endpointRegistry.Spec.ExternalSchemaRegistry.Url)
