@@ -41,8 +41,8 @@ github.com/aiven/aiven-go-client/v2 v2.26.0 h1:1dBlF0BULbPsRXEEmcKs71AE3VZ+AYt5z
 github.com/aiven/aiven-go-client/v2 v2.26.0/go.mod h1:KdHfLIlIRZIfCSEBd39j1Q81jlSb6Nd+oCQKqERfnuA=
 github.com/aiven/go-api-schemas v1.85.0 h1:wpTCQWjTLKQvVQq184u6Ji0ZksDZkNPqS6f6zrZ+nGU=
 github.com/aiven/go-api-schemas v1.85.0/go.mod h1:/F7Rr8UVErsRxhgGN7CSo+Ac/uAg/OiAVCEKCfm3VAo=
-github.com/aiven/go-client-codegen v0.27.0 h1:LSOrvMJUIRCTl2y6auiwtmKE3hzN1S/M5vxHTk58QaI=
-github.com/aiven/go-client-codegen v0.27.0/go.mod h1:6AHM+oM2tNc10eOfPeyiTWFObkVz2dZY2gqRkTPQoVo=
+github.com/aiven/go-client-codegen v0.31.0 h1:kFJnrdgVTmGoLfTnWV6Qxlzjg6APZ/321ApiOHLwIpM=
+github.com/aiven/go-client-codegen v0.31.0/go.mod h1:FfbH32Xb+Hx5zeKTIug1Y8SfMeB+AKNRzxgrzkts2oA=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=

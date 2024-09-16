@@ -10,7 +10,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
-	"github.com/aiven/go-client-codegen/handler/serviceintegration"
+	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -69,9 +69,9 @@ func (h ServiceIntegrationEndpointHandler) createOrUpdate(ctx context.Context, a
 		endpoint, err := avnGen.ServiceIntegrationEndpointCreate(
 			ctx,
 			si.Spec.Project,
-			&serviceintegration.ServiceIntegrationEndpointCreateIn{
+			&service.ServiceIntegrationEndpointCreateIn{
 				EndpointName: si.Spec.EndpointName,
-				EndpointType: serviceintegration.EndpointType(si.Spec.EndpointType),
+				EndpointType: service.EndpointType(si.Spec.EndpointType),
 				UserConfig:   userConfigMap,
 			},
 		)
@@ -95,7 +95,7 @@ func (h ServiceIntegrationEndpointHandler) createOrUpdate(ctx context.Context, a
 			ctx,
 			si.Spec.Project,
 			si.Status.ID,
-			&serviceintegration.ServiceIntegrationEndpointUpdateIn{
+			&service.ServiceIntegrationEndpointUpdateIn{
 				UserConfig: userConfigMap,
 			},
 		)

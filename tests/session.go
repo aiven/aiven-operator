@@ -361,11 +361,3 @@ func parseObjs(src string) (map[string]client.Object, error) {
 	}
 	return objs, nil
 }
-
-func ptrValue[T any](v *T) T {
-	if v == nil {
-		var empty T
-		return empty
-	}
-	return *v
-}
