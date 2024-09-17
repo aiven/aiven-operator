@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/aiven/go-client-codegen/handler/kafkaschemaregistry"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -43,6 +44,7 @@ spec:
   project: %[1]s
   serviceName: %[2]s
   subjectName: %[4]s
+  schemaType: AVRO
   compatibilityLevel: BACKWARD
   schema: |
     {
@@ -104,7 +106,8 @@ func TestKafkaSchema(t *testing.T) {
 	assert.Equal(t, schemaName, schema.Name)
 	assert.Equal(t, subjectName, schema.Spec.SubjectName)
 	assert.Equal(t, kafkaName, schema.Spec.ServiceName)
-	assert.Equal(t, "BACKWARD", schema.Spec.CompatibilityLevel)
+	assert.Equal(t, kafkaschemaregistry.SchemaTypeAvro, schema.Spec.SchemaType)
+	assert.Equal(t, kafkaschemaregistry.CompatibilityTypeBackward, schema.Spec.CompatibilityLevel)
 
 	type schemaType struct {
 		Default   any           `json:"default,omitempty"`

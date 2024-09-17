@@ -4,6 +4,8 @@
 
 - Fix `KafkaTopic`: fails to create a topic with the replication factor set more than running Kafka nodes
 - Fix `ServiceIntegration`: sends empty source and destination projects
+- Fix `KafkaSchema`: poll resource availability
+- Add `KafkaSchema` field `schemaType`, type `string`: Schema type
 - Add `Kafka` field `userConfig.follower_fetching`, type `object`: Enable follower fetching
 - Change `Kafka` field `userConfig.kafka.sasl_oauthbearer_sub_claim_name`: pattern ~~`^[^\r\n]*$`~~ →
   `^[^\r\n]*\S[^\r\n]*$`
