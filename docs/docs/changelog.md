@@ -1,6 +1,39 @@
 # Changelog
 
 
+## v0.25.0 - 2024-09-19
+
+- Fix `KafkaTopic`: fails to create a topic with the replication factor set more than running Kafka nodes
+- Fix `ServiceIntegration`: sends empty source and destination projects
+- Fix `KafkaSchema`: poll resource availability
+- Add `KafkaSchema` field `schemaType`, type `string`: Schema type
+- Add `Kafka` field `userConfig.follower_fetching`, type `object`: Enable follower fetching
+- Add `Kafka` field `userConfig.kafka_sasl_mechanisms`, type `object`: Kafka SASL mechanisms
+- Change `Kafka` field `userConfig.kafka.sasl_oauthbearer_sub_claim_name`: pattern ~~`^[^\r\n]*$`~~ →
+  `^[^\r\n]*\S[^\r\n]*$`
+- Add `MySQL` field `userConfig.migration.ignore_roles`, type `string`: Comma-separated list of database
+  roles, which should be ignored during migration (supported by PostgreSQL only at the moment)
+- Add `PostgreSQL` field `userConfig.migration.ignore_roles`, type `string`: Comma-separated list of
+  database roles, which should be ignored during migration (supported by PostgreSQL only at the moment)
+- Add `PostgreSQL` field `userConfig.pgbouncer.max_prepared_statements`, type `integer`: PgBouncer tracks
+  protocol-level named prepared statements related commands sent by the client in transaction and
+  statement pooling modes when max_prepared_statements is set to a non-zero value
+- Add `Redis` field `userConfig.migration.ignore_roles`, type `string`: Comma-separated list of database
+  roles, which should be ignored during migration (supported by PostgreSQL only at the moment)
+- Add `Redis` field `userConfig.backup_hour`, type `integer`: The hour of day (in UTC) when backup for
+  the service is started
+- Add `Redis` field `userConfig.backup_minute`, type `integer`: The minute of an hour when backup for
+  the service is started
+- Add `Grafana` field `userConfig.wal`, type `boolean`: Setting to enable/disable Write-Ahead Logging.
+  The default value is false (disabled)
+- Add `OpenSearch` field `userConfig.azure_migration`, type `object`: Azure migration settings
+- Add `OpenSearch` field `userConfig.gcs_migration`, type `object`: Google Cloud Storage migration settings
+- Add `OpenSearch` field `userConfig.index_rollup`, type `object`: Index rollup settings
+- Add `OpenSearch` field `userConfig.s3_migration`, type `object`: AWS S3 / AWS S3 compatible migration settings
+- Change `OpenSearch` field `userConfig.openid.connect_url`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.opensearch.script_max_compilations_rate`: pattern `^[^\r\n]*$`
+- Change `OpenSearch` field `userConfig.saml.idp_metadata_url`: pattern `^[^\r\n]*$`
+
 ## v0.24.0 - 2024-07-16
 
 - Fix `PostgreSQL`: wait for a valid backup to create read replica
