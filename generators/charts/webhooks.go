@@ -44,7 +44,8 @@ type whManifestProp struct {
 			Operations  []string `yaml:"operations"`
 			Resources   []string `yaml:"resources"`
 		} `yaml:"rules"`
-		SideEffects string `yaml:"sideEffects"`
+		SideEffects       string      `yaml:"sideEffects"`
+		NamespaceSelector interface{} `yaml:"namespaceSelector"`
 	} `yaml:"webhooks"`
 }
 
@@ -72,9 +73,11 @@ func updateWebhooks(operatorPath, operatorCharts string) error {
 		// Renders manifest template
 		data := fmt.Sprintf(manifestTemplate, wh.Kind, wh.Metadata.Name, b.String())
 
-		// Replaces name and namespace with inclusions
+		// Replaces name, namespace and namespaceSelector with Helm template inclusions
 		data = strings.ReplaceAll(data, `name: webhook-service`, `name: {{ include "aiven-operator.fullname" . }}-webhook-service`)
 		data = strings.ReplaceAll(data, `namespace: system`, `namespace: {{ include "aiven-operator.namespace" . }}`)
+		// Since kubebuilder:webhook does not support the `namespaceSelector` field, we replace its null occurrences
+		data = strings.ReplaceAll(data, `namespaceSelector: null`, `{{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}`)
 
 		// Creates files according to Metadata.Name in snake case
 		filePath := path.Join(operatorCharts, "templates", strcase.SnakeCase(wh.Metadata.Name)+".yaml")

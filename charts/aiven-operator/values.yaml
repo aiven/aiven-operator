@@ -82,3 +82,7 @@ affinity: {}
 
 clusterRole:
   create: true
+
+# if empty, the operator will watch for resources in all namespaces
+# regardless of this setting, the operator will always watch for resources in its own namespace
+watchedNamespaces: []

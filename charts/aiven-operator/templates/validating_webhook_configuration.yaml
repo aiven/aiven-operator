@@ -30,6 +30,7 @@ webhooks:
         resources:
           - cassandras
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -51,6 +52,7 @@ webhooks:
         resources:
           - clickhouses
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -72,6 +74,7 @@ webhooks:
         resources:
           - connectionpools
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -93,6 +96,7 @@ webhooks:
         resources:
           - databases
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -114,6 +118,7 @@ webhooks:
         resources:
           - grafanas
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -135,6 +140,7 @@ webhooks:
         resources:
           - kafkas
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -155,6 +161,7 @@ webhooks:
         resources:
           - kafkaacls
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -176,6 +183,7 @@ webhooks:
         resources:
           - kafkaconnects
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -197,6 +205,7 @@ webhooks:
         resources:
           - kafkaconnectors
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -217,6 +226,7 @@ webhooks:
         resources:
           - kafkaschemas
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -238,6 +248,7 @@ webhooks:
         resources:
           - kafkatopics
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -259,6 +270,7 @@ webhooks:
         resources:
           - mysqls
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -280,6 +292,7 @@ webhooks:
         resources:
           - opensearches
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -301,6 +314,7 @@ webhooks:
         resources:
           - postgresqls
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -322,6 +336,7 @@ webhooks:
         resources:
           - projects
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -343,6 +358,7 @@ webhooks:
         resources:
           - redis
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -363,6 +379,7 @@ webhooks:
         resources:
           - serviceintegrations
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -383,6 +400,7 @@ webhooks:
         resources:
           - serviceintegrationendpoints
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -403,5 +421,6 @@ webhooks:
         resources:
           - serviceusers
     sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
 
 {{- end }}
