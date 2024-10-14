@@ -81,6 +81,9 @@ type AuthGenericOauth struct {
 	// +kubebuilder:validation:MaxLength=2048
 	// Token URL
 	TokenUrl string `groups:"create,update" json:"token_url"`
+
+	// Set to true to use refresh token and check access token expiration.
+	UseRefreshToken *bool `groups:"create,update" json:"use_refresh_token,omitempty"`
 }
 
 // Github Auth integration

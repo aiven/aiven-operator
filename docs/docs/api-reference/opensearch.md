@@ -193,10 +193,10 @@ OpenSearch specific user configuration options.
 **Optional**
 
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.
-- [`azure_migration`](#spec.userConfig.azure_migration-property){: name='spec.userConfig.azure_migration-property'} (object). See below for [nested schema](#spec.userConfig.azure_migration).
+- [`azure_migration`](#spec.userConfig.azure_migration-property){: name='spec.userConfig.azure_migration-property'} (object). Azure migration settings. See below for [nested schema](#spec.userConfig.azure_migration).
 - [`custom_domain`](#spec.userConfig.custom_domain-property){: name='spec.userConfig.custom_domain-property'} (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name.
 - [`disable_replication_factor_adjustment`](#spec.userConfig.disable_replication_factor_adjustment-property){: name='spec.userConfig.disable_replication_factor_adjustment-property'} (boolean). DEPRECATED: Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can no longer be activated.
-- [`gcs_migration`](#spec.userConfig.gcs_migration-property){: name='spec.userConfig.gcs_migration-property'} (object). See below for [nested schema](#spec.userConfig.gcs_migration).
+- [`gcs_migration`](#spec.userConfig.gcs_migration-property){: name='spec.userConfig.gcs_migration-property'} (object). Google Cloud Storage migration settings. See below for [nested schema](#spec.userConfig.gcs_migration).
 - [`index_patterns`](#spec.userConfig.index_patterns-property){: name='spec.userConfig.index_patterns-property'} (array of objects, MaxItems: 512). Index patterns. See below for [nested schema](#spec.userConfig.index_patterns).
 - [`index_rollup`](#spec.userConfig.index_rollup-property){: name='spec.userConfig.index_rollup-property'} (object). Index rollup settings. See below for [nested schema](#spec.userConfig.index_rollup).
 - [`index_template`](#spec.userConfig.index_template-property){: name='spec.userConfig.index_template-property'} (object). Template settings for all new indexes. See below for [nested schema](#spec.userConfig.index_template).
@@ -212,7 +212,7 @@ OpenSearch specific user configuration options.
 - [`project_to_fork_from`](#spec.userConfig.project_to_fork_from-property){: name='spec.userConfig.project_to_fork_from-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]{0,63}$|^$`, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.
 - [`public_access`](#spec.userConfig.public_access-property){: name='spec.userConfig.public_access-property'} (object). Allow access to selected service ports from the public Internet. See below for [nested schema](#spec.userConfig.public_access).
 - [`recovery_basebackup_name`](#spec.userConfig.recovery_basebackup_name-property){: name='spec.userConfig.recovery_basebackup_name-property'} (string, Pattern: `^[a-zA-Z0-9-_:.]+$`, MaxLength: 128). Name of the basebackup to restore in forked service.
-- [`s3_migration`](#spec.userConfig.s3_migration-property){: name='spec.userConfig.s3_migration-property'} (object). See below for [nested schema](#spec.userConfig.s3_migration).
+- [`s3_migration`](#spec.userConfig.s3_migration-property){: name='spec.userConfig.s3_migration-property'} (object). AWS S3 / AWS S3 compatible migration settings. See below for [nested schema](#spec.userConfig.s3_migration).
 - [`saml`](#spec.userConfig.saml-property){: name='spec.userConfig.saml-property'} (object). OpenSearch SAML configuration. See below for [nested schema](#spec.userConfig.saml).
 - [`service_log`](#spec.userConfig.service_log-property){: name='spec.userConfig.service_log-property'} (boolean). Store logs for the service so that they are available in the HTTP API and console.
 - [`service_to_fork_from`](#spec.userConfig.service_to_fork_from-property){: name='spec.userConfig.service_to_fork_from-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]{0,63}$|^$`, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.
@@ -221,6 +221,8 @@ OpenSearch specific user configuration options.
 ### azure_migration {: #spec.userConfig.azure_migration }
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
+
+Azure migration settings.
 
 **Required**
 
@@ -234,12 +236,15 @@ _Appears on [`spec.userConfig`](#spec.userConfig)._
 - [`chunk_size`](#spec.userConfig.azure_migration.chunk_size-property){: name='spec.userConfig.azure_migration.chunk_size-property'} (string, Pattern: `^[^\r\n]*$`). Big files can be broken down into chunks during snapshotting if needed. Should be the same as for the 3rd party repository.
 - [`compress`](#spec.userConfig.azure_migration.compress-property){: name='spec.userConfig.azure_migration.compress-property'} (boolean). when set to true metadata files are stored in compressed format.
 - [`endpoint_suffix`](#spec.userConfig.azure_migration.endpoint_suffix-property){: name='spec.userConfig.azure_migration.endpoint_suffix-property'} (string, Pattern: `^[^\r\n]*$`). Defines the DNS suffix for Azure Storage endpoints.
+- [`indices`](#spec.userConfig.azure_migration.indices-property){: name='spec.userConfig.azure_migration.indices-property'} (string). A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.
 - [`key`](#spec.userConfig.azure_migration.key-property){: name='spec.userConfig.azure_migration.key-property'} (string, Pattern: `^[^\r\n]*$`). Azure account secret key. One of key or sas_token should be specified.
 - [`sas_token`](#spec.userConfig.azure_migration.sas_token-property){: name='spec.userConfig.azure_migration.sas_token-property'} (string, Pattern: `^[^\r\n]*$`). A shared access signatures (SAS) token. One of key or sas_token should be specified.
 
 ### gcs_migration {: #spec.userConfig.gcs_migration }
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
+
+Google Cloud Storage migration settings.
 
 **Required**
 
@@ -252,6 +257,7 @@ _Appears on [`spec.userConfig`](#spec.userConfig)._
 
 - [`chunk_size`](#spec.userConfig.gcs_migration.chunk_size-property){: name='spec.userConfig.gcs_migration.chunk_size-property'} (string, Pattern: `^[^\r\n]*$`). Big files can be broken down into chunks during snapshotting if needed. Should be the same as for the 3rd party repository.
 - [`compress`](#spec.userConfig.gcs_migration.compress-property){: name='spec.userConfig.gcs_migration.compress-property'} (boolean). when set to true metadata files are stored in compressed format.
+- [`indices`](#spec.userConfig.gcs_migration.indices-property){: name='spec.userConfig.gcs_migration.indices-property'} (string). A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.
 
 ### index_patterns {: #spec.userConfig.index_patterns }
 
@@ -344,7 +350,7 @@ OpenSearch settings.
 - [`action_destructive_requires_name`](#spec.userConfig.opensearch.action_destructive_requires_name-property){: name='spec.userConfig.opensearch.action_destructive_requires_name-property'} (boolean). Require explicit index names when deleting.
 - [`auth_failure_listeners`](#spec.userConfig.opensearch.auth_failure_listeners-property){: name='spec.userConfig.opensearch.auth_failure_listeners-property'} (object). Opensearch Security Plugin Settings. See below for [nested schema](#spec.userConfig.opensearch.auth_failure_listeners).
 - [`cluster_max_shards_per_node`](#spec.userConfig.opensearch.cluster_max_shards_per_node-property){: name='spec.userConfig.opensearch.cluster_max_shards_per_node-property'} (integer, Minimum: 100, Maximum: 10000). Controls the number of shards allowed in the cluster per data node.
-- [`cluster_routing_allocation_node_concurrent_recoveries`](#spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property){: name='spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property'} (integer, Minimum: 2, Maximum: 16). How many concurrent incoming/outgoing shard recoveries (normally replicas) are allowed to happen on a node. Defaults to 2.
+- [`cluster_routing_allocation_node_concurrent_recoveries`](#spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property){: name='spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property'} (integer, Minimum: 2, Maximum: 16). How many concurrent incoming/outgoing shard recoveries (normally replicas) are allowed to happen on a node. Defaults to node cpu count * 2.
 - [`email_sender_name`](#spec.userConfig.opensearch.email_sender_name-property){: name='spec.userConfig.opensearch.email_sender_name-property'} (string, Pattern: `^[a-zA-Z0-9-_]+$`, MaxLength: 40). Sender name placeholder to be used in Opensearch Dashboards and Opensearch keystore.
 - [`email_sender_password`](#spec.userConfig.opensearch.email_sender_password-property){: name='spec.userConfig.opensearch.email_sender_password-property'} (string, Pattern: `^[^\x00-\x1F]+$`, MaxLength: 1024). Sender password for Opensearch alerts to authenticate with SMTP server.
 - [`email_sender_username`](#spec.userConfig.opensearch.email_sender_username-property){: name='spec.userConfig.opensearch.email_sender_username-property'} (string, Pattern: `^[^\x00-\x1F]+$`, MaxLength: 320). Sender username for Opensearch alerts.
@@ -477,6 +483,8 @@ Allow access to selected service ports from the public Internet.
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
 
+AWS S3 / AWS S3 compatible migration settings.
+
 **Required**
 
 - [`access_key`](#spec.userConfig.s3_migration.access_key-property){: name='spec.userConfig.s3_migration.access_key-property'} (string, Pattern: `^[^\r\n]*$`). AWS Access key.
@@ -491,6 +499,7 @@ _Appears on [`spec.userConfig`](#spec.userConfig)._
 - [`chunk_size`](#spec.userConfig.s3_migration.chunk_size-property){: name='spec.userConfig.s3_migration.chunk_size-property'} (string, Pattern: `^[^\r\n]*$`). Big files can be broken down into chunks during snapshotting if needed. Should be the same as for the 3rd party repository.
 - [`compress`](#spec.userConfig.s3_migration.compress-property){: name='spec.userConfig.s3_migration.compress-property'} (boolean). when set to true metadata files are stored in compressed format.
 - [`endpoint`](#spec.userConfig.s3_migration.endpoint-property){: name='spec.userConfig.s3_migration.endpoint-property'} (string, Pattern: `^[^\r\n]*$`). The S3 service endpoint to connect to. If you are using an S3-compatible service then you should set this to the service’s endpoint.
+- [`indices`](#spec.userConfig.s3_migration.indices-property){: name='spec.userConfig.s3_migration.indices-property'} (string). A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.
 - [`server_side_encryption`](#spec.userConfig.s3_migration.server_side_encryption-property){: name='spec.userConfig.s3_migration.server_side_encryption-property'} (boolean). When set to true files are encrypted on server side.
 
 ### saml {: #spec.userConfig.saml }

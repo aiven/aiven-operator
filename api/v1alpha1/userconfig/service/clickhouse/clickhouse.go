@@ -83,6 +83,11 @@ type ClickhouseUserConfig struct {
 	// Allow access to selected service ports from the public Internet
 	PublicAccess *PublicAccess `groups:"create,update" json:"public_access,omitempty"`
 
+	// +kubebuilder:validation:MaxLength=128
+	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9-_:.+]+$`
+	// Name of the basebackup to restore in forked service
+	RecoveryBasebackupName *string `groups:"create,update" json:"recovery_basebackup_name,omitempty"`
+
 	// Store logs for the service so that they are available in the HTTP API and console.
 	ServiceLog *bool `groups:"create,update" json:"service_log,omitempty"`
 

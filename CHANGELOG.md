@@ -2,6 +2,28 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `Clickhouse` field `userConfig.recovery_basebackup_name`, type `string`: Name of the basebackup
+  to restore in forked service
+- Add `Grafana` field `userConfig.auth_generic_oauth.use_refresh_token`, type `boolean`: Set to true
+  to use refresh token and check access token expiration
+- Add `Kafka` field `userConfig.schema_registry_config.retriable_errors_silenced`, type `boolean`: If
+  enabled, kafka errors which can be retried or custom errors specified for the service will not be
+  raised, instead, a warning log is emitted
+- Add `Kafka` field `userConfig.schema_registry_config.schema_reader_strict_mode`, type `boolean`: If
+  enabled, causes the Karapace schema-registry service to shutdown when there are invalid schema records
+  in the `_schemas` topic
+- Add `Kafka` field `userConfig.single_zone`, type `object`: Single-zone configuration
+- Change `Kafka` field `userConfig.kafka_version`: enum ~~`[3.4, 3.5, 3.6, 3.7]`~~ → `[3.5, 3.6, 3.7, 3.8]`
+- Add `MySQL` field `userConfig.mysql.log_output`, type `string`: The slow log output destination when
+  slow_query_log is ON
+- Add `OpenSearch` field `userConfig.azure_migration.indices`, type `string`: A comma-delimited list
+  of indices to restore from the snapshot. Multi-index syntax is supported
+- Add `OpenSearch` field `userConfig.gcs_migration.indices`, type `string`: A comma-delimited list of
+  indices to restore from the snapshot. Multi-index syntax is supported
+- Add `OpenSearch` field `userConfig.s3_migration.indices`, type `string`: A comma-delimited list of
+  indices to restore from the snapshot. Multi-index syntax is supported
+- Change `PostgreSQL` field `userConfig.additional_backup_regions`: deprecated
+
 ## v0.25.0 - 2024-09-19
 
 - Fix `KafkaTopic`: fails to create a topic with the replication factor set more than running Kafka nodes

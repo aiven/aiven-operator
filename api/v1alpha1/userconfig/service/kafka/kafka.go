@@ -493,10 +493,22 @@ type SchemaRegistryConfig struct {
 	// If true, Karapace / Schema Registry on the service nodes can participate in leader election. It might be needed to disable this when the schemas topic is replicated to a secondary cluster and Karapace / Schema Registry there must not participate in leader election. Defaults to `true`.
 	LeaderEligibility *bool `groups:"create,update" json:"leader_eligibility,omitempty"`
 
+	// If enabled, kafka errors which can be retried or custom errors specified for the service will not be raised, instead, a warning log is emitted. This will denoise issue tracking systems, i.e. sentry. Defaults to `true`.
+	RetriableErrorsSilenced *bool `groups:"create,update" json:"retriable_errors_silenced,omitempty"`
+
+	// If enabled, causes the Karapace schema-registry service to shutdown when there are invalid schema records in the `_schemas` topic. Defaults to `false`.
+	SchemaReaderStrictMode *bool `groups:"create,update" json:"schema_reader_strict_mode,omitempty"`
+
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=249
 	// The durable single partition topic that acts as the durable log for the data. This topic must be compacted to avoid losing data due to retention policy. Please note that changing this configuration in an existing Schema Registry / Karapace setup leads to previous schemas being inaccessible, data encoded with them potentially unreadable and schema ID sequence put out of order. It's only possible to do the switch while Schema Registry / Karapace is disabled. Defaults to `_schemas`.
 	TopicName *string `groups:"create,update" json:"topic_name,omitempty"`
+}
+
+// Single-zone configuration
+type SingleZone struct {
+	// Whether to allocate nodes on the same Availability Zone or spread across zones available. By default service nodes are spread across different AZs. The single AZ support is best-effort and may temporarily allocate nodes in different AZs e.g. in case of capacity limitations in one AZ.
+	Enabled *bool `groups:"create,update" json:"enabled,omitempty"`
 }
 
 // Deprecated. Local cache configuration
@@ -564,7 +576,7 @@ type KafkaUserConfig struct {
 	// Kafka SASL mechanisms
 	KafkaSaslMechanisms *KafkaSaslMechanisms `groups:"create,update" json:"kafka_sasl_mechanisms,omitempty"`
 
-	// +kubebuilder:validation:Enum="3.4";"3.5";"3.6";"3.7"
+	// +kubebuilder:validation:Enum="3.5";"3.6";"3.7";"3.8"
 	// Kafka major version
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
 
@@ -588,6 +600,9 @@ type KafkaUserConfig struct {
 
 	// Store logs for the service so that they are available in the HTTP API and console.
 	ServiceLog *bool `groups:"create,update" json:"service_log,omitempty"`
+
+	// Single-zone configuration
+	SingleZone *SingleZone `groups:"create,update" json:"single_zone,omitempty"`
 
 	// Use static public IP addresses
 	StaticIps *bool `groups:"create,update" json:"static_ips,omitempty"`

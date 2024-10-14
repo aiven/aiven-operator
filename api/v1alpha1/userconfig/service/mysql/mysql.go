@@ -140,9 +140,13 @@ type Mysql struct {
 	// The storage engine for in-memory internal temporary tables.
 	InternalTmpMemStorageEngine *string `groups:"create,update" json:"internal_tmp_mem_storage_engine,omitempty"`
 
+	// +kubebuilder:validation:Enum="INSIGHTS";"NONE";"TABLE";"INSIGHTS,TABLE"
+	// The slow log output destination when slow_query_log is ON. To enable MySQL AI Insights, choose INSIGHTS. To use MySQL AI Insights and the mysql.slow_log table at the same time, choose INSIGHTS,TABLE. To only use the mysql.slow_log table, choose TABLE. To silence slow logs, choose NONE.
+	LogOutput *string `groups:"create,update" json:"log_output,omitempty"`
+
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=3600
-	// The slow_query_logs work as SQL statements that take more than long_query_time seconds to execute. Default is 10s
+	// The slow_query_logs work as SQL statements that take more than long_query_time seconds to execute.
 	LongQueryTime *float64 `groups:"create,update" json:"long_query_time,omitempty"`
 
 	// +kubebuilder:validation:Minimum=102400
@@ -170,7 +174,7 @@ type Mysql struct {
 	// The number of seconds to wait for a block to be written to a connection before aborting the write.
 	NetWriteTimeout *int `groups:"create,update" json:"net_write_timeout,omitempty"`
 
-	// Slow query log enables capturing of slow queries. Setting slow_query_log to false also truncates the mysql.slow_log table. Default is off
+	// Slow query log enables capturing of slow queries. Setting slow_query_log to false also truncates the mysql.slow_log table.
 	SlowQueryLog *bool `groups:"create,update" json:"slow_query_log,omitempty"`
 
 	// +kubebuilder:validation:Minimum=32768

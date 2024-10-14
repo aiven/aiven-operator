@@ -284,6 +284,7 @@ Generic OAuth integration.
 - [`auto_login`](#spec.userConfig.auth_generic_oauth.auto_login-property){: name='spec.userConfig.auth_generic_oauth.auto_login-property'} (boolean). Allow users to bypass the login screen and automatically log in.
 - [`name`](#spec.userConfig.auth_generic_oauth.name-property){: name='spec.userConfig.auth_generic_oauth.name-property'} (string, Pattern: `^[a-zA-Z0-9_\- ]+$`, MaxLength: 128). Name of the OAuth integration.
 - [`scopes`](#spec.userConfig.auth_generic_oauth.scopes-property){: name='spec.userConfig.auth_generic_oauth.scopes-property'} (array of strings, MaxItems: 50). OAuth scopes.
+- [`use_refresh_token`](#spec.userConfig.auth_generic_oauth.use_refresh_token-property){: name='spec.userConfig.auth_generic_oauth.use_refresh_token-property'} (boolean). Set to true to use refresh token and check access token expiration.
 
 ### auth_github {: #spec.userConfig.auth_github }
 
