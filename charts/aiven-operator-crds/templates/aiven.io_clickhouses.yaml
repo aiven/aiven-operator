@@ -340,6 +340,11 @@ spec:
                             VPC or another type of private network
                           type: boolean
                       type: object
+                    recovery_basebackup_name:
+                      description: Name of the basebackup to restore in forked service
+                      maxLength: 128
+                      pattern: ^[a-zA-Z0-9-_:.+]+$
+                      type: string
                     service_log:
                       description:
                         Store logs for the service so that they are available

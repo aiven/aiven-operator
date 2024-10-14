@@ -169,6 +169,11 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.LogOutput != nil {
+		in, out := &in.LogOutput, &out.LogOutput
+		*out = new(string)
+		**out = **in
+	}
 	if in.LongQueryTime != nil {
 		in, out := &in.LongQueryTime, &out.LongQueryTime
 		*out = new(float64)

@@ -370,6 +370,11 @@ spec:
                           description: Token URL
                           maxLength: 2048
                           type: string
+                        use_refresh_token:
+                          description:
+                            Set to true to use refresh token and check access
+                            token expiration.
+                          type: boolean
                       required:
                         - api_url
                         - auth_url

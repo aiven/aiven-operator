@@ -498,11 +498,23 @@ spec:
                             - TempTable
                             - MEMORY
                           type: string
+                        log_output:
+                          description:
+                            The slow log output destination when slow_query_log
+                            is ON. To enable MySQL AI Insights, choose INSIGHTS. To
+                            use MySQL AI Insights and the mysql.slow_log table at the
+                            same time, choose INSIGHTS,TABLE. To only use the mysql.slow_log
+                            table, choose TABLE. To silence slow logs, choose NONE.
+                          enum:
+                            - INSIGHTS
+                            - NONE
+                            - TABLE
+                            - INSIGHTS,TABLE
+                          type: string
                         long_query_time:
                           description:
                             The slow_query_logs work as SQL statements that
-                            take more than long_query_time seconds to execute. Default
-                            is 10s
+                            take more than long_query_time seconds to execute.
                           maximum: 3600
                           minimum: 0
                           type: number
@@ -546,7 +558,7 @@ spec:
                           description:
                             Slow query log enables capturing of slow queries.
                             Setting slow_query_log to false also truncates the mysql.slow_log
-                            table. Default is off
+                            table.
                           type: boolean
                         sort_buffer_size:
                           description:

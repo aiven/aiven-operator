@@ -45,6 +45,11 @@ func (in *ClickhouseUserConfig) DeepCopyInto(out *ClickhouseUserConfig) {
 		*out = new(PublicAccess)
 		(*in).DeepCopyInto(*out)
 	}
+	if in.RecoveryBasebackupName != nil {
+		in, out := &in.RecoveryBasebackupName, &out.RecoveryBasebackupName
+		*out = new(string)
+		**out = **in
+	}
 	if in.ServiceLog != nil {
 		in, out := &in.ServiceLog, &out.ServiceLog
 		*out = new(bool)

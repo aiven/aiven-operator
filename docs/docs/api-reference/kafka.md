@@ -217,7 +217,7 @@ Kafka specific user configuration options.
 - [`kafka_rest_authorization`](#spec.userConfig.kafka_rest_authorization-property){: name='spec.userConfig.kafka_rest_authorization-property'} (boolean). Enable authorization in Kafka-REST service.
 - [`kafka_rest_config`](#spec.userConfig.kafka_rest_config-property){: name='spec.userConfig.kafka_rest_config-property'} (object). Kafka REST configuration. See below for [nested schema](#spec.userConfig.kafka_rest_config).
 - [`kafka_sasl_mechanisms`](#spec.userConfig.kafka_sasl_mechanisms-property){: name='spec.userConfig.kafka_sasl_mechanisms-property'} (object). Kafka SASL mechanisms. See below for [nested schema](#spec.userConfig.kafka_sasl_mechanisms).
-- [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string, Enum: `3.4`, `3.5`, `3.6`, `3.7`). Kafka major version.
+- [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string, Enum: `3.5`, `3.6`, `3.7`, `3.8`). Kafka major version.
 - [`letsencrypt_sasl_privatelink`](#spec.userConfig.letsencrypt_sasl_privatelink-property){: name='spec.userConfig.letsencrypt_sasl_privatelink-property'} (boolean). Use Letsencrypt CA for Kafka SASL via Privatelink.
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
 - [`privatelink_access`](#spec.userConfig.privatelink_access-property){: name='spec.userConfig.privatelink_access-property'} (object). Allow access to selected service components through Privatelink. See below for [nested schema](#spec.userConfig.privatelink_access).
@@ -225,6 +225,7 @@ Kafka specific user configuration options.
 - [`schema_registry`](#spec.userConfig.schema_registry-property){: name='spec.userConfig.schema_registry-property'} (boolean). Enable Schema-Registry service.
 - [`schema_registry_config`](#spec.userConfig.schema_registry_config-property){: name='spec.userConfig.schema_registry_config-property'} (object). Schema Registry configuration. See below for [nested schema](#spec.userConfig.schema_registry_config).
 - [`service_log`](#spec.userConfig.service_log-property){: name='spec.userConfig.service_log-property'} (boolean). Store logs for the service so that they are available in the HTTP API and console.
+- [`single_zone`](#spec.userConfig.single_zone-property){: name='spec.userConfig.single_zone-property'} (object). Single-zone configuration. See below for [nested schema](#spec.userConfig.single_zone).
 - [`static_ips`](#spec.userConfig.static_ips-property){: name='spec.userConfig.static_ips-property'} (boolean). Use static public IP addresses.
 - [`tiered_storage`](#spec.userConfig.tiered_storage-property){: name='spec.userConfig.tiered_storage-property'} (object). Tiered storage configuration. See below for [nested schema](#spec.userConfig.tiered_storage).
 
@@ -474,7 +475,19 @@ Schema Registry configuration.
 **Optional**
 
 - [`leader_eligibility`](#spec.userConfig.schema_registry_config.leader_eligibility-property){: name='spec.userConfig.schema_registry_config.leader_eligibility-property'} (boolean). If true, Karapace / Schema Registry on the service nodes can participate in leader election. It might be needed to disable this when the schemas topic is replicated to a secondary cluster and Karapace / Schema Registry there must not participate in leader election. Defaults to `true`.
+- [`retriable_errors_silenced`](#spec.userConfig.schema_registry_config.retriable_errors_silenced-property){: name='spec.userConfig.schema_registry_config.retriable_errors_silenced-property'} (boolean). If enabled, kafka errors which can be retried or custom errors specified for the service will not be raised, instead, a warning log is emitted. This will denoise issue tracking systems, i.e. sentry. Defaults to `true`.
+- [`schema_reader_strict_mode`](#spec.userConfig.schema_registry_config.schema_reader_strict_mode-property){: name='spec.userConfig.schema_registry_config.schema_reader_strict_mode-property'} (boolean). If enabled, causes the Karapace schema-registry service to shutdown when there are invalid schema records in the `_schemas` topic. Defaults to `false`.
 - [`topic_name`](#spec.userConfig.schema_registry_config.topic_name-property){: name='spec.userConfig.schema_registry_config.topic_name-property'} (string, MinLength: 1, MaxLength: 249). The durable single partition topic that acts as the durable log for the data. This topic must be compacted to avoid losing data due to retention policy. Please note that changing this configuration in an existing Schema Registry / Karapace setup leads to previous schemas being inaccessible, data encoded with them potentially unreadable and schema ID sequence put out of order. It's only possible to do the switch while Schema Registry / Karapace is disabled. Defaults to `_schemas`.
+
+### single_zone {: #spec.userConfig.single_zone }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+Single-zone configuration.
+
+**Required**
+
+- [`enabled`](#spec.userConfig.single_zone.enabled-property){: name='spec.userConfig.single_zone.enabled-property'} (boolean). Whether to allocate nodes on the same Availability Zone or spread across zones available. By default service nodes are spread across different AZs. The single AZ support is best-effort and may temporarily allocate nodes in different AZs e.g. in case of capacity limitations in one AZ.
 
 ### tiered_storage {: #spec.userConfig.tiered_storage }
 

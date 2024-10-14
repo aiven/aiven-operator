@@ -1,7 +1,8 @@
 module github.com/aiven/aiven-operator
 
-go 1.22
-toolchain go1.22.5
+go 1.22.0
+
+toolchain go1.23.0
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.29.0

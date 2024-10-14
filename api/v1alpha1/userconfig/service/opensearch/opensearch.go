@@ -3,6 +3,7 @@
 
 package opensearchuserconfig
 
+// Azure migration settings
 type AzureMigration struct {
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// Azure account name
@@ -27,6 +28,10 @@ type AzureMigration struct {
 	// Defines the DNS suffix for Azure Storage endpoints.
 	EndpointSuffix *string `groups:"create,update" json:"endpoint_suffix,omitempty"`
 
+	// +kubebuilder:validation:Pattern=`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`
+	// A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.
+	Indices *string `groups:"create,update" json:"indices,omitempty"`
+
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// Azure account secret key. One of key or sas_token should be specified
 	Key *string `groups:"create,update" json:"key,omitempty"`
@@ -39,6 +44,8 @@ type AzureMigration struct {
 	// The snapshot name to restore from
 	SnapshotName string `groups:"create,update" json:"snapshot_name"`
 }
+
+// Google Cloud Storage migration settings
 type GcsMigration struct {
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// The path to the repository data within its container. The value of this setting should not start or end with a /
@@ -58,6 +65,10 @@ type GcsMigration struct {
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// Google Cloud Storage credentials file content
 	Credentials string `groups:"create,update" json:"credentials"`
+
+	// +kubebuilder:validation:Pattern=`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`
+	// A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.
+	Indices *string `groups:"create,update" json:"indices,omitempty"`
 
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// The snapshot name to restore from
@@ -291,7 +302,7 @@ type Opensearch struct {
 
 	// +kubebuilder:validation:Minimum=2
 	// +kubebuilder:validation:Maximum=16
-	// How many concurrent incoming/outgoing shard recoveries (normally replicas) are allowed to happen on a node. Defaults to 2.
+	// How many concurrent incoming/outgoing shard recoveries (normally replicas) are allowed to happen on a node. Defaults to node cpu count * 2.
 	ClusterRoutingAllocationNodeConcurrentRecoveries *int `groups:"create,update" json:"cluster_routing_allocation_node_concurrent_recoveries,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=40
@@ -527,6 +538,8 @@ type PublicAccess struct {
 	// Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network
 	Prometheus *bool `groups:"create,update" json:"prometheus,omitempty"`
 }
+
+// AWS S3 / AWS S3 compatible migration settings
 type S3Migration struct {
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// AWS Access key
@@ -550,6 +563,10 @@ type S3Migration struct {
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// The S3 service endpoint to connect to. If you are using an S3-compatible service then you should set this to the service’s endpoint
 	Endpoint *string `groups:"create,update" json:"endpoint,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`
+	// A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.
+	Indices *string `groups:"create,update" json:"indices,omitempty"`
 
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// S3 region
@@ -611,6 +628,7 @@ type OpensearchUserConfig struct {
 	// Additional Cloud Regions for Backup Replication
 	AdditionalBackupRegions []string `groups:"create,update" json:"additional_backup_regions,omitempty"`
 
+	// Azure migration settings
 	AzureMigration *AzureMigration `groups:"create,update" json:"azure_migration,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=255
@@ -620,6 +638,7 @@ type OpensearchUserConfig struct {
 	// DEPRECATED: Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can no longer be activated.
 	DisableReplicationFactorAdjustment *bool `groups:"create,update" json:"disable_replication_factor_adjustment,omitempty"`
 
+	// Google Cloud Storage migration settings
 	GcsMigration *GcsMigration `groups:"create,update" json:"gcs_migration,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=512
@@ -676,6 +695,7 @@ type OpensearchUserConfig struct {
 	// Name of the basebackup to restore in forked service
 	RecoveryBasebackupName *string `groups:"create,update" json:"recovery_basebackup_name,omitempty"`
 
+	// AWS S3 / AWS S3 compatible migration settings
 	S3Migration *S3Migration `groups:"create,update" json:"s3_migration,omitempty"`
 
 	// OpenSearch SAML configuration

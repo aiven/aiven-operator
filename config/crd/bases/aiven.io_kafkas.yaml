@@ -1000,10 +1000,10 @@ spec:
                     kafka_version:
                       description: Kafka major version
                       enum:
-                        - "3.4"
                         - "3.5"
                         - "3.6"
                         - "3.7"
+                        - "3.8"
                       type: string
                     letsencrypt_sasl_privatelink:
                       description: Use Letsencrypt CA for Kafka SASL via Privatelink
@@ -1118,6 +1118,19 @@ spec:
                             a secondary cluster and Karapace / Schema Registry there
                             must not participate in leader election. Defaults to `true`.
                           type: boolean
+                        retriable_errors_silenced:
+                          description:
+                            If enabled, kafka errors which can be retried
+                            or custom errors specified for the service will not be raised,
+                            instead, a warning log is emitted. This will denoise issue
+                            tracking systems, i.e. sentry. Defaults to `true`.
+                          type: boolean
+                        schema_reader_strict_mode:
+                          description:
+                            If enabled, causes the Karapace schema-registry
+                            service to shutdown when there are invalid schema records
+                            in the `_schemas` topic. Defaults to `false`.
+                          type: boolean
                         topic_name:
                           description:
                             The durable single partition topic that acts
@@ -1138,6 +1151,18 @@ spec:
                         Store logs for the service so that they are available
                         in the HTTP API and console.
                       type: boolean
+                    single_zone:
+                      description: Single-zone configuration
+                      properties:
+                        enabled:
+                          description:
+                            Whether to allocate nodes on the same Availability
+                            Zone or spread across zones available. By default service
+                            nodes are spread across different AZs. The single AZ support
+                            is best-effort and may temporarily allocate nodes in different
+                            AZs e.g. in case of capacity limitations in one AZ.
+                          type: boolean
+                      type: object
                     static_ips:
                       description: Use static public IP addresses
                       type: boolean

@@ -231,6 +231,7 @@ spec:
                       maxItems: 1
                       type: array
                     azure_migration:
+                      description: Azure migration settings
                       properties:
                         account:
                           description: Azure account name
@@ -262,6 +263,16 @@ spec:
                         endpoint_suffix:
                           description: Defines the DNS suffix for Azure Storage endpoints.
                           pattern: ^[^\r\n]*$
+                          type: string
+                        indices:
+                          description:
+                            A comma-delimited list of indices to restore
+                            from the snapshot. Multi-index syntax is supported. By default,
+                            a restore operation includes all data streams and indices
+                            in the snapshot. If this argument is provided, the restore
+                            operation only includes the data streams and indices that
+                            you specify.
+                          pattern: ^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$
                           type: string
                         key:
                           description:
@@ -300,6 +311,7 @@ spec:
                         setting can no longer be activated."
                       type: boolean
                     gcs_migration:
+                      description: Google Cloud Storage migration settings
                       properties:
                         base_path:
                           description:
@@ -327,6 +339,16 @@ spec:
                         credentials:
                           description: Google Cloud Storage credentials file content
                           pattern: ^[^\r\n]*$
+                          type: string
+                        indices:
+                          description:
+                            A comma-delimited list of indices to restore
+                            from the snapshot. Multi-index syntax is supported. By default,
+                            a restore operation includes all data streams and indices
+                            in the snapshot. If this argument is provided, the restore
+                            operation only includes the data streams and indices that
+                            you specify.
+                          pattern: ^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$
                           type: string
                         snapshot_name:
                           description: The snapshot name to restore from
@@ -685,7 +707,7 @@ spec:
                           description:
                             How many concurrent incoming/outgoing shard recoveries
                             (normally replicas) are allowed to happen on a node. Defaults
-                            to 2.
+                            to node cpu count * 2.
                           maximum: 16
                           minimum: 2
                           type: integer
@@ -1081,6 +1103,7 @@ spec:
                       pattern: ^[a-zA-Z0-9-_:.]+$
                       type: string
                     s3_migration:
+                      description: AWS S3 / AWS S3 compatible migration settings
                       properties:
                         access_key:
                           description: AWS Access key
@@ -1115,6 +1138,16 @@ spec:
                             are using an S3-compatible service then you should set this
                             to the service’s endpoint
                           pattern: ^[^\r\n]*$
+                          type: string
+                        indices:
+                          description:
+                            A comma-delimited list of indices to restore
+                            from the snapshot. Multi-index syntax is supported. By default,
+                            a restore operation includes all data streams and indices
+                            in the snapshot. If this argument is provided, the restore
+                            operation only includes the data streams and indices that
+                            you specify.
+                          pattern: ^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$
                           type: string
                         region:
                           description: S3 region
