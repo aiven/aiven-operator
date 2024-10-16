@@ -1,33 +1,32 @@
 ---
-title: "Authenticating"
-linkTitle: "Authenticating"
+title: "Authentication"
+linkTitle: "Authentication"
 weight: 10
 ---
 
-To get authenticated and authorized, set up the communication between the Aiven Operator for Kubernetes and Aiven by
-using a token stored in a Kubernetes Secret. You can then refer to the `Secret` name on every custom resource in
-the `authSecretRef` field.
+# Authentication
 
-!!! important
-    If you don't have an Aiven account yet, sign
-    up [here](https://console.aiven.io/signup?utm_source=github&utm_medium=organic&utm_campaign=k8s-operator&utm_content=signup)
-    for a free trial 🦀
+Set up the communication between the Aiven Operator and the Aiven Platform by using a token stored in a Kubernetes Secret. 
+You can then refer to the Secret's name on every custom resource in the `authSecretRef` field.
 
-1\. Generate an authentication token
+## Prerequisites
 
-Refer to [our documentation article](https://aiven.io/docs/platform/concepts/authentication-tokens) to generate your
-authentication token.
+An Aiven user account. [Sign up for free](https://console.aiven.io/signup?utm_source=github&utm_medium=organic&utm_campaign=k8s-operator&utm_content=signup).
 
-2\. Create the Kubernetes Secret
+## Store a token in a Secret
 
-The following command creates a Secret named `aiven-token` with a `token` field containing the authentication token:
+1\. [Create a personal token](https://aiven.io/docs/platform/howto/create_authentication_token) in the Aiven Console.
+
+2\. To create a Kubernetes Secret, run: 
 
 ```shell
 kubectl create secret generic aiven-token --from-literal=token="TOKEN"
 ```
 
-When managing your Aiven resources, we will be using the created Secret in the `authSecretRef` field. It will look like
-the example below:
+Where `TOKEN` is your personal token. This creates a Secret named `aiven-token`.
+
+When managing your Aiven resources, you use the Secret in the `authSecretRef` field. The following is an example
+for a PostgreSQL service with the token:
 
 ```yaml
 apiVersion: aiven.io/v1alpha1
@@ -38,21 +37,5 @@ spec:
   authSecretRef:
     name: aiven-token
     key: token
-  [ ... ]
-```
-
-Also, note that within Aiven, all resources are conceptually inside a _Project_. By default, a random project name is
-generated when you signup, but you can
-also [create new projects](https://aiven.io/docs/platform/howto/manage-project).
-
-The Project name is required in most of the resources. It will look like the example below:
-
-```yaml
-apiVersion: aiven.io/v1alpha1
-kind: PostgreSQL
-metadata:
-  name: pg-sample
-spec:
-  project: PROJECT_NAME
   [ ... ]
 ```

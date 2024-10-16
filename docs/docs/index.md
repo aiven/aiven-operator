@@ -4,16 +4,22 @@ linkTitle: ""
 url: /
 ---
 
-# Welcome to Aiven Operator for Kubernetes
+# Aiven Operator for Kubernetes® docs
 
-Provision and manage [Aiven services](https://aiven.io) from your Kubernetes cluster.
+Provision and manage [Aiven services](https://aiven.io/docs/products/services) from your Kubernetes cluster.
 
-## What is Aiven?
+## The Aiven Data and AI Platform
 
-Aiven offers managed services for the best open source data technologies, on a cloud of your choice.
+Aiven provides managed open source services for streaming, storing and analyzing data on all major clouds. All services run reliably and securely in the clouds of your choice, are observable, and can easily be integrated with each other and with external 3rd party tools.
 
-We offer multiple cloud options because we believe that everyone should have access to great data platforms wherever they host their applications. Our customers tell us they love it because they know that they aren’t locked in to one particular cloud platform for all their data needs.
+The Aiven Platform combines open-choice services to rapidly stream, store and serve data across major cloud providers — simply and securely. Aiven is trusted by thousands of customers worldwide to power their innovation and create next-generation applications confidently and quickly.
 
-## Contributing
+## Get started
 
-The [contribution guide](./contributing/index.md) covers everything you need to know about how you can contribute to Aiven Operator for Kubernetes. The [developer guide](./contributing/developer-guide.md) will help you onboard as a developer.
+- Follow the [setup guides](./installation/prerequisites.md) to install Aiven Operator and create a token.
+- Then try out the [resource examples](./resources/project.md) to set up a project or deploy a service, or review the [API reference](./api-reference/index.md).
+- View the [Aiven documentation](https://aiven.io/docs) for more information on the Aiven Platform and services.
+
+## Contribute
+
+The [contribution guide](./contributing/index.md) covers everything you need to know about how you can contribute to Aiven Kubernetes Operator. The [developer guide](./contributing/developer-guide.md) gets you set up with the all the tools you need.
