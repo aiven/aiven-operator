@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.35">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.35f28582.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -507,7 +507,7 @@
         
   
   <span class="md-ellipsis">
-    Authenticating
+    Authentication
   </span>
   
 
@@ -2234,13 +2234,14 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <li><a href="#spec.userConfig.mysql.innodb_write_io_threads-property" name="spec.userConfig.mysql.innodb_write_io_threads-property"><code>innodb_write_io_threads</code></a> (integer, Minimum: 1, Maximum: 64). The number of I/O threads for write operations in InnoDB. Default is 4. Changing this parameter will lead to a restart of the MySQL service.</li>
 <li><a href="#spec.userConfig.mysql.interactive_timeout-property" name="spec.userConfig.mysql.interactive_timeout-property"><code>interactive_timeout</code></a> (integer, Minimum: 30, Maximum: 604800). The number of seconds the server waits for activity on an interactive connection before closing it.</li>
 <li><a href="#spec.userConfig.mysql.internal_tmp_mem_storage_engine-property" name="spec.userConfig.mysql.internal_tmp_mem_storage_engine-property"><code>internal_tmp_mem_storage_engine</code></a> (string, Enum: <code>TempTable</code>, <code>MEMORY</code>). The storage engine for in-memory internal temporary tables.</li>
-<li><a href="#spec.userConfig.mysql.long_query_time-property" name="spec.userConfig.mysql.long_query_time-property"><code>long_query_time</code></a> (number, Minimum: 0, Maximum: 3600). The slow_query_logs work as SQL statements that take more than long_query_time seconds to execute. Default is 10s.</li>
+<li><a href="#spec.userConfig.mysql.log_output-property" name="spec.userConfig.mysql.log_output-property"><code>log_output</code></a> (string, Enum: <code>INSIGHTS</code>, <code>NONE</code>, <code>TABLE</code>, <code>INSIGHTS,TABLE</code>). The slow log output destination when slow_query_log is ON. To enable MySQL AI Insights, choose INSIGHTS. To use MySQL AI Insights and the mysql.slow_log table at the same time, choose INSIGHTS,TABLE. To only use the mysql.slow_log table, choose TABLE. To silence slow logs, choose NONE.</li>
+<li><a href="#spec.userConfig.mysql.long_query_time-property" name="spec.userConfig.mysql.long_query_time-property"><code>long_query_time</code></a> (number, Minimum: 0, Maximum: 3600). The slow_query_logs work as SQL statements that take more than long_query_time seconds to execute.</li>
 <li><a href="#spec.userConfig.mysql.max_allowed_packet-property" name="spec.userConfig.mysql.max_allowed_packet-property"><code>max_allowed_packet</code></a> (integer, Minimum: 102400, Maximum: 1073741824). Size of the largest message in bytes that can be received by the server. Default is 67108864 (64M).</li>
 <li><a href="#spec.userConfig.mysql.max_heap_table_size-property" name="spec.userConfig.mysql.max_heap_table_size-property"><code>max_heap_table_size</code></a> (integer, Minimum: 1048576, Maximum: 1073741824). Limits the size of internal in-memory tables. Also set tmp_table_size. Default is 16777216 (16M).</li>
 <li><a href="#spec.userConfig.mysql.net_buffer_length-property" name="spec.userConfig.mysql.net_buffer_length-property"><code>net_buffer_length</code></a> (integer, Minimum: 1024, Maximum: 1048576). Start sizes of connection buffer and result buffer. Default is 16384 (16K). Changing this parameter will lead to a restart of the MySQL service.</li>
 <li><a href="#spec.userConfig.mysql.net_read_timeout-property" name="spec.userConfig.mysql.net_read_timeout-property"><code>net_read_timeout</code></a> (integer, Minimum: 1, Maximum: 3600). The number of seconds to wait for more data from a connection before aborting the read.</li>
 <li><a href="#spec.userConfig.mysql.net_write_timeout-property" name="spec.userConfig.mysql.net_write_timeout-property"><code>net_write_timeout</code></a> (integer, Minimum: 1, Maximum: 3600). The number of seconds to wait for a block to be written to a connection before aborting the write.</li>
-<li><a href="#spec.userConfig.mysql.slow_query_log-property" name="spec.userConfig.mysql.slow_query_log-property"><code>slow_query_log</code></a> (boolean). Slow query log enables capturing of slow queries. Setting slow_query_log to false also truncates the mysql.slow_log table. Default is off.</li>
+<li><a href="#spec.userConfig.mysql.slow_query_log-property" name="spec.userConfig.mysql.slow_query_log-property"><code>slow_query_log</code></a> (boolean). Slow query log enables capturing of slow queries. Setting slow_query_log to false also truncates the mysql.slow_log table.</li>
 <li><a href="#spec.userConfig.mysql.sort_buffer_size-property" name="spec.userConfig.mysql.sort_buffer_size-property"><code>sort_buffer_size</code></a> (integer, Minimum: 32768, Maximum: 1073741824). Sort buffer size in bytes for ORDER BY optimization. Default is 262144 (256K).</li>
 <li><a href="#spec.userConfig.mysql.sql_mode-property" name="spec.userConfig.mysql.sql_mode-property"><code>sql_mode</code></a> (string, Pattern: <code>^[A-Z_]*(,[A-Z_]+)*$</code>, MaxLength: 1024). Global SQL mode. Set to empty to use MySQL server defaults. When creating a new service and not setting this field Aiven default SQL mode (strict, SQL standard compliant) will be assigned.</li>
 <li><a href="#spec.userConfig.mysql.sql_require_primary_key-property" name="spec.userConfig.mysql.sql_require_primary_key-property"><code>sql_require_primary_key</code></a> (boolean). Require primary key to be defined for new tables or old tables modified with ALTER TABLE and fail if missing. It is recommended to always have primary keys because various functionality may break if any large table is missing them.</li>
@@ -2376,7 +2377,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.56dfad97.min.js"></script>
+      <script src="../assets/javascripts/bundle.83f73b43.min.js"></script>
       
     
   </body>

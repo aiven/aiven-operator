@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.35">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.35f28582.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -507,7 +507,7 @@
         
   
   <span class="md-ellipsis">
-    Authenticating
+    Authentication
   </span>
   
 
@@ -2374,10 +2374,10 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.</li>
-<li><a href="#spec.userConfig.azure_migration-property" name="spec.userConfig.azure_migration-property"><code>azure_migration</code></a> (object). See below for <a href="#spec.userConfig.azure_migration">nested schema</a>.</li>
+<li><a href="#spec.userConfig.azure_migration-property" name="spec.userConfig.azure_migration-property"><code>azure_migration</code></a> (object). Azure migration settings. See below for <a href="#spec.userConfig.azure_migration">nested schema</a>.</li>
 <li><a href="#spec.userConfig.custom_domain-property" name="spec.userConfig.custom_domain-property"><code>custom_domain</code></a> (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name.</li>
 <li><a href="#spec.userConfig.disable_replication_factor_adjustment-property" name="spec.userConfig.disable_replication_factor_adjustment-property"><code>disable_replication_factor_adjustment</code></a> (boolean). DEPRECATED: Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can no longer be activated.</li>
-<li><a href="#spec.userConfig.gcs_migration-property" name="spec.userConfig.gcs_migration-property"><code>gcs_migration</code></a> (object). See below for <a href="#spec.userConfig.gcs_migration">nested schema</a>.</li>
+<li><a href="#spec.userConfig.gcs_migration-property" name="spec.userConfig.gcs_migration-property"><code>gcs_migration</code></a> (object). Google Cloud Storage migration settings. See below for <a href="#spec.userConfig.gcs_migration">nested schema</a>.</li>
 <li><a href="#spec.userConfig.index_patterns-property" name="spec.userConfig.index_patterns-property"><code>index_patterns</code></a> (array of objects, MaxItems: 512). Index patterns. See below for <a href="#spec.userConfig.index_patterns">nested schema</a>.</li>
 <li><a href="#spec.userConfig.index_rollup-property" name="spec.userConfig.index_rollup-property"><code>index_rollup</code></a> (object). Index rollup settings. See below for <a href="#spec.userConfig.index_rollup">nested schema</a>.</li>
 <li><a href="#spec.userConfig.index_template-property" name="spec.userConfig.index_template-property"><code>index_template</code></a> (object). Template settings for all new indexes. See below for <a href="#spec.userConfig.index_template">nested schema</a>.</li>
@@ -2393,7 +2393,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <li><a href="#spec.userConfig.project_to_fork_from-property" name="spec.userConfig.project_to_fork_from-property"><code>project_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.</li>
 <li><a href="#spec.userConfig.public_access-property" name="spec.userConfig.public_access-property"><code>public_access</code></a> (object). Allow access to selected service ports from the public Internet. See below for <a href="#spec.userConfig.public_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.recovery_basebackup_name-property" name="spec.userConfig.recovery_basebackup_name-property"><code>recovery_basebackup_name</code></a> (string, Pattern: <code>^[a-zA-Z0-9-_:.]+$</code>, MaxLength: 128). Name of the basebackup to restore in forked service.</li>
-<li><a href="#spec.userConfig.s3_migration-property" name="spec.userConfig.s3_migration-property"><code>s3_migration</code></a> (object). See below for <a href="#spec.userConfig.s3_migration">nested schema</a>.</li>
+<li><a href="#spec.userConfig.s3_migration-property" name="spec.userConfig.s3_migration-property"><code>s3_migration</code></a> (object). AWS S3 / AWS S3 compatible migration settings. See below for <a href="#spec.userConfig.s3_migration">nested schema</a>.</li>
 <li><a href="#spec.userConfig.saml-property" name="spec.userConfig.saml-property"><code>saml</code></a> (object). OpenSearch SAML configuration. See below for <a href="#spec.userConfig.saml">nested schema</a>.</li>
 <li><a href="#spec.userConfig.service_log-property" name="spec.userConfig.service_log-property"><code>service_log</code></a> (boolean). Store logs for the service so that they are available in the HTTP API and console.</li>
 <li><a href="#spec.userConfig.service_to_fork_from-property" name="spec.userConfig.service_to_fork_from-property"><code>service_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.</li>
@@ -2401,6 +2401,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 </ul>
 <h3 id="spec.userConfig.azure_migration">azure_migration<a class="headerlink" href="#spec.userConfig.azure_migration" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
+<p>Azure migration settings.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.azure_migration.account-property" name="spec.userConfig.azure_migration.account-property"><code>account</code></a> (string, Pattern: <code>^[^\r\n]*$</code>). Azure account name.</li>
@@ -2413,11 +2414,13 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <li><a href="#spec.userConfig.azure_migration.chunk_size-property" name="spec.userConfig.azure_migration.chunk_size-property"><code>chunk_size</code></a> (string, Pattern: <code>^[^\r\n]*$</code>). Big files can be broken down into chunks during snapshotting if needed. Should be the same as for the 3rd party repository.</li>
 <li><a href="#spec.userConfig.azure_migration.compress-property" name="spec.userConfig.azure_migration.compress-property"><code>compress</code></a> (boolean). when set to true metadata files are stored in compressed format.</li>
 <li><a href="#spec.userConfig.azure_migration.endpoint_suffix-property" name="spec.userConfig.azure_migration.endpoint_suffix-property"><code>endpoint_suffix</code></a> (string, Pattern: <code>^[^\r\n]*$</code>). Defines the DNS suffix for Azure Storage endpoints.</li>
+<li><a href="#spec.userConfig.azure_migration.indices-property" name="spec.userConfig.azure_migration.indices-property"><code>indices</code></a> (string). A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.</li>
 <li><a href="#spec.userConfig.azure_migration.key-property" name="spec.userConfig.azure_migration.key-property"><code>key</code></a> (string, Pattern: <code>^[^\r\n]*$</code>). Azure account secret key. One of key or sas_token should be specified.</li>
 <li><a href="#spec.userConfig.azure_migration.sas_token-property" name="spec.userConfig.azure_migration.sas_token-property"><code>sas_token</code></a> (string, Pattern: <code>^[^\r\n]*$</code>). A shared access signatures (SAS) token. One of key or sas_token should be specified.</li>
 </ul>
 <h3 id="spec.userConfig.gcs_migration">gcs_migration<a class="headerlink" href="#spec.userConfig.gcs_migration" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
+<p>Google Cloud Storage migration settings.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.gcs_migration.base_path-property" name="spec.userConfig.gcs_migration.base_path-property"><code>base_path</code></a> (string, Pattern: <code>^[^\r\n]*$</code>). The path to the repository data within its container. The value of this setting should not start or end with a /.</li>
@@ -2429,6 +2432,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <ul>
 <li><a href="#spec.userConfig.gcs_migration.chunk_size-property" name="spec.userConfig.gcs_migration.chunk_size-property"><code>chunk_size</code></a> (string, Pattern: <code>^[^\r\n]*$</code>). Big files can be broken down into chunks during snapshotting if needed. Should be the same as for the 3rd party repository.</li>
 <li><a href="#spec.userConfig.gcs_migration.compress-property" name="spec.userConfig.gcs_migration.compress-property"><code>compress</code></a> (boolean). when set to true metadata files are stored in compressed format.</li>
+<li><a href="#spec.userConfig.gcs_migration.indices-property" name="spec.userConfig.gcs_migration.indices-property"><code>indices</code></a> (string). A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.</li>
 </ul>
 <h3 id="spec.userConfig.index_patterns">index_patterns<a class="headerlink" href="#spec.userConfig.index_patterns" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
@@ -2503,7 +2507,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <li><a href="#spec.userConfig.opensearch.action_destructive_requires_name-property" name="spec.userConfig.opensearch.action_destructive_requires_name-property"><code>action_destructive_requires_name</code></a> (boolean). Require explicit index names when deleting.</li>
 <li><a href="#spec.userConfig.opensearch.auth_failure_listeners-property" name="spec.userConfig.opensearch.auth_failure_listeners-property"><code>auth_failure_listeners</code></a> (object). Opensearch Security Plugin Settings. See below for <a href="#spec.userConfig.opensearch.auth_failure_listeners">nested schema</a>.</li>
 <li><a href="#spec.userConfig.opensearch.cluster_max_shards_per_node-property" name="spec.userConfig.opensearch.cluster_max_shards_per_node-property"><code>cluster_max_shards_per_node</code></a> (integer, Minimum: 100, Maximum: 10000). Controls the number of shards allowed in the cluster per data node.</li>
-<li><a href="#spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property" name="spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property"><code>cluster_routing_allocation_node_concurrent_recoveries</code></a> (integer, Minimum: 2, Maximum: 16). How many concurrent incoming/outgoing shard recoveries (normally replicas) are allowed to happen on a node. Defaults to 2.</li>
+<li><a href="#spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property" name="spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property"><code>cluster_routing_allocation_node_concurrent_recoveries</code></a> (integer, Minimum: 2, Maximum: 16). How many concurrent incoming/outgoing shard recoveries (normally replicas) are allowed to happen on a node. Defaults to node cpu count * 2.</li>
 <li><a href="#spec.userConfig.opensearch.email_sender_name-property" name="spec.userConfig.opensearch.email_sender_name-property"><code>email_sender_name</code></a> (string, Pattern: <code>^[a-zA-Z0-9-_]+$</code>, MaxLength: 40). Sender name placeholder to be used in Opensearch Dashboards and Opensearch keystore.</li>
 <li><a href="#spec.userConfig.opensearch.email_sender_password-property" name="spec.userConfig.opensearch.email_sender_password-property"><code>email_sender_password</code></a> (string, Pattern: <code>^[^\x00-\x1F]+$</code>, MaxLength: 1024). Sender password for Opensearch alerts to authenticate with SMTP server.</li>
 <li><a href="#spec.userConfig.opensearch.email_sender_username-property" name="spec.userConfig.opensearch.email_sender_username-property"><code>email_sender_username</code></a> (string, Pattern: <code>^[^\x00-\x1F]+$</code>, MaxLength: 320). Sender username for Opensearch alerts.</li>
@@ -2614,6 +2618,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 </ul>
 <h3 id="spec.userConfig.s3_migration">s3_migration<a class="headerlink" href="#spec.userConfig.s3_migration" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
+<p>AWS S3 / AWS S3 compatible migration settings.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.s3_migration.access_key-property" name="spec.userConfig.s3_migration.access_key-property"><code>access_key</code></a> (string, Pattern: <code>^[^\r\n]*$</code>). AWS Access key.</li>
@@ -2628,6 +2633,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <li><a href="#spec.userConfig.s3_migration.chunk_size-property" name="spec.userConfig.s3_migration.chunk_size-property"><code>chunk_size</code></a> (string, Pattern: <code>^[^\r\n]*$</code>). Big files can be broken down into chunks during snapshotting if needed. Should be the same as for the 3rd party repository.</li>
 <li><a href="#spec.userConfig.s3_migration.compress-property" name="spec.userConfig.s3_migration.compress-property"><code>compress</code></a> (boolean). when set to true metadata files are stored in compressed format.</li>
 <li><a href="#spec.userConfig.s3_migration.endpoint-property" name="spec.userConfig.s3_migration.endpoint-property"><code>endpoint</code></a> (string, Pattern: <code>^[^\r\n]*$</code>). The S3 service endpoint to connect to. If you are using an S3-compatible service then you should set this to the service’s endpoint.</li>
+<li><a href="#spec.userConfig.s3_migration.indices-property" name="spec.userConfig.s3_migration.indices-property"><code>indices</code></a> (string). A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.</li>
 <li><a href="#spec.userConfig.s3_migration.server_side_encryption-property" name="spec.userConfig.s3_migration.server_side_encryption-property"><code>server_side_encryption</code></a> (boolean). When set to true files are encrypted on server side.</li>
 </ul>
 <h3 id="spec.userConfig.saml">saml<a class="headerlink" href="#spec.userConfig.saml" title="Permanent link">&para;</a></h3>
@@ -2748,7 +2754,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.56dfad97.min.js"></script>
+      <script src="../assets/javascripts/bundle.83f73b43.min.js"></script>
       
     
   </body>

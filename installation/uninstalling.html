@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.35">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.35f28582.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#expired-tokens" class="md-skip">
+        <a href="#uninstall" class="md-skip">
           Skip to content
         </a>
       
@@ -517,7 +517,7 @@
         
   
   <span class="md-ellipsis">
-    Authenticating
+    Authentication
   </span>
   
 
@@ -561,6 +561,8 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           
@@ -589,12 +591,32 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#uninstall-with-helm" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uninstall with Helm
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uninstall-with-kubectl" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uninstall with kubectl
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#expired-tokens" class="md-nav__link">
@@ -1709,12 +1731,32 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#uninstall-with-helm" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uninstall with Helm
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uninstall-with-kubectl" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uninstall with kubectl
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#expired-tokens" class="md-nav__link">
@@ -1760,27 +1802,55 @@
   
 
 
-  <h1>Uninstall</h1>
-
+<h1 id="uninstall">Uninstall<a class="headerlink" href="#uninstall" title="Permanent link">&para;</a></h1>
+<p>Depending on your installation, you can uninstall the Aiven Operator using Helm or kubectl. </p>
 <div class="admonition danger">
 <p class="admonition-title">Danger</p>
-<p>Uninstalling the Aiven Operator for Kubernetes can remove the resources created in Aiven, possibly resulting in data loss.</p>
+<p>Uninstalling the Aiven Operator for Kubernetes can remove the resources created in Aiven, which can result in data loss.</p>
 </div>
-<p>Depending on your installation, please follow one of:</p>
-<ul>
-<li><a href="helm.html#uninstalling">Helm</a></li>
-<li><a href="kubectl.html#uninstalling">kubectl</a></li>
-</ul>
+<h2 id="uninstall-with-helm">Uninstall with Helm<a class="headerlink" href="#uninstall-with-helm" title="Permanent link">&para;</a></h2>
+<ol>
+<li>To get the name of your deployment, run:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>helm<span class="w"> </span>list
+</code></pre></div>
+<p>The output has the name of each deployment similar to the following:</p>
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>NAME<span class="w">                </span>NAMESPACE<span class="w"> </span>REVISION<span class="w"> </span>UPDATED<span class="w">                                  </span>STATUS<span class="w">   </span>CHART<span class="w">                      </span>APP<span class="w"> </span>VERSION
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>aiven-operator<span class="w">      </span>default<span class="w">   </span><span class="m">1</span><span class="w">        </span><span class="m">2021</span>-09-09<span class="w"> </span><span class="m">10</span>:56:14.623700249<span class="w"> </span>+0200<span class="w"> </span>CEST<span class="w"> </span>deployed<span class="w"> </span>aiven-operator-v0.1.0<span class="w">      </span>v0.1.0
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>aiven-operator-crds<span class="w"> </span>default<span class="w">   </span><span class="m">1</span><span class="w">        </span><span class="m">2021</span>-09-09<span class="w"> </span><span class="m">10</span>:56:05.736411868<span class="w"> </span>+0200<span class="w"> </span>CEST<span class="w"> </span>deployed<span class="w"> </span>aiven-operator-crds-v0.1.0<span class="w"> </span>v0.1.0
+</code></pre></div>
+<ol>
+<li>To remove the CRDs, run:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>helm<span class="w"> </span>uninstall<span class="w"> </span>aiven-operator-crds
+</code></pre></div>
+<p>The confirmation message is similar to the following:</p>
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>release<span class="w"> </span><span class="s2">&quot;aiven-operator-crds&quot;</span><span class="w"> </span>uninstalled
+</code></pre></div>
+<ol>
+<li>To remove the operator, run:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>helm<span class="w"> </span>uninstall<span class="w"> </span>aiven-operator
+</code></pre></div>
+<p>The confirmation message is similar to the following:</p>
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>release<span class="w"> </span><span class="s2">&quot;aiven-operator&quot;</span><span class="w"> </span>uninstalled
+</code></pre></div>
+<h2 id="uninstall-with-kubectl">Uninstall with kubectl<a class="headerlink" href="#uninstall-with-kubectl" title="Permanent link">&para;</a></h2>
+<p>To uninstall the operator, run:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>kubectl<span class="w"> </span>delete<span class="w"> </span>-f<span class="w"> </span>https://github.com/aiven/aiven-operator/releases/download/vX.Y.Z/deployment.yaml
+</code></pre></div>
+<p>Where <code>vX.Y.Z</code> is the version of the operator you installed.</p>
 <h2 id="expired-tokens">Expired tokens<a class="headerlink" href="#expired-tokens" title="Permanent link">&para;</a></h2>
 <p>Aiven resources need to have an accompanying secret that contains the token that is used to authorize the manipulation of that resource.
 If that token expired then you will not be able to delete the custom resource and deletion will also hang until the situation is resolved.
 The recommended approach to deal with that situation is to patch a valid token into the secret again so that proper cleanup of aiven resources can take place.</p>
 <h2 id="hanging-deletions">Hanging deletions<a class="headerlink" href="#hanging-deletions" title="Permanent link">&para;</a></h2>
-<p>To protect the Secrets that the operator is using from deletion, it adds the <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/finalizers/">finalizer</a> <code>finalizers.aiven.io/needed-to-delete-services</code> to the Secret.
+<p>To protect the Secrets that the operator is using from deletion, it adds the <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/finalizers/">finalizer</a> <code>finalizers.aiven.io/needed-to-delete-services</code> to the Secrets.
 This solves a race condition that happens when deleting a namespace, where there is a possibility of the Secret getting deleted before the resource that uses it.
 When the controller is deleted it may not cleanup the finalizers from all Secrets.
-If there is a Secret with this finalizer blocking deletion of a namespace, you can remove the finalizer by running:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>kubectl<span class="w"> </span>patch<span class="w"> </span>secret<span class="w"> </span>&lt;offending-secret&gt;<span class="w"> </span>-p<span class="w"> </span><span class="s1">&#39;{&quot;metadata&quot;:{&quot;finalizers&quot;:null}}&#39;</span><span class="w"> </span>--type<span class="o">=</span>merge
+If there is a Secret with this finalizer blocking deletion of a namespace, you can remove the finalizer.</p>
+<p>To remove a finalizer, run:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>kubectl<span class="w"> </span>patch<span class="w"> </span>secret<span class="w"> </span>&lt;offending-secret&gt;<span class="w"> </span>-p<span class="w"> </span><span class="s1">&#39;{&quot;metadata&quot;:{&quot;finalizers&quot;:null}}&#39;</span><span class="w"> </span>--type<span class="o">=</span>merge
 </code></pre></div>
 
 
@@ -1884,7 +1954,7 @@ If there is a Secret with this finalizer blocking deletion of a namespace, you c
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.56dfad97.min.js"></script>
+      <script src="../assets/javascripts/bundle.83f73b43.min.js"></script>
       
     
   </body>

@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.35">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.35f28582.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -507,7 +507,7 @@
         
   
   <span class="md-ellipsis">
-    Authenticating
+    Authentication
   </span>
   
 
@@ -1550,6 +1550,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#spec.userConfig.single_zone" class="md-nav__link">
+    <span class="md-ellipsis">
+      single_zone
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#spec.userConfig.tiered_storage" class="md-nav__link">
     <span class="md-ellipsis">
       tiered_storage
@@ -2148,6 +2157,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#spec.userConfig.single_zone" class="md-nav__link">
+    <span class="md-ellipsis">
+      single_zone
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#spec.userConfig.tiered_storage" class="md-nav__link">
     <span class="md-ellipsis">
       tiered_storage
@@ -2380,7 +2398,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <li><a href="#spec.userConfig.kafka_rest_authorization-property" name="spec.userConfig.kafka_rest_authorization-property"><code>kafka_rest_authorization</code></a> (boolean). Enable authorization in Kafka-REST service.</li>
 <li><a href="#spec.userConfig.kafka_rest_config-property" name="spec.userConfig.kafka_rest_config-property"><code>kafka_rest_config</code></a> (object). Kafka REST configuration. See below for <a href="#spec.userConfig.kafka_rest_config">nested schema</a>.</li>
 <li><a href="#spec.userConfig.kafka_sasl_mechanisms-property" name="spec.userConfig.kafka_sasl_mechanisms-property"><code>kafka_sasl_mechanisms</code></a> (object). Kafka SASL mechanisms. See below for <a href="#spec.userConfig.kafka_sasl_mechanisms">nested schema</a>.</li>
-<li><a href="#spec.userConfig.kafka_version-property" name="spec.userConfig.kafka_version-property"><code>kafka_version</code></a> (string, Enum: <code>3.4</code>, <code>3.5</code>, <code>3.6</code>, <code>3.7</code>). Kafka major version.</li>
+<li><a href="#spec.userConfig.kafka_version-property" name="spec.userConfig.kafka_version-property"><code>kafka_version</code></a> (string, Enum: <code>3.5</code>, <code>3.6</code>, <code>3.7</code>, <code>3.8</code>). Kafka major version.</li>
 <li><a href="#spec.userConfig.letsencrypt_sasl_privatelink-property" name="spec.userConfig.letsencrypt_sasl_privatelink-property"><code>letsencrypt_sasl_privatelink</code></a> (boolean). Use Letsencrypt CA for Kafka SASL via Privatelink.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
@@ -2388,6 +2406,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <li><a href="#spec.userConfig.schema_registry-property" name="spec.userConfig.schema_registry-property"><code>schema_registry</code></a> (boolean). Enable Schema-Registry service.</li>
 <li><a href="#spec.userConfig.schema_registry_config-property" name="spec.userConfig.schema_registry_config-property"><code>schema_registry_config</code></a> (object). Schema Registry configuration. See below for <a href="#spec.userConfig.schema_registry_config">nested schema</a>.</li>
 <li><a href="#spec.userConfig.service_log-property" name="spec.userConfig.service_log-property"><code>service_log</code></a> (boolean). Store logs for the service so that they are available in the HTTP API and console.</li>
+<li><a href="#spec.userConfig.single_zone-property" name="spec.userConfig.single_zone-property"><code>single_zone</code></a> (object). Single-zone configuration. See below for <a href="#spec.userConfig.single_zone">nested schema</a>.</li>
 <li><a href="#spec.userConfig.static_ips-property" name="spec.userConfig.static_ips-property"><code>static_ips</code></a> (boolean). Use static public IP addresses.</li>
 <li><a href="#spec.userConfig.tiered_storage-property" name="spec.userConfig.tiered_storage-property"><code>tiered_storage</code></a> (object). Tiered storage configuration. See below for <a href="#spec.userConfig.tiered_storage">nested schema</a>.</li>
 </ul>
@@ -2595,7 +2614,16 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.userConfig.schema_registry_config.leader_eligibility-property" name="spec.userConfig.schema_registry_config.leader_eligibility-property"><code>leader_eligibility</code></a> (boolean). If true, Karapace / Schema Registry on the service nodes can participate in leader election. It might be needed to disable this when the schemas topic is replicated to a secondary cluster and Karapace / Schema Registry there must not participate in leader election. Defaults to <code>true</code>.</li>
+<li><a href="#spec.userConfig.schema_registry_config.retriable_errors_silenced-property" name="spec.userConfig.schema_registry_config.retriable_errors_silenced-property"><code>retriable_errors_silenced</code></a> (boolean). If enabled, kafka errors which can be retried or custom errors specified for the service will not be raised, instead, a warning log is emitted. This will denoise issue tracking systems, i.e. sentry. Defaults to <code>true</code>.</li>
+<li><a href="#spec.userConfig.schema_registry_config.schema_reader_strict_mode-property" name="spec.userConfig.schema_registry_config.schema_reader_strict_mode-property"><code>schema_reader_strict_mode</code></a> (boolean). If enabled, causes the Karapace schema-registry service to shutdown when there are invalid schema records in the <code>_schemas</code> topic. Defaults to <code>false</code>.</li>
 <li><a href="#spec.userConfig.schema_registry_config.topic_name-property" name="spec.userConfig.schema_registry_config.topic_name-property"><code>topic_name</code></a> (string, MinLength: 1, MaxLength: 249). The durable single partition topic that acts as the durable log for the data. This topic must be compacted to avoid losing data due to retention policy. Please note that changing this configuration in an existing Schema Registry / Karapace setup leads to previous schemas being inaccessible, data encoded with them potentially unreadable and schema ID sequence put out of order. It's only possible to do the switch while Schema Registry / Karapace is disabled. Defaults to <code>_schemas</code>.</li>
+</ul>
+<h3 id="spec.userConfig.single_zone">single_zone<a class="headerlink" href="#spec.userConfig.single_zone" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
+<p>Single-zone configuration.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.userConfig.single_zone.enabled-property" name="spec.userConfig.single_zone.enabled-property"><code>enabled</code></a> (boolean). Whether to allocate nodes on the same Availability Zone or spread across zones available. By default service nodes are spread across different AZs. The single AZ support is best-effort and may temporarily allocate nodes in different AZs e.g. in case of capacity limitations in one AZ.</li>
 </ul>
 <h3 id="spec.userConfig.tiered_storage">tiered_storage<a class="headerlink" href="#spec.userConfig.tiered_storage" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
@@ -2714,7 +2742,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.56dfad97.min.js"></script>
+      <script src="../assets/javascripts/bundle.83f73b43.min.js"></script>
       
     
   </body>

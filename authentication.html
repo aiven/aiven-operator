@@ -18,15 +18,15 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.35">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
     
     
       
-        <title>Authenticating - Aiven Operator</title>
+        <title>Authentication - Aiven Operator</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.35f28582.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
@@ -75,6 +75,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#authentication" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -104,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Authenticating
+              Authentication
             
           </span>
         </div>
@@ -514,16 +519,66 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Authentication
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
       
       <a href="authentication.html" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
-    Authenticating
+    Authentication
   </span>
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#store-a-token-in-a-secret" class="md-nav__link">
+    <span class="md-ellipsis">
+      Store a token in a Secret
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1658,6 +1713,34 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#store-a-token-in-a-secret" class="md-nav__link">
+    <span class="md-ellipsis">
+      Store a token in a Secret
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -1683,26 +1766,19 @@
   
 
 
-  <h1>Authenticating</h1>
-
-<p>To get authenticated and authorized, set up the communication between the Aiven Operator for Kubernetes and Aiven by
-using a token stored in a Kubernetes Secret. You can then refer to the <code>Secret</code> name on every custom resource in
-the <code>authSecretRef</code> field.</p>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>If you don't have an Aiven account yet, sign
-up <a href="https://console.aiven.io/signup?utm_source=github&amp;utm_medium=organic&amp;utm_campaign=k8s-operator&amp;utm_content=signup">here</a>
-for a free trial 🦀</p>
-</div>
-<p>1. Generate an authentication token</p>
-<p>Refer to <a href="https://aiven.io/docs/platform/concepts/authentication-tokens">our documentation article</a> to generate your
-authentication token.</p>
-<p>2. Create the Kubernetes Secret</p>
-<p>The following command creates a Secret named <code>aiven-token</code> with a <code>token</code> field containing the authentication token:</p>
+<h1 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h1>
+<p>Set up the communication between the Aiven Operator and the Aiven Platform by using a token stored in a Kubernetes Secret. 
+You can then refer to the Secret's name on every custom resource in the <code>authSecretRef</code> field.</p>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<p>An Aiven user account. <a href="https://console.aiven.io/signup?utm_source=github&amp;utm_medium=organic&amp;utm_campaign=k8s-operator&amp;utm_content=signup">Sign up for free</a>.</p>
+<h2 id="store-a-token-in-a-secret">Store a token in a Secret<a class="headerlink" href="#store-a-token-in-a-secret" title="Permanent link">&para;</a></h2>
+<p>1. <a href="https://aiven.io/docs/platform/howto/create_authentication_token">Create a personal token</a> in the Aiven Console.</p>
+<p>2. To create a Kubernetes Secret, run: </p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>aiven-token<span class="w"> </span>--from-literal<span class="o">=</span><span class="nv">token</span><span class="o">=</span><span class="s2">&quot;TOKEN&quot;</span>
 </code></pre></div>
-<p>When managing your Aiven resources, we will be using the created Secret in the <code>authSecretRef</code> field. It will look like
-the example below:</p>
+<p>Where <code>TOKEN</code> is your personal token. This creates a Secret named <code>aiven-token</code>.</p>
+<p>When managing your Aiven resources, you use the Secret in the <code>authSecretRef</code> field. The following is an example
+for a PostgreSQL service with the token:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PostgreSQL</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -1712,18 +1788,6 @@ the example below:</p>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">...</span><span class="w"> </span><span class="p p-Indicator">]</span>
-</code></pre></div>
-<p>Also, note that within Aiven, all resources are conceptually inside a <em>Project</em>. By default, a random project name is
-generated when you signup, but you can
-also <a href="https://aiven.io/docs/platform/howto/manage-project">create new projects</a>.</p>
-<p>The Project name is required in most of the resources. It will look like the example below:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PostgreSQL</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nt">metadata</span><span class="p">:</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pg-sample</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nt">spec</span><span class="p">:</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PROJECT_NAME</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">...</span><span class="w"> </span><span class="p p-Indicator">]</span>
 </code></pre></div>
 
 
@@ -1827,7 +1891,7 @@ also <a href="https://aiven.io/docs/platform/howto/manage-project">create new pr
     <script id="__config" type="application/json">{"base": ".", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view"], "search": "assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="assets/javascripts/bundle.56dfad97.min.js"></script>
+      <script src="assets/javascripts/bundle.83f73b43.min.js"></script>
       
     
   </body>
