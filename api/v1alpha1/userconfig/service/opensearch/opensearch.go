@@ -36,6 +36,9 @@ type AzureMigration struct {
 	// Azure account secret key. One of key or sas_token should be specified
 	Key *string `groups:"create,update" json:"key,omitempty"`
 
+	// If true, restore the cluster state. Defaults to false
+	RestoreGlobalState *bool `groups:"create,update" json:"restore_global_state,omitempty"`
+
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// A shared access signatures (SAS) token. One of key or sas_token should be specified
 	SasToken *string `groups:"create,update" json:"sas_token,omitempty"`
@@ -69,6 +72,9 @@ type GcsMigration struct {
 	// +kubebuilder:validation:Pattern=`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`
 	// A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.
 	Indices *string `groups:"create,update" json:"indices,omitempty"`
+
+	// If true, restore the cluster state. Defaults to false
+	RestoreGlobalState *bool `groups:"create,update" json:"restore_global_state,omitempty"`
 
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// The snapshot name to restore from
@@ -284,6 +290,170 @@ type AuthFailureListeners struct {
 	IpRateLimiting *IpRateLimiting `groups:"create,update" json:"ip_rate_limiting,omitempty"`
 }
 
+// Node duress settings
+type NodeDuress struct {
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1
+	// The CPU usage threshold (as a percentage) required for a node to be considered to be under duress. Default is 0.9
+	CpuThreshold *float64 `groups:"create,update" json:"cpu_threshold,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1
+	// The heap usage threshold (as a percentage) required for a node to be considered to be under duress. Default is 0.7
+	HeapThreshold *float64 `groups:"create,update" json:"heap_threshold,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// The number of successive limit breaches after which the node is considered to be under duress. Default is 3
+	NumSuccessiveBreaches *int `groups:"create,update" json:"num_successive_breaches,omitempty"`
+}
+
+// Search shard settings
+type SearchShardTask struct {
+	// +kubebuilder:validation:Minimum=1
+	// The maximum number of search tasks to cancel in a single iteration of the observer thread. Default is 10.0
+	CancellationBurst *float64 `groups:"create,update" json:"cancellation_burst,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// The maximum number of tasks to cancel per millisecond of elapsed time. Default is 0.003
+	CancellationRate *float64 `groups:"create,update" json:"cancellation_rate,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1
+	// The maximum number of tasks to cancel, as a percentage of successful task completions. Default is 0.1
+	CancellationRatio *float64 `groups:"create,update" json:"cancellation_ratio,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// The CPU usage threshold (in milliseconds) required for a single search shard task before it is considered for cancellation. Default is 15000
+	CpuTimeMillisThreshold *int `groups:"create,update" json:"cpu_time_millis_threshold,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// The elapsed time threshold (in milliseconds) required for a single search shard task before it is considered for cancellation. Default is 30000
+	ElapsedTimeMillisThreshold *int `groups:"create,update" json:"elapsed_time_millis_threshold,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// The number of previously completed search shard tasks to consider when calculating the rolling average of heap usage. Default is 100
+	HeapMovingAverageWindowSize *int `groups:"create,update" json:"heap_moving_average_window_size,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1
+	// The heap usage threshold (as a percentage) required for a single search shard task before it is considered for cancellation. Default is 0.5
+	HeapPercentThreshold *float64 `groups:"create,update" json:"heap_percent_threshold,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// The minimum variance required for a single search shard task’s heap usage compared to the rolling average of previously completed tasks before it is considered for cancellation. Default is 2.0
+	HeapVariance *float64 `groups:"create,update" json:"heap_variance,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1
+	// The heap usage threshold (as a percentage) required for the sum of heap usages of all search shard tasks before cancellation is applied. Default is 0.5
+	TotalHeapPercentThreshold *float64 `groups:"create,update" json:"total_heap_percent_threshold,omitempty"`
+}
+
+// Search task settings
+type SearchTask struct {
+	// +kubebuilder:validation:Minimum=1
+	// The maximum number of search tasks to cancel in a single iteration of the observer thread. Default is 5.0
+	CancellationBurst *float64 `groups:"create,update" json:"cancellation_burst,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// The maximum number of search tasks to cancel per millisecond of elapsed time. Default is 0.003
+	CancellationRate *float64 `groups:"create,update" json:"cancellation_rate,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1
+	// The maximum number of search tasks to cancel, as a percentage of successful search task completions. Default is 0.1
+	CancellationRatio *float64 `groups:"create,update" json:"cancellation_ratio,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// The CPU usage threshold (in milliseconds) required for an individual parent task before it is considered for cancellation. Default is 30000
+	CpuTimeMillisThreshold *int `groups:"create,update" json:"cpu_time_millis_threshold,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// The elapsed time threshold (in milliseconds) required for an individual parent task before it is considered for cancellation. Default is 45000
+	ElapsedTimeMillisThreshold *int `groups:"create,update" json:"elapsed_time_millis_threshold,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// The window size used to calculate the rolling average of the heap usage for the completed parent tasks. Default is 10
+	HeapMovingAverageWindowSize *int `groups:"create,update" json:"heap_moving_average_window_size,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1
+	// The heap usage threshold (as a percentage) required for an individual parent task before it is considered for cancellation. Default is 0.2
+	HeapPercentThreshold *float64 `groups:"create,update" json:"heap_percent_threshold,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// The heap usage variance required for an individual parent task before it is considered for cancellation. A task is considered for cancellation when taskHeapUsage is greater than or equal to heapUsageMovingAverage * variance. Default is 2.0
+	HeapVariance *float64 `groups:"create,update" json:"heap_variance,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1
+	// The heap usage threshold (as a percentage) required for the sum of heap usages of all search tasks before cancellation is applied. Default is 0.5
+	TotalHeapPercentThreshold *float64 `groups:"create,update" json:"total_heap_percent_threshold,omitempty"`
+}
+
+// Search Backpressure Settings
+type SearchBackpressure struct {
+	// +kubebuilder:validation:Enum="monitor_only";"enforced";"disabled"
+	// The search backpressure mode. Valid values are monitor_only, enforced, or disabled. Default is monitor_only
+	Mode *string `groups:"create,update" json:"mode,omitempty"`
+
+	// Node duress settings
+	NodeDuress *NodeDuress `groups:"create,update" json:"node_duress,omitempty"`
+
+	// Search shard settings
+	SearchShardTask *SearchShardTask `groups:"create,update" json:"search_shard_task,omitempty"`
+
+	// Search task settings
+	SearchTask *SearchTask `groups:"create,update" json:"search_task,omitempty"`
+}
+
+// Operating factor
+type OperatingFactor struct {
+	// +kubebuilder:validation:Minimum=0
+	// Specify the lower occupancy limit of the allocated quota of memory for the shard.                     If the total memory usage of a shard is below this limit,                     shard indexing backpressure decreases the current allocated memory for that shard.                     Default is 0.75
+	Lower *float64 `groups:"create,update" json:"lower,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// Specify the optimal occupancy of the allocated quota of memory for the shard.                     If the total memory usage of a shard is at this level,                     shard indexing backpressure doesn’t change the current allocated memory for that shard.                     Default is 0.85
+	Optimal *float64 `groups:"create,update" json:"optimal,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// Specify the upper occupancy limit of the allocated quota of memory for the shard.                     If the total memory usage of a shard is above this limit,                     shard indexing backpressure increases the current allocated memory for that shard.                     Default is 0.95
+	Upper *float64 `groups:"create,update" json:"upper,omitempty"`
+}
+type Node struct {
+	// +kubebuilder:validation:Minimum=0
+	// Define the percentage of the node-level memory                             threshold that acts as a soft indicator for strain on a node.                             Default is 0.7
+	SoftLimit *float64 `groups:"create,update" json:"soft_limit,omitempty"`
+}
+type Shard struct {
+	// +kubebuilder:validation:Minimum=0
+	// Specify the minimum assigned quota for a new shard in any role (coordinator, primary, or replica).                             Shard indexing backpressure increases or decreases this allocated quota based on the inflow of traffic for the shard.                             Default is 0.001
+	MinLimit *float64 `groups:"create,update" json:"min_limit,omitempty"`
+}
+
+// Primary parameter
+type PrimaryParameter struct {
+	Node *Node `groups:"create,update" json:"node,omitempty"`
+
+	Shard *Shard `groups:"create,update" json:"shard,omitempty"`
+}
+
+// Shard indexing back pressure settings
+type ShardIndexingPressure struct {
+	// Enable or disable shard indexing backpressure. Default is false
+	Enabled *bool `groups:"create,update" json:"enabled,omitempty"`
+
+	// Run shard indexing backpressure in shadow mode or enforced mode.             In shadow mode (value set as false), shard indexing backpressure tracks all granular-level metrics,             but it doesn’t actually reject any indexing requests.             In enforced mode (value set as true),             shard indexing backpressure rejects any requests to the cluster that might cause a dip in its performance.             Default is false
+	Enforced *bool `groups:"create,update" json:"enforced,omitempty"`
+
+	// Operating factor
+	OperatingFactor *OperatingFactor `groups:"create,update" json:"operating_factor,omitempty"`
+
+	// Primary parameter
+	PrimaryParameter *PrimaryParameter `groups:"create,update" json:"primary_parameter,omitempty"`
+}
+
 // OpenSearch settings
 type Opensearch struct {
 	// Explicitly allow or block automatic creation of indices. Defaults to true
@@ -426,10 +596,16 @@ type Opensearch struct {
 	// Script compilation circuit breaker limits the number of inline script compilations within a period of time. Default is use-context
 	ScriptMaxCompilationsRate *string `groups:"create,update" json:"script_max_compilations_rate,omitempty"`
 
+	// Search Backpressure Settings
+	SearchBackpressure *SearchBackpressure `groups:"create,update" json:"search_backpressure,omitempty"`
+
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=1000000
 	// Maximum number of aggregation buckets allowed in a single response. OpenSearch default value is used when this is not defined.
 	SearchMaxBuckets *int `groups:"create,update" json:"search_max_buckets,omitempty"`
+
+	// Shard indexing back pressure settings
+	ShardIndexingPressure *ShardIndexingPressure `groups:"create,update" json:"shard_indexing_pressure,omitempty"`
 
 	// +kubebuilder:validation:Minimum=10
 	// +kubebuilder:validation:Maximum=2000
@@ -571,6 +747,9 @@ type S3Migration struct {
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// S3 region
 	Region string `groups:"create,update" json:"region"`
+
+	// If true, restore the cluster state. Defaults to false
+	RestoreGlobalState *bool `groups:"create,update" json:"restore_global_state,omitempty"`
 
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// AWS secret key

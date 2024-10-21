@@ -238,6 +238,7 @@ Azure migration settings.
 - [`endpoint_suffix`](#spec.userConfig.azure_migration.endpoint_suffix-property){: name='spec.userConfig.azure_migration.endpoint_suffix-property'} (string, Pattern: `^[^\r\n]*$`). Defines the DNS suffix for Azure Storage endpoints.
 - [`indices`](#spec.userConfig.azure_migration.indices-property){: name='spec.userConfig.azure_migration.indices-property'} (string). A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.
 - [`key`](#spec.userConfig.azure_migration.key-property){: name='spec.userConfig.azure_migration.key-property'} (string, Pattern: `^[^\r\n]*$`). Azure account secret key. One of key or sas_token should be specified.
+- [`restore_global_state`](#spec.userConfig.azure_migration.restore_global_state-property){: name='spec.userConfig.azure_migration.restore_global_state-property'} (boolean). If true, restore the cluster state. Defaults to false.
 - [`sas_token`](#spec.userConfig.azure_migration.sas_token-property){: name='spec.userConfig.azure_migration.sas_token-property'} (string, Pattern: `^[^\r\n]*$`). A shared access signatures (SAS) token. One of key or sas_token should be specified.
 
 ### gcs_migration {: #spec.userConfig.gcs_migration }
@@ -258,6 +259,7 @@ Google Cloud Storage migration settings.
 - [`chunk_size`](#spec.userConfig.gcs_migration.chunk_size-property){: name='spec.userConfig.gcs_migration.chunk_size-property'} (string, Pattern: `^[^\r\n]*$`). Big files can be broken down into chunks during snapshotting if needed. Should be the same as for the 3rd party repository.
 - [`compress`](#spec.userConfig.gcs_migration.compress-property){: name='spec.userConfig.gcs_migration.compress-property'} (boolean). when set to true metadata files are stored in compressed format.
 - [`indices`](#spec.userConfig.gcs_migration.indices-property){: name='spec.userConfig.gcs_migration.indices-property'} (string). A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.
+- [`restore_global_state`](#spec.userConfig.gcs_migration.restore_global_state-property){: name='spec.userConfig.gcs_migration.restore_global_state-property'} (boolean). If true, restore the cluster state. Defaults to false.
 
 ### index_patterns {: #spec.userConfig.index_patterns }
 
@@ -378,7 +380,9 @@ OpenSearch settings.
 - [`plugins_alerting_filter_by_backend_roles`](#spec.userConfig.opensearch.plugins_alerting_filter_by_backend_roles-property){: name='spec.userConfig.opensearch.plugins_alerting_filter_by_backend_roles-property'} (boolean). Enable or disable filtering of alerting by backend roles. Requires Security plugin. Defaults to false.
 - [`reindex_remote_whitelist`](#spec.userConfig.opensearch.reindex_remote_whitelist-property){: name='spec.userConfig.opensearch.reindex_remote_whitelist-property'} (array of strings, MaxItems: 32). Whitelisted addresses for reindexing. Changing this value will cause all OpenSearch instances to restart.
 - [`script_max_compilations_rate`](#spec.userConfig.opensearch.script_max_compilations_rate-property){: name='spec.userConfig.opensearch.script_max_compilations_rate-property'} (string, Pattern: `^[^\r\n]*$`, MaxLength: 1024). Script compilation circuit breaker limits the number of inline script compilations within a period of time. Default is use-context.
+- [`search_backpressure`](#spec.userConfig.opensearch.search_backpressure-property){: name='spec.userConfig.opensearch.search_backpressure-property'} (object). Search Backpressure Settings. See below for [nested schema](#spec.userConfig.opensearch.search_backpressure).
 - [`search_max_buckets`](#spec.userConfig.opensearch.search_max_buckets-property){: name='spec.userConfig.opensearch.search_max_buckets-property'} (integer, Minimum: 1, Maximum: 1000000). Maximum number of aggregation buckets allowed in a single response. OpenSearch default value is used when this is not defined.
+- [`shard_indexing_pressure`](#spec.userConfig.opensearch.shard_indexing_pressure-property){: name='spec.userConfig.opensearch.shard_indexing_pressure-property'} (object). Shard indexing back pressure settings. See below for [nested schema](#spec.userConfig.opensearch.shard_indexing_pressure).
 - [`thread_pool_analyze_queue_size`](#spec.userConfig.opensearch.thread_pool_analyze_queue_size-property){: name='spec.userConfig.opensearch.thread_pool_analyze_queue_size-property'} (integer, Minimum: 10, Maximum: 2000). Size for the thread pool queue. See documentation for exact details.
 - [`thread_pool_analyze_size`](#spec.userConfig.opensearch.thread_pool_analyze_size-property){: name='spec.userConfig.opensearch.thread_pool_analyze_size-property'} (integer, Minimum: 1, Maximum: 128). Size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value.
 - [`thread_pool_force_merge_size`](#spec.userConfig.opensearch.thread_pool_force_merge_size-property){: name='spec.userConfig.opensearch.thread_pool_force_merge_size-property'} (integer, Minimum: 1, Maximum: 128). Size for the thread pool. See documentation for exact details. Do note this may have maximum value depending on CPU count - value is automatically lowered if set to higher than maximum value.
@@ -430,6 +434,119 @@ IP address rate limiting settings.
 - [`max_tracked_clients`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.max_tracked_clients-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.max_tracked_clients-property'} (integer, Minimum: 0, Maximum: 2147483647). The maximum number of tracked IP addresses that have failed login.
 - [`time_window_seconds`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.time_window_seconds-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.time_window_seconds-property'} (integer, Minimum: 1, Maximum: 36000). The window of time in which the value for `allowed_tries` is enforced.
 - [`type`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.type-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.type-property'} (string, Enum: `ip`, MaxLength: 1024). The type of rate limiting.
+
+#### search_backpressure {: #spec.userConfig.opensearch.search_backpressure }
+
+_Appears on [`spec.userConfig.opensearch`](#spec.userConfig.opensearch)._
+
+Search Backpressure Settings.
+
+**Optional**
+
+- [`mode`](#spec.userConfig.opensearch.search_backpressure.mode-property){: name='spec.userConfig.opensearch.search_backpressure.mode-property'} (string, Enum: `monitor_only`, `enforced`, `disabled`). The search backpressure mode. Valid values are monitor_only, enforced, or disabled. Default is monitor_only.
+- [`node_duress`](#spec.userConfig.opensearch.search_backpressure.node_duress-property){: name='spec.userConfig.opensearch.search_backpressure.node_duress-property'} (object). Node duress settings. See below for [nested schema](#spec.userConfig.opensearch.search_backpressure.node_duress).
+- [`search_shard_task`](#spec.userConfig.opensearch.search_backpressure.search_shard_task-property){: name='spec.userConfig.opensearch.search_backpressure.search_shard_task-property'} (object). Search shard settings. See below for [nested schema](#spec.userConfig.opensearch.search_backpressure.search_shard_task).
+- [`search_task`](#spec.userConfig.opensearch.search_backpressure.search_task-property){: name='spec.userConfig.opensearch.search_backpressure.search_task-property'} (object). Search task settings. See below for [nested schema](#spec.userConfig.opensearch.search_backpressure.search_task).
+
+##### node_duress {: #spec.userConfig.opensearch.search_backpressure.node_duress }
+
+_Appears on [`spec.userConfig.opensearch.search_backpressure`](#spec.userConfig.opensearch.search_backpressure)._
+
+Node duress settings.
+
+**Optional**
+
+- [`cpu_threshold`](#spec.userConfig.opensearch.search_backpressure.node_duress.cpu_threshold-property){: name='spec.userConfig.opensearch.search_backpressure.node_duress.cpu_threshold-property'} (number, Minimum: 0, Maximum: 1). The CPU usage threshold (as a percentage) required for a node to be considered to be under duress. Default is 0.9.
+- [`heap_threshold`](#spec.userConfig.opensearch.search_backpressure.node_duress.heap_threshold-property){: name='spec.userConfig.opensearch.search_backpressure.node_duress.heap_threshold-property'} (number, Minimum: 0, Maximum: 1). The heap usage threshold (as a percentage) required for a node to be considered to be under duress. Default is 0.7.
+- [`num_successive_breaches`](#spec.userConfig.opensearch.search_backpressure.node_duress.num_successive_breaches-property){: name='spec.userConfig.opensearch.search_backpressure.node_duress.num_successive_breaches-property'} (integer, Minimum: 1). The number of successive limit breaches after which the node is considered to be under duress. Default is 3.
+
+##### search_shard_task {: #spec.userConfig.opensearch.search_backpressure.search_shard_task }
+
+_Appears on [`spec.userConfig.opensearch.search_backpressure`](#spec.userConfig.opensearch.search_backpressure)._
+
+Search shard settings.
+
+**Optional**
+
+- [`cancellation_burst`](#spec.userConfig.opensearch.search_backpressure.search_shard_task.cancellation_burst-property){: name='spec.userConfig.opensearch.search_backpressure.search_shard_task.cancellation_burst-property'} (number, Minimum: 1). The maximum number of search tasks to cancel in a single iteration of the observer thread. Default is 10.0.
+- [`cancellation_rate`](#spec.userConfig.opensearch.search_backpressure.search_shard_task.cancellation_rate-property){: name='spec.userConfig.opensearch.search_backpressure.search_shard_task.cancellation_rate-property'} (number, Minimum: 0). The maximum number of tasks to cancel per millisecond of elapsed time. Default is 0.003.
+- [`cancellation_ratio`](#spec.userConfig.opensearch.search_backpressure.search_shard_task.cancellation_ratio-property){: name='spec.userConfig.opensearch.search_backpressure.search_shard_task.cancellation_ratio-property'} (number, Minimum: 0, Maximum: 1). The maximum number of tasks to cancel, as a percentage of successful task completions. Default is 0.1.
+- [`cpu_time_millis_threshold`](#spec.userConfig.opensearch.search_backpressure.search_shard_task.cpu_time_millis_threshold-property){: name='spec.userConfig.opensearch.search_backpressure.search_shard_task.cpu_time_millis_threshold-property'} (integer, Minimum: 0). The CPU usage threshold (in milliseconds) required for a single search shard task before it is considered for cancellation. Default is 15000.
+- [`elapsed_time_millis_threshold`](#spec.userConfig.opensearch.search_backpressure.search_shard_task.elapsed_time_millis_threshold-property){: name='spec.userConfig.opensearch.search_backpressure.search_shard_task.elapsed_time_millis_threshold-property'} (integer, Minimum: 0). The elapsed time threshold (in milliseconds) required for a single search shard task before it is considered for cancellation. Default is 30000.
+- [`heap_moving_average_window_size`](#spec.userConfig.opensearch.search_backpressure.search_shard_task.heap_moving_average_window_size-property){: name='spec.userConfig.opensearch.search_backpressure.search_shard_task.heap_moving_average_window_size-property'} (integer, Minimum: 0). The number of previously completed search shard tasks to consider when calculating the rolling average of heap usage. Default is 100.
+- [`heap_percent_threshold`](#spec.userConfig.opensearch.search_backpressure.search_shard_task.heap_percent_threshold-property){: name='spec.userConfig.opensearch.search_backpressure.search_shard_task.heap_percent_threshold-property'} (number, Minimum: 0, Maximum: 1). The heap usage threshold (as a percentage) required for a single search shard task before it is considered for cancellation. Default is 0.5.
+- [`heap_variance`](#spec.userConfig.opensearch.search_backpressure.search_shard_task.heap_variance-property){: name='spec.userConfig.opensearch.search_backpressure.search_shard_task.heap_variance-property'} (number, Minimum: 0). The minimum variance required for a single search shard task’s heap usage compared to the rolling average of previously completed tasks before it is considered for cancellation. Default is 2.0.
+- [`total_heap_percent_threshold`](#spec.userConfig.opensearch.search_backpressure.search_shard_task.total_heap_percent_threshold-property){: name='spec.userConfig.opensearch.search_backpressure.search_shard_task.total_heap_percent_threshold-property'} (number, Minimum: 0, Maximum: 1). The heap usage threshold (as a percentage) required for the sum of heap usages of all search shard tasks before cancellation is applied. Default is 0.5.
+
+##### search_task {: #spec.userConfig.opensearch.search_backpressure.search_task }
+
+_Appears on [`spec.userConfig.opensearch.search_backpressure`](#spec.userConfig.opensearch.search_backpressure)._
+
+Search task settings.
+
+**Optional**
+
+- [`cancellation_burst`](#spec.userConfig.opensearch.search_backpressure.search_task.cancellation_burst-property){: name='spec.userConfig.opensearch.search_backpressure.search_task.cancellation_burst-property'} (number, Minimum: 1). The maximum number of search tasks to cancel in a single iteration of the observer thread. Default is 5.0.
+- [`cancellation_rate`](#spec.userConfig.opensearch.search_backpressure.search_task.cancellation_rate-property){: name='spec.userConfig.opensearch.search_backpressure.search_task.cancellation_rate-property'} (number, Minimum: 0). The maximum number of search tasks to cancel per millisecond of elapsed time. Default is 0.003.
+- [`cancellation_ratio`](#spec.userConfig.opensearch.search_backpressure.search_task.cancellation_ratio-property){: name='spec.userConfig.opensearch.search_backpressure.search_task.cancellation_ratio-property'} (number, Minimum: 0, Maximum: 1). The maximum number of search tasks to cancel, as a percentage of successful search task completions. Default is 0.1.
+- [`cpu_time_millis_threshold`](#spec.userConfig.opensearch.search_backpressure.search_task.cpu_time_millis_threshold-property){: name='spec.userConfig.opensearch.search_backpressure.search_task.cpu_time_millis_threshold-property'} (integer, Minimum: 0). The CPU usage threshold (in milliseconds) required for an individual parent task before it is considered for cancellation. Default is 30000.
+- [`elapsed_time_millis_threshold`](#spec.userConfig.opensearch.search_backpressure.search_task.elapsed_time_millis_threshold-property){: name='spec.userConfig.opensearch.search_backpressure.search_task.elapsed_time_millis_threshold-property'} (integer, Minimum: 0). The elapsed time threshold (in milliseconds) required for an individual parent task before it is considered for cancellation. Default is 45000.
+- [`heap_moving_average_window_size`](#spec.userConfig.opensearch.search_backpressure.search_task.heap_moving_average_window_size-property){: name='spec.userConfig.opensearch.search_backpressure.search_task.heap_moving_average_window_size-property'} (integer, Minimum: 0). The window size used to calculate the rolling average of the heap usage for the completed parent tasks. Default is 10.
+- [`heap_percent_threshold`](#spec.userConfig.opensearch.search_backpressure.search_task.heap_percent_threshold-property){: name='spec.userConfig.opensearch.search_backpressure.search_task.heap_percent_threshold-property'} (number, Minimum: 0, Maximum: 1). The heap usage threshold (as a percentage) required for an individual parent task before it is considered for cancellation. Default is 0.2.
+- [`heap_variance`](#spec.userConfig.opensearch.search_backpressure.search_task.heap_variance-property){: name='spec.userConfig.opensearch.search_backpressure.search_task.heap_variance-property'} (number, Minimum: 0). The heap usage variance required for an individual parent task before it is considered for cancellation. A task is considered for cancellation when taskHeapUsage is greater than or equal to heapUsageMovingAverage * variance. Default is 2.0.
+- [`total_heap_percent_threshold`](#spec.userConfig.opensearch.search_backpressure.search_task.total_heap_percent_threshold-property){: name='spec.userConfig.opensearch.search_backpressure.search_task.total_heap_percent_threshold-property'} (number, Minimum: 0, Maximum: 1). The heap usage threshold (as a percentage) required for the sum of heap usages of all search tasks before cancellation is applied. Default is 0.5.
+
+#### shard_indexing_pressure {: #spec.userConfig.opensearch.shard_indexing_pressure }
+
+_Appears on [`spec.userConfig.opensearch`](#spec.userConfig.opensearch)._
+
+Shard indexing back pressure settings.
+
+**Optional**
+
+- [`enabled`](#spec.userConfig.opensearch.shard_indexing_pressure.enabled-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.enabled-property'} (boolean). Enable or disable shard indexing backpressure. Default is false.
+- [`enforced`](#spec.userConfig.opensearch.shard_indexing_pressure.enforced-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.enforced-property'} (boolean). Run shard indexing backpressure in shadow mode or enforced mode.             In shadow mode (value set as false), shard indexing backpressure tracks all granular-level metrics,             but it doesn’t actually reject any indexing requests.             In enforced mode (value set as true),             shard indexing backpressure rejects any requests to the cluster that might cause a dip in its performance.             Default is false.
+- [`operating_factor`](#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.operating_factor-property'} (object). Operating factor. See below for [nested schema](#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor).
+- [`primary_parameter`](#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter-property'} (object). Primary parameter. See below for [nested schema](#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter).
+
+##### operating_factor {: #spec.userConfig.opensearch.shard_indexing_pressure.operating_factor }
+
+_Appears on [`spec.userConfig.opensearch.shard_indexing_pressure`](#spec.userConfig.opensearch.shard_indexing_pressure)._
+
+Operating factor.
+
+**Optional**
+
+- [`lower`](#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.lower-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.lower-property'} (number, Minimum: 0). Specify the lower occupancy limit of the allocated quota of memory for the shard.                     If the total memory usage of a shard is below this limit,                     shard indexing backpressure decreases the current allocated memory for that shard.                     Default is 0.75.
+- [`optimal`](#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.optimal-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.optimal-property'} (number, Minimum: 0). Specify the optimal occupancy of the allocated quota of memory for the shard.                     If the total memory usage of a shard is at this level,                     shard indexing backpressure doesn’t change the current allocated memory for that shard.                     Default is 0.85.
+- [`upper`](#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.upper-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.upper-property'} (number, Minimum: 0). Specify the upper occupancy limit of the allocated quota of memory for the shard.                     If the total memory usage of a shard is above this limit,                     shard indexing backpressure increases the current allocated memory for that shard.                     Default is 0.95.
+
+##### primary_parameter {: #spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter }
+
+_Appears on [`spec.userConfig.opensearch.shard_indexing_pressure`](#spec.userConfig.opensearch.shard_indexing_pressure)._
+
+Primary parameter.
+
+**Optional**
+
+- [`node`](#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.node-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.node-property'} (object). See below for [nested schema](#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.node).
+- [`shard`](#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.shard-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.shard-property'} (object). See below for [nested schema](#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.shard).
+
+###### node {: #spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.node }
+
+_Appears on [`spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter`](#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter)._
+
+**Required**
+
+- [`soft_limit`](#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.node.soft_limit-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.node.soft_limit-property'} (number, Minimum: 0). Define the percentage of the node-level memory                             threshold that acts as a soft indicator for strain on a node.                             Default is 0.7.
+
+###### shard {: #spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.shard }
+
+_Appears on [`spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter`](#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter)._
+
+**Required**
+
+- [`min_limit`](#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.shard.min_limit-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.shard.min_limit-property'} (number, Minimum: 0). Specify the minimum assigned quota for a new shard in any role (coordinator, primary, or replica).                             Shard indexing backpressure increases or decreases this allocated quota based on the inflow of traffic for the shard.                             Default is 0.001.
 
 ### opensearch_dashboards {: #spec.userConfig.opensearch_dashboards }
 
@@ -500,6 +617,7 @@ AWS S3 / AWS S3 compatible migration settings.
 - [`compress`](#spec.userConfig.s3_migration.compress-property){: name='spec.userConfig.s3_migration.compress-property'} (boolean). when set to true metadata files are stored in compressed format.
 - [`endpoint`](#spec.userConfig.s3_migration.endpoint-property){: name='spec.userConfig.s3_migration.endpoint-property'} (string, Pattern: `^[^\r\n]*$`). The S3 service endpoint to connect to. If you are using an S3-compatible service then you should set this to the service’s endpoint.
 - [`indices`](#spec.userConfig.s3_migration.indices-property){: name='spec.userConfig.s3_migration.indices-property'} (string). A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.
+- [`restore_global_state`](#spec.userConfig.s3_migration.restore_global_state-property){: name='spec.userConfig.s3_migration.restore_global_state-property'} (boolean). If true, restore the cluster state. Defaults to false.
 - [`server_side_encryption`](#spec.userConfig.s3_migration.server_side_encryption-property){: name='spec.userConfig.s3_migration.server_side_encryption-property'} (boolean). When set to true files are encrypted on server side.
 
 ### saml {: #spec.userConfig.saml }
