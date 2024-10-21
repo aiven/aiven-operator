@@ -23,6 +23,17 @@
 - Add `OpenSearch` field `userConfig.s3_migration.indices`, type `string`: A comma-delimited list of
   indices to restore from the snapshot. Multi-index syntax is supported
 - Change `PostgreSQL` field `userConfig.additional_backup_regions`: deprecated
+- Add `OpenSearch` field `userConfig.azure_migration.restore_global_state`, type `boolean`: If true,
+  restore the cluster state. Defaults to false
+- Add `OpenSearch` field `userConfig.gcs_migration.restore_global_state`, type `boolean`: If true, restore
+  the cluster state. Defaults to false
+- Add `OpenSearch` field `userConfig.opensearch.search_backpressure`, type `object`: Search Backpressure
+  Settings
+- Add `OpenSearch` field `userConfig.opensearch.shard_indexing_pressure`, type `object`: Shard indexing
+  back pressure settings
+- Add `OpenSearch` field `userConfig.s3_migration.restore_global_state`, type `boolean`: If true, restore
+  the cluster state. Defaults to false
+- Change `Redis` field `userConfig.redis_timeout`: maximum ~~`31536000`~~ → `2073600`
 
 ## v0.25.0 - 2024-09-19
 

@@ -280,6 +280,11 @@ spec:
                             should be specified
                           pattern: ^[^\r\n]*$
                           type: string
+                        restore_global_state:
+                          description:
+                            If true, restore the cluster state. Defaults
+                            to false
+                          type: boolean
                         sas_token:
                           description:
                             A shared access signatures (SAS) token. One of
@@ -350,6 +355,11 @@ spec:
                             you specify.
                           pattern: ^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$
                           type: string
+                        restore_global_state:
+                          description:
+                            If true, restore the cluster state. Defaults
+                            to false
+                          type: boolean
                         snapshot_name:
                           description: The snapshot name to restore from
                           pattern: ^[^\r\n]*$
@@ -896,6 +906,191 @@ spec:
                           maxLength: 1024
                           pattern: ^[^\r\n]*$
                           type: string
+                        search_backpressure:
+                          description: Search Backpressure Settings
+                          properties:
+                            mode:
+                              description:
+                                The search backpressure mode. Valid values
+                                are monitor_only, enforced, or disabled. Default is
+                                monitor_only
+                              enum:
+                                - monitor_only
+                                - enforced
+                                - disabled
+                              type: string
+                            node_duress:
+                              description: Node duress settings
+                              properties:
+                                cpu_threshold:
+                                  description:
+                                    The CPU usage threshold (as a percentage)
+                                    required for a node to be considered to be under
+                                    duress. Default is 0.9
+                                  maximum: 1
+                                  minimum: 0
+                                  type: number
+                                heap_threshold:
+                                  description:
+                                    The heap usage threshold (as a percentage)
+                                    required for a node to be considered to be under
+                                    duress. Default is 0.7
+                                  maximum: 1
+                                  minimum: 0
+                                  type: number
+                                num_successive_breaches:
+                                  description:
+                                    The number of successive limit breaches
+                                    after which the node is considered to be under duress.
+                                    Default is 3
+                                  minimum: 1
+                                  type: integer
+                              type: object
+                            search_shard_task:
+                              description: Search shard settings
+                              properties:
+                                cancellation_burst:
+                                  description:
+                                    The maximum number of search tasks to
+                                    cancel in a single iteration of the observer thread.
+                                    Default is 10.0
+                                  minimum: 1
+                                  type: number
+                                cancellation_rate:
+                                  description:
+                                    The maximum number of tasks to cancel
+                                    per millisecond of elapsed time. Default is 0.003
+                                  minimum: 0
+                                  type: number
+                                cancellation_ratio:
+                                  description:
+                                    The maximum number of tasks to cancel,
+                                    as a percentage of successful task completions.
+                                    Default is 0.1
+                                  maximum: 1
+                                  minimum: 0
+                                  type: number
+                                cpu_time_millis_threshold:
+                                  description:
+                                    The CPU usage threshold (in milliseconds)
+                                    required for a single search shard task before it
+                                    is considered for cancellation. Default is 15000
+                                  minimum: 0
+                                  type: integer
+                                elapsed_time_millis_threshold:
+                                  description:
+                                    The elapsed time threshold (in milliseconds)
+                                    required for a single search shard task before it
+                                    is considered for cancellation. Default is 30000
+                                  minimum: 0
+                                  type: integer
+                                heap_moving_average_window_size:
+                                  description:
+                                    The number of previously completed search
+                                    shard tasks to consider when calculating the rolling
+                                    average of heap usage. Default is 100
+                                  minimum: 0
+                                  type: integer
+                                heap_percent_threshold:
+                                  description:
+                                    The heap usage threshold (as a percentage)
+                                    required for a single search shard task before it
+                                    is considered for cancellation. Default is 0.5
+                                  maximum: 1
+                                  minimum: 0
+                                  type: number
+                                heap_variance:
+                                  description:
+                                    The minimum variance required for a single
+                                    search shard task’s heap usage compared to the rolling
+                                    average of previously completed tasks before it
+                                    is considered for cancellation. Default is 2.0
+                                  minimum: 0
+                                  type: number
+                                total_heap_percent_threshold:
+                                  description:
+                                    The heap usage threshold (as a percentage)
+                                    required for the sum of heap usages of all search
+                                    shard tasks before cancellation is applied. Default
+                                    is 0.5
+                                  maximum: 1
+                                  minimum: 0
+                                  type: number
+                              type: object
+                            search_task:
+                              description: Search task settings
+                              properties:
+                                cancellation_burst:
+                                  description:
+                                    The maximum number of search tasks to
+                                    cancel in a single iteration of the observer thread.
+                                    Default is 5.0
+                                  minimum: 1
+                                  type: number
+                                cancellation_rate:
+                                  description:
+                                    The maximum number of search tasks to
+                                    cancel per millisecond of elapsed time. Default
+                                    is 0.003
+                                  minimum: 0
+                                  type: number
+                                cancellation_ratio:
+                                  description:
+                                    The maximum number of search tasks to
+                                    cancel, as a percentage of successful search task
+                                    completions. Default is 0.1
+                                  maximum: 1
+                                  minimum: 0
+                                  type: number
+                                cpu_time_millis_threshold:
+                                  description:
+                                    The CPU usage threshold (in milliseconds)
+                                    required for an individual parent task before it
+                                    is considered for cancellation. Default is 30000
+                                  minimum: 0
+                                  type: integer
+                                elapsed_time_millis_threshold:
+                                  description:
+                                    The elapsed time threshold (in milliseconds)
+                                    required for an individual parent task before it
+                                    is considered for cancellation. Default is 45000
+                                  minimum: 0
+                                  type: integer
+                                heap_moving_average_window_size:
+                                  description:
+                                    The window size used to calculate the
+                                    rolling average of the heap usage for the completed
+                                    parent tasks. Default is 10
+                                  minimum: 0
+                                  type: integer
+                                heap_percent_threshold:
+                                  description:
+                                    The heap usage threshold (as a percentage)
+                                    required for an individual parent task before it
+                                    is considered for cancellation. Default is 0.2
+                                  maximum: 1
+                                  minimum: 0
+                                  type: number
+                                heap_variance:
+                                  description:
+                                    The heap usage variance required for
+                                    an individual parent task before it is considered
+                                    for cancellation. A task is considered for cancellation
+                                    when taskHeapUsage is greater than or equal to heapUsageMovingAverage
+                                    * variance. Default is 2.0
+                                  minimum: 0
+                                  type: number
+                                total_heap_percent_threshold:
+                                  description:
+                                    The heap usage threshold (as a percentage)
+                                    required for the sum of heap usages of all search
+                                    tasks before cancellation is applied. Default is
+                                    0.5
+                                  maximum: 1
+                                  minimum: 0
+                                  type: number
+                              type: object
+                          type: object
                         search_max_buckets:
                           description:
                             Maximum number of aggregation buckets allowed
@@ -904,6 +1099,91 @@ spec:
                           maximum: 1000000
                           minimum: 1
                           type: integer
+                        shard_indexing_pressure:
+                          description: Shard indexing back pressure settings
+                          properties:
+                            enabled:
+                              description:
+                                Enable or disable shard indexing backpressure.
+                                Default is false
+                              type: boolean
+                            enforced:
+                              description:
+                                Run shard indexing backpressure in shadow
+                                mode or enforced mode.             In shadow mode (value
+                                set as false), shard indexing backpressure tracks all
+                                granular-level metrics,             but it doesn’t actually
+                                reject any indexing requests.             In enforced
+                                mode (value set as true),             shard indexing
+                                backpressure rejects any requests to the cluster that
+                                might cause a dip in its performance.             Default
+                                is false
+                              type: boolean
+                            operating_factor:
+                              description: Operating factor
+                              properties:
+                                lower:
+                                  description:
+                                    Specify the lower occupancy limit of
+                                    the allocated quota of memory for the shard.                     If
+                                    the total memory usage of a shard is below this
+                                    limit,                     shard indexing backpressure
+                                    decreases the current allocated memory for that
+                                    shard.                     Default is 0.75
+                                  minimum: 0
+                                  type: number
+                                optimal:
+                                  description:
+                                    Specify the optimal occupancy of the
+                                    allocated quota of memory for the shard.                     If
+                                    the total memory usage of a shard is at this level,                     shard
+                                    indexing backpressure doesn’t change the current
+                                    allocated memory for that shard.                     Default
+                                    is 0.85
+                                  minimum: 0
+                                  type: number
+                                upper:
+                                  description:
+                                    Specify the upper occupancy limit of
+                                    the allocated quota of memory for the shard.                     If
+                                    the total memory usage of a shard is above this
+                                    limit,                     shard indexing backpressure
+                                    increases the current allocated memory for that
+                                    shard.                     Default is 0.95
+                                  minimum: 0
+                                  type: number
+                              type: object
+                            primary_parameter:
+                              description: Primary parameter
+                              properties:
+                                node:
+                                  properties:
+                                    soft_limit:
+                                      description:
+                                        Define the percentage of the node-level
+                                        memory                             threshold
+                                        that acts as a soft indicator for strain on
+                                        a node.                             Default
+                                        is 0.7
+                                      minimum: 0
+                                      type: number
+                                  type: object
+                                shard:
+                                  properties:
+                                    min_limit:
+                                      description:
+                                        Specify the minimum assigned quota
+                                        for a new shard in any role (coordinator, primary,
+                                        or replica).                             Shard
+                                        indexing backpressure increases or decreases
+                                        this allocated quota based on the inflow of
+                                        traffic for the shard.                             Default
+                                        is 0.001
+                                      minimum: 0
+                                      type: number
+                                  type: object
+                              type: object
+                          type: object
                         thread_pool_analyze_queue_size:
                           description:
                             Size for the thread pool queue. See documentation
@@ -1153,6 +1433,11 @@ spec:
                           description: S3 region
                           pattern: ^[^\r\n]*$
                           type: string
+                        restore_global_state:
+                          description:
+                            If true, restore the cluster state. Defaults
+                            to false
+                          type: boolean
                         secret_key:
                           description: AWS secret key
                           pattern: ^[^\r\n]*$

@@ -167,7 +167,7 @@ type RedisUserConfig struct {
 	RedisSsl *bool `groups:"create,update" json:"redis_ssl,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
-	// +kubebuilder:validation:Maximum=31536000
+	// +kubebuilder:validation:Maximum=2073600
 	// Redis idle connection timeout in seconds
 	RedisTimeout *int `groups:"create,update" json:"redis_timeout,omitempty"`
 

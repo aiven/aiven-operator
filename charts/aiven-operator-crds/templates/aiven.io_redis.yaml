@@ -473,7 +473,7 @@ spec:
                       type: boolean
                     redis_timeout:
                       description: Redis idle connection timeout in seconds
-                      maximum: 31536000
+                      maximum: 2073600
                       minimum: 0
                       type: integer
                     redis_version:
