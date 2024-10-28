@@ -254,6 +254,7 @@ ServiceIntegrationSpec defines the desired state of ServiceIntegration.
 **Optional**
 
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
+- [`autoscaler`](#spec.autoscaler-property){: name='spec.autoscaler-property'} (object). Autoscaler specific user configuration options.
 - [`clickhouseKafka`](#spec.clickhouseKafka-property){: name='spec.clickhouseKafka-property'} (object). Clickhouse Kafka configuration values. See below for [nested schema](#spec.clickhouseKafka).
 - [`clickhousePostgresql`](#spec.clickhousePostgresql-property){: name='spec.clickhousePostgresql-property'} (object). Clickhouse PostgreSQL configuration values. See below for [nested schema](#spec.clickhousePostgresql).
 - [`datadog`](#spec.datadog-property){: name='spec.datadog-property'} (object). Datadog specific user configuration options. See below for [nested schema](#spec.datadog).

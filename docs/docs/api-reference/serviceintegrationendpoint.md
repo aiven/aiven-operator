@@ -95,6 +95,7 @@ ServiceIntegrationEndpointSpec defines the desired state of ServiceIntegrationEn
 **Optional**
 
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
+- [`autoscaler`](#spec.autoscaler-property){: name='spec.autoscaler-property'} (object). Autoscaler configuration values. See below for [nested schema](#spec.autoscaler).
 - [`datadog`](#spec.datadog-property){: name='spec.datadog-property'} (object). Datadog configuration values. See below for [nested schema](#spec.datadog).
 - [`endpointName`](#spec.endpointName-property){: name='spec.endpointName-property'} (string, Immutable, MaxLength: 36). Source endpoint for the integration (if any).
 - [`externalAWSCloudwatchLogs`](#spec.externalAWSCloudwatchLogs-property){: name='spec.externalAWSCloudwatchLogs-property'} (object). ExternalAwsCloudwatchLogs configuration values. See below for [nested schema](#spec.externalAWSCloudwatchLogs).
@@ -120,6 +121,27 @@ Authentication reference to Aiven token in a secret.
 
 - [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1).
 - [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1).
+
+## autoscaler {: #spec.autoscaler }
+
+_Appears on [`spec`](#spec)._
+
+Autoscaler configuration values.
+
+**Required**
+
+- [`autoscaling`](#spec.autoscaler.autoscaling-property){: name='spec.autoscaler.autoscaling-property'} (array of objects, MaxItems: 64). Configure autoscaling thresholds for a service. See below for [nested schema](#spec.autoscaler.autoscaling).
+
+### autoscaling {: #spec.autoscaler.autoscaling }
+
+_Appears on [`spec.autoscaler`](#spec.autoscaler)._
+
+AutoscalingProperties.
+
+**Required**
+
+- [`cap_gb`](#spec.autoscaler.autoscaling.cap_gb-property){: name='spec.autoscaler.autoscaling.cap_gb-property'} (integer, Minimum: 50, Maximum: 10000). The maximum total disk size (in gb) to allow autoscaler to scale up to.
+- [`type`](#spec.autoscaler.autoscaling.type-property){: name='spec.autoscaler.autoscaling.type-property'} (string, Enum: `autoscale_disk`). Type of autoscale event.
 
 ## datadog {: #spec.datadog }
 

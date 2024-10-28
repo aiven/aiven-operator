@@ -73,6 +73,9 @@ spec:
                     - key
                     - name
                   type: object
+                autoscaler:
+                  description: Autoscaler specific user configuration options
+                  type: object
                 clickhouseKafka:
                   description: Clickhouse Kafka configuration values
                   properties:
