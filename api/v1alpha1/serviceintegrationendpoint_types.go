@@ -8,6 +8,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	autoscaleruserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integrationendpoints/autoscaler"
 	datadoguserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integrationendpoints/datadog"
 	externalawscloudwatchlogsuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integrationendpoints/external_aws_cloudwatch_logs"
 	externalawscloudwatchmetricsuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integrationendpoints/external_aws_cloudwatch_metrics"
@@ -36,6 +37,9 @@ type ServiceIntegrationEndpointSpec struct {
 	// +kubebuilder:validation:MaxLength=36
 	// Source endpoint for the integration (if any)
 	EndpointName string `json:"endpointName,omitempty"`
+
+	// Autoscaler configuration values
+	Autoscaler *autoscaleruserconfig.AutoscalerUserConfig `json:"autoscaler,omitempty"`
 
 	// Datadog configuration values
 	Datadog *datadoguserconfig.DatadogUserConfig `json:"datadog,omitempty"`
@@ -118,6 +122,7 @@ func (in *ServiceIntegrationEndpoint) Conditions() *[]metav1.Condition {
 
 func (in *ServiceIntegrationEndpoint) getUserConfigFields() map[string]any {
 	return map[string]any{
+		"autoscaler":                      in.Spec.Autoscaler,
 		"datadog":                         in.Spec.Datadog,
 		"external_aws_cloudwatch_logs":    in.Spec.ExternalAwsCloudwatchLogs,
 		"external_aws_cloudwatch_metrics": in.Spec.ExternalAwsCloudwatchMetrics,
