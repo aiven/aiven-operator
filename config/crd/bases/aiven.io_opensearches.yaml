@@ -264,6 +264,11 @@ spec:
                           description: Defines the DNS suffix for Azure Storage endpoints.
                           pattern: ^[^\r\n]*$
                           type: string
+                        include_aliases:
+                          description:
+                            Whether to restore aliases alongside their associated
+                            indexes. Default is true.
+                          type: boolean
                         indices:
                           description:
                             A comma-delimited list of indices to restore
@@ -345,6 +350,11 @@ spec:
                           description: Google Cloud Storage credentials file content
                           pattern: ^[^\r\n]*$
                           type: string
+                        include_aliases:
+                          description:
+                            Whether to restore aliases alongside their associated
+                            indexes. Default is true.
+                          type: boolean
                         indices:
                           description:
                             A comma-delimited list of indices to restore
@@ -1419,6 +1429,11 @@ spec:
                             to the service’s endpoint
                           pattern: ^[^\r\n]*$
                           type: string
+                        include_aliases:
+                          description:
+                            Whether to restore aliases alongside their associated
+                            indexes. Default is true.
+                          type: boolean
                         indices:
                           description:
                             A comma-delimited list of indices to restore

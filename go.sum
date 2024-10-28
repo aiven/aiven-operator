@@ -39,10 +39,10 @@ github.com/ClickHouse/clickhouse-go/v2 v2.30.0 h1:AG4D/hW39qa58+JHQIFOSnxyL46H6h
 github.com/ClickHouse/clickhouse-go/v2 v2.30.0/go.mod h1:i9ZQAojcayW3RsdCb3YR+n+wC2h65eJsZCscZ1Z1wyo=
 github.com/aiven/aiven-go-client/v2 v2.30.0 h1:dj1nRuO1XglnwH2IwKmqEl3SGaqKebDoxnd+SRjxQRg=
 github.com/aiven/aiven-go-client/v2 v2.30.0/go.mod h1:Eyxa+fNgayObmUBW94uJuEkyOe1646cEpjFzhm/NETY=
-github.com/aiven/go-api-schemas v1.94.0 h1:kbszL56VLORPZ2jXmQBP6FJpihcmiLGdH051G8zBRd0=
-github.com/aiven/go-api-schemas v1.94.0/go.mod h1:qS3E/3R+aKQbHsqXzNHqlXATY1kbVNzhiJvk2IDmADI=
-github.com/aiven/go-client-codegen v0.45.0 h1:5+5eCN42Qb0QegJSYDw7WCi3z1IHemFyRxzJBN2TnaQ=
-github.com/aiven/go-client-codegen v0.45.0/go.mod h1:FfbH32Xb+Hx5zeKTIug1Y8SfMeB+AKNRzxgrzkts2oA=
+github.com/aiven/go-api-schemas v1.96.0 h1:h/8ENjiyj6G2fliXGygLgWfTjzFT7wNC86WOz9IYHow=
+github.com/aiven/go-api-schemas v1.96.0/go.mod h1:ATdCq7aRp+URkFI4W4mVZaNZgoN5FRicXKH3c2fpgW4=
+github.com/aiven/go-client-codegen v0.48.0 h1:4etkt+/tBMHzj8JJJDO1MK6pG33+2fTjI3MeDt5wB7w=
+github.com/aiven/go-client-codegen v0.48.0/go.mod h1:FfbH32Xb+Hx5zeKTIug1Y8SfMeB+AKNRzxgrzkts2oA=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=

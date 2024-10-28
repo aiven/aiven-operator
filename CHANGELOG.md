@@ -34,6 +34,12 @@
 - Add `OpenSearch` field `userConfig.s3_migration.restore_global_state`, type `boolean`: If true, restore
   the cluster state. Defaults to false
 - Change `Redis` field `userConfig.redis_timeout`: maximum ~~`31536000`~~ → `2073600`
+- Add `OpenSearch` field `userConfig.azure_migration.include_aliases`, type `boolean`: Whether to restore
+  aliases alongside their associated indexes. Default is true
+- Add `OpenSearch` field `userConfig.gcs_migration.include_aliases`, type `boolean`: Whether to restore
+  aliases alongside their associated indexes. Default is true
+- Add `OpenSearch` field `userConfig.s3_migration.include_aliases`, type `boolean`: Whether to restore
+  aliases alongside their associated indexes. Default is true
 
 ## v0.25.0 - 2024-09-19
 
