@@ -75,7 +75,7 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	// Validates ServiceIntegration
 	siAvn, err := avnGen.ServiceIntegrationGet(ctx, cfg.Project, si.Status.ID)
 	require.NoError(t, err)
-	assert.Equal(t, "clickhouse_postgresql", siAvn.IntegrationType)
+	assert.EqualValues(t, "clickhouse_postgresql", siAvn.IntegrationType)
 	assert.EqualValues(t, siAvn.IntegrationType, si.Spec.IntegrationType)
 	assert.Equal(t, pgName, siAvn.SourceService)
 	assert.Equal(t, chName, *siAvn.DestService)
@@ -142,7 +142,7 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 	// Validates ServiceIntegration
 	siAvn, err := avnGen.ServiceIntegrationGet(ctx, cfg.Project, si.Status.ID)
 	require.NoError(t, err)
-	assert.Equal(t, "kafka_logs", siAvn.IntegrationType)
+	assert.EqualValues(t, "kafka_logs", siAvn.IntegrationType)
 	assert.EqualValues(t, siAvn.IntegrationType, si.Spec.IntegrationType)
 	assert.Equal(t, ksName, siAvn.SourceService)
 	assert.Equal(t, ksName, *siAvn.DestService)
@@ -213,7 +213,7 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	// Validates ServiceIntegration
 	siAvn, err := avnGen.ServiceIntegrationGet(ctx, cfg.Project, si.Status.ID)
 	require.NoError(t, err)
-	assert.Equal(t, "kafka_connect", siAvn.IntegrationType)
+	assert.EqualValues(t, "kafka_connect", siAvn.IntegrationType)
 	assert.EqualValues(t, siAvn.IntegrationType, si.Spec.IntegrationType)
 	assert.Equal(t, ksName, siAvn.SourceService)
 	assert.Equal(t, kcName, *siAvn.DestService)
@@ -277,7 +277,7 @@ func TestServiceIntegrationDatadog(t *testing.T) {
 	// Validates Datadog
 	siAvn, err := avnGen.ServiceIntegrationGet(ctx, cfg.Project, si.Status.ID)
 	require.NoError(t, err)
-	assert.Equal(t, "datadog", siAvn.IntegrationType)
+	assert.EqualValues(t, "datadog", siAvn.IntegrationType)
 	assert.EqualValues(t, siAvn.IntegrationType, si.Spec.IntegrationType)
 	assert.True(t, siAvn.Active)
 	assert.True(t, siAvn.Enabled)
