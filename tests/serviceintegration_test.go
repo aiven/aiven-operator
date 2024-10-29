@@ -225,6 +225,64 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	assert.Equal(t, "__connect_offsets", *si.Spec.KafkaConnectUserConfig.KafkaConnect.OffsetStorageTopic)
 }
 
+func TestServiceIntegrationAutoscaler(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	endpointID := os.Getenv("AUTOSCALER_ENDPOINT_ID")
+	if endpointID == "" {
+		t.Skip("Provide AUTOSCALER_ENDPOINT_ID for this test")
+	}
+
+	// GIVEN
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	pgName := randName("postgresql")
+	siName := randName("autoscaler")
+
+	yml, err := loadExampleYaml("serviceintegration.autoscaler.yaml", map[string]string{
+		"aiven-project-name":         cfg.Project,
+		"google-europe-west1":        cfg.PrimaryCloudName,
+		"my-pg":                      pgName,
+		"my-service-integration":     siName,
+		"my-destination-endpoint-id": endpointID,
+	})
+	require.NoError(t, err)
+	s := NewSession(ctx, k8sClient, cfg.Project)
+
+	// Cleans test afterward
+	defer s.Destroy(t)
+
+	// WHEN
+	// Applies given manifest
+	require.NoError(t, s.Apply(yml))
+
+	// Waits kube objects
+	pg := new(v1alpha1.PostgreSQL)
+	require.NoError(t, s.GetRunning(pg, pgName))
+
+	si := new(v1alpha1.ServiceIntegration)
+	require.NoError(t, s.GetRunning(si, siName))
+
+	// THEN
+	// Validates PostgreSQL
+	pgAvn, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
+	require.NoError(t, err)
+	assert.Equal(t, pgAvn.ServiceName, pg.GetName())
+	assert.Contains(t, serviceRunningStatesAiven, pgAvn.State)
+
+	// Validates ServiceIntegration
+	siAvn, err := avnGen.ServiceIntegrationGet(ctx, cfg.Project, si.Status.ID)
+	require.NoError(t, err)
+	assert.EqualValues(t, "autoscaler", siAvn.IntegrationType)
+	assert.EqualValues(t, siAvn.IntegrationType, si.Spec.IntegrationType)
+	assert.Equal(t, pgName, siAvn.SourceService)
+	assert.Equal(t, endpointID, *siAvn.DestEndpointId)
+	assert.True(t, siAvn.Active)
+	assert.True(t, siAvn.Enabled)
+}
+
 // todo: refactor when ServiceIntegrationEndpoint released
 func TestServiceIntegrationDatadog(t *testing.T) {
 	t.Parallel()

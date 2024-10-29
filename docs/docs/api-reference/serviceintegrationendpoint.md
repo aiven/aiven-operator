@@ -4,6 +4,27 @@ title: "ServiceIntegrationEndpoint"
 
 ## Usage examples
 
+??? example "autoscaler"
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: ServiceIntegrationEndpoint
+    metadata:
+      name: my-service-integration-endpoint
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      endpointName: my-autoscaler
+      endpointType: autoscaler
+    
+      autoscaler:
+        autoscaling:
+          - type: autoscale_disk
+            cap_gb: 100
+    ```
+
 ??? example "external_postgresql"
     ```yaml
     apiVersion: aiven.io/v1alpha1
@@ -66,8 +87,8 @@ kubectl get serviceintegrationendpoints my-service-integration-endpoint
 
 The output is similar to the following:
 ```shell
-Name                               Project               Endpoint Name             Endpoint Type          ID      
-my-service-integration-endpoint    aiven-project-name    my-external-postgresql    external_postgresql    <id>    
+Name                               Project               Endpoint Name    Endpoint Type    ID      
+my-service-integration-endpoint    aiven-project-name    my-autoscaler    autoscaler       <id>    
 ```
 
 ## ServiceIntegrationEndpoint {: #ServiceIntegrationEndpoint }
