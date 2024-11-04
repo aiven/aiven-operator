@@ -136,11 +136,11 @@ type Mysql struct {
 	// The number of seconds the server waits for activity on an interactive connection before closing it.
 	InteractiveTimeout *int `groups:"create,update" json:"interactive_timeout,omitempty"`
 
-	// +kubebuilder:validation:Enum="TempTable";"MEMORY"
+	// +kubebuilder:validation:Enum="MEMORY";"TempTable"
 	// The storage engine for in-memory internal temporary tables.
 	InternalTmpMemStorageEngine *string `groups:"create,update" json:"internal_tmp_mem_storage_engine,omitempty"`
 
-	// +kubebuilder:validation:Enum="INSIGHTS";"NONE";"TABLE";"INSIGHTS,TABLE"
+	// +kubebuilder:validation:Enum="INSIGHTS";"INSIGHTS,TABLE";"NONE";"TABLE"
 	// The slow log output destination when slow_query_log is ON. To enable MySQL AI Insights, choose INSIGHTS. To use MySQL AI Insights and the mysql.slow_log table at the same time, choose INSIGHTS,TABLE. To only use the mysql.slow_log table, choose TABLE. To silence slow logs, choose NONE.
 	LogOutput *string `groups:"create,update" json:"log_output,omitempty"`
 

@@ -140,7 +140,7 @@ type RedisUserConfig struct {
 	// Counter logarithm factor for volatile-lfu and allkeys-lfu maxmemory-policies
 	RedisLfuLogFactor *int `groups:"create,update" json:"redis_lfu_log_factor,omitempty"`
 
-	// +kubebuilder:validation:Enum="noeviction";"allkeys-lru";"volatile-lru";"allkeys-random";"volatile-random";"volatile-ttl";"volatile-lfu";"allkeys-lfu"
+	// +kubebuilder:validation:Enum="allkeys-lfu";"allkeys-lru";"allkeys-random";"noeviction";"volatile-lfu";"volatile-lru";"volatile-random";"volatile-ttl"
 	// Redis maxmemory-policy
 	RedisMaxmemoryPolicy *string `groups:"create,update" json:"redis_maxmemory_policy,omitempty"`
 

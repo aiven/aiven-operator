@@ -40,6 +40,70 @@
   aliases alongside their associated indexes. Default is true
 - Add `OpenSearch` field `userConfig.s3_migration.include_aliases`, type `boolean`: Whether to restore
   aliases alongside their associated indexes. Default is true
+- Change `Grafana` field `userConfig.alerting_nodata_or_nullvalues`: enum ~~`[alerting, keep_state, no_data,
+  ok]`~~ → `[alerting, keep_state, no_data, ok]`
+- Change `Grafana` field `userConfig.cookie_samesite`: enum ~~`[lax, none, strict]`~~ → `[lax, none,
+  strict]`
+- Change `Grafana` field `userConfig.smtp_server.starttls_policy`: enum ~~`[MandatoryStartTLS, NoStartTLS,
+  OpportunisticStartTLS]`~~ → `[MandatoryStartTLS, NoStartTLS, OpportunisticStartTLS]`
+- Change `Grafana` field `userConfig.user_auto_assign_org_role`: enum ~~`[Admin, Editor, Viewer]`~~ →
+  `[Admin, Editor, Viewer]`
+- Change `KafkaConnect` field `userConfig.kafka_connect.connector_client_config_override_policy`: enum
+  ~~`[All, None]`~~ → `[All, None]`
+- Change `KafkaConnect` field `userConfig.kafka_connect.consumer_isolation_level`: enum ~~`[read_committed,
+  read_uncommitted]`~~ → `[read_committed, read_uncommitted]`
+- Change `KafkaConnect` field `userConfig.kafka_connect.producer_compression_type`: enum ~~`[gzip, lz4,
+  none, snappy, zstd]`~~ → `[gzip, lz4, none, snappy, zstd]`
+- Change `Kafka` field `userConfig.kafka.compression_type`: enum ~~`[gzip, lz4, producer, snappy, uncompressed,
+  zstd]`~~ → `[gzip, lz4, producer, snappy, uncompressed, zstd]`
+- Change `Kafka` field `userConfig.kafka.log_cleanup_policy`: enum ~~`[compact, compact,delete, delete]`~~
+  → `[compact, compact,delete, delete]`
+- Change `Kafka` field `userConfig.kafka_connect_config.connector_client_config_override_policy`: enum
+  ~~`[All, None]`~~ → `[All, None]`
+- Change `Kafka` field `userConfig.kafka_connect_config.consumer_isolation_level`: enum ~~`[read_committed,
+  read_uncommitted]`~~ → `[read_committed, read_uncommitted]`
+- Change `Kafka` field `userConfig.kafka_connect_config.producer_compression_type`: enum ~~`[gzip, lz4,
+  none, snappy, zstd]`~~ → `[gzip, lz4, none, snappy, zstd]`
+- Change `Kafka` field `userConfig.kafka_rest_config.name_strategy`: enum ~~`[record_name, topic_name,
+  topic_record_name]`~~ → `[record_name, topic_name, topic_record_name]`
+- Change `Kafka` field `userConfig.kafka_rest_config.producer_acks`: enum ~~`[-1, 0, 1, all]`~~ → `[-1,
+  0, 1, all]`
+- Change `Kafka` field `userConfig.kafka_rest_config.producer_compression_type`: enum ~~`[gzip, lz4,
+  none, snappy, zstd]`~~ → `[gzip, lz4, none, snappy, zstd]`
+- Change `MySQL` field `userConfig.mysql.internal_tmp_mem_storage_engine`: enum ~~`[MEMORY, TempTable]`~~
+  → `[MEMORY, TempTable]`
+- Change `MySQL` field `userConfig.mysql.log_output`: enum ~~`[INSIGHTS, INSIGHTS,TABLE, NONE, TABLE]`~~
+  → `[INSIGHTS, INSIGHTS,TABLE, NONE, TABLE]`
+- Change `OpenSearch` field `userConfig.opensearch.search_backpressure.mode`: enum ~~`[disabled, enforced,
+  monitor_only]`~~ → `[disabled, enforced, monitor_only]`
+- Change `PostgreSQL` field `userConfig.pg.log_error_verbosity`: enum ~~`[DEFAULT, TERSE, VERBOSE]`~~
+  → `[DEFAULT, TERSE, VERBOSE]`
+- Change `PostgreSQL` field `userConfig.pg.log_line_prefix`: enum ~~`['%m [%p] %q[user=%u,db=%d,app=%a]
+  ', '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h ', 'pid=%p,user=%u,db=%d,app=%a,client=%h ',
+  'pid=%p,user=%u,db=%d,app=%a,client=%h,txid=%x,qid=%Q ']`~~ → `['%m [%p] %q[user=%u,db=%d,app=%a]
+  ', '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h ', 'pid=%p,user=%u,db=%d,app=%a,client=%h ',
+  'pid=%p,user=%u,db=%d,app=%a,client=%h,txid=%x,qid=%Q ']`
+- Change `PostgreSQL` field `userConfig.pg.pg_stat_statements.track`: enum ~~`[all, none, top]`~~ →
+  `[all, none, top]`
+- Change `PostgreSQL` field `userConfig.pg.track_functions`: enum ~~`[all, none, pl]`~~ → `[all, none, pl]`
+- Change `PostgreSQL` field `userConfig.pgbouncer.autodb_pool_mode`: enum ~~`[session, statement, transaction]`~~
+  → `[session, statement, transaction]`
+- Change `PostgreSQL` field `userConfig.synchronous_replication`: enum ~~`[off, quorum]`~~ → `[off,
+  quorum]`
+- Change `Redis` field `userConfig.redis_maxmemory_policy`: enum ~~`[allkeys-lfu, allkeys-lru, allkeys-random,
+  noeviction, volatile-lfu, volatile-lru, volatile-random, volatile-ttl]`~~ → `[allkeys-lfu,
+  allkeys-lru, allkeys-random, noeviction, volatile-lfu, volatile-lru, volatile-random, volatile-ttl]`
+- Change `ServiceIntegrationEndpoint` field `datadog.site`: enum ~~`[ap1.datadoghq.com, datadoghq.com,
+  datadoghq.eu, ddog-gov.com, us3.datadoghq.com, us5.datadoghq.com]`~~ → `[ap1.datadoghq.com, datadoghq.com,
+  datadoghq.eu, ddog-gov.com, us3.datadoghq.com, us5.datadoghq.com]`
+- Change `ServiceIntegrationEndpoint` field `externalKafka.security_protocol`: enum ~~`[PLAINTEXT, SASL_PLAINTEXT,
+  SASL_SSL, SSL]`~~ → `[PLAINTEXT, SASL_PLAINTEXT, SASL_SSL, SSL]`
+- Change `ServiceIntegrationEndpoint` field `externalSchemaRegistry.authentication`: enum ~~`[basic,
+  none]`~~ → `[basic, none]`
+- Change `ServiceIntegrationEndpoint` field `rsyslog.format`: enum ~~`[custom, rfc3164, rfc5424]`~~ →
+  `[custom, rfc3164, rfc5424]`
+- Change `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.producer_compression_type`: enum
+  ~~`[gzip, lz4, none, snappy, zstd]`~~ → `[gzip, lz4, none, snappy, zstd]`
 
 ## v0.25.0 - 2024-09-19
 

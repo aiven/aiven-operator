@@ -86,12 +86,12 @@ spec:
                               Action to take when there is no initial offset
                               in offset store or the desired offset is out of range
                             enum:
-                              - smallest
-                              - earliest
                               - beginning
+                              - earliest
+                              - end
                               - largest
                               - latest
-                              - end
+                              - smallest
                             type: string
                           columns:
                             description: Table columns
@@ -118,6 +118,7 @@ spec:
                             description: Message data format
                             enum:
                               - Avro
+                              - AvroConfluent
                               - CSV
                               - JSONAsString
                               - JSONCompactEachRow
@@ -125,12 +126,11 @@ spec:
                               - JSONEachRow
                               - JSONStringsEachRow
                               - MsgPack
+                              - Parquet
+                              - RawBLOB
                               - TSKV
                               - TSV
                               - TabSeparated
-                              - RawBLOB
-                              - AvroConfluent
-                              - Parquet
                             type: string
                           date_time_input_format:
                             description: Method to read DateTime from text input formats
@@ -572,10 +572,10 @@ spec:
                             'none' which is the default and equivalent to no compression.
                           enum:
                             - gzip
-                            - snappy
                             - lz4
-                            - zstd
                             - none
+                            - snappy
+                            - zstd
                           type: string
                         producer_linger_ms:
                           description:

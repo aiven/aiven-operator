@@ -256,8 +256,8 @@ spec:
                         alerting rules
                       enum:
                         - alerting
-                        - no_data
                         - keep_state
+                        - no_data
                         - ok
                       type: string
                     allow_embedding:
@@ -504,8 +504,8 @@ spec:
                         value."
                       enum:
                         - lax
-                        - strict
                         - none
+                        - strict
                       type: string
                     custom_domain:
                       description:
@@ -788,9 +788,9 @@ spec:
                             Either OpportunisticStartTLS, MandatoryStartTLS
                             or NoStartTLS. Default is OpportunisticStartTLS.
                           enum:
-                            - OpportunisticStartTLS
                             - MandatoryStartTLS
                             - NoStartTLS
+                            - OpportunisticStartTLS
                           type: string
                         username:
                           description: Username for SMTP authentication
@@ -821,9 +821,9 @@ spec:
                     user_auto_assign_org_role:
                       description: Set role for new signups. Defaults to Viewer
                       enum:
-                        - Viewer
                         - Admin
                         - Editor
+                        - Viewer
                       type: string
                     viewers_can_edit:
                       description:

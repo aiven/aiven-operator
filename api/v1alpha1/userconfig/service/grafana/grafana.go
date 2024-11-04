@@ -290,7 +290,7 @@ type SmtpServer struct {
 	// Skip verifying server certificate. Defaults to false
 	SkipVerify *bool `groups:"create,update" json:"skip_verify,omitempty"`
 
-	// +kubebuilder:validation:Enum="OpportunisticStartTLS";"MandatoryStartTLS";"NoStartTLS"
+	// +kubebuilder:validation:Enum="MandatoryStartTLS";"NoStartTLS";"OpportunisticStartTLS"
 	// Either OpportunisticStartTLS, MandatoryStartTLS or NoStartTLS. Default is OpportunisticStartTLS.
 	StarttlsPolicy *string `groups:"create,update" json:"starttls_policy,omitempty"`
 
@@ -316,7 +316,7 @@ type GrafanaUserConfig struct {
 	// Max number of alert annotations that Grafana stores. 0 (default) keeps all alert annotations.
 	AlertingMaxAnnotationsToKeep *int `groups:"create,update" json:"alerting_max_annotations_to_keep,omitempty"`
 
-	// +kubebuilder:validation:Enum="alerting";"no_data";"keep_state";"ok"
+	// +kubebuilder:validation:Enum="alerting";"keep_state";"no_data";"ok"
 	// Default value for 'no data or null values' for new alerting rules
 	AlertingNodataOrNullvalues *string `groups:"create,update" json:"alerting_nodata_or_nullvalues,omitempty"`
 
@@ -341,7 +341,7 @@ type GrafanaUserConfig struct {
 	// Google Auth integration
 	AuthGoogle *AuthGoogle `groups:"create,update" json:"auth_google,omitempty"`
 
-	// +kubebuilder:validation:Enum="lax";"strict";"none"
+	// +kubebuilder:validation:Enum="lax";"none";"strict"
 	// Cookie SameSite attribute: 'strict' prevents sending cookie for cross-site requests, effectively disabling direct linking from other sites to Grafana. 'lax' is the default value.
 	CookieSamesite *string `groups:"create,update" json:"cookie_samesite,omitempty"`
 
@@ -438,7 +438,7 @@ type GrafanaUserConfig struct {
 	// Auto-assign new users on signup to main organization. Defaults to false
 	UserAutoAssignOrg *bool `groups:"create,update" json:"user_auto_assign_org,omitempty"`
 
-	// +kubebuilder:validation:Enum="Viewer";"Admin";"Editor"
+	// +kubebuilder:validation:Enum="Admin";"Editor";"Viewer"
 	// Set role for new signups. Defaults to Viewer
 	UserAutoAssignOrgRole *string `groups:"create,update" json:"user_auto_assign_org_role,omitempty"`
 

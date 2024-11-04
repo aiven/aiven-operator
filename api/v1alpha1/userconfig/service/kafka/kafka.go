@@ -25,7 +25,7 @@ type Kafka struct {
 	// Enable auto-creation of topics. (Default: true)
 	AutoCreateTopicsEnable *bool `groups:"create,update" json:"auto_create_topics_enable,omitempty"`
 
-	// +kubebuilder:validation:Enum="gzip";"snappy";"lz4";"zstd";"uncompressed";"producer"
+	// +kubebuilder:validation:Enum="gzip";"lz4";"producer";"snappy";"uncompressed";"zstd"
 	// Specify the final compression type for a given topic. This configuration accepts the standard compression codecs ('gzip', 'snappy', 'lz4', 'zstd'). It additionally accepts 'uncompressed' which is equivalent to no compression; and 'producer' which means retain the original compression codec set by the producer.(Default: producer)
 	CompressionType *string `groups:"create,update" json:"compression_type,omitempty"`
 
@@ -72,7 +72,7 @@ type Kafka struct {
 	// The minimum time a message will remain uncompacted in the log. Only applicable for logs that are being compacted. (Default: 0 ms)
 	LogCleanerMinCompactionLagMs *int `groups:"create,update" json:"log_cleaner_min_compaction_lag_ms,omitempty"`
 
-	// +kubebuilder:validation:Enum="delete";"compact";"compact,delete"
+	// +kubebuilder:validation:Enum="compact";"compact,delete";"delete"
 	// The default cleanup policy for segments beyond the retention window (Default: delete)
 	LogCleanupPolicy *string `groups:"create,update" json:"log_cleanup_policy,omitempty"`
 
@@ -241,7 +241,7 @@ type KafkaAuthenticationMethods struct {
 
 // Kafka Connect configuration values
 type KafkaConnectConfig struct {
-	// +kubebuilder:validation:Enum="None";"All"
+	// +kubebuilder:validation:Enum="All";"None"
 	// Defines what client configurations can be overridden by the connector. Default is None
 	ConnectorClientConfigOverridePolicy *string `groups:"create,update" json:"connector_client_config_override_policy,omitempty"`
 
@@ -254,7 +254,7 @@ type KafkaConnectConfig struct {
 	// Records are fetched in batches by the consumer, and if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that the consumer can make progress. As such, this is not a absolute maximum.
 	ConsumerFetchMaxBytes *int `groups:"create,update" json:"consumer_fetch_max_bytes,omitempty"`
 
-	// +kubebuilder:validation:Enum="read_uncommitted";"read_committed"
+	// +kubebuilder:validation:Enum="read_committed";"read_uncommitted"
 	// Transaction read isolation level. read_uncommitted is the default, but read_committed can be used if consume-exactly-once behavior is desired.
 	ConsumerIsolationLevel *string `groups:"create,update" json:"consumer_isolation_level,omitempty"`
 
@@ -293,7 +293,7 @@ type KafkaConnectConfig struct {
 	// The total bytes of memory the producer can use to buffer records waiting to be sent to the broker (defaults to 33554432).
 	ProducerBufferMemory *int `groups:"create,update" json:"producer_buffer_memory,omitempty"`
 
-	// +kubebuilder:validation:Enum="gzip";"snappy";"lz4";"zstd";"none"
+	// +kubebuilder:validation:Enum="gzip";"lz4";"none";"snappy";"zstd"
 	// Specify the default compression type for producers. This configuration accepts the standard compression codecs ('gzip', 'snappy', 'lz4', 'zstd'). It additionally accepts 'none' which is the default and equivalent to no compression.
 	ProducerCompressionType *string `groups:"create,update" json:"producer_compression_type,omitempty"`
 
@@ -388,18 +388,18 @@ type KafkaRestConfig struct {
 	// The maximum total time to wait for messages for a request if the maximum number of messages has not yet been reached
 	ConsumerRequestTimeoutMs *int `groups:"create,update" json:"consumer_request_timeout_ms,omitempty"`
 
-	// +kubebuilder:validation:Enum="topic_name";"record_name";"topic_record_name"
+	// +kubebuilder:validation:Enum="record_name";"topic_name";"topic_record_name"
 	// Name strategy to use when selecting subject for storing schemas
 	NameStrategy *string `groups:"create,update" json:"name_strategy,omitempty"`
 
 	// If true, validate that given schema is registered under expected subject name by the used name strategy when producing messages.
 	NameStrategyValidation *bool `groups:"create,update" json:"name_strategy_validation,omitempty"`
 
-	// +kubebuilder:validation:Enum="all";"-1";"0";"1"
+	// +kubebuilder:validation:Enum="-1";"0";"1";"all"
 	// The number of acknowledgments the producer requires the leader to have received before considering a request complete. If set to 'all' or '-1', the leader will wait for the full set of in-sync replicas to acknowledge the record.
 	ProducerAcks *string `groups:"create,update" json:"producer_acks,omitempty"`
 
-	// +kubebuilder:validation:Enum="gzip";"snappy";"lz4";"zstd";"none"
+	// +kubebuilder:validation:Enum="gzip";"lz4";"none";"snappy";"zstd"
 	// Specify the default compression type for producers. This configuration accepts the standard compression codecs ('gzip', 'snappy', 'lz4', 'zstd'). It additionally accepts 'none' which is the default and equivalent to no compression.
 	ProducerCompressionType *string `groups:"create,update" json:"producer_compression_type,omitempty"`
 

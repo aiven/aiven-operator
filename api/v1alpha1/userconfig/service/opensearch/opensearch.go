@@ -399,7 +399,7 @@ type SearchTask struct {
 
 // Search Backpressure Settings
 type SearchBackpressure struct {
-	// +kubebuilder:validation:Enum="monitor_only";"enforced";"disabled"
+	// +kubebuilder:validation:Enum="disabled";"enforced";"monitor_only"
 	// The search backpressure mode. Valid values are monitor_only, enforced, or disabled. Default is monitor_only
 	Mode *string `groups:"create,update" json:"mode,omitempty"`
 

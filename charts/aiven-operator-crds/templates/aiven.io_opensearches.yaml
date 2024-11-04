@@ -925,9 +925,9 @@ spec:
                                 are monitor_only, enforced, or disabled. Default is
                                 monitor_only
                               enum:
-                                - monitor_only
-                                - enforced
                                 - disabled
+                                - enforced
+                                - monitor_only
                               type: string
                             node_duress:
                               description: Node duress settings

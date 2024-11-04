@@ -445,7 +445,7 @@ Search Backpressure Settings.
 
 **Optional**
 
-- [`mode`](#spec.userConfig.opensearch.search_backpressure.mode-property){: name='spec.userConfig.opensearch.search_backpressure.mode-property'} (string, Enum: `monitor_only`, `enforced`, `disabled`). The search backpressure mode. Valid values are monitor_only, enforced, or disabled. Default is monitor_only.
+- [`mode`](#spec.userConfig.opensearch.search_backpressure.mode-property){: name='spec.userConfig.opensearch.search_backpressure.mode-property'} (string, Enum: `disabled`, `enforced`, `monitor_only`). The search backpressure mode. Valid values are monitor_only, enforced, or disabled. Default is monitor_only.
 - [`node_duress`](#spec.userConfig.opensearch.search_backpressure.node_duress-property){: name='spec.userConfig.opensearch.search_backpressure.node_duress-property'} (object). Node duress settings. See below for [nested schema](#spec.userConfig.opensearch.search_backpressure.node_duress).
 - [`search_shard_task`](#spec.userConfig.opensearch.search_backpressure.search_shard_task-property){: name='spec.userConfig.opensearch.search_backpressure.search_shard_task-property'} (object). Search shard settings. See below for [nested schema](#spec.userConfig.opensearch.search_backpressure.search_shard_task).
 - [`search_task`](#spec.userConfig.opensearch.search_backpressure.search_task-property){: name='spec.userConfig.opensearch.search_backpressure.search_task-property'} (object). Search task settings. See below for [nested schema](#spec.userConfig.opensearch.search_backpressure.search_task).

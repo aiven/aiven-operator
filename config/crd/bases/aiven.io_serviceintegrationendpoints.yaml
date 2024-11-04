@@ -124,12 +124,12 @@ spec:
                     site:
                       description: Datadog intake site. Defaults to datadoghq.com
                       enum:
+                        - ap1.datadoghq.com
                         - datadoghq.com
                         - datadoghq.eu
+                        - ddog-gov.com
                         - us3.datadoghq.com
                         - us5.datadoghq.com
-                        - ddog-gov.com
-                        - ap1.datadoghq.com
                       type: string
                   required:
                     - datadog_api_key
@@ -327,9 +327,9 @@ spec:
                       description: Security protocol
                       enum:
                         - PLAINTEXT
-                        - SSL
                         - SASL_PLAINTEXT
                         - SASL_SSL
+                        - SSL
                       type: string
                     ssl_ca_cert:
                       description: PEM-encoded CA certificate
@@ -444,8 +444,8 @@ spec:
                     authentication:
                       description: Authentication method
                       enum:
-                        - none
                         - basic
+                        - none
                       type: string
                     basic_auth_password:
                       description: Basic authentication password
@@ -515,9 +515,9 @@ spec:
                     format:
                       description: Message format
                       enum:
-                        - rfc5424
-                        - rfc3164
                         - custom
+                        - rfc3164
+                        - rfc5424
                       type: string
                     key:
                       description: PEM encoded client key

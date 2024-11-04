@@ -12,7 +12,7 @@ type RsyslogUserConfig struct {
 	// PEM encoded client certificate
 	Cert *string `groups:"create,update" json:"cert,omitempty"`
 
-	// +kubebuilder:validation:Enum="rfc5424";"rfc3164";"custom"
+	// +kubebuilder:validation:Enum="custom";"rfc3164";"rfc5424"
 	// Message format
 	Format string `groups:"create,update" json:"format"`
 
