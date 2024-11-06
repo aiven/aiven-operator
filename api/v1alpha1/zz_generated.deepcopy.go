@@ -10,6 +10,7 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
+	autoscaler "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/autoscaler"
 	clickhouse_kafka "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/clickhouse_kafka"
 	clickhouse_postgresql "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/clickhouse_postgresql"
 	datadog "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/datadog"
@@ -19,6 +20,7 @@ import (
 	kafka_mirrormaker "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/kafka_mirrormaker"
 	logs "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/logs"
 	metrics "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/metrics"
+	integrationendpointsautoscaler "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integrationendpoints/autoscaler"
 	integrationendpointsdatadog "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integrationendpoints/datadog"
 	external_aws_cloudwatch_logs "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integrationendpoints/external_aws_cloudwatch_logs"
 	integrationendpointsexternal_aws_cloudwatch_metrics "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integrationendpoints/external_aws_cloudwatch_metrics"
@@ -2686,6 +2688,11 @@ func (in *ServiceIntegrationEndpointList) DeepCopyObject() runtime.Object {
 func (in *ServiceIntegrationEndpointSpec) DeepCopyInto(out *ServiceIntegrationEndpointSpec) {
 	*out = *in
 	in.ProjectDependant.DeepCopyInto(&out.ProjectDependant)
+	if in.Autoscaler != nil {
+		in, out := &in.Autoscaler, &out.Autoscaler
+		*out = new(integrationendpointsautoscaler.AutoscalerUserConfig)
+		(*in).DeepCopyInto(*out)
+	}
 	if in.Datadog != nil {
 		in, out := &in.Datadog, &out.Datadog
 		*out = new(integrationendpointsdatadog.DatadogUserConfig)
@@ -2836,6 +2843,11 @@ func (in *ServiceIntegrationList) DeepCopyObject() runtime.Object {
 func (in *ServiceIntegrationSpec) DeepCopyInto(out *ServiceIntegrationSpec) {
 	*out = *in
 	in.ProjectDependant.DeepCopyInto(&out.ProjectDependant)
+	if in.AutoscalerUserConfig != nil {
+		in, out := &in.AutoscalerUserConfig, &out.AutoscalerUserConfig
+		*out = new(autoscaler.AutoscalerUserConfig)
+		**out = **in
+	}
 	if in.DatadogUserConfig != nil {
 		in, out := &in.DatadogUserConfig, &out.DatadogUserConfig
 		*out = new(datadog.DatadogUserConfig)

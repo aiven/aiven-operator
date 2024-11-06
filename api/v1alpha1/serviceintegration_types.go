@@ -9,6 +9,7 @@ import (
 	"github.com/aiven/go-client-codegen/handler/service"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	autoscalerintegration "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/autoscaler"
 	clickhousekafkauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/clickhouse_kafka"
 	clickhousepostgresqluserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/clickhouse_postgresql"
 	datadogintegration "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/datadog"
@@ -58,6 +59,9 @@ type ServiceIntegrationSpec struct {
 	// +kubebuilder:validation:MaxLength=63
 	// Destination project for the integration (if any)
 	DestinationProjectName string `json:"destinationProjectName,omitempty"`
+
+	// Autoscaler specific user configuration options
+	AutoscalerUserConfig *autoscalerintegration.AutoscalerUserConfig `json:"autoscaler,omitempty"`
 
 	// Datadog specific user configuration options
 	DatadogUserConfig *datadogintegration.DatadogUserConfig `json:"datadog,omitempty"`
@@ -130,6 +134,7 @@ func (in *ServiceIntegration) Conditions() *[]metav1.Condition {
 
 func (in *ServiceIntegration) getUserConfigFields() map[service.IntegrationType]any {
 	return map[service.IntegrationType]any{
+		service.IntegrationTypeAutoscaler:                   in.Spec.AutoscalerUserConfig,
 		service.IntegrationTypeClickhouseKafka:              in.Spec.ClickhouseKafkaUserConfig,
 		service.IntegrationTypeClickhousePostgresql:         in.Spec.ClickhousePostgreSQLUserConfig,
 		service.IntegrationTypeDatadog:                      in.Spec.DatadogUserConfig,

@@ -95,3 +95,45 @@ func TestServiceIntegrationEndpoint(t *testing.T) {
 	assert.EqualValues(t, endpointRegistryAvn.UserConfig["basic_auth_username"], *endpointRegistry.Spec.ExternalSchemaRegistry.BasicAuthUsername)
 	assert.EqualValues(t, endpointRegistryAvn.UserConfig["basic_auth_password"], *endpointRegistry.Spec.ExternalSchemaRegistry.BasicAuthPassword)
 }
+
+func TestServiceIntegrationEndpointAutoscaler(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	// GIVEN
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	endpointName := randName("autoscaler")
+
+	yml, err := loadExampleYaml("serviceintegrationendpoint.autoscaler.yaml", map[string]string{
+		"aiven-project-name":              cfg.Project,
+		"my-service-integration-endpoint": endpointName,
+	})
+	require.NoError(t, err)
+	s := NewSession(ctx, k8sClient, cfg.Project)
+
+	// Cleans test afterward
+	defer s.Destroy(t)
+
+	// WHEN
+	// Applies given manifest
+	require.NoError(t, s.Apply(yml))
+
+	// THEN
+
+	// Validates autoscaler ServiceIntegrationEndpoint
+	endpointAutoscaler := new(v1alpha1.ServiceIntegrationEndpoint)
+	require.NoError(t, s.GetRunning(endpointAutoscaler, endpointName))
+
+	endpointAvn, err := avnGen.ServiceIntegrationEndpointGet(ctx, cfg.Project, endpointAutoscaler.Status.ID, service.ServiceIntegrationEndpointGetIncludeSecrets(true))
+	require.NoError(t, err)
+
+	assert.EqualValues(t, "autoscaler", endpointAvn.EndpointType)
+	assert.EqualValues(t, endpointAvn.EndpointType, endpointAutoscaler.Spec.EndpointType)
+	// TODO: remove type assertions once generated client has full user config typing
+	assert.EqualValues(t, "autoscale_disk", endpointAutoscaler.Spec.Autoscaler.Autoscaling[0].Type)
+	assert.EqualValues(t, "autoscale_disk", endpointAvn.UserConfig["autoscaling"].([]interface{})[0].(map[string]interface{})["type"])
+	assert.EqualValues(t, 100, endpointAutoscaler.Spec.Autoscaler.Autoscaling[0].CapGb)
+	assert.EqualValues(t, 100, endpointAvn.UserConfig["autoscaling"].([]interface{})[0].(map[string]interface{})["cap_gb"])
+}

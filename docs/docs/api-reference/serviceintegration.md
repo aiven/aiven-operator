@@ -4,6 +4,59 @@ title: "ServiceIntegration"
 
 ## Usage examples
 
+??? example "autoscaler"
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: ServiceIntegration
+    metadata:
+      name: my-service-integration
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      integrationType: autoscaler
+      sourceServiceName: my-pg
+      # Specify autoscaler integration endpoint ID
+      destinationEndpointId: e8417f8c-513f-487a-9213-5a903a8e62d9
+    
+    ---
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: ServiceIntegrationEndpoint
+    metadata:
+      name: my-service-integration-endpoint
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      endpointName: my-autoscaler
+      endpointType: autoscaler
+    
+      autoscaler:
+        autoscaling:
+          - type: autoscale_disk
+            cap_gb: 100
+    
+    ---
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: PostgreSQL
+    metadata:
+      name: my-pg
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      cloudName: google-europe-west1
+      plan: startup-4
+    ```
+
 ??? example "clickhouse_postgresql"
     ```yaml
     apiVersion: aiven.io/v1alpha1
@@ -225,8 +278,8 @@ kubectl get serviceintegrations my-service-integration
 
 The output is similar to the following:
 ```shell
-Name                      Project               Type                     Source Service Name    Destination Service Name    
-my-service-integration    aiven-project-name    clickhouse_postgresql    my-pg                  my-clickhouse               
+Name                      Project               Type          Source Service Name    Destination Endpoint ID                 
+my-service-integration    aiven-project-name    autoscaler    my-pg                  e8417f8c-513f-487a-9213-5a903a8e62d9    
 ```
 
 ## ServiceIntegration {: #ServiceIntegration }
@@ -254,6 +307,7 @@ ServiceIntegrationSpec defines the desired state of ServiceIntegration.
 **Optional**
 
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
+- [`autoscaler`](#spec.autoscaler-property){: name='spec.autoscaler-property'} (object). Autoscaler specific user configuration options.
 - [`clickhouseKafka`](#spec.clickhouseKafka-property){: name='spec.clickhouseKafka-property'} (object). Clickhouse Kafka configuration values. See below for [nested schema](#spec.clickhouseKafka).
 - [`clickhousePostgresql`](#spec.clickhousePostgresql-property){: name='spec.clickhousePostgresql-property'} (object). Clickhouse PostgreSQL configuration values. See below for [nested schema](#spec.clickhousePostgresql).
 - [`datadog`](#spec.datadog-property){: name='spec.datadog-property'} (object). Datadog specific user configuration options. See below for [nested schema](#spec.datadog).

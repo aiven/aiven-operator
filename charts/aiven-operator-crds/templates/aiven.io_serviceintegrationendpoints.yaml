@@ -69,6 +69,35 @@ spec:
                     - key
                     - name
                   type: object
+                autoscaler:
+                  description: Autoscaler configuration values
+                  properties:
+                    autoscaling:
+                      description: Configure autoscaling thresholds for a service
+                      items:
+                        description: AutoscalingProperties
+                        properties:
+                          cap_gb:
+                            description:
+                              The maximum total disk size (in gb) to allow
+                              autoscaler to scale up to
+                            maximum: 10000
+                            minimum: 50
+                            type: integer
+                          type:
+                            description: Type of autoscale event
+                            enum:
+                              - autoscale_disk
+                            type: string
+                        required:
+                          - cap_gb
+                          - type
+                        type: object
+                      maxItems: 64
+                      type: array
+                  required:
+                    - autoscaling
+                  type: object
                 datadog:
                   description: Datadog configuration values
                   properties:

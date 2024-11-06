@@ -40,6 +40,8 @@
   aliases alongside their associated indexes. Default is true
 - Add `OpenSearch` field `userConfig.s3_migration.include_aliases`, type `boolean`: Whether to restore
   aliases alongside their associated indexes. Default is true
+- Add `ServiceIntegration` field `autoscaler`, type `object`: Autoscaler specific user configuration options
+- Add `ServiceIntegrationEndpoint` field `autoscaler`, type `object`: Autoscaler configuration values
 
 ## v0.25.0 - 2024-09-19
 
