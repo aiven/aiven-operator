@@ -631,7 +631,7 @@ spec:
                                     The number of login attempts allowed
                                     before login is blocked
                                   maximum: 2147483647
-                                  minimum: 0
+                                  minimum: 1
                                   type: integer
                                 authentication_backend:
                                   description: internal_authentication_backend_limiting.authentication_backend
@@ -687,7 +687,7 @@ spec:
                                     The duration of time that login remains
                                     blocked after a failed login
                                   maximum: 36000
-                                  minimum: 1
+                                  minimum: 0
                                   type: integer
                                 max_blocked_clients:
                                   description: The maximum number of blocked IP addresses
@@ -706,7 +706,7 @@ spec:
                                     The window of time in which the value
                                     for `allowed_tries` is enforced
                                   maximum: 36000
-                                  minimum: 1
+                                  minimum: 0
                                   type: integer
                                 type:
                                   description: The type of rate limiting
@@ -925,9 +925,9 @@ spec:
                                 are monitor_only, enforced, or disabled. Default is
                                 monitor_only
                               enum:
-                                - monitor_only
-                                - enforced
                                 - disabled
+                                - enforced
+                                - monitor_only
                               type: string
                             node_duress:
                               description: Node duress settings

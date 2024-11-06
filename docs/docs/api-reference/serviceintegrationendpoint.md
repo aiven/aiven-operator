@@ -181,7 +181,7 @@ Datadog configuration values.
 - [`kafka_consumer_check_instances`](#spec.datadog.kafka_consumer_check_instances-property){: name='spec.datadog.kafka_consumer_check_instances-property'} (integer, Minimum: 1, Maximum: 100). Number of separate instances to fetch kafka consumer statistics with.
 - [`kafka_consumer_stats_timeout`](#spec.datadog.kafka_consumer_stats_timeout-property){: name='spec.datadog.kafka_consumer_stats_timeout-property'} (integer, Minimum: 2, Maximum: 300). Number of seconds that datadog will wait to get consumer statistics from brokers.
 - [`max_partition_contexts`](#spec.datadog.max_partition_contexts-property){: name='spec.datadog.max_partition_contexts-property'} (integer, Minimum: 200, Maximum: 200000). Maximum number of partition contexts to send.
-- [`site`](#spec.datadog.site-property){: name='spec.datadog.site-property'} (string, Enum: `datadoghq.com`, `datadoghq.eu`, `us3.datadoghq.com`, `us5.datadoghq.com`, `ddog-gov.com`, `ap1.datadoghq.com`). Datadog intake site. Defaults to datadoghq.com.
+- [`site`](#spec.datadog.site-property){: name='spec.datadog.site-property'} (string, Enum: `ap1.datadoghq.com`, `datadoghq.com`, `datadoghq.eu`, `ddog-gov.com`, `us3.datadoghq.com`, `us5.datadoghq.com`). Datadog intake site. Defaults to datadoghq.com.
 
 ### datadog_tags {: #spec.datadog.datadog_tags }
 
@@ -275,7 +275,7 @@ ExternalKafka configuration values.
 **Required**
 
 - [`bootstrap_servers`](#spec.externalKafka.bootstrap_servers-property){: name='spec.externalKafka.bootstrap_servers-property'} (string, MinLength: 3, MaxLength: 256). Bootstrap servers.
-- [`security_protocol`](#spec.externalKafka.security_protocol-property){: name='spec.externalKafka.security_protocol-property'} (string, Enum: `PLAINTEXT`, `SSL`, `SASL_PLAINTEXT`, `SASL_SSL`). Security protocol.
+- [`security_protocol`](#spec.externalKafka.security_protocol-property){: name='spec.externalKafka.security_protocol-property'} (string, Enum: `PLAINTEXT`, `SASL_PLAINTEXT`, `SASL_SSL`, `SSL`). Security protocol.
 
 **Optional**
 
@@ -333,7 +333,7 @@ ExternalSchemaRegistry configuration values.
 
 **Required**
 
-- [`authentication`](#spec.externalSchemaRegistry.authentication-property){: name='spec.externalSchemaRegistry.authentication-property'} (string, Enum: `none`, `basic`). Authentication method.
+- [`authentication`](#spec.externalSchemaRegistry.authentication-property){: name='spec.externalSchemaRegistry.authentication-property'} (string, Enum: `basic`, `none`). Authentication method.
 - [`url`](#spec.externalSchemaRegistry.url-property){: name='spec.externalSchemaRegistry.url-property'} (string, MaxLength: 2048). Schema Registry URL.
 
 **Optional**
@@ -371,7 +371,7 @@ Rsyslog configuration values.
 
 **Required**
 
-- [`format`](#spec.rsyslog.format-property){: name='spec.rsyslog.format-property'} (string, Enum: `rfc5424`, `rfc3164`, `custom`). Message format.
+- [`format`](#spec.rsyslog.format-property){: name='spec.rsyslog.format-property'} (string, Enum: `custom`, `rfc3164`, `rfc5424`). Message format.
 - [`port`](#spec.rsyslog.port-property){: name='spec.rsyslog.port-property'} (integer, Minimum: 1, Maximum: 65535). Rsyslog server port.
 - [`server`](#spec.rsyslog.server-property){: name='spec.rsyslog.server-property'} (string, MinLength: 4, MaxLength: 255). Rsyslog server IP address or hostname.
 - [`tls`](#spec.rsyslog.tls-property){: name='spec.rsyslog.tls-property'} (boolean). Require TLS.

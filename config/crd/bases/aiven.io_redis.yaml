@@ -426,14 +426,14 @@ spec:
                     redis_maxmemory_policy:
                       description: Redis maxmemory-policy
                       enum:
-                        - noeviction
+                        - allkeys-lfu
                         - allkeys-lru
-                        - volatile-lru
                         - allkeys-random
+                        - noeviction
+                        - volatile-lfu
+                        - volatile-lru
                         - volatile-random
                         - volatile-ttl
-                        - volatile-lfu
-                        - allkeys-lfu
                       type: string
                     redis_notify_keyspace_events:
                       description: Set notify-keyspace-events option

@@ -291,11 +291,11 @@ spec:
                             codec set by the producer.(Default: producer)"
                           enum:
                             - gzip
-                            - snappy
                             - lz4
-                            - zstd
-                            - uncompressed
                             - producer
+                            - snappy
+                            - uncompressed
+                            - zstd
                           type: string
                         connections_max_idle_ms:
                           description:
@@ -379,9 +379,9 @@ spec:
                             "The default cleanup policy for segments beyond
                             the retention window (Default: delete)"
                           enum:
-                            - delete
                             - compact
                             - compact,delete
+                            - delete
                           type: string
                         log_flush_interval_messages:
                           description:
@@ -661,8 +661,8 @@ spec:
                             Defines what client configurations can be overridden
                             by the connector. Default is None
                           enum:
-                            - None
                             - All
+                            - None
                           type: string
                         consumer_auto_offset_reset:
                           description:
@@ -689,8 +689,8 @@ spec:
                             is the default, but read_committed can be used if consume-exactly-once
                             behavior is desired.
                           enum:
-                            - read_uncommitted
                             - read_committed
+                            - read_uncommitted
                           type: string
                         consumer_max_partition_fetch_bytes:
                           description:
@@ -760,10 +760,10 @@ spec:
                             'none' which is the default and equivalent to no compression.
                           enum:
                             - gzip
-                            - snappy
                             - lz4
-                            - zstd
                             - none
+                            - snappy
+                            - zstd
                           type: string
                         producer_linger_ms:
                           description:
@@ -926,8 +926,8 @@ spec:
                             Name strategy to use when selecting subject for
                             storing schemas
                           enum:
-                            - topic_name
                             - record_name
+                            - topic_name
                             - topic_record_name
                           type: string
                         name_strategy_validation:
@@ -944,10 +944,10 @@ spec:
                             for the full set of in-sync replicas to acknowledge the
                             record.
                           enum:
-                            - all
                             - "-1"
                             - "0"
                             - "1"
+                            - all
                           type: string
                         producer_compression_type:
                           description:
@@ -957,10 +957,10 @@ spec:
                             'none' which is the default and equivalent to no compression.
                           enum:
                             - gzip
-                            - snappy
                             - lz4
-                            - zstd
                             - none
+                            - snappy
+                            - zstd
                           type: string
                         producer_linger_ms:
                           description:

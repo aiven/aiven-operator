@@ -219,7 +219,7 @@ type Openid struct {
 	SubjectKey *string `groups:"create,update" json:"subject_key,omitempty"`
 }
 type InternalAuthenticationBackendLimiting struct {
-	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=2147483647
 	// The number of login attempts allowed before login is blocked
 	AllowedTries *int `groups:"create,update" json:"allowed_tries,omitempty"`
@@ -262,7 +262,7 @@ type IpRateLimiting struct {
 	// The number of login attempts allowed before login is blocked
 	AllowedTries *int `groups:"create,update" json:"allowed_tries,omitempty"`
 
-	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=36000
 	// The duration of time that login remains blocked after a failed login
 	BlockExpirySeconds *int `groups:"create,update" json:"block_expiry_seconds,omitempty"`
@@ -277,7 +277,7 @@ type IpRateLimiting struct {
 	// The maximum number of tracked IP addresses that have failed login
 	MaxTrackedClients *int `groups:"create,update" json:"max_tracked_clients,omitempty"`
 
-	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=36000
 	// The window of time in which the value for `allowed_tries` is enforced
 	TimeWindowSeconds *int `groups:"create,update" json:"time_window_seconds,omitempty"`
@@ -399,7 +399,7 @@ type SearchTask struct {
 
 // Search Backpressure Settings
 type SearchBackpressure struct {
-	// +kubebuilder:validation:Enum="monitor_only";"enforced";"disabled"
+	// +kubebuilder:validation:Enum="disabled";"enforced";"monitor_only"
 	// The search backpressure mode. Valid values are monitor_only, enforced, or disabled. Default is monitor_only
 	Mode *string `groups:"create,update" json:"mode,omitempty"`
 

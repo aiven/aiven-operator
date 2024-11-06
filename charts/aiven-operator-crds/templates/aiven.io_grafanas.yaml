@@ -232,8 +232,9 @@ spec:
                       type: array
                     alerting_enabled:
                       description:
-                        Enable or disable Grafana legacy alerting functionality.
-                        This should not be enabled with unified_alerting_enabled.
+                        "DEPRECATED: setting has no effect with Grafana 11
+                        and onward. Enable or disable Grafana legacy alerting functionality.
+                        This should not be enabled with unified_alerting_enabled."
                       type: boolean
                     alerting_error_or_timeout:
                       description:
@@ -256,8 +257,8 @@ spec:
                         alerting rules
                       enum:
                         - alerting
-                        - no_data
                         - keep_state
+                        - no_data
                         - ok
                       type: string
                     allow_embedding:
@@ -438,14 +439,14 @@ spec:
                           type: array
                         api_url:
                           description:
-                            API URL. This only needs to be set when using
-                            self hosted GitLab
+                            This only needs to be set when using self hosted
+                            GitLab
                           maxLength: 2048
                           type: string
                         auth_url:
                           description:
-                            Authorization URL. This only needs to be set
-                            when using self hosted GitLab
+                            This only needs to be set when using self hosted
+                            GitLab
                           maxLength: 2048
                           type: string
                         client_id:
@@ -460,8 +461,8 @@ spec:
                           type: string
                         token_url:
                           description:
-                            Token URL. This only needs to be set when using
-                            self hosted GitLab
+                            This only needs to be set when using self hosted
+                            GitLab
                           maxLength: 2048
                           type: string
                       required:
@@ -504,8 +505,8 @@ spec:
                         value."
                       enum:
                         - lax
-                        - strict
                         - none
+                        - strict
                       type: string
                     custom_domain:
                       description:
@@ -515,7 +516,8 @@ spec:
                       type: string
                     dashboard_previews_enabled:
                       description:
-                        This feature is new in Grafana 9 and is quite resource
+                        Enable browsing of dashboards in grid (pictures)
+                        mode. This feature is new in Grafana 9 and is quite resource
                         intensive. It may cause low-end plans to work more slowly while
                         the dashboard previews are rendering.
                       type: boolean
@@ -638,7 +640,7 @@ spec:
                           maxLength: 2048
                           type: string
                         provider:
-                          description: Provider type
+                          description: External image store provider
                           enum:
                             - s3
                           type: string
@@ -681,7 +683,7 @@ spec:
                       maxItems: 1024
                       type: array
                     metrics_enabled:
-                      description: Enable Grafana /metrics endpoint
+                      description: Enable Grafana's /metrics endpoint
                       type: boolean
                     oauth_allow_insecure_email_lookup:
                       description:
@@ -788,9 +790,9 @@ spec:
                             Either OpportunisticStartTLS, MandatoryStartTLS
                             or NoStartTLS. Default is OpportunisticStartTLS.
                           enum:
-                            - OpportunisticStartTLS
                             - MandatoryStartTLS
                             - NoStartTLS
+                            - OpportunisticStartTLS
                           type: string
                         username:
                           description: Username for SMTP authentication
@@ -810,7 +812,7 @@ spec:
                         Enable or disable Grafana unified alerting functionality.
                         By default this is enabled and any legacy alerts will be migrated
                         on upgrade to Grafana 9+. To stay on legacy alerting, set unified_alerting_enabled
-                        to false and alerting_enabled to true. See https://grafana.com/docs/grafana/latest/alerting/set-up/migrating-alerts/
+                        to false and alerting_enabled to true. See https://grafana.com/docs/grafana/latest/alerting/
                         for more details.
                       type: boolean
                     user_auto_assign_org:
@@ -821,9 +823,9 @@ spec:
                     user_auto_assign_org_role:
                       description: Set role for new signups. Defaults to Viewer
                       enum:
-                        - Viewer
                         - Admin
                         - Editor
+                        - Viewer
                       type: string
                     viewers_can_edit:
                       description:
