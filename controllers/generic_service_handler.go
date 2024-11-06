@@ -55,6 +55,15 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 		technicalEmails = append(technicalEmails, aiven.ContactEmail(email))
 	}
 
+	diskSpace := v1alpha1.ConvertDiskSpace(o.getDiskSpace())
+	if diskSpace > 0 {
+		for _, v := range oldService.ServiceIntegrations {
+			if v.IntegrationType == service.IntegrationTypeAutoscaler {
+				return fmt.Errorf("cannot set disk space for service with autoscaler integration enabled")
+			}
+		}
+	}
+
 	// Creates if not exists or updates existing service
 	var reason string
 	if !exists {
@@ -66,7 +75,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 
 		req := aiven.CreateServiceRequest{
 			Cloud:                 spec.CloudName,
-			DiskSpaceMB:           v1alpha1.ConvertDiskSpace(o.getDiskSpace()),
+			DiskSpaceMB:           diskSpace,
 			MaintenanceWindow:     getMaintenanceWindow(spec.MaintenanceWindowDow, spec.MaintenanceWindowTime),
 			Plan:                  spec.Plan,
 			ProjectVPCID:          toOptionalStringPointer(projectVPCID),
@@ -105,7 +114,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 
 		req := aiven.UpdateServiceRequest{
 			Cloud:                 spec.CloudName,
-			DiskSpaceMB:           v1alpha1.ConvertDiskSpace(o.getDiskSpace()),
+			DiskSpaceMB:           diskSpace,
 			MaintenanceWindow:     getMaintenanceWindow(spec.MaintenanceWindowDow, spec.MaintenanceWindowTime),
 			Plan:                  spec.Plan,
 			Powered:               true,
