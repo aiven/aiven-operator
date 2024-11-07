@@ -495,8 +495,8 @@ spec:
                             The storage engine for in-memory internal temporary
                             tables.
                           enum:
-                            - TempTable
                             - MEMORY
+                            - TempTable
                           type: string
                         log_output:
                           description:
@@ -507,9 +507,9 @@ spec:
                             table, choose TABLE. To silence slow logs, choose NONE.
                           enum:
                             - INSIGHTS
+                            - INSIGHTS,TABLE
                             - NONE
                             - TABLE
-                            - INSIGHTS,TABLE
                           type: string
                         long_query_time:
                           description:

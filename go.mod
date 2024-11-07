@@ -7,7 +7,7 @@ toolchain go1.23.0
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.30.0
 	github.com/aiven/aiven-go-client/v2 v2.30.0
-	github.com/aiven/go-api-schemas v1.96.0
+	github.com/aiven/go-api-schemas v1.98.0
 	github.com/aiven/go-client-codegen v0.48.0
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/dave/jennifer v1.7.1

@@ -142,11 +142,11 @@ type Pg struct {
 	// Causes each action executed by autovacuum to be logged if it ran for at least the specified number of milliseconds. Setting this to zero logs all autovacuum actions. Minus-one (the default) disables logging autovacuum actions.
 	LogAutovacuumMinDuration *int `groups:"create,update" json:"log_autovacuum_min_duration,omitempty"`
 
-	// +kubebuilder:validation:Enum="TERSE";"DEFAULT";"VERBOSE"
+	// +kubebuilder:validation:Enum="DEFAULT";"TERSE";"VERBOSE"
 	// Controls the amount of detail written in the server log for each message that is logged.
 	LogErrorVerbosity *string `groups:"create,update" json:"log_error_verbosity,omitempty"`
 
-	// +kubebuilder:validation:Enum="'pid=%p,user=%u,db=%d,app=%a,client=%h '";"'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '";"'%m [%p] %q[user=%u,db=%d,app=%a] '";"'pid=%p,user=%u,db=%d,app=%a,client=%h,txid=%x,qid=%Q '"
+	// +kubebuilder:validation:Enum="'%m [%p] %q[user=%u,db=%d,app=%a] '";"'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '";"'pid=%p,user=%u,db=%d,app=%a,client=%h '";"'pid=%p,user=%u,db=%d,app=%a,client=%h,txid=%x,qid=%Q '"
 	// Choose from one of the available log formats.
 	LogLinePrefix *string `groups:"create,update" json:"log_line_prefix,omitempty"`
 
@@ -248,7 +248,7 @@ type Pg struct {
 	// Sets the maximum number of buckets
 	PgStatMonitorPgsmMaxBuckets *int `groups:"create,update" json:"pg_stat_monitor.pgsm_max_buckets,omitempty"`
 
-	// +kubebuilder:validation:Enum="all";"top";"none"
+	// +kubebuilder:validation:Enum="all";"none";"top"
 	// Controls which statements are counted. Specify top to track top-level statements (those issued directly by clients), all to also track nested statements (such as statements invoked within functions), or none to disable statement statistics collection. The default value is top.
 	PgStatStatementsTrack *string `groups:"create,update" json:"pg_stat_statements.track,omitempty"`
 
@@ -271,7 +271,7 @@ type Pg struct {
 	// Record commit time of transactions.
 	TrackCommitTimestamp *string `groups:"create,update" json:"track_commit_timestamp,omitempty"`
 
-	// +kubebuilder:validation:Enum="all";"pl";"none"
+	// +kubebuilder:validation:Enum="all";"none";"pl"
 	// Enables tracking of function call counts and time used.
 	TrackFunctions *string `groups:"create,update" json:"track_functions,omitempty"`
 
@@ -388,7 +388,7 @@ type Pgbouncer struct {
 	// Do not allow more than this many server connections per database (regardless of user). Setting it to 0 means unlimited.
 	AutodbMaxDbConnections *int `groups:"create,update" json:"autodb_max_db_connections,omitempty"`
 
-	// +kubebuilder:validation:Enum="session";"transaction";"statement"
+	// +kubebuilder:validation:Enum="session";"statement";"transaction"
 	// PGBouncer pool mode
 	AutodbPoolMode *string `groups:"create,update" json:"autodb_pool_mode,omitempty"`
 
@@ -584,7 +584,7 @@ type PgUserConfig struct {
 	// Use static public IP addresses
 	StaticIps *bool `groups:"create,update" json:"static_ips,omitempty"`
 
-	// +kubebuilder:validation:Enum="quorum";"off"
+	// +kubebuilder:validation:Enum="off";"quorum"
 	// Synchronous replication type. Note that the service plan also needs to support synchronous replication.
 	SynchronousReplication *string `groups:"create,update" json:"synchronous_replication,omitempty"`
 

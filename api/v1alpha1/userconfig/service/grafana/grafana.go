@@ -126,11 +126,11 @@ type AuthGitlab struct {
 	AllowedGroups []string `groups:"create,update" json:"allowed_groups"`
 
 	// +kubebuilder:validation:MaxLength=2048
-	// API URL. This only needs to be set when using self hosted GitLab
+	// This only needs to be set when using self hosted GitLab
 	ApiUrl *string `groups:"create,update" json:"api_url,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=2048
-	// Authorization URL. This only needs to be set when using self hosted GitLab
+	// This only needs to be set when using self hosted GitLab
 	AuthUrl *string `groups:"create,update" json:"auth_url,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=1024
@@ -144,7 +144,7 @@ type AuthGitlab struct {
 	ClientSecret string `groups:"create,update" json:"client_secret"`
 
 	// +kubebuilder:validation:MaxLength=2048
-	// Token URL. This only needs to be set when using self hosted GitLab
+	// This only needs to be set when using self hosted GitLab
 	TokenUrl *string `groups:"create,update" json:"token_url,omitempty"`
 }
 
@@ -223,7 +223,7 @@ type ExternalImageStorage struct {
 	BucketUrl string `groups:"create,update" json:"bucket_url"`
 
 	// +kubebuilder:validation:Enum="s3"
-	// Provider type
+	// External image store provider
 	Provider string `groups:"create,update" json:"provider"`
 
 	// +kubebuilder:validation:MaxLength=4096
@@ -290,7 +290,7 @@ type SmtpServer struct {
 	// Skip verifying server certificate. Defaults to false
 	SkipVerify *bool `groups:"create,update" json:"skip_verify,omitempty"`
 
-	// +kubebuilder:validation:Enum="OpportunisticStartTLS";"MandatoryStartTLS";"NoStartTLS"
+	// +kubebuilder:validation:Enum="MandatoryStartTLS";"NoStartTLS";"OpportunisticStartTLS"
 	// Either OpportunisticStartTLS, MandatoryStartTLS or NoStartTLS. Default is OpportunisticStartTLS.
 	StarttlsPolicy *string `groups:"create,update" json:"starttls_policy,omitempty"`
 
@@ -304,7 +304,7 @@ type GrafanaUserConfig struct {
 	// Additional Cloud Regions for Backup Replication
 	AdditionalBackupRegions []string `groups:"create,update" json:"additional_backup_regions,omitempty"`
 
-	// Enable or disable Grafana legacy alerting functionality. This should not be enabled with unified_alerting_enabled.
+	// DEPRECATED: setting has no effect with Grafana 11 and onward. Enable or disable Grafana legacy alerting functionality. This should not be enabled with unified_alerting_enabled.
 	AlertingEnabled *bool `groups:"create,update" json:"alerting_enabled,omitempty"`
 
 	// +kubebuilder:validation:Enum="alerting";"keep_state"
@@ -316,7 +316,7 @@ type GrafanaUserConfig struct {
 	// Max number of alert annotations that Grafana stores. 0 (default) keeps all alert annotations.
 	AlertingMaxAnnotationsToKeep *int `groups:"create,update" json:"alerting_max_annotations_to_keep,omitempty"`
 
-	// +kubebuilder:validation:Enum="alerting";"no_data";"keep_state";"ok"
+	// +kubebuilder:validation:Enum="alerting";"keep_state";"no_data";"ok"
 	// Default value for 'no data or null values' for new alerting rules
 	AlertingNodataOrNullvalues *string `groups:"create,update" json:"alerting_nodata_or_nullvalues,omitempty"`
 
@@ -341,7 +341,7 @@ type GrafanaUserConfig struct {
 	// Google Auth integration
 	AuthGoogle *AuthGoogle `groups:"create,update" json:"auth_google,omitempty"`
 
-	// +kubebuilder:validation:Enum="lax";"strict";"none"
+	// +kubebuilder:validation:Enum="lax";"none";"strict"
 	// Cookie SameSite attribute: 'strict' prevents sending cookie for cross-site requests, effectively disabling direct linking from other sites to Grafana. 'lax' is the default value.
 	CookieSamesite *string `groups:"create,update" json:"cookie_samesite,omitempty"`
 
@@ -349,7 +349,7 @@ type GrafanaUserConfig struct {
 	// Serve the web frontend using a custom CNAME pointing to the Aiven DNS name
 	CustomDomain *string `groups:"create,update" json:"custom_domain,omitempty"`
 
-	// This feature is new in Grafana 9 and is quite resource intensive. It may cause low-end plans to work more slowly while the dashboard previews are rendering.
+	// Enable browsing of dashboards in grid (pictures) mode. This feature is new in Grafana 9 and is quite resource intensive. It may cause low-end plans to work more slowly while the dashboard previews are rendering.
 	DashboardPreviewsEnabled *bool `groups:"create,update" json:"dashboard_previews_enabled,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=16
@@ -391,7 +391,7 @@ type GrafanaUserConfig struct {
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
 	IpFilter []*IpFilter `groups:"create,update" json:"ip_filter,omitempty"`
 
-	// Enable Grafana /metrics endpoint
+	// Enable Grafana's /metrics endpoint
 	MetricsEnabled *bool `groups:"create,update" json:"metrics_enabled,omitempty"`
 
 	// Enforce user lookup based on email instead of the unique ID provided by the IdP
@@ -432,13 +432,13 @@ type GrafanaUserConfig struct {
 	// Use static public IP addresses
 	StaticIps *bool `groups:"create,update" json:"static_ips,omitempty"`
 
-	// Enable or disable Grafana unified alerting functionality. By default this is enabled and any legacy alerts will be migrated on upgrade to Grafana 9+. To stay on legacy alerting, set unified_alerting_enabled to false and alerting_enabled to true. See https://grafana.com/docs/grafana/latest/alerting/set-up/migrating-alerts/ for more details.
+	// Enable or disable Grafana unified alerting functionality. By default this is enabled and any legacy alerts will be migrated on upgrade to Grafana 9+. To stay on legacy alerting, set unified_alerting_enabled to false and alerting_enabled to true. See https://grafana.com/docs/grafana/latest/alerting/ for more details.
 	UnifiedAlertingEnabled *bool `groups:"create,update" json:"unified_alerting_enabled,omitempty"`
 
 	// Auto-assign new users on signup to main organization. Defaults to false
 	UserAutoAssignOrg *bool `groups:"create,update" json:"user_auto_assign_org,omitempty"`
 
-	// +kubebuilder:validation:Enum="Viewer";"Admin";"Editor"
+	// +kubebuilder:validation:Enum="Admin";"Editor";"Viewer"
 	// Set role for new signups. Defaults to Viewer
 	UserAutoAssignOrgRole *string `groups:"create,update" json:"user_auto_assign_org_role,omitempty"`
 

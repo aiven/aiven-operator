@@ -4,7 +4,7 @@
 package externalschemaregistryuserconfig
 
 type ExternalSchemaRegistryUserConfig struct {
-	// +kubebuilder:validation:Enum="none";"basic"
+	// +kubebuilder:validation:Enum="basic";"none"
 	// Authentication method
 	Authentication string `groups:"create,update" json:"authentication"`
 

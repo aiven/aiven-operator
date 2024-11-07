@@ -18,28 +18,8 @@ title: "ServiceIntegration"
       project: aiven-project-name
       integrationType: autoscaler
       sourceServiceName: my-pg
-      # Specify autoscaler integration endpoint ID
-      destinationEndpointId: e8417f8c-513f-487a-9213-5a903a8e62d9
-    
-    ---
-    
-    apiVersion: aiven.io/v1alpha1
-    kind: ServiceIntegrationEndpoint
-    metadata:
-      name: my-service-integration-endpoint
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      project: aiven-project-name
-      endpointName: my-autoscaler
-      endpointType: autoscaler
-    
-      autoscaler:
-        autoscaling:
-          - type: autoscale_disk
-            cap_gb: 100
+      # Look up autoscaler integration endpoint ID via Console
+      destinationEndpointId: my-destination-endpoint-id
     
     ---
     
@@ -278,8 +258,8 @@ kubectl get serviceintegrations my-service-integration
 
 The output is similar to the following:
 ```shell
-Name                      Project               Type          Source Service Name    Destination Endpoint ID                 
-my-service-integration    aiven-project-name    autoscaler    my-pg                  e8417f8c-513f-487a-9213-5a903a8e62d9    
+Name                      Project               Type          Source Service Name    Destination Endpoint ID       
+my-service-integration    aiven-project-name    autoscaler    my-pg                  my-destination-endpoint-id    
 ```
 
 ## ServiceIntegration {: #ServiceIntegration }
@@ -354,14 +334,14 @@ Table to create.
 **Required**
 
 - [`columns`](#spec.clickhouseKafka.tables.columns-property){: name='spec.clickhouseKafka.tables.columns-property'} (array of objects, MaxItems: 100). Table columns. See below for [nested schema](#spec.clickhouseKafka.tables.columns).
-- [`data_format`](#spec.clickhouseKafka.tables.data_format-property){: name='spec.clickhouseKafka.tables.data_format-property'} (string, Enum: `Avro`, `CSV`, `JSONAsString`, `JSONCompactEachRow`, `JSONCompactStringsEachRow`, `JSONEachRow`, `JSONStringsEachRow`, `MsgPack`, `TSKV`, `TSV`, `TabSeparated`, `RawBLOB`, `AvroConfluent`, `Parquet`). Message data format.
+- [`data_format`](#spec.clickhouseKafka.tables.data_format-property){: name='spec.clickhouseKafka.tables.data_format-property'} (string, Enum: `Avro`, `AvroConfluent`, `CSV`, `JSONAsString`, `JSONCompactEachRow`, `JSONCompactStringsEachRow`, `JSONEachRow`, `JSONStringsEachRow`, `MsgPack`, `Parquet`, `RawBLOB`, `TSKV`, `TSV`, `TabSeparated`). Message data format.
 - [`group_name`](#spec.clickhouseKafka.tables.group_name-property){: name='spec.clickhouseKafka.tables.group_name-property'} (string, MinLength: 1, MaxLength: 249). Kafka consumers group.
 - [`name`](#spec.clickhouseKafka.tables.name-property){: name='spec.clickhouseKafka.tables.name-property'} (string, MinLength: 1, MaxLength: 40). Name of the table.
 - [`topics`](#spec.clickhouseKafka.tables.topics-property){: name='spec.clickhouseKafka.tables.topics-property'} (array of objects, MaxItems: 100). Kafka topics. See below for [nested schema](#spec.clickhouseKafka.tables.topics).
 
 **Optional**
 
-- [`auto_offset_reset`](#spec.clickhouseKafka.tables.auto_offset_reset-property){: name='spec.clickhouseKafka.tables.auto_offset_reset-property'} (string, Enum: `smallest`, `earliest`, `beginning`, `largest`, `latest`, `end`). Action to take when there is no initial offset in offset store or the desired offset is out of range.
+- [`auto_offset_reset`](#spec.clickhouseKafka.tables.auto_offset_reset-property){: name='spec.clickhouseKafka.tables.auto_offset_reset-property'} (string, Enum: `beginning`, `earliest`, `end`, `largest`, `latest`, `smallest`). Action to take when there is no initial offset in offset store or the desired offset is out of range.
 - [`date_time_input_format`](#spec.clickhouseKafka.tables.date_time_input_format-property){: name='spec.clickhouseKafka.tables.date_time_input_format-property'} (string, Enum: `basic`, `best_effort`, `best_effort_us`). Method to read DateTime from text input formats.
 - [`handle_error_mode`](#spec.clickhouseKafka.tables.handle_error_mode-property){: name='spec.clickhouseKafka.tables.handle_error_mode-property'} (string, Enum: `default`, `stream`). How to handle errors for Kafka engine.
 - [`max_block_size`](#spec.clickhouseKafka.tables.max_block_size-property){: name='spec.clickhouseKafka.tables.max_block_size-property'} (integer, Minimum: 0, Maximum: 1000000000). Number of row collected by poll(s) for flushing data from Kafka.
@@ -566,7 +546,7 @@ Kafka MirrorMaker configuration values.
 - [`consumer_max_poll_records`](#spec.kafkaMirrormaker.kafka_mirrormaker.consumer_max_poll_records-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker.consumer_max_poll_records-property'} (integer, Minimum: 100, Maximum: 20000). Set consumer max.poll.records. The default is 500.
 - [`producer_batch_size`](#spec.kafkaMirrormaker.kafka_mirrormaker.producer_batch_size-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker.producer_batch_size-property'} (integer, Minimum: 0, Maximum: 5242880). The batch size in bytes producer will attempt to collect before publishing to broker.
 - [`producer_buffer_memory`](#spec.kafkaMirrormaker.kafka_mirrormaker.producer_buffer_memory-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker.producer_buffer_memory-property'} (integer, Minimum: 5242880, Maximum: 134217728). The amount of bytes producer can use for buffering data before publishing to broker.
-- [`producer_compression_type`](#spec.kafkaMirrormaker.kafka_mirrormaker.producer_compression_type-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker.producer_compression_type-property'} (string, Enum: `gzip`, `snappy`, `lz4`, `zstd`, `none`). Specify the default compression type for producers. This configuration accepts the standard compression codecs (`gzip`, `snappy`, `lz4`, `zstd`). It additionally accepts `none` which is the default and equivalent to no compression.
+- [`producer_compression_type`](#spec.kafkaMirrormaker.kafka_mirrormaker.producer_compression_type-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker.producer_compression_type-property'} (string, Enum: `gzip`, `lz4`, `none`, `snappy`, `zstd`). Specify the default compression type for producers. This configuration accepts the standard compression codecs (`gzip`, `snappy`, `lz4`, `zstd`). It additionally accepts `none` which is the default and equivalent to no compression.
 - [`producer_linger_ms`](#spec.kafkaMirrormaker.kafka_mirrormaker.producer_linger_ms-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker.producer_linger_ms-property'} (integer, Minimum: 0, Maximum: 5000). The linger time (ms) for waiting new data to arrive for publishing.
 - [`producer_max_request_size`](#spec.kafkaMirrormaker.kafka_mirrormaker.producer_max_request_size-property){: name='spec.kafkaMirrormaker.kafka_mirrormaker.producer_max_request_size-property'} (integer, Minimum: 0, Maximum: 268435456). The maximum request size in bytes.
 
