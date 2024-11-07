@@ -202,10 +202,10 @@ Cassandra specific user configuration options.
 **Optional**
 
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.
-- [`alerting_enabled`](#spec.userConfig.alerting_enabled-property){: name='spec.userConfig.alerting_enabled-property'} (boolean). Enable or disable Grafana legacy alerting functionality. This should not be enabled with unified_alerting_enabled.
+- [`alerting_enabled`](#spec.userConfig.alerting_enabled-property){: name='spec.userConfig.alerting_enabled-property'} (boolean). DEPRECATED: setting has no effect with Grafana 11 and onward. Enable or disable Grafana legacy alerting functionality. This should not be enabled with unified_alerting_enabled.
 - [`alerting_error_or_timeout`](#spec.userConfig.alerting_error_or_timeout-property){: name='spec.userConfig.alerting_error_or_timeout-property'} (string, Enum: `alerting`, `keep_state`). Default error or timeout setting for new alerting rules.
 - [`alerting_max_annotations_to_keep`](#spec.userConfig.alerting_max_annotations_to_keep-property){: name='spec.userConfig.alerting_max_annotations_to_keep-property'} (integer, Minimum: 0, Maximum: 1000000). Max number of alert annotations that Grafana stores. 0 (default) keeps all alert annotations.
-- [`alerting_nodata_or_nullvalues`](#spec.userConfig.alerting_nodata_or_nullvalues-property){: name='spec.userConfig.alerting_nodata_or_nullvalues-property'} (string, Enum: `alerting`, `no_data`, `keep_state`, `ok`). Default value for 'no data or null values' for new alerting rules.
+- [`alerting_nodata_or_nullvalues`](#spec.userConfig.alerting_nodata_or_nullvalues-property){: name='spec.userConfig.alerting_nodata_or_nullvalues-property'} (string, Enum: `alerting`, `keep_state`, `no_data`, `ok`). Default value for 'no data or null values' for new alerting rules.
 - [`allow_embedding`](#spec.userConfig.allow_embedding-property){: name='spec.userConfig.allow_embedding-property'} (boolean). Allow embedding Grafana dashboards with iframe/frame/object/embed tags. Disabled by default to limit impact of clickjacking.
 - [`auth_azuread`](#spec.userConfig.auth_azuread-property){: name='spec.userConfig.auth_azuread-property'} (object). Azure AD OAuth integration. See below for [nested schema](#spec.userConfig.auth_azuread).
 - [`auth_basic_enabled`](#spec.userConfig.auth_basic_enabled-property){: name='spec.userConfig.auth_basic_enabled-property'} (boolean). Enable or disable basic authentication form, used by Grafana built-in login.
@@ -213,9 +213,9 @@ Cassandra specific user configuration options.
 - [`auth_github`](#spec.userConfig.auth_github-property){: name='spec.userConfig.auth_github-property'} (object). Github Auth integration. See below for [nested schema](#spec.userConfig.auth_github).
 - [`auth_gitlab`](#spec.userConfig.auth_gitlab-property){: name='spec.userConfig.auth_gitlab-property'} (object). GitLab Auth integration. See below for [nested schema](#spec.userConfig.auth_gitlab).
 - [`auth_google`](#spec.userConfig.auth_google-property){: name='spec.userConfig.auth_google-property'} (object). Google Auth integration. See below for [nested schema](#spec.userConfig.auth_google).
-- [`cookie_samesite`](#spec.userConfig.cookie_samesite-property){: name='spec.userConfig.cookie_samesite-property'} (string, Enum: `lax`, `strict`, `none`). Cookie SameSite attribute: `strict` prevents sending cookie for cross-site requests, effectively disabling direct linking from other sites to Grafana. `lax` is the default value.
+- [`cookie_samesite`](#spec.userConfig.cookie_samesite-property){: name='spec.userConfig.cookie_samesite-property'} (string, Enum: `lax`, `none`, `strict`). Cookie SameSite attribute: `strict` prevents sending cookie for cross-site requests, effectively disabling direct linking from other sites to Grafana. `lax` is the default value.
 - [`custom_domain`](#spec.userConfig.custom_domain-property){: name='spec.userConfig.custom_domain-property'} (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name.
-- [`dashboard_previews_enabled`](#spec.userConfig.dashboard_previews_enabled-property){: name='spec.userConfig.dashboard_previews_enabled-property'} (boolean). This feature is new in Grafana 9 and is quite resource intensive. It may cause low-end plans to work more slowly while the dashboard previews are rendering.
+- [`dashboard_previews_enabled`](#spec.userConfig.dashboard_previews_enabled-property){: name='spec.userConfig.dashboard_previews_enabled-property'} (boolean). Enable browsing of dashboards in grid (pictures) mode. This feature is new in Grafana 9 and is quite resource intensive. It may cause low-end plans to work more slowly while the dashboard previews are rendering.
 - [`dashboards_min_refresh_interval`](#spec.userConfig.dashboards_min_refresh_interval-property){: name='spec.userConfig.dashboards_min_refresh_interval-property'} (string, Pattern: `^[0-9]+(ms|s|m|h|d)$`, MaxLength: 16). Signed sequence of decimal numbers, followed by a unit suffix (ms, s, m, h, d), e.g. 30s, 1h.
 - [`dashboards_versions_to_keep`](#spec.userConfig.dashboards_versions_to_keep-property){: name='spec.userConfig.dashboards_versions_to_keep-property'} (integer, Minimum: 1, Maximum: 100). Dashboard versions to keep per dashboard.
 - [`dataproxy_send_user_header`](#spec.userConfig.dataproxy_send_user_header-property){: name='spec.userConfig.dataproxy_send_user_header-property'} (boolean). Send `X-Grafana-User` header to data source.
@@ -226,7 +226,7 @@ Cassandra specific user configuration options.
 - [`external_image_storage`](#spec.userConfig.external_image_storage-property){: name='spec.userConfig.external_image_storage-property'} (object). External image store settings. See below for [nested schema](#spec.userConfig.external_image_storage).
 - [`google_analytics_ua_id`](#spec.userConfig.google_analytics_ua_id-property){: name='spec.userConfig.google_analytics_ua_id-property'} (string, Pattern: `^(G|UA|YT|MO)-[a-zA-Z0-9-]+$`, MaxLength: 64). Google Analytics ID.
 - [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
-- [`metrics_enabled`](#spec.userConfig.metrics_enabled-property){: name='spec.userConfig.metrics_enabled-property'} (boolean). Enable Grafana /metrics endpoint.
+- [`metrics_enabled`](#spec.userConfig.metrics_enabled-property){: name='spec.userConfig.metrics_enabled-property'} (boolean). Enable Grafana's /metrics endpoint.
 - [`oauth_allow_insecure_email_lookup`](#spec.userConfig.oauth_allow_insecure_email_lookup-property){: name='spec.userConfig.oauth_allow_insecure_email_lookup-property'} (boolean). Enforce user lookup based on email instead of the unique ID provided by the IdP.
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
 - [`privatelink_access`](#spec.userConfig.privatelink_access-property){: name='spec.userConfig.privatelink_access-property'} (object). Allow access to selected service components through Privatelink. See below for [nested schema](#spec.userConfig.privatelink_access).
@@ -237,9 +237,9 @@ Cassandra specific user configuration options.
 - [`service_to_fork_from`](#spec.userConfig.service_to_fork_from-property){: name='spec.userConfig.service_to_fork_from-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]{0,63}$|^$`, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.
 - [`smtp_server`](#spec.userConfig.smtp_server-property){: name='spec.userConfig.smtp_server-property'} (object). SMTP server settings. See below for [nested schema](#spec.userConfig.smtp_server).
 - [`static_ips`](#spec.userConfig.static_ips-property){: name='spec.userConfig.static_ips-property'} (boolean). Use static public IP addresses.
-- [`unified_alerting_enabled`](#spec.userConfig.unified_alerting_enabled-property){: name='spec.userConfig.unified_alerting_enabled-property'} (boolean). Enable or disable Grafana unified alerting functionality. By default this is enabled and any legacy alerts will be migrated on upgrade to Grafana 9+. To stay on legacy alerting, set unified_alerting_enabled to false and alerting_enabled to true. See https://grafana.com/docs/grafana/latest/alerting/set-up/migrating-alerts/ for more details.
+- [`unified_alerting_enabled`](#spec.userConfig.unified_alerting_enabled-property){: name='spec.userConfig.unified_alerting_enabled-property'} (boolean). Enable or disable Grafana unified alerting functionality. By default this is enabled and any legacy alerts will be migrated on upgrade to Grafana 9+. To stay on legacy alerting, set unified_alerting_enabled to false and alerting_enabled to true. See https://grafana.com/docs/grafana/latest/alerting/ for more details.
 - [`user_auto_assign_org`](#spec.userConfig.user_auto_assign_org-property){: name='spec.userConfig.user_auto_assign_org-property'} (boolean). Auto-assign new users on signup to main organization. Defaults to false.
-- [`user_auto_assign_org_role`](#spec.userConfig.user_auto_assign_org_role-property){: name='spec.userConfig.user_auto_assign_org_role-property'} (string, Enum: `Viewer`, `Admin`, `Editor`). Set role for new signups. Defaults to Viewer.
+- [`user_auto_assign_org_role`](#spec.userConfig.user_auto_assign_org_role-property){: name='spec.userConfig.user_auto_assign_org_role-property'} (string, Enum: `Admin`, `Editor`, `Viewer`). Set role for new signups. Defaults to Viewer.
 - [`viewers_can_edit`](#spec.userConfig.viewers_can_edit-property){: name='spec.userConfig.viewers_can_edit-property'} (boolean). Users with view-only permission can edit but not save dashboards.
 - [`wal`](#spec.userConfig.wal-property){: name='spec.userConfig.wal-property'} (boolean). Setting to enable/disable Write-Ahead Logging. The default value is false (disabled).
 
@@ -320,9 +320,9 @@ GitLab Auth integration.
 **Optional**
 
 - [`allow_sign_up`](#spec.userConfig.auth_gitlab.allow_sign_up-property){: name='spec.userConfig.auth_gitlab.allow_sign_up-property'} (boolean). Automatically sign-up users on successful sign-in.
-- [`api_url`](#spec.userConfig.auth_gitlab.api_url-property){: name='spec.userConfig.auth_gitlab.api_url-property'} (string, MaxLength: 2048). API URL. This only needs to be set when using self hosted GitLab.
-- [`auth_url`](#spec.userConfig.auth_gitlab.auth_url-property){: name='spec.userConfig.auth_gitlab.auth_url-property'} (string, MaxLength: 2048). Authorization URL. This only needs to be set when using self hosted GitLab.
-- [`token_url`](#spec.userConfig.auth_gitlab.token_url-property){: name='spec.userConfig.auth_gitlab.token_url-property'} (string, MaxLength: 2048). Token URL. This only needs to be set when using self hosted GitLab.
+- [`api_url`](#spec.userConfig.auth_gitlab.api_url-property){: name='spec.userConfig.auth_gitlab.api_url-property'} (string, MaxLength: 2048). This only needs to be set when using self hosted GitLab.
+- [`auth_url`](#spec.userConfig.auth_gitlab.auth_url-property){: name='spec.userConfig.auth_gitlab.auth_url-property'} (string, MaxLength: 2048). This only needs to be set when using self hosted GitLab.
+- [`token_url`](#spec.userConfig.auth_gitlab.token_url-property){: name='spec.userConfig.auth_gitlab.token_url-property'} (string, MaxLength: 2048). This only needs to be set when using self hosted GitLab.
 
 ### auth_google {: #spec.userConfig.auth_google }
 
@@ -367,7 +367,7 @@ External image store settings.
 
 - [`access_key`](#spec.userConfig.external_image_storage.access_key-property){: name='spec.userConfig.external_image_storage.access_key-property'} (string, Pattern: `^[A-Z0-9]+$`, MaxLength: 4096). S3 access key. Requires permissions to the S3 bucket for the s3:PutObject and s3:PutObjectAcl actions.
 - [`bucket_url`](#spec.userConfig.external_image_storage.bucket_url-property){: name='spec.userConfig.external_image_storage.bucket_url-property'} (string, MaxLength: 2048). Bucket URL for S3.
-- [`provider`](#spec.userConfig.external_image_storage.provider-property){: name='spec.userConfig.external_image_storage.provider-property'} (string, Enum: `s3`). Provider type.
+- [`provider`](#spec.userConfig.external_image_storage.provider-property){: name='spec.userConfig.external_image_storage.provider-property'} (string, Enum: `s3`). External image store provider.
 - [`secret_key`](#spec.userConfig.external_image_storage.secret_key-property){: name='spec.userConfig.external_image_storage.secret_key-property'} (string, Pattern: `^[A-Za-z0-9/+=]+$`, MaxLength: 4096). S3 secret key.
 
 ### ip_filter {: #spec.userConfig.ip_filter }
@@ -431,5 +431,5 @@ SMTP server settings.
 - [`from_name`](#spec.userConfig.smtp_server.from_name-property){: name='spec.userConfig.smtp_server.from_name-property'} (string, Pattern: `^[^\x00-\x1F]+$`, MaxLength: 128). Name used in outgoing emails, defaults to Grafana.
 - [`password`](#spec.userConfig.smtp_server.password-property){: name='spec.userConfig.smtp_server.password-property'} (string, Pattern: `^[^\x00-\x1F]+$`, MaxLength: 255). Password for SMTP authentication.
 - [`skip_verify`](#spec.userConfig.smtp_server.skip_verify-property){: name='spec.userConfig.smtp_server.skip_verify-property'} (boolean). Skip verifying server certificate. Defaults to false.
-- [`starttls_policy`](#spec.userConfig.smtp_server.starttls_policy-property){: name='spec.userConfig.smtp_server.starttls_policy-property'} (string, Enum: `OpportunisticStartTLS`, `MandatoryStartTLS`, `NoStartTLS`). Either OpportunisticStartTLS, MandatoryStartTLS or NoStartTLS. Default is OpportunisticStartTLS.
+- [`starttls_policy`](#spec.userConfig.smtp_server.starttls_policy-property){: name='spec.userConfig.smtp_server.starttls_policy-property'} (string, Enum: `MandatoryStartTLS`, `NoStartTLS`, `OpportunisticStartTLS`). Either OpportunisticStartTLS, MandatoryStartTLS or NoStartTLS. Default is OpportunisticStartTLS.
 - [`username`](#spec.userConfig.smtp_server.username-property){: name='spec.userConfig.smtp_server.username-property'} (string, Pattern: `^[^\x00-\x1F]+$`, MaxLength: 255). Username for SMTP authentication.

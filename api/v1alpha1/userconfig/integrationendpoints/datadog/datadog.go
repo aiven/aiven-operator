@@ -43,7 +43,7 @@ type DatadogUserConfig struct {
 	// Maximum number of partition contexts to send
 	MaxPartitionContexts *int `groups:"create,update" json:"max_partition_contexts,omitempty"`
 
-	// +kubebuilder:validation:Enum="datadoghq.com";"datadoghq.eu";"us3.datadoghq.com";"us5.datadoghq.com";"ddog-gov.com";"ap1.datadoghq.com"
+	// +kubebuilder:validation:Enum="ap1.datadoghq.com";"datadoghq.com";"datadoghq.eu";"ddog-gov.com";"us3.datadoghq.com";"us5.datadoghq.com"
 	// Datadog intake site. Defaults to datadoghq.com
 	Site *string `groups:"create,update" json:"site,omitempty"`
 }

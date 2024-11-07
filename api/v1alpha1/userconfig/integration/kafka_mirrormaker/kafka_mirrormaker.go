@@ -29,7 +29,7 @@ type KafkaMirrormaker struct {
 	// The amount of bytes producer can use for buffering data before publishing to broker.
 	ProducerBufferMemory *int `groups:"create,update" json:"producer_buffer_memory,omitempty"`
 
-	// +kubebuilder:validation:Enum="gzip";"snappy";"lz4";"zstd";"none"
+	// +kubebuilder:validation:Enum="gzip";"lz4";"none";"snappy";"zstd"
 	// Specify the default compression type for producers. This configuration accepts the standard compression codecs ('gzip', 'snappy', 'lz4', 'zstd'). It additionally accepts 'none' which is the default and equivalent to no compression.
 	ProducerCompressionType *string `groups:"create,update" json:"producer_compression_type,omitempty"`
 

@@ -54,7 +54,7 @@ spec:
                 description: Cloud the service runs in.
                 maxLength: 256
                 type: string
-                enum: [foo, bar, baz]
+                enum: [bar, baz]
                 minimum: 3.0
                 maximum: 4.0
               disk_space:
@@ -76,8 +76,8 @@ func TestGenChangelog(t *testing.T) {
 
 	expect := []changelog{
 		{title: "Add `Kafka` field `disk_space`, type `string`", value: "The disk space of the service"},
-		{title: "Change `Kafka` field `cloudName`", value: "enum ~~`[bar, foo]`~~ → `[bar, baz, foo]`, maxLength ~~`120`~~ → `256`, maximum ~~`2`~~ → `4`, minimum ~~`1`~~ → `3`"},
-		{title: "Change `Kafka` field `topic_name`", value: "enum `[bar, baz, foo]`, format ~~`^[1-9]*(GiB|G)*`~~ → `^[1-9][0-9]*(GiB|G)*`, maxLength ~~`111`~~ → `249`, maximum `1000000`, minLength `1`, minimum `1`"},
+		{title: "Change `Kafka` field `cloudName`", value: "enum add `baz`, remove `foo`, maxLength ~~`120`~~ → `256`, maximum ~~`2`~~ → `4`, minimum ~~`1`~~ → `3`"},
+		{title: "Change `Kafka` field `topic_name`", value: "enum add `bar`, `baz`, `foo`, format ~~`^[1-9]*(GiB|G)*`~~ → `^[1-9][0-9]*(GiB|G)*`, maxLength ~~`111`~~ → `249`, maximum `1000000`, minLength `1`, minimum `1`"},
 		{title: "Remove `Kafka` field `karapace`, type `boolean`", value: "Switch the service to use Karapace for schema registry and REST proxy"},
 	}
 
@@ -149,6 +149,40 @@ func TestAddChanges(t *testing.T) {
 		t.Run(opt.name, func(t *testing.T) {
 			actual := addChanges([]byte(opt.source), changes)
 			assert.Equal(t, opt.expect, actual)
+		})
+	}
+}
+
+func TestCmpList(t *testing.T) {
+	cases := []struct {
+		was, have []string
+		expect    string
+	}{
+		{
+			was:    []string{"a", "b", "c"},
+			have:   []string{"a", "b", "c"},
+			expect: "",
+		},
+		{
+			was:    []string{"a", "b", "c"},
+			have:   []string{"a", "b", "c", "d", "f"},
+			expect: "add `d`, `f`",
+		},
+		{
+			was:    []string{"a", "b", "c"},
+			have:   []string{"a", "c"},
+			expect: "remove `b`",
+		},
+		{
+			was:    []string{"a", "b", "c", "f"},
+			have:   []string{"a", "b", "c", "d"},
+			expect: "add `d`, remove `f`",
+		},
+	}
+
+	for _, opt := range cases {
+		t.Run(opt.expect, func(t *testing.T) {
+			assert.Equal(t, opt.expect, cmpList(opt.was, opt.have))
 		})
 	}
 }

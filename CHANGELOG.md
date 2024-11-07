@@ -42,6 +42,13 @@
   aliases alongside their associated indexes. Default is true
 - Add `ServiceIntegration` field `autoscaler`, type `object`: Autoscaler specific user configuration options
 - Add `ServiceIntegrationEndpoint` field `autoscaler`, type `object`: Autoscaler configuration values
+- Change `Grafana` field `userConfig.alerting_enabled`: deprecated
+- Change `OpenSearch` field `userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.allowed_tries`:
+  minimum ~~`0`~~ → `1`
+- Change `OpenSearch` field `userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.block_expiry_seconds`:
+  minimum ~~`1`~~ → `0`
+- Change `OpenSearch` field `userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.time_window_seconds`:
+  minimum ~~`1`~~ → `0`
 
 ## v0.25.0 - 2024-09-19
 

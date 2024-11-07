@@ -519,16 +519,16 @@ spec:
                             Controls the amount of detail written in the
                             server log for each message that is logged.
                           enum:
-                            - TERSE
                             - DEFAULT
+                            - TERSE
                             - VERBOSE
                           type: string
                         log_line_prefix:
                           description: Choose from one of the available log formats.
                           enum:
-                            - "'pid=%p,user=%u,db=%d,app=%a,client=%h '"
-                            - "'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '"
                             - "'%m [%p] %q[user=%u,db=%d,app=%a] '"
+                            - "'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '"
+                            - "'pid=%p,user=%u,db=%d,app=%a,client=%h '"
                             - "'pid=%p,user=%u,db=%d,app=%a,client=%h,txid=%x,qid=%Q
                               '"
                           type: string
@@ -660,8 +660,8 @@ spec:
                             statement statistics collection. The default value is top.
                           enum:
                             - all
-                            - top
                             - none
+                            - top
                           type: string
                         temp_file_limit:
                           description:
@@ -694,8 +694,8 @@ spec:
                             time used.
                           enum:
                             - all
-                            - pl
                             - none
+                            - pl
                           type: string
                         track_io_timing:
                           description:
@@ -898,8 +898,8 @@ spec:
                           description: PGBouncer pool mode
                           enum:
                             - session
-                            - transaction
                             - statement
+                            - transaction
                           type: string
                         autodb_pool_size:
                           description:
@@ -1081,8 +1081,8 @@ spec:
                         Synchronous replication type. Note that the service
                         plan also needs to support synchronous replication.
                       enum:
-                        - quorum
                         - "off"
+                        - quorum
                       type: string
                     timescaledb:
                       description: System-wide settings for the timescaledb extension

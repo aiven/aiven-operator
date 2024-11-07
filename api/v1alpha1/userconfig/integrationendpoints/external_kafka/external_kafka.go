@@ -23,7 +23,7 @@ type ExternalKafkaUserConfig struct {
 	// Username for SASL PLAIN mechanism in the Kafka server.
 	SaslPlainUsername *string `groups:"create,update" json:"sasl_plain_username,omitempty"`
 
-	// +kubebuilder:validation:Enum="PLAINTEXT";"SSL";"SASL_PLAINTEXT";"SASL_SSL"
+	// +kubebuilder:validation:Enum="PLAINTEXT";"SASL_PLAINTEXT";"SASL_SSL";"SSL"
 	// Security protocol
 	SecurityProtocol string `groups:"create,update" json:"security_protocol"`
 

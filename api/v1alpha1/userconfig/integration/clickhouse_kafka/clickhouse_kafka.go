@@ -26,7 +26,7 @@ type Topics struct {
 
 // Table to create
 type Tables struct {
-	// +kubebuilder:validation:Enum="smallest";"earliest";"beginning";"largest";"latest";"end"
+	// +kubebuilder:validation:Enum="beginning";"earliest";"end";"largest";"latest";"smallest"
 	// Action to take when there is no initial offset in offset store or the desired offset is out of range
 	AutoOffsetReset *string `groups:"create,update" json:"auto_offset_reset,omitempty"`
 
@@ -34,7 +34,7 @@ type Tables struct {
 	// Table columns
 	Columns []*Columns `groups:"create,update" json:"columns"`
 
-	// +kubebuilder:validation:Enum="Avro";"CSV";"JSONAsString";"JSONCompactEachRow";"JSONCompactStringsEachRow";"JSONEachRow";"JSONStringsEachRow";"MsgPack";"TSKV";"TSV";"TabSeparated";"RawBLOB";"AvroConfluent";"Parquet"
+	// +kubebuilder:validation:Enum="Avro";"AvroConfluent";"CSV";"JSONAsString";"JSONCompactEachRow";"JSONCompactStringsEachRow";"JSONEachRow";"JSONStringsEachRow";"MsgPack";"Parquet";"RawBLOB";"TSKV";"TSV";"TabSeparated"
 	// Message data format
 	DataFormat string `groups:"create,update" json:"data_format"`
 

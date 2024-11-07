@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"golang.org/x/exp/constraints"
+	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 	"gopkg.in/yaml.v3"
 )
@@ -163,15 +164,18 @@ func fmtChanges(was, has *schema) string {
 	changes[fmtChange("maxLength", was.MaxLength, has.MaxLength)] = true
 	changes[fmtChange("minimum", was.Minimum, has.Minimum)] = true
 	changes[fmtChange("maximum", was.Maximum, has.Maximum)] = true
-	changes[fmtChange("enum", &was.Enum, &has.Enum)] = true
 	changes[fmtChange("immutable", hasRule(was, immutableRule), hasRule(has, immutableRule))] = true
+
+	if c := cmpList(was.Enum, has.Enum); c != "" {
+		changes["enum "+c] = true
+	}
 
 	if !isDeprecated(was.Description) && isDeprecated(has.Description) {
 		changes[deprecatedMark] = true
 	}
 
 	delete(changes, "")
-	return strings.Join(sortedKeys(changes), ", ")
+	return joinSorted(maps.Keys(changes))
 }
 
 // fmtChange returns a string like: foo ~~`0`~~ → `1` or empty string
@@ -210,8 +214,7 @@ func strSlice(src []any) string {
 	for i, v := range src {
 		result[i] = fmt.Sprint(v)
 	}
-	slices.Sort(result)
-	s := strings.Join(result, ", ")
+	s := joinSorted(result)
 	if s != "" {
 		s = fmt.Sprintf("[%s]", s)
 	}
@@ -405,4 +408,47 @@ func hasRule(s *schema, rule string) *bool {
 		}
 	}
 	return nil
+}
+
+func cmpList[T any](was, have []T) string {
+	const (
+		remove int = 1 << iota
+		add
+	)
+
+	seen := make(map[string]int)
+	for _, v := range was {
+		seen[fmt.Sprintf("`%v`", v)] = remove
+	}
+
+	for _, v := range have {
+		k := fmt.Sprintf("`%v`", v)
+		seen[k] = seen[k] | add
+	}
+
+	var added, removed []string
+	for k, v := range seen {
+		switch v {
+		case add:
+			added = append(added, k)
+		case remove:
+			removed = append(removed, k)
+		}
+	}
+
+	result := make([]string, 0)
+	if s := joinSorted(added); s != "" {
+		result = append(result, "add "+s)
+	}
+
+	if s := joinSorted(removed); s != "" {
+		result = append(result, "remove "+s)
+	}
+
+	return joinSorted(result)
+}
+
+func joinSorted(args []string) string {
+	sort.Strings(args)
+	return strings.Join(args, ", ")
 }
