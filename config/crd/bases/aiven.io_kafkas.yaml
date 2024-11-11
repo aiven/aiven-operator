@@ -1000,8 +1000,6 @@ spec:
                     kafka_version:
                       description: Kafka major version
                       enum:
-                        - "3.5"
-                        - "3.6"
                         - "3.7"
                         - "3.8"
                       type: string

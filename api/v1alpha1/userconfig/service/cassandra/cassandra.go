@@ -71,7 +71,7 @@ type CassandraUserConfig struct {
 	Cassandra *Cassandra `groups:"create,update" json:"cassandra,omitempty"`
 
 	// +kubebuilder:validation:Pattern=`^[0-9]+(\.[0-9]+)?$`
-	// +kubebuilder:validation:Enum="4";"4.1"
+	// +kubebuilder:validation:Enum="4.1"
 	// Cassandra version
 	CassandraVersion *string `groups:"create,update" json:"cassandra_version,omitempty"`
 
