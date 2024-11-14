@@ -56,7 +56,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 	}
 
 	diskSpace := v1alpha1.ConvertDiskSpace(o.getDiskSpace())
-	if diskSpace > 0 {
+	if diskSpace > 0 && exists {
 		for _, v := range oldService.ServiceIntegrations {
 			if v.IntegrationType == service.IntegrationTypeAutoscaler {
 				return fmt.Errorf("cannot set disk space for service with autoscaler integration enabled")
