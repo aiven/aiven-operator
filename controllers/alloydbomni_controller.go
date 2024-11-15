@@ -15,6 +15,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
+	alloydbomniUtils "github.com/aiven/aiven-operator/utils/alloydbomni"
 )
 
 // AlloyDBOmniReconciler reconciles a AlloyDBOmni object
