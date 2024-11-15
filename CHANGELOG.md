@@ -24,6 +24,7 @@
 - Change `Valkey` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
 - Add `Valkey` field `userConfig.frequent_snapshots`, type `boolean`: When enabled, Valkey will create
   frequent local RDB snapshots
+- Add kind: `AlloyDBOmni`
 
 ## v0.27.0 - 2025-01-16
 

@@ -4,6 +4,7 @@ timeout: 9999
 startKIND: true
 crdDir: config/crd/bases
 testDirs:
+  - test/e2e/alloydbomni
   - test/e2e/kafka
   - test/e2e/kafka-topic
   - test/e2e/kafka-connector
