@@ -16,6 +16,18 @@ resources:
     namespaced: true
   controller: true
   domain: aiven.io
+  kind: AlloyDBOmni
+  path: github.com/aiven/aiven-operator/api/v1alpha1
+  version: v1alpha1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
   kind: Clickhouse
   path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
