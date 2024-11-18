@@ -54,11 +54,6 @@ func (in *AzureMigration) DeepCopyInto(out *AzureMigration) {
 		*out = new(bool)
 		**out = **in
 	}
-	if in.Indices != nil {
-		in, out := &in.Indices, &out.Indices
-		*out = new(string)
-		**out = **in
-	}
 	if in.Key != nil {
 		in, out := &in.Key, &out.Key
 		*out = new(string)
@@ -102,11 +97,6 @@ func (in *GcsMigration) DeepCopyInto(out *GcsMigration) {
 	if in.IncludeAliases != nil {
 		in, out := &in.IncludeAliases, &out.IncludeAliases
 		*out = new(bool)
-		**out = **in
-	}
-	if in.Indices != nil {
-		in, out := &in.Indices, &out.Indices
-		*out = new(string)
 		**out = **in
 	}
 	if in.RestoreGlobalState != nil {
@@ -1029,11 +1019,6 @@ func (in *S3Migration) DeepCopyInto(out *S3Migration) {
 	if in.IncludeAliases != nil {
 		in, out := &in.IncludeAliases, &out.IncludeAliases
 		*out = new(bool)
-		**out = **in
-	}
-	if in.Indices != nil {
-		in, out := &in.Indices, &out.Indices
-		*out = new(string)
 		**out = **in
 	}
 	if in.RestoreGlobalState != nil {

@@ -13,7 +13,7 @@
   enabled, causes the Karapace schema-registry service to shutdown when there are invalid schema records
   in the `_schemas` topic
 - Add `Kafka` field `userConfig.single_zone`, type `object`: Single-zone configuration
-- Change `Kafka` field `userConfig.kafka_version`: enum ~~`[3.4, 3.5, 3.6, 3.7]`~~ → `[3.5, 3.6, 3.7, 3.8]`
+- Change `Kafka` field `userConfig.kafka_version`: enum remove `3.5`, `3.6`
 - Add `MySQL` field `userConfig.mysql.log_output`, type `string`: The slow log output destination when
   slow_query_log is ON
 - Add `OpenSearch` field `userConfig.azure_migration.indices`, type `string`: A comma-delimited list
@@ -49,6 +49,8 @@
   minimum ~~`1`~~ → `0`
 - Change `OpenSearch` field `userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.time_window_seconds`:
   minimum ~~`1`~~ → `0`
+- Change `Cassandra` field `userConfig.cassandra_version`: enum remove `4`
+- Change `PostgreSQL` field `userConfig.pg_version`: enum remove `12`
 
 ## v0.25.0 - 2024-09-19
 
