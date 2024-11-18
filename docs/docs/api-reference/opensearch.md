@@ -195,7 +195,7 @@ OpenSearch specific user configuration options.
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.
 - [`azure_migration`](#spec.userConfig.azure_migration-property){: name='spec.userConfig.azure_migration-property'} (object). Azure migration settings. See below for [nested schema](#spec.userConfig.azure_migration).
 - [`custom_domain`](#spec.userConfig.custom_domain-property){: name='spec.userConfig.custom_domain-property'} (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name.
-- [`disable_replication_factor_adjustment`](#spec.userConfig.disable_replication_factor_adjustment-property){: name='spec.userConfig.disable_replication_factor_adjustment-property'} (boolean). DEPRECATED: Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can no longer be activated.
+- [`disable_replication_factor_adjustment`](#spec.userConfig.disable_replication_factor_adjustment-property){: name='spec.userConfig.disable_replication_factor_adjustment-property'} (boolean). Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can not be activated unless specifically allowed for the project.
 - [`gcs_migration`](#spec.userConfig.gcs_migration-property){: name='spec.userConfig.gcs_migration-property'} (object). Google Cloud Storage migration settings. See below for [nested schema](#spec.userConfig.gcs_migration).
 - [`index_patterns`](#spec.userConfig.index_patterns-property){: name='spec.userConfig.index_patterns-property'} (array of objects, MaxItems: 512). Index patterns. See below for [nested schema](#spec.userConfig.index_patterns).
 - [`index_rollup`](#spec.userConfig.index_rollup-property){: name='spec.userConfig.index_rollup-property'} (object). Index rollup settings. See below for [nested schema](#spec.userConfig.index_rollup).
@@ -229,6 +229,7 @@ Azure migration settings.
 - [`account`](#spec.userConfig.azure_migration.account-property){: name='spec.userConfig.azure_migration.account-property'} (string, Pattern: `^[^\r\n]*$`). Azure account name.
 - [`base_path`](#spec.userConfig.azure_migration.base_path-property){: name='spec.userConfig.azure_migration.base_path-property'} (string, Pattern: `^[^\r\n]*$`). The path to the repository data within its container. The value of this setting should not start or end with a /.
 - [`container`](#spec.userConfig.azure_migration.container-property){: name='spec.userConfig.azure_migration.container-property'} (string, Pattern: `^[^\r\n]*$`). Azure container name.
+- [`indices`](#spec.userConfig.azure_migration.indices-property){: name='spec.userConfig.azure_migration.indices-property'} (string). A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported.
 - [`snapshot_name`](#spec.userConfig.azure_migration.snapshot_name-property){: name='spec.userConfig.azure_migration.snapshot_name-property'} (string, Pattern: `^[^\r\n]*$`). The snapshot name to restore from.
 
 **Optional**
@@ -237,7 +238,6 @@ Azure migration settings.
 - [`compress`](#spec.userConfig.azure_migration.compress-property){: name='spec.userConfig.azure_migration.compress-property'} (boolean). when set to true metadata files are stored in compressed format.
 - [`endpoint_suffix`](#spec.userConfig.azure_migration.endpoint_suffix-property){: name='spec.userConfig.azure_migration.endpoint_suffix-property'} (string, Pattern: `^[^\r\n]*$`). Defines the DNS suffix for Azure Storage endpoints.
 - [`include_aliases`](#spec.userConfig.azure_migration.include_aliases-property){: name='spec.userConfig.azure_migration.include_aliases-property'} (boolean). Whether to restore aliases alongside their associated indexes. Default is true.
-- [`indices`](#spec.userConfig.azure_migration.indices-property){: name='spec.userConfig.azure_migration.indices-property'} (string). A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.
 - [`key`](#spec.userConfig.azure_migration.key-property){: name='spec.userConfig.azure_migration.key-property'} (string, Pattern: `^[^\r\n]*$`). Azure account secret key. One of key or sas_token should be specified.
 - [`restore_global_state`](#spec.userConfig.azure_migration.restore_global_state-property){: name='spec.userConfig.azure_migration.restore_global_state-property'} (boolean). If true, restore the cluster state. Defaults to false.
 - [`sas_token`](#spec.userConfig.azure_migration.sas_token-property){: name='spec.userConfig.azure_migration.sas_token-property'} (string, Pattern: `^[^\r\n]*$`). A shared access signatures (SAS) token. One of key or sas_token should be specified.
@@ -253,6 +253,7 @@ Google Cloud Storage migration settings.
 - [`base_path`](#spec.userConfig.gcs_migration.base_path-property){: name='spec.userConfig.gcs_migration.base_path-property'} (string, Pattern: `^[^\r\n]*$`). The path to the repository data within its container. The value of this setting should not start or end with a /.
 - [`bucket`](#spec.userConfig.gcs_migration.bucket-property){: name='spec.userConfig.gcs_migration.bucket-property'} (string, Pattern: `^[^\r\n]*$`). The path to the repository data within its container.
 - [`credentials`](#spec.userConfig.gcs_migration.credentials-property){: name='spec.userConfig.gcs_migration.credentials-property'} (string, Pattern: `^[^\r\n]*$`). Google Cloud Storage credentials file content.
+- [`indices`](#spec.userConfig.gcs_migration.indices-property){: name='spec.userConfig.gcs_migration.indices-property'} (string). A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported.
 - [`snapshot_name`](#spec.userConfig.gcs_migration.snapshot_name-property){: name='spec.userConfig.gcs_migration.snapshot_name-property'} (string, Pattern: `^[^\r\n]*$`). The snapshot name to restore from.
 
 **Optional**
@@ -260,7 +261,6 @@ Google Cloud Storage migration settings.
 - [`chunk_size`](#spec.userConfig.gcs_migration.chunk_size-property){: name='spec.userConfig.gcs_migration.chunk_size-property'} (string, Pattern: `^[^\r\n]*$`). Big files can be broken down into chunks during snapshotting if needed. Should be the same as for the 3rd party repository.
 - [`compress`](#spec.userConfig.gcs_migration.compress-property){: name='spec.userConfig.gcs_migration.compress-property'} (boolean). when set to true metadata files are stored in compressed format.
 - [`include_aliases`](#spec.userConfig.gcs_migration.include_aliases-property){: name='spec.userConfig.gcs_migration.include_aliases-property'} (boolean). Whether to restore aliases alongside their associated indexes. Default is true.
-- [`indices`](#spec.userConfig.gcs_migration.indices-property){: name='spec.userConfig.gcs_migration.indices-property'} (string). A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.
 - [`restore_global_state`](#spec.userConfig.gcs_migration.restore_global_state-property){: name='spec.userConfig.gcs_migration.restore_global_state-property'} (boolean). If true, restore the cluster state. Defaults to false.
 
 ### index_patterns {: #spec.userConfig.index_patterns }
@@ -609,6 +609,7 @@ AWS S3 / AWS S3 compatible migration settings.
 - [`access_key`](#spec.userConfig.s3_migration.access_key-property){: name='spec.userConfig.s3_migration.access_key-property'} (string, Pattern: `^[^\r\n]*$`). AWS Access key.
 - [`base_path`](#spec.userConfig.s3_migration.base_path-property){: name='spec.userConfig.s3_migration.base_path-property'} (string, Pattern: `^[^\r\n]*$`). The path to the repository data within its container. The value of this setting should not start or end with a /.
 - [`bucket`](#spec.userConfig.s3_migration.bucket-property){: name='spec.userConfig.s3_migration.bucket-property'} (string, Pattern: `^[^\r\n]*$`). S3 bucket name.
+- [`indices`](#spec.userConfig.s3_migration.indices-property){: name='spec.userConfig.s3_migration.indices-property'} (string). A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported.
 - [`region`](#spec.userConfig.s3_migration.region-property){: name='spec.userConfig.s3_migration.region-property'} (string, Pattern: `^[^\r\n]*$`). S3 region.
 - [`secret_key`](#spec.userConfig.s3_migration.secret_key-property){: name='spec.userConfig.s3_migration.secret_key-property'} (string, Pattern: `^[^\r\n]*$`). AWS secret key.
 - [`snapshot_name`](#spec.userConfig.s3_migration.snapshot_name-property){: name='spec.userConfig.s3_migration.snapshot_name-property'} (string, Pattern: `^[^\r\n]*$`). The snapshot name to restore from.
@@ -619,7 +620,6 @@ AWS S3 / AWS S3 compatible migration settings.
 - [`compress`](#spec.userConfig.s3_migration.compress-property){: name='spec.userConfig.s3_migration.compress-property'} (boolean). when set to true metadata files are stored in compressed format.
 - [`endpoint`](#spec.userConfig.s3_migration.endpoint-property){: name='spec.userConfig.s3_migration.endpoint-property'} (string, Pattern: `^[^\r\n]*$`). The S3 service endpoint to connect to. If you are using an S3-compatible service then you should set this to the service’s endpoint.
 - [`include_aliases`](#spec.userConfig.s3_migration.include_aliases-property){: name='spec.userConfig.s3_migration.include_aliases-property'} (boolean). Whether to restore aliases alongside their associated indexes. Default is true.
-- [`indices`](#spec.userConfig.s3_migration.indices-property){: name='spec.userConfig.s3_migration.indices-property'} (string). A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.
 - [`restore_global_state`](#spec.userConfig.s3_migration.restore_global_state-property){: name='spec.userConfig.s3_migration.restore_global_state-property'} (boolean). If true, restore the cluster state. Defaults to false.
 - [`server_side_encryption`](#spec.userConfig.s3_migration.server_side_encryption-property){: name='spec.userConfig.s3_migration.server_side_encryption-property'} (boolean). When set to true files are encrypted on server side.
 

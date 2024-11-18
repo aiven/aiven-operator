@@ -32,8 +32,8 @@ type AzureMigration struct {
 	IncludeAliases *bool `groups:"create,update" json:"include_aliases,omitempty"`
 
 	// +kubebuilder:validation:Pattern=`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`
-	// A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.
-	Indices *string `groups:"create,update" json:"indices,omitempty"`
+	// A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported.
+	Indices string `groups:"create,update" json:"indices"`
 
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// Azure account secret key. One of key or sas_token should be specified
@@ -76,8 +76,8 @@ type GcsMigration struct {
 	IncludeAliases *bool `groups:"create,update" json:"include_aliases,omitempty"`
 
 	// +kubebuilder:validation:Pattern=`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`
-	// A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.
-	Indices *string `groups:"create,update" json:"indices,omitempty"`
+	// A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported.
+	Indices string `groups:"create,update" json:"indices"`
 
 	// If true, restore the cluster state. Defaults to false
 	RestoreGlobalState *bool `groups:"create,update" json:"restore_global_state,omitempty"`
@@ -750,8 +750,8 @@ type S3Migration struct {
 	IncludeAliases *bool `groups:"create,update" json:"include_aliases,omitempty"`
 
 	// +kubebuilder:validation:Pattern=`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`
-	// A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported. By default, a restore operation includes all data streams and indices in the snapshot. If this argument is provided, the restore operation only includes the data streams and indices that you specify.
-	Indices *string `groups:"create,update" json:"indices,omitempty"`
+	// A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported.
+	Indices string `groups:"create,update" json:"indices"`
 
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// S3 region
@@ -823,7 +823,7 @@ type OpensearchUserConfig struct {
 	// Serve the web frontend using a custom CNAME pointing to the Aiven DNS name
 	CustomDomain *string `groups:"create,update" json:"custom_domain,omitempty"`
 
-	// DEPRECATED: Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can no longer be activated.
+	// Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can not be activated unless specifically allowed for the project.
 	DisableReplicationFactorAdjustment *bool `groups:"create,update" json:"disable_replication_factor_adjustment,omitempty"`
 
 	// Google Cloud Storage migration settings
