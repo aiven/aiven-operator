@@ -16,6 +16,9 @@ func SetupWebhooks(mgr ctrl.Manager) error {
 	if err := (&Database{}).SetupWebhookWithManager(mgr); err != nil {
 		return fmt.Errorf("webhook Database: %w", err)
 	}
+	if err := (&Flink{}).SetupWebhookWithManager(mgr); err != nil {
+		return fmt.Errorf("webhook Flink: %w", err)
+	}
 	if err := (&ConnectionPool{}).SetupWebhookWithManager(mgr); err != nil {
 		return fmt.Errorf("webhook ConnectionPool: %w", err)
 	}
