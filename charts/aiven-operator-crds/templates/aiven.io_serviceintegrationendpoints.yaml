@@ -75,7 +75,7 @@ spec:
                     autoscaling:
                       description: Configure autoscaling thresholds for a service
                       items:
-                        description: AutoscalingProperties
+                        description: Autoscaling properties for a service
                         properties:
                           cap_gb:
                             description:

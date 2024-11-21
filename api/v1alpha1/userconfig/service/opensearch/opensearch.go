@@ -6,7 +6,7 @@ package opensearchuserconfig
 // Azure migration settings
 type AzureMigration struct {
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
-	// Azure account name
+	// Account name
 	Account string `groups:"create,update" json:"account"`
 
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
@@ -294,6 +294,58 @@ type AuthFailureListeners struct {
 
 	// IP address rate limiting settings
 	IpRateLimiting *IpRateLimiting `groups:"create,update" json:"ip_rate_limiting,omitempty"`
+}
+
+// Top N queries monitoring by CPU
+type Cpu struct {
+	// Enable or disable top N query monitoring by the metric
+	Enabled *bool `groups:"create,update" json:"enabled,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// Specify the value of N for the top N queries by the metric
+	TopNSize *int `groups:"create,update" json:"top_n_size,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`
+	// The window size of the top N queries by the metric
+	WindowSize *string `groups:"create,update" json:"window_size,omitempty"`
+}
+
+// Top N queries monitoring by latency
+type Latency struct {
+	// Enable or disable top N query monitoring by the metric
+	Enabled *bool `groups:"create,update" json:"enabled,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// Specify the value of N for the top N queries by the metric
+	TopNSize *int `groups:"create,update" json:"top_n_size,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`
+	// The window size of the top N queries by the metric
+	WindowSize *string `groups:"create,update" json:"window_size,omitempty"`
+}
+
+// Top N queries monitoring by memory
+type Memory struct {
+	// Enable or disable top N query monitoring by the metric
+	Enabled *bool `groups:"create,update" json:"enabled,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// Specify the value of N for the top N queries by the metric
+	TopNSize *int `groups:"create,update" json:"top_n_size,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`
+	// The window size of the top N queries by the metric
+	WindowSize *string `groups:"create,update" json:"window_size,omitempty"`
+}
+type SearchInsightsTopQueries struct {
+	// Top N queries monitoring by CPU
+	Cpu *Cpu `groups:"create,update" json:"cpu,omitempty"`
+
+	// Top N queries monitoring by latency
+	Latency *Latency `groups:"create,update" json:"latency,omitempty"`
+
+	// Top N queries monitoring by memory
+	Memory *Memory `groups:"create,update" json:"memory,omitempty"`
 }
 
 // Node duress settings
@@ -601,6 +653,8 @@ type Opensearch struct {
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// Script compilation circuit breaker limits the number of inline script compilations within a period of time. Default is use-context
 	ScriptMaxCompilationsRate *string `groups:"create,update" json:"script_max_compilations_rate,omitempty"`
+
+	SearchInsightsTopQueries *SearchInsightsTopQueries `groups:"create,update" json:"search.insights.top_queries,omitempty"`
 
 	// Search Backpressure Settings
 	SearchBackpressure *SearchBackpressure `groups:"create,update" json:"search_backpressure,omitempty"`

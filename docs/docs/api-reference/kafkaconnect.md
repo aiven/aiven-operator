@@ -224,7 +224,7 @@ Allow access to selected service ports from the public Internet.
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
 
-SecretProvider.
+Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault and AWS Secrets Manager are supported.
 
 **Required**
 
@@ -232,14 +232,14 @@ SecretProvider.
 
 **Optional**
 
-- [`aws`](#spec.userConfig.secret_providers.aws-property){: name='spec.userConfig.secret_providers.aws-property'} (object). AWS config for Secret Provider. See below for [nested schema](#spec.userConfig.secret_providers.aws).
-- [`vault`](#spec.userConfig.secret_providers.vault-property){: name='spec.userConfig.secret_providers.vault-property'} (object). Vault Config for Secret Provider. See below for [nested schema](#spec.userConfig.secret_providers.vault).
+- [`aws`](#spec.userConfig.secret_providers.aws-property){: name='spec.userConfig.secret_providers.aws-property'} (object). AWS secret provider configuration. See below for [nested schema](#spec.userConfig.secret_providers.aws).
+- [`vault`](#spec.userConfig.secret_providers.vault-property){: name='spec.userConfig.secret_providers.vault-property'} (object). Vault secret provider configuration. See below for [nested schema](#spec.userConfig.secret_providers.vault).
 
 #### aws {: #spec.userConfig.secret_providers.aws }
 
 _Appears on [`spec.userConfig.secret_providers`](#spec.userConfig.secret_providers)._
 
-AWS config for Secret Provider.
+AWS secret provider configuration.
 
 **Required**
 
@@ -255,7 +255,7 @@ AWS config for Secret Provider.
 
 _Appears on [`spec.userConfig.secret_providers`](#spec.userConfig.secret_providers)._
 
-Vault Config for Secret Provider.
+Vault secret provider configuration.
 
 **Required**
 

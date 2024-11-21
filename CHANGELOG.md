@@ -2,6 +2,9 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.26.0 - 2024-11-21
+
+- Add kind: `Flink`
 - Add `Clickhouse` field `userConfig.recovery_basebackup_name`, type `string`: Name of the basebackup
   to restore in forked service
 - Add `Grafana` field `userConfig.auth_generic_oauth.use_refresh_token`, type `boolean`: Set to true
@@ -51,7 +54,7 @@
   minimum ~~`1`~~ → `0`
 - Change `Cassandra` field `userConfig.cassandra_version`: enum remove `4`
 - Change `PostgreSQL` field `userConfig.pg_version`: enum remove `12`
-- Add kind: `Flink`
+- Add `OpenSearch` field `userConfig.opensearch.search.insights.top_queries`, type `object`
 
 ## v0.25.0 - 2024-09-19
 

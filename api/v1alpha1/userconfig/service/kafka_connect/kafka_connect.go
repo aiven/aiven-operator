@@ -123,7 +123,7 @@ type PublicAccess struct {
 	Prometheus *bool `groups:"create,update" json:"prometheus,omitempty"`
 }
 
-// AWS config for Secret Provider
+// AWS secret provider configuration
 type Aws struct {
 	// +kubebuilder:validation:MaxLength=128
 	// Access key used to authenticate with aws
@@ -142,7 +142,7 @@ type Aws struct {
 	SecretKey *string `groups:"create,update" json:"secret_key,omitempty"`
 }
 
-// Vault Config for Secret Provider
+// Vault secret provider configuration
 type Vault struct {
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=65536
@@ -165,15 +165,15 @@ type Vault struct {
 	Token *string `groups:"create,update" json:"token,omitempty"`
 }
 
-// SecretProvider
+// Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault and AWS Secrets Manager are supported.
 type SecretProviders struct {
-	// AWS config for Secret Provider
+	// AWS secret provider configuration
 	Aws *Aws `groups:"create,update" json:"aws,omitempty"`
 
 	// Name of the secret provider. Used to reference secrets in connector config.
 	Name string `groups:"create,update" json:"name"`
 
-	// Vault Config for Secret Provider
+	// Vault secret provider configuration
 	Vault *Vault `groups:"create,update" json:"vault,omitempty"`
 }
 type KafkaConnectUserConfig struct {
