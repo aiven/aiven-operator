@@ -11,14 +11,14 @@
         <link rel="canonical" href="https://aiven.github.io/aiven-operator/api-reference/grafana.html">
       
       
-        <link rel="prev" href="database.html">
+        <link rel="prev" href="flink.html">
       
       
         <link rel="next" href="kafka.html">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.45">
     
     
       
@@ -1270,6 +1270,27 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="flink.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Flink
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -2269,10 +2290,10 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.</li>
-<li><a href="#spec.userConfig.alerting_enabled-property" name="spec.userConfig.alerting_enabled-property"><code>alerting_enabled</code></a> (boolean). Enable or disable Grafana legacy alerting functionality. This should not be enabled with unified_alerting_enabled.</li>
+<li><a href="#spec.userConfig.alerting_enabled-property" name="spec.userConfig.alerting_enabled-property"><code>alerting_enabled</code></a> (boolean). DEPRECATED: setting has no effect with Grafana 11 and onward. Enable or disable Grafana legacy alerting functionality. This should not be enabled with unified_alerting_enabled.</li>
 <li><a href="#spec.userConfig.alerting_error_or_timeout-property" name="spec.userConfig.alerting_error_or_timeout-property"><code>alerting_error_or_timeout</code></a> (string, Enum: <code>alerting</code>, <code>keep_state</code>). Default error or timeout setting for new alerting rules.</li>
 <li><a href="#spec.userConfig.alerting_max_annotations_to_keep-property" name="spec.userConfig.alerting_max_annotations_to_keep-property"><code>alerting_max_annotations_to_keep</code></a> (integer, Minimum: 0, Maximum: 1000000). Max number of alert annotations that Grafana stores. 0 (default) keeps all alert annotations.</li>
-<li><a href="#spec.userConfig.alerting_nodata_or_nullvalues-property" name="spec.userConfig.alerting_nodata_or_nullvalues-property"><code>alerting_nodata_or_nullvalues</code></a> (string, Enum: <code>alerting</code>, <code>no_data</code>, <code>keep_state</code>, <code>ok</code>). Default value for 'no data or null values' for new alerting rules.</li>
+<li><a href="#spec.userConfig.alerting_nodata_or_nullvalues-property" name="spec.userConfig.alerting_nodata_or_nullvalues-property"><code>alerting_nodata_or_nullvalues</code></a> (string, Enum: <code>alerting</code>, <code>keep_state</code>, <code>no_data</code>, <code>ok</code>). Default value for 'no data or null values' for new alerting rules.</li>
 <li><a href="#spec.userConfig.allow_embedding-property" name="spec.userConfig.allow_embedding-property"><code>allow_embedding</code></a> (boolean). Allow embedding Grafana dashboards with iframe/frame/object/embed tags. Disabled by default to limit impact of clickjacking.</li>
 <li><a href="#spec.userConfig.auth_azuread-property" name="spec.userConfig.auth_azuread-property"><code>auth_azuread</code></a> (object). Azure AD OAuth integration. See below for <a href="#spec.userConfig.auth_azuread">nested schema</a>.</li>
 <li><a href="#spec.userConfig.auth_basic_enabled-property" name="spec.userConfig.auth_basic_enabled-property"><code>auth_basic_enabled</code></a> (boolean). Enable or disable basic authentication form, used by Grafana built-in login.</li>
@@ -2280,9 +2301,9 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <li><a href="#spec.userConfig.auth_github-property" name="spec.userConfig.auth_github-property"><code>auth_github</code></a> (object). Github Auth integration. See below for <a href="#spec.userConfig.auth_github">nested schema</a>.</li>
 <li><a href="#spec.userConfig.auth_gitlab-property" name="spec.userConfig.auth_gitlab-property"><code>auth_gitlab</code></a> (object). GitLab Auth integration. See below for <a href="#spec.userConfig.auth_gitlab">nested schema</a>.</li>
 <li><a href="#spec.userConfig.auth_google-property" name="spec.userConfig.auth_google-property"><code>auth_google</code></a> (object). Google Auth integration. See below for <a href="#spec.userConfig.auth_google">nested schema</a>.</li>
-<li><a href="#spec.userConfig.cookie_samesite-property" name="spec.userConfig.cookie_samesite-property"><code>cookie_samesite</code></a> (string, Enum: <code>lax</code>, <code>strict</code>, <code>none</code>). Cookie SameSite attribute: <code>strict</code> prevents sending cookie for cross-site requests, effectively disabling direct linking from other sites to Grafana. <code>lax</code> is the default value.</li>
+<li><a href="#spec.userConfig.cookie_samesite-property" name="spec.userConfig.cookie_samesite-property"><code>cookie_samesite</code></a> (string, Enum: <code>lax</code>, <code>none</code>, <code>strict</code>). Cookie SameSite attribute: <code>strict</code> prevents sending cookie for cross-site requests, effectively disabling direct linking from other sites to Grafana. <code>lax</code> is the default value.</li>
 <li><a href="#spec.userConfig.custom_domain-property" name="spec.userConfig.custom_domain-property"><code>custom_domain</code></a> (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name.</li>
-<li><a href="#spec.userConfig.dashboard_previews_enabled-property" name="spec.userConfig.dashboard_previews_enabled-property"><code>dashboard_previews_enabled</code></a> (boolean). This feature is new in Grafana 9 and is quite resource intensive. It may cause low-end plans to work more slowly while the dashboard previews are rendering.</li>
+<li><a href="#spec.userConfig.dashboard_previews_enabled-property" name="spec.userConfig.dashboard_previews_enabled-property"><code>dashboard_previews_enabled</code></a> (boolean). Enable browsing of dashboards in grid (pictures) mode. This feature is new in Grafana 9 and is quite resource intensive. It may cause low-end plans to work more slowly while the dashboard previews are rendering.</li>
 <li><a href="#spec.userConfig.dashboards_min_refresh_interval-property" name="spec.userConfig.dashboards_min_refresh_interval-property"><code>dashboards_min_refresh_interval</code></a> (string, Pattern: <code>^[0-9]+(ms|s|m|h|d)$</code>, MaxLength: 16). Signed sequence of decimal numbers, followed by a unit suffix (ms, s, m, h, d), e.g. 30s, 1h.</li>
 <li><a href="#spec.userConfig.dashboards_versions_to_keep-property" name="spec.userConfig.dashboards_versions_to_keep-property"><code>dashboards_versions_to_keep</code></a> (integer, Minimum: 1, Maximum: 100). Dashboard versions to keep per dashboard.</li>
 <li><a href="#spec.userConfig.dataproxy_send_user_header-property" name="spec.userConfig.dataproxy_send_user_header-property"><code>dataproxy_send_user_header</code></a> (boolean). Send <code>X-Grafana-User</code> header to data source.</li>
@@ -2293,7 +2314,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <li><a href="#spec.userConfig.external_image_storage-property" name="spec.userConfig.external_image_storage-property"><code>external_image_storage</code></a> (object). External image store settings. See below for <a href="#spec.userConfig.external_image_storage">nested schema</a>.</li>
 <li><a href="#spec.userConfig.google_analytics_ua_id-property" name="spec.userConfig.google_analytics_ua_id-property"><code>google_analytics_ua_id</code></a> (string, Pattern: <code>^(G|UA|YT|MO)-[a-zA-Z0-9-]+$</code>, MaxLength: 64). Google Analytics ID.</li>
 <li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
-<li><a href="#spec.userConfig.metrics_enabled-property" name="spec.userConfig.metrics_enabled-property"><code>metrics_enabled</code></a> (boolean). Enable Grafana /metrics endpoint.</li>
+<li><a href="#spec.userConfig.metrics_enabled-property" name="spec.userConfig.metrics_enabled-property"><code>metrics_enabled</code></a> (boolean). Enable Grafana's /metrics endpoint.</li>
 <li><a href="#spec.userConfig.oauth_allow_insecure_email_lookup-property" name="spec.userConfig.oauth_allow_insecure_email_lookup-property"><code>oauth_allow_insecure_email_lookup</code></a> (boolean). Enforce user lookup based on email instead of the unique ID provided by the IdP.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
@@ -2304,9 +2325,9 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <li><a href="#spec.userConfig.service_to_fork_from-property" name="spec.userConfig.service_to_fork_from-property"><code>service_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.</li>
 <li><a href="#spec.userConfig.smtp_server-property" name="spec.userConfig.smtp_server-property"><code>smtp_server</code></a> (object). SMTP server settings. See below for <a href="#spec.userConfig.smtp_server">nested schema</a>.</li>
 <li><a href="#spec.userConfig.static_ips-property" name="spec.userConfig.static_ips-property"><code>static_ips</code></a> (boolean). Use static public IP addresses.</li>
-<li><a href="#spec.userConfig.unified_alerting_enabled-property" name="spec.userConfig.unified_alerting_enabled-property"><code>unified_alerting_enabled</code></a> (boolean). Enable or disable Grafana unified alerting functionality. By default this is enabled and any legacy alerts will be migrated on upgrade to Grafana 9+. To stay on legacy alerting, set unified_alerting_enabled to false and alerting_enabled to true. See <a href="https://grafana.com/docs/grafana/latest/alerting/set-up/migrating-alerts/">https://grafana.com/docs/grafana/latest/alerting/set-up/migrating-alerts/</a> for more details.</li>
+<li><a href="#spec.userConfig.unified_alerting_enabled-property" name="spec.userConfig.unified_alerting_enabled-property"><code>unified_alerting_enabled</code></a> (boolean). Enable or disable Grafana unified alerting functionality. By default this is enabled and any legacy alerts will be migrated on upgrade to Grafana 9+. To stay on legacy alerting, set unified_alerting_enabled to false and alerting_enabled to true. See <a href="https://grafana.com/docs/grafana/latest/alerting/">https://grafana.com/docs/grafana/latest/alerting/</a> for more details.</li>
 <li><a href="#spec.userConfig.user_auto_assign_org-property" name="spec.userConfig.user_auto_assign_org-property"><code>user_auto_assign_org</code></a> (boolean). Auto-assign new users on signup to main organization. Defaults to false.</li>
-<li><a href="#spec.userConfig.user_auto_assign_org_role-property" name="spec.userConfig.user_auto_assign_org_role-property"><code>user_auto_assign_org_role</code></a> (string, Enum: <code>Viewer</code>, <code>Admin</code>, <code>Editor</code>). Set role for new signups. Defaults to Viewer.</li>
+<li><a href="#spec.userConfig.user_auto_assign_org_role-property" name="spec.userConfig.user_auto_assign_org_role-property"><code>user_auto_assign_org_role</code></a> (string, Enum: <code>Admin</code>, <code>Editor</code>, <code>Viewer</code>). Set role for new signups. Defaults to Viewer.</li>
 <li><a href="#spec.userConfig.viewers_can_edit-property" name="spec.userConfig.viewers_can_edit-property"><code>viewers_can_edit</code></a> (boolean). Users with view-only permission can edit but not save dashboards.</li>
 <li><a href="#spec.userConfig.wal-property" name="spec.userConfig.wal-property"><code>wal</code></a> (boolean). Setting to enable/disable Write-Ahead Logging. The default value is false (disabled).</li>
 </ul>
@@ -2375,9 +2396,9 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.userConfig.auth_gitlab.allow_sign_up-property" name="spec.userConfig.auth_gitlab.allow_sign_up-property"><code>allow_sign_up</code></a> (boolean). Automatically sign-up users on successful sign-in.</li>
-<li><a href="#spec.userConfig.auth_gitlab.api_url-property" name="spec.userConfig.auth_gitlab.api_url-property"><code>api_url</code></a> (string, MaxLength: 2048). API URL. This only needs to be set when using self hosted GitLab.</li>
-<li><a href="#spec.userConfig.auth_gitlab.auth_url-property" name="spec.userConfig.auth_gitlab.auth_url-property"><code>auth_url</code></a> (string, MaxLength: 2048). Authorization URL. This only needs to be set when using self hosted GitLab.</li>
-<li><a href="#spec.userConfig.auth_gitlab.token_url-property" name="spec.userConfig.auth_gitlab.token_url-property"><code>token_url</code></a> (string, MaxLength: 2048). Token URL. This only needs to be set when using self hosted GitLab.</li>
+<li><a href="#spec.userConfig.auth_gitlab.api_url-property" name="spec.userConfig.auth_gitlab.api_url-property"><code>api_url</code></a> (string, MaxLength: 2048). This only needs to be set when using self hosted GitLab.</li>
+<li><a href="#spec.userConfig.auth_gitlab.auth_url-property" name="spec.userConfig.auth_gitlab.auth_url-property"><code>auth_url</code></a> (string, MaxLength: 2048). This only needs to be set when using self hosted GitLab.</li>
+<li><a href="#spec.userConfig.auth_gitlab.token_url-property" name="spec.userConfig.auth_gitlab.token_url-property"><code>token_url</code></a> (string, MaxLength: 2048). This only needs to be set when using self hosted GitLab.</li>
 </ul>
 <h3 id="spec.userConfig.auth_google">auth_google<a class="headerlink" href="#spec.userConfig.auth_google" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
@@ -2413,7 +2434,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <ul>
 <li><a href="#spec.userConfig.external_image_storage.access_key-property" name="spec.userConfig.external_image_storage.access_key-property"><code>access_key</code></a> (string, Pattern: <code>^[A-Z0-9]+$</code>, MaxLength: 4096). S3 access key. Requires permissions to the S3 bucket for the s3:PutObject and s3:PutObjectAcl actions.</li>
 <li><a href="#spec.userConfig.external_image_storage.bucket_url-property" name="spec.userConfig.external_image_storage.bucket_url-property"><code>bucket_url</code></a> (string, MaxLength: 2048). Bucket URL for S3.</li>
-<li><a href="#spec.userConfig.external_image_storage.provider-property" name="spec.userConfig.external_image_storage.provider-property"><code>provider</code></a> (string, Enum: <code>s3</code>). Provider type.</li>
+<li><a href="#spec.userConfig.external_image_storage.provider-property" name="spec.userConfig.external_image_storage.provider-property"><code>provider</code></a> (string, Enum: <code>s3</code>). External image store provider.</li>
 <li><a href="#spec.userConfig.external_image_storage.secret_key-property" name="spec.userConfig.external_image_storage.secret_key-property"><code>secret_key</code></a> (string, Pattern: <code>^[A-Za-z0-9/+=]+$</code>, MaxLength: 4096). S3 secret key.</li>
 </ul>
 <h3 id="spec.userConfig.ip_filter">ip_filter<a class="headerlink" href="#spec.userConfig.ip_filter" title="Permanent link">&para;</a></h3>
@@ -2462,7 +2483,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <li><a href="#spec.userConfig.smtp_server.from_name-property" name="spec.userConfig.smtp_server.from_name-property"><code>from_name</code></a> (string, Pattern: <code>^[^\x00-\x1F]+$</code>, MaxLength: 128). Name used in outgoing emails, defaults to Grafana.</li>
 <li><a href="#spec.userConfig.smtp_server.password-property" name="spec.userConfig.smtp_server.password-property"><code>password</code></a> (string, Pattern: <code>^[^\x00-\x1F]+$</code>, MaxLength: 255). Password for SMTP authentication.</li>
 <li><a href="#spec.userConfig.smtp_server.skip_verify-property" name="spec.userConfig.smtp_server.skip_verify-property"><code>skip_verify</code></a> (boolean). Skip verifying server certificate. Defaults to false.</li>
-<li><a href="#spec.userConfig.smtp_server.starttls_policy-property" name="spec.userConfig.smtp_server.starttls_policy-property"><code>starttls_policy</code></a> (string, Enum: <code>OpportunisticStartTLS</code>, <code>MandatoryStartTLS</code>, <code>NoStartTLS</code>). Either OpportunisticStartTLS, MandatoryStartTLS or NoStartTLS. Default is OpportunisticStartTLS.</li>
+<li><a href="#spec.userConfig.smtp_server.starttls_policy-property" name="spec.userConfig.smtp_server.starttls_policy-property"><code>starttls_policy</code></a> (string, Enum: <code>MandatoryStartTLS</code>, <code>NoStartTLS</code>, <code>OpportunisticStartTLS</code>). Either OpportunisticStartTLS, MandatoryStartTLS or NoStartTLS. Default is OpportunisticStartTLS.</li>
 <li><a href="#spec.userConfig.smtp_server.username-property" name="spec.userConfig.smtp_server.username-property"><code>username</code></a> (string, Pattern: <code>^[^\x00-\x1F]+$</code>, MaxLength: 255). Username for SMTP authentication.</li>
 </ul>
 
@@ -2503,7 +2524,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="database.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Database">
+          <a href="flink.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Flink">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2513,7 +2534,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
                 Previous
               </span>
               <div class="md-ellipsis">
-                Database
+                Flink
               </div>
             </div>
           </a>

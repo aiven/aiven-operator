@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.45">
     
     
       
@@ -1273,6 +1273,27 @@
   
   
     <li class="md-nav__item">
+      <a href="flink.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Flink
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="grafana.html" class="md-nav__link">
         
   
@@ -2163,10 +2184,10 @@
 <p>Kafka Connect configuration values.</p>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.userConfig.kafka_connect.connector_client_config_override_policy-property" name="spec.userConfig.kafka_connect.connector_client_config_override_policy-property"><code>connector_client_config_override_policy</code></a> (string, Enum: <code>None</code>, <code>All</code>). Defines what client configurations can be overridden by the connector. Default is None.</li>
+<li><a href="#spec.userConfig.kafka_connect.connector_client_config_override_policy-property" name="spec.userConfig.kafka_connect.connector_client_config_override_policy-property"><code>connector_client_config_override_policy</code></a> (string, Enum: <code>All</code>, <code>None</code>). Defines what client configurations can be overridden by the connector. Default is None.</li>
 <li><a href="#spec.userConfig.kafka_connect.consumer_auto_offset_reset-property" name="spec.userConfig.kafka_connect.consumer_auto_offset_reset-property"><code>consumer_auto_offset_reset</code></a> (string, Enum: <code>earliest</code>, <code>latest</code>). What to do when there is no initial offset in Kafka or if the current offset does not exist any more on the server. Default is earliest.</li>
 <li><a href="#spec.userConfig.kafka_connect.consumer_fetch_max_bytes-property" name="spec.userConfig.kafka_connect.consumer_fetch_max_bytes-property"><code>consumer_fetch_max_bytes</code></a> (integer, Minimum: 1048576, Maximum: 104857600). Records are fetched in batches by the consumer, and if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that the consumer can make progress. As such, this is not a absolute maximum.</li>
-<li><a href="#spec.userConfig.kafka_connect.consumer_isolation_level-property" name="spec.userConfig.kafka_connect.consumer_isolation_level-property"><code>consumer_isolation_level</code></a> (string, Enum: <code>read_uncommitted</code>, <code>read_committed</code>). Transaction read isolation level. read_uncommitted is the default, but read_committed can be used if consume-exactly-once behavior is desired.</li>
+<li><a href="#spec.userConfig.kafka_connect.consumer_isolation_level-property" name="spec.userConfig.kafka_connect.consumer_isolation_level-property"><code>consumer_isolation_level</code></a> (string, Enum: <code>read_committed</code>, <code>read_uncommitted</code>). Transaction read isolation level. read_uncommitted is the default, but read_committed can be used if consume-exactly-once behavior is desired.</li>
 <li><a href="#spec.userConfig.kafka_connect.consumer_max_partition_fetch_bytes-property" name="spec.userConfig.kafka_connect.consumer_max_partition_fetch_bytes-property"><code>consumer_max_partition_fetch_bytes</code></a> (integer, Minimum: 1048576, Maximum: 104857600). Records are fetched in batches by the consumer.If the first record batch in the first non-empty partition of the fetch is larger than this limit, the batch will still be returned to ensure that the consumer can make progress.</li>
 <li><a href="#spec.userConfig.kafka_connect.consumer_max_poll_interval_ms-property" name="spec.userConfig.kafka_connect.consumer_max_poll_interval_ms-property"><code>consumer_max_poll_interval_ms</code></a> (integer, Minimum: 1, Maximum: 2147483647). The maximum delay in milliseconds between invocations of poll() when using consumer group management (defaults to 300000).</li>
 <li><a href="#spec.userConfig.kafka_connect.consumer_max_poll_records-property" name="spec.userConfig.kafka_connect.consumer_max_poll_records-property"><code>consumer_max_poll_records</code></a> (integer, Minimum: 1, Maximum: 10000). The maximum number of records returned in a single call to poll() (defaults to 500).</li>
@@ -2174,7 +2195,7 @@
 <li><a href="#spec.userConfig.kafka_connect.offset_flush_timeout_ms-property" name="spec.userConfig.kafka_connect.offset_flush_timeout_ms-property"><code>offset_flush_timeout_ms</code></a> (integer, Minimum: 1, Maximum: 2147483647). Maximum number of milliseconds to wait for records to flush and partition offset data to be committed to offset storage before cancelling the process and restoring the offset data to be committed in a future attempt (defaults to 5000).</li>
 <li><a href="#spec.userConfig.kafka_connect.producer_batch_size-property" name="spec.userConfig.kafka_connect.producer_batch_size-property"><code>producer_batch_size</code></a> (integer, Minimum: 0, Maximum: 5242880). This setting gives the upper bound of the batch size to be sent. If there are fewer than this many bytes accumulated for this partition, the producer will <code>linger</code> for the linger.ms time waiting for more records to show up. A batch size of zero will disable batching entirely (defaults to 16384).</li>
 <li><a href="#spec.userConfig.kafka_connect.producer_buffer_memory-property" name="spec.userConfig.kafka_connect.producer_buffer_memory-property"><code>producer_buffer_memory</code></a> (integer, Minimum: 5242880, Maximum: 134217728). The total bytes of memory the producer can use to buffer records waiting to be sent to the broker (defaults to 33554432).</li>
-<li><a href="#spec.userConfig.kafka_connect.producer_compression_type-property" name="spec.userConfig.kafka_connect.producer_compression_type-property"><code>producer_compression_type</code></a> (string, Enum: <code>gzip</code>, <code>snappy</code>, <code>lz4</code>, <code>zstd</code>, <code>none</code>). Specify the default compression type for producers. This configuration accepts the standard compression codecs (<code>gzip</code>, <code>snappy</code>, <code>lz4</code>, <code>zstd</code>). It additionally accepts <code>none</code> which is the default and equivalent to no compression.</li>
+<li><a href="#spec.userConfig.kafka_connect.producer_compression_type-property" name="spec.userConfig.kafka_connect.producer_compression_type-property"><code>producer_compression_type</code></a> (string, Enum: <code>gzip</code>, <code>lz4</code>, <code>none</code>, <code>snappy</code>, <code>zstd</code>). Specify the default compression type for producers. This configuration accepts the standard compression codecs (<code>gzip</code>, <code>snappy</code>, <code>lz4</code>, <code>zstd</code>). It additionally accepts <code>none</code> which is the default and equivalent to no compression.</li>
 <li><a href="#spec.userConfig.kafka_connect.producer_linger_ms-property" name="spec.userConfig.kafka_connect.producer_linger_ms-property"><code>producer_linger_ms</code></a> (integer, Minimum: 0, Maximum: 5000). This setting gives the upper bound on the delay for batching: once there is batch.size worth of records for a partition it will be sent immediately regardless of this setting, however if there are fewer than this many bytes accumulated for this partition the producer will <code>linger</code> for the specified time waiting for more records to show up. Defaults to 0.</li>
 <li><a href="#spec.userConfig.kafka_connect.producer_max_request_size-property" name="spec.userConfig.kafka_connect.producer_max_request_size-property"><code>producer_max_request_size</code></a> (integer, Minimum: 131072, Maximum: 67108864). This setting will limit the number of record batches the producer will send in a single request to avoid sending huge requests.</li>
 <li><a href="#spec.userConfig.kafka_connect.scheduled_rebalance_max_delay_ms-property" name="spec.userConfig.kafka_connect.scheduled_rebalance_max_delay_ms-property"><code>scheduled_rebalance_max_delay_ms</code></a> (integer, Minimum: 0, Maximum: 600000). The maximum delay that is scheduled in order to wait for the return of one or more departed workers before rebalancing and reassigning their connectors and tasks to the group. During this period the connectors and tasks of the departed workers remain unassigned. Defaults to 5 minutes.</li>
@@ -2207,19 +2228,19 @@
 </ul>
 <h3 id="spec.userConfig.secret_providers">secret_providers<a class="headerlink" href="#spec.userConfig.secret_providers" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
-<p>SecretProvider.</p>
+<p>Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault and AWS Secrets Manager are supported.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.secret_providers.name-property" name="spec.userConfig.secret_providers.name-property"><code>name</code></a> (string). Name of the secret provider. Used to reference secrets in connector config.</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.userConfig.secret_providers.aws-property" name="spec.userConfig.secret_providers.aws-property"><code>aws</code></a> (object). AWS config for Secret Provider. See below for <a href="#spec.userConfig.secret_providers.aws">nested schema</a>.</li>
-<li><a href="#spec.userConfig.secret_providers.vault-property" name="spec.userConfig.secret_providers.vault-property"><code>vault</code></a> (object). Vault Config for Secret Provider. See below for <a href="#spec.userConfig.secret_providers.vault">nested schema</a>.</li>
+<li><a href="#spec.userConfig.secret_providers.aws-property" name="spec.userConfig.secret_providers.aws-property"><code>aws</code></a> (object). AWS secret provider configuration. See below for <a href="#spec.userConfig.secret_providers.aws">nested schema</a>.</li>
+<li><a href="#spec.userConfig.secret_providers.vault-property" name="spec.userConfig.secret_providers.vault-property"><code>vault</code></a> (object). Vault secret provider configuration. See below for <a href="#spec.userConfig.secret_providers.vault">nested schema</a>.</li>
 </ul>
 <h4 id="spec.userConfig.secret_providers.aws">aws<a class="headerlink" href="#spec.userConfig.secret_providers.aws" title="Permanent link">&para;</a></h4>
 <p><em>Appears on <a href="#spec.userConfig.secret_providers"><code>spec.userConfig.secret_providers</code></a>.</em></p>
-<p>AWS config for Secret Provider.</p>
+<p>AWS secret provider configuration.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.secret_providers.aws.auth_method-property" name="spec.userConfig.secret_providers.aws.auth_method-property"><code>auth_method</code></a> (string, Enum: <code>credentials</code>). Auth method of the vault secret provider.</li>
@@ -2232,7 +2253,7 @@
 </ul>
 <h4 id="spec.userConfig.secret_providers.vault">vault<a class="headerlink" href="#spec.userConfig.secret_providers.vault" title="Permanent link">&para;</a></h4>
 <p><em>Appears on <a href="#spec.userConfig.secret_providers"><code>spec.userConfig.secret_providers</code></a>.</em></p>
-<p>Vault Config for Secret Provider.</p>
+<p>Vault secret provider configuration.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.secret_providers.vault.address-property" name="spec.userConfig.secret_providers.vault.address-property"><code>address</code></a> (string, MinLength: 1, MaxLength: 65536). Address of the Vault server.</li>

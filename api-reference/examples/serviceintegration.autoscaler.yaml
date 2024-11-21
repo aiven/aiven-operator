@@ -1,0 +1,29 @@
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: my-service-integration
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  integrationType: autoscaler
+  sourceServiceName: my-pg
+  # Look up autoscaler integration endpoint ID via Console
+  destinationEndpointId: my-destination-endpoint-id
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: my-pg
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  cloudName: google-europe-west1
+  plan: startup-4

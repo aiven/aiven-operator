@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.45">
     
     
       
@@ -428,6 +428,15 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0260-2024-11-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      v0.26.0 - 2024-11-21
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v0250-2024-09-19" class="md-nav__link">
@@ -1589,6 +1598,27 @@
   
   
     <li class="md-nav__item">
+      <a href="api-reference/flink.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Flink
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="api-reference/grafana.html" class="md-nav__link">
         
   
@@ -1973,6 +2003,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0260-2024-11-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      v0.26.0 - 2024-11-21
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0250-2024-09-19" class="md-nav__link">
     <span class="md-ellipsis">
       v0.25.0 - 2024-09-19
@@ -2269,6 +2308,60 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0260-2024-11-21">v0.26.0 - 2024-11-21<a class="headerlink" href="#v0260-2024-11-21" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Add kind: <code>Flink</code></li>
+<li>Add <code>Clickhouse</code> field <code>userConfig.recovery_basebackup_name</code>, type <code>string</code>: Name of the basebackup
+  to restore in forked service</li>
+<li>Add <code>Grafana</code> field <code>userConfig.auth_generic_oauth.use_refresh_token</code>, type <code>boolean</code>: Set to true
+  to use refresh token and check access token expiration</li>
+<li>Add <code>Kafka</code> field <code>userConfig.schema_registry_config.retriable_errors_silenced</code>, type <code>boolean</code>: If
+  enabled, kafka errors which can be retried or custom errors specified for the service will not be
+  raised, instead, a warning log is emitted</li>
+<li>Add <code>Kafka</code> field <code>userConfig.schema_registry_config.schema_reader_strict_mode</code>, type <code>boolean</code>: If
+  enabled, causes the Karapace schema-registry service to shutdown when there are invalid schema records
+  in the <code>_schemas</code> topic</li>
+<li>Add <code>Kafka</code> field <code>userConfig.single_zone</code>, type <code>object</code>: Single-zone configuration</li>
+<li>Change <code>Kafka</code> field <code>userConfig.kafka_version</code>: enum remove <code>3.5</code>, <code>3.6</code></li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.log_output</code>, type <code>string</code>: The slow log output destination when
+  slow_query_log is ON</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.azure_migration.indices</code>, type <code>string</code>: A comma-delimited list
+  of indices to restore from the snapshot. Multi-index syntax is supported</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.gcs_migration.indices</code>, type <code>string</code>: A comma-delimited list of
+  indices to restore from the snapshot. Multi-index syntax is supported</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.s3_migration.indices</code>, type <code>string</code>: A comma-delimited list of
+  indices to restore from the snapshot. Multi-index syntax is supported</li>
+<li>Change <code>PostgreSQL</code> field <code>userConfig.additional_backup_regions</code>: deprecated</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.azure_migration.restore_global_state</code>, type <code>boolean</code>: If true,
+  restore the cluster state. Defaults to false</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.gcs_migration.restore_global_state</code>, type <code>boolean</code>: If true, restore
+  the cluster state. Defaults to false</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.opensearch.search_backpressure</code>, type <code>object</code>: Search Backpressure
+  Settings</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.opensearch.shard_indexing_pressure</code>, type <code>object</code>: Shard indexing
+  back pressure settings</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.s3_migration.restore_global_state</code>, type <code>boolean</code>: If true, restore
+  the cluster state. Defaults to false</li>
+<li>Change <code>Redis</code> field <code>userConfig.redis_timeout</code>: maximum <del><code>31536000</code></del> → <code>2073600</code></li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.azure_migration.include_aliases</code>, type <code>boolean</code>: Whether to restore
+  aliases alongside their associated indexes. Default is true</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.gcs_migration.include_aliases</code>, type <code>boolean</code>: Whether to restore
+  aliases alongside their associated indexes. Default is true</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.s3_migration.include_aliases</code>, type <code>boolean</code>: Whether to restore
+  aliases alongside their associated indexes. Default is true</li>
+<li>Add <code>ServiceIntegration</code> field <code>autoscaler</code>, type <code>object</code>: Autoscaler specific user configuration options</li>
+<li>Add <code>ServiceIntegrationEndpoint</code> field <code>autoscaler</code>, type <code>object</code>: Autoscaler configuration values</li>
+<li>Change <code>Grafana</code> field <code>userConfig.alerting_enabled</code>: deprecated</li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.allowed_tries</code>:
+  minimum <del><code>0</code></del> → <code>1</code></li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.block_expiry_seconds</code>:
+  minimum <del><code>1</code></del> → <code>0</code></li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.time_window_seconds</code>:
+  minimum <del><code>1</code></del> → <code>0</code></li>
+<li>Change <code>Cassandra</code> field <code>userConfig.cassandra_version</code>: enum remove <code>4</code></li>
+<li>Change <code>PostgreSQL</code> field <code>userConfig.pg_version</code>: enum remove <code>12</code></li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.opensearch.search.insights.top_queries</code>, type <code>object</code></li>
+</ul>
 <h2 id="v0250-2024-09-19">v0.25.0 - 2024-09-19<a class="headerlink" href="#v0250-2024-09-19" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Fix <code>KafkaTopic</code>: fails to create a topic with the replication factor set more than running Kafka nodes</li>

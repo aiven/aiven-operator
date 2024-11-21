@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.45">
     
     
       
@@ -1273,6 +1273,27 @@
   
   
     <li class="md-nav__item">
+      <a href="flink.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Flink
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="grafana.html" class="md-nav__link">
         
   
@@ -2149,13 +2170,13 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <li><a href="#spec.userConfig.redis_io_threads-property" name="spec.userConfig.redis_io_threads-property"><code>redis_io_threads</code></a> (integer, Minimum: 1, Maximum: 32). Set Redis IO thread count. Changing this will cause a restart of the Redis service.</li>
 <li><a href="#spec.userConfig.redis_lfu_decay_time-property" name="spec.userConfig.redis_lfu_decay_time-property"><code>redis_lfu_decay_time</code></a> (integer, Minimum: 1, Maximum: 120). LFU maxmemory-policy counter decay time in minutes.</li>
 <li><a href="#spec.userConfig.redis_lfu_log_factor-property" name="spec.userConfig.redis_lfu_log_factor-property"><code>redis_lfu_log_factor</code></a> (integer, Minimum: 0, Maximum: 100). Counter logarithm factor for volatile-lfu and allkeys-lfu maxmemory-policies.</li>
-<li><a href="#spec.userConfig.redis_maxmemory_policy-property" name="spec.userConfig.redis_maxmemory_policy-property"><code>redis_maxmemory_policy</code></a> (string, Enum: <code>noeviction</code>, <code>allkeys-lru</code>, <code>volatile-lru</code>, <code>allkeys-random</code>, <code>volatile-random</code>, <code>volatile-ttl</code>, <code>volatile-lfu</code>, <code>allkeys-lfu</code>). Redis maxmemory-policy.</li>
+<li><a href="#spec.userConfig.redis_maxmemory_policy-property" name="spec.userConfig.redis_maxmemory_policy-property"><code>redis_maxmemory_policy</code></a> (string, Enum: <code>allkeys-lfu</code>, <code>allkeys-lru</code>, <code>allkeys-random</code>, <code>noeviction</code>, <code>volatile-lfu</code>, <code>volatile-lru</code>, <code>volatile-random</code>, <code>volatile-ttl</code>). Redis maxmemory-policy.</li>
 <li><a href="#spec.userConfig.redis_notify_keyspace_events-property" name="spec.userConfig.redis_notify_keyspace_events-property"><code>redis_notify_keyspace_events</code></a> (string, Pattern: <code>^[KEg\$lshzxentdmA]*$</code>, MaxLength: 32). Set notify-keyspace-events option.</li>
 <li><a href="#spec.userConfig.redis_number_of_databases-property" name="spec.userConfig.redis_number_of_databases-property"><code>redis_number_of_databases</code></a> (integer, Minimum: 1, Maximum: 128). Set number of Redis databases. Changing this will cause a restart of the Redis service.</li>
 <li><a href="#spec.userConfig.redis_persistence-property" name="spec.userConfig.redis_persistence-property"><code>redis_persistence</code></a> (string, Enum: <code>off</code>, <code>rdb</code>). When persistence is <code>rdb</code>, Redis does RDB dumps each 10 minutes if any key is changed. Also RDB dumps are done according to the backup schedule for backup purposes. When persistence is <code>off</code>, no RDB dumps or backups are done, so data can be lost at any moment if the service is restarted for any reason, or if the service is powered off. Also, the service can't be forked.</li>
 <li><a href="#spec.userConfig.redis_pubsub_client_output_buffer_limit-property" name="spec.userConfig.redis_pubsub_client_output_buffer_limit-property"><code>redis_pubsub_client_output_buffer_limit</code></a> (integer, Minimum: 32, Maximum: 512). Set output buffer limit for pub / sub clients in MB. The value is the hard limit, the soft limit is 1/4 of the hard limit. When setting the limit, be mindful of the available memory in the selected service plan.</li>
 <li><a href="#spec.userConfig.redis_ssl-property" name="spec.userConfig.redis_ssl-property"><code>redis_ssl</code></a> (boolean). Require SSL to access Redis.</li>
-<li><a href="#spec.userConfig.redis_timeout-property" name="spec.userConfig.redis_timeout-property"><code>redis_timeout</code></a> (integer, Minimum: 0, Maximum: 31536000). Redis idle connection timeout in seconds.</li>
+<li><a href="#spec.userConfig.redis_timeout-property" name="spec.userConfig.redis_timeout-property"><code>redis_timeout</code></a> (integer, Minimum: 0, Maximum: 2073600). Redis idle connection timeout in seconds.</li>
 <li><a href="#spec.userConfig.redis_version-property" name="spec.userConfig.redis_version-property"><code>redis_version</code></a> (string, Enum: <code>7.0</code>). Redis major version.</li>
 <li><a href="#spec.userConfig.service_log-property" name="spec.userConfig.service_log-property"><code>service_log</code></a> (boolean). Store logs for the service so that they are available in the HTTP API and console.</li>
 <li><a href="#spec.userConfig.service_to_fork_from-property" name="spec.userConfig.service_to_fork_from-property"><code>service_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.</li>

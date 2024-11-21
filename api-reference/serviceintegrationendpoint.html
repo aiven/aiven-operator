@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.45">
     
     
       
@@ -1273,6 +1273,27 @@
   
   
     <li class="md-nav__item">
+      <a href="flink.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Flink
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="grafana.html" class="md-nav__link">
         
   
@@ -1666,6 +1687,30 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#spec.autoscaler" class="md-nav__link">
+    <span class="md-ellipsis">
+      autoscaler
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="autoscaler">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec.autoscaler.autoscaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      autoscaling
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#spec.datadog" class="md-nav__link">
     <span class="md-ellipsis">
       datadog
@@ -1895,6 +1940,30 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#spec.autoscaler" class="md-nav__link">
+    <span class="md-ellipsis">
+      autoscaler
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="autoscaler">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec.autoscaler.autoscaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      autoscaling
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#spec.datadog" class="md-nav__link">
     <span class="md-ellipsis">
       datadog
@@ -2056,7 +2125,7 @@
 
 <h2 id="usage-examples">Usage examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
 <details class="example">
-<summary>external_postgresql</summary>
+<summary>autoscaler</summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceIntegrationEndpoint</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -2067,19 +2136,17 @@
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-project-name</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="nt">endpointName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-external-postgresql</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="nt">endpointType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">external_postgresql</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="nt">endpointName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-autoscaler</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="nt">endpointType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">autoscaler</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="nt">externalPostgresql</span><span class="p">:</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">username</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">password</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example.example</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5432</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="nt">ssl_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">require</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="nt">autoscaler</span><span class="p">:</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="nt">autoscaling</span><span class="p">:</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">autoscale_disk</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">        </span><span class="nt">cap_gb</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
 </code></pre></div>
 </details>
 <details class="example">
-<summary>external_schema_registry</summary>
+<summary>external_postgresql</summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceIntegrationEndpoint</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nt">metadata</span><span class="p">:</span>
@@ -2090,14 +2157,37 @@
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-project-name</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span><span class="nt">endpointName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-external-schema-registry</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">  </span><span class="nt">endpointType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">external_schema_registry</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span><span class="nt">endpointName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-external-postgresql</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">  </span><span class="nt">endpointType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">external_postgresql</span>
 <a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">  </span><span class="nt">externalSchemaRegistry</span><span class="p">:</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://schema-registry.example.com:8081</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="nt">authentication</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">basic</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="nt">basic_auth_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">username</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="nt">basic_auth_password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">password</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">  </span><span class="nt">externalPostgresql</span><span class="p">:</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">username</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">password</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example.example</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5432</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="nt">ssl_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">require</span>
+</code></pre></div>
+</details>
+<details class="example">
+<summary>external_schema_registry</summary>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceIntegrationEndpoint</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-service-integration-endpoint</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-project-name</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">  </span><span class="nt">endpointName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-external-schema-registry</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">  </span><span class="nt">endpointType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">external_schema_registry</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">  </span><span class="nt">externalSchemaRegistry</span><span class="p">:</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://schema-registry.example.com:8081</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="nt">authentication</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">basic</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">    </span><span class="nt">basic_auth_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">username</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="nt">basic_auth_password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">password</span>
 </code></pre></div>
 </details>
 <div class="admonition info">
@@ -2105,14 +2195,14 @@
 <p>To create this resource, a <code>Secret</code> containing Aiven token must be <a href="/aiven-operator/authentication.html">created</a> first.</p>
 </div>
 <p>Apply the resource with:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>example.yaml
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>example.yaml
 </code></pre></div>
 <p>Verify the newly created <code>ServiceIntegrationEndpoint</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>serviceintegrationendpoints<span class="w"> </span>my-service-integration-endpoint
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>serviceintegrationendpoints<span class="w"> </span>my-service-integration-endpoint
 </code></pre></div>
 <p>The output is similar to the following:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Name<span class="w">                               </span>Project<span class="w">               </span>Endpoint<span class="w"> </span>Name<span class="w">             </span>Endpoint<span class="w"> </span>Type<span class="w">          </span>ID<span class="w">      </span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>my-service-integration-endpoint<span class="w">    </span>aiven-project-name<span class="w">    </span>my-external-postgresql<span class="w">    </span>external_postgresql<span class="w">    </span>&lt;id&gt;<span class="w">    </span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Name<span class="w">                               </span>Project<span class="w">               </span>Endpoint<span class="w"> </span>Name<span class="w">    </span>Endpoint<span class="w"> </span>Type<span class="w">    </span>ID<span class="w">      </span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>my-service-integration-endpoint<span class="w">    </span>aiven-project-name<span class="w">    </span>my-autoscaler<span class="w">    </span>autoscaler<span class="w">       </span>&lt;id&gt;<span class="w">    </span>
 </code></pre></div></p>
 <h2 id="ServiceIntegrationEndpoint">ServiceIntegrationEndpoint<a class="headerlink" href="#ServiceIntegrationEndpoint" title="Permanent link">&para;</a></h2>
 <p>ServiceIntegrationEndpoint is the Schema for the serviceintegrationendpoints API.</p>
@@ -2134,6 +2224,7 @@
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
+<li><a href="#spec.autoscaler-property" name="spec.autoscaler-property"><code>autoscaler</code></a> (object). Autoscaler configuration values. See below for <a href="#spec.autoscaler">nested schema</a>.</li>
 <li><a href="#spec.datadog-property" name="spec.datadog-property"><code>datadog</code></a> (object). Datadog configuration values. See below for <a href="#spec.datadog">nested schema</a>.</li>
 <li><a href="#spec.endpointName-property" name="spec.endpointName-property"><code>endpointName</code></a> (string, Immutable, MaxLength: 36). Source endpoint for the integration (if any).</li>
 <li><a href="#spec.externalAWSCloudwatchLogs-property" name="spec.externalAWSCloudwatchLogs-property"><code>externalAWSCloudwatchLogs</code></a> (object). ExternalAwsCloudwatchLogs configuration values. See below for <a href="#spec.externalAWSCloudwatchLogs">nested schema</a>.</li>
@@ -2157,6 +2248,21 @@
 <li><a href="#spec.authSecretRef.key-property" name="spec.authSecretRef.key-property"><code>key</code></a> (string, MinLength: 1).</li>
 <li><a href="#spec.authSecretRef.name-property" name="spec.authSecretRef.name-property"><code>name</code></a> (string, MinLength: 1).</li>
 </ul>
+<h2 id="spec.autoscaler">autoscaler<a class="headerlink" href="#spec.autoscaler" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
+<p>Autoscaler configuration values.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.autoscaler.autoscaling-property" name="spec.autoscaler.autoscaling-property"><code>autoscaling</code></a> (array of objects, MaxItems: 64). Configure autoscaling thresholds for a service. See below for <a href="#spec.autoscaler.autoscaling">nested schema</a>.</li>
+</ul>
+<h3 id="spec.autoscaler.autoscaling">autoscaling<a class="headerlink" href="#spec.autoscaler.autoscaling" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.autoscaler"><code>spec.autoscaler</code></a>.</em></p>
+<p>Autoscaling properties for a service.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.autoscaler.autoscaling.cap_gb-property" name="spec.autoscaler.autoscaling.cap_gb-property"><code>cap_gb</code></a> (integer, Minimum: 50, Maximum: 10000). The maximum total disk size (in gb) to allow autoscaler to scale up to.</li>
+<li><a href="#spec.autoscaler.autoscaling.type-property" name="spec.autoscaler.autoscaling.type-property"><code>type</code></a> (string, Enum: <code>autoscale_disk</code>). Type of autoscale event.</li>
+</ul>
 <h2 id="spec.datadog">datadog<a class="headerlink" href="#spec.datadog" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
 <p>Datadog configuration values.</p>
@@ -2171,7 +2277,7 @@
 <li><a href="#spec.datadog.kafka_consumer_check_instances-property" name="spec.datadog.kafka_consumer_check_instances-property"><code>kafka_consumer_check_instances</code></a> (integer, Minimum: 1, Maximum: 100). Number of separate instances to fetch kafka consumer statistics with.</li>
 <li><a href="#spec.datadog.kafka_consumer_stats_timeout-property" name="spec.datadog.kafka_consumer_stats_timeout-property"><code>kafka_consumer_stats_timeout</code></a> (integer, Minimum: 2, Maximum: 300). Number of seconds that datadog will wait to get consumer statistics from brokers.</li>
 <li><a href="#spec.datadog.max_partition_contexts-property" name="spec.datadog.max_partition_contexts-property"><code>max_partition_contexts</code></a> (integer, Minimum: 200, Maximum: 200000). Maximum number of partition contexts to send.</li>
-<li><a href="#spec.datadog.site-property" name="spec.datadog.site-property"><code>site</code></a> (string, Enum: <code>datadoghq.com</code>, <code>datadoghq.eu</code>, <code>us3.datadoghq.com</code>, <code>us5.datadoghq.com</code>, <code>ddog-gov.com</code>, <code>ap1.datadoghq.com</code>). Datadog intake site. Defaults to datadoghq.com.</li>
+<li><a href="#spec.datadog.site-property" name="spec.datadog.site-property"><code>site</code></a> (string, Enum: <code>ap1.datadoghq.com</code>, <code>datadoghq.com</code>, <code>datadoghq.eu</code>, <code>ddog-gov.com</code>, <code>us3.datadoghq.com</code>, <code>us5.datadoghq.com</code>). Datadog intake site. Defaults to datadoghq.com.</li>
 </ul>
 <h3 id="spec.datadog.datadog_tags">datadog_tags<a class="headerlink" href="#spec.datadog.datadog_tags" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.datadog"><code>spec.datadog</code></a>.</em></p>
@@ -2244,7 +2350,7 @@
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.externalKafka.bootstrap_servers-property" name="spec.externalKafka.bootstrap_servers-property"><code>bootstrap_servers</code></a> (string, MinLength: 3, MaxLength: 256). Bootstrap servers.</li>
-<li><a href="#spec.externalKafka.security_protocol-property" name="spec.externalKafka.security_protocol-property"><code>security_protocol</code></a> (string, Enum: <code>PLAINTEXT</code>, <code>SSL</code>, <code>SASL_PLAINTEXT</code>, <code>SASL_SSL</code>). Security protocol.</li>
+<li><a href="#spec.externalKafka.security_protocol-property" name="spec.externalKafka.security_protocol-property"><code>security_protocol</code></a> (string, Enum: <code>PLAINTEXT</code>, <code>SASL_PLAINTEXT</code>, <code>SASL_SSL</code>, <code>SSL</code>). Security protocol.</li>
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
@@ -2293,7 +2399,7 @@
 <p>ExternalSchemaRegistry configuration values.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.externalSchemaRegistry.authentication-property" name="spec.externalSchemaRegistry.authentication-property"><code>authentication</code></a> (string, Enum: <code>none</code>, <code>basic</code>). Authentication method.</li>
+<li><a href="#spec.externalSchemaRegistry.authentication-property" name="spec.externalSchemaRegistry.authentication-property"><code>authentication</code></a> (string, Enum: <code>basic</code>, <code>none</code>). Authentication method.</li>
 <li><a href="#spec.externalSchemaRegistry.url-property" name="spec.externalSchemaRegistry.url-property"><code>url</code></a> (string, MaxLength: 2048). Schema Registry URL.</li>
 </ul>
 <p><strong>Optional</strong></p>
@@ -2322,7 +2428,7 @@
 <p>Rsyslog configuration values.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.rsyslog.format-property" name="spec.rsyslog.format-property"><code>format</code></a> (string, Enum: <code>rfc5424</code>, <code>rfc3164</code>, <code>custom</code>). Message format.</li>
+<li><a href="#spec.rsyslog.format-property" name="spec.rsyslog.format-property"><code>format</code></a> (string, Enum: <code>custom</code>, <code>rfc3164</code>, <code>rfc5424</code>). Message format.</li>
 <li><a href="#spec.rsyslog.port-property" name="spec.rsyslog.port-property"><code>port</code></a> (integer, Minimum: 1, Maximum: 65535). Rsyslog server port.</li>
 <li><a href="#spec.rsyslog.server-property" name="spec.rsyslog.server-property"><code>server</code></a> (string, MinLength: 4, MaxLength: 255). Rsyslog server IP address or hostname.</li>
 <li><a href="#spec.rsyslog.tls-property" name="spec.rsyslog.tls-property"><code>tls</code></a> (boolean). Require TLS.</li>

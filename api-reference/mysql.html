@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.41">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.45">
     
     
       
@@ -1273,6 +1273,27 @@
   
   
     <li class="md-nav__item">
+      <a href="flink.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Flink
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="grafana.html" class="md-nav__link">
         
   
@@ -2233,8 +2254,8 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <li><a href="#spec.userConfig.mysql.innodb_thread_concurrency-property" name="spec.userConfig.mysql.innodb_thread_concurrency-property"><code>innodb_thread_concurrency</code></a> (integer, Minimum: 0, Maximum: 1000). Defines the maximum number of threads permitted inside of InnoDB. Default is 0 (infinite concurrency - no limit).</li>
 <li><a href="#spec.userConfig.mysql.innodb_write_io_threads-property" name="spec.userConfig.mysql.innodb_write_io_threads-property"><code>innodb_write_io_threads</code></a> (integer, Minimum: 1, Maximum: 64). The number of I/O threads for write operations in InnoDB. Default is 4. Changing this parameter will lead to a restart of the MySQL service.</li>
 <li><a href="#spec.userConfig.mysql.interactive_timeout-property" name="spec.userConfig.mysql.interactive_timeout-property"><code>interactive_timeout</code></a> (integer, Minimum: 30, Maximum: 604800). The number of seconds the server waits for activity on an interactive connection before closing it.</li>
-<li><a href="#spec.userConfig.mysql.internal_tmp_mem_storage_engine-property" name="spec.userConfig.mysql.internal_tmp_mem_storage_engine-property"><code>internal_tmp_mem_storage_engine</code></a> (string, Enum: <code>TempTable</code>, <code>MEMORY</code>). The storage engine for in-memory internal temporary tables.</li>
-<li><a href="#spec.userConfig.mysql.log_output-property" name="spec.userConfig.mysql.log_output-property"><code>log_output</code></a> (string, Enum: <code>INSIGHTS</code>, <code>NONE</code>, <code>TABLE</code>, <code>INSIGHTS,TABLE</code>). The slow log output destination when slow_query_log is ON. To enable MySQL AI Insights, choose INSIGHTS. To use MySQL AI Insights and the mysql.slow_log table at the same time, choose INSIGHTS,TABLE. To only use the mysql.slow_log table, choose TABLE. To silence slow logs, choose NONE.</li>
+<li><a href="#spec.userConfig.mysql.internal_tmp_mem_storage_engine-property" name="spec.userConfig.mysql.internal_tmp_mem_storage_engine-property"><code>internal_tmp_mem_storage_engine</code></a> (string, Enum: <code>MEMORY</code>, <code>TempTable</code>). The storage engine for in-memory internal temporary tables.</li>
+<li><a href="#spec.userConfig.mysql.log_output-property" name="spec.userConfig.mysql.log_output-property"><code>log_output</code></a> (string, Enum: <code>INSIGHTS</code>, <code>INSIGHTS,TABLE</code>, <code>NONE</code>, <code>TABLE</code>). The slow log output destination when slow_query_log is ON. To enable MySQL AI Insights, choose INSIGHTS. To use MySQL AI Insights and the mysql.slow_log table at the same time, choose INSIGHTS,TABLE. To only use the mysql.slow_log table, choose TABLE. To silence slow logs, choose NONE.</li>
 <li><a href="#spec.userConfig.mysql.long_query_time-property" name="spec.userConfig.mysql.long_query_time-property"><code>long_query_time</code></a> (number, Minimum: 0, Maximum: 3600). The slow_query_logs work as SQL statements that take more than long_query_time seconds to execute.</li>
 <li><a href="#spec.userConfig.mysql.max_allowed_packet-property" name="spec.userConfig.mysql.max_allowed_packet-property"><code>max_allowed_packet</code></a> (integer, Minimum: 102400, Maximum: 1073741824). Size of the largest message in bytes that can be received by the server. Default is 67108864 (64M).</li>
 <li><a href="#spec.userConfig.mysql.max_heap_table_size-property" name="spec.userConfig.mysql.max_heap_table_size-property"><code>max_heap_table_size</code></a> (integer, Minimum: 1048576, Maximum: 1073741824). Limits the size of internal in-memory tables. Also set tmp_table_size. Default is 16777216 (16M).</li>
