@@ -157,7 +157,7 @@ Autoscaler configuration values.
 
 _Appears on [`spec.autoscaler`](#spec.autoscaler)._
 
-AutoscalingProperties.
+Autoscaling properties for a service.
 
 **Required**
 

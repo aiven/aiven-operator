@@ -1,6 +1,60 @@
 # Changelog
 
 
+## v0.26.0 - 2024-11-21
+
+- Add kind: `Flink`
+- Add `Clickhouse` field `userConfig.recovery_basebackup_name`, type `string`: Name of the basebackup
+  to restore in forked service
+- Add `Grafana` field `userConfig.auth_generic_oauth.use_refresh_token`, type `boolean`: Set to true
+  to use refresh token and check access token expiration
+- Add `Kafka` field `userConfig.schema_registry_config.retriable_errors_silenced`, type `boolean`: If
+  enabled, kafka errors which can be retried or custom errors specified for the service will not be
+  raised, instead, a warning log is emitted
+- Add `Kafka` field `userConfig.schema_registry_config.schema_reader_strict_mode`, type `boolean`: If
+  enabled, causes the Karapace schema-registry service to shutdown when there are invalid schema records
+  in the `_schemas` topic
+- Add `Kafka` field `userConfig.single_zone`, type `object`: Single-zone configuration
+- Change `Kafka` field `userConfig.kafka_version`: enum remove `3.5`, `3.6`
+- Add `MySQL` field `userConfig.mysql.log_output`, type `string`: The slow log output destination when
+  slow_query_log is ON
+- Add `OpenSearch` field `userConfig.azure_migration.indices`, type `string`: A comma-delimited list
+  of indices to restore from the snapshot. Multi-index syntax is supported
+- Add `OpenSearch` field `userConfig.gcs_migration.indices`, type `string`: A comma-delimited list of
+  indices to restore from the snapshot. Multi-index syntax is supported
+- Add `OpenSearch` field `userConfig.s3_migration.indices`, type `string`: A comma-delimited list of
+  indices to restore from the snapshot. Multi-index syntax is supported
+- Change `PostgreSQL` field `userConfig.additional_backup_regions`: deprecated
+- Add `OpenSearch` field `userConfig.azure_migration.restore_global_state`, type `boolean`: If true,
+  restore the cluster state. Defaults to false
+- Add `OpenSearch` field `userConfig.gcs_migration.restore_global_state`, type `boolean`: If true, restore
+  the cluster state. Defaults to false
+- Add `OpenSearch` field `userConfig.opensearch.search_backpressure`, type `object`: Search Backpressure
+  Settings
+- Add `OpenSearch` field `userConfig.opensearch.shard_indexing_pressure`, type `object`: Shard indexing
+  back pressure settings
+- Add `OpenSearch` field `userConfig.s3_migration.restore_global_state`, type `boolean`: If true, restore
+  the cluster state. Defaults to false
+- Change `Redis` field `userConfig.redis_timeout`: maximum ~~`31536000`~~ → `2073600`
+- Add `OpenSearch` field `userConfig.azure_migration.include_aliases`, type `boolean`: Whether to restore
+  aliases alongside their associated indexes. Default is true
+- Add `OpenSearch` field `userConfig.gcs_migration.include_aliases`, type `boolean`: Whether to restore
+  aliases alongside their associated indexes. Default is true
+- Add `OpenSearch` field `userConfig.s3_migration.include_aliases`, type `boolean`: Whether to restore
+  aliases alongside their associated indexes. Default is true
+- Add `ServiceIntegration` field `autoscaler`, type `object`: Autoscaler specific user configuration options
+- Add `ServiceIntegrationEndpoint` field `autoscaler`, type `object`: Autoscaler configuration values
+- Change `Grafana` field `userConfig.alerting_enabled`: deprecated
+- Change `OpenSearch` field `userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.allowed_tries`:
+  minimum ~~`0`~~ → `1`
+- Change `OpenSearch` field `userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.block_expiry_seconds`:
+  minimum ~~`1`~~ → `0`
+- Change `OpenSearch` field `userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.time_window_seconds`:
+  minimum ~~`1`~~ → `0`
+- Change `Cassandra` field `userConfig.cassandra_version`: enum remove `4`
+- Change `PostgreSQL` field `userConfig.pg_version`: enum remove `12`
+- Add `OpenSearch` field `userConfig.opensearch.search.insights.top_queries`, type `object`
+
 ## v0.25.0 - 2024-09-19
 
 - Fix `KafkaTopic`: fails to create a topic with the replication factor set more than running Kafka nodes

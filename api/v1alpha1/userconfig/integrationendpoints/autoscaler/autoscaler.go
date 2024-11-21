@@ -3,7 +3,7 @@
 
 package autoscaleruserconfig
 
-// AutoscalingProperties
+// Autoscaling properties for a service
 type Autoscaling struct {
 	// +kubebuilder:validation:Minimum=50
 	// +kubebuilder:validation:Maximum=10000

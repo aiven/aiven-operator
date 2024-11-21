@@ -234,7 +234,7 @@ spec:
                       description: Azure migration settings
                       properties:
                         account:
-                          description: Azure account name
+                          description: Account name
                           pattern: ^[^\r\n]*$
                           type: string
                         base_path:
@@ -910,6 +910,72 @@ spec:
                           maxLength: 1024
                           pattern: ^[^\r\n]*$
                           type: string
+                        search.insights.top_queries:
+                          properties:
+                            cpu:
+                              description: Top N queries monitoring by CPU
+                              properties:
+                                enabled:
+                                  description:
+                                    Enable or disable top N query monitoring
+                                    by the metric
+                                  type: boolean
+                                top_n_size:
+                                  description:
+                                    Specify the value of N for the top N
+                                    queries by the metric
+                                  minimum: 1
+                                  type: integer
+                                window_size:
+                                  description:
+                                    The window size of the top N queries
+                                    by the metric
+                                  pattern: ^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$
+                                  type: string
+                              type: object
+                            latency:
+                              description: Top N queries monitoring by latency
+                              properties:
+                                enabled:
+                                  description:
+                                    Enable or disable top N query monitoring
+                                    by the metric
+                                  type: boolean
+                                top_n_size:
+                                  description:
+                                    Specify the value of N for the top N
+                                    queries by the metric
+                                  minimum: 1
+                                  type: integer
+                                window_size:
+                                  description:
+                                    The window size of the top N queries
+                                    by the metric
+                                  pattern: ^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$
+                                  type: string
+                              type: object
+                            memory:
+                              description: Top N queries monitoring by memory
+                              properties:
+                                enabled:
+                                  description:
+                                    Enable or disable top N query monitoring
+                                    by the metric
+                                  type: boolean
+                                top_n_size:
+                                  description:
+                                    Specify the value of N for the top N
+                                    queries by the metric
+                                  minimum: 1
+                                  type: integer
+                                window_size:
+                                  description:
+                                    The window size of the top N queries
+                                    by the metric
+                                  pattern: ^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$
+                                  type: string
+                              type: object
+                          type: object
                         search_backpressure:
                           description: Search Backpressure Settings
                           properties:

@@ -17,7 +17,6 @@ title: "Flink"
     
       connInfoSecretTarget:
         name: flink-secret
-        prefix: MY_SECRET_PREFIX_
         annotations:
           foo: bar
         labels:
@@ -33,7 +32,7 @@ title: "Flink"
       userConfig:
         number_of_task_slots: 10
         ip_filter:
-          - network: 0.0.0.0
+          - network: 0.0.0.0/32
             description: whatever
           - network: 10.20.0.0/16
     ```

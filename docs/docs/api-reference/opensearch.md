@@ -226,7 +226,7 @@ Azure migration settings.
 
 **Required**
 
-- [`account`](#spec.userConfig.azure_migration.account-property){: name='spec.userConfig.azure_migration.account-property'} (string, Pattern: `^[^\r\n]*$`). Azure account name.
+- [`account`](#spec.userConfig.azure_migration.account-property){: name='spec.userConfig.azure_migration.account-property'} (string, Pattern: `^[^\r\n]*$`). Account name.
 - [`base_path`](#spec.userConfig.azure_migration.base_path-property){: name='spec.userConfig.azure_migration.base_path-property'} (string, Pattern: `^[^\r\n]*$`). The path to the repository data within its container. The value of this setting should not start or end with a /.
 - [`container`](#spec.userConfig.azure_migration.container-property){: name='spec.userConfig.azure_migration.container-property'} (string, Pattern: `^[^\r\n]*$`). Azure container name.
 - [`indices`](#spec.userConfig.azure_migration.indices-property){: name='spec.userConfig.azure_migration.indices-property'} (string). A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported.
@@ -382,6 +382,7 @@ OpenSearch settings.
 - [`plugins_alerting_filter_by_backend_roles`](#spec.userConfig.opensearch.plugins_alerting_filter_by_backend_roles-property){: name='spec.userConfig.opensearch.plugins_alerting_filter_by_backend_roles-property'} (boolean). Enable or disable filtering of alerting by backend roles. Requires Security plugin. Defaults to false.
 - [`reindex_remote_whitelist`](#spec.userConfig.opensearch.reindex_remote_whitelist-property){: name='spec.userConfig.opensearch.reindex_remote_whitelist-property'} (array of strings, MaxItems: 32). Whitelisted addresses for reindexing. Changing this value will cause all OpenSearch instances to restart.
 - [`script_max_compilations_rate`](#spec.userConfig.opensearch.script_max_compilations_rate-property){: name='spec.userConfig.opensearch.script_max_compilations_rate-property'} (string, Pattern: `^[^\r\n]*$`, MaxLength: 1024). Script compilation circuit breaker limits the number of inline script compilations within a period of time. Default is use-context.
+- [`search.insights.top_queries`](#spec.userConfig.opensearch.search.insights.top_queries-property){: name='spec.userConfig.opensearch.search.insights.top_queries-property'} (object). See below for [nested schema](#spec.userConfig.opensearch.search.insights.top_queries).
 - [`search_backpressure`](#spec.userConfig.opensearch.search_backpressure-property){: name='spec.userConfig.opensearch.search_backpressure-property'} (object). Search Backpressure Settings. See below for [nested schema](#spec.userConfig.opensearch.search_backpressure).
 - [`search_max_buckets`](#spec.userConfig.opensearch.search_max_buckets-property){: name='spec.userConfig.opensearch.search_max_buckets-property'} (integer, Minimum: 1, Maximum: 1000000). Maximum number of aggregation buckets allowed in a single response. OpenSearch default value is used when this is not defined.
 - [`shard_indexing_pressure`](#spec.userConfig.opensearch.shard_indexing_pressure-property){: name='spec.userConfig.opensearch.shard_indexing_pressure-property'} (object). Shard indexing back pressure settings. See below for [nested schema](#spec.userConfig.opensearch.shard_indexing_pressure).
@@ -436,6 +437,52 @@ IP address rate limiting settings.
 - [`max_tracked_clients`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.max_tracked_clients-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.max_tracked_clients-property'} (integer, Minimum: 0, Maximum: 2147483647). The maximum number of tracked IP addresses that have failed login.
 - [`time_window_seconds`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.time_window_seconds-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.time_window_seconds-property'} (integer, Minimum: 0, Maximum: 36000). The window of time in which the value for `allowed_tries` is enforced.
 - [`type`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.type-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.type-property'} (string, Enum: `ip`, MaxLength: 1024). The type of rate limiting.
+
+#### search.insights.top_queries {: #spec.userConfig.opensearch.search.insights.top_queries }
+
+_Appears on [`spec.userConfig.opensearch`](#spec.userConfig.opensearch)._
+
+**Optional**
+
+- [`cpu`](#spec.userConfig.opensearch.search.insights.top_queries.cpu-property){: name='spec.userConfig.opensearch.search.insights.top_queries.cpu-property'} (object). Top N queries monitoring by CPU. See below for [nested schema](#spec.userConfig.opensearch.search.insights.top_queries.cpu).
+- [`latency`](#spec.userConfig.opensearch.search.insights.top_queries.latency-property){: name='spec.userConfig.opensearch.search.insights.top_queries.latency-property'} (object). Top N queries monitoring by latency. See below for [nested schema](#spec.userConfig.opensearch.search.insights.top_queries.latency).
+- [`memory`](#spec.userConfig.opensearch.search.insights.top_queries.memory-property){: name='spec.userConfig.opensearch.search.insights.top_queries.memory-property'} (object). Top N queries monitoring by memory. See below for [nested schema](#spec.userConfig.opensearch.search.insights.top_queries.memory).
+
+##### cpu {: #spec.userConfig.opensearch.search.insights.top_queries.cpu }
+
+_Appears on [`spec.userConfig.opensearch.search.insights.top_queries`](#spec.userConfig.opensearch.search.insights.top_queries)._
+
+Top N queries monitoring by CPU.
+
+**Optional**
+
+- [`enabled`](#spec.userConfig.opensearch.search.insights.top_queries.cpu.enabled-property){: name='spec.userConfig.opensearch.search.insights.top_queries.cpu.enabled-property'} (boolean). Enable or disable top N query monitoring by the metric.
+- [`top_n_size`](#spec.userConfig.opensearch.search.insights.top_queries.cpu.top_n_size-property){: name='spec.userConfig.opensearch.search.insights.top_queries.cpu.top_n_size-property'} (integer, Minimum: 1). Specify the value of N for the top N queries by the metric.
+- [`window_size`](#spec.userConfig.opensearch.search.insights.top_queries.cpu.window_size-property){: name='spec.userConfig.opensearch.search.insights.top_queries.cpu.window_size-property'} (string). The window size of the top N queries by the metric.
+
+##### latency {: #spec.userConfig.opensearch.search.insights.top_queries.latency }
+
+_Appears on [`spec.userConfig.opensearch.search.insights.top_queries`](#spec.userConfig.opensearch.search.insights.top_queries)._
+
+Top N queries monitoring by latency.
+
+**Optional**
+
+- [`enabled`](#spec.userConfig.opensearch.search.insights.top_queries.latency.enabled-property){: name='spec.userConfig.opensearch.search.insights.top_queries.latency.enabled-property'} (boolean). Enable or disable top N query monitoring by the metric.
+- [`top_n_size`](#spec.userConfig.opensearch.search.insights.top_queries.latency.top_n_size-property){: name='spec.userConfig.opensearch.search.insights.top_queries.latency.top_n_size-property'} (integer, Minimum: 1). Specify the value of N for the top N queries by the metric.
+- [`window_size`](#spec.userConfig.opensearch.search.insights.top_queries.latency.window_size-property){: name='spec.userConfig.opensearch.search.insights.top_queries.latency.window_size-property'} (string). The window size of the top N queries by the metric.
+
+##### memory {: #spec.userConfig.opensearch.search.insights.top_queries.memory }
+
+_Appears on [`spec.userConfig.opensearch.search.insights.top_queries`](#spec.userConfig.opensearch.search.insights.top_queries)._
+
+Top N queries monitoring by memory.
+
+**Optional**
+
+- [`enabled`](#spec.userConfig.opensearch.search.insights.top_queries.memory.enabled-property){: name='spec.userConfig.opensearch.search.insights.top_queries.memory.enabled-property'} (boolean). Enable or disable top N query monitoring by the metric.
+- [`top_n_size`](#spec.userConfig.opensearch.search.insights.top_queries.memory.top_n_size-property){: name='spec.userConfig.opensearch.search.insights.top_queries.memory.top_n_size-property'} (integer, Minimum: 1). Specify the value of N for the top N queries by the metric.
+- [`window_size`](#spec.userConfig.opensearch.search.insights.top_queries.memory.window_size-property){: name='spec.userConfig.opensearch.search.insights.top_queries.memory.window_size-property'} (string). The window size of the top N queries by the metric.
 
 #### search_backpressure {: #spec.userConfig.opensearch.search_backpressure }
 

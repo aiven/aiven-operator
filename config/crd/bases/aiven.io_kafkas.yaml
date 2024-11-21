@@ -813,10 +813,13 @@ spec:
                         supported. Secrets can be referenced in connector config with
                         ${<provider_name>:<secret_path>:<key_name>}"
                       items:
-                        description: SecretProvider
+                        description:
+                          Configure external secret providers in order to
+                          reference external secrets in connector configuration. Currently
+                          Hashicorp Vault and AWS Secrets Manager are supported.
                         properties:
                           aws:
-                            description: AWS config for Secret Provider
+                            description: AWS secret provider configuration
                             properties:
                               access_key:
                                 description: Access key used to authenticate with aws
@@ -847,7 +850,7 @@ spec:
                               secrets in connector config.
                             type: string
                           vault:
-                            description: Vault Config for Secret Provider
+                            description: Vault secret provider configuration
                             properties:
                               address:
                                 description: Address of the Vault server
