@@ -2,6 +2,87 @@
 title: "Flink"
 ---
 
+## Usage example
+
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: Flink
+    metadata:
+      name: my-flink
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      connInfoSecretTarget:
+        name: flink-secret
+        prefix: MY_SECRET_PREFIX_
+        annotations:
+          foo: bar
+        labels:
+          baz: egg
+    
+      project: my-aiven-project
+      cloudName: google-europe-west1
+      plan: business-4
+    
+      maintenanceWindowDow: sunday
+      maintenanceWindowTime: 11:00:00
+    
+      userConfig:
+        number_of_task_slots: 10
+        ip_filter:
+          - network: 0.0.0.0
+            description: whatever
+          - network: 10.20.0.0/16
+    ```
+
+!!! info
+	To create this resource, a `Secret` containing Aiven token must be [created](/aiven-operator/authentication.html) first.
+
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `Flink`:
+
+```shell
+kubectl get flinks my-flink
+```
+
+The output is similar to the following:
+```shell
+Name        Project             Region                 Plan          State      
+my-flink    my-aiven-project    google-europe-west1    business-4    RUNNING    
+```
+
+To view the details of the `Secret`, use the following command:
+```shell
+kubectl describe secret flink-secret
+```
+
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the `Secret`:
+
+```shell
+kubectl get secret flink-secret -o json | jq '.data | map_values(@base64d)'
+```
+
+The output is similar to the following:
+
+```{ .json .no-copy }
+{
+	"FLINK_HOST": "<secret>",
+	"FLINK_PORT": "<secret>",
+	"FLINK_USER": "<secret>",
+	"FLINK_PASSWORD": "<secret>",
+	"FLINK_URI": "<secret>",
+	"FLINK_HOSTS": "<secret>",
+}
+```
+
 ## Flink {: #Flink }
 
 Flink is the Schema for the flinks API.

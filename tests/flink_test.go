@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,35 +9,6 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	flinkuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/flink"
 )
-
-func getFlinkYaml(project, name, cloudName string) string {
-	return fmt.Sprintf(`
-apiVersion: aiven.io/v1alpha1
-kind: Flink
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[3]s
-  plan: business-4
-
-  tags:
-    env: test
-    instance: foo
-
-  userConfig:
-    number_of_task_slots: 10
-    ip_filter:
-      - network: 0.0.0.0/32
-        description: bar
-      - network: 10.20.0.0/16
-
-`, project, name, cloudName)
-}
 
 func TestFlink(t *testing.T) {
 	t.Parallel()
@@ -49,7 +19,13 @@ func TestFlink(t *testing.T) {
 	defer cancel()
 
 	name := randName("flink")
-	yml := getFlinkYaml(cfg.Project, name, cfg.PrimaryCloudName)
+	yml, err := loadExampleYaml("flink.yaml", map[string]string{
+		"google-europe-west1": cfg.PrimaryCloudName,
+		"my-aiven-project":    cfg.Project,
+		"my-flink":            name,
+	})
+	require.NoError(t, err)
+
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
@@ -71,10 +47,6 @@ func TestFlink(t *testing.T) {
 	assert.Contains(t, serviceRunningStatesAiven, flinkAvn.State)
 	assert.Equal(t, flinkAvn.Plan, flink.Spec.Plan)
 	assert.Equal(t, flinkAvn.CloudName, flink.Spec.CloudName)
-	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, flink.Spec.Tags)
-	flinkResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)
-	require.NoError(t, err)
-	assert.Equal(t, flinkResp.Tags, flink.Spec.Tags)
 
 	// UserConfig test
 	assert.Equal(t, anyPointer(10), flink.Spec.UserConfig.NumberOfTaskSlots)
@@ -84,7 +56,7 @@ func TestFlink(t *testing.T) {
 
 	// First entry
 	assert.Equal(t, "0.0.0.0/32", flink.Spec.UserConfig.IpFilter[0].Network)
-	assert.Equal(t, "bar", *flink.Spec.UserConfig.IpFilter[0].Description)
+	assert.Equal(t, "whatever", *flink.Spec.UserConfig.IpFilter[0].Description)
 
 	// Second entry
 	assert.Equal(t, "10.20.0.0/16", flink.Spec.UserConfig.IpFilter[1].Network)
@@ -96,7 +68,7 @@ func TestFlink(t *testing.T) {
 	assert.Equal(t, ipFilterAvn, flink.Spec.UserConfig.IpFilter)
 
 	// Secrets test
-	secret, err := s.GetSecret(flink.GetName())
+	secret, err := s.GetSecret(flink.Spec.ConnInfoSecretTarget.Name)
 	require.NoError(t, err)
 	assert.NotEmpty(t, secret.Data["FLINK_HOST"])
 	assert.NotEmpty(t, secret.Data["FLINK_USER"])
