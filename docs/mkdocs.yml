@@ -96,6 +96,7 @@ nav:
       - api-reference/clickhousegrant.md
       - api-reference/connectionpool.md
       - api-reference/database.md
+      - api-reference/flink.md
       - api-reference/grafana.md
       - api-reference/kafka.md
       - api-reference/kafkaacl.md

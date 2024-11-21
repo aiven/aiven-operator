@@ -51,6 +51,7 @@
   minimum ~~`1`~~ → `0`
 - Change `Cassandra` field `userConfig.cassandra_version`: enum remove `4`
 - Change `PostgreSQL` field `userConfig.pg_version`: enum remove `12`
+- Add kind: `Flink`
 
 ## v0.25.0 - 2024-09-19
 

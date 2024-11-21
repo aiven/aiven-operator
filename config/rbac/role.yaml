@@ -250,6 +250,34 @@ rules:
   - apiGroups:
       - aiven.io
     resources:
+      - flinks
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - flinks/finalizers
+    verbs:
+      - create
+      - get
+      - update
+  - apiGroups:
+      - aiven.io
+    resources:
+      - flinks/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - aiven.io
+    resources:
       - grafanas
     verbs:
       - create

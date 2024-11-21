@@ -32,6 +32,7 @@ func SetupControllers(mgr ctrl.Manager, defaultToken, kubeVersion, operatorVersi
 		"ClickhouseGrant":                  newClickhouseGrantReconciler,
 		"ConnectionPool":                   newConnectionPoolReconciler,
 		"Database":                         newDatabaseReconciler,
+		"Flink":                            newFlinkReconciler,
 		"Grafana":                          newGrafanaReconciler,
 		"Kafka":                            newKafkaReconciler,
 		"KafkaACL":                         newKafkaACLReconciler,
