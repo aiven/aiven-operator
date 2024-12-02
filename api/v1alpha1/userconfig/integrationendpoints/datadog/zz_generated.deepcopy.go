@@ -45,6 +45,11 @@ func (in *DatadogUserConfig) DeepCopyInto(out *DatadogUserConfig) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.ExtraTagsPrefix != nil {
+		in, out := &in.ExtraTagsPrefix, &out.ExtraTagsPrefix
+		*out = new(string)
+		**out = **in
+	}
 	if in.KafkaConsumerCheckInstances != nil {
 		in, out := &in.KafkaConsumerCheckInstances, &out.KafkaConsumerCheckInstances
 		*out = new(int)
