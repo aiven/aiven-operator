@@ -28,6 +28,12 @@ type DatadogUserConfig struct {
 	// Disable consumer group metrics
 	DisableConsumerStats *bool `groups:"create,update" json:"disable_consumer_stats,omitempty"`
 
+	// +kubebuilder:validation:MinLength=0
+	// +kubebuilder:validation:MaxLength=64
+	// +kubebuilder:validation:Pattern=`^[A-Za-z0-9\-]{0,64}$`
+	// Extra tags prefix. Defaults to aiven
+	ExtraTagsPrefix *string `groups:"create,update" json:"extra_tags_prefix,omitempty"`
+
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=100
 	// Number of separate instances to fetch kafka consumer statistics with

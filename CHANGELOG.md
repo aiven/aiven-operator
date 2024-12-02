@@ -2,6 +2,9 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `ServiceIntegrationEndpoint` field `datadog.extra_tags_prefix`, type `string`: Extra tags prefix.
+  Defaults to aiven
+
 ## v0.26.0 - 2024-11-21
 
 - Add kind: `Flink`

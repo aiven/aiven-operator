@@ -178,6 +178,7 @@ Datadog configuration values.
 
 - [`datadog_tags`](#spec.datadog.datadog_tags-property){: name='spec.datadog.datadog_tags-property'} (array of objects, MaxItems: 32). Custom tags provided by user. See below for [nested schema](#spec.datadog.datadog_tags).
 - [`disable_consumer_stats`](#spec.datadog.disable_consumer_stats-property){: name='spec.datadog.disable_consumer_stats-property'} (boolean). Disable consumer group metrics.
+- [`extra_tags_prefix`](#spec.datadog.extra_tags_prefix-property){: name='spec.datadog.extra_tags_prefix-property'} (string, Pattern: `^[A-Za-z0-9\-]{0,64}$`, MinLength: 0, MaxLength: 64). Extra tags prefix. Defaults to aiven.
 - [`kafka_consumer_check_instances`](#spec.datadog.kafka_consumer_check_instances-property){: name='spec.datadog.kafka_consumer_check_instances-property'} (integer, Minimum: 1, Maximum: 100). Number of separate instances to fetch kafka consumer statistics with.
 - [`kafka_consumer_stats_timeout`](#spec.datadog.kafka_consumer_stats_timeout-property){: name='spec.datadog.kafka_consumer_stats_timeout-property'} (integer, Minimum: 2, Maximum: 300). Number of seconds that datadog will wait to get consumer statistics from brokers.
 - [`max_partition_contexts`](#spec.datadog.max_partition_contexts-property){: name='spec.datadog.max_partition_contexts-property'} (integer, Minimum: 200, Maximum: 200000). Maximum number of partition contexts to send.

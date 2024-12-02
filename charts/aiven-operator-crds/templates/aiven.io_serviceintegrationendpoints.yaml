@@ -131,6 +131,12 @@ spec:
                     disable_consumer_stats:
                       description: Disable consumer group metrics
                       type: boolean
+                    extra_tags_prefix:
+                      description: Extra tags prefix. Defaults to aiven
+                      maxLength: 64
+                      minLength: 0
+                      pattern: ^[A-Za-z0-9\-]{0,64}$
+                      type: string
                     kafka_consumer_check_instances:
                       description:
                         Number of separate instances to fetch kafka consumer
