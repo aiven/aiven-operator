@@ -63,7 +63,7 @@ boilerplate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, 
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
 .PHONY: generate
-generate: userconfigs boilerplate imports manifests docs charts fmt ## Run all code generation targets.
+generate: userconfigs boilerplate fmt-imports manifests docs charts fmt ## Run all code generation targets.
 
 .PHONY: fmt
 fmt: ## Format code.
@@ -73,10 +73,15 @@ fmt: ## Format code.
 vet: ## Run go vet against code.
 	go vet ./...
 
-# On MACOS requires gnu-sed. Run `brew info gnu-sed` and follow instructions to replace default sed.
-.PHONY: imports
-imports: ## Run goimports against code.
-	find . -type f -name '*.go' -exec sed -zi 's/"\n\+\t"/"\n"/g' {} +
+.PHONY: fmt-imports
+# macOS requires to install GNU sed first. Use `brew install gnu-sed` to install it.
+# It has to be added to PATH as `sed` command, to replace default BSD sed.
+# See `brew info gnu-sed` for more details on how to add it to PATH.
+# /^import ($$/: starts with "import ("
+# /^)/: ends with ")"
+# /^[[:space:]]*$$/: empty lines
+fmt-imports:
+	find . -type f -name '*.go' -exec sed -i '/^import ($$/,/^)/ {/^[[:space:]]*$$/d}' {} +
 	goimports -local "github.com/aiven/aiven-operator" -w .
 
 ##@ Checks
