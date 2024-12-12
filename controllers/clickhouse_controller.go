@@ -99,3 +99,7 @@ func (a *clickhouseAdapter) getDiskSpace() string {
 func (a *clickhouseAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
 	return nil
 }
+
+func (a *clickhouseAdapter) createOrUpdateServiceSpecific(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+	return nil
+}

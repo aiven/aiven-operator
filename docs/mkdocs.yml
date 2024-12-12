@@ -88,6 +88,7 @@ nav:
           - resources/kafka/connect.md
   - API Reference:
       - api-reference/index.md
+      - api-reference/alloydbomni.md
       - api-reference/cassandra.md
       - api-reference/clickhouse.md
       - api-reference/clickhousedatabase.md

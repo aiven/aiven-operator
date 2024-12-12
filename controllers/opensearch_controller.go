@@ -101,3 +101,7 @@ func (a *opensearchAdapter) getDiskSpace() string {
 func (a *opensearchAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
 	return nil
 }
+
+func (a *opensearchAdapter) createOrUpdateServiceSpecific(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+	return nil
+}

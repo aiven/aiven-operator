@@ -129,6 +129,11 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 		}
 	}
 
+	// Call service-specific createOrUpdate if it exists
+	if err := o.createOrUpdateServiceSpecific(ctx, avnGen, oldService); err != nil {
+		return fmt.Errorf("failed to create or update service-specific: %w", err)
+	}
+
 	// Updates tags.
 	// Four scenarios: service created/updated * with/without tags
 	// By sending empty tags it clears existing list
@@ -271,4 +276,5 @@ type serviceAdapter interface {
 	getUserConfig() any
 	newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error)
 	performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error
+	createOrUpdateServiceSpecific(ctx context.Context, avnGen avngen.Client, old *service.ServiceGetOut) error
 }

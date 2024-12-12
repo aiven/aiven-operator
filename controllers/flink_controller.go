@@ -95,3 +95,7 @@ func (a *flinkAdapter) getDiskSpace() string {
 func (a *flinkAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
 	return nil
 }
+
+func (a *flinkAdapter) createOrUpdateServiceSpecific(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+	return nil
+}

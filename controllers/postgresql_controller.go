@@ -160,3 +160,7 @@ func waitForTaskToComplete[T any](ctx context.Context, f func() (bool, *T, error
 		}
 	}
 }
+
+func (a *postgreSQLAdapter) createOrUpdateServiceSpecific(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+	return nil
+}
