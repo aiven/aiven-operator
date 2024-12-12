@@ -12,6 +12,11 @@ import (
 type AlloyDBOmniSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
+	// +kubebuilder:validation:Schemaless
+	// +kubebuilder:validation:Type=string
+	// Your [Google service account key](https://cloud.google.com/iam/docs/service-account-creds#key-types) in JSON format.
+	ServiceAccountCredentials string `json:"serviceAccountCredentials,omitempty"`
+
 	// AlloyDBOmni specific user configuration options
 	UserConfig *alloydbomni.AlloydbomniUserConfig `json:"userConfig,omitempty"`
 }

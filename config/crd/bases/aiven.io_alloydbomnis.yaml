@@ -170,6 +170,11 @@ spec:
                   description: Identifier of the VPC the service should be in, if any.
                   maxLength: 36
                   type: string
+                serviceAccountCredentials:
+                  description:
+                    Your [Google service account key](https://cloud.google.com/iam/docs/service-account-creds#key-types)
+                    in JSON format.
+                  type: string
                 serviceIntegrations:
                   description:
                     Service integrations to specify when creating a service.
