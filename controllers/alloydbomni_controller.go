@@ -8,6 +8,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/alloydbomni"
 	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -95,4 +96,15 @@ func (a *alloyDBOmniAdapter) getDiskSpace() string {
 
 func (a *alloyDBOmniAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
 	return nil
+}
+
+func (a *alloyDBOmniAdapter) createOrUpdateServiceSpecific(ctx context.Context, avnGen avngen.Client, old *service.ServiceGetOut) error {
+	if a.Spec.ServiceAccountCredentials == "" {
+		_, err := avnGen.AlloyDbOmniGoogleCloudPrivateKeyRemove(ctx, a.Spec.Project, a.Name)
+		return err
+	}
+
+	req := &alloydbomni.AlloyDbOmniGoogleCloudPrivateKeySetIn{PrivateKey: a.Spec.ServiceAccountCredentials}
+	_, err := avnGen.AlloyDbOmniGoogleCloudPrivateKeySet(ctx, a.Spec.Project, a.Name, req)
+	return err
 }

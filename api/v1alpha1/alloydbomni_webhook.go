@@ -4,11 +4,14 @@ package v1alpha1
 
 import (
 	"errors"
+	"fmt"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+
+	alloydbomniUtils "github.com/aiven/aiven-operator/utils/alloydbomni"
 )
 
 // log is for logging in this package.
@@ -37,13 +40,22 @@ var _ webhook.Validator = &AlloyDBOmni{}
 func (in *AlloyDBOmni) ValidateCreate() error {
 	alloydbomnilog.Info("validate create", "name", in.Name)
 
-	return in.Spec.Validate()
+	if err := alloydbomniUtils.ValidateServiceAccountCredentials(in.Spec.ServiceAccountCredentials); err != nil {
+		return fmt.Errorf("invalid serviceAccountCredentials: %w", err)
+	}
+
+	return nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (in *AlloyDBOmni) ValidateUpdate(old runtime.Object) error {
 	alloydbomnilog.Info("validate update", "name", in.Name)
-	return in.Spec.Validate()
+
+	if err := alloydbomniUtils.ValidateServiceAccountCredentials(in.Spec.ServiceAccountCredentials); err != nil {
+		return fmt.Errorf("invalid serviceAccountCredentials: %w", err)
+	}
+
+	return nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
