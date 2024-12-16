@@ -198,7 +198,7 @@ PostgreSQL specific user configuration options.
 
 **Optional**
 
-- [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Deprecated. Additional Cloud Regions for Backup Replication.
+- [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.
 - [`admin_password`](#spec.userConfig.admin_password-property){: name='spec.userConfig.admin_password-property'} (string, Immutable, Pattern: `^[a-zA-Z0-9-_]+$`, MinLength: 8, MaxLength: 256). Custom password for admin user. Defaults to random string. This must be set only when a new service is being created.
 - [`admin_username`](#spec.userConfig.admin_username-property){: name='spec.userConfig.admin_username-property'} (string, Immutable, Pattern: `^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$`, MaxLength: 64). Custom username for admin user. This must be set only when a new service is being created.
 - [`backup_hour`](#spec.userConfig.backup_hour-property){: name='spec.userConfig.backup_hour-property'} (integer, Minimum: 0, Maximum: 23). The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.
@@ -211,7 +211,7 @@ PostgreSQL specific user configuration options.
 - [`pg_read_replica`](#spec.userConfig.pg_read_replica-property){: name='spec.userConfig.pg_read_replica-property'} (boolean). Should the service which is being forked be a read replica (deprecated, use read_replica service integration instead).
 - [`pg_service_to_fork_from`](#spec.userConfig.pg_service_to_fork_from-property){: name='spec.userConfig.pg_service_to_fork_from-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]{0,63}$|^$`, MaxLength: 64). Name of the PG Service from which to fork (deprecated, use service_to_fork_from). This has effect only when a new service is being created.
 - [`pg_stat_monitor_enable`](#spec.userConfig.pg_stat_monitor_enable-property){: name='spec.userConfig.pg_stat_monitor_enable-property'} (boolean). Enable the pg_stat_monitor extension. Enabling this extension will cause the cluster to be restarted.When this extension is enabled, pg_stat_statements results for utility commands are unreliable.
-- [`pg_version`](#spec.userConfig.pg_version-property){: name='spec.userConfig.pg_version-property'} (string, Enum: `13`, `14`, `15`, `16`). PostgreSQL major version.
+- [`pg_version`](#spec.userConfig.pg_version-property){: name='spec.userConfig.pg_version-property'} (string, Enum: `13`, `14`, `15`, `16`, `17`). PostgreSQL major version.
 - [`pgaudit`](#spec.userConfig.pgaudit-property){: name='spec.userConfig.pgaudit-property'} (object). Deprecated. System-wide settings for the pgaudit extension. See below for [nested schema](#spec.userConfig.pgaudit).
 - [`pgbouncer`](#spec.userConfig.pgbouncer-property){: name='spec.userConfig.pgbouncer-property'} (object). PGBouncer connection pooling settings. See below for [nested schema](#spec.userConfig.pgbouncer).
 - [`pglookout`](#spec.userConfig.pglookout-property){: name='spec.userConfig.pglookout-property'} (object). System-wide settings for pglookout. See below for [nested schema](#spec.userConfig.pglookout).

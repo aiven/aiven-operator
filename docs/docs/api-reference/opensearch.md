@@ -606,7 +606,8 @@ OpenSearch Dashboards settings.
 **Optional**
 
 - [`enabled`](#spec.userConfig.opensearch_dashboards.enabled-property){: name='spec.userConfig.opensearch_dashboards.enabled-property'} (boolean). Enable or disable OpenSearch Dashboards.
-- [`max_old_space_size`](#spec.userConfig.opensearch_dashboards.max_old_space_size-property){: name='spec.userConfig.opensearch_dashboards.max_old_space_size-property'} (integer, Minimum: 64, Maximum: 2048). Limits the maximum amount of memory (in MiB) the OpenSearch Dashboards process can use. This sets the max_old_space_size option of the nodejs running the OpenSearch Dashboards. Note: the memory reserved by OpenSearch Dashboards is not available for OpenSearch.
+- [`max_old_space_size`](#spec.userConfig.opensearch_dashboards.max_old_space_size-property){: name='spec.userConfig.opensearch_dashboards.max_old_space_size-property'} (integer, Minimum: 64, Maximum: 4096). Limits the maximum amount of memory (in MiB) the OpenSearch Dashboards process can use. This sets the max_old_space_size option of the nodejs running the OpenSearch Dashboards. Note: the memory reserved by OpenSearch Dashboards is not available for OpenSearch.
+- [`multiple_data_source_enabled`](#spec.userConfig.opensearch_dashboards.multiple_data_source_enabled-property){: name='spec.userConfig.opensearch_dashboards.multiple_data_source_enabled-property'} (boolean). Enable or disable multiple data sources in OpenSearch Dashboards.
 - [`opensearch_request_timeout`](#spec.userConfig.opensearch_dashboards.opensearch_request_timeout-property){: name='spec.userConfig.opensearch_dashboards.opensearch_request_timeout-property'} (integer, Minimum: 5000, Maximum: 120000). Timeout in milliseconds for requests made by OpenSearch Dashboards towards OpenSearch.
 
 ### private_access {: #spec.userConfig.private_access }

@@ -477,8 +477,7 @@ type Timescaledb struct {
 }
 type PgUserConfig struct {
 	// +kubebuilder:validation:MaxItems=1
-	// +kubebuilder:deprecatedversion:warning="additional_backup_regions is deprecated"
-	// Deprecated. Additional Cloud Regions for Backup Replication
+	// Additional Cloud Regions for Backup Replication
 	AdditionalBackupRegions []string `groups:"create,update" json:"additional_backup_regions,omitempty"`
 
 	// +kubebuilder:validation:MinLength=8
@@ -533,7 +532,7 @@ type PgUserConfig struct {
 	// Enable the pg_stat_monitor extension. Enabling this extension will cause the cluster to be restarted.When this extension is enabled, pg_stat_statements results for utility commands are unreliable
 	PgStatMonitorEnable *bool `groups:"create,update" json:"pg_stat_monitor_enable,omitempty"`
 
-	// +kubebuilder:validation:Enum="13";"14";"15";"16"
+	// +kubebuilder:validation:Enum="13";"14";"15";"16";"17"
 	// PostgreSQL major version
 	PgVersion *string `groups:"create,update" json:"pg_version,omitempty"`
 

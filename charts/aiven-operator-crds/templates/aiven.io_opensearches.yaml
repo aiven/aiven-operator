@@ -1357,9 +1357,14 @@ spec:
                             max_old_space_size option of the nodejs running the OpenSearch
                             Dashboards. Note: the memory reserved by OpenSearch Dashboards
                             is not available for OpenSearch."
-                          maximum: 2048
+                          maximum: 4096
                           minimum: 64
                           type: integer
+                        multiple_data_source_enabled:
+                          description:
+                            Enable or disable multiple data sources in OpenSearch
+                            Dashboards
+                          type: boolean
                         opensearch_request_timeout:
                           description:
                             Timeout in milliseconds for requests made by

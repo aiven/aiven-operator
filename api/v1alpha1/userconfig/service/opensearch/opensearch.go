@@ -729,9 +729,12 @@ type OpensearchDashboards struct {
 	Enabled *bool `groups:"create,update" json:"enabled,omitempty"`
 
 	// +kubebuilder:validation:Minimum=64
-	// +kubebuilder:validation:Maximum=2048
+	// +kubebuilder:validation:Maximum=4096
 	// Limits the maximum amount of memory (in MiB) the OpenSearch Dashboards process can use. This sets the max_old_space_size option of the nodejs running the OpenSearch Dashboards. Note: the memory reserved by OpenSearch Dashboards is not available for OpenSearch.
 	MaxOldSpaceSize *int `groups:"create,update" json:"max_old_space_size,omitempty"`
+
+	// Enable or disable multiple data sources in OpenSearch Dashboards
+	MultipleDataSourceEnabled *bool `groups:"create,update" json:"multiple_data_source_enabled,omitempty"`
 
 	// +kubebuilder:validation:Minimum=5000
 	// +kubebuilder:validation:Maximum=120000
