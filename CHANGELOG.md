@@ -4,6 +4,12 @@
 
 - Add `ServiceIntegrationEndpoint` field `datadog.extra_tags_prefix`, type `string`: Extra tags prefix.
   Defaults to aiven
+- Change `Flink` field `userConfig.flink_version`: enum add `1.20`
+- Add `OpenSearch` field `userConfig.opensearch_dashboards.multiple_data_source_enabled`, type `boolean`:
+  Enable or disable multiple data sources in OpenSearch Dashboards
+- Change `OpenSearch` field `userConfig.opensearch_dashboards.max_old_space_size`: maximum ~~`2048`~~
+  → `4096`
+- Change `PostgreSQL` field `userConfig.pg_version`: enum add `17`
 
 ## v0.26.0 - 2024-11-21
 

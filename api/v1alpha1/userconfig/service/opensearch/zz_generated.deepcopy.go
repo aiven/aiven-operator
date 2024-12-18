@@ -779,6 +779,11 @@ func (in *OpensearchDashboards) DeepCopyInto(out *OpensearchDashboards) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.MultipleDataSourceEnabled != nil {
+		in, out := &in.MultipleDataSourceEnabled, &out.MultipleDataSourceEnabled
+		*out = new(bool)
+		**out = **in
+	}
 	if in.OpensearchRequestTimeout != nil {
 		in, out := &in.OpensearchRequestTimeout, &out.OpensearchRequestTimeout
 		*out = new(int)
