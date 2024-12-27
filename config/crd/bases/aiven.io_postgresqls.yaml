@@ -629,6 +629,12 @@ spec:
                           maximum: 96
                           minimum: 8
                           type: integer
+                        password_encryption:
+                          description: Chooses the algorithm for encrypting passwords.
+                          enum:
+                            - md5
+                            - scram-sha-256
+                          type: string
                         pg_partman_bgw.interval:
                           description:
                             Sets the time interval to run pg_partman's scheduled

@@ -10,6 +10,8 @@
 - Change `OpenSearch` field `userConfig.opensearch_dashboards.max_old_space_size`: maximum ~~`2048`~~
   → `4096`
 - Change `PostgreSQL` field `userConfig.pg_version`: enum add `17`
+- Add `PostgreSQL` field `userConfig.pg.password_encryption`, type `string`: Chooses the algorithm for
+  encrypting passwords
 
 ## v0.26.0 - 2024-11-21
 

@@ -230,6 +230,10 @@ type Pg struct {
 	// Sets the maximum number of background processes that the system can support
 	MaxWorkerProcesses *int `groups:"create,update" json:"max_worker_processes,omitempty"`
 
+	// +kubebuilder:validation:Enum="md5";"scram-sha-256"
+	// Chooses the algorithm for encrypting passwords.
+	PasswordEncryption *string `groups:"create,update" json:"password_encryption,omitempty"`
+
 	// +kubebuilder:validation:Minimum=3600
 	// +kubebuilder:validation:Maximum=604800
 	// Sets the time interval to run pg_partman's scheduled tasks

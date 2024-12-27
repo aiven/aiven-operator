@@ -259,6 +259,11 @@ func (in *Pg) DeepCopyInto(out *Pg) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.PasswordEncryption != nil {
+		in, out := &in.PasswordEncryption, &out.PasswordEncryption
+		*out = new(string)
+		**out = **in
+	}
 	if in.PgPartmanBgwInterval != nil {
 		in, out := &in.PgPartmanBgwInterval, &out.PgPartmanBgwInterval
 		*out = new(int)
