@@ -12,6 +12,11 @@
 - Change `PostgreSQL` field `userConfig.pg_version`: enum add `17`
 - Add `PostgreSQL` field `userConfig.pg.password_encryption`, type `string`: Chooses the algorithm for
   encrypting passwords
+- Add `OpenSearch` field `userConfig.opensearch.cluster.routing.allocation.balance.prefer_primary`, type
+  `boolean`: When set to true, OpenSearch attempts to evenly distribute the primary shards between
+  the cluster nodes
+- Add `OpenSearch` field `userConfig.opensearch.segrep`, type `object`: Segment Replication Backpressure
+  Settings
 
 ## v0.26.0 - 2024-11-21
 

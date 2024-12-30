@@ -465,6 +465,25 @@ type SearchBackpressure struct {
 	SearchTask *SearchTask `groups:"create,update" json:"search_task,omitempty"`
 }
 
+// Segment Replication Backpressure Settings
+type Segrep struct {
+	// +kubebuilder:validation:Minimum=0
+	// The maximum number of indexing checkpoints that a replica shard can fall behind when copying from primary. Once `segrep.pressure.checkpoint.limit` is breached along with `segrep.pressure.time.limit`, the segment replication backpressure mechanism is initiated. Default is 4 checkpoints.
+	PressureCheckpointLimit *int `groups:"create,update" json:"pressure.checkpoint.limit,omitempty"`
+
+	// Enables the segment replication backpressure mechanism. Default is false.
+	PressureEnabled *bool `groups:"create,update" json:"pressure.enabled,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1
+	// The maximum number of stale replica shards that can exist in a replication group. Once `segrep.pressure.replica.stale.limit` is breached, the segment replication backpressure mechanism is initiated. Default is .5, which is 50% of a replication group.
+	PressureReplicaStaleLimit *float64 `groups:"create,update" json:"pressure.replica.stale.limit,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^\d+\s*(?:[dhms]|ms|micros|nanos)$`
+	// The maximum amount of time that a replica shard can take to copy from the primary shard. Once segrep.pressure.time.limit is breached along with segrep.pressure.checkpoint.limit, the segment replication backpressure mechanism is initiated. Default is 5 minutes.
+	PressureTimeLimit *string `groups:"create,update" json:"pressure.time.limit,omitempty"`
+}
+
 // Operating factor
 type OperatingFactor struct {
 	// +kubebuilder:validation:Minimum=0
@@ -522,6 +541,9 @@ type Opensearch struct {
 
 	// Opensearch Security Plugin Settings
 	AuthFailureListeners *AuthFailureListeners `groups:"create,update" json:"auth_failure_listeners,omitempty"`
+
+	// When set to true, OpenSearch attempts to evenly distribute the primary shards between the cluster nodes. Enabling this setting does not always guarantee an equal number of primary shards on each node, especially in the event of a failover. Changing this setting to false after it was set to true does not invoke redistribution of primary shards. Default is false.
+	ClusterRoutingAllocationBalancePreferPrimary *bool `groups:"create,update" json:"cluster.routing.allocation.balance.prefer_primary,omitempty"`
 
 	// +kubebuilder:validation:Minimum=100
 	// +kubebuilder:validation:Maximum=10000
@@ -663,6 +685,9 @@ type Opensearch struct {
 	// +kubebuilder:validation:Maximum=1000000
 	// Maximum number of aggregation buckets allowed in a single response. OpenSearch default value is used when this is not defined.
 	SearchMaxBuckets *int `groups:"create,update" json:"search_max_buckets,omitempty"`
+
+	// Segment Replication Backpressure Settings
+	Segrep *Segrep `groups:"create,update" json:"segrep,omitempty"`
 
 	// Shard indexing back pressure settings
 	ShardIndexingPressure *ShardIndexingPressure `groups:"create,update" json:"shard_indexing_pressure,omitempty"`
