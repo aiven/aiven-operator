@@ -39,8 +39,8 @@ github.com/ClickHouse/clickhouse-go/v2 v2.30.0 h1:AG4D/hW39qa58+JHQIFOSnxyL46H6h
 github.com/ClickHouse/clickhouse-go/v2 v2.30.0/go.mod h1:i9ZQAojcayW3RsdCb3YR+n+wC2h65eJsZCscZ1Z1wyo=
 github.com/aiven/aiven-go-client/v2 v2.33.0 h1:7hsM3/2lVog/P9ls/gLeba5feNVQjK8rIL+lbxD2GB4=
 github.com/aiven/aiven-go-client/v2 v2.33.0/go.mod h1:qXBgER0dtjJa1V3l7kzpizuAGjFCkgahhHL5OpoM2ZM=
-github.com/aiven/go-api-schemas v1.107.0 h1:+FKR5Ko70yv4Xto6S4TqX0eHzme/uB81Mp5bUcXXf6U=
-github.com/aiven/go-api-schemas v1.107.0/go.mod h1:z7dGvufm6If4gOdVr7dWTuFZmll9FOZr5Z5CSxGpebA=
+github.com/aiven/go-api-schemas v1.108.0 h1:xOd6A5O4bOiVacIy1IotMFMrfw8P0/A9qKjHfygshrs=
+github.com/aiven/go-api-schemas v1.108.0/go.mod h1:z7dGvufm6If4gOdVr7dWTuFZmll9FOZr5Z5CSxGpebA=
 github.com/aiven/go-client-codegen v0.76.0 h1:4Od3FmkF9ApdQU+FBgxQLxFge9cmpnMziXpKddkeWow=
 github.com/aiven/go-client-codegen v0.76.0/go.mod h1:QKN/GgLMGWd6+gPEucXlZPi5vC3C6RpD3UeBRQOLI1Y=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
@@ -281,10 +281,10 @@ github.com/onsi/ginkgo/v2 v2.15.0 h1:79HwNRBAZHOEwrczrgSOPy+eFTTlIGELKy5as+ClttY
 github.com/onsi/ginkgo/v2 v2.15.0/go.mod h1:HlxMHtYF57y6Dpf+mc5529KKmSq9h2FpCF+/ZkwUxKM=
 github.com/onsi/gomega v1.36.0 h1:Pb12RlruUtj4XUuPUqeEWc6j5DkVVVA49Uf6YLfC95Y=
 github.com/onsi/gomega v1.36.0/go.mod h1:PvZbdDc8J6XJEpDK4HCuRBm8a6Fzp9/DmhC9C7yFlog=
-github.com/otiai10/copy v1.14.0 h1:dCI/t1iTdYGtkvCuBG2BgR6KZa83PTclw4U5n2wAllU=
-github.com/otiai10/copy v1.14.0/go.mod h1:ECfuL02W+/FkTWZWgQqXPWZgW9oeKCSQ5qVfSc4qc4w=
-github.com/otiai10/mint v1.5.1 h1:XaPLeE+9vGbuyEHem1JNk3bYc7KKqyI/na0/mLd/Kks=
-github.com/otiai10/mint v1.5.1/go.mod h1:MJm72SBthJjz8qhefc4z1PYEieWmy8Bku7CjcAqyUSM=
+github.com/otiai10/copy v1.14.1 h1:5/7E6qsUMBaH5AnQ0sSLzzTg1oTECmcCmT6lvF45Na8=
+github.com/otiai10/copy v1.14.1/go.mod h1:oQwrEDDOci3IM8dJF0d8+jnbfPDllW6vUjNc3DoZm9I=
+github.com/otiai10/mint v1.6.3 h1:87qsV/aw1F5as1eH1zS/yqHY85ANKVMgkDrf9rcxbQs=
+github.com/otiai10/mint v1.6.3/go.mod h1:MJm72SBthJjz8qhefc4z1PYEieWmy8Bku7CjcAqyUSM=
 github.com/paulmach/orb v0.11.1 h1:3koVegMC4X/WeiXYz9iswopaTwMem53NzTJuTF20JzU=
 github.com/paulmach/orb v0.11.1/go.mod h1:5mULz1xQfs3bmQm63QEJA6lNGujuRafwA5S/EnuLaLU=
 github.com/paulmach/protoscan v0.2.1/go.mod h1:SpcSwydNLrxUGSDvXvO0P7g7AuhJ7lcKfDlhJCDw2gY=

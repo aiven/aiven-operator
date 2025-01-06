@@ -7,7 +7,7 @@ toolchain go1.23.0
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.30.0
 	github.com/aiven/aiven-go-client/v2 v2.33.0
-	github.com/aiven/go-api-schemas v1.107.0
+	github.com/aiven/go-api-schemas v1.108.0
 	github.com/aiven/go-client-codegen v0.76.0
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/dave/jennifer v1.7.1
@@ -18,7 +18,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/liip/sheriff v0.12.0
-	github.com/otiai10/copy v1.14.0
+	github.com/otiai10/copy v1.14.1
 	github.com/stoewer/go-strcase v1.3.0
 	github.com/stretchr/testify v1.10.0
 	github.com/xeipuuv/gojsonschema v1.2.0
@@ -70,6 +70,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/onsi/ginkgo/v2 v2.15.0 // indirect
+	github.com/otiai10/mint v1.6.3 // indirect
 	github.com/paulmach/orb v0.11.1 // indirect
 	github.com/pierrec/lz4/v4 v4.1.21 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
