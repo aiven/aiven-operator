@@ -178,3 +178,14 @@ the source code during the documentation deployment. To generate it locally, run
 ```shell
 make docs
 ```
+
+## Generating new resources
+
+To create new resources, install `operator-sdk` with `make operator-sdk` and run:
+
+```shell
+# Replace `<VERSION>` with your operator-sdk version.
+# Replace `<KIND>` with the new resource type. E.g. "Flink" or "Valkey".
+./bin/operator-sdk-<VERSION> create api --version v1alpha1 --kind <KIND> --force
+./bin/operator-sdk-<VERSION> create webhook --version v1alpha1 --kind <KIND> --defaulting --programmatic-validation --conversion
+```
