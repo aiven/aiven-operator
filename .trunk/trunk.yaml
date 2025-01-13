@@ -14,11 +14,11 @@ lint:
     - markdown-link-check@3.13.6
     - hadolint@2.12.1-beta
     - codespell@2.3.0
-    - actionlint@1.7.4
+    - actionlint@1.7.6
     - git-diff-check
-    - gitleaks@8.21.2
+    - gitleaks@8.22.1
     - gofmt@1.20.4
-    - golangci-lint@1.62.2
+    - golangci-lint@1.63.4
     - markdownlint@0.43.0
     - prettier@3.4.2
     - yamllint@1.35.1
