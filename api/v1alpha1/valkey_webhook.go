@@ -3,6 +3,8 @@
 package v1alpha1
 
 import (
+	"errors"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -12,50 +14,49 @@ import (
 // log is for logging in this package.
 var valkeylog = logf.Log.WithName("valkey-resource")
 
-func (r *Valkey) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func (in *Valkey) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
+		For(in).
 		Complete()
 }
 
-// TODO(user): EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-
-//+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-valkey,mutating=true,failurePolicy=fail,sideEffects=None,groups=aiven.io,resources=valkeys,verbs=create;update,versions=v1alpha1,name=mvalkey.kb.io,admissionReviewVersions=v1
+//+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-valkey,mutating=true,failurePolicy=fail,groups=aiven.io,resources=valkey,verbs=create;update,versions=v1alpha1,name=mvalkey.kb.io,sideEffects=none,admissionReviewVersions=v1
 
 var _ webhook.Defaulter = &Valkey{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *Valkey) Default() {
-	valkeylog.Info("default", "name", r.Name)
-
-	// TODO(user): fill in your defaulting logic.
+func (in *Valkey) Default() {
+	valkeylog.Info("default", "name", in.Name)
 }
 
-// TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
-//+kubebuilder:webhook:path=/validate-aiven-io-v1alpha1-valkey,mutating=false,failurePolicy=fail,sideEffects=None,groups=aiven.io,resources=valkeys,verbs=create;update,versions=v1alpha1,name=vvalkey.kb.io,admissionReviewVersions=v1
+//+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-valkey,mutating=false,failurePolicy=fail,groups=aiven.io,resources=valkey,versions=v1alpha1,name=vvalkey.kb.io,sideEffects=none,admissionReviewVersions=v1
 
 var _ webhook.Validator = &Valkey{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *Valkey) ValidateCreate() error {
-	valkeylog.Info("validate create", "name", r.Name)
+func (in *Valkey) ValidateCreate() error {
+	valkeylog.Info("validate create", "name", in.Name)
 
-	// TODO(user): fill in your validation logic upon object creation.
-	return nil
+	return in.Spec.Validate()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *Valkey) ValidateUpdate(old runtime.Object) error {
-	valkeylog.Info("validate update", "name", r.Name)
-
-	// TODO(user): fill in your validation logic upon object update.
-	return nil
+func (in *Valkey) ValidateUpdate(old runtime.Object) error {
+	valkeylog.Info("validate update", "name", in.Name)
+	return in.Spec.Validate()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *Valkey) ValidateDelete() error {
-	valkeylog.Info("validate delete", "name", r.Name)
+func (in *Valkey) ValidateDelete() error {
+	valkeylog.Info("validate delete", "name", in.Name)
 
-	// TODO(user): fill in your validation logic upon object deletion.
+	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
+		return errors.New("cannot delete Valkey service, termination protection is on")
+	}
+
+	if in.Spec.ProjectVPCID != "" && in.Spec.ProjectVPCRef != nil {
+		return errors.New("cannot use both projectVpcId and projectVPCRef")
+	}
+
 	return nil
 }
