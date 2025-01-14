@@ -2,6 +2,87 @@
 title: "Valkey"
 ---
 
+## Usage example
+
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: Valkey
+    metadata:
+      name: my-valkey
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      connInfoSecretTarget:
+        name: valkey-secret
+        annotations:
+          foo: bar
+        labels:
+          baz: egg
+    
+      project: my-aiven-project
+      cloudName: google-europe-west1
+      plan: startup-4
+    
+      maintenanceWindowDow: sunday
+      maintenanceWindowTime: 11:00:00
+    
+      tags:
+        env: test
+        instance: foo
+    
+      userConfig:
+        ip_filter:
+          - network: 0.0.0.0/32
+            description: bar
+          - network: 10.20.0.0/16
+    ```
+
+!!! info
+	To create this resource, a `Secret` containing Aiven token must be [created](/aiven-operator/authentication.html) first.
+
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `Valkey`:
+
+```shell
+kubectl get valkeys my-valkey
+```
+
+The output is similar to the following:
+```shell
+Name         Project             Region                 Plan         State      
+my-valkey    my-aiven-project    google-europe-west1    startup-4    RUNNING    
+```
+
+To view the details of the `Secret`, use the following command:
+```shell
+kubectl describe secret valkey-secret
+```
+
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the `Secret`:
+
+```shell
+kubectl get secret valkey-secret -o json | jq '.data | map_values(@base64d)'
+```
+
+The output is similar to the following:
+
+```{ .json .no-copy }
+{
+	"VALKEY_HOST": "<secret>",
+	"VALKEY_PORT": "<secret>",
+	"VALKEY_USER": "<secret>",
+	"VALKEY_PASSWORD": "<secret>",
+}
+```
+
 ## Valkey {: #Valkey }
 
 Valkey is the Schema for the valkeys API
