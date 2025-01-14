@@ -753,7 +753,7 @@ rules:
   - apiGroups:
       - aiven.io
     resources:
-      - valkeys
+      - valkey
     verbs:
       - create
       - delete
@@ -765,13 +765,15 @@ rules:
   - apiGroups:
       - aiven.io
     resources:
-      - valkeys/finalizers
+      - valkey/finalizers
     verbs:
+      - create
+      - get
       - update
   - apiGroups:
       - aiven.io
     resources:
-      - valkeys/status
+      - valkey/status
     verbs:
       - get
       - patch

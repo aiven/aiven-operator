@@ -461,8 +461,9 @@ webhooks:
         operations:
           - CREATE
           - UPDATE
+          - DELETE
         resources:
-          - valkeys
+          - valkey
     sideEffects: None
     {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
 

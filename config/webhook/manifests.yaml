@@ -422,7 +422,7 @@ webhooks:
           - CREATE
           - UPDATE
         resources:
-          - valkeys
+          - valkey
     sideEffects: None
 ---
 apiVersion: admissionregistration.k8s.io/v1
@@ -862,6 +862,7 @@ webhooks:
         operations:
           - CREATE
           - UPDATE
+          - DELETE
         resources:
-          - valkeys
+          - valkey
     sideEffects: None

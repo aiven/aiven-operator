@@ -19,6 +19,7 @@
   Settings
 - Add `Flink` field `userConfig.custom_code`, type `boolean`: Enable to upload Custom JARs for Flink
   applications
+- Add kind: `Valkey`
 
 ## v0.26.0 - 2024-11-21
 
