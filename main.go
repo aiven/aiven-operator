@@ -24,7 +24,7 @@ import (
 	//+kubebuilder:scaffold:imports
 )
 
-//go:generate go run ./generators/userconfigs/... --services mysql,cassandra,flink,grafana,pg,kafka,redis,clickhouse,opensearch,kafka_connect
+//go:generate go run ./generators/userconfigs/... --services mysql,cassandra,flink,grafana,pg,kafka,redis,clickhouse,opensearch,kafka_connect,valkey
 //go:generate go run ./generators/userconfigs/... --integrations autoscaler,clickhouse_kafka,clickhouse_postgresql,datadog,kafka_connect,kafka_logs,kafka_mirrormaker,logs,metrics,external_aws_cloudwatch_metrics
 //go:generate go run ./generators/userconfigs/... --integration-endpoints autoscaler,datadog,external_aws_cloudwatch_logs,external_aws_cloudwatch_metrics,external_elasticsearch_logs,external_google_cloud_bigquery,external_google_cloud_logging,external_kafka,external_opensearch_logs,external_postgresql,external_schema_registry,jolokia,prometheus,rsyslog
 
