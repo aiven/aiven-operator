@@ -34,6 +34,9 @@ type FlinkUserConfig struct {
 	// Deprecated. Additional Cloud Regions for Backup Replication
 	AdditionalBackupRegions []string `groups:"create,update" json:"additional_backup_regions,omitempty"`
 
+	// Enable to upload Custom JARs for Flink applications
+	CustomCode *bool `groups:"create,update" json:"custom_code,omitempty"`
+
 	// +kubebuilder:validation:Enum="1.19";"1.20"
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Flink major version

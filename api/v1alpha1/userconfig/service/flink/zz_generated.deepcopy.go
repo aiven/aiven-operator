@@ -14,6 +14,11 @@ func (in *FlinkUserConfig) DeepCopyInto(out *FlinkUserConfig) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
+	if in.CustomCode != nil {
+		in, out := &in.CustomCode, &out.CustomCode
+		*out = new(bool)
+		**out = **in
+	}
 	if in.FlinkVersion != nil {
 		in, out := &in.FlinkVersion, &out.FlinkVersion
 		*out = new(string)

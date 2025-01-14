@@ -17,6 +17,8 @@
   the cluster nodes
 - Add `OpenSearch` field `userConfig.opensearch.segrep`, type `object`: Segment Replication Backpressure
   Settings
+- Add `Flink` field `userConfig.custom_code`, type `boolean`: Enable to upload Custom JARs for Flink
+  applications
 
 ## v0.26.0 - 2024-11-21
 
