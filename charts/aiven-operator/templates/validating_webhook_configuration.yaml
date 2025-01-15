@@ -444,5 +444,27 @@ webhooks:
           - serviceusers
     sideEffects: None
     {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: {{ include "aiven-operator.fullname" . }}-webhook-service
+        namespace: {{ include "aiven-operator.namespace" . }}
+        path: /validate-aiven-io-v1alpha1-valkey
+    failurePolicy: Fail
+    name: vvalkey.kb.io
+    rules:
+      - apiGroups:
+          - aiven.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+          - DELETE
+        resources:
+          - valkey
+    sideEffects: None
+    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
 
 {{- end }}

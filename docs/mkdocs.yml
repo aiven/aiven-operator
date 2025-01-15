@@ -114,3 +114,4 @@ nav:
       - api-reference/serviceintegration.md
       - api-reference/serviceintegrationendpoint.md
       - api-reference/serviceuser.md
+      - api-reference/valkey.md

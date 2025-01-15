@@ -67,6 +67,9 @@ func SetupWebhooks(mgr ctrl.Manager) error {
 	if err := (&Grafana{}).SetupWebhookWithManager(mgr); err != nil {
 		return fmt.Errorf("webhook Grafana: %w", err)
 	}
+	if err := (&Valkey{}).SetupWebhookWithManager(mgr); err != nil {
+		return fmt.Errorf("webhook Valkey: %w", err)
+	}
 
 	//+kubebuilder:scaffold:builder
 	return nil

@@ -751,6 +751,34 @@ rules:
       - patch
       - update
   - apiGroups:
+      - aiven.io
+    resources:
+      - valkey
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aiven.io
+    resources:
+      - valkey/finalizers
+    verbs:
+      - create
+      - get
+      - update
+  - apiGroups:
+      - aiven.io
+    resources:
+      - valkey/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
       - coordination.k8s.io
     resources:
       - leases

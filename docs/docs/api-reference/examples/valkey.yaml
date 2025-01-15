@@ -1,0 +1,32 @@
+apiVersion: aiven.io/v1alpha1
+kind: Valkey
+metadata:
+  name: my-valkey
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: my-valkey-secret
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
+
+  project: my-aiven-project
+  cloudName: google-europe-west1
+  plan: startup-4
+
+  maintenanceWindowDow: sunday
+  maintenanceWindowTime: 11:00:00
+
+  tags:
+    env: test
+    instance: foo
+
+  userConfig:
+    ip_filter:
+      - network: 0.0.0.0/32
+        description: bar
+      - network: 10.20.0.0/16

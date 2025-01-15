@@ -50,6 +50,7 @@ func SetupControllers(mgr ctrl.Manager, defaultToken, kubeVersion, operatorVersi
 		"ServiceIntegration":               newServiceIntegrationReconciler,
 		"ServiceIntegrationEndpoint":       newServiceIntegrationEndpointReconciler,
 		"ServiceUser":                      newServiceUserReconciler,
+		"Valkey":                           newValkeyReconciler,
 	}
 
 	for k, v := range builders {
