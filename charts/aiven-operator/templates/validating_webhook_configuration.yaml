@@ -463,7 +463,7 @@ webhooks:
           - UPDATE
           - DELETE
         resources:
-          - valkey
+          - valkeys
     sideEffects: None
     {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
 

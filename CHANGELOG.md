@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.27.0 - 2025-01-16
+
 - Add `ServiceIntegrationEndpoint` field `datadog.extra_tags_prefix`, type `string`: Extra tags prefix.
   Defaults to aiven
 - Change `Flink` field `userConfig.flink_version`: enum add `1.20`

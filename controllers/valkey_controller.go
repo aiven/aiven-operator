@@ -28,9 +28,9 @@ func newValkeyReconciler(c Controller) reconcilerType {
 
 type ValkeyHandler struct{}
 
-//+kubebuilder:rbac:groups=aiven.io,resources=valkey,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=aiven.io,resources=valkey/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=aiven.io,resources=valkey/finalizers,verbs=get;create;update
+//+kubebuilder:rbac:groups=aiven.io,resources=valkeys,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aiven.io,resources=valkeys/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=valkeys/finalizers,verbs=get;create;update
 
 func (r *ValkeyReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newValkeyAdapter), &v1alpha1.Valkey{})
