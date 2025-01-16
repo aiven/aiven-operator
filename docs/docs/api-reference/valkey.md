@@ -16,7 +16,7 @@ title: "Valkey"
         key: token
     
       connInfoSecretTarget:
-        name: valkey-secret
+        name: my-valkey-secret
         annotations:
           foo: bar
         labels:
@@ -63,13 +63,13 @@ my-valkey    my-aiven-project    google-europe-west1    startup-4    RUNNING
 
 To view the details of the `Secret`, use the following command:
 ```shell
-kubectl describe secret valkey-secret
+kubectl describe secret my-valkey-secret
 ```
 
 You can use the [jq](https://github.com/jqlang/jq) to quickly decode the `Secret`:
 
 ```shell
-kubectl get secret valkey-secret -o json | jq '.data | map_values(@base64d)'
+kubectl get secret my-valkey-secret -o json | jq '.data | map_values(@base64d)'
 ```
 
 The output is similar to the following:

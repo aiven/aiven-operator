@@ -447,7 +447,7 @@ webhooks:
           - CREATE
           - UPDATE
         resources:
-          - valkey
+          - valkeys
     sideEffects: None
     {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
 
