@@ -720,6 +720,52 @@ spec:
                             it was set to true does not invoke redistribution of primary
                             shards. Default is false.
                           type: boolean
+                        cluster.search.request.slowlog:
+                          properties:
+                            level:
+                              description: Log level
+                              enum:
+                                - debug
+                                - info
+                                - trace
+                                - warn
+                              type: string
+                            threshold:
+                              properties:
+                                debug:
+                                  description:
+                                    Debug threshold for total request took
+                                    time. The value should be in the form count and
+                                    unit, where unit one of (s,m,h,d,nanos,ms,micros)
+                                    or -1. Default is -1
+                                  pattern: ^[^\r\n]*$
+                                  type: string
+                                info:
+                                  description:
+                                    Info threshold for total request took
+                                    time. The value should be in the form count and
+                                    unit, where unit one of (s,m,h,d,nanos,ms,micros)
+                                    or -1. Default is -1
+                                  pattern: ^[^\r\n]*$
+                                  type: string
+                                trace:
+                                  description:
+                                    Trace threshold for total request took
+                                    time. The value should be in the form count and
+                                    unit, where unit one of (s,m,h,d,nanos,ms,micros)
+                                    or -1. Default is -1
+                                  pattern: ^[^\r\n]*$
+                                  type: string
+                                warn:
+                                  description:
+                                    Warning threshold for total request took
+                                    time. The value should be in the form count and
+                                    unit, where unit one of (s,m,h,d,nanos,ms,micros)
+                                    or -1. Default is -1
+                                  pattern: ^[^\r\n]*$
+                                  type: string
+                              type: object
+                          type: object
                         cluster_max_shards_per_node:
                           description:
                             Controls the number of shards allowed in the
@@ -754,6 +800,9 @@ spec:
                           maxLength: 320
                           pattern: ^[^\x00-\x1F]+$
                           type: string
+                        enable_remote_backed_storage:
+                          description: Enable remote-backed storage
+                          type: boolean
                         enable_security_audit:
                           description: Enable/Disable security audit
                           type: boolean

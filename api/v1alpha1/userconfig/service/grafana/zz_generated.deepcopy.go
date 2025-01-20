@@ -339,6 +339,11 @@ func (in *GrafanaUserConfig) DeepCopyInto(out *GrafanaUserConfig) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.DashboardScenesEnabled != nil {
+		in, out := &in.DashboardScenesEnabled, &out.DashboardScenesEnabled
+		*out = new(bool)
+		**out = **in
+	}
 	if in.DashboardsMinRefreshInterval != nil {
 		in, out := &in.DashboardsMinRefreshInterval, &out.DashboardsMinRefreshInterval
 		*out = new(string)

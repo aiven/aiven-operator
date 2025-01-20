@@ -93,6 +93,19 @@ type KafkaConnect struct {
 	SessionTimeoutMs *int `groups:"create,update" json:"session_timeout_ms,omitempty"`
 }
 
+// A Kafka Connect plugin
+type PluginVersions struct {
+	// +kubebuilder:validation:MaxLength=128
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// The name of the plugin
+	PluginName string `groups:"create,update" json:"plugin_name"`
+
+	// +kubebuilder:validation:MaxLength=128
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// The version of the plugin
+	Version string `groups:"create,update" json:"version"`
+}
+
 // Allow access to selected service ports from private networks
 type PrivateAccess struct {
 	// Allow clients to connect to kafka_connect with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
@@ -188,6 +201,9 @@ type KafkaConnectUserConfig struct {
 
 	// Kafka Connect configuration values
 	KafkaConnect *KafkaConnect `groups:"create,update" json:"kafka_connect,omitempty"`
+
+	// The plugin selected by the user
+	PluginVersions []*PluginVersions `groups:"create,update" json:"plugin_versions,omitempty"`
 
 	// Allow access to selected service ports from private networks
 	PrivateAccess *PrivateAccess `groups:"create,update" json:"private_access,omitempty"`

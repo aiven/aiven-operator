@@ -295,6 +295,30 @@ type AuthFailureListeners struct {
 	// IP address rate limiting settings
 	IpRateLimiting *IpRateLimiting `groups:"create,update" json:"ip_rate_limiting,omitempty"`
 }
+type Threshold struct {
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// Debug threshold for total request took time. The value should be in the form count and unit, where unit one of (s,m,h,d,nanos,ms,micros) or -1. Default is -1
+	Debug *string `groups:"create,update" json:"debug,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// Info threshold for total request took time. The value should be in the form count and unit, where unit one of (s,m,h,d,nanos,ms,micros) or -1. Default is -1
+	Info *string `groups:"create,update" json:"info,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// Trace threshold for total request took time. The value should be in the form count and unit, where unit one of (s,m,h,d,nanos,ms,micros) or -1. Default is -1
+	Trace *string `groups:"create,update" json:"trace,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// Warning threshold for total request took time. The value should be in the form count and unit, where unit one of (s,m,h,d,nanos,ms,micros) or -1. Default is -1
+	Warn *string `groups:"create,update" json:"warn,omitempty"`
+}
+type ClusterSearchRequestSlowlog struct {
+	// +kubebuilder:validation:Enum="debug";"info";"trace";"warn"
+	// Log level
+	Level *string `groups:"create,update" json:"level,omitempty"`
+
+	Threshold *Threshold `groups:"create,update" json:"threshold,omitempty"`
+}
 
 // Top N queries monitoring by CPU
 type Cpu struct {
@@ -545,6 +569,8 @@ type Opensearch struct {
 	// When set to true, OpenSearch attempts to evenly distribute the primary shards between the cluster nodes. Enabling this setting does not always guarantee an equal number of primary shards on each node, especially in the event of a failover. Changing this setting to false after it was set to true does not invoke redistribution of primary shards. Default is false.
 	ClusterRoutingAllocationBalancePreferPrimary *bool `groups:"create,update" json:"cluster.routing.allocation.balance.prefer_primary,omitempty"`
 
+	ClusterSearchRequestSlowlog *ClusterSearchRequestSlowlog `groups:"create,update" json:"cluster.search.request.slowlog,omitempty"`
+
 	// +kubebuilder:validation:Minimum=100
 	// +kubebuilder:validation:Maximum=10000
 	// Controls the number of shards allowed in the cluster per data node
@@ -569,6 +595,9 @@ type Opensearch struct {
 	// +kubebuilder:validation:Pattern=`^[^\x00-\x1F]+$`
 	// Sender username for Opensearch alerts
 	EmailSenderUsername *string `groups:"create,update" json:"email_sender_username,omitempty"`
+
+	// Enable remote-backed storage
+	EnableRemoteBackedStorage *bool `groups:"create,update" json:"enable_remote_backed_storage,omitempty"`
 
 	// Enable/Disable security audit
 	EnableSecurityAudit *bool `groups:"create,update" json:"enable_security_audit,omitempty"`

@@ -2,6 +2,14 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Change `Flink` field `userConfig.custom_code`: immutable `true`
+- Add `Grafana` field `userConfig.dashboard_scenes_enabled`, type `boolean`: Enable use of the Grafana
+  Scenes Library as the dashboard engine. i.e
+- Add `KafkaConnect` field `userConfig.plugin_versions`, type `array`: The plugin selected by the user
+- Add `OpenSearch` field `userConfig.opensearch.cluster.search.request.slowlog`, type `object`: 
+- Add `OpenSearch` field `userConfig.opensearch.enable_remote_backed_storage`, type `boolean`: Enable
+  remote-backed storage
+
 ## v0.27.0 - 2025-01-16
 
 - Add `ServiceIntegrationEndpoint` field `datadog.extra_tags_prefix`, type `string`: Extra tags prefix.

@@ -352,6 +352,9 @@ type GrafanaUserConfig struct {
 	// Enable browsing of dashboards in grid (pictures) mode. This feature is new in Grafana 9 and is quite resource intensive. It may cause low-end plans to work more slowly while the dashboard previews are rendering.
 	DashboardPreviewsEnabled *bool `groups:"create,update" json:"dashboard_previews_enabled,omitempty"`
 
+	// Enable use of the Grafana Scenes Library as the dashboard engine. i.e. the `dashboardScene` feature flag. Upstream blog post at https://grafana.com/blog/2024/10/31/grafana-dashboards-are-now-powered-by-scenes-big-changes-same-ui/
+	DashboardScenesEnabled *bool `groups:"create,update" json:"dashboard_scenes_enabled,omitempty"`
+
 	// +kubebuilder:validation:MaxLength=16
 	// +kubebuilder:validation:Pattern=`^[0-9]+(ms|s|m|h|d)$`
 	// Signed sequence of decimal numbers, followed by a unit suffix (ms, s, m, h, d), e.g. 30s, 1h

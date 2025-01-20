@@ -521,6 +521,12 @@ spec:
                         intensive. It may cause low-end plans to work more slowly while
                         the dashboard previews are rendering.
                       type: boolean
+                    dashboard_scenes_enabled:
+                      description:
+                        Enable use of the Grafana Scenes Library as the dashboard
+                        engine. i.e. the `dashboardScene` feature flag. Upstream blog
+                        post at https://grafana.com/blog/2024/10/31/grafana-dashboards-are-now-powered-by-scenes-big-changes-same-ui/
+                      type: boolean
                     dashboards_min_refresh_interval:
                       description:
                         Signed sequence of decimal numbers, followed by a

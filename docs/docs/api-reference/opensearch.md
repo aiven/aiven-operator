@@ -354,11 +354,13 @@ OpenSearch settings.
 - [`action_destructive_requires_name`](#spec.userConfig.opensearch.action_destructive_requires_name-property){: name='spec.userConfig.opensearch.action_destructive_requires_name-property'} (boolean). Require explicit index names when deleting.
 - [`auth_failure_listeners`](#spec.userConfig.opensearch.auth_failure_listeners-property){: name='spec.userConfig.opensearch.auth_failure_listeners-property'} (object). Opensearch Security Plugin Settings. See below for [nested schema](#spec.userConfig.opensearch.auth_failure_listeners).
 - [`cluster.routing.allocation.balance.prefer_primary`](#spec.userConfig.opensearch.cluster.routing.allocation.balance.prefer_primary-property){: name='spec.userConfig.opensearch.cluster.routing.allocation.balance.prefer_primary-property'} (boolean). When set to true, OpenSearch attempts to evenly distribute the primary shards between the cluster nodes. Enabling this setting does not always guarantee an equal number of primary shards on each node, especially in the event of a failover. Changing this setting to false after it was set to true does not invoke redistribution of primary shards. Default is false.
+- [`cluster.search.request.slowlog`](#spec.userConfig.opensearch.cluster.search.request.slowlog-property){: name='spec.userConfig.opensearch.cluster.search.request.slowlog-property'} (object). See below for [nested schema](#spec.userConfig.opensearch.cluster.search.request.slowlog).
 - [`cluster_max_shards_per_node`](#spec.userConfig.opensearch.cluster_max_shards_per_node-property){: name='spec.userConfig.opensearch.cluster_max_shards_per_node-property'} (integer, Minimum: 100, Maximum: 10000). Controls the number of shards allowed in the cluster per data node.
 - [`cluster_routing_allocation_node_concurrent_recoveries`](#spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property){: name='spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property'} (integer, Minimum: 2, Maximum: 16). How many concurrent incoming/outgoing shard recoveries (normally replicas) are allowed to happen on a node. Defaults to node cpu count * 2.
 - [`email_sender_name`](#spec.userConfig.opensearch.email_sender_name-property){: name='spec.userConfig.opensearch.email_sender_name-property'} (string, Pattern: `^[a-zA-Z0-9-_]+$`, MaxLength: 40). Sender name placeholder to be used in Opensearch Dashboards and Opensearch keystore.
 - [`email_sender_password`](#spec.userConfig.opensearch.email_sender_password-property){: name='spec.userConfig.opensearch.email_sender_password-property'} (string, Pattern: `^[^\x00-\x1F]+$`, MaxLength: 1024). Sender password for Opensearch alerts to authenticate with SMTP server.
 - [`email_sender_username`](#spec.userConfig.opensearch.email_sender_username-property){: name='spec.userConfig.opensearch.email_sender_username-property'} (string, Pattern: `^[^\x00-\x1F]+$`, MaxLength: 320). Sender username for Opensearch alerts.
+- [`enable_remote_backed_storage`](#spec.userConfig.opensearch.enable_remote_backed_storage-property){: name='spec.userConfig.opensearch.enable_remote_backed_storage-property'} (boolean). Enable remote-backed storage.
 - [`enable_security_audit`](#spec.userConfig.opensearch.enable_security_audit-property){: name='spec.userConfig.opensearch.enable_security_audit-property'} (boolean). Enable/Disable security audit.
 - [`http_max_content_length`](#spec.userConfig.opensearch.http_max_content_length-property){: name='spec.userConfig.opensearch.http_max_content_length-property'} (integer, Minimum: 1, Maximum: 2147483647). Maximum content length for HTTP requests to the OpenSearch HTTP API, in bytes.
 - [`http_max_header_size`](#spec.userConfig.opensearch.http_max_header_size-property){: name='spec.userConfig.opensearch.http_max_header_size-property'} (integer, Minimum: 1024, Maximum: 262144). The max size of allowed headers, in bytes.
@@ -439,6 +441,26 @@ IP address rate limiting settings.
 - [`max_tracked_clients`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.max_tracked_clients-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.max_tracked_clients-property'} (integer, Minimum: 0, Maximum: 2147483647). The maximum number of tracked IP addresses that have failed login.
 - [`time_window_seconds`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.time_window_seconds-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.time_window_seconds-property'} (integer, Minimum: 0, Maximum: 36000). The window of time in which the value for `allowed_tries` is enforced.
 - [`type`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.type-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting.type-property'} (string, Enum: `ip`, MaxLength: 1024). The type of rate limiting.
+
+#### cluster.search.request.slowlog {: #spec.userConfig.opensearch.cluster.search.request.slowlog }
+
+_Appears on [`spec.userConfig.opensearch`](#spec.userConfig.opensearch)._
+
+**Optional**
+
+- [`level`](#spec.userConfig.opensearch.cluster.search.request.slowlog.level-property){: name='spec.userConfig.opensearch.cluster.search.request.slowlog.level-property'} (string, Enum: `debug`, `info`, `trace`, `warn`). Log level.
+- [`threshold`](#spec.userConfig.opensearch.cluster.search.request.slowlog.threshold-property){: name='spec.userConfig.opensearch.cluster.search.request.slowlog.threshold-property'} (object). See below for [nested schema](#spec.userConfig.opensearch.cluster.search.request.slowlog.threshold).
+
+##### threshold {: #spec.userConfig.opensearch.cluster.search.request.slowlog.threshold }
+
+_Appears on [`spec.userConfig.opensearch.cluster.search.request.slowlog`](#spec.userConfig.opensearch.cluster.search.request.slowlog)._
+
+**Optional**
+
+- [`debug`](#spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.debug-property){: name='spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.debug-property'} (string, Pattern: `^[^\r\n]*$`). Debug threshold for total request took time. The value should be in the form count and unit, where unit one of (s,m,h,d,nanos,ms,micros) or -1. Default is -1.
+- [`info`](#spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.info-property){: name='spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.info-property'} (string, Pattern: `^[^\r\n]*$`). Info threshold for total request took time. The value should be in the form count and unit, where unit one of (s,m,h,d,nanos,ms,micros) or -1. Default is -1.
+- [`trace`](#spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.trace-property){: name='spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.trace-property'} (string, Pattern: `^[^\r\n]*$`). Trace threshold for total request took time. The value should be in the form count and unit, where unit one of (s,m,h,d,nanos,ms,micros) or -1. Default is -1.
+- [`warn`](#spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.warn-property){: name='spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.warn-property'} (string, Pattern: `^[^\r\n]*$`). Warning threshold for total request took time. The value should be in the form count and unit, where unit one of (s,m,h,d,nanos,ms,micros) or -1. Default is -1.
 
 #### search.insights.top_queries {: #spec.userConfig.opensearch.search.insights.top_queries }
 

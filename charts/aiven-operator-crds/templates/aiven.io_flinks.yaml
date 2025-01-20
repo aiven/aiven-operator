@@ -233,6 +233,9 @@ spec:
                     custom_code:
                       description: Enable to upload Custom JARs for Flink applications
                       type: boolean
+                      x-kubernetes-validations:
+                        - message: Value is immutable
+                          rule: self == oldSelf
                     flink_version:
                       description: Flink major version
                       enum:
