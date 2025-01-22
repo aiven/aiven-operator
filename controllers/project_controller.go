@@ -161,7 +161,7 @@ func (h ProjectHandler) get(ctx context.Context, avn *aiven.Client, avnGen avnge
 		return nil, err
 	}
 
-	cert, err := avn.CA.Get(ctx, project.Name)
+	cert, err := avnGen.ProjectKmsGetCA(ctx, project.Name)
 	if err != nil {
 		return nil, fmt.Errorf("aiven client error %w", err)
 	}

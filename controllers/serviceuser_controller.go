@@ -120,7 +120,7 @@ func (h ServiceUserHandler) get(ctx context.Context, avn *aiven.Client, avnGen a
 		return nil, fmt.Errorf("service component %q not found", s.ServiceType)
 	}
 
-	caCert, err := avn.CA.Get(ctx, user.Spec.Project)
+	caCert, err := avnGen.ProjectKmsGetCA(ctx, user.Spec.Project)
 	if err != nil {
 		return nil, fmt.Errorf("aiven client error %w", err)
 	}
