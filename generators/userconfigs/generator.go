@@ -9,11 +9,11 @@ import (
 	"strings"
 
 	"github.com/dave/jennifer/jen"
+	"github.com/goccy/go-yaml"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stoewer/go-strcase"
 	"golang.org/x/exp/slices"
 	"golang.org/x/tools/imports"
-	"gopkg.in/yaml.v3"
 )
 
 // generate writes to file a service user config for a given serviceList

@@ -3,19 +3,16 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/ghodss/yaml"
+	"github.com/goccy/go-yaml"
 	"github.com/xeipuuv/gojsonschema"
 )
-
-// exampleKind gets example's kind to validate with kind's schema
-type exampleKind struct {
-	Kind string `yaml:"kind"`
-}
 
 // crdSchema schema
 type crdSchema struct {
@@ -29,37 +26,41 @@ type crdSchema struct {
 }
 
 // validateYAML validates yaml document
-// Converts yaml to json, because there is no yaml validator
 func validateYAML(validators map[string]schemaValidator, document []byte) error {
-	for _, d := range bytes.Split(document, []byte("---")) {
-		if len(bytes.TrimSpace(d)) == 0 {
-			continue
+	deco := yaml.NewDecoder(bytes.NewReader(document))
+	for {
+		// A yaml document can contain multiple documents
+		example := make(map[string]any)
+		err := deco.Decode(&example)
+		if errors.Is(err, io.EOF) {
+			return nil
 		}
 
-		example := new(exampleKind)
-		err := yaml.Unmarshal(d, example)
+		if err != nil {
+			return fmt.Errorf("can't unmarshal example: %w", err)
+		}
+
+		// Every example must have "kind", e.g.: `kind: KafkaTopic`
+		kind, ok := example["kind"].(string)
+		if !ok {
+			return fmt.Errorf("the example doesn't have kind")
+		}
+
+		validate, ok := validators[kind]
+		if !ok {
+			return fmt.Errorf("validator for kind %q not found", kind)
+		}
+
+		b, err := json.Marshal(example)
 		if err != nil {
 			return err
 		}
 
-		// Validates given document
-		jsonDocument, err := yaml.YAMLToJSON(d)
-		if err != nil {
-			return fmt.Errorf("can't convert yaml to json: %w", err)
-		}
-
-		validate, ok := validators[example.Kind]
-		if !ok {
-			return fmt.Errorf("validator for kind %q not found", example.Kind)
-		}
-
-		err = validate(jsonDocument)
+		err = validate(b)
 		if err != nil {
 			return err
 		}
 	}
-
-	return nil
 }
 
 type schemaValidator func([]byte) error
