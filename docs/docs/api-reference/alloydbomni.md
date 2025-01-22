@@ -2,6 +2,102 @@
 title: "AlloyDBOmni"
 ---
 
+## Usage example
+
+??? example 
+    ```yaml
+    apiVersion: aiven.io/v1alpha1
+    kind: AlloyDBOmni
+    metadata:
+      name: my-alloydbomni
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      connInfoSecretTarget:
+        name: adbo-secret
+        annotations:
+          foo: bar
+        labels:
+          baz: egg
+    
+      project: my-aiven-project
+      cloudName: google-europe-west1
+      plan: startup-4
+      disk_space: 90GiB
+    
+      maintenanceWindowDow: sunday
+      maintenanceWindowTime: 11:00:00
+    
+      serviceAccountCredentials: |
+        {
+          "private_key_id": "valid_private_key_id",
+          "private_key": "-----BEGIN PRIVATE KEY-----...-----END PRIVATE KEY-----",
+          "client_email": "example@aiven.io",
+          "client_id": "example_user_id",
+          "type": "service_account",
+          "project_id": "example_project_id"
+        }
+    
+      tags:
+        env: test
+        instance: foo
+    
+      userConfig:
+        service_log: true
+        ip_filter:
+          - network: 0.0.0.0/32
+            description: bar
+          - network: 10.20.0.0/16
+    ```
+
+!!! info
+	To create this resource, a `Secret` containing Aiven token must be [created](/aiven-operator/authentication.html) first.
+
+Apply the resource with:
+
+```shell
+kubectl apply -f example.yaml
+```
+
+Verify the newly created `AlloyDBOmni`:
+
+```shell
+kubectl get alloydbomnis my-alloydbomni
+```
+
+The output is similar to the following:
+```shell
+Name              Project             Region                 Plan         State      
+my-alloydbomni    my-aiven-project    google-europe-west1    startup-4    RUNNING    
+```
+
+To view the details of the `Secret`, use the following command:
+```shell
+kubectl describe secret adbo-secret
+```
+
+You can use the [jq](https://github.com/jqlang/jq) to quickly decode the `Secret`:
+
+```shell
+kubectl get secret adbo-secret -o json | jq '.data | map_values(@base64d)'
+```
+
+The output is similar to the following:
+
+```{ .json .no-copy }
+{
+	"ALLOYDBOMNI_HOST": "<secret>",
+	"ALLOYDBOMNI_PORT": "<secret>",
+	"ALLOYDBOMNI_DATABASE": "<secret>",
+	"ALLOYDBOMNI_USER": "<secret>",
+	"ALLOYDBOMNI_PASSWORD": "<secret>",
+	"ALLOYDBOMNI_SSLMODE": "<secret>",
+	"ALLOYDBOMNI_DATABASE_URI": "<secret>",
+}
+```
+
 ## AlloyDBOmni {: #AlloyDBOmni }
 
 AlloyDBOmni is the Schema for the alloydbomni API.
