@@ -8,11 +8,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/goccy/go-yaml"
 	"github.com/google/go-cmp/cmp"
 	"golang.org/x/exp/constraints"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
-	"gopkg.in/yaml.v3"
 )
 
 const (

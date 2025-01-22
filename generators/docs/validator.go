@@ -10,9 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/goccy/go-yaml"
 	"github.com/xeipuuv/gojsonschema"
-	"gopkg.in/yaml.v3"
-	yaml2 "sigs.k8s.io/yaml"
 )
 
 // crdSchema schema
@@ -90,7 +89,7 @@ func newSchemaValidator(kind string, crd []byte) (schemaValidator, error) {
 
 	return func(document []byte) error {
 		// Validates given document
-		jsonDocument, err := yaml2.YAMLToJSON(document)
+		jsonDocument, err := yaml.YAMLToJSON(document)
 		if err != nil {
 			return fmt.Errorf("can't convert yaml to json: %w", err)
 		}
