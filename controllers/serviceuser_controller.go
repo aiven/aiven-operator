@@ -110,7 +110,7 @@ func (h ServiceUserHandler) get(ctx context.Context, avn *aiven.Client, avnGen a
 
 	var component *service.ComponentOut
 	for _, c := range s.Components {
-		if c.Component == s.ServiceType {
+		if c.Component == s.ServiceType || (s.ServiceType == "alloydbomni" && c.Component == "pg") {
 			component = &c
 			break
 		}
