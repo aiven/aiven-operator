@@ -8,8 +8,8 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/goccy/go-yaml"
 	"golang.org/x/exp/slices"
+	"gopkg.in/yaml.v3"
 )
 
 const (
