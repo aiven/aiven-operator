@@ -24,13 +24,16 @@ func TestClickhouseUser(t *testing.T) {
 	chName := randName("clickhouse")
 	userName := randName("clickhouse-user")
 	yml, err := loadExampleYaml("clickhouseuser.yaml", map[string]string{
-		"google-europe-west1":    cfg.PrimaryCloudName,
-		"my-aiven-project":       cfg.Project,
-		"clickhouse-user-secret": userName,
-		"my-clickhouse-user":     userName,
-		"my-clickhouse":          chName,
+		"doc[0].metadata.name":                  userName,
+		"doc[0].spec.project":                   cfg.Project,
+		"doc[0].spec.serviceName":               chName,
+		"doc[0].spec.connInfoSecretTarget.name": userName,
 		// Remove 'username' from the initial yaml
-		"username: example-username": "",
+		"doc[0].spec.username": "REMOVE",
+
+		"doc[1].metadata.name":  chName,
+		"doc[1].spec.project":   cfg.Project,
+		"doc[1].spec.cloudName": cfg.PrimaryCloudName,
 	})
 	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)
@@ -109,12 +112,15 @@ func TestClickhouseUser(t *testing.T) {
 	// New manifest with 'username' field set
 	updatedUserName := randName("clickhouse-user")
 	ymlUsernameSet, err := loadExampleYaml("clickhouseuser.yaml", map[string]string{
-		"google-europe-west1":        cfg.PrimaryCloudName,
-		"my-aiven-project":           cfg.Project,
-		"clickhouse-user-secret":     updatedUserName,
-		"name: my-clickhouse-user":   "name: metadata-name",
-		"my-clickhouse":              chName,
-		"username: example-username": fmt.Sprintf("username: %s", updatedUserName),
+		"doc[0].metadata.name":                  "metadata-name",
+		"doc[0].spec.project":                   cfg.Project,
+		"doc[0].spec.connInfoSecretTarget.name": userName,
+		"doc[0].spec.serviceName":               chName,
+		"doc[0].spec.username":                  updatedUserName,
+
+		"doc[1].metadata.name":  chName,
+		"doc[1].spec.project":   cfg.Project,
+		"doc[1].spec.cloudName": cfg.PrimaryCloudName,
 	})
 	require.NoError(t, err)
 

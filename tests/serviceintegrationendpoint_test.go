@@ -21,8 +21,8 @@ func TestServiceIntegrationEndpointExternalPostgres(t *testing.T) {
 	endpointPgName := randName("postgresql")
 
 	yml, err := loadExampleYaml("serviceintegrationendpoint.external_postgresql.yaml", map[string]string{
-		"aiven-project-name":              cfg.Project,
-		"my-service-integration-endpoint": endpointPgName,
+		"metadata.name": endpointPgName,
+		"spec.project":  cfg.Project,
 	})
 	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)
@@ -64,8 +64,8 @@ func TestServiceIntegrationEndpoint(t *testing.T) {
 	endpointRegistryName := randName("schema-registry")
 
 	yml, err := loadExampleYaml("serviceintegrationendpoint.external_schema_registry.yaml", map[string]string{
-		"aiven-project-name":              cfg.Project,
-		"my-service-integration-endpoint": endpointRegistryName,
+		"metadata.name": endpointRegistryName,
+		"spec.project":  cfg.Project,
 	})
 	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)
@@ -107,8 +107,8 @@ func TestServiceIntegrationEndpointAutoscaler(t *testing.T) {
 	endpointName := randName("autoscaler")
 
 	yml, err := loadExampleYaml("serviceintegrationendpoint.autoscaler.yaml", map[string]string{
-		"aiven-project-name":              cfg.Project,
-		"my-service-integration-endpoint": endpointName,
+		"metadata.name": endpointName,
+		"spec.project":  cfg.Project,
 	})
 	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)

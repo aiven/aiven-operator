@@ -20,9 +20,10 @@ func TestValkey(t *testing.T) {
 
 	name := randName("valkey")
 	yml, err := loadExampleYaml("valkey.yaml", map[string]string{
-		"google-europe-west1": cfg.PrimaryCloudName,
-		"my-aiven-project":    cfg.Project,
-		"my-valkey":           name,
+		"metadata.name":                  name,
+		"spec.project":                   cfg.Project,
+		"spec.cloudName":                 cfg.PrimaryCloudName,
+		"spec.connInfoSecretTarget.name": name,
 	})
 	require.NoError(t, err)
 
@@ -72,7 +73,7 @@ func TestValkey(t *testing.T) {
 	assert.Equal(t, ipFilterAvn, rs.Spec.UserConfig.IpFilter)
 
 	// Secrets test
-	secret, err := s.GetSecret(rs.GetName() + "-secret")
+	secret, err := s.GetSecret(rs.GetName())
 	require.NoError(t, err)
 	assert.NotEmpty(t, secret.Data["VALKEY_HOST"])
 	assert.NotEmpty(t, secret.Data["VALKEY_PORT"])

@@ -20,9 +20,9 @@ func TestFlink(t *testing.T) {
 
 	name := randName("flink")
 	yml, err := loadExampleYaml("flink.yaml", map[string]string{
-		"google-europe-west1": cfg.PrimaryCloudName,
-		"my-aiven-project":    cfg.Project,
-		"my-flink":            name,
+		"metadata.name":  name,
+		"spec.project":   cfg.Project,
+		"spec.cloudName": cfg.PrimaryCloudName,
 	})
 	require.NoError(t, err)
 

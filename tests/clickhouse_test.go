@@ -27,37 +27,40 @@ func TestClickhouse(t *testing.T) {
 	roleName2 := randName("role")
 
 	ymlClickhouse, err := loadExampleYaml("clickhouse.yaml", map[string]string{
-		"google-europe-west1": cfg.PrimaryCloudName,
-		"my-aiven-project":    cfg.Project,
-		"my-clickhouse":       chName,
+		"metadata.name":                  chName,
+		"spec.cloudName":                 cfg.PrimaryCloudName,
+		"spec.project":                   cfg.Project,
+		"spec.connInfoSecretTarget.name": chName,
 	})
 	require.NoError(t, err)
 	ymlDatabase1, err := loadExampleYaml("clickhousedatabase.yaml", map[string]string{
-		"my-aiven-project": cfg.Project,
-		"my-db":            dbName1,
-		"my-clickhouse":    chName,
+		"metadata.name":    dbName1,
+		"spec.project":     cfg.Project,
+		"spec.serviceName": chName,
 		// Remove 'databaseName' from the initial yaml
-		"databaseName: example-db": "",
+		"spec.databaseName": "REMOVE",
 	})
 	require.NoError(t, err)
 	ymlDatabase2, err := loadExampleYaml("clickhousedatabase.yaml", map[string]string{
-		"my-aiven-project": cfg.Project,
-		"my-db":            dbName2,
-		"my-clickhouse":    chName,
+		"metadata.name":    dbName2,
+		"spec.project":     cfg.Project,
+		"spec.serviceName": chName,
 		// Remove 'databaseName' from the initial yaml
-		"databaseName: example-db": "",
+		"spec.databaseName": "REMOVE",
 	})
 	require.NoError(t, err)
 	ymlRole1, err := loadExampleYaml("clickhouserole.yaml", map[string]string{
-		"my-aiven-project": cfg.Project,
-		"my-role":          roleName1,
-		"my-clickhouse":    chName,
+		"metadata.name":    roleName1,
+		"spec.project":     cfg.Project,
+		"spec.role":        roleName1,
+		"spec.serviceName": chName,
 	})
 	require.NoError(t, err)
 	ymlRole2, err := loadExampleYaml("clickhouserole.yaml", map[string]string{
-		"my-aiven-project": cfg.Project,
-		"my-role":          roleName2,
-		"my-clickhouse":    chName,
+		"metadata.name":    roleName2,
+		"spec.project":     cfg.Project,
+		"spec.role":        roleName2,
+		"spec.serviceName": chName,
 	})
 	require.NoError(t, err)
 
@@ -184,10 +187,10 @@ func TestClickhouse(t *testing.T) {
 	// New manifest with 'databaseName' field set
 	dbName3 := randName("database")
 	ymlDatabase3, err := loadExampleYaml("clickhousedatabase.yaml", map[string]string{
-		"name: my-db":              "name: metadata-name",
-		"my-aiven-project":         cfg.Project,
-		"my-clickhouse":            chName,
-		"databaseName: example-db": fmt.Sprintf("databaseName: %s", dbName3),
+		"metadata.name":     "metadata-name",
+		"spec.project":      cfg.Project,
+		"spec.serviceName":  chName,
+		"spec.databaseName": dbName3,
 	})
 
 	// WHEN
