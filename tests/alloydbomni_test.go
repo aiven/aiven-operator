@@ -1,6 +1,8 @@
 package tests
 
 import (
+	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -25,9 +27,9 @@ func TestAlloyDBOmni(t *testing.T) {
 
 	name := randName("alloydbomni")
 	yml, err := loadExampleYaml("alloydbomni.yaml", map[string]string{
-		"google-europe-west1": cfg.PrimaryCloudName,
-		"my-aiven-project":    cfg.Project,
-		"my-alloydbomni":      name,
+		"spec.cloudName": cfg.PrimaryCloudName,
+		"spec.project":   cfg.Project,
+		"metadata.name":  name,
 	})
 	require.NoError(t, err)
 
@@ -87,4 +89,98 @@ func TestAlloyDBOmni(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["ALLOYDBOMNI_PASSWORD"])
 	assert.NotEmpty(t, secret.Data["ALLOYDBOMNI_SSLMODE"])
 	assert.NotEmpty(t, secret.Data["ALLOYDBOMNI_DATABASE_URI"])
+}
+
+func TestAlloyDBOmniServiceAccountCredentials(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	// GIVEN
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	name := randName("alloydbomni")
+	s := NewSession(ctx, k8sClient, cfg.Project)
+
+	// Cleans test afterward
+	defer s.Destroy(t)
+
+	// Test cases for service account credentials
+	cases := []struct {
+		name                      string
+		serviceAccountCredentials string
+		expectError               bool
+		expectedErrorMessage      string
+	}{
+		{
+			name:                      "valid credentials",
+			serviceAccountCredentials: getTestServiceAccountCredentials("valid_key_id"),
+			expectError:               false,
+		},
+		{
+			name:                      "invalid credentials",
+			serviceAccountCredentials: `{"private_key": "-----BEGIN PRIVATE KEY--.........----END PRIVATE KEY-----\n","client_email": "example@aiven.io","client_id": "example_user_id","type": "service_account","project_id": "example_project_id"}`,
+			expectError:               true,
+			expectedErrorMessage:      "invalid serviceAccountCredentials: (root): private_key_id is required",
+		},
+		{
+			name:                      "empty credentials",
+			serviceAccountCredentials: "",
+			expectError:               false,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			yml, err := loadExampleYaml("alloydbomni.yaml", map[string]string{
+				"spec.cloudName":                 cfg.PrimaryCloudName,
+				"spec.project":                   cfg.Project,
+				"metadata.name":                  name,
+				"spec.serviceAccountCredentials": tc.serviceAccountCredentials,
+			})
+			require.NoError(t, err)
+
+			// WHEN
+			err = s.Apply(yml)
+
+			// THEN
+			if tc.expectError {
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), tc.expectedErrorMessage)
+			} else {
+				require.NoError(t, err)
+
+				// Waits kube objects
+				adbo := new(v1alpha1.AlloyDBOmni)
+				require.NoError(t, s.GetRunning(adbo, name))
+
+				// Validate the service account credentials
+				rsp, err := avnGen.AlloyDbOmniGoogleCloudPrivateKeyIdentify(ctx, cfg.Project, name)
+				require.NoError(t, err)
+				if tc.serviceAccountCredentials == "" {
+					assert.Empty(t, rsp.PrivateKeyId)
+				} else {
+					assert.Equal(t, getPrivateKeyID(tc.serviceAccountCredentials), rsp.PrivateKeyId)
+				}
+			}
+		})
+	}
+}
+
+func getTestServiceAccountCredentials(privateKeyID string) string {
+	return fmt.Sprintf(`{
+	  "private_key_id": %q,
+	  "private_key": "-----BEGIN PRIVATE KEY--.........----END PRIVATE KEY-----\n",
+	  "client_email": "example@aiven.io",
+	  "client_id": "example_user_id",
+	  "type": "service_account",
+	  "project_id": "example_project_id"
+	}`, privateKeyID)
+}
+
+func getPrivateKeyID(credentials string) string {
+	// Extract the private_key_id from the credentials JSON string
+	var data map[string]string
+	json.Unmarshal([]byte(credentials), &data) // nolint:errcheck
+	return data["private_key_id"]
 }
