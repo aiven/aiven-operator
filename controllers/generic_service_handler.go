@@ -129,11 +129,6 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 		}
 	}
 
-	// Call service-specific createOrUpdate if it exists
-	if err := o.createOrUpdateServiceSpecific(ctx, avnGen, oldService); err != nil {
-		return fmt.Errorf("failed to create or update service-specific: %w", err)
-	}
-
 	// Updates tags.
 	// Four scenarios: service created/updated * with/without tags
 	// By sending empty tags it clears existing list
@@ -160,6 +155,12 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 		processedGenerationAnnotation,
 		strconv.FormatInt(obj.GetGeneration(), formatIntBaseDecimal),
 	)
+
+	// Call service-specific createOrUpdate if service is running
+	if err := o.createOrUpdateServiceSpecific(ctx, avnGen, oldService); err != nil {
+		return fmt.Errorf("failed to create or update service-specific: %w", err)
+	}
+
 	return nil
 }
 

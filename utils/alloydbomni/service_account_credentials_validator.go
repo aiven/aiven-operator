@@ -7,6 +7,9 @@ import (
 )
 
 func ValidateServiceAccountCredentials(i interface{}) error {
+	if i.(string) == "" {
+		return nil
+	}
 	s, ok := i.(string)
 	if !ok {
 		return errors.New("expected input to be a string")

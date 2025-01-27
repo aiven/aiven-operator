@@ -4,9 +4,11 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/aiven/aiven-go-client/v2"
+	alloydbomniUtils "github.com/aiven/aiven-operator/utils/alloydbomni"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/alloydbomni"
 	"github.com/aiven/go-client-codegen/handler/service"
@@ -99,12 +101,50 @@ func (a *alloyDBOmniAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn
 }
 
 func (a *alloyDBOmniAdapter) createOrUpdateServiceSpecific(ctx context.Context, avnGen avngen.Client, old *service.ServiceGetOut) error {
-	if a.Spec.ServiceAccountCredentials == "" {
-		_, err := avnGen.AlloyDbOmniGoogleCloudPrivateKeyRemove(ctx, a.Spec.Project, a.Name)
-		return err
+	// Get current credentials state
+	currentCreds, err := avnGen.AlloyDbOmniGoogleCloudPrivateKeyIdentify(ctx, a.Spec.Project, a.Name)
+	if err != nil {
+		return fmt.Errorf("failed to get current credentials: %w", err)
 	}
 
-	req := &alloydbomni.AlloyDbOmniGoogleCloudPrivateKeySetIn{PrivateKey: a.Spec.ServiceAccountCredentials}
-	_, err := avnGen.AlloyDbOmniGoogleCloudPrivateKeySet(ctx, a.Spec.Project, a.Name, req)
-	return err
+	// Handle removal case first
+	if a.Spec.ServiceAccountCredentials == "" {
+		if currentCreds.PrivateKeyId != "" {
+			if _, err := avnGen.AlloyDbOmniGoogleCloudPrivateKeyRemove(ctx, a.Spec.Project, a.Name); err != nil {
+				return fmt.Errorf("failed to remove credentials: %w", err)
+			}
+		}
+		return nil
+	}
+
+	// Validate new credentials
+	if err := validateCredentials(a.Spec.ServiceAccountCredentials); err != nil {
+		return fmt.Errorf("invalid credentials: %w", err)
+	}
+
+	// Parse credentials to get key ID
+	var credsMap map[string]interface{}
+	if err := json.Unmarshal([]byte(a.Spec.ServiceAccountCredentials), &credsMap); err != nil {
+		return fmt.Errorf("failed to parse credentials: %w", err)
+	}
+
+	// Update only if key ID changed
+	if newKeyID := credsMap["private_key_id"].(string); newKeyID != currentCreds.PrivateKeyId {
+		req := &alloydbomni.AlloyDbOmniGoogleCloudPrivateKeySetIn{
+			PrivateKey: a.Spec.ServiceAccountCredentials,
+		}
+		if _, err := avnGen.AlloyDbOmniGoogleCloudPrivateKeySet(ctx, a.Spec.Project, a.Name, req); err != nil {
+			return fmt.Errorf("failed to update credentials: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// Helper function to validate credentials
+func validateCredentials(creds string) error {
+	if err := alloydbomniUtils.ValidateServiceAccountCredentials(creds); err != nil {
+		return err
+	}
+	return nil
 }

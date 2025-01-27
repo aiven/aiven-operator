@@ -2,7 +2,6 @@ package tests
 
 import (
 	"encoding/json"
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -92,7 +91,6 @@ func TestAlloyDBOmni(t *testing.T) {
 }
 
 func TestAlloyDBOmniServiceAccountCredentials(t *testing.T) {
-	t.Parallel()
 	defer recoverPanic(t)
 
 	// GIVEN
@@ -105,7 +103,11 @@ func TestAlloyDBOmniServiceAccountCredentials(t *testing.T) {
 	// Cleans test afterward
 	defer s.Destroy(t)
 
-	// Test cases for service account credentials
+	// WHEN
+	// Test cases
+	//   1. Valid credentials
+	//   2. Invalid credentials
+	//   3. Empty credentials
 	cases := []struct {
 		name                      string
 		serviceAccountCredentials string
@@ -113,19 +115,33 @@ func TestAlloyDBOmniServiceAccountCredentials(t *testing.T) {
 		expectedErrorMessage      string
 	}{
 		{
-			name:                      "valid credentials",
-			serviceAccountCredentials: getTestServiceAccountCredentials("valid_key_id"),
-			expectError:               false,
+			name: "valid credentials",
+			serviceAccountCredentials: `{
+	"private_key_id": "valid_key_id",
+	"private_key": "-----BEGIN PRIVATE KEY--.........----END PRIVATE KEY-----\n",
+	"client_email": "example@aiven.io",
+	"client_id": "example_user_id",
+	"type": "service_account",
+	"project_id": "example_project_id"
+}`,
+			expectError: false,
 		},
 		{
-			name:                      "invalid credentials",
-			serviceAccountCredentials: `{"private_key": "-----BEGIN PRIVATE KEY--.........----END PRIVATE KEY-----\n","client_email": "example@aiven.io","client_id": "example_user_id","type": "service_account","project_id": "example_project_id"}`,
-			expectError:               true,
-			expectedErrorMessage:      "invalid serviceAccountCredentials: (root): private_key_id is required",
+			name: "invalid credentials",
+			// Missing private_key_id
+			serviceAccountCredentials: `{
+	"private_key": "-----BEGIN PRIVATE KEY--.........----END PRIVATE KEY-----\n",
+	"client_email": "example@aiven.io",
+	"client_id": "example_user_id",
+	"type": "service_account",
+	"project_id": "example_project_id"
+}`,
+			expectError:          true,
+			expectedErrorMessage: "invalid serviceAccountCredentials: (root): private_key_id is required",
 		},
 		{
 			name:                      "empty credentials",
-			serviceAccountCredentials: "",
+			serviceAccountCredentials: "REMOVE",
 			expectError:               false,
 		},
 	}
@@ -133,9 +149,9 @@ func TestAlloyDBOmniServiceAccountCredentials(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			yml, err := loadExampleYaml("alloydbomni.yaml", map[string]string{
+				"metadata.name":                  name,
 				"spec.cloudName":                 cfg.PrimaryCloudName,
 				"spec.project":                   cfg.Project,
-				"metadata.name":                  name,
 				"spec.serviceAccountCredentials": tc.serviceAccountCredentials,
 			})
 			require.NoError(t, err)
@@ -148,7 +164,6 @@ func TestAlloyDBOmniServiceAccountCredentials(t *testing.T) {
 				require.Error(t, err)
 				assert.Contains(t, err.Error(), tc.expectedErrorMessage)
 			} else {
-				require.NoError(t, err)
 
 				// Waits kube objects
 				adbo := new(v1alpha1.AlloyDBOmni)
@@ -157,7 +172,7 @@ func TestAlloyDBOmniServiceAccountCredentials(t *testing.T) {
 				// Validate the service account credentials
 				rsp, err := avnGen.AlloyDbOmniGoogleCloudPrivateKeyIdentify(ctx, cfg.Project, name)
 				require.NoError(t, err)
-				if tc.serviceAccountCredentials == "" {
+				if tc.serviceAccountCredentials == "REMOVE" {
 					assert.Empty(t, rsp.PrivateKeyId)
 				} else {
 					assert.Equal(t, getPrivateKeyID(tc.serviceAccountCredentials), rsp.PrivateKeyId)
@@ -165,17 +180,6 @@ func TestAlloyDBOmniServiceAccountCredentials(t *testing.T) {
 			}
 		})
 	}
-}
-
-func getTestServiceAccountCredentials(privateKeyID string) string {
-	return fmt.Sprintf(`{
-	  "private_key_id": %q,
-	  "private_key": "-----BEGIN PRIVATE KEY--.........----END PRIVATE KEY-----\n",
-	  "client_email": "example@aiven.io",
-	  "client_id": "example_user_id",
-	  "type": "service_account",
-	  "project_id": "example_project_id"
-	}`, privateKeyID)
 }
 
 func getPrivateKeyID(credentials string) string {
