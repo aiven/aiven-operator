@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"os"
 
-	"github.com/goccy/go-yaml"
+	"gopkg.in/yaml.v3"
 )
 
 const compactIndent = 2
