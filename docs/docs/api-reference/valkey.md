@@ -80,6 +80,7 @@ The output is similar to the following:
 	"VALKEY_PORT": "<secret>",
 	"VALKEY_USER": "<secret>",
 	"VALKEY_PASSWORD": "<secret>",
+	"VALKEY_SSL": "<secret>",
 }
 ```
 
@@ -89,7 +90,7 @@ Valkey is the Schema for the valkeys API
 
 !!! Info "Exposes secret keys"
 
-    `VALKEY_HOST`, `VALKEY_PORT`, `VALKEY_USER`, `VALKEY_PASSWORD`.
+    `VALKEY_HOST`, `VALKEY_PORT`, `VALKEY_USER`, `VALKEY_PASSWORD`, `VALKEY_SSL`.
 
 **Required**
 

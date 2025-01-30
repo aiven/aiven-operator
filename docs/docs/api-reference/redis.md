@@ -74,6 +74,7 @@ The output is similar to the following:
 	"REDIS_PORT": "<secret>",
 	"REDIS_USER": "<secret>",
 	"REDIS_PASSWORD": "<secret>",
+	"REDIS_SSL": "<secret>",
 }
 ```
 
@@ -83,7 +84,7 @@ Redis is the Schema for the redis API.
 
 !!! Info "Exposes secret keys"
 
-    `REDIS_HOST`, `REDIS_PORT`, `REDIS_USER`, `REDIS_PASSWORD`.
+    `REDIS_HOST`, `REDIS_PORT`, `REDIS_USER`, `REDIS_PASSWORD`, `REDIS_SSL`.
 
 **Required**
 

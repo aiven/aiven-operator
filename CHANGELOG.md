@@ -14,7 +14,7 @@
 - Change `Kafka` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
 - Change `Kafka` field `userConfig.kafka_version`: enum remove `3.7`
 - Change `MySQL` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
-- Add `OpenSearch` field `userConfig.opensearch.cluster.search.request.slowlog`, type `object`: 
+- Add `OpenSearch` field `userConfig.opensearch.cluster.search.request.slowlog`, type `object`
 - Add `OpenSearch` field `userConfig.opensearch.enable_remote_backed_storage`, type `boolean`: Enable
   remote-backed storage
 - Change `OpenSearch` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
