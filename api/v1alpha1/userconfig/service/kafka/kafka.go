@@ -545,7 +545,7 @@ type KafkaUserConfig struct {
 	// Enable follower fetching
 	FollowerFetching *FollowerFetching `groups:"create,update" json:"follower_fetching,omitempty"`
 
-	// +kubebuilder:validation:MaxItems=1024
+	// +kubebuilder:validation:MaxItems=2048
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
 	IpFilter []*IpFilter `groups:"create,update" json:"ip_filter,omitempty"`
 
@@ -576,7 +576,7 @@ type KafkaUserConfig struct {
 	// Kafka SASL mechanisms
 	KafkaSaslMechanisms *KafkaSaslMechanisms `groups:"create,update" json:"kafka_sasl_mechanisms,omitempty"`
 
-	// +kubebuilder:validation:Enum="3.7";"3.8"
+	// +kubebuilder:validation:Enum="3.8"
 	// Kafka major version
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
 

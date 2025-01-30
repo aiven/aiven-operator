@@ -2,6 +2,27 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Change `Cassandra` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Change `Clickhouse` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Change `Flink` field `userConfig.custom_code`: immutable `true`
+- Change `Flink` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Add `Grafana` field `userConfig.dashboard_scenes_enabled`, type `boolean`: Enable use of the Grafana
+  Scenes Library as the dashboard engine. i.e
+- Change `Grafana` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Add `KafkaConnect` field `userConfig.plugin_versions`, type `array`: The plugin selected by the user
+- Change `KafkaConnect` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Change `Kafka` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Change `Kafka` field `userConfig.kafka_version`: enum remove `3.7`
+- Change `MySQL` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Add `OpenSearch` field `userConfig.opensearch.cluster.search.request.slowlog`, type `object`: 
+- Add `OpenSearch` field `userConfig.opensearch.enable_remote_backed_storage`, type `boolean`: Enable
+  remote-backed storage
+- Change `OpenSearch` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Change `PostgreSQL` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Change `Redis` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Change `ServiceIntegration` field `logs.elasticsearch_index_prefix`: pattern `^[a-z0-9][a-z0-9-_.]+$`
+- Change `Valkey` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+
 ## v0.27.0 - 2025-01-16
 
 - Add `ServiceIntegrationEndpoint` field `datadog.extra_tags_prefix`, type `string`: Extra tags prefix.

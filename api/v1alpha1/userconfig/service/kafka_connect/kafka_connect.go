@@ -93,6 +93,19 @@ type KafkaConnect struct {
 	SessionTimeoutMs *int `groups:"create,update" json:"session_timeout_ms,omitempty"`
 }
 
+// A Kafka Connect plugin
+type PluginVersions struct {
+	// +kubebuilder:validation:MaxLength=128
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// The name of the plugin
+	PluginName string `groups:"create,update" json:"plugin_name"`
+
+	// +kubebuilder:validation:MaxLength=128
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// The version of the plugin
+	Version string `groups:"create,update" json:"version"`
+}
+
 // Allow access to selected service ports from private networks
 type PrivateAccess struct {
 	// Allow clients to connect to kafka_connect with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
@@ -182,12 +195,15 @@ type KafkaConnectUserConfig struct {
 	// Deprecated. Additional Cloud Regions for Backup Replication
 	AdditionalBackupRegions []string `groups:"create,update" json:"additional_backup_regions,omitempty"`
 
-	// +kubebuilder:validation:MaxItems=1024
+	// +kubebuilder:validation:MaxItems=2048
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
 	IpFilter []*IpFilter `groups:"create,update" json:"ip_filter,omitempty"`
 
 	// Kafka Connect configuration values
 	KafkaConnect *KafkaConnect `groups:"create,update" json:"kafka_connect,omitempty"`
+
+	// The plugin selected by the user
+	PluginVersions []*PluginVersions `groups:"create,update" json:"plugin_versions,omitempty"`
 
 	// Allow access to selected service ports from private networks
 	PrivateAccess *PrivateAccess `groups:"create,update" json:"private_access,omitempty"`

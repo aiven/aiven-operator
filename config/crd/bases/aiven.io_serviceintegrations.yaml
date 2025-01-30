@@ -606,6 +606,7 @@ spec:
                       description: Elasticsearch index prefix
                       maxLength: 1024
                       minLength: 1
+                      pattern: ^[a-z0-9][a-z0-9-_.]+$
                       type: string
                     selected_log_fields:
                       description:

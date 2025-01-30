@@ -34,15 +34,16 @@ type FlinkUserConfig struct {
 	// Deprecated. Additional Cloud Regions for Backup Replication
 	AdditionalBackupRegions []string `groups:"create,update" json:"additional_backup_regions,omitempty"`
 
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Enable to upload Custom JARs for Flink applications
-	CustomCode *bool `groups:"create,update" json:"custom_code,omitempty"`
+	CustomCode *bool `groups:"create" json:"custom_code,omitempty"`
 
 	// +kubebuilder:validation:Enum="1.19";"1.20"
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Flink major version
 	FlinkVersion *string `groups:"create" json:"flink_version,omitempty"`
 
-	// +kubebuilder:validation:MaxItems=1024
+	// +kubebuilder:validation:MaxItems=2048
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
 	IpFilter []*IpFilter `groups:"create,update" json:"ip_filter,omitempty"`
 

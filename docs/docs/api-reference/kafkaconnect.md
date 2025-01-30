@@ -138,8 +138,9 @@ KafkaConnect specific user configuration options.
 **Optional**
 
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Deprecated. Additional Cloud Regions for Backup Replication.
-- [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 1024). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
+- [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 2048). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
 - [`kafka_connect`](#spec.userConfig.kafka_connect-property){: name='spec.userConfig.kafka_connect-property'} (object). Kafka Connect configuration values. See below for [nested schema](#spec.userConfig.kafka_connect).
+- [`plugin_versions`](#spec.userConfig.plugin_versions-property){: name='spec.userConfig.plugin_versions-property'} (array of objects). The plugin selected by the user. See below for [nested schema](#spec.userConfig.plugin_versions).
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
 - [`privatelink_access`](#spec.userConfig.privatelink_access-property){: name='spec.userConfig.privatelink_access-property'} (object). Allow access to selected service components through Privatelink. See below for [nested schema](#spec.userConfig.privatelink_access).
 - [`public_access`](#spec.userConfig.public_access-property){: name='spec.userConfig.public_access-property'} (object). Allow access to selected service ports from the public Internet. See below for [nested schema](#spec.userConfig.public_access).
@@ -185,6 +186,17 @@ Kafka Connect configuration values.
 - [`producer_max_request_size`](#spec.userConfig.kafka_connect.producer_max_request_size-property){: name='spec.userConfig.kafka_connect.producer_max_request_size-property'} (integer, Minimum: 131072, Maximum: 67108864). This setting will limit the number of record batches the producer will send in a single request to avoid sending huge requests.
 - [`scheduled_rebalance_max_delay_ms`](#spec.userConfig.kafka_connect.scheduled_rebalance_max_delay_ms-property){: name='spec.userConfig.kafka_connect.scheduled_rebalance_max_delay_ms-property'} (integer, Minimum: 0, Maximum: 600000). The maximum delay that is scheduled in order to wait for the return of one or more departed workers before rebalancing and reassigning their connectors and tasks to the group. During this period the connectors and tasks of the departed workers remain unassigned. Defaults to 5 minutes.
 - [`session_timeout_ms`](#spec.userConfig.kafka_connect.session_timeout_ms-property){: name='spec.userConfig.kafka_connect.session_timeout_ms-property'} (integer, Minimum: 1, Maximum: 2147483647). The timeout in milliseconds used to detect failures when using Kafka’s group management facilities (defaults to 10000).
+
+### plugin_versions {: #spec.userConfig.plugin_versions }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+A Kafka Connect plugin.
+
+**Required**
+
+- [`plugin_name`](#spec.userConfig.plugin_versions.plugin_name-property){: name='spec.userConfig.plugin_versions.plugin_name-property'} (string, Pattern: `^[^\r\n]*$`, MaxLength: 128). The name of the plugin.
+- [`version`](#spec.userConfig.plugin_versions.version-property){: name='spec.userConfig.plugin_versions.version-property'} (string, Pattern: `^[^\r\n]*$`, MaxLength: 128). The version of the plugin.
 
 ### private_access {: #spec.userConfig.private_access }
 

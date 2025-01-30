@@ -273,7 +273,7 @@ spec:
                         required:
                           - network
                         type: object
-                      maxItems: 1024
+                      maxItems: 2048
                       type: array
                     kafka:
                       description: Kafka broker configuration values
@@ -1003,7 +1003,6 @@ spec:
                     kafka_version:
                       description: Kafka major version
                       enum:
-                        - "3.7"
                         - "3.8"
                       type: string
                     letsencrypt_sasl_privatelink:

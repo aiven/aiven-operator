@@ -510,7 +510,7 @@ type PgUserConfig struct {
 	// Register AAAA DNS records for the service, and allow IPv6 packets to service ports
 	EnableIpv6 *bool `groups:"create,update" json:"enable_ipv6,omitempty"`
 
-	// +kubebuilder:validation:MaxItems=1024
+	// +kubebuilder:validation:MaxItems=2048
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
 	IpFilter []*IpFilter `groups:"create,update" json:"ip_filter,omitempty"`
 
