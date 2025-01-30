@@ -559,7 +559,7 @@ Logs configuration values.
 **Optional**
 
 - [`elasticsearch_index_days_max`](#spec.logs.elasticsearch_index_days_max-property){: name='spec.logs.elasticsearch_index_days_max-property'} (integer, Minimum: 1, Maximum: 10000). Elasticsearch index retention limit.
-- [`elasticsearch_index_prefix`](#spec.logs.elasticsearch_index_prefix-property){: name='spec.logs.elasticsearch_index_prefix-property'} (string, MinLength: 1, MaxLength: 1024). Elasticsearch index prefix.
+- [`elasticsearch_index_prefix`](#spec.logs.elasticsearch_index_prefix-property){: name='spec.logs.elasticsearch_index_prefix-property'} (string, Pattern: `^[a-z0-9][a-z0-9-_.]+$`, MinLength: 1, MaxLength: 1024). Elasticsearch index prefix.
 - [`selected_log_fields`](#spec.logs.selected_log_fields-property){: name='spec.logs.selected_log_fields-property'} (array of strings, MaxItems: 5). The list of logging fields that will be sent to the integration logging service. The MESSAGE and timestamp fields are always sent.
 
 ## metrics {: #spec.metrics }

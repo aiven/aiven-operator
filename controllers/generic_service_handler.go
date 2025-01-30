@@ -249,7 +249,7 @@ func (h *genericServiceHandler) checkPreconditions(ctx context.Context, avn *aiv
 
 			// Covers error "No valid backups for service"
 			list, err := avnGen.ServiceBackupsGet(ctx, spec.Project, s.SourceServiceName)
-			if len(list) == 0 || err != nil {
+			if len(list.Backups) == 0 || err != nil {
 				return false, err
 			}
 		}

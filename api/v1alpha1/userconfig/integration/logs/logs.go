@@ -11,6 +11,7 @@ type LogsUserConfig struct {
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Pattern=`^[a-z0-9][a-z0-9-_.]+$`
 	// Elasticsearch index prefix
 	ElasticsearchIndexPrefix *string `groups:"create,update" json:"elasticsearch_index_prefix,omitempty"`
 

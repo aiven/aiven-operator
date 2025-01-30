@@ -23,7 +23,7 @@ type ValkeySpec struct {
 //+kubebuilder:subresource:status
 
 // Valkey is the Schema for the valkeys API
-// Info "Exposes secret keys": `VALKEY_HOST`, `VALKEY_PORT`, `VALKEY_USER`, `VALKEY_PASSWORD`
+// Info "Exposes secret keys": `VALKEY_HOST`, `VALKEY_PORT`, `VALKEY_USER`, `VALKEY_PASSWORD`, `VALKEY_SSL`
 // +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
 // +kubebuilder:printcolumn:name="Region",type="string",JSONPath=".spec.cloudName"
 // +kubebuilder:printcolumn:name="Plan",type="string",JSONPath=".spec.plan"

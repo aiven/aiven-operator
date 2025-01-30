@@ -32,7 +32,7 @@ spec:
         openAPIV3Schema:
           description: |-
             Valkey is the Schema for the valkeys API
-            Info "Exposes secret keys": `VALKEY_HOST`, `VALKEY_PORT`, `VALKEY_USER`, `VALKEY_PASSWORD`
+            Info "Exposes secret keys": `VALKEY_HOST`, `VALKEY_PORT`, `VALKEY_USER`, `VALKEY_PASSWORD`, `VALKEY_SSL`
           properties:
             apiVersion:
               description: |-
@@ -266,7 +266,7 @@ spec:
                         required:
                           - network
                         type: object
-                      maxItems: 1024
+                      maxItems: 2048
                       type: array
                     migration:
                       description: Migrate data from existing server
