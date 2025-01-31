@@ -452,10 +452,11 @@ spec:
                       type: string
                     ssl_mode:
                       description:
-                        SSL mode to use for the connection.  Please note
+                        "SSL mode to use for the connection.  Please note
                         that Aiven requires TLS for all connections to external PostgreSQL
-                        services.
+                        services. Deprecated values: `prefer`"
                       enum:
+                        - prefer
                         - require
                         - verify-ca
                         - verify-full

@@ -576,8 +576,8 @@ type KafkaUserConfig struct {
 	// Kafka SASL mechanisms
 	KafkaSaslMechanisms *KafkaSaslMechanisms `groups:"create,update" json:"kafka_sasl_mechanisms,omitempty"`
 
-	// +kubebuilder:validation:Enum="3.8"
-	// Kafka major version
+	// +kubebuilder:validation:Enum="3.7";"3.8"
+	// Kafka major version. Deprecated values: `3.7`
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
 
 	// Use Letsencrypt CA for Kafka SASL via Privatelink
