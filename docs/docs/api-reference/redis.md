@@ -1,6 +1,9 @@
 ---
-title: "Redis"
+title: "Redis [DEPRECATED]"
 ---
+
+!!! warning "Deprecation warning"
+	EOL date **March 31, 2025**. On this date, all active Aiven for Caching services are automatically upgraded to Aiven for Valkey to maintain Redis compatibility. Any powered-off Aiven for Caching services are permanently deleted, making data from these services inaccessible.
 
 ## Usage example
 
