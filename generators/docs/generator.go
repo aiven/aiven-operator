@@ -38,6 +38,7 @@ func parseSchema(crdData []byte) (*schemaType, error) {
 	kind := crd.Spec.Versions[0].Schema.OpenAPIV3Schema
 	kind.Kind = crd.Spec.Names.Kind
 	kind.Name = kind.Kind
+	kind.DeprecationWarning = crd.Spec.Versions[0].DeprecationWarning
 	kind.Version = crd.Spec.Versions[0].Name
 	kind.Group = crd.Spec.Group
 	kind.Plural = crd.Spec.Names.Plural
@@ -79,8 +80,9 @@ type crdType struct {
 			Plural string `yaml:"plural"`
 		} `yaml:"names"`
 		Versions []struct {
-			Name   string `yaml:"name"`
-			Schema struct {
+			Name               string `yaml:"name"`
+			DeprecationWarning string `yaml:"deprecationWarning"`
+			Schema             struct {
 				OpenAPIV3Schema *schemaType `yaml:"openAPIV3Schema"`
 			} `yaml:"schema"`
 			AdditionalPrinterColumns []specTableColumn `yaml:"additionalPrinterColumns"`
@@ -107,13 +109,14 @@ type schemaInternal struct {
 	level      int // For header level
 
 	// Meta data for rendering
-	Kind          string // CRD Kind
-	Name          string // field name
-	Version       string // API version, like v1alpha
-	Group         string // API group, like aiven.io
-	Plural        string
-	Columns       []specTableColumn
-	UsageExamples []usageExample
+	Kind               string // CRD Kind
+	Name               string // field name
+	DeprecationWarning string // deprecation warning message
+	Version            string // API version, like v1alpha
+	Group              string // API group, like aiven.io
+	Plural             string
+	Columns            []specTableColumn
+	UsageExamples      []usageExample
 }
 
 type schemaType struct {
@@ -478,8 +481,13 @@ var templateFuncs = template.FuncMap{
 }
 
 const schemaTemplate = `---
-title: "{{ .Kind }}"
+title: "{{ .Kind }}{{ if .DeprecationWarning }} [DEPRECATED]{{ end }}"
 ---
+
+{{ if .DeprecationWarning }}
+!!! warning "Deprecation warning"
+	{{ .DeprecationWarning }}
+{{ end }}
 
 {{ if .UsageExamples }}
 ## Usage example{{ if ne (len .UsageExamples) 1 }}s{{ end }}
