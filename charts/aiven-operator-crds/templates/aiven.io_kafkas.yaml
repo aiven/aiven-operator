@@ -1001,8 +1001,9 @@ spec:
                           type: boolean
                       type: object
                     kafka_version:
-                      description: Kafka major version
+                      description: "Kafka major version. Deprecated values: `3.7`"
                       enum:
+                        - "3.7"
                         - "3.8"
                       type: string
                     letsencrypt_sasl_privatelink:

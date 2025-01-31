@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/dave/jennifer/jen"
@@ -297,19 +298,22 @@ func addFieldTags(s *jen.Statement, obj *object) *jen.Statement {
 	return s.Tag(tags)
 }
 
+// supportLastDeprecatedEnum allows to run services with deprecated values
+const supportLastDeprecatedEnum = 1
+
 // addFieldComments add validation markers and doc string
 func addFieldComments(s *jen.Statement, obj *object) *jen.Statement {
 	c := make([]string, 0)
 
 	// Sets min-max if they are not equal (both empty or equal to zero)
-	min := objMinimum(obj)
-	max := objMaximum(obj)
-	if min != max {
-		if min != "" {
-			c = append(c, "// +kubebuilder:validation:Minimum="+min)
+	minValue := objMinimum(obj)
+	maxValue := objMaximum(obj)
+	if minValue != maxValue {
+		if minValue != "" {
+			c = append(c, "// +kubebuilder:validation:Minimum="+minValue)
 		}
-		if max != "" {
-			c = append(c, "// +kubebuilder:validation:Maximum="+max)
+		if maxValue != "" {
+			c = append(c, "// +kubebuilder:validation:Maximum="+maxValue)
 		}
 	}
 
@@ -333,11 +337,19 @@ func addFieldComments(s *jen.Statement, obj *object) *jen.Statement {
 			c = append(c, fmt.Sprintf("// +kubebuilder:validation:Pattern=`%s`", obj.Pattern))
 		}
 	}
+
+	deprecatedEnums := make([]string, 0)
 	if len(obj.Enum) != 0 {
+		sort.Slice(obj.Enum, func(i, j int) bool {
+			return obj.Enum[i].Value < obj.Enum[j].Value
+		})
+
 		enum := make([]string, 0, len(obj.Enum))
 		for _, e := range obj.Enum {
 			if e.IsDeprecated {
-				continue
+				// This is kafka_version or pg_version, etc.
+				// We allow to use supportLastDeprecatedEnum so customers can migrate their services
+				deprecatedEnums = append(deprecatedEnums, fmt.Sprintf("`%s`", e.Value))
 			}
 			v := e.Value
 			if obj.Type == objectTypeString {
@@ -345,10 +357,13 @@ func addFieldComments(s *jen.Statement, obj *object) *jen.Statement {
 			}
 			enum = append(enum, v)
 		}
+
 		if len(enum) != 0 {
+			enum = enum[max(0, len(deprecatedEnums)-supportLastDeprecatedEnum):]
 			c = append(c, fmt.Sprintf("// +kubebuilder:validation:Enum=%s", strings.Join(enum, ";")))
 		}
 	}
+
 	if obj.CreateOnly {
 		c = append(c, `// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"`)
 	}
@@ -357,7 +372,15 @@ func addFieldComments(s *jen.Statement, obj *object) *jen.Statement {
 		c = append(c, fmt.Sprintf(`// +kubebuilder:deprecatedversion:warning="%s is deprecated"`, obj.jsonName))
 	}
 
+	// Starts formatting the comment
 	doc := fmtComment(obj)
+
+	// Adds deprecated values to the comment
+	if !obj.IsDeprecated && len(deprecatedEnums) > 0 {
+		deprecatedEnums = deprecatedEnums[max(0, len(deprecatedEnums)-supportLastDeprecatedEnum):]
+		doc = fmt.Sprintf("%s. Deprecated values: %s", strings.TrimSuffix(doc, "."), strings.Join(deprecatedEnums, ", "))
+	}
+
 	if doc != "" {
 		c = append(c, doc)
 	}

@@ -237,8 +237,9 @@ spec:
                         - message: Value is immutable
                           rule: self == oldSelf
                     flink_version:
-                      description: Flink major version
+                      description: "Flink major version. Deprecated values: `1.16`"
                       enum:
+                        - "1.16"
                         - "1.19"
                         - "1.20"
                       type: string

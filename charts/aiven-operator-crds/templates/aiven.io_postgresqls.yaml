@@ -781,8 +781,9 @@ spec:
                         are unreliable
                       type: boolean
                     pg_version:
-                      description: PostgreSQL major version
+                      description: "PostgreSQL major version. Deprecated values: `12`"
                       enum:
+                        - "12"
                         - "13"
                         - "14"
                         - "15"
@@ -823,6 +824,8 @@ spec:
                           description:
                             Deprecated. Specifies the log level that will
                             be used for log entries.
+                          enum:
+                            - warning
                           type: string
                         log_max_string_length:
                           description:

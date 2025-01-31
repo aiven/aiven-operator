@@ -323,7 +323,7 @@ ExternalPostgresql configuration values.
 - [`password`](#spec.externalPostgresql.password-property){: name='spec.externalPostgresql.password-property'} (string, MaxLength: 256). Password.
 - [`ssl_client_certificate`](#spec.externalPostgresql.ssl_client_certificate-property){: name='spec.externalPostgresql.ssl_client_certificate-property'} (string, MaxLength: 16384). Client certificate.
 - [`ssl_client_key`](#spec.externalPostgresql.ssl_client_key-property){: name='spec.externalPostgresql.ssl_client_key-property'} (string, MaxLength: 16384). Client key.
-- [`ssl_mode`](#spec.externalPostgresql.ssl_mode-property){: name='spec.externalPostgresql.ssl_mode-property'} (string, Enum: `require`, `verify-ca`, `verify-full`). SSL mode to use for the connection.  Please note that Aiven requires TLS for all connections to external PostgreSQL services.
+- [`ssl_mode`](#spec.externalPostgresql.ssl_mode-property){: name='spec.externalPostgresql.ssl_mode-property'} (string, Enum: `prefer`, `require`, `verify-ca`, `verify-full`). SSL mode to use for the connection.  Please note that Aiven requires TLS for all connections to external PostgreSQL services. Deprecated values: `prefer`.
 - [`ssl_root_cert`](#spec.externalPostgresql.ssl_root_cert-property){: name='spec.externalPostgresql.ssl_root_cert-property'} (string, MaxLength: 16384). SSL Root Cert.
 
 ## externalSchemaRegistry {: #spec.externalSchemaRegistry }

@@ -335,6 +335,7 @@ type Pgaudit struct {
 	// Deprecated. Specifies whether log messages will be visible to a client process such as psql.
 	LogClient *bool `groups:"create,update" json:"log_client,omitempty"`
 
+	// +kubebuilder:validation:Enum="warning"
 	// +kubebuilder:deprecatedversion:warning="log_level is deprecated"
 	// Deprecated. Specifies the log level that will be used for log entries.
 	LogLevel *string `groups:"create,update" json:"log_level,omitempty"`
@@ -536,8 +537,8 @@ type PgUserConfig struct {
 	// Enable the pg_stat_monitor extension. Enabling this extension will cause the cluster to be restarted.When this extension is enabled, pg_stat_statements results for utility commands are unreliable
 	PgStatMonitorEnable *bool `groups:"create,update" json:"pg_stat_monitor_enable,omitempty"`
 
-	// +kubebuilder:validation:Enum="13";"14";"15";"16";"17"
-	// PostgreSQL major version
+	// +kubebuilder:validation:Enum="12";"13";"14";"15";"16";"17"
+	// PostgreSQL major version. Deprecated values: `12`
 	PgVersion *string `groups:"create,update" json:"pg_version,omitempty"`
 
 	// +kubebuilder:deprecatedversion:warning="pgaudit is deprecated"
