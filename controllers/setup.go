@@ -24,6 +24,7 @@ func SetupControllers(mgr ctrl.Manager, defaultToken, kubeVersion, operatorVersi
 	}
 
 	builders := map[string]reconcilerBuilder{
+		"AlloyDBOmni":                      newAlloyDBOmniReconciler,
 		"Cassandra":                        newCassandraReconciler,
 		"Clickhouse":                       newClickhouseReconciler,
 		"ClickhouseDatabase":               newClickhouseDatabaseReconciler,

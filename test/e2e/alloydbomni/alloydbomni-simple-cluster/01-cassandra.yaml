@@ -1,0 +1,19 @@
+apiVersion: aiven.io/v1alpha1
+kind: AlloyDBOmni
+metadata:
+  name: k8s-e2e-alloydbomni-simple
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: alloydbomni-secret
+
+  project: aiven-ci-kubernetes-operator
+
+  cloudName: google-europe-west1
+  plan: startup-4
+
+  maintenanceWindowDow: sunday
+  maintenanceWindowTime: 11:00:00

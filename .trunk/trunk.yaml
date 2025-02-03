@@ -32,11 +32,14 @@ lint:
     - linters: [yamllint, prettier]
       paths:
         - charts/aiven-operator/templates/*.yaml
-    - linters:
-        - markdownlint
+    - linters: [markdownlint]
       paths:
         - .trunk/**
         - docs/docs/**
+    - linters: [gitleaks]
+      paths:
+        - docs/docs/api-reference/examples/alloydbomni.yaml
+        - docs/docs/api-reference/alloydbomni.md
 
 runtimes:
   enabled:

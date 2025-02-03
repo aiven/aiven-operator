@@ -22,12 +22,23 @@ func TestConnectionPool(t *testing.T) {
 	userName := randName("service-user")
 	poolName := randName("connection-pool")
 	yml, err := loadExampleYaml("connectionpool.yaml", map[string]string{
-		"aiven-project-name":  cfg.Project,
-		"google-europe-west1": cfg.PrimaryCloudName,
-		"my-connection-pool":  poolName,
-		"my-pg":               pgName,
-		"my-database":         dbName,
-		"my-service-user":     userName,
+		"doc[0].metadata.name":     poolName,
+		"doc[0].spec.project":      cfg.Project,
+		"doc[0].spec.serviceName":  pgName,
+		"doc[0].spec.databaseName": dbName,
+		"doc[0].spec.username":     userName,
+
+		"doc[1].metadata.name":  pgName,
+		"doc[1].spec.project":   cfg.Project,
+		"doc[1].spec.cloudName": cfg.PrimaryCloudName,
+
+		"doc[2].metadata.name":    dbName,
+		"doc[2].spec.project":     cfg.Project,
+		"doc[2].spec.serviceName": pgName,
+
+		"doc[3].metadata.name":    userName,
+		"doc[3].spec.project":     cfg.Project,
+		"doc[3].spec.serviceName": pgName,
 	})
 	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)

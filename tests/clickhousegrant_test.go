@@ -390,12 +390,30 @@ func TestClickhouseGrantExample(t *testing.T) {
 	grantName := randName("clickhouse-grant")
 
 	yml, err := loadExampleYaml("clickhousegrant.yaml", map[string]string{
-		"aiven-project-name":    cfg.Project,
-		"my-clickhouse-service": chName,
-		"my-clickhouse-db":      dbName,
-		"my-clickhouse-user":    userName,
-		"my-clickhouse-role":    roleName,
-		"my-clickhouse-grant":   grantName,
+		"doc[0].metadata.name":                            grantName,
+		"doc[0].spec.project":                             cfg.Project,
+		"doc[0].spec.serviceName":                         chName,
+		"doc[0].spec.privilegeGrants[0].database":         dbName,
+		"doc[0].spec.roleGrants[0].grantees[0].user":      userName,
+		"doc[0].spec.privilegeGrants[0].grantees[0].role": roleName,
+		"doc[0].spec.roleGrants[0].roles[0]":              roleName,
+
+		"doc[1].metadata.name":  chName,
+		"doc[1].spec.cloudName": cfg.PrimaryCloudName,
+		"doc[1].spec.project":   cfg.Project,
+
+		"doc[2].metadata.name":    dbName,
+		"doc[2].spec.project":     cfg.Project,
+		"doc[2].spec.serviceName": chName,
+
+		"doc[3].metadata.name":    userName,
+		"doc[3].spec.project":     cfg.Project,
+		"doc[3].spec.serviceName": chName,
+
+		"doc[4].metadata.name":    roleName,
+		"doc[4].spec.project":     cfg.Project,
+		"doc[4].spec.role":        roleName,
+		"doc[4].spec.serviceName": chName,
 	})
 	require.NoError(t, err)
 

@@ -25,11 +25,18 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	siName := randName("clickhouse-postgresql")
 
 	yml, err := loadExampleYaml("serviceintegration.clickhouse_postgresql.yaml", map[string]string{
-		"aiven-project-name":     cfg.Project,
-		"google-europe-west1":    cfg.PrimaryCloudName,
-		"my-pg":                  pgName,
-		"my-clickhouse":          chName,
-		"my-service-integration": siName,
+		"doc[0].metadata.name":               siName,
+		"doc[0].spec.project":                cfg.Project,
+		"doc[0].spec.sourceServiceName":      pgName,
+		"doc[0].spec.destinationServiceName": chName,
+
+		"doc[1].metadata.name":  chName,
+		"doc[1].spec.project":   cfg.Project,
+		"doc[1].spec.cloudName": cfg.PrimaryCloudName,
+
+		"doc[2].metadata.name":  pgName,
+		"doc[2].spec.project":   cfg.Project,
+		"doc[2].spec.cloudName": cfg.PrimaryCloudName,
 	})
 	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)
@@ -96,11 +103,19 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 	siName := randName("kafka-logs")
 
 	yml, err := loadExampleYaml("serviceintegration.kafka_logs.yaml", map[string]string{
-		"aiven-project-name":     cfg.Project,
-		"google-europe-west1":    cfg.PrimaryCloudName,
-		"my-kafka":               ksName,
-		"my-kafka-topic":         ktName,
-		"my-service-integration": siName,
+		"doc[0].metadata.name":               siName,
+		"doc[0].spec.project":                cfg.Project,
+		"doc[0].spec.sourceServiceName":      ksName,
+		"doc[0].spec.destinationServiceName": ksName,
+		"doc[0].spec.kafkaLogs.kafka_topic":  ktName,
+
+		"doc[1].metadata.name":  ksName,
+		"doc[1].spec.project":   cfg.Project,
+		"doc[1].spec.cloudName": cfg.PrimaryCloudName,
+
+		"doc[2].metadata.name":    ktName,
+		"doc[2].spec.project":     cfg.Project,
+		"doc[2].spec.serviceName": ksName,
 	})
 	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)
@@ -165,11 +180,18 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	siName := randName("kafka-connect")
 
 	yml, err := loadExampleYaml("serviceintegration.kafka_connect.yaml", map[string]string{
-		"aiven-project-name":     cfg.Project,
-		"google-europe-west1":    cfg.PrimaryCloudName,
-		"my-kafka":               ksName,
-		"my-kafka-connect":       kcName,
-		"my-service-integration": siName,
+		"doc[0].metadata.name":               siName,
+		"doc[0].spec.project":                cfg.Project,
+		"doc[0].spec.sourceServiceName":      ksName,
+		"doc[0].spec.destinationServiceName": kcName,
+
+		"doc[1].metadata.name":  ksName,
+		"doc[1].spec.project":   cfg.Project,
+		"doc[1].spec.cloudName": cfg.PrimaryCloudName,
+
+		"doc[2].metadata.name":  kcName,
+		"doc[2].spec.project":   cfg.Project,
+		"doc[2].spec.cloudName": cfg.PrimaryCloudName,
 	})
 	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)
@@ -242,11 +264,14 @@ func TestServiceIntegrationAutoscaler(t *testing.T) {
 	siName := randName("autoscaler")
 
 	yml, err := loadExampleYaml("serviceintegration.autoscaler.yaml", map[string]string{
-		"aiven-project-name":         cfg.Project,
-		"google-europe-west1":        cfg.PrimaryCloudName,
-		"my-pg":                      pgName,
-		"my-service-integration":     siName,
-		"my-destination-endpoint-id": endpointID,
+		"doc[0].metadata.name":              siName,
+		"doc[0].spec.project":               cfg.Project,
+		"doc[0].spec.sourceServiceName":     pgName,
+		"doc[0].spec.destinationEndpointId": endpointID,
+
+		"doc[1].metadata.name":  pgName,
+		"doc[1].spec.project":   cfg.Project,
+		"doc[1].spec.cloudName": cfg.PrimaryCloudName,
 	})
 	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)
@@ -301,11 +326,14 @@ func TestServiceIntegrationDatadog(t *testing.T) {
 	siName := randName("datadog")
 
 	yml, err := loadExampleYaml("serviceintegration.datadog.yaml", map[string]string{
-		"aiven-project-name":      cfg.Project,
-		"google-europe-west1":     cfg.PrimaryCloudName,
-		"my-pg":                   pgName,
-		"my-service-integration":  siName,
-		"destination-endpoint-id": endpointID,
+		"doc[0].metadata.name":              siName,
+		"doc[0].spec.project":               cfg.Project,
+		"doc[0].spec.sourceServiceName":     pgName,
+		"doc[0].spec.destinationEndpointId": endpointID,
+
+		"doc[1].metadata.name":  pgName,
+		"doc[1].spec.project":   cfg.Project,
+		"doc[1].spec.cloudName": cfg.PrimaryCloudName,
 	})
 	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)

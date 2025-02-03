@@ -155,6 +155,12 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 		processedGenerationAnnotation,
 		strconv.FormatInt(obj.GetGeneration(), formatIntBaseDecimal),
 	)
+
+	// Call service-specific createOrUpdate if service is running
+	if err := o.createOrUpdateServiceSpecific(ctx, avnGen, oldService); err != nil {
+		return fmt.Errorf("failed to create or update service-specific: %w", err)
+	}
+
 	return nil
 }
 
@@ -271,4 +277,5 @@ type serviceAdapter interface {
 	getUserConfig() any
 	newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error)
 	performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error
+	createOrUpdateServiceSpecific(ctx context.Context, avnGen avngen.Client, old *service.ServiceGetOut) error
 }

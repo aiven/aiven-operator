@@ -110,14 +110,17 @@ func newSchemaValidator(kind string, crd []byte) (schemaValidator, error) {
 // If not to do so, new properties allowed on validation,
 // but won't work when applied with kubectl
 func patchSchema(m map[string]any) map[string]any {
-	if m["type"].(string) != "object" {
+	t, ok := m["type"].(string)
+	if !ok || t != "object" {
 		return m
 	}
 
-	if p, ok := m["properties"]; ok {
-		prop := p.(map[string]any)
-		for k, v := range prop {
-			vv := v.(map[string]any)
+	if p, ok := m["properties"].(map[string]any); ok {
+		for k, v := range p {
+			vv, ok := v.(map[string]any)
+			if !ok {
+				continue
+			}
 
 			// metadata schema is empty, replaces with a good one
 			if k == "metadata" && len(vv) == 1 {
@@ -134,14 +137,13 @@ func patchSchema(m map[string]any) map[string]any {
 				continue
 			}
 
-			prop[k] = patchSchema(vv)
+			p[k] = patchSchema(vv)
 		}
-		m["properties"] = prop
+		m["properties"] = p
 	}
 
-	if i, ok := m["items"]; ok {
-		items := i.(map[string]any)
-		m["items"] = patchSchema(items)
+	if i, ok := m["items"].(map[string]any); ok {
+		m["items"] = patchSchema(i)
 	}
 
 	if _, ok := m["additionalProperties"]; !ok {
