@@ -169,6 +169,11 @@ func (in *ValkeyUserConfig) DeepCopyInto(out *ValkeyUserConfig) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.FrequentSnapshots != nil {
+		in, out := &in.FrequentSnapshots, &out.FrequentSnapshots
+		*out = new(bool)
+		**out = **in
+	}
 	if in.IpFilter != nil {
 		in, out := &in.IpFilter, &out.IpFilter
 		*out = make([]*IpFilter, len(*in))
