@@ -22,6 +22,8 @@
 - Change `Redis` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
 - Change `ServiceIntegration` field `logs.elasticsearch_index_prefix`: pattern `^[a-z0-9][a-z0-9-_.]+$`
 - Change `Valkey` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Add `Valkey` field `userConfig.frequent_snapshots`, type `boolean`: When enabled, Valkey will create
+  frequent local RDB snapshots
 
 ## v0.27.0 - 2025-01-16
 

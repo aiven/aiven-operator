@@ -94,6 +94,9 @@ type ValkeyUserConfig struct {
 	// The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
 	BackupMinute *int `groups:"create,update" json:"backup_minute,omitempty"`
 
+	// When enabled, Valkey will create frequent local RDB snapshots. When disabled, Valkey will only take RDB snapshots when a backup is created, based on the backup schedule. This setting is ignored when `valkey_persistence` is set to `off`.
+	FrequentSnapshots *bool `groups:"create,update" json:"frequent_snapshots,omitempty"`
+
 	// +kubebuilder:validation:MaxItems=2048
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
 	IpFilter []*IpFilter `groups:"create,update" json:"ip_filter,omitempty"`
