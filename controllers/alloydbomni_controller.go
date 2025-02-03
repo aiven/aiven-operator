@@ -8,7 +8,6 @@ import (
 	"fmt"
 
 	"github.com/aiven/aiven-go-client/v2"
-	alloydbomniUtils "github.com/aiven/aiven-operator/utils/alloydbomni"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/alloydbomni"
 	"github.com/aiven/go-client-codegen/handler/service"
@@ -129,7 +128,11 @@ func (a *alloyDBOmniAdapter) createOrUpdateServiceSpecific(ctx context.Context, 
 	}
 
 	// Update only if key ID changed
-	if newKeyID := credsMap["private_key_id"].(string); newKeyID != currentCreds.PrivateKeyId {
+	newKeyID, ok := credsMap["private_key_id"].(string)
+	if !ok {
+		return fmt.Errorf("private_key_id not found or not a string in credentials")
+	}
+	if newKeyID != currentCreds.PrivateKeyId {
 		req := &alloydbomni.AlloyDbOmniGoogleCloudPrivateKeySetIn{
 			PrivateKey: a.Spec.ServiceAccountCredentials,
 		}
