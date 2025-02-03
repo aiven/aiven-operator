@@ -18,7 +18,7 @@ type RedisSpec struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-//+kubebuilder:deprecatedversion:warning="EOL date **March 31, 2025**. On this date, all active Aiven for Caching services are automatically upgraded to Aiven for Valkey to maintain Redis compatibility. Any powered-off Aiven for Caching services are permanently deleted, making data from these services inaccessible."
+//+kubebuilder:deprecatedversion:warning="EOL date **March 31, 2025**. Please follow [these](https://aiven.io/docs/products/caching/howto/upgrade-aiven-for-caching-to-valkey#upgrade-service) instructions to upgrade your service to Valkey."
 
 // Redis is the Schema for the redis API.
 // Info "Exposes secret keys": `REDIS_HOST`, `REDIS_PORT`, `REDIS_USER`, `REDIS_PASSWORD`, `REDIS_SSL`
