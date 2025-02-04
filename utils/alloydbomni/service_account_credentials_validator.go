@@ -6,7 +6,16 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
-func ValidateServiceAccountCredentials(s string) error {
+func ValidateServiceAccountCredentials(i interface{}) error {
+	if i.(string) == "" {
+		return nil
+	}
+
+	s, ok := i.(string)
+	if !ok {
+		return errors.New("expected input to be a string")
+	}
+
 	r, err := gojsonschema.Validate(
 		gojsonschema.NewStringLoader(serviceAccountCredentialsSchema),
 		gojsonschema.NewStringLoader(s),
