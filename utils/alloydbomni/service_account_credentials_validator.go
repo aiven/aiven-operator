@@ -7,6 +7,10 @@ import (
 )
 
 func ValidateServiceAccountCredentials(s string) error {
+	if s == "" {
+		return nil
+	}
+
 	r, err := gojsonschema.Validate(
 		gojsonschema.NewStringLoader(serviceAccountCredentialsSchema),
 		gojsonschema.NewStringLoader(s),

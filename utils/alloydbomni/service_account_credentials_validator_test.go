@@ -13,6 +13,11 @@ func TestValidateServiceAccountCredentials(t *testing.T) {
 		expected string
 	}{
 		{
+			name:     "empty",
+			input:    ``,
+			expected: "",
+		},
+		{
 			name: "valid",
 			input: `{
 				"private_key_id": "0",
