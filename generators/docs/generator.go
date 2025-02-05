@@ -17,6 +17,10 @@ const (
 	maxPatternLength = 42
 	// minHeaderLevel doesn't let print headers less than
 	minHeaderLevel = 2
+	// deprecationMessageMaxLength
+	// The max size is validated during CRD installation
+	// https://github.com/kubernetes/kubernetes/blob/c4434c3161942e8ff0969b714ceb43c39dfd5766/staging/src/k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/validation/validation.go#L328
+	deprecationMessageMaxLength = 256
 )
 
 // reEmptyLines finds multiple newlines
@@ -43,6 +47,11 @@ func parseSchema(crdData []byte) (*schemaType, error) {
 	kind.Group = crd.Spec.Group
 	kind.Plural = crd.Spec.Names.Plural
 	kind.Columns = crd.Spec.Versions[0].AdditionalPrinterColumns
+
+	// Must validate it at least here, because it is not validated by kubebuilder and fails directly in the Kubernetes
+	if len(kind.DeprecationWarning) > deprecationMessageMaxLength {
+		return nil, fmt.Errorf("deprecation warning message is too long: %d > %d", len(kind.DeprecationWarning), deprecationMessageMaxLength)
+	}
 
 	// Those fields are generic, but can have only explicit values
 	kind.Properties["apiVersion"].Description = fmt.Sprintf("Value `%s/%s`", kind.Group, kind.Version)
