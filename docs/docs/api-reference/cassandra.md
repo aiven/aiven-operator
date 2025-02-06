@@ -1,6 +1,9 @@
 ---
-title: "Cassandra"
+title: "Cassandra [DEPRECATED]"
 ---
+
+!!! warning "Deprecation warning"
+	EOL date **December 31, 2025**, see [end-of-life](https://aiven.io/docs/platform/reference/end-of-life). To ensure uninterrupted service, complete your migration out of Aiven for Apache Cassandra before December 31, 2025.
 
 ## Usage example
 
