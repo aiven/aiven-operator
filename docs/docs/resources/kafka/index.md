@@ -7,10 +7,10 @@ weight: 30
 Aiven for Apache Kafka is an excellent option if you need to run Apache Kafka at scale. With Aiven Kubernetes Operator
 you can get up and running with a suitably sized Apache Kafka service in a few minutes.
 
-!!! note
-    Before going through this guide, make sure you have a [Kubernetes cluster](../../installation/prerequisites.md) with the
-    operator installed (see instructions for [helm](../../installation/helm.md) or [kubectl](../../installation/kubectl.md)),
-    and a [Kubernetes Secret with an Aiven authentication token](../../authentication.md).
+## Prerequisites
+
+* A Kubernetes cluster with Aiven Kubernetes Operator installed using [helm](../../installation/helm.md) or [kubectl](../../installation/kubectl.md).
+* A [Kubernetes Secret with an Aiven authentication token](../../authentication.md).
 
 ## Create a Kafka instance
 

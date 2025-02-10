@@ -6,9 +6,14 @@ weight: 50
 
 Aiven for Redis®\* is a fully managed in-memory NoSQL database that you can deploy in the cloud of your choice to store and access data quickly and efficiently.
 
-!!! note
-    Before going through this guide, make sure you have a [Kubernetes cluster](../installation/prerequisites.md) with the operator installed (see instructions for [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md)),
-    and a [Kubernetes Secret with an Aiven authentication token](../authentication.md).
+!!! warning "End of life notice"
+
+    The Aiven for Caching offering (formerly Aiven for Redis®) is entering its [end-of-life cycle](https://aiven.io/docs/platform/reference/end-of-life). From **February 15th, 2025**, it will not be possible to start a new Aiven for Caching service, but existing services up until version 7.2 will still be available until end of life. From **March 31st, 2025**, Aiven for Caching will no longer be available and all existing services will be migrated to Aiven for Valkey™. You can [upgrade to Valkey for free yourself](https://aiven.io/docs/products/caching/howto/upgrade-aiven-for-caching-to-valkey) before then.
+
+## Prerequisites
+
+* A Kubernetes cluster with Aiven Kubernetes Operator installed using [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md).
+* A [Kubernetes Secret with an Aiven authentication token](../authentication.md).
 
 ## Create a Redis instance
 
