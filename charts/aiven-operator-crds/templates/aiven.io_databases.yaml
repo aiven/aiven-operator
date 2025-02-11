@@ -59,6 +59,14 @@ spec:
                     - key
                     - name
                   type: object
+                databaseName:
+                  description: DatabaseName is the name of the database to be created.
+                  maxLength: 40
+                  pattern: ^[a-zA-Z0-9_][a-zA-Z0-9_-]{0,39}$
+                  type: string
+                  x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
                 lcCollate:
                   default: en_US.UTF-8
                   description:
@@ -107,6 +115,9 @@ spec:
                 - project
                 - serviceName
               type: object
+              x-kubernetes-validations:
+                - message: databaseName can only be set during resource creation.
+                  rule: has(oldSelf.databaseName) == has(self.databaseName)
             status:
               description: DatabaseStatus defines the observed state of Database
               properties:
