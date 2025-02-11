@@ -7,6 +7,7 @@ import (
 )
 
 // DatabaseSpec defines the desired state of Database
+// +kubebuilder:validation:XValidation:rule="has(oldSelf.databaseName) == has(self.databaseName)",message="databaseName can only be set during resource creation."
 type DatabaseSpec struct {
 	ServiceDependant `json:",inline"`
 
@@ -26,6 +27,12 @@ type DatabaseSpec struct {
 	// from being deleted by Kubernetes. It is recommended to enable this for any production
 	// databases containing critical data.
 	TerminationProtection *bool `json:"terminationProtection,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=40
+	// +kubebuilder:validation:Pattern="^[a-zA-Z0-9_][a-zA-Z0-9_-]{0,39}$"
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// DatabaseName is the name of the database to be created.
+	DatabaseName string `json:"databaseName,omitempty"`
 }
 
 // DatabaseStatus defines the observed state of Database
@@ -60,6 +67,16 @@ func (in *Database) AuthSecretRef() *AuthSecretReference {
 
 func (in *Database) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
+}
+
+func (in *Database) GetDatabaseName() string {
+	// Default to Spec.DatabaseName and use ObjectMeta.Name if empty.
+	// ObjectMeta.Name doesn't support underscores, Spec.DatabaseName does.
+	name := in.Spec.DatabaseName
+	if name == "" {
+		name = in.ObjectMeta.Name
+	}
+	return name
 }
 
 // +kubebuilder:object:root=true

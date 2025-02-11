@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,37 +9,6 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getDatabaseYaml(project, pgName, dbName, cloudName string) string {
-	return fmt.Sprintf(`
-apiVersion: aiven.io/v1alpha1
-kind: PostgreSQL
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[4]s
-  plan: startup-4
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: Database
-metadata:
-  name: %[3]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  serviceName: %[2]s
-`, project, pgName, dbName, cloudName)
-}
-
 func TestDatabase(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
@@ -48,12 +16,23 @@ func TestDatabase(t *testing.T) {
 	// GIVEN
 	ctx, cancel := testCtx()
 	defer cancel()
-
-	pgName := randName("database")
-	dbName := randName("database")
-	yml := getDatabaseYaml(cfg.Project, pgName, dbName, cfg.PrimaryCloudName)
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
+	pgName := randName("database-pg")
+	dbName := randName("database-db")
+	yml, err := loadExampleYaml("database.yaml", map[string]string{
+		"doc[0].metadata.name":  pgName,
+		"doc[0].spec.project":   cfg.Project,
+		"doc[0].spec.cloudName": cfg.PrimaryCloudName,
+
+		"doc[1].metadata.name":    dbName,
+		"doc[1].spec.project":     cfg.Project,
+		"doc[1].spec.serviceName": pgName,
+
+		// Remove 'databaseName' from the initial yaml
+		"doc[1].spec.databaseName": "REMOVE",
+	})
+	require.NoError(t, err)
 	// Cleans test afterward
 	defer s.Destroy(t)
 
@@ -96,4 +75,129 @@ func TestDatabase(t *testing.T) {
 		_, err = avnClient.Databases.Get(ctx, cfg.Project, pgName, dbName)
 		return err
 	}))
+}
+
+func TestDatabase_databaseName(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	// GIVEN
+	ctx, cancel := testCtx()
+	defer cancel()
+	s := NewSession(ctx, k8sClient, cfg.Project)
+
+	// Cleans test afterward
+	defer s.Destroy(t)
+
+	pgName := randName("databasename-pg")
+
+	// Create a PostgreSQL to reuse with database test cases
+	yml, err := loadExampleYaml("database.yaml", map[string]string{
+		"doc[0].metadata.name":  pgName,
+		"doc[0].spec.project":   cfg.Project,
+		"doc[0].spec.cloudName": cfg.PrimaryCloudName,
+
+		"doc[1]": "REMOVE", // remove database from yaml
+	})
+	require.NoError(t, err)
+
+	// WHEN
+	// Applies given manifest
+	err = s.Apply(yml)
+	require.NoError(t, err, "Failed to apply YAML")
+
+	// Waits kube objects
+	pg := new(v1alpha1.PostgreSQL)
+	require.NoError(t, s.GetRunning(pg, pgName))
+
+	testCases := []struct {
+		name                      string
+		metaDbName                string
+		specDatabaseName          string
+		expectedAivenDatabaseName string
+		expectError               bool
+		expectUpdateError         bool
+		expectErrorMsgContains    string
+	}{
+		{
+			name:                   "invalid - metadata.name contains underscores",
+			metaDbName:             "invalid_db_name",
+			specDatabaseName:       "REMOVE",
+			expectError:            true,
+			expectErrorMsgContains: "Invalid value: \"invalid_db_name\": a lowercase RFC 1123 subdomain must",
+		},
+		{
+			name:                   "invalid - databaseName exceeds maxLength",
+			metaDbName:             "metadata-db-name",
+			specDatabaseName:       "db-name-very-long-name-exceeding-maxlength", // exceed maxLength of 40
+			expectError:            true,
+			expectErrorMsgContains: "Too long: may not be longer than 40",
+		},
+		{
+			name:                   "invalid - spec.databaseName contains invalid characters",
+			metaDbName:             "valid-db-name",
+			specDatabaseName:       "invalid-db-name!",
+			expectError:            true,
+			expectErrorMsgContains: "Invalid value: \"invalid-db-name!\": spec.databaseName in body should match",
+		},
+		{
+			name:                      "valid - default to metadata.name",
+			metaDbName:                "metadata-db-name",
+			specDatabaseName:          "REMOVE", // remove from yaml, should default to metadata.name
+			expectedAivenDatabaseName: "metadata-db-name",
+		},
+		{
+			name:                      "valid - uses spec.databaseName if specified",
+			metaDbName:                "metadata-db-name", // both metadata.name and spec.databaseName are specified, should use spec.databaseName
+			specDatabaseName:          "spec_valid_db_name",
+			expectedAivenDatabaseName: "spec_valid_db_name",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			ctx, cancel := testCtx()
+			defer cancel()
+
+			yml, err := loadExampleYaml("database.yaml", map[string]string{
+				"doc[0].metadata.name":  pgName,
+				"doc[0].spec.project":   cfg.Project,
+				"doc[0].spec.cloudName": cfg.PrimaryCloudName,
+
+				"doc[1].metadata.name":     tc.metaDbName,
+				"doc[1].spec.project":      cfg.Project,
+				"doc[1].spec.serviceName":  pgName,
+				"doc[1].spec.databaseName": tc.specDatabaseName, // Set databaseName from test case
+			})
+			require.NoError(t, err)
+
+			// WHEN
+			// Applies given manifest
+			err = s.Apply(yml)
+
+			// IF expectError
+			if tc.expectError {
+				// THEN expect error during apply
+				assert.ErrorContains(t, err, tc.expectErrorMsgContains)
+				return // Skip further assertions for error cases
+			}
+
+			require.NoError(t, err, "Failed to apply YAML")
+
+			db := new(v1alpha1.Database)
+			require.NoError(t, s.GetRunning(db, tc.metaDbName))
+
+			// THEN
+			// Validates Database
+			dbAvn, err := avnClient.Databases.Get(ctx, cfg.Project, pgName, tc.expectedAivenDatabaseName)
+			require.NoError(t, err)
+			assert.Equal(t, tc.expectedAivenDatabaseName, dbAvn.DatabaseName)
+
+			// Deletion validation
+			assert.NoError(t, s.Delete(db, func() error {
+				_, err = avnClient.Databases.Get(ctx, cfg.Project, pgName, tc.expectedAivenDatabaseName)
+				return err
+			}))
+		})
+	}
 }
