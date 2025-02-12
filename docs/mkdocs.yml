@@ -81,6 +81,7 @@ nav:
       - resources/opensearch.md
       - resources/postgresql.md
       - resources/redis.md
+      - resources/valkey.md
       - resources/service-integrations.md
       - Kafka:
           - resources/kafka/index.md
