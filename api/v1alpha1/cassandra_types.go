@@ -22,6 +22,7 @@ type CassandraSpec struct {
 // Info "Exposes secret keys": `CASSANDRA_HOST`, `CASSANDRA_PORT`, `CASSANDRA_USER`, `CASSANDRA_PASSWORD`, `CASSANDRA_URI`, `CASSANDRA_HOSTS`, `CASSANDRA_CA_CERT`
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
+// +kubebuilder:deprecatedversion:warning="EOL date **December 31, 2025**, see [end-of-life](https://aiven.io/docs/platform/reference/end-of-life). To ensure uninterrupted service, complete your migration out of Aiven for Apache Cassandra before December 31, 2025."
 // +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
 // +kubebuilder:printcolumn:name="Region",type="string",JSONPath=".spec.cloudName"
 // +kubebuilder:printcolumn:name="Plan",type="string",JSONPath=".spec.plan"

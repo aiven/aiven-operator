@@ -3,6 +3,7 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - Deprecate `Redis`: use `Valkey` instead. Please follow [these](https://aiven.io/docs/products/caching/howto/upgrade-aiven-for-caching-to-valkey#upgrade-service) instructions to upgrade your service to Valkey
+- Deprecate `Cassandra`, see Aiven platform [end-of-life](https://aiven.io/docs/platform/reference/end-of-life) policy.
 - Change `Cassandra` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
 - Change `Clickhouse` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
 - Change `Flink` field `userConfig.custom_code`: immutable `true`
