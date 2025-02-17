@@ -220,7 +220,7 @@ type Openid struct {
 }
 type InternalAuthenticationBackendLimiting struct {
 	// +kubebuilder:validation:Minimum=1
-	// +kubebuilder:validation:Maximum=2147483647
+	// +kubebuilder:validation:Maximum=32767
 	// The number of login attempts allowed before login is blocked
 	AllowedTries *int `groups:"create,update" json:"allowed_tries,omitempty"`
 
@@ -255,7 +255,7 @@ type InternalAuthenticationBackendLimiting struct {
 	Type *string `groups:"create,update" json:"type,omitempty"`
 }
 
-// IP address rate limiting settings
+// Deprecated. IP address rate limiting settings
 type IpRateLimiting struct {
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=2147483647
@@ -292,7 +292,8 @@ type IpRateLimiting struct {
 type AuthFailureListeners struct {
 	InternalAuthenticationBackendLimiting *InternalAuthenticationBackendLimiting `groups:"create,update" json:"internal_authentication_backend_limiting,omitempty"`
 
-	// IP address rate limiting settings
+	// +kubebuilder:deprecatedversion:warning="ip_rate_limiting is deprecated"
+	// Deprecated. IP address rate limiting settings
 	IpRateLimiting *IpRateLimiting `groups:"create,update" json:"ip_rate_limiting,omitempty"`
 }
 type Threshold struct {
