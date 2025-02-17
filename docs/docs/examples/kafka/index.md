@@ -436,7 +436,7 @@ kubectl apply -f kafka-crab-consume.yaml
 ```shell
 kubectl port-forward kafka-crab-consume 8080:8080
 ```
-
+<!-- trunk-ignore(markdown-link-check) -->
 4\. In the browser of your choice, access the <http://localhost:8080> address. You now see a page with
 the `random-strings` topic listed:
 ![Kowl graphical interface on the topic listing page](./kowl-topics.png)

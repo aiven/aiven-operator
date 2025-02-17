@@ -158,7 +158,7 @@ undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/confi
 ##@ Docs
 
 .PHONY: docs
-docs: ## Generate CRDs api-reference.
+docs: ## Generate CRDs docs.
 	go run ./generators/docs/...
 
 .PHONY: docs-serve
@@ -170,7 +170,7 @@ docs-serve: ## Run live preview.
 serve-docs: docs-serve
 
 .PHONY: docs-build
-docs-build: ## Builds docs website.
+docs-build: docs ## Builds docs website.
 	$(CONTAINER_TOOL) run --rm -it -v ${PWD}/docs:/docs squidfunk/mkdocs-material build
 
 ##@ Build dependencies

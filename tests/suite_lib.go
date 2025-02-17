@@ -12,7 +12,7 @@ import (
 	"github.com/goccy/go-yaml/parser"
 )
 
-var examplesDirPath = "../docs/docs/api-reference/examples"
+var examplesDirPath = "../docs/docs/resources/examples"
 
 type exampleYamlProcessor struct {
 	docs []*ast.DocumentNode

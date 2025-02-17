@@ -12,7 +12,7 @@ const (
 	// crdDirPath CRDs location
 	crdDirPath = "./config/crd/bases/"
 	// docsDirPath CRDs docs location to export to
-	docsDirPath     = "./docs/docs/api-reference/"
+	docsDirPath     = "./docs/docs/resources/"
 	examplesDirPath = docsDirPath + "examples"
 )
 

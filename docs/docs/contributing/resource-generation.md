@@ -33,7 +33,7 @@ flowchart TB
 The command runs several generators in a certain sequence.
 First, the user config generator is called.
 Then [controller-gen][controller-gen] cli.
-Then [API reference][api-reference] docs generator
+Then [Resources][resources] docs generator
 and charts generator.
 
 Here how it goes in the details:
@@ -43,7 +43,7 @@ Here how it goes in the details:
 2. [controller-gen][controller-gen] generates k8s methods,
    generates [CRDs][crd] for those objects,
    creates charts for cluster roles and webhooks.
-3. Docs generator creates [API reference][api-reference] out of CRDs:
+3. Docs generator creates [Resources][resources] out of CRDs:
    1. it looks for an example file for the given CRD kind in `./<api-reference-docs>/example/`,
       if it finds one, it validates that with the CRD.
       Each CRD has an OpenAPI v3 schema as a part of it.
@@ -56,7 +56,7 @@ Here how it goes in the details:
 
 [go-api-schemas]: https://github.com/aiven/go-api-schemas
 [service-types]: https://api.aiven.io/doc/#tag/Service/operation/ListPublicServiceTypes
-[api-reference]: ../api-reference/index.md
+[resources]: ../resources/alloydbomni.md
 [controller-gen]: https://book.kubebuilder.io/reference/controller-gen.html
 [crd]: https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/
 
@@ -66,7 +66,7 @@ flowchart TB
     Generator-->|go: KafkaUserConfig struct| K8S(controller-gen<br> adds k8s methods to structs)
     K8S-->|go files| CRD(controller-gen<br> creates CRDs out of structs)
     CRD-->|CRD: aiven.io_kafkas.yaml| Docs(docs generator)
-    subgraph API reference generation
+    subgraph Resources generation
         Docs-->|aiven.io_kafkas.yaml|Reference(creates reference<br> out of CRD)
         Docs-->|examples/kafka.yaml,<br> aiven.io_kafkas.yaml|Examples(validates example<br> using CRD)
         Examples--> Markdown(creates docs out of CRDs, adds examples)

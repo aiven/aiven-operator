@@ -167,7 +167,7 @@ and [mkdocs-material](https://squidfunk.github.io/mkdocs-material/).
 To run the documentation live preview:
 
 ```shell
-make serve-docs
+make docs-serve
 ```
 
 And open the `http://localhost:8000/aiven-operator/` page in your web browser.

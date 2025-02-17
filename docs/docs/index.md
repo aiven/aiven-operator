@@ -17,7 +17,7 @@ The Aiven Platform combines open-choice services to rapidly stream, store and se
 ## Get started
 
 - Follow the [setup guides](./installation/prerequisites.md) to install Aiven Operator and create a token.
-- Then try out the [resource examples](./resources/project.md) to set up a project or deploy a service, or review the [API reference](./api-reference/index.md).
+- Then try out the [resource examples](examples/project.md) to set up a project or deploy a service, or review the [API reference](resources/alloydbomni.md).
 - View the [Aiven documentation](https://aiven.io/docs) for more information on the Aiven Platform and services.
 
 ## Contribute

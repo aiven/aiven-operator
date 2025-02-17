@@ -25,7 +25,7 @@ lint:
   ignore:
     - linters: [markdown-link-check]
       paths:
-        - docs/docs/api-reference/**
+        - docs/docs/resources/**
     - linters: [prettier]
       paths:
         - docs/docs/**
@@ -38,8 +38,8 @@ lint:
         - docs/docs/**
     - linters: [gitleaks]
       paths:
-        - docs/docs/api-reference/examples/alloydbomni.yaml
-        - docs/docs/api-reference/alloydbomni.md
+        - docs/docs/resources/examples/alloydbomni.yaml
+        - docs/docs/resources/alloydbomni.md
 
 runtimes:
   enabled:
