@@ -29,6 +29,7 @@
 - Change `OpenSearch` field `userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.allowed_tries`:
   maximum ~~`2147483647`~~ → `32767`
 - Change `OpenSearch` field `userConfig.opensearch.auth_failure_listeners.ip_rate_limiting`: deprecated
+- Add `Database` field `databaseName` type `string`: DatabaseName is the name of the database to be created.
 
 ## v0.27.0 - 2025-01-16
 

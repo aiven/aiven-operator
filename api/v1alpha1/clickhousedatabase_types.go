@@ -42,8 +42,8 @@ type ClickhouseDatabase struct {
 var _ AivenManagedObject = &ClickhouseDatabase{}
 
 func (in *ClickhouseDatabase) GetDatabaseName() string {
-	// Default to Spec.Username and use ObjectMeta.Name if empty.
-	// ObjectMeta.Name doesn't support UTF-8 characters, Spec.Username does.
+	// Default to Spec.DatabaseName and use ObjectMeta.Name if empty.
+	// ObjectMeta.Name doesn't support UTF-8 characters, Spec.DatabaseName does.
 	name := in.Spec.DatabaseName
 	if name == "" {
 		name = in.ObjectMeta.Name

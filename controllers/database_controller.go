@@ -57,7 +57,7 @@ func (h DatabaseHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, 
 
 	if !exists {
 		_, err := avn.Databases.Create(ctx, db.Spec.Project, db.Spec.ServiceName, aiven.CreateDatabaseRequest{
-			Database:  db.Name,
+			Database:  db.GetDatabaseName(),
 			LcCollate: db.Spec.LcCollate,
 			LcType:    db.Spec.LcCtype,
 		})
@@ -90,7 +90,7 @@ func (h DatabaseHandler) delete(ctx context.Context, avn *aiven.Client, avnGen a
 		ctx,
 		db.Spec.Project,
 		db.Spec.ServiceName,
-		db.Name)
+		db.GetDatabaseName())
 	if err != nil && !isNotFound(err) {
 		return false, err
 	}
@@ -99,7 +99,7 @@ func (h DatabaseHandler) delete(ctx context.Context, avn *aiven.Client, avnGen a
 }
 
 func (h DatabaseHandler) exists(ctx context.Context, avn *aiven.Client, db *v1alpha1.Database) (bool, error) {
-	d, err := avn.Databases.Get(ctx, db.Spec.Project, db.Spec.ServiceName, db.Name)
+	d, err := avn.Databases.Get(ctx, db.Spec.Project, db.Spec.ServiceName, db.GetDatabaseName())
 	if isNotFound(err) {
 		return false, nil
 	}
@@ -113,7 +113,7 @@ func (h DatabaseHandler) get(ctx context.Context, avn *aiven.Client, avnGen avng
 		return nil, err
 	}
 
-	_, err = avn.Databases.Get(ctx, db.Spec.Project, db.Spec.ServiceName, db.Name)
+	_, err = avn.Databases.Get(ctx, db.Spec.Project, db.Spec.ServiceName, db.GetDatabaseName())
 	if err != nil {
 		return nil, err
 	}
