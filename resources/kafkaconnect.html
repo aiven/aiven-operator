@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://aiven.github.io/aiven-operator/resources/cassandra.html">
+        <link rel="canonical" href="https://aiven.github.io/aiven-operator/resources/kafkaconnect.html">
       
       
-        <link rel="prev" href="alloydbomni.html">
+        <link rel="prev" href="kafkaacl.html">
       
       
-        <link rel="next" href="clickhouse.html">
+        <link rel="next" href="kafkaconnector.html">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Cassandra [DEPRECATED] - Aiven Operator</title>
+        <title>KafkaConnect - Aiven Operator</title>
       
     
     
@@ -109,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Cassandra [DEPRECATED]
+              KafkaConnect
             
           </span>
         </div>
@@ -662,29 +662,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Cassandra [DEPRECATED]
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="cassandra.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="cassandra.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -694,147 +675,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#usage-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      Usage example
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#Cassandra" class="md-nav__link">
-    <span class="md-ellipsis">
-      Cassandra
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#spec" class="md-nav__link">
-    <span class="md-ellipsis">
-      spec
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#spec.authSecretRef" class="md-nav__link">
-    <span class="md-ellipsis">
-      authSecretRef
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#spec.connInfoSecretTarget" class="md-nav__link">
-    <span class="md-ellipsis">
-      connInfoSecretTarget
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#spec.projectVPCRef" class="md-nav__link">
-    <span class="md-ellipsis">
-      projectVPCRef
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#spec.serviceIntegrations" class="md-nav__link">
-    <span class="md-ellipsis">
-      serviceIntegrations
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#spec.technicalEmails" class="md-nav__link">
-    <span class="md-ellipsis">
-      technicalEmails
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#spec.userConfig" class="md-nav__link">
-    <span class="md-ellipsis">
-      userConfig
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="userConfig">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#spec.userConfig.cassandra" class="md-nav__link">
-    <span class="md-ellipsis">
-      cassandra
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#spec.userConfig.ip_filter" class="md-nav__link">
-    <span class="md-ellipsis">
-      ip_filter
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#spec.userConfig.private_access" class="md-nav__link">
-    <span class="md-ellipsis">
-      private_access
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#spec.userConfig.public_access" class="md-nav__link">
-    <span class="md-ellipsis">
-      public_access
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1176,10 +1016,29 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="kafkaconnect.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    KafkaConnect
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="kafkaconnect.html" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1189,6 +1048,189 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#usage-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage example
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#KafkaConnect" class="md-nav__link">
+    <span class="md-ellipsis">
+      KafkaConnect
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      spec
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec.authSecretRef" class="md-nav__link">
+    <span class="md-ellipsis">
+      authSecretRef
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec.projectVPCRef" class="md-nav__link">
+    <span class="md-ellipsis">
+      projectVPCRef
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec.serviceIntegrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      serviceIntegrations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec.technicalEmails" class="md-nav__link">
+    <span class="md-ellipsis">
+      technicalEmails
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec.userConfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      userConfig
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="userConfig">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.ip_filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      ip_filter
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.kafka_connect" class="md-nav__link">
+    <span class="md-ellipsis">
+      kafka_connect
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.plugin_versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      plugin_versions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.private_access" class="md-nav__link">
+    <span class="md-ellipsis">
+      private_access
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.privatelink_access" class="md-nav__link">
+    <span class="md-ellipsis">
+      privatelink_access
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.public_access" class="md-nav__link">
+    <span class="md-ellipsis">
+      public_access
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.secret_providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      secret_providers
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="secret_providers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.secret_providers.aws" class="md-nav__link">
+    <span class="md-ellipsis">
+      aws
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.secret_providers.vault" class="md-nav__link">
+    <span class="md-ellipsis">
+      vault
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1597,29 +1639,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Cassandra [DEPRECATED]
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="cassandra.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="cassandra.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1629,147 +1652,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#usage-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      Usage example
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#Cassandra" class="md-nav__link">
-    <span class="md-ellipsis">
-      Cassandra
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#spec" class="md-nav__link">
-    <span class="md-ellipsis">
-      spec
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#spec.authSecretRef" class="md-nav__link">
-    <span class="md-ellipsis">
-      authSecretRef
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#spec.connInfoSecretTarget" class="md-nav__link">
-    <span class="md-ellipsis">
-      connInfoSecretTarget
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#spec.projectVPCRef" class="md-nav__link">
-    <span class="md-ellipsis">
-      projectVPCRef
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#spec.serviceIntegrations" class="md-nav__link">
-    <span class="md-ellipsis">
-      serviceIntegrations
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#spec.technicalEmails" class="md-nav__link">
-    <span class="md-ellipsis">
-      technicalEmails
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#spec.userConfig" class="md-nav__link">
-    <span class="md-ellipsis">
-      userConfig
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="userConfig">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#spec.userConfig.cassandra" class="md-nav__link">
-    <span class="md-ellipsis">
-      cassandra
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#spec.userConfig.ip_filter" class="md-nav__link">
-    <span class="md-ellipsis">
-      ip_filter
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#spec.userConfig.private_access" class="md-nav__link">
-    <span class="md-ellipsis">
-      private_access
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#spec.userConfig.public_access" class="md-nav__link">
-    <span class="md-ellipsis">
-      public_access
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2029,6 +1911,8 @@
                 
   
   
+    
+  
   
   
     
@@ -2043,11 +1927,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_8" checked>
         
           
           <label class="md-nav__link" for="__nav_2_8" id="__nav_2_8_label" tabindex="">
@@ -2062,7 +1946,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_8_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_8_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_8">
             <span class="md-nav__icon md-icon"></span>
             Kafka
@@ -2117,10 +2001,29 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="kafkaconnect.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    KafkaConnect
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="kafkaconnect.html" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -2130,6 +2033,189 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#usage-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage example
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#KafkaConnect" class="md-nav__link">
+    <span class="md-ellipsis">
+      KafkaConnect
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      spec
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec.authSecretRef" class="md-nav__link">
+    <span class="md-ellipsis">
+      authSecretRef
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec.projectVPCRef" class="md-nav__link">
+    <span class="md-ellipsis">
+      projectVPCRef
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec.serviceIntegrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      serviceIntegrations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec.technicalEmails" class="md-nav__link">
+    <span class="md-ellipsis">
+      technicalEmails
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec.userConfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      userConfig
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="userConfig">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.ip_filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      ip_filter
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.kafka_connect" class="md-nav__link">
+    <span class="md-ellipsis">
+      kafka_connect
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.plugin_versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      plugin_versions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.private_access" class="md-nav__link">
+    <span class="md-ellipsis">
+      private_access
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.privatelink_access" class="md-nav__link">
+    <span class="md-ellipsis">
+      privatelink_access
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.public_access" class="md-nav__link">
+    <span class="md-ellipsis">
+      public_access
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.secret_providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      secret_providers
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="secret_providers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.secret_providers.aws" class="md-nav__link">
+    <span class="md-ellipsis">
+      aws
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.secret_providers.vault" class="md-nav__link">
+    <span class="md-ellipsis">
+      vault
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2989,9 +3075,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#Cassandra" class="md-nav__link">
+  <a href="#KafkaConnect" class="md-nav__link">
     <span class="md-ellipsis">
-      Cassandra
+      KafkaConnect
     </span>
   </a>
   
@@ -3010,15 +3096,6 @@
   <a href="#spec.authSecretRef" class="md-nav__link">
     <span class="md-ellipsis">
       authSecretRef
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#spec.connInfoSecretTarget" class="md-nav__link">
-    <span class="md-ellipsis">
-      connInfoSecretTarget
     </span>
   </a>
   
@@ -3062,18 +3139,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#spec.userConfig.cassandra" class="md-nav__link">
+  <a href="#spec.userConfig.ip_filter" class="md-nav__link">
     <span class="md-ellipsis">
-      cassandra
+      ip_filter
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#spec.userConfig.ip_filter" class="md-nav__link">
+  <a href="#spec.userConfig.kafka_connect" class="md-nav__link">
     <span class="md-ellipsis">
-      ip_filter
+      kafka_connect
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.plugin_versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      plugin_versions
     </span>
   </a>
   
@@ -3089,11 +3175,53 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#spec.userConfig.privatelink_access" class="md-nav__link">
+    <span class="md-ellipsis">
+      privatelink_access
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#spec.userConfig.public_access" class="md-nav__link">
     <span class="md-ellipsis">
       public_access
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.secret_providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      secret_providers
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="secret_providers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.secret_providers.aws" class="md-nav__link">
+    <span class="md-ellipsis">
+      aws
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.secret_providers.vault" class="md-nav__link">
+    <span class="md-ellipsis">
+      vault
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -3122,19 +3250,15 @@
     
       
     
-    <a href="https://github.com/aiven/aiven-operator/raw/main/docs/docs/resources/cassandra.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/aiven/aiven-operator/raw/main/docs/docs/resources/kafkaconnect.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-  <h1>Cassandra [DEPRECATED]</h1>
+  <h1>KafkaConnect</h1>
 
-<div class="admonition warning">
-<p class="admonition-title">Deprecation warning</p>
-<p>EOL date <strong>December 31, 2025</strong>, see <a href="https://aiven.io/docs/platform/reference/end-of-life">end-of-life</a>. To ensure uninterrupted service, complete your migration out of Aiven for Apache Cassandra before December 31, 2025.</p>
-</div>
 <h2 id="usage-example">Usage example<a class="headerlink" href="#usage-example" title="Permanent link">&para;</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Prerequisites</p>
@@ -3146,82 +3270,47 @@
 <details class="example">
 <summary>Example</summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Cassandra</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KafkaConnect</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nt">metadata</span><span class="p">:</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-cassandra</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-kafka-connect</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nt">spec</span><span class="p">:</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cassandra-secret</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MY_SECRET_PREFIX_</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">      </span><span class="nt">foo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bar</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">      </span><span class="nt">baz</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">egg</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-project-name</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span><span class="nt">cloudName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">google-europe-west1</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">  </span><span class="nt">plan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">startup-4</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">  </span><span class="nt">maintenanceWindowDow</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sunday</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">  </span><span class="nt">maintenanceWindowTime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">11:00:00</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">  </span><span class="nt">userConfig</span><span class="p">:</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">    </span><span class="nt">migrate_sstableloader</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">    </span><span class="nt">public_access</span><span class="p">:</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">      </span><span class="nt">prometheus</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">    </span><span class="nt">ip_filter</span><span class="p">:</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">network</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0.0.0</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">whatever</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">network</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.20.0.0/16</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-aiven-project</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="nt">cloudName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">google-europe-west1</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="nt">plan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">business-4</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="nt">userConfig</span><span class="p">:</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="nt">kafka_connect</span><span class="p">:</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">      </span><span class="nt">consumer_isolation_level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read_committed</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="nt">public_access</span><span class="p">:</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">      </span><span class="nt">kafka_connect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
 </details>
 <p>Apply the resource with:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>example.yaml
 </code></pre></div>
-<p>Verify the newly created <code>Cassandra</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>cassandras<span class="w"> </span>my-cassandra
+<p>Verify the newly created <code>KafkaConnect</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>kafkaconnects<span class="w"> </span>my-kafka-connect
 </code></pre></div>
 <p>The output is similar to the following:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Name<span class="w">            </span>Project<span class="w">               </span>Region<span class="w">                 </span>Plan<span class="w">         </span>State<span class="w">      </span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>my-cassandra<span class="w">    </span>aiven-project-name<span class="w">    </span>google-europe-west1<span class="w">    </span>startup-4<span class="w">    </span>RUNNING<span class="w">    </span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Name<span class="w">                </span>Project<span class="w">             </span>Region<span class="w">                 </span>Plan<span class="w">          </span>State<span class="w">      </span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>my-kafka-connect<span class="w">    </span>my-aiven-project<span class="w">    </span>google-europe-west1<span class="w">    </span>business-4<span class="w">    </span>RUNNING<span class="w">    </span>
 </code></pre></div></p>
-<p>To view the details of the <code>Secret</code>, use the following command:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>secret<span class="w"> </span>cassandra-secret
-</code></pre></div></p>
-<p>You can use the <a href="https://github.com/jqlang/jq">jq</a> to quickly decode the <code>Secret</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>cassandra-secret<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data | map_values(@base64d)&#39;</span>
-</code></pre></div>
-<p>The output is similar to the following:</p>
-<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="nt">&quot;CASSANDRA_HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">&quot;CASSANDRA_PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">&quot;CASSANDRA_USER&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nt">&quot;CASSANDRA_PASSWORD&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">&quot;CASSANDRA_URI&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nt">&quot;CASSANDRA_HOSTS&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="nt">&quot;CASSANDRA_CA_CERT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="p">}</span>
-</code></pre></div>
-<h2 id="Cassandra">Cassandra<a class="headerlink" href="#Cassandra" title="Permanent link">&para;</a></h2>
-<p>Cassandra is the Schema for the cassandras API.</p>
-<div class="admonition info">
-<p class="admonition-title">Exposes secret keys</p>
-<p><code>CASSANDRA_HOST</code>, <code>CASSANDRA_PORT</code>, <code>CASSANDRA_USER</code>, <code>CASSANDRA_PASSWORD</code>, <code>CASSANDRA_URI</code>, <code>CASSANDRA_HOSTS</code>, <code>CASSANDRA_CA_CERT</code>.</p>
-</div>
+<h2 id="KafkaConnect">KafkaConnect<a class="headerlink" href="#KafkaConnect" title="Permanent link">&para;</a></h2>
+<p>KafkaConnect is the Schema for the kafkaconnects API.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#apiVersion-property" name="apiVersion-property"><code>apiVersion</code></a> (string). Value <code>aiven.io/v1alpha1</code>.</li>
-<li><a href="#kind-property" name="kind-property"><code>kind</code></a> (string). Value <code>Cassandra</code>.</li>
+<li><a href="#kind-property" name="kind-property"><code>kind</code></a> (string). Value <code>KafkaConnect</code>.</li>
 <li><a href="#metadata-property" name="metadata-property"><code>metadata</code></a> (object). Data that identifies the object, including a <code>name</code> string and optional <code>namespace</code>.</li>
-<li><a href="#spec-property" name="spec-property"><code>spec</code></a> (object). CassandraSpec defines the desired state of Cassandra. See below for <a href="#spec">nested schema</a>.</li>
+<li><a href="#spec-property" name="spec-property"><code>spec</code></a> (object). KafkaConnectSpec defines the desired state of KafkaConnect. See below for <a href="#spec">nested schema</a>.</li>
 </ul>
 <h2 id="spec">spec<a class="headerlink" href="#spec" title="Permanent link">&para;</a></h2>
-<p><em>Appears on <a href="#Cassandra"><code>Cassandra</code></a>.</em></p>
-<p>CassandraSpec defines the desired state of Cassandra.</p>
+<p><em>Appears on <a href="#KafkaConnect"><code>KafkaConnect</code></a>.</em></p>
+<p>KafkaConnectSpec defines the desired state of KafkaConnect.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.plan-property" name="spec.plan-property"><code>plan</code></a> (string, MaxLength: 128). Subscription plan.</li>
@@ -3231,11 +3320,6 @@
 <ul>
 <li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
 <li><a href="#spec.cloudName-property" name="spec.cloudName-property"><code>cloudName</code></a> (string, MaxLength: 256). Cloud the service runs in.</li>
-<li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Secret configuration. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
-<li><a href="#spec.connInfoSecretTargetDisabled-property" name="spec.connInfoSecretTargetDisabled-property"><code>connInfoSecretTargetDisabled</code></a> (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.</li>
-<li><a href="#spec.disk_space-property" name="spec.disk_space-property"><code>disk_space</code></a> (string, Pattern: <code>(?i)^[1-9][0-9]*(GiB|G)?$</code>). The disk space of the service, possible values depend on the service type, the cloud provider and the project.
-Reducing will result in the service re-balancing.
-The removal of this field does not change the value.</li>
 <li><a href="#spec.maintenanceWindowDow-property" name="spec.maintenanceWindowDow-property"><code>maintenanceWindowDow</code></a> (string, Enum: <code>monday</code>, <code>tuesday</code>, <code>wednesday</code>, <code>thursday</code>, <code>friday</code>, <code>saturday</code>, <code>sunday</code>). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.</li>
 <li><a href="#spec.maintenanceWindowTime-property" name="spec.maintenanceWindowTime-property"><code>maintenanceWindowTime</code></a> (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.</li>
 <li><a href="#spec.projectVPCRef-property" name="spec.projectVPCRef-property"><code>projectVPCRef</code></a> (object). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See below for <a href="#spec.projectVPCRef">nested schema</a>.</li>
@@ -3244,7 +3328,7 @@ The removal of this field does not change the value.</li>
 <li><a href="#spec.tags-property" name="spec.tags-property"><code>tags</code></a> (object, AdditionalProperties: string). Tags are key-value pairs that allow you to categorize services.</li>
 <li><a href="#spec.technicalEmails-property" name="spec.technicalEmails-property"><code>technicalEmails</code></a> (array of objects, MaxItems: 10). Defines the email addresses that will receive alerts about upcoming maintenance updates or warnings about service instability. See below for <a href="#spec.technicalEmails">nested schema</a>.</li>
 <li><a href="#spec.terminationProtection-property" name="spec.terminationProtection-property"><code>terminationProtection</code></a> (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services.</li>
-<li><a href="#spec.userConfig-property" name="spec.userConfig-property"><code>userConfig</code></a> (object). Cassandra specific user configuration options. See below for <a href="#spec.userConfig">nested schema</a>.</li>
+<li><a href="#spec.userConfig-property" name="spec.userConfig-property"><code>userConfig</code></a> (object). KafkaConnect specific user configuration options. See below for <a href="#spec.userConfig">nested schema</a>.</li>
 </ul>
 <h2 id="spec.authSecretRef">authSecretRef<a class="headerlink" href="#spec.authSecretRef" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -3253,21 +3337,6 @@ The removal of this field does not change the value.</li>
 <ul>
 <li><a href="#spec.authSecretRef.key-property" name="spec.authSecretRef.key-property"><code>key</code></a> (string, MinLength: 1).</li>
 <li><a href="#spec.authSecretRef.name-property" name="spec.authSecretRef.name-property"><code>name</code></a> (string, MinLength: 1).</li>
-</ul>
-<h2 id="spec.connInfoSecretTarget">connInfoSecretTarget<a class="headerlink" href="#spec.connInfoSecretTarget" title="Permanent link">&para;</a></h2>
-<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
-<p>Secret configuration.</p>
-<p><strong>Required</strong></p>
-<ul>
-<li><a href="#spec.connInfoSecretTarget.name-property" name="spec.connInfoSecretTarget.name-property"><code>name</code></a> (string, Immutable). Name of the secret resource to be created. By default, it is equal to the resource name.</li>
-</ul>
-<p><strong>Optional</strong></p>
-<ul>
-<li><a href="#spec.connInfoSecretTarget.annotations-property" name="spec.connInfoSecretTarget.annotations-property"><code>annotations</code></a> (object, AdditionalProperties: string). Annotations added to the secret.</li>
-<li><a href="#spec.connInfoSecretTarget.labels-property" name="spec.connInfoSecretTarget.labels-property"><code>labels</code></a> (object, AdditionalProperties: string). Labels added to the secret.</li>
-<li><a href="#spec.connInfoSecretTarget.prefix-property" name="spec.connInfoSecretTarget.prefix-property"><code>prefix</code></a> (string). Prefix for the secret's keys.
-Added "as is" without any transformations.
-By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFKA_</code>, <code>REDIS_</code>, etc.</li>
 </ul>
 <h2 id="spec.projectVPCRef">projectVPCRef<a class="headerlink" href="#spec.projectVPCRef" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -3297,34 +3366,19 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 </ul>
 <h2 id="spec.userConfig">userConfig<a class="headerlink" href="#spec.userConfig" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
-<p>Cassandra specific user configuration options.</p>
+<p>KafkaConnect specific user configuration options.</p>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.</li>
-<li><a href="#spec.userConfig.backup_hour-property" name="spec.userConfig.backup_hour-property"><code>backup_hour</code></a> (integer, Minimum: 0, Maximum: 23). The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.</li>
-<li><a href="#spec.userConfig.backup_minute-property" name="spec.userConfig.backup_minute-property"><code>backup_minute</code></a> (integer, Minimum: 0, Maximum: 59). The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.</li>
-<li><a href="#spec.userConfig.cassandra-property" name="spec.userConfig.cassandra-property"><code>cassandra</code></a> (object). cassandra configuration values. See below for <a href="#spec.userConfig.cassandra">nested schema</a>.</li>
-<li><a href="#spec.userConfig.cassandra_version-property" name="spec.userConfig.cassandra_version-property"><code>cassandra_version</code></a> (string, Enum: <code>4</code>, <code>4.1</code>, Pattern: <code>^[0-9]+(\.[0-9]+)?$</code>). Cassandra version. Deprecated values: <code>4</code>.</li>
+<li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Deprecated. Additional Cloud Regions for Backup Replication.</li>
 <li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 2048). Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
-<li><a href="#spec.userConfig.migrate_sstableloader-property" name="spec.userConfig.migrate_sstableloader-property"><code>migrate_sstableloader</code></a> (boolean). Sets the service into migration mode enabling the sstableloader utility to be used to upload Cassandra data files. Available only on service create.</li>
+<li><a href="#spec.userConfig.kafka_connect-property" name="spec.userConfig.kafka_connect-property"><code>kafka_connect</code></a> (object). Kafka Connect configuration values. See below for <a href="#spec.userConfig.kafka_connect">nested schema</a>.</li>
+<li><a href="#spec.userConfig.plugin_versions-property" name="spec.userConfig.plugin_versions-property"><code>plugin_versions</code></a> (array of objects). The plugin selected by the user. See below for <a href="#spec.userConfig.plugin_versions">nested schema</a>.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
-<li><a href="#spec.userConfig.project_to_fork_from-property" name="spec.userConfig.project_to_fork_from-property"><code>project_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.</li>
+<li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.public_access-property" name="spec.userConfig.public_access-property"><code>public_access</code></a> (object). Allow access to selected service ports from the public Internet. See below for <a href="#spec.userConfig.public_access">nested schema</a>.</li>
+<li><a href="#spec.userConfig.secret_providers-property" name="spec.userConfig.secret_providers-property"><code>secret_providers</code></a>. See below for } (array of objects). Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name><a href="#spec.userConfig.secret_providers">nested schema</a>.</li>
 <li><a href="#spec.userConfig.service_log-property" name="spec.userConfig.service_log-property"><code>service_log</code></a> (boolean). Store logs for the service so that they are available in the HTTP API and console.</li>
-<li><a href="#spec.userConfig.service_to_fork_from-property" name="spec.userConfig.service_to_fork_from-property"><code>service_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.</li>
-<li><a href="#spec.userConfig.service_to_join_with-property" name="spec.userConfig.service_to_join_with-property"><code>service_to_join_with</code></a> (string, Pattern: <code>^[a-z][-a-z0-9]{0,63}$</code>, MaxLength: 64). When bootstrapping, instead of creating a new Cassandra cluster try to join an existing one from another service. Can only be set on service creation.</li>
 <li><a href="#spec.userConfig.static_ips-property" name="spec.userConfig.static_ips-property"><code>static_ips</code></a> (boolean). Use static public IP addresses.</li>
-</ul>
-<h3 id="spec.userConfig.cassandra">cassandra<a class="headerlink" href="#spec.userConfig.cassandra" title="Permanent link">&para;</a></h3>
-<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
-<p>cassandra configuration values.</p>
-<p><strong>Optional</strong></p>
-<ul>
-<li><a href="#spec.userConfig.cassandra.batch_size_fail_threshold_in_kb-property" name="spec.userConfig.cassandra.batch_size_fail_threshold_in_kb-property"><code>batch_size_fail_threshold_in_kb</code></a> (integer, Minimum: 1, Maximum: 1000000). Fail any multiple-partition batch exceeding this value. 50kb (10x warn threshold) by default.</li>
-<li><a href="#spec.userConfig.cassandra.batch_size_warn_threshold_in_kb-property" name="spec.userConfig.cassandra.batch_size_warn_threshold_in_kb-property"><code>batch_size_warn_threshold_in_kb</code></a> (integer, Minimum: 1, Maximum: 1000000). Log a warning message on any multiple-partition batch size exceeding this value.5kb per batch by default.Caution should be taken on increasing the size of this thresholdas it can lead to node instability.</li>
-<li><a href="#spec.userConfig.cassandra.datacenter-property" name="spec.userConfig.cassandra.datacenter-property"><code>datacenter</code></a> (string, MaxLength: 128). Name of the datacenter to which nodes of this service belong. Can be set only when creating the service.</li>
-<li><a href="#spec.userConfig.cassandra.read_request_timeout_in_ms-property" name="spec.userConfig.cassandra.read_request_timeout_in_ms-property"><code>read_request_timeout_in_ms</code></a> (integer, Minimum: 1000, Maximum: 10000). How long the coordinator waits for read operations to complete before timing it out. 5 seconds by default.</li>
-<li><a href="#spec.userConfig.cassandra.write_request_timeout_in_ms-property" name="spec.userConfig.cassandra.write_request_timeout_in_ms-property"><code>write_request_timeout_in_ms</code></a> (integer, Minimum: 1000, Maximum: 10000). How long the coordinator waits for write requests to complete with at least one node in the local datacenter. 2 seconds by default.</li>
 </ul>
 <h3 id="spec.userConfig.ip_filter">ip_filter<a class="headerlink" href="#spec.userConfig.ip_filter" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
@@ -3337,19 +3391,99 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <ul>
 <li><a href="#spec.userConfig.ip_filter.description-property" name="spec.userConfig.ip_filter.description-property"><code>description</code></a> (string, MaxLength: 1024). Description for IP filter list entry.</li>
 </ul>
+<h3 id="spec.userConfig.kafka_connect">kafka_connect<a class="headerlink" href="#spec.userConfig.kafka_connect" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
+<p>Kafka Connect configuration values.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.kafka_connect.connector_client_config_override_policy-property" name="spec.userConfig.kafka_connect.connector_client_config_override_policy-property"><code>connector_client_config_override_policy</code></a> (string, Enum: <code>All</code>, <code>None</code>). Defines what client configurations can be overridden by the connector. Default is None.</li>
+<li><a href="#spec.userConfig.kafka_connect.consumer_auto_offset_reset-property" name="spec.userConfig.kafka_connect.consumer_auto_offset_reset-property"><code>consumer_auto_offset_reset</code></a> (string, Enum: <code>earliest</code>, <code>latest</code>). What to do when there is no initial offset in Kafka or if the current offset does not exist any more on the server. Default is earliest.</li>
+<li><a href="#spec.userConfig.kafka_connect.consumer_fetch_max_bytes-property" name="spec.userConfig.kafka_connect.consumer_fetch_max_bytes-property"><code>consumer_fetch_max_bytes</code></a> (integer, Minimum: 1048576, Maximum: 104857600). Records are fetched in batches by the consumer, and if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that the consumer can make progress. As such, this is not a absolute maximum.</li>
+<li><a href="#spec.userConfig.kafka_connect.consumer_isolation_level-property" name="spec.userConfig.kafka_connect.consumer_isolation_level-property"><code>consumer_isolation_level</code></a> (string, Enum: <code>read_committed</code>, <code>read_uncommitted</code>). Transaction read isolation level. read_uncommitted is the default, but read_committed can be used if consume-exactly-once behavior is desired.</li>
+<li><a href="#spec.userConfig.kafka_connect.consumer_max_partition_fetch_bytes-property" name="spec.userConfig.kafka_connect.consumer_max_partition_fetch_bytes-property"><code>consumer_max_partition_fetch_bytes</code></a> (integer, Minimum: 1048576, Maximum: 104857600). Records are fetched in batches by the consumer.If the first record batch in the first non-empty partition of the fetch is larger than this limit, the batch will still be returned to ensure that the consumer can make progress.</li>
+<li><a href="#spec.userConfig.kafka_connect.consumer_max_poll_interval_ms-property" name="spec.userConfig.kafka_connect.consumer_max_poll_interval_ms-property"><code>consumer_max_poll_interval_ms</code></a> (integer, Minimum: 1, Maximum: 2147483647). The maximum delay in milliseconds between invocations of poll() when using consumer group management (defaults to 300000).</li>
+<li><a href="#spec.userConfig.kafka_connect.consumer_max_poll_records-property" name="spec.userConfig.kafka_connect.consumer_max_poll_records-property"><code>consumer_max_poll_records</code></a> (integer, Minimum: 1, Maximum: 10000). The maximum number of records returned in a single call to poll() (defaults to 500).</li>
+<li><a href="#spec.userConfig.kafka_connect.offset_flush_interval_ms-property" name="spec.userConfig.kafka_connect.offset_flush_interval_ms-property"><code>offset_flush_interval_ms</code></a> (integer, Minimum: 1, Maximum: 100000000). The interval at which to try committing offsets for tasks (defaults to 60000).</li>
+<li><a href="#spec.userConfig.kafka_connect.offset_flush_timeout_ms-property" name="spec.userConfig.kafka_connect.offset_flush_timeout_ms-property"><code>offset_flush_timeout_ms</code></a> (integer, Minimum: 1, Maximum: 2147483647). Maximum number of milliseconds to wait for records to flush and partition offset data to be committed to offset storage before cancelling the process and restoring the offset data to be committed in a future attempt (defaults to 5000).</li>
+<li><a href="#spec.userConfig.kafka_connect.producer_batch_size-property" name="spec.userConfig.kafka_connect.producer_batch_size-property"><code>producer_batch_size</code></a> (integer, Minimum: 0, Maximum: 5242880). This setting gives the upper bound of the batch size to be sent. If there are fewer than this many bytes accumulated for this partition, the producer will <code>linger</code> for the linger.ms time waiting for more records to show up. A batch size of zero will disable batching entirely (defaults to 16384).</li>
+<li><a href="#spec.userConfig.kafka_connect.producer_buffer_memory-property" name="spec.userConfig.kafka_connect.producer_buffer_memory-property"><code>producer_buffer_memory</code></a> (integer, Minimum: 5242880, Maximum: 134217728). The total bytes of memory the producer can use to buffer records waiting to be sent to the broker (defaults to 33554432).</li>
+<li><a href="#spec.userConfig.kafka_connect.producer_compression_type-property" name="spec.userConfig.kafka_connect.producer_compression_type-property"><code>producer_compression_type</code></a> (string, Enum: <code>gzip</code>, <code>lz4</code>, <code>none</code>, <code>snappy</code>, <code>zstd</code>). Specify the default compression type for producers. This configuration accepts the standard compression codecs (<code>gzip</code>, <code>snappy</code>, <code>lz4</code>, <code>zstd</code>). It additionally accepts <code>none</code> which is the default and equivalent to no compression.</li>
+<li><a href="#spec.userConfig.kafka_connect.producer_linger_ms-property" name="spec.userConfig.kafka_connect.producer_linger_ms-property"><code>producer_linger_ms</code></a> (integer, Minimum: 0, Maximum: 5000). This setting gives the upper bound on the delay for batching: once there is batch.size worth of records for a partition it will be sent immediately regardless of this setting, however if there are fewer than this many bytes accumulated for this partition the producer will <code>linger</code> for the specified time waiting for more records to show up. Defaults to 0.</li>
+<li><a href="#spec.userConfig.kafka_connect.producer_max_request_size-property" name="spec.userConfig.kafka_connect.producer_max_request_size-property"><code>producer_max_request_size</code></a> (integer, Minimum: 131072, Maximum: 67108864). This setting will limit the number of record batches the producer will send in a single request to avoid sending huge requests.</li>
+<li><a href="#spec.userConfig.kafka_connect.scheduled_rebalance_max_delay_ms-property" name="spec.userConfig.kafka_connect.scheduled_rebalance_max_delay_ms-property"><code>scheduled_rebalance_max_delay_ms</code></a> (integer, Minimum: 0, Maximum: 600000). The maximum delay that is scheduled in order to wait for the return of one or more departed workers before rebalancing and reassigning their connectors and tasks to the group. During this period the connectors and tasks of the departed workers remain unassigned. Defaults to 5 minutes.</li>
+<li><a href="#spec.userConfig.kafka_connect.session_timeout_ms-property" name="spec.userConfig.kafka_connect.session_timeout_ms-property"><code>session_timeout_ms</code></a> (integer, Minimum: 1, Maximum: 2147483647). The timeout in milliseconds used to detect failures when using Kafka’s group management facilities (defaults to 10000).</li>
+</ul>
+<h3 id="spec.userConfig.plugin_versions">plugin_versions<a class="headerlink" href="#spec.userConfig.plugin_versions" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
+<p>A Kafka Connect plugin.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.userConfig.plugin_versions.plugin_name-property" name="spec.userConfig.plugin_versions.plugin_name-property"><code>plugin_name</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MaxLength: 128). The name of the plugin.</li>
+<li><a href="#spec.userConfig.plugin_versions.version-property" name="spec.userConfig.plugin_versions.version-property"><code>version</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MaxLength: 128). The version of the plugin.</li>
+</ul>
 <h3 id="spec.userConfig.private_access">private_access<a class="headerlink" href="#spec.userConfig.private_access" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>Allow access to selected service ports from private networks.</p>
-<p><strong>Required</strong></p>
+<p><strong>Optional</strong></p>
 <ul>
+<li><a href="#spec.userConfig.private_access.kafka_connect-property" name="spec.userConfig.private_access.kafka_connect-property"><code>kafka_connect</code></a> (boolean). Allow clients to connect to kafka_connect with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.</li>
 <li><a href="#spec.userConfig.private_access.prometheus-property" name="spec.userConfig.private_access.prometheus-property"><code>prometheus</code></a> (boolean). Allow clients to connect to prometheus with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.</li>
+</ul>
+<h3 id="spec.userConfig.privatelink_access">privatelink_access<a class="headerlink" href="#spec.userConfig.privatelink_access" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
+<p>Allow access to selected service components through Privatelink.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.privatelink_access.jolokia-property" name="spec.userConfig.privatelink_access.jolokia-property"><code>jolokia</code></a> (boolean). Enable jolokia.</li>
+<li><a href="#spec.userConfig.privatelink_access.kafka_connect-property" name="spec.userConfig.privatelink_access.kafka_connect-property"><code>kafka_connect</code></a> (boolean). Enable kafka_connect.</li>
+<li><a href="#spec.userConfig.privatelink_access.prometheus-property" name="spec.userConfig.privatelink_access.prometheus-property"><code>prometheus</code></a> (boolean). Enable prometheus.</li>
 </ul>
 <h3 id="spec.userConfig.public_access">public_access<a class="headerlink" href="#spec.userConfig.public_access" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>Allow access to selected service ports from the public Internet.</p>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.public_access.kafka_connect-property" name="spec.userConfig.public_access.kafka_connect-property"><code>kafka_connect</code></a> (boolean). Allow clients to connect to kafka_connect from the public internet for service nodes that are in a project VPC or another type of private network.</li>
+<li><a href="#spec.userConfig.public_access.prometheus-property" name="spec.userConfig.public_access.prometheus-property"><code>prometheus</code></a> (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network.</li>
+</ul>
+<h3 id="spec.userConfig.secret_providers">secret_providers<a class="headerlink" href="#spec.userConfig.secret_providers" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
+<p>Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault and AWS Secrets Manager are supported.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.userConfig.public_access.prometheus-property" name="spec.userConfig.public_access.prometheus-property"><code>prometheus</code></a> (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network.</li>
+<li><a href="#spec.userConfig.secret_providers.name-property" name="spec.userConfig.secret_providers.name-property"><code>name</code></a> (string). Name of the secret provider. Used to reference secrets in connector config.</li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.secret_providers.aws-property" name="spec.userConfig.secret_providers.aws-property"><code>aws</code></a> (object). AWS secret provider configuration. See below for <a href="#spec.userConfig.secret_providers.aws">nested schema</a>.</li>
+<li><a href="#spec.userConfig.secret_providers.vault-property" name="spec.userConfig.secret_providers.vault-property"><code>vault</code></a> (object). Vault secret provider configuration. See below for <a href="#spec.userConfig.secret_providers.vault">nested schema</a>.</li>
+</ul>
+<h4 id="spec.userConfig.secret_providers.aws">aws<a class="headerlink" href="#spec.userConfig.secret_providers.aws" title="Permanent link">&para;</a></h4>
+<p><em>Appears on <a href="#spec.userConfig.secret_providers"><code>spec.userConfig.secret_providers</code></a>.</em></p>
+<p>AWS secret provider configuration.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.userConfig.secret_providers.aws.auth_method-property" name="spec.userConfig.secret_providers.aws.auth_method-property"><code>auth_method</code></a> (string, Enum: <code>credentials</code>). Auth method of the vault secret provider.</li>
+<li><a href="#spec.userConfig.secret_providers.aws.region-property" name="spec.userConfig.secret_providers.aws.region-property"><code>region</code></a> (string, MaxLength: 64). Region used to lookup secrets with AWS SecretManager.</li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.secret_providers.aws.access_key-property" name="spec.userConfig.secret_providers.aws.access_key-property"><code>access_key</code></a> (string, MaxLength: 128). Access key used to authenticate with aws.</li>
+<li><a href="#spec.userConfig.secret_providers.aws.secret_key-property" name="spec.userConfig.secret_providers.aws.secret_key-property"><code>secret_key</code></a> (string, MaxLength: 128). Secret key used to authenticate with aws.</li>
+</ul>
+<h4 id="spec.userConfig.secret_providers.vault">vault<a class="headerlink" href="#spec.userConfig.secret_providers.vault" title="Permanent link">&para;</a></h4>
+<p><em>Appears on <a href="#spec.userConfig.secret_providers"><code>spec.userConfig.secret_providers</code></a>.</em></p>
+<p>Vault secret provider configuration.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.userConfig.secret_providers.vault.address-property" name="spec.userConfig.secret_providers.vault.address-property"><code>address</code></a> (string, MinLength: 1, MaxLength: 65536). Address of the Vault server.</li>
+<li><a href="#spec.userConfig.secret_providers.vault.auth_method-property" name="spec.userConfig.secret_providers.vault.auth_method-property"><code>auth_method</code></a> (string, Enum: <code>token</code>). Auth method of the vault secret provider.</li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.secret_providers.vault.engine_version-property" name="spec.userConfig.secret_providers.vault.engine_version-property"><code>engine_version</code></a> (integer, Enum: <code>1</code>, <code>2</code>). KV Secrets Engine version of the Vault server instance.</li>
+<li><a href="#spec.userConfig.secret_providers.vault.prefix_path_depth-property" name="spec.userConfig.secret_providers.vault.prefix_path_depth-property"><code>prefix_path_depth</code></a> (integer). Prefix path depth of the secrets Engine. Default is 1. If the secrets engine path has more than one segment it has to be increased to the number of segments.</li>
+<li><a href="#spec.userConfig.secret_providers.vault.token-property" name="spec.userConfig.secret_providers.vault.token-property"><code>token</code></a> (string, MaxLength: 256). Token used to authenticate with vault and auth method <code>token</code>.</li>
 </ul>
 
 
@@ -3389,7 +3523,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="alloydbomni.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: AlloyDBOmni">
+          <a href="kafkaacl.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: KafkaACL">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3399,20 +3533,20 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
                 Previous
               </span>
               <div class="md-ellipsis">
-                AlloyDBOmni
+                KafkaACL
               </div>
             </div>
           </a>
         
         
           
-          <a href="clickhouse.html" class="md-footer__link md-footer__link--next" aria-label="Next: Clickhouse">
+          <a href="kafkaconnector.html" class="md-footer__link md-footer__link--next" aria-label="Next: KafkaConnector">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Clickhouse
+                KafkaConnector
               </div>
             </div>
             <div class="md-footer__button md-icon">

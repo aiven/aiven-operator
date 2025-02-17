@@ -2,206 +2,210 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://aiven.github.io/aiven-operator/index.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/authentication.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/changelog.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/troubleshooting.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/index.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/cassandra.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/clickhouse.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/clickhousedatabase.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/clickhousegrant.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/clickhouserole.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/clickhouseuser.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/connectionpool.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/database.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/flink.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/grafana.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/kafka.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/kafkaacl.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/kafkaconnect.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/kafkaconnector.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/kafkaschema.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/kafkaschemaregistryacl.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/kafkatopic.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/mysql.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/opensearch.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/postgresql.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/project.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/projectvpc.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/redis.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/serviceintegration.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/serviceintegrationendpoint.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/serviceuser.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/api-reference/valkey.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/contributing/index.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/contributing/developer-guide.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/contributing/resource-generation.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/examples/cassandra.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/examples/clickhouse.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/examples/mysql.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/examples/opensearch.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/examples/postgresql.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/examples/project-vpc.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/examples/project.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/examples/redis.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/examples/service-integrations.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/examples/valkey.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/examples/kafka/index.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/examples/kafka/connect.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/examples/kafka/schema.html</loc>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/installation/helm.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/installation/kubectl.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/installation/prerequisites.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/installation/uninstalling.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/resources/alloydbomni.html</loc>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/resources/cassandra.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/resources/clickhouse.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/resources/clickhousedatabase.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/resources/clickhousegrant.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/resources/clickhouserole.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/resources/clickhouseuser.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/resources/connectionpool.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/resources/database.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/resources/flink.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/resources/grafana.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/resources/kafka.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/resources/kafkaacl.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/resources/kafkaconnect.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/resources/kafkaconnector.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/resources/kafkaschema.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/resources/kafkaschemaregistryacl.html</loc>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/resources/kafkatopic.html</loc>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/resources/mysql.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/resources/opensearch.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/resources/postgresql.html</loc>
-         <lastmod>2025-01-16</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/resources/project-vpc.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/resources/project.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <lastmod>2025-02-17</lastmod>
+    </url>
+    <url>
+         <loc>https://aiven.github.io/aiven-operator/resources/projectvpc.html</loc>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
          <loc>https://aiven.github.io/aiven-operator/resources/redis.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
-         <loc>https://aiven.github.io/aiven-operator/resources/service-integrations.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <loc>https://aiven.github.io/aiven-operator/resources/serviceintegration.html</loc>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
-         <loc>https://aiven.github.io/aiven-operator/resources/kafka/index.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <loc>https://aiven.github.io/aiven-operator/resources/serviceintegrationendpoint.html</loc>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
-         <loc>https://aiven.github.io/aiven-operator/resources/kafka/connect.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <loc>https://aiven.github.io/aiven-operator/resources/serviceuser.html</loc>
+         <lastmod>2025-02-17</lastmod>
     </url>
     <url>
-         <loc>https://aiven.github.io/aiven-operator/resources/kafka/schema.html</loc>
-         <lastmod>2025-01-16</lastmod>
+         <loc>https://aiven.github.io/aiven-operator/resources/valkey.html</loc>
+         <lastmod>2025-02-17</lastmod>
     </url>
 </urlset>

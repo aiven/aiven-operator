@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://aiven.github.io/aiven-operator/installation/prerequisites.html">
+        <link rel="canonical" href="https://aiven.github.io/aiven-operator/resources/kafkaschemaregistryacl.html">
       
       
-        <link rel="prev" href="../changelog.html">
+        <link rel="prev" href="kafkaschema.html">
       
       
-        <link rel="next" href="helm.html">
+        <link rel="next" href="kafkatopic.html">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Prerequisites - Aiven Operator</title>
+        <title>KafkaSchemaRegistryACL - Aiven Operator</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#prerequisites" class="md-skip">
+        <a href="#usage-example" class="md-skip">
           Skip to content
         </a>
       
@@ -109,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Prerequisites
+              KafkaSchemaRegistryACL
             
           </span>
         </div>
@@ -214,12 +214,10 @@
         
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
+      <li class="md-tabs__item">
         <a href="../index.html" class="md-tabs__link">
           
   
@@ -234,11 +232,13 @@
         
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../resources/alloydbomni.html" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="alloydbomni.html" class="md-tabs__link">
           
   
   Resources
@@ -333,30 +333,25 @@
       
   
   
-    
   
   
-  
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
         
           
-          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -368,7 +363,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_1">
             <span class="md-nav__icon md-icon"></span>
             Home
@@ -423,30 +418,25 @@
                 
   
   
-    
   
   
-  
     
     
     
       
       
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3" >
         
           
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_1_3" id="__nav_1_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_1_3" id="__nav_1_3_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -458,7 +448,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_1_3">
             <span class="md-nav__icon md-icon"></span>
             Setup
@@ -469,19 +459,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="prerequisites.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../installation/prerequisites.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -491,7 +472,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -504,7 +484,7 @@
   
   
     <li class="md-nav__item">
-      <a href="helm.html" class="md-nav__link">
+      <a href="../installation/helm.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -526,7 +506,7 @@
   
   
     <li class="md-nav__item">
-      <a href="kubectl.html" class="md-nav__link">
+      <a href="../installation/kubectl.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -592,7 +572,7 @@
   
   
     <li class="md-nav__item">
-      <a href="uninstalling.html" class="md-nav__link">
+      <a href="../installation/uninstalling.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -627,20 +607,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_4" >
         
           
-          <label class="md-nav__link" for="__nav_1_4" id="__nav_1_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_1_4" id="__nav_1_4_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -666,7 +643,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/alloydbomni.html" class="md-nav__link">
+      <a href="alloydbomni.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -688,7 +665,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/cassandra.html" class="md-nav__link">
+      <a href="cassandra.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -751,7 +728,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/clickhouse.html" class="md-nav__link">
+      <a href="clickhouse.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -773,7 +750,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/clickhousedatabase.html" class="md-nav__link">
+      <a href="clickhousedatabase.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -795,7 +772,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/clickhouserole.html" class="md-nav__link">
+      <a href="clickhouserole.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -817,7 +794,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/clickhouseuser.html" class="md-nav__link">
+      <a href="clickhouseuser.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -839,7 +816,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/clickhousegrant.html" class="md-nav__link">
+      <a href="clickhousegrant.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -869,7 +846,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/connectionpool.html" class="md-nav__link">
+      <a href="connectionpool.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -891,7 +868,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/database.html" class="md-nav__link">
+      <a href="database.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -913,7 +890,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/flink.html" class="md-nav__link">
+      <a href="flink.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -935,7 +912,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/grafana.html" class="md-nav__link">
+      <a href="grafana.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -998,7 +975,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/kafka.html" class="md-nav__link">
+      <a href="kafka.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1020,7 +997,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/kafkaacl.html" class="md-nav__link">
+      <a href="kafkaacl.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1042,7 +1019,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/kafkaconnect.html" class="md-nav__link">
+      <a href="kafkaconnect.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1064,7 +1041,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/kafkaconnector.html" class="md-nav__link">
+      <a href="kafkaconnector.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1086,7 +1063,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/kafkaschema.html" class="md-nav__link">
+      <a href="kafkaschema.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1105,10 +1082,29 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../resources/kafkaschemaregistryacl.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    KafkaSchemaRegistryACL
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="kafkaschemaregistryacl.html" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1118,6 +1114,60 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#usage-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage example
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#KafkaSchemaRegistryACL" class="md-nav__link">
+    <span class="md-ellipsis">
+      KafkaSchemaRegistryACL
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      spec
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec.authSecretRef" class="md-nav__link">
+    <span class="md-ellipsis">
+      authSecretRef
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1130,7 +1180,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/kafkatopic.html" class="md-nav__link">
+      <a href="kafkatopic.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1160,7 +1210,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/mysql.html" class="md-nav__link">
+      <a href="mysql.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1182,7 +1232,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/opensearch.html" class="md-nav__link">
+      <a href="opensearch.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1204,7 +1254,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/postgresql.html" class="md-nav__link">
+      <a href="postgresql.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1226,7 +1276,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/project.html" class="md-nav__link">
+      <a href="project.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1248,7 +1298,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/projectvpc.html" class="md-nav__link">
+      <a href="projectvpc.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1270,7 +1320,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/redis.html" class="md-nav__link">
+      <a href="redis.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1292,7 +1342,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/serviceintegration.html" class="md-nav__link">
+      <a href="serviceintegration.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1314,7 +1364,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/serviceintegrationendpoint.html" class="md-nav__link">
+      <a href="serviceintegrationendpoint.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1336,7 +1386,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/serviceuser.html" class="md-nav__link">
+      <a href="serviceuser.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1358,7 +1408,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/valkey.html" class="md-nav__link">
+      <a href="valkey.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1392,25 +1442,30 @@
       
   
   
+    
   
   
+  
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -1422,7 +1477,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Resources
@@ -1436,7 +1491,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/alloydbomni.html" class="md-nav__link">
+      <a href="alloydbomni.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1458,7 +1513,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/cassandra.html" class="md-nav__link">
+      <a href="cassandra.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1485,17 +1540,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" >
         
           
-          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -1521,7 +1579,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/clickhouse.html" class="md-nav__link">
+      <a href="clickhouse.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1543,7 +1601,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/clickhousedatabase.html" class="md-nav__link">
+      <a href="clickhousedatabase.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1565,7 +1623,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/clickhouserole.html" class="md-nav__link">
+      <a href="clickhouserole.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1587,7 +1645,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/clickhouseuser.html" class="md-nav__link">
+      <a href="clickhouseuser.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1609,7 +1667,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/clickhousegrant.html" class="md-nav__link">
+      <a href="clickhousegrant.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1639,7 +1697,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/connectionpool.html" class="md-nav__link">
+      <a href="connectionpool.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1661,7 +1719,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/database.html" class="md-nav__link">
+      <a href="database.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1683,7 +1741,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/flink.html" class="md-nav__link">
+      <a href="flink.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1705,7 +1763,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/grafana.html" class="md-nav__link">
+      <a href="grafana.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1724,25 +1782,30 @@
                 
   
   
+    
   
   
+  
     
     
     
       
       
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_8" >
         
           
-          <label class="md-nav__link" for="__nav_2_8" id="__nav_2_8_label" tabindex="0">
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_8" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_8" id="__nav_2_8_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -1754,7 +1817,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_8_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_8_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_8">
             <span class="md-nav__icon md-icon"></span>
             Kafka
@@ -1768,7 +1831,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/kafka.html" class="md-nav__link">
+      <a href="kafka.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1790,7 +1853,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/kafkaacl.html" class="md-nav__link">
+      <a href="kafkaacl.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1812,7 +1875,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/kafkaconnect.html" class="md-nav__link">
+      <a href="kafkaconnect.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1834,7 +1897,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/kafkaconnector.html" class="md-nav__link">
+      <a href="kafkaconnector.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1856,7 +1919,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/kafkaschema.html" class="md-nav__link">
+      <a href="kafkaschema.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1875,10 +1938,29 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../resources/kafkaschemaregistryacl.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    KafkaSchemaRegistryACL
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="kafkaschemaregistryacl.html" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1888,6 +1970,60 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#usage-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage example
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#KafkaSchemaRegistryACL" class="md-nav__link">
+    <span class="md-ellipsis">
+      KafkaSchemaRegistryACL
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      spec
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec.authSecretRef" class="md-nav__link">
+    <span class="md-ellipsis">
+      authSecretRef
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1900,7 +2036,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/kafkatopic.html" class="md-nav__link">
+      <a href="kafkatopic.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1930,7 +2066,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/mysql.html" class="md-nav__link">
+      <a href="mysql.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1952,7 +2088,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/opensearch.html" class="md-nav__link">
+      <a href="opensearch.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1974,7 +2110,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/postgresql.html" class="md-nav__link">
+      <a href="postgresql.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1996,7 +2132,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/project.html" class="md-nav__link">
+      <a href="project.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2018,7 +2154,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/projectvpc.html" class="md-nav__link">
+      <a href="projectvpc.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2040,7 +2176,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/redis.html" class="md-nav__link">
+      <a href="redis.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2062,7 +2198,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/serviceintegration.html" class="md-nav__link">
+      <a href="serviceintegration.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2084,7 +2220,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/serviceintegrationendpoint.html" class="md-nav__link">
+      <a href="serviceintegrationendpoint.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2106,7 +2242,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/serviceuser.html" class="md-nav__link">
+      <a href="serviceuser.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2128,7 +2264,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resources/valkey.html" class="md-nav__link">
+      <a href="valkey.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2664,8 +2800,50 @@
   
   
   
-    
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#usage-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage example
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#KafkaSchemaRegistryACL" class="md-nav__link">
+    <span class="md-ellipsis">
+      KafkaSchemaRegistryACL
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      spec
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec.authSecretRef" class="md-nav__link">
+    <span class="md-ellipsis">
+      authSecretRef
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -2685,31 +2863,82 @@
     
       
     
-    <a href="https://github.com/aiven/aiven-operator/raw/main/docs/docs/installation/prerequisites.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/aiven/aiven-operator/raw/main/docs/docs/resources/kafkaschemaregistryacl.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h1>
-<p>The Aiven Operator for Kubernetes® supports all major Kubernetes distributions, both locally and in the cloud.</p>
-<p>Make sure you have the following:</p>
-<ul>
-<li>Admin access to a Kubernetes cluster.</li>
-<li>
-<p><a href="https://cert-manager.io/docs/installation/helm/">Cert manager installed</a>: The operator uses this to configure the service reference of the webhooks. Webhooks are used for setting defaults
-  and enforcing invariants that are expected by the Aiven API and will lead to errors if ignored.</p>
+  <h1>KafkaSchemaRegistryACL</h1>
+
+<h2 id="usage-example">Usage example<a class="headerlink" href="#usage-example" title="Permanent link">&para;</a></h2>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is not required in the Helm installation if you select to <a href="helm.html">disable webhooks</a>,
-but that is not recommended outside of playground use.</p>
+<p class="admonition-title">Prerequisites</p>
+<ul>
+<li>A Kubernetes cluster with the operator installed using <a href="../installation/helm.html">helm</a>, <a href="../installation/kubectl.html">kubectl</a> or <a href="../contributing/developer-guide.html">kind</a> (for local development).</li>
+<li>A Kubernetes <a href="../authentication.html">Secret</a> with an Aiven authentication token.</li>
+</ul>
 </div>
-</li>
-<li>
-<p>For production usage, <a href="https://helm.sh">Helm</a> is recommended.</p>
-</li>
-<li>Optional: For playground usage, you can use <a href="https://kind.sigs.k8s.io/">kind</a>.</li>
+<details class="example">
+<summary>Example</summary>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KafkaSchemaRegistryACL</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-kafka-schema-registry-acl</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-project-name</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-kafka</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="nt">resource</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Subject:my-topic</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-user</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="nt">permission</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">schema_registry_read</span>
+</code></pre></div>
+</details>
+<p>Apply the resource with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>example.yaml
+</code></pre></div>
+<p>Verify the newly created <code>KafkaSchemaRegistryACL</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>kafkaschemaregistryacls<span class="w"> </span>my-kafka-schema-registry-acl
+</code></pre></div>
+<p>The output is similar to the following:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Name<span class="w">                            </span>Project<span class="w">               </span>Service<span class="w"> </span>Name<span class="w">    </span>Resource<span class="w">            </span>Username<span class="w">    </span>State<span class="w">      </span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>my-kafka-schema-registry-acl<span class="w">    </span>aiven-project-name<span class="w">    </span>my-kafka<span class="w">        </span>Subject:my-topic<span class="w">    </span>my-user<span class="w">     </span>RUNNING<span class="w">    </span>
+</code></pre></div></p>
+<h2 id="KafkaSchemaRegistryACL">KafkaSchemaRegistryACL<a class="headerlink" href="#KafkaSchemaRegistryACL" title="Permanent link">&para;</a></h2>
+<p>KafkaSchemaRegistryACL is the Schema for the kafkaschemaregistryacls API.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#apiVersion-property" name="apiVersion-property"><code>apiVersion</code></a> (string). Value <code>aiven.io/v1alpha1</code>.</li>
+<li><a href="#kind-property" name="kind-property"><code>kind</code></a> (string). Value <code>KafkaSchemaRegistryACL</code>.</li>
+<li><a href="#metadata-property" name="metadata-property"><code>metadata</code></a> (object). Data that identifies the object, including a <code>name</code> string and optional <code>namespace</code>.</li>
+<li><a href="#spec-property" name="spec-property"><code>spec</code></a> (object). KafkaSchemaRegistryACLSpec defines the desired state of KafkaSchemaRegistryACL. See below for <a href="#spec">nested schema</a>.</li>
+</ul>
+<h2 id="spec">spec<a class="headerlink" href="#spec" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#KafkaSchemaRegistryACL"><code>KafkaSchemaRegistryACL</code></a>.</em></p>
+<p>KafkaSchemaRegistryACLSpec defines the desired state of KafkaSchemaRegistryACL.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.permission-property" name="spec.permission-property"><code>permission</code></a> (string, Enum: <code>schema_registry_read</code>, <code>schema_registry_write</code>, Immutable).</li>
+<li><a href="#spec.project-property" name="spec.project-property"><code>project</code></a> (string, Immutable, Pattern: <code>^[a-zA-Z0-9_-]+$</code>, MaxLength: 63). Identifies the project this resource belongs to.</li>
+<li><a href="#spec.resource-property" name="spec.resource-property"><code>resource</code></a> (string, Immutable, MaxLength: 249). Resource name pattern for the Schema Registry ACL entry.</li>
+<li><a href="#spec.serviceName-property" name="spec.serviceName-property"><code>serviceName</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]+$</code>, MaxLength: 63). Specifies the name of the service that this resource belongs to.</li>
+<li><a href="#spec.username-property" name="spec.username-property"><code>username</code></a> (string, Immutable, MaxLength: 64). Username pattern for the ACL entry.</li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
+</ul>
+<h2 id="spec.authSecretRef">authSecretRef<a class="headerlink" href="#spec.authSecretRef" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
+<p>Authentication reference to Aiven token in a secret.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.authSecretRef.key-property" name="spec.authSecretRef.key-property"><code>key</code></a> (string, MinLength: 1).</li>
+<li><a href="#spec.authSecretRef.name-property" name="spec.authSecretRef.name-property"><code>name</code></a> (string, MinLength: 1).</li>
 </ul>
 
 
@@ -2749,7 +2978,7 @@ but that is not recommended outside of playground use.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../changelog.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Changelog">
+          <a href="kafkaschema.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: KafkaSchema">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2759,20 +2988,20 @@ but that is not recommended outside of playground use.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Changelog
+                KafkaSchema
               </div>
             </div>
           </a>
         
         
           
-          <a href="helm.html" class="md-footer__link md-footer__link--next" aria-label="Next: Install with Helm (recommended)">
+          <a href="kafkatopic.html" class="md-footer__link md-footer__link--next" aria-label="Next: KafkaTopic">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Install with Helm (recommended)
+                KafkaTopic
               </div>
             </div>
             <div class="md-footer__button md-icon">
