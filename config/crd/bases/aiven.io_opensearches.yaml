@@ -624,7 +624,7 @@ spec:
                                   description:
                                     The number of login attempts allowed
                                     before login is blocked
-                                  maximum: 2147483647
+                                  maximum: 32767
                                   minimum: 1
                                   type: integer
                                 authentication_backend:
@@ -667,7 +667,7 @@ spec:
                                   type: string
                               type: object
                             ip_rate_limiting:
-                              description: IP address rate limiting settings
+                              description: Deprecated. IP address rate limiting settings
                               properties:
                                 allowed_tries:
                                   description:

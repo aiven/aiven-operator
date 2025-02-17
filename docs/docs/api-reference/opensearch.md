@@ -411,7 +411,7 @@ Opensearch Security Plugin Settings.
 **Optional**
 
 - [`internal_authentication_backend_limiting`](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting-property){: name='spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting-property'} (object). See below for [nested schema](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting).
-- [`ip_rate_limiting`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting-property'} (object). IP address rate limiting settings. See below for [nested schema](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting).
+- [`ip_rate_limiting`](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting-property){: name='spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting-property'} (object). Deprecated. IP address rate limiting settings. See below for [nested schema](#spec.userConfig.opensearch.auth_failure_listeners.ip_rate_limiting).
 
 ##### internal_authentication_backend_limiting {: #spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting }
 
@@ -419,7 +419,7 @@ _Appears on [`spec.userConfig.opensearch.auth_failure_listeners`](#spec.userConf
 
 **Optional**
 
-- [`allowed_tries`](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.allowed_tries-property){: name='spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.allowed_tries-property'} (integer, Minimum: 1, Maximum: 2147483647). The number of login attempts allowed before login is blocked.
+- [`allowed_tries`](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.allowed_tries-property){: name='spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.allowed_tries-property'} (integer, Minimum: 1, Maximum: 32767). The number of login attempts allowed before login is blocked.
 - [`authentication_backend`](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.authentication_backend-property){: name='spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.authentication_backend-property'} (string, Enum: `internal`, MaxLength: 1024). internal_authentication_backend_limiting.authentication_backend.
 - [`block_expiry_seconds`](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.block_expiry_seconds-property){: name='spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.block_expiry_seconds-property'} (integer, Minimum: 0, Maximum: 2147483647). The duration of time that login remains blocked after a failed login.
 - [`max_blocked_clients`](#spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.max_blocked_clients-property){: name='spec.userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.max_blocked_clients-property'} (integer, Minimum: 0, Maximum: 2147483647). internal_authentication_backend_limiting.max_blocked_clients.
@@ -431,7 +431,7 @@ _Appears on [`spec.userConfig.opensearch.auth_failure_listeners`](#spec.userConf
 
 _Appears on [`spec.userConfig.opensearch.auth_failure_listeners`](#spec.userConfig.opensearch.auth_failure_listeners)._
 
-IP address rate limiting settings.
+Deprecated. IP address rate limiting settings.
 
 **Optional**
 
