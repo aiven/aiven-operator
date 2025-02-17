@@ -62,6 +62,13 @@ func (p *exampleYamlProcessor) applyReplacements(replacements map[string]string)
 					if len(path) > endIdx+2 && path[endIdx+1] == '.' {
 						// Remove "doc[0]." from the path
 						actualPath = path[endIdx+2:]
+					} else if value == "REMOVE" {
+						// Remove entire document if e.g. "doc[0]" is specified
+						if docIndex < 0 || docIndex >= len(p.docs) {
+							return fmt.Errorf("document index out of range: %d", docIndex)
+						}
+						p.docs = append(p.docs[:docIndex], p.docs[docIndex+1:]...)
+						continue
 					}
 				}
 			}

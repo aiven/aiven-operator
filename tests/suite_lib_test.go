@@ -176,6 +176,17 @@ key1: value1`,
 				},
 				errorMsg: &errDocIndex,
 			},
+			{
+				name: "should_remove_entire_document",
+				yamlContent: `
+key1: value1
+---
+key2: value2`,
+				replacements: map[string]string{
+					"doc[1]": "REMOVE",
+				},
+				expected: []string{"key1: value1"},
+			},
 		},
 		"special_cases": {
 			{
