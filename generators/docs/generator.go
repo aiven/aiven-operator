@@ -501,6 +501,10 @@ title: "{{ .Kind }}{{ if .DeprecationWarning }} [DEPRECATED]{{ end }}"
 {{ if .UsageExamples }}
 ## Usage example{{ if ne (len .UsageExamples) 1 }}s{{ end }}
 
+!!! note "Prerequisites"
+	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
+	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
+
 {{ range .UsageExamples }}
 ??? example {{ if .Title }}"{{ .Title }}"{{ end }}
     {{ codeblock }}yaml
@@ -510,9 +514,6 @@ title: "{{ .Kind }}{{ if .DeprecationWarning }} [DEPRECATED]{{ end }}"
 
 {{ $example := .GetExample }}
 {{ if $example }}
-
-!!! info
-	To create this resource, a {{ code "Secret" }} containing Aiven token must be [created](/aiven-operator/authentication.html) first.
 
 Apply the resource with:
 

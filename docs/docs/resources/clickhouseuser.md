@@ -1,37 +1,50 @@
 ---
-title: "Project"
+title: "ClickhouseUser"
 ---
 
 ## Usage example
 
+!!! note "Prerequisites"
+	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
+	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
+
 ??? example 
     ```yaml
     apiVersion: aiven.io/v1alpha1
-    kind: Project
+    kind: ClickhouseUser
     metadata:
-      name: my-project
+      name: my-clickhouse-user
     spec:
       authSecretRef:
         name: aiven-token
         key: token
     
       connInfoSecretTarget:
-        name: project-secret
-        prefix: MY_SECRET_PREFIX_
+        name: clickhouse-user-secret
         annotations:
           foo: bar
         labels:
           baz: egg
     
-      tags:
-        env: prod
+      project: my-aiven-project
+      serviceName: my-clickhouse
+      username: example-username
     
-      billingAddress: NYC
-      cloud: aws-eu-west-1
+    ---
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: Clickhouse
+    metadata:
+      name: my-clickhouse
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: my-aiven-project
+      cloudName: google-europe-west1
+      plan: startup-16
     ```
-
-!!! info
-	To create this resource, a `Secret` containing Aiven token must be [created](/aiven-operator/authentication.html) first.
 
 Apply the resource with:
 
@@ -39,75 +52,76 @@ Apply the resource with:
 kubectl apply -f example.yaml
 ```
 
-Verify the newly created `Project`:
+Verify the newly created `ClickhouseUser`:
 
 ```shell
-kubectl get projects my-project
+kubectl get clickhouseusers my-clickhouse-user
 ```
 
 The output is similar to the following:
 ```shell
-Name          
-my-project    
+Name                  Username            Service Name     Project             
+my-clickhouse-user    example-username    my-clickhouse    my-aiven-project    
 ```
 
 To view the details of the `Secret`, use the following command:
 ```shell
-kubectl describe secret project-secret
+kubectl describe secret clickhouse-user-secret
 ```
 
 You can use the [jq](https://github.com/jqlang/jq) to quickly decode the `Secret`:
 
 ```shell
-kubectl get secret project-secret -o json | jq '.data | map_values(@base64d)'
+kubectl get secret clickhouse-user-secret -o json | jq '.data | map_values(@base64d)'
 ```
 
 The output is similar to the following:
 
 ```{ .json .no-copy }
 {
-	"PROJECT_CA_CERT": "<secret>",
+	"CLICKHOUSEUSER_HOST": "<secret>",
+	"CLICKHOUSEUSER_PORT": "<secret>",
+	"CLICKHOUSEUSER_USER": "<secret>",
+	"CLICKHOUSEUSER_PASSWORD": "<secret>",
 }
 ```
 
-## Project {: #Project }
+## ClickhouseUser {: #ClickhouseUser }
 
-Project is the Schema for the projects API.
+ClickhouseUser is the Schema for the clickhouseusers API.
 
 !!! Info "Exposes secret keys"
 
-    `PROJECT_CA_CERT`.
+    `CLICKHOUSEUSER_HOST`, `CLICKHOUSEUSER_PORT`, `CLICKHOUSEUSER_USER`, `CLICKHOUSEUSER_PASSWORD`.
 
 **Required**
 
 - [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Value `Project`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `ClickhouseUser`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
-- [`spec`](#spec-property){: name='spec-property'} (object). ProjectSpec defines the desired state of Project. See below for [nested schema](#spec).
+- [`spec`](#spec-property){: name='spec-property'} (object). ClickhouseUserSpec defines the desired state of ClickhouseUser. See below for [nested schema](#spec).
 
 ## spec {: #spec }
 
-_Appears on [`Project`](#Project)._
+_Appears on [`ClickhouseUser`](#ClickhouseUser)._
 
-ProjectSpec defines the desired state of Project.
+ClickhouseUserSpec defines the desired state of ClickhouseUser.
+
+**Required**
+
+- [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, Pattern: `^[a-zA-Z0-9_-]+$`, MaxLength: 63). Identifies the project this resource belongs to.
+- [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]+$`, MaxLength: 63). Specifies the name of the service that this resource belongs to.
 
 **Optional**
 
-- [`accountId`](#spec.accountId-property){: name='spec.accountId-property'} (string, MaxLength: 32). Account ID.
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
-- [`billingAddress`](#spec.billingAddress-property){: name='spec.billingAddress-property'} (string, MaxLength: 1000). Billing name and address of the project.
-- [`billingCurrency`](#spec.billingCurrency-property){: name='spec.billingCurrency-property'} (string, Enum: `AUD`, `CAD`, `CHF`, `DKK`, `EUR`, `GBP`, `NOK`, `SEK`, `USD`). Billing currency.
-- [`billingEmails`](#spec.billingEmails-property){: name='spec.billingEmails-property'} (array of strings, MaxItems: 10). Billing contact emails of the project.
-- [`billingExtraText`](#spec.billingExtraText-property){: name='spec.billingExtraText-property'} (string, MaxLength: 1000). Extra text to be included in all project invoices, e.g. purchase order or cost center number.
-- [`billingGroupId`](#spec.billingGroupId-property){: name='spec.billingGroupId-property'} (string, Immutable, MinLength: 36, MaxLength: 36). BillingGroup ID.
-- [`cardId`](#spec.cardId-property){: name='spec.cardId-property'} (string, MaxLength: 64). Credit card ID; The ID may be either last 4 digits of the card or the actual ID.
-- [`cloud`](#spec.cloud-property){: name='spec.cloud-property'} (string, MaxLength: 256). Target cloud, example: aws-eu-central-1.
 - [`connInfoSecretTarget`](#spec.connInfoSecretTarget-property){: name='spec.connInfoSecretTarget-property'} (object). Secret configuration. See below for [nested schema](#spec.connInfoSecretTarget).
 - [`connInfoSecretTargetDisabled`](#spec.connInfoSecretTargetDisabled-property){: name='spec.connInfoSecretTargetDisabled-property'} (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
-- [`copyFromProject`](#spec.copyFromProject-property){: name='spec.copyFromProject-property'} (string, Immutable, MaxLength: 63). Project name from which to copy settings to the new project.
-- [`countryCode`](#spec.countryCode-property){: name='spec.countryCode-property'} (string, MinLength: 2, MaxLength: 2). Billing country code of the project.
-- [`tags`](#spec.tags-property){: name='spec.tags-property'} (object, AdditionalProperties: string). Tags are key-value pairs that allow you to categorize projects.
-- [`technicalEmails`](#spec.technicalEmails-property){: name='spec.technicalEmails-property'} (array of strings, MaxItems: 10). Technical contact emails of the project.
+- [`username`](#spec.username-property){: name='spec.username-property'} (string, Immutable, MaxLength: 63). Name of the Clickhouse user. Defaults to `metadata.name` if omitted.
+
+!!! Note
+
+    `metadata.name` is ASCII-only. For UTF-8 names, use `spec.username`, but ASCII is advised for compatibility.
 
 ## authSecretRef {: #spec.authSecretRef }
 

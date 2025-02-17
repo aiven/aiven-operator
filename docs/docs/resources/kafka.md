@@ -4,6 +4,10 @@ title: "Kafka"
 
 ## Usage example
 
+!!! note "Prerequisites"
+	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
+	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
+
 ??? example 
     ```yaml
     apiVersion: aiven.io/v1alpha1
@@ -30,9 +34,6 @@ title: "Kafka"
       maintenanceWindowDow: friday
       maintenanceWindowTime: 23:00:00
     ```
-
-!!! info
-	To create this resource, a `Secret` containing Aiven token must be [created](/aiven-operator/authentication.html) first.
 
 Apply the resource with:
 

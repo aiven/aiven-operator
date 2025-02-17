@@ -1,15 +1,19 @@
 ---
-title: "ClickhouseDatabase"
+title: "ClickhouseRole"
 ---
 
 ## Usage example
 
+!!! note "Prerequisites"
+	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
+	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
+
 ??? example 
     ```yaml
     apiVersion: aiven.io/v1alpha1
-    kind: ClickhouseDatabase
+    kind: ClickhouseRole
     metadata:
-      name: my-db
+      name: my-role
     spec:
       authSecretRef:
         name: aiven-token
@@ -17,11 +21,8 @@ title: "ClickhouseDatabase"
     
       project: my-aiven-project
       serviceName: my-clickhouse
-      databaseName: example-db
+      role: my-role
     ```
-
-!!! info
-	To create this resource, a `Secret` containing Aiven token must be [created](/aiven-operator/authentication.html) first.
 
 Apply the resource with:
 
@@ -29,48 +30,44 @@ Apply the resource with:
 kubectl apply -f example.yaml
 ```
 
-Verify the newly created `ClickhouseDatabase`:
+Verify the newly created `ClickhouseRole`:
 
 ```shell
-kubectl get clickhousedatabases my-db
+kubectl get clickhouseroles my-role
 ```
 
 The output is similar to the following:
 ```shell
-Name     Database name    Service Name     Project             
-my-db    example-db       my-clickhouse    my-aiven-project    
+Name       Project             Service Name     Role       
+my-role    my-aiven-project    my-clickhouse    my-role    
 ```
 
-## ClickhouseDatabase {: #ClickhouseDatabase }
+## ClickhouseRole {: #ClickhouseRole }
 
-ClickhouseDatabase is the Schema for the databases API.
+ClickhouseRole is the Schema for the clickhouseroles API.
 
 **Required**
 
 - [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Value `ClickhouseDatabase`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `ClickhouseRole`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
-- [`spec`](#spec-property){: name='spec-property'} (object). ClickhouseDatabaseSpec defines the desired state of ClickhouseDatabase. See below for [nested schema](#spec).
+- [`spec`](#spec-property){: name='spec-property'} (object). ClickhouseRoleSpec defines the desired state of ClickhouseRole. See below for [nested schema](#spec).
 
 ## spec {: #spec }
 
-_Appears on [`ClickhouseDatabase`](#ClickhouseDatabase)._
+_Appears on [`ClickhouseRole`](#ClickhouseRole)._
 
-ClickhouseDatabaseSpec defines the desired state of ClickhouseDatabase.
+ClickhouseRoleSpec defines the desired state of ClickhouseRole.
 
 **Required**
 
 - [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, Pattern: `^[a-zA-Z0-9_-]+$`, MaxLength: 63). Identifies the project this resource belongs to.
+- [`role`](#spec.role-property){: name='spec.role-property'} (string, Immutable, MaxLength: 255). The role that is to be created.
 - [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]+$`, MaxLength: 63). Specifies the name of the service that this resource belongs to.
 
 **Optional**
 
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
-- [`databaseName`](#spec.databaseName-property){: name='spec.databaseName-property'} (string, Immutable, MaxLength: 63). Specifies the Clickhouse database name. Defaults to `metadata.name` if omitted.
-
-!!! Note
-
-    `metadata.name` is ASCII-only. For UTF-8 names, use `spec.databaseName`, but ASCII is advised for compatibility.
 
 ## authSecretRef {: #spec.authSecretRef }
 

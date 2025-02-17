@@ -1,47 +1,45 @@
 ---
-title: "Clickhouse"
+title: "Flink"
 ---
 
 ## Usage example
 
+!!! note "Prerequisites"
+	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
+	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
+
 ??? example 
     ```yaml
     apiVersion: aiven.io/v1alpha1
-    kind: Clickhouse
+    kind: Flink
     metadata:
-      name: my-clickhouse
+      name: my-flink
     spec:
       authSecretRef:
         name: aiven-token
         key: token
     
       connInfoSecretTarget:
-        name: my-clickhouse
+        name: flink-secret
         annotations:
           foo: bar
         labels:
           baz: egg
     
-      tags:
-        env: test
-        instance: foo
-    
-      userConfig:
-        ip_filter:
-          - network: 0.0.0.0/32
-            description: bar
-          - network: 10.20.0.0/16
-    
       project: my-aiven-project
       cloudName: google-europe-west1
-      plan: startup-16
+      plan: business-4
     
-      maintenanceWindowDow: friday
-      maintenanceWindowTime: 23:00:00
+      maintenanceWindowDow: sunday
+      maintenanceWindowTime: 11:00:00
+    
+      userConfig:
+        number_of_task_slots: 10
+        ip_filter:
+          - network: 0.0.0.0/32
+            description: whatever
+          - network: 10.20.0.0/16
     ```
-
-!!! info
-	To create this resource, a `Secret` containing Aiven token must be [created](/aiven-operator/authentication.html) first.
 
 Apply the resource with:
 
@@ -49,60 +47,62 @@ Apply the resource with:
 kubectl apply -f example.yaml
 ```
 
-Verify the newly created `Clickhouse`:
+Verify the newly created `Flink`:
 
 ```shell
-kubectl get clickhouses my-clickhouse
+kubectl get flinks my-flink
 ```
 
 The output is similar to the following:
 ```shell
-Name             Project             Region                 Plan          State      
-my-clickhouse    my-aiven-project    google-europe-west1    startup-16    RUNNING    
+Name        Project             Region                 Plan          State      
+my-flink    my-aiven-project    google-europe-west1    business-4    RUNNING    
 ```
 
 To view the details of the `Secret`, use the following command:
 ```shell
-kubectl describe secret my-clickhouse
+kubectl describe secret flink-secret
 ```
 
 You can use the [jq](https://github.com/jqlang/jq) to quickly decode the `Secret`:
 
 ```shell
-kubectl get secret my-clickhouse -o json | jq '.data | map_values(@base64d)'
+kubectl get secret flink-secret -o json | jq '.data | map_values(@base64d)'
 ```
 
 The output is similar to the following:
 
 ```{ .json .no-copy }
 {
-	"CLICKHOUSE_HOST": "<secret>",
-	"CLICKHOUSE_PORT": "<secret>",
-	"CLICKHOUSE_USER": "<secret>",
-	"CLICKHOUSE_PASSWORD": "<secret>",
+	"FLINK_HOST": "<secret>",
+	"FLINK_PORT": "<secret>",
+	"FLINK_USER": "<secret>",
+	"FLINK_PASSWORD": "<secret>",
+	"FLINK_URI": "<secret>",
+	"FLINK_HOSTS": "<secret>",
 }
 ```
 
-## Clickhouse {: #Clickhouse }
+## Flink {: #Flink }
 
-Clickhouse is the Schema for the clickhouses API.
+Flink is the Schema for the flinks API.
 
 !!! Info "Exposes secret keys"
 
-    `CLICKHOUSE_HOST`, `CLICKHOUSE_PORT`, `CLICKHOUSE_USER`, `CLICKHOUSE_PASSWORD`.
+    `FLINK_HOST`, `FLINK_PORT`, `FLINK_USER`, `FLINK_PASSWORD`, `FLINK_URI`, `FLINK_HOSTS`.
 
 **Required**
 
 - [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.
-- [`kind`](#kind-property){: name='kind-property'} (string). Value `Clickhouse`.
+- [`kind`](#kind-property){: name='kind-property'} (string). Value `Flink`.
 - [`metadata`](#metadata-property){: name='metadata-property'} (object). Data that identifies the object, including a `name` string and optional `namespace`.
-- [`spec`](#spec-property){: name='spec-property'} (object). ClickhouseSpec defines the desired state of Clickhouse. See below for [nested schema](#spec).
+- [`spec`](#spec-property){: name='spec-property'} (object). FlinkSpec defines the desired state of Flink. See below for [nested schema](#spec).
 
 ## spec {: #spec }
 
-_Appears on [`Clickhouse`](#Clickhouse)._
+_Appears on [`Flink`](#Flink)._
 
-ClickhouseSpec defines the desired state of Clickhouse.
+FlinkSpec defines the desired state of Flink.
 
 **Required**
 
@@ -126,7 +126,7 @@ The removal of this field does not change the value.
 - [`tags`](#spec.tags-property){: name='spec.tags-property'} (object, AdditionalProperties: string). Tags are key-value pairs that allow you to categorize services.
 - [`technicalEmails`](#spec.technicalEmails-property){: name='spec.technicalEmails-property'} (array of objects, MaxItems: 10). Defines the email addresses that will receive alerts about upcoming maintenance updates or warnings about service instability. See below for [nested schema](#spec.technicalEmails).
 - [`terminationProtection`](#spec.terminationProtection-property){: name='spec.terminationProtection-property'} (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services.
-- [`userConfig`](#spec.userConfig-property){: name='spec.userConfig-property'} (object). OpenSearch specific user configuration options. See below for [nested schema](#spec.userConfig).
+- [`userConfig`](#spec.userConfig-property){: name='spec.userConfig-property'} (object). Cassandra specific user configuration options. See below for [nested schema](#spec.userConfig).
 
 ## authSecretRef {: #spec.authSecretRef }
 
@@ -196,19 +196,20 @@ Defines the email addresses that will receive alerts about upcoming maintenance 
 
 _Appears on [`spec`](#spec)._
 
-OpenSearch specific user configuration options.
+Cassandra specific user configuration options.
 
 **Optional**
 
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Deprecated. Additional Cloud Regions for Backup Replication.
+- [`custom_code`](#spec.userConfig.custom_code-property){: name='spec.userConfig.custom_code-property'} (boolean, Immutable). Enable to upload Custom JARs for Flink applications.
+- [`flink_version`](#spec.userConfig.flink_version-property){: name='spec.userConfig.flink_version-property'} (string, Enum: `1.16`, `1.19`, `1.20`, Immutable). Flink major version. Deprecated values: `1.16`.
 - [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 2048). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
-- [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
+- [`number_of_task_slots`](#spec.userConfig.number_of_task_slots-property){: name='spec.userConfig.number_of_task_slots-property'} (integer, Minimum: 1, Maximum: 1024). Task slots per node. For a 3 node plan, total number of task slots is 3x this value.
+- [`pekko_ask_timeout_s`](#spec.userConfig.pekko_ask_timeout_s-property){: name='spec.userConfig.pekko_ask_timeout_s-property'} (integer, Minimum: 5, Maximum: 60). Timeout in seconds used for all futures and blocking Pekko requests.
+- [`pekko_framesize_b`](#spec.userConfig.pekko_framesize_b-property){: name='spec.userConfig.pekko_framesize_b-property'} (integer, Minimum: 1048576, Maximum: 52428800). Maximum size in bytes for messages exchanged between the JobManager and the TaskManagers.
 - [`privatelink_access`](#spec.userConfig.privatelink_access-property){: name='spec.userConfig.privatelink_access-property'} (object). Allow access to selected service components through Privatelink. See below for [nested schema](#spec.userConfig.privatelink_access).
-- [`project_to_fork_from`](#spec.userConfig.project_to_fork_from-property){: name='spec.userConfig.project_to_fork_from-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]{0,63}$|^$`, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.
 - [`public_access`](#spec.userConfig.public_access-property){: name='spec.userConfig.public_access-property'} (object). Allow access to selected service ports from the public Internet. See below for [nested schema](#spec.userConfig.public_access).
-- [`recovery_basebackup_name`](#spec.userConfig.recovery_basebackup_name-property){: name='spec.userConfig.recovery_basebackup_name-property'} (string, Pattern: `^[a-zA-Z0-9-_:.+]+$`, MaxLength: 128). Name of the basebackup to restore in forked service.
 - [`service_log`](#spec.userConfig.service_log-property){: name='spec.userConfig.service_log-property'} (boolean). Store logs for the service so that they are available in the HTTP API and console.
-- [`service_to_fork_from`](#spec.userConfig.service_to_fork_from-property){: name='spec.userConfig.service_to_fork_from-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]{0,63}$|^$`, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.
 - [`static_ips`](#spec.userConfig.static_ips-property){: name='spec.userConfig.static_ips-property'} (boolean). Use static public IP addresses.
 
 ### ip_filter {: #spec.userConfig.ip_filter }
@@ -225,19 +226,6 @@ CIDR address block, either as a string, or in a dict with an optional descriptio
 
 - [`description`](#spec.userConfig.ip_filter.description-property){: name='spec.userConfig.ip_filter.description-property'} (string, MaxLength: 1024). Description for IP filter list entry.
 
-### private_access {: #spec.userConfig.private_access }
-
-_Appears on [`spec.userConfig`](#spec.userConfig)._
-
-Allow access to selected service ports from private networks.
-
-**Optional**
-
-- [`clickhouse`](#spec.userConfig.private_access.clickhouse-property){: name='spec.userConfig.private_access.clickhouse-property'} (boolean). Allow clients to connect to clickhouse with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.
-- [`clickhouse_https`](#spec.userConfig.private_access.clickhouse_https-property){: name='spec.userConfig.private_access.clickhouse_https-property'} (boolean). Allow clients to connect to clickhouse_https with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.
-- [`clickhouse_mysql`](#spec.userConfig.private_access.clickhouse_mysql-property){: name='spec.userConfig.private_access.clickhouse_mysql-property'} (boolean). Allow clients to connect to clickhouse_mysql with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.
-- [`prometheus`](#spec.userConfig.private_access.prometheus-property){: name='spec.userConfig.private_access.prometheus-property'} (boolean). Allow clients to connect to prometheus with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations.
-
 ### privatelink_access {: #spec.userConfig.privatelink_access }
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
@@ -246,9 +234,7 @@ Allow access to selected service components through Privatelink.
 
 **Optional**
 
-- [`clickhouse`](#spec.userConfig.privatelink_access.clickhouse-property){: name='spec.userConfig.privatelink_access.clickhouse-property'} (boolean). Enable clickhouse.
-- [`clickhouse_https`](#spec.userConfig.privatelink_access.clickhouse_https-property){: name='spec.userConfig.privatelink_access.clickhouse_https-property'} (boolean). Enable clickhouse_https.
-- [`clickhouse_mysql`](#spec.userConfig.privatelink_access.clickhouse_mysql-property){: name='spec.userConfig.privatelink_access.clickhouse_mysql-property'} (boolean). Enable clickhouse_mysql.
+- [`flink`](#spec.userConfig.privatelink_access.flink-property){: name='spec.userConfig.privatelink_access.flink-property'} (boolean). Enable flink.
 - [`prometheus`](#spec.userConfig.privatelink_access.prometheus-property){: name='spec.userConfig.privatelink_access.prometheus-property'} (boolean). Enable prometheus.
 
 ### public_access {: #spec.userConfig.public_access }
@@ -257,9 +243,6 @@ _Appears on [`spec.userConfig`](#spec.userConfig)._
 
 Allow access to selected service ports from the public Internet.
 
-**Optional**
+**Required**
 
-- [`clickhouse`](#spec.userConfig.public_access.clickhouse-property){: name='spec.userConfig.public_access.clickhouse-property'} (boolean). Allow clients to connect to clickhouse from the public internet for service nodes that are in a project VPC or another type of private network.
-- [`clickhouse_https`](#spec.userConfig.public_access.clickhouse_https-property){: name='spec.userConfig.public_access.clickhouse_https-property'} (boolean). Allow clients to connect to clickhouse_https from the public internet for service nodes that are in a project VPC or another type of private network.
-- [`clickhouse_mysql`](#spec.userConfig.public_access.clickhouse_mysql-property){: name='spec.userConfig.public_access.clickhouse_mysql-property'} (boolean). Allow clients to connect to clickhouse_mysql from the public internet for service nodes that are in a project VPC or another type of private network.
-- [`prometheus`](#spec.userConfig.public_access.prometheus-property){: name='spec.userConfig.public_access.prometheus-property'} (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network.
+- [`flink`](#spec.userConfig.public_access.flink-property){: name='spec.userConfig.public_access.flink-property'} (boolean). Allow clients to connect to flink from the public internet for service nodes that are in a project VPC or another type of private network.

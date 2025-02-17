@@ -35,6 +35,7 @@ theme:
     - navigation.top
     - navigation.footer
     - navigation.tabs
+    - navigation.tracking
     - navigation.sections
     - content.code.copy
     - content.code.annotate
@@ -68,52 +69,54 @@ nav:
           - authentication.md
           - troubleshooting.md
           - installation/uninstalling.md
-      - Contributing:
-          - contributing/index.md
-          - contributing/developer-guide.md
-          - contributing/resource-generation.md
-  - Resources:
-      - resources/project.md
-      - resources/project-vpc.md
-      - resources/cassandra.md
-      - resources/clickhouse.md
-      - resources/mysql.md
-      - resources/opensearch.md
-      - resources/postgresql.md
-      - resources/redis.md
-      - resources/valkey.md
-      - resources/service-integrations.md
+      - Resources: &crds
+          - resources/alloydbomni.md
+          - resources/cassandra.md
+          - Clickhouse:
+              - resources/clickhouse.md
+              - resources/clickhousedatabase.md
+              - resources/clickhouserole.md
+              - resources/clickhouseuser.md
+              - resources/clickhousegrant.md
+          - resources/connectionpool.md
+          - resources/database.md
+          - resources/flink.md
+          - resources/grafana.md
+          - Kafka:
+              - resources/kafka.md
+              - resources/kafkaacl.md
+              - resources/kafkaconnect.md
+              - resources/kafkaconnector.md
+              - resources/kafkaschema.md
+              - resources/kafkaschemaregistryacl.md
+              - resources/kafkatopic.md
+          - resources/mysql.md
+          - resources/opensearch.md
+          - resources/postgresql.md
+          - resources/project.md
+          - resources/projectvpc.md
+          - resources/redis.md
+          - resources/serviceintegration.md
+          - resources/serviceintegrationendpoint.md
+          - resources/serviceuser.md
+          - resources/valkey.md
+  - Resources: *crds
+  - Examples:
+      - examples/project.md
+      - examples/project-vpc.md
+      - examples/cassandra.md
+      - examples/clickhouse.md
+      - examples/mysql.md
+      - examples/opensearch.md
+      - examples/postgresql.md
+      - examples/redis.md
+      - examples/service-integrations.md
       - Kafka:
-          - resources/kafka/index.md
-          - resources/kafka/schema.md
-          - resources/kafka/connect.md
-  - API Reference:
-      - api-reference/index.md
-      - api-reference/alloydbomni.md
-      - api-reference/cassandra.md
-      - api-reference/clickhouse.md
-      - api-reference/clickhousedatabase.md
-      - api-reference/clickhouserole.md
-      - api-reference/clickhouseuser.md
-      - api-reference/clickhousegrant.md
-      - api-reference/connectionpool.md
-      - api-reference/database.md
-      - api-reference/flink.md
-      - api-reference/grafana.md
-      - api-reference/kafka.md
-      - api-reference/kafkaacl.md
-      - api-reference/kafkaconnect.md
-      - api-reference/kafkaconnector.md
-      - api-reference/kafkaschema.md
-      - api-reference/kafkaschemaregistryacl.md
-      - api-reference/kafkatopic.md
-      - api-reference/mysql.md
-      - api-reference/opensearch.md
-      - api-reference/postgresql.md
-      - api-reference/project.md
-      - api-reference/projectvpc.md
-      - api-reference/redis.md
-      - api-reference/serviceintegration.md
-      - api-reference/serviceintegrationendpoint.md
-      - api-reference/serviceuser.md
-      - api-reference/valkey.md
+          - examples/kafka/index.md
+          - examples/kafka/schema.md
+          - examples/kafka/connect.md
+      - examples/valkey.md
+  - Contributing:
+      - contributing/index.md
+      - contributing/developer-guide.md
+      - contributing/resource-generation.md
