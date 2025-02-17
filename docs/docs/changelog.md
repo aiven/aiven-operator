@@ -1,6 +1,37 @@
 # Changelog
 
 
+## v0.28.0 - 2025-02-17
+
+- Add kind: `AlloyDBOmni`
+- Deprecate `Redis`: use `Valkey` instead. Please follow [these](https://aiven.io/docs/products/caching/howto/upgrade-aiven-for-caching-to-valkey#upgrade-service) instructions to upgrade your service to Valkey
+- Deprecate `Cassandra`, see Aiven platform [end-of-life](https://aiven.io/docs/platform/reference/end-of-life) policy.
+- Change `Cassandra` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Change `Clickhouse` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Change `Flink` field `userConfig.custom_code`: immutable `true`
+- Change `Flink` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Add `Grafana` field `userConfig.dashboard_scenes_enabled`, type `boolean`: Enable use of the Grafana
+  Scenes Library as the dashboard engine. i.e
+- Change `Grafana` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Add `KafkaConnect` field `userConfig.plugin_versions`, type `array`: The plugin selected by the user
+- Change `KafkaConnect` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Change `Kafka` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Change `MySQL` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Add `OpenSearch` field `userConfig.opensearch.cluster.search.request.slowlog`, type `object`
+- Add `OpenSearch` field `userConfig.opensearch.enable_remote_backed_storage`, type `boolean`: Enable
+  remote-backed storage
+- Change `OpenSearch` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Change `PostgreSQL` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Change `Redis` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Change `ServiceIntegration` field `logs.elasticsearch_index_prefix`: pattern `^[a-z0-9][a-z0-9-_.]+$`
+- Change `Valkey` field `userConfig.ip_filter`: maxItems ~~`1024`~~ → `2048`
+- Add `Valkey` field `userConfig.frequent_snapshots`, type `boolean`: When enabled, Valkey will create
+  frequent local RDB snapshots
+- Change `OpenSearch` field `userConfig.opensearch.auth_failure_listeners.internal_authentication_backend_limiting.allowed_tries`:
+  maximum ~~`2147483647`~~ → `32767`
+- Change `OpenSearch` field `userConfig.opensearch.auth_failure_listeners.ip_rate_limiting`: deprecated
+- Add `Database` field `databaseName` type `string`: DatabaseName is the name of the database to be created.
+
 ## v0.27.0 - 2025-01-16
 
 - Add `ServiceIntegrationEndpoint` field `datadog.extra_tags_prefix`, type `string`: Extra tags prefix.
