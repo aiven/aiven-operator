@@ -8,36 +8,35 @@ title: "KafkaSchema"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example 
-    ```yaml
-    apiVersion: aiven.io/v1alpha1
-    kind: KafkaSchema
-    metadata:
-      name: my-schema
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      project: my-aiven-project
-      serviceName: my-kafka
-      subjectName: mny-subject
-      compatibilityLevel: BACKWARD
-      schema: |
-        {
-            "doc": "example_doc",
-            "fields": [{
-                "default": 5,
-                "doc": "field_doc",
-                "name": "field_name",
-                "namespace": "field_namespace",
-                "type": "int"
-            }],
-            "name": "example_name",
-            "namespace": "example_namespace",
-            "type": "record"
-        }
-    ```
+```yaml linenums="1"
+apiVersion: aiven.io/v1alpha1
+kind: KafkaSchema
+metadata:
+  name: my-schema
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  serviceName: my-kafka
+  subjectName: mny-subject
+  compatibilityLevel: BACKWARD
+  schema: |
+    {
+        "doc": "example_doc",
+        "fields": [{
+            "default": 5,
+            "doc": "field_doc",
+            "name": "field_name",
+            "namespace": "field_namespace",
+            "type": "int"
+        }],
+        "name": "example_name",
+        "namespace": "example_namespace",
+        "type": "record"
+    }
+```
 
 Apply the resource with:
 
@@ -56,6 +55,8 @@ The output is similar to the following:
 Name         Service Name    Project             Subject        Compatibility Level    Version      
 my-schema    my-kafka        my-aiven-project    mny-subject    BACKWARD               <version>    
 ```
+
+---
 
 ## KafkaSchema {: #KafkaSchema }
 

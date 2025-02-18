@@ -8,42 +8,41 @@ title: "Database"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example 
-    ```yaml
-    apiVersion: aiven.io/v1alpha1
-    kind: PostgreSQL
-    metadata:
-      name: my-pg
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      project: aiven-project-name
-      cloudName: google-europe-west1
-      plan: startup-4
-    
-    ---
-    
-    apiVersion: aiven.io/v1alpha1
-    kind: Database
-    metadata:
-      name: my-db
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      project: aiven-project-name
-      serviceName: my-pg
-    
-      # Database name will default to the value of `metadata.name` if `databaseName` is not specified.
-      # Use the `databaseName` field if the desired database name contains underscores.
-      databaseName: my_db_name
-    
-      lcCtype: en_US.UTF-8
-      lcCollate: en_US.UTF-8
-    ```
+```yaml linenums="1"
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: my-pg
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  cloudName: google-europe-west1
+  plan: startup-4
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: Database
+metadata:
+  name: my-db
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  serviceName: my-pg
+
+  # Database name will default to the value of `metadata.name` if `databaseName` is not specified.
+  # Use the `databaseName` field if the desired database name contains underscores.
+  databaseName: my_db_name
+
+  lcCtype: en_US.UTF-8
+  lcCollate: en_US.UTF-8
+```
 
 Apply the resource with:
 
@@ -62,6 +61,8 @@ The output is similar to the following:
 Name     Project               Service Name    
 my-db    aiven-project-name    my-pg           
 ```
+
+---
 
 ## Database {: #Database }
 

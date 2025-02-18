@@ -11,35 +11,34 @@ title: "Redis [DEPRECATED]"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example 
-    ```yaml
-    apiVersion: aiven.io/v1alpha1
-    kind: Redis
-    metadata:
-      name: k8s-redis
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      connInfoSecretTarget:
-        name: redis-token
-        prefix: MY_SECRET_PREFIX_
-        annotations:
-          foo: bar
-        labels:
-          baz: egg
-    
-      project: my-aiven-project
-      cloudName: google-europe-west1
-      plan: startup-4
-    
-      maintenanceWindowDow: friday
-      maintenanceWindowTime: 23:00:00
-    
-      userConfig:
-        redis_maxmemory_policy: allkeys-random
-    ```
+```yaml linenums="1"
+apiVersion: aiven.io/v1alpha1
+kind: Redis
+metadata:
+  name: k8s-redis
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: redis-token
+    prefix: MY_SECRET_PREFIX_
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
+
+  project: my-aiven-project
+  cloudName: google-europe-west1
+  plan: startup-4
+
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00
+
+  userConfig:
+    redis_maxmemory_policy: allkeys-random
+```
 
 Apply the resource with:
 
@@ -81,6 +80,8 @@ The output is similar to the following:
 	"REDIS_SSL": "<secret>",
 }
 ```
+
+---
 
 ## Redis {: #Redis }
 

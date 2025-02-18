@@ -8,43 +8,42 @@ title: "ClickhouseUser"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example 
-    ```yaml
-    apiVersion: aiven.io/v1alpha1
-    kind: ClickhouseUser
-    metadata:
-      name: my-clickhouse-user
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      connInfoSecretTarget:
-        name: clickhouse-user-secret
-        annotations:
-          foo: bar
-        labels:
-          baz: egg
-    
-      project: my-aiven-project
-      serviceName: my-clickhouse
-      username: example-username
-    
-    ---
-    
-    apiVersion: aiven.io/v1alpha1
-    kind: Clickhouse
-    metadata:
-      name: my-clickhouse
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      project: my-aiven-project
-      cloudName: google-europe-west1
-      plan: startup-16
-    ```
+```yaml linenums="1"
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseUser
+metadata:
+  name: my-clickhouse-user
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: clickhouse-user-secret
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
+
+  project: my-aiven-project
+  serviceName: my-clickhouse
+  username: example-username
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: Clickhouse
+metadata:
+  name: my-clickhouse
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  cloudName: google-europe-west1
+  plan: startup-16
+```
 
 Apply the resource with:
 
@@ -85,6 +84,8 @@ The output is similar to the following:
 	"CLICKHOUSEUSER_PASSWORD": "<secret>",
 }
 ```
+
+---
 
 ## ClickhouseUser {: #ClickhouseUser }
 

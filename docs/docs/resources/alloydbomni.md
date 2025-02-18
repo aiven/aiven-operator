@@ -8,53 +8,52 @@ title: "AlloyDBOmni"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example 
-    ```yaml
-    apiVersion: aiven.io/v1alpha1
-    kind: AlloyDBOmni
-    metadata:
-      name: my-alloydbomni
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      connInfoSecretTarget:
-        name: adbo-secret
-        annotations:
-          foo: bar
-        labels:
-          baz: egg
-    
-      project: my-aiven-project
-      cloudName: google-europe-west1
-      plan: startup-4
-      disk_space: 90GiB
-    
-      maintenanceWindowDow: sunday
-      maintenanceWindowTime: 11:00:00
-    
-      serviceAccountCredentials: |
-        {
-          "private_key_id": "valid_private_key_id",
-          "private_key": "-----BEGIN PRIVATE KEY-----...-----END PRIVATE KEY-----",
-          "client_email": "example@aiven.io",
-          "client_id": "example_user_id",
-          "type": "service_account",
-          "project_id": "example_project_id"
-        }
-    
-      tags:
-        env: test
-        instance: foo
-    
-      userConfig:
-        service_log: true
-        ip_filter:
-          - network: 0.0.0.0/32
-            description: bar
-          - network: 10.20.0.0/16
-    ```
+```yaml linenums="1"
+apiVersion: aiven.io/v1alpha1
+kind: AlloyDBOmni
+metadata:
+  name: my-alloydbomni
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: adbo-secret
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
+
+  project: my-aiven-project
+  cloudName: google-europe-west1
+  plan: startup-4
+  disk_space: 90GiB
+
+  maintenanceWindowDow: sunday
+  maintenanceWindowTime: 11:00:00
+
+  serviceAccountCredentials: |
+    {
+      "private_key_id": "valid_private_key_id",
+      "private_key": "-----BEGIN PRIVATE KEY-----...-----END PRIVATE KEY-----",
+      "client_email": "example@aiven.io",
+      "client_id": "example_user_id",
+      "type": "service_account",
+      "project_id": "example_project_id"
+    }
+
+  tags:
+    env: test
+    instance: foo
+
+  userConfig:
+    service_log: true
+    ip_filter:
+      - network: 0.0.0.0/32
+        description: bar
+      - network: 10.20.0.0/16
+```
 
 Apply the resource with:
 
@@ -98,6 +97,8 @@ The output is similar to the following:
 	"ALLOYDBOMNI_DATABASE_URI": "<secret>",
 }
 ```
+
+---
 
 ## AlloyDBOmni {: #AlloyDBOmni }
 

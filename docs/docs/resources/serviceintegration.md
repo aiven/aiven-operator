@@ -8,8 +8,10 @@ title: "ServiceIntegration"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example "autoscaler"
-    ```yaml
+	
+=== "autoscaler"
+
+    ```yaml linenums="1"
     apiVersion: aiven.io/v1alpha1
     kind: ServiceIntegration
     metadata:
@@ -41,8 +43,10 @@ title: "ServiceIntegration"
       plan: startup-4
     ```
 
-??? example "clickhouse_postgresql"
-    ```yaml
+	
+=== "clickhouse_postgresql"
+
+    ```yaml linenums="1"
     apiVersion: aiven.io/v1alpha1
     kind: ServiceIntegration
     metadata:
@@ -97,8 +101,10 @@ title: "ServiceIntegration"
       maintenanceWindowTime: 23:00:00
     ```
 
-??? example "datadog"
-    ```yaml
+	
+=== "datadog"
+
+    ```yaml linenums="1"
     apiVersion: aiven.io/v1alpha1
     kind: ServiceIntegration
     metadata:
@@ -135,8 +141,10 @@ title: "ServiceIntegration"
       plan: startup-4
     ```
 
-??? example "kafka_connect"
-    ```yaml
+	
+=== "kafka_connect"
+
+    ```yaml linenums="1"
     apiVersion: aiven.io/v1alpha1
     kind: ServiceIntegration
     metadata:
@@ -194,8 +202,10 @@ title: "ServiceIntegration"
           kafka_connect: true
     ```
 
-??? example "kafka_logs"
-    ```yaml
+	
+=== "kafka_logs"
+
+    ```yaml linenums="1"
     apiVersion: aiven.io/v1alpha1
     kind: ServiceIntegration
     metadata:
@@ -262,6 +272,8 @@ The output is similar to the following:
 Name                      Project               Type          Source Service Name    Destination Endpoint ID       
 my-service-integration    aiven-project-name    autoscaler    my-pg                  my-destination-endpoint-id    
 ```
+
+---
 
 ## ServiceIntegration {: #ServiceIntegration }
 

@@ -17,6 +17,8 @@ markdown_extensions:
       check_paths: true
       base_path:
         - docs/.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.tilde
   - pymdownx.details
   - pymdownx.magiclink
@@ -40,6 +42,7 @@ theme:
     - content.code.copy
     - content.code.annotate
     - content.action.view
+    - content.tabs.link
   palette:
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"

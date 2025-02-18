@@ -8,8 +8,10 @@ title: "ServiceIntegrationEndpoint"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example "autoscaler"
-    ```yaml
+	
+=== "autoscaler"
+
+    ```yaml linenums="1"
     apiVersion: aiven.io/v1alpha1
     kind: ServiceIntegrationEndpoint
     metadata:
@@ -29,8 +31,10 @@ title: "ServiceIntegrationEndpoint"
             cap_gb: 100
     ```
 
-??? example "external_postgresql"
-    ```yaml
+	
+=== "external_postgresql"
+
+    ```yaml linenums="1"
     apiVersion: aiven.io/v1alpha1
     kind: ServiceIntegrationEndpoint
     metadata:
@@ -52,8 +56,10 @@ title: "ServiceIntegrationEndpoint"
         ssl_mode: require
     ```
 
-??? example "external_schema_registry"
-    ```yaml
+	
+=== "external_schema_registry"
+
+    ```yaml linenums="1"
     apiVersion: aiven.io/v1alpha1
     kind: ServiceIntegrationEndpoint
     metadata:
@@ -91,6 +97,8 @@ The output is similar to the following:
 Name                               Project               Endpoint Name    Endpoint Type    ID      
 my-service-integration-endpoint    aiven-project-name    my-autoscaler    autoscaler       <id>    
 ```
+
+---
 
 ## ServiceIntegrationEndpoint {: #ServiceIntegrationEndpoint }
 

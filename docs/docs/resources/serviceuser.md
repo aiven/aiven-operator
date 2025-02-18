@@ -8,28 +8,27 @@ title: "ServiceUser"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example 
-    ```yaml
-    apiVersion: aiven.io/v1alpha1
-    kind: ServiceUser
-    metadata:
-      name: my-service-user
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      connInfoSecretTarget:
-        name: service-user-secret
-        prefix: MY_SECRET_PREFIX_
-        annotations:
-          foo: bar
-        labels:
-          baz: egg
-    
-      project: aiven-project-name
-      serviceName: my-service-name
-    ```
+```yaml linenums="1"
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUser
+metadata:
+  name: my-service-user
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: service-user-secret
+    prefix: MY_SECRET_PREFIX_
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
+
+  project: aiven-project-name
+  serviceName: my-service-name
+```
 
 Apply the resource with:
 
@@ -73,6 +72,8 @@ The output is similar to the following:
 	"SERVICEUSER_ACCESS_KEY": "<secret>",
 }
 ```
+
+---
 
 ## ServiceUser {: #ServiceUser }
 

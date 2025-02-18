@@ -8,23 +8,22 @@ title: "KafkaSchemaRegistryACL"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example 
-    ```yaml
-    apiVersion: aiven.io/v1alpha1
-    kind: KafkaSchemaRegistryACL
-    metadata:
-      name: my-kafka-schema-registry-acl
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      project: aiven-project-name
-      serviceName: my-kafka
-      resource: Subject:my-topic
-      username: my-user
-      permission: schema_registry_read
-    ```
+```yaml linenums="1"
+apiVersion: aiven.io/v1alpha1
+kind: KafkaSchemaRegistryACL
+metadata:
+  name: my-kafka-schema-registry-acl
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  serviceName: my-kafka
+  resource: Subject:my-topic
+  username: my-user
+  permission: schema_registry_read
+```
 
 Apply the resource with:
 
@@ -43,6 +42,8 @@ The output is similar to the following:
 Name                            Project               Service Name    Resource            Username    State      
 my-kafka-schema-registry-acl    aiven-project-name    my-kafka        Subject:my-topic    my-user     RUNNING    
 ```
+
+---
 
 ## KafkaSchemaRegistryACL {: #KafkaSchemaRegistryACL }
 

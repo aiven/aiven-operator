@@ -8,27 +8,26 @@ title: "KafkaConnect"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example 
-    ```yaml
-    apiVersion: aiven.io/v1alpha1
-    kind: KafkaConnect
-    metadata:
-      name: my-kafka-connect
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      project: my-aiven-project
-      cloudName: google-europe-west1
-      plan: business-4
-    
-      userConfig:
-        kafka_connect:
-          consumer_isolation_level: read_committed
-        public_access:
-          kafka_connect: true
-    ```
+```yaml linenums="1"
+apiVersion: aiven.io/v1alpha1
+kind: KafkaConnect
+metadata:
+  name: my-kafka-connect
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  cloudName: google-europe-west1
+  plan: business-4
+
+  userConfig:
+    kafka_connect:
+      consumer_isolation_level: read_committed
+    public_access:
+      kafka_connect: true
+```
 
 Apply the resource with:
 
@@ -47,6 +46,8 @@ The output is similar to the following:
 Name                Project             Region                 Plan          State      
 my-kafka-connect    my-aiven-project    google-europe-west1    business-4    RUNNING    
 ```
+
+---
 
 ## KafkaConnect {: #KafkaConnect }
 

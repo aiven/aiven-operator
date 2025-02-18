@@ -8,27 +8,26 @@ title: "KafkaTopic"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example 
-    ```yaml
-    apiVersion: aiven.io/v1alpha1
-    kind: KafkaTopic
-    metadata:
-      name: kafka-topic
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      project: my-aiven-project
-      serviceName: my-kafka
-      topicName: my-kafka-topic
-    
-      replication: 2
-      partitions: 1
-    
-      config:
-        min_cleanable_dirty_ratio: 0.2
-    ```
+```yaml linenums="1"
+apiVersion: aiven.io/v1alpha1
+kind: KafkaTopic
+metadata:
+  name: kafka-topic
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  serviceName: my-kafka
+  topicName: my-kafka-topic
+
+  replication: 2
+  partitions: 1
+
+  config:
+    min_cleanable_dirty_ratio: 0.2
+```
 
 Apply the resource with:
 
@@ -47,6 +46,8 @@ The output is similar to the following:
 Name           Service Name    Project             Partitions    Replication    
 kafka-topic    my-kafka        my-aiven-project    1             2              
 ```
+
+---
 
 ## KafkaTopic {: #KafkaTopic }
 

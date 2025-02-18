@@ -11,41 +11,40 @@ title: "Cassandra [DEPRECATED]"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example 
-    ```yaml
-    apiVersion: aiven.io/v1alpha1
-    kind: Cassandra
-    metadata:
-      name: my-cassandra
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      connInfoSecretTarget:
-        name: cassandra-secret
-        prefix: MY_SECRET_PREFIX_
-        annotations:
-          foo: bar
-        labels:
-          baz: egg
-    
-      project: aiven-project-name
-      cloudName: google-europe-west1
-      plan: startup-4
-    
-      maintenanceWindowDow: sunday
-      maintenanceWindowTime: 11:00:00
-    
-      userConfig:
-        migrate_sstableloader: true
-        public_access:
-          prometheus: true
-        ip_filter:
-          - network: 0.0.0.0
-            description: whatever
-          - network: 10.20.0.0/16
-    ```
+```yaml linenums="1"
+apiVersion: aiven.io/v1alpha1
+kind: Cassandra
+metadata:
+  name: my-cassandra
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: cassandra-secret
+    prefix: MY_SECRET_PREFIX_
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
+
+  project: aiven-project-name
+  cloudName: google-europe-west1
+  plan: startup-4
+
+  maintenanceWindowDow: sunday
+  maintenanceWindowTime: 11:00:00
+
+  userConfig:
+    migrate_sstableloader: true
+    public_access:
+      prometheus: true
+    ip_filter:
+      - network: 0.0.0.0
+        description: whatever
+      - network: 10.20.0.0/16
+```
 
 Apply the resource with:
 
@@ -89,6 +88,8 @@ The output is similar to the following:
 	"CASSANDRA_CA_CERT": "<secret>",
 }
 ```
+
+---
 
 ## Cassandra {: #Cassandra }
 
