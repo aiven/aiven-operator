@@ -8,8 +8,10 @@ title: "ClickhouseGrant"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example "example_2"
-    ```yaml
+	
+=== "example_2"
+
+    ```yaml linenums="1"
     apiVersion: aiven.io/v1alpha1
     kind: ClickhouseGrant
     metadata:
@@ -50,8 +52,10 @@ title: "ClickhouseGrant"
             - role: my-role
     ```
 
-??? example 
-    ```yaml
+	
+=== "example"
+
+    ```yaml linenums="1"
     apiVersion: aiven.io/v1alpha1
     kind: ClickhouseGrant
     metadata:
@@ -155,6 +159,8 @@ The output is similar to the following:
 Name             Project             Service Name     
 demo-ch-grant    my-aiven-project    my-clickhouse    
 ```
+
+---
 
 ## ClickhouseGrant {: #ClickhouseGrant }
 

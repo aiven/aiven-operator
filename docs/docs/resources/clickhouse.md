@@ -8,41 +8,40 @@ title: "Clickhouse"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example 
-    ```yaml
-    apiVersion: aiven.io/v1alpha1
-    kind: Clickhouse
-    metadata:
-      name: my-clickhouse
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      connInfoSecretTarget:
-        name: my-clickhouse
-        annotations:
-          foo: bar
-        labels:
-          baz: egg
-    
-      tags:
-        env: test
-        instance: foo
-    
-      userConfig:
-        ip_filter:
-          - network: 0.0.0.0/32
-            description: bar
-          - network: 10.20.0.0/16
-    
-      project: my-aiven-project
-      cloudName: google-europe-west1
-      plan: startup-16
-    
-      maintenanceWindowDow: friday
-      maintenanceWindowTime: 23:00:00
-    ```
+```yaml linenums="1"
+apiVersion: aiven.io/v1alpha1
+kind: Clickhouse
+metadata:
+  name: my-clickhouse
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: my-clickhouse
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
+
+  tags:
+    env: test
+    instance: foo
+
+  userConfig:
+    ip_filter:
+      - network: 0.0.0.0/32
+        description: bar
+      - network: 10.20.0.0/16
+
+  project: my-aiven-project
+  cloudName: google-europe-west1
+  plan: startup-16
+
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00
+```
 
 Apply the resource with:
 
@@ -83,6 +82,8 @@ The output is similar to the following:
 	"CLICKHOUSE_PASSWORD": "<secret>",
 }
 ```
+
+---
 
 ## Clickhouse {: #Clickhouse }
 

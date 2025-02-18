@@ -8,21 +8,20 @@ title: "ClickhouseRole"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example 
-    ```yaml
-    apiVersion: aiven.io/v1alpha1
-    kind: ClickhouseRole
-    metadata:
-      name: my-role
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      project: my-aiven-project
-      serviceName: my-clickhouse
-      role: my-role
-    ```
+```yaml linenums="1"
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseRole
+metadata:
+  name: my-role
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  serviceName: my-clickhouse
+  role: my-role
+```
 
 Apply the resource with:
 
@@ -41,6 +40,8 @@ The output is similar to the following:
 Name       Project             Service Name     Role       
 my-role    my-aiven-project    my-clickhouse    my-role    
 ```
+
+---
 
 ## ClickhouseRole {: #ClickhouseRole }
 

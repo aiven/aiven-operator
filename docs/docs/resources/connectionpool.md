@@ -8,67 +8,66 @@ title: "ConnectionPool"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example 
-    ```yaml
-    apiVersion: aiven.io/v1alpha1
-    kind: ConnectionPool
-    metadata:
-      name: my-connection-pool
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      project: aiven-project-name
-      serviceName: my-pg
-      databaseName: my-database
-      username: my-service-user
-      poolMode: transaction
-      poolSize: 25
-    
-    ---
-    
-    apiVersion: aiven.io/v1alpha1
-    kind: PostgreSQL
-    metadata:
-      name: my-pg
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      project: aiven-project-name
-      cloudName: google-europe-west1
-      plan: startup-4
-    
-    ---
-    
-    apiVersion: aiven.io/v1alpha1
-    kind: Database
-    metadata:
-      name: my-database
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      project: aiven-project-name
-      serviceName: my-pg
-    
-    ---
-    
-    apiVersion: aiven.io/v1alpha1
-    kind: ServiceUser
-    metadata:
-      name: my-service-user
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      project: aiven-project-name
-      serviceName: my-pg
-    ```
+```yaml linenums="1"
+apiVersion: aiven.io/v1alpha1
+kind: ConnectionPool
+metadata:
+  name: my-connection-pool
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  serviceName: my-pg
+  databaseName: my-database
+  username: my-service-user
+  poolMode: transaction
+  poolSize: 25
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: my-pg
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  cloudName: google-europe-west1
+  plan: startup-4
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: Database
+metadata:
+  name: my-database
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  serviceName: my-pg
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUser
+metadata:
+  name: my-service-user
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  serviceName: my-pg
+```
 
 Apply the resource with:
 
@@ -87,6 +86,8 @@ The output is similar to the following:
 Name                  Service Name    Project               Database       Username           Pool Size    Pool Mode      
 my-connection-pool    my-pg           aiven-project-name    my-database    my-service-user    25           transaction    
 ```
+
+---
 
 ## ConnectionPool {: #ConnectionPool }
 

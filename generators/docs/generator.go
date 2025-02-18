@@ -476,13 +476,15 @@ func rfill(x, y string) string {
 var reIndent = regexp.MustCompile("(?m)^")
 
 var templateFuncs = template.FuncMap{
-	"indent": func(i int, src string) string {
-		return reIndent.ReplaceAllString(src, strings.Repeat(" ", i))
+	"codeblock": func(indent int, lang, src string) string {
+		// Makes indented ```yaml\n<code>\n``` block
+		code := reIndent.ReplaceAllString(src+"\n```", strings.Repeat(" ", indent))
+		return fmt.Sprintf("```%s linenums=\"1\"\n%s", lang, code)
 	},
 	"code": func(s string) string {
 		return fmt.Sprintf("`%s`", s)
 	},
-	"codeblock": func() string {
+	"backticks": func() string {
 		// we can't use backticks in go strings, so we render them
 		return "```"
 	},
@@ -505,11 +507,16 @@ title: "{{ .Kind }}{{ if .DeprecationWarning }} [DEPRECATED]{{ end }}"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
+{{ if eq (len .UsageExamples) 1  }}
+{{ $example := index .UsageExamples 0 }}
+{{ $example.Value | codeblock 0 "yaml" }}
+{{ else }}
 {{ range .UsageExamples }}
-??? example {{ if .Title }}"{{ .Title }}"{{ end }}
-    {{ codeblock }}yaml
-{{ .Value | indent 4 }}
-    {{ codeblock }}
+	
+=== "{{ if .Title }}{{ .Title }}{{ else }}example{{ end }}"
+
+    {{ .Value | codeblock 4 "yaml" }}
+{{ end }}
 {{ end }}
 
 {{ $example := .GetExample }}
@@ -517,46 +524,47 @@ title: "{{ .Kind }}{{ if .DeprecationWarning }} [DEPRECATED]{{ end }}"
 
 Apply the resource with:
 
-{{ codeblock }}shell
+{{ backticks }}shell
 kubectl apply -f example.yaml
-{{ codeblock }}
+{{ backticks }}
 
 Verify the newly created {{ code .Kind }}:
 
-{{ codeblock }}shell
+{{ backticks }}shell
 kubectl get {{ .Plural }} {{ $example.Metadata.Name }}
-{{ codeblock }}
+{{ backticks }}
 
 The output is similar to the following:
-{{ codeblock }}shell
+{{ backticks }}shell
 {{ range $example.Table }}{{ rfill .Title .Value }}    {{ end }}
 {{ range $example.Table }}{{ rfill .Value .Title }}    {{ end }}
-{{ codeblock }}
+{{ backticks }}
 
 {{ if $example.Secret.Name }}
 To view the details of the {{ code "Secret" }}, use the following command:
-{{ codeblock }}shell
+{{ backticks }}shell
 kubectl describe secret {{ $example.Secret.Name }}
-{{ codeblock }}
+{{ backticks }}
 
 You can use the [jq](https://github.com/jqlang/jq) to quickly decode the {{ code "Secret" }}:
 
-{{ codeblock }}shell
+{{ backticks }}shell
 kubectl get secret {{ $example.Secret.Name }} -o json | jq '.data | map_values(@base64d)'
-{{ codeblock }}
+{{ backticks }}
 
 The output is similar to the following:
 
-{{ codeblock }}{ .json .no-copy }
+{{ backticks }}{ .json .no-copy }
 {
 	{{- range $example.Secret.Keys  }}
 	"{{ . }}": "<secret>",{{ end }}
 }
-{{ codeblock }}
+{{ backticks }}
 
 {{ end }}
 
 {{ end }}
+---
 {{ end }}
 
 {{- template "renderSchema" . -}}

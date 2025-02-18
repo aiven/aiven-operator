@@ -8,40 +8,39 @@ title: "Grafana"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example 
-    ```yaml
-    apiVersion: aiven.io/v1alpha1
-    kind: Grafana
-    metadata:
-      name: my-grafana
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      connInfoSecretTarget:
-        name: grafana-secret
-        prefix: MY_SECRET_PREFIX_
-        annotations:
-          foo: bar
-        labels:
-          baz: egg
-    
-      project: my-aiven-project
-      cloudName: google-europe-west1
-      plan: startup-1
-    
-      maintenanceWindowDow: sunday
-      maintenanceWindowTime: 11:00:00
-    
-      userConfig:
-        public_access:
-          grafana: true
-        ip_filter:
-          - network: 0.0.0.0
-            description: whatever
-          - network: 10.20.0.0/16
-    ```
+```yaml linenums="1"
+apiVersion: aiven.io/v1alpha1
+kind: Grafana
+metadata:
+  name: my-grafana
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: grafana-secret
+    prefix: MY_SECRET_PREFIX_
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
+
+  project: my-aiven-project
+  cloudName: google-europe-west1
+  plan: startup-1
+
+  maintenanceWindowDow: sunday
+  maintenanceWindowTime: 11:00:00
+
+  userConfig:
+    public_access:
+      grafana: true
+    ip_filter:
+      - network: 0.0.0.0
+        description: whatever
+      - network: 10.20.0.0/16
+```
 
 Apply the resource with:
 
@@ -84,6 +83,8 @@ The output is similar to the following:
 	"GRAFANA_HOSTS": "<secret>",
 }
 ```
+
+---
 
 ## Grafana {: #Grafana }
 

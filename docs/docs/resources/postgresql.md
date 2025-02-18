@@ -8,35 +8,34 @@ title: "PostgreSQL"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example 
-    ```yaml
-    apiVersion: aiven.io/v1alpha1
-    kind: PostgreSQL
-    metadata:
-      name: my-postgresql
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      connInfoSecretTarget:
-        name: postgresql-secret
-        prefix: MY_SECRET_PREFIX_
-        annotations:
-          foo: bar
-        labels:
-          baz: egg
-    
-      project: aiven-project-name
-      cloudName: google-europe-west1
-      plan: startup-4
-    
-      maintenanceWindowDow: sunday
-      maintenanceWindowTime: 11:00:00
-    
-      userConfig:
-        pg_version: "15"
-    ```
+```yaml linenums="1"
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: my-postgresql
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: postgresql-secret
+    prefix: MY_SECRET_PREFIX_
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
+
+  project: aiven-project-name
+  cloudName: google-europe-west1
+  plan: startup-4
+
+  maintenanceWindowDow: sunday
+  maintenanceWindowTime: 11:00:00
+
+  userConfig:
+    pg_version: "15"
+```
 
 Apply the resource with:
 
@@ -81,6 +80,8 @@ The output is similar to the following:
 	"POSTGRESQL_CA_CERT": "<secret>",
 }
 ```
+
+---
 
 ## PostgreSQL {: #PostgreSQL }
 

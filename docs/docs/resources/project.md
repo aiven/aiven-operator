@@ -8,31 +8,30 @@ title: "Project"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example 
-    ```yaml
-    apiVersion: aiven.io/v1alpha1
-    kind: Project
-    metadata:
-      name: my-project
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      connInfoSecretTarget:
-        name: project-secret
-        prefix: MY_SECRET_PREFIX_
-        annotations:
-          foo: bar
-        labels:
-          baz: egg
-    
-      tags:
-        env: prod
-    
-      billingAddress: NYC
-      cloud: aws-eu-west-1
-    ```
+```yaml linenums="1"
+apiVersion: aiven.io/v1alpha1
+kind: Project
+metadata:
+  name: my-project
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: project-secret
+    prefix: MY_SECRET_PREFIX_
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
+
+  tags:
+    env: prod
+
+  billingAddress: NYC
+  cloud: aws-eu-west-1
+```
 
 Apply the resource with:
 
@@ -70,6 +69,8 @@ The output is similar to the following:
 	"PROJECT_CA_CERT": "<secret>",
 }
 ```
+
+---
 
 ## Project {: #Project }
 

@@ -8,38 +8,37 @@ title: "Flink"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-??? example 
-    ```yaml
-    apiVersion: aiven.io/v1alpha1
-    kind: Flink
-    metadata:
-      name: my-flink
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      connInfoSecretTarget:
-        name: flink-secret
-        annotations:
-          foo: bar
-        labels:
-          baz: egg
-    
-      project: my-aiven-project
-      cloudName: google-europe-west1
-      plan: business-4
-    
-      maintenanceWindowDow: sunday
-      maintenanceWindowTime: 11:00:00
-    
-      userConfig:
-        number_of_task_slots: 10
-        ip_filter:
-          - network: 0.0.0.0/32
-            description: whatever
-          - network: 10.20.0.0/16
-    ```
+```yaml linenums="1"
+apiVersion: aiven.io/v1alpha1
+kind: Flink
+metadata:
+  name: my-flink
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: flink-secret
+    annotations:
+      foo: bar
+    labels:
+      baz: egg
+
+  project: my-aiven-project
+  cloudName: google-europe-west1
+  plan: business-4
+
+  maintenanceWindowDow: sunday
+  maintenanceWindowTime: 11:00:00
+
+  userConfig:
+    number_of_task_slots: 10
+    ip_filter:
+      - network: 0.0.0.0/32
+        description: whatever
+      - network: 10.20.0.0/16
+```
 
 Apply the resource with:
 
@@ -82,6 +81,8 @@ The output is similar to the following:
 	"FLINK_HOSTS": "<secret>",
 }
 ```
+
+---
 
 ## Flink {: #Flink }
 
