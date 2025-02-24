@@ -5,16 +5,16 @@ go 1.22.0
 toolchain go1.23.0
 
 require (
-	github.com/ClickHouse/clickhouse-go/v2 v2.32.0
+	github.com/ClickHouse/clickhouse-go/v2 v2.32.2
 	github.com/aiven/aiven-go-client/v2 v2.34.0
-	github.com/aiven/go-api-schemas v1.113.0
-	github.com/aiven/go-client-codegen v0.86.0
+	github.com/aiven/go-api-schemas v1.114.0
+	github.com/aiven/go-client-codegen v0.88.0
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/dave/jennifer v1.7.1
 	github.com/docker/go-units v0.5.0
 	github.com/go-logr/logr v1.4.2
 	github.com/goccy/go-yaml v1.15.23
-	github.com/google/go-cmp v0.6.0
+	github.com/google/go-cmp v0.7.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/liip/sheriff v0.12.0
@@ -34,7 +34,7 @@ require (
 )
 
 require (
-	github.com/ClickHouse/ch-go v0.65.0 // indirect
+	github.com/ClickHouse/ch-go v0.65.1 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect

@@ -246,6 +246,11 @@ spec:
                       maximum: 59
                       minimum: 0
                       type: integer
+                    enable_ipv6:
+                      description:
+                        Register AAAA DNS records for the service, and allow
+                        IPv6 packets to service ports
+                      type: boolean
                     frequent_snapshots:
                       description:
                         When enabled, Valkey will create frequent local RDB
@@ -429,6 +434,16 @@ spec:
                         - allchannels
                         - resetchannels
                       type: string
+                    valkey_active_expire_effort:
+                      description:
+                        Valkey reclaims expired keys both when accessed and
+                        in the background. The background process scans for expired
+                        keys to free memory. Increasing the active-expire-effort setting
+                        (default 1, max 10) uses more CPU to reclaim expired keys faster,
+                        reducing memory usage but potentially increasing latency.
+                      maximum: 10
+                      minimum: 1
+                      type: integer
                     valkey_io_threads:
                       description:
                         Set Valkey IO thread count. Changing this will cause

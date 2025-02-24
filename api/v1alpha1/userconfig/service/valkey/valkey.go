@@ -94,6 +94,9 @@ type ValkeyUserConfig struct {
 	// The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
 	BackupMinute *int `groups:"create,update" json:"backup_minute,omitempty"`
 
+	// Register AAAA DNS records for the service, and allow IPv6 packets to service ports
+	EnableIpv6 *bool `groups:"create,update" json:"enable_ipv6,omitempty"`
+
 	// When enabled, Valkey will create frequent local RDB snapshots. When disabled, Valkey will only take RDB snapshots when a backup is created, based on the backup schedule. This setting is ignored when `valkey_persistence` is set to `off`.
 	FrequentSnapshots *bool `groups:"create,update" json:"frequent_snapshots,omitempty"`
 
@@ -139,6 +142,11 @@ type ValkeyUserConfig struct {
 	// +kubebuilder:validation:Enum="allchannels";"resetchannels"
 	// Determines default pub/sub channels' ACL for new users if ACL is not supplied. When this option is not defined, all_channels is assumed to keep backward compatibility. This option doesn't affect Valkey configuration acl-pubsub-default.
 	ValkeyAclChannelsDefault *string `groups:"create,update" json:"valkey_acl_channels_default,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=10
+	// Valkey reclaims expired keys both when accessed and in the background. The background process scans for expired keys to free memory. Increasing the active-expire-effort setting (default 1, max 10) uses more CPU to reclaim expired keys faster, reducing memory usage but potentially increasing latency.
+	ValkeyActiveExpireEffort *int `groups:"create,update" json:"valkey_active_expire_effort,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=32

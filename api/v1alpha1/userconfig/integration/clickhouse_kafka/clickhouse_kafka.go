@@ -96,7 +96,7 @@ type Tables struct {
 
 // Integration user config
 type ClickhouseKafkaUserConfig struct {
-	// +kubebuilder:validation:MaxItems=100
+	// +kubebuilder:validation:MaxItems=400
 	// Tables to create
 	Tables []*Tables `groups:"create,update" json:"tables,omitempty"`
 }

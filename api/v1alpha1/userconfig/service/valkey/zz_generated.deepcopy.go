@@ -169,6 +169,11 @@ func (in *ValkeyUserConfig) DeepCopyInto(out *ValkeyUserConfig) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.EnableIpv6 != nil {
+		in, out := &in.EnableIpv6, &out.EnableIpv6
+		*out = new(bool)
+		**out = **in
+	}
 	if in.FrequentSnapshots != nil {
 		in, out := &in.FrequentSnapshots, &out.FrequentSnapshots
 		*out = new(bool)
@@ -233,6 +238,11 @@ func (in *ValkeyUserConfig) DeepCopyInto(out *ValkeyUserConfig) {
 	if in.ValkeyAclChannelsDefault != nil {
 		in, out := &in.ValkeyAclChannelsDefault, &out.ValkeyAclChannelsDefault
 		*out = new(string)
+		**out = **in
+	}
+	if in.ValkeyActiveExpireEffort != nil {
+		in, out := &in.ValkeyActiveExpireEffort, &out.ValkeyActiveExpireEffort
+		*out = new(int)
 		**out = **in
 	}
 	if in.ValkeyIoThreads != nil {

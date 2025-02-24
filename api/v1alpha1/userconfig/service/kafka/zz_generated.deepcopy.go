@@ -469,6 +469,11 @@ func (in *KafkaRestConfig) DeepCopyInto(out *KafkaRestConfig) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.ConsumerIdleDisconnectTimeout != nil {
+		in, out := &in.ConsumerIdleDisconnectTimeout, &out.ConsumerIdleDisconnectTimeout
+		*out = new(int)
+		**out = **in
+	}
 	if in.ConsumerRequestMaxBytes != nil {
 		in, out := &in.ConsumerRequestMaxBytes, &out.ConsumerRequestMaxBytes
 		*out = new(int)

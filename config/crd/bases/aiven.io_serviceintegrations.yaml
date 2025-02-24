@@ -226,7 +226,7 @@ spec:
                           - name
                           - topics
                         type: object
-                      maxItems: 100
+                      maxItems: 400
                       type: array
                   type: object
                 clickhousePostgresql:
