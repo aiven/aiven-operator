@@ -378,6 +378,11 @@ type KafkaRestConfig struct {
 	ConsumerEnableAutoCommit *bool `groups:"create,update" json:"consumer_enable_auto_commit,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=2147483647
+	// Specifies the maximum duration (in seconds) a client can remain idle before it is deleted. If a consumer is inactive, it will exit the consumer group, and its state will be discarded. A value of 0 (default) indicates that the consumer will not be disconnected automatically due to inactivity.
+	ConsumerIdleDisconnectTimeout *int `groups:"create,update" json:"consumer_idle_disconnect_timeout,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=671088640
 	// Maximum number of bytes in unencoded message keys and values by a single request
 	ConsumerRequestMaxBytes *int `groups:"create,update" json:"consumer_request_max_bytes,omitempty"`

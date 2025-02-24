@@ -336,7 +336,7 @@ Clickhouse Kafka configuration values.
 
 **Required**
 
-- [`tables`](#spec.clickhouseKafka.tables-property){: name='spec.clickhouseKafka.tables-property'} (array of objects, MaxItems: 100). Tables to create. See below for [nested schema](#spec.clickhouseKafka.tables).
+- [`tables`](#spec.clickhouseKafka.tables-property){: name='spec.clickhouseKafka.tables-property'} (array of objects, MaxItems: 400). Tables to create. See below for [nested schema](#spec.clickhouseKafka.tables).
 
 ### tables {: #spec.clickhouseKafka.tables }
 

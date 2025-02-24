@@ -2,6 +2,14 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `Kafka` field `userConfig.kafka_rest_config.consumer_idle_disconnect_timeout`, type `integer`:
+  Specifies the maximum duration (in seconds) a client can remain idle before it is deleted
+- Change `ServiceIntegration` field `clickhouseKafka.tables`: maxItems ~~`100`~~ → `400`
+- Add `Valkey` field `userConfig.enable_ipv6`, type `boolean`: Register AAAA DNS records for the service,
+  and allow IPv6 packets to service ports
+- Add `Valkey` field `userConfig.valkey_active_expire_effort`, type `integer`: Valkey reclaims expired
+  keys both when accessed and in the background
+
 ## v0.28.0 - 2025-02-17
 
 - Add kind: `AlloyDBOmni`
