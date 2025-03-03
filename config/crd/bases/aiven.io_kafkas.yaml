@@ -905,6 +905,17 @@ spec:
                             If true the consumer's offset will be periodically
                             committed to Kafka in the background
                           type: boolean
+                        consumer_idle_disconnect_timeout:
+                          description:
+                            Specifies the maximum duration (in seconds) a
+                            client can remain idle before it is deleted. If a consumer
+                            is inactive, it will exit the consumer group, and its state
+                            will be discarded. A value of 0 (default) indicates that
+                            the consumer will not be disconnected automatically due
+                            to inactivity.
+                          maximum: 2147483647
+                          minimum: 0
+                          type: integer
                         consumer_request_max_bytes:
                           description:
                             Maximum number of bytes in unencoded message
