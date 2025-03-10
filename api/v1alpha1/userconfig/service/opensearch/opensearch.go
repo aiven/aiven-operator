@@ -321,6 +321,18 @@ type ClusterSearchRequestSlowlog struct {
 	Threshold *Threshold `groups:"create,update" json:"threshold,omitempty"`
 }
 
+// Watermark settings
+type DiskWatermarks struct {
+	// The flood stage watermark for disk usage.
+	FloodStage int `groups:"create,update" json:"flood_stage"`
+
+	// The high watermark for disk usage.
+	High int `groups:"create,update" json:"high"`
+
+	// The low watermark for disk usage.
+	Low int `groups:"create,update" json:"low"`
+}
+
 // Top N queries monitoring by CPU
 type Cpu struct {
 	// Enable or disable top N query monitoring by the metric
@@ -581,6 +593,9 @@ type Opensearch struct {
 	// +kubebuilder:validation:Maximum=16
 	// How many concurrent incoming/outgoing shard recoveries (normally replicas) are allowed to happen on a node. Defaults to node cpu count * 2.
 	ClusterRoutingAllocationNodeConcurrentRecoveries *int `groups:"create,update" json:"cluster_routing_allocation_node_concurrent_recoveries,omitempty"`
+
+	// Watermark settings
+	DiskWatermarks *DiskWatermarks `groups:"create,update" json:"disk_watermarks,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=40
 	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9-_]+$`
