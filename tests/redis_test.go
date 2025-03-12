@@ -40,6 +40,7 @@ spec:
 }
 
 func TestRedis(t *testing.T) {
+	t.Skip("Aiven for Caching has reached end of availability and cannot be created")
 	t.Parallel()
 	defer recoverPanic(t)
 

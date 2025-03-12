@@ -359,6 +359,7 @@ OpenSearch settings.
 - [`cluster.search.request.slowlog`](#spec.userConfig.opensearch.cluster.search.request.slowlog-property){: name='spec.userConfig.opensearch.cluster.search.request.slowlog-property'} (object). See below for [nested schema](#spec.userConfig.opensearch.cluster.search.request.slowlog).
 - [`cluster_max_shards_per_node`](#spec.userConfig.opensearch.cluster_max_shards_per_node-property){: name='spec.userConfig.opensearch.cluster_max_shards_per_node-property'} (integer, Minimum: 100, Maximum: 10000). Controls the number of shards allowed in the cluster per data node.
 - [`cluster_routing_allocation_node_concurrent_recoveries`](#spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property){: name='spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property'} (integer, Minimum: 2, Maximum: 16). How many concurrent incoming/outgoing shard recoveries (normally replicas) are allowed to happen on a node. Defaults to node cpu count * 2.
+- [`disk_watermarks`](#spec.userConfig.opensearch.disk_watermarks-property){: name='spec.userConfig.opensearch.disk_watermarks-property'} (object). Watermark settings. See below for [nested schema](#spec.userConfig.opensearch.disk_watermarks).
 - [`email_sender_name`](#spec.userConfig.opensearch.email_sender_name-property){: name='spec.userConfig.opensearch.email_sender_name-property'} (string, Pattern: `^[a-zA-Z0-9-_]+$`, MaxLength: 40). Sender name placeholder to be used in Opensearch Dashboards and Opensearch keystore.
 - [`email_sender_password`](#spec.userConfig.opensearch.email_sender_password-property){: name='spec.userConfig.opensearch.email_sender_password-property'} (string, Pattern: `^[^\x00-\x1F]+$`, MaxLength: 1024). Sender password for Opensearch alerts to authenticate with SMTP server.
 - [`email_sender_username`](#spec.userConfig.opensearch.email_sender_username-property){: name='spec.userConfig.opensearch.email_sender_username-property'} (string, Pattern: `^[^\x00-\x1F]+$`, MaxLength: 320). Sender username for Opensearch alerts.
@@ -463,6 +464,18 @@ _Appears on [`spec.userConfig.opensearch.cluster.search.request.slowlog`](#spec.
 - [`info`](#spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.info-property){: name='spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.info-property'} (string, Pattern: `^[^\r\n]*$`). Info threshold for total request took time. The value should be in the form count and unit, where unit one of (s,m,h,d,nanos,ms,micros) or -1. Default is -1.
 - [`trace`](#spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.trace-property){: name='spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.trace-property'} (string, Pattern: `^[^\r\n]*$`). Trace threshold for total request took time. The value should be in the form count and unit, where unit one of (s,m,h,d,nanos,ms,micros) or -1. Default is -1.
 - [`warn`](#spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.warn-property){: name='spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.warn-property'} (string, Pattern: `^[^\r\n]*$`). Warning threshold for total request took time. The value should be in the form count and unit, where unit one of (s,m,h,d,nanos,ms,micros) or -1. Default is -1.
+
+#### disk_watermarks {: #spec.userConfig.opensearch.disk_watermarks }
+
+_Appears on [`spec.userConfig.opensearch`](#spec.userConfig.opensearch)._
+
+Watermark settings.
+
+**Required**
+
+- [`flood_stage`](#spec.userConfig.opensearch.disk_watermarks.flood_stage-property){: name='spec.userConfig.opensearch.disk_watermarks.flood_stage-property'} (integer). The flood stage watermark for disk usage.
+- [`high`](#spec.userConfig.opensearch.disk_watermarks.high-property){: name='spec.userConfig.opensearch.disk_watermarks.high-property'} (integer). The high watermark for disk usage.
+- [`low`](#spec.userConfig.opensearch.disk_watermarks.low-property){: name='spec.userConfig.opensearch.disk_watermarks.low-property'} (integer). The low watermark for disk usage.
 
 #### search.insights.top_queries {: #spec.userConfig.opensearch.search.insights.top_queries }
 

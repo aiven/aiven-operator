@@ -9,6 +9,8 @@
   and allow IPv6 packets to service ports
 - Add `Valkey` field `userConfig.valkey_active_expire_effort`, type `integer`: Valkey reclaims expired
   keys both when accessed and in the background
+- Add `OpenSearch` field `userConfig.opensearch.disk_watermarks`, type `object`: Watermark settings
+- Bump Go version to 1.24
 
 ## v0.28.0 - 2025-02-17
 
