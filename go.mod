@@ -1,9 +1,6 @@
 module github.com/aiven/aiven-operator
 
 go 1.22.0
-
-toolchain go1.23.0
-
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.32.2
 	github.com/aiven/aiven-go-client/v2 v2.34.0
@@ -90,7 +87,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/mod v0.23.0 // indirect
-	golang.org/x/net v0.35.0 // indirect
+	golang.org/x/net v0.36.0 // indirect
 	golang.org/x/oauth2 v0.7.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/term v0.29.0 // indirect
