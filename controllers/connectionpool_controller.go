@@ -222,15 +222,25 @@ func (h ConnectionPoolHandler) checkPreconditions(ctx context.Context, avn *aive
 	}
 
 	_, err = avn.Databases.Get(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.DatabaseName)
-	if err == nil {
+	if err != nil {
+		if isNotFound(err) {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	if cp.Spec.Username != "" {
 		_, err = avnGen.ServiceUserGet(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.Username)
+		if isNotFound(err) {
+			return false, nil
+		}
+		if err != nil {
+			return false, err
+		}
 	}
 
-	if isNotFound(err) {
-		return false, nil
-	}
-
-	return err == nil, err
+	return true, nil
 }
 
 func (h ConnectionPoolHandler) convert(i client.Object) (*v1alpha1.ConnectionPool, error) {

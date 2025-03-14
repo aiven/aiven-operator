@@ -1,10 +1,14 @@
 package tests
 
 import (
-	"testing"
-
+	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"testing"
+	"time"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
@@ -136,4 +140,151 @@ func TestConnectionPool(t *testing.T) {
 		_, err = avnClient.ConnectionPools.Get(ctx, cfg.Project, pgName, poolName)
 		return err
 	}))
+}
+
+// TestConnectionPoolWithReuseInboundUser verifies that a ConnectionPool can be created without
+// specifying a username, which enables the "Reuse Inbound User" feature. This allows the
+// connection pool to use the credentials of whoever is connecting to the pool rather than
+// a fixed service user.
+func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	var (
+		ctx, cancel = context.WithTimeout(context.Background(), 10*time.Minute)
+		pgName      = randName("pg")
+		dbName      = randName("database")
+		poolName    = randName("connection-pool-inbound")
+
+		s = NewSession(ctx, k8sClient, cfg.Project)
+	)
+
+	defer func() {
+		cancel()
+		s.Destroy(t)
+	}()
+
+	// Step 1: Create PostgreSQL service directly
+	pg := &v1alpha1.PostgreSQL{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      pgName,
+			Namespace: defaultNamespace,
+		},
+		Spec: v1alpha1.PostgreSQLSpec{
+			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
+				BaseServiceFields: v1alpha1.BaseServiceFields{
+					ProjectDependant: v1alpha1.ProjectDependant{
+						ProjectField: v1alpha1.ProjectField{
+							Project: cfg.Project,
+						},
+						AuthSecretRefField: v1alpha1.AuthSecretRefField{
+							AuthSecretRef: &v1alpha1.AuthSecretReference{
+								Name: secretRefName,
+								Key:  secretRefKey,
+							},
+						},
+					},
+					Plan:      "startup-4",
+					CloudName: cfg.PrimaryCloudName,
+				},
+			},
+		},
+	}
+	require.NoError(t, k8sClient.Create(ctx, pg))
+	require.NoError(t, s.GetRunning(pg, pgName))
+
+	db := &v1alpha1.Database{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      dbName,
+			Namespace: defaultNamespace,
+		},
+		Spec: v1alpha1.DatabaseSpec{
+			ServiceDependant: v1alpha1.ServiceDependant{
+				ProjectDependant: v1alpha1.ProjectDependant{
+					ProjectField: v1alpha1.ProjectField{
+						Project: cfg.Project,
+					},
+					AuthSecretRefField: v1alpha1.AuthSecretRefField{
+						AuthSecretRef: &v1alpha1.AuthSecretReference{
+							Name: secretRefName,
+							Key:  secretRefKey,
+						},
+					},
+				},
+				ServiceField: v1alpha1.ServiceField{
+					ServiceName: pgName,
+				},
+			},
+		},
+	}
+	require.NoError(t, k8sClient.Create(ctx, db))
+	require.NoError(t, s.GetRunning(db, dbName))
+
+	pool := &v1alpha1.ConnectionPool{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      poolName,
+			Namespace: defaultNamespace,
+		},
+		Spec: v1alpha1.ConnectionPoolSpec{
+			ServiceDependant: v1alpha1.ServiceDependant{
+				ProjectDependant: v1alpha1.ProjectDependant{
+					ProjectField: v1alpha1.ProjectField{
+						Project: cfg.Project,
+					},
+					AuthSecretRefField: v1alpha1.AuthSecretRefField{
+						AuthSecretRef: &v1alpha1.AuthSecretReference{
+							Name: secretRefName,
+							Key:  secretRefKey,
+						},
+					},
+				},
+				ServiceField: v1alpha1.ServiceField{
+					ServiceName: pgName,
+				},
+			},
+			DatabaseName: dbName,
+			// No username field
+			PoolSize: 10,
+			PoolMode: "transaction",
+		},
+	}
+	require.NoError(t, k8sClient.Create(ctx, pool))
+	require.NoError(t, s.GetRunning(pool, poolName))
+
+	poolAvn, err := avnClient.ConnectionPools.Get(ctx, cfg.Project, pgName, poolName)
+	require.NoError(t, err)
+	assert.Equal(t, pgName, pool.Spec.ServiceName)
+	assert.Equal(t, poolName, pool.GetName())
+	assert.Equal(t, poolName, poolAvn.PoolName)
+	assert.Equal(t, dbName, pool.Spec.DatabaseName)
+	assert.Equal(t, dbName, poolAvn.Database)
+	assert.Empty(t, pool.Spec.Username) // username should be empty in the spec
+
+	secret, err := s.GetSecret(pool.GetName())
+	require.NoError(t, err)
+
+	// Check secret has necessary connection info
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_HOST"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_PORT"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_DATABASE"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_USER"]) // For inbound user, this is the default user
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_PASSWORD"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_SSLMODE"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_DATABASE_URI"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_CA_CERT"])
+
+	require.NoError(t, k8sClient.Delete(ctx, pool))
+
+	// Wait for deletion
+	require.Eventually(t, func() bool {
+		err := k8sClient.Get(ctx, client.ObjectKey{
+			Namespace: defaultNamespace,
+			Name:      poolName,
+		}, pool)
+		return errors.IsNotFound(err)
+	}, 2*time.Minute, 5*time.Second, "connection pool should be deleted")
+
+	// Verify it's gone from Aiven
+	_, err = avnClient.ConnectionPools.Get(ctx, cfg.Project, pgName, poolName)
+	assert.True(t, isNotFound(err), "connection pool should be deleted in Aiven")
 }

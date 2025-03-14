@@ -156,7 +156,6 @@ spec:
                 - databaseName
                 - project
                 - serviceName
-                - username
               type: object
               x-kubernetes-validations:
                 - message:
