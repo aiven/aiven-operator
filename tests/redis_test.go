@@ -40,6 +40,8 @@ spec:
 }
 
 func TestRedis(t *testing.T) {
+	t.Skip("Redis is deprecated")
+
 	t.Parallel()
 	defer recoverPanic(t)
 

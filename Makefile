@@ -324,3 +324,7 @@ endef
 PHONY: sweep
 sweep: ## Run sweep to remove all resources created by e2e tests.
 	go run ./sweeper/...
+
+PHONY: fumpt
+fumpt: ## Run gofumpt on all go files.
+	find . -name '*.go' -type f -exec gofumpt -w {} +
