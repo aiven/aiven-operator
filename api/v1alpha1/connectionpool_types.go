@@ -17,7 +17,7 @@ type ConnectionPoolSpec struct {
 
 	// +kubebuilder:validation:MaxLength=64
 	// Name of the service user used to connect to the database
-	Username string `json:"username"`
+	Username string `json:"username,omitempty"`
 
 	// +kubebuilder:validation:Min=1
 	// +kubebuilder:validation:Max=1000
