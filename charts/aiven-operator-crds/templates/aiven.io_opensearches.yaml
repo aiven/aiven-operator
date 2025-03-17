@@ -281,6 +281,9 @@ spec:
                             should be specified
                           pattern: ^[^\r\n]*$
                           type: string
+                        readonly:
+                          description: Whether the repository is read-only.
+                          type: boolean
                         restore_global_state:
                           description:
                             If true, restore the cluster state. Defaults
@@ -358,6 +361,9 @@ spec:
                             from the snapshot. Multi-index syntax is supported.
                           pattern: ^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$
                           type: string
+                        readonly:
+                          description: Whether the repository is read-only.
+                          type: boolean
                         restore_global_state:
                           description:
                             If true, restore the cluster state. Defaults
@@ -781,6 +787,23 @@ spec:
                           maximum: 16
                           minimum: 2
                           type: integer
+                        disk_watermarks:
+                          description: Watermark settings
+                          properties:
+                            flood_stage:
+                              description: The flood stage watermark for disk usage.
+                              type: integer
+                            high:
+                              description: The high watermark for disk usage.
+                              type: integer
+                            low:
+                              description: The low watermark for disk usage.
+                              type: integer
+                          required:
+                            - flood_stage
+                            - high
+                            - low
+                          type: object
                         email_sender_name:
                           description:
                             Sender name placeholder to be used in Opensearch
@@ -1602,6 +1625,9 @@ spec:
                             from the snapshot. Multi-index syntax is supported.
                           pattern: ^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$
                           type: string
+                        readonly:
+                          description: Whether the repository is read-only.
+                          type: boolean
                         region:
                           description: S3 region
                           pattern: ^[^\r\n]*$

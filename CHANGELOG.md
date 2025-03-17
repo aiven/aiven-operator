@@ -10,6 +10,13 @@
   and allow IPv6 packets to service ports
 - Add `Valkey` field `userConfig.valkey_active_expire_effort`, type `integer`: Valkey reclaims expired
   keys both when accessed and in the background
+- Add `OpenSearch` field `userConfig.azure_migration.readonly`, type `boolean`: Whether the repository
+  is read-only
+- Add `OpenSearch` field `userConfig.gcs_migration.readonly`, type `boolean`: Whether the repository
+  is read-only
+- Add `OpenSearch` field `userConfig.opensearch.disk_watermarks`, type `object`: Watermark settings
+- Add `OpenSearch` field `userConfig.s3_migration.readonly`, type `boolean`: Whether the repository is
+  read-only
 
 ## v0.28.0 - 2025-02-17
 

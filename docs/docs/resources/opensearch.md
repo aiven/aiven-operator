@@ -241,6 +241,7 @@ Azure migration settings.
 - [`endpoint_suffix`](#spec.userConfig.azure_migration.endpoint_suffix-property){: name='spec.userConfig.azure_migration.endpoint_suffix-property'} (string, Pattern: `^[^\r\n]*$`). Defines the DNS suffix for Azure Storage endpoints.
 - [`include_aliases`](#spec.userConfig.azure_migration.include_aliases-property){: name='spec.userConfig.azure_migration.include_aliases-property'} (boolean). Whether to restore aliases alongside their associated indexes. Default is true.
 - [`key`](#spec.userConfig.azure_migration.key-property){: name='spec.userConfig.azure_migration.key-property'} (string, Pattern: `^[^\r\n]*$`). Azure account secret key. One of key or sas_token should be specified.
+- [`readonly`](#spec.userConfig.azure_migration.readonly-property){: name='spec.userConfig.azure_migration.readonly-property'} (boolean). Whether the repository is read-only.
 - [`restore_global_state`](#spec.userConfig.azure_migration.restore_global_state-property){: name='spec.userConfig.azure_migration.restore_global_state-property'} (boolean). If true, restore the cluster state. Defaults to false.
 - [`sas_token`](#spec.userConfig.azure_migration.sas_token-property){: name='spec.userConfig.azure_migration.sas_token-property'} (string, Pattern: `^[^\r\n]*$`). A shared access signatures (SAS) token. One of key or sas_token should be specified.
 
@@ -263,6 +264,7 @@ Google Cloud Storage migration settings.
 - [`chunk_size`](#spec.userConfig.gcs_migration.chunk_size-property){: name='spec.userConfig.gcs_migration.chunk_size-property'} (string, Pattern: `^[^\r\n]*$`). Big files can be broken down into chunks during snapshotting if needed. Should be the same as for the 3rd party repository.
 - [`compress`](#spec.userConfig.gcs_migration.compress-property){: name='spec.userConfig.gcs_migration.compress-property'} (boolean). when set to true metadata files are stored in compressed format.
 - [`include_aliases`](#spec.userConfig.gcs_migration.include_aliases-property){: name='spec.userConfig.gcs_migration.include_aliases-property'} (boolean). Whether to restore aliases alongside their associated indexes. Default is true.
+- [`readonly`](#spec.userConfig.gcs_migration.readonly-property){: name='spec.userConfig.gcs_migration.readonly-property'} (boolean). Whether the repository is read-only.
 - [`restore_global_state`](#spec.userConfig.gcs_migration.restore_global_state-property){: name='spec.userConfig.gcs_migration.restore_global_state-property'} (boolean). If true, restore the cluster state. Defaults to false.
 
 ### index_patterns {: #spec.userConfig.index_patterns }
@@ -359,6 +361,7 @@ OpenSearch settings.
 - [`cluster.search.request.slowlog`](#spec.userConfig.opensearch.cluster.search.request.slowlog-property){: name='spec.userConfig.opensearch.cluster.search.request.slowlog-property'} (object). See below for [nested schema](#spec.userConfig.opensearch.cluster.search.request.slowlog).
 - [`cluster_max_shards_per_node`](#spec.userConfig.opensearch.cluster_max_shards_per_node-property){: name='spec.userConfig.opensearch.cluster_max_shards_per_node-property'} (integer, Minimum: 100, Maximum: 10000). Controls the number of shards allowed in the cluster per data node.
 - [`cluster_routing_allocation_node_concurrent_recoveries`](#spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property){: name='spec.userConfig.opensearch.cluster_routing_allocation_node_concurrent_recoveries-property'} (integer, Minimum: 2, Maximum: 16). How many concurrent incoming/outgoing shard recoveries (normally replicas) are allowed to happen on a node. Defaults to node cpu count * 2.
+- [`disk_watermarks`](#spec.userConfig.opensearch.disk_watermarks-property){: name='spec.userConfig.opensearch.disk_watermarks-property'} (object). Watermark settings. See below for [nested schema](#spec.userConfig.opensearch.disk_watermarks).
 - [`email_sender_name`](#spec.userConfig.opensearch.email_sender_name-property){: name='spec.userConfig.opensearch.email_sender_name-property'} (string, Pattern: `^[a-zA-Z0-9-_]+$`, MaxLength: 40). Sender name placeholder to be used in Opensearch Dashboards and Opensearch keystore.
 - [`email_sender_password`](#spec.userConfig.opensearch.email_sender_password-property){: name='spec.userConfig.opensearch.email_sender_password-property'} (string, Pattern: `^[^\x00-\x1F]+$`, MaxLength: 1024). Sender password for Opensearch alerts to authenticate with SMTP server.
 - [`email_sender_username`](#spec.userConfig.opensearch.email_sender_username-property){: name='spec.userConfig.opensearch.email_sender_username-property'} (string, Pattern: `^[^\x00-\x1F]+$`, MaxLength: 320). Sender username for Opensearch alerts.
@@ -463,6 +466,18 @@ _Appears on [`spec.userConfig.opensearch.cluster.search.request.slowlog`](#spec.
 - [`info`](#spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.info-property){: name='spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.info-property'} (string, Pattern: `^[^\r\n]*$`). Info threshold for total request took time. The value should be in the form count and unit, where unit one of (s,m,h,d,nanos,ms,micros) or -1. Default is -1.
 - [`trace`](#spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.trace-property){: name='spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.trace-property'} (string, Pattern: `^[^\r\n]*$`). Trace threshold for total request took time. The value should be in the form count and unit, where unit one of (s,m,h,d,nanos,ms,micros) or -1. Default is -1.
 - [`warn`](#spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.warn-property){: name='spec.userConfig.opensearch.cluster.search.request.slowlog.threshold.warn-property'} (string, Pattern: `^[^\r\n]*$`). Warning threshold for total request took time. The value should be in the form count and unit, where unit one of (s,m,h,d,nanos,ms,micros) or -1. Default is -1.
+
+#### disk_watermarks {: #spec.userConfig.opensearch.disk_watermarks }
+
+_Appears on [`spec.userConfig.opensearch`](#spec.userConfig.opensearch)._
+
+Watermark settings.
+
+**Required**
+
+- [`flood_stage`](#spec.userConfig.opensearch.disk_watermarks.flood_stage-property){: name='spec.userConfig.opensearch.disk_watermarks.flood_stage-property'} (integer). The flood stage watermark for disk usage.
+- [`high`](#spec.userConfig.opensearch.disk_watermarks.high-property){: name='spec.userConfig.opensearch.disk_watermarks.high-property'} (integer). The high watermark for disk usage.
+- [`low`](#spec.userConfig.opensearch.disk_watermarks.low-property){: name='spec.userConfig.opensearch.disk_watermarks.low-property'} (integer). The low watermark for disk usage.
 
 #### search.insights.top_queries {: #spec.userConfig.opensearch.search.insights.top_queries }
 
@@ -707,6 +722,7 @@ AWS S3 / AWS S3 compatible migration settings.
 - [`compress`](#spec.userConfig.s3_migration.compress-property){: name='spec.userConfig.s3_migration.compress-property'} (boolean). when set to true metadata files are stored in compressed format.
 - [`endpoint`](#spec.userConfig.s3_migration.endpoint-property){: name='spec.userConfig.s3_migration.endpoint-property'} (string, Pattern: `^[^\r\n]*$`). The S3 service endpoint to connect to. If you are using an S3-compatible service then you should set this to the service’s endpoint.
 - [`include_aliases`](#spec.userConfig.s3_migration.include_aliases-property){: name='spec.userConfig.s3_migration.include_aliases-property'} (boolean). Whether to restore aliases alongside their associated indexes. Default is true.
+- [`readonly`](#spec.userConfig.s3_migration.readonly-property){: name='spec.userConfig.s3_migration.readonly-property'} (boolean). Whether the repository is read-only.
 - [`restore_global_state`](#spec.userConfig.s3_migration.restore_global_state-property){: name='spec.userConfig.s3_migration.restore_global_state-property'} (boolean). If true, restore the cluster state. Defaults to false.
 - [`server_side_encryption`](#spec.userConfig.s3_migration.server_side_encryption-property){: name='spec.userConfig.s3_migration.server_side_encryption-property'} (boolean). When set to true files are encrypted on server side.
 
