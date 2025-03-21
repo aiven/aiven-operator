@@ -131,6 +131,16 @@ func optionalStringPointer(u string) *string {
 	return &u
 }
 
+// NilIfZero returns a pointer to the value, or nil if the value equals its zero value
+func NilIfZero[T comparable](v T) *T {
+	var zero T
+	if v == zero {
+		return nil
+	}
+
+	return &v
+}
+
 func isAivenServerError(err error) bool {
 	var status int
 	var old aiven.Error

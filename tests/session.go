@@ -40,6 +40,7 @@ const (
 
 type Session interface {
 	Apply(src string) error
+	ApplyObjects(objects ...client.Object) error
 	GetRunning(obj client.Object, keys ...string) error
 	GetSecret(keys ...string) (*corev1.Secret, error)
 	Destroy(t testingT)
@@ -65,39 +66,55 @@ func NewSession(ctx context.Context, k8s client.Client, project string) Session 
 	return s
 }
 
-// Apply emulates kubectl apply command
+// Apply parses and applies Kubernetes resources defined in YAML format
 func (s *session) Apply(src string) error {
 	objs, err := parseObjs(src)
 	if err != nil {
 		return err
 	}
 
-	// Stores all objects ever applied
-	for k, o := range objs {
-		s.objs[k] = o
+	// Convert map to slice for ApplyObjects
+	objSlice := make([]client.Object, 0, len(objs))
+	for _, o := range objs {
+		objSlice = append(objSlice, o)
+	}
+
+	return s.ApplyObjects(objSlice...)
+}
+
+// ApplyObjects applies multiple Kubernetes objects
+func (s *session) ApplyObjects(objects ...client.Object) error {
+	// Store all objects being applied
+	for _, o := range objects {
+		s.objs[o.GetName()] = o
 	}
 
 	ctx, cancel := context.WithTimeout(s.ctx, createTimeout)
 	defer cancel()
 
 	var g errgroup.Group
-	for n := range objs {
-		o := objs[n]
+	for _, o := range objects {
+		// Create a local variable to avoid closure issues
+		obj := o
 		g.Go(func() error {
 			defer s.recover()
-			err := s.k8s.Create(ctx, o)
+
+			// Clear resource version before attempting to create
+			// This is important to avoid the "resourceVersion should not be set on objects to be created" error
+			obj.SetResourceVersion("")
+			err := s.k8s.Create(ctx, obj)
 			if alreadyExists(err) {
-				c := o.DeepCopyObject().(client.Object)
-				key, err := getNamespacedName(c.GetName(), c.GetNamespace())
-				if err != nil {
-					return err
+				c := obj.DeepCopyObject().(client.Object)
+				key := types.NamespacedName{
+					Name:      c.GetName(),
+					Namespace: c.GetNamespace(),
 				}
 				err = s.k8s.Get(ctx, key, c)
 				if err != nil {
 					return err
 				}
-				o.SetResourceVersion(c.GetResourceVersion())
-				return s.k8s.Update(ctx, o)
+				obj.SetResourceVersion(c.GetResourceVersion())
+				return s.k8s.Update(ctx, obj)
 			}
 			return err
 		})
@@ -105,6 +122,8 @@ func (s *session) Apply(src string) error {
 	return g.Wait()
 }
 
+// GetRunning waits until the specified object is in "running" state
+// and returns an error if the object has error conditions
 func (s *session) GetRunning(obj client.Object, keys ...string) error {
 	key, err := getNamespacedName(keys...)
 	if err != nil {

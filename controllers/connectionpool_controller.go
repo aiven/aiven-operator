@@ -10,6 +10,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/postgresql"
 	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -47,85 +48,101 @@ func (r *ConnectionPoolReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
-	cp, err := h.convert(obj)
+func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+	connPool, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
 
-	exists, err := h.exists(ctx, avn, cp)
+	var (
+		reason string
+		exists bool
+	)
+
+	// check if the connection pool already exists
+	s, err := avnGen.ServiceGet(ctx, connPool.Spec.Project, connPool.Spec.ServiceName)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot get service: %w", err)
 	}
-	var reason string
+
+	for _, connP := range s.ConnectionPools {
+		if connP.PoolName == connPool.Name {
+			exists = true
+			break
+		}
+	}
+
 	if !exists {
-		_, err := avn.ConnectionPools.Create(ctx, cp.Spec.Project, cp.Spec.ServiceName,
-			aiven.CreateConnectionPoolRequest{
-				Database: cp.Spec.DatabaseName,
-				PoolMode: cp.Spec.PoolMode,
-				PoolName: cp.Name,
-				PoolSize: cp.Spec.PoolSize,
-				Username: optionalStringPointer(cp.Spec.Username),
-			})
-		if err != nil && !isAlreadyExists(err) {
-			return err
-		}
 		reason = "Created"
-	} else {
-		_, err := avn.ConnectionPools.Update(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Name,
-			aiven.UpdateConnectionPoolRequest{
-				Database: cp.Spec.DatabaseName,
-				PoolMode: cp.Spec.PoolMode,
-				PoolSize: cp.Spec.PoolSize,
-				Username: optionalStringPointer(cp.Spec.Username),
-			})
-		if err != nil {
-			return err
+		req := postgresql.ServicePgbouncerCreateIn{
+			Database: connPool.Spec.DatabaseName,
+			PoolMode: postgresql.PoolModeType(connPool.Spec.PoolMode),
+			PoolName: connPool.Name,
+			PoolSize: NilIfZero(connPool.Spec.PoolSize),
+			Username: NilIfZero(connPool.Spec.Username),
 		}
+
+		if err = avnGen.ServicePGBouncerCreate(ctx, connPool.Spec.Project, connPool.Spec.ServiceName, &req); err != nil && !isAlreadyExists(err) {
+			return fmt.Errorf("cannot create connection pool: %w", err)
+		}
+	} else {
 		reason = "Updated"
+		req := postgresql.ServicePgbouncerUpdateIn{
+			Database: optionalStringPointer(connPool.Spec.DatabaseName),
+			PoolMode: postgresql.PoolModeType(connPool.Spec.PoolMode),
+			PoolSize: NilIfZero(connPool.Spec.PoolSize),
+			Username: NilIfZero(connPool.Spec.Username),
+		}
+
+		if err = avnGen.ServicePGBouncerUpdate(ctx, connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Name, &req); err != nil {
+			return fmt.Errorf("cannot update connection pool: %w", err)
+		}
 	}
 
-	meta.SetStatusCondition(&cp.Status.Conditions,
+	meta.SetStatusCondition(&connPool.Status.Conditions,
 		getInitializedCondition(reason,
 			"Successfully created or updated the instance in Aiven"))
 
-	metav1.SetMetaDataAnnotation(&cp.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(cp.GetGeneration(), formatIntBaseDecimal))
+	metav1.SetMetaDataAnnotation(&connPool.ObjectMeta,
+		processedGenerationAnnotation, strconv.FormatInt(connPool.GetGeneration(), formatIntBaseDecimal))
 
 	return nil
 }
 
-func (h ConnectionPoolHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h ConnectionPoolHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	cp, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
 
-	err = avn.ConnectionPools.Delete(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
-	if err != nil && !isNotFound(err) {
+	if err = avnGen.ServicePGBouncerDelete(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Name); err != nil && !isNotFound(err) {
 		return false, err
 	}
 
 	return true, nil
 }
 
-func (h ConnectionPoolHandler) exists(ctx context.Context, avn *aiven.Client, cp *v1alpha1.ConnectionPool) (bool, error) {
-	conPool, err := avn.ConnectionPools.Get(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Name)
-	if isNotFound(err) {
-		return false, nil
-	}
-	return conPool != nil, err
-}
-
-func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h ConnectionPoolHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	connPool, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
 
-	cp, err := avn.ConnectionPools.Get(ctx, connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Name)
+	// Search the connection pool
+	var cp *service.ConnectionPoolOut
+	serviceList, err := avnGen.ServiceGet(ctx, connPool.Spec.Project, connPool.Spec.ServiceName)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get ConnectionPool: %w", err)
+		return nil, fmt.Errorf("cannot get service: %w", err)
+	}
+
+	for _, connP := range serviceList.ConnectionPools {
+		if connP.PoolName == connPool.Name {
+			cp = &connP
+		}
+	}
+
+	if cp == nil {
+		return nil, fmt.Errorf("connection pool %q not found", connPool.Name)
 	}
 
 	cert, err := avnGen.ProjectKmsGetCA(ctx, connPool.Spec.Project)
@@ -134,7 +151,7 @@ func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, avnGe
 	}
 
 	// The pool comes with its own port
-	poolURI, err := url.Parse(cp.ConnectionURI)
+	poolURI, err := url.Parse(cp.ConnectionUri)
 	if err != nil {
 		return nil, fmt.Errorf("can't parse ConnectionPool URI: %w", err)
 	}
@@ -160,7 +177,7 @@ func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, avnGe
 			prefix + "USER":         s.ServiceUriParams["user"],
 			prefix + "PASSWORD":     s.ServiceUriParams["password"],
 			prefix + "SSLMODE":      s.ServiceUriParams["sslmode"],
-			prefix + "DATABASE_URI": cp.ConnectionURI,
+			prefix + "DATABASE_URI": cp.ConnectionUri,
 			prefix + "CA_CERT":      cert,
 			// todo: remove in future releases
 			"PGHOST":       s.ServiceUriParams["host"],
@@ -169,41 +186,57 @@ func (h ConnectionPoolHandler) get(ctx context.Context, avn *aiven.Client, avnGe
 			"PGUSER":       s.ServiceUriParams["user"],
 			"PGPASSWORD":   s.ServiceUriParams["password"],
 			"PGSSLMODE":    s.ServiceUriParams["sslmode"],
-			"DATABASE_URI": cp.ConnectionURI,
+			"DATABASE_URI": cp.ConnectionUri,
 		}
 
 		return newSecret(connPool, stringData, false), nil
 	}
 
-	u, err := avn.ServiceUsers.Get(ctx, connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Spec.Username)
+	u, err := avnGen.ServiceUserGet(ctx, connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Spec.Username)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get user: %w", err)
 	}
 
 	prefix := getSecretPrefix(connPool)
 	stringData := map[string]string{
-		prefix + "NAME":         connPool.Name,
-		prefix + "HOST":         s.ServiceUriParams["host"],
-		prefix + "PORT":         poolURI.Port(),
-		prefix + "DATABASE":     cp.Database,
-		prefix + "USER":         cp.Username,
+		prefix + "NAME":     connPool.Name,
+		prefix + "HOST":     s.ServiceUriParams["host"],
+		prefix + "PORT":     poolURI.Port(),
+		prefix + "DATABASE": cp.Database,
+		prefix + "USER": func() string {
+			if cp.Username != nil {
+				return *cp.Username
+			}
+
+			// this should never happen, but we have to handle this case anyway
+			// this behaviour compatible with the previous implementation with aiven.Client
+			return ""
+		}(),
 		prefix + "PASSWORD":     u.Password,
 		prefix + "SSLMODE":      s.ServiceUriParams["sslmode"],
-		prefix + "DATABASE_URI": cp.ConnectionURI,
+		prefix + "DATABASE_URI": cp.ConnectionUri,
 		prefix + "CA_CERT":      cert,
 		// todo: remove in future releases
-		"PGHOST":       s.ServiceUriParams["host"],
-		"PGPORT":       poolURI.Port(),
-		"PGDATABASE":   cp.Database,
-		"PGUSER":       cp.Username,
+		"PGHOST":     s.ServiceUriParams["host"],
+		"PGPORT":     poolURI.Port(),
+		"PGDATABASE": cp.Database,
+		"PGUSER": func() string {
+			if cp.Username != nil {
+				return *cp.Username
+			}
+
+			// this should never happen, but we have to handle this case anyway
+			// this behaviour compatible with the previous implementation with aiven.Client
+			return ""
+		}(),
 		"PGPASSWORD":   u.Password,
 		"PGSSLMODE":    s.ServiceUriParams["sslmode"],
-		"DATABASE_URI": cp.ConnectionURI,
+		"DATABASE_URI": cp.ConnectionUri,
 	}
 	return newSecret(connPool, stringData, false), nil
 }
 
-func (h ConnectionPoolHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h ConnectionPoolHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	cp, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -221,16 +254,35 @@ func (h ConnectionPoolHandler) checkPreconditions(ctx context.Context, avn *aive
 		return false, nil
 	}
 
-	_, err = avn.Databases.Get(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.DatabaseName)
-	if err == nil {
-		_, err = avnGen.ServiceUserGet(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.Username)
+	// check if the database exists
+	var exists bool
+	dbList, err := avnGen.ServiceGet(ctx, cp.Spec.Project, cp.Spec.ServiceName)
+	if err != nil {
+		return false, err
 	}
 
-	if isNotFound(err) {
+	for _, db := range dbList.Databases {
+		if db == cp.Spec.DatabaseName {
+			exists = true
+			break
+		}
+	}
+
+	if !exists {
 		return false, nil
 	}
 
-	return err == nil, err
+	if cp.Spec.Username != "" {
+		_, err = avnGen.ServiceUserGet(ctx, cp.Spec.Project, cp.Spec.ServiceName, cp.Spec.Username)
+		if isNotFound(err) {
+			return false, nil
+		}
+		if err != nil {
+			return false, err
+		}
+	}
+
+	return true, nil
 }
 
 func (h ConnectionPoolHandler) convert(i client.Object) (*v1alpha1.ConnectionPool, error) {

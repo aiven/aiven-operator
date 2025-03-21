@@ -2,6 +2,7 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Made `ConnectionPool` username field optional, allowing connection pools to use the credentials of the connecting client instead of a fixed service user
 - Add `Kafka` field `userConfig.kafka_rest_config.consumer_idle_disconnect_timeout`, type `integer`:
   Specifies the maximum duration (in seconds) a client can remain idle before it is deleted
 - Change `ServiceIntegration` field `clickhouseKafka.tables`: maxItems ~~`100`~~ → `400`
