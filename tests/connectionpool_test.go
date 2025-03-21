@@ -1,15 +1,21 @@
 package tests
 
 import (
+	"context"
+	"database/sql"
+	"fmt"
 	"net/http"
+	"net/url"
 	"testing"
 	"time"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
+	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -118,21 +124,13 @@ func TestConnectionPool(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["PGSSLMODE"])
 	assert.NotEmpty(t, secret.Data["DATABASE_URI"])
 
-	// New secrets
-	assert.Equal(t, poolName, string(secret.Data["CONNECTIONPOOL_NAME"]))
-	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_HOST"])
-	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_PORT"])
-	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_DATABASE"])
-	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_USER"])
-	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_PASSWORD"])
-	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_SSLMODE"])
-	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_DATABASE_URI"])
-	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_CA_CERT"])
+	// Validate connection pool specific secrets
+	validateConnectionPoolSecret(t, secret, poolName)
 
-	// URI contains valid values
-	uri := string(secret.Data["CONNECTIONPOOL_DATABASE_URI"])
-	assert.Contains(t, uri, string(secret.Data["CONNECTIONPOOL_HOST"]))
-	assert.Contains(t, uri, string(secret.Data["CONNECTIONPOOL_PORT"]))
+	// Test connection to PostgreSQL through connection pool
+	require.Eventually(t, func() bool {
+		return testConnectionToDatabase(t, ctx, string(secret.Data["CONNECTIONPOOL_DATABASE_URI"]), string(secret.Data["CONNECTIONPOOL_USER"]))
+	}, 3*time.Minute, 10*time.Second, "should be able to connect to PostgreSQL through connection pool")
 
 	// We need to validate deletion,
 	// because we can get false positive here:
@@ -157,6 +155,7 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 		pgName      = randName("pg")
 		dbName      = randName("database")
 		poolName    = randName("connection-pool-inbound")
+		userName    = randName("inbound-user") // Service user for testing "Reuse Inbound User" functionality
 
 		s = NewSession(ctx, k8sClient, cfg.Project)
 
@@ -264,10 +263,38 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 			PoolMode: "transaction",
 		},
 	}
-	require.NoError(t, s.ApplyObjects(pgObj, dbObj, poolObj))
+
+	// Create service user for testing "Reuse Inbound User" functionality
+	userObj := &v1alpha1.ServiceUser{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      userName,
+			Namespace: defaultNamespace,
+		},
+		Spec: v1alpha1.ServiceUserSpec{
+			ServiceDependant: v1alpha1.ServiceDependant{
+				ProjectDependant: v1alpha1.ProjectDependant{
+					ProjectField: v1alpha1.ProjectField{
+						Project: cfg.Project,
+					},
+					AuthSecretRefField: v1alpha1.AuthSecretRefField{
+						AuthSecretRef: &v1alpha1.AuthSecretReference{
+							Name: secretRefName,
+							Key:  secretRefKey,
+						},
+					},
+				},
+				ServiceField: v1alpha1.ServiceField{
+					ServiceName: pgName,
+				},
+			},
+		},
+	}
+
+	require.NoError(t, s.ApplyObjects(pgObj, dbObj, poolObj, userObj))
 	require.NoError(t, s.GetRunning(pgObj, pgName))
 	require.NoError(t, s.GetRunning(dbObj, dbName))
 	require.NoError(t, s.GetRunning(poolObj, poolName))
+	require.NoError(t, s.GetRunning(userObj, userName))
 
 	avnPool := findPoolFunc(cfg.Project, pgName, poolName)
 	require.NotNil(t, avnPool, "connection pool should be created in Aiven")
@@ -282,20 +309,32 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 	secret, err := s.GetSecret(poolObj.GetName())
 	require.NoError(t, err)
 
-	// Check secret has necessary connection info
-	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_HOST"])
-	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_PORT"])
-	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_DATABASE"])
-	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_USER"]) // For inbound user, this is the default user
-	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_PASSWORD"])
-	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_SSLMODE"])
-	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_DATABASE_URI"])
-	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_CA_CERT"])
+	// Validate connection pool specific secrets
+	validateConnectionPoolSecret(t, secret, poolName)
+
+	// Get service user credentials to test inbound user feature
+	userSecret, err := s.GetSecret(userObj.GetName())
+	require.NoError(t, err, "Failed to get service user secret")
+
+	// Test connecting as the inbound user through the connection pool
+	// We'll create a custom URI that uses the connection pool host/port but the service user's credentials
+	customURI := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=require",
+		url.QueryEscape(string(userSecret.Data["USERNAME"])),
+		url.QueryEscape(string(userSecret.Data["PASSWORD"])),
+		string(secret.Data["CONNECTIONPOOL_HOST"]),
+		string(secret.Data["CONNECTIONPOOL_PORT"]),
+		string(secret.Data["CONNECTIONPOOL_NAME"]),
+	)
+
+	// Test connection to PostgreSQL through connection pool using the service user
+	require.Eventually(t, func() bool {
+		return testConnectionToDatabase(t, ctx, customURI, userName)
+	}, 3*time.Minute, 10*time.Second, "should be able to connect to PostgreSQL through connection pool as inbound user")
 
 	// Update the connection pool
 	poolObj.Spec.PoolSize = 25
 	poolObj.Spec.PoolMode = "session"
-	require.NoError(t, err)
 	require.NoError(t, s.ApplyObjects(poolObj))
 	require.NoError(t, s.GetRunning(poolObj, poolName))
 
@@ -323,6 +362,28 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 			updatedAvnPool.PoolMode == "session"
 	}, 2*time.Minute, 5*time.Second, "connection pool changes should be propagated to Aiven")
 
+	// Verify connection still works after update with the inbound user
+	require.Eventually(t, func() bool {
+		// Get updated connection details
+		updatedSecret, err := s.GetSecret(poolObj.GetName())
+		if err != nil {
+			t.Logf("Failed to get updated secret: %v", err)
+			return false
+		}
+
+		// Update the custom URI with new connection pool details
+		updatedCustomURI := fmt.Sprintf(
+			"postgres://%s:%s@%s:%s/%s?sslmode=require",
+			url.QueryEscape(string(userSecret.Data["USERNAME"])),
+			url.QueryEscape(string(userSecret.Data["PASSWORD"])),
+			string(updatedSecret.Data["CONNECTIONPOOL_HOST"]),
+			string(updatedSecret.Data["CONNECTIONPOOL_PORT"]),
+			string(updatedSecret.Data["CONNECTIONPOOL_NAME"]),
+		)
+
+		return testConnectionToDatabase(t, ctx, updatedCustomURI, userName)
+	}, 2*time.Minute, 10*time.Second, "should be able to connect to PostgreSQL after connection pool update")
+
 	// Delete the connection pool
 	assert.NoError(t, s.Delete(poolObj, func() error {
 		p := findPoolFunc(cfg.Project, pgName, poolName)
@@ -332,4 +393,54 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 
 		return avngen.Error{Status: http.StatusNotFound}
 	}))
+}
+
+func validateConnectionPoolSecret(t *testing.T, secret *corev1.Secret, poolName string) {
+	assert.Equal(t, poolName, string(secret.Data["CONNECTIONPOOL_NAME"]))
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_HOST"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_PORT"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_DATABASE"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_USER"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_PASSWORD"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_SSLMODE"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_DATABASE_URI"])
+	assert.NotEmpty(t, secret.Data["CONNECTIONPOOL_CA_CERT"])
+
+	// URI contains valid values
+	uri := string(secret.Data["CONNECTIONPOOL_DATABASE_URI"])
+	assert.Contains(t, uri, string(secret.Data["CONNECTIONPOOL_HOST"]))
+	assert.Contains(t, uri, string(secret.Data["CONNECTIONPOOL_PORT"]))
+}
+
+// TestConnectionToDatabase provides a simple test to verify database connection and user identity
+func testConnectionToDatabase(t *testing.T, ctx context.Context, connectionURI string, expectedUser string) bool {
+	// Try to connect to the database
+	db, err := sql.Open("postgres", connectionURI)
+	if err != nil {
+		t.Logf("Failed to open connection: %v", err)
+		return false
+	}
+	defer db.Close()
+
+	// Ping the database to verify connection
+	if err := db.PingContext(ctx); err != nil {
+		t.Logf("Failed to ping database: %v", err)
+		return false
+	}
+
+	// Verify the connected user
+	var connectedUser string
+	err = db.QueryRowContext(ctx, "SELECT current_user").Scan(&connectedUser)
+	if err != nil {
+		t.Logf("Failed to query current_user: %v", err)
+		return false
+	}
+
+	if connectedUser != expectedUser {
+		t.Logf("Connected user mismatch. Expected: %s, Got: %s", expectedUser, connectedUser)
+		return false
+	}
+
+	t.Logf("Successfully connected as user: %s", connectedUser)
+	return true
 }

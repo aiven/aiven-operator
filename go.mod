@@ -17,6 +17,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/lib/pq v1.10.9
 	github.com/liip/sheriff v0.12.0
 	github.com/otiai10/copy v1.14.1
 	github.com/stoewer/go-strcase v1.3.0
