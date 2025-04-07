@@ -17,6 +17,11 @@
 - Add `OpenSearch` field `userConfig.opensearch.disk_watermarks`, type `object`: Watermark settings
 - Add `OpenSearch` field `userConfig.s3_migration.readonly`, type `boolean`: Whether the repository is
   read-only
+- Add `Clickhouse` field `userConfig.backup_hour`, type `integer`: The hour of day (in UTC) when backup
+  for the service is started
+- Add `Clickhouse` field `userConfig.backup_minute`, type `integer`: The minute of an hour when backup
+  for the service is started
+- Change `Kafka` field `userConfig.kafka_version`: enum add `3.9`
 
 ## v0.28.0 - 2025-02-17
 
