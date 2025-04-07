@@ -581,7 +581,7 @@ type KafkaUserConfig struct {
 	// Kafka SASL mechanisms
 	KafkaSaslMechanisms *KafkaSaslMechanisms `groups:"create,update" json:"kafka_sasl_mechanisms,omitempty"`
 
-	// +kubebuilder:validation:Enum="3.7";"3.8"
+	// +kubebuilder:validation:Enum="3.7";"3.8";"3.9"
 	// Kafka major version. Deprecated values: `3.7`
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
 
