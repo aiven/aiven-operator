@@ -14,6 +14,16 @@ func (in *ClickhouseUserConfig) DeepCopyInto(out *ClickhouseUserConfig) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
+	if in.BackupHour != nil {
+		in, out := &in.BackupHour, &out.BackupHour
+		*out = new(int)
+		**out = **in
+	}
+	if in.BackupMinute != nil {
+		in, out := &in.BackupMinute, &out.BackupMinute
+		*out = new(int)
+		**out = **in
+	}
 	if in.IpFilter != nil {
 		in, out := &in.IpFilter, &out.IpFilter
 		*out = make([]*IpFilter, len(*in))
