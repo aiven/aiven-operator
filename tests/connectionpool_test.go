@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aiven/aiven-operator/api/v1alpha1"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	_ "github.com/lib/pq"
@@ -19,6 +18,8 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 func TestConnectionPool(t *testing.T) {

@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
+	"github.com/avast/retry-go"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -93,14 +95,26 @@ func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avn *aive
 			return err
 		}
 
-		updatedIntegration, err := avnGen.ServiceIntegrationUpdate(
-			ctx,
-			si.Spec.Project,
-			si.Status.ID,
-			&service.ServiceIntegrationUpdateIn{
-				UserConfig: userConfigMap,
+		var updatedIntegration *service.ServiceIntegrationUpdateOut
+		err = retry.Do(
+			func() error {
+				var updateErr error
+				updatedIntegration, updateErr = avnGen.ServiceIntegrationUpdate(
+					ctx,
+					si.Spec.Project,
+					si.Status.ID,
+					&service.ServiceIntegrationUpdateIn{
+						UserConfig: userConfigMap,
+					},
+				)
+
+				return updateErr
 			},
+			retry.RetryIf(isNotFound),
+			retry.Attempts(3), //nolint:mnd
+			retry.Delay(1*time.Second),
 		)
+
 		reason = "Updated"
 		if err != nil {
 			if strings.Contains(strings.ToLower(err.Error()), "user config not changed") {

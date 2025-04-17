@@ -2,6 +2,7 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Added retry logic to the `ServiceIntegration` controller
 - Made `ConnectionPool` username field optional, allowing connection pools to use the credentials of the connecting client instead of a fixed service user
 - Add `Kafka` field `userConfig.kafka_rest_config.consumer_idle_disconnect_timeout`, type `integer`:
   Specifies the maximum duration (in seconds) a client can remain idle before it is deleted
