@@ -16,7 +16,7 @@ lint:
     - codespell@2.4.1
     - actionlint@1.7.7
     - git-diff-check
-    - gitleaks@8.24.2
+    - gitleaks@8.24.3
     - gofmt@1.20.4
     - golangci-lint@1.64.8
     - markdownlint@0.44.0
