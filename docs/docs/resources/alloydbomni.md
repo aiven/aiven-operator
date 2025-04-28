@@ -232,6 +232,7 @@ AlloyDBOmni specific user configuration options.
 - [`pg_read_replica`](#spec.userConfig.pg_read_replica-property){: name='spec.userConfig.pg_read_replica-property'} (boolean). Should the service which is being forked be a read replica (deprecated, use read_replica service integration instead).
 - [`pg_service_to_fork_from`](#spec.userConfig.pg_service_to_fork_from-property){: name='spec.userConfig.pg_service_to_fork_from-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]{0,63}$|^$`, MaxLength: 64). Name of the PG Service from which to fork (deprecated, use service_to_fork_from). This has effect only when a new service is being created.
 - [`pg_version`](#spec.userConfig.pg_version-property){: name='spec.userConfig.pg_version-property'} (string, Enum: `15`). PostgreSQL major version.
+- [`pgaudit`](#spec.userConfig.pgaudit-property){: name='spec.userConfig.pgaudit-property'} (object). System-wide settings for the pgaudit extension. See below for [nested schema](#spec.userConfig.pgaudit).
 - [`pgbouncer`](#spec.userConfig.pgbouncer-property){: name='spec.userConfig.pgbouncer-property'} (object). PGBouncer connection pooling settings. See below for [nested schema](#spec.userConfig.pgbouncer).
 - [`pglookout`](#spec.userConfig.pglookout-property){: name='spec.userConfig.pglookout-property'} (object). System-wide settings for pglookout. See below for [nested schema](#spec.userConfig.pglookout).
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
@@ -317,6 +318,29 @@ postgresql.conf configuration values.
 - [`track_io_timing`](#spec.userConfig.pg.track_io_timing-property){: name='spec.userConfig.pg.track_io_timing-property'} (string, Enum: `off`, `on`). Enables timing of database I/O calls. This parameter is off by default, because it will repeatedly query the operating system for the current time, which may cause significant overhead on some platforms.
 - [`wal_sender_timeout`](#spec.userConfig.pg.wal_sender_timeout-property){: name='spec.userConfig.pg.wal_sender_timeout-property'} (integer). Terminate replication connections that are inactive for longer than this amount of time, in milliseconds. Setting this value to zero disables the timeout.
 - [`wal_writer_delay`](#spec.userConfig.pg.wal_writer_delay-property){: name='spec.userConfig.pg.wal_writer_delay-property'} (integer, Minimum: 10, Maximum: 200). WAL flush interval in milliseconds. Note that setting this value to lower than the default 200ms may negatively impact performance.
+
+### pgaudit {: #spec.userConfig.pgaudit }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+System-wide settings for the pgaudit extension.
+
+**Optional**
+
+- [`feature_enabled`](#spec.userConfig.pgaudit.feature_enabled-property){: name='spec.userConfig.pgaudit.feature_enabled-property'} (boolean). Enable pgaudit extension. When enabled, pgaudit extension will be automatically installed.Otherwise, extension will be uninstalled but auditing configurations will be preserved.
+- [`log`](#spec.userConfig.pgaudit.log-property){: name='spec.userConfig.pgaudit.log-property'} (array of strings). Specifies which classes of statements will be logged by session audit logging.
+- [`log_catalog`](#spec.userConfig.pgaudit.log_catalog-property){: name='spec.userConfig.pgaudit.log_catalog-property'} (boolean). Specifies that session logging should be enabled in the casewhere all relations in a statement are in pg_catalog.
+- [`log_client`](#spec.userConfig.pgaudit.log_client-property){: name='spec.userConfig.pgaudit.log_client-property'} (boolean). Specifies whether log messages will be visible to a client process such as psql.
+- [`log_level`](#spec.userConfig.pgaudit.log_level-property){: name='spec.userConfig.pgaudit.log_level-property'} (string, Enum: `debug1`, `debug2`, `debug3`, `debug4`, `debug5`, `info`, `log`, `notice`, `warning`). Specifies the log level that will be used for log entries.
+- [`log_max_string_length`](#spec.userConfig.pgaudit.log_max_string_length-property){: name='spec.userConfig.pgaudit.log_max_string_length-property'} (integer, Minimum: -1, Maximum: 102400). Crop parameters representation and whole statements if they exceed this threshold. A (default) value of -1 disable the truncation.
+- [`log_nested_statements`](#spec.userConfig.pgaudit.log_nested_statements-property){: name='spec.userConfig.pgaudit.log_nested_statements-property'} (boolean). This GUC allows to turn off logging nested statements, that is, statements that are executed as part of another ExecutorRun.
+- [`log_parameter`](#spec.userConfig.pgaudit.log_parameter-property){: name='spec.userConfig.pgaudit.log_parameter-property'} (boolean). Specifies that audit logging should include the parameters that were passed with the statement.
+- [`log_parameter_max_size`](#spec.userConfig.pgaudit.log_parameter_max_size-property){: name='spec.userConfig.pgaudit.log_parameter_max_size-property'} (integer). Specifies that parameter values longer than this setting (in bytes) should not be logged, but replaced with <long param suppressed>.
+- [`log_relation`](#spec.userConfig.pgaudit.log_relation-property){: name='spec.userConfig.pgaudit.log_relation-property'} (boolean). Specifies whether session audit logging should create a separate log entry for each relation (TABLE, VIEW, etc.) referenced in a SELECT or DML statement.
+- [`log_rows`](#spec.userConfig.pgaudit.log_rows-property){: name='spec.userConfig.pgaudit.log_rows-property'} (boolean). Specifies that audit logging should include the rows retrieved or affected by a statement. When enabled the rows field will be included after the parameter field.
+- [`log_statement`](#spec.userConfig.pgaudit.log_statement-property){: name='spec.userConfig.pgaudit.log_statement-property'} (boolean). Specifies whether logging will include the statement text and parameters (if enabled).
+- [`log_statement_once`](#spec.userConfig.pgaudit.log_statement_once-property){: name='spec.userConfig.pgaudit.log_statement_once-property'} (boolean). Specifies whether logging will include the statement text and parameters with the first log entry for a statement/substatement combination or with every entry.
+- [`role`](#spec.userConfig.pgaudit.role-property){: name='spec.userConfig.pgaudit.role-property'} (string, Pattern: `^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$`, MaxLength: 64). Specifies the master role to use for object audit logging.
 
 ### pgbouncer {: #spec.userConfig.pgbouncer }
 

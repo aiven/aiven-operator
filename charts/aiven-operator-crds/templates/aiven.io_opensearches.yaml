@@ -826,6 +826,9 @@ spec:
                         enable_remote_backed_storage:
                           description: Enable remote-backed storage
                           type: boolean
+                        enable_searchable_snapshots:
+                          description: Enable searchable snapshots
+                          type: boolean
                         enable_security_audit:
                           description: Enable/Disable security audit
                           type: boolean
