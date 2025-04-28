@@ -245,6 +245,56 @@ type Pg struct {
 	WalWriterDelay *int `groups:"create,update" json:"wal_writer_delay,omitempty"`
 }
 
+// System-wide settings for the pgaudit extension
+type Pgaudit struct {
+	// Enable pgaudit extension. When enabled, pgaudit extension will be automatically installed.Otherwise, extension will be uninstalled but auditing configurations will be preserved.
+	FeatureEnabled *bool `groups:"create,update" json:"feature_enabled,omitempty"`
+
+	// Specifies which classes of statements will be logged by session audit logging.
+	Log []string `groups:"create,update" json:"log,omitempty"`
+
+	// Specifies that session logging should be enabled in the casewhere all relations in a statement are in pg_catalog.
+	LogCatalog *bool `groups:"create,update" json:"log_catalog,omitempty"`
+
+	// Specifies whether log messages will be visible to a client process such as psql.
+	LogClient *bool `groups:"create,update" json:"log_client,omitempty"`
+
+	// +kubebuilder:validation:Enum="debug1";"debug2";"debug3";"debug4";"debug5";"info";"log";"notice";"warning"
+	// Specifies the log level that will be used for log entries.
+	LogLevel *string `groups:"create,update" json:"log_level,omitempty"`
+
+	// +kubebuilder:validation:Minimum=-1
+	// +kubebuilder:validation:Maximum=102400
+	// Crop parameters representation and whole statements if they exceed this threshold. A (default) value of -1 disable the truncation.
+	LogMaxStringLength *int `groups:"create,update" json:"log_max_string_length,omitempty"`
+
+	// This GUC allows to turn off logging nested statements, that is, statements that are executed as part of another ExecutorRun.
+	LogNestedStatements *bool `groups:"create,update" json:"log_nested_statements,omitempty"`
+
+	// Specifies that audit logging should include the parameters that were passed with the statement.
+	LogParameter *bool `groups:"create,update" json:"log_parameter,omitempty"`
+
+	// Specifies that parameter values longer than this setting (in bytes) should not be logged, but replaced with <long param suppressed>.
+	LogParameterMaxSize *int `groups:"create,update" json:"log_parameter_max_size,omitempty"`
+
+	// Specifies whether session audit logging should create a separate log entry for each relation (TABLE, VIEW, etc.) referenced in a SELECT or DML statement.
+	LogRelation *bool `groups:"create,update" json:"log_relation,omitempty"`
+
+	// Specifies that audit logging should include the rows retrieved or affected by a statement. When enabled the rows field will be included after the parameter field.
+	LogRows *bool `groups:"create,update" json:"log_rows,omitempty"`
+
+	// Specifies whether logging will include the statement text and parameters (if enabled).
+	LogStatement *bool `groups:"create,update" json:"log_statement,omitempty"`
+
+	// Specifies whether logging will include the statement text and parameters with the first log entry for a statement/substatement combination or with every entry.
+	LogStatementOnce *bool `groups:"create,update" json:"log_statement_once,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=64
+	// +kubebuilder:validation:Pattern=`^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$`
+	// Specifies the master role to use for object audit logging.
+	Role *string `groups:"create,update" json:"role,omitempty"`
+}
+
 // PGBouncer connection pooling settings
 type Pgbouncer struct {
 	// +kubebuilder:validation:Minimum=0
@@ -398,6 +448,9 @@ type AlloydbomniUserConfig struct {
 	// +kubebuilder:validation:Enum="15"
 	// PostgreSQL major version
 	PgVersion *string `groups:"create,update" json:"pg_version,omitempty"`
+
+	// System-wide settings for the pgaudit extension
+	Pgaudit *Pgaudit `groups:"create,update" json:"pgaudit,omitempty"`
 
 	// PGBouncer connection pooling settings
 	Pgbouncer *Pgbouncer `groups:"create,update" json:"pgbouncer,omitempty"`

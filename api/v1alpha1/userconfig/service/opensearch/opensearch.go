@@ -621,6 +621,9 @@ type Opensearch struct {
 	// Enable remote-backed storage
 	EnableRemoteBackedStorage *bool `groups:"create,update" json:"enable_remote_backed_storage,omitempty"`
 
+	// Enable searchable snapshots
+	EnableSearchableSnapshots *bool `groups:"create,update" json:"enable_searchable_snapshots,omitempty"`
+
 	// Enable/Disable security audit
 	EnableSecurityAudit *bool `groups:"create,update" json:"enable_security_audit,omitempty"`
 

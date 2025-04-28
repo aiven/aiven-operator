@@ -18,6 +18,17 @@
 - Add `OpenSearch` field `userConfig.opensearch.disk_watermarks`, type `object`: Watermark settings
 - Add `OpenSearch` field `userConfig.s3_migration.readonly`, type `boolean`: Whether the repository is
   read-only
+- Add `AlloyDBOmni` field `userConfig.pgaudit`, type `object`: System-wide settings for the pgaudit extension
+- Add `Clickhouse` field `userConfig.backup_hour`, type `integer`: The hour of day (in UTC) when backup
+  for the service is started
+- Add `Clickhouse` field `userConfig.backup_minute`, type `integer`: The minute of an hour when backup
+  for the service is started
+- Add `Kafka` field `userConfig.kafka_connect_plugin_versions`, type `array`: The plugin selected by the user
+- Change `Kafka` field `userConfig.kafka_version`: enum add `3.9`
+- Add `OpenSearch` field `userConfig.opensearch.enable_searchable_snapshots`, type `boolean`: Enable
+  searchable snapshots
+- Change `PostgreSQL` field `userConfig.pgaudit.log_level`: enum add `debug1`, `debug2`, `debug3`, `debug4`,
+  `debug5`, `info`, `log`, `notice`
 
 ## v0.28.0 - 2025-02-17
 

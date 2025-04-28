@@ -318,6 +318,19 @@ type KafkaConnectConfig struct {
 	SessionTimeoutMs *int `groups:"create,update" json:"session_timeout_ms,omitempty"`
 }
 
+// A Kafka Connect plugin
+type KafkaConnectPluginVersions struct {
+	// +kubebuilder:validation:MaxLength=128
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// The name of the plugin
+	PluginName string `groups:"create,update" json:"plugin_name"`
+
+	// +kubebuilder:validation:MaxLength=128
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// The version of the plugin
+	Version string `groups:"create,update" json:"version"`
+}
+
 // AWS secret provider configuration
 type Aws struct {
 	// +kubebuilder:validation:MaxLength=128
@@ -566,6 +579,9 @@ type KafkaUserConfig struct {
 	// Kafka Connect configuration values
 	KafkaConnectConfig *KafkaConnectConfig `groups:"create,update" json:"kafka_connect_config,omitempty"`
 
+	// The plugin selected by the user
+	KafkaConnectPluginVersions []*KafkaConnectPluginVersions `groups:"create,update" json:"kafka_connect_plugin_versions,omitempty"`
+
 	// Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name>}
 	KafkaConnectSecretProviders []*KafkaConnectSecretProviders `groups:"create,update" json:"kafka_connect_secret_providers,omitempty"`
 
@@ -581,7 +597,7 @@ type KafkaUserConfig struct {
 	// Kafka SASL mechanisms
 	KafkaSaslMechanisms *KafkaSaslMechanisms `groups:"create,update" json:"kafka_sasl_mechanisms,omitempty"`
 
-	// +kubebuilder:validation:Enum="3.7";"3.8"
+	// +kubebuilder:validation:Enum="3.7";"3.8";"3.9"
 	// Kafka major version. Deprecated values: `3.7`
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
 

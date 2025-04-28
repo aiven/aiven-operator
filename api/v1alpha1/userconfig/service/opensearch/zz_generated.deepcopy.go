@@ -629,6 +629,11 @@ func (in *Opensearch) DeepCopyInto(out *Opensearch) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.EnableSearchableSnapshots != nil {
+		in, out := &in.EnableSearchableSnapshots, &out.EnableSearchableSnapshots
+		*out = new(bool)
+		**out = **in
+	}
 	if in.EnableSecurityAudit != nil {
 		in, out := &in.EnableSecurityAudit, &out.EnableSecurityAudit
 		*out = new(bool)

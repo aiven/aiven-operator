@@ -64,6 +64,16 @@ type ClickhouseUserConfig struct {
 	// Deprecated. Additional Cloud Regions for Backup Replication
 	AdditionalBackupRegions []string `groups:"create,update" json:"additional_backup_regions,omitempty"`
 
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=23
+	// The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.
+	BackupHour *int `groups:"create,update" json:"backup_hour,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=59
+	// The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
+	BackupMinute *int `groups:"create,update" json:"backup_minute,omitempty"`
+
 	// +kubebuilder:validation:MaxItems=2048
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
 	IpFilter []*IpFilter `groups:"create,update" json:"ip_filter,omitempty"`
