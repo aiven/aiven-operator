@@ -13,5 +13,5 @@ jobs:
           fetch-depth: 0
       - uses: BetaHuhn/repo-file-sync-action@v1
         with:
-          GH_PAT: ${{ secrets.AIVEN_CI_PAT__VALID_WHILE_TIMO_IS_EMPLOYED }}
+          GH_PAT: ${{ secrets.AIVEN_CI_PAT__VALID_WHILE_MURAD_IS_EMPLOYED }}
           COMMIT_PREFIX: "chore:"
