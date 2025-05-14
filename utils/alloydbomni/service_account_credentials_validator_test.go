@@ -1,4 +1,4 @@
-package alloydbomniUtils
+package alloydbomniutils
 
 import (
 	"testing"

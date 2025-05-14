@@ -41,7 +41,7 @@ func (in *Database) ValidateCreate() error {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *Database) ValidateUpdate(old runtime.Object) error {
+func (in *Database) ValidateUpdate(_ runtime.Object) error {
 	databaselog.Info("validate update", "name", in.Name)
 
 	return nil

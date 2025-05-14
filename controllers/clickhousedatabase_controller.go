@@ -44,7 +44,7 @@ func (r *ClickhouseDatabaseReconciler) SetupWithManager(mgr ctrl.Manager) error 
 		Complete(r)
 }
 
-func (h *ClickhouseDatabaseHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
+func (h *ClickhouseDatabaseHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object, _ []client.Object) error {
 	db, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -70,7 +70,7 @@ func (h *ClickhouseDatabaseHandler) createOrUpdate(ctx context.Context, avn *aiv
 	return nil
 }
 
-func (h *ClickhouseDatabaseHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *ClickhouseDatabaseHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
 	db, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -85,7 +85,7 @@ func (h *ClickhouseDatabaseHandler) delete(ctx context.Context, avn *aiven.Clien
 	return true, nil
 }
 
-func (h *ClickhouseDatabaseHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *ClickhouseDatabaseHandler) get(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	db, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -106,7 +106,7 @@ func (h *ClickhouseDatabaseHandler) get(ctx context.Context, avn *aiven.Client, 
 	return nil, nil
 }
 
-func (h *ClickhouseDatabaseHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *ClickhouseDatabaseHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	db, err := h.convert(obj)
 	if err != nil {
 		return false, err

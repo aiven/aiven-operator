@@ -4,6 +4,7 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -44,13 +45,13 @@ func (r *KafkaTopicReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
+func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object, _ []client.Object) error {
 	topic, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
 
-	var tags []aiven.KafkaTopicTag
+	tags := make([]aiven.KafkaTopicTag, 0, len(topic.Spec.Tags))
 	for _, t := range topic.Spec.Tags {
 		tags = append(tags, aiven.KafkaTopicTag{
 			Key:   t.Key,
@@ -106,7 +107,7 @@ func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avn *aiven.Client
 	return nil
 }
 
-func (h KafkaTopicHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaTopicHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
 	topic, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -128,7 +129,8 @@ func (h KafkaTopicHandler) delete(ctx context.Context, avn *aiven.Client, avnGen
 func (h KafkaTopicHandler) exists(ctx context.Context, avn *aiven.Client, topic *v1alpha1.KafkaTopic) (bool, error) {
 	t, err := avn.KafkaTopics.Get(ctx, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName())
 	if err != nil && !isNotFound(err) {
-		if aivenError, ok := err.(aiven.Error); ok {
+		var aivenError aiven.Error
+		if errors.As(err, &aivenError) {
 			// Getting topic info can sometimes temporarily fail with 501 and 502. Don't
 			// treat that as fatal error but keep on retrying instead.
 			if aivenError.Status == 501 || aivenError.Status == 502 {
@@ -142,7 +144,7 @@ func (h KafkaTopicHandler) exists(ctx context.Context, avn *aiven.Client, topic 
 	return t != nil, nil
 }
 
-func (h KafkaTopicHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h KafkaTopicHandler) get(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	topic, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -166,7 +168,7 @@ func (h KafkaTopicHandler) get(ctx context.Context, avn *aiven.Client, avnGen av
 	return nil, err
 }
 
-func (h KafkaTopicHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaTopicHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	topic, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -198,7 +200,8 @@ func (h KafkaTopicHandler) checkPreconditions(ctx context.Context, avn *aiven.Cl
 func (h KafkaTopicHandler) getState(ctx context.Context, avn *aiven.Client, topic *v1alpha1.KafkaTopic) (string, error) {
 	t, err := avn.KafkaTopics.Get(ctx, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName())
 	if err != nil {
-		if aivenError, ok := err.(aiven.Error); ok {
+		var aivenError aiven.Error
+		if errors.As(err, &aivenError) {
 			// Getting topic info can sometimes temporarily fail with 501 and 502. Don't
 			// treat that as fatal error but keep on retrying instead.
 			if aivenError.Status == 501 || aivenError.Status == 502 {

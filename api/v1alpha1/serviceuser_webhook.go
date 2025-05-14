@@ -39,7 +39,7 @@ func (in *ServiceUser) ValidateCreate() error {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *ServiceUser) ValidateUpdate(old runtime.Object) error {
+func (in *ServiceUser) ValidateUpdate(_ runtime.Object) error {
 	serviceuserlog.Info("validate update", "name", in.Name)
 	return nil
 }

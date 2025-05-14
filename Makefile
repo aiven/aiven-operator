@@ -194,7 +194,7 @@ KUSTOMIZE_VERSION ?= v4.5.7
 CONTROLLER_TOOLS_VERSION ?= v0.15.0
 OPERATOR_SDK_VERSION ?= v1.36.0
 ENVTEST_VERSION ?= release-0.16
-GOLANGCI_LINT_VERSION ?= v1.54.2
+GOLANGCI_LINT_VERSION ?= v2.1.6
 SELPROJ_VERSION ?= v0.1.0
 
 .PHONY: kustomize
@@ -224,7 +224,10 @@ $(ENVTEST): $(LOCALBIN)
 .PHONY: golangci-lint
 golangci-lint: $(GOLANGCI_LINT) ## Download golangci-lint locally if necessary.
 $(GOLANGCI_LINT): $(LOCALBIN)
-	$(call go-install-tool,$(GOLANGCI_LINT),github.com/golangci/golangci-lint/cmd/golangci-lint,$(GOLANGCI_LINT_VERSION))
+	$(call go-install-tool,$(GOLANGCI_LINT),github.com/golangci/golangci-lint/v2/cmd/golangci-lint,$(GOLANGCI_LINT_VERSION))
+
+lint-go:
+	$(GOLANGCI_LINT) run --build-tags all --timeout=30m ./...
 
 .PHONY: selproj ci-selproj
 selproj: $(SELPROJ)

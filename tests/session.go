@@ -188,7 +188,7 @@ func (s *session) Destroy(t testingT) {
 			defer wg.Done()
 			defer s.recover()
 			err := s.delete(s.objs[n])
-			if !(err == nil || isNotFound(err)) {
+			if err != nil && !isNotFound(err) {
 				t.Errorf("failed to delete %q: %s", n, err)
 			}
 		}(n)
@@ -344,7 +344,7 @@ func parseObjs(src string) (map[string]client.Object, error) {
 	for {
 		var rawExt runtime.RawExtension
 		err := decoder.Decode(&rawExt)
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 
@@ -359,12 +359,12 @@ func parseObjs(src string) (map[string]client.Object, error) {
 
 		uObj, _, err := yaml.NewDecodingSerializer(unstructured.UnstructuredJSONScheme).Decode(rawExt.Raw, nil, nil)
 		if err != nil {
-			return nil, fmt.Errorf("failed to serialize raw object %s", err)
+			return nil, fmt.Errorf("failed to serialize raw object %w", err)
 		}
 
 		uMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(uObj)
 		if err != nil {
-			return nil, fmt.Errorf("failed to convert to unstructured map %s", err)
+			return nil, fmt.Errorf("failed to convert to unstructured map %w", err)
 		}
 
 		o := unstructured.Unstructured{Object: uMap}

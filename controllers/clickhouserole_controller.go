@@ -52,7 +52,7 @@ func (r *ClickhouseRoleReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 type clickhouseRoleHandler struct{}
 
-func (h *clickhouseRoleHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
+func (h *clickhouseRoleHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object, _ []client.Object) error {
 	role, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -73,7 +73,7 @@ func (h *clickhouseRoleHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 	return nil
 }
 
-func (h *clickhouseRoleHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *clickhouseRoleHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
 	role, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -83,7 +83,7 @@ func (h *clickhouseRoleHandler) delete(ctx context.Context, avn *aiven.Client, a
 	return isDeleted(err)
 }
 
-func (h *clickhouseRoleHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *clickhouseRoleHandler) get(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	role, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -102,7 +102,7 @@ func (h *clickhouseRoleHandler) get(ctx context.Context, avn *aiven.Client, avnG
 	return nil, nil
 }
 
-func (h *clickhouseRoleHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *clickhouseRoleHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	role, err := h.convert(obj)
 	if err != nil {
 		return false, err

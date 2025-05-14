@@ -43,7 +43,7 @@ func (r *KafkaACLReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaACLHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
+func (h KafkaACLHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	acl, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -87,7 +87,7 @@ func (h KafkaACLHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, 
 	return nil
 }
 
-func (h KafkaACLHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaACLHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
 	acl, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -131,7 +131,7 @@ func (h KafkaACLHandler) getID(ctx context.Context, avn *aiven.Client, acl *v1al
 	return "", NewNotFound(fmt.Sprintf("Kafka ACL %q not found", acl.Name))
 }
 
-func (h KafkaACLHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h KafkaACLHandler) get(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	acl, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -156,7 +156,7 @@ func (h KafkaACLHandler) get(ctx context.Context, avn *aiven.Client, avnGen avng
 	return nil, nil
 }
 
-func (h KafkaACLHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaACLHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	acl, err := h.convert(obj)
 	if err != nil {
 		return false, err

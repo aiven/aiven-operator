@@ -48,7 +48,7 @@ func (r *ServiceIntegrationEndpointReconciler) SetupWithManager(mgr ctrl.Manager
 
 type ServiceIntegrationEndpointHandler struct{}
 
-func (h ServiceIntegrationEndpointHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
+func (h ServiceIntegrationEndpointHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	si, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -123,7 +123,7 @@ func (h ServiceIntegrationEndpointHandler) createOrUpdate(ctx context.Context, a
 	return nil
 }
 
-func (h ServiceIntegrationEndpointHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h ServiceIntegrationEndpointHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	si, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -141,7 +141,7 @@ func (h ServiceIntegrationEndpointHandler) delete(ctx context.Context, avn *aive
 	return true, nil
 }
 
-func (h ServiceIntegrationEndpointHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h ServiceIntegrationEndpointHandler) get(_ context.Context, _ *aiven.Client, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	si, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -156,7 +156,7 @@ func (h ServiceIntegrationEndpointHandler) get(ctx context.Context, avn *aiven.C
 	return nil, nil
 }
 
-func (h ServiceIntegrationEndpointHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h ServiceIntegrationEndpointHandler) checkPreconditions(_ context.Context, _ *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
 	si, err := h.convert(obj)
 	if err != nil {
 		return false, err

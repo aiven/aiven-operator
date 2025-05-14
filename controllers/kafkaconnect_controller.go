@@ -69,7 +69,7 @@ func (a *kafkaConnectAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *kafkaConnectAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
+func (a *kafkaConnectAdapter) newSecret(_ context.Context, _ *service.ServiceGetOut) (*corev1.Secret, error) {
 	return nil, nil
 }
 
@@ -85,10 +85,10 @@ func (a *kafkaConnectAdapter) GetConnInfoSecretTarget() v1alpha1.ConnInfoSecretT
 	return v1alpha1.ConnInfoSecretTarget{}
 }
 
-func (a *kafkaConnectAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *kafkaConnectAdapter) performUpgradeTaskIfNeeded(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
 }
 
-func (a *kafkaConnectAdapter) createOrUpdateServiceSpecific(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *kafkaConnectAdapter) createOrUpdateServiceSpecific(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
 }

@@ -72,7 +72,7 @@ func (a *flinkAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *flinkAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
+func (a *flinkAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
 	stringData := map[string]string{
 		"HOST":     s.ServiceUriParams["host"],
 		"USER":     s.ServiceUriParams["user"],
@@ -92,10 +92,10 @@ func (a *flinkAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *flinkAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *flinkAdapter) performUpgradeTaskIfNeeded(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
 }
 
-func (a *flinkAdapter) createOrUpdateServiceSpecific(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *flinkAdapter) createOrUpdateServiceSpecific(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
 }

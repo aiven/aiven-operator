@@ -222,7 +222,7 @@ func addObject(file *jen.File, obj *object) error {
 		child := obj.Properties[key]
 		f, err := addField(file, jen.Id(child.structName), child)
 		if err != nil {
-			return fmt.Errorf("%s: %s", key, err)
+			return fmt.Errorf("%s: %w", key, err)
 		}
 		fields[i] = f
 	}

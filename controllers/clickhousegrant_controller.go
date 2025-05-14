@@ -48,7 +48,7 @@ func (r *ClickhouseGrantReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h *ClickhouseGrantHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
+func (h *ClickhouseGrantHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	g, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -78,7 +78,7 @@ func (h *ClickhouseGrantHandler) createOrUpdate(ctx context.Context, avn *aiven.
 	return nil
 }
 
-func (h *ClickhouseGrantHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *ClickhouseGrantHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	g, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -92,7 +92,7 @@ func (h *ClickhouseGrantHandler) delete(ctx context.Context, avn *aiven.Client, 
 	return err == nil, err
 }
 
-func (h *ClickhouseGrantHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *ClickhouseGrantHandler) get(_ context.Context, _ *aiven.Client, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	g, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func (h *ClickhouseGrantHandler) get(ctx context.Context, avn *aiven.Client, avn
 	return nil, nil
 }
 
-func (h *ClickhouseGrantHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *ClickhouseGrantHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	/** Preconditions for ClickhouseGrant:
 	 *
 	 * 1. The service is running
@@ -153,11 +153,11 @@ func (h *ClickhouseGrantHandler) checkPreconditions(ctx context.Context, avn *ai
 
 func checkPrecondition[T comparable](ctx context.Context, g *v1alpha1.ClickhouseGrant, avnGen avngen.Client, collectFunc func() []T, queryFunc func(context.Context, avngen.Client, string, string) ([]T, error), errorMsgFormat string) (bool, error) {
 	itemsInSpec := collectFunc()
-	itemsInDb, err := queryFunc(ctx, avnGen, g.Spec.Project, g.Spec.ServiceName)
+	itemsInDB, err := queryFunc(ctx, avnGen, g.Spec.Project, g.Spec.ServiceName)
 	if err != nil {
 		return false, err
 	}
-	missingItems := utils.CheckSliceContainment(itemsInSpec, itemsInDb)
+	missingItems := utils.CheckSliceContainment(itemsInSpec, itemsInDB)
 	if len(missingItems) > 0 {
 		err = fmt.Errorf(errorMsgFormat, missingItems)
 		meta.SetStatusCondition(&g.Status.Conditions, getErrorCondition(errConditionPreconditions, err))

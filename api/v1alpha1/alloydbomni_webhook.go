@@ -48,7 +48,7 @@ func (in *AlloyDBOmni) ValidateCreate() error {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *AlloyDBOmni) ValidateUpdate(old runtime.Object) error {
+func (in *AlloyDBOmni) ValidateUpdate(_ runtime.Object) error {
 	alloydbomnilog.Info("validate update", "name", in.Name)
 
 	if err := alloydbomniUtils.ValidateServiceAccountCredentials(in.Spec.ServiceAccountCredentials); err != nil {

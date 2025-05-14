@@ -45,7 +45,7 @@ func (r *KafkaSchemaRegistryACLReconciler) SetupWithManager(mgr ctrl.Manager) er
 
 type KafkaSchemaRegistryACLHandler struct{}
 
-func (h KafkaSchemaRegistryACLHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
+func (h KafkaSchemaRegistryACLHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	acl, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -96,7 +96,7 @@ func (h KafkaSchemaRegistryACLHandler) createOrUpdate(ctx context.Context, avn *
 	return nil
 }
 
-func (h KafkaSchemaRegistryACLHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaSchemaRegistryACLHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	acl, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -124,7 +124,7 @@ func (h KafkaSchemaRegistryACLHandler) exists(ctx context.Context, avnGen avngen
 	return false, nil
 }
 
-func (h KafkaSchemaRegistryACLHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h KafkaSchemaRegistryACLHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	acl, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -148,7 +148,7 @@ func (h KafkaSchemaRegistryACLHandler) get(ctx context.Context, avn *aiven.Clien
 	return nil, nil
 }
 
-func (h KafkaSchemaRegistryACLHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaSchemaRegistryACLHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	acl, err := h.convert(obj)
 	if err != nil {
 		return false, err

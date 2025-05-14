@@ -39,7 +39,7 @@ func (in *Cassandra) ValidateCreate() error {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *Cassandra) ValidateUpdate(old runtime.Object) error {
+func (in *Cassandra) ValidateUpdate(_ runtime.Object) error {
 	cassandralog.Info("validate update", "name", in.Name)
 
 	return in.Spec.Validate()

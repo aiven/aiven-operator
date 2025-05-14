@@ -137,9 +137,9 @@ func TestKafkaSchema(t *testing.T) {
 		Namespace: "example_namespace",
 		Type:      "record",
 	}
-	assert.Equal(t, "", cmp.Diff(expectedSchema, actualSchema))
+	assert.Empty(t, cmp.Diff(expectedSchema, actualSchema))
 
-	// Validates deleting, because deleted kafka drops schemas, and we want be sure deletion works
+	// Validates deleting, because deleted kafka drops schemas, and we want to be sure deletion works
 	assert.NoError(t, s.Delete(schema, func() error {
 		_, err := avnClient.KafkaSubjectSchemas.Get(ctx, cfg.Project, kafkaName, subjectName, 1)
 		return err

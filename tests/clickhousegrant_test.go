@@ -167,9 +167,9 @@ func TestClickhouseGrant(t *testing.T) {
 	roleGrantResults, err := queryAndCollectResults[ClickhouseRoleGrant](ctx, conn, chUtils.RoleGrantsQuery)
 	require.NoError(t, err)
 
-	// Override GrantedRoleId to nil, it changes between test runs
+	// Override GrantedRoleID to nil, it changes between test runs
 	for i := range roleGrantResults {
-		roleGrantResults[i].GrantedRoleId = nil
+		roleGrantResults[i].GrantedRoleID = nil
 	}
 
 	assert.Len(t, roleGrantResults, 1)
@@ -283,7 +283,7 @@ type ClickhouseRoleGrant struct {
 	UserName             *string `ch:"user_name"`
 	RoleName             *string `ch:"role_name"`
 	GrantedRoleName      *string `ch:"granted_role_name"`
-	GrantedRoleId        *string `ch:"granted_role_id"`
+	GrantedRoleID        *string `ch:"granted_role_id"`
 	GrantedRoleIsDefault bool    `ch:"granted_role_is_default"`
 	WithAdminOption      bool    `ch:"with_admin_option"`
 }
@@ -303,7 +303,7 @@ var expectedRoleGrants = []ClickhouseRoleGrant{
 		UserName:             ptr("clickhouse-user"),
 		RoleName:             nil,
 		GrantedRoleName:      ptr("writer"),
-		GrantedRoleId:        nil, // Not actually nil, changes between test runs. We override this in the test.
+		GrantedRoleID:        nil, // Not actually nil, changes between test runs. We override this in the test.
 		GrantedRoleIsDefault: true,
 		WithAdminOption:      true,
 	},

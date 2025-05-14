@@ -112,7 +112,7 @@ func TestDatabase_databaseName(t *testing.T) {
 
 	testCases := []struct {
 		name                      string
-		metaDbName                string
+		metaDBName                string
 		specDatabaseName          string
 		expectedAivenDatabaseName string
 		expectError               bool
@@ -121,34 +121,34 @@ func TestDatabase_databaseName(t *testing.T) {
 	}{
 		{
 			name:                   "invalid - metadata.name contains underscores",
-			metaDbName:             "invalid_db_name",
+			metaDBName:             "invalid_db_name",
 			specDatabaseName:       "REMOVE",
 			expectError:            true,
 			expectErrorMsgContains: "Invalid value: \"invalid_db_name\": a lowercase RFC 1123 subdomain must",
 		},
 		{
 			name:                   "invalid - databaseName exceeds maxLength",
-			metaDbName:             "metadata-db-name",
+			metaDBName:             "metadata-db-name",
 			specDatabaseName:       "db-name-very-long-name-exceeding-maxlength", // exceed maxLength of 40
 			expectError:            true,
 			expectErrorMsgContains: "Too long: may not be longer than 40",
 		},
 		{
 			name:                   "invalid - spec.databaseName contains invalid characters",
-			metaDbName:             "valid-db-name",
+			metaDBName:             "valid-db-name",
 			specDatabaseName:       "invalid-db-name!",
 			expectError:            true,
 			expectErrorMsgContains: "Invalid value: \"invalid-db-name!\": spec.databaseName in body should match",
 		},
 		{
 			name:                      "valid - default to metadata.name",
-			metaDbName:                "metadata-db-name",
+			metaDBName:                "metadata-db-name",
 			specDatabaseName:          "REMOVE", // remove from yaml, should default to metadata.name
 			expectedAivenDatabaseName: "metadata-db-name",
 		},
 		{
 			name:                      "valid - uses spec.databaseName if specified",
-			metaDbName:                "metadata-db-name", // both metadata.name and spec.databaseName are specified, should use spec.databaseName
+			metaDBName:                "metadata-db-name", // both metadata.name and spec.databaseName are specified, should use spec.databaseName
 			specDatabaseName:          "spec_valid_db_name",
 			expectedAivenDatabaseName: "spec_valid_db_name",
 		},
@@ -164,7 +164,7 @@ func TestDatabase_databaseName(t *testing.T) {
 				"doc[0].spec.project":   cfg.Project,
 				"doc[0].spec.cloudName": cfg.PrimaryCloudName,
 
-				"doc[1].metadata.name":     tc.metaDbName,
+				"doc[1].metadata.name":     tc.metaDBName,
 				"doc[1].spec.project":      cfg.Project,
 				"doc[1].spec.serviceName":  pgName,
 				"doc[1].spec.databaseName": tc.specDatabaseName, // Set databaseName from test case
@@ -185,7 +185,7 @@ func TestDatabase_databaseName(t *testing.T) {
 			require.NoError(t, err, "Failed to apply YAML")
 
 			db := new(v1alpha1.Database)
-			require.NoError(t, s.GetRunning(db, tc.metaDbName))
+			require.NoError(t, s.GetRunning(db, tc.metaDBName))
 
 			// THEN
 			// Validates Database

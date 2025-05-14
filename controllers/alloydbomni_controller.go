@@ -73,7 +73,7 @@ func (a *alloyDBOmniAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *alloyDBOmniAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
+func (a *alloyDBOmniAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
 	stringData := map[string]string{
 		"HOST":         s.ServiceUriParams["host"],
 		"PORT":         s.ServiceUriParams["port"],
@@ -95,11 +95,11 @@ func (a *alloyDBOmniAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *alloyDBOmniAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *alloyDBOmniAdapter) performUpgradeTaskIfNeeded(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
 }
 
-func (a *alloyDBOmniAdapter) createOrUpdateServiceSpecific(ctx context.Context, avnGen avngen.Client, old *service.ServiceGetOut) error {
+func (a *alloyDBOmniAdapter) createOrUpdateServiceSpecific(ctx context.Context, avnGen avngen.Client, _ *service.ServiceGetOut) error {
 	// Get current credentials state
 	currentCreds, err := avnGen.AlloyDbOmniGoogleCloudPrivateKeyIdentify(ctx, a.Spec.Project, a.Name)
 	if err != nil {

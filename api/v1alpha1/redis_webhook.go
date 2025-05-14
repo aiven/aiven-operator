@@ -41,7 +41,7 @@ func (in *Redis) ValidateCreate() error {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *Redis) ValidateUpdate(old runtime.Object) error {
+func (in *Redis) ValidateUpdate(_ runtime.Object) error {
 	redislog.Info("validate update", "name", in.Name)
 	return in.Spec.Validate()
 }

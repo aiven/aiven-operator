@@ -106,7 +106,7 @@ func TestClickhouseUser(t *testing.T) {
 	}))
 
 	// User has been deleted, no access
-	assert.ErrorContains(t, pinger(), "Authentication failed: password is incorrect, or there is no user with such name.")
+	require.ErrorContains(t, pinger(), "Authentication failed: password is incorrect, or there is no user with such name.")
 
 	// GIVEN
 	// New manifest with 'username' field set

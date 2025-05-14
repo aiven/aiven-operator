@@ -41,7 +41,7 @@ func (in *OpenSearch) ValidateCreate() error {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *OpenSearch) ValidateUpdate(old runtime.Object) error {
+func (in *OpenSearch) ValidateUpdate(_ runtime.Object) error {
 	opensearchlog.Info("validate update", "name", in.Name)
 	return in.Spec.Validate()
 }

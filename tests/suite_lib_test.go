@@ -7,11 +7,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func setupTestYamlFile(t *testing.T, yamlContent string) (string, func()) {
 	tempDir, err := os.MkdirTemp("", "yaml-tests")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	examplesDirPath = tempDir
 
@@ -212,14 +213,14 @@ data:
 					result, err := loadExampleYaml(filename, tc.replacements)
 
 					if tc.errorMsg != nil {
-						assert.Error(t, err)
+						require.Error(t, err)
 						if !assert.Contains(t, err.Error(), *tc.errorMsg) {
 							t.Logf("\nExpected error: %q\nActual error:   %q", *tc.errorMsg, err.Error())
 						}
 						return
 					}
 
-					assert.NoError(t, err)
+					require.NoError(t, err)
 
 					for _, expected := range tc.expected {
 						if !assert.Contains(t, result, expected) {

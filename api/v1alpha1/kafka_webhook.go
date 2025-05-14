@@ -41,7 +41,7 @@ func (in *Kafka) ValidateCreate() error {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *Kafka) ValidateUpdate(old runtime.Object) error {
+func (in *Kafka) ValidateUpdate(_ runtime.Object) error {
 	kafkalog.Info("validate update", "name", in.Name)
 	return in.Spec.Validate()
 }

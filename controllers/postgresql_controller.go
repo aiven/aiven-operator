@@ -74,7 +74,7 @@ func (a *postgreSQLAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *postgreSQLAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
+func (a *postgreSQLAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
 		prefix + "HOST":         s.ServiceUriParams["host"],
@@ -106,12 +106,12 @@ func (a *postgreSQLAdapter) getDiskSpace() string {
 }
 
 func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
-	var currentVersion string = old.UserConfig["pg_version"].(string)
+	currentVersion := old.UserConfig["pg_version"].(string)
 	targetUserConfig := a.getUserConfig().(*pguserconfig.PgUserConfig)
 	if targetUserConfig == nil || targetUserConfig.PgVersion == nil {
 		return nil
 	}
-	var targetVersion string = *targetUserConfig.PgVersion
+	targetVersion := *targetUserConfig.PgVersion
 
 	// No need to upgrade if pg_version hasn't changed
 	if targetVersion == currentVersion {
@@ -123,13 +123,13 @@ func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn 
 		TaskType:      service.TaskTypeUpgradeCheck,
 	})
 	if err != nil {
-		return fmt.Errorf("cannot create PG upgrade check task: %q", err)
+		return fmt.Errorf("cannot create PG upgrade check task: %w", err)
 	}
 
 	finalTaskResult, err := waitForTaskToComplete(ctx, func() (bool, *service.ServiceTaskGetOut, error) {
 		t, getErr := avn.ServiceTaskGet(ctx, a.getServiceCommonSpec().Project, a.getObjectMeta().Name, task.TaskId)
 		if getErr != nil {
-			return true, nil, fmt.Errorf("error fetching service task %s: %q", t.TaskId, getErr)
+			return true, nil, fmt.Errorf("error fetching service task %s: %w", t.TaskId, getErr)
 		}
 
 		if !t.Success {
@@ -151,7 +151,7 @@ func waitForTaskToComplete[T any](ctx context.Context, f func() (bool, *T, error
 	for {
 		select {
 		case <-ctx.Done():
-			return nil, fmt.Errorf("context timeout while retrying operation, error=%q", err)
+			return nil, fmt.Errorf("context timeout while retrying operation, error=%w", err)
 		case <-time.After(waitForTaskToCompleteInterval):
 			finished, val, err := f()
 			if finished {
@@ -161,6 +161,6 @@ func waitForTaskToComplete[T any](ctx context.Context, f func() (bool, *T, error
 	}
 }
 
-func (a *postgreSQLAdapter) createOrUpdateServiceSpecific(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *postgreSQLAdapter) createOrUpdateServiceSpecific(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
 }

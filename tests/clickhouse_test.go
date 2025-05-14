@@ -148,7 +148,7 @@ func TestClickhouse(t *testing.T) {
 	assert.Equal(t, dbAvn2.Name, db2.ObjectMeta.Name)
 
 	// Calls reconciler delete
-	assert.NoError(t, s.Delete(db2, func() error {
+	require.NoError(t, s.Delete(db2, func() error {
 		_, err = avnClient.ClickhouseDatabase.Get(ctx, cfg.Project, chName, dbName2)
 		return err
 	}))
@@ -178,10 +178,10 @@ func TestClickhouse(t *testing.T) {
 
 	// Role 1 exists, role 2 is removed
 	err = controllers.ClickhouseRoleExists(ctx, avnClient, role1)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	err = controllers.ClickhouseRoleExists(ctx, avnClient, role2)
-	assert.ErrorContains(t, err, fmt.Sprintf("ClickhouseRole %q not found", roleName2))
+	require.ErrorContains(t, err, fmt.Sprintf("ClickhouseRole %q not found", roleName2))
 
 	// GIVEN
 	// New manifest with 'databaseName' field set

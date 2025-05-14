@@ -87,7 +87,7 @@ func updateWebhooks(operatorPath, operatorCharts string) error {
 		}
 	}
 
-	return nil
+	return nil //nolint:nilerr
 }
 
 var manifestTemplate = `{{- if .Values.webhooks.enabled }}
