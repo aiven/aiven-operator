@@ -4,6 +4,7 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -64,7 +65,7 @@ func (h ProjectHandler) getLongCardID(ctx context.Context, client *aiven.Client,
 }
 
 // create creates a project on Aiven side
-func (h ProjectHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
+func (h ProjectHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object, _ []client.Object) error {
 	project, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -155,7 +156,7 @@ func (h ProjectHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, a
 	return nil
 }
 
-func (h ProjectHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h ProjectHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	project, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -192,7 +193,7 @@ func (h ProjectHandler) exists(ctx context.Context, avn *aiven.Client, project *
 }
 
 // delete deletes Aiven project
-func (h ProjectHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h ProjectHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
 	project, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -211,7 +212,9 @@ func (h ProjectHandler) delete(ctx context.Context, avn *aiven.Client, avnGen av
 		// to make long acceptance tests pass which generate some balance
 		re := regexp.MustCompile("Project with open balance cannot be deleted")
 		re1 := regexp.MustCompile("Project with unused credits cannot be deleted")
-		if (re.MatchString(err.Error()) || re1.MatchString(err.Error())) && err.(aiven.Error).Status == 403 {
+
+		var aivenErr aiven.Error
+		if (re.MatchString(err.Error()) || re1.MatchString(err.Error())) && errors.As(err, &aivenErr) && aivenErr.Status == 403 {
 			skip = true
 		}
 
@@ -232,6 +235,6 @@ func (h ProjectHandler) convert(i client.Object) (*v1alpha1.Project, error) {
 	return p, nil
 }
 
-func (h ProjectHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h ProjectHandler) checkPreconditions(_ context.Context, _ *aiven.Client, _ avngen.Client, _ client.Object) (bool, error) {
 	return true, nil
 }

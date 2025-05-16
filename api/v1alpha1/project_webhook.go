@@ -43,7 +43,7 @@ func (in *Project) ValidateCreate() error {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *Project) ValidateUpdate(old runtime.Object) error {
+func (in *Project) ValidateUpdate(_ runtime.Object) error {
 	projectlog.Info("validate update", "name", in.Name)
 	return nil
 }

@@ -124,8 +124,8 @@ func TestServiceUserKafka(t *testing.T) {
 	assert.NotEqual(t, kafkaAvn.ServiceUriParams["port"], strPort)
 
 	intPort, err := strconv.ParseInt(strPort, 10, 32)
-	assert.NoError(t, err)
-	assert.True(t, intPort > 0)
+	require.NoError(t, err)
+	assert.Positive(t, intPort)
 
 	// We need to validate deletion,
 	// because we can get false positive here:

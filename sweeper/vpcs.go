@@ -36,7 +36,7 @@ func (sweeper *vpcsSweeper) Sweep(ctx context.Context, projectName string) error
 		err := waitForTaskToComplete(ctx, func() (bool, error) {
 			if _, vpcDeleteErr := sweeper.client.VpcDelete(ctx, projectName, v.ProjectVpcId); vpcDeleteErr != nil {
 				if isCriticalVpcDeleteError(vpcDeleteErr) {
-					return false, fmt.Errorf("error fetching VPC %s: %q", v.ProjectVpcId, vpcDeleteErr)
+					return false, fmt.Errorf("error fetching VPC %s: %w", v.ProjectVpcId, vpcDeleteErr)
 				}
 				log.Printf("VPC in cloud %q (ID: %s) is not ready for deletion yet", v.CloudName, v.ProjectVpcId)
 				return true, nil

@@ -130,7 +130,7 @@ func TestConnectionPool(t *testing.T) {
 
 	// Test connection to PostgreSQL through connection pool
 	require.Eventually(t, func() bool {
-		return testConnectionToDatabase(t, ctx, string(secret.Data["CONNECTIONPOOL_DATABASE_URI"]), string(secret.Data["CONNECTIONPOOL_USER"]))
+		return testConnectionToDatabase(ctx, t, string(secret.Data["CONNECTIONPOOL_DATABASE_URI"]), string(secret.Data["CONNECTIONPOOL_USER"]))
 	}, 3*time.Minute, 10*time.Second, "should be able to connect to PostgreSQL through connection pool")
 
 	// We need to validate deletion,
@@ -160,7 +160,7 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 
 		s = NewSession(ctx, k8sClient, cfg.Project)
 
-		findPoolFunc = func(projectName, serviceName, poolName string) *service.ConnectionPoolOut {
+		findPoolFunc = func(poolName string) *service.ConnectionPoolOut {
 			var avnPool *service.ConnectionPoolOut
 			services, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
 			if errors.IsNotFound(err) {
@@ -297,7 +297,7 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 	require.NoError(t, s.GetRunning(poolObj, poolName))
 	require.NoError(t, s.GetRunning(userObj, userName))
 
-	avnPool := findPoolFunc(cfg.Project, pgName, poolName)
+	avnPool := findPoolFunc(poolName)
 	require.NotNil(t, avnPool, "connection pool should be created in Aiven")
 
 	assert.Equal(t, pgName, poolObj.Spec.ServiceName)
@@ -330,7 +330,7 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 
 	// Test connection to PostgreSQL through connection pool using the service user
 	require.Eventually(t, func() bool {
-		return testConnectionToDatabase(t, ctx, customURI, userName)
+		return testConnectionToDatabase(ctx, t, customURI, userName)
 	}, 3*time.Minute, 10*time.Second, "should be able to connect to PostgreSQL through connection pool as inbound user")
 
 	// Update the connection pool
@@ -355,7 +355,7 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 
 	// Verify that updating the connection pool works on Aiven
 	require.Eventually(t, func() bool {
-		updatedAvnPool := findPoolFunc(cfg.Project, pgName, poolName)
+		updatedAvnPool := findPoolFunc(poolName)
 		if updatedAvnPool == nil {
 			return false
 		}
@@ -382,12 +382,12 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 			string(updatedSecret.Data["CONNECTIONPOOL_NAME"]),
 		)
 
-		return testConnectionToDatabase(t, ctx, updatedCustomURI, userName)
+		return testConnectionToDatabase(ctx, t, updatedCustomURI, userName)
 	}, 2*time.Minute, 10*time.Second, "should be able to connect to PostgreSQL after connection pool update")
 
 	// Delete the connection pool
 	assert.NoError(t, s.Delete(poolObj, func() error {
-		p := findPoolFunc(cfg.Project, pgName, poolName)
+		p := findPoolFunc(poolName)
 		if p != nil {
 			return nil
 		}
@@ -414,7 +414,7 @@ func validateConnectionPoolSecret(t *testing.T, secret *corev1.Secret, poolName 
 }
 
 // TestConnectionToDatabase provides a simple test to verify database connection and user identity
-func testConnectionToDatabase(t *testing.T, ctx context.Context, connectionURI string, expectedUser string) bool {
+func testConnectionToDatabase(ctx context.Context, t *testing.T, connectionURI string, expectedUser string) bool {
 	// Try to connect to the database
 	db, err := sql.Open("postgres", connectionURI)
 	if err != nil {

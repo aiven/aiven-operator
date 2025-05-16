@@ -40,7 +40,7 @@ func (in *Flink) ValidateCreate() error {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *Flink) ValidateUpdate(old runtime.Object) error {
+func (in *Flink) ValidateUpdate(_ runtime.Object) error {
 	flinklog.Info("validate update", "name", in.Name)
 	return in.Spec.Validate()
 }

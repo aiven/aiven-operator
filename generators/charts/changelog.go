@@ -423,7 +423,7 @@ func cmpList[T any](was, have []T) string {
 
 	for _, v := range have {
 		k := fmt.Sprintf("`%v`", v)
-		seen[k] = seen[k] | add
+		seen[k] |= add
 	}
 
 	var added, removed []string

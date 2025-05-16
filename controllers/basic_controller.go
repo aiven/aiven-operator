@@ -314,7 +314,7 @@ func (i *instanceReconcilerHelper) checkPreconditions(ctx context.Context, o cli
 	// Checks references
 	if len(refs) > 0 {
 		for _, r := range refs {
-			if !(isAlreadyProcessed(r) && IsAlreadyRunning(r)) {
+			if !isAlreadyProcessed(r) || !IsAlreadyRunning(r) {
 				i.log.Info("references are in progress")
 				return true, nil
 			}
@@ -410,17 +410,18 @@ func (i *instanceReconcilerHelper) finalize(ctx context.Context, o v1alpha1.Aive
 	// Unless the error is invalid token and resource is not running, in that case we remove the finalizer
 	// and let the instance be deleted.
 	if err != nil {
-		if i.isInvalidTokenError(err) && !IsAlreadyRunning(o) {
+		switch {
+		case i.isInvalidTokenError(err) && !IsAlreadyRunning(o):
 			i.log.Info("invalid token error on deletion, removing finalizer", "apiError", err)
 			finalised = true
-		} else if isNotFound(err) {
+		case isNotFound(err):
 			i.rec.Event(o, corev1.EventTypeWarning, eventUnableToDeleteAtAiven, err.Error())
 			return false, fmt.Errorf("unable to delete instance at aiven: %w", err)
-		} else if isAivenServerError(err) {
+		case isAivenServerError(err):
 			// If failed to delete, retries
 			i.log.Info(fmt.Sprintf("unable to delete instance at aiven: %s", err))
 			err = nil
-		} else {
+		default:
 			i.rec.Event(o, corev1.EventTypeWarning, eventUnableToDelete, err.Error())
 			return false, fmt.Errorf("unable to delete instance: %w", err)
 		}

@@ -72,7 +72,7 @@ func (a *grafanaAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *grafanaAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
+func (a *grafanaAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
 	stringData := map[string]string{
 		"HOST":     s.ServiceUriParams["host"],
 		"PORT":     s.ServiceUriParams["port"],
@@ -93,10 +93,10 @@ func (a *grafanaAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *grafanaAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *grafanaAdapter) performUpgradeTaskIfNeeded(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
 }
 
-func (a *grafanaAdapter) createOrUpdateServiceSpecific(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *grafanaAdapter) createOrUpdateServiceSpecific(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
 }

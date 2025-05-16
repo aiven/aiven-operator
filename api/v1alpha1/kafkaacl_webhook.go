@@ -39,7 +39,7 @@ func (in *KafkaACL) ValidateCreate() error {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaACL) ValidateUpdate(old runtime.Object) error {
+func (in *KafkaACL) ValidateUpdate(_ runtime.Object) error {
 	kafkaacllog.Info("validate update", "name", in.Name)
 
 	// TODO: validate that the spec does not get updated; this will fail on the aiven api

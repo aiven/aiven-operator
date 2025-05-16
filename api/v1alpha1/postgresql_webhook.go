@@ -41,7 +41,7 @@ func (in *PostgreSQL) ValidateCreate() error {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *PostgreSQL) ValidateUpdate(old runtime.Object) error {
+func (in *PostgreSQL) ValidateUpdate(_ runtime.Object) error {
 	pglog.Info("validate update", "name", in.Name)
 	return in.Spec.Validate()
 }

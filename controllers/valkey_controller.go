@@ -73,7 +73,7 @@ func (a *valkeyAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *valkeyAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
+func (a *valkeyAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
 		prefix + "HOST":     s.ServiceUriParams["host"],
@@ -94,10 +94,10 @@ func (a *valkeyAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *valkeyAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *valkeyAdapter) performUpgradeTaskIfNeeded(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
 }
 
-func (a *valkeyAdapter) createOrUpdateServiceSpecific(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *valkeyAdapter) createOrUpdateServiceSpecific(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
 }

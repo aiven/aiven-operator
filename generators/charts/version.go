@@ -12,7 +12,7 @@ import (
 )
 
 type chartYaml struct {
-	ApiVersion  string `yaml:"apiVersion"`
+	APIVersion  string `yaml:"apiVersion"`
 	Name        string `yaml:"name"`
 	Description string `yaml:"description"`
 	Type        string `yaml:"type"`

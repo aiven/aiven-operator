@@ -51,7 +51,7 @@ func (r *ProjectVPCReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h *ProjectVPCHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
+func (h *ProjectVPCHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object, _ []client.Object) error {
 	projectVPC, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -81,7 +81,7 @@ func (h *ProjectVPCHandler) createOrUpdate(ctx context.Context, avn *aiven.Clien
 	return nil
 }
 
-func (h *ProjectVPCHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *ProjectVPCHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
 	projectVPC, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -115,13 +115,13 @@ func (h *ProjectVPCHandler) delete(ctx context.Context, avn *aiven.Client, avnGe
 
 	err = avn.VPCs.Delete(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
 	if isDependencyError(err) {
-		return false, fmt.Errorf("%w: %s", v1alpha1.ErrDeleteDependencies, err)
+		return false, fmt.Errorf("%w: %w", v1alpha1.ErrDeleteDependencies, err)
 	}
 
 	return false, nil
 }
 
-func (h *ProjectVPCHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *ProjectVPCHandler) get(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	projectVPC, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -144,7 +144,7 @@ func (h *ProjectVPCHandler) get(ctx context.Context, avn *aiven.Client, avnGen a
 	return nil, nil
 }
 
-func (h *ProjectVPCHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *ProjectVPCHandler) checkPreconditions(_ context.Context, _ *aiven.Client, _ avngen.Client, _ client.Object) (bool, error) {
 	return true, nil
 }
 

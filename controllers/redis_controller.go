@@ -73,7 +73,7 @@ func (a *redisAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *redisAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
+func (a *redisAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
 		prefix + "HOST":     s.ServiceUriParams["host"],
@@ -100,10 +100,10 @@ func (a *redisAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *redisAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *redisAdapter) performUpgradeTaskIfNeeded(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
 }
 
-func (a *redisAdapter) createOrUpdateServiceSpecific(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *redisAdapter) createOrUpdateServiceSpecific(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
 }

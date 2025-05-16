@@ -71,7 +71,7 @@ func (a *mySQLAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *mySQLAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
+func (a *mySQLAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
 	stringData := map[string]string{
 		"HOST":        s.ServiceUriParams["host"],
 		"PORT":        s.ServiceUriParams["port"],
@@ -94,10 +94,10 @@ func (a *mySQLAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *mySQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *mySQLAdapter) performUpgradeTaskIfNeeded(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
 }
 
-func (a *mySQLAdapter) createOrUpdateServiceSpecific(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *mySQLAdapter) createOrUpdateServiceSpecific(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
 }

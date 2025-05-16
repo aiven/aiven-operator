@@ -64,8 +64,13 @@ func TestMain(m *testing.M) {
 		log.Fatal(err)
 	}
 
-	defer teardownSuite(env)
-	os.Exit(m.Run())
+	exitCode := 0
+	defer func() {
+		teardownSuite(env)
+		os.Exit(exitCode)
+	}()
+
+	exitCode = m.Run()
 }
 
 func teardownSuite(env *envtest.Environment) {

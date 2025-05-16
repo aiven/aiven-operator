@@ -45,10 +45,10 @@ func (c *SecretFinalizerGCController) SetupWithManager(mgr ctrl.Manager, hasDefa
 
 	// only watch for delete events
 	builder.WithEventFilter(predicate.Funcs{
-		CreateFunc:  func(e event.CreateEvent) bool { return false },
-		UpdateFunc:  func(e event.UpdateEvent) bool { return false },
-		DeleteFunc:  func(e event.DeleteEvent) bool { return true },
-		GenericFunc: func(e event.GenericEvent) bool { return false },
+		CreateFunc:  func(_ event.CreateEvent) bool { return false },
+		UpdateFunc:  func(_ event.UpdateEvent) bool { return false },
+		DeleteFunc:  func(_ event.DeleteEvent) bool { return true },
+		GenericFunc: func(_ event.GenericEvent) bool { return false },
 	})
 
 	// watch aiven CRDs to queue secret reconciliations

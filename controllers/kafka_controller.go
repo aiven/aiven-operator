@@ -72,7 +72,7 @@ func (a *kafkaAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *kafkaAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
+func (a *kafkaAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
 	var userName, password string
 	if len(s.Users) > 0 {
 		userName = s.Users[0].Username
@@ -128,10 +128,10 @@ func (a *kafkaAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *kafkaAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *kafkaAdapter) performUpgradeTaskIfNeeded(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
 }
 
-func (a *kafkaAdapter) createOrUpdateServiceSpecific(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *kafkaAdapter) createOrUpdateServiceSpecific(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
 }

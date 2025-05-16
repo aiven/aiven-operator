@@ -49,7 +49,7 @@ func (r *KafkaConnectorReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
+func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object, _ []client.Object) error {
 	conn, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -139,7 +139,7 @@ func (h KafkaConnectorHandler) buildConnectorConfig(conn *v1alpha1.KafkaConnecto
 	return m, nil
 }
 
-func (h KafkaConnectorHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaConnectorHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
 	conn, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -159,7 +159,7 @@ func (h KafkaConnectorHandler) exists(ctx context.Context, avn *aiven.Client, co
 	return connector != nil, nil
 }
 
-func (h KafkaConnectorHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h KafkaConnectorHandler) get(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	conn, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -211,7 +211,7 @@ func (h KafkaConnectorHandler) get(ctx context.Context, avn *aiven.Client, avnGe
 	return nil, nil
 }
 
-func (h KafkaConnectorHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaConnectorHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	conn, err := h.convert(obj)
 	if err != nil {
 		return false, err

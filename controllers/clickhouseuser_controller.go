@@ -46,7 +46,7 @@ func (r *ClickhouseUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 type clickhouseUserHandler struct{}
 
-func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
+func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object, _ []client.Object) error {
 	user, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -86,7 +86,7 @@ func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 	return nil
 }
 
-func (h *clickhouseUserHandler) delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *clickhouseUserHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -148,7 +148,7 @@ func (h *clickhouseUserHandler) get(ctx context.Context, avn *aiven.Client, avnG
 	return secret, nil
 }
 
-func (h *clickhouseUserHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *clickhouseUserHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return false, err

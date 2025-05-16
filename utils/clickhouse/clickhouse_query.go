@@ -1,4 +1,4 @@
-package chUtils
+package chutils
 
 import (
 	"context"

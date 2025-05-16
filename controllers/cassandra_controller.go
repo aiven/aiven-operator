@@ -72,7 +72,7 @@ func (a *cassandraAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *cassandraAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
+func (a *cassandraAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
 	stringData := map[string]string{
 		"HOST":     s.ServiceUriParams["host"],
 		"PORT":     s.ServiceUriParams["port"],
@@ -93,10 +93,10 @@ func (a *cassandraAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *cassandraAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *cassandraAdapter) performUpgradeTaskIfNeeded(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
 }
 
-func (a *cassandraAdapter) createOrUpdateServiceSpecific(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *cassandraAdapter) createOrUpdateServiceSpecific(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
 }

@@ -87,8 +87,8 @@ func TestServiceIntegrationEndpoint(t *testing.T) {
 	assert.Equal(t, "external_schema_registry", string(endpointRegistryAvn.EndpointType))
 	assert.Equal(t, "https://schema-registry.example.com:8081", endpointRegistry.Spec.ExternalSchemaRegistry.Url)
 	assert.Equal(t, "basic", endpointRegistry.Spec.ExternalSchemaRegistry.Authentication)
-	assert.EqualValues(t, "username", *endpointRegistry.Spec.ExternalSchemaRegistry.BasicAuthUsername)
-	assert.EqualValues(t, "password", *endpointRegistry.Spec.ExternalSchemaRegistry.BasicAuthPassword)
+	assert.Equal(t, "username", *endpointRegistry.Spec.ExternalSchemaRegistry.BasicAuthUsername)
+	assert.Equal(t, "password", *endpointRegistry.Spec.ExternalSchemaRegistry.BasicAuthPassword)
 	assert.EqualValues(t, endpointRegistryAvn.EndpointType, endpointRegistry.Spec.EndpointType)
 	assert.EqualValues(t, endpointRegistryAvn.UserConfig["url"], endpointRegistry.Spec.ExternalSchemaRegistry.Url)
 	assert.EqualValues(t, endpointRegistryAvn.UserConfig["authentication"], endpointRegistry.Spec.ExternalSchemaRegistry.Authentication)
@@ -132,8 +132,8 @@ func TestServiceIntegrationEndpointAutoscaler(t *testing.T) {
 	assert.EqualValues(t, "autoscaler", endpointAvn.EndpointType)
 	assert.EqualValues(t, endpointAvn.EndpointType, endpointAutoscaler.Spec.EndpointType)
 	// TODO: remove type assertions once generated client has full user config typing
-	assert.EqualValues(t, "autoscale_disk", endpointAutoscaler.Spec.Autoscaler.Autoscaling[0].Type)
+	assert.Equal(t, "autoscale_disk", endpointAutoscaler.Spec.Autoscaler.Autoscaling[0].Type)
 	assert.EqualValues(t, "autoscale_disk", endpointAvn.UserConfig["autoscaling"].([]interface{})[0].(map[string]interface{})["type"])
-	assert.EqualValues(t, 100, endpointAutoscaler.Spec.Autoscaler.Autoscaling[0].CapGb)
+	assert.Equal(t, 100, endpointAutoscaler.Spec.Autoscaler.Autoscaling[0].CapGb)
 	assert.EqualValues(t, 100, endpointAvn.UserConfig["autoscaling"].([]interface{})[0].(map[string]interface{})["cap_gb"])
 }

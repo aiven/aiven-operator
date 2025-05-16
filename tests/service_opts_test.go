@@ -188,7 +188,6 @@ func TestServiceConnInfoSecretTargetDisabled(t *testing.T) {
 	}
 
 	for _, opt := range cases {
-		opt := opt
 		t.Run(opt.testName, func(t *testing.T) {
 			t.Parallel()
 			runTest(t, opt)

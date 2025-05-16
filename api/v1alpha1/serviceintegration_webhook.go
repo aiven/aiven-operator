@@ -41,7 +41,7 @@ func (in *ServiceIntegration) ValidateCreate() error {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *ServiceIntegration) ValidateUpdate(old runtime.Object) error {
+func (in *ServiceIntegration) ValidateUpdate(_ runtime.Object) error {
 	serviceintegrationlog.Info("validate update", "name", in.Name)
 
 	// We need the validation here only
