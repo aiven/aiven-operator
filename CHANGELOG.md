@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Change `PostgreSQL` field `userConfig.pg_version`: enum remove `12`
+
 ## v0.29.0 - 2025-04-29
 
 - Added retry logic to the `ServiceIntegration` controller

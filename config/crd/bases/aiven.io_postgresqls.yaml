@@ -781,9 +781,8 @@ spec:
                         are unreliable
                       type: boolean
                     pg_version:
-                      description: "PostgreSQL major version. Deprecated values: `12`"
+                      description: "PostgreSQL major version. Deprecated values: `13`"
                       enum:
-                        - "12"
                         - "13"
                         - "14"
                         - "15"
