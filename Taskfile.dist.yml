@@ -1,0 +1,284 @@
+version: "3"
+
+includes:
+  internal:
+    taskfile: ./Taskfile.internal.yml
+    internal: true
+
+tasks:
+  default:
+    desc: Lists available tasks defined in this file.
+    silent: true
+    cmds:
+      - task: help
+
+  help:
+    desc: Lists available tasks defined in this file.
+    silent: true
+    cmds:
+      - |
+        echo "Quick Start:"
+        echo "  task doctor          # Check prerequisites"
+        echo "  task init            # Initialize development environment"
+        echo "  task build           # Build the operator"
+        echo "  task test            # Run unit tests"
+        echo ""
+        echo "All available tasks:"
+        task --list
+
+  doctor:
+    desc: 🔍 Check if all required development tools and dependencies are installed
+    silent: true
+    preconditions:
+      - sh: command -v docker || command -v podman
+        msg: |
+          🚨 Container runtime not found
+          Please install Docker or Podman:
+          - Docker: https://docs.docker.com/get-docker/
+          - Podman: https://podman.io/getting-started/installation
+      - sh: command -v helm
+        msg: |
+          🚨 Helm is not installed
+          Please visit: https://helm.sh/docs/intro/install/
+      - sh: "command -v {{.KUBECTL_BIN}}"
+        msg: |
+          🚨 kubectl is not installed
+          Please visit: https://kubernetes.io/docs/tasks/tools/install-kubectl/
+      - sh: command -v kind
+        msg: |
+          🚨 Kind is not installed
+          Please visit: https://kind.sigs.k8s.io/docs/user/quick-start/#installation
+      - sh: command -v go
+        msg: |
+          🚨 Go is not installed
+          Please visit: https://golang.org/doc/install
+      - sh: command -v git
+        msg: |
+          🚨 Git is not installed
+          Please install Git for your platform
+      - sh: command -v avn
+        msg: |
+          🚨 Aiven CLI (avn) is not installed
+          Required for E2E tests. Install: https://github.com/aiven/aiven-client#installation
+      - sh: command -v jq
+        msg: |
+          🚨 jq is not installed
+          Please visit: https://stedolan.github.io/jq/download/
+      - sh: command -v kcat
+        msg: |
+          🚨 kcat (formerly kafkacat) is not installed
+          Required for E2E tests. Visit: https://github.com/edenhill/kcat#install
+      - sh: command -v base64
+        msg: |
+          🚨 base64 command is not installed
+          This should be available on most systems
+      - sh: command -v trunk
+        msg: |
+          🚨 Trunk.io CLI is not installed
+          Optional but recommended. Visit: https://docs.trunk.io/check/cli#install
+      - sh: kubectl kuttl version > /dev/null 2>&1 || kubectl kuttl --help > /dev/null 2>&1
+        msg: |
+          🚨 KUTTL (kubectl kuttl plugin) is not installed
+          Required for E2E tests. Visit: https://kuttl.dev/docs/installation
+    cmds:
+      - cmd: echo '👍 All global prerequisites are met.'
+      - cmd: |
+          echo "⚠️  Note for macOS users: The system 'base64' does not support the '-w0' flag. 
+          If tests fail due to this, consider installing 'coreutils' (brew install coreutils) and using 'gbase64 -w0'."
+        platforms: [darwin]
+
+  init:
+    desc: Initialize the development environment (one-time setup)
+    deps: [doctor]
+    cmds:
+      - task: tools:setup
+      - task: kind:setup
+      - |
+        echo ""
+        echo "🎉 Development environment initialized successfully!"
+
+  #-------------------------------------
+  # Development
+  #-------------------------------------
+
+  build:
+    desc: Build the operator manager binary
+    deps: [generate]
+    sources:
+      - "**/*.go"
+      - go.mod
+      - go.sum
+    generates: [bin/manager]
+    cmds:
+      - "{{.GO_CMD}} build -o bin/manager ./main.go"
+
+  generate:
+    desc: 🔧 Run all code generation
+    cmds:
+      - defer: { task: fmt }
+      - task: internal:generate:userconfigs
+      - task: internal:generate:boilerplate
+      - task: internal:generate:manifests
+      - task: internal:generate:docs
+      - task: internal:generate:charts
+
+  fmt:
+    desc: Format code.
+    cmds:
+      - task: internal:fmt:fumpt
+      - task: internal:fmt:go
+      - task: internal:fmt:trunk
+      - task: internal:fmt:imports
+
+  lint:
+    desc: Run all linters.
+    cmds:
+      - task: internal:lint:vet
+      - task: internal:lint:go
+      - task: internal:lint:trunk
+
+  tools:setup:
+    desc: Setup all development tools (clean install)
+    silent: true
+    cmds:
+      - task: internal:tools:clean
+      - |
+        echo "🔧 Installing all development tools..."
+      - defer: { task: internal:tools:verify }
+      - task: internal:tools:install:all
+      - |
+        echo ""
+        echo "✅ All development tools installed successfully!"
+
+  kind:setup:
+    desc: Complete Kind cluster setup with operator installation and image building
+    deps: [internal:kind:create]
+    cmds:
+      - task: k8s:cleanup
+      - task: internal:kind:setup-certmanager
+      - task: internal:kind:build-image
+      - task: internal:kind:load-image
+      - task: internal:kind:install-operator
+      - task: internal:kind:verify
+
+  kind:delete:
+    desc: 🗑️ Delete local Kind cluster
+    cmds:
+      - |
+        if kubectl cluster-info --context {{.KIND_KUBECTL_CONTEXT}} >/dev/null 2>&1; then
+          echo "🗑️ Deleting Kind cluster '{{.KIND_CLUSTER_NAME}}'..."
+          kind delete cluster --name {{.KIND_CLUSTER_NAME}}
+          echo "✅ Kind cluster deleted"
+        else
+          echo "ℹ️ Kind cluster '{{.KIND_CLUSTER_NAME}}' doesn't exist"
+        fi
+
+  #-------------------------------------
+  # Tests
+  #-------------------------------------
+
+  test:
+    desc: Run tests. To target a specific test, use 'task test -- --run=TestName -otherflags'.
+    deps: [internal:tools:install:envtest]
+    vars:
+      K8S_ASSETS_PATH:
+        sh: '{{.ENVTEST}} use "{{.ENVTEST_K8S_VERSION}}" --bin-dir {{.LOCALBIN}} -p path'
+      TEST_TIMEOUT: '{{if ne .CLI_ARGS ""}}30m{{else}}60m{{end}}'
+    cmds:
+      - |
+        export KUBEBUILDER_ASSETS={{.K8S_ASSETS_PATH}}
+        echo "Using KUBEBUILDER_ASSETS: $KUBEBUILDER_ASSETS"
+        {{.GO_CMD}} test ./tests/... -race {{.CLI_ARGS}} -v -timeout={{.TEST_TIMEOUT}} -parallel 10 -cover -coverpkg=./controllers -covermode=atomic -coverprofile=coverage.out
+
+  test:kuttl:
+    desc: Run end-to-end tests using kuttl.
+    #    deps: [check-env-vars, build]
+    cmds:
+      - kubectl kuttl test --config test/e2e/kuttl-test.yaml
+
+  test:e2e:
+    desc: Run end-to-end tests using kuttl with preinstalled operator.
+    preconditions:
+      - sh: kubectl cluster-info --context {{.KIND_KUBECTL_CONTEXT}} >/dev/null 2>&1
+        msg: Kind cluster not running. Run 'task kind:setup' first
+      - sh: '[ -n "${AIVEN_TOKEN}" ]'
+        msg: AIVEN_TOKEN environment variable must be set
+      - sh: '[ -n "${AIVEN_PROJECT_NAME}" ]'
+        msg: AIVEN_PROJECT_NAME environment variable must be set
+    cmds:
+      - kubectl kuttl test --config test/e2e/kuttl-test.preinstalled.yaml
+
+  # ==============================================
+  # ☸️ Kubernetes Operations
+  # ==============================================
+
+  k8s:install:
+    desc: ☸️ Install CRDs to cluster
+    #    deps: [generate:manifests, tools:kustomize]
+    cmds:
+      - "{{.KUSTOMIZE}} build config/crd | kubectl apply -f -"
+
+  k8s:uninstall:
+    desc: 🗑️ Uninstall CRDs from cluster
+    #    deps: [tools:kustomize]
+    cmds:
+      - "{{.KUSTOMIZE}} build config/crd | kubectl delete --ignore-not-found=true -f -"
+
+  k8s:deploy:
+    desc: Deploy operator to cluster
+    #    deps: [generate:manifests, tools:kustomize]
+    cmds:
+      - |
+        cd config/manager && {{.KUSTOMIZE}} edit set image controller={{.IMG}}
+        cd ../..
+        {{.KUSTOMIZE}} build config/default | kubectl apply -f -
+
+  k8s:undeploy:
+    desc: Remove operator from cluster
+    deps: [tools:kustomize]
+    cmds:
+      - "{{.KUSTOMIZE}} build config/default | kubectl delete --ignore-not-found=true -f -"
+
+  k8s:cleanup:
+    desc: Cleanup resources created by e2e-setup-kind.
+    cmds:
+      - |
+        set +e # Ignore errors for cleanup
+        CLEANUP_TARGETS="aiven-operator-crds aiven-operator aiven-token cert-manager"
+        CLEANUP_NAMESPACES="cert-manager"
+        CLEANUP_SECRETS="aiven-token" # Assuming default namespace for this secret
+        for target in $CLEANUP_TARGETS; do
+          helm uninstall $target || true
+        done
+        for namespace in $CLEANUP_NAMESPACES; do
+          kubectl delete namespace $namespace --ignore-not-found=true || true
+        done
+        for secret in $CLEANUP_SECRETS; do
+          kubectl delete secret $secret --ignore-not-found=true || true
+        done
+        set -e
+
+  #-------------------------------------
+  # Docs
+  #-------------------------------------
+
+  docs:serve:
+    desc: Run live preview of docs.
+    cmds:
+      - "{{.CONTAINER_TOOL}} run --rm -it -p 8000:8000 -v $(pwd)/docs:/docs squidfunk/mkdocs-material"
+
+  docs:build:
+    desc: Builds docs website.
+    deps: [docs]
+    cmds:
+      - "{{.CONTAINER_TOOL}} run --rm -it -v $(pwd)/docs:/docs squidfunk/mkdocs-material build"
+
+  #-------------------------------------
+  # Test setup and cleanup
+  #-------------------------------------
+
+  sweep:
+    desc: "Run resource sweepers to remove all resources created by e2e tests (WARNING: Destroys infrastructure!)."
+    prompt: This will destroy infrastructure. Use only in development accounts. Do you want to continue?
+    cmds:
+      - "{{.GO_CMD}} run ./sweeper/..."

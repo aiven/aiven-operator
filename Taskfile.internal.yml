@@ -1,0 +1,448 @@
+version: "3"
+
+vars:
+  IMG_TAG:
+    sh: git rev-parse HEAD
+  IMG: "aivenoy/aiven-operator:{{.IMG_TAG}}"
+
+  CONTAINER_TOOL:
+    sh: command -v podman >/dev/null 2>&1 && echo podman || echo docker
+
+  # Go configuration
+  GO_CMD: go
+  GOBIN:
+    sh: go env GOBIN || echo "$(go env GOPATH)/bin"
+
+  # Project paths
+  LOCALBIN: "{{.ROOT_DIR}}/bin"
+  PWD: "{{.ROOT_DIR}}"
+
+  # Kubernetes & Kind configuration
+  KUBECTL_BIN: kubectl
+  KIND_CLUSTER_NAME: kind
+  KIND_NODE_IMAGE: kindest/node:v1.26.6
+  KIND_WAIT_DURATION: 5m
+  KUBECTL_CONTEXT: kind-{{.KIND_CLUSTER_NAME}}
+  ENVTEST_K8S_VERSION: 1.26.*
+
+  # Tool versions
+  KUSTOMIZE_VERSION: v4.5.7
+  CONTROLLER_TOOLS_VERSION: v0.15.0
+  OPERATOR_SDK_VERSION: v1.36.0
+  ENVTEST_VERSION: release-0.16
+  GOLANGCILINT_VERSION: v2.1.6
+  SELPROJ_VERSION: v0.1.0
+  CERT_MANAGER_TAG: v1.13.0
+  KIND_KUBECTL_CONTEXT: kind-{{.KIND_CLUSTER_NAME}}
+
+  # Tool binaries
+  KUSTOMIZE: "{{.LOCALBIN}}/kustomize-{{.KUSTOMIZE_VERSION}}"
+  CONTROLLER_GEN: "{{.LOCALBIN}}/controller-gen-{{.CONTROLLER_TOOLS_VERSION}}"
+  OPERATOR_SDK: "{{.LOCALBIN}}/operator-sdk-{{.OPERATOR_SDK_VERSION}}"
+  ENVTEST: "{{.LOCALBIN}}/setup-envtest-{{.ENVTEST_VERSION}}"
+  GOLANGCILINT: "{{.LOCALBIN}}/golangci-lint-{{.GOLANGCILINT_VERSION}}"
+  SELPROJ: "{{.LOCALBIN}}/selproj-{{.SELPROJ_VERSION}}"
+
+  # E2E configuration
+  ENABLE_WEBHOOKS: '{{.ENABLE_WEBHOOKS | default "true"}}'
+  OPERATOR_IMAGE_TAG:
+    sh: git rev-parse HEAD
+  OPERATOR_IMAGE_TAG_KIND:
+    sh: git rev-parse HEAD
+  OPERATOR_IMAGE_NAME:
+    sh: |
+      if [ "{{.CONTAINER_TOOL}}" = "podman" ]; then
+        echo "localhost/operator"
+      else
+        echo "operator"  
+      fi
+
+tasks:
+  # ==============================================
+  # 🔧 Tool Management
+  # ==============================================
+
+  tools:install:kustomize:
+    desc: Install kustomize for Kubernetes YAML manipulation
+    silent: true
+    status:
+      - test -f {{.KUSTOMIZE}}
+    cmds:
+      - mkdir -p {{.LOCALBIN}}
+      - |
+        echo "📦 Installing kustomize {{.KUSTOMIZE_VERSION}}..."
+        GOBIN={{.LOCALBIN}} go install sigs.k8s.io/kustomize/kustomize/v4@{{.KUSTOMIZE_VERSION}}
+        mv {{.LOCALBIN}}/kustomize {{.KUSTOMIZE}}
+        echo "✅ kustomize installed: {{.KUSTOMIZE}}"
+
+  tools:install:controller-gen:
+    desc: Install controller-gen for generating Kubernetes manifests
+    silent: true
+    status:
+      - test -f {{.CONTROLLER_GEN}}
+    cmds:
+      - mkdir -p {{.LOCALBIN}}
+      - |
+        echo "📦 Installing controller-gen {{.CONTROLLER_TOOLS_VERSION}}..."
+        GOBIN={{.LOCALBIN}} go install sigs.k8s.io/controller-tools/cmd/controller-gen@{{.CONTROLLER_TOOLS_VERSION}}
+        mv {{.LOCALBIN}}/controller-gen {{.CONTROLLER_GEN}}
+        echo "✅ controller-gen installed: {{.CONTROLLER_GEN}}"
+
+  tools:install:operator-sdk:
+    desc: Install operator-sdk for Kubernetes operator development
+    silent: true
+    status:
+      - test -f {{.OPERATOR_SDK}}
+    cmds:
+      - mkdir -p {{.LOCALBIN}}
+      - |
+        echo "📦 Installing operator-sdk {{.OPERATOR_SDK_VERSION}}..."
+        GOBIN={{.LOCALBIN}} go install github.com/operator-framework/operator-sdk/cmd/operator-sdk@{{.OPERATOR_SDK_VERSION}}
+        mv {{.LOCALBIN}}/operator-sdk {{.OPERATOR_SDK}}
+        echo "✅ operator-sdk installed: {{.OPERATOR_SDK}}"
+
+  tools:install:envtest:
+    desc: Install setup-envtest and download Kubebuilder test assets
+    silent: true
+    status:
+      - test -f {{.ENVTEST}}
+    cmds:
+      - mkdir -p {{.LOCALBIN}}
+      - |
+        echo "📦 Installing setup-envtest {{.ENVTEST_VERSION}}..."
+        GOBIN={{.LOCALBIN}} go install sigs.k8s.io/controller-runtime/tools/setup-envtest@{{.ENVTEST_VERSION}}
+        mv {{.LOCALBIN}}/setup-envtest {{.ENVTEST}}
+
+        echo "📦 Installing Kubebuilder assets..."
+        {{.ENVTEST}} use "{{.ENVTEST_K8S_VERSION | default "1.26.*"}}" --bin-dir {{.LOCALBIN}} -p path
+        echo "✅ setup-envtest and assets installed"
+
+  tools:install:golangci-lint:
+    desc: Install golangci-lint for Go linting
+    silent: true
+    status:
+      - test -f {{.GOLANGCILINT}}
+    cmds:
+      - mkdir -p {{.LOCALBIN}}
+      - |
+        echo "📦 Installing golangci-lint {{.GOLANGCILINT_VERSION}}..."
+        GOBIN={{.LOCALBIN}} go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{.GOLANGCILINT_VERSION}}
+        mv {{.LOCALBIN}}/golangci-lint {{.GOLANGCILINT}}
+        echo "✅ golangci-lint installed: {{.GOLANGCILINT}}"
+
+  tools:install:selproj:
+    desc: Install selproj for Aiven project selection utilities
+    silent: true
+    status:
+      - test -f {{.SELPROJ}}
+    cmds:
+      - mkdir -p {{.LOCALBIN}}
+      - |
+        echo "📦 Installing selproj {{.SELPROJ_VERSION}}..."
+        GOBIN={{.LOCALBIN}} go install github.com/aiven/go-utils/selproj@{{.SELPROJ_VERSION}}
+        mv {{.LOCALBIN}}/selproj {{.SELPROJ}}
+        echo "✅ selproj installed: {{.SELPROJ}}"
+
+  tools:install:all:
+    desc: Install all development tools
+    cmds:
+      - task: tools:install:kustomize
+      - task: tools:install:controller-gen
+      - task: tools:install:operator-sdk
+      - task: tools:install:envtest
+      - task: tools:install:golangci-lint
+      - task: tools:install:selproj
+
+  tools:clean:
+    desc: 🧹 Remove all installed tools
+    silent: true
+    cmds:
+      - |
+        if [ -d "{{.LOCALBIN}}" ]; then
+          echo "🧹 Removing all tools from {{.LOCALBIN}}..."
+
+          # Handle Kubebuilder assets with restrictive permissions
+          if [ -d "{{.LOCALBIN}}/k8s" ]; then
+            find {{.LOCALBIN}}/k8s -type f -exec chmod +w {} \; 2>/dev/null || true
+            find {{.LOCALBIN}}/k8s -type d -exec chmod +w {} \; 2>/dev/null || true
+          fi
+
+          # Remove everything
+          rm -rf {{.LOCALBIN}}
+          echo "✅ Tools cleaned"
+        fi
+
+  # ==============================================
+  # 🔧 Development Workflow
+  # ==============================================
+
+  generate:userconfigs:
+    desc: Generate user configurations
+    sources: ["**/*.go"]
+    cmds:
+      - "{{.GO_CMD}} generate ./..."
+
+  generate:boilerplate:
+    desc: Generate DeepCopy, DeepCopyInto, and DeepCopyObject method implementations
+    deps: [tools:install:controller-gen]
+    cmds:
+      - '{{.CONTROLLER_GEN}} object:headerFile="hack/boilerplate.go.txt" paths="./..."'
+
+  generate:manifests:
+    desc: Generate Kubernetes manifests
+    deps: [tools:install:controller-gen]
+    cmds:
+      - '{{.CONTROLLER_GEN}} rbac:roleName=manager-role crd:allowDangerousTypes=true webhook paths="./..." output:crd:artifacts:config=config/crd/bases'
+
+  generate:docs:
+    desc: Generate documentation
+    cmds:
+      - "{{.GO_CMD}} run ./generators/docs/..."
+
+  generate:charts:
+    desc: Generate and update Helm charts (use task generate:charts -- --version=x.y.z to set version)
+    silent: true
+    cmds:
+      - |
+        VERSION_ARG=""
+        for arg in {{.CLI_ARGS}}; do
+          if [[ "$arg" == --version=* ]]; then
+            VERSION_ARG="$arg"
+            break
+          fi
+        done
+        {{.GO_CMD}} run ./generators/charts/... $VERSION_ARG --operator-charts ./charts/aiven-operator --crd-charts ./charts/aiven-operator-crds
+        if [[ -n "$VERSION_ARG" ]]; then
+          sed '/## \[/d' ./CHANGELOG.md > docs/docs/changelog.md
+        fi
+
+  fmt:fumpt:
+    desc: Format Go code with gofumpt
+    sources:
+      - "**/*.go"
+    cmds:
+      - "find . -name '*.go' -type f -exec gofumpt -w {} +"
+
+  fmt:imports:
+    desc: Format Go imports
+    sources:
+      - "**/*.go"
+    cmds:
+      - |
+        find . -type f -name '*.go' -exec sed -i '/^import ($$/,/^)/ {/^[[:space:]]*$$/d}' {} +
+        goimports -local "github.com/aiven/aiven-operator" -w .
+
+  fmt:trunk:
+    desc: Format code using Trunk (requires trunk to be installed)
+    preconditions:
+      - sh: command -v trunk
+        msg: |
+          🚨 Trunk is not installed
+          Please install Trunk for enhanced formatting: https://docs.trunk.io/check/cli#install
+    cmds:
+      - trunk fmt
+
+  fmt:go:
+    desc: Format go code using golangci-lint
+    cmds:
+      - "{{.GOLANGCILINT}} fmt"
+
+  lint:go:
+    desc: Run Go linters
+    deps: [tools:install:golangci-lint]
+    cmds:
+      - "{{.GOLANGCILINT}} run --build-tags all --timeout=30m ./..."
+
+  lint:vet:
+    desc: Run Go vet
+    cmds:
+      - "{{.GO_CMD}} vet ./..."
+
+  lint:trunk:
+    desc: Run Trunk linters
+    preconditions:
+      - sh: command -v trunk
+        msg: |
+          🚨 Trunk is not installed
+          Please install Trunk for enhanced formatting: https://docs.trunk.io/check/cli#install
+    cmds:
+      - trunk check
+
+  # ==============================================
+  # Kind Cluster Management
+  # ==============================================
+
+  kind:create:
+    desc: Create local Kind cluster
+    cmds:
+      - |
+        if kubectl cluster-info --context {{.KIND_KUBECTL_CONTEXT}} >/dev/null 2>&1; then
+          echo "✅ Kind cluster '{{.KIND_CLUSTER_NAME}}' already exists"
+        else
+          echo "🚀 Creating Kind cluster '{{.KIND_CLUSTER_NAME}}'..."
+          kind create cluster \
+            --name {{.KIND_CLUSTER_NAME}} \
+            --image {{.KIND_NODE_IMAGE}} \
+            --wait {{.KIND_WAIT_DURATION}}
+          echo "✅ Kind cluster created successfully"
+        fi
+
+  kind:build-image:
+    desc: Build operator image for Kind
+    cmds:
+      - |
+        echo "🏗️ Building operator image..."
+        {{.CONTAINER_TOOL}} build -t {{.OPERATOR_IMAGE_NAME}}:{{.OPERATOR_IMAGE_TAG}} .
+
+        echo "✅ Image built successfully!"
+
+        # Verify image exists
+        echo "🔍 Verifying image..."
+        {{.CONTAINER_TOOL}} images | grep -E "({{.OPERATOR_IMAGE_NAME}}|operator)" || echo "⚠️ Image not found in list"
+
+  kind:load-image:
+    desc: Load operator image into Kind
+    cmds:
+      - |
+        echo "Loading image {{.OPERATOR_IMAGE_NAME}}:{{.OPERATOR_IMAGE_TAG}} into Kind cluster: {{.KIND_CLUSTER_NAME}}..."
+
+        if [ "{{.CONTAINER_TOOL}}" = "podman" ]; then
+          echo "  Using podman image save/load..."
+          {{.CONTAINER_TOOL}} image save --format oci-archive \
+            {{.OPERATOR_IMAGE_NAME}}:{{.OPERATOR_IMAGE_TAG}} -o /tmp/operator-image.tar
+          kind load image-archive /tmp/operator-image.tar --name {{.KIND_CLUSTER_NAME}}
+          rm -f /tmp/operator-image.tar
+        else
+          echo "  Using docker image load..."
+          kind load docker-image {{.OPERATOR_IMAGE_NAME}}:{{.OPERATOR_IMAGE_TAG}} --name {{.KIND_CLUSTER_NAME}}
+        fi
+
+        echo "✅ Image loaded into Kind successfully!"
+
+  kind:install-operator:
+    desc: Install operator in Kind cluster
+    cmds:
+      - |
+        echo "🔐 Creating Aiven token secret..."
+        kubectl create secret generic aiven-token \
+          --from-literal=token=${AIVEN_TOKEN} \
+          --dry-run=client -o yaml | kubectl apply -f -
+
+        echo "Installing operator CRDs..."
+        if [ ! -d "charts/aiven-operator-crds" ]; then
+          echo "❌ CRDs chart not found at charts/aiven-operator-crds"
+          exit 1
+        fi
+        helm upgrade --install aiven-operator-crds charts/aiven-operator-crds \
+          --wait --timeout 3m
+
+        echo "Installing operator with image: {{.OPERATOR_IMAGE_NAME}}:{{.OPERATOR_IMAGE_TAG}}..."
+        if [ ! -d "charts/aiven-operator" ]; then
+          echo "❌ Operator chart not found at charts/aiven-operator"
+          exit 1
+        fi
+        helm upgrade --install aiven-operator charts/aiven-operator \
+          --set defaultTokenSecret.name=aiven-token \
+          --set defaultTokenSecret.key=token \
+          --set leaderElect=true \
+          --set image.repository={{.OPERATOR_IMAGE_NAME}} \
+          --set image.tag={{.OPERATOR_IMAGE_TAG}} \
+          --set image.pullPolicy=Never \
+          --set resources.requests.cpu=50m \
+          --set resources.requests.memory=64Mi \
+          --set webhooks.enabled={{.ENABLE_WEBHOOKS}} \
+          --wait --timeout 5m
+
+        echo "✅ Operator installed successfully!"
+
+  kind:setup-certmanager:
+    desc: Install cert-manager in Kind (if webhooks enabled)
+    cmds:
+      - |
+        if [ "{{.ENABLE_WEBHOOKS}}" = "true" ]; then
+          echo "Installing cert-manager {{.CERT_MANAGER_TAG}}..."
+          helm repo add jetstack https://charts.jetstack.io --force-update >/dev/null
+          helm repo update >/dev/null
+          helm upgrade --install cert-manager jetstack/cert-manager \
+            --namespace cert-manager \
+            --create-namespace \
+            --version {{.CERT_MANAGER_TAG}} \
+            --set installCRDs=true \
+            --wait --timeout 5m
+          echo "✅ Cert-manager installed"
+        else
+          echo "ℹ️ Webhooks disabled, skipping cert-manager"
+        fi
+
+  kind:setup-operator:
+    desc: Build and install operator in Kind
+    cmds:
+      - |
+        echo "Building operator image: {{.OPERATOR_IMAGE_NAME}}:{{.OPERATOR_IMAGE_TAG}}"
+        {{.CONTAINER_TOOL}} build -t {{.OPERATOR_IMAGE_NAME}}:{{.OPERATOR_IMAGE_TAG}} .
+
+        echo "Loading image into Kind cluster: {{.KIND_CLUSTER_NAME}}"
+        if [ "{{.CONTAINER_TOOL}}" = "podman" ]; then
+          {{.CONTAINER_TOOL}} image save --format oci-archive \
+            {{.OPERATOR_IMAGE_NAME}}:{{.OPERATOR_IMAGE_TAG}} -o /tmp/operator-image.tar
+          kind load image-archive /tmp/operator-image.tar --name {{.KIND_CLUSTER_NAME}}
+          rm -f /tmp/operator-image.tar
+        else
+          kind load docker-image {{.OPERATOR_IMAGE_NAME}}:{{.OPERATOR_IMAGE_TAG}} --name {{.KIND_CLUSTER_NAME}}
+        fi
+
+        echo "Creating Aiven token secret..."
+        kubectl create secret generic aiven-token \
+          --from-literal=token=${AIVEN_TOKEN} \
+          --dry-run=client -o yaml | kubectl apply -f -
+
+        echo "Installing operator CRDs..."
+        if [ ! -d "charts/aiven-operator-crds" ]; then
+          echo "❌ CRDs chart not found at charts/aiven-operator-crds"
+          exit 1
+        fi
+        helm upgrade --install aiven-operator-crds charts/aiven-operator-crds \
+          --wait --timeout 3m
+
+        echo "🎯 Installing operator..."
+        if [ ! -d "charts/aiven-operator" ]; then
+          echo "❌ Operator chart not found at charts/aiven-operator"
+          exit 1
+        fi
+        helm upgrade --install aiven-operator charts/aiven-operator \
+          --set defaultTokenSecret.name=aiven-token \
+          --set defaultTokenSecret.key=token \
+          --set leaderElect=true \
+          --set image.repository={{.OPERATOR_IMAGE_NAME}} \
+          --set image.tag={{.OPERATOR_IMAGE_TAG}} \
+          --set image.pullPolicy=Never \
+          --set resources.requests.cpu=50m \
+          --set resources.requests.memory=64Mi \
+          --set webhooks.enabled={{.ENABLE_WEBHOOKS}} \
+          --wait --timeout 5m
+
+        echo "✅ Operator setup completed!"
+
+  kind:verify:
+    desc: 🔍 Verify Kind cluster setup
+    cmds:
+      - |
+        echo "🔍 Verifying setup..."
+
+        # Check CRDs
+        if kubectl get crd kafkas.aiven.io >/dev/null 2>&1; then
+          echo "✅ CRDs are installed"
+        else
+          echo "⚠️ CRDs not found"
+        fi
+
+        # Check operator pods
+        POD_NAME=$(kubectl get pods -l app.kubernetes.io/instance=aiven-operator -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || \
+                   kubectl get pods -l app=aiven-operator -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+
+        if [ -n "$POD_NAME" ]; then
+          STATUS=$(kubectl get pod $POD_NAME -o jsonpath='{.status.phase}')
+          echo "✅ Operator pod '$POD_NAME' is $STATUS"
+        else
+          echo "⚠️ Operator pod not found"
+        fi

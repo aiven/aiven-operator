@@ -33,9 +33,14 @@ bundle-*
 
 # Internal Tools
 hack/tools/bin/*
+/Taskfile.yml
+/.task/
 
 # Docs
 docs/site
 
 # Distribution
 dist
+
+# Environment files
+/.env
