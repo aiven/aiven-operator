@@ -147,7 +147,7 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 	assert.Equal(t, ksAvn.CloudName, ks.Spec.CloudName)
 
 	// Validates KafkaTopic
-	ktAvn, err := avnClient.KafkaTopics.Get(ctx, cfg.Project, ksName, ktName)
+	ktAvn, err := avnGen.ServiceKafkaTopicGet(ctx, cfg.Project, ksName, ktName)
 	require.NoError(t, err)
 	assert.Equal(t, ktAvn.TopicName, kt.GetName())
 	assert.Equal(t, ktAvn.State, kt.Status.State)

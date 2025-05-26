@@ -1824,47 +1824,52 @@ func (in *KafkaTopicConfig) DeepCopyInto(out *KafkaTopicConfig) {
 	*out = *in
 	if in.DeleteRetentionMs != nil {
 		in, out := &in.DeleteRetentionMs, &out.DeleteRetentionMs
-		*out = new(int64)
+		*out = new(int)
 		**out = **in
 	}
 	if in.FileDeleteDelayMs != nil {
 		in, out := &in.FileDeleteDelayMs, &out.FileDeleteDelayMs
-		*out = new(int64)
+		*out = new(int)
 		**out = **in
 	}
 	if in.FlushMessages != nil {
 		in, out := &in.FlushMessages, &out.FlushMessages
-		*out = new(int64)
+		*out = new(int)
 		**out = **in
 	}
 	if in.FlushMs != nil {
 		in, out := &in.FlushMs, &out.FlushMs
-		*out = new(int64)
+		*out = new(int)
 		**out = **in
 	}
 	if in.IndexIntervalBytes != nil {
 		in, out := &in.IndexIntervalBytes, &out.IndexIntervalBytes
-		*out = new(int64)
+		*out = new(int)
+		**out = **in
+	}
+	if in.InklessEnable != nil {
+		in, out := &in.InklessEnable, &out.InklessEnable
+		*out = new(bool)
 		**out = **in
 	}
 	if in.LocalRetentionBytes != nil {
 		in, out := &in.LocalRetentionBytes, &out.LocalRetentionBytes
-		*out = new(int64)
+		*out = new(int)
 		**out = **in
 	}
 	if in.LocalRetentionMs != nil {
 		in, out := &in.LocalRetentionMs, &out.LocalRetentionMs
-		*out = new(int64)
+		*out = new(int)
 		**out = **in
 	}
 	if in.MaxCompactionLagMs != nil {
 		in, out := &in.MaxCompactionLagMs, &out.MaxCompactionLagMs
-		*out = new(int64)
+		*out = new(int)
 		**out = **in
 	}
 	if in.MaxMessageBytes != nil {
 		in, out := &in.MaxMessageBytes, &out.MaxMessageBytes
-		*out = new(int64)
+		*out = new(int)
 		**out = **in
 	}
 	if in.MessageDownconversionEnable != nil {
@@ -1874,7 +1879,7 @@ func (in *KafkaTopicConfig) DeepCopyInto(out *KafkaTopicConfig) {
 	}
 	if in.MessageTimestampDifferenceMaxMs != nil {
 		in, out := &in.MessageTimestampDifferenceMaxMs, &out.MessageTimestampDifferenceMaxMs
-		*out = new(int64)
+		*out = new(int)
 		**out = **in
 	}
 	if in.MinCleanableDirtyRatio != nil {
@@ -1884,12 +1889,12 @@ func (in *KafkaTopicConfig) DeepCopyInto(out *KafkaTopicConfig) {
 	}
 	if in.MinCompactionLagMs != nil {
 		in, out := &in.MinCompactionLagMs, &out.MinCompactionLagMs
-		*out = new(int64)
+		*out = new(int)
 		**out = **in
 	}
 	if in.MinInsyncReplicas != nil {
 		in, out := &in.MinInsyncReplicas, &out.MinInsyncReplicas
-		*out = new(int64)
+		*out = new(int)
 		**out = **in
 	}
 	if in.Preallocate != nil {
@@ -1904,32 +1909,37 @@ func (in *KafkaTopicConfig) DeepCopyInto(out *KafkaTopicConfig) {
 	}
 	if in.RetentionBytes != nil {
 		in, out := &in.RetentionBytes, &out.RetentionBytes
-		*out = new(int64)
+		*out = new(int)
 		**out = **in
 	}
 	if in.RetentionMs != nil {
 		in, out := &in.RetentionMs, &out.RetentionMs
-		*out = new(int64)
+		*out = new(int)
 		**out = **in
 	}
 	if in.SegmentBytes != nil {
 		in, out := &in.SegmentBytes, &out.SegmentBytes
-		*out = new(int64)
+		*out = new(int)
 		**out = **in
 	}
 	if in.SegmentIndexBytes != nil {
 		in, out := &in.SegmentIndexBytes, &out.SegmentIndexBytes
-		*out = new(int64)
+		*out = new(int)
 		**out = **in
 	}
 	if in.SegmentJitterMs != nil {
 		in, out := &in.SegmentJitterMs, &out.SegmentJitterMs
-		*out = new(int64)
+		*out = new(int)
 		**out = **in
 	}
 	if in.SegmentMs != nil {
 		in, out := &in.SegmentMs, &out.SegmentMs
-		*out = new(int64)
+		*out = new(int)
+		**out = **in
+	}
+	if in.UncleanLeaderElectionEnable != nil {
+		in, out := &in.UncleanLeaderElectionEnable, &out.UncleanLeaderElectionEnable
+		*out = new(bool)
 		**out = **in
 	}
 }
@@ -1985,7 +1995,11 @@ func (in *KafkaTopicSpec) DeepCopyInto(out *KafkaTopicSpec) {
 		*out = make([]KafkaTopicTag, len(*in))
 		copy(*out, *in)
 	}
-	in.Config.DeepCopyInto(&out.Config)
+	if in.Config != nil {
+		in, out := &in.Config, &out.Config
+		*out = new(KafkaTopicConfig)
+		(*in).DeepCopyInto(*out)
+	}
 	if in.TerminationProtection != nil {
 		in, out := &in.TerminationProtection, &out.TerminationProtection
 		*out = new(bool)
