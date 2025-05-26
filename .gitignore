@@ -44,3 +44,7 @@ dist
 
 # Environment files
 /.env
+
+# Go
+go.work
+go.work.sum

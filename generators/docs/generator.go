@@ -149,6 +149,7 @@ type schemaType struct {
 	MaxItems               *int                   `yaml:"maxItems"`
 	MinLength              *int                   `yaml:"minLength"`
 	MaxLength              *int                   `yaml:"maxLength"`
+	Default                *string                `yaml:"default"`
 	XKubernetesValidations []struct {
 		Rule string `yaml:"rule"`
 	} `yaml:"x-kubernetes-validations"`
@@ -381,6 +382,9 @@ func (s *schemaType) GetDef() string {
 	}
 	if s.MaxLength != nil {
 		chunks = append(chunks, fmt.Sprintf("MaxLength: %d", *s.MaxLength))
+	}
+	if s.Default != nil {
+		chunks = append(chunks, fmt.Sprintf("Default value: `%s`", *s.Default))
 	}
 	if s.Format != "" && s.Type == "string" {
 		chunks = append(chunks, fmt.Sprintf("Format: `%s`", s.Format))
