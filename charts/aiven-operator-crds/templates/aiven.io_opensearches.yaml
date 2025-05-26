@@ -832,6 +832,11 @@ spec:
                         enable_security_audit:
                           description: Enable/Disable security audit
                           type: boolean
+                        enable_snapshot_api:
+                          description:
+                            Enable/Disable snapshot API for custom repositories,
+                            this requires security management to be enabled
+                          type: boolean
                         http_max_content_length:
                           description:
                             Maximum content length for HTTP requests to the

@@ -3,6 +3,8 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - Change `PostgreSQL` field `userConfig.pg_version`: enum remove `12`
+- Add `OpenSearch` field `userConfig.opensearch.enable_snapshot_api`, type `boolean`: Enable/Disable
+  snapshot API for custom repositories, this requires security management to be enabled
 
 ## v0.29.0 - 2025-04-29
 

@@ -639,6 +639,11 @@ func (in *Opensearch) DeepCopyInto(out *Opensearch) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.EnableSnapshotApi != nil {
+		in, out := &in.EnableSnapshotApi, &out.EnableSnapshotApi
+		*out = new(bool)
+		**out = **in
+	}
 	if in.HttpMaxContentLength != nil {
 		in, out := &in.HttpMaxContentLength, &out.HttpMaxContentLength
 		*out = new(int)
