@@ -18,17 +18,10 @@ spec:
     name: aiven-token
     key: token
 
-  connInfoSecretTarget:
-    name: project-secret
-    prefix: MY_SECRET_PREFIX_
-    annotations:
-      foo: bar
-    labels:
-      baz: egg
-
   tags:
     env: prod
 
+  accountId: my-account-id
   billingAddress: NYC
   cloud: aws-eu-west-1
 ```
@@ -49,25 +42,6 @@ The output is similar to the following:
 ```shell
 Name          
 my-project    
-```
-
-To view the details of the `Secret`, use the following command:
-```shell
-kubectl describe secret project-secret
-```
-
-You can use the [jq](https://github.com/jqlang/jq) to quickly decode the `Secret`:
-
-```shell
-kubectl get secret project-secret -o json | jq '.data | map_values(@base64d)'
-```
-
-The output is similar to the following:
-
-```{ .json .no-copy }
-{
-	"PROJECT_CA_CERT": "<secret>",
-}
 ```
 
 ---
