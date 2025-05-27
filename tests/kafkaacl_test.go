@@ -104,7 +104,7 @@ func TestKafkaACL(t *testing.T) {
 	assert.Equal(t, kafkaAvn.CloudName, kafka.Spec.CloudName)
 
 	// KafkaTopic
-	topicAvn, err := avnClient.KafkaTopics.Get(ctx, cfg.Project, kafkaName, topic.GetTopicName())
+	topicAvn, err := avnGen.ServiceKafkaTopicGet(ctx, cfg.Project, kafkaName, topic.GetTopicName())
 	require.NoError(t, err)
 	assert.Equal(t, topicName, topic.GetName())
 	assert.Equal(t, topicName, topic.GetTopicName())

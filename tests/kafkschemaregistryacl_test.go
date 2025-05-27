@@ -108,7 +108,7 @@ func TestKafkaSchemaRegistryACL(t *testing.T) {
 	// KafkaTopic
 	// todo: replace with code-generated client, when the API schema is fixed:
 	//  json: cannot unmarshal string into Go struct field SynonymOut.topic.config.cleanup_policy.synonyms.value of type bool
-	topicAvn, err := avnClient.KafkaTopics.Get(ctx, cfg.Project, kafkaName, topic.GetTopicName())
+	topicAvn, err := avnGen.ServiceKafkaTopicGet(ctx, cfg.Project, kafkaName, topic.GetTopicName())
 	require.NoError(t, err)
 	assert.Equal(t, topicName, topic.GetName())
 	assert.Equal(t, topicName, topic.GetTopicName())

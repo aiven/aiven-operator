@@ -3,6 +3,11 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - Change `PostgreSQL` field `userConfig.pg_version`: enum remove `12`
+- Add `KafkaTopic` field `config.inkless_enable`, type `boolean`: Indicates whether inkless should be enabled
+- Add `KafkaTopic` field `config.unclean_leader_election_enable`, type `boolean`: Indicates whether to
+  enable replicas not in the ISR set to be elected as leader as a last resort, even though doing so
+  may result in data loss
+- Refactor `KafkaTopic`: replace HTTP client with code-generated one to improve maintainability and type safety
 
 ## v0.29.0 - 2025-04-29
 
