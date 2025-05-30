@@ -54,6 +54,7 @@ jobs:
       - run: make run="^${{ matrix.name }}$" test
         env:
           AIVEN_TOKEN: ${{ secrets.AIVEN_TOKEN }}
+          AIVEN_ACCOUNT_ID: ${{ secrets.AIVEN_ACCOUNT_ID }}
           AIVEN_PROJECT_NAME: >-
             ${{ secrets.AIVEN_PROJECT_NAME_PREFIX }}${{ needs.setup_aiven_project_suffix.outputs.project_name_suffix }}
 
@@ -71,5 +72,6 @@ jobs:
       - run: make sweep
         env:
           AIVEN_TOKEN: ${{ secrets.AIVEN_TOKEN }}
+          AIVEN_ACCOUNT_ID: ${{ secrets.AIVEN_ACCOUNT_ID }}
           AIVEN_PROJECT_NAME: >-
             ${{ secrets.AIVEN_PROJECT_NAME_PREFIX }}${{ needs.setup_aiven_project_suffix.outputs.project_name_suffix }}

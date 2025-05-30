@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,27 +9,7 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getProjectYaml(name string) string {
-	return fmt.Sprintf(`
-apiVersion: aiven.io/v1alpha1
-kind: Project
-metadata:
-  name: %[1]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  tags:
-    env: prod
-
-  billingAddress: NYC
-  cloud: aws-eu-west-1
-`, name)
-}
-
 func TestProject(t *testing.T) {
-	t.Skip("Requires a payment to be done to remove the project.")
 	t.Parallel()
 	defer recoverPanic(t)
 
@@ -39,7 +18,11 @@ func TestProject(t *testing.T) {
 	defer cancel()
 
 	name := randName("project")
-	yml := getProjectYaml(name)
+	yml, err := loadExampleYaml("project.yaml", map[string]string{
+		"metadata.name":  name,
+		"spec.accountId": cfg.AccountID,
+	})
+	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward
@@ -55,10 +38,10 @@ func TestProject(t *testing.T) {
 
 	// THEN
 	// Validates Project
-	projectAvn, err := avnClient.Projects.Get(ctx, name)
+	projectAvn, err := avnGen.ProjectGet(ctx, name)
 	require.NoError(t, err)
 	assert.Equal(t, name, project.GetName())
-	assert.Equal(t, projectAvn.Name, project.GetName())
+	assert.Equal(t, projectAvn.ProjectName, project.GetName())
 	assert.Equal(t, "NYC", project.Spec.BillingAddress)
 	assert.Equal(t, "NYC", projectAvn.BillingAddress)
 	assert.Equal(t, "aws-eu-west-1", project.Spec.Cloud)

@@ -43,6 +43,7 @@ const operatorVersion = "test"
 
 type testConfig struct {
 	Token              string        `envconfig:"AIVEN_TOKEN" required:"true"`
+	AccountID          string        `envconfig:"AIVEN_ACCOUNT_ID" required:"true"`
 	Project            string        `envconfig:"AIVEN_PROJECT_NAME" required:"true"`
 	PrimaryCloudName   string        `envconfig:"AIVEN_CLOUD_NAME" default:"google-europe-west1"`
 	SecondaryCloudName string        `envconfig:"AIVEN_SECONDARY_CLOUD_NAME" default:"google-europe-west2"`

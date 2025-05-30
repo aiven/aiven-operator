@@ -3,6 +3,7 @@
 package v1alpha1
 
 import (
+	"github.com/aiven/go-client-codegen/handler/project"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -29,7 +30,7 @@ type ProjectSpec struct {
 
 	// +kubebuilder:validation:Enum=AUD;CAD;CHF;DKK;EUR;GBP;NOK;SEK;USD
 	// Billing currency
-	BillingCurrency string `json:"billingCurrency,omitempty"`
+	BillingCurrency project.BillingCurrencyType `json:"billingCurrency,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=1000
 	// Extra text to be included in all project invoices, e.g. purchase order or cost center number

@@ -4,13 +4,12 @@ package controllers
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"regexp"
 	"strconv"
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	proj "github.com/aiven/go-client-codegen/handler/project"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -47,100 +46,108 @@ func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ProjectHandler) getLongCardID(ctx context.Context, client *aiven.Client, cardID string) (*string, error) {
+func (h ProjectHandler) getLongCardID(ctx context.Context, avnGen avngen.Client, cardID string) (*string, error) {
 	if cardID == "" {
 		return nil, nil
 	}
 
-	card, err := client.CardsHandler.Get(ctx, cardID)
+	// Uses the deprecated UserCreditCardsList method to retrieve credit cards.
+	cards, err := avnGen.UserCreditCardsList(ctx) // nolint:ignore SA1019
 	if err != nil {
 		return nil, err
 	}
 
-	if card == nil {
-		return nil, nil
+	for _, card := range cards {
+		if card.Last4 == cardID || card.CardId == cardID {
+			return &card.CardId, nil
+		}
 	}
 
-	return &card.CardID, nil
+	return nil, nil
 }
 
 // create creates a project on Aiven side
-func (h ProjectHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object, _ []client.Object) error {
+func (h ProjectHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	project, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
 
-	var billingEmails *[]*aiven.ContactEmail
-	if len(project.Spec.BillingEmails) > 0 {
-		billingEmails = aiven.ContactEmailFromStringSlice(project.Spec.BillingEmails)
+	billingEmails := make([]proj.BillingEmailIn, 0, len(project.Spec.BillingEmails))
+	for _, v := range project.Spec.BillingEmails {
+		billingEmails = append(billingEmails, proj.BillingEmailIn{Email: v})
 	}
 
-	var technicalEmails *[]*aiven.ContactEmail
-	if len(project.Spec.TechnicalEmails) > 0 {
-		technicalEmails = aiven.ContactEmailFromStringSlice(project.Spec.TechnicalEmails)
+	technicalEmails := make([]proj.TechEmailIn, 0, len(project.Spec.TechnicalEmails))
+	for _, v := range project.Spec.TechnicalEmails {
+		technicalEmails = append(technicalEmails, proj.TechEmailIn{Email: v})
 	}
 
-	exists, err := h.exists(ctx, avn, project)
+	exists, err := h.exists(ctx, avnGen, project)
 	if err != nil {
 		return fmt.Errorf("project does not exists: %w", err)
 	}
 
-	cardID, err := h.getLongCardID(ctx, avn, project.Spec.CardID)
+	cardID, err := h.getLongCardID(ctx, avnGen, project.Spec.CardID)
 	if err != nil {
 		return fmt.Errorf("cannot get long card id: %w", err)
 	}
 
 	var reason string
-	var p *aiven.Project
 	if !exists {
-		p, err = avn.Projects.Create(ctx, aiven.CreateProjectRequest{
-			BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
-			BillingEmails:    billingEmails,
-			BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
-			CardID:           cardID,
-			Cloud:            toOptionalStringPointer(project.Spec.Cloud),
-			CountryCode:      toOptionalStringPointer(project.Spec.CountryCode),
-			AccountId:        toOptionalStringPointer(project.Spec.AccountID),
-			TechnicalEmails:  technicalEmails,
-			BillingCurrency:  project.Spec.BillingCurrency,
+		req := &proj.ProjectCreateIn{
+			CardId:           cardID,
 			Project:          project.Name,
-			Tags:             project.Spec.Tags,
+			BillingCurrency:  project.Spec.BillingCurrency,
+			BillingEmails:    &billingEmails,
+			Tags:             &project.Spec.Tags,
+			TechEmails:       &technicalEmails,
+			BillingAddress:   toPtr(project.Spec.BillingAddress),
+			BillingExtraText: toPtr(project.Spec.BillingExtraText),
+			Cloud:            toPtr(project.Spec.Cloud),
+			CountryCode:      toPtr(project.Spec.CountryCode),
+			AccountId:        toPtr(project.Spec.AccountID),
+			BillingGroupId:   toPtr(project.Spec.BillingGroupID),
+			CopyFromProject:  toPtr(project.Spec.CopyFromProject),
+		}
 
-			// only set during creation
-			BillingGroupId:  project.Spec.BillingGroupID,
-			CopyFromProject: project.Spec.CopyFromProject,
-		})
+		p, err := avnGen.ProjectCreate(ctx, req)
 		if err != nil {
 			return fmt.Errorf("failed to create project on aiven side: %w", err)
 		}
 
+		project.Status.VatID = p.VatId
+		project.Status.EstimatedBalance = p.EstimatedBalance
+		project.Status.AvailableCredits = fromAnyPointer(p.AvailableCredits)
+		project.Status.Country = p.Country
+		project.Status.PaymentMethod = p.PaymentMethod
 		reason = "Created"
 	} else {
-		p, err = avn.Projects.Update(ctx, project.Name, aiven.UpdateProjectRequest{
-			BillingAddress:   toOptionalStringPointer(project.Spec.BillingAddress),
-			BillingEmails:    billingEmails,
-			BillingExtraText: toOptionalStringPointer(project.Spec.BillingExtraText),
-			CardID:           cardID,
-			Cloud:            toOptionalStringPointer(project.Spec.Cloud),
-			CountryCode:      toOptionalStringPointer(project.Spec.CountryCode),
-			AccountId:        project.Spec.AccountID,
-			TechnicalEmails:  technicalEmails,
+		req := &proj.ProjectUpdateIn{
+			CardId:           cardID,
+			BillingEmails:    &billingEmails,
+			BillingAddress:   toPtr(project.Spec.BillingAddress),
+			BillingExtraText: toPtr(project.Spec.BillingExtraText),
+			Cloud:            toPtr(project.Spec.Cloud),
+			CountryCode:      toPtr(project.Spec.CountryCode),
+			AccountId:        toPtr(project.Spec.AccountID),
+			TechEmails:       &technicalEmails,
 			BillingCurrency:  project.Spec.BillingCurrency,
-			Tags:             project.Spec.Tags,
-		})
+			Tags:             &project.Spec.Tags,
+		}
+
+		p, err := avnGen.ProjectUpdate(ctx, project.Name, req)
 		if err != nil {
 			return fmt.Errorf("failed to update project on aiven side: %w", err)
 		}
 
+		project.Status.VatID = p.VatId
+		project.Status.EstimatedBalance = p.EstimatedBalance
+		project.Status.AvailableCredits = fromAnyPointer(p.AvailableCredits)
+		project.Status.Country = p.Country
+		project.Status.PaymentMethod = p.PaymentMethod
 		reason = "Updated"
 	}
-
-	project.Status.VatID = p.VatID
-	project.Status.EstimatedBalance = p.EstimatedBalance
-	project.Status.AvailableCredits = p.AvailableCredits
-	project.Status.Country = p.Country
-	project.Status.PaymentMethod = p.PaymentMethod
 
 	meta.SetStatusCondition(&project.Status.Conditions,
 		getInitializedCondition(reason,
@@ -183,8 +190,8 @@ func (h ProjectHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.
 }
 
 // exists checks if project already exists on Aiven side
-func (h ProjectHandler) exists(ctx context.Context, avn *aiven.Client, project *v1alpha1.Project) (bool, error) {
-	pr, err := avn.Projects.Get(ctx, project.Name)
+func (h ProjectHandler) exists(ctx context.Context, client avngen.Client, project *v1alpha1.Project) (bool, error) {
+	pr, err := client.ProjectGet(ctx, project.Name)
 	if isNotFound(err) {
 		return false, nil
 	}
@@ -193,37 +200,15 @@ func (h ProjectHandler) exists(ctx context.Context, avn *aiven.Client, project *
 }
 
 // delete deletes Aiven project
-func (h ProjectHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
+func (h ProjectHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	project, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
 
 	// Delete project on Aiven side
-	if err := avn.Projects.Delete(ctx, project.Name); err != nil {
-		var skip bool
-
-		// If project not found then there is nothing to delete
-		if isNotFound(err) {
-			skip = true
-		}
-
-		// Silence "Project with open balance cannot be deleted" error
-		// to make long acceptance tests pass which generate some balance
-		re := regexp.MustCompile("Project with open balance cannot be deleted")
-		re1 := regexp.MustCompile("Project with unused credits cannot be deleted")
-
-		var aivenErr aiven.Error
-		if (re.MatchString(err.Error()) || re1.MatchString(err.Error())) && errors.As(err, &aivenErr) && aivenErr.Status == 403 {
-			skip = true
-		}
-
-		if !skip {
-			return false, fmt.Errorf("aiven client delete project error: %w", err)
-		}
-	}
-
-	return true, nil
+	err = avnGen.ProjectDelete(ctx, project.Name)
+	return isDeleted(err)
 }
 
 func (h ProjectHandler) convert(i client.Object) (*v1alpha1.Project, error) {
