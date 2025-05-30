@@ -16,6 +16,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/hashicorp/go-multierror"
 	"golang.org/x/sync/errgroup"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -256,7 +257,7 @@ outer:
 	for {
 		select {
 		case <-ctx.Done():
-			err = ctx.Err()
+			err = multierror.Append(err, ctx.Err())
 			break outer
 		case <-time.After(retryInterval):
 			retry, err = f()

@@ -8,6 +8,7 @@
   enable replicas not in the ISR set to be elected as leader as a last resort, even though doing so
   may result in data loss
 - Refactor `KafkaTopic`: replace HTTP client with code-generated one to improve maintainability and type safety
+- Add kind: `KafkaNativeACL`. Creates and manages Kafka-native access control lists (ACLs) for an Aiven for Apache Kafka® service.
 
 ## v0.29.0 - 2025-04-29
 
