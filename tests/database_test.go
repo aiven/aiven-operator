@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
+	"github.com/aiven/aiven-operator/controllers"
 )
 
 func TestDatabase(t *testing.T) {
@@ -58,21 +59,21 @@ func TestDatabase(t *testing.T) {
 	assert.Equal(t, pgAvn.CloudName, pg.Spec.CloudName)
 
 	// Validates Database
-	dbAvn, err := avnClient.Databases.Get(ctx, cfg.Project, pgName, dbName)
+	dbAvn, err := controllers.GetDatabaseByName(ctx, avnGen, cfg.Project, pgName, dbName)
 	require.NoError(t, err)
 	assert.Equal(t, dbName, db.GetName())
 	assert.Equal(t, dbAvn.DatabaseName, db.GetName())
 	assert.Equal(t, "en_US.UTF-8", db.Spec.LcCtype) // the default value
-	assert.Equal(t, dbAvn.LcType, db.Spec.LcCtype)
+	assert.Equal(t, fromPtr(dbAvn.LcCtype), db.Spec.LcCtype)
 	assert.Equal(t, "en_US.UTF-8", db.Spec.LcCollate) // the default value
-	assert.Equal(t, dbAvn.LcCollate, db.Spec.LcCollate)
+	assert.Equal(t, fromPtr(dbAvn.LcCollate), db.Spec.LcCollate)
 
 	// We need to validate deletion,
 	// because we can get false positive here:
 	// if service is deleted, db is destroyed in Aiven. No service — no db. No db — no db.
 	// And we make sure that controller can delete db itself
 	assert.NoError(t, s.Delete(db, func() error {
-		_, err = avnClient.Databases.Get(ctx, cfg.Project, pgName, dbName)
+		_, err = controllers.GetDatabaseByName(ctx, avnGen, cfg.Project, pgName, dbName)
 		return err
 	}))
 }
@@ -189,13 +190,13 @@ func TestDatabase_databaseName(t *testing.T) {
 
 			// THEN
 			// Validates Database
-			dbAvn, err := avnClient.Databases.Get(ctx, cfg.Project, pgName, tc.expectedAivenDatabaseName)
+			dbAvn, err := controllers.GetDatabaseByName(ctx, avnGen, cfg.Project, pgName, tc.expectedAivenDatabaseName)
 			require.NoError(t, err)
 			assert.Equal(t, tc.expectedAivenDatabaseName, dbAvn.DatabaseName)
 
 			// Deletion validation
 			assert.NoError(t, s.Delete(db, func() error {
-				_, err = avnClient.Databases.Get(ctx, cfg.Project, pgName, tc.expectedAivenDatabaseName)
+				_, err = controllers.GetDatabaseByName(ctx, avnGen, cfg.Project, pgName, tc.expectedAivenDatabaseName)
 				return err
 			}))
 		})
