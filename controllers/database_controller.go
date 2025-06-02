@@ -9,6 +9,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -44,22 +45,22 @@ func (r *DatabaseReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h DatabaseHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object, _ []client.Object) error {
+func (h DatabaseHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	db, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
 
-	exists, err := h.exists(ctx, avn, db)
+	exists, err := h.exists(ctx, avnGen, db)
 	if err != nil {
 		return err
 	}
 
 	if !exists {
-		_, err := avn.Databases.Create(ctx, db.Spec.Project, db.Spec.ServiceName, aiven.CreateDatabaseRequest{
+		err = avnGen.ServiceDatabaseCreate(ctx, db.Spec.Project, db.Spec.ServiceName, &service.ServiceDatabaseCreateIn{
 			Database:  db.GetDatabaseName(),
-			LcCollate: db.Spec.LcCollate,
-			LcType:    db.Spec.LcCtype,
+			LcCollate: NilIfZero(db.Spec.LcCollate),
+			LcCtype:   NilIfZero(db.Spec.LcCtype),
 		})
 		if err != nil {
 			return fmt.Errorf("cannot create database on Aiven side: %w", err)
@@ -76,7 +77,7 @@ func (h DatabaseHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, 
 	return nil
 }
 
-func (h DatabaseHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
+func (h DatabaseHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	db, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -86,7 +87,7 @@ func (h DatabaseHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen
 		return false, errTerminationProtectionOn
 	}
 
-	err = avn.Databases.Delete(
+	err = avnGen.ServiceDatabaseDelete(
 		ctx,
 		db.Spec.Project,
 		db.Spec.ServiceName,
@@ -98,8 +99,8 @@ func (h DatabaseHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen
 	return true, nil
 }
 
-func (h DatabaseHandler) exists(ctx context.Context, avn *aiven.Client, db *v1alpha1.Database) (bool, error) {
-	d, err := avn.Databases.Get(ctx, db.Spec.Project, db.Spec.ServiceName, db.GetDatabaseName())
+func (h DatabaseHandler) exists(ctx context.Context, avnGen avngen.Client, db *v1alpha1.Database) (bool, error) {
+	d, err := GetDatabaseByName(ctx, avnGen, db.Spec.Project, db.Spec.ServiceName, db.GetDatabaseName())
 	if isNotFound(err) {
 		return false, nil
 	}
@@ -107,13 +108,13 @@ func (h DatabaseHandler) exists(ctx context.Context, avn *aiven.Client, db *v1al
 	return d != nil, nil
 }
 
-func (h DatabaseHandler) get(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h DatabaseHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	db, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = avn.Databases.Get(ctx, db.Spec.Project, db.Spec.ServiceName, db.GetDatabaseName())
+	_, err = GetDatabaseByName(ctx, avnGen, db.Spec.Project, db.Spec.ServiceName, db.GetDatabaseName())
 	if err != nil {
 		return nil, err
 	}
@@ -146,4 +147,18 @@ func (h DatabaseHandler) convert(i client.Object) (*v1alpha1.Database, error) {
 	}
 
 	return db, nil
+}
+
+func GetDatabaseByName(ctx context.Context, avnGen avngen.Client, projectName, serviceName, dbName string) (*service.DatabaseOut, error) {
+	list, err := avnGen.ServiceDatabaseList(ctx, projectName, serviceName)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, db := range list {
+		if db.DatabaseName == dbName {
+			return &db, nil
+		}
+	}
+	return nil, NewNotFound(fmt.Sprintf("Database with name %q not found", dbName))
 }
