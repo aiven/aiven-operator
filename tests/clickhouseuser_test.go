@@ -7,10 +7,13 @@ import (
 	"testing"
 
 	"github.com/ClickHouse/clickhouse-go/v2"
+	avngen "github.com/aiven/go-client-codegen"
+	clickhouse2 "github.com/aiven/go-client-codegen/handler/clickhouse"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
+	"github.com/aiven/aiven-operator/controllers"
 )
 
 func TestClickhouseUser(t *testing.T) {
@@ -61,7 +64,7 @@ func TestClickhouseUser(t *testing.T) {
 	user := new(v1alpha1.ClickhouseUser)
 	require.NoError(t, s.GetRunning(user, userName))
 
-	userAvn, err := avnClient.ClickhouseUser.Get(ctx, cfg.Project, chName, user.Status.UUID)
+	userAvn, err := getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
 	require.NoError(t, err)
 
 	// Gets name from `metadata.name` when `username` is not set
@@ -101,7 +104,7 @@ func TestClickhouseUser(t *testing.T) {
 	// if service is deleted, user is destroyed in Aiven. No service — no user. No user — no user.
 	// And we make sure that controller can delete user itself
 	assert.NoError(t, s.Delete(user, func() error {
-		_, err = avnClient.ClickhouseUser.Get(ctx, cfg.Project, chName, user.Status.UUID)
+		_, err = getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
 		return err
 	}))
 
@@ -152,4 +155,18 @@ func pingClickhouse[T string | []byte](ctx context.Context, host, port, username
 		return err
 	}
 	return conn.Ping(ctx)
+}
+
+func getClickHouseUserByID(ctx context.Context, avnGen avngen.Client, project, serviceName, userID string) (*clickhouse2.UserOut, error) {
+	list, err := avnGen.ServiceClickHouseUserList(ctx, project, serviceName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get Clickhouse user by ID %s: %w", userID, err)
+	}
+
+	for _, u := range list {
+		if u.Uuid == userID {
+			return &u, nil
+		}
+	}
+	return nil, controllers.NewNotFound(fmt.Sprintf("ClickHouse user %s not found", userID))
 }

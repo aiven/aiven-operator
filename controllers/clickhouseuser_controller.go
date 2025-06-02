@@ -9,6 +9,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/clickhouse"
 	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -46,32 +47,35 @@ func (r *ClickhouseUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 type clickhouseUserHandler struct{}
 
-func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object, _ []client.Object) error {
+func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	user, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
 
-	list, err := avn.ClickhouseUser.List(ctx, user.Spec.Project, user.Spec.ServiceName)
+	list, err := avnGen.ServiceClickHouseUserList(ctx, user.Spec.Project, user.Spec.ServiceName)
 	if err != nil {
 		return err
 	}
 
 	var uuid string
-	for _, u := range list.Users {
+	for _, u := range list {
 		if u.Name == user.GetUsername() {
-			uuid = u.UUID
+			uuid = u.Uuid
 			break
 		}
 	}
 
 	if uuid == "" {
-		r, err := avn.ClickhouseUser.Create(ctx, user.Spec.Project, user.Spec.ServiceName, user.GetUsername())
+		req := clickhouse.ServiceClickHouseUserCreateIn{
+			Name: user.GetUsername(),
+		}
+		r, err := avnGen.ServiceClickHouseUserCreate(ctx, user.Spec.Project, user.Spec.ServiceName, &req)
 		if err != nil {
 			return err
 		}
 
-		uuid = r.User.UUID
+		uuid = r.Uuid
 	}
 
 	user.Status.UUID = uuid
@@ -86,7 +90,7 @@ func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 	return nil
 }
 
-func (h *clickhouseUserHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
+func (h *clickhouseUserHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -97,7 +101,7 @@ func (h *clickhouseUserHandler) delete(ctx context.Context, avn *aiven.Client, _
 		return true, nil
 	}
 
-	err = avn.ClickhouseUser.Delete(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID)
+	err = avnGen.ServiceClickHouseUserDelete(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID)
 	if !isNotFound(err) {
 		return false, err
 	}
@@ -105,7 +109,7 @@ func (h *clickhouseUserHandler) delete(ctx context.Context, avn *aiven.Client, _
 	return true, nil
 }
 
-func (h *clickhouseUserHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *clickhouseUserHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -120,7 +124,7 @@ func (h *clickhouseUserHandler) get(ctx context.Context, avn *aiven.Client, avnG
 	// while password is returned on create only.
 	// And all other GET methods return empty password, even this one.
 	// So the only way to have a secret here is to reset it manually
-	password, err := avn.ClickhouseUser.ResetPassword(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID, nil)
+	password, err := avnGen.ServiceClickHousePasswordReset(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID, nil)
 	if err != nil {
 		return nil, err
 	}

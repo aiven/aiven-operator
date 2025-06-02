@@ -52,7 +52,7 @@ func (h ProjectHandler) getLongCardID(ctx context.Context, avnGen avngen.Client,
 	}
 
 	// Uses the deprecated UserCreditCardsList method to retrieve credit cards.
-	cards, err := avnGen.UserCreditCardsList(ctx) // nolint:ignore SA1019
+	cards, err := avnGen.UserCreditCardsList(ctx) // nolint:staticcheck
 	if err != nil {
 		return nil, err
 	}

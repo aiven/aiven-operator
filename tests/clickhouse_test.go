@@ -129,7 +129,7 @@ func TestClickhouse(t *testing.T) {
 	require.NoError(t, s.GetRunning(db1, dbName1))
 
 	// Database exists
-	dbAvn1, err := avnClient.ClickhouseDatabase.Get(ctx, cfg.Project, chName, dbName1)
+	dbAvn1, err := controllers.GetClickhouseDatabaseByName(ctx, avnGen, cfg.Project, chName, dbName1)
 	require.NoError(t, err)
 
 	// Gets name from `metadata.name` when `databaseName` is not set
@@ -142,14 +142,14 @@ func TestClickhouse(t *testing.T) {
 	db2 := new(v1alpha1.ClickhouseDatabase)
 	require.NoError(t, s.GetRunning(db2, dbName2))
 
-	dbAvn2, err := avnClient.ClickhouseDatabase.Get(ctx, cfg.Project, chName, dbName2)
+	dbAvn2, err := controllers.GetClickhouseDatabaseByName(ctx, avnGen, cfg.Project, chName, dbName2)
 	require.NoError(t, err)
 	assert.Equal(t, dbName2, db2.ObjectMeta.Name)
 	assert.Equal(t, dbAvn2.Name, db2.ObjectMeta.Name)
 
 	// Calls reconciler delete
 	require.NoError(t, s.Delete(db2, func() error {
-		_, err = avnClient.ClickhouseDatabase.Get(ctx, cfg.Project, chName, dbName2)
+		_, err = controllers.GetClickhouseDatabaseByName(ctx, avnGen, cfg.Project, chName, dbName2)
 		return err
 	}))
 
@@ -163,24 +163,24 @@ func TestClickhouse(t *testing.T) {
 	assert.Equal(t, roleName2, role2.Spec.Role)
 
 	// Roles exist
-	err = controllers.ClickhouseRoleExists(ctx, avnClient, role1)
+	err = controllers.ClickhouseRoleExists(ctx, avnGen, role1)
 	require.NoError(t, err)
 
-	err = controllers.ClickhouseRoleExists(ctx, avnClient, role2)
+	err = controllers.ClickhouseRoleExists(ctx, avnGen, role2)
 	require.NoError(t, err)
 
 	// We need to validate deletion,
 	// because we can get false positive here:
 	// if service is deleted, the role is destroyed in Aiven.
 	assert.NoError(t, s.Delete(role2, func() error {
-		return controllers.ClickhouseRoleExists(ctx, avnClient, role2)
+		return controllers.ClickhouseRoleExists(ctx, avnGen, role2)
 	}))
 
 	// Role 1 exists, role 2 is removed
-	err = controllers.ClickhouseRoleExists(ctx, avnClient, role1)
+	err = controllers.ClickhouseRoleExists(ctx, avnGen, role1)
 	require.NoError(t, err)
 
-	err = controllers.ClickhouseRoleExists(ctx, avnClient, role2)
+	err = controllers.ClickhouseRoleExists(ctx, avnGen, role2)
 	require.ErrorContains(t, err, fmt.Sprintf("ClickhouseRole %q not found", roleName2))
 
 	// GIVEN
@@ -200,7 +200,7 @@ func TestClickhouse(t *testing.T) {
 	db3 := new(v1alpha1.ClickhouseDatabase)
 	require.NoError(t, s.GetRunning(db3, "metadata-name")) // GetRunning must be called with the metadata name
 
-	dbAvn3, err := avnClient.ClickhouseDatabase.Get(ctx, cfg.Project, chName, dbName3)
+	dbAvn3, err := controllers.GetClickhouseDatabaseByName(ctx, avnGen, cfg.Project, chName, dbName3)
 	require.NoError(t, err)
 
 	// THEN

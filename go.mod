@@ -6,7 +6,7 @@ require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.34.0
 	github.com/aiven/aiven-go-client/v2 v2.34.0
 	github.com/aiven/go-api-schemas v1.122.0
-	github.com/aiven/go-client-codegen v0.109.0
+	github.com/aiven/go-client-codegen v0.111.0
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/dave/jennifer v1.7.1
 	github.com/docker/go-units v0.5.0
@@ -104,7 +104,10 @@ require (
 	k8s.io/component-base v0.26.10 // indirect
 	k8s.io/klog/v2 v2.80.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280 // indirect
+	mvdan.cc/gofumpt v0.8.0 // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
+
+tool mvdan.cc/gofumpt
