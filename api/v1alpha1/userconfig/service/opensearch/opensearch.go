@@ -302,6 +302,24 @@ type AuthFailureListeners struct {
 	// Deprecated. IP address rate limiting settings
 	IpRateLimiting *IpRateLimiting `groups:"create,update" json:"ip_rate_limiting,omitempty"`
 }
+type ClusterRemoteStore struct {
+	// +kubebuilder:validation:Pattern=`\d+(?:d|h|m|s|ms|micros|nanos)`
+	// The amount of time to wait for the cluster state upload to complete. Defaults to 20s.
+	StateGlobalMetadataUploadTimeout *string `groups:"create,update" json:"state.global_metadata.upload_timeout,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`\d+(?:d|h|m|s|ms|micros|nanos)`
+	// The amount of time to wait for the manifest file upload to complete. The manifest file contains the details of each of the files uploaded for a single cluster state, both index metadata files and global metadata files. Defaults to 20s.
+	StateMetadataManifestUploadTimeout *string `groups:"create,update" json:"state.metadata_manifest.upload_timeout,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`\d+(?:d|h|m|s|ms|micros|nanos)`
+	// The default value of the translog buffer interval used when performing periodic translog updates. This setting is only effective when the index setting `index.remote_store.translog.buffer_interval` is not present. Defaults to 650ms.
+	TranslogBufferInterval *string `groups:"create,update" json:"translog.buffer_interval,omitempty"`
+
+	// +kubebuilder:validation:Minimum=100
+	// +kubebuilder:validation:Maximum=2147483647
+	// Sets the maximum number of open translog files for remote-backed indexes. This limits the total number of translog files per shard. After reaching this limit, the remote store flushes the translog files. Default is 1000. The minimum required is 100.
+	TranslogMaxReaders *int `groups:"create,update" json:"translog.max_readers,omitempty"`
+}
 type Threshold struct {
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
 	// Debug threshold for total request took time. The value should be in the form count and unit, where unit one of (s,m,h,d,nanos,ms,micros) or -1. Default is -1
@@ -337,6 +355,23 @@ type DiskWatermarks struct {
 
 	// The low watermark for disk usage.
 	Low int `groups:"create,update" json:"low"`
+}
+type RemoteStore struct {
+	// +kubebuilder:validation:Minimum=1
+	// The variance factor that is used together with the moving average to calculate the dynamic bytes lag threshold for activating remote segment backpressure. Defaults to 10.
+	SegmentPressureBytesLagVarianceFactor *float64 `groups:"create,update" json:"segment.pressure.bytes_lag.variance_factor,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=2147483647
+	// The minimum consecutive failure count for activating remote segment backpressure. Defaults to 5.
+	SegmentPressureConsecutiveFailuresLimit *int `groups:"create,update" json:"segment.pressure.consecutive_failures.limit,omitempty"`
+
+	// Enables remote segment backpressure. Default is `true`
+	SegmentPressureEnabled *bool `groups:"create,update" json:"segment.pressure.enabled,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// The variance factor that is used together with the moving average to calculate the dynamic time lag threshold for activating remote segment backpressure. Defaults to 10.
+	SegmentPressureTimeLagVarianceFactor *float64 `groups:"create,update" json:"segment.pressure.time_lag.variance_factor,omitempty"`
 }
 
 // Top N queries monitoring by CPU
@@ -585,6 +620,13 @@ type Opensearch struct {
 	// Opensearch Security Plugin Settings
 	AuthFailureListeners *AuthFailureListeners `groups:"create,update" json:"auth_failure_listeners,omitempty"`
 
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=100
+	// Defines a limit of how much total remote data can be referenced as a ratio of the size of the disk reserved for the file cache. This is designed to be a safeguard to prevent oversubscribing a cluster. Defaults to 0.
+	ClusterFilecacheRemoteDataRatio *float64 `groups:"create,update" json:"cluster.filecache.remote_data_ratio,omitempty"`
+
+	ClusterRemoteStore *ClusterRemoteStore `groups:"create,update" json:"cluster.remote_store,omitempty"`
+
 	// When set to true, OpenSearch attempts to evenly distribute the primary shards between the cluster nodes. Enabling this setting does not always guarantee an equal number of primary shards on each node, especially in the event of a failover. Changing this setting to false after it was set to true does not invoke redistribution of primary shards. Default is false.
 	ClusterRoutingAllocationBalancePreferPrimary *bool `groups:"create,update" json:"cluster.routing.allocation.balance.prefer_primary,omitempty"`
 
@@ -626,6 +668,9 @@ type Opensearch struct {
 
 	// Enable/Disable security audit
 	EnableSecurityAudit *bool `groups:"create,update" json:"enable_security_audit,omitempty"`
+
+	// Enable/Disable snapshot API for custom repositories, this requires security management to be enabled
+	EnableSnapshotApi *bool `groups:"create,update" json:"enable_snapshot_api,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=2147483647
@@ -715,6 +760,10 @@ type Opensearch struct {
 	// Maximum amount of memory that can be used for KNN index. Defaults to 50% of the JVM heap size.
 	KnnMemoryCircuitBreakerLimit *int `groups:"create,update" json:"knn_memory_circuit_breaker_limit,omitempty"`
 
+	// +kubebuilder:validation:Pattern=`\d+(?:b|kb|mb|gb|tb)`
+	// Defines a limit of how much total remote data can be referenced as a ratio of the size of the disk reserved for the file cache. This is designed to be a safeguard to prevent oversubscribing a cluster. Defaults to 5gb. Requires restarting all OpenSearch nodes.
+	NodeSearchCacheSize *string `groups:"create,update" json:"node.search.cache.size,omitempty"`
+
 	// Compatibility mode sets OpenSearch to report its version as 7.10 so clients continue to work. Default is false
 	OverrideMainResponseVersion *bool `groups:"create,update" json:"override_main_response_version,omitempty"`
 
@@ -724,6 +773,8 @@ type Opensearch struct {
 	// +kubebuilder:validation:MaxItems=32
 	// Whitelisted addresses for reindexing. Changing this value will cause all OpenSearch instances to restart.
 	ReindexRemoteWhitelist []string `groups:"create,update" json:"reindex_remote_whitelist,omitempty"`
+
+	RemoteStore *RemoteStore `groups:"create,update" json:"remote_store,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=1024
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`

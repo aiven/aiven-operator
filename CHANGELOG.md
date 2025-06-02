@@ -8,6 +8,16 @@
   enable replicas not in the ISR set to be elected as leader as a last resort, even though doing so
   may result in data loss
 - Refactor `KafkaTopic`: replace HTTP client with code-generated one to improve maintainability and type safety
+- Add `OpenSearch` field `userConfig.opensearch.cluster.filecache.remote_data_ratio`, type `number`:
+  Defines a limit of how much total remote data can be referenced as a ratio of the size of the disk
+  reserved for the file cache
+- Add `OpenSearch` field `userConfig.opensearch.cluster.remote_store`, type `object`: 
+- Add `OpenSearch` field `userConfig.opensearch.enable_snapshot_api`, type `boolean`: Enable/Disable
+  snapshot API for custom repositories, this requires security management to be enabled
+- Add `OpenSearch` field `userConfig.opensearch.node.search.cache.size`, type `string`: Defines a limit
+  of how much total remote data can be referenced as a ratio of the size of the disk reserved for
+  the file cache
+- Add `OpenSearch` field `userConfig.opensearch.remote_store`, type `object`: 
 
 ## v0.29.0 - 2025-04-29
 

@@ -716,6 +716,52 @@ spec:
                                   type: string
                               type: object
                           type: object
+                        cluster.filecache.remote_data_ratio:
+                          description:
+                            Defines a limit of how much total remote data
+                            can be referenced as a ratio of the size of the disk reserved
+                            for the file cache. This is designed to be a safeguard to
+                            prevent oversubscribing a cluster. Defaults to 0.
+                          maximum: 100
+                          minimum: 0
+                          type: number
+                        cluster.remote_store:
+                          properties:
+                            state.global_metadata.upload_timeout:
+                              description:
+                                The amount of time to wait for the cluster
+                                state upload to complete. Defaults to 20s.
+                              pattern: \d+(?:d|h|m|s|ms|micros|nanos)
+                              type: string
+                            state.metadata_manifest.upload_timeout:
+                              description:
+                                The amount of time to wait for the manifest
+                                file upload to complete. The manifest file contains
+                                the details of each of the files uploaded for a single
+                                cluster state, both index metadata files and global
+                                metadata files. Defaults to 20s.
+                              pattern: \d+(?:d|h|m|s|ms|micros|nanos)
+                              type: string
+                            translog.buffer_interval:
+                              description:
+                                The default value of the translog buffer
+                                interval used when performing periodic translog updates.
+                                This setting is only effective when the index setting
+                                `index.remote_store.translog.buffer_interval` is not
+                                present. Defaults to 650ms.
+                              pattern: \d+(?:d|h|m|s|ms|micros|nanos)
+                              type: string
+                            translog.max_readers:
+                              description:
+                                Sets the maximum number of open translog
+                                files for remote-backed indexes. This limits the total
+                                number of translog files per shard. After reaching this
+                                limit, the remote store flushes the translog files.
+                                Default is 1000. The minimum required is 100.
+                              maximum: 2147483647
+                              minimum: 100
+                              type: integer
+                          type: object
                         cluster.routing.allocation.balance.prefer_primary:
                           description:
                             When set to true, OpenSearch attempts to evenly
@@ -831,6 +877,11 @@ spec:
                           type: boolean
                         enable_security_audit:
                           description: Enable/Disable security audit
+                          type: boolean
+                        enable_snapshot_api:
+                          description:
+                            Enable/Disable snapshot API for custom repositories,
+                            this requires security management to be enabled
                           type: boolean
                         http_max_content_length:
                           description:
@@ -968,6 +1019,15 @@ spec:
                           maximum: 100
                           minimum: 3
                           type: integer
+                        node.search.cache.size:
+                          description:
+                            Defines a limit of how much total remote data
+                            can be referenced as a ratio of the size of the disk reserved
+                            for the file cache. This is designed to be a safeguard to
+                            prevent oversubscribing a cluster. Defaults to 5gb. Requires
+                            restarting all OpenSearch nodes.
+                          pattern: \d+(?:b|kb|mb|gb|tb)
+                          type: string
                         override_main_response_version:
                           description:
                             Compatibility mode sets OpenSearch to report
@@ -987,6 +1047,38 @@ spec:
                             type: string
                           maxItems: 32
                           type: array
+                        remote_store:
+                          properties:
+                            segment.pressure.bytes_lag.variance_factor:
+                              description:
+                                The variance factor that is used together
+                                with the moving average to calculate the dynamic bytes
+                                lag threshold for activating remote segment backpressure.
+                                Defaults to 10.
+                              minimum: 1
+                              type: number
+                            segment.pressure.consecutive_failures.limit:
+                              description:
+                                The minimum consecutive failure count for
+                                activating remote segment backpressure. Defaults to
+                                5.
+                              maximum: 2147483647
+                              minimum: 1
+                              type: integer
+                            segment.pressure.enabled:
+                              description:
+                                Enables remote segment backpressure. Default
+                                is `true`
+                              type: boolean
+                            segment.pressure.time_lag.variance_factor:
+                              description:
+                                The variance factor that is used together
+                                with the moving average to calculate the dynamic time
+                                lag threshold for activating remote segment backpressure.
+                                Defaults to 10.
+                              minimum: 1
+                              type: number
+                          type: object
                         script_max_compilations_rate:
                           description:
                             Script compilation circuit breaker limits the
