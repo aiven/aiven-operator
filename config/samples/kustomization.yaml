@@ -27,4 +27,5 @@ resources:
   - _v1alpha1_serviceintegrationendpoint.yaml
   - _v1alpha1_flink.yaml
   - _v1alpha1_valkey.yaml
+  - _v1alpha1_kafkanativeacl.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

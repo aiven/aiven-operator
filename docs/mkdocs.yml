@@ -90,6 +90,7 @@ nav:
               - resources/kafkaacl.md
               - resources/kafkaconnect.md
               - resources/kafkaconnector.md
+              - resources/kafkanativeacl.md
               - resources/kafkaschema.md
               - resources/kafkaschemaregistryacl.md
               - resources/kafkatopic.md

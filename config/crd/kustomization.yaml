@@ -9,6 +9,7 @@ resources:
   - bases/aiven.io_databases.yaml
   - bases/aiven.io_kafkas.yaml
   - bases/aiven.io_kafkaacls.yaml
+  - bases/aiven.io_kafkanativeacls.yaml
   - bases/aiven.io_kafkaconnects.yaml
   - bases/aiven.io_kafkaconnectors.yaml
   - bases/aiven.io_kafkaschemas.yaml

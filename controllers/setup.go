@@ -37,6 +37,7 @@ func SetupControllers(mgr ctrl.Manager, defaultToken, kubeVersion, operatorVersi
 		"Grafana":                          newGrafanaReconciler,
 		"Kafka":                            newKafkaReconciler,
 		"KafkaACL":                         newKafkaACLReconciler,
+		"KafkaNativeACL":                   newKafkaNativeACLReconciler,
 		"KafkaConnect":                     newKafkaConnectReconciler,
 		"KafkaConnector":                   newKafkaConnectorReconciler,
 		"KafkaSchema":                      newKafkaSchemaReconciler,
