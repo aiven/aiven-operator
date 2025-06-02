@@ -49,9 +49,9 @@ func TestValkey(t *testing.T) {
 	assert.Equal(t, rsAvn.Plan, rs.Spec.Plan)
 	assert.Equal(t, rsAvn.CloudName, rs.Spec.CloudName)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, rs.Spec.Tags)
-	rsResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)
+	rsTags, err := avnGen.ProjectServiceTagsList(ctx, cfg.Project, name)
 	require.NoError(t, err)
-	assert.Equal(t, rsResp.Tags, rs.Spec.Tags)
+	assert.Equal(t, rsTags, rs.Spec.Tags)
 
 	// UserConfig test
 	require.NotNil(t, rs.Spec.UserConfig)

@@ -26,8 +26,8 @@ type genericServiceHandler struct {
 	fabric serviceAdapterFabric
 }
 
-func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
-	o, err := h.fabric(avn, obj)
+func (h *genericServiceHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
+	o, err := h.fabric(obj)
 	if err != nil {
 		return err
 	}
@@ -50,9 +50,9 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 		return fmt.Errorf("failed to fetch service: %w", err)
 	}
 
-	technicalEmails := make([]aiven.ContactEmail, 0)
+	technicalEmails := make([]service.TechEmailIn, 0, len(spec.TechnicalEmails))
 	for _, email := range spec.TechnicalEmails {
-		technicalEmails = append(technicalEmails, aiven.ContactEmail(email))
+		technicalEmails = append(technicalEmails, service.TechEmailIn(email))
 	}
 
 	diskSpace := v1alpha1.ConvertDiskSpace(o.getDiskSpace())
@@ -73,29 +73,33 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 			return err
 		}
 
-		req := aiven.CreateServiceRequest{
-			Cloud:                 spec.CloudName,
-			DiskSpaceMB:           diskSpace,
-			MaintenanceWindow:     getMaintenanceWindow(spec.MaintenanceWindowDow, spec.MaintenanceWindowTime),
+		req := service.ServiceCreateIn{
+			Cloud:                 NilIfZero(spec.CloudName),
+			DiskSpaceMb:           NilIfZero(diskSpace),
+			Maintenance:           getMaintenanceWindow(spec.MaintenanceWindowDow, spec.MaintenanceWindowTime),
 			Plan:                  spec.Plan,
-			ProjectVPCID:          toOptionalStringPointer(projectVPCID),
-			ServiceIntegrations:   nil,
+			ProjectVpcId:          toOptionalStringPointer(projectVPCID),
 			ServiceName:           ometa.Name,
 			ServiceType:           o.getServiceType(),
-			TerminationProtection: fromAnyPointer(spec.TerminationProtection),
-			UserConfig:            userConfig,
-			TechnicalEmails:       &technicalEmails,
+			TerminationProtection: spec.TerminationProtection,
+			UserConfig:            &userConfig,
+			TechEmails:            &technicalEmails,
 		}
 
+		integrations := make([]service.ServiceIntegrationIn, 0, len(spec.ServiceIntegrations))
 		for _, s := range spec.ServiceIntegrations {
-			i := aiven.NewServiceIntegration{
+			i := service.ServiceIntegrationIn{
 				IntegrationType: s.IntegrationType,
 				SourceService:   &s.SourceServiceName,
 			}
-			req.ServiceIntegrations = append(req.ServiceIntegrations, i)
+			integrations = append(integrations, i)
 		}
 
-		_, err = avn.Services.Create(ctx, spec.Project, req)
+		if len(integrations) > 0 {
+			req.ServiceIntegrations = &integrations
+		}
+
+		_, err = avnGen.ServiceCreate(ctx, spec.Project, &req)
 		if err != nil {
 			return fmt.Errorf("failed to create service: %w", err)
 		}
@@ -112,18 +116,18 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 			return err
 		}
 
-		req := aiven.UpdateServiceRequest{
-			Cloud:                 spec.CloudName,
-			DiskSpaceMB:           diskSpace,
-			MaintenanceWindow:     getMaintenanceWindow(spec.MaintenanceWindowDow, spec.MaintenanceWindowTime),
-			Plan:                  spec.Plan,
-			Powered:               true,
-			ProjectVPCID:          toOptionalStringPointer(projectVPCID),
-			TerminationProtection: fromAnyPointer(spec.TerminationProtection),
-			UserConfig:            userConfig,
-			TechnicalEmails:       &technicalEmails,
+		req := service.ServiceUpdateIn{
+			Cloud:                 NilIfZero(spec.CloudName),
+			DiskSpaceMb:           NilIfZero(diskSpace),
+			Maintenance:           getMaintenanceWindow(spec.MaintenanceWindowDow, spec.MaintenanceWindowTime),
+			Plan:                  NilIfZero(spec.Plan),
+			Powered:               NilIfZero(true),
+			ProjectVpcId:          NilIfZero(projectVPCID),
+			TerminationProtection: spec.TerminationProtection,
+			UserConfig:            &userConfig,
+			TechEmails:            &technicalEmails,
 		}
-		_, err = avn.Services.Update(ctx, spec.Project, ometa.Name, req)
+		_, err = avnGen.ServiceUpdate(ctx, spec.Project, ometa.Name, &req)
 		if err != nil {
 			return fmt.Errorf("failed to update service: %w", err)
 		}
@@ -132,13 +136,13 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 	// Updates tags.
 	// Four scenarios: service created/updated * with/without tags
 	// By sending empty tags it clears existing list
-	req := aiven.ServiceTagsRequest{
+	req := service.ProjectServiceTagsReplaceIn{
 		Tags: make(map[string]string),
 	}
 	if spec.Tags != nil {
 		req.Tags = spec.Tags
 	}
-	_, err = avn.ServiceTags.Set(ctx, spec.Project, ometa.Name, req)
+	err = avnGen.ProjectServiceTagsReplace(ctx, spec.Project, ometa.Name, &req)
 	if err != nil {
 		return fmt.Errorf("failed to update tags: %w", err)
 	}
@@ -164,8 +168,8 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 	return nil
 }
 
-func (h *genericServiceHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
-	o, err := h.fabric(avn, obj)
+func (h *genericServiceHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+	o, err := h.fabric(obj)
 	if err != nil {
 		return false, err
 	}
@@ -175,7 +179,7 @@ func (h *genericServiceHandler) delete(ctx context.Context, avn *aiven.Client, _
 		return false, errTerminationProtectionOn
 	}
 
-	err = avn.Services.Delete(ctx, spec.Project, o.getObjectMeta().Name)
+	err = avnGen.ServiceDelete(ctx, spec.Project, o.getObjectMeta().Name)
 	if err == nil || isNotFound(err) {
 		return true, nil
 	}
@@ -183,8 +187,8 @@ func (h *genericServiceHandler) delete(ctx context.Context, avn *aiven.Client, _
 	return false, fmt.Errorf("failed to delete service in Aiven: %w", err)
 }
 
-func (h *genericServiceHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
-	o, err := h.fabric(avn, obj)
+func (h *genericServiceHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+	o, err := h.fabric(obj)
 	if err != nil {
 		return nil, err
 	}
@@ -237,8 +241,8 @@ func (h *genericServiceHandler) get(ctx context.Context, avn *aiven.Client, avnG
 }
 
 // checkPreconditions not required for now by services to be implemented
-func (h *genericServiceHandler) checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
-	o, err := h.fabric(avn, obj)
+func (h *genericServiceHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+	o, err := h.fabric(obj)
 	if err != nil {
 		return false, err
 	}
@@ -264,7 +268,7 @@ func (h *genericServiceHandler) checkPreconditions(ctx context.Context, avn *aiv
 }
 
 // serviceAdapterFabric returns serviceAdapter for specific service, like MySQL
-type serviceAdapterFabric func(*aiven.Client, client.Object) (serviceAdapter, error)
+type serviceAdapterFabric func(client.Object) (serviceAdapter, error)
 
 // serviceAdapter turns client.Object into a generic thing
 type serviceAdapter interface {

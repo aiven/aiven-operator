@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
@@ -44,7 +43,7 @@ func (r *ValkeyReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func newValkeyAdapter(_ *aiven.Client, object client.Object) (serviceAdapter, error) {
+func newValkeyAdapter(object client.Object) (serviceAdapter, error) {
 	valkey, ok := object.(*v1alpha1.Valkey)
 	if !ok {
 		return nil, fmt.Errorf("object is not of type v1alpha1.Valkey")

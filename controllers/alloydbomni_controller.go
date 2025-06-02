@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/alloydbomni"
 	"github.com/aiven/go-client-codegen/handler/service"
@@ -44,7 +43,7 @@ func (r *AlloyDBOmniReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func newAlloyDBOmniAdapter(_ *aiven.Client, object client.Object) (serviceAdapter, error) {
+func newAlloyDBOmniAdapter(object client.Object) (serviceAdapter, error) {
 	adbo, ok := object.(*v1alpha1.AlloyDBOmni)
 	if !ok {
 		return nil, fmt.Errorf("object is not of type v1alpha1.AlloyDBOmni")

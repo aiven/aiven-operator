@@ -101,9 +101,9 @@ func TestPgReadReplica(t *testing.T) {
 	assert.NotNil(t, masterAvn.UserConfig) // "Aiven instance has defaults set"
 	assert.Nil(t, master.Spec.UserConfig)
 	assert.Equal(t, map[string]string{"env": "prod", "instance": "master"}, master.Spec.Tags)
-	masterResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, masterName)
+	masterTags, err := avnGen.ProjectServiceTagsList(ctx, cfg.Project, masterName)
 	require.NoError(t, err)
-	assert.Equal(t, masterResp.Tags, master.Spec.Tags)
+	assert.Equal(t, masterTags, master.Spec.Tags)
 
 	replicaAvn, err := avnGen.ServiceGet(ctx, cfg.Project, replicaName)
 	require.NoError(t, err)
@@ -113,9 +113,9 @@ func TestPgReadReplica(t *testing.T) {
 	assert.Equal(t, replicaAvn.Plan, replica.Spec.Plan)
 	assert.Equal(t, replicaAvn.CloudName, replica.Spec.CloudName)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "replica"}, replica.Spec.Tags)
-	replicaResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, replicaName)
+	replicaTags, err := avnGen.ProjectServiceTagsList(ctx, cfg.Project, replicaName)
 	require.NoError(t, err)
-	assert.Equal(t, replicaResp.Tags, replica.Spec.Tags)
+	assert.Equal(t, replicaTags, replica.Spec.Tags)
 
 	// UserConfig test
 	require.NotNil(t, replica.Spec.UserConfig)
@@ -214,9 +214,9 @@ func TestPgCustomPrefix(t *testing.T) {
 	assert.Equal(t, pgAvn.Plan, pg.Spec.Plan)
 	assert.Equal(t, pgAvn.CloudName, pg.Spec.CloudName)
 	assert.Equal(t, map[string]string{"env": "prod", "instance": "pg"}, pg.Spec.Tags)
-	masterResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, pgName)
+	masterTags, err := avnGen.ProjectServiceTagsList(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
-	assert.Equal(t, masterResp.Tags, pg.Spec.Tags)
+	assert.Equal(t, masterTags, pg.Spec.Tags)
 
 	// UserConfig test
 	require.NotNil(t, pg.Spec.UserConfig)

@@ -74,9 +74,9 @@ func TestGrafana(t *testing.T) {
 	assert.Equal(t, grafanaAvn.Plan, grafana.Spec.Plan)
 	assert.Equal(t, grafanaAvn.CloudName, grafana.Spec.CloudName)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, grafana.Spec.Tags)
-	grafanaResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)
+	grafanaTags, err := avnGen.ProjectServiceTagsList(ctx, cfg.Project, name)
 	require.NoError(t, err)
-	assert.Equal(t, grafanaResp.Tags, grafana.Spec.Tags)
+	assert.Equal(t, grafanaTags, grafana.Spec.Tags)
 
 	// UserConfig test
 	require.NotNil(t, grafana.Spec.UserConfig)

@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
@@ -43,7 +42,7 @@ func (r *FlinkReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func newFlinkAdapter(_ *aiven.Client, object client.Object) (serviceAdapter, error) {
+func newFlinkAdapter(object client.Object) (serviceAdapter, error) {
 	flink, ok := object.(*v1alpha1.Flink)
 	if !ok {
 		return nil, fmt.Errorf("object is not of type v1alpha1.Flink")
