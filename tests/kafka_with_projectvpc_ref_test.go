@@ -70,8 +70,8 @@ func TestKafkaWithProjectVPCRef(t *testing.T) {
 	kafka := new(v1alpha1.Kafka)
 	require.NoError(t, s.GetRunning(kafka, kafkaName))
 
-	vpc := new(v1alpha1.ProjectVPC)
-	require.NoError(t, s.GetRunning(vpc, vpcName))
+	projectVPC := new(v1alpha1.ProjectVPC)
+	require.NoError(t, s.GetRunning(projectVPC, vpcName))
 
 	// THEN
 	kafkaAvn, err := avnGen.ServiceGet(ctx, cfg.Project, kafkaName)
@@ -85,13 +85,13 @@ func TestKafkaWithProjectVPCRef(t *testing.T) {
 	// Validates VPC
 	require.NotNil(t, kafka.Spec.ProjectVPCRef)
 	assert.Equal(t, vpcName, kafka.Spec.ProjectVPCRef.Name)
-	assert.Equal(t, vpc.Status.ID, kafkaAvn.ProjectVpcId)
+	assert.Equal(t, projectVPC.Status.ID, kafkaAvn.ProjectVpcId)
 
-	vpcAvn, err := avnClient.VPCs.Get(ctx, cfg.Project, vpc.Status.ID)
+	vpcAvn, err := avnGen.VpcGet(ctx, cfg.Project, projectVPC.Status.ID)
 	require.NoError(t, err)
-	assert.Equal(t, "ACTIVE", vpcAvn.State)
-	assert.Equal(t, vpcAvn.State, vpc.Status.State)
-	assert.Equal(t, vpcAvn.CloudName, vpc.Spec.CloudName)
-	assert.Equal(t, "10.0.0.0/24", vpc.Spec.NetworkCidr)
-	assert.Equal(t, vpcAvn.NetworkCIDR, vpc.Spec.NetworkCidr)
+	assert.EqualValues(t, "ACTIVE", vpcAvn.State)
+	assert.Equal(t, vpcAvn.State, projectVPC.Status.State)
+	assert.Equal(t, vpcAvn.CloudName, projectVPC.Spec.CloudName)
+	assert.Equal(t, "10.0.0.0/24", projectVPC.Spec.NetworkCidr)
+	assert.Equal(t, vpcAvn.NetworkCidr, projectVPC.Spec.NetworkCidr)
 }

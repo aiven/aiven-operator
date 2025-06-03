@@ -141,7 +141,7 @@ func TestKafkaSchema(t *testing.T) {
 
 	// Validates deleting, because deleted kafka drops schemas, and we want to be sure deletion works
 	assert.NoError(t, s.Delete(schema, func() error {
-		_, err := avnClient.KafkaSubjectSchemas.Get(ctx, cfg.Project, kafkaName, subjectName, 1)
+		_, err := avnGen.ServiceSchemaRegistrySubjectVersionGet(ctx, cfg.Project, kafkaName, subjectName, 1)
 		return err
 	}))
 }

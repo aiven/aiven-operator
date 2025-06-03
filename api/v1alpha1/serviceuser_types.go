@@ -3,6 +3,7 @@
 package v1alpha1
 
 import (
+	"github.com/aiven/go-client-codegen/handler/service"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -13,7 +14,7 @@ type ServiceUserSpec struct {
 
 	// +kubebuilder:validation:Enum=caching_sha2_password;mysql_native_password
 	// Authentication details
-	Authentication string `json:"authentication,omitempty"`
+	Authentication service.AuthenticationType `json:"authentication,omitempty"`
 }
 
 // ServiceUserStatus defines the observed state of ServiceUser

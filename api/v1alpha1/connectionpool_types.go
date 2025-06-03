@@ -3,6 +3,7 @@
 package v1alpha1
 
 import (
+	"github.com/aiven/go-client-codegen/handler/postgresql"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -26,7 +27,7 @@ type ConnectionPoolSpec struct {
 
 	// +kubebuilder:validation:Enum=session;transaction;statement
 	// Mode the pool operates in (session, transaction, statement)
-	PoolMode string `json:"poolMode,omitempty"`
+	PoolMode postgresql.PoolModeType `json:"poolMode,omitempty"`
 }
 
 // ConnectionPoolStatus defines the observed state of ConnectionPool

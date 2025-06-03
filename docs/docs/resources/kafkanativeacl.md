@@ -20,11 +20,6 @@ spec:
 
   connInfoSecretTarget:
     name: kafka-secret
-    prefix: MY_SECRET_PREFIX_
-    annotations:
-      foo: bar
-    labels:
-      baz: egg
 
   project: my-aiven-project
   cloudName: google-europe-west1
@@ -47,11 +42,11 @@ spec:
   project: my-aiven-project
   serviceName: my-kafka
   host: my-host
-  operation: Read
+  operation: Create
   patternType: LITERAL
   permissionType: ALLOW
-  principal: user:my-user
-  resourceName: my-topic
+  principal: User:alice
+  resourceName: my-kafka-topic
   resourceType: Topic
 ```
 
@@ -70,7 +65,7 @@ kubectl get kafkanativeacls my-kafka-native-acl
 The output is similar to the following:
 ```shell
 Name                   Service Name    Project             Host       Operation    PatternType    PermissionType    
-my-kafka-native-acl    my-kafka        my-aiven-project    my-host    Read         LITERAL        ALLOW             
+my-kafka-native-acl    my-kafka        my-aiven-project    my-host    Create       LITERAL        ALLOW             
 ```
 
 ---

@@ -263,6 +263,10 @@ outer:
 			break outer
 		case <-time.After(retryInterval):
 			retry, err = f()
+			if err != nil {
+				err = multierror.Append(err, err)
+			}
+
 			if !retry {
 				break outer
 			}

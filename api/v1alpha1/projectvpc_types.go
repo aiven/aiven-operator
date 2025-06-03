@@ -3,6 +3,7 @@
 package v1alpha1
 
 import (
+	"github.com/aiven/go-client-codegen/handler/vpc"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -27,7 +28,7 @@ type ProjectVPCStatus struct {
 	Conditions []metav1.Condition `json:"conditions"`
 
 	// State of VPC
-	State string `json:"state"`
+	State vpc.VpcStateType `json:"state"`
 
 	// Project VPC id
 	ID string `json:"id"`
