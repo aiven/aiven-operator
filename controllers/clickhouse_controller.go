@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
@@ -42,7 +41,7 @@ func (r *ClickhouseReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func newClickhouseAdapter(_ *aiven.Client, object client.Object) (serviceAdapter, error) {
+func newClickhouseAdapter(object client.Object) (serviceAdapter, error) {
 	clickhouse, ok := object.(*v1alpha1.Clickhouse)
 	if !ok {
 		return nil, fmt.Errorf("object is not of type v1alpha1.Clickhouse")

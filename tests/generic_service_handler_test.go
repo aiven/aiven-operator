@@ -83,11 +83,11 @@ func TestCreateUpdateService(t *testing.T) {
 
 	// THEN
 	// Validates tags
-	tagsCreatedAvn, err := avnClient.ServiceTags.Get(ctx, cfg.Project, pgName)
+	tagsCreatedAvnTags, err := avnGen.ProjectServiceTagsList(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
 
 	assert.Equal(t, map[string]string{"env": "prod", "instance": "master"}, pg.Spec.Tags)
-	assert.Equal(t, tagsCreatedAvn.Tags, pg.Spec.Tags)
+	assert.Equal(t, tagsCreatedAvnTags, pg.Spec.Tags)
 
 	// Updates tags
 	ymlUpdate := getUpdateServiceYaml(cfg.Project, pgName)
@@ -96,9 +96,9 @@ func TestCreateUpdateService(t *testing.T) {
 
 	pgUpdated := new(v1alpha1.PostgreSQL)
 	require.NoError(t, s.GetRunning(pgUpdated, pgName))
-	tagsUpdatedAvn, err := avnClient.ServiceTags.Get(ctx, cfg.Project, pgName)
+	tagsUpdatedAvnTags, err := avnGen.ProjectServiceTagsList(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
-	assert.Empty(t, tagsUpdatedAvn.Tags) // cleared tags
+	assert.Empty(t, tagsUpdatedAvnTags) // cleared tags
 }
 
 func getErrorConditionYaml(project, pgName string) string {

@@ -76,9 +76,9 @@ func TestMySQL(t *testing.T) {
 	assert.Equal(t, "100GiB", ms.Spec.DiskSpace)
 	assert.Equal(t, int(102400), *msAvn.DiskSpaceMb)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, ms.Spec.Tags)
-	msResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)
+	msTags, err := avnGen.ProjectServiceTagsList(ctx, cfg.Project, name)
 	require.NoError(t, err)
-	assert.Equal(t, msResp.Tags, ms.Spec.Tags)
+	assert.Equal(t, msTags, ms.Spec.Tags)
 
 	// UserConfig test
 	require.NotNil(t, ms.Spec.UserConfig)

@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
@@ -44,7 +43,7 @@ func (r *RedisReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func newRedisAdapter(_ *aiven.Client, object client.Object) (serviceAdapter, error) {
+func newRedisAdapter(object client.Object) (serviceAdapter, error) {
 	redis, ok := object.(*v1alpha1.Redis)
 	if !ok {
 		return nil, fmt.Errorf("object is not of type v1alpha1.Redis")

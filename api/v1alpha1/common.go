@@ -106,7 +106,7 @@ type BaseServiceFields struct {
 
 	// +kubebuilder:validation:Enum=monday;tuesday;wednesday;thursday;friday;saturday;sunday
 	// Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.
-	MaintenanceWindowDow string `json:"maintenanceWindowDow,omitempty"`
+	MaintenanceWindowDow service.DowType `json:"maintenanceWindowDow,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=8
 	// Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
@@ -252,7 +252,7 @@ func ErrorSubstrChecker(substrings ...string) func(error) bool {
 // Service integrations to specify when creating a service. Not applied after initial service creation
 type ServiceIntegrationItem struct {
 	// +kubebuilder:validation:Enum=read_replica
-	IntegrationType string `json:"integrationType"`
+	IntegrationType service.IntegrationType `json:"integrationType"`
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=64
 	SourceServiceName string `json:"sourceServiceName"`

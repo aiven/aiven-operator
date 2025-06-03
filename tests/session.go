@@ -147,7 +147,9 @@ func (s *session) GetRunning(obj client.Object, keys ...string) error {
 		if o, ok := obj.(v1alpha1.AivenManagedObject); ok {
 			for _, c := range *o.Conditions() {
 				if c.Type == controllers.ConditionTypeError {
-					return false, errors.New(c.Message)
+					// Sometimes it is OK that API returns "not ready" condition.
+					// Retries "try again later" errors.
+					return strings.Contains(c.Message, "try again later"), errors.New(c.Message)
 				}
 			}
 		}

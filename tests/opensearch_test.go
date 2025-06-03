@@ -81,9 +81,9 @@ func TestOpenSearch(t *testing.T) {
 	assert.Equal(t, "240GiB", os.Spec.DiskSpace)
 	assert.Equal(t, int(245760), *osAvn.DiskSpaceMb)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, os.Spec.Tags)
-	osResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)
+	osTags, err := avnGen.ProjectServiceTagsList(ctx, cfg.Project, name)
 	require.NoError(t, err)
-	assert.Equal(t, osResp.Tags, os.Spec.Tags)
+	assert.Equal(t, osTags, os.Spec.Tags)
 
 	// UserConfig test
 	require.NotNil(t, os.Spec.UserConfig)

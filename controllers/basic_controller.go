@@ -9,6 +9,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
@@ -518,11 +519,11 @@ func toOptionalStringPointer(s string) *string {
 	return &s
 }
 
-func getMaintenanceWindow(dow, time string) *aiven.MaintenanceWindow {
+func getMaintenanceWindow(dow service.DowType, time string) *service.MaintenanceIn {
 	if dow != "" || time != "" {
-		return &aiven.MaintenanceWindow{
-			DayOfWeek: dow,
-			TimeOfDay: time,
+		return &service.MaintenanceIn{
+			Dow:  dow,
+			Time: &time,
 		}
 	}
 

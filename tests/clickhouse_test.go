@@ -87,9 +87,9 @@ func TestClickhouse(t *testing.T) {
 	assert.Equal(t, chAvn.Plan, ch.Spec.Plan)
 	assert.Equal(t, chAvn.CloudName, ch.Spec.CloudName)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, ch.Spec.Tags)
-	chResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, chName)
+	chTags, err := avnGen.ProjectServiceTagsList(ctx, cfg.Project, chName)
 	require.NoError(t, err)
-	assert.Equal(t, chResp.Tags, ch.Spec.Tags)
+	assert.Equal(t, chTags, ch.Spec.Tags)
 
 	// UserConfig test
 	require.NotNil(t, ch.Spec.UserConfig)
