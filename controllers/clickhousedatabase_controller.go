@@ -9,6 +9,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/clickhouse"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -44,19 +45,24 @@ func (r *ClickhouseDatabaseReconciler) SetupWithManager(mgr ctrl.Manager) error 
 		Complete(r)
 }
 
-func (h *ClickhouseDatabaseHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object, _ []client.Object) error {
+func (h *ClickhouseDatabaseHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	db, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
 
 	dbName := db.GetDatabaseName()
-	_, err = avn.ClickhouseDatabase.Get(ctx, db.Spec.Project, db.Spec.ServiceName, dbName)
-	if isNotFound(err) {
-		err = avn.ClickhouseDatabase.Create(ctx, db.Spec.Project, db.Spec.ServiceName, dbName)
-	}
-
-	if err != nil {
+	_, err = GetClickhouseDatabaseByName(ctx, avnGen, db.Spec.Project, db.Spec.ServiceName, dbName)
+	switch {
+	case isNotFound(err):
+		req := clickhouse.ServiceClickHouseDatabaseCreateIn{
+			Database: dbName,
+		}
+		err = avnGen.ServiceClickHouseDatabaseCreate(ctx, db.Spec.Project, db.Spec.ServiceName, &req)
+		if err != nil {
+			return err
+		}
+	case err != nil:
 		return fmt.Errorf("cannot create clickhouse database on Aiven side: %w", err)
 	}
 
@@ -70,14 +76,14 @@ func (h *ClickhouseDatabaseHandler) createOrUpdate(ctx context.Context, avn *aiv
 	return nil
 }
 
-func (h *ClickhouseDatabaseHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
+func (h *ClickhouseDatabaseHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	db, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
 
 	dbName := db.GetDatabaseName()
-	err = avn.ClickhouseDatabase.Delete(ctx, db.Spec.Project, db.Spec.ServiceName, dbName)
+	err = avnGen.ServiceClickHouseDatabaseDelete(ctx, db.Spec.Project, db.Spec.ServiceName, dbName)
 	if err != nil && !isNotFound(err) {
 		return false, err
 	}
@@ -85,14 +91,14 @@ func (h *ClickhouseDatabaseHandler) delete(ctx context.Context, avn *aiven.Clien
 	return true, nil
 }
 
-func (h *ClickhouseDatabaseHandler) get(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *ClickhouseDatabaseHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	db, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
 
 	dbName := db.GetDatabaseName()
-	_, err = avn.ClickhouseDatabase.Get(ctx, db.Spec.Project, db.Spec.ServiceName, dbName)
+	_, err = GetClickhouseDatabaseByName(ctx, avnGen, db.Spec.Project, db.Spec.ServiceName, dbName)
 	if err != nil {
 		return nil, err
 	}
@@ -125,4 +131,17 @@ func (h *ClickhouseDatabaseHandler) convert(i client.Object) (*v1alpha1.Clickhou
 	}
 
 	return db, nil
+}
+
+func GetClickhouseDatabaseByName(ctx context.Context, avnGen avngen.Client, project, service, name string) (*clickhouse.DatabaseOut, error) {
+	list, err := avnGen.ServiceClickHouseDatabaseList(ctx, project, service)
+	if err != nil {
+		return nil, err
+	}
+	for _, db := range list {
+		if db.Name == name {
+			return &db, nil
+		}
+	}
+	return nil, NewNotFound(fmt.Sprintf("database %q not found", name))
 }

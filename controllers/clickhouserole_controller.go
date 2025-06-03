@@ -11,6 +11,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/clickhouse"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -52,13 +53,13 @@ func (r *ClickhouseRoleReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 type clickhouseRoleHandler struct{}
 
-func (h *clickhouseRoleHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object, _ []client.Object) error {
+func (h *clickhouseRoleHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	role, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
 
-	err = clickhouseRoleCreate(ctx, avn, role)
+	err = clickhouseRoleCreate(ctx, avnGen, role)
 	if err != nil {
 		return err
 	}
@@ -73,23 +74,23 @@ func (h *clickhouseRoleHandler) createOrUpdate(ctx context.Context, avn *aiven.C
 	return nil
 }
 
-func (h *clickhouseRoleHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
+func (h *clickhouseRoleHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	role, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
 
-	err = clickhouseRoleDelete(ctx, avn, role)
+	err = clickhouseRoleDelete(ctx, avnGen, role)
 	return isDeleted(err)
 }
 
-func (h *clickhouseRoleHandler) get(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *clickhouseRoleHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	role, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
 
-	err = ClickhouseRoleExists(ctx, avn, role)
+	err = ClickhouseRoleExists(ctx, avnGen, role)
 	if err != nil {
 		return nil, err
 	}
@@ -129,26 +130,29 @@ func escape(identifier string) string {
 	return "`" + replacer.Replace(identifier) + "`"
 }
 
-func runQuery(ctx context.Context, avn *aiven.Client, r *v1alpha1.ClickhouseRole, query string) error {
-	q := fmt.Sprintf("%s %s", query, escape(r.Spec.Role))
-	_, err := avn.ClickHouseQuery.Query(ctx, r.Spec.Project, r.Spec.ServiceName, defaultDatabase, q)
+func runQuery(ctx context.Context, avnGen avngen.Client, r *v1alpha1.ClickhouseRole, query string) error {
+	req := clickhouse.ServiceClickHouseQueryIn{
+		Database: defaultDatabase,
+		Query:    fmt.Sprintf("%s %s", query, escape(r.Spec.Role)),
+	}
+	_, err := avnGen.ServiceClickHouseQuery(ctx, r.Spec.Project, r.Spec.ServiceName, &req)
 	return err
 }
 
-func ClickhouseRoleExists(ctx context.Context, avn *aiven.Client, r *v1alpha1.ClickhouseRole) error {
-	err := runQuery(ctx, avn, r, "SHOW CREATE ROLE")
+func ClickhouseRoleExists(ctx context.Context, avnGen avngen.Client, r *v1alpha1.ClickhouseRole) error {
+	err := runQuery(ctx, avnGen, r, "SHOW CREATE ROLE")
 	if isUnknownRole(err) {
 		return NewNotFound(fmt.Sprintf("ClickhouseRole %q not found", r.Name))
 	}
 	return err
 }
 
-func clickhouseRoleCreate(ctx context.Context, avn *aiven.Client, r *v1alpha1.ClickhouseRole) error {
-	return runQuery(ctx, avn, r, "CREATE ROLE IF NOT EXISTS")
+func clickhouseRoleCreate(ctx context.Context, avnGen avngen.Client, r *v1alpha1.ClickhouseRole) error {
+	return runQuery(ctx, avnGen, r, "CREATE ROLE IF NOT EXISTS")
 }
 
-func clickhouseRoleDelete(ctx context.Context, avn *aiven.Client, r *v1alpha1.ClickhouseRole) error {
-	err := runQuery(ctx, avn, r, "DROP ROLE IF EXISTS")
+func clickhouseRoleDelete(ctx context.Context, avnGen avngen.Client, r *v1alpha1.ClickhouseRole) error {
+	err := runQuery(ctx, avnGen, r, "DROP ROLE IF EXISTS")
 	if isUnknownRole(err) {
 		return nil
 	}
@@ -156,6 +160,6 @@ func clickhouseRoleDelete(ctx context.Context, avn *aiven.Client, r *v1alpha1.Cl
 }
 
 func isUnknownRole(err error) bool {
-	var e aiven.Error
+	var e avngen.Error
 	return errors.As(err, &e) && strings.Contains(e.Message, "Code: 511")
 }

@@ -221,7 +221,7 @@ tasks:
     sources:
       - "**/*.go"
     cmds:
-      - "find . -name '*.go' -type f -exec gofumpt -w {} +"
+      - "find . -name '*.go' -type f -exec go tool gofumpt -w {} +"
 
   fmt:imports:
     desc: Format Go imports
