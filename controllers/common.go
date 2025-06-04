@@ -123,14 +123,6 @@ func IsAlreadyRunning(o client.Object) bool {
 	return found
 }
 
-func optionalStringPointer(u string) *string {
-	if len(u) == 0 {
-		return nil
-	}
-
-	return &u
-}
-
 // NilIfZero returns a pointer to the value, or nil if the value equals its zero value
 func NilIfZero[T comparable](v T) *T {
 	var zero T
@@ -297,12 +289,4 @@ func isAivenError(err error, code int) bool {
 	}
 
 	return false
-}
-
-func toPtr[T comparable](v T) *T {
-	var empty T
-	if empty == v {
-		return nil
-	}
-	return &v
 }

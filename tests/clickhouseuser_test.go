@@ -133,7 +133,7 @@ func TestClickhouseUser(t *testing.T) {
 	require.NoError(t, s.Apply(ymlUsernameSet))
 	require.NoError(t, s.GetRunning(updatedUser, "metadata-name")) // GetRunning must be called with the metadata name
 
-	updatedUserAvn, err := avnClient.ClickhouseUser.Get(ctx, cfg.Project, chName, updatedUser.Status.UUID)
+	updatedUserAvn, err := getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, updatedUser.Status.UUID)
 	require.NoError(t, err)
 
 	// THEN

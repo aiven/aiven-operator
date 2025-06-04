@@ -20,6 +20,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
+	"github.com/aiven/aiven-operator/controllers"
 )
 
 func TestConnectionPool(t *testing.T) {
@@ -87,20 +88,20 @@ func TestConnectionPool(t *testing.T) {
 	assert.Equal(t, pgAvn.CloudName, pg.Spec.CloudName)
 
 	// Validates Database
-	dbAvn, err := avnClient.Databases.Get(ctx, cfg.Project, pgName, dbName)
+	dbAvn, err := controllers.GetDatabaseByName(ctx, avnGen, cfg.Project, pgName, dbName)
 	require.NoError(t, err)
 	assert.Equal(t, dbName, db.GetName())
 	assert.Equal(t, dbAvn.DatabaseName, db.GetName())
 
 	// Validates ServiceUser
-	userAvn, err := avnClient.ServiceUsers.Get(ctx, cfg.Project, pgName, userName)
+	userAvn, err := avnGen.ServiceUserGet(ctx, cfg.Project, pgName, userName)
 	require.NoError(t, err)
 	assert.Equal(t, userName, user.GetName())
 	assert.Equal(t, userName, userAvn.Username)
 	assert.Equal(t, pgName, user.Spec.ServiceName)
 
 	// Validates ConnectionPool
-	poolAvn, err := avnClient.ConnectionPools.Get(ctx, cfg.Project, pgName, poolName)
+	poolAvn, err := getConnectionPoolByName(ctx, cfg.Project, pgName, poolName)
 	require.NoError(t, err)
 	assert.Equal(t, pgName, pool.Spec.ServiceName)
 	assert.Equal(t, poolName, pool.GetName())
@@ -108,11 +109,11 @@ func TestConnectionPool(t *testing.T) {
 	assert.Equal(t, dbName, pool.Spec.DatabaseName)
 	assert.Equal(t, dbName, poolAvn.Database)
 	assert.Equal(t, userName, pool.Spec.Username)
-	assert.Equal(t, userName, poolAvn.Username)
+	assert.Equal(t, userName, fromPtr(poolAvn.Username))
 	assert.Equal(t, 25, pool.Spec.PoolSize)
 	assert.Equal(t, 25, poolAvn.PoolSize)
-	assert.Equal(t, "transaction", pool.Spec.PoolMode)
-	assert.Equal(t, "transaction", poolAvn.PoolMode)
+	assert.EqualValues(t, "transaction", pool.Spec.PoolMode)
+	assert.EqualValues(t, "transaction", poolAvn.PoolMode)
 
 	// Validates Secret
 	secret, err := s.GetSecret(pool.GetName())
@@ -138,7 +139,7 @@ func TestConnectionPool(t *testing.T) {
 	// if service is deleted, pool is destroyed in Aiven. No service — no pool. No pool — no pool.
 	// And we make sure that controller can delete db itself
 	assert.NoError(t, s.Delete(pool, func() error {
-		_, err = avnClient.ConnectionPools.Get(ctx, cfg.Project, pgName, poolName)
+		_, err = getConnectionPoolByName(ctx, cfg.Project, pgName, poolName)
 		return err
 	}))
 }
@@ -444,4 +445,18 @@ func testConnectionToDatabase(ctx context.Context, t *testing.T, connectionURI s
 
 	t.Logf("Successfully connected as user: %s", connectedUser)
 	return true
+}
+
+func getConnectionPoolByName(ctx context.Context, projectName, serviceName, poolName string) (*service.ConnectionPoolOut, error) {
+	services, err := avnGen.ServiceGet(ctx, projectName, serviceName)
+	if errors.IsNotFound(err) {
+		return nil, err
+	}
+
+	for _, p := range services.ConnectionPools {
+		if p.PoolName == poolName {
+			return &p, nil
+		}
+	}
+	return nil, controllers.NewNotFound(fmt.Sprintf("connection pool %q not found", poolName))
 }

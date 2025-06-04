@@ -91,7 +91,7 @@ func TestServiceUserKafka(t *testing.T) {
 	assert.Equal(t, kafkaAvn.CloudName, kafka.Spec.CloudName)
 
 	// Validates ServiceUser
-	userAvn, err := avnClient.ServiceUsers.Get(ctx, cfg.Project, kafkaName, userName)
+	userAvn, err := avnGen.ServiceUserGet(ctx, cfg.Project, kafkaName, userName)
 	require.NoError(t, err)
 	assert.Equal(t, userName, user.GetName())
 	assert.Equal(t, userName, userAvn.Username)
@@ -132,7 +132,7 @@ func TestServiceUserKafka(t *testing.T) {
 	// if service is deleted, pool is destroyed in Aiven. No service — no pool. No pool — no pool.
 	// And we make sure that the controller can delete db itself
 	assert.NoError(t, s.Delete(user, func() error {
-		_, err = avnClient.ServiceUsers.Get(ctx, cfg.Project, kafkaName, userName)
+		_, err = avnGen.ServiceUserGet(ctx, cfg.Project, kafkaName, userName)
 		return err
 	}))
 }
@@ -213,7 +213,7 @@ func TestServiceUserPg(t *testing.T) {
 	assert.Equal(t, pgAvn.CloudName, pg.Spec.CloudName)
 
 	// Validates ServiceUser
-	userAvn, err := avnClient.ServiceUsers.Get(ctx, cfg.Project, pgName, userName)
+	userAvn, err := avnGen.ServiceUserGet(ctx, cfg.Project, pgName, userName)
 	require.NoError(t, err)
 	assert.Equal(t, userName, user.GetName())
 	assert.Equal(t, userName, userAvn.Username)
@@ -248,7 +248,7 @@ func TestServiceUserPg(t *testing.T) {
 	// if service is deleted, pool is destroyed in Aiven. No service — no pool. No pool — no pool.
 	// And we make sure that the controller can delete db itself
 	assert.NoError(t, s.Delete(user, func() error {
-		_, err = avnClient.ServiceUsers.Get(ctx, cfg.Project, pgName, userName)
+		_, err = avnGen.ServiceUserGet(ctx, cfg.Project, pgName, userName)
 		return err
 	}))
 }

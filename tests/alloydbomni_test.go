@@ -53,9 +53,9 @@ func TestAlloyDBOmni(t *testing.T) {
 	assert.Equal(t, "90GiB", adbo.Spec.DiskSpace)
 	assert.Equal(t, int(92160), *adboAvn.DiskSpaceMb)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, adbo.Spec.Tags)
-	adboResp, err := avnClient.ServiceTags.Get(ctx, cfg.Project, name)
+	adboTags, err := avnGen.ProjectServiceTagsList(ctx, cfg.Project, name)
 	require.NoError(t, err)
-	assert.Equal(t, adboResp.Tags, adbo.Spec.Tags)
+	assert.Equal(t, adboTags, adbo.Spec.Tags)
 
 	// UserConfig test
 	require.NotNil(t, adbo.Spec.UserConfig)

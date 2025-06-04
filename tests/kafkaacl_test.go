@@ -1,14 +1,18 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
+	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/kafka"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/api/meta"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
+	"github.com/aiven/aiven-operator/controllers"
 )
 
 func getKafkaACLYaml(project, kafka, topic, acl, cloudName string) string {
@@ -70,7 +74,7 @@ func TestKafkaACL(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	kafkaName := randName("kafka-acl")
+	kafkaName := "test-0hpnor2-kafka-acl" // randName("kafka-acl")
 	topicName := randName("kafka-acl")
 	aclName := randName("kafka-acl")
 	yml := getKafkaACLYaml(cfg.Project, kafkaName, topicName, aclName, cfg.PrimaryCloudName)
@@ -84,8 +88,8 @@ func TestKafkaACL(t *testing.T) {
 	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
-	kafka := new(v1alpha1.Kafka)
-	require.NoError(t, s.GetRunning(kafka, kafkaName))
+	kafkaService := new(v1alpha1.Kafka)
+	require.NoError(t, s.GetRunning(kafkaService, kafkaName))
 
 	topic := new(v1alpha1.KafkaTopic)
 	require.NoError(t, s.GetRunning(topic, topicName))
@@ -97,11 +101,11 @@ func TestKafkaACL(t *testing.T) {
 	// Kafka
 	kafkaAvn, err := avnGen.ServiceGet(ctx, cfg.Project, kafkaName)
 	require.NoError(t, err)
-	assert.Equal(t, kafkaAvn.ServiceName, kafka.GetName())
-	assert.Equal(t, serviceRunningState, kafka.Status.State)
+	assert.Equal(t, kafkaAvn.ServiceName, kafkaService.GetName())
+	assert.Equal(t, serviceRunningState, kafkaService.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, kafkaAvn.State)
-	assert.Equal(t, kafkaAvn.Plan, kafka.Spec.Plan)
-	assert.Equal(t, kafkaAvn.CloudName, kafka.Spec.CloudName)
+	assert.Equal(t, kafkaAvn.Plan, kafkaService.Spec.Plan)
+	assert.Equal(t, kafkaAvn.CloudName, kafkaService.Spec.CloudName)
 
 	// KafkaTopic
 	topicAvn, err := avnGen.ServiceKafkaTopicGet(ctx, cfg.Project, kafkaName, topic.GetTopicName())
@@ -114,10 +118,10 @@ func TestKafkaACL(t *testing.T) {
 	assert.Len(t, topicAvn.Partitions, topic.Spec.Partitions)
 
 	// KafkaACL
-	aclAvn, err := avnClient.KafkaACLs.Get(ctx, cfg.Project, kafkaName, acl.Status.ID)
+	aclAvn, err := getKafkaACLbyID(ctx, avnGen, cfg.Project, kafkaName, acl.Status.ID)
 	require.NoError(t, err)
 	assert.True(t, meta.IsStatusConditionTrue(acl.Status.Conditions, "Running"))
-	assert.Equal(t, "admin", acl.Spec.Permission)
+	assert.EqualValues(t, "admin", acl.Spec.Permission)
 	assert.Equal(t, aclAvn.Permission, acl.Spec.Permission)
 	assert.Equal(t, "my-user", acl.Spec.Username)
 	assert.Equal(t, aclAvn.Username, acl.Spec.Username)
@@ -137,14 +141,28 @@ func TestKafkaACL(t *testing.T) {
 	assert.NotEqual(t, aclWrite.Status.ID, acl.Status.ID)
 
 	// Permission has changed on Aiven side too
-	aclWriteAvn, err := avnClient.KafkaACLs.Get(ctx, cfg.Project, kafkaName, aclWrite.Status.ID)
+	aclWriteAvn, err := getKafkaACLbyID(ctx, avnGen, cfg.Project, kafkaName, aclWrite.Status.ID)
 	require.NoError(t, err)
-	assert.Equal(t, "write", aclWrite.Spec.Permission)
+	assert.Equal(t, kafka.PermissionTypeWrite, aclWrite.Spec.Permission)
 	assert.Equal(t, aclWriteAvn.Permission, aclWrite.Spec.Permission)
 
 	// Validate delete by new ID
 	assert.NoError(t, s.Delete(aclWrite, func() error {
-		_, err = avnClient.KafkaACLs.Get(ctx, cfg.Project, kafkaName, aclWrite.Status.ID)
+		_, err = getKafkaACLbyID(ctx, avnGen, cfg.Project, kafkaName, aclWrite.Status.ID)
 		return err
 	}))
+}
+
+func getKafkaACLbyID(ctx context.Context, avnGen avngen.Client, projectName, serviceName, aclID string) (*kafka.AclOut, error) {
+	aclList, err := avnGen.ServiceKafkaAclList(ctx, projectName, serviceName)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, acl := range aclList {
+		if fromPtr(acl.Id) == aclID {
+			return &acl, nil
+		}
+	}
+	return nil, controllers.NewNotFound(fmt.Sprintf("Kafka ACL with ID %q not found", aclID))
 }

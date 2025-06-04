@@ -81,13 +81,13 @@ func (h *ProjectVPCHandler) createOrUpdate(ctx context.Context, avn *aiven.Clien
 	return nil
 }
 
-func (h *ProjectVPCHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
+func (h *ProjectVPCHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	projectVPC, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
 
-	vpc, err := avn.VPCs.Get(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
+	vpc, err := avnGen.VpcGet(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
 	if isNotFound(err) {
 		return true, nil
 	}
@@ -101,19 +101,19 @@ func (h *ProjectVPCHandler) delete(ctx context.Context, avn *aiven.Client, _ avn
 		return true, nil
 	}
 
-	services, err := avn.Services.List(ctx, projectVPC.Spec.Project)
+	services, err := avnGen.ServiceList(ctx, projectVPC.Spec.Project)
 	if err != nil {
 		return false, err
 	}
 
 	for _, s := range services {
-		if s.ProjectVPCID != nil && *s.ProjectVPCID == projectVPC.Status.ID {
-			h.log.Info(fmt.Sprintf("vpc has dependent service %q in status %q", s.Name, s.State))
+		if s.ProjectVpcId == projectVPC.Status.ID {
+			h.log.Info(fmt.Sprintf("vpc has dependent service %q in status %q", s.ServiceName, s.State))
 			return false, nil
 		}
 	}
 
-	err = avn.VPCs.Delete(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
+	_, err = avnGen.VpcDelete(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
 	if isDependencyError(err) {
 		return false, fmt.Errorf("%w: %w", v1alpha1.ErrDeleteDependencies, err)
 	}
@@ -121,13 +121,13 @@ func (h *ProjectVPCHandler) delete(ctx context.Context, avn *aiven.Client, _ avn
 	return false, nil
 }
 
-func (h *ProjectVPCHandler) get(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *ProjectVPCHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	projectVPC, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
 
-	vpc, err := avn.VPCs.Get(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
+	vpc, err := avnGen.VpcGet(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
 	if err != nil {
 		return nil, err
 	}

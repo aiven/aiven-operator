@@ -93,21 +93,21 @@ func TestProjectVPCID(t *testing.T) {
 
 	// THEN
 	// Validates VPC
-	vpc1Avn, err := avnClient.VPCs.Get(ctx, cfg.Project, vpc1.Status.ID)
+	vpc1Avn, err := avnGen.VpcGet(ctx, cfg.Project, vpc1.Status.ID)
 	require.NoError(t, err)
-	assert.Equal(t, "ACTIVE", vpc1Avn.State)
+	assert.EqualValues(t, "ACTIVE", vpc1Avn.State)
 	assert.Equal(t, vpc1Avn.State, vpc1.Status.State)
 	assert.Equal(t, vpc1Avn.CloudName, vpc1.Spec.CloudName)
 	assert.Equal(t, "10.0.0.0/24", vpc1.Spec.NetworkCidr)
-	assert.Equal(t, vpc1Avn.NetworkCIDR, vpc1.Spec.NetworkCidr)
+	assert.Equal(t, vpc1Avn.NetworkCidr, vpc1.Spec.NetworkCidr)
 
-	vpc2Avn, err := avnClient.VPCs.Get(ctx, cfg.Project, vpc2.Status.ID)
+	vpc2Avn, err := avnGen.VpcGet(ctx, cfg.Project, vpc2.Status.ID)
 	require.NoError(t, err)
-	assert.Equal(t, "ACTIVE", vpc2Avn.State)
+	assert.EqualValues(t, "ACTIVE", vpc2Avn.State)
 	assert.Equal(t, vpc2Avn.State, vpc2.Status.State)
 	assert.Equal(t, vpc2Avn.CloudName, vpc2.Spec.CloudName)
 	assert.Equal(t, "10.0.0.0/24", vpc2.Spec.NetworkCidr)
-	assert.Equal(t, vpc2Avn.NetworkCIDR, vpc2.Spec.NetworkCidr)
+	assert.Equal(t, vpc2Avn.NetworkCidr, vpc2.Spec.NetworkCidr)
 
 	// Creates Kafka with given vpcID
 	kafkaName := randName("project-vpc-id")

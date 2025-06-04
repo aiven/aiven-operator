@@ -124,7 +124,8 @@ func (h *clickhouseUserHandler) get(ctx context.Context, _ *aiven.Client, avnGen
 	// while password is returned on create only.
 	// And all other GET methods return empty password, even this one.
 	// So the only way to have a secret here is to reset it manually
-	password, err := avnGen.ServiceClickHousePasswordReset(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID, nil)
+	req := clickhouse.ServiceClickHousePasswordResetIn{}
+	password, err := avnGen.ServiceClickHousePasswordReset(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID, &req)
 	if err != nil {
 		return nil, err
 	}

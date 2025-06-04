@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/kelseyhightower/envconfig"
 	corev1 "k8s.io/api/core/v1"
@@ -28,7 +27,6 @@ import (
 var (
 	cfg       *testConfig
 	k8sClient client.Client
-	avnClient *aiven.Client
 	avnGen    avngen.Client
 )
 
@@ -146,11 +144,6 @@ func setupSuite() (*envtest.Environment, error) {
 	kubeVersion, err := discoveryClient.ServerVersion()
 	if err != nil {
 		return nil, fmt.Errorf("unable to get k8s version: %w", err)
-	}
-
-	avnClient, err = controllers.NewAivenClient(cfg.Token, kubeVersion.String(), operatorVersion)
-	if err != nil {
-		return nil, err
 	}
 
 	avnGen, err = controllers.NewAivenGeneratedClient(cfg.Token, kubeVersion.String(), operatorVersion)

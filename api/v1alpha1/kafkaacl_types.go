@@ -3,6 +3,7 @@
 package v1alpha1
 
 import (
+	"github.com/aiven/go-client-codegen/handler/kafka"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -12,7 +13,7 @@ type KafkaACLSpec struct {
 
 	// +kubebuilder:validation:Enum=admin;read;readwrite;write
 	// Kafka permission to grant (admin, read, readwrite, write)
-	Permission string `json:"permission"`
+	Permission kafka.PermissionType `json:"permission"`
 
 	// Topic name pattern for the ACL entry
 	Topic string `json:"topic"`

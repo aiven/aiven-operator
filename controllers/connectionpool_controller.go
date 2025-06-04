@@ -76,7 +76,7 @@ func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, _ *aiven.Clie
 		reason = "Created"
 		req := postgresql.ServicePgbouncerCreateIn{
 			Database: connPool.Spec.DatabaseName,
-			PoolMode: postgresql.PoolModeType(connPool.Spec.PoolMode),
+			PoolMode: connPool.Spec.PoolMode,
 			PoolName: connPool.Name,
 			PoolSize: NilIfZero(connPool.Spec.PoolSize),
 			Username: NilIfZero(connPool.Spec.Username),
@@ -88,8 +88,8 @@ func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, _ *aiven.Clie
 	} else {
 		reason = "Updated"
 		req := postgresql.ServicePgbouncerUpdateIn{
-			Database: optionalStringPointer(connPool.Spec.DatabaseName),
-			PoolMode: postgresql.PoolModeType(connPool.Spec.PoolMode),
+			Database: NilIfZero(connPool.Spec.DatabaseName),
+			PoolMode: connPool.Spec.PoolMode,
 			PoolSize: NilIfZero(connPool.Spec.PoolSize),
 			Username: NilIfZero(connPool.Spec.Username),
 		}

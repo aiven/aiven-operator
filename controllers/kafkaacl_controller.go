@@ -9,6 +9,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/kafka"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -57,11 +58,11 @@ func (h KafkaACLHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, 
 	}
 
 	// Creates it from scratch
-	r, err := avn.KafkaACLs.Create(
+	_, err = avnGen.ServiceKafkaAclAdd(
 		ctx,
 		acl.Spec.Project,
 		acl.Spec.ServiceName,
-		aiven.CreateKafkaACLRequest{
+		&kafka.ServiceKafkaAclAddIn{
 			Permission: acl.Spec.Permission,
 			Topic:      acl.Spec.Topic,
 			Username:   acl.Spec.Username,
@@ -71,8 +72,16 @@ func (h KafkaACLHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, 
 		return err
 	}
 
-	// New created ACL id set
-	acl.Status.ID = r.ID
+	// Resets the old ID in case it was set
+	acl.Status.ID = ""
+
+	// Gets the ID of the newly created ACL
+	// The server doesn't return the ACL we created, but the list of all ACLs currently defined.
+	// Need to find the correct one manually.
+	acl.Status.ID, err = h.getID(ctx, avnGen, acl)
+	if err != nil {
+		return err
+	}
 	meta.SetStatusCondition(&acl.Status.Conditions,
 		getInitializedCondition("CreatedOrUpdate",
 			"Successfully created or updated the instance in Aiven"))
@@ -87,15 +96,15 @@ func (h KafkaACLHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, 
 	return nil
 }
 
-func (h KafkaACLHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaACLHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	acl, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
 
-	id, err := h.getID(ctx, avn, acl)
+	id, err := h.getID(ctx, avnGen, acl)
 	if err == nil {
-		err = avn.KafkaACLs.Delete(ctx, acl.Spec.Project, acl.Spec.ServiceName, id)
+		_, err = avnGen.ServiceKafkaAclDelete(ctx, acl.Spec.Project, acl.Spec.ServiceName, id)
 	}
 
 	if err != nil && !isNotFound(err) {
@@ -107,7 +116,7 @@ func (h KafkaACLHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen
 
 // todo: remove in v1
 // getID returns ACL's ID in < v0.5.1 compatible mode
-func (h KafkaACLHandler) getID(ctx context.Context, avn *aiven.Client, acl *v1alpha1.KafkaACL) (string, error) {
+func (h KafkaACLHandler) getID(ctx context.Context, avnGen avngen.Client, acl *v1alpha1.KafkaACL) (string, error) {
 	// ACLs made prior to v0.5.1 doesn't have an ID.
 	// This block is for fresh made ACLs only
 	// The rest of this function tries to guess it filtering the list.
@@ -116,33 +125,35 @@ func (h KafkaACLHandler) getID(ctx context.Context, avn *aiven.Client, acl *v1al
 	}
 
 	// For old ACLs only
-	list, err := avn.KafkaACLs.List(ctx, acl.Spec.Project, acl.Spec.ServiceName)
+	list, err := avnGen.ServiceKafkaAclList(ctx, acl.Spec.Project, acl.Spec.ServiceName)
 	if err != nil {
 		return "", err
 	}
 
+	// There could be multiple ACLs with same attributes.
+	// Assume the one that was created is the last one matching.
+	var latestID string
 	for _, a := range list {
 		if acl.Spec.Topic == a.Topic && acl.Spec.Username == a.Username && acl.Spec.Permission == a.Permission {
-			return a.ID, nil
+			latestID = fromAnyPointer(a.Id)
 		}
+	}
+
+	if latestID != "" {
+		return latestID, nil
 	}
 
 	// Error should mimic client error to play well with isNotFound(err)
 	return "", NewNotFound(fmt.Sprintf("Kafka ACL %q not found", acl.Name))
 }
 
-func (h KafkaACLHandler) get(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h KafkaACLHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	acl, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := h.getID(ctx, avn, acl)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = avn.KafkaACLs.Get(ctx, acl.Spec.Project, acl.Spec.ServiceName, id)
+	_, err = h.getID(ctx, avnGen, acl)
 	if err != nil {
 		return nil, err
 	}
