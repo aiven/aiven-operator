@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,37 +9,6 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	kafkaconnectuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/kafka_connect"
 )
-
-func getKafkaConnectYaml(project, name, cloudName string) string {
-	return fmt.Sprintf(`
-apiVersion: aiven.io/v1alpha1
-kind: KafkaConnect
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  tags:
-    env: test
-    instance: foo
-
-  project: %[1]s
-  cloudName: %[3]s
-  plan: business-4
-
-  userConfig:
-    kafka_connect:
-      consumer_isolation_level: read_committed
-    public_access:
-      kafka_connect: true
-    ip_filter:
-      - network: 0.0.0.0/32
-        description: bar
-      - network: 10.20.0.0/16
-`, project, name, cloudName)
-}
 
 func TestKafkaConnect(t *testing.T) {
 	t.Parallel()
@@ -51,7 +19,12 @@ func TestKafkaConnect(t *testing.T) {
 	defer cancel()
 
 	name := randName("kafka-connect")
-	yml := getKafkaConnectYaml(cfg.Project, name, cfg.PrimaryCloudName)
+	yml, err := loadExampleYaml("kafkaconnect.yaml", map[string]string{
+		"metadata.name":  name,
+		"spec.project":   cfg.Project,
+		"spec.cloudName": cfg.PrimaryCloudName,
+	})
+	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient, cfg.Project)
 
 	// Cleans test afterward

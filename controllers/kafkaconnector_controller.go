@@ -11,6 +11,7 @@ import (
 
 	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/kafkaconnect"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -49,7 +50,7 @@ func (r *KafkaConnectorReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object, _ []client.Object) error {
+func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	conn, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -67,13 +68,13 @@ func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avn *aiven.Cl
 
 	var reason string
 	if !exists {
-		err = avn.KafkaConnectors.Create(ctx, conn.Spec.Project, conn.Spec.ServiceName, connCfg)
+		_, err = avnGen.ServiceKafkaConnectCreateConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, connCfg)
 		if err != nil && !isAlreadyExists(err) {
 			return err
 		}
 		reason = "Created"
 	} else {
-		_, err = avn.KafkaConnectors.Update(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name, connCfg)
+		_, err = avnGen.ServiceKafkaConnectEditConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name, connCfg)
 		if err != nil {
 			return err
 		}
@@ -96,7 +97,7 @@ func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avn *aiven.Cl
 }
 
 // buildConnectorConfig joins mandatory fields with additional connector specific config
-func (h KafkaConnectorHandler) buildConnectorConfig(conn *v1alpha1.KafkaConnector) (aiven.KafkaConnectorConfig, error) {
+func (h KafkaConnectorHandler) buildConnectorConfig(conn *v1alpha1.KafkaConnector) (map[string]any, error) {
 	const (
 		configFieldConnectorName  = "name"
 		configFieldConnectorClass = "connector.class"
@@ -120,7 +121,7 @@ func (h KafkaConnectorHandler) buildConnectorConfig(conn *v1alpha1.KafkaConnecto
 		}
 	)
 
-	m := make(map[string]string)
+	m := make(map[string]any)
 
 	m[configFieldConnectorName] = conn.GetName()
 	m[configFieldConnectorClass] = conn.Spec.ConnectorClass
@@ -139,12 +140,12 @@ func (h KafkaConnectorHandler) buildConnectorConfig(conn *v1alpha1.KafkaConnecto
 	return m, nil
 }
 
-func (h KafkaConnectorHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaConnectorHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
 	conn, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
-	err = avn.KafkaConnectors.Delete(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
+	err = avnGen.ServiceKafkaConnectDeleteConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
 	if err != nil && !isNotFound(err) {
 		return false, fmt.Errorf("unable to delete kafka connector: %w", err)
 	}
@@ -159,22 +160,22 @@ func (h KafkaConnectorHandler) exists(ctx context.Context, avn *aiven.Client, co
 	return connector != nil, nil
 }
 
-func (h KafkaConnectorHandler) get(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h KafkaConnectorHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	conn, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
 
-	connAtAiven, err := avn.KafkaConnectors.GetByName(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
+	connAtAiven, err := GetKafkaConnectorByName(ctx, avnGen, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
 	if err != nil {
 		return nil, err
 	}
 	conn.Status.PluginStatus = v1alpha1.KafkaConnectorPluginStatus{
 		Author:  connAtAiven.Plugin.Author,
 		Class:   connAtAiven.Plugin.Class,
-		DocURL:  connAtAiven.Plugin.DocumentationURL,
+		DocURL:  connAtAiven.Plugin.DocUrl,
 		Title:   connAtAiven.Plugin.Title,
-		Type:    connAtAiven.Plugin.Type,
+		Type:    string(connAtAiven.Plugin.Type),
 		Version: connAtAiven.Plugin.Version,
 	}
 
@@ -229,4 +230,19 @@ func (h KafkaConnectorHandler) convert(o client.Object) (*v1alpha1.KafkaConnecto
 		return nil, fmt.Errorf("cannot convert object to KafkaConnector")
 	}
 	return conn, nil
+}
+
+func GetKafkaConnectorByName(ctx context.Context, avnGen avngen.Client, projectName, serviceName, name string) (*kafkaconnect.ConnectorOut, error) {
+	list, err := avnGen.ServiceKafkaConnectList(ctx, projectName, serviceName)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range list {
+		if v.Name == name {
+			return &v, nil
+		}
+	}
+
+	return nil, NewNotFound(fmt.Sprintf("Kafka connector with name %q not found", name))
 }

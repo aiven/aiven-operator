@@ -18,6 +18,10 @@ spec:
     name: aiven-token
     key: token
 
+  tags:
+    env: test
+    instance: foo
+
   project: my-aiven-project
   cloudName: google-europe-west1
   plan: business-4
@@ -27,6 +31,10 @@ spec:
       consumer_isolation_level: read_committed
     public_access:
       kafka_connect: true
+    ip_filter:
+      - network: 0.0.0.0/32
+        description: bar
+      - network: 10.20.0.0/16
 ```
 
 Apply the resource with:
