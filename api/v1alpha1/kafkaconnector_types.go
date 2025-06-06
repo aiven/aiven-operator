@@ -3,6 +3,7 @@
 package v1alpha1
 
 import (
+	"github.com/aiven/go-client-codegen/handler/kafkaconnect"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -14,9 +15,11 @@ type KafkaConnectorSpec struct {
 	// The Java class of the connector.
 	ConnectorClass string `json:"connectorClass"`
 
-	// The connector specific configuration
+	// The connector-specific configuration
 	// To build config values from secret the template function `{{ fromSecret "name" "key" }}`
-	// is provided when interpreting the keys
+	// is provided when interpreting the keys.
+	// Where "name" is the name of the secret and "key" is the key in the secret
+	// in the same namespace as the KafkaConnector.
 	UserConfig map[string]string `json:"userConfig"`
 }
 
@@ -26,7 +29,7 @@ type KafkaConnectorStatus struct {
 	Conditions []metav1.Condition `json:"conditions"`
 
 	// Connector state
-	State string `json:"state"`
+	State kafkaconnect.ServiceKafkaConnectConnectorStateType `json:"state"`
 
 	// PluginStatus contains metadata about the configured connector plugin
 	PluginStatus KafkaConnectorPluginStatus `json:"pluginStatus"`

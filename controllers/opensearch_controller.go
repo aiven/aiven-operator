@@ -75,6 +75,7 @@ func (a *opensearchAdapter) getUserConfig() any {
 func (a *opensearchAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
+		prefix + "URI":      s.ServiceUri,
 		prefix + "HOST":     s.ServiceUriParams["host"],
 		prefix + "PASSWORD": s.ServiceUriParams["password"],
 		prefix + "PORT":     s.ServiceUriParams["port"],

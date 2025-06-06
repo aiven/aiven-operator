@@ -97,9 +97,11 @@ spec:
                   additionalProperties:
                     type: string
                   description: |-
-                    The connector specific configuration
+                    The connector-specific configuration
                     To build config values from secret the template function {{`{{ fromSecret "name" "key" }}`}}
-                    is provided when interpreting the keys
+                    is provided when interpreting the keys.
+                    Where "name" is the name of the secret and "key" is the key in the secret
+                    in the same namespace as the KafkaConnector.
                   type: object
               required:
                 - connectorClass

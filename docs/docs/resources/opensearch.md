@@ -72,6 +72,7 @@ The output is similar to the following:
 	"OPENSEARCH_PORT": "<secret>",
 	"OPENSEARCH_USER": "<secret>",
 	"OPENSEARCH_PASSWORD": "<secret>",
+	"OPENSEARCH_URI": "<secret>",
 }
 ```
 
@@ -83,7 +84,7 @@ OpenSearch is the Schema for the opensearches API.
 
 !!! Info "Exposes secret keys"
 
-    `OPENSEARCH_HOST`, `OPENSEARCH_PORT`, `OPENSEARCH_USER`, `OPENSEARCH_PASSWORD`.
+    `OPENSEARCH_HOST`, `OPENSEARCH_PORT`, `OPENSEARCH_USER`, `OPENSEARCH_PASSWORD`, `OPENSEARCH_URI`.
 
 **Required**
 

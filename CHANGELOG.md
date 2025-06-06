@@ -9,6 +9,7 @@
   may result in data loss
 - Refactor `KafkaTopic`: replace HTTP client with code-generated one to improve maintainability and type safety
 - Add kind: `KafkaNativeACL`. Creates and manages Kafka-native access control lists (ACLs) for an Aiven for Apache Kafka® service.
+- Add key `OPENSEARCH_URI` to `OpenSearch` service secrets: Contains the OpenSearch service URI.
 
 ## v0.29.0 - 2025-04-29
 

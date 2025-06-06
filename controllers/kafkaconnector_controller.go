@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"text/template"
 
 	"github.com/aiven/aiven-go-client/v2"
@@ -21,6 +22,9 @@ import (
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
+
+// errSecretFetch returned when unable to fetch the secret, that is described in the connector UserConfig value.
+const errSecretFetch = "unable to fetch secret"
 
 // KafkaConnectorReconciler reconciles a KafkaConnector object
 type KafkaConnectorReconciler struct {
@@ -50,18 +54,18 @@ func (r *KafkaConnectorReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	conn, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
 
-	exists, err := h.exists(ctx, avn, conn)
+	exists, err := h.exists(ctx, avnGen, conn)
 	if err != nil {
 		return fmt.Errorf("unable to check if kafka connector exists: %w", err)
 	}
 
-	connCfg, err := h.buildConnectorConfig(conn)
+	connCfg, err := h.buildConnectorConfig(ctx, conn)
 	if err != nil {
 		return fmt.Errorf("unable to build connector config: %w", err)
 	}
@@ -97,7 +101,7 @@ func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avn *aiven.Cl
 }
 
 // buildConnectorConfig joins mandatory fields with additional connector specific config
-func (h KafkaConnectorHandler) buildConnectorConfig(conn *v1alpha1.KafkaConnector) (map[string]any, error) {
+func (h KafkaConnectorHandler) buildConnectorConfig(ctx context.Context, conn *v1alpha1.KafkaConnector) (map[string]any, error) {
 	const (
 		configFieldConnectorName  = "name"
 		configFieldConnectorClass = "connector.class"
@@ -105,9 +109,9 @@ func (h KafkaConnectorHandler) buildConnectorConfig(conn *v1alpha1.KafkaConnecto
 	var (
 		templateFuncFromSecret = func(name, key string) (string, error) {
 			var secret corev1.Secret
-
-			if err := h.k8s.Get(context.Background(), types.NamespacedName{Namespace: conn.GetNamespace(), Name: name}, &secret); err != nil {
-				return "", fmt.Errorf("unable to fetch secret: '%w'", err)
+			objectKey := types.NamespacedName{Namespace: conn.GetNamespace(), Name: name}
+			if err := h.k8s.Get(ctx, objectKey, &secret); err != nil {
+				return "", fmt.Errorf("%s: %w", errSecretFetch, err)
 			}
 			v, ok := secret.Data[key]
 			if !ok {
@@ -152,15 +156,15 @@ func (h KafkaConnectorHandler) delete(ctx context.Context, _ *aiven.Client, avnG
 	return true, nil
 }
 
-func (h KafkaConnectorHandler) exists(ctx context.Context, avn *aiven.Client, conn *v1alpha1.KafkaConnector) (bool, error) {
-	connector, err := avn.KafkaConnectors.Status(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
+func (h KafkaConnectorHandler) exists(ctx context.Context, avnGen avngen.Client, conn *v1alpha1.KafkaConnector) (bool, error) {
+	connector, err := avnGen.ServiceKafkaConnectGetConnectorStatus(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
 	if err != nil && !isNotFound(err) {
 		return false, err
 	}
 	return connector != nil, nil
 }
 
-func (h KafkaConnectorHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h KafkaConnectorHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	conn, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -179,31 +183,31 @@ func (h KafkaConnectorHandler) get(ctx context.Context, avn *aiven.Client, avnGe
 		Version: connAtAiven.Plugin.Version,
 	}
 
-	connStat, err := avn.KafkaConnectors.Status(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
+	connStat, err := avnGen.ServiceKafkaConnectGetConnectorStatus(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
 	if err != nil {
 		return nil, err
 	}
-	conn.Status.State = connStat.Status.State
+	conn.Status.State = connStat.State
 	conn.Status.TasksStatus = v1alpha1.KafkaConnectorTasksStatus{}
-	for i := range connStat.Status.Tasks {
+	for i := range connStat.Tasks {
 		conn.Status.TasksStatus.Total++
-		switch connStat.Status.Tasks[i].State {
-		case "RUNNING":
+		switch connStat.Tasks[i].State {
+		case kafkaconnect.TaskStateTypeRunning:
 			conn.Status.TasksStatus.Running++
-		case "PAUSED":
+		case kafkaconnect.TaskStateTypePaused:
 			conn.Status.TasksStatus.Paused++
-		case "UNASSIGNED":
+		case kafkaconnect.TaskStateTypeUnassigned:
 			conn.Status.TasksStatus.Unassigned++
-		case "FAILED":
+		case kafkaconnect.TaskStateTypeFailed:
 			// in case we have a failed task, we just use the last failed stacktrace
 			conn.Status.TasksStatus.Failed++
-			conn.Status.TasksStatus.StackTrace = connStat.Status.Tasks[i].Trace
+			conn.Status.TasksStatus.StackTrace = connStat.Tasks[i].Trace
 		default:
 			conn.Status.TasksStatus.Unknown++
 		}
 	}
 
-	if connStat.Status.State == "RUNNING" {
+	if connStat.State == kafkaconnect.ServiceKafkaConnectConnectorStateTypeRunning {
 		meta.SetStatusCondition(&conn.Status.Conditions,
 			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 				"Instance is running on Aiven side"))
@@ -221,7 +225,21 @@ func (h KafkaConnectorHandler) checkPreconditions(ctx context.Context, _ *aiven.
 	meta.SetStatusCondition(&conn.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsOperational(ctx, avnGen, conn.Spec.Project, conn.Spec.ServiceName)
+	// Check if the service is operational
+	ok, err := checkServiceIsOperational(ctx, avnGen, conn.Spec.Project, conn.Spec.ServiceName)
+	if !ok || err != nil {
+		return ok, err
+	}
+
+	// Checks if the secret in the config is ready.
+	// Instead of using error.Is() we check the error message,
+	// because buildConnectorConfig() uses template engine, which might merge errors.
+	_, err = h.buildConnectorConfig(ctx, conn)
+	if err != nil && strings.Contains(err.Error(), errSecretFetch) {
+		return false, nil
+	}
+
+	return err == nil, err
 }
 
 func (h KafkaConnectorHandler) convert(o client.Object) (*v1alpha1.KafkaConnector, error) {
