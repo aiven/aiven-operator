@@ -47,7 +47,7 @@ type testConfig struct {
 	SecondaryCloudName string        `envconfig:"AIVEN_SECONDARY_CLOUD_NAME" default:"google-europe-west2"`
 	TertiaryCloudName  string        `envconfig:"AIVEN_TERTIARY_CLOUD_NAME" default:"google-europe-west3"`
 	DebugLogging       bool          `envconfig:"ENABLE_DEBUG_LOGGING"`
-	TestCaseTimeout    time.Duration `envconfig:"TEST_CASE_TIMEOUT" default:"20m"`
+	TestCaseTimeout    time.Duration `envconfig:"TEST_CASE_TIMEOUT" default:"30m"`
 }
 
 func TestMain(m *testing.M) {
