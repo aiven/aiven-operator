@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/vpc"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -51,21 +51,22 @@ func (r *ProjectVPCReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h *ProjectVPCHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object, _ []client.Object) error {
+func (h *ProjectVPCHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	projectVPC, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
 
-	vpc, err := avn.VPCs.Create(ctx, projectVPC.Spec.Project, aiven.CreateVPCRequest{
-		CloudName:   projectVPC.Spec.CloudName,
-		NetworkCIDR: projectVPC.Spec.NetworkCidr,
+	avnVpc, err := avnGen.VpcCreate(ctx, projectVPC.Spec.Project, &vpc.VpcCreateIn{
+		CloudName:          projectVPC.Spec.CloudName,
+		NetworkCidr:        projectVPC.Spec.NetworkCidr,
+		PeeringConnections: make([]vpc.PeeringConnectionIn, 0),
 	})
 	if err != nil {
 		return err
 	}
 
-	projectVPC.Status.ID = vpc.ProjectVPCID
+	projectVPC.Status.ID = avnVpc.ProjectVpcId
 
 	meta.SetStatusCondition(&projectVPC.Status.Conditions,
 		getInitializedCondition("Created",
@@ -81,7 +82,7 @@ func (h *ProjectVPCHandler) createOrUpdate(ctx context.Context, avn *aiven.Clien
 	return nil
 }
 
-func (h *ProjectVPCHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *ProjectVPCHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	projectVPC, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -121,19 +122,19 @@ func (h *ProjectVPCHandler) delete(ctx context.Context, _ *aiven.Client, avnGen 
 	return false, nil
 }
 
-func (h *ProjectVPCHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *ProjectVPCHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	projectVPC, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
 
-	vpc, err := avnGen.VpcGet(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
+	avnVpc, err := avnGen.VpcGet(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	projectVPC.Status.State = vpc.State
-	if vpc.State == "ACTIVE" {
+	projectVPC.Status.State = avnVpc.State
+	if avnVpc.State == "ACTIVE" {
 		meta.SetStatusCondition(&projectVPC.Status.Conditions,
 			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 				"Instance is running on Aiven side"))
@@ -144,15 +145,15 @@ func (h *ProjectVPCHandler) get(ctx context.Context, _ *aiven.Client, avnGen avn
 	return nil, nil
 }
 
-func (h *ProjectVPCHandler) checkPreconditions(_ context.Context, _ *aiven.Client, _ avngen.Client, _ client.Object) (bool, error) {
+func (h *ProjectVPCHandler) checkPreconditions(_ context.Context, _ avngen.Client, _ client.Object) (bool, error) {
 	return true, nil
 }
 
 func (h *ProjectVPCHandler) convert(i client.Object) (*v1alpha1.ProjectVPC, error) {
-	vpc, ok := i.(*v1alpha1.ProjectVPC)
+	projectVPC, ok := i.(*v1alpha1.ProjectVPC)
 	if !ok {
 		return nil, fmt.Errorf("cannot convert object to ProjectVPC")
 	}
 
-	return vpc, nil
+	return projectVPC, nil
 }

@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
@@ -45,7 +44,7 @@ func (r *DatabaseReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h DatabaseHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h DatabaseHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	db, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -77,7 +76,7 @@ func (h DatabaseHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, av
 	return nil
 }
 
-func (h DatabaseHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h DatabaseHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	db, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -108,7 +107,7 @@ func (h DatabaseHandler) exists(ctx context.Context, avnGen avngen.Client, db *v
 	return d != nil, nil
 }
 
-func (h DatabaseHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h DatabaseHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	db, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -128,7 +127,7 @@ func (h DatabaseHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen
 	return nil, nil
 }
 
-func (h DatabaseHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h DatabaseHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	db, err := h.convert(obj)
 	if err != nil {
 		return false, err

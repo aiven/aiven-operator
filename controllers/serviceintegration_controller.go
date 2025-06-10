@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/avast/retry-go"
@@ -47,7 +46,7 @@ func (r *ServiceIntegrationReconciler) SetupWithManager(mgr ctrl.Manager) error 
 		Complete(r)
 }
 
-func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	si, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -139,7 +138,7 @@ func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, _ *aiven.
 	return nil
 }
 
-func (h ServiceIntegrationHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h ServiceIntegrationHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	si, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -157,7 +156,7 @@ func (h ServiceIntegrationHandler) delete(ctx context.Context, _ *aiven.Client, 
 	return true, nil
 }
 
-func (h ServiceIntegrationHandler) get(_ context.Context, _ *aiven.Client, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h ServiceIntegrationHandler) get(_ context.Context, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	si, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -172,7 +171,7 @@ func (h ServiceIntegrationHandler) get(_ context.Context, _ *aiven.Client, _ avn
 	return nil, nil
 }
 
-func (h ServiceIntegrationHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h ServiceIntegrationHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	si, err := h.convert(obj)
 	if err != nil {
 		return false, err

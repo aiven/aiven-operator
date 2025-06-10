@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/clickhouse"
 	"github.com/aiven/go-client-codegen/handler/service"
@@ -47,7 +46,7 @@ func (r *ClickhouseUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 type clickhouseUserHandler struct{}
 
-func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	user, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -90,7 +89,7 @@ func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, _ *aiven.Cli
 	return nil
 }
 
-func (h *clickhouseUserHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *clickhouseUserHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -109,7 +108,7 @@ func (h *clickhouseUserHandler) delete(ctx context.Context, _ *aiven.Client, avn
 	return true, nil
 }
 
-func (h *clickhouseUserHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *clickhouseUserHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -153,7 +152,7 @@ func (h *clickhouseUserHandler) get(ctx context.Context, _ *aiven.Client, avnGen
 	return secret, nil
 }
 
-func (h *clickhouseUserHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *clickhouseUserHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return false, err

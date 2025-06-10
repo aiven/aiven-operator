@@ -10,7 +10,6 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafkaconnect"
 	corev1 "k8s.io/api/core/v1"
@@ -54,7 +53,7 @@ func (r *KafkaConnectorReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	conn, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -144,7 +143,7 @@ func (h KafkaConnectorHandler) buildConnectorConfig(ctx context.Context, conn *v
 	return m, nil
 }
 
-func (h KafkaConnectorHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaConnectorHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	conn, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -164,7 +163,7 @@ func (h KafkaConnectorHandler) exists(ctx context.Context, avnGen avngen.Client,
 	return connector != nil, nil
 }
 
-func (h KafkaConnectorHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h KafkaConnectorHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	conn, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -216,7 +215,7 @@ func (h KafkaConnectorHandler) get(ctx context.Context, _ *aiven.Client, avnGen 
 	return nil, nil
 }
 
-func (h KafkaConnectorHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaConnectorHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	conn, err := h.convert(obj)
 	if err != nil {
 		return false, err

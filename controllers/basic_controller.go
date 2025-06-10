@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/go-logr/logr"
@@ -52,20 +51,20 @@ type (
 	// of the Aiven services lifecycle.
 	Handlers interface {
 		// create or updates an instance on the Aiven side.
-		createOrUpdate(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object, refs []client.Object) error
+		createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, refs []client.Object) error
 
 		// delete removes an instance on Aiven side.
 		// If an object is already deleted and cannot be found, it should not be an error. For other deletion
 		// errors, return an error.
-		delete(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error)
+		delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error)
 
 		// get retrieve an object and a secret (for example, connection credentials) that is generated on the
 		// fly based on data from Aiven API.  When not applicable to service, it should return nil.
-		get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error)
+		get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error)
 
 		// checkPreconditions check whether all preconditions for creating (or updating) the resource are in place.
 		// For example, it is applicable when a service needs to be running before this resource can be created.
-		checkPreconditions(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error)
+		checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error)
 	}
 
 	// refsObject returns references to dependent resources
@@ -127,12 +126,6 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 		return ctrl.Result{}, errNoTokenProvided
 	}
 
-	avn, err := NewAivenClient(token, c.KubeVersion, c.OperatorVersion)
-	if err != nil {
-		c.Recorder.Event(o, corev1.EventTypeWarning, eventUnableToCreateClient, err.Error())
-		return ctrl.Result{}, fmt.Errorf("cannot initialize aiven client: %w", err)
-	}
-
 	avnGen, err := NewAivenGeneratedClient(token, c.KubeVersion, c.OperatorVersion)
 	if err != nil {
 		c.Recorder.Event(o, corev1.EventTypeWarning, eventUnableToCreateClient, err.Error())
@@ -140,7 +133,6 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 	}
 
 	helper := instanceReconcilerHelper{
-		avn:    avn,
 		avnGen: avnGen,
 		k8s:    c.Client,
 		h:      h,
@@ -161,9 +153,6 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 // to make reconciliation a little more ergonomic
 type instanceReconcilerHelper struct {
 	k8s client.Client
-
-	// avn, Aiven client that is authorized with the instance token
-	avn *aiven.Client
 
 	// avnGen, Aiven client that is authorized with the instance token
 	avnGen avngen.Client
@@ -323,7 +312,7 @@ func (i *instanceReconcilerHelper) checkPreconditions(ctx context.Context, o cli
 		i.log.Info("all references are good")
 	}
 
-	check, err := i.h.checkPreconditions(ctx, i.avn, i.avnGen, o)
+	check, err := i.h.checkPreconditions(ctx, i.avnGen, o)
 	if err != nil {
 		i.rec.Event(o, corev1.EventTypeWarning, eventUnableToWaitForPreconditions, err.Error())
 		return false, fmt.Errorf("unable to wait for preconditions: %w", err)
@@ -394,7 +383,7 @@ func (i *instanceReconcilerHelper) finalize(ctx context.Context, o v1alpha1.Aive
 	}
 
 	if deletionPolicy == deletionPolicyDelete {
-		finalised, err = i.h.delete(ctx, i.avn, i.avnGen, o)
+		finalised, err = i.h.delete(ctx, i.avnGen, o)
 		if err != nil {
 			meta.SetStatusCondition(o.Conditions(), getErrorCondition(errConditionDelete, err))
 		}
@@ -461,7 +450,7 @@ func (i *instanceReconcilerHelper) createOrUpdateInstance(ctx context.Context, o
 	delete(a, processedGenerationAnnotation)
 	delete(a, instanceIsRunningAnnotation)
 
-	if err := i.h.createOrUpdate(ctx, i.avn, i.avnGen, o, refs); err != nil {
+	if err := i.h.createOrUpdate(ctx, i.avnGen, o, refs); err != nil {
 		meta.SetStatusCondition(o.Conditions(), getErrorCondition(errConditionCreateOrUpdate, err))
 		return fmt.Errorf("unable to create or update aiven instance: %w", err)
 	}
@@ -479,7 +468,7 @@ func (i *instanceReconcilerHelper) updateInstanceStateAndSecretUntilRunning(ctx 
 
 	// Needs to be before o.NoSecret() check because `get` mutates the object's metadata annotations.
 	// It set the instanceIsRunningAnnotation annotation when the instance is running on Aiven's side.
-	secret, err := i.h.get(ctx, i.avn, i.avnGen, o)
+	secret, err := i.h.get(ctx, i.avnGen, o)
 	if secret == nil || err != nil {
 		return err
 	}

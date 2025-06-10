@@ -9,12 +9,12 @@ import (
 	"io"
 	"log"
 	"math/rand"
+	"reflect"
 	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/hashicorp/go-multierror"
 	"golang.org/x/sync/errgroup"
@@ -133,7 +133,11 @@ func (s *session) GetRunning(obj client.Object, keys ...string) error {
 	ctx, cancel := context.WithTimeout(s.ctx, waitRunningTimeout)
 	defer cancel()
 
-	return retryForever(ctx, fmt.Sprintf("verify %s is running", key), func() (bool, error) {
+	// The obj is empty, it doesn't have its kind and name set yet.
+	obj.SetName(key.Name)
+	obj.SetNamespace(key.Namespace)
+
+	return retryForever(ctx, fmt.Sprintf("verify %s is running", kindAndName(obj)), func() (bool, error) {
 		err := s.k8s.Get(ctx, key, obj)
 		if err != nil {
 			// The error is quite verbose
@@ -211,7 +215,7 @@ func (s *session) Delete(o client.Object, exists func() error) error {
 		return err
 	}
 	err = exists()
-	if aiven.IsNotFound(err) || avngen.IsNotFound(err) {
+	if avngen.IsNotFound(err) {
 		return nil
 	}
 	return err
@@ -237,7 +241,7 @@ func (s *session) delete(o client.Object) error {
 
 	// Waits being deleted from kube
 	key := types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()}
-	return retryForever(ctx, fmt.Sprintf("delete %s", o.GetName()), func() (bool, error) {
+	return retryForever(ctx, fmt.Sprintf("delete %s", kindAndName(o)), func() (bool, error) {
 		err := s.k8s.Get(ctx, key, o)
 		return !isNotFound(err), nil
 	})
@@ -386,4 +390,18 @@ func parseObjs(src string) (map[string]client.Object, error) {
 		objs[n] = &o
 	}
 	return objs, nil
+}
+
+func kindAndName(o client.Object) string {
+	return fmt.Sprintf("%s/%s", getAnyType(o), o.GetName())
+}
+
+// getAnyType an empty client.Object doesn't have its kind.
+// Returns the type name of the object.
+func getAnyType(o any) string {
+	t := reflect.TypeOf(o)
+	if t.Kind() == reflect.Ptr {
+		return t.Elem().Name()
+	}
+	return t.Name()
 }

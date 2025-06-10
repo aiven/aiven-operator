@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafka"
 	corev1 "k8s.io/api/core/v1"
@@ -46,7 +45,7 @@ func (r *KafkaNativeACLReconciler) SetupWithManager(mgr ctrl.Manager) error {
 type KafkaNativeACLHandler struct{}
 
 // checkPreconditions check whether all preconditions for creating (or updating) the resource are in place.
-func (h KafkaNativeACLHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaNativeACLHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	acl, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -59,7 +58,7 @@ func (h KafkaNativeACLHandler) checkPreconditions(ctx context.Context, _ *aiven.
 }
 
 // createOrUpdate creates or updates an instance on the Aiven side.
-func (h KafkaNativeACLHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h KafkaNativeACLHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	acl, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -100,7 +99,7 @@ func (h KafkaNativeACLHandler) createOrUpdate(ctx context.Context, _ *aiven.Clie
 }
 
 // delete removes an instance on Aiven side.
-func (h KafkaNativeACLHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaNativeACLHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	acl, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -118,7 +117,7 @@ func (h KafkaNativeACLHandler) delete(ctx context.Context, _ *aiven.Client, avnG
 }
 
 // get retrieves an object and a secret.
-func (h KafkaNativeACLHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h KafkaNativeACLHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	acl, err := h.convert(obj)
 	if err != nil {
 		return nil, err

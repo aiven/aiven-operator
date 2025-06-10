@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafkatopic"
 	"github.com/aiven/go-client-codegen/handler/service"
@@ -46,7 +45,7 @@ func (r *KafkaTopicReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	topic, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -114,7 +113,7 @@ func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, 
 	return nil
 }
 
-func (h KafkaTopicHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaTopicHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	topic, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -125,7 +124,7 @@ func (h KafkaTopicHandler) delete(ctx context.Context, avn *aiven.Client, _ avng
 	}
 
 	// Delete project on Aiven side
-	err = avn.KafkaTopics.Delete(ctx, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName())
+	err = avnGen.ServiceKafkaTopicDelete(ctx, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName())
 	if err != nil && !isNotFound(err) {
 		return false, err
 	}
@@ -133,7 +132,7 @@ func (h KafkaTopicHandler) delete(ctx context.Context, avn *aiven.Client, _ avng
 	return true, nil
 }
 
-func (h KafkaTopicHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h KafkaTopicHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	topic, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -157,7 +156,7 @@ func (h KafkaTopicHandler) get(ctx context.Context, _ *aiven.Client, avnGen avng
 	return nil, err
 }
 
-func (h KafkaTopicHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaTopicHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	topic, err := h.convert(obj)
 	if err != nil {
 		return false, err

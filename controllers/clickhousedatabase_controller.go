@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/clickhouse"
 	corev1 "k8s.io/api/core/v1"
@@ -45,7 +44,7 @@ func (r *ClickhouseDatabaseReconciler) SetupWithManager(mgr ctrl.Manager) error 
 		Complete(r)
 }
 
-func (h *ClickhouseDatabaseHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h *ClickhouseDatabaseHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	db, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -76,7 +75,7 @@ func (h *ClickhouseDatabaseHandler) createOrUpdate(ctx context.Context, _ *aiven
 	return nil
 }
 
-func (h *ClickhouseDatabaseHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *ClickhouseDatabaseHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	db, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -91,7 +90,7 @@ func (h *ClickhouseDatabaseHandler) delete(ctx context.Context, _ *aiven.Client,
 	return true, nil
 }
 
-func (h *ClickhouseDatabaseHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *ClickhouseDatabaseHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	db, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -112,7 +111,7 @@ func (h *ClickhouseDatabaseHandler) get(ctx context.Context, _ *aiven.Client, av
 	return nil, nil
 }
 
-func (h *ClickhouseDatabaseHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *ClickhouseDatabaseHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	db, err := h.convert(obj)
 	if err != nil {
 		return false, err

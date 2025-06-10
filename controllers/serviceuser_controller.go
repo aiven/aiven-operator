@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
@@ -44,22 +43,18 @@ func (r *ServiceUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ServiceUserHandler) createOrUpdate(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object, _ []client.Object) error {
+func (h ServiceUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	user, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
 
-	u, err := avn.ServiceUsers.Create(ctx, user.Spec.Project, user.Spec.ServiceName,
-		aiven.CreateServiceUserRequest{
+	u, err := avnGen.ServiceUserCreate(
+		ctx, user.Spec.Project, user.Spec.ServiceName,
+		&service.ServiceUserCreateIn{
 			Username: user.Name,
-			AccessControl: &aiven.AccessControl{
-				RedisACLCategories: []string{},
-				RedisACLCommands:   []string{},
-				RedisACLChannels:   []string{},
-				RedisACLKeys:       []string{},
-			},
-		})
+		},
+	)
 	if err != nil && !isAlreadyExists(err) {
 		return fmt.Errorf("cannot createOrUpdate service user on aiven side: %w", err)
 	}
@@ -78,13 +73,13 @@ func (h ServiceUserHandler) createOrUpdate(ctx context.Context, avn *aiven.Clien
 	return nil
 }
 
-func (h ServiceUserHandler) delete(ctx context.Context, avn *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
+func (h ServiceUserHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
 
-	err = avn.ServiceUsers.Delete(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
+	err = avnGen.ServiceUserDelete(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
 	if !isNotFound(err) {
 		return false, err
 	}
@@ -92,13 +87,13 @@ func (h ServiceUserHandler) delete(ctx context.Context, avn *aiven.Client, _ avn
 	return true, nil
 }
 
-func (h ServiceUserHandler) get(ctx context.Context, avn *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h ServiceUserHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
 
-	u, err := avn.ServiceUsers.Get(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
+	u, err := avnGen.ServiceUserGet(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -137,23 +132,23 @@ func (h ServiceUserHandler) get(ctx context.Context, avn *aiven.Client, avnGen a
 		prefix + "PORT":        fmt.Sprintf("%d", component.Port),
 		prefix + "USERNAME":    u.Username,
 		prefix + "PASSWORD":    u.Password,
-		prefix + "ACCESS_CERT": u.AccessCert,
-		prefix + "ACCESS_KEY":  u.AccessKey,
+		prefix + "ACCESS_CERT": fromAnyPointer(u.AccessCert),
+		prefix + "ACCESS_KEY":  fromAnyPointer(u.AccessKey),
 		prefix + "CA_CERT":     caCert,
 		// todo: remove in future releases
 		"HOST":        component.Host,
 		"PORT":        fmt.Sprintf("%d", component.Port),
 		"USERNAME":    u.Username,
 		"PASSWORD":    u.Password,
-		"ACCESS_CERT": u.AccessCert,
-		"ACCESS_KEY":  u.AccessKey,
+		"ACCESS_CERT": fromAnyPointer(u.AccessCert),
+		"ACCESS_KEY":  fromAnyPointer(u.AccessKey),
 		"CA_CERT":     caCert,
 	}
 
 	return newSecret(user, stringData, false), nil
 }
 
-func (h ServiceUserHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h ServiceUserHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return false, err

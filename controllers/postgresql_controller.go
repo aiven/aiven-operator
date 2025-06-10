@@ -104,7 +104,7 @@ func (a *postgreSQLAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
-func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error {
+func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avnGen avngen.Client, old *service.ServiceGetOut) error {
 	currentVersion := old.UserConfig["pg_version"].(string)
 	targetUserConfig := a.getUserConfig().(*pguserconfig.PgUserConfig)
 	if targetUserConfig == nil || targetUserConfig.PgVersion == nil {
@@ -117,7 +117,7 @@ func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn 
 		return nil
 	}
 
-	task, err := avn.ServiceTaskCreate(ctx, a.getServiceCommonSpec().Project, a.getObjectMeta().Name, &service.ServiceTaskCreateIn{
+	task, err := avnGen.ServiceTaskCreate(ctx, a.getServiceCommonSpec().Project, a.getObjectMeta().Name, &service.ServiceTaskCreateIn{
 		TargetVersion: service.TargetVersionType(targetVersion),
 		TaskType:      service.TaskTypeUpgradeCheck,
 	})
@@ -126,7 +126,7 @@ func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avn 
 	}
 
 	finalTaskResult, err := waitForTaskToComplete(ctx, func() (bool, *service.ServiceTaskGetOut, error) {
-		t, getErr := avn.ServiceTaskGet(ctx, a.getServiceCommonSpec().Project, a.getObjectMeta().Name, task.TaskId)
+		t, getErr := avnGen.ServiceTaskGet(ctx, a.getServiceCommonSpec().Project, a.getObjectMeta().Name, task.TaskId)
 		if getErr != nil {
 			return true, nil, fmt.Errorf("error fetching service task %s: %w", t.TaskId, getErr)
 		}

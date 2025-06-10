@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
@@ -48,7 +47,7 @@ func (r *ServiceIntegrationEndpointReconciler) SetupWithManager(mgr ctrl.Manager
 
 type ServiceIntegrationEndpointHandler struct{}
 
-func (h ServiceIntegrationEndpointHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h ServiceIntegrationEndpointHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	si, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -123,7 +122,7 @@ func (h ServiceIntegrationEndpointHandler) createOrUpdate(ctx context.Context, _
 	return nil
 }
 
-func (h ServiceIntegrationEndpointHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h ServiceIntegrationEndpointHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	si, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -141,7 +140,7 @@ func (h ServiceIntegrationEndpointHandler) delete(ctx context.Context, _ *aiven.
 	return true, nil
 }
 
-func (h ServiceIntegrationEndpointHandler) get(_ context.Context, _ *aiven.Client, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h ServiceIntegrationEndpointHandler) get(_ context.Context, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	si, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -156,7 +155,7 @@ func (h ServiceIntegrationEndpointHandler) get(_ context.Context, _ *aiven.Clien
 	return nil, nil
 }
 
-func (h ServiceIntegrationEndpointHandler) checkPreconditions(_ context.Context, _ *aiven.Client, _ avngen.Client, obj client.Object) (bool, error) {
+func (h ServiceIntegrationEndpointHandler) checkPreconditions(_ context.Context, _ avngen.Client, obj client.Object) (bool, error) {
 	si, err := h.convert(obj)
 	if err != nil {
 		return false, err
