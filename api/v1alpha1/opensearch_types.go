@@ -20,7 +20,7 @@ type OpenSearchSpec struct {
 //+kubebuilder:subresource:status
 
 // OpenSearch is the Schema for the opensearches API.
-// Info "Exposes secret keys": `OPENSEARCH_HOST`, `OPENSEARCH_PORT`, `OPENSEARCH_USER`, `OPENSEARCH_PASSWORD`
+// Info "Exposes secret keys": `OPENSEARCH_HOST`, `OPENSEARCH_PORT`, `OPENSEARCH_USER`, `OPENSEARCH_PASSWORD`, `OPENSEARCH_URI`
 // +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
 // +kubebuilder:printcolumn:name="Region",type="string",JSONPath=".spec.cloudName"
 // +kubebuilder:printcolumn:name="Plan",type="string",JSONPath=".spec.plan"
