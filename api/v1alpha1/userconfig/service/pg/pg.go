@@ -57,76 +57,76 @@ type Migration struct {
 type Pg struct {
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=1
-	// Specifies a fraction of the table size to add to autovacuum_analyze_threshold when deciding whether to trigger an ANALYZE. The default is 0.2 (20% of table size)
+	// Specifies a fraction of the table size to add to autovacuum_analyze_threshold when deciding whether to trigger an ANALYZE (e.g. `0.2` for 20% of the table size). The default is `0.2`.
 	AutovacuumAnalyzeScaleFactor *float64 `groups:"create,update" json:"autovacuum_analyze_scale_factor,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=2147483647
-	// Specifies the minimum number of inserted, updated or deleted tuples needed to trigger an ANALYZE in any one table. The default is 50 tuples.
+	// Specifies the minimum number of inserted, updated or deleted tuples needed to trigger an ANALYZE in any one table. The default is `50`.
 	AutovacuumAnalyzeThreshold *int `groups:"create,update" json:"autovacuum_analyze_threshold,omitempty"`
 
 	// +kubebuilder:validation:Minimum=200000000
 	// +kubebuilder:validation:Maximum=1500000000
-	// Specifies the maximum age (in transactions) that a table's pg_class.relfrozenxid field can attain before a VACUUM operation is forced to prevent transaction ID wraparound within the table. Note that the system will launch autovacuum processes to prevent wraparound even when autovacuum is otherwise disabled. This parameter will cause the server to be restarted.
+	// Specifies the maximum age (in transactions) that a table's pg_class.relfrozenxid field can attain before a VACUUM operation is forced to prevent transaction ID wraparound within the table. The system launches autovacuum processes to prevent wraparound even when autovacuum is otherwise disabled. Changing this parameter causes a service restart.
 	AutovacuumFreezeMaxAge *int `groups:"create,update" json:"autovacuum_freeze_max_age,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=20
-	// Specifies the maximum number of autovacuum processes (other than the autovacuum launcher) that may be running at any one time. The default is three. This parameter can only be set at server start.
+	// Specifies the maximum number of autovacuum processes (other than the autovacuum launcher) that may be running at any one time. The default is `3`. Changing this parameter causes a service restart.
 	AutovacuumMaxWorkers *int `groups:"create,update" json:"autovacuum_max_workers,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=86400
-	// Specifies the minimum delay between autovacuum runs on any given database. The delay is measured in seconds, and the default is one minute
+	// Specifies the minimum delay between autovacuum runs on any given database. The delay is measured in seconds. The default is `60`.
 	AutovacuumNaptime *int `groups:"create,update" json:"autovacuum_naptime,omitempty"`
 
 	// +kubebuilder:validation:Minimum=-1
 	// +kubebuilder:validation:Maximum=100
-	// Specifies the cost delay value that will be used in automatic VACUUM operations. If -1 is specified, the regular vacuum_cost_delay value will be used. The default value is 20 milliseconds
+	// Specifies the cost delay value that will be used in automatic VACUUM operations. If `-1` is specified, the regular vacuum_cost_delay value will be used. The default is `2` (upstream default).
 	AutovacuumVacuumCostDelay *int `groups:"create,update" json:"autovacuum_vacuum_cost_delay,omitempty"`
 
 	// +kubebuilder:validation:Minimum=-1
 	// +kubebuilder:validation:Maximum=10000
-	// Specifies the cost limit value that will be used in automatic VACUUM operations. If -1 is specified (which is the default), the regular vacuum_cost_limit value will be used.
+	// Specifies the cost limit value that will be used in automatic VACUUM operations. If `-1` is specified, the regular vacuum_cost_limit value will be used. The default is `-1` (upstream default).
 	AutovacuumVacuumCostLimit *int `groups:"create,update" json:"autovacuum_vacuum_cost_limit,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=1
-	// Specifies a fraction of the table size to add to autovacuum_vacuum_threshold when deciding whether to trigger a VACUUM. The default is 0.2 (20% of table size)
+	// Specifies a fraction of the table size to add to autovacuum_vacuum_threshold when deciding whether to trigger a VACUUM (e.g. `0.2` for 20% of the table size). The default is `0.2`.
 	AutovacuumVacuumScaleFactor *float64 `groups:"create,update" json:"autovacuum_vacuum_scale_factor,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=2147483647
-	// Specifies the minimum number of updated or deleted tuples needed to trigger a VACUUM in any one table. The default is 50 tuples
+	// Specifies the minimum number of updated or deleted tuples needed to trigger a VACUUM in any one table. The default is `50`.
 	AutovacuumVacuumThreshold *int `groups:"create,update" json:"autovacuum_vacuum_threshold,omitempty"`
 
 	// +kubebuilder:validation:Minimum=10
 	// +kubebuilder:validation:Maximum=10000
-	// Specifies the delay between activity rounds for the background writer in milliseconds. Default is 200.
+	// Specifies the delay between activity rounds for the background writer in milliseconds. The default is `200`.
 	BgwriterDelay *int `groups:"create,update" json:"bgwriter_delay,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=2048
-	// Whenever more than bgwriter_flush_after bytes have been written by the background writer, attempt to force the OS to issue these writes to the underlying storage. Specified in kilobytes, default is 512. Setting of 0 disables forced writeback.
+	// Whenever more than bgwriter_flush_after bytes have been written by the background writer, attempt to force the OS to issue these writes to the underlying storage. Specified in kilobytes. Setting of 0 disables forced writeback. The default is `512`.
 	BgwriterFlushAfter *int `groups:"create,update" json:"bgwriter_flush_after,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=1073741823
-	// In each round, no more than this many buffers will be written by the background writer. Setting this to zero disables background writing. Default is 100.
+	// In each round, no more than this many buffers will be written by the background writer. Setting this to zero disables background writing. The default is `100`.
 	BgwriterLruMaxpages *int `groups:"create,update" json:"bgwriter_lru_maxpages,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=10
-	// The average recent need for new buffers is multiplied by bgwriter_lru_multiplier to arrive at an estimate of the number that will be needed during the next round, (up to bgwriter_lru_maxpages). 1.0 represents a “just in time” policy of writing exactly the number of buffers predicted to be needed. Larger values provide some cushion against spikes in demand, while smaller values intentionally leave writes to be done by server processes. The default is 2.0.
+	// The average recent need for new buffers is multiplied by bgwriter_lru_multiplier to arrive at an estimate of the number that will be needed during the next round, (up to bgwriter_lru_maxpages). 1.0 represents a “just in time” policy of writing exactly the number of buffers predicted to be needed. Larger values provide some cushion against spikes in demand, while smaller values intentionally leave writes to be done by server processes. The default is `2.0`.
 	BgwriterLruMultiplier *float64 `groups:"create,update" json:"bgwriter_lru_multiplier,omitempty"`
 
 	// +kubebuilder:validation:Minimum=500
 	// +kubebuilder:validation:Maximum=1800000
-	// This is the amount of time, in milliseconds, to wait on a lock before checking to see if there is a deadlock condition.
+	// This is the amount of time, in milliseconds, to wait on a lock before checking to see if there is a deadlock condition. The default is `1000` (upstream default).
 	DeadlockTimeout *int `groups:"create,update" json:"deadlock_timeout,omitempty"`
 
 	// +kubebuilder:validation:Enum="lz4";"pglz"
-	// Specifies the default TOAST compression method for values of compressible columns (the default is lz4).
+	// Specifies the default TOAST compression method for values of compressible columns. The default is `lz4`. Only available for PostgreSQL 14+.
 	DefaultToastCompression *string `groups:"create,update" json:"default_toast_compression,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
@@ -139,7 +139,7 @@ type Pg struct {
 
 	// +kubebuilder:validation:Minimum=-1
 	// +kubebuilder:validation:Maximum=2147483647
-	// Causes each action executed by autovacuum to be logged if it ran for at least the specified number of milliseconds. Setting this to zero logs all autovacuum actions. Minus-one (the default) disables logging autovacuum actions.
+	// Causes each action executed by autovacuum to be logged if it ran for at least the specified number of milliseconds. Setting this to zero logs all autovacuum actions. Minus-one disables logging autovacuum actions. The default is `1000`.
 	LogAutovacuumMinDuration *int `groups:"create,update" json:"log_autovacuum_min_duration,omitempty"`
 
 	// +kubebuilder:validation:Enum="DEFAULT";"TERSE";"VERBOSE"
@@ -162,72 +162,72 @@ type Pg struct {
 
 	// +kubebuilder:validation:Minimum=1000
 	// +kubebuilder:validation:Maximum=4096
-	// PostgreSQL maximum number of files that can be open per process
+	// PostgreSQL maximum number of files that can be open per process. The default is `1000` (upstream default). Changing this parameter causes a service restart.
 	MaxFilesPerProcess *int `groups:"create,update" json:"max_files_per_process,omitempty"`
 
 	// +kubebuilder:validation:Minimum=64
 	// +kubebuilder:validation:Maximum=6400
-	// PostgreSQL maximum locks per transaction
+	// PostgreSQL maximum locks per transaction. Changing this parameter causes a service restart.
 	MaxLocksPerTransaction *int `groups:"create,update" json:"max_locks_per_transaction,omitempty"`
 
 	// +kubebuilder:validation:Minimum=4
 	// +kubebuilder:validation:Maximum=64
-	// PostgreSQL maximum logical replication workers (taken from the pool of max_parallel_workers)
+	// PostgreSQL maximum logical replication workers (taken from the pool of max_parallel_workers). The default is `4` (upstream default). Changing this parameter causes a service restart.
 	MaxLogicalReplicationWorkers *int `groups:"create,update" json:"max_logical_replication_workers,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=96
-	// Sets the maximum number of workers that the system can support for parallel queries
+	// Sets the maximum number of workers that the system can support for parallel queries. The default is `8` (upstream default).
 	MaxParallelWorkers *int `groups:"create,update" json:"max_parallel_workers,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=96
-	// Sets the maximum number of workers that can be started by a single Gather or Gather Merge node
+	// Sets the maximum number of workers that can be started by a single Gather or Gather Merge node. The default is `2` (upstream default).
 	MaxParallelWorkersPerGather *int `groups:"create,update" json:"max_parallel_workers_per_gather,omitempty"`
 
 	// +kubebuilder:validation:Minimum=64
 	// +kubebuilder:validation:Maximum=5120
-	// PostgreSQL maximum predicate locks per transaction
+	// PostgreSQL maximum predicate locks per transaction. The default is `64` (upstream default). Changing this parameter causes a service restart.
 	MaxPredLocksPerTransaction *int `groups:"create,update" json:"max_pred_locks_per_transaction,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=10000
-	// PostgreSQL maximum prepared transactions
+	// PostgreSQL maximum prepared transactions. The default is `0`. Changing this parameter causes a service restart.
 	MaxPreparedTransactions *int `groups:"create,update" json:"max_prepared_transactions,omitempty"`
 
 	// +kubebuilder:validation:Minimum=8
 	// +kubebuilder:validation:Maximum=64
-	// PostgreSQL maximum replication slots
+	// PostgreSQL maximum replication slots. The default is `20`. Changing this parameter causes a service restart.
 	MaxReplicationSlots *int `groups:"create,update" json:"max_replication_slots,omitempty"`
 
 	// +kubebuilder:validation:Minimum=-1
 	// +kubebuilder:validation:Maximum=2147483647
-	// PostgreSQL maximum WAL size (MB) reserved for replication slots. Default is -1 (unlimited). wal_keep_size minimum WAL size setting takes precedence over this.
+	// PostgreSQL maximum WAL size (MB) reserved for replication slots. If `-1` is specified, replication slots may retain an unlimited amount of WAL files. The default is `-1` (upstream default). wal_keep_size minimum WAL size setting takes precedence over this.
 	MaxSlotWalKeepSize *int `groups:"create,update" json:"max_slot_wal_keep_size,omitempty"`
 
 	// +kubebuilder:validation:Minimum=2097152
 	// +kubebuilder:validation:Maximum=6291456
-	// Maximum depth of the stack in bytes
+	// Maximum depth of the stack in bytes. The default is `2097152` (upstream default).
 	MaxStackDepth *int `groups:"create,update" json:"max_stack_depth,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=43200000
-	// Max standby archive delay in milliseconds
+	// Max standby archive delay in milliseconds. The default is `30000` (upstream default).
 	MaxStandbyArchiveDelay *int `groups:"create,update" json:"max_standby_archive_delay,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=43200000
-	// Max standby streaming delay in milliseconds
+	// Max standby streaming delay in milliseconds. The default is `30000` (upstream default).
 	MaxStandbyStreamingDelay *int `groups:"create,update" json:"max_standby_streaming_delay,omitempty"`
 
 	// +kubebuilder:validation:Minimum=20
 	// +kubebuilder:validation:Maximum=64
-	// PostgreSQL maximum WAL senders
+	// PostgreSQL maximum WAL senders. The default is `20`. Changing this parameter causes a service restart.
 	MaxWalSenders *int `groups:"create,update" json:"max_wal_senders,omitempty"`
 
 	// +kubebuilder:validation:Minimum=8
 	// +kubebuilder:validation:Maximum=96
-	// Sets the maximum number of background processes that the system can support
+	// Sets the maximum number of background processes that the system can support. The default is `8`. Changing this parameter causes a service restart.
 	MaxWorkerProcesses *int `groups:"create,update" json:"max_worker_processes,omitempty"`
 
 	// +kubebuilder:validation:Enum="md5";"scram-sha-256"
@@ -236,7 +236,7 @@ type Pg struct {
 
 	// +kubebuilder:validation:Minimum=3600
 	// +kubebuilder:validation:Maximum=604800
-	// Sets the time interval to run pg_partman's scheduled tasks
+	// Sets the time interval in seconds to run pg_partman's scheduled tasks. The default is `3600`.
 	PgPartmanBgwInterval *int `groups:"create,update" json:"pg_partman_bgw.interval,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=64
@@ -244,16 +244,16 @@ type Pg struct {
 	// Controls which role to use for pg_partman's scheduled background tasks.
 	PgPartmanBgwRole *string `groups:"create,update" json:"pg_partman_bgw.role,omitempty"`
 
-	// Enables or disables query plan monitoring
+	// Enables or disables query plan monitoring. Changing this parameter causes a service restart. Only available for PostgreSQL 13+.
 	PgStatMonitorPgsmEnableQueryPlan *bool `groups:"create,update" json:"pg_stat_monitor.pgsm_enable_query_plan,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=10
-	// Sets the maximum number of buckets
+	// Sets the maximum number of buckets. Changing this parameter causes a service restart. Only available for PostgreSQL 13+.
 	PgStatMonitorPgsmMaxBuckets *int `groups:"create,update" json:"pg_stat_monitor.pgsm_max_buckets,omitempty"`
 
 	// +kubebuilder:validation:Enum="all";"none";"top"
-	// Controls which statements are counted. Specify top to track top-level statements (those issued directly by clients), all to also track nested statements (such as statements invoked within functions), or none to disable statement statistics collection. The default value is top.
+	// Controls which statements are counted. Specify top to track top-level statements (those issued directly by clients), all to also track nested statements (such as statements invoked within functions), or none to disable statement statistics collection. The default is `top`.
 	PgStatStatementsTrack *string `groups:"create,update" json:"pg_stat_statements.track,omitempty"`
 
 	// +kubebuilder:validation:Minimum=-1
@@ -268,11 +268,11 @@ type Pg struct {
 
 	// +kubebuilder:validation:Minimum=1024
 	// +kubebuilder:validation:Maximum=10240
-	// Specifies the number of bytes reserved to track the currently executing command for each active session.
+	// Specifies the number of bytes reserved to track the currently executing command for each active session. Changing this parameter causes a service restart.
 	TrackActivityQuerySize *int `groups:"create,update" json:"track_activity_query_size,omitempty"`
 
 	// +kubebuilder:validation:Enum="off";"on"
-	// Record commit time of transactions.
+	// Record commit time of transactions. Changing this parameter causes a service restart.
 	TrackCommitTimestamp *string `groups:"create,update" json:"track_commit_timestamp,omitempty"`
 
 	// +kubebuilder:validation:Enum="all";"none";"pl"
@@ -280,7 +280,7 @@ type Pg struct {
 	TrackFunctions *string `groups:"create,update" json:"track_functions,omitempty"`
 
 	// +kubebuilder:validation:Enum="off";"on"
-	// Enables timing of database I/O calls. This parameter is off by default, because it will repeatedly query the operating system for the current time, which may cause significant overhead on some platforms.
+	// Enables timing of database I/O calls. The default is `off`. When on, it will repeatedly query the operating system for the current time, which may cause significant overhead on some platforms.
 	TrackIoTiming *string `groups:"create,update" json:"track_io_timing,omitempty"`
 
 	// Terminate replication connections that are inactive for longer than this amount of time, in milliseconds. Setting this value to zero disables the timeout.
@@ -288,7 +288,7 @@ type Pg struct {
 
 	// +kubebuilder:validation:Minimum=10
 	// +kubebuilder:validation:Maximum=200
-	// WAL flush interval in milliseconds. Note that setting this value to lower than the default 200ms may negatively impact performance
+	// WAL flush interval in milliseconds. The default is `200`. Setting this parameter to a lower value may negatively impact performance.
 	WalWriterDelay *int `groups:"create,update" json:"wal_writer_delay,omitempty"`
 }
 
@@ -463,7 +463,7 @@ type PublicAccess struct {
 type Timescaledb struct {
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=4096
-	// The number of background workers for timescaledb operations. You should configure this setting to the sum of your number of databases and the total number of concurrent background workers you want running at any given point in time.
+	// The number of background workers for timescaledb operations. You should configure this setting to the sum of your number of databases and the total number of concurrent background workers you want running at any given point in time. Changing this parameter causes a service restart.
 	MaxBackgroundWorkers *int `groups:"create,update" json:"max_background_workers,omitempty"`
 }
 type PgUserConfig struct {
@@ -520,7 +520,7 @@ type PgUserConfig struct {
 	// Name of the PG Service from which to fork (deprecated, use service_to_fork_from). This has effect only when a new service is being created.
 	PgServiceToForkFrom *string `groups:"create" json:"pg_service_to_fork_from,omitempty"`
 
-	// Enable the pg_stat_monitor extension. Enabling this extension will cause the cluster to be restarted.When this extension is enabled, pg_stat_statements results for utility commands are unreliable
+	// Enable the pg_stat_monitor extension. Changing this parameter causes a service restart. When this extension is enabled, pg_stat_statements results for utility commands are unreliable
 	PgStatMonitorEnable *bool `groups:"create,update" json:"pg_stat_monitor_enable,omitempty"`
 
 	// +kubebuilder:validation:Enum="13";"14";"15";"16";"17"
@@ -567,7 +567,7 @@ type PgUserConfig struct {
 
 	// +kubebuilder:validation:Minimum=20
 	// +kubebuilder:validation:Maximum=60
-	// Percentage of total RAM that the database server uses for shared memory buffers. Valid range is 20-60 (float), which corresponds to 20% - 60%. This setting adjusts the shared_buffers configuration value.
+	// Percentage of total RAM that the database server uses for shared memory buffers. Valid range is 20-60 (float), which corresponds to 20% - 60%. This setting adjusts the shared_buffers configuration value. Changing this parameter causes a service restart.
 	SharedBuffersPercentage *float64 `groups:"create,update" json:"shared_buffers_percentage,omitempty"`
 
 	// Use static public IP addresses
@@ -586,6 +586,6 @@ type PgUserConfig struct {
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=1024
-	// Sets the maximum amount of memory to be used by a query operation (such as a sort or hash table) before writing to temporary disk files, in MB. Default is 1MB + 0.075% of total RAM (up to 32MB).
+	// Sets the maximum amount of memory to be used by a query operation (such as a sort or hash table) before writing to temporary disk files, in MB. The default is 1MB + 0.075% of total RAM (up to 32MB).
 	WorkMem *int `groups:"create,update" json:"work_mem,omitempty"`
 }
