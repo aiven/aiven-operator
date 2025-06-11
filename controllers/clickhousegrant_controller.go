@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/hashicorp/go-multierror"
 	corev1 "k8s.io/api/core/v1"
@@ -48,7 +47,7 @@ func (r *ClickhouseGrantReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h *ClickhouseGrantHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h *ClickhouseGrantHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	g, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -78,7 +77,7 @@ func (h *ClickhouseGrantHandler) createOrUpdate(ctx context.Context, _ *aiven.Cl
 	return nil
 }
 
-func (h *ClickhouseGrantHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *ClickhouseGrantHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	g, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -92,7 +91,7 @@ func (h *ClickhouseGrantHandler) delete(ctx context.Context, _ *aiven.Client, av
 	return err == nil, err
 }
 
-func (h *ClickhouseGrantHandler) get(_ context.Context, _ *aiven.Client, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *ClickhouseGrantHandler) get(_ context.Context, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	g, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -109,7 +108,7 @@ func (h *ClickhouseGrantHandler) get(_ context.Context, _ *aiven.Client, _ avnge
 	return nil, nil
 }
 
-func (h *ClickhouseGrantHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *ClickhouseGrantHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	/** Preconditions for ClickhouseGrant:
 	 *
 	 * 1. The service is running

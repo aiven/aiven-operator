@@ -8,7 +8,6 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/postgresql"
 	"github.com/aiven/go-client-codegen/handler/service"
@@ -48,7 +47,7 @@ func (r *ConnectionPoolReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	connPool, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -109,7 +108,7 @@ func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, _ *aiven.Clie
 	return nil
 }
 
-func (h ConnectionPoolHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h ConnectionPoolHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	cp, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -122,7 +121,7 @@ func (h ConnectionPoolHandler) delete(ctx context.Context, _ *aiven.Client, avnG
 	return true, nil
 }
 
-func (h ConnectionPoolHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h ConnectionPoolHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	connPool, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -236,7 +235,7 @@ func (h ConnectionPoolHandler) get(ctx context.Context, _ *aiven.Client, avnGen 
 	return newSecret(connPool, stringData, false), nil
 }
 
-func (h ConnectionPoolHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h ConnectionPoolHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	cp, err := h.convert(obj)
 	if err != nil {
 		return false, err

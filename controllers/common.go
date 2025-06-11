@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/liip/sheriff"
@@ -134,16 +133,11 @@ func NilIfZero[T comparable](v T) *T {
 }
 
 func isAivenServerError(err error) bool {
-	var status int
-	var old aiven.Error
-	var gen avngen.Error
-	switch {
-	case errors.As(err, &old):
-		status = old.Status
-	case errors.As(err, &gen):
-		status = gen.Status
+	var e avngen.Error
+	if errors.As(err, &e) {
+		return e.Status >= http.StatusInternalServerError
 	}
-	return status >= http.StatusInternalServerError
+	return false
 }
 
 // userAgent is a helper function to create a User-Agent string used for the Go client.
@@ -156,11 +150,6 @@ func userAgent(kubeVersion, operatorVersion string) string {
 	operatorVersion = strings.TrimPrefix(operatorVersion, "v")
 
 	return fmt.Sprintf("k8s-operator/%s/%s", kubeVersion, operatorVersion)
-}
-
-// NewAivenClient returns Aiven client (aiven/aiven-go-client/v2)
-func NewAivenClient(token, kubeVersion, operatorVersion string) (*aiven.Client, error) {
-	return aiven.NewTokenClient(token, userAgent(kubeVersion, operatorVersion))
 }
 
 // NewAivenGeneratedClient returns Aiven generated client client (aiven/go-client-codegen)
@@ -262,11 +251,11 @@ func isNotFound(err error) bool {
 
 // isAlreadyExists works both for old and new client errors
 func isAlreadyExists(err error) bool {
-	return aiven.IsAlreadyExists(err) || avngen.IsAlreadyExists(err)
+	return avngen.IsAlreadyExists(err)
 }
 
 func NewNotFound(msg string) error {
-	return aiven.Error{Status: http.StatusNotFound, Message: msg}
+	return avngen.Error{Status: http.StatusNotFound, Message: msg}
 }
 
 func isDeleted(err error) (bool, error) {
@@ -278,14 +267,9 @@ func isDeleted(err error) (bool, error) {
 
 // isAivenError returns true if the error comes from the old or new client and has given http code
 func isAivenError(err error, code int) bool {
-	var oldErr aiven.Error
-	if errors.As(err, &oldErr) {
-		return oldErr.Status == code
-	}
-
-	var newErr avngen.Error
-	if errors.As(err, &newErr) {
-		return newErr.Status == code
+	var e avngen.Error
+	if errors.As(err, &e) {
+		return e.Status == code
 	}
 
 	return false

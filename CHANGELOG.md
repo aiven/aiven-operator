@@ -2,6 +2,7 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Completely replace the old go client with the new one, which is generated from the OpenAPI spec
 - Change `PostgreSQL` field `userConfig.pg_version`: enum remove `12`
 - Add `KafkaTopic` field `config.inkless_enable`, type `boolean`: Indicates whether inkless should be enabled
 - Add `KafkaTopic` field `config.unclean_leader_election_enable`, type `boolean`: Indicates whether to

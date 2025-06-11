@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafkaschemaregistry"
 	corev1 "k8s.io/api/core/v1"
@@ -45,7 +44,7 @@ func (r *KafkaSchemaRegistryACLReconciler) SetupWithManager(mgr ctrl.Manager) er
 
 type KafkaSchemaRegistryACLHandler struct{}
 
-func (h KafkaSchemaRegistryACLHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h KafkaSchemaRegistryACLHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	acl, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -96,7 +95,7 @@ func (h KafkaSchemaRegistryACLHandler) createOrUpdate(ctx context.Context, _ *ai
 	return nil
 }
 
-func (h KafkaSchemaRegistryACLHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaSchemaRegistryACLHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	acl, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -124,7 +123,7 @@ func (h KafkaSchemaRegistryACLHandler) exists(ctx context.Context, avnGen avngen
 	return false, nil
 }
 
-func (h KafkaSchemaRegistryACLHandler) get(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h KafkaSchemaRegistryACLHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	acl, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -148,7 +147,7 @@ func (h KafkaSchemaRegistryACLHandler) get(ctx context.Context, _ *aiven.Client,
 	return nil, nil
 }
 
-func (h KafkaSchemaRegistryACLHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaSchemaRegistryACLHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	acl, err := h.convert(obj)
 	if err != nil {
 		return false, err

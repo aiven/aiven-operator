@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/aiven/aiven-go-client/v2"
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafkaschemaregistry"
 	"github.com/avast/retry-go"
@@ -46,7 +45,7 @@ func (r *KafkaSchemaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	schema, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -137,7 +136,7 @@ func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, _ *aiven.Client,
 	return nil
 }
 
-func (h KafkaSchemaHandler) delete(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaSchemaHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	schema, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -147,7 +146,7 @@ func (h KafkaSchemaHandler) delete(ctx context.Context, _ *aiven.Client, avnGen 
 	return isDeleted(err)
 }
 
-func (h KafkaSchemaHandler) get(_ context.Context, _ *aiven.Client, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h KafkaSchemaHandler) get(_ context.Context, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	schema, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -162,7 +161,7 @@ func (h KafkaSchemaHandler) get(_ context.Context, _ *aiven.Client, _ avngen.Cli
 	return nil, nil
 }
 
-func (h KafkaSchemaHandler) checkPreconditions(ctx context.Context, _ *aiven.Client, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h KafkaSchemaHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	schema, err := h.convert(obj)
 	if err != nil {
 		return false, err
