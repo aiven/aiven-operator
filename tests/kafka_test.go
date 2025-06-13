@@ -9,6 +9,7 @@ import (
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	kafkauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/kafka"
+	"github.com/aiven/go-client-codegen/handler/service"
 )
 
 func getKafkaYaml(project, name, cloudName string) string {
@@ -152,4 +153,14 @@ func TestKafka(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["KAFKA_REST_PORT"])
 	assert.NotEqual(t, secret.Data["KAFKA_REST_PORT"], secret.Data["KAFKA_PORT"])
 	assert.NotEqual(t, secret.Data["KAFKA_REST_PORT"], secret.Data["KAFKA_SASL_PORT"])
+
+	// Power off test
+	poweredOff := ks.DeepCopy()
+	poweredOff.Spec.Powered = anyPointer(false)
+	require.NoError(t, k8sClient.Update(ctx, poweredOff))
+	require.NoError(t, s.GetRunning(poweredOff, name))
+
+	poweredOffAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypePoweroff, poweredOffAvn.State)
 }

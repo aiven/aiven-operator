@@ -32,7 +32,7 @@ type OpenSearchHandler struct{}
 //+kubebuilder:rbac:groups=aiven.io,resources=opensearches/finalizers,verbs=get;create;update
 
 func (r *OpenSearchReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newOpenSearchAdapter), &v1alpha1.OpenSearch{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newOpenSearchAdapter, r.Log), &v1alpha1.OpenSearch{})
 }
 
 // SetupWithManager sets up the controller with the Manager.

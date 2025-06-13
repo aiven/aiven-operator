@@ -9,6 +9,7 @@ import (
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	redisuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/redis"
+	"github.com/aiven/go-client-codegen/handler/service"
 )
 
 func getRedisYaml(project, name, cloudName string) string {
@@ -109,4 +110,14 @@ func TestRedis(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["REDIS_PORT"])
 	assert.NotEmpty(t, secret.Data["REDIS_USER"])
 	assert.NotEmpty(t, secret.Data["REDIS_PASSWORD"])
+
+	// Power off test
+	poweredOff := rs.DeepCopy()
+	poweredOff.Spec.Powered = anyPointer(false)
+	require.NoError(t, k8sClient.Update(ctx, poweredOff))
+	require.NoError(t, s.GetRunning(poweredOff, name))
+
+	poweredOffAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypePoweroff, poweredOffAvn.State)
 }

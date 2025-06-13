@@ -9,6 +9,7 @@ import (
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	opensearchuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/opensearch"
+	"github.com/aiven/go-client-codegen/handler/service"
 )
 
 func getOpenSearchYaml(project, name, cloudName string) string {
@@ -118,4 +119,14 @@ func TestOpenSearch(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["OPENSEARCH_URI"])
 	assert.Equal(t, map[string]string{"foo": "bar"}, secret.Annotations)
 	assert.Equal(t, map[string]string{"baz": "egg"}, secret.Labels)
+
+	// Power off test
+	poweredOff := os.DeepCopy()
+	poweredOff.Spec.Powered = anyPointer(false)
+	require.NoError(t, k8sClient.Update(ctx, poweredOff))
+	require.NoError(t, s.GetRunning(poweredOff, name))
+
+	poweredOffAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypePoweroff, poweredOffAvn.State)
 }

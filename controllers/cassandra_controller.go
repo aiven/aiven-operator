@@ -31,7 +31,7 @@ func newCassandraReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=cassandras/finalizers,verbs=get;create;update
 
 func (r *CassandraReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newCassandraAdapter), &v1alpha1.Cassandra{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newCassandraAdapter, r.Log), &v1alpha1.Cassandra{})
 }
 
 // SetupWithManager sets up the controller with the Manager.

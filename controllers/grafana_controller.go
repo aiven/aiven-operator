@@ -31,7 +31,7 @@ func newGrafanaReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=grafanas/finalizers,verbs=get;create;update
 
 func (r *GrafanaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newGrafanaAdapter), &v1alpha1.Grafana{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newGrafanaAdapter, r.Log), &v1alpha1.Grafana{})
 }
 
 // SetupWithManager sets up the controller with the Manager.

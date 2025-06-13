@@ -9,6 +9,7 @@ import (
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	cassandrauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/cassandra"
+	"github.com/aiven/go-client-codegen/handler/service"
 )
 
 func getCassandraYaml(project, name, cloudName string) string {
@@ -113,4 +114,14 @@ func TestCassandra(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["CASSANDRA_URI"])
 	assert.NotEmpty(t, secret.Data["CASSANDRA_HOSTS"])
 	assert.NotEmpty(t, secret.Data["CASSANDRA_CA_CERT"])
+
+	// Power off test
+	poweredOff := cs.DeepCopy()
+	poweredOff.Spec.Powered = anyPointer(false)
+	require.NoError(t, k8sClient.Update(ctx, poweredOff))
+	require.NoError(t, s.GetRunning(poweredOff, name))
+
+	poweredOffAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypePoweroff, poweredOffAvn.State)
 }

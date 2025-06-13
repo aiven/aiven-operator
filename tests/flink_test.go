@@ -8,6 +8,7 @@ import (
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	flinkuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/flink"
+	"github.com/aiven/go-client-codegen/handler/service"
 )
 
 func TestFlink(t *testing.T) {
@@ -75,4 +76,14 @@ func TestFlink(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["FLINK_PASSWORD"])
 	assert.NotEmpty(t, secret.Data["FLINK_URI"])
 	assert.NotEmpty(t, secret.Data["FLINK_HOSTS"])
+
+	// Power off test
+	poweredOff := flink.DeepCopy()
+	poweredOff.Spec.Powered = anyPointer(false)
+	require.NoError(t, k8sClient.Update(ctx, poweredOff))
+	require.NoError(t, s.GetRunning(poweredOff, name))
+
+	poweredOffAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypePoweroff, poweredOffAvn.State)
 }
