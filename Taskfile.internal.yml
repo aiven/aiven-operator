@@ -225,11 +225,9 @@ tasks:
 
   fmt:imports:
     desc: Format Go imports
-    sources:
-      - "**/*.go"
     cmds:
       - |
-        find . -type f -name '*.go' -exec sed -i '/^import ($$/,/^)/ {/^[[:space:]]*$$/d}' {} +
+        find . -type f -name '*.go' -exec sed -i'' -e '/^import ($/,/^)$/{/^[[:space:]]*$/d;}' {} +
         goimports -local "github.com/aiven/aiven-operator" -w .
 
   fmt:trunk:

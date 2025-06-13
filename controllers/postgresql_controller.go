@@ -34,7 +34,7 @@ const waitForTaskToCompleteInterval = time.Second * 10
 //+kubebuilder:rbac:groups=aiven.io,resources=postgresqls/finalizers,verbs=get;create;update
 
 func (r *PostgreSQLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newPostgreSQLAdapter), &v1alpha1.PostgreSQL{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newPostgreSQLAdapter, r.Log), &v1alpha1.PostgreSQL{})
 }
 
 func (r *PostgreSQLReconciler) SetupWithManager(mgr ctrl.Manager) error {

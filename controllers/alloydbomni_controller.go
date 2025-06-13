@@ -33,7 +33,7 @@ func newAlloyDBOmniReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=alloydbomnis/finalizers,verbs=get;create;update
 
 func (r *AlloyDBOmniReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newAlloyDBOmniAdapter), &v1alpha1.AlloyDBOmni{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newAlloyDBOmniAdapter, r.Log), &v1alpha1.AlloyDBOmni{})
 }
 
 func (r *AlloyDBOmniReconciler) SetupWithManager(mgr ctrl.Manager) error {

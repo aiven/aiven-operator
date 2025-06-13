@@ -30,7 +30,7 @@ func newClickhouseReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouses/finalizers,verbs=get;create;update
 
 func (r *ClickhouseReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newClickhouseAdapter), &v1alpha1.Clickhouse{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newClickhouseAdapter, r.Log), &v1alpha1.Clickhouse{})
 }
 
 // SetupWithManager sets up the controller with the Manager.

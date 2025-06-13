@@ -31,7 +31,7 @@ func newFlinkReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=flinks/finalizers,verbs=get;create;update
 
 func (r *FlinkReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newFlinkAdapter), &v1alpha1.Flink{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newFlinkAdapter, r.Log), &v1alpha1.Flink{})
 }
 
 // SetupWithManager sets up the controller with the Manager.
