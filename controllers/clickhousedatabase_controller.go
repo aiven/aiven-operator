@@ -120,7 +120,7 @@ func (h *ClickhouseDatabaseHandler) checkPreconditions(ctx context.Context, avnG
 	meta.SetStatusCondition(&db.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsOperational(ctx, avnGen, db.Spec.Project, db.Spec.ServiceName)
+	return validateServiceIsOperational(ctx, avnGen, db.Spec.Project, db.Spec.ServiceName)
 }
 
 func (h *ClickhouseDatabaseHandler) convert(i client.Object) (*v1alpha1.ClickhouseDatabase, error) {

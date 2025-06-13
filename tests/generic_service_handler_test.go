@@ -34,13 +34,16 @@ spec:
   cloudName: google-europe-west1
   plan: startup-4
 
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 09:00:00
+
   tags:
     env: prod
     instance: master
 `, project, pgName)
 }
 
-func getUpdateServiceYaml(project, pgName string) string {
+func getUpdateServiceYaml(project, pgName string, powered bool) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: PostgreSQL
@@ -54,7 +57,11 @@ spec:
   project: %[1]s
   cloudName: google-europe-west1
   plan: startup-4
-`, project, pgName)
+  powered: %[3]t
+
+  maintenanceWindowDow: sunday
+  maintenanceWindowTime: 11:00:00
+`, project, pgName, powered)
 }
 
 // TestCreateUpdateService tests create and update flow
@@ -85,12 +92,18 @@ func TestCreateUpdateService(t *testing.T) {
 	// Validates tags
 	tagsCreatedAvnTags, err := avnGen.ProjectServiceTagsList(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
-
 	assert.Equal(t, map[string]string{"env": "prod", "instance": "master"}, pg.Spec.Tags)
 	assert.Equal(t, tagsCreatedAvnTags, pg.Spec.Tags)
 
-	// Updates tags
-	ymlUpdate := getUpdateServiceYaml(cfg.Project, pgName)
+	// Validates the maintenance window
+	avnPg, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypeRunning, avnPg.State)
+	assert.Equal(t, service.MaintenanceDowTypeFriday, avnPg.Maintenance.Dow)
+	assert.Equal(t, "09:00:00", avnPg.Maintenance.Time)
+
+	// Removes the tags and updates the maintenance window
+	ymlUpdate := getUpdateServiceYaml(cfg.Project, pgName, true)
 	require.NoError(t, err)
 	require.NoError(t, s.Apply(ymlUpdate))
 
@@ -99,6 +112,35 @@ func TestCreateUpdateService(t *testing.T) {
 	tagsUpdatedAvnTags, err := avnGen.ProjectServiceTagsList(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
 	assert.Empty(t, tagsUpdatedAvnTags) // cleared tags
+
+	// Validates the maintenance window is updated
+	avnPgUpdated, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypeRunning, avnPgUpdated.State)
+	assert.Equal(t, service.MaintenanceDowTypeSunday, avnPgUpdated.Maintenance.Dow)
+	assert.Equal(t, "11:00:00", avnPgUpdated.Maintenance.Time)
+
+	// Validates service is powered off
+	ymlPowerOff := getUpdateServiceYaml(cfg.Project, pgName, false)
+	require.NoError(t, s.Apply(ymlPowerOff))
+
+	pgPoweredOff := new(v1alpha1.PostgreSQL)
+	require.NoError(t, s.GetRunning(pgPoweredOff, pgName))
+
+	avnPgPoweredOff, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypePoweroff, avnPgPoweredOff.State)
+
+	// Validates the service is powered on
+	ymlPowerOn := getUpdateServiceYaml(cfg.Project, pgName, true)
+	require.NoError(t, s.Apply(ymlPowerOn))
+
+	pgPoweredOn := new(v1alpha1.PostgreSQL)
+	require.NoError(t, s.GetRunning(pgPoweredOn, pgName))
+
+	avnPgPoweredOn, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypeRunning, avnPgPoweredOn.State)
 }
 
 func getErrorConditionYaml(project, pgName string) string {

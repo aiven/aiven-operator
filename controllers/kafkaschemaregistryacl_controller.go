@@ -156,7 +156,7 @@ func (h KafkaSchemaRegistryACLHandler) checkPreconditions(ctx context.Context, a
 	meta.SetStatusCondition(&acl.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsOperational(ctx, avnGen, acl.Spec.Project, acl.Spec.ServiceName)
+	return validateServiceIsOperational(ctx, avnGen, acl.Spec.Project, acl.Spec.ServiceName)
 }
 
 func (h KafkaSchemaRegistryACLHandler) convert(i client.Object) (*v1alpha1.KafkaSchemaRegistryACL, error) {

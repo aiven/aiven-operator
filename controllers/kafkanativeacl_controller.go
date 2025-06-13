@@ -54,7 +54,7 @@ func (h KafkaNativeACLHandler) checkPreconditions(ctx context.Context, avnGen av
 	meta.SetStatusCondition(&acl.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsOperational(ctx, avnGen, acl.Spec.Project, acl.Spec.ServiceName)
+	return validateServiceIsOperational(ctx, avnGen, acl.Spec.Project, acl.Spec.ServiceName)
 }
 
 // createOrUpdate creates or updates an instance on the Aiven side.

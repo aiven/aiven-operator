@@ -126,6 +126,14 @@ type BaseServiceFields struct {
 	// +kubebuilder:validation:MaxItems=10
 	// Defines the email addresses that will receive alerts about upcoming maintenance updates or warnings about service instability.
 	TechnicalEmails []ServiceTechEmail `json:"technicalEmails,omitempty"`
+
+	// +kubebuilder:default=true
+	// Determines the power state of the service. When true (default), the service is running.
+	// When false, the service is powered off. Note that:
+	// - Services cannot be created in a powered off state (the value is ignored during creation)
+	// - Creating or updating dependent resources while the service is powered off will result in an error
+	// - It is highly recommended to not run dependent resources when the service is powered off
+	Powered *bool `json:"powered,omitempty"`
 }
 
 // +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."

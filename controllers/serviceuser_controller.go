@@ -157,7 +157,7 @@ func (h ServiceUserHandler) checkPreconditions(ctx context.Context, avnGen avnge
 	meta.SetStatusCondition(&user.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsOperational(ctx, avnGen, user.Spec.Project, user.Spec.ServiceName)
+	return validateServiceIsOperational(ctx, avnGen, user.Spec.Project, user.Spec.ServiceName)
 }
 
 func (h ServiceUserHandler) convert(i client.Object) (*v1alpha1.ServiceUser, error) {

@@ -31,7 +31,7 @@ func newKafkaReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkas/finalizers,verbs=get;create;update
 
 func (r *KafkaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newKafkaAdapter), &v1alpha1.Kafka{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newKafkaAdapter, r.Log), &v1alpha1.Kafka{})
 }
 
 func (r *KafkaReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -52,6 +52,13 @@ func newKafkaAdapter(object client.Object) (serviceAdapter, error) {
 // kafkaAdapter handles an Aiven Kafka service
 type kafkaAdapter struct {
 	*v1alpha1.Kafka
+}
+
+func (a *kafkaAdapter) isPowered() bool {
+	if a.Spec.Powered == nil {
+		return true
+	}
+	return *a.Spec.Powered
 }
 
 func (a *kafkaAdapter) getObjectMeta() *metav1.ObjectMeta {
@@ -118,8 +125,8 @@ func (a *kafkaAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*
 	return newSecret(a, stringData, false), nil
 }
 
-func (a *kafkaAdapter) getServiceType() string {
-	return "kafka"
+func (a *kafkaAdapter) getServiceType() serviceType {
+	return serviceTypeKafka
 }
 
 func (a *kafkaAdapter) getDiskSpace() string {

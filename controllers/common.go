@@ -45,30 +45,41 @@ const (
 	errConditionCreateOrUpdate errCondition = "CreateOrUpdate"
 )
 
-var errTerminationProtectionOn = errors.New("termination protection is on")
+var (
+	errTerminationProtectionOn = errors.New("termination protection is on")
+	errServicePoweredOff       = errors.New("service is powered off")
+)
 
-func checkServiceIsOperational(ctx context.Context, avnGen avngen.Client, project, serviceName string) (bool, error) {
+// validateServiceIsOperational checks if a service is in operational state, i.e., can create databases, users, etc.
+// Returns errServicePoweredOff if the service is powered off.
+func validateServiceIsOperational(ctx context.Context, avnGen avngen.Client, project, serviceName string) (bool, error) {
 	s, err := avnGen.ServiceGet(ctx, project, serviceName)
+	if isNotFound(err) {
+		// Service not found indicates it hasn't started running.
+		// We ignore not found errors since they could mean either:
+		// 1. The service doesn't exist yet
+		// 2. The project doesn't exist yet (may be created by operator)
+		return false, nil
+	}
+
 	if err != nil {
-		// if service is not found, it is not running
-		if isNotFound(err) {
-			// this will swallow an error if the project doesn't exist and object is not project
-			return false, nil
-		}
 		return false, err
 	}
-	return serviceIsOperational(s.State), nil
-}
 
-// serviceIsOperational returns "true" when a service is in operational state, i.e. "running"
-func serviceIsOperational[T service.ServiceStateType | string](state T) bool {
-	s := service.ServiceStateType(state)
-	return s == service.ServiceStateTypeRebalancing || serviceIsRunning(s)
-}
+	switch s.State {
+	case service.ServiceStateTypeRebalancing, service.ServiceStateTypeRunning:
+		// Running means the service is fully operational.
+		// Rebalancing doesn't block most of the operations.
+		// But depending on the service type and the operation, additional checks may be needed.
+		return true, nil
+	case service.ServiceStateTypePoweroff:
+		// If the service is powered off, returns an error,
+		// so that Kube won't infinitely retry the Aiven API.
+		return false, fmt.Errorf("%w: %s/%s", errServicePoweredOff, project, serviceName)
+	}
 
-// serviceIsRunning returns "true" when a service is RUNNING state on Aive side
-func serviceIsRunning[T service.ServiceStateType | string](state T) bool {
-	return service.ServiceStateType(state) == service.ServiceStateTypeRunning
+	// Must be an intermediate state, e.g. rebuilding, etc.
+	return false, nil
 }
 
 func getInitializedCondition(reason, message string) metav1.Condition {
@@ -118,8 +129,8 @@ func isAlreadyProcessed(o client.Object) bool {
 
 // IsAlreadyRunning returns true if object is ready to use
 func IsAlreadyRunning(o client.Object) bool {
-	_, found := o.GetAnnotations()[instanceIsRunningAnnotation]
-	return found
+	v := o.GetAnnotations()[instanceIsRunningAnnotation]
+	return v == "true"
 }
 
 // NilIfZero returns a pointer to the value, or nil if the value equals its zero value

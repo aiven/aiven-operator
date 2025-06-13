@@ -269,7 +269,7 @@ tasks:
 
   docs:build:
     desc: Builds docs website.
-    deps: [docs]
+    deps: [internal:generate:docs]
     cmds:
       - "{{.CONTAINER_TOOL}} run --rm -it -v $(pwd)/docs:/docs squidfunk/mkdocs-material build"
 

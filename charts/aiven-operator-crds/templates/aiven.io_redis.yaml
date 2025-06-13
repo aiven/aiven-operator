@@ -146,6 +146,15 @@ spec:
                   description: Subscription plan.
                   maxLength: 128
                   type: string
+                powered:
+                  default: true
+                  description: |-
+                    Determines the power state of the service. When true (default), the service is running.
+                    When false, the service is powered off. Note that:
+                    - Services cannot be created in a powered off state (the value is ignored during creation)
+                    - Creating or updating dependent resources while the service is powered off will result in an error
+                    - It is highly recommended to not run dependent resources when the service is powered off
+                  type: boolean
                 project:
                   description: Identifies the project this resource belongs to
                   maxLength: 63

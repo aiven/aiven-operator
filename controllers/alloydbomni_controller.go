@@ -33,7 +33,7 @@ func newAlloyDBOmniReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=alloydbomnis/finalizers,verbs=get;create;update
 
 func (r *AlloyDBOmniReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newAlloyDBOmniAdapter), &v1alpha1.AlloyDBOmni{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newAlloyDBOmniAdapter, r.Log), &v1alpha1.AlloyDBOmni{})
 }
 
 func (r *AlloyDBOmniReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -54,6 +54,13 @@ func newAlloyDBOmniAdapter(object client.Object) (serviceAdapter, error) {
 // alloyDBOmniAdapter handles an Aiven AlloyDBOmni service
 type alloyDBOmniAdapter struct {
 	*v1alpha1.AlloyDBOmni
+}
+
+func (a *alloyDBOmniAdapter) isPowered() bool {
+	if a.Spec.Powered == nil {
+		return true
+	}
+	return *a.Spec.Powered
 }
 
 func (a *alloyDBOmniAdapter) getObjectMeta() *metav1.ObjectMeta {
@@ -86,8 +93,8 @@ func (a *alloyDBOmniAdapter) newSecret(_ context.Context, s *service.ServiceGetO
 	return newSecret(a, stringData, true), nil
 }
 
-func (a *alloyDBOmniAdapter) getServiceType() string {
-	return "alloydbomni"
+func (a *alloyDBOmniAdapter) getServiceType() serviceType {
+	return serviceTypeAlloyDBOmni
 }
 
 func (a *alloyDBOmniAdapter) getDiskSpace() string {

@@ -225,7 +225,7 @@ func (h KafkaConnectorHandler) checkPreconditions(ctx context.Context, avnGen av
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
 	// Check if the service is operational
-	ok, err := checkServiceIsOperational(ctx, avnGen, conn.Spec.Project, conn.Spec.ServiceName)
+	ok, err := validateServiceIsOperational(ctx, avnGen, conn.Spec.Project, conn.Spec.ServiceName)
 	if !ok || err != nil {
 		return ok, err
 	}

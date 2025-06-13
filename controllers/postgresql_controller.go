@@ -34,7 +34,7 @@ const waitForTaskToCompleteInterval = time.Second * 10
 //+kubebuilder:rbac:groups=aiven.io,resources=postgresqls/finalizers,verbs=get;create;update
 
 func (r *PostgreSQLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newPostgreSQLAdapter), &v1alpha1.PostgreSQL{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newPostgreSQLAdapter, r.Log), &v1alpha1.PostgreSQL{})
 }
 
 func (r *PostgreSQLReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -55,6 +55,13 @@ func newPostgreSQLAdapter(object client.Object) (serviceAdapter, error) {
 // postgreSQLAdapter handles an Aiven PostgreSQL service
 type postgreSQLAdapter struct {
 	*v1alpha1.PostgreSQL
+}
+
+func (a *postgreSQLAdapter) isPowered() bool {
+	if a.Spec.Powered == nil {
+		return true
+	}
+	return *a.Spec.Powered
 }
 
 func (a *postgreSQLAdapter) getObjectMeta() *metav1.ObjectMeta {
@@ -96,8 +103,8 @@ func (a *postgreSQLAdapter) newSecret(_ context.Context, s *service.ServiceGetOu
 	return newSecret(a, stringData, false), nil
 }
 
-func (a *postgreSQLAdapter) getServiceType() string {
-	return "pg"
+func (a *postgreSQLAdapter) getServiceType() serviceType {
+	return serviceTypePostgreSQL
 }
 
 func (a *postgreSQLAdapter) getDiskSpace() string {

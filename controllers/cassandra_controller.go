@@ -31,7 +31,7 @@ func newCassandraReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=cassandras/finalizers,verbs=get;create;update
 
 func (r *CassandraReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newCassandraAdapter), &v1alpha1.Cassandra{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newCassandraAdapter, r.Log), &v1alpha1.Cassandra{})
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -53,6 +53,13 @@ func newCassandraAdapter(object client.Object) (serviceAdapter, error) {
 // cassandraAdapter handles an Aiven Cassandra service
 type cassandraAdapter struct {
 	*v1alpha1.Cassandra
+}
+
+func (a *cassandraAdapter) isPowered() bool {
+	if a.Spec.Powered == nil {
+		return true
+	}
+	return *a.Spec.Powered
 }
 
 func (a *cassandraAdapter) getObjectMeta() *metav1.ObjectMeta {
@@ -84,8 +91,8 @@ func (a *cassandraAdapter) newSecret(_ context.Context, s *service.ServiceGetOut
 	return newSecret(a, stringData, true), nil
 }
 
-func (a *cassandraAdapter) getServiceType() string {
-	return "cassandra"
+func (a *cassandraAdapter) getServiceType() serviceType {
+	return serviceTypeCassandra
 }
 
 func (a *cassandraAdapter) getDiskSpace() string {

@@ -30,7 +30,7 @@ func newKafkaConnectReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkaconnects/finalizers,verbs=get;create;update
 
 func (r *KafkaConnectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newKafkaConnectAdapter), &v1alpha1.KafkaConnect{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newKafkaConnectAdapter, r.Log), &v1alpha1.KafkaConnect{})
 }
 
 func (r *KafkaConnectReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -50,6 +50,13 @@ func newKafkaConnectAdapter(object client.Object) (serviceAdapter, error) {
 // kafkaConnectAdapter handles an Aiven KafkaConnect service
 type kafkaConnectAdapter struct {
 	*v1alpha1.KafkaConnect
+}
+
+func (a *kafkaConnectAdapter) isPowered() bool {
+	if a.Spec.Powered == nil {
+		return true
+	}
+	return *a.Spec.Powered
 }
 
 func (a *kafkaConnectAdapter) getObjectMeta() *metav1.ObjectMeta {
@@ -72,8 +79,8 @@ func (a *kafkaConnectAdapter) newSecret(_ context.Context, _ *service.ServiceGet
 	return nil, nil
 }
 
-func (a *kafkaConnectAdapter) getServiceType() string {
-	return "kafka_connect"
+func (a *kafkaConnectAdapter) getServiceType() serviceType {
+	return serviceTypeKafkaConnect
 }
 
 func (a *kafkaConnectAdapter) getDiskSpace() string {

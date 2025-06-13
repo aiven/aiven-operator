@@ -30,7 +30,7 @@ func newMySQLReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=mysqls/finalizers,verbs=get;create;update
 
 func (r *MySQLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newMySQLAdapter), &v1alpha1.MySQL{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newMySQLAdapter, r.Log), &v1alpha1.MySQL{})
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -52,6 +52,13 @@ func newMySQLAdapter(object client.Object) (serviceAdapter, error) {
 // mySQLAdapter handles an Aiven MySQL service
 type mySQLAdapter struct {
 	*v1alpha1.MySQL
+}
+
+func (a *mySQLAdapter) isPowered() bool {
+	if a.Spec.Powered == nil {
+		return true
+	}
+	return *a.Spec.Powered
 }
 
 func (a *mySQLAdapter) getObjectMeta() *metav1.ObjectMeta {
@@ -85,8 +92,8 @@ func (a *mySQLAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*
 	return newSecret(a, stringData, true), nil
 }
 
-func (a *mySQLAdapter) getServiceType() string {
-	return "mysql"
+func (a *mySQLAdapter) getServiceType() serviceType {
+	return serviceTypeMySQL
 }
 
 func (a *mySQLAdapter) getDiskSpace() string {

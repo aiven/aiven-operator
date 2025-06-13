@@ -31,7 +31,7 @@ func newFlinkReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=flinks/finalizers,verbs=get;create;update
 
 func (r *FlinkReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newFlinkAdapter), &v1alpha1.Flink{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newFlinkAdapter, r.Log), &v1alpha1.Flink{})
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -53,6 +53,13 @@ func newFlinkAdapter(object client.Object) (serviceAdapter, error) {
 // flinkAdapter handles an Aiven Flink service
 type flinkAdapter struct {
 	*v1alpha1.Flink
+}
+
+func (a *flinkAdapter) isPowered() bool {
+	if a.Spec.Powered == nil {
+		return true
+	}
+	return *a.Spec.Powered
 }
 
 func (a *flinkAdapter) getObjectMeta() *metav1.ObjectMeta {
@@ -83,8 +90,8 @@ func (a *flinkAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*
 	return newSecret(a, stringData, true), nil
 }
 
-func (a *flinkAdapter) getServiceType() string {
-	return "flink"
+func (a *flinkAdapter) getServiceType() serviceType {
+	return serviceTypeFlink
 }
 
 func (a *flinkAdapter) getDiskSpace() string {
