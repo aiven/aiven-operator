@@ -2,6 +2,7 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Added support for powering services on and off via the `powered` field
 - Completely replace the old go client with the new one, which is generated from the OpenAPI spec
 - Change `PostgreSQL` field `userConfig.pg_version`: enum remove `12`
 - Add `KafkaTopic` field `config.inkless_enable`, type `boolean`: Indicates whether inkless should be enabled

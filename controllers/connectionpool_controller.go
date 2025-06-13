@@ -244,7 +244,7 @@ func (h ConnectionPoolHandler) checkPreconditions(ctx context.Context, avnGen av
 	meta.SetStatusCondition(&cp.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	isRunning, err := checkServiceIsOperational(ctx, avnGen, cp.Spec.Project, cp.Spec.ServiceName)
+	isRunning, err := validateServiceIsOperational(ctx, avnGen, cp.Spec.Project, cp.Spec.ServiceName)
 	if err != nil {
 		return false, err
 	}

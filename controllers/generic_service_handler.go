@@ -7,6 +7,7 @@ import (
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
+	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -15,14 +16,15 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func newGenericServiceHandler(fabric serviceAdapterFabric) Handlers {
-	return &genericServiceHandler{fabric: fabric}
+func newGenericServiceHandler(fabric serviceAdapterFabric, log logr.Logger) Handlers {
+	return &genericServiceHandler{fabric: fabric, log: log}
 }
 
 // genericServiceHandler provides common CRUD management for all service types using serviceAdapter,
 // which turns specific service (mysql, redis) into a generic.
 type genericServiceHandler struct {
 	fabric serviceAdapterFabric
+	log    logr.Logger
 }
 
 func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
@@ -33,6 +35,9 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 
 	spec := o.getServiceCommonSpec()
 	ometa := o.getObjectMeta()
+
+	// Resets annotations until the instance is running
+	metav1.SetMetaDataAnnotation(ometa, instanceIsRunningAnnotation, "false")
 
 	// Project id reference
 	// Could be right in spec or referenced (has ref)
@@ -79,7 +84,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 			Plan:                  spec.Plan,
 			ProjectVpcId:          toOptionalStringPointer(projectVPCID),
 			ServiceName:           ometa.Name,
-			ServiceType:           o.getServiceType(),
+			ServiceType:           string(o.getServiceType()),
 			TerminationProtection: spec.TerminationProtection,
 			UserConfig:            &userConfig,
 			TechEmails:            &technicalEmails,
@@ -120,7 +125,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 			DiskSpaceMb:           NilIfZero(diskSpace),
 			Maintenance:           getMaintenanceWindow(spec.MaintenanceWindowDow, spec.MaintenanceWindowTime),
 			Plan:                  NilIfZero(spec.Plan),
-			Powered:               NilIfZero(true),
+			Powered:               spec.Powered,
 			ProjectVpcId:          NilIfZero(projectVPCID),
 			TerminationProtection: spec.TerminationProtection,
 			UserConfig:            &userConfig,
@@ -154,7 +159,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 			"Successfully created or updated the instance in Aiven, status remains unknown"))
 
 	metav1.SetMetaDataAnnotation(
-		o.getObjectMeta(),
+		ometa,
 		processedGenerationAnnotation,
 		strconv.FormatInt(obj.GetGeneration(), formatIntBaseDecimal),
 	)
@@ -193,32 +198,42 @@ func (h *genericServiceHandler) get(ctx context.Context, avnGen avngen.Client, o
 	}
 
 	spec := o.getServiceCommonSpec()
-	s, err := avnGen.ServiceGet(ctx, spec.Project, o.getObjectMeta().Name, service.ServiceGetIncludeSecrets(true))
+	avnService, err := avnGen.ServiceGet(ctx, spec.Project, o.getObjectMeta().Name, service.ServiceGetIncludeSecrets(true))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get service from Aiven: %w", err)
 	}
 
 	status := o.getServiceStatus()
-	if !serviceIsRunning(s.State) {
-		status.State = s.State
+	status.State = avnService.State
+
+	var msg string
+	switch {
+	case status.State == service.ServiceStateTypeRunning && o.isPowered():
+		msg = "Instance is running on Aiven side"
+	case status.State == service.ServiceStateTypePoweroff && !o.isPowered():
+		msg = "Instance is powered off on Aiven side"
+	default:
+		// Not ready yet
 		return nil, nil
 	}
 
-	status.State = service.ServiceStateTypeRunning // overrides REBALANCING
-	meta.SetStatusCondition(&status.Conditions,
-		getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
-
+	meta.SetStatusCondition(&status.Conditions, getRunningCondition(metav1.ConditionTrue, "CheckRunning", msg))
 	metav1.SetMetaDataAnnotation(o.getObjectMeta(), instanceIsRunningAnnotation, "true")
+
+	if !o.isPowered() {
+		// If service is powered off, we don't need to return a secret
+		return nil, nil
+	}
 
 	// Some services get secrets after they are running only,
 	// like ip addresses (hosts)
-	secret, err := o.newSecret(ctx, s)
+	secret, err := o.newSecret(ctx, avnService)
 	if err != nil || secret == nil {
 		return secret, err
 	}
 
 	switch o.getServiceType() {
-	case "kafka", "pg", "mysql", "cassandra":
+	case serviceTypeKafka, serviceTypePostgreSQL, serviceTypeMySQL, serviceTypeCassandra:
 		// CA_CERT can be used with these service types only
 	default:
 		return secret, nil
@@ -232,7 +247,7 @@ func (h *genericServiceHandler) get(ctx context.Context, avnGen avngen.Client, o
 	// We don't expect the StringData map to be empty, it must panic.
 	prefix := getSecretPrefix(o)
 	secret.StringData[prefix+"CA_CERT"] = cert
-	if o.getServiceType() == "kafka" {
+	if o.getServiceType() == serviceTypeKafka {
 		// todo: backward compatibility, remove in future releases
 		secret.StringData["CA_CERT"] = cert
 	}
@@ -250,24 +265,65 @@ func (h *genericServiceHandler) checkPreconditions(ctx context.Context, avnGen a
 	for _, s := range spec.ServiceIntegrations {
 		// Validates that read_replica is running
 		// If not, the wrapper controller will try later
-		if s.IntegrationType == "read_replica" {
-			r, err := checkServiceIsOperational(ctx, avnGen, spec.Project, s.SourceServiceName)
-			if !r || err != nil {
+		if s.IntegrationType == service.IntegrationTypeReadReplica {
+			isOperational, err := validateServiceIsOperational(ctx, avnGen, spec.Project, s.SourceServiceName)
+			if !isOperational || err != nil {
 				return false, err
 			}
 
 			// Covers error "No valid backups for service"
 			list, err := avnGen.ServiceBackupsGet(ctx, spec.Project, s.SourceServiceName)
-			if len(list.Backups) == 0 || err != nil {
+			if err != nil {
 				return false, err
+			}
+
+			if len(list.Backups) == 0 {
+				h.log.Info("source service has no backups yet", "serviceName", s.SourceServiceName)
+				return false, nil
 			}
 		}
 	}
+
+	switch o.getServiceType() {
+	case serviceTypeKafkaConnect:
+	default:
+		// Power-off not allowed without an initial backup.
+		if !fromAnyPointer(spec.Powered) {
+			list, err := avnGen.ServiceBackupsGet(ctx, spec.Project, o.getObjectMeta().Name)
+			if err != nil {
+				return false, err
+			}
+
+			if len(list.Backups) == 0 {
+				h.log.Info("service has no backups yet, can't power off", "serviceName", o.getObjectMeta().Name)
+				return false, nil
+			}
+		}
+	}
+
 	return true, nil
 }
 
 // serviceAdapterFabric returns serviceAdapter for specific service, like MySQL
 type serviceAdapterFabric func(client.Object) (serviceAdapter, error)
+
+type serviceType string
+
+const (
+	// Service types that can be returned by getServiceType()
+	serviceTypeAlloyDBOmni  serviceType = "alloydbomni"
+	serviceTypeKafka        serviceType = "kafka"
+	serviceTypeKafkaConnect serviceType = "kafka_connect"
+	serviceTypeMySQL        serviceType = "mysql"
+	serviceTypePostgreSQL   serviceType = "pg"
+	serviceTypeRedis        serviceType = "redis"
+	serviceTypeClickhouse   serviceType = "clickhouse"
+	serviceTypeOpenSearch   serviceType = "opensearch"
+	serviceTypeGrafana      serviceType = "grafana"
+	serviceTypeCassandra    serviceType = "cassandra"
+	serviceTypeFlink        serviceType = "flink"
+	serviceTypeValkey       serviceType = "valkey"
+)
 
 // serviceAdapter turns client.Object into a generic thing
 type serviceAdapter interface {
@@ -275,9 +331,10 @@ type serviceAdapter interface {
 	getObjectMeta() *metav1.ObjectMeta
 	getServiceStatus() *v1alpha1.ServiceStatus
 	getServiceCommonSpec() *v1alpha1.ServiceCommonSpec
-	getServiceType() string
+	getServiceType() serviceType
 	getDiskSpace() string
 	getUserConfig() any
+	isPowered() bool // true if service is powered on, false if powered off. Default is true
 	newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error)
 	performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error
 	createOrUpdateServiceSpecific(ctx context.Context, avnGen avngen.Client, old *service.ServiceGetOut) error

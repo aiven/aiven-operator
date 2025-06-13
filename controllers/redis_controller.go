@@ -32,7 +32,7 @@ type RedisHandler struct{}
 //+kubebuilder:rbac:groups=aiven.io,resources=redis/finalizers,verbs=get;create;update
 
 func (r *RedisReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newRedisAdapter), &v1alpha1.Redis{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newRedisAdapter, r.Log), &v1alpha1.Redis{})
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -54,6 +54,13 @@ func newRedisAdapter(object client.Object) (serviceAdapter, error) {
 // redisAdapter handles an Aiven Redis service
 type redisAdapter struct {
 	*v1alpha1.Redis
+}
+
+func (a *redisAdapter) isPowered() bool {
+	if a.Spec.Powered == nil {
+		return true
+	}
+	return *a.Spec.Powered
 }
 
 func (a *redisAdapter) getObjectMeta() *metav1.ObjectMeta {
@@ -91,8 +98,8 @@ func (a *redisAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*
 	return newSecret(a, stringData, false), nil
 }
 
-func (a *redisAdapter) getServiceType() string {
-	return "redis"
+func (a *redisAdapter) getServiceType() serviceType {
+	return serviceTypeRedis
 }
 
 func (a *redisAdapter) getDiskSpace() string {

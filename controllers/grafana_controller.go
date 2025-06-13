@@ -31,7 +31,7 @@ func newGrafanaReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=grafanas/finalizers,verbs=get;create;update
 
 func (r *GrafanaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newGrafanaAdapter), &v1alpha1.Grafana{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newGrafanaAdapter, r.Log), &v1alpha1.Grafana{})
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -53,6 +53,13 @@ func newGrafanaAdapter(object client.Object) (serviceAdapter, error) {
 // grafanaAdapter handles an Aiven Grafana service
 type grafanaAdapter struct {
 	*v1alpha1.Grafana
+}
+
+func (a *grafanaAdapter) isPowered() bool {
+	if a.Spec.Powered == nil {
+		return true
+	}
+	return *a.Spec.Powered
 }
 
 func (a *grafanaAdapter) getObjectMeta() *metav1.ObjectMeta {
@@ -84,8 +91,8 @@ func (a *grafanaAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) 
 	return newSecret(a, stringData, true), nil
 }
 
-func (a *grafanaAdapter) getServiceType() string {
-	return "grafana"
+func (a *grafanaAdapter) getServiceType() serviceType {
+	return serviceTypeGrafana
 }
 
 func (a *grafanaAdapter) getDiskSpace() string {

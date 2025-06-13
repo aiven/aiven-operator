@@ -32,7 +32,7 @@ type OpenSearchHandler struct{}
 //+kubebuilder:rbac:groups=aiven.io,resources=opensearches/finalizers,verbs=get;create;update
 
 func (r *OpenSearchReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newOpenSearchAdapter), &v1alpha1.OpenSearch{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newOpenSearchAdapter, r.Log), &v1alpha1.OpenSearch{})
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -54,6 +54,13 @@ func newOpenSearchAdapter(object client.Object) (serviceAdapter, error) {
 // opensearchAdapter handles an Aiven OpenSearch service
 type opensearchAdapter struct {
 	*v1alpha1.OpenSearch
+}
+
+func (a *opensearchAdapter) isPowered() bool {
+	if a.Spec.Powered == nil {
+		return true
+	}
+	return *a.Spec.Powered
 }
 
 func (a *opensearchAdapter) getObjectMeta() *metav1.ObjectMeta {
@@ -90,8 +97,8 @@ func (a *opensearchAdapter) newSecret(_ context.Context, s *service.ServiceGetOu
 	return newSecret(a, stringData, false), nil
 }
 
-func (a *opensearchAdapter) getServiceType() string {
-	return "opensearch"
+func (a *opensearchAdapter) getServiceType() serviceType {
+	return serviceTypeOpenSearch
 }
 
 func (a *opensearchAdapter) getDiskSpace() string {

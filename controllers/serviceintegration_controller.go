@@ -187,7 +187,7 @@ func (h ServiceIntegrationHandler) checkPreconditions(ctx context.Context, avnGe
 		if project == "" {
 			project = si.Spec.Project
 		}
-		running, err := checkServiceIsOperational(ctx, avnGen, project, si.Spec.SourceServiceName)
+		running, err := validateServiceIsOperational(ctx, avnGen, project, si.Spec.SourceServiceName)
 		if !running || err != nil {
 			return false, err
 		}
@@ -198,7 +198,7 @@ func (h ServiceIntegrationHandler) checkPreconditions(ctx context.Context, avnGe
 		if project == "" {
 			project = si.Spec.Project
 		}
-		running, err := checkServiceIsOperational(ctx, avnGen, project, si.Spec.DestinationServiceName)
+		running, err := validateServiceIsOperational(ctx, avnGen, project, si.Spec.DestinationServiceName)
 		if !running || err != nil {
 			return false, err
 		}

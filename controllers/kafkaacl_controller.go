@@ -175,7 +175,7 @@ func (h KafkaACLHandler) checkPreconditions(ctx context.Context, avnGen avngen.C
 	meta.SetStatusCondition(&acl.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	return checkServiceIsOperational(ctx, avnGen, acl.Spec.Project, acl.Spec.ServiceName)
+	return validateServiceIsOperational(ctx, avnGen, acl.Spec.Project, acl.Spec.ServiceName)
 }
 
 func (h KafkaACLHandler) convert(i client.Object) (*v1alpha1.KafkaACL, error) {

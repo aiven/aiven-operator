@@ -30,7 +30,7 @@ func newClickhouseReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouses/finalizers,verbs=get;create;update
 
 func (r *ClickhouseReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newClickhouseAdapter), &v1alpha1.Clickhouse{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newClickhouseAdapter, r.Log), &v1alpha1.Clickhouse{})
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -52,6 +52,13 @@ func newClickhouseAdapter(object client.Object) (serviceAdapter, error) {
 // clickhouseAdapter handles an Aiven Clickhouse service
 type clickhouseAdapter struct {
 	*v1alpha1.Clickhouse
+}
+
+func (a *clickhouseAdapter) isPowered() bool {
+	if a.Spec.Powered == nil {
+		return true
+	}
+	return *a.Spec.Powered
 }
 
 func (a *clickhouseAdapter) getObjectMeta() *metav1.ObjectMeta {
@@ -87,8 +94,8 @@ func (a *clickhouseAdapter) newSecret(_ context.Context, s *service.ServiceGetOu
 	return newSecret(a, stringData, false), nil
 }
 
-func (a *clickhouseAdapter) getServiceType() string {
-	return "clickhouse"
+func (a *clickhouseAdapter) getServiceType() serviceType {
+	return serviceTypeClickhouse
 }
 
 func (a *clickhouseAdapter) getDiskSpace() string {

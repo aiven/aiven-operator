@@ -32,7 +32,7 @@ type ValkeyHandler struct{}
 //+kubebuilder:rbac:groups=aiven.io,resources=valkeys/finalizers,verbs=get;create;update
 
 func (r *ValkeyReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newValkeyAdapter), &v1alpha1.Valkey{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newValkeyAdapter, r.Log), &v1alpha1.Valkey{})
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -54,6 +54,13 @@ func newValkeyAdapter(object client.Object) (serviceAdapter, error) {
 // valkeyAdapter handles an Aiven Valkey service
 type valkeyAdapter struct {
 	*v1alpha1.Valkey
+}
+
+func (a *valkeyAdapter) isPowered() bool {
+	if a.Spec.Powered == nil {
+		return true
+	}
+	return *a.Spec.Powered
 }
 
 func (a *valkeyAdapter) getObjectMeta() *metav1.ObjectMeta {
@@ -85,8 +92,8 @@ func (a *valkeyAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (
 	return newSecret(a, stringData, false), nil
 }
 
-func (a *valkeyAdapter) getServiceType() string {
-	return "valkey"
+func (a *valkeyAdapter) getServiceType() serviceType {
+	return serviceTypeValkey
 }
 
 func (a *valkeyAdapter) getDiskSpace() string {

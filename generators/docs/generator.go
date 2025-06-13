@@ -238,6 +238,9 @@ var (
 
 	// reAdmonitions to render markdown admonitions
 	reAdmonitions = regexp.MustCompile(`(?mi)^(note|tip|info|warning|danger|bug|success|example)( "[^"]+")*:\s*(.+)$`)
+
+	// reIndentList to indent list items
+	reIndentList = regexp.MustCompile(`(?m)^(0-9\. |- |\* )`)
 )
 
 // GetDescription Returns description with a dot suffix. Fallbacks to items description
@@ -252,9 +255,15 @@ func (s *schemaType) GetDescription() string {
 		d += "."
 	}
 
-	// Wraps code chunks with backticks
 	d = fmtAdmonitions(d)
-	return reInlineCode.ReplaceAllString(d, "`$1`")
+
+	// Wraps code chunks with backticks
+	d = reInlineCode.ReplaceAllString(d, "`$1`")
+
+	// Indent list items with 4 spaces
+	const indent = "    "
+	d = reIndentList.ReplaceAllString(d, indent+"$1")
+	return strings.TrimPrefix(d, indent)
 }
 
 // fmtAdmonitions formats https://squidfunk.github.io/mkdocs-material/reference/admonitions/
