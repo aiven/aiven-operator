@@ -3,6 +3,7 @@ package tests
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/aiven/go-client-codegen/handler/kafkaschemaregistry"
@@ -11,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
+	"github.com/aiven/aiven-operator/controllers"
 )
 
 func getKafkaSchemaYaml(project, kafkaName, schemaName, subjectName, cloudName string) string {
@@ -100,15 +102,30 @@ func TestKafkaSchema(t *testing.T) {
 	require.NotNil(t, kafka.Spec.UserConfig)
 	assert.Equal(t, anyPointer(true), kafka.Spec.UserConfig.SchemaRegistry)
 
-	// KafkaSchema test
-	schema := new(v1alpha1.KafkaSchema)
-	require.NoError(t, s.GetRunning(schema, schemaName))
-	assert.Equal(t, schemaName, schema.Name)
-	assert.Equal(t, subjectName, schema.Spec.SubjectName)
-	assert.Equal(t, kafkaName, schema.Spec.ServiceName)
-	assert.Equal(t, kafkaschemaregistry.SchemaTypeAvro, schema.Spec.SchemaType)
-	assert.Equal(t, kafkaschemaregistry.CompatibilityTypeBackward, schema.Spec.CompatibilityLevel)
+	// This test implements the following scenario and expects IDs/Versions:
+	// Schema A -> ID:1, Version:1
+	// Schema B -> ID:2, Version:2
+	// Revert to A -> ID:1, Version:1
 
+	// STEP 1: Schema A
+	// KafkaSchema test
+	schemaA := new(v1alpha1.KafkaSchema)
+	require.NoError(t, s.GetRunning(schemaA, schemaName))
+	assert.Equal(t, schemaName, schemaA.Name)
+	assert.Equal(t, subjectName, schemaA.Spec.SubjectName)
+	assert.Equal(t, kafkaName, schemaA.Spec.ServiceName)
+	assert.Equal(t, kafkaschemaregistry.SchemaTypeAvro, schemaA.Spec.SchemaType)
+	assert.Equal(t, kafkaschemaregistry.CompatibilityTypeBackward, schemaA.Spec.CompatibilityLevel)
+
+	// Compares to the returned schema from Aiven API.
+	avnSchemaA, err := avnGen.ServiceSchemaRegistrySubjectVersionGet(ctx, cfg.Project, kafkaName, subjectName, schemaA.Status.Version)
+	require.NoError(t, err)
+	assert.Equal(t, schemaA.Status.ID, avnSchemaA.Id)
+	assert.Equal(t, schemaA.Status.Version, avnSchemaA.Version)
+	assert.Empty(t, avnSchemaA.SchemaType) // Empty means "AVRO", which is the default schema type.
+
+	// Can't compare the schema directly because of the different types.
+	// Turns them into a struct with the same types.
 	type schemaType struct {
 		Default   any           `json:"default,omitempty"`
 		Fields    []*schemaType `json:"fields,omitempty"`
@@ -119,7 +136,7 @@ func TestKafkaSchema(t *testing.T) {
 	}
 
 	actualSchema := new(schemaType)
-	err = json.Unmarshal([]byte(schema.Spec.Schema), &actualSchema)
+	err = json.Unmarshal([]byte(schemaA.Spec.Schema), &actualSchema)
 	require.NoError(t, err)
 	expectedSchema := &schemaType{
 		Default: nil,
@@ -139,9 +156,54 @@ func TestKafkaSchema(t *testing.T) {
 	}
 	assert.Empty(t, cmp.Diff(expectedSchema, actualSchema))
 
+	// STEP 2: Schema B updates the schema
+	schemaB := schemaA.DeepCopy()
+	schemaB.Spec.Schema = strings.ReplaceAll(schemaA.Spec.Schema, "example_namespace", "example_namespace_updated")
+	require.NoError(t, k8sClient.Update(ctx, schemaB))
+	require.NoError(t, s.GetRunning(schemaB, schemaName))
+
+	// The update schema has a new ID and version
+	assert.NotEqual(t, schemaB.Status.ID, schemaA.Status.ID)
+	assert.Greater(t, schemaB.Status.Version, schemaA.Status.Version)
+
+	// Compares to the returned schema from Aiven API.
+	avnSchemaB, err := avnGen.ServiceSchemaRegistrySubjectVersionGet(ctx, cfg.Project, kafkaName, subjectName, schemaB.Status.Version)
+	require.NoError(t, err)
+	assert.Equal(t, schemaB.Status.ID, avnSchemaB.Id)
+	assert.Equal(t, schemaB.Status.Version, avnSchemaB.Version)
+
+	// STEP 3: Revert to Schema A
+	schemaC := schemaB.DeepCopy()
+	schemaC.Spec.Schema = schemaA.Spec.Schema
+	require.NoError(t, k8sClient.Update(ctx, schemaC))
+	require.NoError(t, s.GetRunning(schemaC, schemaName))
+
+	// The update schema has the old ID and the old version
+	assert.Equal(t, schemaC.Status.ID, schemaA.Status.ID)
+	assert.Equal(t, schemaC.Status.Version, schemaA.Status.Version)
+
+	// Compares to the returned schema from Aiven API.
+	avnSchemaC, err := avnGen.ServiceSchemaRegistrySubjectVersionGet(ctx, cfg.Project, kafkaName, subjectName, schemaC.Status.Version)
+	require.NoError(t, err)
+	assert.Equal(t, schemaC.Status.ID, avnSchemaC.Id)
+	assert.Equal(t, schemaC.Status.Version, avnSchemaC.Version)
+
 	// Validates deleting, because deleted kafka drops schemas, and we want to be sure deletion works
-	assert.NoError(t, s.Delete(schema, func() error {
-		_, err := avnGen.ServiceSchemaRegistrySubjectVersionGet(ctx, cfg.Project, kafkaName, subjectName, 1)
-		return err
-	}))
+	subjectExists := func() error {
+		list, err := avnGen.ServiceSchemaRegistrySubjects(ctx, cfg.Project, kafkaName)
+		if err != nil {
+			return fmt.Errorf("cannot list Kafka Subjects: %w", err)
+		}
+		for _, subject := range list {
+			if subject == subjectName {
+				return nil // Found the subject
+			}
+		}
+		return controllers.NewNotFound(fmt.Sprintf("Kafka Subject %q not found", subjectName))
+	}
+
+	// Then deletes it until it is not found
+	// First proves that it won't give false positive on GET
+	require.NoError(t, subjectExists())
+	assert.NoError(t, s.Delete(schemaA, subjectExists))
 }

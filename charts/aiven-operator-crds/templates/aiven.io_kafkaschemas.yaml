@@ -99,6 +99,9 @@ spec:
                     - JSON
                     - PROTOBUF
                   type: string
+                  x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
                 serviceName:
                   description:
                     Specifies the name of the service that this resource
@@ -113,6 +116,9 @@ spec:
                   description: Kafka Schema Subject name
                   maxLength: 63
                   type: string
+                  x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
               required:
                 - project
                 - schema
@@ -195,11 +201,15 @@ spec:
                       - type
                     type: object
                   type: array
+                id:
+                  description: Schema ID
+                  type: integer
                 version:
                   description: Kafka Schema configuration version
                   type: integer
               required:
                 - conditions
+                - id
                 - version
               type: object
           type: object

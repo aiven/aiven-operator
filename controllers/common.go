@@ -132,14 +132,6 @@ func NilIfZero[T comparable](v T) *T {
 	return &v
 }
 
-func isAivenServerError(err error) bool {
-	var e avngen.Error
-	if errors.As(err, &e) {
-		return e.Status >= http.StatusInternalServerError
-	}
-	return false
-}
-
 // userAgent is a helper function to create a User-Agent string used for the Go client.
 func userAgent(kubeVersion, operatorVersion string) string {
 	// Remove the leading "v" from the version strings, if present.
@@ -246,7 +238,7 @@ func UpdateUserConfiguration(userConfig any) (map[string]any, error) {
 
 // isNotFound works both for old and new client errors
 func isNotFound(err error) bool {
-	return isAivenError(err, http.StatusNotFound)
+	return avngen.IsNotFound(err)
 }
 
 // isAlreadyExists works both for old and new client errors
@@ -272,5 +264,13 @@ func isAivenError(err error, code int) bool {
 		return e.Status == code
 	}
 
+	return false
+}
+
+func isServerError(err error) bool {
+	var e avngen.Error
+	if errors.As(err, &e) {
+		return e.Status >= http.StatusInternalServerError && e.Status < 600
+	}
 	return false
 }

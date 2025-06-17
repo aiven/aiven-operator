@@ -12,6 +12,7 @@ type KafkaSchemaSpec struct {
 	ServiceDependant `json:",inline"`
 
 	// +kubebuilder:validation:MaxLength=63
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Kafka Schema Subject name
 	SubjectName string `json:"subjectName"`
 
@@ -19,6 +20,7 @@ type KafkaSchemaSpec struct {
 	Schema string `json:"schema"`
 
 	// +kubebuilder:validation:Enum=AVRO;JSON;PROTOBUF
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Schema type
 	SchemaType kafkaschemaregistry.SchemaType `json:"schemaType,omitempty"`
 
@@ -31,6 +33,9 @@ type KafkaSchemaSpec struct {
 type KafkaSchemaStatus struct {
 	// Conditions represent the latest available observations of an KafkaSchema state
 	Conditions []metav1.Condition `json:"conditions"`
+
+	// Schema ID
+	ID int `json:"id"`
 
 	// Kafka Schema configuration version
 	Version int `json:"version"`

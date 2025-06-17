@@ -407,7 +407,7 @@ func (i *instanceReconcilerHelper) finalize(ctx context.Context, o v1alpha1.Aive
 		case isNotFound(err):
 			i.rec.Event(o, corev1.EventTypeWarning, eventUnableToDeleteAtAiven, err.Error())
 			return false, fmt.Errorf("unable to delete instance at aiven: %w", err)
-		case isAivenServerError(err):
+		case isServerError(err):
 			// If failed to delete, retries
 			i.log.Info(fmt.Sprintf("unable to delete instance at aiven: %s", err))
 			err = nil
