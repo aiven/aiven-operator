@@ -79,11 +79,11 @@ KafkaTopicSpec defines the desired state of KafkaTopic.
 - [`config`](#spec.config-property){: name='spec.config-property'} (object). Kafka topic configuration. See below for [nested schema](#spec.config).
 - [`tags`](#spec.tags-property){: name='spec.tags-property'} (array of objects). Kafka topic tags. See below for [nested schema](#spec.tags).
 - [`termination_protection`](#spec.termination_protection-property){: name='spec.termination_protection-property'} (boolean). It is a Kubernetes side deletion protections, which prevents the kafka topic
-from being deleted by Kubernetes. It is recommended to enable this for any production
-databases containing critical data.
+    from being deleted by Kubernetes. It is recommended to enable this for any production
+    databases containing critical data.
 - [`topicName`](#spec.topicName-property){: name='spec.topicName-property'} (string, Immutable, MinLength: 1, MaxLength: 249). Topic name. If provided, is used instead of metadata.name.
-This field supports additional characters, has a longer length,
-and will replace metadata.name in future releases.
+    This field supports additional characters, has a longer length,
+    and will replace metadata.name in future releases.
 
 ## authSecretRef {: #spec.authSecretRef }
 

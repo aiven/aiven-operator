@@ -217,15 +217,15 @@ PrivilegeGrant represents the privileges to be granted to users or roles.
 - [`database`](#spec.privilegeGrants.database-property){: name='spec.privilegeGrants.database-property'} (string). The database that the grant refers to.
 - [`grantees`](#spec.privilegeGrants.grantees-property){: name='spec.privilegeGrants.grantees-property'} (array of objects, MinItems: 1). List of grantees (users or roles) to grant the privilege to. See below for [nested schema](#spec.privilegeGrants.grantees).
 - [`privileges`](#spec.privilegeGrants.privileges-property){: name='spec.privilegeGrants.privileges-property'} (array of strings). The privileges to grant, i.e. `INSERT`, `SELECT`.
-[See](https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax).
+    [See](https://clickhouse.com/docs/en/sql-reference/statements/grant#assigning-role-syntax).
 
 **Optional**
 
 - [`columns`](#spec.privilegeGrants.columns-property){: name='spec.privilegeGrants.columns-property'} (array of strings). The column that the grant refers to.
 - [`table`](#spec.privilegeGrants.table-property){: name='spec.privilegeGrants.table-property'} (string). The tables that the grant refers to. To grant a privilege on all tables in a database, omit this field instead of writing `table: "*"`.
 - [`withGrantOption`](#spec.privilegeGrants.withGrantOption-property){: name='spec.privilegeGrants.withGrantOption-property'} (boolean). If true, then the grantee (user or role) get the permission to execute the `GRANT` query.
-Users can grant privileges of the same scope they have and less.
-[See](https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax).
+    Users can grant privileges of the same scope they have and less.
+    [See](https://clickhouse.com/docs/en/sql-reference/statements/grant#granting-privilege-syntax).
 
 ### grantees {: #spec.privilegeGrants.grantees }
 
@@ -259,7 +259,7 @@ RoleGrant represents the roles to be assigned to users or roles.
 **Optional**
 
 - [`withAdminOption`](#spec.roleGrants.withAdminOption-property){: name='spec.roleGrants.withAdminOption-property'} (boolean). If true, the grant is executed with `ADMIN OPTION` privilege.
-[See](https://clickhouse.com/docs/en/sql-reference/statements/grant#admin-option).
+    [See](https://clickhouse.com/docs/en/sql-reference/statements/grant#admin-option).
 
 ### grantees {: #spec.roleGrants.grantees }
 

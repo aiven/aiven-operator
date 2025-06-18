@@ -126,6 +126,20 @@ type BaseServiceFields struct {
 	// +kubebuilder:validation:MaxItems=10
 	// Defines the email addresses that will receive alerts about upcoming maintenance updates or warnings about service instability.
 	TechnicalEmails []ServiceTechEmail `json:"technicalEmails,omitempty"`
+
+	// +kubebuilder:default=true
+	// Determines the power state of the service. When `true` (default), the service is running.
+	// When `false`, the service is powered off.
+	// For more information please see [Aiven documentation](https://aiven.io/docs/platform/concepts/service-power-cycle).
+	// Note that:
+	// - Annotation `controllers.aiven.io/instance-is-running` will be set to `false`
+	// - Services cannot be created in a powered off state (the value is ignored during creation)
+	// - It is highly recommended to not run dependent resources when the service is powered off.
+	//   Creating a new resource or updating an existing resource that depends on a powered off service will result in an error.
+	//   Existing resources will need to be manually recreated after the service is powered on.
+	// - For Kafka services with backups: Topic configuration, schemas and connectors are all backed up, but not the data in topics. All topic data is lost on power off.
+	// - For Kafka services without backups: Topic configurations including all topic data is lost on power off.
+	Powered *bool `json:"powered,omitempty"`
 }
 
 // +kubebuilder:validation:XValidation:rule="has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)",message="connInfoSecretTargetDisabled can only be set during resource creation."

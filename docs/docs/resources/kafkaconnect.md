@@ -85,6 +85,17 @@ KafkaConnectSpec defines the desired state of KafkaConnect.
 - [`cloudName`](#spec.cloudName-property){: name='spec.cloudName-property'} (string, MaxLength: 256). Cloud the service runs in.
 - [`maintenanceWindowDow`](#spec.maintenanceWindowDow-property){: name='spec.maintenanceWindowDow-property'} (string, Enum: `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.
 - [`maintenanceWindowTime`](#spec.maintenanceWindowTime-property){: name='spec.maintenanceWindowTime-property'} (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
+- [`powered`](#spec.powered-property){: name='spec.powered-property'} (boolean, Default value: `true`). Determines the power state of the service. When `true` (default), the service is running.
+    When `false`, the service is powered off.
+    For more information please see [Aiven documentation](https://aiven.io/docs/platform/concepts/service-power-cycle).
+    Note that:
+    - Annotation `controllers.aiven.io/instance-is-running` will be set to `false`
+    - Services cannot be created in a powered off state (the value is ignored during creation)
+    - It is highly recommended to not run dependent resources when the service is powered off.
+      Creating a new resource or updating an existing resource that depends on a powered off service will result in an error.
+      Existing resources will need to be manually recreated after the service is powered on.
+    - For Kafka services with backups: Topic configuration, schemas and connectors are all backed up, but not the data in topics. All topic data is lost on power off.
+    - For Kafka services without backups: Topic configurations including all topic data is lost on power off.
 - [`projectVPCRef`](#spec.projectVPCRef-property){: name='spec.projectVPCRef-property'} (object). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See below for [nested schema](#spec.projectVPCRef).
 - [`projectVpcId`](#spec.projectVpcId-property){: name='spec.projectVpcId-property'} (string, MaxLength: 36). Identifier of the VPC the service should be in, if any.
 - [`serviceIntegrations`](#spec.serviceIntegrations-property){: name='spec.serviceIntegrations-property'} (array of objects, Immutable, MaxItems: 1). Service integrations to specify when creating a service. Not applied after initial service creation. See below for [nested schema](#spec.serviceIntegrations).

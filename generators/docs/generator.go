@@ -252,9 +252,29 @@ func (s *schemaType) GetDescription() string {
 		d += "."
 	}
 
-	// Wraps code chunks with backticks
 	d = fmtAdmonitions(d)
-	return reInlineCode.ReplaceAllString(d, "`$1`")
+
+	// Wraps code chunks with backticks
+	d = reInlineCode.ReplaceAllString(d, "`$1`")
+	return d
+}
+
+// GetItemDescription indents item description new lines
+func (s *schemaType) GetItemDescription() string {
+	lines := strings.Split(s.GetDescription(), "\n")
+	for i, line := range lines {
+		if i == 0 {
+			continue
+		}
+
+		// Mkdocs uses 4 spaces for indentation
+		if line != "" {
+			line = "    " + line
+		}
+
+		lines[i] = line
+	}
+	return strings.Join(lines, "\n")
 }
 
 // fmtAdmonitions formats https://squidfunk.github.io/mkdocs-material/reference/admonitions/
@@ -610,7 +630,7 @@ The output is similar to the following:
 {{ end -}}
 
 {{ define "renderProp" -}}
-- {{ .GetPropertyLink }} ({{ .GetDef }}).{{ if .GetDescription }} {{ .GetDescription }}{{ end }}{{ if .IsNested }} See below for [nested schema](#{{ .GetID }}).{{ end }}
+- {{ .GetPropertyLink }} ({{ .GetDef }}).{{ if .GetDescription }} {{ .GetItemDescription }}{{ end }}{{ if .IsNested }} See below for [nested schema](#{{ .GetID }}).{{ end }}
 {{ end -}}
 `
 

@@ -120,9 +120,9 @@ ClickhouseUserSpec defines the desired state of ClickhouseUser.
 - [`connInfoSecretTargetDisabled`](#spec.connInfoSecretTargetDisabled-property){: name='spec.connInfoSecretTargetDisabled-property'} (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
 - [`username`](#spec.username-property){: name='spec.username-property'} (string, Immutable, MaxLength: 63). Name of the Clickhouse user. Defaults to `metadata.name` if omitted.
 
-!!! Note
+    !!! Note
 
-    `metadata.name` is ASCII-only. For UTF-8 names, use `spec.username`, but ASCII is advised for compatibility.
+        `metadata.name` is ASCII-only. For UTF-8 names, use `spec.username`, but ASCII is advised for compatibility.
 
 ## authSecretRef {: #spec.authSecretRef }
 
@@ -150,5 +150,5 @@ Secret configuration.
 - [`annotations`](#spec.connInfoSecretTarget.annotations-property){: name='spec.connInfoSecretTarget.annotations-property'} (object, AdditionalProperties: string). Annotations added to the secret.
 - [`labels`](#spec.connInfoSecretTarget.labels-property){: name='spec.connInfoSecretTarget.labels-property'} (object, AdditionalProperties: string). Labels added to the secret.
 - [`prefix`](#spec.connInfoSecretTarget.prefix-property){: name='spec.connInfoSecretTarget.prefix-property'} (string). Prefix for the secret's keys.
-Added "as is" without any transformations.
-By default, is equal to the kind name in uppercase + underscore, e.g. `KAFKA_`, `REDIS_`, etc.
+    Added "as is" without any transformations.
+    By default, is equal to the kind name in uppercase + underscore, e.g. `KAFKA_`, `REDIS_`, etc.
