@@ -4,7 +4,6 @@ package controllers
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strconv"
 
@@ -59,32 +58,21 @@ func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cli
 		})
 	}
 
-	var exists bool
-	state, err := h.getState(ctx, avnGen, topic)
-	switch {
-	case isNotFound(err):
-		exists = false
-	case err != nil:
-		return err
-	default:
-		exists = state != ""
-	}
+	// ServiceKafkaTopicGet quite often fails with 5xx errors.
+	// So instead of trying to get the topic info, we'll just create it.
+	// If the topic already exists, we'll update it.
 
-	var reason string
-	if !exists {
-		err = avnGen.ServiceKafkaTopicCreate(ctx, topic.Spec.Project, topic.Spec.ServiceName, &kafkatopic.ServiceKafkaTopicCreateIn{
-			Partitions:  &topic.Spec.Partitions,
-			Replication: &topic.Spec.Replication,
-			TopicName:   topic.GetTopicName(),
-			Tags:        &tags,
-			Config:      convertKafkaTopicConfig(topic),
-		})
-		if err != nil && !isAlreadyExists(err) {
-			return err
-		}
+	reason := "Created"
+	err = avnGen.ServiceKafkaTopicCreate(ctx, topic.Spec.Project, topic.Spec.ServiceName, &kafkatopic.ServiceKafkaTopicCreateIn{
+		Partitions:  &topic.Spec.Partitions,
+		Replication: &topic.Spec.Replication,
+		TopicName:   topic.GetTopicName(),
+		Tags:        &tags,
+		Config:      convertKafkaTopicConfig(topic),
+	})
 
-		reason = "Created"
-	} else {
+	if isAlreadyExists(err) {
+		reason = "Updated"
 		err = avnGen.ServiceKafkaTopicUpdate(ctx, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName(),
 			&kafkatopic.ServiceKafkaTopicUpdateIn{
 				Partitions:  &topic.Spec.Partitions,
@@ -95,8 +83,14 @@ func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cli
 		if err != nil {
 			return fmt.Errorf("cannot update Kafka Topic: %w", err)
 		}
+	}
 
-		reason = "Updated"
+	switch {
+	case isServerError(err):
+		// Service is not ready yet, retry later.
+		return nil
+	case err != nil:
+		return err
 	}
 
 	meta.SetStatusCondition(&topic.Status.Conditions,
@@ -138,14 +132,19 @@ func (h KafkaTopicHandler) get(ctx context.Context, avnGen avngen.Client, obj cl
 		return nil, err
 	}
 
-	state, err := h.getState(ctx, avnGen, topic)
-	if err != nil {
+	avnTopic, err := avnGen.ServiceKafkaTopicGet(ctx, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName())
+
+	switch {
+	case isServerError(err):
+		// Getting topic info can sometimes temporarily fail with 5xx.
+		// Don't treat that as a fatal error but keep on retrying instead.
+		return nil, nil
+	case err != nil:
 		return nil, err
 	}
 
-	topic.Status.State = state
-
-	if state == "ACTIVE" {
+	topic.Status.State = avnTopic.State
+	if topic.Status.State == kafkatopic.TopicStateTypeActive {
 		meta.SetStatusCondition(&topic.Status.Conditions,
 			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
 				"Instance is running on Aiven side"))
@@ -183,23 +182,6 @@ func (h KafkaTopicHandler) checkPreconditions(ctx context.Context, avnGen avngen
 	// Replication factor requires enough nodes running.
 	// But we want to get the backend validation error if the value is too high
 	return running >= min(len(s.NodeStates), topic.Spec.Replication), nil
-}
-
-func (h KafkaTopicHandler) getState(ctx context.Context, avnGen avngen.Client, topic *v1alpha1.KafkaTopic) (kafkatopic.TopicStateType, error) {
-	t, err := avnGen.ServiceKafkaTopicGet(ctx, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName())
-	if err == nil {
-		return t.State, nil
-	}
-
-	var aivenError avngen.Error
-	if errors.As(err, &aivenError) {
-		// Getting topic info can sometimes temporarily fail with 501 and 502. Don't
-		// treat that as fatal error but keep on retrying instead.
-		if aivenError.Status == 501 || aivenError.Status == 502 {
-			return "", nil
-		}
-	}
-	return "", err
 }
 
 func (h KafkaTopicHandler) convert(i client.Object) (*v1alpha1.KafkaTopic, error) {

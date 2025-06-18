@@ -13,6 +13,7 @@
 - Add key `OPENSEARCH_URI` to `OpenSearch` service secrets: Contains the OpenSearch service URI.
 - Change `KafkaSchema` fields `schemaType` and `subjectName` to be immutable since these fields cannot be modified after creation in the Kafka Schema Registry API
 - Improve `KafkaSchema` controller: optimize polling and add better error handling
+- Improve `KafkaTopic`: better handle API 5xx errors.
 
 ## v0.29.0 - 2025-04-29
 
