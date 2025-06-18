@@ -59,30 +59,36 @@ func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avnGen avngen
 		return err
 	}
 
-	exists, err := h.exists(ctx, avnGen, conn)
-	if err != nil {
-		return fmt.Errorf("unable to check if kafka connector exists: %w", err)
-	}
-
 	connCfg, err := h.buildConnectorConfig(ctx, conn)
 	if err != nil {
 		return fmt.Errorf("unable to build connector config: %w", err)
 	}
 
-	var reason string
-	if !exists {
-		_, err = avnGen.ServiceKafkaConnectCreateConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, connCfg)
-		if err != nil && !isAlreadyExists(err) {
-			return err
-		}
-		reason = "Created"
-	} else {
+	// Sometimes GET (ServiceKafkaConnectGetConnectorStatus) returns OK,
+	// and POST (ServiceKafkaConnectCreateConnector) returns NotFound error.
+	// So instead of asking Aiven API if the connector exists,
+	// we try to create it.
+	reason := "Created"
+	_, err = avnGen.ServiceKafkaConnectCreateConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, connCfg)
+	if isAlreadyExists(err) {
+		reason = "Updated"
 		_, err = avnGen.ServiceKafkaConnectEditConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name, connCfg)
 		if err != nil {
 			return err
 		}
-		reason = "Updated"
+	}
 
+	switch {
+	case isNotFound(err):
+		// Means, the API isn't consistent yet,
+		// because checkPreconditions() passed, yet we get 404.
+		// Retry later.
+		return nil
+	case isServerError(err):
+		// Service is not ready yet, retry later.
+		return nil
+	case err != nil:
+		return err
 	}
 
 	meta.SetStatusCondition(&conn.Status.Conditions,
@@ -153,14 +159,6 @@ func (h KafkaConnectorHandler) delete(ctx context.Context, avnGen avngen.Client,
 		return false, fmt.Errorf("unable to delete kafka connector: %w", err)
 	}
 	return true, nil
-}
-
-func (h KafkaConnectorHandler) exists(ctx context.Context, avnGen avngen.Client, conn *v1alpha1.KafkaConnector) (bool, error) {
-	connector, err := avnGen.ServiceKafkaConnectGetConnectorStatus(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
-	if err != nil && !isNotFound(err) {
-		return false, err
-	}
-	return connector != nil, nil
 }
 
 func (h KafkaConnectorHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
