@@ -124,8 +124,8 @@ PostgreSQLSpec defines the desired state of postgres instance.
     When `false`, the service is powered off.
     For more information please see [Aiven documentation](https://aiven.io/docs/platform/concepts/service-power-cycle).
     Note that:
-    - Annotation `controllers.aiven.io/instance-is-running` will be set to `false`
-    - Services cannot be created in a powered off state (the value is ignored during creation)
+    - When set to `false` the annotation `controllers.aiven.io/instance-is-running` is also set to `false`.
+    - Services cannot be created in a powered off state. The value is ignored during creation.
     - It is highly recommended to not run dependent resources when the service is powered off.
       Creating a new resource or updating an existing resource that depends on a powered off service will result in an error.
       Existing resources will need to be manually recreated after the service is powered on.
