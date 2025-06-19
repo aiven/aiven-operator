@@ -130,11 +130,16 @@ tasks:
       - task: internal:fmt:trunk
       - task: internal:fmt:imports
 
+  lint:go:
+    desc: Run Go linters.
+    cmds:
+      - task: internal:lint:vet
+      - task: internal:lint:golangci-lint
+
   lint:
     desc: Run all linters.
     cmds:
-      - task: internal:lint:vet
-      - task: internal:lint:go
+      - task: lint-go
       - task: internal:lint:trunk
 
   tools:setup:
