@@ -83,8 +83,8 @@ func (a *flinkAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*
 	return newSecret(a, stringData, true), nil
 }
 
-func (a *flinkAdapter) getServiceType() string {
-	return "flink"
+func (a *flinkAdapter) getServiceType() serviceType {
+	return serviceTypeFlink
 }
 
 func (a *flinkAdapter) getDiskSpace() string {

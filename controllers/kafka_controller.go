@@ -118,8 +118,8 @@ func (a *kafkaAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*
 	return newSecret(a, stringData, false), nil
 }
 
-func (a *kafkaAdapter) getServiceType() string {
-	return "kafka"
+func (a *kafkaAdapter) getServiceType() serviceType {
+	return serviceTypeKafka
 }
 
 func (a *kafkaAdapter) getDiskSpace() string {

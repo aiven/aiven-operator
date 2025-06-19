@@ -96,8 +96,8 @@ func (a *postgreSQLAdapter) newSecret(_ context.Context, s *service.ServiceGetOu
 	return newSecret(a, stringData, false), nil
 }
 
-func (a *postgreSQLAdapter) getServiceType() string {
-	return "pg"
+func (a *postgreSQLAdapter) getServiceType() serviceType {
+	return serviceTypePostgreSQL
 }
 
 func (a *postgreSQLAdapter) getDiskSpace() string {

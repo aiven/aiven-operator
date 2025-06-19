@@ -86,8 +86,8 @@ func (a *alloyDBOmniAdapter) newSecret(_ context.Context, s *service.ServiceGetO
 	return newSecret(a, stringData, true), nil
 }
 
-func (a *alloyDBOmniAdapter) getServiceType() string {
-	return "alloydbomni"
+func (a *alloyDBOmniAdapter) getServiceType() serviceType {
+	return serviceTypeAlloyDBOmni
 }
 
 func (a *alloyDBOmniAdapter) getDiskSpace() string {

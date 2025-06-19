@@ -72,8 +72,8 @@ func (a *kafkaConnectAdapter) newSecret(_ context.Context, _ *service.ServiceGet
 	return nil, nil
 }
 
-func (a *kafkaConnectAdapter) getServiceType() string {
-	return "kafka_connect"
+func (a *kafkaConnectAdapter) getServiceType() serviceType {
+	return serviceTypeKafkaConnect
 }
 
 func (a *kafkaConnectAdapter) getDiskSpace() string {

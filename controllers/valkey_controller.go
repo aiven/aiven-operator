@@ -85,8 +85,8 @@ func (a *valkeyAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (
 	return newSecret(a, stringData, false), nil
 }
 
-func (a *valkeyAdapter) getServiceType() string {
-	return "valkey"
+func (a *valkeyAdapter) getServiceType() serviceType {
+	return serviceTypeValkey
 }
 
 func (a *valkeyAdapter) getDiskSpace() string {
