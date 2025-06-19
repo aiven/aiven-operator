@@ -218,7 +218,7 @@ func (h *genericServiceHandler) get(ctx context.Context, avnGen avngen.Client, o
 	}
 
 	switch o.getServiceType() {
-	case "kafka", "pg", "mysql", "cassandra":
+	case serviceTypeKafka, serviceTypePostgreSQL, serviceTypeMySQL, serviceTypeCassandra:
 		// CA_CERT can be used with these service types only
 	default:
 		return secret, nil
@@ -232,7 +232,7 @@ func (h *genericServiceHandler) get(ctx context.Context, avnGen avngen.Client, o
 	// We don't expect the StringData map to be empty, it must panic.
 	prefix := getSecretPrefix(o)
 	secret.StringData[prefix+"CA_CERT"] = cert
-	if o.getServiceType() == "kafka" {
+	if o.getServiceType() == serviceTypeKafka {
 		// todo: backward compatibility, remove in future releases
 		secret.StringData["CA_CERT"] = cert
 	}
@@ -250,9 +250,9 @@ func (h *genericServiceHandler) checkPreconditions(ctx context.Context, avnGen a
 	for _, s := range spec.ServiceIntegrations {
 		// Validates that read_replica is running
 		// If not, the wrapper controller will try later
-		if s.IntegrationType == "read_replica" {
-			r, err := checkServiceIsOperational(ctx, avnGen, spec.Project, s.SourceServiceName)
-			if !r || err != nil {
+		r, err := checkServiceIsOperational(ctx, avnGen, spec.Project, s.SourceServiceName)
+		if !r || err != nil {
+			if s.IntegrationType == service.IntegrationTypeReadReplica {
 				return false, err
 			}
 
@@ -269,13 +269,31 @@ func (h *genericServiceHandler) checkPreconditions(ctx context.Context, avnGen a
 // serviceAdapterFabric returns serviceAdapter for specific service, like MySQL
 type serviceAdapterFabric func(client.Object) (serviceAdapter, error)
 
+type serviceType string
+
+const (
+	// Service types that can be returned by getServiceType()
+	serviceTypeAlloyDBOmni  serviceType = "alloydbomni"
+	serviceTypeKafka        serviceType = "kafka"
+	serviceTypeKafkaConnect serviceType = "kafka_connect"
+	serviceTypeMySQL        serviceType = "mysql"
+	serviceTypePostgreSQL   serviceType = "pg"
+	serviceTypeRedis        serviceType = "redis"
+	serviceTypeClickhouse   serviceType = "clickhouse"
+	serviceTypeOpenSearch   serviceType = "opensearch"
+	serviceTypeGrafana      serviceType = "grafana"
+	serviceTypeCassandra    serviceType = "cassandra"
+	serviceTypeFlink        serviceType = "flink"
+	serviceTypeValkey       serviceType = "valkey"
+)
+
 // serviceAdapter turns client.Object into a generic thing
 type serviceAdapter interface {
 	objWithSecret
 	getObjectMeta() *metav1.ObjectMeta
 	getServiceStatus() *v1alpha1.ServiceStatus
 	getServiceCommonSpec() *v1alpha1.ServiceCommonSpec
-	getServiceType() string
+	getServiceType() serviceType
 	getDiskSpace() string
 	getUserConfig() any
 	newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error)

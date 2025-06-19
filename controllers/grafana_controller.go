@@ -84,8 +84,8 @@ func (a *grafanaAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) 
 	return newSecret(a, stringData, true), nil
 }
 
-func (a *grafanaAdapter) getServiceType() string {
-	return "grafana"
+func (a *grafanaAdapter) getServiceType() serviceType {
+	return serviceTypeGrafana
 }
 
 func (a *grafanaAdapter) getDiskSpace() string {

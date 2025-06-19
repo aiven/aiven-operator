@@ -85,8 +85,8 @@ func (a *mySQLAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*
 	return newSecret(a, stringData, true), nil
 }
 
-func (a *mySQLAdapter) getServiceType() string {
-	return "mysql"
+func (a *mySQLAdapter) getServiceType() serviceType {
+	return serviceTypeMySQL
 }
 
 func (a *mySQLAdapter) getDiskSpace() string {

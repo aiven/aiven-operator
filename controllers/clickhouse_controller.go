@@ -87,8 +87,8 @@ func (a *clickhouseAdapter) newSecret(_ context.Context, s *service.ServiceGetOu
 	return newSecret(a, stringData, false), nil
 }
 
-func (a *clickhouseAdapter) getServiceType() string {
-	return "clickhouse"
+func (a *clickhouseAdapter) getServiceType() serviceType {
+	return serviceTypeClickhouse
 }
 
 func (a *clickhouseAdapter) getDiskSpace() string {

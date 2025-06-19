@@ -90,8 +90,8 @@ func (a *opensearchAdapter) newSecret(_ context.Context, s *service.ServiceGetOu
 	return newSecret(a, stringData, false), nil
 }
 
-func (a *opensearchAdapter) getServiceType() string {
-	return "opensearch"
+func (a *opensearchAdapter) getServiceType() serviceType {
+	return serviceTypeOpenSearch
 }
 
 func (a *opensearchAdapter) getDiskSpace() string {

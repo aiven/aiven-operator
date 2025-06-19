@@ -91,8 +91,8 @@ func (a *redisAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*
 	return newSecret(a, stringData, false), nil
 }
 
-func (a *redisAdapter) getServiceType() string {
-	return "redis"
+func (a *redisAdapter) getServiceType() serviceType {
+	return serviceTypeRedis
 }
 
 func (a *redisAdapter) getDiskSpace() string {

@@ -84,8 +84,8 @@ func (a *cassandraAdapter) newSecret(_ context.Context, s *service.ServiceGetOut
 	return newSecret(a, stringData, true), nil
 }
 
-func (a *cassandraAdapter) getServiceType() string {
-	return "cassandra"
+func (a *cassandraAdapter) getServiceType() serviceType {
+	return serviceTypeCassandra
 }
 
 func (a *cassandraAdapter) getDiskSpace() string {
