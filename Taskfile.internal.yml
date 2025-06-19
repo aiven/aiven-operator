@@ -247,7 +247,7 @@ tasks:
     cmds:
       - "{{.GOLANGCILINT}} fmt"
 
-  lint:go:
+  lint:golangci-lint:
     desc: Run Go linters
     deps: [tools:install:golangci-lint]
     cmds:

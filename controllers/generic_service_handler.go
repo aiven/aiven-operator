@@ -79,7 +79,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 			Plan:                  spec.Plan,
 			ProjectVpcId:          toOptionalStringPointer(projectVPCID),
 			ServiceName:           ometa.Name,
-			ServiceType:           o.getServiceType(),
+			ServiceType:           string(o.getServiceType()),
 			TerminationProtection: spec.TerminationProtection,
 			UserConfig:            &userConfig,
 			TechEmails:            &technicalEmails,
