@@ -124,8 +124,8 @@ func (h *ClickhouseGrantHandler) checkPreconditions(ctx context.Context, avnGen 
 	meta.SetStatusCondition(&g.Status.Conditions,
 		getInitializedCondition("Preconditions", "Checking preconditions"))
 
-	serviceIsRunning, err := checkServiceIsOperational(ctx, avnGen, g.Spec.Project, g.Spec.ServiceName)
-	if !serviceIsRunning || err != nil {
+	isOperational, err := checkServiceIsOperational(ctx, avnGen, g.Spec.Project, g.Spec.ServiceName)
+	if !isOperational || err != nil {
 		return false, err
 	}
 

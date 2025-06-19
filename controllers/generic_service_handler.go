@@ -199,7 +199,7 @@ func (h *genericServiceHandler) get(ctx context.Context, avnGen avngen.Client, o
 	}
 
 	status := o.getServiceStatus()
-	if !serviceIsRunning(s.State) {
+	if s.State != service.ServiceStateTypeRunning {
 		status.State = s.State
 		return nil, nil
 	}
@@ -250,9 +250,9 @@ func (h *genericServiceHandler) checkPreconditions(ctx context.Context, avnGen a
 	for _, s := range spec.ServiceIntegrations {
 		// Validates that read_replica is running
 		// If not, the wrapper controller will try later
-		r, err := checkServiceIsOperational(ctx, avnGen, spec.Project, s.SourceServiceName)
-		if !r || err != nil {
-			if s.IntegrationType == service.IntegrationTypeReadReplica {
+		if s.IntegrationType == service.IntegrationTypeReadReplica {
+			isOperational, err := checkServiceIsOperational(ctx, avnGen, spec.Project, s.SourceServiceName)
+			if !isOperational || err != nil {
 				return false, err
 			}
 

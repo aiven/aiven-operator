@@ -179,7 +179,7 @@ func (i *instanceReconcilerHelper) reconcile(ctx context.Context, o v1alpha1.Aiv
 		return false, nil
 	}
 
-	if isAlreadyProcessed(o) && IsAlreadyRunning(o) {
+	if IsReadyToUse(o) {
 		return false, nil
 	}
 
@@ -267,7 +267,7 @@ func (i *instanceReconcilerHelper) reconcileInstance(ctx context.Context, o v1al
 		return false, err
 	}
 
-	if !isAlreadyProcessed(o) {
+	if !hasLatestGeneration(o) {
 		i.rec.Event(o, corev1.EventTypeNormal, eventCreateOrUpdatedAtAiven, "about to create instance at aiven")
 		if err := i.createOrUpdateInstance(ctx, o, refs); err != nil {
 			i.rec.Event(o, corev1.EventTypeWarning, eventUnableToCreateOrUpdateAtAiven, err.Error())
@@ -288,7 +288,7 @@ func (i *instanceReconcilerHelper) reconcileInstance(ctx context.Context, o v1al
 		return false, fmt.Errorf("unable to wait until instance is running: %w", err)
 	}
 
-	if !IsAlreadyRunning(o) {
+	if !hasIsRunningAnnotation(o) {
 		i.log.Info("instance is not yet running, triggering requeue")
 		return true, nil
 	}
@@ -304,7 +304,7 @@ func (i *instanceReconcilerHelper) checkPreconditions(ctx context.Context, o cli
 	// Checks references
 	if len(refs) > 0 {
 		for _, r := range refs {
-			if !isAlreadyProcessed(r) || !IsAlreadyRunning(r) {
+			if !IsReadyToUse(r) {
 				i.log.Info("references are in progress")
 				return true, nil
 			}
@@ -401,7 +401,7 @@ func (i *instanceReconcilerHelper) finalize(ctx context.Context, o v1alpha1.Aive
 	// and let the instance be deleted.
 	if err != nil {
 		switch {
-		case i.isInvalidTokenError(err) && !IsAlreadyRunning(o):
+		case i.isInvalidTokenError(err) && !hasIsRunningAnnotation(o):
 			i.log.Info("invalid token error on deletion, removing finalizer", "apiError", err)
 			finalised = true
 		case isNotFound(err):
