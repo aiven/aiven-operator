@@ -93,8 +93,8 @@ DatabaseSpec defines the desired state of Database.
 - [`lcCollate`](#spec.lcCollate-property){: name='spec.lcCollate-property'} (string, Immutable, MaxLength: 128, Default value: `en_US.UTF-8`). Default string sort order (LC_COLLATE) of the database. Default value: en_US.UTF-8.
 - [`lcCtype`](#spec.lcCtype-property){: name='spec.lcCtype-property'} (string, Immutable, MaxLength: 128, Default value: `en_US.UTF-8`). Default character classification (LC_CTYPE) of the database. Default value: en_US.UTF-8.
 - [`terminationProtection`](#spec.terminationProtection-property){: name='spec.terminationProtection-property'} (boolean). It is a Kubernetes side deletion protections, which prevents the database
-from being deleted by Kubernetes. It is recommended to enable this for any production
-databases containing critical data.
+    from being deleted by Kubernetes. It is recommended to enable this for any production
+    databases containing critical data.
 
 ## authSecretRef {: #spec.authSecretRef }
 

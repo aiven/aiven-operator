@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Added `powered` field (default: `true`) to control service power state. When `false`, the service is powered off.
+  Note: Kafka services without backups will lose topic data on power off. See field description for more information.
 - Completely replace the old go client with the new one, which is generated from the OpenAPI spec
 - Change `PostgreSQL` field `userConfig.pg_version`: enum remove `12`
 - Add `KafkaTopic` field `config.inkless_enable`, type `boolean`: Indicates whether inkless should be enabled
