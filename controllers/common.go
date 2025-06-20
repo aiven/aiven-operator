@@ -45,30 +45,41 @@ const (
 	errConditionCreateOrUpdate errCondition = "CreateOrUpdate"
 )
 
-var errTerminationProtectionOn = errors.New("termination protection is on")
+var (
+	errTerminationProtectionOn = errors.New("termination protection is on")
+	errServicePoweredOff       = errors.New("service is powered off")
+)
 
+// checkServiceIsOperational checks if a service is in operational state, i.e., can create databases, users, etc.
+// Returns errServicePoweredOff if the service is powered off.
 func checkServiceIsOperational(ctx context.Context, avnGen avngen.Client, project, serviceName string) (bool, error) {
 	s, err := avnGen.ServiceGet(ctx, project, serviceName)
+	if isNotFound(err) {
+		// Service not found indicates it hasn't started running.
+		// We ignore not found errors since they could mean either:
+		// 1. The service doesn't exist yet
+		// 2. The project doesn't exist yet (may be created by operator)
+		return false, nil
+	}
+
 	if err != nil {
-		// if service is not found, it is not running
-		if isNotFound(err) {
-			// this will swallow an error if the project doesn't exist and object is not project
-			return false, nil
-		}
 		return false, err
 	}
-	return serviceIsOperational(s.State), nil
-}
 
-// serviceIsOperational returns "true" when a service is in operational state, i.e. "running"
-func serviceIsOperational[T service.ServiceStateType | string](state T) bool {
-	s := service.ServiceStateType(state)
-	return s == service.ServiceStateTypeRebalancing || serviceIsRunning(s)
-}
+	switch s.State {
+	case service.ServiceStateTypeRebalancing, service.ServiceStateTypeRunning:
+		// Running means the service is fully operational.
+		// Rebalancing doesn't block most of the operations.
+		// But depending on the service type and the operation, additional checks may be needed.
+		return true, nil
+	case service.ServiceStateTypePoweroff:
+		// If the service is powered off, returns an error,
+		// so that Kube won't infinitely retry the Aiven API.
+		return false, fmt.Errorf("%w: %s/%s", errServicePoweredOff, project, serviceName)
+	}
 
-// serviceIsRunning returns "true" when a service is RUNNING state on Aive side
-func serviceIsRunning[T service.ServiceStateType | string](state T) bool {
-	return service.ServiceStateType(state) == service.ServiceStateTypeRunning
+	// Must be an intermediate state, e.g. rebuilding, etc.
+	return false, nil
 }
 
 func getInitializedCondition(reason, message string) metav1.Condition {
@@ -112,14 +123,31 @@ func removeFinalizer(ctx context.Context, client client.Client, o client.Object,
 	return client.Update(ctx, o)
 }
 
-func isAlreadyProcessed(o client.Object) bool {
+// hasLatestGeneration returns true if the client.Object's controller has processed the latest generation of the object.
+// Note: This only indicates that the controller has seen and started processing the latest changes.
+// It does not mean the object is ready to use, as the controller may still be polling the Aiven API
+// waiting for the requested changes to take effect.
+func hasLatestGeneration(o client.Object) bool {
 	return o.GetAnnotations()[processedGenerationAnnotation] == strconv.FormatInt(o.GetGeneration(), formatIntBaseDecimal)
 }
 
-// IsAlreadyRunning returns true if object is ready to use
-func IsAlreadyRunning(o client.Object) bool {
-	_, found := o.GetAnnotations()[instanceIsRunningAnnotation]
-	return found
+// hasIsRunningAnnotation means the client.Object is running/rebalancing in Aiven or powered-off (for services).
+func hasIsRunningAnnotation(o client.Object) bool {
+	_, ok := o.GetAnnotations()[instanceIsRunningAnnotation]
+	return ok
+}
+
+// GetIsRunningAnnotation returns "true" for running/rebalancing resources,
+// and "false" for powered-off resources.
+func GetIsRunningAnnotation(o client.Object) string {
+	return o.GetAnnotations()[instanceIsRunningAnnotation]
+}
+
+// IsReadyToUse returns true when the client.Object's controller has processed the latest manifest changes
+// and the resource is in a running state in Aiven. For services, this includes both running and powered-off states.
+// This indicates the resource is ready for use and has reached its desired state.
+func IsReadyToUse(o client.Object) bool {
+	return hasIsRunningAnnotation(o) && hasLatestGeneration(o)
 }
 
 // NilIfZero returns a pointer to the value, or nil if the value equals its zero value

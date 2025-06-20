@@ -158,7 +158,7 @@ func (s *session) GetRunning(obj client.Object, keys ...string) error {
 			}
 		}
 
-		return !controllers.IsAlreadyRunning(obj), nil
+		return !controllers.IsReadyToUse(obj), nil
 	})
 }
 
