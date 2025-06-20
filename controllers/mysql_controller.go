@@ -30,7 +30,7 @@ func newMySQLReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=mysqls/finalizers,verbs=get;create;update
 
 func (r *MySQLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newMySQLAdapter), &v1alpha1.MySQL{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newMySQLAdapter, r.Log), &v1alpha1.MySQL{})
 }
 
 // SetupWithManager sets up the controller with the Manager.

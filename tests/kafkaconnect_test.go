@@ -3,6 +3,7 @@ package tests
 import (
 	"testing"
 
+	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -70,4 +71,26 @@ func TestKafkaConnect(t *testing.T) {
 	var ipFilterAvn []*kafkaconnectuserconfig.IpFilter
 	require.NoError(t, castInterface(kcAvn.UserConfig["ip_filter"], &ipFilterAvn))
 	assert.Equal(t, ipFilterAvn, kc.Spec.UserConfig.IpFilter)
+
+	// Powers off
+	powered := false
+	kcPoweredOff := kc.DeepCopy()
+	kcPoweredOff.Spec.Powered = &powered
+	require.NoError(t, k8sClient.Update(ctx, kcPoweredOff))
+	require.NoError(t, s.GetRunning(kcPoweredOff, name))
+
+	kcAvnPoweredOff, err := avnGen.ServiceGet(ctx, cfg.Project, name)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypePoweroff, kcAvnPoweredOff.State)
+
+	// Powers on
+	powered = true
+	kcPoweredOn := kcPoweredOff.DeepCopy()
+	kcPoweredOn.Spec.Powered = &powered
+	require.NoError(t, k8sClient.Update(ctx, kcPoweredOn))
+	require.NoError(t, s.GetRunning(kcPoweredOn, name))
+
+	kcAvnPoweredOn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypeRunning, kcAvnPoweredOn.State)
 }

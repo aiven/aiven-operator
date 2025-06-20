@@ -9,6 +9,7 @@ import (
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	grafanauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/grafana"
+	"github.com/aiven/go-client-codegen/handler/service"
 )
 
 func getGrafanaYaml(project, name, cloudName string) string {
@@ -111,4 +112,14 @@ func TestGrafana(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["GRAFANA_PASSWORD"])
 	assert.NotEmpty(t, secret.Data["GRAFANA_URI"])
 	assert.NotEmpty(t, secret.Data["GRAFANA_HOSTS"])
+
+	// Power off test
+	poweredOff := grafana.DeepCopy()
+	poweredOff.Spec.Powered = anyPointer(false)
+	require.NoError(t, k8sClient.Update(ctx, poweredOff))
+	require.NoError(t, s.GetRunning(poweredOff, name))
+
+	poweredOffAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypePoweroff, poweredOffAvn.State)
 }

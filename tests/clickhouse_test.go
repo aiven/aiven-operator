@@ -10,6 +10,7 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	clickhouseuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/clickhouse"
 	"github.com/aiven/aiven-operator/controllers"
+	"github.com/aiven/go-client-codegen/handler/service"
 )
 
 func TestClickhouse(t *testing.T) {
@@ -209,4 +210,14 @@ func TestClickhouse(t *testing.T) {
 	assert.NotEqual(t, dbAvn3.Name, db3.ObjectMeta.Name)
 	assert.Equal(t, dbName3, db3.Spec.DatabaseName)
 	assert.Equal(t, dbAvn3.Name, db3.Spec.DatabaseName)
+
+	// Power off test
+	poweredOff := ch.DeepCopy()
+	poweredOff.Spec.Powered = anyPointer(false)
+	require.NoError(t, k8sClient.Update(ctx, poweredOff))
+	require.NoError(t, s.GetRunning(poweredOff, chName))
+
+	poweredOffAvn, err := avnGen.ServiceGet(ctx, cfg.Project, chName)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypePoweroff, poweredOffAvn.State)
 }

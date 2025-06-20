@@ -8,6 +8,7 @@ import (
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	valkeyuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/valkey"
+	"github.com/aiven/go-client-codegen/handler/service"
 )
 
 func TestValkey(t *testing.T) {
@@ -79,4 +80,14 @@ func TestValkey(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["VALKEY_PORT"])
 	assert.NotEmpty(t, secret.Data["VALKEY_USER"])
 	assert.NotEmpty(t, secret.Data["VALKEY_PASSWORD"])
+
+	// Power off test
+	poweredOff := rs.DeepCopy()
+	poweredOff.Spec.Powered = anyPointer(false)
+	require.NoError(t, k8sClient.Update(ctx, poweredOff))
+	require.NoError(t, s.GetRunning(poweredOff, name))
+
+	poweredOffAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypePoweroff, poweredOffAvn.State)
 }

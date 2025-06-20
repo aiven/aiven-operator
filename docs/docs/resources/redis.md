@@ -129,6 +129,7 @@ RedisSpec defines the desired state of Redis.
     - It is highly recommended to not run dependent resources when the service is powered off.
       Creating a new resource or updating an existing resource that depends on a powered off service will result in an error.
       Existing resources will need to be manually recreated after the service is powered on.
+    - Existing secrets will not be updated or removed when the service is powered off.
     - For Kafka services with backups: Topic configuration, schemas and connectors are all backed up, but not the data in topics. All topic data is lost on power off.
     - For Kafka services without backups: Topic configurations including all topic data is lost on power off.
 - [`projectVPCRef`](#spec.projectVPCRef-property){: name='spec.projectVPCRef-property'} (object). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See below for [nested schema](#spec.projectVPCRef).

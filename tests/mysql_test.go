@@ -9,6 +9,7 @@ import (
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	mysqluserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/mysql"
+	"github.com/aiven/go-client-codegen/handler/service"
 )
 
 func getMySQLYaml(project, name, cloudName string) string {
@@ -113,4 +114,14 @@ func TestMySQL(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["MYSQL_URI"])
 	assert.NotEmpty(t, secret.Data["MYSQL_REPLICA_URI"]) // business-4 has replica
 	assert.NotEmpty(t, secret.Data["MYSQL_CA_CERT"])
+
+	// Power off test
+	poweredOff := ms.DeepCopy()
+	poweredOff.Spec.Powered = anyPointer(false)
+	require.NoError(t, k8sClient.Update(ctx, poweredOff))
+	require.NoError(t, s.GetRunning(poweredOff, name))
+
+	poweredOffAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypePoweroff, poweredOffAvn.State)
 }

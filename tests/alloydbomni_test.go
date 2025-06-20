@@ -9,6 +9,7 @@ import (
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	alloydbomniuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/alloydbomni"
+	"github.com/aiven/go-client-codegen/handler/service"
 )
 
 func TestAlloyDBOmni(t *testing.T) {
@@ -88,6 +89,16 @@ func TestAlloyDBOmni(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["ALLOYDBOMNI_PASSWORD"])
 	assert.NotEmpty(t, secret.Data["ALLOYDBOMNI_SSLMODE"])
 	assert.NotEmpty(t, secret.Data["ALLOYDBOMNI_DATABASE_URI"])
+
+	// Power off test
+	poweredOff := adbo.DeepCopy()
+	poweredOff.Spec.Powered = anyPointer(false)
+	require.NoError(t, k8sClient.Update(ctx, poweredOff))
+	require.NoError(t, s.GetRunning(poweredOff, name))
+
+	poweredOffAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypePoweroff, poweredOffAvn.State)
 }
 
 func TestAlloyDBOmniServiceAccountCredentials(t *testing.T) {
