@@ -59,6 +59,7 @@ spec:
             - --leader-elect={{ .Values.leaderElect }}
             - --metrics-bind-address={{ .Values.metricsBindAddress }}
             - --health-probe-bind-address={{ .Values.healthProbeBindAddress }}
+            - --webhook-port={{ .Values.webhooks.containerPort | default 9443 }}
 
           ports:
             - name: metrics
