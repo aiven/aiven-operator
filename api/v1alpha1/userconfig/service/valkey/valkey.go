@@ -100,7 +100,7 @@ type ValkeyUserConfig struct {
 	// When enabled, Valkey will create frequent local RDB snapshots. When disabled, Valkey will only take RDB snapshots when a backup is created, based on the backup schedule. This setting is ignored when `valkey_persistence` is set to `off`.
 	FrequentSnapshots *bool `groups:"create,update" json:"frequent_snapshots,omitempty"`
 
-	// +kubebuilder:validation:MaxItems=2048
+	// +kubebuilder:validation:MaxItems=8000
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
 	IpFilter []*IpFilter `groups:"create,update" json:"ip_filter,omitempty"`
 
