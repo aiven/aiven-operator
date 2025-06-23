@@ -288,7 +288,7 @@ spec:
                         required:
                           - network
                         type: object
-                      maxItems: 2048
+                      maxItems: 8000
                       type: array
                     kafka:
                       description: Kafka broker configuration values

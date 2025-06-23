@@ -24,6 +24,11 @@ func (in *ClickhouseUserConfig) DeepCopyInto(out *ClickhouseUserConfig) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.EnableIpv6 != nil {
+		in, out := &in.EnableIpv6, &out.EnableIpv6
+		*out = new(bool)
+		**out = **in
+	}
 	if in.IpFilter != nil {
 		in, out := &in.IpFilter, &out.IpFilter
 		*out = make([]*IpFilter, len(*in))

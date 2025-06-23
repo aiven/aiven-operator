@@ -75,7 +75,7 @@ type CassandraUserConfig struct {
 	// Cassandra version. Deprecated values: `4`
 	CassandraVersion *string `groups:"create,update" json:"cassandra_version,omitempty"`
 
-	// +kubebuilder:validation:MaxItems=2048
+	// +kubebuilder:validation:MaxItems=8000
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
 	IpFilter []*IpFilter `groups:"create,update" json:"ip_filter,omitempty"`
 
