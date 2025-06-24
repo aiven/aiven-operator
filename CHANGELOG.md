@@ -17,6 +17,7 @@
 - Improve `KafkaSchema` controller: optimize polling and add better error handling
 - Improve `KafkaTopic`: better handle API 5xx errors.
 - Improve `KafkaConnector`: better handle API 404 and 5xx errors.
+- Fix webhooks `containerPort` configuration not being properly applied in deployment template
 
 ## v0.29.0 - 2025-04-29
 
