@@ -32,7 +32,7 @@ type ValkeyHandler struct{}
 //+kubebuilder:rbac:groups=aiven.io,resources=valkeys/finalizers,verbs=get;create;update
 
 func (r *ValkeyReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newValkeyAdapter), &v1alpha1.Valkey{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newValkeyAdapter, r.Log), &v1alpha1.Valkey{})
 }
 
 // SetupWithManager sets up the controller with the Manager.

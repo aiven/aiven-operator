@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -118,4 +119,17 @@ func TestOpenSearch(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["OPENSEARCH_URI"])
 	assert.Equal(t, map[string]string{"foo": "bar"}, secret.Annotations)
 	assert.Equal(t, map[string]string{"baz": "egg"}, secret.Labels)
+
+	// Tests service power off functionality
+	// Note: Power on testing is handled generically in generic_service_handler_test.go
+	// since it's consistent across services. Power off testing is done here since
+	// the flow can vary by service type and may require service-specific steps.
+	poweredOff := os.DeepCopy()
+	poweredOff.Spec.Powered = anyPointer(false)
+	require.NoError(t, k8sClient.Update(ctx, poweredOff))
+	require.NoError(t, s.GetRunning(poweredOff, name))
+
+	poweredOffAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypePoweroff, poweredOffAvn.State)
 }

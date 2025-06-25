@@ -7,6 +7,7 @@ import (
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
+	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -15,14 +16,15 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func newGenericServiceHandler(fabric serviceAdapterFabric) Handlers {
-	return &genericServiceHandler{fabric: fabric}
+func newGenericServiceHandler(fabric serviceAdapterFabric, log logr.Logger) Handlers {
+	return &genericServiceHandler{fabric: fabric, log: log}
 }
 
 // genericServiceHandler provides common CRUD management for all service types using serviceAdapter,
 // which turns specific service (mysql, redis) into a generic.
 type genericServiceHandler struct {
 	fabric serviceAdapterFabric
+	log    logr.Logger
 }
 
 func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
@@ -120,7 +122,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 			DiskSpaceMb:           NilIfZero(diskSpace),
 			Maintenance:           getMaintenanceWindow(spec.MaintenanceWindowDow, spec.MaintenanceWindowTime),
 			Plan:                  NilIfZero(spec.Plan),
-			Powered:               NilIfZero(true),
+			Powered:               spec.Powered,
 			ProjectVpcId:          NilIfZero(projectVPCID),
 			TerminationProtection: spec.TerminationProtection,
 			UserConfig:            &userConfig,
@@ -146,23 +148,22 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 		return fmt.Errorf("failed to update tags: %w", err)
 	}
 
+	// Call service-specific createOrUpdate if service is running
+	if err := o.createOrUpdateServiceSpecific(ctx, avnGen, oldService); err != nil {
+		return fmt.Errorf("failed to create or update service-specific: %w", err)
+	}
+
 	status := o.getServiceStatus()
 	meta.SetStatusCondition(&status.Conditions,
 		getInitializedCondition(reason, "Successfully created or updated the instance in Aiven"))
 	meta.SetStatusCondition(&status.Conditions,
 		getRunningCondition(metav1.ConditionUnknown, reason,
 			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
 	metav1.SetMetaDataAnnotation(
 		o.getObjectMeta(),
 		processedGenerationAnnotation,
 		strconv.FormatInt(obj.GetGeneration(), formatIntBaseDecimal),
 	)
-
-	// Call service-specific createOrUpdate if service is running
-	if err := o.createOrUpdateServiceSpecific(ctx, avnGen, oldService); err != nil {
-		return fmt.Errorf("failed to create or update service-specific: %w", err)
-	}
 
 	return nil
 }
@@ -193,26 +194,45 @@ func (h *genericServiceHandler) get(ctx context.Context, avnGen avngen.Client, o
 	}
 
 	spec := o.getServiceCommonSpec()
-	s, err := avnGen.ServiceGet(ctx, spec.Project, o.getObjectMeta().Name, service.ServiceGetIncludeSecrets(true))
+	avnService, err := avnGen.ServiceGet(ctx, spec.Project, o.getObjectMeta().Name, service.ServiceGetIncludeSecrets(true))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get service from Aiven: %w", err)
 	}
 
 	status := o.getServiceStatus()
-	if s.State != service.ServiceStateTypeRunning {
-		status.State = s.State
+	status.State = avnService.State
+
+	// Powered=true is in priority, we check if it was explicitly set to false
+	// This could have been a one-liner, but we want to be explicit about the logic
+	isPowered := true
+	if spec.Powered != nil {
+		isPowered = *spec.Powered
+	}
+	var msg string
+	switch {
+	case isPowered && status.State == service.ServiceStateTypeRunning:
+		msg = "Instance is running on Aiven side"
+	case !isPowered && status.State == service.ServiceStateTypePoweroff:
+		msg = "Instance is powered off on Aiven side"
+	default:
+		// Not ready yet
 		return nil, nil
 	}
 
-	status.State = service.ServiceStateTypeRunning // overrides REBALANCING
-	meta.SetStatusCondition(&status.Conditions,
-		getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
+	meta.SetStatusCondition(&status.Conditions, getRunningCondition(metav1.ConditionTrue, "CheckRunning", msg))
 
+	// If service is powered off, we don't need to return a secret
+	if !isPowered {
+		metav1.SetMetaDataAnnotation(o.getObjectMeta(), instanceIsRunningAnnotation, "false")
+		return nil, nil
+	}
+
+	// Service is powered
 	metav1.SetMetaDataAnnotation(o.getObjectMeta(), instanceIsRunningAnnotation, "true")
 
 	// Some services get secrets after they are running only,
 	// like ip addresses (hosts)
-	secret, err := o.newSecret(ctx, s)
+	secret, err := o.newSecret(ctx, avnService)
 	if err != nil || secret == nil {
 		return secret, err
 	}
@@ -258,11 +278,34 @@ func (h *genericServiceHandler) checkPreconditions(ctx context.Context, avnGen a
 
 			// Covers error "No valid backups for service"
 			list, err := avnGen.ServiceBackupsGet(ctx, spec.Project, s.SourceServiceName)
-			if len(list.Backups) == 0 || err != nil {
+			if err != nil {
 				return false, err
+			}
+
+			if len(list.Backups) == 0 {
+				h.log.Info("source service has no backups yet", "serviceName", s.SourceServiceName)
+				return false, nil
 			}
 		}
 	}
+
+	switch o.getServiceType() {
+	case serviceTypeKafkaConnect:
+	default:
+		// Power-off not allowed without an initial backup.
+		if !fromAnyPointer(spec.Powered) {
+			list, err := avnGen.ServiceBackupsGet(ctx, spec.Project, o.getObjectMeta().Name)
+			if err != nil {
+				return false, err
+			}
+
+			if len(list.Backups) == 0 {
+				h.log.Info("service has no backups yet, can't power off", "serviceName", o.getObjectMeta().Name)
+				return false, nil
+			}
+		}
+	}
+
 	return true, nil
 }
 

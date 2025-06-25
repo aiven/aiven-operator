@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -88,6 +89,19 @@ func TestAlloyDBOmni(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["ALLOYDBOMNI_PASSWORD"])
 	assert.NotEmpty(t, secret.Data["ALLOYDBOMNI_SSLMODE"])
 	assert.NotEmpty(t, secret.Data["ALLOYDBOMNI_DATABASE_URI"])
+
+	// Tests service power off functionality
+	// Note: Power on testing is handled generically in generic_service_handler_test.go
+	// since it's consistent across services. Power off testing is done here since
+	// the flow can vary by service type and may require service-specific steps.
+	poweredOff := adbo.DeepCopy()
+	poweredOff.Spec.Powered = anyPointer(false)
+	require.NoError(t, k8sClient.Update(ctx, poweredOff))
+	require.NoError(t, s.GetRunning(poweredOff, name))
+
+	poweredOffAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypePoweroff, poweredOffAvn.State)
 }
 
 func TestAlloyDBOmniServiceAccountCredentials(t *testing.T) {

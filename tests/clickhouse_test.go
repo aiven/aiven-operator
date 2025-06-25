@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -209,4 +210,17 @@ func TestClickhouse(t *testing.T) {
 	assert.NotEqual(t, dbAvn3.Name, db3.ObjectMeta.Name)
 	assert.Equal(t, dbName3, db3.Spec.DatabaseName)
 	assert.Equal(t, dbAvn3.Name, db3.Spec.DatabaseName)
+
+	// Tests service power off functionality
+	// Note: Power on testing is handled generically in generic_service_handler_test.go
+	// since it's consistent across services. Power off testing is done here since
+	// the flow can vary by service type and may require service-specific steps.
+	poweredOff := ch.DeepCopy()
+	poweredOff.Spec.Powered = anyPointer(false)
+	require.NoError(t, k8sClient.Update(ctx, poweredOff))
+	require.NoError(t, s.GetRunning(poweredOff, chName))
+
+	poweredOffAvn, err := avnGen.ServiceGet(ctx, cfg.Project, chName)
+	require.NoError(t, err)
+	assert.Equal(t, service.ServiceStateTypePoweroff, poweredOffAvn.State)
 }
