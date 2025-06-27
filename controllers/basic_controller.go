@@ -46,6 +46,12 @@ type (
 		OperatorVersion string
 	}
 
+	// credentialModifier is an optional interface that handlers can implement
+	// to support modifying credentials from a source secret before secret generation
+	credentialModifier interface {
+		modifyCredentials(ctx context.Context, avnGen avngen.Client, k8s client.Client, obj client.Object, secretSource *v1alpha1.ConnInfoSecretSource) error
+	}
+
 	// Handlers represents Aiven API handlers
 	// It intended to be a layer between Kubernetes and Aiven API that handles all aspects
 	// of the Aiven services lifecycle.
@@ -476,6 +482,23 @@ func (i *instanceReconcilerHelper) updateInstanceStateAndSecretUntilRunning(ctx 
 	if o.NoSecret() {
 		i.rec.Event(o, corev1.EventTypeNormal, eventConnInfoSecretCreationDisabled, "connInfoSecretTargetDisabled is true, secret will not be created")
 		return nil
+	}
+
+	// handle connInfoSecretSource if the object supports it
+	if secretProvider, ok := o.(v1alpha1.SecretSourceProvider); ok {
+		if secretSource := secretProvider.GetConnInfoSecretSource(); secretSource != nil {
+			// check if this handler supports credential modification
+			if modifier, ok := i.h.(credentialModifier); ok {
+				if err = modifier.modifyCredentials(ctx, i.avnGen, i.k8s, o, secretSource); err != nil {
+					return fmt.Errorf("failed to modify credentials: %w", err)
+				}
+				// refresh secret after credential modification
+				secret, err = i.h.get(ctx, i.avnGen, o)
+				if err != nil {
+					return fmt.Errorf("failed to refresh secret after credential modification: %w", err)
+				}
+			}
+		}
 	}
 
 	_, err = controllerutil.CreateOrUpdate(ctx, i.k8s, secret, func() error {

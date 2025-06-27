@@ -40,6 +40,15 @@ type ConnInfoSecretTarget struct {
 	Prefix string `json:"prefix,omitempty"`
 }
 
+// ConnInfoSecretSource contains information about existing secret to read connection parameters from
+type ConnInfoSecretSource struct {
+	// +kubebuilder:validation:MinLength=1
+	// Name of the secret resource to read connection parameters from
+	Name string `json:"name"`
+	// Namespace of the source secret. If not specified, defaults to the same namespace as the resource
+	Namespace string `json:"namespace,omitempty"`
+}
+
 // ServiceStatus defines the observed state of service
 type ServiceStatus struct {
 	// Conditions represent the latest available observations of a service state
@@ -280,4 +289,9 @@ type AivenManagedObject interface {
 	AuthSecretRef() *AuthSecretReference
 	Conditions() *[]metav1.Condition
 	NoSecret() bool
+}
+
+// +k8s:deepcopy-gen=false
+type SecretSourceProvider interface {
+	GetConnInfoSecretSource() *ConnInfoSecretSource
 }
