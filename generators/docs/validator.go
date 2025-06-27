@@ -25,6 +25,29 @@ type crdSchema struct {
 	}
 }
 
+// kubernetesBuiltinResources contains Kubernetes built-in resource kinds that should be skipped during validation
+var kubernetesBuiltinResources = map[string]bool{
+	"Secret":                  true,
+	"ConfigMap":               true,
+	"Service":                 true,
+	"Deployment":              true,
+	"StatefulSet":             true,
+	"DaemonSet":               true,
+	"Job":                     true,
+	"CronJob":                 true,
+	"Ingress":                 true,
+	"PersistentVolume":        true,
+	"PersistentVolumeClaim":   true,
+	"ServiceAccount":          true,
+	"Role":                    true,
+	"RoleBinding":             true,
+	"ClusterRole":             true,
+	"ClusterRoleBinding":      true,
+	"NetworkPolicy":           true,
+	"PodDisruptionBudget":     true,
+	"HorizontalPodAutoscaler": true,
+}
+
 // validateYAML validates yaml document
 func validateYAML(validators map[string]schemaValidator, document []byte) error {
 	deco := yaml.NewDecoder(bytes.NewReader(document))
@@ -44,6 +67,11 @@ func validateYAML(validators map[string]schemaValidator, document []byte) error 
 		kind, ok := example["kind"].(string)
 		if !ok {
 			return fmt.Errorf("the example doesn't have kind")
+		}
+
+		// Skip validation for Kubernetes built-in resources
+		if kubernetesBuiltinResources[kind] {
+			continue
 		}
 
 		validate, ok := validators[kind]

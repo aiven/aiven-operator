@@ -1,0 +1,14 @@
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUser
+metadata:
+  name: simpleuser
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: simpleuser-secret
+
+  project: aiven-ci-kubernetes-operator
+  serviceName: k8s-e2e-postgres-simple

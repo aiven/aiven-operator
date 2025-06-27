@@ -29,6 +29,8 @@ spec:
         openAPIV3Schema:
           description: |-
             ServiceUser is the Schema for the serviceusers API.
+            Creates a service user for accessing Aiven services. The ServiceUser resource name becomes the username in Aiven.
+            Built-in users like 'avnadmin' cannot be deleted but their passwords can be modified using connInfoSecretSource.
             Info "Exposes secret keys": `SERVICEUSER_HOST`, `SERVICEUSER_PORT`, `SERVICEUSER_USERNAME`, `SERVICEUSER_PASSWORD`, `SERVICEUSER_CA_CERT`, `SERVICEUSER_ACCESS_CERT`, `SERVICEUSER_ACCESS_KEY`
           properties:
             apiVersion:
@@ -70,6 +72,33 @@ spec:
                     - caching_sha2_password
                     - mysql_native_password
                   type: string
+                connInfoSecretSource:
+                  description: |-
+                    ConnInfoSecretSource allows specifying an existing secret to read credentials from.
+                    The password from this secret will be used to modify the service user credentials.
+                    Password must be 8-256 characters long as per Aiven API requirements.
+                    This can be used to set passwords for new users or modify passwords for existing users (e.g., avnadmin).
+                    Note: This secret is not watched - changes to the source secret require manual reconciliation.
+                    To apply password changes, trigger reconciliation by adding/updating an annotation on the ServiceUser.
+                  properties:
+                    name:
+                      description:
+                        Name of the secret resource to read connection parameters
+                        from
+                      minLength: 1
+                      type: string
+                    namespace:
+                      description:
+                        Namespace of the source secret. If not specified,
+                        defaults to the same namespace as the resource
+                      type: string
+                    passwordKey:
+                      minLength: 1
+                      type: string
+                  required:
+                    - name
+                    - passwordKey
+                  type: object
                 connInfoSecretTarget:
                   description: Secret configuration.
                   properties:
