@@ -7,7 +7,7 @@ plugins:
   sources:
     - id: trunk
       uri: https://github.com/trunk-io/plugins
-      ref: v1.7.0
+      ref: v1.7.1
 
 lint:
   enabled:
@@ -20,7 +20,7 @@ lint:
     - gofmt@1.20.4
     - golangci-lint2@2.1.6
     - markdownlint@0.45.0
-    - prettier@3.5.3
+    - prettier@3.6.2
     - yamllint@1.37.1
   ignore:
     - linters: [markdown-link-check]
