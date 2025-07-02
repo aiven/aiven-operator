@@ -702,7 +702,7 @@ spec:
                         required:
                           - network
                         type: object
-                      maxItems: 2048
+                      maxItems: 8000
                       type: array
                     metrics_enabled:
                       description: Enable Grafana's /metrics endpoint
@@ -710,7 +710,9 @@ spec:
                     oauth_allow_insecure_email_lookup:
                       description:
                         Enforce user lookup based on email instead of the
-                        unique ID provided by the IdP
+                        unique ID provided by the IdP. This setup introduces significant
+                        security risks, such as potential phishing, spoofing, and other
+                        data breaches.
                       type: boolean
                     private_access:
                       description:

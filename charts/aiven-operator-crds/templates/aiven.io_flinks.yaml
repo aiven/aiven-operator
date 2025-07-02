@@ -282,7 +282,7 @@ spec:
                         required:
                           - network
                         type: object
-                      maxItems: 2048
+                      maxItems: 8000
                       type: array
                     number_of_task_slots:
                       description:

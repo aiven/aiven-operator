@@ -269,7 +269,7 @@ type MysqlUserConfig struct {
 	// The minimum amount of time in seconds to keep binlog entries before deletion. This may be extended for services that require binlog entries for longer than the default for example if using the MySQL Debezium Kafka connector.
 	BinlogRetentionPeriod *int `groups:"create,update" json:"binlog_retention_period,omitempty"`
 
-	// +kubebuilder:validation:MaxItems=2048
+	// +kubebuilder:validation:MaxItems=8000
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
 	IpFilter []*IpFilter `groups:"create,update" json:"ip_filter,omitempty"`
 

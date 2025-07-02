@@ -286,7 +286,7 @@ spec:
                         required:
                           - network
                         type: object
-                      maxItems: 2048
+                      maxItems: 8000
                       type: array
                     migration:
                       description: Migrate data from existing server

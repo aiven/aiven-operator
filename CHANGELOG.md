@@ -18,6 +18,30 @@
 - Improve `KafkaTopic`: better handle API 5xx errors.
 - Improve `KafkaConnector`: better handle API 404 and 5xx errors.
 - Fix webhooks `containerPort` configuration not being properly applied in deployment template
+- Change `AlloyDBOmni` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
+- Change `Cassandra` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
+- Add `Clickhouse` field `userConfig.enable_ipv6`, type `boolean`: Register AAAA DNS records for the
+  service, and allow IPv6 packets to service ports
+- Change `Clickhouse` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
+- Change `Flink` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
+- Change `Grafana` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
+- Change `KafkaConnect` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
+- Change `Kafka` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
+- Change `MySQL` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
+- Add `OpenSearch` field `userConfig.opensearch.cluster.filecache.remote_data_ratio`, type `number`:
+  Defines a limit of how much total remote data can be referenced as a ratio of the size of the disk
+  reserved for the file cache
+- Add `OpenSearch` field `userConfig.opensearch.cluster.remote_store`, type `object`: no description
+- Add `OpenSearch` field `userConfig.opensearch.enable_snapshot_api`, type `boolean`: Enable/Disable
+  snapshot API for custom repositories, this requires security management to be enabled
+- Add `OpenSearch` field `userConfig.opensearch.node.search.cache.size`, type `string`: Defines a limit
+  of how much total remote data can be referenced as a ratio of the size of the disk reserved for
+  the file cache
+- Add `OpenSearch` field `userConfig.opensearch.remote_store`, type `object`: no description
+- Change `OpenSearch` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
+- Change `PostgreSQL` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
+- Change `Redis` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
+- Change `Valkey` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
 
 ## v0.29.0 - 2025-04-29
 

@@ -240,6 +240,10 @@ func isDeprecated(s string) bool {
 
 // shortDescription returns a string shorter than lineWidth when possible.
 func shortDescription(s string) string {
+	if strings.TrimSpace(s) == "" {
+		return "no description"
+	}
+
 	chunks := strings.Split(s, ". ")
 	description := chunks[0]
 	for i := 1; i < len(chunks); i++ {

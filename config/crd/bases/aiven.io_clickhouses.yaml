@@ -262,6 +262,11 @@ spec:
                       maximum: 59
                       minimum: 0
                       type: integer
+                    enable_ipv6:
+                      description:
+                        Register AAAA DNS records for the service, and allow
+                        IPv6 packets to service ports
+                      type: boolean
                     ip_filter:
                       description:
                         Allow incoming connections from CIDR address block,
@@ -282,7 +287,7 @@ spec:
                         required:
                           - network
                         type: object
-                      maxItems: 2048
+                      maxItems: 8000
                       type: array
                     private_access:
                       description:
