@@ -43,7 +43,7 @@ type FlinkUserConfig struct {
 	// Flink major version. Deprecated values: `1.16`
 	FlinkVersion *string `groups:"create" json:"flink_version,omitempty"`
 
-	// +kubebuilder:validation:MaxItems=2048
+	// +kubebuilder:validation:MaxItems=8000
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
 	IpFilter []*IpFilter `groups:"create,update" json:"ip_filter,omitempty"`
 
