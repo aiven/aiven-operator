@@ -1,0 +1,39 @@
+apiVersion: aiven.io/v1alpha1
+kind: Kafka
+metadata:
+  name: my-kafka
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: kafka-secret
+
+  project: my-aiven-project
+  cloudName: google-europe-west1
+  plan: startup-2
+
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: KafkaNativeACL
+metadata:
+  name: my-kafka-native-acl
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  serviceName: my-kafka
+  host: my-host
+  operation: Create
+  patternType: LITERAL
+  permissionType: ALLOW
+  principal: User:alice
+  resourceName: my-kafka-topic
+  resourceType: Topic

@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.2afb09e1.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -1304,6 +1304,29 @@
   
   
     <li class="md-nav__item">
+      <a href="kafkanativeacl.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    KafkaNativeACL
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="kafkaschema.html" class="md-nav__link">
         
   
@@ -2299,6 +2322,29 @@
   
   <span class="md-ellipsis">
     KafkaConnector
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafkanativeacl.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    KafkaNativeACL
     
   </span>
   
@@ -3506,10 +3552,24 @@
 <li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Secret configuration. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
 <li><a href="#spec.connInfoSecretTargetDisabled-property" name="spec.connInfoSecretTargetDisabled-property"><code>connInfoSecretTargetDisabled</code></a> (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.</li>
 <li><a href="#spec.disk_space-property" name="spec.disk_space-property"><code>disk_space</code></a> (string, Pattern: <code>(?i)^[1-9][0-9]*(GiB|G)?$</code>). The disk space of the service, possible values depend on the service type, the cloud provider and the project.
-Reducing will result in the service re-balancing.
-The removal of this field does not change the value.</li>
+    Reducing will result in the service re-balancing.
+    The removal of this field does not change the value.</li>
 <li><a href="#spec.maintenanceWindowDow-property" name="spec.maintenanceWindowDow-property"><code>maintenanceWindowDow</code></a> (string, Enum: <code>monday</code>, <code>tuesday</code>, <code>wednesday</code>, <code>thursday</code>, <code>friday</code>, <code>saturday</code>, <code>sunday</code>). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.</li>
 <li><a href="#spec.maintenanceWindowTime-property" name="spec.maintenanceWindowTime-property"><code>maintenanceWindowTime</code></a> (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.</li>
+<li><a href="#spec.powered-property" name="spec.powered-property"><code>powered</code></a> (boolean, Default value: <code>true</code>). Determines the power state of the service. When <code>true</code> (default), the service is running.
+    When <code>false</code>, the service is powered off.
+    For more information please see <a href="https://aiven.io/docs/platform/concepts/service-power-cycle">Aiven documentation</a>.
+    Note that:<ul>
+<li>When set to <code>false</code> the annotation <code>controllers.aiven.io/instance-is-running</code> is also set to <code>false</code>.</li>
+<li>Services cannot be created in a powered off state. The value is ignored during creation.</li>
+<li>It is highly recommended to not run dependent resources when the service is powered off.
+  Creating a new resource or updating an existing resource that depends on a powered off service will result in an error.
+  Existing resources will need to be manually recreated after the service is powered on.</li>
+<li>Existing secrets will not be updated or removed when the service is powered off.</li>
+<li>For Kafka services with backups: Topic configuration, schemas and connectors are all backed up, but not the data in topics. All topic data is lost on power off.</li>
+<li>For Kafka services without backups: Topic configurations including all topic data is lost on power off.</li>
+</ul>
+</li>
 <li><a href="#spec.projectVPCRef-property" name="spec.projectVPCRef-property"><code>projectVPCRef</code></a> (object). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See below for <a href="#spec.projectVPCRef">nested schema</a>.</li>
 <li><a href="#spec.projectVpcId-property" name="spec.projectVpcId-property"><code>projectVpcId</code></a> (string, MaxLength: 36). Identifier of the VPC the service should be in, if any.</li>
 <li><a href="#spec.serviceAccountCredentials-property" name="spec.serviceAccountCredentials-property"><code>serviceAccountCredentials</code></a> (string). Your <a href="https://cloud.google.com/iam/docs/service-account-creds#key-types">Google service account key</a> in JSON format.</li>
@@ -3539,8 +3599,8 @@ The removal of this field does not change the value.</li>
 <li><a href="#spec.connInfoSecretTarget.annotations-property" name="spec.connInfoSecretTarget.annotations-property"><code>annotations</code></a> (object, AdditionalProperties: string). Annotations added to the secret.</li>
 <li><a href="#spec.connInfoSecretTarget.labels-property" name="spec.connInfoSecretTarget.labels-property"><code>labels</code></a> (object, AdditionalProperties: string). Labels added to the secret.</li>
 <li><a href="#spec.connInfoSecretTarget.prefix-property" name="spec.connInfoSecretTarget.prefix-property"><code>prefix</code></a> (string). Prefix for the secret's keys.
-Added "as is" without any transformations.
-By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFKA_</code>, <code>REDIS_</code>, etc.</li>
+    Added "as is" without any transformations.
+    By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFKA_</code>, <code>REDIS_</code>, etc.</li>
 </ul>
 <h2 id="spec.projectVPCRef">projectVPCRef<a class="headerlink" href="#spec.projectVPCRef" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -3582,7 +3642,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <li><a href="#spec.userConfig.enable_ipv6-property" name="spec.userConfig.enable_ipv6-property"><code>enable_ipv6</code></a> (boolean). Register AAAA DNS records for the service, and allow IPv6 packets to service ports.</li>
 <li><a href="#spec.userConfig.google_columnar_engine_enabled-property" name="spec.userConfig.google_columnar_engine_enabled-property"><code>google_columnar_engine_enabled</code></a> (boolean). Enables or disables the columnar engine. When enabled, it accelerates SQL query processing.</li>
 <li><a href="#spec.userConfig.google_columnar_engine_memory_size_percentage-property" name="spec.userConfig.google_columnar_engine_memory_size_percentage-property"><code>google_columnar_engine_memory_size_percentage</code></a> (integer, Minimum: 0, Maximum: 50). Allocate the amount of RAM to store columnar data.</li>
-<li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 2048). Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
+<li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 8000). Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
 <li><a href="#spec.userConfig.pg-property" name="spec.userConfig.pg-property"><code>pg</code></a> (object). postgresql.conf configuration values. See below for <a href="#spec.userConfig.pg">nested schema</a>.</li>
 <li><a href="#spec.userConfig.pg_read_replica-property" name="spec.userConfig.pg_read_replica-property"><code>pg_read_replica</code></a> (boolean). Should the service which is being forked be a read replica (deprecated, use read_replica service integration instead).</li>
 <li><a href="#spec.userConfig.pg_service_to_fork_from-property" name="spec.userConfig.pg_service_to_fork_from-property"><code>pg_service_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 64). Name of the PG Service from which to fork (deprecated, use service_to_fork_from). This has effect only when a new service is being created.</li>
@@ -3597,11 +3657,11 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <li><a href="#spec.userConfig.recovery_target_time-property" name="spec.userConfig.recovery_target_time-property"><code>recovery_target_time</code></a> (string, Immutable, MaxLength: 32). Recovery target time when forking a service. This has effect only when a new service is being created.</li>
 <li><a href="#spec.userConfig.service_log-property" name="spec.userConfig.service_log-property"><code>service_log</code></a> (boolean). Store logs for the service so that they are available in the HTTP API and console.</li>
 <li><a href="#spec.userConfig.service_to_fork_from-property" name="spec.userConfig.service_to_fork_from-property"><code>service_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.</li>
-<li><a href="#spec.userConfig.shared_buffers_percentage-property" name="spec.userConfig.shared_buffers_percentage-property"><code>shared_buffers_percentage</code></a> (number, Minimum: 20, Maximum: 60). Percentage of total RAM that the database server uses for shared memory buffers. Valid range is 20-60 (float), which corresponds to 20% - 60%. This setting adjusts the shared_buffers configuration value.</li>
+<li><a href="#spec.userConfig.shared_buffers_percentage-property" name="spec.userConfig.shared_buffers_percentage-property"><code>shared_buffers_percentage</code></a> (number, Minimum: 20, Maximum: 60). Percentage of total RAM that the database server uses for shared memory buffers. Valid range is 20-60 (float), which corresponds to 20% - 60%. This setting adjusts the shared_buffers configuration value. Changing this parameter causes a service restart.</li>
 <li><a href="#spec.userConfig.static_ips-property" name="spec.userConfig.static_ips-property"><code>static_ips</code></a> (boolean). Use static public IP addresses.</li>
 <li><a href="#spec.userConfig.synchronous_replication-property" name="spec.userConfig.synchronous_replication-property"><code>synchronous_replication</code></a> (string, Enum: <code>off</code>, <code>quorum</code>). Synchronous replication type. Note that the service plan also needs to support synchronous replication.</li>
 <li><a href="#spec.userConfig.variant-property" name="spec.userConfig.variant-property"><code>variant</code></a> (string, Enum: <code>aiven</code>, <code>timescale</code>). Variant of the PostgreSQL service, may affect the features that are exposed by default.</li>
-<li><a href="#spec.userConfig.work_mem-property" name="spec.userConfig.work_mem-property"><code>work_mem</code></a> (integer, Minimum: 1, Maximum: 1024). Sets the maximum amount of memory to be used by a query operation (such as a sort or hash table) before writing to temporary disk files, in MB. Default is 1MB + 0.075% of total RAM (up to 32MB).</li>
+<li><a href="#spec.userConfig.work_mem-property" name="spec.userConfig.work_mem-property"><code>work_mem</code></a> (integer, Minimum: 1, Maximum: 1024). Sets the maximum amount of memory to be used by a query operation (such as a sort or hash table) before writing to temporary disk files, in MB. The default is 1MB + 0.075% of total RAM (up to 32MB).</li>
 </ul>
 <h3 id="spec.userConfig.ip_filter">ip_filter<a class="headerlink" href="#spec.userConfig.ip_filter" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
@@ -3619,54 +3679,54 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <p>postgresql.conf configuration values.</p>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.userConfig.pg.autovacuum_analyze_scale_factor-property" name="spec.userConfig.pg.autovacuum_analyze_scale_factor-property"><code>autovacuum_analyze_scale_factor</code></a> (number, Minimum: 0, Maximum: 1). Specifies a fraction of the table size to add to autovacuum_analyze_threshold when deciding whether to trigger an ANALYZE. The default is 0.2 (20% of table size).</li>
-<li><a href="#spec.userConfig.pg.autovacuum_analyze_threshold-property" name="spec.userConfig.pg.autovacuum_analyze_threshold-property"><code>autovacuum_analyze_threshold</code></a> (integer, Minimum: 0, Maximum: 2147483647). Specifies the minimum number of inserted, updated or deleted tuples needed to trigger an ANALYZE in any one table. The default is 50 tuples.</li>
-<li><a href="#spec.userConfig.pg.autovacuum_freeze_max_age-property" name="spec.userConfig.pg.autovacuum_freeze_max_age-property"><code>autovacuum_freeze_max_age</code></a> (integer, Minimum: 200000000, Maximum: 1500000000). Specifies the maximum age (in transactions) that a table's pg_class.relfrozenxid field can attain before a VACUUM operation is forced to prevent transaction ID wraparound within the table. Note that the system will launch autovacuum processes to prevent wraparound even when autovacuum is otherwise disabled. This parameter will cause the server to be restarted.</li>
-<li><a href="#spec.userConfig.pg.autovacuum_max_workers-property" name="spec.userConfig.pg.autovacuum_max_workers-property"><code>autovacuum_max_workers</code></a> (integer, Minimum: 1, Maximum: 20). Specifies the maximum number of autovacuum processes (other than the autovacuum launcher) that may be running at any one time. The default is three. This parameter can only be set at server start.</li>
-<li><a href="#spec.userConfig.pg.autovacuum_naptime-property" name="spec.userConfig.pg.autovacuum_naptime-property"><code>autovacuum_naptime</code></a> (integer, Minimum: 1, Maximum: 86400). Specifies the minimum delay between autovacuum runs on any given database. The delay is measured in seconds, and the default is one minute.</li>
-<li><a href="#spec.userConfig.pg.autovacuum_vacuum_cost_delay-property" name="spec.userConfig.pg.autovacuum_vacuum_cost_delay-property"><code>autovacuum_vacuum_cost_delay</code></a> (integer, Minimum: -1, Maximum: 100). Specifies the cost delay value that will be used in automatic VACUUM operations. If -1 is specified, the regular vacuum_cost_delay value will be used. The default value is 20 milliseconds.</li>
-<li><a href="#spec.userConfig.pg.autovacuum_vacuum_cost_limit-property" name="spec.userConfig.pg.autovacuum_vacuum_cost_limit-property"><code>autovacuum_vacuum_cost_limit</code></a> (integer, Minimum: -1, Maximum: 10000). Specifies the cost limit value that will be used in automatic VACUUM operations. If -1 is specified (which is the default), the regular vacuum_cost_limit value will be used.</li>
-<li><a href="#spec.userConfig.pg.autovacuum_vacuum_scale_factor-property" name="spec.userConfig.pg.autovacuum_vacuum_scale_factor-property"><code>autovacuum_vacuum_scale_factor</code></a> (number, Minimum: 0, Maximum: 1). Specifies a fraction of the table size to add to autovacuum_vacuum_threshold when deciding whether to trigger a VACUUM. The default is 0.2 (20% of table size).</li>
-<li><a href="#spec.userConfig.pg.autovacuum_vacuum_threshold-property" name="spec.userConfig.pg.autovacuum_vacuum_threshold-property"><code>autovacuum_vacuum_threshold</code></a> (integer, Minimum: 0, Maximum: 2147483647). Specifies the minimum number of updated or deleted tuples needed to trigger a VACUUM in any one table. The default is 50 tuples.</li>
-<li><a href="#spec.userConfig.pg.bgwriter_delay-property" name="spec.userConfig.pg.bgwriter_delay-property"><code>bgwriter_delay</code></a> (integer, Minimum: 10, Maximum: 10000). Specifies the delay between activity rounds for the background writer in milliseconds. Default is 200.</li>
-<li><a href="#spec.userConfig.pg.bgwriter_flush_after-property" name="spec.userConfig.pg.bgwriter_flush_after-property"><code>bgwriter_flush_after</code></a> (integer, Minimum: 0, Maximum: 2048). Whenever more than bgwriter_flush_after bytes have been written by the background writer, attempt to force the OS to issue these writes to the underlying storage. Specified in kilobytes, default is 512. Setting of 0 disables forced writeback.</li>
-<li><a href="#spec.userConfig.pg.bgwriter_lru_maxpages-property" name="spec.userConfig.pg.bgwriter_lru_maxpages-property"><code>bgwriter_lru_maxpages</code></a> (integer, Minimum: 0, Maximum: 1073741823). In each round, no more than this many buffers will be written by the background writer. Setting this to zero disables background writing. Default is 100.</li>
-<li><a href="#spec.userConfig.pg.bgwriter_lru_multiplier-property" name="spec.userConfig.pg.bgwriter_lru_multiplier-property"><code>bgwriter_lru_multiplier</code></a> (number, Minimum: 0, Maximum: 10). The average recent need for new buffers is multiplied by bgwriter_lru_multiplier to arrive at an estimate of the number that will be needed during the next round, (up to bgwriter_lru_maxpages). 1.0 represents a “just in time” policy of writing exactly the number of buffers predicted to be needed. Larger values provide some cushion against spikes in demand, while smaller values intentionally leave writes to be done by server processes. The default is 2.0.</li>
-<li><a href="#spec.userConfig.pg.deadlock_timeout-property" name="spec.userConfig.pg.deadlock_timeout-property"><code>deadlock_timeout</code></a> (integer, Minimum: 500, Maximum: 1800000). This is the amount of time, in milliseconds, to wait on a lock before checking to see if there is a deadlock condition.</li>
-<li><a href="#spec.userConfig.pg.default_toast_compression-property" name="spec.userConfig.pg.default_toast_compression-property"><code>default_toast_compression</code></a> (string, Enum: <code>lz4</code>, <code>pglz</code>). Specifies the default TOAST compression method for values of compressible columns (the default is lz4).</li>
+<li><a href="#spec.userConfig.pg.autovacuum_analyze_scale_factor-property" name="spec.userConfig.pg.autovacuum_analyze_scale_factor-property"><code>autovacuum_analyze_scale_factor</code></a> (number, Minimum: 0, Maximum: 1). Specifies a fraction of the table size to add to autovacuum_analyze_threshold when deciding whether to trigger an ANALYZE (e.g. <code>0.2</code> for 20% of the table size). The default is <code>0.2</code>.</li>
+<li><a href="#spec.userConfig.pg.autovacuum_analyze_threshold-property" name="spec.userConfig.pg.autovacuum_analyze_threshold-property"><code>autovacuum_analyze_threshold</code></a> (integer, Minimum: 0, Maximum: 2147483647). Specifies the minimum number of inserted, updated or deleted tuples needed to trigger an ANALYZE in any one table. The default is <code>50</code>.</li>
+<li><a href="#spec.userConfig.pg.autovacuum_freeze_max_age-property" name="spec.userConfig.pg.autovacuum_freeze_max_age-property"><code>autovacuum_freeze_max_age</code></a> (integer, Minimum: 200000000, Maximum: 1500000000). Specifies the maximum age (in transactions) that a table's pg_class.relfrozenxid field can attain before a VACUUM operation is forced to prevent transaction ID wraparound within the table. The system launches autovacuum processes to prevent wraparound even when autovacuum is otherwise disabled. Changing this parameter causes a service restart.</li>
+<li><a href="#spec.userConfig.pg.autovacuum_max_workers-property" name="spec.userConfig.pg.autovacuum_max_workers-property"><code>autovacuum_max_workers</code></a> (integer, Minimum: 1, Maximum: 20). Specifies the maximum number of autovacuum processes (other than the autovacuum launcher) that may be running at any one time. The default is <code>3</code>. Changing this parameter causes a service restart.</li>
+<li><a href="#spec.userConfig.pg.autovacuum_naptime-property" name="spec.userConfig.pg.autovacuum_naptime-property"><code>autovacuum_naptime</code></a> (integer, Minimum: 1, Maximum: 86400). Specifies the minimum delay between autovacuum runs on any given database. The delay is measured in seconds. The default is <code>60</code>.</li>
+<li><a href="#spec.userConfig.pg.autovacuum_vacuum_cost_delay-property" name="spec.userConfig.pg.autovacuum_vacuum_cost_delay-property"><code>autovacuum_vacuum_cost_delay</code></a> (integer, Minimum: -1, Maximum: 100). Specifies the cost delay value that will be used in automatic VACUUM operations. If <code>-1</code> is specified, the regular vacuum_cost_delay value will be used. The default is <code>2</code> (upstream default).</li>
+<li><a href="#spec.userConfig.pg.autovacuum_vacuum_cost_limit-property" name="spec.userConfig.pg.autovacuum_vacuum_cost_limit-property"><code>autovacuum_vacuum_cost_limit</code></a> (integer, Minimum: -1, Maximum: 10000). Specifies the cost limit value that will be used in automatic VACUUM operations. If <code>-1</code> is specified, the regular vacuum_cost_limit value will be used. The default is <code>-1</code> (upstream default).</li>
+<li><a href="#spec.userConfig.pg.autovacuum_vacuum_scale_factor-property" name="spec.userConfig.pg.autovacuum_vacuum_scale_factor-property"><code>autovacuum_vacuum_scale_factor</code></a> (number, Minimum: 0, Maximum: 1). Specifies a fraction of the table size to add to autovacuum_vacuum_threshold when deciding whether to trigger a VACUUM (e.g. <code>0.2</code> for 20% of the table size). The default is <code>0.2</code>.</li>
+<li><a href="#spec.userConfig.pg.autovacuum_vacuum_threshold-property" name="spec.userConfig.pg.autovacuum_vacuum_threshold-property"><code>autovacuum_vacuum_threshold</code></a> (integer, Minimum: 0, Maximum: 2147483647). Specifies the minimum number of updated or deleted tuples needed to trigger a VACUUM in any one table. The default is <code>50</code>.</li>
+<li><a href="#spec.userConfig.pg.bgwriter_delay-property" name="spec.userConfig.pg.bgwriter_delay-property"><code>bgwriter_delay</code></a> (integer, Minimum: 10, Maximum: 10000). Specifies the delay between activity rounds for the background writer in milliseconds. The default is <code>200</code>.</li>
+<li><a href="#spec.userConfig.pg.bgwriter_flush_after-property" name="spec.userConfig.pg.bgwriter_flush_after-property"><code>bgwriter_flush_after</code></a> (integer, Minimum: 0, Maximum: 2048). Whenever more than bgwriter_flush_after bytes have been written by the background writer, attempt to force the OS to issue these writes to the underlying storage. Specified in kilobytes. Setting of 0 disables forced writeback. The default is <code>512</code>.</li>
+<li><a href="#spec.userConfig.pg.bgwriter_lru_maxpages-property" name="spec.userConfig.pg.bgwriter_lru_maxpages-property"><code>bgwriter_lru_maxpages</code></a> (integer, Minimum: 0, Maximum: 1073741823). In each round, no more than this many buffers will be written by the background writer. Setting this to zero disables background writing. The default is <code>100</code>.</li>
+<li><a href="#spec.userConfig.pg.bgwriter_lru_multiplier-property" name="spec.userConfig.pg.bgwriter_lru_multiplier-property"><code>bgwriter_lru_multiplier</code></a> (number, Minimum: 0, Maximum: 10). The average recent need for new buffers is multiplied by bgwriter_lru_multiplier to arrive at an estimate of the number that will be needed during the next round, (up to bgwriter_lru_maxpages). 1.0 represents a “just in time” policy of writing exactly the number of buffers predicted to be needed. Larger values provide some cushion against spikes in demand, while smaller values intentionally leave writes to be done by server processes. The default is <code>2.0</code>.</li>
+<li><a href="#spec.userConfig.pg.deadlock_timeout-property" name="spec.userConfig.pg.deadlock_timeout-property"><code>deadlock_timeout</code></a> (integer, Minimum: 500, Maximum: 1800000). This is the amount of time, in milliseconds, to wait on a lock before checking to see if there is a deadlock condition. The default is <code>1000</code> (upstream default).</li>
+<li><a href="#spec.userConfig.pg.default_toast_compression-property" name="spec.userConfig.pg.default_toast_compression-property"><code>default_toast_compression</code></a> (string, Enum: <code>lz4</code>, <code>pglz</code>). Specifies the default TOAST compression method for values of compressible columns. The default is <code>lz4</code>.</li>
 <li><a href="#spec.userConfig.pg.idle_in_transaction_session_timeout-property" name="spec.userConfig.pg.idle_in_transaction_session_timeout-property"><code>idle_in_transaction_session_timeout</code></a> (integer, Minimum: 0, Maximum: 604800000). Time out sessions with open transactions after this number of milliseconds.</li>
 <li><a href="#spec.userConfig.pg.jit-property" name="spec.userConfig.pg.jit-property"><code>jit</code></a> (boolean). Controls system-wide use of Just-in-Time Compilation (JIT).</li>
-<li><a href="#spec.userConfig.pg.log_autovacuum_min_duration-property" name="spec.userConfig.pg.log_autovacuum_min_duration-property"><code>log_autovacuum_min_duration</code></a> (integer, Minimum: -1, Maximum: 2147483647). Causes each action executed by autovacuum to be logged if it ran for at least the specified number of milliseconds. Setting this to zero logs all autovacuum actions. Minus-one (the default) disables logging autovacuum actions.</li>
+<li><a href="#spec.userConfig.pg.log_autovacuum_min_duration-property" name="spec.userConfig.pg.log_autovacuum_min_duration-property"><code>log_autovacuum_min_duration</code></a> (integer, Minimum: -1, Maximum: 2147483647). Causes each action executed by autovacuum to be logged if it ran for at least the specified number of milliseconds. Setting this to zero logs all autovacuum actions. Minus-one disables logging autovacuum actions. The default is <code>1000</code>.</li>
 <li><a href="#spec.userConfig.pg.log_error_verbosity-property" name="spec.userConfig.pg.log_error_verbosity-property"><code>log_error_verbosity</code></a> (string, Enum: <code>DEFAULT</code>, <code>TERSE</code>, <code>VERBOSE</code>). Controls the amount of detail written in the server log for each message that is logged.</li>
 <li><a href="#spec.userConfig.pg.log_line_prefix-property" name="spec.userConfig.pg.log_line_prefix-property"><code>log_line_prefix</code></a> (string, Enum: <code>'%m [%p] %q[user=%u,db=%d,app=%a] '</code>, <code>'%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '</code>, <code>'pid=%p,user=%u,db=%d,app=%a,client=%h '</code>, <code>'pid=%p,user=%u,db=%d,app=%a,client=%h,txid=%x,qid=%Q '</code>). Choose from one of the available log formats.</li>
 <li><a href="#spec.userConfig.pg.log_min_duration_statement-property" name="spec.userConfig.pg.log_min_duration_statement-property"><code>log_min_duration_statement</code></a> (integer, Minimum: -1, Maximum: 86400000). Log statements that take more than this number of milliseconds to run, -1 disables.</li>
 <li><a href="#spec.userConfig.pg.log_temp_files-property" name="spec.userConfig.pg.log_temp_files-property"><code>log_temp_files</code></a> (integer, Minimum: -1, Maximum: 2147483647). Log statements for each temporary file created larger than this number of kilobytes, -1 disables.</li>
-<li><a href="#spec.userConfig.pg.max_files_per_process-property" name="spec.userConfig.pg.max_files_per_process-property"><code>max_files_per_process</code></a> (integer, Minimum: 1000, Maximum: 4096). PostgreSQL maximum number of files that can be open per process.</li>
-<li><a href="#spec.userConfig.pg.max_locks_per_transaction-property" name="spec.userConfig.pg.max_locks_per_transaction-property"><code>max_locks_per_transaction</code></a> (integer, Minimum: 64, Maximum: 6400). PostgreSQL maximum locks per transaction.</li>
-<li><a href="#spec.userConfig.pg.max_logical_replication_workers-property" name="spec.userConfig.pg.max_logical_replication_workers-property"><code>max_logical_replication_workers</code></a> (integer, Minimum: 4, Maximum: 64). PostgreSQL maximum logical replication workers (taken from the pool of max_parallel_workers).</li>
-<li><a href="#spec.userConfig.pg.max_parallel_workers-property" name="spec.userConfig.pg.max_parallel_workers-property"><code>max_parallel_workers</code></a> (integer, Minimum: 0, Maximum: 96). Sets the maximum number of workers that the system can support for parallel queries.</li>
-<li><a href="#spec.userConfig.pg.max_parallel_workers_per_gather-property" name="spec.userConfig.pg.max_parallel_workers_per_gather-property"><code>max_parallel_workers_per_gather</code></a> (integer, Minimum: 0, Maximum: 96). Sets the maximum number of workers that can be started by a single Gather or Gather Merge node.</li>
-<li><a href="#spec.userConfig.pg.max_pred_locks_per_transaction-property" name="spec.userConfig.pg.max_pred_locks_per_transaction-property"><code>max_pred_locks_per_transaction</code></a> (integer, Minimum: 64, Maximum: 5120). PostgreSQL maximum predicate locks per transaction.</li>
-<li><a href="#spec.userConfig.pg.max_prepared_transactions-property" name="spec.userConfig.pg.max_prepared_transactions-property"><code>max_prepared_transactions</code></a> (integer, Minimum: 0, Maximum: 10000). PostgreSQL maximum prepared transactions.</li>
-<li><a href="#spec.userConfig.pg.max_replication_slots-property" name="spec.userConfig.pg.max_replication_slots-property"><code>max_replication_slots</code></a> (integer, Minimum: 8, Maximum: 64). PostgreSQL maximum replication slots.</li>
-<li><a href="#spec.userConfig.pg.max_slot_wal_keep_size-property" name="spec.userConfig.pg.max_slot_wal_keep_size-property"><code>max_slot_wal_keep_size</code></a> (integer, Minimum: -1, Maximum: 2147483647). PostgreSQL maximum WAL size (MB) reserved for replication slots. Default is -1 (unlimited). wal_keep_size minimum WAL size setting takes precedence over this.</li>
-<li><a href="#spec.userConfig.pg.max_stack_depth-property" name="spec.userConfig.pg.max_stack_depth-property"><code>max_stack_depth</code></a> (integer, Minimum: 2097152, Maximum: 6291456). Maximum depth of the stack in bytes.</li>
-<li><a href="#spec.userConfig.pg.max_standby_archive_delay-property" name="spec.userConfig.pg.max_standby_archive_delay-property"><code>max_standby_archive_delay</code></a> (integer, Minimum: 1, Maximum: 43200000). Max standby archive delay in milliseconds.</li>
-<li><a href="#spec.userConfig.pg.max_standby_streaming_delay-property" name="spec.userConfig.pg.max_standby_streaming_delay-property"><code>max_standby_streaming_delay</code></a> (integer, Minimum: 1, Maximum: 43200000). Max standby streaming delay in milliseconds.</li>
-<li><a href="#spec.userConfig.pg.max_wal_senders-property" name="spec.userConfig.pg.max_wal_senders-property"><code>max_wal_senders</code></a> (integer, Minimum: 20, Maximum: 64). PostgreSQL maximum WAL senders.</li>
-<li><a href="#spec.userConfig.pg.max_worker_processes-property" name="spec.userConfig.pg.max_worker_processes-property"><code>max_worker_processes</code></a> (integer, Minimum: 8, Maximum: 96). Sets the maximum number of background processes that the system can support.</li>
+<li><a href="#spec.userConfig.pg.max_files_per_process-property" name="spec.userConfig.pg.max_files_per_process-property"><code>max_files_per_process</code></a> (integer, Minimum: 1000, Maximum: 4096). PostgreSQL maximum number of files that can be open per process. The default is <code>1000</code> (upstream default). Changing this parameter causes a service restart.</li>
+<li><a href="#spec.userConfig.pg.max_locks_per_transaction-property" name="spec.userConfig.pg.max_locks_per_transaction-property"><code>max_locks_per_transaction</code></a> (integer, Minimum: 64, Maximum: 6400). PostgreSQL maximum locks per transaction. Changing this parameter causes a service restart.</li>
+<li><a href="#spec.userConfig.pg.max_logical_replication_workers-property" name="spec.userConfig.pg.max_logical_replication_workers-property"><code>max_logical_replication_workers</code></a> (integer, Minimum: 4, Maximum: 64). PostgreSQL maximum logical replication workers (taken from the pool of max_parallel_workers). The default is <code>4</code> (upstream default). Changing this parameter causes a service restart.</li>
+<li><a href="#spec.userConfig.pg.max_parallel_workers-property" name="spec.userConfig.pg.max_parallel_workers-property"><code>max_parallel_workers</code></a> (integer, Minimum: 0, Maximum: 96). Sets the maximum number of workers that the system can support for parallel queries. The default is <code>8</code> (upstream default).</li>
+<li><a href="#spec.userConfig.pg.max_parallel_workers_per_gather-property" name="spec.userConfig.pg.max_parallel_workers_per_gather-property"><code>max_parallel_workers_per_gather</code></a> (integer, Minimum: 0, Maximum: 96). Sets the maximum number of workers that can be started by a single Gather or Gather Merge node. The default is <code>2</code> (upstream default).</li>
+<li><a href="#spec.userConfig.pg.max_pred_locks_per_transaction-property" name="spec.userConfig.pg.max_pred_locks_per_transaction-property"><code>max_pred_locks_per_transaction</code></a> (integer, Minimum: 64, Maximum: 5120). PostgreSQL maximum predicate locks per transaction. The default is <code>64</code> (upstream default). Changing this parameter causes a service restart.</li>
+<li><a href="#spec.userConfig.pg.max_prepared_transactions-property" name="spec.userConfig.pg.max_prepared_transactions-property"><code>max_prepared_transactions</code></a> (integer, Minimum: 0, Maximum: 10000). PostgreSQL maximum prepared transactions. The default is <code>0</code>. Changing this parameter causes a service restart.</li>
+<li><a href="#spec.userConfig.pg.max_replication_slots-property" name="spec.userConfig.pg.max_replication_slots-property"><code>max_replication_slots</code></a> (integer, Minimum: 8, Maximum: 64). PostgreSQL maximum replication slots. The default is <code>20</code>. Changing this parameter causes a service restart.</li>
+<li><a href="#spec.userConfig.pg.max_slot_wal_keep_size-property" name="spec.userConfig.pg.max_slot_wal_keep_size-property"><code>max_slot_wal_keep_size</code></a> (integer, Minimum: -1, Maximum: 2147483647). PostgreSQL maximum WAL size (MB) reserved for replication slots. If <code>-1</code> is specified, replication slots may retain an unlimited amount of WAL files. The default is <code>-1</code> (upstream default). wal_keep_size minimum WAL size setting takes precedence over this.</li>
+<li><a href="#spec.userConfig.pg.max_stack_depth-property" name="spec.userConfig.pg.max_stack_depth-property"><code>max_stack_depth</code></a> (integer, Minimum: 2097152, Maximum: 6291456). Maximum depth of the stack in bytes. The default is <code>2097152</code> (upstream default).</li>
+<li><a href="#spec.userConfig.pg.max_standby_archive_delay-property" name="spec.userConfig.pg.max_standby_archive_delay-property"><code>max_standby_archive_delay</code></a> (integer, Minimum: 1, Maximum: 43200000). Max standby archive delay in milliseconds. The default is <code>30000</code> (upstream default).</li>
+<li><a href="#spec.userConfig.pg.max_standby_streaming_delay-property" name="spec.userConfig.pg.max_standby_streaming_delay-property"><code>max_standby_streaming_delay</code></a> (integer, Minimum: 1, Maximum: 43200000). Max standby streaming delay in milliseconds. The default is <code>30000</code> (upstream default).</li>
+<li><a href="#spec.userConfig.pg.max_wal_senders-property" name="spec.userConfig.pg.max_wal_senders-property"><code>max_wal_senders</code></a> (integer, Minimum: 20, Maximum: 64). PostgreSQL maximum WAL senders. The default is <code>20</code>. Changing this parameter causes a service restart.</li>
+<li><a href="#spec.userConfig.pg.max_worker_processes-property" name="spec.userConfig.pg.max_worker_processes-property"><code>max_worker_processes</code></a> (integer, Minimum: 8, Maximum: 96). Sets the maximum number of background processes that the system can support. The default is <code>8</code>. Changing this parameter causes a service restart.</li>
 <li><a href="#spec.userConfig.pg.password_encryption-property" name="spec.userConfig.pg.password_encryption-property"><code>password_encryption</code></a> (string, Enum: <code>md5</code>, <code>scram-sha-256</code>). Chooses the algorithm for encrypting passwords.</li>
-<li><a href="#spec.userConfig.pg.pg_partman_bgw.interval-property" name="spec.userConfig.pg.pg_partman_bgw.interval-property"><code>pg_partman_bgw.interval</code></a> (integer, Minimum: 3600, Maximum: 604800). Sets the time interval to run pg_partman's scheduled tasks.</li>
+<li><a href="#spec.userConfig.pg.pg_partman_bgw.interval-property" name="spec.userConfig.pg.pg_partman_bgw.interval-property"><code>pg_partman_bgw.interval</code></a> (integer, Minimum: 3600, Maximum: 604800). Sets the time interval in seconds to run pg_partman's scheduled tasks. The default is <code>3600</code>.</li>
 <li><a href="#spec.userConfig.pg.pg_partman_bgw.role-property" name="spec.userConfig.pg.pg_partman_bgw.role-property"><code>pg_partman_bgw.role</code></a> (string, Pattern: <code>^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$</code>, MaxLength: 64). Controls which role to use for pg_partman's scheduled background tasks.</li>
-<li><a href="#spec.userConfig.pg.pg_stat_statements.track-property" name="spec.userConfig.pg.pg_stat_statements.track-property"><code>pg_stat_statements.track</code></a> (string, Enum: <code>all</code>, <code>none</code>, <code>top</code>). Controls which statements are counted. Specify top to track top-level statements (those issued directly by clients), all to also track nested statements (such as statements invoked within functions), or none to disable statement statistics collection. The default value is top.</li>
+<li><a href="#spec.userConfig.pg.pg_stat_statements.track-property" name="spec.userConfig.pg.pg_stat_statements.track-property"><code>pg_stat_statements.track</code></a> (string, Enum: <code>all</code>, <code>none</code>, <code>top</code>). Controls which statements are counted. Specify top to track top-level statements (those issued directly by clients), all to also track nested statements (such as statements invoked within functions), or none to disable statement statistics collection. The default is <code>top</code>.</li>
 <li><a href="#spec.userConfig.pg.temp_file_limit-property" name="spec.userConfig.pg.temp_file_limit-property"><code>temp_file_limit</code></a> (integer, Minimum: -1, Maximum: 2147483647). PostgreSQL temporary file limit in KiB, -1 for unlimited.</li>
 <li><a href="#spec.userConfig.pg.timezone-property" name="spec.userConfig.pg.timezone-property"><code>timezone</code></a> (string, Pattern: <code>^[\w/]*$</code>, MaxLength: 64). PostgreSQL service timezone.</li>
-<li><a href="#spec.userConfig.pg.track_activity_query_size-property" name="spec.userConfig.pg.track_activity_query_size-property"><code>track_activity_query_size</code></a> (integer, Minimum: 1024, Maximum: 10240). Specifies the number of bytes reserved to track the currently executing command for each active session.</li>
-<li><a href="#spec.userConfig.pg.track_commit_timestamp-property" name="spec.userConfig.pg.track_commit_timestamp-property"><code>track_commit_timestamp</code></a> (string, Enum: <code>off</code>, <code>on</code>). Record commit time of transactions.</li>
+<li><a href="#spec.userConfig.pg.track_activity_query_size-property" name="spec.userConfig.pg.track_activity_query_size-property"><code>track_activity_query_size</code></a> (integer, Minimum: 1024, Maximum: 10240). Specifies the number of bytes reserved to track the currently executing command for each active session. Changing this parameter causes a service restart.</li>
+<li><a href="#spec.userConfig.pg.track_commit_timestamp-property" name="spec.userConfig.pg.track_commit_timestamp-property"><code>track_commit_timestamp</code></a> (string, Enum: <code>off</code>, <code>on</code>). Record commit time of transactions. Changing this parameter causes a service restart.</li>
 <li><a href="#spec.userConfig.pg.track_functions-property" name="spec.userConfig.pg.track_functions-property"><code>track_functions</code></a> (string, Enum: <code>all</code>, <code>none</code>, <code>pl</code>). Enables tracking of function call counts and time used.</li>
-<li><a href="#spec.userConfig.pg.track_io_timing-property" name="spec.userConfig.pg.track_io_timing-property"><code>track_io_timing</code></a> (string, Enum: <code>off</code>, <code>on</code>). Enables timing of database I/O calls. This parameter is off by default, because it will repeatedly query the operating system for the current time, which may cause significant overhead on some platforms.</li>
+<li><a href="#spec.userConfig.pg.track_io_timing-property" name="spec.userConfig.pg.track_io_timing-property"><code>track_io_timing</code></a> (string, Enum: <code>off</code>, <code>on</code>). Enables timing of database I/O calls. The default is <code>off</code>. When on, it will repeatedly query the operating system for the current time, which may cause significant overhead on some platforms.</li>
 <li><a href="#spec.userConfig.pg.wal_sender_timeout-property" name="spec.userConfig.pg.wal_sender_timeout-property"><code>wal_sender_timeout</code></a> (integer). Terminate replication connections that are inactive for longer than this amount of time, in milliseconds. Setting this value to zero disables the timeout.</li>
-<li><a href="#spec.userConfig.pg.wal_writer_delay-property" name="spec.userConfig.pg.wal_writer_delay-property"><code>wal_writer_delay</code></a> (integer, Minimum: 10, Maximum: 200). WAL flush interval in milliseconds. Note that setting this value to lower than the default 200ms may negatively impact performance.</li>
+<li><a href="#spec.userConfig.pg.wal_writer_delay-property" name="spec.userConfig.pg.wal_writer_delay-property"><code>wal_writer_delay</code></a> (integer, Minimum: 10, Maximum: 200). WAL flush interval in milliseconds. The default is <code>200</code>. Setting this parameter to a lower value may negatively impact performance.</li>
 </ul>
 <h3 id="spec.userConfig.pgaudit">pgaudit<a class="headerlink" href="#spec.userConfig.pgaudit" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
@@ -3841,10 +3901,10 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.tracking", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view", "content.tabs.link"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.tracking", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view", "content.tabs.link"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      <script src="../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
     
   </body>

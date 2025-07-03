@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.2afb09e1.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -1107,6 +1107,29 @@
   
   
     <li class="md-nav__item">
+      <a href="kafkanativeacl.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    KafkaNativeACL
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="kafkaschema.html" class="md-nav__link">
         
   
@@ -1999,6 +2022,29 @@
   
   <span class="md-ellipsis">
     KafkaConnector
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafkanativeacl.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    KafkaNativeACL
     
   </span>
   
@@ -3121,11 +3167,11 @@
 <li><a href="#spec.config-property" name="spec.config-property"><code>config</code></a> (object). Kafka topic configuration. See below for <a href="#spec.config">nested schema</a>.</li>
 <li><a href="#spec.tags-property" name="spec.tags-property"><code>tags</code></a> (array of objects). Kafka topic tags. See below for <a href="#spec.tags">nested schema</a>.</li>
 <li><a href="#spec.termination_protection-property" name="spec.termination_protection-property"><code>termination_protection</code></a> (boolean). It is a Kubernetes side deletion protections, which prevents the kafka topic
-from being deleted by Kubernetes. It is recommended to enable this for any production
-databases containing critical data.</li>
+    from being deleted by Kubernetes. It is recommended to enable this for any production
+    databases containing critical data.</li>
 <li><a href="#spec.topicName-property" name="spec.topicName-property"><code>topicName</code></a> (string, Immutable, MinLength: 1, MaxLength: 249). Topic name. If provided, is used instead of metadata.name.
-This field supports additional characters, has a longer length,
-and will replace metadata.name in future releases.</li>
+    This field supports additional characters, has a longer length,
+    and will replace metadata.name in future releases.</li>
 </ul>
 <h2 id="spec.authSecretRef">authSecretRef<a class="headerlink" href="#spec.authSecretRef" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -3140,32 +3186,34 @@ and will replace metadata.name in future releases.</li>
 <p>Kafka topic configuration.</p>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.config.cleanup_policy-property" name="spec.config.cleanup_policy-property"><code>cleanup_policy</code></a> (string). cleanup.policy value.</li>
-<li><a href="#spec.config.compression_type-property" name="spec.config.compression_type-property"><code>compression_type</code></a> (string). compression.type value.</li>
-<li><a href="#spec.config.delete_retention_ms-property" name="spec.config.delete_retention_ms-property"><code>delete_retention_ms</code></a> (integer). delete.retention.ms value.</li>
-<li><a href="#spec.config.file_delete_delay_ms-property" name="spec.config.file_delete_delay_ms-property"><code>file_delete_delay_ms</code></a> (integer). file.delete.delay.ms value.</li>
-<li><a href="#spec.config.flush_messages-property" name="spec.config.flush_messages-property"><code>flush_messages</code></a> (integer). flush.messages value.</li>
-<li><a href="#spec.config.flush_ms-property" name="spec.config.flush_ms-property"><code>flush_ms</code></a> (integer). flush.ms value.</li>
-<li><a href="#spec.config.index_interval_bytes-property" name="spec.config.index_interval_bytes-property"><code>index_interval_bytes</code></a> (integer). index.interval.bytes value.</li>
-<li><a href="#spec.config.local_retention_bytes-property" name="spec.config.local_retention_bytes-property"><code>local_retention_bytes</code></a> (integer). local.retention.bytes value.</li>
-<li><a href="#spec.config.local_retention_ms-property" name="spec.config.local_retention_ms-property"><code>local_retention_ms</code></a> (integer). local.retention.ms value.</li>
-<li><a href="#spec.config.max_compaction_lag_ms-property" name="spec.config.max_compaction_lag_ms-property"><code>max_compaction_lag_ms</code></a> (integer). max.compaction.lag.ms value.</li>
-<li><a href="#spec.config.max_message_bytes-property" name="spec.config.max_message_bytes-property"><code>max_message_bytes</code></a> (integer). max.message.bytes value.</li>
-<li><a href="#spec.config.message_downconversion_enable-property" name="spec.config.message_downconversion_enable-property"><code>message_downconversion_enable</code></a> (boolean). message.downconversion.enable value.</li>
-<li><a href="#spec.config.message_format_version-property" name="spec.config.message_format_version-property"><code>message_format_version</code></a> (string). message.format.version value.</li>
-<li><a href="#spec.config.message_timestamp_difference_max_ms-property" name="spec.config.message_timestamp_difference_max_ms-property"><code>message_timestamp_difference_max_ms</code></a> (integer). message.timestamp.difference.max.ms value.</li>
-<li><a href="#spec.config.message_timestamp_type-property" name="spec.config.message_timestamp_type-property"><code>message_timestamp_type</code></a> (string). message.timestamp.type value.</li>
-<li><a href="#spec.config.min_cleanable_dirty_ratio-property" name="spec.config.min_cleanable_dirty_ratio-property"><code>min_cleanable_dirty_ratio</code></a> (number). min.cleanable.dirty.ratio value.</li>
-<li><a href="#spec.config.min_compaction_lag_ms-property" name="spec.config.min_compaction_lag_ms-property"><code>min_compaction_lag_ms</code></a> (integer). min.compaction.lag.ms value.</li>
-<li><a href="#spec.config.min_insync_replicas-property" name="spec.config.min_insync_replicas-property"><code>min_insync_replicas</code></a> (integer). min.insync.replicas value.</li>
-<li><a href="#spec.config.preallocate-property" name="spec.config.preallocate-property"><code>preallocate</code></a> (boolean). preallocate value.</li>
-<li><a href="#spec.config.remote_storage_enable-property" name="spec.config.remote_storage_enable-property"><code>remote_storage_enable</code></a> (boolean). remote_storage_enable.</li>
-<li><a href="#spec.config.retention_bytes-property" name="spec.config.retention_bytes-property"><code>retention_bytes</code></a> (integer). retention.bytes value.</li>
-<li><a href="#spec.config.retention_ms-property" name="spec.config.retention_ms-property"><code>retention_ms</code></a> (integer). retention.ms value.</li>
-<li><a href="#spec.config.segment_bytes-property" name="spec.config.segment_bytes-property"><code>segment_bytes</code></a> (integer). segment.bytes value.</li>
-<li><a href="#spec.config.segment_index_bytes-property" name="spec.config.segment_index_bytes-property"><code>segment_index_bytes</code></a> (integer). segment.index.bytes value.</li>
-<li><a href="#spec.config.segment_jitter_ms-property" name="spec.config.segment_jitter_ms-property"><code>segment_jitter_ms</code></a> (integer). segment.jitter.ms value.</li>
-<li><a href="#spec.config.segment_ms-property" name="spec.config.segment_ms-property"><code>segment_ms</code></a> (integer). segment.ms value.</li>
+<li><a href="#spec.config.cleanup_policy-property" name="spec.config.cleanup_policy-property"><code>cleanup_policy</code></a> (string). The retention policy to use on old segments. Possible values include <code>delete</code>, <code>compact</code>, or a comma-separated list of them. The default policy (<code>delete</code>) will discard old segments when their retention time or size limit has been reached. The <code>compact</code> setting will enable log compaction on the topic.</li>
+<li><a href="#spec.config.compression_type-property" name="spec.config.compression_type-property"><code>compression_type</code></a> (string). Specify the final compression type for a given topic. This configuration accepts the standard compression codecs (<code>gzip</code>, <code>snappy</code>, <code>lz4</code>, <code>zstd</code>). It additionally accepts <code>uncompressed</code> which is equivalent to no compression; and <code>producer</code> which means retain the original compression codec set by the producer.</li>
+<li><a href="#spec.config.delete_retention_ms-property" name="spec.config.delete_retention_ms-property"><code>delete_retention_ms</code></a> (integer). The amount of time to retain delete tombstone markers for log compacted topics. This setting also gives a bound on the time in which a consumer must complete a read if they begin from offset 0 to ensure that they get a valid snapshot of the final stage (otherwise delete tombstones may be collected before they complete their scan).</li>
+<li><a href="#spec.config.file_delete_delay_ms-property" name="spec.config.file_delete_delay_ms-property"><code>file_delete_delay_ms</code></a> (integer). The time to wait before deleting a file from the filesystem.</li>
+<li><a href="#spec.config.flush_messages-property" name="spec.config.flush_messages-property"><code>flush_messages</code></a> (integer). This setting allows specifying an interval at which we will force an fsync of data written to the log. For example if this was set to 1 we would fsync after every message; if it were 5 we would fsync after every five messages. In general we recommend you not set this and use replication for durability and allow the operating system's background flush capabilities as it is more efficient.</li>
+<li><a href="#spec.config.flush_ms-property" name="spec.config.flush_ms-property"><code>flush_ms</code></a> (integer). This setting allows specifying a time interval at which we will force an fsync of data written to the log. For example if this was set to 1000 we would fsync after 1000 ms had passed. In general we recommend you not set this and use replication for durability and allow the operating system's background flush capabilities as it is more efficient.</li>
+<li><a href="#spec.config.index_interval_bytes-property" name="spec.config.index_interval_bytes-property"><code>index_interval_bytes</code></a> (integer). This setting controls how frequently Kafka adds an index entry to its offset index. The default setting ensures that we index a message roughly every 4096 bytes. More indexing allows reads to jump closer to the exact position in the log but makes the index larger. You probably don't need to change this.</li>
+<li><a href="#spec.config.inkless_enable-property" name="spec.config.inkless_enable-property"><code>inkless_enable</code></a> (boolean). Indicates whether inkless should be enabled.</li>
+<li><a href="#spec.config.local_retention_bytes-property" name="spec.config.local_retention_bytes-property"><code>local_retention_bytes</code></a> (integer). This configuration controls the maximum bytes tiered storage will retain segment files locally before it will discard old log segments to free up space. If set to -2, the limit is equal to overall retention time. If set to -1, no limit is applied but it's possible only if overall retention is also -1.</li>
+<li><a href="#spec.config.local_retention_ms-property" name="spec.config.local_retention_ms-property"><code>local_retention_ms</code></a> (integer). This configuration controls the maximum time tiered storage will retain segment files locally before it will discard old log segments to free up space. If set to -2, the time limit is equal to overall retention time. If set to -1, no time limit is applied but it's possible only if overall retention is also -1.</li>
+<li><a href="#spec.config.max_compaction_lag_ms-property" name="spec.config.max_compaction_lag_ms-property"><code>max_compaction_lag_ms</code></a> (integer). The maximum time a message will remain ineligible for compaction in the log. Only applicable for logs that are being compacted.</li>
+<li><a href="#spec.config.max_message_bytes-property" name="spec.config.max_message_bytes-property"><code>max_message_bytes</code></a> (integer). The largest record batch size allowed by Kafka (after compression if compression is enabled). If this is increased and there are consumers older than 0.10.2, the consumers' fetch size must also be increased so that the they can fetch record batches this large. In the latest message format version, records are always grouped into batches for efficiency. In previous message format versions, uncompressed records are not grouped into batches and this limit only applies to a single record in that case.</li>
+<li><a href="#spec.config.message_downconversion_enable-property" name="spec.config.message_downconversion_enable-property"><code>message_downconversion_enable</code></a> (boolean). This configuration controls whether down-conversion of message formats is enabled to satisfy consume requests. When set to false, broker will not perform down-conversion for consumers expecting an older message format. The broker responds with UNSUPPORTED_VERSION error for consume requests from such older clients. This configuration does not apply to any message format conversion that might be required for replication to followers.</li>
+<li><a href="#spec.config.message_format_version-property" name="spec.config.message_format_version-property"><code>message_format_version</code></a> (string). Specify the message format version the broker will use to append messages to the logs. The value should be a valid ApiVersion. Some examples are: 0.8.2, 0.9.0.0, 0.10.0, check ApiVersion for more details. By setting a particular message format version, the user is certifying that all the existing messages on disk are smaller or equal than the specified version. Setting this value incorrectly will cause consumers with older versions to break as they will receive messages with a format that they don't understand.</li>
+<li><a href="#spec.config.message_timestamp_difference_max_ms-property" name="spec.config.message_timestamp_difference_max_ms-property"><code>message_timestamp_difference_max_ms</code></a> (integer). The maximum difference allowed between the timestamp when a broker receives a message and the timestamp specified in the message. If message.timestamp.type=CreateTime, a message will be rejected if the difference in timestamp exceeds this threshold. This configuration is ignored if message.timestamp.type=LogAppendTime.</li>
+<li><a href="#spec.config.message_timestamp_type-property" name="spec.config.message_timestamp_type-property"><code>message_timestamp_type</code></a> (string). Define whether the timestamp in the message is message create time or log append time.</li>
+<li><a href="#spec.config.min_cleanable_dirty_ratio-property" name="spec.config.min_cleanable_dirty_ratio-property"><code>min_cleanable_dirty_ratio</code></a> (number). This configuration controls how frequently the log compactor will attempt to clean the log (assuming log compaction is enabled). By default we will avoid cleaning a log where more than 50% of the log has been compacted. This ratio bounds the maximum space wasted in the log by duplicates (at 50% at most 50% of the log could be duplicates). A higher ratio will mean fewer, more efficient cleanings but will mean more wasted space in the log. If the max.compaction.lag.ms or the min.compaction.lag.ms configurations are also specified, then the log compactor considers the log to be eligible for compaction as soon as either: (i) the dirty ratio threshold has been met and the log has had dirty (uncompacted) records for at least the min.compaction.lag.ms duration, or (ii) if the log has had dirty (uncompacted) records for at most the max.compaction.lag.ms period.</li>
+<li><a href="#spec.config.min_compaction_lag_ms-property" name="spec.config.min_compaction_lag_ms-property"><code>min_compaction_lag_ms</code></a> (integer). The minimum time a message will remain uncompacted in the log. Only applicable for logs that are being compacted.</li>
+<li><a href="#spec.config.min_insync_replicas-property" name="spec.config.min_insync_replicas-property"><code>min_insync_replicas</code></a> (integer). When a producer sets acks to <code>all</code> (or <code>-1</code>), this configuration specifies the minimum number of replicas that must acknowledge a write for the write to be considered successful. If this minimum cannot be met, then the producer will raise an exception (either NotEnoughReplicas or NotEnoughReplicasAfterAppend). When used together, min.insync.replicas and acks allow you to enforce greater durability guarantees. A typical scenario would be to create a topic with a replication factor of 3, set min.insync.replicas to 2, and produce with acks of <code>all</code>. This will ensure that the producer raises an exception if a majority of replicas do not receive a write.</li>
+<li><a href="#spec.config.preallocate-property" name="spec.config.preallocate-property"><code>preallocate</code></a> (boolean). True if we should preallocate the file on disk when creating a new log segment.</li>
+<li><a href="#spec.config.remote_storage_enable-property" name="spec.config.remote_storage_enable-property"><code>remote_storage_enable</code></a> (boolean). Indicates whether tiered storage should be enabled.</li>
+<li><a href="#spec.config.retention_bytes-property" name="spec.config.retention_bytes-property"><code>retention_bytes</code></a> (integer). This configuration controls the maximum size a partition (which consists of log segments) can grow to before we will discard old log segments to free up space if we are using the <code>delete</code> retention policy. By default there is no size limit only a time limit. Since this limit is enforced at the partition level, multiply it by the number of partitions to compute the topic retention in bytes.</li>
+<li><a href="#spec.config.retention_ms-property" name="spec.config.retention_ms-property"><code>retention_ms</code></a> (integer). This configuration controls the maximum time we will retain a log before we will discard old log segments to free up space if we are using the <code>delete</code> retention policy. This represents an SLA on how soon consumers must read their data. If set to -1, no time limit is applied.</li>
+<li><a href="#spec.config.segment_bytes-property" name="spec.config.segment_bytes-property"><code>segment_bytes</code></a> (integer). This configuration controls the segment file size for the log. Retention and cleaning is always done a file at a time so a larger segment size means fewer files but less granular control over retention. Setting this to a very low value has consequences, and the Aiven management plane ignores values less than 10 megabytes.</li>
+<li><a href="#spec.config.segment_index_bytes-property" name="spec.config.segment_index_bytes-property"><code>segment_index_bytes</code></a> (integer). This configuration controls the size of the index that maps offsets to file positions. We preallocate this index file and shrink it only after log rolls. You generally should not need to change this setting.</li>
+<li><a href="#spec.config.segment_jitter_ms-property" name="spec.config.segment_jitter_ms-property"><code>segment_jitter_ms</code></a> (integer). The maximum random jitter subtracted from the scheduled segment roll time to avoid thundering herds of segment rolling.</li>
+<li><a href="#spec.config.segment_ms-property" name="spec.config.segment_ms-property"><code>segment_ms</code></a> (integer). This configuration controls the period of time after which Kafka will force the log to roll even if the segment file isn't full to ensure that retention can delete or compact old data. Setting this to a very low value has consequences, and the Aiven management plane ignores values less than 10 seconds.</li>
+<li><a href="#spec.config.unclean_leader_election_enable-property" name="spec.config.unclean_leader_election_enable-property"><code>unclean_leader_election_enable</code></a> (boolean). Indicates whether to enable replicas not in the ISR set to be elected as leader as a last resort, even though doing so may result in data loss.</li>
 </ul>
 <h2 id="spec.tags">tags<a class="headerlink" href="#spec.tags" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -3281,10 +3329,10 @@ and will replace metadata.name in future releases.</li>
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.tracking", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view", "content.tabs.link"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.tracking", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view", "content.tabs.link"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      <script src="../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
     
   </body>

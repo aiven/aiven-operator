@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.2afb09e1.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -1406,6 +1406,29 @@
   
   
     <li class="md-nav__item">
+      <a href="kafkanativeacl.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    KafkaNativeACL
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="kafkaschema.html" class="md-nav__link">
         
   
@@ -2505,6 +2528,29 @@
   
   <span class="md-ellipsis">
     KafkaConnector
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafkanativeacl.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    KafkaNativeACL
     
   </span>
   
@@ -3780,11 +3826,25 @@
 <li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Secret configuration. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
 <li><a href="#spec.connInfoSecretTargetDisabled-property" name="spec.connInfoSecretTargetDisabled-property"><code>connInfoSecretTargetDisabled</code></a> (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.</li>
 <li><a href="#spec.disk_space-property" name="spec.disk_space-property"><code>disk_space</code></a> (string, Pattern: <code>(?i)^[1-9][0-9]*(GiB|G)?$</code>). The disk space of the service, possible values depend on the service type, the cloud provider and the project.
-Reducing will result in the service re-balancing.
-The removal of this field does not change the value.</li>
+    Reducing will result in the service re-balancing.
+    The removal of this field does not change the value.</li>
 <li><a href="#spec.karapace-property" name="spec.karapace-property"><code>karapace</code></a> (boolean). Switch the service to use Karapace for schema registry and REST proxy.</li>
 <li><a href="#spec.maintenanceWindowDow-property" name="spec.maintenanceWindowDow-property"><code>maintenanceWindowDow</code></a> (string, Enum: <code>monday</code>, <code>tuesday</code>, <code>wednesday</code>, <code>thursday</code>, <code>friday</code>, <code>saturday</code>, <code>sunday</code>). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.</li>
 <li><a href="#spec.maintenanceWindowTime-property" name="spec.maintenanceWindowTime-property"><code>maintenanceWindowTime</code></a> (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.</li>
+<li><a href="#spec.powered-property" name="spec.powered-property"><code>powered</code></a> (boolean, Default value: <code>true</code>). Determines the power state of the service. When <code>true</code> (default), the service is running.
+    When <code>false</code>, the service is powered off.
+    For more information please see <a href="https://aiven.io/docs/platform/concepts/service-power-cycle">Aiven documentation</a>.
+    Note that:<ul>
+<li>When set to <code>false</code> the annotation <code>controllers.aiven.io/instance-is-running</code> is also set to <code>false</code>.</li>
+<li>Services cannot be created in a powered off state. The value is ignored during creation.</li>
+<li>It is highly recommended to not run dependent resources when the service is powered off.
+  Creating a new resource or updating an existing resource that depends on a powered off service will result in an error.
+  Existing resources will need to be manually recreated after the service is powered on.</li>
+<li>Existing secrets will not be updated or removed when the service is powered off.</li>
+<li>For Kafka services with backups: Topic configuration, schemas and connectors are all backed up, but not the data in topics. All topic data is lost on power off.</li>
+<li>For Kafka services without backups: Topic configurations including all topic data is lost on power off.</li>
+</ul>
+</li>
 <li><a href="#spec.projectVPCRef-property" name="spec.projectVPCRef-property"><code>projectVPCRef</code></a> (object). ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically. See below for <a href="#spec.projectVPCRef">nested schema</a>.</li>
 <li><a href="#spec.projectVpcId-property" name="spec.projectVpcId-property"><code>projectVpcId</code></a> (string, MaxLength: 36). Identifier of the VPC the service should be in, if any.</li>
 <li><a href="#spec.serviceIntegrations-property" name="spec.serviceIntegrations-property"><code>serviceIntegrations</code></a> (array of objects, Immutable, MaxItems: 1). Service integrations to specify when creating a service. Not applied after initial service creation. See below for <a href="#spec.serviceIntegrations">nested schema</a>.</li>
@@ -3813,8 +3873,8 @@ The removal of this field does not change the value.</li>
 <li><a href="#spec.connInfoSecretTarget.annotations-property" name="spec.connInfoSecretTarget.annotations-property"><code>annotations</code></a> (object, AdditionalProperties: string). Annotations added to the secret.</li>
 <li><a href="#spec.connInfoSecretTarget.labels-property" name="spec.connInfoSecretTarget.labels-property"><code>labels</code></a> (object, AdditionalProperties: string). Labels added to the secret.</li>
 <li><a href="#spec.connInfoSecretTarget.prefix-property" name="spec.connInfoSecretTarget.prefix-property"><code>prefix</code></a> (string). Prefix for the secret's keys.
-Added "as is" without any transformations.
-By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFKA_</code>, <code>REDIS_</code>, etc.</li>
+    Added "as is" without any transformations.
+    By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFKA_</code>, <code>REDIS_</code>, etc.</li>
 </ul>
 <h2 id="spec.projectVPCRef">projectVPCRef<a class="headerlink" href="#spec.projectVPCRef" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -3851,7 +3911,7 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
 <li><a href="#spec.userConfig.aiven_kafka_topic_messages-property" name="spec.userConfig.aiven_kafka_topic_messages-property"><code>aiven_kafka_topic_messages</code></a> (boolean). Allow access to read Kafka topic messages in the Aiven Console and REST API.</li>
 <li><a href="#spec.userConfig.custom_domain-property" name="spec.userConfig.custom_domain-property"><code>custom_domain</code></a> (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name.</li>
 <li><a href="#spec.userConfig.follower_fetching-property" name="spec.userConfig.follower_fetching-property"><code>follower_fetching</code></a> (object). Enable follower fetching. See below for <a href="#spec.userConfig.follower_fetching">nested schema</a>.</li>
-<li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 2048). Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
+<li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 8000). Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
 <li><a href="#spec.userConfig.kafka-property" name="spec.userConfig.kafka-property"><code>kafka</code></a> (object). Kafka broker configuration values. See below for <a href="#spec.userConfig.kafka">nested schema</a>.</li>
 <li><a href="#spec.userConfig.kafka_authentication_methods-property" name="spec.userConfig.kafka_authentication_methods-property"><code>kafka_authentication_methods</code></a> (object). Kafka authentication methods. See below for <a href="#spec.userConfig.kafka_authentication_methods">nested schema</a>.</li>
 <li><a href="#spec.userConfig.kafka_connect-property" name="spec.userConfig.kafka_connect-property"><code>kafka_connect</code></a> (boolean). Enable Kafka Connect service.</li>
@@ -4216,10 +4276,10 @@ By default, is equal to the kind name in uppercase + underscore, e.g. <code>KAFK
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.tracking", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view", "content.tabs.link"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.tracking", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view", "content.tabs.link"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      <script src="../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
     
   </body>

@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.2afb09e1.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.342714a4.min.css">
       
         
         <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
@@ -466,6 +466,15 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0300-2025-07-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      v0.30.0 - 2025-07-03
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v0290-2025-04-29" class="md-nav__link">
@@ -1466,6 +1475,29 @@
   
   
     <li class="md-nav__item">
+      <a href="resources/kafkanativeacl.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    KafkaNativeACL
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="resources/kafkaschema.html" class="md-nav__link">
         
   
@@ -2253,6 +2285,29 @@
   
   <span class="md-ellipsis">
     KafkaConnector
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="resources/kafkanativeacl.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    KafkaNativeACL
     
   </span>
   
@@ -3123,6 +3178,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0300-2025-07-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      v0.30.0 - 2025-07-03
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0290-2025-04-29" class="md-nav__link">
     <span class="md-ellipsis">
       v0.29.0 - 2025-04-29
@@ -3456,6 +3520,38 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0300-2025-07-03">v0.30.0 - 2025-07-03<a class="headerlink" href="#v0300-2025-07-03" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Added <code>powered</code> field (default: <code>true</code>) to control service power state. When <code>false</code>, the service is powered off.
+  Note: Kafka services without backups will lose topic data on power off. See field description for more information.</li>
+<li>Completely replace the old go client with the new one, which is generated from the OpenAPI spec</li>
+<li>Change <code>PostgreSQL</code> field <code>userConfig.pg_version</code>: enum remove <code>12</code></li>
+<li>Add <code>KafkaTopic</code> field <code>config.inkless_enable</code>, type <code>boolean</code>: Indicates whether inkless should be enabled</li>
+<li>Add <code>KafkaTopic</code> field <code>config.unclean_leader_election_enable</code>, type <code>boolean</code>: Indicates whether to
+  enable replicas not in the ISR set to be elected as leader as a last resort, even though doing so
+  may result in data loss</li>
+<li>Refactor <code>KafkaTopic</code>: replace HTTP client with code-generated one to improve maintainability and type safety</li>
+<li>Add kind: <code>KafkaNativeACL</code>. Creates and manages Kafka-native access control lists (ACLs) for an Aiven for Apache Kafka® service.</li>
+<li>Add key <code>OPENSEARCH_URI</code> to <code>OpenSearch</code> service secrets: Contains the OpenSearch service URI.</li>
+<li>Change <code>KafkaSchema</code> fields <code>schemaType</code> and <code>subjectName</code> to be immutable since these fields cannot be modified after creation in the Kafka Schema Registry API</li>
+<li>Improve <code>KafkaSchema</code> controller: optimize polling and add better error handling</li>
+<li>Improve <code>KafkaTopic</code>: better handle API 5xx errors.</li>
+<li>Improve <code>KafkaConnector</code>: better handle API 404 and 5xx errors.</li>
+<li>Fix webhooks <code>containerPort</code> configuration not being properly applied in deployment template</li>
+<li>Change <code>AlloyDBOmni</code>, <code>Cassandra</code>, <code>Clickhouse</code>, <code>Flink</code>, <code>Grafana</code>, <code>KafkaConnect</code>, <code>Kafka</code>, <code>MySQL</code>, <code>OpenSearch</code>, <code>PostgreSQL</code>, <code>Redis</code>, <code>Valkey</code> field <code>userConfig.ip_filter</code>: maxItems <del><code>2048</code></del> → <code>8000</code></li>
+<li>Add <code>Clickhouse</code> field <code>userConfig.enable_ipv6</code>, type <code>boolean</code>: Register AAAA DNS records for the
+  service, and allow IPv6 packets to service ports</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.opensearch.cluster.filecache.remote_data_ratio</code>, type <code>number</code>:
+  Defines a limit of how much total remote data can be referenced as a ratio of the size of the disk
+  reserved for the file cache</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.opensearch.cluster.remote_store</code>, type <code>object</code>: no description</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.opensearch.enable_snapshot_api</code>, type <code>boolean</code>: Enable/Disable
+  snapshot API for custom repositories, this requires security management to be enabled</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.opensearch.node.search.cache.size</code>, type <code>string</code>: Defines a limit
+  of how much total remote data can be referenced as a ratio of the size of the disk reserved for
+  the file cache</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.opensearch.remote_store</code>, type <code>object</code>: no description</li>
+</ul>
 <h2 id="v0290-2025-04-29">v0.29.0 - 2025-04-29<a class="headerlink" href="#v0290-2025-04-29" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Added retry logic to the <code>ServiceIntegration</code> controller</li>
@@ -4183,10 +4279,10 @@ as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-be
     
     
       
-      <script id="__config" type="application/json">{"base": ".", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.tracking", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view", "content.tabs.link"], "search": "assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": ".", "features": ["navigation.top", "navigation.footer", "navigation.tabs", "navigation.tracking", "navigation.sections", "content.code.copy", "content.code.annotate", "content.action.view", "content.tabs.link"], "search": "assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.c8b220af.min.js"></script>
+      <script src="assets/javascripts/bundle.56ea9cef.min.js"></script>
       
     
   </body>
