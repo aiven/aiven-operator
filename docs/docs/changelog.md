@@ -1,6 +1,38 @@
 # Changelog
 
 
+## v0.30.0 - 2025-07-03
+
+- Added `powered` field (default: `true`) to control service power state. When `false`, the service is powered off.
+  Note: Kafka services without backups will lose topic data on power off. See field description for more information.
+- Completely replace the old go client with the new one, which is generated from the OpenAPI spec
+- Change `PostgreSQL` field `userConfig.pg_version`: enum remove `12`
+- Add `KafkaTopic` field `config.inkless_enable`, type `boolean`: Indicates whether inkless should be enabled
+- Add `KafkaTopic` field `config.unclean_leader_election_enable`, type `boolean`: Indicates whether to
+  enable replicas not in the ISR set to be elected as leader as a last resort, even though doing so
+  may result in data loss
+- Refactor `KafkaTopic`: replace HTTP client with code-generated one to improve maintainability and type safety
+- Add kind: `KafkaNativeACL`. Creates and manages Kafka-native access control lists (ACLs) for an Aiven for Apache Kafka® service.
+- Add key `OPENSEARCH_URI` to `OpenSearch` service secrets: Contains the OpenSearch service URI.
+- Change `KafkaSchema` fields `schemaType` and `subjectName` to be immutable since these fields cannot be modified after creation in the Kafka Schema Registry API
+- Improve `KafkaSchema` controller: optimize polling and add better error handling
+- Improve `KafkaTopic`: better handle API 5xx errors.
+- Improve `KafkaConnector`: better handle API 404 and 5xx errors.
+- Fix webhooks `containerPort` configuration not being properly applied in deployment template
+- Change `AlloyDBOmni`, `Cassandra`, `Clickhouse`, `Flink`, `Grafana`, `KafkaConnect`, `Kafka`, `MySQL`, `OpenSearch`, `PostgreSQL`, `Redis`, `Valkey` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
+- Add `Clickhouse` field `userConfig.enable_ipv6`, type `boolean`: Register AAAA DNS records for the
+  service, and allow IPv6 packets to service ports
+- Add `OpenSearch` field `userConfig.opensearch.cluster.filecache.remote_data_ratio`, type `number`:
+  Defines a limit of how much total remote data can be referenced as a ratio of the size of the disk
+  reserved for the file cache
+- Add `OpenSearch` field `userConfig.opensearch.cluster.remote_store`, type `object`: no description
+- Add `OpenSearch` field `userConfig.opensearch.enable_snapshot_api`, type `boolean`: Enable/Disable
+  snapshot API for custom repositories, this requires security management to be enabled
+- Add `OpenSearch` field `userConfig.opensearch.node.search.cache.size`, type `string`: Defines a limit
+  of how much total remote data can be referenced as a ratio of the size of the disk reserved for
+  the file cache
+- Add `OpenSearch` field `userConfig.opensearch.remote_store`, type `object`: no description
+
 ## v0.29.0 - 2025-04-29
 
 - Added retry logic to the `ServiceIntegration` controller
