@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.30.0 - 2025-07-03
+
 - Added `powered` field (default: `true`) to control service power state. When `false`, the service is powered off.
   Note: Kafka services without backups will lose topic data on power off. See field description for more information.
 - Completely replace the old go client with the new one, which is generated from the OpenAPI spec
@@ -18,16 +20,9 @@
 - Improve `KafkaTopic`: better handle API 5xx errors.
 - Improve `KafkaConnector`: better handle API 404 and 5xx errors.
 - Fix webhooks `containerPort` configuration not being properly applied in deployment template
-- Change `AlloyDBOmni` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
-- Change `Cassandra` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
+- Change `AlloyDBOmni`, `Cassandra`, `Clickhouse`, `Flink`, `Grafana`, `KafkaConnect`, `Kafka`, `MySQL`, `OpenSearch`, `PostgreSQL`, `Redis`, `Valkey` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
 - Add `Clickhouse` field `userConfig.enable_ipv6`, type `boolean`: Register AAAA DNS records for the
   service, and allow IPv6 packets to service ports
-- Change `Clickhouse` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
-- Change `Flink` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
-- Change `Grafana` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
-- Change `KafkaConnect` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
-- Change `Kafka` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
-- Change `MySQL` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
 - Add `OpenSearch` field `userConfig.opensearch.cluster.filecache.remote_data_ratio`, type `number`:
   Defines a limit of how much total remote data can be referenced as a ratio of the size of the disk
   reserved for the file cache
@@ -38,10 +33,6 @@
   of how much total remote data can be referenced as a ratio of the size of the disk reserved for
   the file cache
 - Add `OpenSearch` field `userConfig.opensearch.remote_store`, type `object`: no description
-- Change `OpenSearch` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
-- Change `PostgreSQL` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
-- Change `Redis` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
-- Change `Valkey` field `userConfig.ip_filter`: maxItems ~~`2048`~~ → `8000`
 
 ## v0.29.0 - 2025-04-29
 
