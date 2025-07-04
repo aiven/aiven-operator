@@ -12,6 +12,11 @@ type ServiceUserSpec struct {
 	ServiceDependant `json:",inline"`
 	SecretFields     `json:",inline"`
 
+	// Source secret containing connection parameters to merge with generated connection information.
+	// When specified, the operator will read the source secret and merge its data with the connection information from Aiven.
+	// The final merged secret will be stored at the location specified by connInfoSecretTarget.
+	ConnInfoSecretSource *ConnInfoSecretSource `json:"connInfoSecretSource,omitempty"`
+
 	// +kubebuilder:validation:Enum=caching_sha2_password;mysql_native_password
 	// Authentication details
 	Authentication service.AuthenticationType `json:"authentication,omitempty"`
@@ -42,7 +47,10 @@ type ServiceUser struct {
 	Status ServiceUserStatus `json:"status,omitempty"`
 }
 
-var _ AivenManagedObject = &ServiceUser{}
+var (
+	_ AivenManagedObject   = &ServiceUser{}
+	_ SecretSourceProvider = &ServiceUser{}
+)
 
 func (in *ServiceUser) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
@@ -58,6 +66,14 @@ func (in *ServiceUser) NoSecret() bool {
 
 func (in *ServiceUser) GetConnInfoSecretTarget() ConnInfoSecretTarget {
 	return in.Spec.ConnInfoSecretTarget
+}
+
+func (in *ServiceUser) GetConnInfoSecretSource() *ConnInfoSecretSource {
+	return in.Spec.ConnInfoSecretSource
+}
+
+func (in *ServiceUser) GetTargetUsername() string {
+	return in.Name
 }
 
 // +kubebuilder:object:root=true

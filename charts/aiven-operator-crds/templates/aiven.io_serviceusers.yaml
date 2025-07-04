@@ -70,6 +70,26 @@ spec:
                     - caching_sha2_password
                     - mysql_native_password
                   type: string
+                connInfoSecretSource:
+                  description: |-
+                    Source secret containing connection parameters to merge with generated connection information.
+                    When specified, the operator will read the source secret and merge its data with the connection information from Aiven.
+                    The final merged secret will be stored at the location specified by connInfoSecretTarget.
+                  properties:
+                    name:
+                      description:
+                        Name of the secret resource to read connection parameters
+                        from
+                      minLength: 1
+                      type: string
+                    namespace:
+                      description:
+                        Namespace of the source secret. If not specified,
+                        defaults to the same namespace as the resource
+                      type: string
+                  required:
+                    - name
+                  type: object
                 connInfoSecretTarget:
                   description: Secret configuration.
                   properties:

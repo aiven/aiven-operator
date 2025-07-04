@@ -105,6 +105,9 @@ ServiceUserSpec defines the desired state of ServiceUser.
 
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
 - [`authentication`](#spec.authentication-property){: name='spec.authentication-property'} (string, Enum: `caching_sha2_password`, `mysql_native_password`). Authentication details.
+- [`connInfoSecretSource`](#spec.connInfoSecretSource-property){: name='spec.connInfoSecretSource-property'} (object). Source secret containing connection parameters to merge with generated connection information.
+    When specified, the operator will read the source secret and merge its data with the connection information from Aiven.
+    The final merged secret will be stored at the location specified by connInfoSecretTarget. See below for [nested schema](#spec.connInfoSecretSource).
 - [`connInfoSecretTarget`](#spec.connInfoSecretTarget-property){: name='spec.connInfoSecretTarget-property'} (object). Secret configuration. See below for [nested schema](#spec.connInfoSecretTarget).
 - [`connInfoSecretTargetDisabled`](#spec.connInfoSecretTargetDisabled-property){: name='spec.connInfoSecretTargetDisabled-property'} (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
 
@@ -118,6 +121,22 @@ Authentication reference to Aiven token in a secret.
 
 - [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1).
 - [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1).
+
+## connInfoSecretSource {: #spec.connInfoSecretSource }
+
+_Appears on [`spec`](#spec)._
+
+Source secret containing connection parameters to merge with generated connection information.
+When specified, the operator will read the source secret and merge its data with the connection information from Aiven.
+The final merged secret will be stored at the location specified by connInfoSecretTarget.
+
+**Required**
+
+- [`name`](#spec.connInfoSecretSource.name-property){: name='spec.connInfoSecretSource.name-property'} (string, MinLength: 1). Name of the secret resource to read connection parameters from.
+
+**Optional**
+
+- [`namespace`](#spec.connInfoSecretSource.namespace-property){: name='spec.connInfoSecretSource.namespace-property'} (string). Namespace of the source secret. If not specified, defaults to the same namespace as the resource.
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 

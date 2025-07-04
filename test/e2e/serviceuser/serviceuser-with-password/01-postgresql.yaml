@@ -1,0 +1,21 @@
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: k8s-e2e-postgres-password
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: pg-secret
+
+  project: aiven-ci-kubernetes-operator
+
+  cloudName: google-europe-west1
+  plan: startup-4
+
+  userConfig:
+    ip_filter:
+      - network: 0.0.0.0
+        description: allow all
