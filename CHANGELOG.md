@@ -2,6 +2,11 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Change `AlloyDBOmni` field `userConfig.pg.max_wal_senders`: maximum ~~`64`~~ → `256`
+- Add `Kafka` field `userConfig.single_zone.availability_zone`, type `string`: The availability zone
+  to use for the service. This is only used when enabled is set to true
+- Change `PostgreSQL` field `userConfig.pg.max_wal_senders`: maximum ~~`64`~~ → `256`
+
 ## v0.30.0 - 2025-07-03
 
 - Added `powered` field (default: `true`) to control service power state. When `false`, the service is powered off.

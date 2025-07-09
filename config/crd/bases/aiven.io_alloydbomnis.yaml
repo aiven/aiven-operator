@@ -621,7 +621,7 @@ spec:
                           description:
                             PostgreSQL maximum WAL senders. The default is
                             `20`. Changing this parameter causes a service restart.
-                          maximum: 64
+                          maximum: 256
                           minimum: 20
                           type: integer
                         max_worker_processes:
