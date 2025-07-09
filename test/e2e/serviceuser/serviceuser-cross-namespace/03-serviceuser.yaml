@@ -1,0 +1,19 @@
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUser
+metadata:
+  name: crossnsuser
+  namespace: serviceuser-test-ns
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: crossnsuser-secret
+
+  connInfoSecretSource:
+    name: source-credentials
+    passwordKey: PASSWORD
+
+  project: aiven-ci-kubernetes-operator
+  serviceName: k8s-e2e-postgres-cross-ns

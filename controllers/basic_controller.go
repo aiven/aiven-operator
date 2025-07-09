@@ -469,6 +469,7 @@ func (i *instanceReconcilerHelper) updateInstanceStateAndSecretUntilRunning(ctx 
 	// Needs to be before o.NoSecret() check because `get` mutates the object's metadata annotations.
 	// It set the instanceIsRunningAnnotation annotation when the instance is running on Aiven's side.
 	secret, err := i.h.get(ctx, i.avnGen, o)
+
 	if secret == nil || err != nil {
 		return err
 	}

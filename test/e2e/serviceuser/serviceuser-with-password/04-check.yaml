@@ -1,0 +1,21 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - script: |
+      # Wait for secret creation
+      while ! kubectl --namespace $NAMESPACE get secret passworduser-secret >/dev/null 2>&1; do
+        sleep 5
+      done
+
+      # Verify required fields exist
+      kubectl --namespace $NAMESPACE get secret passworduser-secret -o jsonpath='{.data.PASSWORD}' | base64 -d >/dev/null
+      kubectl --namespace $NAMESPACE get secret passworduser-secret -o jsonpath='{.data.USERNAME}' | base64 -d >/dev/null
+
+      # Verify the password matches our predefined one
+      actual_password=$(kubectl --namespace $NAMESPACE get secret passworduser-secret -o jsonpath='{.data.PASSWORD}' | base64 -d)
+      if [ "$actual_password" = "MyCustomPassword123!" ]; then
+        echo "✓ Password matches predefined value"
+      else
+        echo "✗ Password mismatch: expected 'MyCustomPassword123!', got '$actual_password'"
+        exit 1
+      fi

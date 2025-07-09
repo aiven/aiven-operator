@@ -40,6 +40,21 @@ type ConnInfoSecretTarget struct {
 	Prefix string `json:"prefix,omitempty"`
 }
 
+// ConnInfoSecretSource contains information about existing secret to read connection parameters from.
+// IMPORTANT: The source secret is not watched for changes. If you update the password in the source secret,
+// you must trigger a reconciliation (e.g., by adding an annotation) to apply the new password.
+type ConnInfoSecretSource struct {
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:MinLength=1
+	// Name of the secret resource to read connection parameters from
+	Name string `json:"name"`
+	// Namespace of the source secret. If not specified, defaults to the same namespace as the resource
+	Namespace string `json:"namespace,omitempty"`
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:MinLength=1
+	PasswordKey string `json:"passwordKey"`
+}
+
 // ServiceStatus defines the observed state of service
 type ServiceStatus struct {
 	// Conditions represent the latest available observations of a service state

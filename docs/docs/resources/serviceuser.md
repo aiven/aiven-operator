@@ -2,33 +2,110 @@
 title: "ServiceUser"
 ---
 
-## Usage example
+## Usage examples
 
 !!! note "Prerequisites"
 	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
 	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-```yaml linenums="1"
-apiVersion: aiven.io/v1alpha1
-kind: ServiceUser
-metadata:
-  name: my-service-user
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
+	
+=== "custom_credentials"
 
-  connInfoSecretTarget:
-    name: service-user-secret
-    prefix: MY_SECRET_PREFIX_
-    annotations:
-      foo: bar
-    labels:
-      baz: egg
+    ```yaml linenums="1"
+    # This example demonstrates how to use ServiceUser with connInfoSecretSource
+    # for credential management. The ServiceUser will use a
+    # predefined password from an existing secret.
+    
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: predefined-credentials
+    data:
+      # MySecurePassword123! base64 encoded
+      PASSWORD: TXlTZWN1cmVQYXNzd29yZDEyMyE= # gitleaks:allow
+    
+    ---
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: PostgreSQL
+    metadata:
+      name: my-postgresql
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      cloudName: google-europe-west1
+      plan: startup-4
+    
+      connInfoSecretTarget:
+        name: postgresql-connection
+        prefix: PG_
+        annotations:
+          example: postgresql-service
+        labels:
+          service: postgresql
+    
+    ---
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: ServiceUser
+    metadata:
+      name: my-service-user
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      connInfoSecretTarget:
+        name: service-user-secret
+        prefix: MY_SECRET_PREFIX_
+        annotations:
+          foo: bar
+        labels:
+          baz: egg
+    
+      # Use existing secret for credential management
+      connInfoSecretSource:
+        name: predefined-credentials
+        # namespace: my-namespace  # Optional: defaults to same namespace as ServiceUser
+        passwordKey: PASSWORD
+    
+      project: aiven-project-name
+      serviceName: my-postgresql
+    ```
 
-  project: aiven-project-name
-  serviceName: my-service-name
-```
+	
+=== "example"
+
+    ```yaml linenums="1"
+    apiVersion: aiven.io/v1alpha1
+    kind: ServiceUser
+    metadata:
+      name: my-service-user
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      connInfoSecretTarget:
+        name: service-user-secret
+        prefix: MY_SECRET_PREFIX_
+        annotations:
+          foo: bar
+        labels:
+          baz: egg
+    
+      # Optional: Use existing secret for credential management
+      # connInfoSecretSource:
+      #   name: predefined-credentials
+      #   namespace: my-namespace  # Optional: defaults to same namespace as ServiceUser
+      #   passwordKey: PASSWORD
+    
+      project: aiven-project-name
+      serviceName: my-service-name
+    ```
 
 Apply the resource with:
 
@@ -44,8 +121,8 @@ kubectl get serviceusers my-service-user
 
 The output is similar to the following:
 ```shell
-Name               Service Name       Project               
-my-service-user    my-service-name    aiven-project-name    
+Name               Service Name     Project               
+my-service-user    my-postgresql    aiven-project-name    
 ```
 
 To view the details of the `Secret`, use the following command:
@@ -78,6 +155,8 @@ The output is similar to the following:
 ## ServiceUser {: #ServiceUser }
 
 ServiceUser is the Schema for the serviceusers API.
+Creates a service user for accessing Aiven services. The ServiceUser resource name becomes the username in Aiven.
+Built-in users like `avnadmin` cannot be deleted but their passwords can be modified using connInfoSecretSource.
 
 !!! Info "Exposes secret keys"
 
@@ -105,6 +184,15 @@ ServiceUserSpec defines the desired state of ServiceUser.
 
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
 - [`authentication`](#spec.authentication-property){: name='spec.authentication-property'} (string, Enum: `caching_sha2_password`, `mysql_native_password`). Authentication details.
+- [`connInfoSecretSource`](#spec.connInfoSecretSource-property){: name='spec.connInfoSecretSource-property'} (object). ConnInfoSecretSource allows specifying an existing secret to read credentials from.
+    The password from this secret will be used to modify the service user credentials.
+    Password must be 8-256 characters long as per Aiven API requirements.
+    This can be used to set passwords for new users or modify passwords for existing users (e.g., avnadmin).
+
+    !!! Note
+
+        This secret is not watched - changes to the source secret require manual reconciliation.
+        To apply password changes, trigger reconciliation by adding/updating an annotation on the ServiceUser. See below for [nested schema](#spec.connInfoSecretSource).
 - [`connInfoSecretTarget`](#spec.connInfoSecretTarget-property){: name='spec.connInfoSecretTarget-property'} (object). Secret configuration. See below for [nested schema](#spec.connInfoSecretTarget).
 - [`connInfoSecretTargetDisabled`](#spec.connInfoSecretTargetDisabled-property){: name='spec.connInfoSecretTargetDisabled-property'} (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
 
@@ -118,6 +206,29 @@ Authentication reference to Aiven token in a secret.
 
 - [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1).
 - [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1).
+
+## connInfoSecretSource {: #spec.connInfoSecretSource }
+
+_Appears on [`spec`](#spec)._
+
+ConnInfoSecretSource allows specifying an existing secret to read credentials from.
+The password from this secret will be used to modify the service user credentials.
+Password must be 8-256 characters long as per Aiven API requirements.
+This can be used to set passwords for new users or modify passwords for existing users (e.g., avnadmin).
+
+!!! Note
+
+    This secret is not watched - changes to the source secret require manual reconciliation.
+    To apply password changes, trigger reconciliation by adding/updating an annotation on the ServiceUser.
+
+**Required**
+
+- [`name`](#spec.connInfoSecretSource.name-property){: name='spec.connInfoSecretSource.name-property'} (string, MinLength: 1). Name of the secret resource to read connection parameters from.
+- [`passwordKey`](#spec.connInfoSecretSource.passwordKey-property){: name='spec.connInfoSecretSource.passwordKey-property'} (string, MinLength: 1).
+
+**Optional**
+
+- [`namespace`](#spec.connInfoSecretSource.namespace-property){: name='spec.connInfoSecretSource.namespace-property'} (string). Namespace of the source secret. If not specified, defaults to the same namespace as the resource.
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 
