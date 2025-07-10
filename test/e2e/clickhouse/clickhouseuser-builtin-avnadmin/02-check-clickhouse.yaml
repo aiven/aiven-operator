@@ -1,0 +1,19 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - script: |
+      timeout=900
+      while [ $timeout -gt 0 ]; do
+        if kubectl --namespace $NAMESPACE get clickhouse k8s-e2e-test-ch-builtin-user -o jsonpath='{.status.conditions[?(@.type=="Running")].status}' | grep -q "True"; then
+          echo "ClickHouse service is running"
+          break
+        fi
+        echo "Waiting for ClickHouse service to be running..."
+        sleep 10
+        timeout=$((timeout - 10))
+      done
+
+      if [ $timeout -le 0 ]; then
+        echo "Timeout waiting for ClickHouse service to be running"
+        exit 1
+      fi

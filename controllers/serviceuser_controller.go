@@ -12,7 +12,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -28,12 +27,6 @@ func newServiceUserReconciler(c Controller) reconcilerType {
 	return &ServiceUserReconciler{Controller: c}
 }
 
-const (
-	// avnadminBuiltInUser is the built-in admin user that cannot be deleted
-	// This is an exception case - built-in users are created automatically by Aiven
-	avnadminBuiltInUser = "avnadmin"
-)
-
 type ServiceUserHandler struct {
 	k8s client.Client
 }
@@ -43,7 +36,10 @@ type ServiceUserHandler struct {
 //+kubebuilder:rbac:groups=aiven.io,resources=serviceusers/finalizers,verbs=get;create;update
 
 func (r *ServiceUserReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, ServiceUserHandler{k8s: r.Client}, &v1alpha1.ServiceUser{})
+	handler := &ServiceUserHandler{
+		k8s: r.Client,
+	}
+	return r.reconcileInstance(ctx, req, handler, &v1alpha1.ServiceUser{})
 }
 
 func (r *ServiceUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -52,7 +48,7 @@ func (r *ServiceUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ServiceUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h *ServiceUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	user, err := h.convert(obj)
 	if err != nil {
 		return err
@@ -60,7 +56,10 @@ func (h ServiceUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cl
 
 	var newPassword string
 	if user.Spec.ConnInfoSecretSource != nil {
-		newPassword, err = h.getPasswordFromSecret(ctx, user)
+		modifier := NewServiceUserPasswordModifier(avnGen)
+		passwordManager := NewPasswordManager[*v1alpha1.ServiceUser](h.k8s, modifier)
+
+		newPassword, err = passwordManager.GetPasswordFromSecret(ctx, user)
 		if err != nil {
 			return fmt.Errorf("failed to get password from secret: %w", err)
 		}
@@ -78,7 +77,9 @@ func (h ServiceUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cl
 
 	// modify credentials using the password from source secret
 	if newPassword != "" {
-		if err = h.modifyCredentials(ctx, avnGen, user, newPassword); err != nil {
+		modifier := NewServiceUserPasswordModifier(avnGen)
+		passwordManager := NewPasswordManager[*v1alpha1.ServiceUser](h.k8s, modifier)
+		if err = passwordManager.ModifyCredentials(ctx, user, newPassword); err != nil {
 			return fmt.Errorf("failed to modify service user credentials: %w", err)
 		}
 	}
@@ -97,73 +98,14 @@ func (h ServiceUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cl
 	return nil
 }
 
-// getPasswordFromSecret retrieves and validates the password from connInfoSecretSource
-func (h ServiceUserHandler) getPasswordFromSecret(ctx context.Context, user *v1alpha1.ServiceUser) (string, error) {
-	secretSource := user.Spec.ConnInfoSecretSource
-	if secretSource == nil {
-		return "", nil
-	}
-
-	sourceNamespace := secretSource.Namespace
-	if sourceNamespace == "" {
-		sourceNamespace = user.GetNamespace()
-	}
-
-	sourceSecret := &corev1.Secret{}
-	err := h.k8s.Get(ctx, types.NamespacedName{
-		Name:      secretSource.Name,
-		Namespace: sourceNamespace,
-	}, sourceSecret)
-	if err != nil {
-		return "", fmt.Errorf("failed to read connInfoSecretSource %s/%s: %w", sourceNamespace, secretSource.Name, err)
-	}
-
-	passwordKey := secretSource.PasswordKey
-	passwordBytes, exists := sourceSecret.Data[passwordKey]
-	if !exists {
-		return "", fmt.Errorf("password not found in source secret %s/%s (expected %s key)", sourceNamespace, secretSource.Name, passwordKey)
-	}
-
-	newPassword := string(passwordBytes)
-
-	// validate password length according to Aiven API requirements
-	if len(newPassword) < 8 || len(newPassword) > 256 {
-		return "", fmt.Errorf("password length must be between 8 and 256 characters, got %d characters from source secret %s/%s (key: %s)",
-			len(newPassword), sourceNamespace, secretSource.Name, passwordKey)
-	}
-
-	return newPassword, nil
-}
-
-// modifyCredentials performs the actual credential modification
-func (h ServiceUserHandler) modifyCredentials(ctx context.Context, avnGen avngen.Client, user *v1alpha1.ServiceUser, password string) error {
-	modifyReq := &service.ServiceUserCredentialsModifyIn{
-		NewPassword: &password,
-		Operation:   service.ServiceUserCredentialsModifyOperationTypeResetCredentials,
-	}
-
-	_, err := avnGen.ServiceUserCredentialsModify(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name, modifyReq)
-	if err != nil {
-		return fmt.Errorf("failed to modify service user credentials in Aiven: %w", err)
-	}
-
-	return nil
-}
-
-// isBuiltInUser checks if the username is a known built-in user that cannot be deleted.
-// Built-in users like 'avnadmin' are created automatically by Aiven and persist even when ServiceUser resources are deleted.
-func (h ServiceUserHandler) isBuiltInUser(username string) bool {
-	return username == avnadminBuiltInUser
-}
-
-func (h ServiceUserHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *ServiceUserHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return false, err
 	}
 
 	// skip deletion for built-in users that cannot be deleted
-	if h.isBuiltInUser(user.Name) {
+	if isBuiltInUser(user.Name) {
 		// built-in users like avnadmin cannot be deleted, this is expected behavior
 		// we consider this a successful deletion since we can't and shouldn't delete built-in users
 		return true, nil
@@ -181,7 +123,7 @@ func (h ServiceUserHandler) delete(ctx context.Context, avnGen avngen.Client, ob
 	return true, nil
 }
 
-func (h ServiceUserHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *ServiceUserHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return nil, err
@@ -242,7 +184,7 @@ func (h ServiceUserHandler) get(ctx context.Context, avnGen avngen.Client, obj c
 	return newSecret(user, stringData, false), nil
 }
 
-func (h ServiceUserHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
+func (h *ServiceUserHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return false, err
@@ -254,11 +196,33 @@ func (h ServiceUserHandler) checkPreconditions(ctx context.Context, avnGen avnge
 	return checkServiceIsOperational(ctx, avnGen, user.Spec.Project, user.Spec.ServiceName)
 }
 
-func (h ServiceUserHandler) convert(i client.Object) (*v1alpha1.ServiceUser, error) {
+func (h *ServiceUserHandler) convert(i client.Object) (*v1alpha1.ServiceUser, error) {
 	db, ok := i.(*v1alpha1.ServiceUser)
 	if !ok {
 		return nil, fmt.Errorf("cannot convert object to ServiceUser")
 	}
 
 	return db, nil
+}
+
+type ServiceUserPasswordModifier struct {
+	avnClient avngen.Client
+}
+
+func NewServiceUserPasswordModifier(avnClient avngen.Client) *ServiceUserPasswordModifier {
+	return &ServiceUserPasswordModifier{avnClient: avnClient}
+}
+
+func (m *ServiceUserPasswordModifier) ModifyCredentials(ctx context.Context, user *v1alpha1.ServiceUser, password string) error {
+	modifyReq := &service.ServiceUserCredentialsModifyIn{
+		NewPassword: &password,
+		Operation:   service.ServiceUserCredentialsModifyOperationTypeResetCredentials,
+	}
+
+	_, err := m.avnClient.ServiceUserCredentialsModify(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name, modifyReq)
+	if err != nil {
+		return fmt.Errorf("failed to modify service user credentials: %w", err)
+	}
+
+	return nil
 }

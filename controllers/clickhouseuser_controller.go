@@ -33,7 +33,10 @@ func newClickhouseUserReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouseusers/finalizers,verbs=get;create;update
 
 func (r *ClickhouseUserReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, &clickhouseUserHandler{}, &v1alpha1.ClickhouseUser{})
+	handler := &clickhouseUserHandler{
+		k8s: r.Client,
+	}
+	return r.reconcileInstance(ctx, req, handler, &v1alpha1.ClickhouseUser{})
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -44,12 +47,25 @@ func (r *ClickhouseUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-type clickhouseUserHandler struct{}
+type clickhouseUserHandler struct {
+	k8s client.Client
+}
 
 func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
 	user, err := h.convert(obj)
 	if err != nil {
 		return err
+	}
+
+	var newPassword string
+	if user.Spec.ConnInfoSecretSource != nil {
+		modifier := NewClickHouseUserPasswordModifier(avnGen)
+		passwordManager := NewPasswordManager[*v1alpha1.ClickhouseUser](h.k8s, modifier)
+
+		newPassword, err = passwordManager.GetPasswordFromSecret(ctx, user)
+		if err != nil {
+			return fmt.Errorf("failed to get password from secret: %w", err)
+		}
 	}
 
 	list, err := avnGen.ServiceClickHouseUserList(ctx, user.Spec.Project, user.Spec.ServiceName)
@@ -77,7 +93,17 @@ func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avnGen avnge
 		uuid = r.Uuid
 	}
 
+	// Set the UUID in the status first, so the password modifier can use it
 	user.Status.UUID = uuid
+
+	// modify credentials using the password from source secret
+	if newPassword != "" {
+		modifier := NewClickHouseUserPasswordModifier(avnGen)
+		passwordManager := NewPasswordManager[*v1alpha1.ClickhouseUser](h.k8s, modifier)
+		if err = passwordManager.ModifyCredentials(ctx, user, newPassword); err != nil {
+			return fmt.Errorf("failed to modify ClickHouse user credentials: %w", err)
+		}
+	}
 
 	meta.SetStatusCondition(&user.Status.Conditions,
 		getInitializedCondition("Created",
@@ -100,6 +126,13 @@ func (h *clickhouseUserHandler) delete(ctx context.Context, avnGen avngen.Client
 		return true, nil
 	}
 
+	// skip deletion for built-in users that cannot be deleted
+	if isBuiltInUser(user.Name) {
+		// built-in users like 'default' cannot be deleted, this is expected behavior
+		// we consider this a successful deletion since we can't and shouldn't delete built-in users
+		return true, nil
+	}
+
 	err = avnGen.ServiceClickHouseUserDelete(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID)
 	if !isNotFound(err) {
 		return false, err
@@ -119,14 +152,28 @@ func (h *clickhouseUserHandler) get(ctx context.Context, avnGen avngen.Client, o
 		return nil, err
 	}
 
-	// By design this handler can't create secret in createOrUpdate method,
-	// while password is returned on create only.
-	// And all other GET methods return empty password, even this one.
-	// So the only way to have a secret here is to reset it manually
-	req := clickhouse.ServiceClickHousePasswordResetIn{}
-	password, err := avnGen.ServiceClickHousePasswordReset(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID, &req)
-	if err != nil {
-		return nil, err
+	var password string
+
+	// If user has a custom password source, read it directly from the source secret
+	// instead of resetting it, to avoid overwriting the custom password
+	if user.Spec.ConnInfoSecretSource != nil {
+		modifier := NewClickHouseUserPasswordModifier(avnGen)
+		passwordManager := NewPasswordManager[*v1alpha1.ClickhouseUser](h.k8s, modifier)
+
+		password, err = passwordManager.GetPasswordFromSecret(ctx, user)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get password from secret: %w", err)
+		}
+	} else {
+		// By design this handler can't create secret in createOrUpdate method,
+		// while password is returned on create only.
+		// And all other GET methods return empty password, even this one.
+		// So the only way to have a secret here is to reset it manually
+		req := clickhouse.ServiceClickHousePasswordResetIn{}
+		password, err = avnGen.ServiceClickHousePasswordReset(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID, &req)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	prefix := getSecretPrefix(user)
@@ -170,4 +217,29 @@ func (h *clickhouseUserHandler) convert(i client.Object) (*v1alpha1.ClickhouseUs
 		return nil, fmt.Errorf("cannot convert object to ClickhouseUser")
 	}
 	return user, nil
+}
+
+type ClickHouseUserPasswordModifier struct {
+	avnClient avngen.Client
+}
+
+func NewClickHouseUserPasswordModifier(avnClient avngen.Client) *ClickHouseUserPasswordModifier {
+	return &ClickHouseUserPasswordModifier{avnClient: avnClient}
+}
+
+func (m *ClickHouseUserPasswordModifier) ModifyCredentials(ctx context.Context, user *v1alpha1.ClickhouseUser, password string) error {
+	uuid := user.Status.UUID
+	if uuid == "" {
+		return fmt.Errorf("ClickHouse user UUID not available")
+	}
+
+	req := clickhouse.ServiceClickHousePasswordResetIn{
+		Password: &password,
+	}
+	_, err := m.avnClient.ServiceClickHousePasswordReset(ctx, user.Spec.Project, user.Spec.ServiceName, uuid, &req)
+	if err != nil {
+		return fmt.Errorf("failed to set ClickHouse user password: %w", err)
+	}
+
+	return nil
 }

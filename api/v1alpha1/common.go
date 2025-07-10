@@ -52,6 +52,7 @@ type ConnInfoSecretSource struct {
 	Namespace string `json:"namespace,omitempty"`
 	// +kubebuilder:validation:Required
 	// +kubebuilder:validation:MinLength=1
+	// Key in the secret containing the password to use for authentication
 	PasswordKey string `json:"passwordKey"`
 }
 
