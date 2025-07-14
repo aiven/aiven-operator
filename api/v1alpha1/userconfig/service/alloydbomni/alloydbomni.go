@@ -182,7 +182,7 @@ type Pg struct {
 	MaxStandbyStreamingDelay *int `groups:"create,update" json:"max_standby_streaming_delay,omitempty"`
 
 	// +kubebuilder:validation:Minimum=20
-	// +kubebuilder:validation:Maximum=64
+	// +kubebuilder:validation:Maximum=256
 	// PostgreSQL maximum WAL senders. The default is `20`. Changing this parameter causes a service restart.
 	MaxWalSenders *int `groups:"create,update" json:"max_wal_senders,omitempty"`
 
