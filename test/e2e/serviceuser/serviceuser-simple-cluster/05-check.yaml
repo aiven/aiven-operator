@@ -1,0 +1,12 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - script: |
+      # Wait for secret creation
+      while ! kubectl --namespace $NAMESPACE get secret simpleuser-secret >/dev/null 2>&1; do
+        sleep 5
+      done
+
+      # Verify required fields exist
+      kubectl --namespace $NAMESPACE get secret simpleuser-secret -o jsonpath='{.data.PASSWORD}' | base64 -d >/dev/null
+      kubectl --namespace $NAMESPACE get secret simpleuser-secret -o jsonpath='{.data.USERNAME}' | base64 -d >/dev/null

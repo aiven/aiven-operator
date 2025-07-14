@@ -252,3 +252,295 @@ func TestServiceUserPg(t *testing.T) {
 		return err
 	}))
 }
+
+// TestServiceUserCustomCredentials tests ServiceUser credential management scenarios using a shared PG instance.
+func TestServiceUserCustomCredentials(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	// GIVEN
+	ctx, cancel := testCtx()
+	defer cancel()
+	pgName := randName("serviceuser-scenarios")
+	s := NewSession(ctx, k8sClient, cfg.Project)
+
+	defer s.Destroy(t)
+
+	pgYaml := fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: %[2]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  cloudName: %[3]s
+  plan: startup-4
+`, cfg.Project, pgName, cfg.PrimaryCloudName)
+
+	require.NoError(t, s.Apply(pgYaml))
+
+	pg := new(v1alpha1.PostgreSQL)
+	require.NoError(t, s.GetRunning(pg, pgName))
+
+	pgAvn, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
+	require.NoError(t, err)
+	assert.Equal(t, pgAvn.ServiceName, pg.GetName())
+	assert.Equal(t, serviceRunningState, pg.Status.State)
+	assert.Contains(t, serviceRunningStatesAiven, pgAvn.State)
+
+	t.Run("CustomPasswordSource", func(t *testing.T) {
+		// Tests ServiceUser creation with a predefined password from connInfoSecretSource.
+		// Verifies that the operator correctly reads a password from a source secret
+		// and applies it to the ServiceUser.
+		userName := randName("su-custom-pass")
+		yml := getServiceUserWithSourceSecretYaml(cfg.Project, pgName, userName, cfg.PrimaryCloudName)
+
+		require.NoError(t, s.Apply(yml))
+
+		user := new(v1alpha1.ServiceUser)
+		require.NoError(t, s.GetRunning(user, userName))
+
+		userAvn, err := avnGen.ServiceUserGet(ctx, cfg.Project, pgName, userName)
+		require.NoError(t, err)
+		assert.Equal(t, userName, user.GetName())
+		assert.Equal(t, userName, userAvn.Username)
+		assert.Equal(t, pgName, user.Spec.ServiceName)
+
+		secret, err := s.GetSecret("my-service-user-secret")
+		require.NoError(t, err)
+		assert.NotEmpty(t, secret.Data["HOST"])
+		assert.NotEmpty(t, secret.Data["PORT"])
+		assert.NotEmpty(t, secret.Data["USERNAME"])
+		assert.NotEmpty(t, secret.Data["PASSWORD"])
+		assert.NotEmpty(t, secret.Data["CA_CERT"])
+
+		// verify the password matches predefined value from source secret
+		actualPassword := string(secret.Data["PASSWORD"])
+		assert.Equal(t, "MyCustomPassword123!", actualPassword, "Password should match predefined value")
+
+		assert.Equal(t, map[string]string{"test": "predefined-password"}, secret.Annotations)
+		assert.Equal(t, map[string]string{"type": "custom-password"}, secret.Labels)
+
+		assert.NoError(t, s.Delete(user, func() error {
+			_, err = avnGen.ServiceUserGet(ctx, cfg.Project, pgName, userName)
+			return err
+		}))
+	})
+
+	t.Run("AvnadminPasswordReset", func(t *testing.T) {
+		// Tests password reset functionality for the built-in 'avnadmin' user.
+		// Verifies that the operator can modify credentials for system user and that
+		// built-in users persist after ServiceUser resource deletion.
+		yml := getServiceUserAvnadminResetYaml(cfg.Project, pgName, cfg.PrimaryCloudName)
+
+		require.NoError(t, s.Apply(yml))
+
+		user := new(v1alpha1.ServiceUser)
+		require.NoError(t, s.GetRunning(user, "avnadmin"))
+
+		userAvn, err := avnGen.ServiceUserGet(ctx, cfg.Project, pgName, "avnadmin")
+		require.NoError(t, err)
+		assert.Equal(t, "avnadmin", user.GetName())
+		assert.Equal(t, "avnadmin", userAvn.Username)
+		assert.Equal(t, pgName, user.Spec.ServiceName)
+
+		secret, err := s.GetSecret("my-avnadmin-secret")
+		require.NoError(t, err)
+		assert.NotEmpty(t, secret.Data["HOST"])
+		assert.NotEmpty(t, secret.Data["PORT"])
+		assert.NotEmpty(t, secret.Data["USERNAME"])
+		assert.NotEmpty(t, secret.Data["PASSWORD"])
+		assert.NotEmpty(t, secret.Data["CA_CERT"])
+
+		actualUsernameInSecret := string(secret.Data["USERNAME"])
+		assert.Equal(t, "avnadmin", actualUsernameInSecret, "Username should be avnadmin")
+
+		// verify the password was reset to custom value
+		actualPassword := string(secret.Data["PASSWORD"])
+		assert.Equal(t, "NewAvnadminPassword999!", actualPassword, "Password should match our custom avnadmin password")
+
+		assert.Equal(t, map[string]string{"test": "avnadmin-reset"}, secret.Annotations)
+		assert.Equal(t, map[string]string{"type": "admin-password"}, secret.Labels)
+
+		// validate that built-in users persist after ServiceUser deletion
+		assert.NoError(t, s.Delete(user, func() error {
+			// avnadmin user should still exist after ServiceUser deletion since it's a built-in user
+			_, err = avnGen.ServiceUserGet(ctx, cfg.Project, pgName, "avnadmin")
+			if err != nil {
+				return fmt.Errorf("avnadmin user should still exist after ServiceUser deletion: %w", err)
+			}
+			return nil
+		}))
+	})
+
+	t.Run("EmptyPasswordValidation", func(t *testing.T) {
+		// Tests validation of empty passwords in connInfoSecretSource.
+		// Verifies that the operator properly validates password requirements
+		// and fails ServiceUser creation when an empty password is provided.
+		userName := randName("su-empty-pass")
+		yml := getServiceUserWithEmptyPasswordYaml(cfg.Project, pgName, userName, cfg.PrimaryCloudName)
+
+		require.NoError(t, s.Apply(yml))
+
+		// attempt to wait for ServiceUser to become ready (should fail)
+		user := new(v1alpha1.ServiceUser)
+		err := s.GetRunning(user, userName)
+
+		// Verify that ServiceUser creation failed
+		require.Error(t, err, "ServiceUser should fail to be created with empty password")
+	})
+}
+
+func getServiceUserWithSourceSecretYaml(project, pgName, userName, cloudName string) string {
+	return fmt.Sprintf(`
+apiVersion: v1
+kind: Secret
+metadata:
+  name: predefined-password-secret
+data:
+  PASSWORD: TXlDdXN0b21QYXNzd29yZDEyMyE= # MyCustomPassword123! base64 encoded # gitleaks:allow
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: %[2]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  cloudName: %[4]s
+  plan: startup-4
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUser
+metadata:
+  name: %[3]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: my-service-user-secret
+    annotations:
+      test: predefined-password
+    labels:
+      type: custom-password
+
+  connInfoSecretSource:
+    name: predefined-password-secret
+    passwordKey: PASSWORD
+
+  project: %[1]s
+  serviceName: %[2]s
+`, project, pgName, userName, cloudName)
+}
+
+func getServiceUserAvnadminResetYaml(project, pgName, cloudName string) string {
+	return fmt.Sprintf(`
+apiVersion: v1
+kind: Secret
+metadata:
+  name: avnadmin-new-password
+data:
+  PASSWORD: TmV3QXZuYWRtaW5QYXNzd29yZDk5OSE= # NewAvnadminPassword999! base64 encoded # gitleaks:allow
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: %[2]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  cloudName: %[3]s
+  plan: startup-4
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUser
+metadata:
+  name: avnadmin
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: my-avnadmin-secret
+    annotations:
+      test: avnadmin-reset
+    labels:
+      type: admin-password
+
+  connInfoSecretSource:
+    name: avnadmin-new-password
+    passwordKey: PASSWORD
+
+  project: %[1]s
+  serviceName: %[2]s
+`, project, pgName, cloudName)
+}
+
+func getServiceUserWithEmptyPasswordYaml(project, pgName, userName, cloudName string) string {
+	return fmt.Sprintf(`
+apiVersion: v1
+kind: Secret
+metadata:
+  name: empty-password-secret
+data:
+  PASSWORD: "" # Empty password - this should trigger validation error
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: %[2]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  cloudName: %[4]s
+  plan: startup-4
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUser
+metadata:
+  name: %[3]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: empty-password-secret-target
+    annotations:
+      test: empty-password-validation
+    labels:
+      type: validation-test
+
+  connInfoSecretSource:
+    name: empty-password-secret
+    passwordKey: PASSWORD
+
+  project: %[1]s
+  serviceName: %[2]s
+`, project, pgName, userName, cloudName)
+}

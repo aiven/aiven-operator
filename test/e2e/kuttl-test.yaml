@@ -16,6 +16,7 @@ testDirs:
   - test/e2e/mysql
   - test/e2e/cassandra
   - test/e2e/grafana
+  - test/e2e/serviceuser
 commands:
   - script: ENABLE_WEBHOOKS=false ./bin/manager --metrics-bind-address=0 --health-probe-bind-address=0
     background: true

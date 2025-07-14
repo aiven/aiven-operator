@@ -1,0 +1,18 @@
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUser
+metadata:
+  name: passworduser
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: passworduser-secret
+
+  connInfoSecretSource:
+    name: predefined-credentials
+    passwordKey: PASSWORD
+
+  project: aiven-ci-kubernetes-operator
+  serviceName: k8s-e2e-postgres-password

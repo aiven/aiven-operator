@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Added `ServiceUser` field `connInfoSecretSource`: Allows reading passwords from existing secrets for credential management. Supports setting passwords for new users and existing users.
+
 ## v0.30.0 - 2025-07-03
 
 - Added `powered` field (default: `true`) to control service power state. When `false`, the service is powered off.
