@@ -53,6 +53,10 @@ func (in *AlloyDBOmni) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *AlloyDBOmni) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *AlloyDBOmni) GetRefs() []*ResourceReferenceObject {
 	return in.Spec.GetRefs(in.GetNamespace())
 }

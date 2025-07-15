@@ -45,6 +45,10 @@ func (in *Cassandra) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *Cassandra) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *Cassandra) NoSecret() bool {
 	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
 }

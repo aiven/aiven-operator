@@ -50,6 +50,10 @@ func (in *Kafka) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *Kafka) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *Kafka) GetRefs() []*ResourceReferenceObject {
 	return in.Spec.GetRefs(in.GetNamespace())
 }

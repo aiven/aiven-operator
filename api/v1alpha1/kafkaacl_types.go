@@ -58,6 +58,10 @@ func (in *KafkaACL) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *KafkaACL) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (*KafkaACL) NoSecret() bool {
 	return true
 }

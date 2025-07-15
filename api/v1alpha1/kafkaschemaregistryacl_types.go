@@ -59,6 +59,10 @@ func (in *KafkaSchemaRegistryACL) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *KafkaSchemaRegistryACL) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *KafkaSchemaRegistryACL) NoSecret() bool {
 	return true
 }

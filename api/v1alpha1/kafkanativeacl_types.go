@@ -81,6 +81,10 @@ func (in *KafkaNativeACL) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *KafkaNativeACL) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *KafkaNativeACL) NoSecret() bool {
 	return true
 }

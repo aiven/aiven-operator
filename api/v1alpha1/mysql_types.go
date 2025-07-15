@@ -46,6 +46,10 @@ func (in *MySQL) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *MySQL) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *MySQL) GetRefs() []*ResourceReferenceObject {
 	return in.Spec.GetRefs(in.GetNamespace())
 }

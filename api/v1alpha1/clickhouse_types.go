@@ -52,6 +52,10 @@ func (in *Clickhouse) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *Clickhouse) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *Clickhouse) NoSecret() bool {
 	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
 }

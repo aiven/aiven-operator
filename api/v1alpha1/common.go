@@ -295,5 +295,6 @@ type AivenManagedObject interface {
 
 	AuthSecretRef() *AuthSecretReference
 	Conditions() *[]metav1.Condition
+	GetObjectMeta() *metav1.ObjectMeta
 	NoSecret() bool
 }

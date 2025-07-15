@@ -63,6 +63,10 @@ func (in *ClickhouseDatabase) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *ClickhouseDatabase) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 // +kubebuilder:object:root=true
 
 // ClickhouseDatabaseList contains a list of ClickhouseDatabase

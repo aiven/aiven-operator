@@ -46,6 +46,10 @@ func (in *Valkey) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *Valkey) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *Valkey) NoSecret() bool {
 	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
 }

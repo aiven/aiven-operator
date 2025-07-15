@@ -44,6 +44,10 @@ func (in *ClickhouseRole) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *ClickhouseRole) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *ClickhouseRole) NoSecret() bool {
 	return true
 }

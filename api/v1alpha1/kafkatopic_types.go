@@ -181,6 +181,10 @@ func (in *KafkaTopic) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *KafkaTopic) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (*KafkaTopic) NoSecret() bool {
 	return true
 }

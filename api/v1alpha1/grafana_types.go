@@ -44,6 +44,10 @@ func (in *Grafana) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *Grafana) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *Grafana) NoSecret() bool {
 	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
 }

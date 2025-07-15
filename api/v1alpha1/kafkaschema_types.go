@@ -72,6 +72,10 @@ func (in *KafkaSchema) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *KafkaSchema) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 // +kubebuilder:object:root=true
 
 // KafkaSchemaList contains a list of KafkaSchema
