@@ -1,0 +1,42 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - script: |
+      # Wait for ClickHouse user to be created and secret to be available
+      timeout=600
+      while [ $timeout -gt 0 ]; do
+        if kubectl --namespace $NAMESPACE get clickhouseuser passworduser -o jsonpath='{.status.conditions[?(@.type=="Running")].status}' | grep -q "True"; then
+          echo "✓ ClickHouse user is running"
+          break
+        fi
+        echo "Waiting for ClickHouse user to be running..."
+        sleep 5
+        timeout=$((timeout - 5))
+      done
+
+      if [ $timeout -le 0 ]; then
+        echo "✗ Timeout waiting for ClickHouse user to be running"
+        exit 1
+      fi
+
+      # Wait for secret creation
+      while ! kubectl --namespace $NAMESPACE get secret passworduser-secret >/dev/null 2>&1; do
+        sleep 5
+      done
+
+      # Verify required fields exist
+      kubectl --namespace $NAMESPACE get secret passworduser-secret -o jsonpath='{.data.CLICKHOUSEUSER_PASSWORD}' | base64 -d >/dev/null
+      kubectl --namespace $NAMESPACE get secret passworduser-secret -o jsonpath='{.data.CLICKHOUSEUSER_USERNAME}' | base64 -d >/dev/null
+      kubectl --namespace $NAMESPACE get secret passworduser-secret -o jsonpath='{.data.CLICKHOUSEUSER_HOST}' | base64 -d >/dev/null
+      kubectl --namespace $NAMESPACE get secret passworduser-secret -o jsonpath='{.data.CLICKHOUSEUSER_PORT}' | base64 -d >/dev/null
+
+      echo "✓ All required secret fields are present"
+
+      # Verify the password matches our predefined one (similar to service user test)
+      actual_password=$(kubectl --namespace $NAMESPACE get secret passworduser-secret -o jsonpath='{.data.PASSWORD}' | base64 -d)
+      if [ "$actual_password" = "MyCustomPassword123!" ]; then
+        echo "✓ Password matches predefined value"
+      else
+        echo "✗ Password mismatch: expected 'MyCustomPassword123!', got '$actual_password'"
+        exit 1
+      fi

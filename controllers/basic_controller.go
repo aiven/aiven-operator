@@ -24,6 +24,12 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
+const (
+	// defaultBuiltInUser is the built-in default user that cannot be deleted
+	// This is an exception case - built-in users are created automatically by Aiven
+	defaultBuiltInUser = "avnadmin"
+)
+
 // formatIntBaseDecimal it is a base to format int64 to string
 const formatIntBaseDecimal = 10
 
@@ -518,4 +524,10 @@ func getMaintenanceWindow(dow service.DowType, time string) *service.Maintenance
 	}
 
 	return nil
+}
+
+// isBuiltInUser checks if the username is a known built-in user that cannot be deleted.
+// Built-in users like 'avnadmin' are created automatically and persist even when user resources are deleted
+func isBuiltInUser(username string) bool {
+	return username == defaultBuiltInUser
 }

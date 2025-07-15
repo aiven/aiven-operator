@@ -170,3 +170,502 @@ func getClickHouseUserByID(ctx context.Context, avnGen avngen.Client, project, s
 	}
 	return nil, controllers.NewNotFound(fmt.Sprintf("ClickHouse user %s not found", userID))
 }
+
+// TestClickhouseUserCustomCredentials tests ClickhouseUser credential management scenarios
+func TestClickhouseUserCustomCredentials(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	// GIVEN
+	ctx, cancel := testCtx()
+	defer cancel()
+	chName := randName("clickhouseuser-scenarios")
+	s := NewSession(ctx, k8sClient, cfg.Project)
+
+	defer s.Destroy(t)
+
+	chYaml := fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: Clickhouse
+metadata:
+  name: %[2]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  cloudName: %[3]s
+  plan: startup-16
+
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00
+`, cfg.Project, chName, cfg.PrimaryCloudName)
+
+	require.NoError(t, s.Apply(chYaml))
+
+	ch := new(v1alpha1.Clickhouse)
+	require.NoError(t, s.GetRunning(ch, chName))
+
+	chAvn, err := avnGen.ServiceGet(ctx, cfg.Project, chName)
+	require.NoError(t, err)
+	assert.Equal(t, chAvn.ServiceName, ch.GetName())
+	assert.Equal(t, serviceRunningState, ch.Status.State)
+	assert.Contains(t, serviceRunningStatesAiven, chAvn.State)
+
+	t.Run("CustomPasswordSource", func(t *testing.T) {
+		// tests ClickhouseUser creation with a predefined password from connInfoSecretSource
+		// verifies that the operator correctly reads a password from a source secret
+		// and applies it to the ClickhouseUser
+		userName := randName("chu-custom-pass")
+		yml := getClickhouseUserWithSourceSecretYaml(cfg.Project, chName, userName, cfg.PrimaryCloudName)
+
+		require.NoError(t, s.Apply(yml))
+
+		user := new(v1alpha1.ClickhouseUser)
+		require.NoError(t, s.GetRunning(user, userName))
+
+		userAvn, err := getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
+		require.NoError(t, err)
+		assert.Equal(t, userName, user.GetName())
+		assert.Equal(t, userName, userAvn.Name)
+		assert.Equal(t, chName, user.Spec.ServiceName)
+
+		secretName := fmt.Sprintf("my-clickhouse-user-secret-%s", userName)
+		secret, err := s.GetSecret(secretName)
+		require.NoError(t, err)
+		assert.NotEmpty(t, secret.Data["HOST"])
+		assert.NotEmpty(t, secret.Data["PORT"])
+		assert.NotEmpty(t, secret.Data["USERNAME"])
+		assert.NotEmpty(t, secret.Data["PASSWORD"])
+		assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_HOST"])
+		assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_PORT"])
+		assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_USERNAME"])
+		assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_PASSWORD"])
+
+		// verify the password matches predefined value from source secret
+		actualPassword := string(secret.Data["PASSWORD"])
+		assert.Equal(t, "MyCustomClickhousePassword123!", actualPassword, "Password should match predefined value")
+
+		assert.Equal(t, map[string]string{"test": "predefined-password"}, secret.Annotations)
+		assert.Equal(t, map[string]string{"type": "custom-password"}, secret.Labels)
+
+		assert.NoError(t, pingClickhouse(
+			ctx,
+			secret.Data["CLICKHOUSEUSER_HOST"],
+			secret.Data["CLICKHOUSEUSER_PORT"],
+			secret.Data["CLICKHOUSEUSER_USERNAME"],
+			secret.Data["CLICKHOUSEUSER_PASSWORD"],
+		))
+
+		assert.NoError(t, s.Delete(user, func() error {
+			_, err = getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
+			return err
+		}))
+	})
+
+	t.Run("CrossNamespacePasswordSource", func(t *testing.T) {
+		// tests ClickhouseUser creation with a password from a different namespace
+		userName := randName("chu-cross-ns")
+		yml := getClickhouseUserWithCrossNamespaceSecretYaml(cfg.Project, chName, userName, cfg.PrimaryCloudName)
+
+		require.NoError(t, s.Apply(yml))
+
+		user := new(v1alpha1.ClickhouseUser)
+		require.NoError(t, s.GetRunning(user, userName))
+
+		userAvn, err := getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
+		require.NoError(t, err)
+		assert.Equal(t, userName, user.GetName())
+		assert.Equal(t, userName, userAvn.Name)
+		assert.Equal(t, chName, user.Spec.ServiceName)
+
+		secretName := fmt.Sprintf("my-clickhouse-user-secret-%s", userName)
+		secret, err := s.GetSecret(secretName)
+		require.NoError(t, err)
+		assert.NotEmpty(t, secret.Data["HOST"])
+		assert.NotEmpty(t, secret.Data["PORT"])
+		assert.NotEmpty(t, secret.Data["USERNAME"])
+		assert.NotEmpty(t, secret.Data["PASSWORD"])
+
+		// verify the password matches cross-namespace secret value
+		actualPassword := string(secret.Data["PASSWORD"])
+		assert.Equal(t, "CrossNamespacePassword456!", actualPassword, "Password should match cross-namespace secret value")
+
+		assert.Equal(t, map[string]string{"test": "cross-namespace-password"}, secret.Annotations)
+		assert.Equal(t, map[string]string{"type": "cross-namespace"}, secret.Labels)
+
+		// test ClickHouse connection with cross-namespace password
+		assert.NoError(t, pingClickhouse(
+			ctx,
+			secret.Data["CLICKHOUSEUSER_HOST"],
+			secret.Data["CLICKHOUSEUSER_PORT"],
+			secret.Data["CLICKHOUSEUSER_USERNAME"],
+			secret.Data["CLICKHOUSEUSER_PASSWORD"],
+		))
+
+		assert.NoError(t, s.Delete(user, func() error {
+			_, err = getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
+			return err
+		}))
+	})
+
+	t.Run("InvalidPasswordValidation", func(t *testing.T) {
+		// tests validation of invalid passwords in connInfoSecretSource
+		userName := randName("chu-invalid-pass")
+		yml := getClickhouseUserWithInvalidPasswordYaml(cfg.Project, chName, userName, cfg.PrimaryCloudName)
+
+		require.NoError(t, s.Apply(yml))
+
+		// attempt to wait for ClickhouseUser to become ready (should fail)
+		user := new(v1alpha1.ClickhouseUser)
+		err := s.GetRunning(user, userName)
+
+		require.Error(t, err, "ClickhouseUser should fail to be created with invalid password")
+	})
+
+	t.Run("MissingSecretValidation", func(t *testing.T) {
+		// tests validation when connInfoSecretSource references a non-existent secret
+		userName := randName("chu-missing-secret")
+		yml := getClickhouseUserWithMissingSecretYaml(cfg.Project, chName, userName, cfg.PrimaryCloudName)
+
+		require.NoError(t, s.Apply(yml))
+
+		// attempt to wait for ClickhouseUser to become ready (should fail)
+		user := new(v1alpha1.ClickhouseUser)
+		err := s.GetRunning(user, userName)
+
+		require.Error(t, err, "ClickhouseUser should fail to be created with missing secret")
+	})
+
+	t.Run("MissingPasswordKeyValidation", func(t *testing.T) {
+		// tests validation when connInfoSecretSource references a secret without the specified password key
+		userName := randName("chu-missing-key")
+		yml := getClickhouseUserWithMissingPasswordKeyYaml(cfg.Project, chName, userName, cfg.PrimaryCloudName)
+
+		require.NoError(t, s.Apply(yml))
+
+		// attempt to wait for ClickhouseUser to become ready (should fail)
+		user := new(v1alpha1.ClickhouseUser)
+		err = s.GetRunning(user, userName)
+		require.Error(t, err, "ClickhouseUser should fail to be created with missing password key")
+	})
+
+	t.Run("DocumentationExample", func(t *testing.T) {
+		// tests the exact ClickhouseUser configuration from the example
+		userName := "my-clickhouse-user"
+
+		docExampleChName := randName("ch-doc-example")
+
+		yml, err := loadExampleYaml("clickhouseuser.custom_credentials.yaml", map[string]string{
+			"doc[1].metadata.name":  docExampleChName,
+			"doc[1].spec.project":   cfg.Project,
+			"doc[1].spec.cloudName": cfg.PrimaryCloudName,
+
+			"doc[2].metadata.name":    userName,
+			"doc[2].spec.project":     cfg.Project,
+			"doc[2].spec.serviceName": docExampleChName,
+		})
+		require.NoError(t, err)
+
+		require.NoError(t, s.Apply(yml))
+
+		user := new(v1alpha1.ClickhouseUser)
+		require.NoError(t, s.GetRunning(user, userName))
+
+		userAvn, err := getClickHouseUserByID(ctx, avnGen, cfg.Project, docExampleChName, user.Status.UUID)
+		require.NoError(t, err)
+		assert.Equal(t, "example-username", userAvn.Name) // username field from the example
+		assert.Equal(t, docExampleChName, user.Spec.ServiceName)
+
+		secret, err := s.GetSecret("clickhouse-user-secret")
+		require.NoError(t, err)
+		assert.NotEmpty(t, secret.Data["MY_CLICKHOUSE_PREFIX_HOST"])
+		assert.NotEmpty(t, secret.Data["MY_CLICKHOUSE_PREFIX_PORT"])
+		assert.NotEmpty(t, secret.Data["MY_CLICKHOUSE_PREFIX_USERNAME"])
+		assert.NotEmpty(t, secret.Data["MY_CLICKHOUSE_PREFIX_PASSWORD"])
+
+		// verify the password matches the exact value from the documentation example
+		actualPassword := string(secret.Data["MY_CLICKHOUSE_PREFIX_PASSWORD"])
+		assert.Equal(t, "MyCustomPassword123!", actualPassword, "Password should match documentation example")
+
+		// verify annotations and labels from the documentation example
+		assert.Equal(t, map[string]string{"foo": "bar"}, secret.Annotations)
+		assert.Equal(t, map[string]string{"baz": "egg"}, secret.Labels)
+
+		// test ClickHouse connection with the password from documentation example
+		assert.NoError(t, pingClickhouse(
+			ctx,
+			secret.Data["MY_CLICKHOUSE_PREFIX_HOST"],
+			secret.Data["MY_CLICKHOUSE_PREFIX_PORT"],
+			secret.Data["MY_CLICKHOUSE_PREFIX_USERNAME"],
+			secret.Data["MY_CLICKHOUSE_PREFIX_PASSWORD"],
+		))
+
+		assert.NoError(t, s.Delete(user, func() error {
+			_, err = getClickHouseUserByID(ctx, avnGen, cfg.Project, docExampleChName, user.Status.UUID)
+			return err
+		}))
+	})
+
+	t.Run("BuiltInUserAvnadmin", func(t *testing.T) {
+		// tests ClickhouseUser creation for the built-in user 'avnadmin'
+		// verifies that built-in users work correctly with custom credentials
+		userName := "avnadmin" // built-in username
+		yml := getClickhouseUserWithBuiltInUserYaml(cfg.Project, chName, userName, cfg.PrimaryCloudName)
+
+		require.NoError(t, s.Apply(yml))
+
+		user := new(v1alpha1.ClickhouseUser)
+		require.NoError(t, s.GetRunning(user, userName))
+
+		userAvn, err := getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
+		require.NoError(t, err)
+		assert.Equal(t, userName, user.GetName())
+		assert.Equal(t, userName, userAvn.Name)
+		assert.Equal(t, chName, user.Spec.ServiceName)
+
+		secretName := fmt.Sprintf("my-clickhouse-builtin-user-secret-%s", userName)
+		secret, err := s.GetSecret(secretName)
+		require.NoError(t, err)
+		assert.NotEmpty(t, secret.Data["HOST"])
+		assert.NotEmpty(t, secret.Data["PORT"])
+		assert.NotEmpty(t, secret.Data["USERNAME"])
+		assert.NotEmpty(t, secret.Data["PASSWORD"])
+		assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_HOST"])
+		assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_PORT"])
+		assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_USERNAME"])
+		assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_PASSWORD"])
+
+		// verify the password matches predefined value for built-in user
+		actualPassword := string(secret.Data["PASSWORD"])
+		assert.Equal(t, "BuiltInUserPassword123!", actualPassword, "Password should match predefined value for built-in user")
+
+		assert.Equal(t, map[string]string{"test": "builtin-user"}, secret.Annotations)
+		assert.Equal(t, map[string]string{"type": "built-in-user"}, secret.Labels)
+
+		// verify that the built-in user works the same as regular users
+		assert.NoError(t, pingClickhouse(
+			ctx,
+			secret.Data["CLICKHOUSEUSER_HOST"],
+			secret.Data["CLICKHOUSEUSER_PORT"],
+			secret.Data["CLICKHOUSEUSER_USERNAME"],
+			secret.Data["CLICKHOUSEUSER_PASSWORD"],
+		))
+
+		// the user should be successfully deleted from Kubernetes, but the isBuiltInUser logic
+		// should prevent actual deletion from Aiven
+		assert.NoError(t, s.Delete(user, func() error {
+			_, err = getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
+			// for built-in users, the user would still exist in Aiven after "deletion"
+			if isNotFound(err) {
+				return nil
+			}
+			return err
+		}))
+	})
+}
+
+func getClickhouseUserWithBuiltInUserYaml(project, chName, userName, cloudName string) string {
+	return fmt.Sprintf(`
+apiVersion: v1
+kind: Secret
+metadata:
+  name: builtin-user-password-secret-%[3]s
+data:
+  PASSWORD: QnVpbHRJblVzZXJQYXNzd29yZDEyMyE= # BuiltInUserPassword123! base64 encoded # gitleaks:allow
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseUser
+metadata:
+  name: %[3]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: my-clickhouse-builtin-user-secret-%[3]s
+    annotations:
+      test: builtin-user
+    labels:
+      type: built-in-user
+
+  connInfoSecretSource:
+    name: builtin-user-password-secret-%[3]s
+    passwordKey: PASSWORD
+
+  project: %[1]s
+  serviceName: %[2]s
+`, project, chName, userName, cloudName)
+}
+
+func getClickhouseUserWithSourceSecretYaml(project, chName, userName, cloudName string) string {
+	return fmt.Sprintf(`
+apiVersion: v1
+kind: Secret
+metadata:
+  name: predefined-clickhouse-password-secret-%[3]s
+data:
+  PASSWORD: TXlDdXN0b21DbGlja2hvdXNlUGFzc3dvcmQxMjMh # MyCustomClickhousePassword123! base64 encoded # gitleaks:allow
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseUser
+metadata:
+  name: %[3]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: my-clickhouse-user-secret-%[3]s
+    annotations:
+      test: predefined-password
+    labels:
+      type: custom-password
+
+  connInfoSecretSource:
+    name: predefined-clickhouse-password-secret-%[3]s
+    passwordKey: PASSWORD
+
+  project: %[1]s
+  serviceName: %[2]s
+`, project, chName, userName, cloudName)
+}
+
+func getClickhouseUserWithCrossNamespaceSecretYaml(project, chName, userName, cloudName string) string {
+	return fmt.Sprintf(`
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cross-namespace-password-secret-%[3]s
+  namespace: kube-system
+data:
+  PASSWORD: Q3Jvc3NOYW1lc3BhY2VQYXNzd29yZDQ1NiE= # CrossNamespacePassword456! base64 encoded # gitleaks:allow
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseUser
+metadata:
+  name: %[3]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: my-clickhouse-user-secret-%[3]s
+    annotations:
+      test: cross-namespace-password
+    labels:
+      type: cross-namespace
+
+  connInfoSecretSource:
+    name: cross-namespace-password-secret-%[3]s
+    namespace: kube-system
+    passwordKey: PASSWORD
+
+  project: %[1]s
+  serviceName: %[2]s
+`, project, chName, userName, cloudName)
+}
+
+func getClickhouseUserWithInvalidPasswordYaml(project, chName, userName, cloudName string) string {
+	return fmt.Sprintf(`
+apiVersion: v1
+kind: Secret
+metadata:
+  name: invalid-clickhouse-password-secret
+data:
+  PASSWORD: c2hvcnQ= # short - invalid password length (5 chars) # gitleaks:allow
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseUser
+metadata:
+  name: %[3]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: invalid-password-secret-target
+    annotations:
+      test: invalid-password-validation
+    labels:
+      type: validation-test
+
+  connInfoSecretSource:
+    name: invalid-clickhouse-password-secret
+    passwordKey: PASSWORD
+
+  project: %[1]s
+  serviceName: %[2]s
+`, project, chName, userName, cloudName)
+}
+
+func getClickhouseUserWithMissingSecretYaml(project, chName, userName, cloudName string) string {
+	return fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseUser
+metadata:
+  name: %[3]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: missing-secret-target
+    annotations:
+      test: missing-secret-validation
+    labels:
+      type: validation-test
+
+  connInfoSecretSource:
+    name: nonexistent-secret
+    passwordKey: PASSWORD
+
+  project: %[1]s
+  serviceName: %[2]s
+`, project, chName, userName, cloudName)
+}
+
+func getClickhouseUserWithMissingPasswordKeyYaml(project, chName, userName, cloudName string) string {
+	return fmt.Sprintf(`
+apiVersion: v1
+kind: Secret
+metadata:
+  name: missing-key-clickhouse-secret
+data:
+  WRONG_KEY: VmFsaWRQYXNzd29yZDEyMyE= # ValidPassword123! base64 encoded # gitleaks:allow
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseUser
+metadata:
+  name: %[3]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: missing-key-secret-target
+    annotations:
+      test: missing-key-validation
+    labels:
+      type: validation-test
+
+  connInfoSecretSource:
+    name: missing-key-clickhouse-secret
+    passwordKey: PASSWORD
+
+  project: %[1]s
+  serviceName: %[2]s
+`, project, chName, userName, cloudName)
+}

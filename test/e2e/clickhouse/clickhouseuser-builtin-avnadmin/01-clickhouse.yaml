@@ -1,0 +1,18 @@
+apiVersion: aiven.io/v1alpha1
+kind: Clickhouse
+metadata:
+  name: k8s-e2e-test-ch-builtin-user
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: ch-builtin-token
+
+  project: aiven-ci-kubernetes-operator
+  cloudName: google-europe-west1
+  plan: startup-16
+
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00

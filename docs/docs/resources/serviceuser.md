@@ -224,7 +224,7 @@ This can be used to set passwords for new users or modify passwords for existing
 **Required**
 
 - [`name`](#spec.connInfoSecretSource.name-property){: name='spec.connInfoSecretSource.name-property'} (string, MinLength: 1). Name of the secret resource to read connection parameters from.
-- [`passwordKey`](#spec.connInfoSecretSource.passwordKey-property){: name='spec.connInfoSecretSource.passwordKey-property'} (string, MinLength: 1).
+- [`passwordKey`](#spec.connInfoSecretSource.passwordKey-property){: name='spec.connInfoSecretSource.passwordKey-property'} (string, MinLength: 1). Key in the secret containing the password to use for authentication.
 
 **Optional**
 

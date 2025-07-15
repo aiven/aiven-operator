@@ -93,6 +93,9 @@ spec:
                         defaults to the same namespace as the resource
                       type: string
                     passwordKey:
+                      description:
+                        Key in the secret containing the password to use
+                        for authentication
                       minLength: 1
                       type: string
                   required:

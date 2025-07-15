@@ -1,0 +1,14 @@
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseUser
+metadata:
+  name: avnadmin
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: avnadmin-user-secret
+
+  project: aiven-ci-kubernetes-operator
+  serviceName: k8s-e2e-test-ch-builtin-user
