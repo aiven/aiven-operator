@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafka"
@@ -43,17 +42,17 @@ func (r *KafkaACLReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaACLHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h KafkaACLHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) (bool, error) {
 	acl, err := h.convert(obj)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// ACL can't be really modified
 	// Tries to delete it instead
 	_, err = h.delete(ctx, avnGen, obj)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// Creates it from scratch
@@ -68,7 +67,7 @@ func (h KafkaACLHandler) createOrUpdate(ctx context.Context, avnGen avngen.Clien
 		},
 	)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// Resets the old ID in case it was set
@@ -79,20 +78,10 @@ func (h KafkaACLHandler) createOrUpdate(ctx context.Context, avnGen avngen.Clien
 	// Need to find the correct one manually.
 	acl.Status.ID, err = h.getID(ctx, avnGen, acl)
 	if err != nil {
-		return err
+		return false, err
 	}
-	meta.SetStatusCondition(&acl.Status.Conditions,
-		getInitializedCondition("CreatedOrUpdate",
-			"Successfully created or updated the instance in Aiven"))
 
-	meta.SetStatusCondition(&acl.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "CreatedOrUpdate",
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&acl.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(acl.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
+	return true, nil
 }
 
 func (h KafkaACLHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/postgresql"
@@ -47,23 +46,19 @@ func (r *ConnectionPoolReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) (bool, error) {
 	connPool, err := h.convert(obj)
 	if err != nil {
-		return err
+		return false, err
 	}
-
-	var (
-		reason string
-		exists bool
-	)
 
 	// check if the connection pool already exists
 	s, err := avnGen.ServiceGet(ctx, connPool.Spec.Project, connPool.Spec.ServiceName)
 	if err != nil {
-		return fmt.Errorf("cannot get service: %w", err)
+		return false, fmt.Errorf("cannot get service: %w", err)
 	}
 
+	exists := false
 	for _, connP := range s.ConnectionPools {
 		if connP.PoolName == connPool.Name {
 			exists = true
@@ -72,7 +67,6 @@ func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avnGen avngen
 	}
 
 	if !exists {
-		reason = "Created"
 		req := postgresql.ServicePgbouncerCreateIn{
 			Database: connPool.Spec.DatabaseName,
 			PoolMode: connPool.Spec.PoolMode,
@@ -82,10 +76,9 @@ func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avnGen avngen
 		}
 
 		if err = avnGen.ServicePGBouncerCreate(ctx, connPool.Spec.Project, connPool.Spec.ServiceName, &req); err != nil && !isAlreadyExists(err) {
-			return fmt.Errorf("cannot create connection pool: %w", err)
+			return false, fmt.Errorf("cannot create connection pool: %w", err)
 		}
 	} else {
-		reason = "Updated"
 		req := postgresql.ServicePgbouncerUpdateIn{
 			Database: NilIfZero(connPool.Spec.DatabaseName),
 			PoolMode: connPool.Spec.PoolMode,
@@ -94,18 +87,11 @@ func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avnGen avngen
 		}
 
 		if err = avnGen.ServicePGBouncerUpdate(ctx, connPool.Spec.Project, connPool.Spec.ServiceName, connPool.Name, &req); err != nil {
-			return fmt.Errorf("cannot update connection pool: %w", err)
+			return false, fmt.Errorf("cannot update connection pool: %w", err)
 		}
 	}
 
-	meta.SetStatusCondition(&connPool.Status.Conditions,
-		getInitializedCondition(reason,
-			"Successfully created or updated the instance in Aiven"))
-
-	metav1.SetMetaDataAnnotation(&connPool.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(connPool.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
+	return !exists, nil
 }
 
 func (h ConnectionPoolHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
@@ -27,10 +26,10 @@ type genericServiceHandler struct {
 	log    logr.Logger
 }
 
-func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
+func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, refs []client.Object) (bool, error) {
 	o, err := h.fabric(obj)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	spec := o.getServiceCommonSpec()
@@ -48,7 +47,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 	oldService, err := avnGen.ServiceGet(ctx, spec.Project, ometa.Name)
 	exists := err == nil
 	if !exists && !isNotFound(err) {
-		return fmt.Errorf("failed to fetch service: %w", err)
+		return false, fmt.Errorf("failed to fetch service: %w", err)
 	}
 
 	technicalEmails := make([]service.TechEmailIn, 0, len(spec.TechnicalEmails))
@@ -60,18 +59,16 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 	if diskSpace > 0 && exists {
 		for _, v := range oldService.ServiceIntegrations {
 			if v.IntegrationType == service.IntegrationTypeAutoscaler {
-				return fmt.Errorf("cannot set disk space for service with autoscaler integration enabled")
+				return false, fmt.Errorf("cannot set disk space for service with autoscaler integration enabled")
 			}
 		}
 	}
 
 	// Creates if not exists or updates existing service
-	var reason string
 	if !exists {
-		reason = "Created"
 		userConfig, err := CreateUserConfiguration(o.getUserConfig())
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		req := service.ServiceCreateIn{
@@ -102,19 +99,18 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 
 		_, err = avnGen.ServiceCreate(ctx, spec.Project, &req)
 		if err != nil {
-			return fmt.Errorf("failed to create service: %w", err)
+			return false, fmt.Errorf("failed to create service: %w", err)
 		}
 	} else {
-		reason = "Updated"
 		userConfig, err := UpdateUserConfiguration(o.getUserConfig())
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		// Perform upgrade task if necessary (at the moment, this is relevant only for PostgreSQL)
 		err = o.performUpgradeTaskIfNeeded(ctx, avnGen, oldService)
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		req := service.ServiceUpdateIn{
@@ -130,7 +126,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 		}
 		_, err = avnGen.ServiceUpdate(ctx, spec.Project, ometa.Name, &req)
 		if err != nil {
-			return fmt.Errorf("failed to update service: %w", err)
+			return false, fmt.Errorf("failed to update service: %w", err)
 		}
 	}
 
@@ -145,27 +141,15 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 	}
 	err = avnGen.ProjectServiceTagsReplace(ctx, spec.Project, ometa.Name, &req)
 	if err != nil {
-		return fmt.Errorf("failed to update tags: %w", err)
+		return false, fmt.Errorf("failed to update tags: %w", err)
 	}
 
 	// Call service-specific createOrUpdate if service is running
 	if err := o.createOrUpdateServiceSpecific(ctx, avnGen, oldService); err != nil {
-		return fmt.Errorf("failed to create or update service-specific: %w", err)
+		return false, fmt.Errorf("failed to create or update service-specific: %w", err)
 	}
 
-	status := o.getServiceStatus()
-	meta.SetStatusCondition(&status.Conditions,
-		getInitializedCondition(reason, "Successfully created or updated the instance in Aiven"))
-	meta.SetStatusCondition(&status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, reason,
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-	metav1.SetMetaDataAnnotation(
-		o.getObjectMeta(),
-		processedGenerationAnnotation,
-		strconv.FormatInt(obj.GetGeneration(), formatIntBaseDecimal),
-	)
-
-	return nil
+	return !exists, nil
 }
 
 func (h *genericServiceHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

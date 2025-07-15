@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
@@ -46,22 +45,22 @@ func (r *ServiceIntegrationReconciler) SetupWithManager(mgr ctrl.Manager) error 
 		Complete(r)
 }
 
-func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) (bool, error) {
 	si, err := h.convert(obj)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	userConfig, err := si.GetUserConfig()
 	if err != nil {
-		return err
+		return false, err
 	}
 
-	var reason string
-	if si.Status.ID == "" {
+	exists := si.Status.ID != ""
+	if !exists {
 		userConfigMap, err := CreateUserConfiguration(userConfig)
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		integration, err := avnGen.ServiceIntegrationCreate(
@@ -79,19 +78,18 @@ func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avnGen av
 			},
 		)
 		if err != nil {
-			return fmt.Errorf("cannot createOrUpdate service integration: %w", err)
+			return false, fmt.Errorf("cannot createOrUpdate service integration: %w", err)
 		}
 
-		reason = "Created"
 		si.Status.ID = integration.ServiceIntegrationId
 	} else {
 		if !si.HasUserConfig() {
-			return nil
+			return false, nil
 		}
 
 		userConfigMap, err := UpdateUserConfiguration(userConfig)
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		var updatedIntegration *service.ServiceIntegrationUpdateOut
@@ -113,29 +111,16 @@ func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avnGen av
 			retry.Attempts(3), //nolint:mnd
 			retry.Delay(1*time.Second),
 		)
-
-		reason = "Updated"
 		if err != nil {
 			if strings.Contains(strings.ToLower(err.Error()), "user config not changed") {
-				return nil
+				return false, nil
 			}
-			return err
+			return false, err
 		}
 		si.Status.ID = updatedIntegration.ServiceIntegrationId
 	}
 
-	meta.SetStatusCondition(&si.Status.Conditions,
-		getInitializedCondition(reason,
-			"Successfully created or updated the instance in Aiven"))
-
-	meta.SetStatusCondition(&si.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, reason,
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&si.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(si.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
+	return !exists, nil
 }
 
 func (h ServiceIntegrationHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

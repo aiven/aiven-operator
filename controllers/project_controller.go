@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	proj "github.com/aiven/go-client-codegen/handler/project"
@@ -66,10 +65,10 @@ func (h ProjectHandler) getLongCardID(ctx context.Context, avnGen avngen.Client,
 }
 
 // create creates a project on Aiven side
-func (h ProjectHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h ProjectHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) (bool, error) {
 	project, err := h.convert(obj)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	billingEmails := make([]proj.BillingEmailIn, 0, len(project.Spec.BillingEmails))
@@ -84,15 +83,14 @@ func (h ProjectHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client
 
 	exists, err := h.exists(ctx, avnGen, project)
 	if err != nil {
-		return fmt.Errorf("project does not exists: %w", err)
+		return false, fmt.Errorf("project does not exists: %w", err)
 	}
 
 	cardID, err := h.getLongCardID(ctx, avnGen, project.Spec.CardID)
 	if err != nil {
-		return fmt.Errorf("cannot get long card id: %w", err)
+		return false, fmt.Errorf("cannot get long card id: %w", err)
 	}
 
-	var reason string
 	if !exists {
 		req := &proj.ProjectCreateIn{
 			CardId:           cardID,
@@ -112,7 +110,7 @@ func (h ProjectHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client
 
 		p, err := avnGen.ProjectCreate(ctx, req)
 		if err != nil {
-			return fmt.Errorf("failed to create project on aiven side: %w", err)
+			return false, fmt.Errorf("failed to create project on aiven side: %w", err)
 		}
 
 		project.Status.VatID = p.VatId
@@ -120,7 +118,6 @@ func (h ProjectHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client
 		project.Status.AvailableCredits = fromAnyPointer(p.AvailableCredits)
 		project.Status.Country = p.Country
 		project.Status.PaymentMethod = p.PaymentMethod
-		reason = "Created"
 	} else {
 		req := &proj.ProjectUpdateIn{
 			CardId:           cardID,
@@ -137,7 +134,7 @@ func (h ProjectHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client
 
 		p, err := avnGen.ProjectUpdate(ctx, project.Name, req)
 		if err != nil {
-			return fmt.Errorf("failed to update project on aiven side: %w", err)
+			return false, fmt.Errorf("failed to update project on aiven side: %w", err)
 		}
 
 		project.Status.VatID = p.VatId
@@ -145,21 +142,9 @@ func (h ProjectHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client
 		project.Status.AvailableCredits = fromAnyPointer(p.AvailableCredits)
 		project.Status.Country = p.Country
 		project.Status.PaymentMethod = p.PaymentMethod
-		reason = "Updated"
 	}
 
-	meta.SetStatusCondition(&project.Status.Conditions,
-		getInitializedCondition(reason,
-			"Successfully created or updated the instance in Aiven"))
-
-	meta.SetStatusCondition(&project.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, reason,
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&project.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(project.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
+	return !exists, nil
 }
 
 func (h ProjectHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {

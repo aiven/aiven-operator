@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/hashicorp/go-multierror"
@@ -47,34 +46,27 @@ func (r *ClickhouseGrantReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h *ClickhouseGrantHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h *ClickhouseGrantHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) (bool, error) {
 	g, err := h.convert(obj)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// Revokes previous grants
 	if g.Status.State != nil {
 		err = revokeGrants(ctx, avnGen, g, g.Status.State)
 		if err != nil {
-			return err
+			return false, err
 		}
 	}
 
 	// Grants new privileges
 	err = grantSpecGrants(ctx, avnGen, g)
 	if err != nil {
-		return err
+		return false, err
 	}
 
-	meta.SetStatusCondition(&g.Status.Conditions,
-		getInitializedCondition("Created",
-			"Successfully created or updated the instance in Aiven"))
-
-	metav1.SetMetaDataAnnotation(&g.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(g.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
+	return true, nil
 }
 
 func (h *ClickhouseGrantHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

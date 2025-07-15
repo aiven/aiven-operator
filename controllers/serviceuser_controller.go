@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
@@ -48,10 +47,10 @@ func (r *ServiceUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h *ServiceUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h *ServiceUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) (bool, error) {
 	user, err := h.convert(obj)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	var newPassword string
@@ -61,7 +60,7 @@ func (h *ServiceUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.C
 
 		newPassword, err = passwordManager.GetPasswordFromSecret(ctx, user)
 		if err != nil {
-			return fmt.Errorf("failed to get password from secret: %w", err)
+			return false, fmt.Errorf("failed to get password from secret: %w", err)
 		}
 	}
 
@@ -72,7 +71,7 @@ func (h *ServiceUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.C
 		},
 	)
 	if err != nil && !isAlreadyExists(err) {
-		return fmt.Errorf("cannot createOrUpdate service user on aiven side: %w", err)
+		return false, fmt.Errorf("cannot createOrUpdate service user on aiven side: %w", err)
 	}
 
 	// modify credentials using the password from source secret
@@ -80,7 +79,7 @@ func (h *ServiceUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.C
 		modifier := NewServiceUserPasswordModifier(avnGen)
 		passwordManager := NewPasswordManager[*v1alpha1.ServiceUser](h.k8s, modifier)
 		if err = passwordManager.ModifyCredentials(ctx, user, newPassword); err != nil {
-			return fmt.Errorf("failed to modify service user credentials: %w", err)
+			return false, fmt.Errorf("failed to modify service user credentials: %w", err)
 		}
 	}
 
@@ -88,14 +87,7 @@ func (h *ServiceUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.C
 		user.Status.Type = u.Type
 	}
 
-	meta.SetStatusCondition(&user.Status.Conditions,
-		getInitializedCondition("Created",
-			"Successfully created or updated the instance in Aiven"))
-
-	metav1.SetMetaDataAnnotation(&user.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(user.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
+	return true, nil
 }
 
 func (h *ServiceUserHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

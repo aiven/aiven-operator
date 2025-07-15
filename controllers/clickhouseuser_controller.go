@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/clickhouse"
@@ -51,10 +50,10 @@ type clickhouseUserHandler struct {
 	k8s client.Client
 }
 
-func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) (bool, error) {
 	user, err := h.convert(obj)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	var newPassword string
@@ -64,13 +63,13 @@ func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avnGen avnge
 
 		newPassword, err = passwordManager.GetPasswordFromSecret(ctx, user)
 		if err != nil {
-			return fmt.Errorf("failed to get password from secret: %w", err)
+			return false, fmt.Errorf("failed to get password from secret: %w", err)
 		}
 	}
 
 	list, err := avnGen.ServiceClickHouseUserList(ctx, user.Spec.Project, user.Spec.ServiceName)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	var uuid string
@@ -81,13 +80,14 @@ func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avnGen avnge
 		}
 	}
 
-	if uuid == "" {
+	exists := uuid != ""
+	if !exists {
 		req := clickhouse.ServiceClickHouseUserCreateIn{
 			Name: user.GetUsername(),
 		}
 		r, err := avnGen.ServiceClickHouseUserCreate(ctx, user.Spec.Project, user.Spec.ServiceName, &req)
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		uuid = r.Uuid
@@ -101,18 +101,11 @@ func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avnGen avnge
 		modifier := NewClickHouseUserPasswordModifier(avnGen)
 		passwordManager := NewPasswordManager[*v1alpha1.ClickhouseUser](h.k8s, modifier)
 		if err = passwordManager.ModifyCredentials(ctx, user, newPassword); err != nil {
-			return fmt.Errorf("failed to modify ClickHouse user credentials: %w", err)
+			return false, fmt.Errorf("failed to modify ClickHouse user credentials: %w", err)
 		}
 	}
 
-	meta.SetStatusCondition(&user.Status.Conditions,
-		getInitializedCondition("Created",
-			"Successfully created or updated the instance in Aiven"))
-
-	metav1.SetMetaDataAnnotation(&user.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(user.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
+	return !exists, nil
 }
 
 func (h *clickhouseUserHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

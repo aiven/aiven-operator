@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strconv"
 	"strings"
 
 	avngen "github.com/aiven/go-client-codegen"
@@ -52,25 +51,18 @@ func (r *ClickhouseRoleReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 type clickhouseRoleHandler struct{}
 
-func (h *clickhouseRoleHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h *clickhouseRoleHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) (bool, error) {
 	role, err := h.convert(obj)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	err = clickhouseRoleCreate(ctx, avnGen, role)
 	if err != nil {
-		return err
+		return false, err
 	}
 
-	meta.SetStatusCondition(&role.Status.Conditions,
-		getInitializedCondition("Created",
-			"Successfully created or updated the instance in Aiven"))
-
-	metav1.SetMetaDataAnnotation(&role.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(role.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
+	return true, nil
 }
 
 func (h *clickhouseRoleHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

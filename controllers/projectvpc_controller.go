@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/vpc"
@@ -51,10 +50,10 @@ func (r *ProjectVPCReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h *ProjectVPCHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h *ProjectVPCHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) (bool, error) {
 	projectVPC, err := h.convert(obj)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	avnVpc, err := avnGen.VpcCreate(ctx, projectVPC.Spec.Project, &vpc.VpcCreateIn{
@@ -63,23 +62,11 @@ func (h *ProjectVPCHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cl
 		PeeringConnections: make([]vpc.PeeringConnectionIn, 0),
 	})
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	projectVPC.Status.ID = avnVpc.ProjectVpcId
-
-	meta.SetStatusCondition(&projectVPC.Status.Conditions,
-		getInitializedCondition("Created",
-			"Successfully created or updated the instance in Aiven"))
-
-	meta.SetStatusCondition(&projectVPC.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "Created",
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&projectVPC.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(projectVPC.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
+	return true, nil
 }
 
 func (h *ProjectVPCHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

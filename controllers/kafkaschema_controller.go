@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafkaschemaregistry"
@@ -43,10 +42,10 @@ func (r *KafkaSchemaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) (bool, error) {
 	schema, err := h.convert(obj)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// This operation handles schema creation and updates idempotently:
@@ -69,7 +68,7 @@ func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cl
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("cannot add Kafka Schema Subject: %w", err)
+		return false, fmt.Errorf("cannot add Kafka Schema Subject: %w", err)
 	}
 
 	// The ID is used by the get() to poll the schema version which usually takes some time to be available.
@@ -87,22 +86,11 @@ func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cl
 			},
 		)
 		if err != nil {
-			return fmt.Errorf("cannot update Kafka Schema Configuration: %w", err)
+			return false, fmt.Errorf("cannot update Kafka Schema Configuration: %w", err)
 		}
 	}
 
-	meta.SetStatusCondition(&schema.Status.Conditions,
-		getInitializedCondition("Added",
-			"Successfully created or updated the instance in Aiven"))
-
-	meta.SetStatusCondition(&schema.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "Added",
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&schema.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(schema.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
+	return true, nil
 }
 
 func (h KafkaSchemaHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

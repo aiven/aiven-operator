@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"strings"
 
 	avngen "github.com/aiven/go-client-codegen"
@@ -47,22 +46,22 @@ func (r *ServiceIntegrationEndpointReconciler) SetupWithManager(mgr ctrl.Manager
 
 type ServiceIntegrationEndpointHandler struct{}
 
-func (h ServiceIntegrationEndpointHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h ServiceIntegrationEndpointHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) (bool, error) {
 	si, err := h.convert(obj)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	userConfig, err := si.GetUserConfig()
 	if err != nil {
-		return err
+		return false, err
 	}
 
-	var reason string
-	if si.Status.ID == "" {
+	exists := si.Status.ID != ""
+	if !exists {
 		userConfigMap, err := CreateUserConfiguration(userConfig)
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		endpoint, err := avnGen.ServiceIntegrationEndpointCreate(
@@ -75,19 +74,18 @@ func (h ServiceIntegrationEndpointHandler) createOrUpdate(ctx context.Context, a
 			},
 		)
 		if err != nil {
-			return fmt.Errorf("cannot createOrUpdate service integration: %w", err)
+			return false, fmt.Errorf("cannot service integration: %w", err)
 		}
 
-		reason = "Created"
 		si.Status.ID = endpoint.EndpointId
 	} else {
 		if !si.HasUserConfig() {
-			return nil
+			return false, nil
 		}
 
 		userConfigMap, err := UpdateUserConfiguration(userConfig)
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		updatedIntegration, err := avnGen.ServiceIntegrationEndpointUpdate(
@@ -98,28 +96,16 @@ func (h ServiceIntegrationEndpointHandler) createOrUpdate(ctx context.Context, a
 				UserConfig: userConfigMap,
 			},
 		)
-		reason = "Updated"
 		if err != nil {
 			if strings.Contains(strings.ToLower(err.Error()), "user config not changed") {
-				return nil
+				return false, nil
 			}
-			return err
+			return false, err
 		}
 		si.Status.ID = updatedIntegration.EndpointId
 	}
 
-	meta.SetStatusCondition(&si.Status.Conditions,
-		getInitializedCondition(reason,
-			"Successfully created or updated the instance in Aiven"))
-
-	meta.SetStatusCondition(&si.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, reason,
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&si.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(si.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
+	return !exists, nil
 }
 
 func (h ServiceIntegrationEndpointHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

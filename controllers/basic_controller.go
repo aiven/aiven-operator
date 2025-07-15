@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
@@ -57,7 +59,10 @@ type (
 	// of the Aiven services lifecycle.
 	Handlers interface {
 		// create or updates an instance on the Aiven side.
-		createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, refs []client.Object) error
+		// Returns true if the object was created.
+		// False if it was updated or an error occurred.
+		// Todo: split this into two methods.
+		createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, refs []client.Object) (bool, error)
 
 		// delete removes an instance on Aiven side.
 		// If an object is already deleted and cannot be found, it should not be an error. For other deletion
@@ -456,10 +461,42 @@ func (i *instanceReconcilerHelper) createOrUpdateInstance(ctx context.Context, o
 	delete(a, processedGenerationAnnotation)
 	delete(a, instanceIsRunningAnnotation)
 
-	if err := i.h.createOrUpdate(ctx, i.avnGen, o, refs); err != nil {
+	created, err := i.h.createOrUpdate(ctx, i.avnGen, o, refs)
+	if err != nil {
 		meta.SetStatusCondition(o.Conditions(), getErrorCondition(errConditionCreateOrUpdate, err))
 		return fmt.Errorf("unable to create or update aiven instance: %w", err)
 	}
+
+	reason := "Updated"
+	if created {
+		reason = "Created"
+	}
+
+	meta.SetStatusCondition(
+		o.Conditions(),
+		metav1.Condition{
+			Reason:  reason,
+			Type:    conditionTypeInitialized,
+			Status:  metav1.ConditionTrue,
+			Message: "Successfully created or updated the instance in Aiven",
+		},
+	)
+
+	meta.SetStatusCondition(
+		o.Conditions(),
+		metav1.Condition{
+			Reason:  reason,
+			Type:    conditionTypeRunning,
+			Status:  metav1.ConditionUnknown,
+			Message: "Successfully created or updated the instance in Aiven, status remains unknown",
+		},
+	)
+
+	metav1.SetMetaDataAnnotation(
+		o.GetObjectMeta(),
+		processedGenerationAnnotation,
+		strconv.FormatInt(o.GetGeneration(), formatIntBaseDecimal),
+	)
 
 	i.log.Info(
 		"processed instance, updating annotations",
