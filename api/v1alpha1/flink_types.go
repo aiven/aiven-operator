@@ -42,6 +42,10 @@ func (in *Flink) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *Flink) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *Flink) NoSecret() bool {
 	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
 }

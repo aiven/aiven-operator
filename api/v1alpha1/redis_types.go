@@ -44,6 +44,10 @@ func (in *Redis) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *Redis) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *Redis) NoSecret() bool {
 	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
 }

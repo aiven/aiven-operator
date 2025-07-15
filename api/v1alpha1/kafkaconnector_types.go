@@ -87,6 +87,10 @@ func (in *KafkaConnector) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *KafkaConnector) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (*KafkaConnector) NoSecret() bool {
 	return true
 }

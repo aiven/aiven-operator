@@ -64,6 +64,10 @@ func (in *ProjectVPC) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *ProjectVPC) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 // +kubebuilder:object:root=true
 
 // ProjectVPCList contains a list of ProjectVPC

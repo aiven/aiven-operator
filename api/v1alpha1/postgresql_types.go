@@ -48,6 +48,10 @@ func (in *PostgreSQL) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *PostgreSQL) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *PostgreSQL) GetRefs() []*ResourceReferenceObject {
 	return in.Spec.GetRefs(in.GetNamespace())
 }

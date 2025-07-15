@@ -132,6 +132,10 @@ func (in *ServiceIntegration) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *ServiceIntegration) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *ServiceIntegration) getUserConfigFields() map[service.IntegrationType]any {
 	return map[service.IntegrationType]any{
 		service.IntegrationTypeAutoscaler:                   in.Spec.AutoscalerUserConfig,

@@ -91,6 +91,10 @@ func (in *ClickhouseUser) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *ClickhouseUser) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *ClickhouseUser) GetConnInfoSecretTarget() ConnInfoSecretTarget {
 	return in.Spec.ConnInfoSecretTarget
 }

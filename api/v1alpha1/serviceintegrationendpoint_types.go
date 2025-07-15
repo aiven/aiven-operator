@@ -120,6 +120,10 @@ func (in *ServiceIntegrationEndpoint) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *ServiceIntegrationEndpoint) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *ServiceIntegrationEndpoint) getUserConfigFields() map[string]any {
 	return map[string]any{
 		"autoscaler":                      in.Spec.Autoscaler,

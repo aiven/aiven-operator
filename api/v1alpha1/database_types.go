@@ -69,6 +69,10 @@ func (in *Database) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *Database) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *Database) GetDatabaseName() string {
 	// Default to Spec.DatabaseName and use ObjectMeta.Name if empty.
 	// ObjectMeta.Name doesn't support underscores, Spec.DatabaseName does.

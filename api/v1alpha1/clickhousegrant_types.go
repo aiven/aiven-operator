@@ -151,6 +151,10 @@ func (in *ClickhouseGrant) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *ClickhouseGrant) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *ClickhouseGrant) NoSecret() bool {
 	return true
 }

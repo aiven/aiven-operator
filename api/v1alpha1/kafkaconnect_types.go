@@ -46,6 +46,10 @@ func (in *KafkaConnect) Conditions() *[]metav1.Condition {
 	return &in.Status.Conditions
 }
 
+func (in *KafkaConnect) GetObjectMeta() *metav1.ObjectMeta {
+	return &in.ObjectMeta
+}
+
 func (in *KafkaConnect) GetRefs() []*ResourceReferenceObject {
 	return in.Spec.GetRefs(in.GetNamespace())
 }
