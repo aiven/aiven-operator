@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafkaschemaregistry"
@@ -44,15 +43,15 @@ func (r *KafkaSchemaRegistryACLReconciler) SetupWithManager(mgr ctrl.Manager) er
 
 type KafkaSchemaRegistryACLHandler struct{}
 
-func (h KafkaSchemaRegistryACLHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h KafkaSchemaRegistryACLHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) (bool, error) {
 	acl, err := h.convert(obj)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	exists, err := h.exists(ctx, avnGen, acl)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	if !exists {
@@ -64,7 +63,7 @@ func (h KafkaSchemaRegistryACLHandler) createOrUpdate(ctx context.Context, avnGe
 
 		list, err := avnGen.ServiceSchemaRegistryAclAdd(ctx, acl.Spec.Project, acl.Spec.ServiceName, &in)
 		if err != nil {
-			return fmt.Errorf("cannot create KafkaSchemaRegistryAC on Aiven side: %w", err)
+			return false, fmt.Errorf("cannot create KafkaSchemaRegistryAC on Aiven side: %w", err)
 		}
 
 		for _, v := range list {
@@ -73,7 +72,7 @@ func (h KafkaSchemaRegistryACLHandler) createOrUpdate(ctx context.Context, avnGe
 				//  It must be a mistake.
 				//  https://api.aiven.io/doc/#tag/Service:_Kafka/operation/ServiceSchemaRegistryAclAdd
 				if v.Id == nil {
-					return fmt.Errorf("received empty ID in response")
+					return false, fmt.Errorf("received empty ID in response")
 				}
 				acl.Status.ACLId = *v.Id
 				break
@@ -81,18 +80,7 @@ func (h KafkaSchemaRegistryACLHandler) createOrUpdate(ctx context.Context, avnGe
 		}
 	}
 
-	meta.SetStatusCondition(&acl.Status.Conditions,
-		getInitializedCondition("Created",
-			"Successfully created or updated the instance in Aiven"))
-
-	meta.SetStatusCondition(&acl.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "Created",
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&acl.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(acl.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
+	return !exists, nil
 }
 
 func (h KafkaSchemaRegistryACLHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

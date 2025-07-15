@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/clickhouse"
@@ -44,10 +43,10 @@ func (r *ClickhouseDatabaseReconciler) SetupWithManager(mgr ctrl.Manager) error 
 		Complete(r)
 }
 
-func (h *ClickhouseDatabaseHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h *ClickhouseDatabaseHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) (bool, error) {
 	db, err := h.convert(obj)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	dbName := db.GetDatabaseName()
@@ -59,20 +58,13 @@ func (h *ClickhouseDatabaseHandler) createOrUpdate(ctx context.Context, avnGen a
 		}
 		err = avnGen.ServiceClickHouseDatabaseCreate(ctx, db.Spec.Project, db.Spec.ServiceName, &req)
 		if err != nil {
-			return err
+			return false, err
 		}
 	case err != nil:
-		return fmt.Errorf("cannot create clickhouse database on Aiven side: %w", err)
+		return false, fmt.Errorf("cannot create clickhouse database on Aiven side: %w", err)
 	}
 
-	meta.SetStatusCondition(&db.Status.Conditions,
-		getInitializedCondition("Created",
-			"Successfully created or updated the instance in Aiven"))
-
-	metav1.SetMetaDataAnnotation(&db.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(db.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
+	return true, nil
 }
 
 func (h *ClickhouseDatabaseHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

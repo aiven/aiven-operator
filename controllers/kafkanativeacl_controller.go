@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafka"
@@ -58,15 +57,15 @@ func (h KafkaNativeACLHandler) checkPreconditions(ctx context.Context, avnGen av
 }
 
 // createOrUpdate creates or updates an instance on the Aiven side.
-func (h KafkaNativeACLHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h KafkaNativeACLHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) (bool, error) {
 	acl, err := h.convert(obj)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	if acl.Status.ID != "" {
 		// The resource already exists, nothing to do
-		return nil
+		return false, nil
 	}
 
 	in := &kafka.ServiceKafkaNativeAclAddIn{
@@ -81,21 +80,11 @@ func (h KafkaNativeACLHandler) createOrUpdate(ctx context.Context, avnGen avngen
 
 	rsp, err := avnGen.ServiceKafkaNativeAclAdd(ctx, acl.Spec.Project, acl.Spec.ServiceName, in)
 	if err != nil {
-		return fmt.Errorf("create Kafka-native ACL error: %w", err)
+		return false, fmt.Errorf("create Kafka-native ACL error: %w", err)
 	}
 
 	acl.Status.ID = rsp.Id
-	meta.SetStatusCondition(&acl.Status.Conditions,
-		getInitializedCondition("CreatedOrUpdate",
-			"Successfully created or updated the instance in Aiven"))
-
-	meta.SetStatusCondition(&acl.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "CreatedOrUpdate",
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&acl.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(acl.GetGeneration(), formatIntBaseDecimal))
-	return nil
+	return true, nil
 }
 
 // delete removes an instance on Aiven side.

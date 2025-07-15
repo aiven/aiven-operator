@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
@@ -44,15 +43,15 @@ func (r *DatabaseReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h DatabaseHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h DatabaseHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) (bool, error) {
 	db, err := h.convert(obj)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	exists, err := h.exists(ctx, avnGen, db)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	if !exists {
@@ -62,18 +61,11 @@ func (h DatabaseHandler) createOrUpdate(ctx context.Context, avnGen avngen.Clien
 			LcCtype:   NilIfZero(db.Spec.LcCtype),
 		})
 		if err != nil {
-			return fmt.Errorf("cannot create database on Aiven side: %w", err)
+			return false, fmt.Errorf("cannot create database on Aiven side: %w", err)
 		}
 	}
 
-	meta.SetStatusCondition(&db.Status.Conditions,
-		getInitializedCondition("Created",
-			"Successfully created or updated the instance in Aiven"))
-
-	metav1.SetMetaDataAnnotation(&db.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(db.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
+	return !exists, nil
 }
 
 func (h DatabaseHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

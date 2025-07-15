@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafkatopic"
@@ -44,10 +43,10 @@ func (r *KafkaTopicReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) (bool, error) {
 	topic, err := h.convert(obj)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	tags := make([]kafkatopic.TagIn, 0, len(topic.Spec.Tags))
@@ -61,8 +60,6 @@ func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cli
 	// ServiceKafkaTopicGet quite often fails with 5xx errors.
 	// So instead of trying to get the topic info, we'll just create it.
 	// If the topic already exists, we'll update it.
-
-	reason := "Created"
 	err = avnGen.ServiceKafkaTopicCreate(ctx, topic.Spec.Project, topic.Spec.ServiceName, &kafkatopic.ServiceKafkaTopicCreateIn{
 		Partitions:  &topic.Spec.Partitions,
 		Replication: &topic.Spec.Replication,
@@ -71,8 +68,8 @@ func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cli
 		Config:      convertKafkaTopicConfig(topic),
 	})
 
-	if isAlreadyExists(err) {
-		reason = "Updated"
+	exists := isAlreadyExists(err)
+	if exists {
 		err = avnGen.ServiceKafkaTopicUpdate(ctx, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName(),
 			&kafkatopic.ServiceKafkaTopicUpdateIn{
 				Partitions:  &topic.Spec.Partitions,
@@ -81,30 +78,19 @@ func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cli
 				Config:      convertKafkaTopicConfig(topic),
 			})
 		if err != nil {
-			return fmt.Errorf("cannot update Kafka Topic: %w", err)
+			return false, fmt.Errorf("cannot update Kafka Topic: %w", err)
 		}
 	}
 
 	switch {
 	case isServerError(err):
 		// Service is not ready yet, retry later.
-		return nil
+		return false, nil
 	case err != nil:
-		return err
+		return false, err
 	}
 
-	meta.SetStatusCondition(&topic.Status.Conditions,
-		getInitializedCondition(reason,
-			"Successfully created or updated the instance in Aiven"))
-
-	meta.SetStatusCondition(&topic.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, reason,
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&topic.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(topic.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
+	return !exists, nil
 }
 
 func (h KafkaTopicHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

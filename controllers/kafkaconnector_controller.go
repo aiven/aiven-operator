@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"strconv"
 	"strings"
 	"text/template"
 
@@ -53,28 +52,27 @@ func (r *KafkaConnectorReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
+func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) (bool, error) {
 	conn, err := h.convert(obj)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	connCfg, err := h.buildConnectorConfig(ctx, conn)
 	if err != nil {
-		return fmt.Errorf("unable to build connector config: %w", err)
+		return false, fmt.Errorf("unable to build connector config: %w", err)
 	}
 
 	// Sometimes GET (ServiceKafkaConnectGetConnectorStatus) returns OK,
 	// and POST (ServiceKafkaConnectCreateConnector) returns NotFound error.
 	// So instead of asking Aiven API if the connector exists,
 	// we try to create it.
-	reason := "Created"
 	_, err = avnGen.ServiceKafkaConnectCreateConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, connCfg)
-	if isAlreadyExists(err) {
-		reason = "Updated"
+	exists := isAlreadyExists(err)
+	if exists {
 		_, err = avnGen.ServiceKafkaConnectEditConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name, connCfg)
 		if err != nil {
-			return err
+			return false, err
 		}
 	}
 
@@ -83,26 +81,15 @@ func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avnGen avngen
 		// Means, the API isn't consistent yet,
 		// because checkPreconditions() passed, yet we get 404.
 		// Retry later.
-		return nil
+		return false, nil
 	case isServerError(err):
 		// Service is not ready yet, retry later.
-		return nil
+		return false, nil
 	case err != nil:
-		return err
+		return false, err
 	}
 
-	meta.SetStatusCondition(&conn.Status.Conditions,
-		getInitializedCondition(reason,
-			"Successfully created or updated the instance in Aiven"))
-
-	meta.SetStatusCondition(&conn.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, reason,
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&conn.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(conn.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
+	return !exists, nil
 }
 
 // buildConnectorConfig joins mandatory fields with additional connector specific config
