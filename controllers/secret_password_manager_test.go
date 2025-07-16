@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -15,16 +14,6 @@ import (
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
-
-// MockPasswordModifier for testing
-type MockPasswordModifier struct {
-	mock.Mock
-}
-
-func (m *MockPasswordModifier) ModifyCredentials(ctx context.Context, resource *v1alpha1.ClickhouseUser, password string) error {
-	args := m.Called(ctx, resource, password)
-	return args.Error(0)
-}
 
 func TestPasswordManager_GetPasswordFromSecret(t *testing.T) {
 	scheme := runtime.NewScheme()
@@ -163,9 +152,6 @@ func TestPasswordManager_GetPasswordFromSecret(t *testing.T) {
 				k8sClient = fake.NewClientBuilder().WithScheme(scheme).Build()
 			}
 
-			mockModifier := &MockPasswordModifier{}
-			pm := NewPasswordManager[*v1alpha1.ClickhouseUser](k8sClient, mockModifier)
-
 			user := &v1alpha1.ClickhouseUser{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "test-user",
@@ -176,7 +162,7 @@ func TestPasswordManager_GetPasswordFromSecret(t *testing.T) {
 				},
 			}
 
-			result, err := pm.GetPasswordFromSecret(context.Background(), user)
+			result, err := GetPasswordFromSecret(context.Background(), k8sClient, user)
 
 			if tt.expectError {
 				require.Error(t, err)
@@ -238,10 +224,6 @@ func TestPasswordManager_PasswordValidation(t *testing.T) {
 				},
 			}
 
-			k8sClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(secret).Build()
-			mockModifier := &MockPasswordModifier{}
-			pm := NewPasswordManager[*v1alpha1.ClickhouseUser](k8sClient, mockModifier)
-
 			user := &v1alpha1.ClickhouseUser{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "test-user",
@@ -255,7 +237,8 @@ func TestPasswordManager_PasswordValidation(t *testing.T) {
 				},
 			}
 
-			result, err := pm.GetPasswordFromSecret(context.Background(), user)
+			k8sClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(secret).Build()
+			result, err := GetPasswordFromSecret(context.Background(), k8sClient, user)
 
 			if tt.expectError {
 				require.Error(t, err)
@@ -312,10 +295,6 @@ func TestPasswordManager_NamespaceResolution(t *testing.T) {
 				objects = append(objects, secret)
 			}
 
-			k8sClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
-			mockModifier := &MockPasswordModifier{}
-			pm := NewPasswordManager[*v1alpha1.ClickhouseUser](k8sClient, mockModifier)
-
 			secretSource := &v1alpha1.ConnInfoSecretSource{
 				Name:        "test-secret",
 				PasswordKey: "PASSWORD",
@@ -334,7 +313,8 @@ func TestPasswordManager_NamespaceResolution(t *testing.T) {
 				},
 			}
 
-			result, err := pm.GetPasswordFromSecret(context.Background(), user)
+			k8sClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
+			result, err := GetPasswordFromSecret(context.Background(), k8sClient, user)
 
 			if tt.secretExists {
 				require.NoError(t, err)
