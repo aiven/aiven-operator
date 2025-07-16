@@ -54,15 +54,9 @@ func (h *ServiceUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.C
 		return err
 	}
 
-	var newPassword string
-	if user.Spec.ConnInfoSecretSource != nil {
-		modifier := NewServiceUserPasswordModifier(avnGen)
-		passwordManager := NewPasswordManager[*v1alpha1.ServiceUser](h.k8s, modifier)
-
-		newPassword, err = passwordManager.GetPasswordFromSecret(ctx, user)
-		if err != nil {
-			return fmt.Errorf("failed to get password from secret: %w", err)
-		}
+	newPassword, err := GetPasswordFromSecret(ctx, h.k8s, user)
+	if err != nil {
+		return fmt.Errorf("failed to get password from secret: %w", err)
 	}
 
 	u, err := avnGen.ServiceUserCreate(
@@ -77,10 +71,14 @@ func (h *ServiceUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.C
 
 	// modify credentials using the password from source secret
 	if newPassword != "" {
-		modifier := NewServiceUserPasswordModifier(avnGen)
-		passwordManager := NewPasswordManager[*v1alpha1.ServiceUser](h.k8s, modifier)
-		if err = passwordManager.ModifyCredentials(ctx, user, newPassword); err != nil {
-			return fmt.Errorf("failed to modify service user credentials: %w", err)
+		modifyReq := &service.ServiceUserCredentialsModifyIn{
+			NewPassword: &newPassword,
+			Operation:   service.ServiceUserCredentialsModifyOperationTypeResetCredentials,
+		}
+
+		_, err = avnGen.ServiceUserCredentialsModify(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name, modifyReq)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -203,26 +201,4 @@ func (h *ServiceUserHandler) convert(i client.Object) (*v1alpha1.ServiceUser, er
 	}
 
 	return db, nil
-}
-
-type ServiceUserPasswordModifier struct {
-	avnClient avngen.Client
-}
-
-func NewServiceUserPasswordModifier(avnClient avngen.Client) *ServiceUserPasswordModifier {
-	return &ServiceUserPasswordModifier{avnClient: avnClient}
-}
-
-func (m *ServiceUserPasswordModifier) ModifyCredentials(ctx context.Context, user *v1alpha1.ServiceUser, password string) error {
-	modifyReq := &service.ServiceUserCredentialsModifyIn{
-		NewPassword: &password,
-		Operation:   service.ServiceUserCredentialsModifyOperationTypeResetCredentials,
-	}
-
-	_, err := m.avnClient.ServiceUserCredentialsModify(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name, modifyReq)
-	if err != nil {
-		return fmt.Errorf("failed to modify service user credentials: %w", err)
-	}
-
-	return nil
 }
