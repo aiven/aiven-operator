@@ -88,3 +88,56 @@ cert-manager-7dd5854bb4-85cpv              1/1     Running   0          76s
 cert-manager-cainjector-64c949654c-n2z8l   1/1     Running   0          77s
 cert-manager-webhook-6bdffc7c9d-47w6z      1/1     Running   0          76s
 ```
+
+## Resource Reconciliation Behavior
+
+The Aiven Operator is designed to stop reconciling resources once they reach a ready state. This behavior is different from some other Kubernetes operators and can cause confusion.
+
+### When Reconciliation Stops
+
+The operator stops reconciling a resource when **both** of the following conditions are met:
+
+1. **Latest generation processed** - The operator has processed the latest changes from the Kubernetes resource specification
+2. **Resource is running** - The resource has been successfully created in Aiven and is in a running state
+
+You can check if a resource is in this "ready" state by looking for these annotations:
+
+```shell
+kubectl describe <resource-type> <resource-name> -n <namespace>
+```
+
+Look for these annotations:
+- `controllers.aiven.io/instance-is-running`: Indicates the resource is running in Aiven
+- `controllers.aiven.io/generation-was-processed`: Indicates the latest spec changes have been processed
+
+### Common Misconception
+
+**Expected behavior**: "If I manually delete a resource from the Aiven console, the operator should recreate it automatically."
+
+**Actual behavior**: Once a resource/secret is ready, the operator stops continuous reconciliation. Manual changes in the Aiven console will **not** trigger automatic recreation.
+
+### How to Force Reconciliation
+
+If you need to force the operator to reconcile a resource (for example, after manually deleting it from Aiven), you have several options:
+
+#### Option 1: Delete and Recreate the Kubernetes Resource
+
+**Note:** The resource will be deleted on the Aiven side and data may be lost when using this approach.
+
+```shell
+kubectl delete <resource-type> <resource-name> -n <namespace>
+kubectl apply -f your-resource.yaml
+```
+
+#### Option 2: Remove the Generation Annotation
+Remove the `controllers.aiven.io/generation-was-processed` annotation to force reconciliation without affecting the resource's functionality:
+```shell
+kubectl annotate <resource-type> <resource-name> -n <namespace> controllers.aiven.io/generation-was-processed-
+```
+
+Example:
+```shell
+kubectl annotate kafkatopic orders-topic -n aiven controllers.aiven.io/generation-was-processed-
+```
+
+This is the cleanest approach as it doesn't modify the resource specification or create any side effects.
