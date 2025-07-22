@@ -75,3 +75,27 @@ jobs:
           AIVEN_ACCOUNT_ID: ${{ secrets.AIVEN_ACCOUNT_ID }}
           AIVEN_PROJECT_NAME: >-
             ${{ secrets.AIVEN_PROJECT_NAME_PREFIX }}${{ needs.setup_aiven_project_suffix.outputs.project_name_suffix }}
+
+  notify-slack-success:
+    if: needs.test.result == 'success'
+    needs: [test, sweep]
+    uses: ./.github/workflows/slack-notify.yml
+    with:
+      status: success
+      workflow_name: tests
+      custom_message: All acceptance tests passed
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+
+  notify-slack-failure:
+    if: needs.test.result == 'failure'
+    needs: [test, sweep]
+    uses: ./.github/workflows/slack-notify.yml
+    with:
+      status: failure
+      workflow_name: tests
+      custom_message: Acceptance tests failed
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
