@@ -1,6 +1,16 @@
 # Changelog
 
 
+## v0.31.0 - 2025-07-25
+
+- Upgraded HPA from deprecated `autoscaling/v2beta1` to stable `autoscaling/v2` API
+- Added `ServiceUser` field `connInfoSecretSource`: Allows reading passwords from existing secrets for credential management. Supports setting passwords for new users and existing users
+- Change `AlloyDBOmni` field `userConfig.pg.max_wal_senders`: maximum ~~`64`~~ → `256`
+- Add `Kafka` field `userConfig.single_zone.availability_zone`, type `string`: The availability zone
+  to use for the service. This is only used when enabled is set to true
+- Change `PostgreSQL` field `userConfig.pg.max_wal_senders`: maximum ~~`64`~~ → `256`
+- Add `ClickhouseUser` field `connInfoSecretSource`:  Allows reading passwords from existing secrets for credential management. Supports setting passwords for new users and existing users
+
 ## v0.30.0 - 2025-07-03
 
 - Added `powered` field (default: `true`) to control service power state. When `false`, the service is powered off.
