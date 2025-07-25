@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#usage-example" class="md-skip">
+        <a href="#usage-examples" class="md-skip">
           Skip to content
         </a>
       
@@ -1437,9 +1437,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#usage-example" class="md-nav__link">
+  <a href="#usage-examples" class="md-nav__link">
     <span class="md-ellipsis">
-      Usage example
+      Usage examples
     </span>
   </a>
   
@@ -1467,6 +1467,15 @@
   <a href="#spec.authSecretRef" class="md-nav__link">
     <span class="md-ellipsis">
       authSecretRef
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec.connInfoSecretSource" class="md-nav__link">
+    <span class="md-ellipsis">
+      connInfoSecretSource
     </span>
   </a>
   
@@ -2358,9 +2367,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#usage-example" class="md-nav__link">
+  <a href="#usage-examples" class="md-nav__link">
     <span class="md-ellipsis">
-      Usage example
+      Usage examples
     </span>
   </a>
   
@@ -2388,6 +2397,15 @@
   <a href="#spec.authSecretRef" class="md-nav__link">
     <span class="md-ellipsis">
       authSecretRef
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec.connInfoSecretSource" class="md-nav__link">
+    <span class="md-ellipsis">
+      connInfoSecretSource
     </span>
   </a>
   
@@ -2985,9 +3003,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#usage-example" class="md-nav__link">
+  <a href="#usage-examples" class="md-nav__link">
     <span class="md-ellipsis">
-      Usage example
+      Usage examples
     </span>
   </a>
   
@@ -3015,6 +3033,15 @@
   <a href="#spec.authSecretRef" class="md-nav__link">
     <span class="md-ellipsis">
       authSecretRef
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec.connInfoSecretSource" class="md-nav__link">
+    <span class="md-ellipsis">
+      connInfoSecretSource
     </span>
   </a>
   
@@ -3058,7 +3085,7 @@
 
   <h1>ServiceUser</h1>
 
-<h2 id="usage-example">Usage example<a class="headerlink" href="#usage-example" title="Permanent link">&para;</a></h2>
+<h2 id="usage-examples">Usage examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Prerequisites</p>
 <ul>
@@ -3066,6 +3093,9 @@
 <li>A Kubernetes <a href="../authentication.html">Secret</a> with an Aiven authentication token.</li>
 </ul>
 </div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">custom_credentials</label><label for="__tabbed_1_2">example</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
@@ -3084,56 +3114,199 @@
 <span class="normal"><a href="#__codelineno-0-16">16</a></span>
 <span class="normal"><a href="#__codelineno-0-17">17</a></span>
 <span class="normal"><a href="#__codelineno-0-18">18</a></span>
-<span class="normal"><a href="#__codelineno-0-19">19</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceUser</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="nt">metadata</span><span class="p">:</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-service-user</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="nt">spec</span><span class="p">:</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service-user-secret</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="w">    </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MY_SECRET_PREFIX_</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="w">      </span><span class="nt">foo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bar</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="w">      </span><span class="nt">baz</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">egg</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17"></a>
-<a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-project-name</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-service-name</span>
+<span class="normal"><a href="#__codelineno-0-19">19</a></span>
+<span class="normal"><a href="#__codelineno-0-20">20</a></span>
+<span class="normal"><a href="#__codelineno-0-21">21</a></span>
+<span class="normal"><a href="#__codelineno-0-22">22</a></span>
+<span class="normal"><a href="#__codelineno-0-23">23</a></span>
+<span class="normal"><a href="#__codelineno-0-24">24</a></span>
+<span class="normal"><a href="#__codelineno-0-25">25</a></span>
+<span class="normal"><a href="#__codelineno-0-26">26</a></span>
+<span class="normal"><a href="#__codelineno-0-27">27</a></span>
+<span class="normal"><a href="#__codelineno-0-28">28</a></span>
+<span class="normal"><a href="#__codelineno-0-29">29</a></span>
+<span class="normal"><a href="#__codelineno-0-30">30</a></span>
+<span class="normal"><a href="#__codelineno-0-31">31</a></span>
+<span class="normal"><a href="#__codelineno-0-32">32</a></span>
+<span class="normal"><a href="#__codelineno-0-33">33</a></span>
+<span class="normal"><a href="#__codelineno-0-34">34</a></span>
+<span class="normal"><a href="#__codelineno-0-35">35</a></span>
+<span class="normal"><a href="#__codelineno-0-36">36</a></span>
+<span class="normal"><a href="#__codelineno-0-37">37</a></span>
+<span class="normal"><a href="#__codelineno-0-38">38</a></span>
+<span class="normal"><a href="#__codelineno-0-39">39</a></span>
+<span class="normal"><a href="#__codelineno-0-40">40</a></span>
+<span class="normal"><a href="#__codelineno-0-41">41</a></span>
+<span class="normal"><a href="#__codelineno-0-42">42</a></span>
+<span class="normal"><a href="#__codelineno-0-43">43</a></span>
+<span class="normal"><a href="#__codelineno-0-44">44</a></span>
+<span class="normal"><a href="#__codelineno-0-45">45</a></span>
+<span class="normal"><a href="#__codelineno-0-46">46</a></span>
+<span class="normal"><a href="#__codelineno-0-47">47</a></span>
+<span class="normal"><a href="#__codelineno-0-48">48</a></span>
+<span class="normal"><a href="#__codelineno-0-49">49</a></span>
+<span class="normal"><a href="#__codelineno-0-50">50</a></span>
+<span class="normal"><a href="#__codelineno-0-51">51</a></span>
+<span class="normal"><a href="#__codelineno-0-52">52</a></span>
+<span class="normal"><a href="#__codelineno-0-53">53</a></span>
+<span class="normal"><a href="#__codelineno-0-54">54</a></span>
+<span class="normal"><a href="#__codelineno-0-55">55</a></span>
+<span class="normal"><a href="#__codelineno-0-56">56</a></span>
+<span class="normal"><a href="#__codelineno-0-57">57</a></span>
+<span class="normal"><a href="#__codelineno-0-58">58</a></span>
+<span class="normal"><a href="#__codelineno-0-59">59</a></span>
+<span class="normal"><a href="#__codelineno-0-60">60</a></span>
+<span class="normal"><a href="#__codelineno-0-61">61</a></span>
+<span class="normal"><a href="#__codelineno-0-62">62</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="c1"># This example demonstrates how to use ServiceUser with connInfoSecretSource</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="c1"># for credential management. The ServiceUser will use a</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="c1"># predefined password from an existing secret.</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Secret</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">predefined-credentials</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="nt">data</span><span class="p">:</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="w">  </span><span class="c1"># MySecurePassword123! base64 encoded</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="w">  </span><span class="nt">PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TXlTZWN1cmVQYXNzd29yZDEyMyE=</span><span class="w"> </span><span class="c1"># gitleaks:allow</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12"></a>
+<a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="nn">---</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14"></a>
+<a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PostgreSQL</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-postgresql</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23"></a>
+<a id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-project-name</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="w">  </span><span class="nt">cloudName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">google-europe-west1</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="w">  </span><span class="nt">plan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">startup-4</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27"></a>
+<a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgresql-connection</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="w">    </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PG_</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="w">      </span><span class="nt">example</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgresql-service</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="w">      </span><span class="nt">service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgresql</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35"></a>
+<a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="nn">---</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37"></a>
+<a id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceUser</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-service-user</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46"></a>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service-user-secret</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="w">    </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MY_SECRET_PREFIX_</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
+<a id="__codelineno-0-51" name="__codelineno-0-51"></a><span class="w">      </span><span class="nt">foo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bar</span>
+<a id="__codelineno-0-52" name="__codelineno-0-52"></a><span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
+<a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="w">      </span><span class="nt">baz</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">egg</span>
+<a id="__codelineno-0-54" name="__codelineno-0-54"></a>
+<a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="w">  </span><span class="c1"># Use existing secret for credential management</span>
+<a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="w">  </span><span class="nt">connInfoSecretSource</span><span class="p">:</span>
+<a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">predefined-credentials</span>
+<a id="__codelineno-0-58" name="__codelineno-0-58"></a><span class="w">    </span><span class="c1"># namespace: my-namespace  # Optional: defaults to same namespace as ServiceUser</span>
+<a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="w">    </span><span class="nt">passwordKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PASSWORD</span>
+<a id="__codelineno-0-60" name="__codelineno-0-60"></a>
+<a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-project-name</span>
+<a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-postgresql</span>
 </code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-1-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-1-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-1-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-1-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-1-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-1-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-1-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-1-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-1-10">10</a></span>
+<span class="normal"><a href="#__codelineno-1-11">11</a></span>
+<span class="normal"><a href="#__codelineno-1-12">12</a></span>
+<span class="normal"><a href="#__codelineno-1-13">13</a></span>
+<span class="normal"><a href="#__codelineno-1-14">14</a></span>
+<span class="normal"><a href="#__codelineno-1-15">15</a></span>
+<span class="normal"><a href="#__codelineno-1-16">16</a></span>
+<span class="normal"><a href="#__codelineno-1-17">17</a></span>
+<span class="normal"><a href="#__codelineno-1-18">18</a></span>
+<span class="normal"><a href="#__codelineno-1-19">19</a></span>
+<span class="normal"><a href="#__codelineno-1-20">20</a></span>
+<span class="normal"><a href="#__codelineno-1-21">21</a></span>
+<span class="normal"><a href="#__codelineno-1-22">22</a></span>
+<span class="normal"><a href="#__codelineno-1-23">23</a></span>
+<span class="normal"><a href="#__codelineno-1-24">24</a></span>
+<span class="normal"><a href="#__codelineno-1-25">25</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceUser</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-service-user</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service-user-secret</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="w">    </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MY_SECRET_PREFIX_</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="w">      </span><span class="nt">foo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bar</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16"></a><span class="w">      </span><span class="nt">baz</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">egg</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17"></a>
+<a id="__codelineno-1-18" name="__codelineno-1-18"></a><span class="w">  </span><span class="c1"># Optional: Use existing secret for credential management</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19"></a><span class="w">  </span><span class="c1"># connInfoSecretSource:</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20"></a><span class="w">  </span><span class="c1">#   name: predefined-credentials</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21"></a><span class="w">  </span><span class="c1">#   namespace: my-namespace  # Optional: defaults to same namespace as ServiceUser</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22"></a><span class="w">  </span><span class="c1">#   passwordKey: PASSWORD</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23"></a>
+<a id="__codelineno-1-24" name="__codelineno-1-24"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-project-name</span>
+<a id="__codelineno-1-25" name="__codelineno-1-25"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-service-name</span>
+</code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
 <p>Apply the resource with:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>example.yaml
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>example.yaml
 </code></pre></div>
 <p>Verify the newly created <code>ServiceUser</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>serviceusers<span class="w"> </span>my-service-user
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>serviceusers<span class="w"> </span>my-service-user
 </code></pre></div>
 <p>The output is similar to the following:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Name<span class="w">               </span>Service<span class="w"> </span>Name<span class="w">       </span>Project<span class="w">               </span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>my-service-user<span class="w">    </span>my-service-name<span class="w">    </span>aiven-project-name<span class="w">    </span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Name<span class="w">               </span>Service<span class="w"> </span>Name<span class="w">     </span>Project<span class="w">               </span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>my-service-user<span class="w">    </span>my-postgresql<span class="w">    </span>aiven-project-name<span class="w">    </span>
 </code></pre></div></p>
 <p>To view the details of the <code>Secret</code>, use the following command:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>secret<span class="w"> </span>service-user-secret
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>secret<span class="w"> </span>service-user-secret
 </code></pre></div></p>
 <p>You can use the <a href="https://github.com/jqlang/jq">jq</a> to quickly decode the <code>Secret</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>service-user-secret<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data | map_values(@base64d)&#39;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>service-user-secret<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data | map_values(@base64d)&#39;</span>
 </code></pre></div>
 <p>The output is similar to the following:</p>
-<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="nt">&quot;SERVICEUSER_HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">&quot;SERVICEUSER_PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">&quot;SERVICEUSER_USERNAME&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nt">&quot;SERVICEUSER_PASSWORD&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">&quot;SERVICEUSER_CA_CERT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nt">&quot;SERVICEUSER_ACCESS_CERT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="nt">&quot;SERVICEUSER_ACCESS_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="p">}</span>
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="nt">&quot;SERVICEUSER_HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="nt">&quot;SERVICEUSER_PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="nt">&quot;SERVICEUSER_USERNAME&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="nt">&quot;SERVICEUSER_PASSWORD&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="nt">&quot;SERVICEUSER_CA_CERT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="nt">&quot;SERVICEUSER_ACCESS_CERT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="nt">&quot;SERVICEUSER_ACCESS_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="p">}</span>
 </code></pre></div>
 <hr />
 <h2 id="ServiceUser">ServiceUser<a class="headerlink" href="#ServiceUser" title="Permanent link">&para;</a></h2>
-<p>ServiceUser is the Schema for the serviceusers API.</p>
+<p>ServiceUser is the Schema for the serviceusers API.
+Creates a service user for accessing Aiven services. The ServiceUser resource name becomes the username in Aiven.
+Built-in users like <code>avnadmin</code> cannot be deleted but their passwords can be modified using connInfoSecretSource.</p>
 <div class="admonition info">
 <p class="admonition-title">Exposes secret keys</p>
 <p><code>SERVICEUSER_HOST</code>, <code>SERVICEUSER_PORT</code>, <code>SERVICEUSER_USERNAME</code>, <code>SERVICEUSER_PASSWORD</code>, <code>SERVICEUSER_CA_CERT</code>, <code>SERVICEUSER_ACCESS_CERT</code>, <code>SERVICEUSER_ACCESS_KEY</code>.</p>
@@ -3157,8 +3330,21 @@
 <ul>
 <li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
 <li><a href="#spec.authentication-property" name="spec.authentication-property"><code>authentication</code></a> (string, Enum: <code>caching_sha2_password</code>, <code>mysql_native_password</code>). Authentication details.</li>
+<li>
+<p><a href="#spec.connInfoSecretSource-property" name="spec.connInfoSecretSource-property"><code>connInfoSecretSource</code></a> (object). ConnInfoSecretSource allows specifying an existing secret to read credentials from.
+    The password from this secret will be used to modify the service user credentials.
+    Password must be 8-256 characters long as per Aiven API requirements.
+    This can be used to set passwords for new users or modify passwords for existing users (e.g., avnadmin).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This secret is not watched - changes to the source secret require manual reconciliation.
+To apply password changes, trigger reconciliation by adding/updating an annotation on the ServiceUser. See below for <a href="#spec.connInfoSecretSource">nested schema</a>.</p>
+</div>
+<ul>
 <li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Secret configuration. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
 <li><a href="#spec.connInfoSecretTargetDisabled-property" name="spec.connInfoSecretTargetDisabled-property"><code>connInfoSecretTargetDisabled</code></a> (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.</li>
+</ul>
+</li>
 </ul>
 <h2 id="spec.authSecretRef">authSecretRef<a class="headerlink" href="#spec.authSecretRef" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -3167,6 +3353,26 @@
 <ul>
 <li><a href="#spec.authSecretRef.key-property" name="spec.authSecretRef.key-property"><code>key</code></a> (string, MinLength: 1).</li>
 <li><a href="#spec.authSecretRef.name-property" name="spec.authSecretRef.name-property"><code>name</code></a> (string, MinLength: 1).</li>
+</ul>
+<h2 id="spec.connInfoSecretSource">connInfoSecretSource<a class="headerlink" href="#spec.connInfoSecretSource" title="Permanent link">&para;</a></h2>
+<p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
+<p>ConnInfoSecretSource allows specifying an existing secret to read credentials from.
+The password from this secret will be used to modify the service user credentials.
+Password must be 8-256 characters long as per Aiven API requirements.
+This can be used to set passwords for new users or modify passwords for existing users (e.g., avnadmin).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This secret is not watched - changes to the source secret require manual reconciliation.
+To apply password changes, trigger reconciliation by adding/updating an annotation on the ServiceUser.</p>
+</div>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.connInfoSecretSource.name-property" name="spec.connInfoSecretSource.name-property"><code>name</code></a> (string, MinLength: 1). Name of the secret resource to read connection parameters from.</li>
+<li><a href="#spec.connInfoSecretSource.passwordKey-property" name="spec.connInfoSecretSource.passwordKey-property"><code>passwordKey</code></a> (string, MinLength: 1). Key in the secret containing the password to use for authentication.</li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.connInfoSecretSource.namespace-property" name="spec.connInfoSecretSource.namespace-property"><code>namespace</code></a> (string). Namespace of the source secret. If not specified, defaults to the same namespace as the resource.</li>
 </ul>
 <h2 id="spec.connInfoSecretTarget">connInfoSecretTarget<a class="headerlink" href="#spec.connInfoSecretTarget" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>

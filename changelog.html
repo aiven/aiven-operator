@@ -468,6 +468,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0310-2025-07-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      v0.31.0 - 2025-07-25
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0300-2025-07-03" class="md-nav__link">
     <span class="md-ellipsis">
       v0.30.0 - 2025-07-03
@@ -3178,6 +3187,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0310-2025-07-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      v0.31.0 - 2025-07-25
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0300-2025-07-03" class="md-nav__link">
     <span class="md-ellipsis">
       v0.30.0 - 2025-07-03
@@ -3520,6 +3538,16 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0310-2025-07-25">v0.31.0 - 2025-07-25<a class="headerlink" href="#v0310-2025-07-25" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Upgraded HPA from deprecated <code>autoscaling/v2beta1</code> to stable <code>autoscaling/v2</code> API</li>
+<li>Added <code>ServiceUser</code> field <code>connInfoSecretSource</code>: Allows reading passwords from existing secrets for credential management. Supports setting passwords for new users and existing users</li>
+<li>Change <code>AlloyDBOmni</code> field <code>userConfig.pg.max_wal_senders</code>: maximum <del><code>64</code></del> → <code>256</code></li>
+<li>Add <code>Kafka</code> field <code>userConfig.single_zone.availability_zone</code>, type <code>string</code>: The availability zone
+  to use for the service. This is only used when enabled is set to true</li>
+<li>Change <code>PostgreSQL</code> field <code>userConfig.pg.max_wal_senders</code>: maximum <del><code>64</code></del> → <code>256</code></li>
+<li>Add <code>ClickhouseUser</code> field <code>connInfoSecretSource</code>:  Allows reading passwords from existing secrets for credential management. Supports setting passwords for new users and existing users</li>
+</ul>
 <h2 id="v0300-2025-07-03">v0.30.0 - 2025-07-03<a class="headerlink" href="#v0300-2025-07-03" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Added <code>powered</code> field (default: <code>true</code>) to control service power state. When <code>false</code>, the service is powered off.

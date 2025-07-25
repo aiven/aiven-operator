@@ -725,6 +725,72 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#resource-reconciliation-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resource Reconciliation Behavior
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resource Reconciliation Behavior">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#when-reconciliation-stops" class="md-nav__link">
+    <span class="md-ellipsis">
+      When Reconciliation Stops
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-misconception" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Misconception
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-to-force-reconciliation" class="md-nav__link">
+    <span class="md-ellipsis">
+      How to Force Reconciliation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How to Force Reconciliation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#option-1-delete-and-recreate-the-kubernetes-resource" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option 1: Delete and Recreate the Kubernetes Resource
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-2-remove-the-generation-annotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option 2: Remove the Generation Annotation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3056,6 +3122,72 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#resource-reconciliation-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resource Reconciliation Behavior
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resource Reconciliation Behavior">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#when-reconciliation-stops" class="md-nav__link">
+    <span class="md-ellipsis">
+      When Reconciliation Stops
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-misconception" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Misconception
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-to-force-reconciliation" class="md-nav__link">
+    <span class="md-ellipsis">
+      How to Force Reconciliation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How to Force Reconciliation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#option-1-delete-and-recreate-the-kubernetes-resource" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option 1: Delete and Recreate the Kubernetes Resource
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-2-remove-the-generation-annotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option 2: Remove the Generation Annotation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3131,6 +3263,38 @@ it and are working to fix it. If your problem isn't listed below, report it as a
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>cert-manager-cainjector-64c949654c-n2z8l<span class="w">   </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>77s
 <a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>cert-manager-webhook-6bdffc7c9d-47w6z<span class="w">      </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>76s
 </code></pre></div>
+<h2 id="resource-reconciliation-behavior">Resource Reconciliation Behavior<a class="headerlink" href="#resource-reconciliation-behavior" title="Permanent link">&para;</a></h2>
+<p>The Aiven Operator is designed to stop reconciling resources once they reach a ready state. This behavior is different from some other Kubernetes operators and can cause confusion.</p>
+<h3 id="when-reconciliation-stops">When Reconciliation Stops<a class="headerlink" href="#when-reconciliation-stops" title="Permanent link">&para;</a></h3>
+<p>The operator stops reconciling a resource when <strong>both</strong> of the following conditions are met:</p>
+<ol>
+<li><strong>Latest generation processed</strong> - The operator has processed the latest changes from the Kubernetes resource specification</li>
+<li><strong>Resource is running</strong> - The resource has been successfully created in Aiven and is in a running state</li>
+</ol>
+<p>You can check if a resource is in this "ready" state by looking for these annotations:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>&lt;resource-type&gt;<span class="w"> </span>&lt;resource-name&gt;<span class="w"> </span>-n<span class="w"> </span>&lt;namespace&gt;
+</code></pre></div>
+<p>Look for these annotations:
+- <code>controllers.aiven.io/instance-is-running</code>: Indicates the resource is running in Aiven
+- <code>controllers.aiven.io/generation-was-processed</code>: Indicates the latest spec changes have been processed</p>
+<h3 id="common-misconception">Common Misconception<a class="headerlink" href="#common-misconception" title="Permanent link">&para;</a></h3>
+<p><strong>Expected behavior</strong>: "If I manually delete a resource from the Aiven console, the operator should recreate it automatically."</p>
+<p><strong>Actual behavior</strong>: Once a resource/secret is ready, the operator stops continuous reconciliation. Manual changes in the Aiven console will <strong>not</strong> trigger automatic recreation.</p>
+<h3 id="how-to-force-reconciliation">How to Force Reconciliation<a class="headerlink" href="#how-to-force-reconciliation" title="Permanent link">&para;</a></h3>
+<p>If you need to force the operator to reconcile a resource (for example, after manually deleting it from Aiven), you have several options:</p>
+<h4 id="option-1-delete-and-recreate-the-kubernetes-resource">Option 1: Delete and Recreate the Kubernetes Resource<a class="headerlink" href="#option-1-delete-and-recreate-the-kubernetes-resource" title="Permanent link">&para;</a></h4>
+<p><strong>Note:</strong> The resource will be deleted on the Aiven side and data may be lost when using this approach.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>kubectl<span class="w"> </span>delete<span class="w"> </span>&lt;resource-type&gt;<span class="w"> </span>&lt;resource-name&gt;<span class="w"> </span>-n<span class="w"> </span>&lt;namespace&gt;
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>your-resource.yaml
+</code></pre></div>
+<h4 id="option-2-remove-the-generation-annotation">Option 2: Remove the Generation Annotation<a class="headerlink" href="#option-2-remove-the-generation-annotation" title="Permanent link">&para;</a></h4>
+<p>Remove the <code>controllers.aiven.io/generation-was-processed</code> annotation to force reconciliation without affecting the resource's functionality:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>kubectl<span class="w"> </span>annotate<span class="w"> </span>&lt;resource-type&gt;<span class="w"> </span>&lt;resource-name&gt;<span class="w"> </span>-n<span class="w"> </span>&lt;namespace&gt;<span class="w"> </span>controllers.aiven.io/generation-was-processed-
+</code></pre></div></p>
+<p>Example:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>kubectl<span class="w"> </span>annotate<span class="w"> </span>kafkatopic<span class="w"> </span>orders-topic<span class="w"> </span>-n<span class="w"> </span>aiven<span class="w"> </span>controllers.aiven.io/generation-was-processed-
+</code></pre></div></p>
+<p>This is the cleanest approach as it doesn't modify the resource specification or create any side effects.</p>
 
 
 
