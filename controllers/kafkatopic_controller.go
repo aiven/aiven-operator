@@ -10,11 +10,13 @@ import (
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafkatopic"
 	"github.com/aiven/go-client-codegen/handler/service"
+	"golang.org/x/sync/singleflight"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
@@ -22,10 +24,14 @@ import (
 // KafkaTopicReconciler reconciles a KafkaTopic object
 type KafkaTopicReconciler struct {
 	Controller
+	MaxConcurrentReconciles int
 }
 
 func newKafkaTopicReconciler(c Controller) reconcilerType {
-	return &KafkaTopicReconciler{Controller: c}
+	return &KafkaTopicReconciler{
+		Controller:              c,
+		MaxConcurrentReconciles: 20, //nolint:mnd
+	}
 }
 
 type KafkaTopicHandler struct{}
@@ -41,6 +47,9 @@ func (r *KafkaTopicReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 func (r *KafkaTopicReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.KafkaTopic{}).
+		WithOptions(controller.Options{
+			MaxConcurrentReconciles: r.MaxConcurrentReconciles,
+		}).
 		Complete(r)
 }
 
@@ -126,13 +135,22 @@ func (h KafkaTopicHandler) delete(ctx context.Context, avnGen avngen.Client, obj
 	return true, nil
 }
 
+// singleflight group for ServiceKafkaTopicList calls
+var topicListCallGroup singleflight.Group
+
 func (h KafkaTopicHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	topic, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
 
-	avnTopic, err := avnGen.ServiceKafkaTopicGet(ctx, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName())
+	callKey := fmt.Sprintf("%s/%s", topic.Spec.Project, topic.Spec.ServiceName)
+	targetTopicName := topic.GetTopicName()
+
+	// let requeuing handle retries
+	result, err, _ := topicListCallGroup.Do(callKey, func() (any, error) {
+		return avnGen.ServiceKafkaTopicList(ctx, topic.Spec.Project, topic.Spec.ServiceName)
+	})
 
 	switch {
 	case isServerError(err):
@@ -143,16 +161,28 @@ func (h KafkaTopicHandler) get(ctx context.Context, avnGen avngen.Client, obj cl
 		return nil, err
 	}
 
-	topic.Status.State = avnTopic.State
-	if topic.Status.State == kafkatopic.TopicStateTypeActive {
-		meta.SetStatusCondition(&topic.Status.Conditions,
-			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
-				"Instance is running on Aiven side"))
-
-		metav1.SetMetaDataAnnotation(&topic.ObjectMeta, instanceIsRunningAnnotation, "true")
+	topicList, ok := result.([]kafkatopic.TopicOut)
+	if !ok {
+		return nil, fmt.Errorf("unexpected result type from ServiceKafkaTopicList") // this should not happen
 	}
 
-	return nil, err
+	for _, topicInfo := range topicList {
+		if topicInfo.TopicName == targetTopicName {
+			topic.Status.State = topicInfo.State
+			if topic.Status.State == kafkatopic.TopicStateTypeActive {
+				meta.SetStatusCondition(&topic.Status.Conditions,
+					getRunningCondition(metav1.ConditionTrue, "CheckRunning",
+						"Instance is running on Aiven side"))
+
+				metav1.SetMetaDataAnnotation(&topic.ObjectMeta, instanceIsRunningAnnotation, "true")
+			}
+
+			return nil, nil
+		}
+	}
+
+	// topic not found in list, let the controller requeue and try again
+	return nil, nil
 }
 
 func (h KafkaTopicHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
