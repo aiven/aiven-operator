@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"go.uber.org/zap/zapcore"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/discovery"
@@ -57,11 +58,21 @@ func main() {
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
 	flag.BoolVar(&development, "development", true, "Configures the logger to use a development config (stacktraces on warnings, no sampling)")
+
 	opts := zap.Options{
 		Development: development,
 	}
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
+
+	// set log level from environment variable if provided and no flag was set
+	if logLevel := os.Getenv("LOG_LEVEL"); logLevel != "" && opts.Level == nil {
+		level, valid := parseLogLevel(logLevel)
+		if !valid {
+			_, _ = fmt.Fprintf(os.Stderr, "Warning: Invalid LOG_LEVEL value '%s', using default level. Valid values: debug, info, warn, warning, error\n", logLevel)
+		}
+		opts.Level = level
+	}
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
@@ -146,5 +157,21 @@ func main() {
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
+	}
+}
+
+// parseLogLevel converts a string log level to zapcore.Level
+func parseLogLevel(level string) (zapcore.Level, bool) {
+	switch strings.ToLower(level) {
+	case "debug":
+		return zapcore.DebugLevel, true
+	case "info":
+		return zapcore.InfoLevel, true
+	case "warn", "warning":
+		return zapcore.WarnLevel, true
+	case "error":
+		return zapcore.ErrorLevel, true
+	default:
+		return zapcore.InfoLevel, false // default to info if invalid level provided
 	}
 }
