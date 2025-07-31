@@ -192,11 +192,8 @@ ClickhouseUserSpec defines the desired state of ClickhouseUser.
     The password from this secret will be used to modify the ClickHouse user credentials.
     Password must be 8-256 characters long as per Aiven API requirements.
     This can be used to set passwords for new users or modify passwords for existing users.
-
-    !!! Note
-
-        This secret is not watched - changes to the source secret require manual reconciliation.
-        To apply password changes, trigger reconciliation by adding/updating an annotation on the ClickhouseUser. See below for [nested schema](#spec.connInfoSecretSource).
+    The source secret is watched for changes, and reconciliation will be automatically triggered
+    when the secret data is updated. See below for [nested schema](#spec.connInfoSecretSource).
 - [`connInfoSecretTarget`](#spec.connInfoSecretTarget-property){: name='spec.connInfoSecretTarget-property'} (object). Secret configuration. See below for [nested schema](#spec.connInfoSecretTarget).
 - [`connInfoSecretTargetDisabled`](#spec.connInfoSecretTargetDisabled-property){: name='spec.connInfoSecretTargetDisabled-property'} (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
 - [`username`](#spec.username-property){: name='spec.username-property'} (string, Immutable, MaxLength: 63). Name of the Clickhouse user. Defaults to `metadata.name` if omitted.
@@ -224,11 +221,8 @@ ConnInfoSecretSource allows specifying an existing secret to read credentials fr
 The password from this secret will be used to modify the ClickHouse user credentials.
 Password must be 8-256 characters long as per Aiven API requirements.
 This can be used to set passwords for new users or modify passwords for existing users.
-
-!!! Note
-
-    This secret is not watched - changes to the source secret require manual reconciliation.
-    To apply password changes, trigger reconciliation by adding/updating an annotation on the ClickhouseUser.
+The source secret is watched for changes, and reconciliation will be automatically triggered
+when the secret data is updated.
 
 **Required**
 
