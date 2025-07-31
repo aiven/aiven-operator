@@ -38,6 +38,10 @@ spec:
             - /manager
           args:
             - --leader-elect
+          #          Uncomment and set to configure log level (debug, info, error)
+          #          env:
+          #             - name: LOG_LEVEL
+          #               value: info
           image: controller:latest
           name: manager
           securityContext:
