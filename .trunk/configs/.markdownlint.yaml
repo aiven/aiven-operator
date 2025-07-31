@@ -22,3 +22,6 @@ MD051: false
 # mkdocs renders link titles from YAML frontmatter and renders the content
 # title from the first title specified with "#"
 MD025: false
+
+# MD041/first-line-h1
+MD041: false
