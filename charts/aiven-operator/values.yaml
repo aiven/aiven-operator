@@ -54,13 +54,11 @@ resources:
 
 podAnnotations: {}
 
-podSecurityContext:
-  {}
+podSecurityContext: {}
   # runAsNonRoot: true
   # runAsUser: 65532
 
-securityContext:
-  {}
+securityContext: {}
   # capabilities:
   #   drop:
   #   - ALL
@@ -86,3 +84,9 @@ clusterRole:
 # if empty, the operator will watch for resources in all namespaces
 # regardless of this setting, the operator will always watch for resources in its own namespace
 watchedNamespaces: []
+
+# logging configuration
+logging:
+  # Log level for the operator (debug, info, error)
+  # If not set, the operator will use its default logging configuration
+  level: ""

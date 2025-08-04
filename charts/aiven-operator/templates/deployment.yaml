@@ -60,6 +60,12 @@ spec:
             - --metrics-bind-address={{ .Values.metricsBindAddress }}
             - --health-probe-bind-address={{ .Values.healthProbeBindAddress }}
             - --webhook-port={{ .Values.webhooks.containerPort | default 9443 }}
+            {{- if .Values.logging.level }}
+            {{- if not (has .Values.logging.level (list "debug" "info" "error")) }}
+            {{- fail (printf "Invalid log level '%s'. Must be one of: debug, info, error" .Values.logging.level) }}
+            {{- end }}
+            - --zap-log-level={{ .Values.logging.level }}
+            {{- end }}
 
           ports:
             - name: metrics
