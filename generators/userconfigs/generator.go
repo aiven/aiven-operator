@@ -203,11 +203,12 @@ func (o *object) init(name string) {
 			case "null":
 				// Enums can't be nullable
 				o.Nullable = len(o.Enum) == 0
-			case "string":
-				o.Type = objectType(s)
+			case "":
+			//	Ignores invalid type
 			default:
-				// Sets if not empty, string is priority
-				if o.Type != "" {
+				// Prioritizes the object type.
+				// Usually it starts with a scalar type, and then mutates to object.
+				if o.Type != objectTypeObject {
 					o.Type = objectType(s)
 				}
 			}
