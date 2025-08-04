@@ -101,6 +101,46 @@ func (in *Tables) DeepCopyInto(out *Tables) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.ProducerBatchNumMessages != nil {
+		in, out := &in.ProducerBatchNumMessages, &out.ProducerBatchNumMessages
+		*out = new(int)
+		**out = **in
+	}
+	if in.ProducerBatchSize != nil {
+		in, out := &in.ProducerBatchSize, &out.ProducerBatchSize
+		*out = new(int)
+		**out = **in
+	}
+	if in.ProducerCompressionCodec != nil {
+		in, out := &in.ProducerCompressionCodec, &out.ProducerCompressionCodec
+		*out = new(string)
+		**out = **in
+	}
+	if in.ProducerCompressionLevel != nil {
+		in, out := &in.ProducerCompressionLevel, &out.ProducerCompressionLevel
+		*out = new(int)
+		**out = **in
+	}
+	if in.ProducerLingerMs != nil {
+		in, out := &in.ProducerLingerMs, &out.ProducerLingerMs
+		*out = new(int)
+		**out = **in
+	}
+	if in.ProducerQueueBufferingMaxKbytes != nil {
+		in, out := &in.ProducerQueueBufferingMaxKbytes, &out.ProducerQueueBufferingMaxKbytes
+		*out = new(int)
+		**out = **in
+	}
+	if in.ProducerQueueBufferingMaxMessages != nil {
+		in, out := &in.ProducerQueueBufferingMaxMessages, &out.ProducerQueueBufferingMaxMessages
+		*out = new(int)
+		**out = **in
+	}
+	if in.ProducerRequestRequiredAcks != nil {
+		in, out := &in.ProducerRequestRequiredAcks, &out.ProducerRequestRequiredAcks
+		*out = new(int)
+		**out = **in
+	}
 	if in.SkipBrokenMessages != nil {
 		in, out := &in.SkipBrokenMessages, &out.SkipBrokenMessages
 		*out = new(int)

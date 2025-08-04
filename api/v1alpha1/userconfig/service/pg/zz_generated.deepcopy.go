@@ -189,6 +189,11 @@ func (in *Pg) DeepCopyInto(out *Pg) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.MaxConnections != nil {
+		in, out := &in.MaxConnections, &out.MaxConnections
+		*out = new(int)
+		**out = **in
+	}
 	if in.MaxFilesPerProcess != nil {
 		in, out := &in.MaxFilesPerProcess, &out.MaxFilesPerProcess
 		*out = new(int)
@@ -246,6 +251,11 @@ func (in *Pg) DeepCopyInto(out *Pg) {
 	}
 	if in.MaxStandbyStreamingDelay != nil {
 		in, out := &in.MaxStandbyStreamingDelay, &out.MaxStandbyStreamingDelay
+		*out = new(int)
+		**out = **in
+	}
+	if in.MaxSyncWorkersPerSubscription != nil {
+		in, out := &in.MaxSyncWorkersPerSubscription, &out.MaxSyncWorkersPerSubscription
 		*out = new(int)
 		**out = **in
 	}

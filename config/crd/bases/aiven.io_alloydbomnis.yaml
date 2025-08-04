@@ -544,7 +544,7 @@ spec:
                             (taken from the pool of max_parallel_workers). The default
                             is `4` (upstream default). Changing this parameter causes
                             a service restart.
-                          maximum: 64
+                          maximum: 256
                           minimum: 4
                           type: integer
                         max_parallel_workers:
@@ -583,7 +583,7 @@ spec:
                           description:
                             PostgreSQL maximum replication slots. The default
                             is `20`. Changing this parameter causes a service restart.
-                          maximum: 64
+                          maximum: 256
                           minimum: 8
                           type: integer
                         max_slot_wal_keep_size:
@@ -617,6 +617,13 @@ spec:
                           maximum: 43200000
                           minimum: 1
                           type: integer
+                        max_sync_workers_per_subscription:
+                          description:
+                            Maximum number of synchronization workers per
+                            subscription. The default is `2`.
+                          maximum: 8
+                          minimum: 2
+                          type: integer
                         max_wal_senders:
                           description:
                             PostgreSQL maximum WAL senders. The default is
@@ -629,7 +636,7 @@ spec:
                             Sets the maximum number of background processes
                             that the system can support. The default is `8`. Changing
                             this parameter causes a service restart.
-                          maximum: 96
+                          maximum: 288
                           minimum: 8
                           type: integer
                         password_encryption:
@@ -748,7 +755,7 @@ spec:
                         - "15"
                       type: string
                     pgaudit:
-                      description: System-wide settings for the pgaudit extension
+                      description: System-wide settings for the pgaudit extension.
                       properties:
                         feature_enabled:
                           description:
@@ -767,7 +774,7 @@ spec:
                         log_catalog:
                           description:
                             Specifies that session logging should be enabled
-                            in the casewhere all relations in a statement are in pg_catalog.
+                            in the case where all relations in a statement are in pg_catalog.
                           type: boolean
                         log_client:
                           description:
@@ -821,10 +828,7 @@ spec:
                             etc.) referenced in a SELECT or DML statement.
                           type: boolean
                         log_rows:
-                          description:
-                            Specifies that audit logging should include the
-                            rows retrieved or affected by a statement. When enabled
-                            the rows field will be included after the parameter field.
+                          description: Log Rows
                           type: boolean
                         log_statement:
                           description:

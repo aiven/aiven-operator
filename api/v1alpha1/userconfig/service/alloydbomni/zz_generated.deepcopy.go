@@ -365,6 +365,11 @@ func (in *Pg) DeepCopyInto(out *Pg) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.MaxSyncWorkersPerSubscription != nil {
+		in, out := &in.MaxSyncWorkersPerSubscription, &out.MaxSyncWorkersPerSubscription
+		*out = new(int)
+		**out = **in
+	}
 	if in.MaxWalSenders != nil {
 		in, out := &in.MaxWalSenders, &out.MaxWalSenders
 		*out = new(int)

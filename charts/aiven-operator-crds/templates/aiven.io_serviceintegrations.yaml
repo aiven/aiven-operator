@@ -192,6 +192,74 @@ spec:
                             maximum: 30000
                             minimum: 0
                             type: integer
+                          producer_batch_num_messages:
+                            description:
+                              The maximum number of messages in a batch sent
+                              to Kafka. If the number of messages exceeds this value,
+                              the batch is sent.
+                            maximum: 1000000
+                            minimum: 1
+                            type: integer
+                          producer_batch_size:
+                            description:
+                              The maximum size in bytes of a batch of messages
+                              sent to Kafka. If the batch size is exceeded, the batch
+                              is sent.
+                            maximum: 2147483647
+                            minimum: 0
+                            type: integer
+                          producer_compression_codec:
+                            description:
+                              The compression codec to use when sending a
+                              batch of messages to Kafka.
+                            enum:
+                              - gzip
+                              - lz4
+                              - none
+                              - snappy
+                              - zstd
+                            type: string
+                          producer_compression_level:
+                            description:
+                              "The compression level to use when sending
+                              a batch of messages to Kafka. Usable range is algorithm-dependent:
+                              [0-9] for gzip; [0-12] for lz4; only 0 for snappy; -1
+                              = codec-dependent default compression level."
+                            maximum: 12
+                            minimum: -1
+                            type: integer
+                          producer_linger_ms:
+                            description:
+                              The time in milliseconds to wait for additional
+                              messages before sending a batch. If the time is exceeded,
+                              the batch is sent.
+                            maximum: 900000
+                            minimum: 0
+                            type: integer
+                          producer_queue_buffering_max_kbytes:
+                            description:
+                              The maximum size of the buffer in kilobytes
+                              before sending
+                            maximum: 2147483647
+                            minimum: 0
+                            type: integer
+                          producer_queue_buffering_max_messages:
+                            description:
+                              The maximum number of messages to buffer before
+                              sending
+                            maximum: 2147483647
+                            minimum: 0
+                            type: integer
+                          producer_request_required_acks:
+                            description:
+                              "The number of acknowledgements the leader
+                              broker must receive from ISR brokers before responding
+                              to the request: 0=Broker does not send any response/ack
+                              to client, -1 will block until message is committed by
+                              all in sync replicas (ISRs)."
+                            maximum: 1000
+                            minimum: -1
+                            type: integer
                           skip_broken_messages:
                             description:
                               Skip at least this number of broken messages

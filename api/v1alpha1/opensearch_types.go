@@ -33,14 +33,14 @@ type OpenSearch struct {
 	Status ServiceStatus  `json:"status,omitempty"`
 }
 
+//+kubebuilder:object:root=true
+
 // OpenSearchList contains a list of OpenSearch
 type OpenSearchList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []OpenSearch `json:"items"`
 }
-
-//+kubebuilder:object:root=true
 
 var _ AivenManagedObject = &OpenSearch{}
 

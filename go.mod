@@ -3,8 +3,8 @@ module github.com/aiven/aiven-operator
 go 1.24.0
 
 require (
-	github.com/ClickHouse/clickhouse-go/v2 v2.37.2
-	github.com/aiven/go-api-schemas v1.132.0
+	github.com/ClickHouse/clickhouse-go/v2 v2.40.1
+	github.com/aiven/go-api-schemas v1.136.0
 	github.com/aiven/go-client-codegen v0.113.5
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/dave/jennifer v1.7.1
@@ -32,8 +32,8 @@ require (
 )
 
 require (
-	github.com/ClickHouse/ch-go v0.66.1 // indirect
-	github.com/andybalholm/brotli v1.1.1 // indirect
+	github.com/ClickHouse/ch-go v0.67.0 // indirect
+	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -82,11 +82,11 @@ require (
 	github.com/rs/zerolog v1.34.0 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
-	github.com/spf13/pflag v1.0.6 // indirect
+	github.com/spf13/pflag v1.0.7 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
-	go.opentelemetry.io/otel v1.36.0 // indirect
-	go.opentelemetry.io/otel/trace v1.36.0 // indirect
+	go.opentelemetry.io/otel v1.37.0 // indirect
+	go.opentelemetry.io/otel/trace v1.37.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/mod v0.26.0 // indirect

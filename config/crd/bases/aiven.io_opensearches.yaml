@@ -1411,14 +1411,13 @@ spec:
                             enforced:
                               description:
                                 Run shard indexing backpressure in shadow
-                                mode or enforced mode.             In shadow mode (value
-                                set as false), shard indexing backpressure tracks all
-                                granular-level metrics,             but it doesn’t actually
-                                reject any indexing requests.             In enforced
-                                mode (value set as true),             shard indexing
-                                backpressure rejects any requests to the cluster that
-                                might cause a dip in its performance.             Default
-                                is false
+                                mode or enforced mode. In shadow mode (value set as
+                                false), shard indexing backpressure tracks all granular-level
+                                metrics, but it doesn’t actually reject any indexing
+                                requests. In enforced mode (value set as true), shard
+                                indexing backpressure rejects any requests to the cluster
+                                that might cause a dip in its performance. Default is
+                                false
                               type: boolean
                             operating_factor:
                               description: Operating factor
@@ -1426,31 +1425,30 @@ spec:
                                 lower:
                                   description:
                                     Specify the lower occupancy limit of
-                                    the allocated quota of memory for the shard.                     If
+                                    the allocated quota of memory for the shard. If
                                     the total memory usage of a shard is below this
-                                    limit,                     shard indexing backpressure
-                                    decreases the current allocated memory for that
-                                    shard.                     Default is 0.75
+                                    limit, shard indexing backpressure decreases the
+                                    current allocated memory for that shard. Default
+                                    is 0.75
                                   minimum: 0
                                   type: number
                                 optimal:
                                   description:
                                     Specify the optimal occupancy of the
-                                    allocated quota of memory for the shard.                     If
-                                    the total memory usage of a shard is at this level,                     shard
-                                    indexing backpressure doesn’t change the current
-                                    allocated memory for that shard.                     Default
-                                    is 0.85
+                                    allocated quota of memory for the shard. If the
+                                    total memory usage of a shard is at this level,
+                                    shard indexing backpressure doesn’t change the current
+                                    allocated memory for that shard. Default is 0.85
                                   minimum: 0
                                   type: number
                                 upper:
                                   description:
                                     Specify the upper occupancy limit of
-                                    the allocated quota of memory for the shard.                     If
+                                    the allocated quota of memory for the shard. If
                                     the total memory usage of a shard is above this
-                                    limit,                     shard indexing backpressure
-                                    increases the current allocated memory for that
-                                    shard.                     Default is 0.95
+                                    limit, shard indexing backpressure increases the
+                                    current allocated memory for that shard. Default
+                                    is 0.95
                                   minimum: 0
                                   type: number
                               type: object
@@ -1462,10 +1460,8 @@ spec:
                                     soft_limit:
                                       description:
                                         Define the percentage of the node-level
-                                        memory                             threshold
-                                        that acts as a soft indicator for strain on
-                                        a node.                             Default
-                                        is 0.7
+                                        memory threshold that acts as a soft indicator
+                                        for strain on a node. Default is 0.7
                                       minimum: 0
                                       type: number
                                   type: object
@@ -1475,11 +1471,10 @@ spec:
                                       description:
                                         Specify the minimum assigned quota
                                         for a new shard in any role (coordinator, primary,
-                                        or replica).                             Shard
-                                        indexing backpressure increases or decreases
-                                        this allocated quota based on the inflow of
-                                        traffic for the shard.                             Default
-                                        is 0.001
+                                        or replica). Shard indexing backpressure increases
+                                        or decreases this allocated quota based on the
+                                        inflow of traffic for the shard. Default is
+                                        0.001
                                       minimum: 0
                                       type: number
                                   type: object
