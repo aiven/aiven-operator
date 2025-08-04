@@ -227,6 +227,7 @@ MySQL specific user configuration options.
 - [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 8000). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
 - [`migration`](#spec.userConfig.migration-property){: name='spec.userConfig.migration-property'} (object). Migrate data from existing server. See below for [nested schema](#spec.userConfig.migration).
 - [`mysql`](#spec.userConfig.mysql-property){: name='spec.userConfig.mysql-property'} (object). mysql.conf configuration values. See below for [nested schema](#spec.userConfig.mysql).
+- [`mysql_incremental_backup`](#spec.userConfig.mysql_incremental_backup-property){: name='spec.userConfig.mysql_incremental_backup-property'} (object). MySQL incremental backup configuration. See below for [nested schema](#spec.userConfig.mysql_incremental_backup).
 - [`mysql_version`](#spec.userConfig.mysql_version-property){: name='spec.userConfig.mysql_version-property'} (string, Enum: `8`). MySQL major version.
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
 - [`privatelink_access`](#spec.userConfig.privatelink_access-property){: name='spec.userConfig.privatelink_access-property'} (object). Allow access to selected service components through Privatelink. See below for [nested schema](#spec.userConfig.privatelink_access).
@@ -311,6 +312,20 @@ mysql.conf configuration values.
 - [`sql_require_primary_key`](#spec.userConfig.mysql.sql_require_primary_key-property){: name='spec.userConfig.mysql.sql_require_primary_key-property'} (boolean). Require primary key to be defined for new tables or old tables modified with ALTER TABLE and fail if missing. It is recommended to always have primary keys because various functionality may break if any large table is missing them.
 - [`tmp_table_size`](#spec.userConfig.mysql.tmp_table_size-property){: name='spec.userConfig.mysql.tmp_table_size-property'} (integer, Minimum: 1048576, Maximum: 1073741824). Limits the size of internal in-memory tables. Also set max_heap_table_size. Default is 16777216 (16M).
 - [`wait_timeout`](#spec.userConfig.mysql.wait_timeout-property){: name='spec.userConfig.mysql.wait_timeout-property'} (integer, Minimum: 1, Maximum: 2147483). The number of seconds the server waits for activity on a noninteractive connection before closing it.
+
+### mysql_incremental_backup {: #spec.userConfig.mysql_incremental_backup }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+MySQL incremental backup configuration.
+
+**Required**
+
+- [`enabled`](#spec.userConfig.mysql_incremental_backup.enabled-property){: name='spec.userConfig.mysql_incremental_backup.enabled-property'} (boolean). Enable periodic incremental backups. When enabled, full_backup_week_schedule must be set. Incremental backups only store changes since the last backup, making them faster and more storage-efficient than full backups. This is particularly useful for large databases where daily full backups would be too time-consuming or expensive.
+
+**Optional**
+
+- [`full_backup_week_schedule`](#spec.userConfig.mysql_incremental_backup.full_backup_week_schedule-property){: name='spec.userConfig.mysql_incremental_backup.full_backup_week_schedule-property'} (string, Pattern: `^[a-z]+(,[a-z]+)*$`). Comma-separated list of days of the week when full backups should be created. Valid values: mon, tue, wed, thu, fri, sat, sun.
 
 ### private_access {: #spec.userConfig.private_access }
 

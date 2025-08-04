@@ -649,7 +649,7 @@ Shard indexing back pressure settings.
 **Optional**
 
 - [`enabled`](#spec.userConfig.opensearch.shard_indexing_pressure.enabled-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.enabled-property'} (boolean). Enable or disable shard indexing backpressure. Default is false.
-- [`enforced`](#spec.userConfig.opensearch.shard_indexing_pressure.enforced-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.enforced-property'} (boolean). Run shard indexing backpressure in shadow mode or enforced mode.             In shadow mode (value set as false), shard indexing backpressure tracks all granular-level metrics,             but it doesn’t actually reject any indexing requests.             In enforced mode (value set as true),             shard indexing backpressure rejects any requests to the cluster that might cause a dip in its performance.             Default is false.
+- [`enforced`](#spec.userConfig.opensearch.shard_indexing_pressure.enforced-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.enforced-property'} (boolean). Run shard indexing backpressure in shadow mode or enforced mode. In shadow mode (value set as false), shard indexing backpressure tracks all granular-level metrics, but it doesn’t actually reject any indexing requests. In enforced mode (value set as true), shard indexing backpressure rejects any requests to the cluster that might cause a dip in its performance. Default is false.
 - [`operating_factor`](#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.operating_factor-property'} (object). Operating factor. See below for [nested schema](#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor).
 - [`primary_parameter`](#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter-property'} (object). Primary parameter. See below for [nested schema](#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter).
 
@@ -661,9 +661,9 @@ Operating factor.
 
 **Optional**
 
-- [`lower`](#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.lower-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.lower-property'} (number, Minimum: 0). Specify the lower occupancy limit of the allocated quota of memory for the shard.                     If the total memory usage of a shard is below this limit,                     shard indexing backpressure decreases the current allocated memory for that shard.                     Default is 0.75.
-- [`optimal`](#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.optimal-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.optimal-property'} (number, Minimum: 0). Specify the optimal occupancy of the allocated quota of memory for the shard.                     If the total memory usage of a shard is at this level,                     shard indexing backpressure doesn’t change the current allocated memory for that shard.                     Default is 0.85.
-- [`upper`](#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.upper-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.upper-property'} (number, Minimum: 0). Specify the upper occupancy limit of the allocated quota of memory for the shard.                     If the total memory usage of a shard is above this limit,                     shard indexing backpressure increases the current allocated memory for that shard.                     Default is 0.95.
+- [`lower`](#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.lower-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.lower-property'} (number, Minimum: 0). Specify the lower occupancy limit of the allocated quota of memory for the shard. If the total memory usage of a shard is below this limit, shard indexing backpressure decreases the current allocated memory for that shard. Default is 0.75.
+- [`optimal`](#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.optimal-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.optimal-property'} (number, Minimum: 0). Specify the optimal occupancy of the allocated quota of memory for the shard. If the total memory usage of a shard is at this level, shard indexing backpressure doesn’t change the current allocated memory for that shard. Default is 0.85.
+- [`upper`](#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.upper-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.upper-property'} (number, Minimum: 0). Specify the upper occupancy limit of the allocated quota of memory for the shard. If the total memory usage of a shard is above this limit, shard indexing backpressure increases the current allocated memory for that shard. Default is 0.95.
 
 ##### primary_parameter {: #spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter }
 
@@ -682,7 +682,7 @@ _Appears on [`spec.userConfig.opensearch.shard_indexing_pressure.primary_paramet
 
 **Required**
 
-- [`soft_limit`](#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.node.soft_limit-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.node.soft_limit-property'} (number, Minimum: 0). Define the percentage of the node-level memory                             threshold that acts as a soft indicator for strain on a node.                             Default is 0.7.
+- [`soft_limit`](#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.node.soft_limit-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.node.soft_limit-property'} (number, Minimum: 0). Define the percentage of the node-level memory threshold that acts as a soft indicator for strain on a node. Default is 0.7.
 
 ###### shard {: #spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.shard }
 
@@ -690,7 +690,7 @@ _Appears on [`spec.userConfig.opensearch.shard_indexing_pressure.primary_paramet
 
 **Required**
 
-- [`min_limit`](#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.shard.min_limit-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.shard.min_limit-property'} (number, Minimum: 0). Specify the minimum assigned quota for a new shard in any role (coordinator, primary, or replica).                             Shard indexing backpressure increases or decreases this allocated quota based on the inflow of traffic for the shard.                             Default is 0.001.
+- [`min_limit`](#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.shard.min_limit-property){: name='spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.shard.min_limit-property'} (number, Minimum: 0). Specify the minimum assigned quota for a new shard in any role (coordinator, primary, or replica). Shard indexing backpressure increases or decreases this allocated quota based on the inflow of traffic for the shard. Default is 0.001.
 
 ### opensearch_dashboards {: #spec.userConfig.opensearch_dashboards }
 

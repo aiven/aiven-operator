@@ -132,7 +132,7 @@ type Pg struct {
 	MaxLocksPerTransaction *int `groups:"create,update" json:"max_locks_per_transaction,omitempty"`
 
 	// +kubebuilder:validation:Minimum=4
-	// +kubebuilder:validation:Maximum=64
+	// +kubebuilder:validation:Maximum=256
 	// PostgreSQL maximum logical replication workers (taken from the pool of max_parallel_workers). The default is `4` (upstream default). Changing this parameter causes a service restart.
 	MaxLogicalReplicationWorkers *int `groups:"create,update" json:"max_logical_replication_workers,omitempty"`
 
@@ -157,7 +157,7 @@ type Pg struct {
 	MaxPreparedTransactions *int `groups:"create,update" json:"max_prepared_transactions,omitempty"`
 
 	// +kubebuilder:validation:Minimum=8
-	// +kubebuilder:validation:Maximum=64
+	// +kubebuilder:validation:Maximum=256
 	// PostgreSQL maximum replication slots. The default is `20`. Changing this parameter causes a service restart.
 	MaxReplicationSlots *int `groups:"create,update" json:"max_replication_slots,omitempty"`
 
@@ -181,13 +181,18 @@ type Pg struct {
 	// Max standby streaming delay in milliseconds. The default is `30000` (upstream default).
 	MaxStandbyStreamingDelay *int `groups:"create,update" json:"max_standby_streaming_delay,omitempty"`
 
+	// +kubebuilder:validation:Minimum=2
+	// +kubebuilder:validation:Maximum=8
+	// Maximum number of synchronization workers per subscription. The default is `2`.
+	MaxSyncWorkersPerSubscription *int `groups:"create,update" json:"max_sync_workers_per_subscription,omitempty"`
+
 	// +kubebuilder:validation:Minimum=20
 	// +kubebuilder:validation:Maximum=256
 	// PostgreSQL maximum WAL senders. The default is `20`. Changing this parameter causes a service restart.
 	MaxWalSenders *int `groups:"create,update" json:"max_wal_senders,omitempty"`
 
 	// +kubebuilder:validation:Minimum=8
-	// +kubebuilder:validation:Maximum=96
+	// +kubebuilder:validation:Maximum=288
 	// Sets the maximum number of background processes that the system can support. The default is `8`. Changing this parameter causes a service restart.
 	MaxWorkerProcesses *int `groups:"create,update" json:"max_worker_processes,omitempty"`
 
@@ -245,7 +250,7 @@ type Pg struct {
 	WalWriterDelay *int `groups:"create,update" json:"wal_writer_delay,omitempty"`
 }
 
-// System-wide settings for the pgaudit extension
+// System-wide settings for the pgaudit extension.
 type Pgaudit struct {
 	// Enable pgaudit extension. When enabled, pgaudit extension will be automatically installed.Otherwise, extension will be uninstalled but auditing configurations will be preserved.
 	FeatureEnabled *bool `groups:"create,update" json:"feature_enabled,omitempty"`
@@ -253,7 +258,7 @@ type Pgaudit struct {
 	// Specifies which classes of statements will be logged by session audit logging.
 	Log []string `groups:"create,update" json:"log,omitempty"`
 
-	// Specifies that session logging should be enabled in the casewhere all relations in a statement are in pg_catalog.
+	// Specifies that session logging should be enabled in the case where all relations in a statement are in pg_catalog.
 	LogCatalog *bool `groups:"create,update" json:"log_catalog,omitempty"`
 
 	// Specifies whether log messages will be visible to a client process such as psql.
@@ -280,7 +285,7 @@ type Pgaudit struct {
 	// Specifies whether session audit logging should create a separate log entry for each relation (TABLE, VIEW, etc.) referenced in a SELECT or DML statement.
 	LogRelation *bool `groups:"create,update" json:"log_relation,omitempty"`
 
-	// Specifies that audit logging should include the rows retrieved or affected by a statement. When enabled the rows field will be included after the parameter field.
+	// Log Rows
 	LogRows *bool `groups:"create,update" json:"log_rows,omitempty"`
 
 	// Specifies whether logging will include the statement text and parameters (if enabled).
@@ -449,7 +454,7 @@ type AlloydbomniUserConfig struct {
 	// PostgreSQL major version
 	PgVersion *string `groups:"create,update" json:"pg_version,omitempty"`
 
-	// System-wide settings for the pgaudit extension
+	// System-wide settings for the pgaudit extension.
 	Pgaudit *Pgaudit `groups:"create,update" json:"pgaudit,omitempty"`
 
 	// PGBouncer connection pooling settings

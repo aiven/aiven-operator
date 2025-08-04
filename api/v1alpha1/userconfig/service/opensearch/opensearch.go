@@ -565,25 +565,25 @@ type Segrep struct {
 // Operating factor
 type OperatingFactor struct {
 	// +kubebuilder:validation:Minimum=0
-	// Specify the lower occupancy limit of the allocated quota of memory for the shard.                     If the total memory usage of a shard is below this limit,                     shard indexing backpressure decreases the current allocated memory for that shard.                     Default is 0.75
+	// Specify the lower occupancy limit of the allocated quota of memory for the shard. If the total memory usage of a shard is below this limit, shard indexing backpressure decreases the current allocated memory for that shard. Default is 0.75
 	Lower *float64 `groups:"create,update" json:"lower,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
-	// Specify the optimal occupancy of the allocated quota of memory for the shard.                     If the total memory usage of a shard is at this level,                     shard indexing backpressure doesn’t change the current allocated memory for that shard.                     Default is 0.85
+	// Specify the optimal occupancy of the allocated quota of memory for the shard. If the total memory usage of a shard is at this level, shard indexing backpressure doesn’t change the current allocated memory for that shard. Default is 0.85
 	Optimal *float64 `groups:"create,update" json:"optimal,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
-	// Specify the upper occupancy limit of the allocated quota of memory for the shard.                     If the total memory usage of a shard is above this limit,                     shard indexing backpressure increases the current allocated memory for that shard.                     Default is 0.95
+	// Specify the upper occupancy limit of the allocated quota of memory for the shard. If the total memory usage of a shard is above this limit, shard indexing backpressure increases the current allocated memory for that shard. Default is 0.95
 	Upper *float64 `groups:"create,update" json:"upper,omitempty"`
 }
 type Node struct {
 	// +kubebuilder:validation:Minimum=0
-	// Define the percentage of the node-level memory                             threshold that acts as a soft indicator for strain on a node.                             Default is 0.7
+	// Define the percentage of the node-level memory threshold that acts as a soft indicator for strain on a node. Default is 0.7
 	SoftLimit *float64 `groups:"create,update" json:"soft_limit,omitempty"`
 }
 type Shard struct {
 	// +kubebuilder:validation:Minimum=0
-	// Specify the minimum assigned quota for a new shard in any role (coordinator, primary, or replica).                             Shard indexing backpressure increases or decreases this allocated quota based on the inflow of traffic for the shard.                             Default is 0.001
+	// Specify the minimum assigned quota for a new shard in any role (coordinator, primary, or replica). Shard indexing backpressure increases or decreases this allocated quota based on the inflow of traffic for the shard. Default is 0.001
 	MinLimit *float64 `groups:"create,update" json:"min_limit,omitempty"`
 }
 
@@ -599,7 +599,7 @@ type ShardIndexingPressure struct {
 	// Enable or disable shard indexing backpressure. Default is false
 	Enabled *bool `groups:"create,update" json:"enabled,omitempty"`
 
-	// Run shard indexing backpressure in shadow mode or enforced mode.             In shadow mode (value set as false), shard indexing backpressure tracks all granular-level metrics,             but it doesn’t actually reject any indexing requests.             In enforced mode (value set as true),             shard indexing backpressure rejects any requests to the cluster that might cause a dip in its performance.             Default is false
+	// Run shard indexing backpressure in shadow mode or enforced mode. In shadow mode (value set as false), shard indexing backpressure tracks all granular-level metrics, but it doesn’t actually reject any indexing requests. In enforced mode (value set as true), shard indexing backpressure rejects any requests to the cluster that might cause a dip in its performance. Default is false
 	Enforced *bool `groups:"create,update" json:"enforced,omitempty"`
 
 	// Operating factor

@@ -201,6 +201,16 @@ type Mysql struct {
 	WaitTimeout *int `groups:"create,update" json:"wait_timeout,omitempty"`
 }
 
+// MySQL incremental backup configuration
+type MysqlIncrementalBackup struct {
+	// Enable periodic incremental backups. When enabled, full_backup_week_schedule must be set. Incremental backups only store changes since the last backup, making them faster and more storage-efficient than full backups. This is particularly useful for large databases where daily full backups would be too time-consuming or expensive.
+	Enabled bool `groups:"create,update" json:"enabled"`
+
+	// +kubebuilder:validation:Pattern=`^[a-z]+(,[a-z]+)*$`
+	// Comma-separated list of days of the week when full backups should be created. Valid values: mon, tue, wed, thu, fri, sat, sun
+	FullBackupWeekSchedule *string `groups:"create,update" json:"full_backup_week_schedule,omitempty"`
+}
+
 // Allow access to selected service ports from private networks
 type PrivateAccess struct {
 	// Allow clients to connect to mysql with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
@@ -278,6 +288,9 @@ type MysqlUserConfig struct {
 
 	// mysql.conf configuration values
 	Mysql *Mysql `groups:"create,update" json:"mysql,omitempty"`
+
+	// MySQL incremental backup configuration
+	MysqlIncrementalBackup *MysqlIncrementalBackup `groups:"create,update" json:"mysql_incremental_backup,omitempty"`
 
 	// +kubebuilder:validation:Enum="8"
 	// MySQL major version

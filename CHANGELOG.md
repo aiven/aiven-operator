@@ -2,6 +2,20 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `AlloyDBOmni` field `userConfig.pg.max_sync_workers_per_subscription`, type `integer`: Maximum
+  number of synchronization workers per subscription. The default is `2`
+- Change `AlloyDBOmni` field `userConfig.pg.max_logical_replication_workers`: maximum ~~`64`~~ → `256`
+- Change `AlloyDBOmni` field `userConfig.pg.max_replication_slots`: maximum ~~`64`~~ → `256`
+- Change `AlloyDBOmni` field `userConfig.pg.max_worker_processes`: maximum ~~`96`~~ → `288`
+- Add `MySQL` field `userConfig.mysql_incremental_backup`, type `object`: MySQL incremental backup configuration
+- Add `PostgreSQL` field `userConfig.pg.max_connections`, type `integer`: Sets the PostgreSQL maximum
+  number of concurrent connections to the database server
+- Add `PostgreSQL` field `userConfig.pg.max_sync_workers_per_subscription`, type `integer`: Maximum number
+  of synchronization workers per subscription. The default is `2`
+- Change `PostgreSQL` field `userConfig.pg.max_logical_replication_workers`: maximum ~~`64`~~ → `256`
+- Change `PostgreSQL` field `userConfig.pg.max_replication_slots`: maximum ~~`64`~~ → `256`
+- Change `PostgreSQL` field `userConfig.pg.max_worker_processes`: maximum ~~`96`~~ → `288`
+
 ## v0.31.0 - 2025-07-25
 
 - `KafkaTopic`: added concurrent reconcilers and optimized API calls

@@ -81,6 +81,45 @@ type Tables struct {
 	// Timeout in milliseconds for a single poll from Kafka. Takes the value of the stream_flush_interval_ms server setting by default (500ms).
 	PollMaxTimeoutMs *int `groups:"create,update" json:"poll_max_timeout_ms,omitempty"`
 
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=1000000
+	// The maximum number of messages in a batch sent to Kafka. If the number of messages exceeds this value, the batch is sent.
+	ProducerBatchNumMessages *int `groups:"create,update" json:"producer_batch_num_messages,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=2147483647
+	// The maximum size in bytes of a batch of messages sent to Kafka. If the batch size is exceeded, the batch is sent.
+	ProducerBatchSize *int `groups:"create,update" json:"producer_batch_size,omitempty"`
+
+	// +kubebuilder:validation:Enum="gzip";"lz4";"none";"snappy";"zstd"
+	// The compression codec to use when sending a batch of messages to Kafka.
+	ProducerCompressionCodec *string `groups:"create,update" json:"producer_compression_codec,omitempty"`
+
+	// +kubebuilder:validation:Minimum=-1
+	// +kubebuilder:validation:Maximum=12
+	// The compression level to use when sending a batch of messages to Kafka. Usable range is algorithm-dependent: [0-9] for gzip; [0-12] for lz4; only 0 for snappy; -1 = codec-dependent default compression level.
+	ProducerCompressionLevel *int `groups:"create,update" json:"producer_compression_level,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=900000
+	// The time in milliseconds to wait for additional messages before sending a batch. If the time is exceeded, the batch is sent.
+	ProducerLingerMs *int `groups:"create,update" json:"producer_linger_ms,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=2147483647
+	// The maximum size of the buffer in kilobytes before sending
+	ProducerQueueBufferingMaxKbytes *int `groups:"create,update" json:"producer_queue_buffering_max_kbytes,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=2147483647
+	// The maximum number of messages to buffer before sending
+	ProducerQueueBufferingMaxMessages *int `groups:"create,update" json:"producer_queue_buffering_max_messages,omitempty"`
+
+	// +kubebuilder:validation:Minimum=-1
+	// +kubebuilder:validation:Maximum=1000
+	// The number of acknowledgements the leader broker must receive from ISR brokers before responding to the request: 0=Broker does not send any response/ack to client, -1 will block until message is committed by all in sync replicas (ISRs).
+	ProducerRequestRequiredAcks *int `groups:"create,update" json:"producer_request_required_acks,omitempty"`
+
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=1000000000
 	// Skip at least this number of broken messages from Kafka topic per block
