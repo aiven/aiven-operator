@@ -275,9 +275,14 @@ func (i *instanceReconcilerHelper) reconcileInstance(ctx context.Context, o v1al
 
 	if !hasLatestGeneration(o) {
 		i.rec.Event(o, corev1.EventTypeNormal, eventCreateOrUpdatedAtAiven, "about to create instance at aiven")
-		if err := i.createOrUpdateInstance(ctx, o, refs); err != nil {
+		requeue, err = i.createOrUpdateInstance(ctx, o, refs)
+		if err != nil {
 			i.rec.Event(o, corev1.EventTypeWarning, eventUnableToCreateOrUpdateAtAiven, err.Error())
 			return false, fmt.Errorf("unable to create or update instance at aiven: %w", err)
+		}
+
+		if requeue {
+			return true, nil
 		}
 
 		i.rec.Event(o, corev1.EventTypeNormal, eventCreatedOrUpdatedAtAiven, "instance was created at aiven but may not be running yet")
@@ -450,15 +455,29 @@ func (i *instanceReconcilerHelper) isInvalidTokenError(err error) bool {
 	return strings.Contains(msg, "Invalid token") || strings.Contains(msg, "Missing (expired) db token")
 }
 
-func (i *instanceReconcilerHelper) createOrUpdateInstance(ctx context.Context, o v1alpha1.AivenManagedObject, refs []client.Object) error {
+func (i *instanceReconcilerHelper) createOrUpdateInstance(ctx context.Context, o v1alpha1.AivenManagedObject, refs []client.Object) (bool, error) {
 	i.log.Info("generation wasn't processed, creation or updating instance on aiven side")
 	a := o.GetAnnotations()
 	delete(a, processedGenerationAnnotation)
 	delete(a, instanceIsRunningAnnotation)
 
-	if err := i.h.createOrUpdate(ctx, i.avnGen, o, refs); err != nil {
+	err := i.h.createOrUpdate(ctx, i.avnGen, o, refs)
+
+	// API errors are retrayable.
+	if isServerError(err) {
+		i.log.Info(
+			"unable to create or update %s: %s/%s, retrying: %s",
+			o.GetObjectKind().GroupVersionKind().Kind,
+			o.GetNamespace(),
+			o.GetName(),
+			err,
+		)
+		return true, nil
+	}
+
+	if err != nil {
 		meta.SetStatusCondition(o.Conditions(), getErrorCondition(errConditionCreateOrUpdate, err))
-		return fmt.Errorf("unable to create or update aiven instance: %w", err)
+		return false, fmt.Errorf("unable to create or update aiven instance: %w", err)
 	}
 
 	i.log.Info(
@@ -466,7 +485,8 @@ func (i *instanceReconcilerHelper) createOrUpdateInstance(ctx context.Context, o
 		"generation", o.GetGeneration(),
 		"annotations", o.GetAnnotations(),
 	)
-	return nil
+
+	return false, nil
 }
 
 func (i *instanceReconcilerHelper) updateInstanceStateAndSecretUntilRunning(ctx context.Context, o v1alpha1.AivenManagedObject) error {
