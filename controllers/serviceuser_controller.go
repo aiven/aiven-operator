@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
@@ -85,13 +84,6 @@ func (h *ServiceUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.C
 	if u != nil {
 		user.Status.Type = u.Type
 	}
-
-	meta.SetStatusCondition(&user.Status.Conditions,
-		getInitializedCondition("Created",
-			"Successfully created or updated the instance in Aiven"))
-
-	metav1.SetMetaDataAnnotation(&user.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(user.GetGeneration(), formatIntBaseDecimal))
 
 	return nil
 }

@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafkaschemaregistry"
@@ -90,17 +89,6 @@ func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cl
 			return fmt.Errorf("cannot update Kafka Schema Configuration: %w", err)
 		}
 	}
-
-	meta.SetStatusCondition(&schema.Status.Conditions,
-		getInitializedCondition("Added",
-			"Successfully created or updated the instance in Aiven"))
-
-	meta.SetStatusCondition(&schema.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "Added",
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&schema.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(schema.GetGeneration(), formatIntBaseDecimal))
 
 	return nil
 }

@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
@@ -66,9 +65,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 	}
 
 	// Creates if not exists or updates existing service
-	var reason string
 	if !exists {
-		reason = "Created"
 		userConfig, err := CreateUserConfiguration(o.getUserConfig())
 		if err != nil {
 			return err
@@ -105,7 +102,6 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 			return fmt.Errorf("failed to create service: %w", err)
 		}
 	} else {
-		reason = "Updated"
 		userConfig, err := UpdateUserConfiguration(o.getUserConfig())
 		if err != nil {
 			return err
@@ -152,18 +148,6 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 	if err := o.createOrUpdateServiceSpecific(ctx, avnGen, oldService); err != nil {
 		return fmt.Errorf("failed to create or update service-specific: %w", err)
 	}
-
-	status := o.getServiceStatus()
-	meta.SetStatusCondition(&status.Conditions,
-		getInitializedCondition(reason, "Successfully created or updated the instance in Aiven"))
-	meta.SetStatusCondition(&status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, reason,
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-	metav1.SetMetaDataAnnotation(
-		o.getObjectMeta(),
-		processedGenerationAnnotation,
-		strconv.FormatInt(obj.GetGeneration(), formatIntBaseDecimal),
-	)
 
 	return nil
 }

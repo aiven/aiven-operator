@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
@@ -57,7 +56,6 @@ func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avnGen av
 		return err
 	}
 
-	var reason string
 	if si.Status.ID == "" {
 		userConfigMap, err := CreateUserConfiguration(userConfig)
 		if err != nil {
@@ -82,7 +80,6 @@ func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avnGen av
 			return fmt.Errorf("cannot createOrUpdate service integration: %w", err)
 		}
 
-		reason = "Created"
 		si.Status.ID = integration.ServiceIntegrationId
 	} else {
 		if !si.HasUserConfig() {
@@ -113,8 +110,6 @@ func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avnGen av
 			retry.Attempts(3), //nolint:mnd
 			retry.Delay(1*time.Second),
 		)
-
-		reason = "Updated"
 		if err != nil {
 			if strings.Contains(strings.ToLower(err.Error()), "user config not changed") {
 				return nil
@@ -123,17 +118,6 @@ func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avnGen av
 		}
 		si.Status.ID = updatedIntegration.ServiceIntegrationId
 	}
-
-	meta.SetStatusCondition(&si.Status.Conditions,
-		getInitializedCondition(reason,
-			"Successfully created or updated the instance in Aiven"))
-
-	meta.SetStatusCondition(&si.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, reason,
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&si.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(si.GetGeneration(), formatIntBaseDecimal))
 
 	return nil
 }

@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"strings"
 
 	avngen "github.com/aiven/go-client-codegen"
@@ -58,7 +57,6 @@ func (h ServiceIntegrationEndpointHandler) createOrUpdate(ctx context.Context, a
 		return err
 	}
 
-	var reason string
 	if si.Status.ID == "" {
 		userConfigMap, err := CreateUserConfiguration(userConfig)
 		if err != nil {
@@ -78,7 +76,6 @@ func (h ServiceIntegrationEndpointHandler) createOrUpdate(ctx context.Context, a
 			return fmt.Errorf("cannot createOrUpdate service integration: %w", err)
 		}
 
-		reason = "Created"
 		si.Status.ID = endpoint.EndpointId
 	} else {
 		if !si.HasUserConfig() {
@@ -98,7 +95,6 @@ func (h ServiceIntegrationEndpointHandler) createOrUpdate(ctx context.Context, a
 				UserConfig: userConfigMap,
 			},
 		)
-		reason = "Updated"
 		if err != nil {
 			if strings.Contains(strings.ToLower(err.Error()), "user config not changed") {
 				return nil
@@ -107,17 +103,6 @@ func (h ServiceIntegrationEndpointHandler) createOrUpdate(ctx context.Context, a
 		}
 		si.Status.ID = updatedIntegration.EndpointId
 	}
-
-	meta.SetStatusCondition(&si.Status.Conditions,
-		getInitializedCondition(reason,
-			"Successfully created or updated the instance in Aiven"))
-
-	meta.SetStatusCondition(&si.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, reason,
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&si.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(si.GetGeneration(), formatIntBaseDecimal))
 
 	return nil
 }

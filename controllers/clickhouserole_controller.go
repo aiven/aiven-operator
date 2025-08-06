@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strconv"
 	"strings"
 
 	avngen "github.com/aiven/go-client-codegen"
@@ -58,19 +57,7 @@ func (h *clickhouseRoleHandler) createOrUpdate(ctx context.Context, avnGen avnge
 		return err
 	}
 
-	err = clickhouseRoleCreate(ctx, avnGen, role)
-	if err != nil {
-		return err
-	}
-
-	meta.SetStatusCondition(&role.Status.Conditions,
-		getInitializedCondition("Created",
-			"Successfully created or updated the instance in Aiven"))
-
-	metav1.SetMetaDataAnnotation(&role.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(role.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
+	return clickhouseRoleCreate(ctx, avnGen, role)
 }
 
 func (h *clickhouseRoleHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

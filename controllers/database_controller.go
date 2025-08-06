@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
@@ -65,13 +64,6 @@ func (h DatabaseHandler) createOrUpdate(ctx context.Context, avnGen avngen.Clien
 			return fmt.Errorf("cannot create database on Aiven side: %w", err)
 		}
 	}
-
-	meta.SetStatusCondition(&db.Status.Conditions,
-		getInitializedCondition("Created",
-			"Successfully created or updated the instance in Aiven"))
-
-	metav1.SetMetaDataAnnotation(&db.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(db.GetGeneration(), formatIntBaseDecimal))
 
 	return nil
 }

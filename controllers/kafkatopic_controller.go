@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafkatopic"
@@ -71,7 +70,6 @@ func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cli
 	// So instead of trying to get the topic info, we'll just create it.
 	// If the topic already exists, we'll update it.
 
-	reason := "Created"
 	err = avnGen.ServiceKafkaTopicCreate(ctx, topic.Spec.Project, topic.Spec.ServiceName, &kafkatopic.ServiceKafkaTopicCreateIn{
 		Partitions:  &topic.Spec.Partitions,
 		Replication: &topic.Spec.Replication,
@@ -81,7 +79,6 @@ func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cli
 	})
 
 	if isAlreadyExists(err) {
-		reason = "Updated"
 		err = avnGen.ServiceKafkaTopicUpdate(ctx, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName(),
 			&kafkatopic.ServiceKafkaTopicUpdateIn{
 				Partitions:  &topic.Spec.Partitions,
@@ -101,17 +98,6 @@ func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cli
 	case err != nil:
 		return err
 	}
-
-	meta.SetStatusCondition(&topic.Status.Conditions,
-		getInitializedCondition(reason,
-			"Successfully created or updated the instance in Aiven"))
-
-	meta.SetStatusCondition(&topic.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, reason,
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&topic.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(topic.GetGeneration(), formatIntBaseDecimal))
 
 	return nil
 }
