@@ -2,6 +2,7 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- **BREAKING CHANGE**: Removed unprefixed keys from ServiceUser secrets to resolve environment variable collisions. Previously ServiceUser secrets contained both prefixed keys (e.g., `SERVICEUSER_HOST`, `SERVICEUSER_PASSWORD`) and unprefixed keys (e.g., `HOST`, `PASSWORD`). The unprefixed keys have been removed.
 - Add `AlloyDBOmni` field `userConfig.pg.max_sync_workers_per_subscription`, type `integer`: Maximum
   number of synchronization workers per subscription. The default is `2`
 - Change `AlloyDBOmni` field `userConfig.pg.max_logical_replication_workers`: maximum ~~`64`~~ → `256`
