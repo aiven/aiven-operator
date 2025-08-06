@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"strconv"
 	"strings"
 	"text/template"
 
@@ -68,10 +67,8 @@ func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avnGen avngen
 	// and POST (ServiceKafkaConnectCreateConnector) returns NotFound error.
 	// So instead of asking Aiven API if the connector exists,
 	// we try to create it.
-	reason := "Created"
 	_, err = avnGen.ServiceKafkaConnectCreateConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, connCfg)
 	if isAlreadyExists(err) {
-		reason = "Updated"
 		_, err = avnGen.ServiceKafkaConnectEditConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name, connCfg)
 		if err != nil {
 			return err
@@ -90,17 +87,6 @@ func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avnGen avngen
 	case err != nil:
 		return err
 	}
-
-	meta.SetStatusCondition(&conn.Status.Conditions,
-		getInitializedCondition(reason,
-			"Successfully created or updated the instance in Aiven"))
-
-	meta.SetStatusCondition(&conn.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, reason,
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&conn.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(conn.GetGeneration(), formatIntBaseDecimal))
 
 	return nil
 }

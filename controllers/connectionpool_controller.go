@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/postgresql"
@@ -53,17 +52,13 @@ func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avnGen avngen
 		return err
 	}
 
-	var (
-		reason string
-		exists bool
-	)
-
 	// check if the connection pool already exists
 	s, err := avnGen.ServiceGet(ctx, connPool.Spec.Project, connPool.Spec.ServiceName)
 	if err != nil {
 		return fmt.Errorf("cannot get service: %w", err)
 	}
 
+	var exists bool
 	for _, connP := range s.ConnectionPools {
 		if connP.PoolName == connPool.Name {
 			exists = true
@@ -72,7 +67,6 @@ func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avnGen avngen
 	}
 
 	if !exists {
-		reason = "Created"
 		req := postgresql.ServicePgbouncerCreateIn{
 			Database: connPool.Spec.DatabaseName,
 			PoolMode: connPool.Spec.PoolMode,
@@ -85,7 +79,6 @@ func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avnGen avngen
 			return fmt.Errorf("cannot create connection pool: %w", err)
 		}
 	} else {
-		reason = "Updated"
 		req := postgresql.ServicePgbouncerUpdateIn{
 			Database: NilIfZero(connPool.Spec.DatabaseName),
 			PoolMode: connPool.Spec.PoolMode,
@@ -97,14 +90,6 @@ func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avnGen avngen
 			return fmt.Errorf("cannot update connection pool: %w", err)
 		}
 	}
-
-	meta.SetStatusCondition(&connPool.Status.Conditions,
-		getInitializedCondition(reason,
-			"Successfully created or updated the instance in Aiven"))
-
-	metav1.SetMetaDataAnnotation(&connPool.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(connPool.GetGeneration(), formatIntBaseDecimal))
-
 	return nil
 }
 

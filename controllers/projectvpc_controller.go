@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/vpc"
@@ -67,18 +66,6 @@ func (h *ProjectVPCHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cl
 	}
 
 	projectVPC.Status.ID = avnVpc.ProjectVpcId
-
-	meta.SetStatusCondition(&projectVPC.Status.Conditions,
-		getInitializedCondition("Created",
-			"Successfully created or updated the instance in Aiven"))
-
-	meta.SetStatusCondition(&projectVPC.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "Created",
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&projectVPC.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(projectVPC.GetGeneration(), formatIntBaseDecimal))
-
 	return nil
 }
 

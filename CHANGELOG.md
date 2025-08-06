@@ -2,6 +2,7 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- **Important:** Status conditions `Create`, `Update` and `CreateOrUpdate` (all cases) have been consolidated into `CreateOrUpdate` due to limitations in reliably determining operation type
 - Add `AlloyDBOmni` field `userConfig.pg.max_sync_workers_per_subscription`, type `integer`: Maximum
   number of synchronization workers per subscription. The default is `2`
 - Change `AlloyDBOmni` field `userConfig.pg.max_logical_replication_workers`: maximum ~~`64`~~ → `256`

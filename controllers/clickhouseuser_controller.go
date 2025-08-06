@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/clickhouse"
@@ -90,14 +89,6 @@ func (h *clickhouseUserHandler) createOrUpdate(ctx context.Context, avnGen avnge
 
 	// Set the UUID in the status first, so the password modifier can use it
 	user.Status.UUID = uuid
-
-	meta.SetStatusCondition(&user.Status.Conditions,
-		getInitializedCondition("Created",
-			"Successfully created or updated the instance in Aiven"))
-
-	metav1.SetMetaDataAnnotation(&user.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(user.GetGeneration(), formatIntBaseDecimal))
-
 	return nil
 }
 
