@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/hashicorp/go-multierror"
@@ -62,19 +61,7 @@ func (h *ClickhouseGrantHandler) createOrUpdate(ctx context.Context, avnGen avng
 	}
 
 	// Grants new privileges
-	err = grantSpecGrants(ctx, avnGen, g)
-	if err != nil {
-		return err
-	}
-
-	meta.SetStatusCondition(&g.Status.Conditions,
-		getInitializedCondition("Created",
-			"Successfully created or updated the instance in Aiven"))
-
-	metav1.SetMetaDataAnnotation(&g.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(g.GetGeneration(), formatIntBaseDecimal))
-
-	return nil
+	return grantSpecGrants(ctx, avnGen, g)
 }
 
 func (h *ClickhouseGrantHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

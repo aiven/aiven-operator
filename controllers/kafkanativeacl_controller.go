@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafka"
@@ -85,16 +84,6 @@ func (h KafkaNativeACLHandler) createOrUpdate(ctx context.Context, avnGen avngen
 	}
 
 	acl.Status.ID = rsp.Id
-	meta.SetStatusCondition(&acl.Status.Conditions,
-		getInitializedCondition("CreatedOrUpdate",
-			"Successfully created or updated the instance in Aiven"))
-
-	meta.SetStatusCondition(&acl.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, "CreatedOrUpdate",
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&acl.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(acl.GetGeneration(), formatIntBaseDecimal))
 	return nil
 }
 

@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	proj "github.com/aiven/go-client-codegen/handler/project"
@@ -92,7 +91,6 @@ func (h ProjectHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client
 		return fmt.Errorf("cannot get long card id: %w", err)
 	}
 
-	var reason string
 	if !exists {
 		req := &proj.ProjectCreateIn{
 			CardId:           cardID,
@@ -120,7 +118,6 @@ func (h ProjectHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client
 		project.Status.AvailableCredits = fromAnyPointer(p.AvailableCredits)
 		project.Status.Country = p.Country
 		project.Status.PaymentMethod = p.PaymentMethod
-		reason = "Created"
 	} else {
 		req := &proj.ProjectUpdateIn{
 			CardId:           cardID,
@@ -145,19 +142,7 @@ func (h ProjectHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client
 		project.Status.AvailableCredits = fromAnyPointer(p.AvailableCredits)
 		project.Status.Country = p.Country
 		project.Status.PaymentMethod = p.PaymentMethod
-		reason = "Updated"
 	}
-
-	meta.SetStatusCondition(&project.Status.Conditions,
-		getInitializedCondition(reason,
-			"Successfully created or updated the instance in Aiven"))
-
-	meta.SetStatusCondition(&project.Status.Conditions,
-		getRunningCondition(metav1.ConditionUnknown, reason,
-			"Successfully created or updated the instance in Aiven, status remains unknown"))
-
-	metav1.SetMetaDataAnnotation(&project.ObjectMeta,
-		processedGenerationAnnotation, strconv.FormatInt(project.GetGeneration(), formatIntBaseDecimal))
 
 	return nil
 }
