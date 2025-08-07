@@ -72,6 +72,7 @@ nav:
           - authentication.md
           - troubleshooting.md
           - installation/uninstalling.md
+          - guides/token-management.md
       - Resources: &crds
           - resources/alloydbomni.md
           - resources/cassandra.md

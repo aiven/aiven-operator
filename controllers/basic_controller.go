@@ -36,7 +36,7 @@ const formatIntBaseDecimal = 10
 // requeueTimeout sets timeout to requeue controller
 const requeueTimeout = 10 * time.Second
 
-var errNoTokenProvided = fmt.Errorf("authSecretReference is not set and no default token provided")
+var errNoTokenProvided = fmt.Errorf("no Aiven API token available: authSecretRef is not set and no DEFAULT_AIVEN_TOKEN configured")
 
 type (
 	// Controller reconciles the Aiven objects
@@ -115,10 +115,10 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 	}
 
 	instanceLogger := setupLogger(c.Log, o)
-	instanceLogger.Info("setting up aiven client with instance secret")
 
 	var token string
 	var clientAuthSecret *corev1.Secret
+
 	if len(c.DefaultToken) > 0 {
 		token = c.DefaultToken
 	} else if auth := o.AuthSecretRef(); auth != nil {
