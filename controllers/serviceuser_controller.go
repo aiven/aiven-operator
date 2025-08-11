@@ -169,14 +169,6 @@ func (h *ServiceUserHandler) get(ctx context.Context, avnGen avngen.Client, obj 
 		prefix + "ACCESS_CERT": fromAnyPointer(u.AccessCert),
 		prefix + "ACCESS_KEY":  fromAnyPointer(u.AccessKey),
 		prefix + "CA_CERT":     caCert,
-		// todo: remove in future releases
-		"HOST":        component.Host,
-		"PORT":        fmt.Sprintf("%d", component.Port),
-		"USERNAME":    u.Username,
-		"PASSWORD":    u.Password,
-		"ACCESS_CERT": fromAnyPointer(u.AccessCert),
-		"ACCESS_KEY":  fromAnyPointer(u.AccessKey),
-		"CA_CERT":     caCert,
 	}
 
 	return newSecret(user, stringData, false), nil

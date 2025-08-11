@@ -100,13 +100,6 @@ func TestServiceUserKafka(t *testing.T) {
 	// Validates Secret
 	secret, err := s.GetSecret("my-service-user-secret")
 	require.NoError(t, err)
-	assert.NotEmpty(t, secret.Data["HOST"])
-	assert.NotEmpty(t, secret.Data["PORT"])
-	assert.NotEmpty(t, secret.Data["USERNAME"])
-	assert.NotEmpty(t, secret.Data["PASSWORD"])
-	assert.NotEmpty(t, secret.Data["CA_CERT"])
-	assert.Contains(t, secret.Data, "ACCESS_CERT")
-	assert.Contains(t, secret.Data, "ACCESS_KEY")
 	assert.NotEmpty(t, secret.Data["SERVICEUSER_HOST"])
 	assert.NotEmpty(t, secret.Data["SERVICEUSER_PORT"])
 	assert.NotEmpty(t, secret.Data["SERVICEUSER_USERNAME"])
@@ -222,13 +215,6 @@ func TestServiceUserPg(t *testing.T) {
 	// Validates Secret
 	secret, err := s.GetSecret("my-service-user-secret")
 	require.NoError(t, err)
-	assert.NotEmpty(t, secret.Data["HOST"])
-	assert.NotEmpty(t, secret.Data["PORT"])
-	assert.NotEmpty(t, secret.Data["USERNAME"])
-	assert.NotEmpty(t, secret.Data["PASSWORD"])
-	assert.NotEmpty(t, secret.Data["CA_CERT"])
-	assert.Contains(t, secret.Data, "ACCESS_CERT")
-	assert.Contains(t, secret.Data, "ACCESS_KEY")
 	assert.NotEmpty(t, secret.Data["SERVICEUSER_HOST"])
 	assert.NotEmpty(t, secret.Data["SERVICEUSER_PORT"])
 	assert.NotEmpty(t, secret.Data["SERVICEUSER_USERNAME"])
@@ -241,7 +227,7 @@ func TestServiceUserPg(t *testing.T) {
 
 	// Default port is exposed
 	assert.NotEmpty(t, pgAvn.ServiceUriParams["port"])
-	assert.Equal(t, pgAvn.ServiceUriParams["port"], string(secret.Data["PORT"]))
+	assert.Equal(t, pgAvn.ServiceUriParams["port"], string(secret.Data["SERVICEUSER_PORT"]))
 
 	// We need to validate deletion,
 	// because we can get false positive here:
@@ -312,14 +298,14 @@ spec:
 
 		secret, err := s.GetSecret("my-service-user-secret")
 		require.NoError(t, err)
-		assert.NotEmpty(t, secret.Data["HOST"])
-		assert.NotEmpty(t, secret.Data["PORT"])
-		assert.NotEmpty(t, secret.Data["USERNAME"])
-		assert.NotEmpty(t, secret.Data["PASSWORD"])
-		assert.NotEmpty(t, secret.Data["CA_CERT"])
+		assert.NotEmpty(t, secret.Data["SERVICEUSER_HOST"])
+		assert.NotEmpty(t, secret.Data["SERVICEUSER_PORT"])
+		assert.NotEmpty(t, secret.Data["SERVICEUSER_USERNAME"])
+		assert.NotEmpty(t, secret.Data["SERVICEUSER_PASSWORD"])
+		assert.NotEmpty(t, secret.Data["SERVICEUSER_CA_CERT"])
 
 		// verify the password matches predefined value from source secret
-		actualPassword := string(secret.Data["PASSWORD"])
+		actualPassword := string(secret.Data["SERVICEUSER_PASSWORD"])
 		assert.Equal(t, "MyCustomPassword123!", actualPassword, "Password should match predefined value")
 
 		assert.Equal(t, map[string]string{"test": "predefined-password"}, secret.Annotations)
@@ -350,17 +336,17 @@ spec:
 
 		secret, err := s.GetSecret("my-avnadmin-secret")
 		require.NoError(t, err)
-		assert.NotEmpty(t, secret.Data["HOST"])
-		assert.NotEmpty(t, secret.Data["PORT"])
-		assert.NotEmpty(t, secret.Data["USERNAME"])
-		assert.NotEmpty(t, secret.Data["PASSWORD"])
-		assert.NotEmpty(t, secret.Data["CA_CERT"])
+		assert.NotEmpty(t, secret.Data["SERVICEUSER_HOST"])
+		assert.NotEmpty(t, secret.Data["SERVICEUSER_PORT"])
+		assert.NotEmpty(t, secret.Data["SERVICEUSER_USERNAME"])
+		assert.NotEmpty(t, secret.Data["SERVICEUSER_PASSWORD"])
+		assert.NotEmpty(t, secret.Data["SERVICEUSER_CA_CERT"])
 
-		actualUsernameInSecret := string(secret.Data["USERNAME"])
+		actualUsernameInSecret := string(secret.Data["SERVICEUSER_USERNAME"])
 		assert.Equal(t, "avnadmin", actualUsernameInSecret, "Username should be avnadmin")
 
 		// verify the password was reset to custom value
-		actualPassword := string(secret.Data["PASSWORD"])
+		actualPassword := string(secret.Data["SERVICEUSER_PASSWORD"])
 		assert.Equal(t, "NewAvnadminPassword999!", actualPassword, "Password should match our custom avnadmin password")
 
 		assert.Equal(t, map[string]string{"test": "avnadmin-reset"}, secret.Annotations)
