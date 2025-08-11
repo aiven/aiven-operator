@@ -133,17 +133,17 @@ type IndexRollup struct {
 type IndexTemplate struct {
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=100000
-	// The maximum number of nested JSON objects that a single document can contain across all nested types. This limit helps to prevent out of memory errors when a document contains too many nested objects. Default is 10000.
+	// The maximum number of nested JSON objects that a single document can contain across all nested types. This limit helps to prevent out of memory errors when a document contains too many nested objects. Default is 10000. Deprecated, use an index template instead.
 	MappingNestedObjectsLimit *int `groups:"create,update" json:"mapping_nested_objects_limit,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=29
-	// The number of replicas each primary shard has.
+	// The number of replicas each primary shard has. Deprecated, use an index template instead.
 	NumberOfReplicas *int `groups:"create,update" json:"number_of_replicas,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=1024
-	// The number of primary shards that an index should have.
+	// The number of primary shards that an index should have. Deprecated, use an index template instead.
 	NumberOfShards *int `groups:"create,update" json:"number_of_shards,omitempty"`
 }
 
