@@ -317,9 +317,9 @@ Template settings for all new indexes.
 
 **Optional**
 
-- [`mapping_nested_objects_limit`](#spec.userConfig.index_template.mapping_nested_objects_limit-property){: name='spec.userConfig.index_template.mapping_nested_objects_limit-property'} (integer, Minimum: 0, Maximum: 100000). The maximum number of nested JSON objects that a single document can contain across all nested types. This limit helps to prevent out of memory errors when a document contains too many nested objects. Default is 10000.
-- [`number_of_replicas`](#spec.userConfig.index_template.number_of_replicas-property){: name='spec.userConfig.index_template.number_of_replicas-property'} (integer, Minimum: 0, Maximum: 29). The number of replicas each primary shard has.
-- [`number_of_shards`](#spec.userConfig.index_template.number_of_shards-property){: name='spec.userConfig.index_template.number_of_shards-property'} (integer, Minimum: 1, Maximum: 1024). The number of primary shards that an index should have.
+- [`mapping_nested_objects_limit`](#spec.userConfig.index_template.mapping_nested_objects_limit-property){: name='spec.userConfig.index_template.mapping_nested_objects_limit-property'} (integer, Minimum: 0, Maximum: 100000). The maximum number of nested JSON objects that a single document can contain across all nested types. This limit helps to prevent out of memory errors when a document contains too many nested objects. Default is 10000. Deprecated, use an index template instead.
+- [`number_of_replicas`](#spec.userConfig.index_template.number_of_replicas-property){: name='spec.userConfig.index_template.number_of_replicas-property'} (integer, Minimum: 0, Maximum: 29). The number of replicas each primary shard has. Deprecated, use an index template instead.
+- [`number_of_shards`](#spec.userConfig.index_template.number_of_shards-property){: name='spec.userConfig.index_template.number_of_shards-property'} (integer, Minimum: 1, Maximum: 1024). The number of primary shards that an index should have. Deprecated, use an index template instead.
 
 ### ip_filter {: #spec.userConfig.ip_filter }
 
