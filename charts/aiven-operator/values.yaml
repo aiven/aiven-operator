@@ -10,13 +10,24 @@ metricsBindAddress: ""
 healthProbeBindAddress: ""
 leaderElect: true
 
-# Default Aiven Token secret
-# Please create a secret before Aiven provider installation.
-# It is expected to be in the same namespace where the Aiven
-# operator will be installed and should contain a valid Aiven API Token.
+# Default Aiven Token Secret
+# Configure a single Aiven API token that can be used by all resources.
+# This eliminates the need to create token secrets in every namespace.
+#
+# Usage:
+# 1. Create a secret with your Aiven API token in the operator's namespace:
+#    kubectl create secret generic aiven-token --from-literal=token=<your-aiven-api-token>
+# 2. Set the secret name below:
+#    defaultTokenSecret:
+#      name: "aiven-token"
+#      key: "token"
+# 3. Resources without authSecretRef will use this token
+#
+# Security Note: The operator needs RBAC permissions to read this secret.
+# The secret should be in the same namespace as the operator deployment.
 defaultTokenSecret:
-  name: ""
-  key: token
+  name: "" # Example: "aiven-token"
+  key: token # Secret key containing the Aiven API token
 
 # webhhook configuration
 webhooks:
