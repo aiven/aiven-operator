@@ -322,8 +322,8 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 	// We'll create a custom URI that uses the connection pool host/port but the service user's credentials
 	customURI := fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=require",
-		url.QueryEscape(string(userSecret.Data["USERNAME"])),
-		url.QueryEscape(string(userSecret.Data["PASSWORD"])),
+		url.QueryEscape(string(userSecret.Data["SERVICEUSER_USERNAME"])),
+		url.QueryEscape(string(userSecret.Data["SERVICEUSER_PASSWORD"])),
 		string(secret.Data["CONNECTIONPOOL_HOST"]),
 		string(secret.Data["CONNECTIONPOOL_PORT"]),
 		string(secret.Data["CONNECTIONPOOL_NAME"]),
@@ -376,8 +376,8 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 		// Update the custom URI with new connection pool details
 		updatedCustomURI := fmt.Sprintf(
 			"postgres://%s:%s@%s:%s/%s?sslmode=require",
-			url.QueryEscape(string(userSecret.Data["USERNAME"])),
-			url.QueryEscape(string(userSecret.Data["PASSWORD"])),
+			url.QueryEscape(string(userSecret.Data["SERVICEUSER_USERNAME"])),
+			url.QueryEscape(string(userSecret.Data["SERVICEUSER_PASSWORD"])),
 			string(updatedSecret.Data["CONNECTIONPOOL_HOST"]),
 			string(updatedSecret.Data["CONNECTIONPOOL_PORT"]),
 			string(updatedSecret.Data["CONNECTIONPOOL_NAME"]),
