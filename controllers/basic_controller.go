@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
@@ -486,6 +488,35 @@ func (i *instanceReconcilerHelper) createOrUpdateInstance(ctx context.Context, o
 		"annotations", o.GetAnnotations(),
 	)
 
+	// We don't really know if an instance is created or updated because:
+	// 1. The go client's retry mechanism may create an instance successfully but receive a 5xx error,
+	//    causing the next attempt to get a conflict error
+	// 2. Remote state may be temporarily inconsistent, so GET checks can return false positives/negatives
+	// 3. Some handlers implement their own retry logic and keep trying to create instances until success
+	// Therefore, we can't rely on "exists" checks to determine the operation type
+	const reason = "CreatedOrUpdated"
+	meta.SetStatusCondition(
+		o.Conditions(),
+		getInitializedCondition(
+			reason,
+			"Successfully created or updated the instance in Aiven",
+		),
+	)
+
+	meta.SetStatusCondition(
+		o.Conditions(),
+		getRunningCondition(
+			metav1.ConditionUnknown,
+			reason,
+			"Successfully created or updated the instance in Aiven, status remains unknown",
+		),
+	)
+
+	metav1.SetMetaDataAnnotation(
+		o.GetObjectMeta(),
+		processedGenerationAnnotation,
+		strconv.FormatInt(o.GetGeneration(), formatIntBaseDecimal),
+	)
 	return false, nil
 }
 
