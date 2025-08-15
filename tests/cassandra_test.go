@@ -1,3 +1,5 @@
+//go:build cassandra
+
 package tests
 
 import (

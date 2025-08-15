@@ -1,3 +1,5 @@
+//go:build alloydbomni
+
 package tests
 
 import (

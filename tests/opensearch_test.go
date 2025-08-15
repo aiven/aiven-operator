@@ -1,3 +1,5 @@
+//go:build opensearch
+
 package tests
 
 import (

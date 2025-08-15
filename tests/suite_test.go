@@ -1,3 +1,5 @@
+//go:build suite
+
 package tests
 
 import (
@@ -5,50 +7,23 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"runtime/debug"
+	"syscall"
 	"testing"
-	"time"
 
-	avngen "github.com/aiven/go-client-codegen"
 	"github.com/kelseyhightower/envconfig"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	"github.com/aiven/aiven-operator/controllers"
 )
-
-var (
-	cfg       *testConfig
-	k8sClient client.Client
-	avnGen    avngen.Client
-)
-
-const (
-	secretRefName = "aiven-token"
-	secretRefKey  = "token"
-)
-
-// operatorVersion defines the version of the operator that is used in the tests.
-// It is defined as "test" to be able to differentiate it from the actual operator version when running tests.
-const operatorVersion = "test"
-
-type testConfig struct {
-	Token              string        `envconfig:"AIVEN_TOKEN" required:"true"`
-	AccountID          string        `envconfig:"AIVEN_ACCOUNT_ID" required:"true"`
-	Project            string        `envconfig:"AIVEN_PROJECT_NAME" required:"true"`
-	PrimaryCloudName   string        `envconfig:"AIVEN_CLOUD_NAME" default:"google-europe-west1"`
-	SecondaryCloudName string        `envconfig:"AIVEN_SECONDARY_CLOUD_NAME" default:"google-europe-west2"`
-	TertiaryCloudName  string        `envconfig:"AIVEN_TERTIARY_CLOUD_NAME" default:"google-europe-west3"`
-	DebugLogging       bool          `envconfig:"ENABLE_DEBUG_LOGGING"`
-	TestCaseTimeout    time.Duration `envconfig:"TEST_CASE_TIMEOUT" default:"30m"`
-}
 
 func TestMain(m *testing.M) {
 	if os.Getenv("LIST_ONLY") != "" {
@@ -58,13 +33,16 @@ func TestMain(m *testing.M) {
 		return
 	}
 
-	env, err := setupSuite()
+	ctx := context.Background()
+	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
+	env, err := setupSuite(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	exitCode := 0
 	defer func() {
+		cancel()
 		teardownSuite(env)
 		os.Exit(exitCode)
 	}()
@@ -73,6 +51,13 @@ func TestMain(m *testing.M) {
 }
 
 func teardownSuite(env *envtest.Environment) {
+	if sharedResources != nil {
+		err := sharedResources.Destroy()
+		if err != nil {
+			log.Printf("shared resources teardown error: %s", err)
+		}
+	}
+
 	if env == nil {
 		return
 	}
@@ -83,7 +68,7 @@ func teardownSuite(env *envtest.Environment) {
 	}
 }
 
-func setupSuite() (*envtest.Environment, error) {
+func setupSuite(ctx context.Context) (*envtest.Environment, error) {
 	cfg = new(testConfig)
 	err := envconfig.Process("", cfg)
 	if err != nil {
@@ -134,9 +119,6 @@ func setupSuite() (*envtest.Environment, error) {
 		},
 	}
 
-	ctx, cancel := testCtx()
-	defer cancel()
-
 	discoveryClient, err := discovery.NewDiscoveryClientForConfig(mgr.GetConfig())
 	if err != nil {
 		return nil, fmt.Errorf("unable to create discovery client: %w", err)
@@ -172,6 +154,8 @@ func setupSuite() (*envtest.Environment, error) {
 			log.Fatal(err)
 		}
 	}()
+
+	sharedResources = NewSharedResources(ctx, k8sClient)
 	return env, nil
 }
 

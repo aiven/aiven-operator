@@ -1,3 +1,5 @@
+//go:build kafkaschema
+
 package tests
 
 import (

@@ -1,3 +1,5 @@
+//go:build kafkaacl
+
 package tests
 
 import (

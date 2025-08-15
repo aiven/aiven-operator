@@ -1,3 +1,5 @@
+//go:build flink
+
 package tests
 
 import (

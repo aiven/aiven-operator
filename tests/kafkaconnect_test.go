@@ -1,3 +1,5 @@
+//go:build kafkaconnect
+
 package tests
 
 import (

@@ -1,3 +1,5 @@
+//go:build serviceuser
+
 package tests
 
 import (

@@ -1,3 +1,5 @@
+//go:build projectvpc
+
 package tests
 
 import (

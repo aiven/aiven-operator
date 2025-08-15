@@ -114,6 +114,10 @@ test: envtest ## Run tests. To target a specific test, use 'run=TestName make te
 	export KUBEBUILDER_ASSETS=$(shell eval ${KUBEBUILDER_ASSETS_CMD}); \
 	go test ./tests/... -race -run=$(run) -v $(if $(run), -timeout 30m, -timeout 60m) -parallel 10 -cover -coverpkg=./controllers -covermode=atomic -coverprofile=coverage.out
 
+test-tag: envtest ## Run tests with specific build tag. Usage - make test-tag tag=mytag
+	export KUBEBUILDER_ASSETS=$(shell eval ${KUBEBUILDER_ASSETS_CMD}); \
+	go test ./tests/... -race -v -timeout=30m -cover -coverpkg=./controllers -covermode=atomic -coverprofile=coverage.out -tags=suite,$(tag)
+
 ##@ Build
 
 .PHONY: build

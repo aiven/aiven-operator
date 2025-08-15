@@ -1,3 +1,5 @@
+//go:build misc
+
 package tests
 
 import (
