@@ -26,7 +26,7 @@ func TestKafkaConnect(t *testing.T) {
 		"spec.cloudName": cfg.PrimaryCloudName,
 	})
 	require.NoError(t, err)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)

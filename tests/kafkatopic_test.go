@@ -82,7 +82,7 @@ func TestKafkaTopic(t *testing.T) {
 
 	ksName := randName("kafka-topic")
 	yml := getKafkaTopicNameYaml(cfg.Project, ksName, cfg.PrimaryCloudName)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)

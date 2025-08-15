@@ -75,7 +75,7 @@ func TestProjectVPCID(t *testing.T) {
 	vpcName1 := randName("project-vpc-id")
 	vpcName2 := randName("project-vpc-id")
 	vpcYaml := getProjectVPCsYaml(cfg.Project, vpcName1, cfg.SecondaryCloudName, vpcName2, cfg.TertiaryCloudName)
-	vpcSession := NewSession(ctx, k8sClient, cfg.Project)
+	vpcSession := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer vpcSession.Destroy(t)
@@ -112,7 +112,7 @@ func TestProjectVPCID(t *testing.T) {
 	// Creates Kafka with given vpcID
 	kafkaName := randName("project-vpc-id")
 	kafkaYaml := getKafkaForProjectVPCYaml(cfg.Project, vpc1.Status.ID, kafkaName, cfg.SecondaryCloudName)
-	kafkaSession := NewSession(ctx, k8sClient, cfg.Project)
+	kafkaSession := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer kafkaSession.Destroy(t)

@@ -28,7 +28,7 @@ func TestValkey(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)

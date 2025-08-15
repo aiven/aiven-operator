@@ -39,7 +39,7 @@ func TestClickhouseUser(t *testing.T) {
 		"doc[1].spec.cloudName": cfg.PrimaryCloudName,
 	})
 	require.NoError(t, err)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)
@@ -180,7 +180,7 @@ func TestClickhouseUserCustomCredentials(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 	chName := randName("clickhouseuser-scenarios")
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	defer s.Destroy(t)
 

@@ -53,7 +53,7 @@ func TestMySQL(t *testing.T) {
 
 	name := randName("mysql")
 	yml := getMySQLYaml(cfg.Project, name, cfg.PrimaryCloudName)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)

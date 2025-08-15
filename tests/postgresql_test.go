@@ -73,7 +73,7 @@ func TestPgReadReplica(t *testing.T) {
 	masterName := randName("pg-master")
 	replicaName := randName("pg-replica")
 	yml := getPgReadReplicaYaml(cfg.Project, masterName, replicaName, cfg.PrimaryCloudName)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)
@@ -191,7 +191,7 @@ func TestPgCustomPrefix(t *testing.T) {
 
 	pgName := randName("secret-prefix")
 	yml := getPgCustomPrefixYaml(cfg.Project, pgName, cfg.PrimaryCloudName)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)
@@ -299,7 +299,7 @@ func TestPgUpgradeVersion(t *testing.T) {
 
 	pgName := randName("upgrade-test")
 	yaml := getPgUpgradeVersionYaml(cfg.Project, pgName, cfg.PrimaryCloudName, startingVersion)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	defer s.Destroy(t)
 
