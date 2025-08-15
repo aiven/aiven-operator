@@ -28,7 +28,7 @@ func TestKafkaNativeACL(t *testing.T) {
 		"doc[1].spec.serviceName": kafkaName,
 	})
 	require.NoError(t, err)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)

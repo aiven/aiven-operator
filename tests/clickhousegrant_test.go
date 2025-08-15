@@ -129,7 +129,7 @@ func TestClickhouseGrant(t *testing.T) {
 	dbName := "clickhouse-db"
 
 	yml := getClickhouseGrantYaml(cfg.Project, chName, cfg.PrimaryCloudName, dbName, userName)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)
@@ -422,7 +422,7 @@ func TestClickhouseGrantExample(t *testing.T) {
 	extraGrantName := randName("clickhouse-extra-grant")
 	extraYml := clickhouseGrantExampleExtra(cfg.Project, chName, dbName, extraUserName, extraRoleName, extraGrantName)
 
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)

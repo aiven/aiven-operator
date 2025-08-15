@@ -57,7 +57,7 @@ func TestKafkaWithProjectVPCRef(t *testing.T) {
 	vpcName := randName("kafka-vpc")
 	kafkaName := randName("kafka-vpc")
 	yml := getKafkaWithProjectVPCRefYaml(cfg.Project, vpcName, kafkaName, cfg.PrimaryCloudName)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)

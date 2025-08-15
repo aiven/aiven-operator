@@ -66,7 +66,7 @@ func TestClickhouse(t *testing.T) {
 	require.NoError(t, err)
 
 	yml := fmt.Sprintf("%s---\n%s---\n%s---\n%s---\n%s", ymlClickhouse, ymlDatabase1, ymlDatabase2, ymlRole1, ymlRole2)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)

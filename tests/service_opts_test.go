@@ -46,7 +46,7 @@ func TestServiceTechnicalEmails(t *testing.T) {
 
 	name := randName("grafana")
 	yml := getTechnicalEmailsYaml(cfg.Project, name, cfg.PrimaryCloudName, true)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)
@@ -118,7 +118,7 @@ func runTest(t *testing.T, scenario TestScenario) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)

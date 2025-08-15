@@ -25,7 +25,7 @@ func TestServiceIntegrationEndpointExternalPostgres(t *testing.T) {
 		"spec.project":  cfg.Project,
 	})
 	require.NoError(t, err)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)
@@ -68,7 +68,7 @@ func TestServiceIntegrationEndpoint(t *testing.T) {
 		"spec.project":  cfg.Project,
 	})
 	require.NoError(t, err)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)
@@ -111,7 +111,7 @@ func TestServiceIntegrationEndpointAutoscaler(t *testing.T) {
 		"spec.project":  cfg.Project,
 	})
 	require.NoError(t, err)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)

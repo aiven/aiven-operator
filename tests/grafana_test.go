@@ -53,7 +53,7 @@ func TestGrafana(t *testing.T) {
 
 	name := randName("grafana")
 	yml := getGrafanaYaml(cfg.Project, name, cfg.PrimaryCloudName)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)

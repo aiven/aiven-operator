@@ -64,7 +64,7 @@ func TestServiceUserKafka(t *testing.T) {
 	kafkaName := randName("service-user")
 	userName := randName("service-user")
 	yml := getServiceUserKafkaYaml(cfg.Project, kafkaName, userName, cfg.PrimaryCloudName)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)
@@ -179,7 +179,7 @@ func TestServiceUserPg(t *testing.T) {
 	pgName := randName("connection-pool")
 	userName := randName("connection-pool")
 	yml := getServiceUserPgYaml(cfg.Project, pgName, userName, cfg.PrimaryCloudName)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)
@@ -248,7 +248,7 @@ func TestServiceUserCustomCredentials(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 	pgName := randName("serviceuser-scenarios")
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	defer s.Destroy(t)
 

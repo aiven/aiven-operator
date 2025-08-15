@@ -76,7 +76,7 @@ func TestCreateUpdateService(t *testing.T) {
 
 	pgName := randName("generic-handler")
 	ymlCreate := getCreateServiceYaml(cfg.Project, pgName)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)
@@ -174,7 +174,7 @@ func TestErrorCondition(t *testing.T) {
 
 	pgName := randName("generic-handler")
 	yml := getErrorConditionYaml(cfg.Project, pgName)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)

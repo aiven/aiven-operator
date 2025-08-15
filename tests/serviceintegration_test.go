@@ -39,7 +39,7 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 		"doc[2].spec.cloudName": cfg.PrimaryCloudName,
 	})
 	require.NoError(t, err)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)
@@ -118,7 +118,7 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 		"doc[2].spec.serviceName": ksName,
 	})
 	require.NoError(t, err)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)
@@ -194,7 +194,7 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 		"doc[2].spec.cloudName": cfg.PrimaryCloudName,
 	})
 	require.NoError(t, err)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)
@@ -274,7 +274,7 @@ func TestServiceIntegrationAutoscaler(t *testing.T) {
 		"doc[1].spec.cloudName": cfg.PrimaryCloudName,
 	})
 	require.NoError(t, err)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)
@@ -336,7 +336,7 @@ func TestServiceIntegrationDatadog(t *testing.T) {
 		"doc[1].spec.cloudName": cfg.PrimaryCloudName,
 	})
 	require.NoError(t, err)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)
@@ -415,7 +415,7 @@ func TestWebhookMultipleUserConfigsDenied(t *testing.T) {
 	yml := getWebhookMultipleUserConfigsDeniedYaml(cfg.Project, siName)
 
 	// WHEN
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// THEN
 	err := s.Apply(yml)

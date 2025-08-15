@@ -77,7 +77,7 @@ func TestKafkaSchema(t *testing.T) {
 	schemaName := randName("kafka-schema")
 	subjectName := randName("kafka-schema")
 	yml := getKafkaSchemaYaml(cfg.Project, kafkaName, schemaName, subjectName, cfg.PrimaryCloudName)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)

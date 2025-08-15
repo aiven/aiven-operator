@@ -55,7 +55,7 @@ func TestConnectionPool(t *testing.T) {
 		"doc[3].spec.serviceName": pgName,
 	})
 	require.NoError(t, err)
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)
@@ -159,7 +159,7 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 		poolName    = randName("connection-pool-inbound")
 		userName    = randName("inbound-user") // Service user for testing "Reuse Inbound User" functionality
 
-		s = NewSession(ctx, k8sClient, cfg.Project)
+		s = NewSession(ctx, k8sClient)
 
 		findPoolFunc = func(poolName string) *service.ConnectionPoolOut {
 			var avnPool *service.ConnectionPoolOut

@@ -17,7 +17,7 @@ func TestDatabase(t *testing.T) {
 	// GIVEN
 	ctx, cancel := testCtx()
 	defer cancel()
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	pgName := randName("database-pg")
 	dbName := randName("database-db")
@@ -85,7 +85,7 @@ func TestDatabase_databaseName(t *testing.T) {
 	// GIVEN
 	ctx, cancel := testCtx()
 	defer cancel()
-	s := NewSession(ctx, k8sClient, cfg.Project)
+	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)
