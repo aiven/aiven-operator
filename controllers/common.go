@@ -31,6 +31,7 @@ const (
 
 	processedGenerationAnnotation = "controllers.aiven.io/generation-was-processed"
 	instanceIsRunningAnnotation   = "controllers.aiven.io/instance-is-running"
+	secretSourceUpdatedAnnotation = "controllers.aiven.io/secret-source-updated"
 
 	deletionPolicyAnnotation = "controllers.aiven.io/deletion-policy"
 	deletionPolicyOrphan     = "Orphan"

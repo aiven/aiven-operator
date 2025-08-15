@@ -525,9 +525,9 @@ func (i *instanceReconcilerHelper) updateInstanceStateAndSecretUntilRunning(ctx 
 
 	// Needs to be before o.NoSecret() check because `get` mutates the object's metadata annotations.
 	// It set the instanceIsRunningAnnotation annotation when the instance is running on Aiven's side.
-	secret, err := i.h.get(ctx, i.avnGen, o)
+	goalSecret, err := i.h.get(ctx, i.avnGen, o)
 
-	if secret == nil || err != nil {
+	if goalSecret == nil || err != nil {
 		return err
 	}
 
@@ -536,7 +536,31 @@ func (i *instanceReconcilerHelper) updateInstanceStateAndSecretUntilRunning(ctx 
 		return nil
 	}
 
+	// `CreateOrUpdate` will populate this secret by calling Get
+	secret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      goalSecret.Name,
+			Namespace: goalSecret.Namespace,
+		},
+	}
+
 	_, err = controllerutil.CreateOrUpdate(ctx, i.k8s, secret, func() error {
+		if secret.Data == nil {
+			secret.Data = make(map[string][]byte)
+		}
+
+		// copy data from our goalSecret's StringData.
+		// this handles both Create and Update
+		if goalSecret.StringData != nil {
+			secret.Data = make(map[string][]byte) // clear existing data
+			for key, value := range goalSecret.StringData {
+				secret.Data[key] = []byte(value)
+			}
+		}
+
+		secret.Labels = goalSecret.Labels
+		secret.Annotations = goalSecret.Annotations
+
 		return controllerutil.SetControllerReference(o, secret, i.k8s.Scheme())
 	})
 
