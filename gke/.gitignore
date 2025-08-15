@@ -1,0 +1,12 @@
+# environment variables
+.env
+
+# Terraform state
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+*.terraform.lock.hcl
+# Taskfile temporary files
+.task/

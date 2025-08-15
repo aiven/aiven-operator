@@ -1,0 +1,107 @@
+version: "3"
+
+dotenv: [.env]
+
+vars:
+  PROJECT_ID: "{{.PROJECT_ID}}"
+  REGION: "{{.REGION}}"
+  CLUSTER_NAME: "{{.CLUSTER_NAME}}"
+  KUBERNETES_VERSION: "{{.KUBERNETES_VERSION}}"
+  MY_PUBLIC_IP: '{{default "" .MY_PUBLIC_IP}}'
+  AIVEN_PROJECT: "{{.AIVEN_PROJECT}}"
+  AIVEN_TOKEN: "{{.AIVEN_TOKEN}}"
+  OPERATOR_NAMESPACE: "{{.OPERATOR_NAMESPACE}}"
+  ENABLE_OPERATOR_WEBHOOKS: "{{.ENABLE_OPERATOR_WEBHOOKS}}"
+  OPERATOR_LOG_LEVEL: "{{.OPERATOR_LOG_LEVEL}}"
+
+  TF_CLUSTER: ./terraform/cluster
+  TF_ADDONS: ./terraform/addons
+
+  CLUSTER_VARS: |
+    -var="project_id={{.PROJECT_ID}}" \
+    -var="region={{.REGION}}" \
+    -var="cluster_name={{.CLUSTER_NAME}}" \
+    -var="kubernetes_version={{.KUBERNETES_VERSION}}" \
+    -var="my_public_ip={{.MY_PUBLIC_IP}}"
+  ADDONS_VARS: |
+    -var="aiven_project={{.AIVEN_PROJECT}}" \
+    -var="aiven_token={{.AIVEN_TOKEN}}" \
+    -var="operator_namespace={{.OPERATOR_NAMESPACE}}" \
+    -var="enable_operator_webhooks={{.ENABLE_OPERATOR_WEBHOOKS}}" \
+    -var="operator_log_level={{.OPERATOR_LOG_LEVEL}}"
+
+tasks:
+  default:
+    desc: Show all available tasks
+    cmds:
+      - task --list-all
+    silent: true
+
+  # --- CONFIGURATION & VALIDATION ---
+  config:init:
+    desc: Initialize .env configuration from example
+    silent: true
+    status:
+      - "[ -f .env ]"
+    cmds:
+      - cp .env.example .env
+      - echo "✅ Created .env from .env.example. Please edit it with your configuration."
+    generates:
+      - .env
+
+  validate:
+    desc: Validate prerequisites and configuration
+    silent: true
+    deps: [validate:tools, validate:auth]
+    cmds:
+      - echo "🎉 All checks passed. Environment is ready."
+
+  validate:tools:
+    desc: Check that all required command-line tools are installed
+    silent: true
+    internal: true
+    preconditions:
+      - sh: command -v terraform
+        msg: ❌ Terraform is not installed. Please follow the official installation guide.
+      - sh: command -v kubectl
+        msg: ❌ kubectl is not installed. Please see the Kubernetes documentation to install it.
+      - sh: command -v helm
+        msg: ❌ Helm is not installed. Please see the Helm documentation to install it.
+      - sh: command -v gcloud
+        msg: ❌ Google Cloud CLI (gcloud) is not installed. Please follow the GCP setup guide.
+      - sh: command -v docker
+        msg: ❌ Docker is not installed or the daemon is not running.
+    cmds:
+      - echo "✅ All required tools are installed."
+
+  validate:auth:
+    desc: Check that you are authenticated with Google Cloud
+    silent: true
+    internal: true
+    cmds:
+      - echo "✅ Authenticated with gcloud and project is set."
+    preconditions:
+      - sh: gcloud auth list --filter=status:ACTIVE --format='value(account)'
+        msg: ❌ You are not authenticated with gcloud. Please run 'gcloud auth login'.
+      - sh: gcloud config get-value project
+        msg: ❌ No default GCP project is configured. Please run 'gcloud config set project YOUR_PROJECT_ID'.
+
+  cluster:deploy:
+    desc: Deploy VPC and GKE cluster
+    deps: [config:init, validate]
+    cmds:
+      - terraform -chdir={{.TF_CLUSTER}} init
+      - terraform -chdir={{.TF_CLUSTER}} apply -auto-approve {{.CLUSTER_VARS}}
+      - task: cluster:connect
+
+  cluster:destroy:
+    desc: Destroy VPC and GKE cluster
+    cmds:
+      - terraform -chdir={{.TF_CLUSTER}} destroy -auto-approve {{.CLUSTER_VARS}}
+
+  cluster:connect:
+    desc: Configure kubectl to connect to the cluster
+    cmds:
+      - |
+        gcloud container clusters get-credentials {{.CLUSTER_NAME}} --region {{.REGION}} --project {{.PROJECT_ID}}
+        echo "✅ Kubectl configured."
