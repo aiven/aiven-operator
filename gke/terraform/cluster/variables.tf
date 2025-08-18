@@ -25,3 +25,9 @@ variable "my_public_ip" {
   description = "Optional public IP override for master authorized networks. If empty, it will be auto-detected."
   default     = ""
 }
+
+variable "image_repo_name" {
+  type        = string
+  description = "The name of the Artifact Registry repository for Docker images."
+  default     = "my-aiven-operator"
+}

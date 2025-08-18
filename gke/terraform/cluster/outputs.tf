@@ -17,3 +17,8 @@ output "network_name" {
   description = "The name of the VPC network created for the cluster."
   value       = google_compute_network.vpc.name
 }
+
+output "repository_url" {
+  description = "The full URL of the Artifact Registry repository with image name."
+  value       = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.image_repo.repository_id}/aiven-operator"
+}

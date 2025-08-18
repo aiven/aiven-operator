@@ -65,7 +65,6 @@ resource "google_container_cluster" "aiven_operator_cluster" {
   name     = var.cluster_name
   location = var.region
 
-  # Networking now references resources in this same module
   network    = google_compute_network.vpc.name
   subnetwork = google_compute_subnetwork.subnet.name
 
@@ -114,4 +113,26 @@ resource "google_compute_firewall" "allow_master_to_nodes" {
   }
 
   source_ranges = [google_container_cluster.aiven_operator_cluster.private_cluster_config[0].master_ipv4_cidr_block]
+}
+
+# Enable Artifact Registry API
+resource "google_project_service" "artifactregistry" {
+  service            = "artifactregistry.googleapis.com"
+  disable_on_destroy = false
+}
+
+# Create the repository for operator images
+resource "google_artifact_registry_repository" "image_repo" {
+  location      = var.region
+  repository_id = var.image_repo_name
+  description   = "Docker repository for the Aiven Operator"
+  format        = "DOCKER"
+
+  depends_on = [google_project_service.artifactregistry]
+}
+
+# Enable Container Registry API
+resource "google_project_service" "containerregistry" {
+  service            = "containerregistry.googleapis.com"
+  disable_on_destroy = false
 }

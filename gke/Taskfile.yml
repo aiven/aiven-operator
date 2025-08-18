@@ -5,14 +5,33 @@ dotenv: [.env]
 vars:
   PROJECT_ID: "{{.PROJECT_ID}}"
   REGION: "{{.REGION}}"
-  CLUSTER_NAME: "{{.CLUSTER_NAME}}"
   KUBERNETES_VERSION: "{{.KUBERNETES_VERSION}}"
   MY_PUBLIC_IP: '{{default "" .MY_PUBLIC_IP}}'
   AIVEN_PROJECT: "{{.AIVEN_PROJECT}}"
   AIVEN_TOKEN: "{{.AIVEN_TOKEN}}"
-  OPERATOR_NAMESPACE: "{{.OPERATOR_NAMESPACE}}"
   ENABLE_OPERATOR_WEBHOOKS: "{{.ENABLE_OPERATOR_WEBHOOKS}}"
   OPERATOR_LOG_LEVEL: "{{.OPERATOR_LOG_LEVEL}}"
+
+  DEV_PREFIX:
+    sh: |
+      if [ -n "${DEV_PREFIX:-}" ]; then
+        echo "${DEV_PREFIX}"
+      else
+        echo "$(whoami)" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]//g'
+      fi
+
+  # prefixed resource names to avoid conflicts
+  PREFIXED_CLUSTER_NAME:
+    sh: echo "{{.DEV_PREFIX}}-${CLUSTER_NAME:-aiven-operator-dev}"
+  PREFIXED_IMAGE_REPO_NAME:
+    sh: echo "{{.DEV_PREFIX}}-${IMAGE_REPO_NAME:-aiven-operator}"
+  PREFIXED_OPERATOR_NAMESPACE:
+    sh: echo "{{.DEV_PREFIX}}-${OPERATOR_NAMESPACE:-aiven-operator-namespace}"
+
+  TAG:
+    sh: |
+      # Always use git commit + timestamp for consistent tagging
+      echo "$(git rev-parse --short HEAD 2>/dev/null || echo "latest")-$(date +%s)-amd64"
 
   TF_CLUSTER: ./terraform/cluster
   TF_ADDONS: ./terraform/addons
@@ -20,15 +39,17 @@ vars:
   CLUSTER_VARS: |
     -var="project_id={{.PROJECT_ID}}" \
     -var="region={{.REGION}}" \
-    -var="cluster_name={{.CLUSTER_NAME}}" \
+    -var="cluster_name={{.PREFIXED_CLUSTER_NAME}}" \
+    -var="image_repo_name={{.PREFIXED_IMAGE_REPO_NAME}}" \
     -var="kubernetes_version={{.KUBERNETES_VERSION}}" \
     -var="my_public_ip={{.MY_PUBLIC_IP}}"
   ADDONS_VARS: |
     -var="aiven_project={{.AIVEN_PROJECT}}" \
     -var="aiven_token={{.AIVEN_TOKEN}}" \
-    -var="operator_namespace={{.OPERATOR_NAMESPACE}}" \
+    -var="operator_namespace={{.PREFIXED_OPERATOR_NAMESPACE}}" \
     -var="enable_operator_webhooks={{.ENABLE_OPERATOR_WEBHOOKS}}" \
-    -var="operator_log_level={{.OPERATOR_LOG_LEVEL}}"
+    -var="operator_log_level={{.OPERATOR_LOG_LEVEL}}" \
+    -var="operator_image_tag={{.TAG}}"
 
 tasks:
   default:
@@ -54,7 +75,7 @@ tasks:
     silent: true
     deps: [validate:tools, validate:auth]
     cmds:
-      - echo "🎉 All checks passed. Environment is ready."
+      - echo "✅ All checks passed. Environment is ready."
 
   validate:tools:
     desc: Check that all required command-line tools are installed
@@ -98,10 +119,64 @@ tasks:
     desc: Destroy VPC and GKE cluster
     cmds:
       - terraform -chdir={{.TF_CLUSTER}} destroy -auto-approve {{.CLUSTER_VARS}}
+      - task: cluster:cleanup-config
 
   cluster:connect:
     desc: Configure kubectl to connect to the cluster
     cmds:
       - |
-        gcloud container clusters get-credentials {{.CLUSTER_NAME}} --region {{.REGION}} --project {{.PROJECT_ID}}
+        gcloud container clusters get-credentials {{.PREFIXED_CLUSTER_NAME}} --region {{.REGION}} --project {{.PROJECT_ID}}
         echo "✅ Kubectl configured."
+
+  cluster:cleanup-config:
+    desc: Remove deleted cluster from kubeconfig
+    internal: true
+    cmds:
+      - |
+        CONTEXT_NAME="gke_{{.PROJECT_ID}}_{{.REGION}}_{{.PREFIXED_CLUSTER_NAME}}"
+        if kubectl config get-contexts -o name | grep -q "^$CONTEXT_NAME$"; then
+          kubectl config delete-context "$CONTEXT_NAME" || true
+          kubectl config delete-cluster "$CONTEXT_NAME" || true  
+          kubectl config delete-user "$CONTEXT_NAME" || true
+          echo "✅ Kubeconfig cleaned up."
+        else
+          echo "✅ No kubeconfig cleanup needed for: $CONTEXT_NAME"
+        fi
+
+  image:build:
+    desc: Build and push operator image (always rebuilds for development)
+    dir: ..
+    vars:
+      REPO_URL:
+        sh: terraform -chdir=gke/terraform/cluster output -raw repository_url
+    cmds:
+      - echo "Building image {{.REPO_URL}}:{{.TAG}}"
+      - docker build --platform linux/amd64 -t {{.REPO_URL}}:{{.TAG}} .
+      - docker push {{.REPO_URL}}:{{.TAG}}
+
+  addons:deploy:
+    desc: Deploy Helm addons and the Aiven Operator via Terraform (auto-detects code changes)
+    deps: [config:init, validate, image:build]
+    cmds:
+      - terraform -chdir={{.TF_ADDONS}} init
+      - terraform -chdir={{.TF_ADDONS}} apply -auto-approve {{.ADDONS_VARS}}
+
+  addons:destroy:
+    desc: Destroy Helm addons and the Aiven Operator via Terraform
+    cmds:
+      - terraform -chdir={{.TF_ADDONS}} destroy -auto-approve {{.ADDONS_VARS}}
+
+  status:
+    desc: Check the status of the Aiven Operator pods
+    cmds:
+      - kubectl -n {{.PREFIXED_OPERATOR_NAMESPACE}} get pods -l app.kubernetes.io/name=aiven-operator
+
+  logs:
+    desc: Tail the logs of the Aiven Operator
+    cmds:
+      - kubectl -n {{.PREFIXED_OPERATOR_NAMESPACE}} logs -f -l app.kubernetes.io/name=aiven-operator
+
+  restart:
+    desc: Perform a rolling restart of the Aiven Operator
+    cmds:
+      - kubectl -n {{.PREFIXED_OPERATOR_NAMESPACE}} rollout restart deployment aiven-operator
