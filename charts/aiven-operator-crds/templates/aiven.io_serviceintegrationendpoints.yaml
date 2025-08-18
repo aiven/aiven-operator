@@ -81,7 +81,6 @@ spec:
                             description:
                               The maximum total disk size (in gb) to allow
                               autoscaler to scale up to
-                            maximum: 10000
                             minimum: 50
                             type: integer
                           type:
@@ -527,7 +526,7 @@ spec:
                   properties:
                     basic_auth_password:
                       description: Prometheus basic authentication password
-                      maxLength: 64
+                      maxLength: 256
                       minLength: 8
                       type: string
                     basic_auth_username:
