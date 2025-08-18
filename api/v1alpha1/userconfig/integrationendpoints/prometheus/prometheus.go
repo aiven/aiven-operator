@@ -5,7 +5,7 @@ package prometheususerconfig
 
 type PrometheusUserConfig struct {
 	// +kubebuilder:validation:MinLength=8
-	// +kubebuilder:validation:MaxLength=64
+	// +kubebuilder:validation:MaxLength=256
 	// Prometheus basic authentication password
 	BasicAuthPassword *string `groups:"create,update" json:"basic_auth_password,omitempty"`
 

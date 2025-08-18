@@ -18,6 +18,7 @@
 - Change `PostgreSQL` field `userConfig.pg.max_logical_replication_workers`: maximum ~~`64`~~ → `256`
 - Change `PostgreSQL` field `userConfig.pg.max_replication_slots`: maximum ~~`64`~~ → `256`
 - Change `PostgreSQL` field `userConfig.pg.max_worker_processes`: maximum ~~`96`~~ → `288`
+- Change `ServiceIntegrationEndpoint` field `prometheus.basic_auth_password`: maxLength ~~`64`~~ → `256`
 
 ## v0.31.0 - 2025-07-25
 

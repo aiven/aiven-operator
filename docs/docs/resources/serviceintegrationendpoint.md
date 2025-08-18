@@ -170,7 +170,7 @@ Autoscaling properties for a service.
 
 **Required**
 
-- [`cap_gb`](#spec.autoscaler.autoscaling.cap_gb-property){: name='spec.autoscaler.autoscaling.cap_gb-property'} (integer, Minimum: 50, Maximum: 10000). The maximum total disk size (in gb) to allow autoscaler to scale up to.
+- [`cap_gb`](#spec.autoscaler.autoscaling.cap_gb-property){: name='spec.autoscaler.autoscaling.cap_gb-property'} (integer, Minimum: 50). The maximum total disk size (in gb) to allow autoscaler to scale up to.
 - [`type`](#spec.autoscaler.autoscaling.type-property){: name='spec.autoscaler.autoscaling.type-property'} (string, Enum: `autoscale_disk`). Type of autoscale event.
 
 ## datadog {: #spec.datadog }
@@ -370,7 +370,7 @@ Prometheus configuration values.
 
 **Optional**
 
-- [`basic_auth_password`](#spec.prometheus.basic_auth_password-property){: name='spec.prometheus.basic_auth_password-property'} (string, MinLength: 8, MaxLength: 64). Prometheus basic authentication password.
+- [`basic_auth_password`](#spec.prometheus.basic_auth_password-property){: name='spec.prometheus.basic_auth_password-property'} (string, MinLength: 8, MaxLength: 256). Prometheus basic authentication password.
 - [`basic_auth_username`](#spec.prometheus.basic_auth_username-property){: name='spec.prometheus.basic_auth_username-property'} (string, Pattern: `^[a-z0-9\-@_]{5,32}$`, MinLength: 5, MaxLength: 32). Prometheus basic authentication username.
 
 ## rsyslog {: #spec.rsyslog }
