@@ -25,8 +25,8 @@ type ClickhouseUserSpec struct {
 	// The password from this secret will be used to modify the ClickHouse user credentials.
 	// Password must be 8-256 characters long as per Aiven API requirements.
 	// This can be used to set passwords for new users or modify passwords for existing users.
-	// Note: This secret is not watched - changes to the source secret require manual reconciliation.
-	// To apply password changes, trigger reconciliation by adding/updating an annotation on the ClickhouseUser.
+	// The source secret is watched for changes, and reconciliation will be automatically triggered
+	// when the secret data is updated.
 	ConnInfoSecretSource *ConnInfoSecretSource `json:"connInfoSecretSource,omitempty"`
 
 	// Name of the Clickhouse user. Defaults to `metadata.name` if omitted.

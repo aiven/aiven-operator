@@ -23,6 +23,13 @@ func SetupControllers(mgr ctrl.Manager, defaultToken, kubeVersion, operatorVersi
 		return fmt.Errorf("controller SecretFinalizerGCController: %w", err)
 	}
 
+	if err := (&SecretWatchController{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("SecretWatchController"),
+	}).SetupWithManager(mgr); err != nil {
+		return fmt.Errorf("controller SecretWatchController: %w", err)
+	}
+
 	builders := map[string]reconcilerBuilder{
 		"AlloyDBOmni":                      newAlloyDBOmniReconciler,
 		"Cassandra":                        newCassandraReconciler,

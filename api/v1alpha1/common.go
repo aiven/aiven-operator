@@ -41,8 +41,8 @@ type ConnInfoSecretTarget struct {
 }
 
 // ConnInfoSecretSource contains information about existing secret to read connection parameters from.
-// IMPORTANT: The source secret is not watched for changes. If you update the password in the source secret,
-// you must trigger a reconciliation (e.g., by adding an annotation) to apply the new password.
+// The source secret is watched for changes, and reconciliation will be automatically triggered
+// when the secret data is updated.
 type ConnInfoSecretSource struct {
 	// +kubebuilder:validation:Required
 	// +kubebuilder:validation:MinLength=1
