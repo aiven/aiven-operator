@@ -13,8 +13,11 @@ import (
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/liip/sheriff"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/util/retry"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -115,13 +118,33 @@ func isMarkedForDeletion(o client.Object) bool {
 }
 
 func addFinalizer(ctx context.Context, client client.Client, o client.Object, f string) error {
-	controllerutil.AddFinalizer(o, f)
-	return client.Update(ctx, o)
+	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		key := types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()}
+		if err := client.Get(ctx, key, o); err != nil {
+			return err
+		}
+
+		controllerutil.AddFinalizer(o, f)
+
+		return client.Update(ctx, o)
+	})
 }
 
 func removeFinalizer(ctx context.Context, client client.Client, o client.Object, f string) error {
-	controllerutil.RemoveFinalizer(o, f)
-	return client.Update(ctx, o)
+	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		key := types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()}
+		if err := client.Get(ctx, key, o); err != nil {
+			if apierrors.IsNotFound(err) {
+				return nil
+			}
+
+			return err
+		}
+
+		controllerutil.RemoveFinalizer(o, f)
+
+		return client.Update(ctx, o)
+	})
 }
 
 // hasLatestGeneration returns true if the client.Object's controller has processed the latest generation of the object.
