@@ -57,6 +57,7 @@ jobs:
           AIVEN_ACCOUNT_ID: ${{ secrets.AIVEN_ACCOUNT_ID }}
           AIVEN_PROJECT_NAME: >-
             ${{ secrets.AIVEN_PROJECT_NAME_PREFIX }}${{ needs.setup_aiven_project_suffix.outputs.project_name_suffix }}
+          ENABLE_DEBUG_LOGGING: true
 
   sweep:
     if: always()
@@ -89,7 +90,7 @@ jobs:
       SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
 
   notify-slack-failure:
-    if: needs.test.result == 'failure'
+    if: needs.test.result != 'success'
     needs: [test, sweep]
     uses: ./.github/workflows/slack-notify.yml
     with:
