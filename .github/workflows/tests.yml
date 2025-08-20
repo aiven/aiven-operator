@@ -77,8 +77,20 @@ jobs:
           AIVEN_PROJECT_NAME: >-
             ${{ secrets.AIVEN_PROJECT_NAME_PREFIX }}${{ needs.setup_aiven_project_suffix.outputs.project_name_suffix }}
 
+  debug-notification:
+    if: always()
+    needs: [test, sweep]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug job results
+        run: |
+          echo "Test result: ${{ needs.test.result }}"
+          echo "Sweep result: ${{ needs.sweep.result }}"
+          echo "Should notify success: ${{ needs.test.result == 'success' }}"
+          echo "Should notify failure: ${{ needs.test.result == 'failure' || needs.test.result == 'cancelled' }}"
+
   notify-slack-success:
-    if: needs.test.result == 'success'
+    if: always() && needs.test.result == 'success'
     needs: [test, sweep]
     uses: ./.github/workflows/slack-notify.yml
     with:
@@ -90,7 +102,7 @@ jobs:
       SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
 
   notify-slack-failure:
-    if: needs.test.result != 'success'
+    if: always() && (needs.test.result == 'failure' || needs.test.result == 'cancelled')
     needs: [test, sweep]
     uses: ./.github/workflows/slack-notify.yml
     with:

@@ -24,6 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/serializer/yaml"
 	"k8s.io/apimachinery/pkg/types"
 	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
+	"k8s.io/client-go/util/retry"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -103,17 +104,33 @@ func (s *session) ApplyObjects(objects ...client.Object) error {
 			obj.SetResourceVersion("")
 			err := s.k8s.Create(ctx, obj)
 			if alreadyExists(err) {
-				c := obj.DeepCopyObject().(client.Object)
 				key := types.NamespacedName{
-					Name:      c.GetName(),
-					Namespace: c.GetNamespace(),
+					Name:      obj.GetName(),
+					Namespace: obj.GetNamespace(),
 				}
-				err = s.k8s.Get(ctx, key, c)
-				if err != nil {
-					return err
-				}
-				obj.SetResourceVersion(c.GetResourceVersion())
-				return s.k8s.Update(ctx, obj)
+
+				log.Printf("TEST SESSION: Object %s already exists, attempting update with retry", key)
+
+				// Retry update on conflict to handle race conditions
+				return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+					current := obj.DeepCopyObject().(client.Object)
+					if err := s.k8s.Get(ctx, key, current); err != nil {
+						log.Printf("TEST SESSION: Failed to get current version of %s: %v", key, err)
+						return err
+					}
+
+					log.Printf("TEST SESSION: Updating %s from version %s to %s",
+						key, obj.GetResourceVersion(), current.GetResourceVersion())
+
+					obj.SetResourceVersion(current.GetResourceVersion())
+					if err := s.k8s.Update(ctx, obj); err != nil {
+						log.Printf("TEST SESSION: Update failed for %s: %v", key, err)
+						return err
+					}
+
+					log.Printf("TEST SESSION: Successfully updated %s", key)
+					return nil
+				})
 			}
 			return err
 		})

@@ -107,18 +107,41 @@ spec:
 		// apply changes to both secret and ServiceUser simultaneously
 		t.Logf("TEST: Applying simultaneous changes to secret and ServiceUser")
 		updatedYml := getUpdatedServiceUserAndSecretYaml(cfg.Project, serviceName, userName, secretName, cfg.PrimaryCloudName)
-		require.NoError(t, s.Apply(updatedYml))
+
+		// Get the current state before applying changes
+		beforeUpdate := &v1alpha1.ServiceUser{}
+		err := k8sClient.Get(ctx, types.NamespacedName{
+			Name:      userName,
+			Namespace: user.Namespace,
+		}, beforeUpdate)
+		if err == nil {
+			t.Logf("TEST: Before Apply - ResourceVersion: %s, Generation: %d",
+				beforeUpdate.ResourceVersion, beforeUpdate.Generation)
+		}
+
+		applyErr := s.Apply(updatedYml)
+		if applyErr != nil {
+			t.Logf("TEST: Apply failed with error: %v", applyErr)
+		} else {
+			t.Logf("TEST: Apply succeeded")
+		}
+		require.NoError(t, applyErr)
 
 		// verify secret watcher handles the race condition properly
 		t.Logf("TEST: Starting to wait for race condition handling")
+
+		var lastState string
+		checkCount := 0
+
 		require.Eventually(t, func() bool {
+			checkCount++
 			updated := &v1alpha1.ServiceUser{}
 			err := k8sClient.Get(ctx, types.NamespacedName{
 				Name:      userName,
 				Namespace: user.Namespace,
 			}, updated)
 			if err != nil {
-				t.Logf("TEST: Failed to get ServiceUser: %v", err)
+				t.Logf("TEST: [Check %d] Failed to get ServiceUser: %v", checkCount, err)
 				return false
 			}
 
@@ -136,18 +159,41 @@ spec:
 			hasProcessedGeneration := annotations != nil && annotations["controllers.aiven.io/generation-was-processed"] != ""
 			isRunning := annotations != nil && annotations["controllers.aiven.io/instance-is-running"] == "true"
 
-			t.Logf("TEST: Current state - labels: %v, auth: %s, hasProcessedGen: %v, isRunning: %v, generation: %d, resourceVersion: %s",
+			// Build current state string
+			currentState := fmt.Sprintf("labels=%v auth=%s processedGen=%v running=%v gen=%d rv=%s",
 				hasUserLabels, updated.Spec.Authentication, hasProcessedGeneration, isRunning,
 				updated.Generation, updated.ResourceVersion)
 
-			if annotations != nil {
-				t.Logf("TEST: Annotations: processedGen=%s, secretSourceUpdated=%s, isRunning=%s",
-					annotations["controllers.aiven.io/generation-was-processed"],
-					annotations["controllers.aiven.io/secret-source-updated"],
-					annotations["controllers.aiven.io/instance-is-running"])
+			// Only log if state changed to reduce noise
+			if currentState != lastState {
+				t.Logf("TEST: [Check %d] State change: %s", checkCount, currentState)
+
+				if labels != nil {
+					t.Logf("TEST: [Check %d] Labels: version=%s env=%s", checkCount,
+						labels["app.kubernetes.io/version"], labels["environment"])
+				} else {
+					t.Logf("TEST: [Check %d] Labels: nil", checkCount)
+				}
+
+				if annotations != nil {
+					t.Logf("TEST: [Check %d] Annotations: processedGen=%s secretSourceUpdated=%s isRunning=%s",
+						checkCount,
+						annotations["controllers.aiven.io/generation-was-processed"],
+						annotations["controllers.aiven.io/secret-source-updated"],
+						annotations["controllers.aiven.io/instance-is-running"])
+				} else {
+					t.Logf("TEST: [Check %d] Annotations: nil", checkCount)
+				}
+
+				lastState = currentState
 			}
 
-			return hasUserLabels && hasUpdatedAuth
+			success := hasUserLabels && hasUpdatedAuth
+			if success {
+				t.Logf("TEST: [Check %d] SUCCESS! Both conditions met", checkCount)
+			}
+
+			return success
 		}, 2*time.Minute, 5*time.Second, "secret watcher should handle race condition gracefully")
 
 		// verify the password was actually updated
