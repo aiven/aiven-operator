@@ -89,37 +89,54 @@ func (c *SecretWatchController) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 func (c *SecretWatchController) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	c.Log.Info("SECRET WATCHER: Starting reconciliation", "secret", req.NamespacedName)
+
 	secret := &corev1.Secret{}
 	if err := c.Get(ctx, req.NamespacedName, secret); err != nil {
 		if errors.IsNotFound(err) {
+			c.Log.Info("SECRET WATCHER: Secret not found, skipping", "secret", req.NamespacedName)
 			return ctrl.Result{}, nil
 		}
+		c.Log.Error(err, "SECRET WATCHER: Failed to get secret", "secret", req.NamespacedName)
 		return ctrl.Result{}, err
 	}
 
+	c.Log.Info("SECRET WATCHER: Secret found, looking for dependent resources",
+		"secret", req.NamespacedName,
+		"resourceVersion", secret.ResourceVersion,
+		"generation", secret.Generation)
+
 	dependentResources, err := c.findResourcesUsingSecret(ctx, secret)
 	if err != nil {
+		c.Log.Error(err, "SECRET WATCHER: Failed to find dependent resources", "secret", req.NamespacedName)
 		return ctrl.Result{}, fmt.Errorf("unable to find resources using secret: %w", err)
 	}
 
 	if len(dependentResources) == 0 {
-		c.Log.Info("no resources found using this secret", "secret", req.NamespacedName)
+		c.Log.Info("SECRET WATCHER: No resources found using this secret", "secret", req.NamespacedName)
 		return ctrl.Result{}, nil
 	}
 
-	c.Log.Info("triggering reconciliation for dependent resources",
+	c.Log.Info("SECRET WATCHER: Found dependent resources, triggering reconciliation",
 		"secret", req.NamespacedName,
 		"dependentCount", len(dependentResources))
 
 	// trigger reconciliation for each dependent resource
-	for _, resource := range dependentResources {
+	for i, resource := range dependentResources {
+		resourceName := types.NamespacedName{Name: resource.GetName(), Namespace: resource.GetNamespace()}
+		c.Log.Info("SECRET WATCHER: Processing dependent resource",
+			"index", i,
+			"resource", resourceName,
+			"kind", resource.GetObjectKind().GroupVersionKind().Kind)
+
 		if err = c.triggerReconciliation(ctx, resource); err != nil {
-			c.Log.Error(err, "failed to trigger reconciliation for resource",
-				"resource", types.NamespacedName{Name: resource.GetName(), Namespace: resource.GetNamespace()},
+			c.Log.Error(err, "SECRET WATCHER: Failed to trigger reconciliation for resource",
+				"resource", resourceName,
 				"kind", resource.GetObjectKind().GroupVersionKind().Kind)
 		}
 	}
 
+	c.Log.Info("SECRET WATCHER: Completed reconciliation", "secret", req.NamespacedName)
 	return ctrl.Result{}, nil
 }
 
@@ -169,10 +186,20 @@ func (c *SecretWatchController) secretDataChanged(e event.UpdateEvent) bool {
 	newSec, newOk := e.ObjectNew.(*corev1.Secret)
 
 	if !oldOk || !newOk {
+		c.Log.Info("SECRET WATCHER: secretDataChanged called with invalid secret types")
 		return false
 	}
 
-	return !reflect.DeepEqual(oldSec.Data, newSec.Data)
+	secretName := types.NamespacedName{Name: newSec.Name, Namespace: newSec.Namespace}
+	dataChanged := !reflect.DeepEqual(oldSec.Data, newSec.Data)
+
+	c.Log.Info("SECRET WATCHER: Checking if secret data changed",
+		"secret", secretName,
+		"oldResourceVersion", oldSec.ResourceVersion,
+		"newResourceVersion", newSec.ResourceVersion,
+		"dataChanged", dataChanged)
+
+	return dataChanged
 }
 
 // findResourcesUsingSecret finds all resources that reference the given secret as connInfoSecretSource
@@ -211,15 +238,28 @@ func (c *SecretWatchController) findResourcesUsingSecret(ctx context.Context, se
 func (c *SecretWatchController) triggerReconciliation(ctx context.Context, resource SecretSourceResource) error {
 	resourceName := types.NamespacedName{Name: resource.GetName(), Namespace: resource.GetNamespace()}
 
+	c.Log.Info("SECRET WATCHER: Getting latest resource version", "resource", resourceName)
+
 	latest := resource.DeepCopyObject().(client.Object)
 	if err := c.Get(ctx, resourceName, latest); err != nil {
+		c.Log.Error(err, "SECRET WATCHER: Failed to get latest version of resource", "resource", resourceName)
 		return fmt.Errorf("failed to get latest version of resource: %w", err)
 	}
+
+	c.Log.Info("SECRET WATCHER: Current resource state",
+		"resource", resourceName,
+		"resourceVersion", latest.GetResourceVersion(),
+		"generation", latest.GetGeneration(),
+		"annotations", latest.GetAnnotations())
 
 	annotations := latest.GetAnnotations()
 	if annotations == nil {
 		annotations = make(map[string]string)
 	}
+
+	// Store current state for logging
+	oldProcessedGen := annotations[processedGenerationAnnotation]
+	oldSecretSourceUpdated := annotations[secretSourceUpdatedAnnotation]
 
 	annotations[secretSourceUpdatedAnnotation] = fmt.Sprintf("%d", time.Now().Unix())
 
@@ -228,18 +268,27 @@ func (c *SecretWatchController) triggerReconciliation(ctx context.Context, resou
 
 	latest.SetAnnotations(annotations)
 
+	c.Log.Info("SECRET WATCHER: Updating resource annotations",
+		"resource", resourceName,
+		"oldProcessedGeneration", oldProcessedGen,
+		"oldSecretSourceUpdated", oldSecretSourceUpdated,
+		"newSecretSourceUpdated", annotations[secretSourceUpdatedAnnotation],
+		"deletingProcessedGeneration", oldProcessedGen != "")
+
 	if err := c.Update(ctx, latest); err != nil {
 		if errors.IsConflict(err) {
-			c.Log.Info("resource modified by another controller, skipping annotation update",
+			c.Log.Info("SECRET WATCHER: Resource modified by another controller, skipping annotation update",
 				"resource", resourceName,
+				"resourceVersion", latest.GetResourceVersion(),
 				"reason", "main controller is handling this change")
 			return nil // this is expected - another controller is processing the resource
 		}
 
+		c.Log.Error(err, "SECRET WATCHER: Failed to update resource annotation", "resource", resourceName)
 		return fmt.Errorf("failed to update resource annotation: %w", err)
 	}
 
-	c.Log.Info("triggered reconciliation for resource",
+	c.Log.Info("SECRET WATCHER: Successfully triggered reconciliation for resource",
 		"resource", resourceName,
 		"kind", latest.GetObjectKind().GroupVersionKind().Kind)
 

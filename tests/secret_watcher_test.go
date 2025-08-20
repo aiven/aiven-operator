@@ -105,10 +105,12 @@ spec:
 		require.NoError(t, s.GetRunning(user, userName))
 
 		// apply changes to both secret and ServiceUser simultaneously
+		t.Logf("TEST: Applying simultaneous changes to secret and ServiceUser")
 		updatedYml := getUpdatedServiceUserAndSecretYaml(cfg.Project, serviceName, userName, secretName, cfg.PrimaryCloudName)
 		require.NoError(t, s.Apply(updatedYml))
 
 		// verify secret watcher handles the race condition properly
+		t.Logf("TEST: Starting to wait for race condition handling")
 		require.Eventually(t, func() bool {
 			updated := &v1alpha1.ServiceUser{}
 			err := k8sClient.Get(ctx, types.NamespacedName{
@@ -116,6 +118,7 @@ spec:
 				Namespace: user.Namespace,
 			}, updated)
 			if err != nil {
+				t.Logf("TEST: Failed to get ServiceUser: %v", err)
 				return false
 			}
 
@@ -127,6 +130,22 @@ spec:
 
 			// check that user's spec changed (authentication is mutable)
 			hasUpdatedAuth := updated.Spec.Authentication == "caching_sha2_password"
+
+			// check annotations for debugging
+			annotations := updated.GetAnnotations()
+			hasProcessedGeneration := annotations != nil && annotations["controllers.aiven.io/generation-was-processed"] != ""
+			isRunning := annotations != nil && annotations["controllers.aiven.io/instance-is-running"] == "true"
+
+			t.Logf("TEST: Current state - labels: %v, auth: %s, hasProcessedGen: %v, isRunning: %v, generation: %d, resourceVersion: %s",
+				hasUserLabels, updated.Spec.Authentication, hasProcessedGeneration, isRunning,
+				updated.Generation, updated.ResourceVersion)
+
+			if annotations != nil {
+				t.Logf("TEST: Annotations: processedGen=%s, secretSourceUpdated=%s, isRunning=%s",
+					annotations["controllers.aiven.io/generation-was-processed"],
+					annotations["controllers.aiven.io/secret-source-updated"],
+					annotations["controllers.aiven.io/instance-is-running"])
+			}
 
 			return hasUserLabels && hasUpdatedAuth
 		}, 2*time.Minute, 5*time.Second, "secret watcher should handle race condition gracefully")
@@ -153,12 +172,15 @@ spec:
 		require.NoError(t, s.GetRunning(user, initialUserName))
 
 		// apply changes that rename ServiceUser AND update secret simultaneously
+		t.Logf("TEST: Applying name change and secret update simultaneously")
 		updatedYml := getServiceUserWithNameChangeAndSecretYaml(cfg.Project, serviceName, initialUserName, newUserName, secretName, cfg.PrimaryCloudName)
 		require.NoError(t, s.Apply(updatedYml))
 
+		t.Logf("TEST: Waiting for new ServiceUser to be running")
 		newUser := new(v1alpha1.ServiceUser)
 		require.NoError(t, s.GetRunning(newUser, newUserName))
 
+		t.Logf("TEST: Starting to wait for stable state with all conditions")
 		require.Eventually(t, func() bool {
 			updated := &v1alpha1.ServiceUser{}
 			err := k8sClient.Get(ctx, types.NamespacedName{
@@ -166,6 +188,7 @@ spec:
 				Namespace: newUser.Namespace,
 			}, updated)
 			if err != nil {
+				t.Logf("TEST: Failed to get renamed ServiceUser: %v", err)
 				return false
 			}
 
@@ -177,6 +200,17 @@ spec:
 			annotations := updated.GetAnnotations()
 			isRunning := annotations != nil && annotations["controllers.aiven.io/instance-is-running"] == "true"
 			hasProcessedGeneration := annotations != nil && annotations["controllers.aiven.io/generation-was-processed"] != ""
+
+			t.Logf("TEST: NameChange state - labels: %v, isRunning: %v, hasProcessedGen: %v, generation: %d, resourceVersion: %s",
+				hasUserLabels, isRunning, hasProcessedGeneration,
+				updated.Generation, updated.ResourceVersion)
+
+			if annotations != nil {
+				t.Logf("TEST: NameChange annotations: processedGen=%s, secretSourceUpdated=%s, isRunning=%s",
+					annotations["controllers.aiven.io/generation-was-processed"],
+					annotations["controllers.aiven.io/secret-source-updated"],
+					annotations["controllers.aiven.io/instance-is-running"])
+			}
 
 			return hasUserLabels && isRunning && hasProcessedGeneration
 		}, 2*time.Minute, 5*time.Second, "renamed ServiceUser should be running with correct labels")
