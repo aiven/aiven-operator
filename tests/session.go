@@ -68,14 +68,30 @@ func NewSession(ctx context.Context, k8s client.Client) Session {
 
 // Apply parses and applies Kubernetes resources defined in YAML format
 func (s *session) Apply(src string) error {
+	// Log the raw YAML being applied (for debugging race conditions)
+	log.Printf("[TEST_SESSION] Applying YAML:\n%s", src)
+
 	objs, err := parseObjs(src)
 	if err != nil {
 		return err
 	}
 
-	// Convert map to slice for ApplyObjects
+	// Convert map to slice for ApplyObjects and log what was parsed
 	objSlice := make([]client.Object, 0, len(objs))
 	for _, o := range objs {
+		// Log parsed objects for debugging
+		log.Printf("[TEST_SESSION] Parsed object: name=%s, kind=%s, labels=%v",
+			o.GetName(), o.GetObjectKind().GroupVersionKind().Kind, o.GetLabels())
+
+		// Special logging for ServiceUser objects
+		if o.GetObjectKind().GroupVersionKind().Kind == "ServiceUser" {
+			if unstrObj, ok := o.(*unstructured.Unstructured); ok {
+				auth, found, _ := unstructured.NestedString(unstrObj.Object, "spec", "authentication")
+				log.Printf("[TEST_SESSION] Parsed ServiceUser %s: auth=%s (found=%v), labels=%v",
+					o.GetName(), auth, found, o.GetLabels())
+			}
+		}
+
 		objSlice = append(objSlice, o)
 	}
 
@@ -412,6 +428,15 @@ func parseObjs(src string) (map[string]client.Object, error) {
 			o.SetNamespace(defaultNamespace)
 		}
 
+		// Debug logging for parsed objects
+		log.Printf("[TEST_SESSION] parseObjs: parsed %s/%s, kind=%s, uMap keys=%v",
+			o.GetNamespace(), o.GetName(), o.GetKind(), getMapKeys(uMap))
+
+		// Special debug for ServiceUser objects
+		if o.GetKind() == "ServiceUser" {
+			log.Printf("[TEST_SESSION] parseObjs ServiceUser %s: full object=%+v", o.GetName(), o.Object)
+		}
+
 		n := o.GetName()
 		if _, ok := objs[n]; ok {
 			return nil, fmt.Errorf("resource name %q is not unique", n)
@@ -423,6 +448,14 @@ func parseObjs(src string) (map[string]client.Object, error) {
 
 func kindAndName(o client.Object) string {
 	return fmt.Sprintf("%s/%s", getAnyType(o), o.GetName())
+}
+
+func getMapKeys(m map[string]any) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
 }
 
 // getAnyType an empty client.Object doesn't have its kind.

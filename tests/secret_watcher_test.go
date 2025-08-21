@@ -107,6 +107,7 @@ spec:
 		// apply changes to both secret and ServiceUser simultaneously
 		t.Logf("[TEST_RACE] Starting race condition test - applying simultaneous changes to ServiceUser %s and secret %s", userName, secretName)
 		updatedYml := getUpdatedServiceUserAndSecretYaml(cfg.Project, serviceName, userName, secretName, cfg.PrimaryCloudName)
+		t.Logf("[TEST_RACE] Generated YAML:\n%s", updatedYml)
 		require.NoError(t, s.Apply(updatedYml))
 		t.Logf("[TEST_RACE] Successfully applied simultaneous changes")
 
