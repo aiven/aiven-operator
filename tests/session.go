@@ -24,6 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/serializer/yaml"
 	"k8s.io/apimachinery/pkg/types"
 	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
+	"k8s.io/client-go/util/retry"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -103,17 +104,19 @@ func (s *session) ApplyObjects(objects ...client.Object) error {
 			obj.SetResourceVersion("")
 			err := s.k8s.Create(ctx, obj)
 			if alreadyExists(err) {
-				c := obj.DeepCopyObject().(client.Object)
-				key := types.NamespacedName{
-					Name:      c.GetName(),
-					Namespace: c.GetNamespace(),
-				}
-				err = s.k8s.Get(ctx, key, c)
-				if err != nil {
-					return err
-				}
-				obj.SetResourceVersion(c.GetResourceVersion())
-				return s.k8s.Update(ctx, obj)
+				return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+					c := obj.DeepCopyObject().(client.Object)
+					key := types.NamespacedName{
+						Name:      c.GetName(),
+						Namespace: c.GetNamespace(),
+					}
+					err = s.k8s.Get(ctx, key, c)
+					if err != nil {
+						return err
+					}
+					obj.SetResourceVersion(c.GetResourceVersion())
+					return s.k8s.Update(ctx, obj)
+				})
 			}
 			return err
 		})
