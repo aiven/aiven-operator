@@ -8,6 +8,7 @@ import (
 	"log"
 	"sync"
 
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -35,7 +36,12 @@ func NewSharedResources(ctx context.Context, k8sClient client.Client) SharedReso
 }
 
 func (s *sharedResourcesImpl) AcquirePostgreSQL(ctx context.Context) (*v1alpha1.PostgreSQL, func(), error) {
-	obj := new(v1alpha1.PostgreSQL)
+	obj := &v1alpha1.PostgreSQL{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "aiven.io/v1alpha1",
+			Kind:       "PostgreSQL",
+		},
+	}
 	obj.Spec.Plan = "startup-4"
 	obj.Spec.Project = cfg.Project
 	obj.Spec.CloudName = cfg.PrimaryCloudName
@@ -43,7 +49,12 @@ func (s *sharedResourcesImpl) AcquirePostgreSQL(ctx context.Context) (*v1alpha1.
 }
 
 func (s *sharedResourcesImpl) AcquireClickhouse(ctx context.Context) (*v1alpha1.Clickhouse, func(), error) {
-	obj := new(v1alpha1.Clickhouse)
+	obj := &v1alpha1.Clickhouse{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "aiven.io/v1alpha1",
+			Kind:       "Clickhouse",
+		},
+	}
 	obj.Spec.Plan = "startup-16"
 	obj.Spec.Project = cfg.Project
 	obj.Spec.CloudName = cfg.PrimaryCloudName

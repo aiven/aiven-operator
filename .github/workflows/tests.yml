@@ -77,7 +77,7 @@ jobs:
             ${{ secrets.AIVEN_PROJECT_NAME_PREFIX }}${{ needs.setup_aiven_project_suffix.outputs.project_name_suffix }}
 
   notify-slack-success:
-    if: needs.test.result == 'success'
+    if: always() && needs.test.result == 'success'
     needs: [test, sweep]
     uses: ./.github/workflows/slack-notify.yml
     with:
@@ -89,7 +89,7 @@ jobs:
       SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
 
   notify-slack-failure:
-    if: needs.test.result == 'failure'
+    if: always() && (needs.test.result == 'failure' || needs.test.result == 'cancelled')
     needs: [test, sweep]
     uses: ./.github/workflows/slack-notify.yml
     with:

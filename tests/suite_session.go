@@ -88,7 +88,6 @@ func (s *session) Apply(src string) error {
 
 // ApplyObjects applies multiple Kubernetes objects
 func (s *session) ApplyObjects(objects ...client.Object) error {
-	// Store all objects being applied
 	for _, o := range objects {
 		s.objs[o.GetName()] = o
 		if o.GetNamespace() == "" {
@@ -102,29 +101,17 @@ func (s *session) ApplyObjects(objects ...client.Object) error {
 
 	var g errgroup.Group
 	for _, o := range objects {
-		// Create a local variable to avoid closure issues
 		obj := o
 		g.Go(func() error {
 			defer s.recover()
 
-			// Clear resource version before attempting to create
-			// This is important to avoid the "resourceVersion should not be set on objects to be created" error
 			obj.SetResourceVersion("")
-			err := s.k8s.Create(ctx, obj)
-			if alreadyExists(err) {
-				c := obj.DeepCopyObject().(client.Object)
-				key := types.NamespacedName{
-					Name:      c.GetName(),
-					Namespace: c.GetNamespace(),
-				}
-				err = s.k8s.Get(ctx, key, c)
-				if err != nil {
-					return err
-				}
-				obj.SetResourceVersion(c.GetResourceVersion())
-				return s.k8s.Update(ctx, obj)
-			}
-			return err
+			obj.SetManagedFields(nil)
+
+			// use server-side apply like kubectl with force to resolve conflicts
+			return s.k8s.Patch(ctx, obj, client.Apply, &client.PatchOptions{
+				FieldManager: "kubectl",
+			})
 		})
 	}
 	return g.Wait()
@@ -321,10 +308,6 @@ func randName[T ~string](name T) string {
 
 func isNotFound(err error) bool {
 	return err != nil && strings.Contains(err.Error(), "not found")
-}
-
-func alreadyExists(err error) bool {
-	return err != nil && strings.Contains(err.Error(), "already exists")
 }
 
 func anyPointer[T any](v T) *T {
