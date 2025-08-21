@@ -106,12 +106,13 @@ func (s *session) ApplyObjects(objects ...client.Object) error {
 			if alreadyExists(err) {
 				log.Printf("[TEST_SESSION] Resource %s/%s already exists, attempting update with retry", obj.GetNamespace(), obj.GetName())
 				return retry.RetryOnConflict(retry.DefaultRetry, func() error {
-					c := obj.DeepCopyObject().(client.Object)
+					// Get the current state from the server
 					key := types.NamespacedName{
-						Name:      c.GetName(),
-						Namespace: c.GetNamespace(),
+						Name:      obj.GetName(),
+						Namespace: obj.GetNamespace(),
 					}
-					err = s.k8s.Get(ctx, key, c)
+					current := obj.DeepCopyObject().(client.Object)
+					err = s.k8s.Get(ctx, key, current)
 					if err != nil {
 						log.Printf("[TEST_SESSION] Failed to get resource %s for update: %v", key, err)
 						return err
@@ -119,9 +120,10 @@ func (s *session) ApplyObjects(objects ...client.Object) error {
 
 					// Log current resource version and generation for debugging
 					log.Printf("[TEST_SESSION] Updating %s: currentRV=%s, targetRV=%s, generation=%d",
-						key, obj.GetResourceVersion(), c.GetResourceVersion(), c.GetGeneration())
+						key, obj.GetResourceVersion(), current.GetResourceVersion(), current.GetGeneration())
 
-					obj.SetResourceVersion(c.GetResourceVersion())
+					// Apply the desired spec from obj to the current resource version
+					obj.SetResourceVersion(current.GetResourceVersion())
 					updateErr := s.k8s.Update(ctx, obj)
 					if updateErr != nil {
 						log.Printf("[TEST_SESSION] Update failed for %s (attempt will retry): %v", key, updateErr)
