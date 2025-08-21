@@ -105,8 +105,10 @@ spec:
 		require.NoError(t, s.GetRunning(user, userName))
 
 		// apply changes to both secret and ServiceUser simultaneously
+		t.Logf("[TEST_RACE] Starting race condition test - applying simultaneous changes to ServiceUser %s and secret %s", userName, secretName)
 		updatedYml := getUpdatedServiceUserAndSecretYaml(cfg.Project, serviceName, userName, secretName, cfg.PrimaryCloudName)
 		require.NoError(t, s.Apply(updatedYml))
+		t.Logf("[TEST_RACE] Successfully applied simultaneous changes")
 
 		// verify secret watcher handles the race condition properly
 		require.Eventually(t, func() bool {
@@ -116,6 +118,7 @@ spec:
 				Namespace: user.Namespace,
 			}, updated)
 			if err != nil {
+				t.Logf("[TEST_RACE] Failed to get ServiceUser %s: %v", userName, err)
 				return false
 			}
 
@@ -128,6 +131,10 @@ spec:
 			// check that user's spec changed (authentication is mutable)
 			hasUpdatedAuth := updated.Spec.Authentication == "caching_sha2_password"
 
+			annotations := updated.GetAnnotations()
+			t.Logf("[TEST_RACE] ServiceUser %s state: RV=%s, generation=%d, hasUserLabels=%v, hasUpdatedAuth=%v, annotations=%v",
+				userName, updated.GetResourceVersion(), updated.GetGeneration(), hasUserLabels, hasUpdatedAuth, annotations)
+
 			return hasUserLabels && hasUpdatedAuth
 		}, 2*time.Minute, 5*time.Second, "secret watcher should handle race condition gracefully")
 
@@ -135,8 +142,11 @@ spec:
 		require.Eventually(t, func() bool {
 			finalUserAvn, err := avnGen.ServiceUserGet(ctx, cfg.Project, serviceName, userName)
 			if err != nil {
+				t.Logf("[TEST_RACE] Failed to get ServiceUser from Aiven: %v", err)
 				return false
 			}
+			t.Logf("[TEST_RACE] Aiven ServiceUser %s password check: current='%s', expected='updated-race-password-67890'",
+				userName, finalUserAvn.Password)
 			return finalUserAvn.Password == "updated-race-password-67890"
 		}, 3*time.Minute, 10*time.Second, "password should be updated despite race condition")
 	})
