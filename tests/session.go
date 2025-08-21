@@ -122,6 +122,19 @@ func (s *session) ApplyObjects(objects ...client.Object) error {
 					log.Printf("[TEST_SESSION] Updating %s: currentRV=%s, targetRV=%s, generation=%d",
 						key, obj.GetResourceVersion(), current.GetResourceVersion(), current.GetGeneration())
 
+					// Log what spec is being applied (for debugging race conditions)
+					log.Printf("[TEST_SESSION] Applying spec for %s: labels=%v, kind=%s",
+						key, obj.GetLabels(), obj.GetObjectKind().GroupVersionKind().Kind)
+
+					// Special logging for ServiceUser objects to debug race condition
+					if obj.GetObjectKind().GroupVersionKind().Kind == "ServiceUser" {
+						// Use type assertion to access ServiceUser specific fields
+						if unstrObj, ok := obj.(*unstructured.Unstructured); ok {
+							auth, found, _ := unstructured.NestedString(unstrObj.Object, "spec", "authentication")
+							log.Printf("[TEST_SESSION] ServiceUser %s authentication: %s (found: %v)", key, auth, found)
+						}
+					}
+
 					// Apply the desired spec from obj to the current resource version
 					obj.SetResourceVersion(current.GetResourceVersion())
 					updateErr := s.k8s.Update(ctx, obj)
