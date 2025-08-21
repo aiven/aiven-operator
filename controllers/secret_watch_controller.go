@@ -4,6 +4,7 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"time"
@@ -207,28 +208,25 @@ func (c *SecretWatchController) findResourcesUsingSecret(ctx context.Context, se
 	return allResources, nil
 }
 
-// triggerReconciliation triggers reconciliation by updating the resource's annotation
+// triggerReconciliation triggers reconciliation by patching the resource's annotations
 func (c *SecretWatchController) triggerReconciliation(ctx context.Context, resource SecretSourceResource) error {
 	resourceName := types.NamespacedName{Name: resource.GetName(), Namespace: resource.GetNamespace()}
 
-	latest := resource.DeepCopyObject().(client.Object)
-	if err := c.Get(ctx, resourceName, latest); err != nil {
-		return fmt.Errorf("failed to get latest version of resource: %w", err)
+	patchData := map[string]any{
+		"metadata": map[string]any{
+			"annotations": map[string]any{
+				secretSourceUpdatedAnnotation: fmt.Sprintf("%d", time.Now().Unix()),
+				processedGenerationAnnotation: nil, // null remove the annotation
+			},
+		},
 	}
 
-	annotations := latest.GetAnnotations()
-	if annotations == nil {
-		annotations = make(map[string]string)
+	patchBytes, err := json.Marshal(patchData)
+	if err != nil {
+		return fmt.Errorf("failed to marshal patch data: %w", err)
 	}
 
-	annotations[secretSourceUpdatedAnnotation] = fmt.Sprintf("%d", time.Now().Unix())
-
-	// clear the processed generation annotation to force the basic controller to reconcile
-	delete(annotations, processedGenerationAnnotation)
-
-	latest.SetAnnotations(annotations)
-
-	if err := c.Update(ctx, latest); err != nil {
+	if err = c.Patch(ctx, resource, client.RawPatch(types.MergePatchType, patchBytes)); err != nil {
 		if errors.IsConflict(err) {
 			c.Log.Info("resource modified by another controller, skipping annotation update",
 				"resource", resourceName,
@@ -236,12 +234,8 @@ func (c *SecretWatchController) triggerReconciliation(ctx context.Context, resou
 			return nil // this is expected - another controller is processing the resource
 		}
 
-		return fmt.Errorf("failed to update resource annotation: %w", err)
+		return fmt.Errorf("failed to patch resource annotations: %w", err)
 	}
-
-	c.Log.Info("triggered reconciliation for resource",
-		"resource", resourceName,
-		"kind", latest.GetObjectKind().GroupVersionKind().Kind)
 
 	return nil
 }
