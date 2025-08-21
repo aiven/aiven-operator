@@ -14,6 +14,8 @@ import (
 )
 
 func getServiceUserKafkaYaml(project, kafkaName, userName, cloudName string) string {
+	// secret name based on userName to avoid conflicts
+	secretName := userName + "-secret"
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: Kafka
@@ -44,7 +46,7 @@ spec:
     key: token
 
   connInfoSecretTarget:
-    name: my-service-user-secret
+    name: %[5]s
     annotations:
       foo: bar
     labels:
@@ -52,7 +54,7 @@ spec:
 
   project: %[1]s
   serviceName: %[2]s
-`, project, kafkaName, userName, cloudName)
+`, project, kafkaName, userName, cloudName, secretName)
 }
 
 // TestServiceUserKafka kafka with sasl enabled changes its port to expose
@@ -100,7 +102,7 @@ func TestServiceUserKafka(t *testing.T) {
 	assert.Equal(t, kafkaName, user.Spec.ServiceName)
 
 	// Validates Secret
-	secret, err := s.GetSecret("my-service-user-secret")
+	secret, err := s.GetSecret(userName + "-secret")
 	require.NoError(t, err)
 	assert.NotEmpty(t, secret.Data["SERVICEUSER_HOST"])
 	assert.NotEmpty(t, secret.Data["SERVICEUSER_PORT"])
@@ -133,6 +135,8 @@ func TestServiceUserKafka(t *testing.T) {
 }
 
 func getServiceUserPgYaml(project, pgName, userName, cloudName string) string {
+	// secret name based on userName to avoid conflicts
+	secretName := userName + "-secret"
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: PostgreSQL
@@ -159,7 +163,7 @@ spec:
     key: token
 
   connInfoSecretTarget:
-    name: my-service-user-secret
+    name: %[5]s
     annotations:
       foo: bar
     labels:
@@ -167,7 +171,7 @@ spec:
 
   project: %[1]s
   serviceName: %[2]s
-`, project, pgName, userName, cloudName)
+`, project, pgName, userName, cloudName, secretName)
 }
 
 // TestServiceUserPg same as TestServiceUserKafka but runs with pg and expects the default port to be exposed
@@ -215,7 +219,7 @@ func TestServiceUserPg(t *testing.T) {
 	assert.Equal(t, pgName, user.Spec.ServiceName)
 
 	// Validates Secret
-	secret, err := s.GetSecret("my-service-user-secret")
+	secret, err := s.GetSecret(userName + "-secret")
 	require.NoError(t, err)
 	assert.NotEmpty(t, secret.Data["SERVICEUSER_HOST"])
 	assert.NotEmpty(t, secret.Data["SERVICEUSER_PORT"])
@@ -298,7 +302,7 @@ spec:
 		assert.Equal(t, userName, userAvn.Username)
 		assert.Equal(t, pgName, user.Spec.ServiceName)
 
-		secret, err := s.GetSecret("my-service-user-secret")
+		secret, err := s.GetSecret(userName + "-secret")
 		require.NoError(t, err)
 		assert.NotEmpty(t, secret.Data["SERVICEUSER_HOST"])
 		assert.NotEmpty(t, secret.Data["SERVICEUSER_PORT"])
@@ -384,6 +388,8 @@ spec:
 }
 
 func getServiceUserWithSourceSecretYaml(project, pgName, userName, cloudName string) string {
+	// secret name based on userName to avoid conflicts
+	secretName := userName + "-secret"
 	return fmt.Sprintf(`
 apiVersion: v1
 kind: Secret
@@ -418,7 +424,7 @@ spec:
     key: token
 
   connInfoSecretTarget:
-    name: my-service-user-secret
+    name: %[5]s
     annotations:
       test: predefined-password
     labels:
@@ -430,7 +436,7 @@ spec:
 
   project: %[1]s
   serviceName: %[2]s
-`, project, pgName, userName, cloudName)
+`, project, pgName, userName, cloudName, secretName)
 }
 
 func getServiceUserAvnadminResetYaml(project, pgName, cloudName string) string {
@@ -484,6 +490,8 @@ spec:
 }
 
 func getServiceUserWithEmptyPasswordYaml(project, pgName, userName, cloudName string) string {
+	// secret name based on userName to avoid conflicts
+	secretName := userName + "-secret"
 	return fmt.Sprintf(`
 apiVersion: v1
 kind: Secret
@@ -530,5 +538,5 @@ spec:
 
   project: %[1]s
   serviceName: %[2]s
-`, project, pgName, userName, cloudName)
+`, project, pgName, userName, cloudName, secretName)
 }
