@@ -220,7 +220,7 @@ func (i *instanceReconcilerHelper) reconcile(ctx context.Context, o v1alpha1.Aiv
 			return err
 		}
 
-		updated := latest.DeepCopyObject().(client.Object)
+		updated := o.DeepCopyObject().(client.Object)
 		updated.SetResourceVersion(latest.GetResourceVersion())
 		err := i.k8s.Update(ctx, updated)
 		if err != nil {
