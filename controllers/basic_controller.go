@@ -220,13 +220,33 @@ func (i *instanceReconcilerHelper) reconcile(ctx context.Context, o v1alpha1.Aiv
 			return err
 		}
 
+		i.log.Info("[RACE_DEBUG] Before update",
+			"name", o.GetName(),
+			"reconciled_generation", o.GetGeneration(),
+			"reconciled_annotations", o.GetAnnotations(),
+			"reconciled_labels", o.GetLabels(),
+			"latest_generation", latest.GetGeneration(),
+			"latest_annotations", latest.GetAnnotations(),
+			"latest_labels", latest.GetLabels(),
+			"latest_RV", latest.GetResourceVersion())
+
 		updated := o.DeepCopyObject().(client.Object)
 		updated.SetResourceVersion(latest.GetResourceVersion())
+
+		i.log.Info("[RACE_DEBUG] About to update with",
+			"name", updated.GetName(),
+			"updated_generation", updated.GetGeneration(),
+			"updated_annotations", updated.GetAnnotations(),
+			"updated_labels", updated.GetLabels(),
+			"updated_RV", updated.GetResourceVersion())
+
 		err := i.k8s.Update(ctx, updated)
 		if err != nil {
+			i.log.Error(err, "[RACE_DEBUG] Update failed", "name", updated.GetName())
 			return err
 		}
 
+		i.log.Info("[RACE_DEBUG] Update succeeded", "name", updated.GetName())
 		o.SetResourceVersion(updated.GetResourceVersion())
 		return i.k8s.Status().Update(ctx, o)
 	})

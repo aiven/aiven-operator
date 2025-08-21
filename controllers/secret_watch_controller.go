@@ -237,7 +237,9 @@ func (c *SecretWatchController) triggerReconciliation(ctx context.Context, resou
 		"resource", resourceName,
 		"timestamp", timestamp,
 		"currentRV", resource.GetResourceVersion(),
-		"currentGeneration", resource.GetGeneration())
+		"currentGeneration", resource.GetGeneration(),
+		"currentAnnotations", resource.GetAnnotations(),
+		"currentLabels", resource.GetLabels())
 
 	patchData := map[string]any{
 		"metadata": map[string]any{
