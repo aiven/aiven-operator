@@ -221,6 +221,20 @@ func (i *instanceReconcilerHelper) reconcile(ctx context.Context, o v1alpha1.Aiv
 		}
 
 		updated := o.DeepCopyObject().(client.Object)
+		// Merge latest annotations (including secret watcher's) with reconciled object
+		if latest.GetAnnotations() != nil {
+			if updated.GetAnnotations() == nil {
+				updated.SetAnnotations(make(map[string]string))
+			}
+			annotations := updated.GetAnnotations()
+			for k, v := range latest.GetAnnotations() {
+				// Only copy annotations that were added by other controllers (like secret watcher)
+				// Don't overwrite annotations that the main controller set during reconciliation
+				if _, exists := annotations[k]; !exists {
+					annotations[k] = v
+				}
+			}
+		}
 		updated.SetResourceVersion(latest.GetResourceVersion())
 		err := i.k8s.Update(ctx, updated)
 		if err != nil {
