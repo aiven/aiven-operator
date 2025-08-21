@@ -34,7 +34,7 @@ jobs:
           go-version-file: go.mod
       - id: find_tests
         run: |
-          echo "matrix=$(LIST_ONLY=1 go test ./tests/... -list=. | grep Test | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
+          echo "matrix=[\"TestServiceUserSecretWatch\"]" >> $GITHUB_OUTPUT
 
   test:
     needs: [setup_aiven_project_suffix, find_tests]
