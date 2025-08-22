@@ -1,3 +1,5 @@
+//go:build kafkaconnector
+
 package tests
 
 import (

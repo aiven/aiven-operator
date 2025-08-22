@@ -1,3 +1,5 @@
+//go:build kafkaschemaregistryacl
+
 package tests
 
 import (

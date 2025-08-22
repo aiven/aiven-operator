@@ -1,3 +1,5 @@
+//go:build clickhouse
+
 package tests
 
 import (
@@ -24,7 +26,11 @@ func TestClickhouseUser(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	chName := randName("clickhouse")
+	ch, release, err := sharedResources.AcquireClickhouse(ctx)
+	require.NoError(t, err)
+	defer release()
+
+	chName := ch.GetName()
 	userName := randName("clickhouse-user")
 	yml, err := loadExampleYaml("clickhouseuser.yaml", map[string]string{
 		"doc[0].metadata.name":                  userName,
@@ -49,8 +55,6 @@ func TestClickhouseUser(t *testing.T) {
 	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
-	ch := new(v1alpha1.Clickhouse)
-	require.NoError(t, s.GetRunning(ch, chName))
 
 	// THEN
 	chAvn, err := avnGen.ServiceGet(ctx, cfg.Project, chName)
@@ -179,33 +183,14 @@ func TestClickhouseUserCustomCredentials(t *testing.T) {
 	// GIVEN
 	ctx, cancel := testCtx()
 	defer cancel()
-	chName := randName("clickhouseuser-scenarios")
+
+	ch, release, err := sharedResources.AcquireClickhouse(ctx)
+	require.NoError(t, err)
+	defer release()
+
+	chName := ch.GetName()
 	s := NewSession(ctx, k8sClient)
-
 	defer s.Destroy(t)
-
-	chYaml := fmt.Sprintf(`
-apiVersion: aiven.io/v1alpha1
-kind: Clickhouse
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[3]s
-  plan: startup-16
-
-  maintenanceWindowDow: friday
-  maintenanceWindowTime: 23:00:00
-`, cfg.Project, chName, cfg.PrimaryCloudName)
-
-	require.NoError(t, s.Apply(chYaml))
-
-	ch := new(v1alpha1.Clickhouse)
-	require.NoError(t, s.GetRunning(ch, chName))
 
 	chAvn, err := avnGen.ServiceGet(ctx, cfg.Project, chName)
 	require.NoError(t, err)

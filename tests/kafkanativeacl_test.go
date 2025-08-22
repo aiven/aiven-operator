@@ -1,3 +1,5 @@
+//go:build kafkanativeacl
+
 package tests
 
 import (

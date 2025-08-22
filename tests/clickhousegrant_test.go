@@ -1,3 +1,5 @@
+//go:build clickhouse
+
 package tests
 
 import (
@@ -307,16 +309,6 @@ var expectedRoleGrants = []ClickhouseRoleGrant{
 		GrantedRoleIsDefault: true,
 		WithAdminOption:      true,
 	},
-}
-
-func ptr(s string) *string { return &s }
-
-func fromPtr[T any](v *T) T {
-	if v == nil {
-		var empty T
-		return empty
-	}
-	return *v
 }
 
 func clickhouseGrantExampleExtra(project, serviceName, db, user, role, grant string) string {

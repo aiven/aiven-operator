@@ -1,3 +1,5 @@
+//go:build suite
+
 package tests
 
 import (
@@ -9,6 +11,7 @@ import (
 	"io"
 	"log"
 	"math/rand"
+	"path/filepath"
 	"reflect"
 	"runtime/debug"
 	"strings"
@@ -17,6 +20,7 @@ import (
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/hashicorp/go-multierror"
+	"github.com/stretchr/testify/assert"
 	"golang.org/x/sync/errgroup"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -45,6 +49,7 @@ type Session interface {
 	GetRunning(obj client.Object, keys ...string) error
 	GetSecret(keys ...string) (*corev1.Secret, error)
 	Destroy(t testingT)
+	DestroyError() error
 	Delete(o client.Object, exists func() error) error
 }
 
@@ -86,6 +91,10 @@ func (s *session) ApplyObjects(objects ...client.Object) error {
 	// Store all objects being applied
 	for _, o := range objects {
 		s.objs[o.GetName()] = o
+		if o.GetNamespace() == "" {
+			// an empty namespace may not be set during creation
+			o.SetNamespace(defaultNamespace)
+		}
 	}
 
 	ctx, cancel := context.WithTimeout(s.ctx, createTimeout)
@@ -135,7 +144,7 @@ func (s *session) GetRunning(obj client.Object, keys ...string) error {
 	obj.SetName(key.Name)
 	obj.SetNamespace(key.Namespace)
 
-	return retryForever(ctx, fmt.Sprintf("verify %s is running", kindAndName(obj)), func() (bool, error) {
+	return retryForever(ctx, fmt.Sprintf("verify %s is running", objKey(obj)), func() (bool, error) {
 		err := s.k8s.Get(ctx, key, obj)
 		if err != nil {
 			// The error is quite verbose
@@ -178,27 +187,28 @@ type testingT interface {
 	Errorf(format string, args ...any)
 }
 
-// Destroy deletes all applied resources.
+func (s *session) Destroy(t testingT) {
+	assert.NoError(t, s.DestroyError())
+}
+
+// DestroyError deletes all applied resources.
 // Tolerant to "not found" error,
 // because resource may have been deleted manually
-func (s *session) Destroy(t testingT) {
-	if err := recover(); err != nil {
-		t.Errorf("panicked, deleting resources: %s\n%s", err, debug.Stack())
-	}
-
+func (s *session) DestroyError() (err error) {
 	var wg sync.WaitGroup
 	wg.Add(len(s.objs))
 	for n := range s.objs {
 		go func(n string) {
 			defer wg.Done()
 			defer s.recover()
-			err := s.delete(s.objs[n])
-			if err != nil && !isNotFound(err) {
-				t.Errorf("failed to delete %q: %s", n, err)
+			errDel := s.delete(s.objs[n])
+			if errDel != nil && !isNotFound(errDel) {
+				err = multierror.Append(err, errDel)
 			}
 		}(n)
 	}
 	wg.Wait()
+	return err
 }
 
 // Delete deletes object from kube, hence from Aiven
@@ -224,7 +234,7 @@ func (s *session) Delete(o client.Object, exists func() error) error {
 func (s *session) delete(o client.Object) error {
 	_, ok := s.objs[o.GetName()]
 	if !ok {
-		return fmt.Errorf("resource %q not applied", o.GetName())
+		return fmt.Errorf("resource %q not applied", objKey(o))
 	}
 
 	// Delete operation doesn't share the context,
@@ -239,7 +249,7 @@ func (s *session) delete(o client.Object) error {
 
 	// Waits being deleted from kube
 	key := types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()}
-	return retryForever(ctx, fmt.Sprintf("delete %s", kindAndName(o)), func() (bool, error) {
+	return retryForever(ctx, fmt.Sprintf("delete %s", objKey(o)), func() (bool, error) {
 		err := s.k8s.Get(ctx, key, o)
 		return !isNotFound(err), nil
 	})
@@ -301,8 +311,8 @@ func randID() string {
 	return string(b)
 }
 
-func randName(name string) string {
-	s := fmt.Sprintf("test-%s-%s", randID(), name)
+func randName[T ~string](name T) string {
+	s := strings.ToLower(fmt.Sprintf("test-%s-%s", randID(), name))
 	if len(s) > nameMaxSize {
 		panic(fmt.Sprintf("invalid name, max length %d: %q", nameMaxSize, s))
 	}
@@ -378,6 +388,7 @@ func parseObjs(src string) (map[string]client.Object, error) {
 
 		o := unstructured.Unstructured{Object: uMap}
 		if o.GetNamespace() == "" {
+			// an empty namespace may not be set during creation
 			o.SetNamespace(defaultNamespace)
 		}
 
@@ -390,10 +401,6 @@ func parseObjs(src string) (map[string]client.Object, error) {
 	return objs, nil
 }
 
-func kindAndName(o client.Object) string {
-	return fmt.Sprintf("%s/%s", getAnyType(o), o.GetName())
-}
-
 // getAnyType an empty client.Object doesn't have its kind.
 // Returns the type name of the object.
 func getAnyType(o any) string {
@@ -402,4 +409,12 @@ func getAnyType(o any) string {
 		return t.Elem().Name()
 	}
 	return t.Name()
+}
+
+func objKey(o client.Object) string {
+	ns := o.GetNamespace()
+	if ns == "" {
+		ns = defaultNamespace
+	}
+	return filepath.Join(getAnyType(o), ns, o.GetName())
 }

@@ -1,3 +1,5 @@
+//go:build serviceintegrationendpoint
+
 package tests
 
 import (

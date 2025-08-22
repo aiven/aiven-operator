@@ -34,7 +34,7 @@ jobs:
           go-version-file: go.mod
       - id: find_tests
         run: |
-          echo "matrix=$(LIST_ONLY=1 go test ./tests/... -list=. | grep Test | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
+          echo "matrix=$(grep -r '^//go:build' tests/ | cut -d' ' -f2- | tr ' ' '\n' | grep -v '!' | grep -v 'suite' | sort -u | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
 
   test:
     needs: [setup_aiven_project_suffix, find_tests]
@@ -51,7 +51,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - run: make run="^${{ matrix.name }}$" test
+      - run: make test-tag tag=${{ matrix.name }}
         env:
           AIVEN_TOKEN: ${{ secrets.AIVEN_TOKEN }}
           AIVEN_ACCOUNT_ID: ${{ secrets.AIVEN_ACCOUNT_ID }}

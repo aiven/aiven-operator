@@ -1,3 +1,5 @@
+//go:build kafkatopic
+
 package tests
 
 import (

@@ -1,3 +1,5 @@
+//go:build grafana
+
 package tests
 
 import (

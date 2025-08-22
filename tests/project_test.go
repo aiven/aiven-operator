@@ -1,3 +1,5 @@
+//go:build project
+
 package tests
 
 import (

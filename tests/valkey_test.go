@@ -1,3 +1,5 @@
+//go:build valkey
+
 package tests
 
 import (

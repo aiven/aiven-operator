@@ -1,3 +1,5 @@
+//go:build genericservicehandler
+
 package tests
 
 import (
@@ -14,11 +16,6 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	"github.com/aiven/aiven-operator/controllers"
 )
-
-const serviceRunningState = service.ServiceStateTypeRunning
-
-// serviceRunningStatesAiven these Aiven service states match to RUNNING state in kube
-var serviceRunningStatesAiven = []service.ServiceStateType{service.ServiceStateTypeRunning, service.ServiceStateTypeRebalancing}
 
 func getCreateServiceYaml(project, pgName string) string {
 	return fmt.Sprintf(`

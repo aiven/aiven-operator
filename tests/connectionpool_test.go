@@ -1,3 +1,5 @@
+//go:build connectionpool
+
 package tests
 
 import (
