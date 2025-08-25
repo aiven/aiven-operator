@@ -10,21 +10,6 @@ title: "Database"
 
 ```yaml linenums="1"
 apiVersion: aiven.io/v1alpha1
-kind: PostgreSQL
-metadata:
-  name: my-pg
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: aiven-project-name
-  cloudName: google-europe-west1
-  plan: startup-4
-
----
-
-apiVersion: aiven.io/v1alpha1
 kind: Database
 metadata:
   name: my-db
