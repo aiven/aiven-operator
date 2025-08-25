@@ -12,6 +12,8 @@ vars:
   ENABLE_OPERATOR_WEBHOOKS: "{{.ENABLE_OPERATOR_WEBHOOKS}}"
   OPERATOR_LOG_LEVEL: "{{.OPERATOR_LOG_LEVEL}}"
 
+  DEFAULT_PROJECT_PLACEHOLDER: my-aiven-project
+
   DEV_PREFIX:
     sh: |
       if [ -n "${DEV_PREFIX:-}" ]; then
@@ -44,7 +46,6 @@ vars:
     -var="kubernetes_version={{.KUBERNETES_VERSION}}" \
     -var="my_public_ip={{.MY_PUBLIC_IP}}"
   ADDONS_VARS: |
-    -var="aiven_project={{.AIVEN_PROJECT}}" \
     -var="aiven_token={{.AIVEN_TOKEN}}" \
     -var="operator_namespace={{.PREFIXED_OPERATOR_NAMESPACE}}" \
     -var="enable_operator_webhooks={{.ENABLE_OPERATOR_WEBHOOKS}}" \
@@ -60,15 +61,18 @@ tasks:
 
   # --- CONFIGURATION & VALIDATION ---
   config:init:
-    desc: Initialize .env configuration from example
+    desc: Initialize .env configuration and test resources configuration
     silent: true
     status:
       - "[ -f .env ]"
+      - "[ -d test-resources/overlays/{{.DEV_PREFIX}} ]"
     cmds:
       - cp .env.example .env
+      - task: resources:init
       - echo "✅ Created .env from .env.example. Please edit it with your configuration."
     generates:
       - .env
+      - test-resources/overlays/{{.DEV_PREFIX}}/
 
   validate:
     desc: Validate prerequisites and configuration
@@ -144,7 +148,8 @@ tasks:
         fi
 
   image:build:
-    desc: Build and push operator image (always rebuilds for development)
+    desc: Build operator Docker image
+    silent: true
     dir: ..
     vars:
       REPO_URL:
@@ -152,16 +157,32 @@ tasks:
     cmds:
       - echo "Building image {{.REPO_URL}}:{{.TAG}}"
       - docker build --platform linux/amd64 -t {{.REPO_URL}}:{{.TAG}} .
+
+  image:push:
+    desc: Push operator image to registry
+    silent: true
+    dir: ..
+    vars:
+      REPO_URL:
+        sh: terraform -chdir=gke/terraform/cluster output -raw repository_url
+    cmds:
+      - echo "Pushing image {{.REPO_URL}}:{{.TAG}}"
       - docker push {{.REPO_URL}}:{{.TAG}}
 
-  addons:deploy:
+  image:build-and-push:
+    desc: Build and push operator image (convenience command)
+    cmds:
+      - task: image:build
+      - task: image:push
+
+  addon:deploy:
     desc: Deploy Helm addons and the Aiven Operator via Terraform (auto-detects code changes)
-    deps: [config:init, validate, image:build]
+    deps: [config:init, validate, image:build-and-push]
     cmds:
       - terraform -chdir={{.TF_ADDONS}} init
       - terraform -chdir={{.TF_ADDONS}} apply -auto-approve {{.ADDONS_VARS}}
 
-  addons:destroy:
+  addon:destroy:
     desc: Destroy Helm addons and the Aiven Operator via Terraform
     cmds:
       - terraform -chdir={{.TF_ADDONS}} destroy -auto-approve {{.ADDONS_VARS}}
@@ -180,3 +201,57 @@ tasks:
     desc: Perform a rolling restart of the Aiven Operator
     cmds:
       - kubectl -n {{.PREFIXED_OPERATOR_NAMESPACE}} rollout restart deployment aiven-operator
+
+  resources:init:
+    desc: Initialize personalized test resources from template
+    internal: true
+    silent: true
+    status:
+      - "[ -d test-resources/overlays/{{.DEV_PREFIX}} ]"
+    cmds:
+      - cp -r test-resources/overlays/templates test-resources/overlays/{{.DEV_PREFIX}}
+      - |
+        cd test-resources/overlays/{{.DEV_PREFIX}}
+        # Update kustomization.yaml with actual developer prefix and name
+        sed -i.bak 's/DEVELOPER-NAME-/{{.DEV_PREFIX}}-/g' kustomization.yaml
+        sed -i.bak 's/DEVELOPER-NAME/{{.DEV_PREFIX}}/g' kustomization.yaml
+        rm kustomization.yaml.bak
+
+        # Update project name in resource files
+        if [ -n "{{.AIVEN_PROJECT}}" ] && [ "{{.AIVEN_PROJECT}}" != "{{.DEFAULT_PROJECT_PLACEHOLDER}}" ]; then
+          sed -i.bak 's/YOUR-AIVEN-PROJECT-NAME/{{.AIVEN_PROJECT}}/g' *.yaml
+          rm -f *.bak
+        fi
+    generates:
+      - test-resources/overlays/{{.DEV_PREFIX}}/
+
+  resources:deploy:
+    desc: Deploy your personalized test resources to the cluster
+    deps: [config:init]
+    preconditions:
+      - sh: test -f .env
+        msg: Please run 'task config:init' first to create .env file
+      - sh: test "{{.AIVEN_PROJECT}}" != "{{.DEFAULT_PROJECT_PLACEHOLDER}}"
+        msg: Please edit .env file and set AIVEN_PROJECT to your actual Aiven project name
+      - sh: test -f test-resources/overlays/{{.DEV_PREFIX}}/kustomization.yaml
+        msg: No kustomization.yaml found. Please add your resource files and update kustomization.yaml
+    cmds:
+      - cd test-resources/overlays/{{.DEV_PREFIX}} && kubectl apply -k .
+      - echo "Deployed test resources. Check status with 'task resources:status'"
+
+  resources:status:
+    desc: Check the status of your test resources
+    silent: true
+    cmds:
+      - |
+        echo "=== Aiven Custom Resources ==="
+        kubectl api-resources --api-group=aiven.io --verbs=list --namespaced -o name | xargs -I {} kubectl get {} -l developer={{.DEV_PREFIX}} 2>/dev/null || true
+        echo ""
+        echo "=== Secrets ==="
+        kubectl get secrets -l developer={{.DEV_PREFIX}} 2>/dev/null || echo "No secrets found"
+
+  resources:destroy:
+    desc: Remove your test resources from the cluster
+    cmds:
+      - kubectl delete -k test-resources/overlays/{{.DEV_PREFIX}} --ignore-not-found=true
+      - echo "✅ Removed test resources"

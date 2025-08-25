@@ -123,6 +123,16 @@ PostgreSQL resources:
 
 ![k9s](../assets/developer-guide-k9s.jpg)
 
+## GKE Development Environment
+
+For meticulous development and testing, each developer can deploy their own isolated GKE cluster with the Aiven Operator. This environment provides:
+
+- **Individual GKE clusters** for isolated development
+- **Artifact repository** for built operator images in Google Container Registry (GCR)
+- **Resource deployment templates** for testing of Aiven services
+
+See the [GKE Development Setup](../../../gke/README.md) for detailed instructions on setting up your personal development cluster.
+
 ## Testing
 
 For this section you'll need to set `export AIVEN_TOKEN=...` and an `export AIVEN_PROJECT_NAME=...` as well as `export ENABLE_WEBHOOKS=false` (see [Prerequisites](./developer-guide.md#prerequisites)).

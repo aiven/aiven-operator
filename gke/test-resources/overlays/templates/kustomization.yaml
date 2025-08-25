@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Comment out what you don't need.
+# Add your own custom resources here if needed:
+# - my-custom-service.yaml
+resources:
+  - postgresql.yaml # PostgreSQL + DB
+  - kafka.yaml # Kafka + Topic
+
+# Name prefix for all resources - prevents conflicts
+namePrefix: DEVELOPER-NAME-
+
+labels:
+  - pairs:
+      developer: DEVELOPER-NAME
+      environment: test
+      managed-by: aiven-operator-dev
