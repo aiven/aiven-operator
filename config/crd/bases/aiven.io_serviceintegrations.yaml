@@ -80,14 +80,20 @@ spec:
                   description: Clickhouse Kafka configuration values
                   properties:
                     tables:
-                      description: Tables to create
+                      description:
+                        Array of table configurations that define how Kafka
+                        topics are mapped to ClickHouse tables. Each table configuration
+                        specifies the table structure, associated Kafka topics, and
+                        read/write settings.
                       items:
                         description: Table to create
                         properties:
                           auto_offset_reset:
                             description:
-                              Action to take when there is no initial offset
-                              in offset store or the desired offset is out of range
+                              Determines where to start reading from Kafka
+                              when no offset is stored or the stored offset is out of
+                              range. 'earliest' starts from the beginning, 'latest'
+                              starts from the end.
                             enum:
                               - beginning
                               - earliest
@@ -97,17 +103,26 @@ spec:
                               - smallest
                             type: string
                           columns:
-                            description: Table columns
+                            description:
+                              Array of column definitions that specify the
+                              structure of the ClickHouse table. Each column maps to
+                              a field in the Kafka messages.
                             items:
                               description: Table column
                               properties:
                                 name:
-                                  description: Column name
+                                  description:
+                                    The name of the column in the ClickHouse
+                                    table. This should match the field names in your
+                                    Kafka message format.
                                   maxLength: 40
                                   minLength: 1
                                   type: string
                                 type:
-                                  description: Column type
+                                  description:
+                                    The ClickHouse data type for this column.
+                                    Must be a valid ClickHouse data type that can handle
+                                    the data format.
                                   maxLength: 1000
                                   minLength: 1
                                   type: string
@@ -118,7 +133,10 @@ spec:
                             maxItems: 100
                             type: array
                           data_format:
-                            description: Message data format
+                            description:
+                              The format of the messages in the Kafka topics.
+                              Determines how ClickHouse parses and serializes the data
+                              (e.g., JSON, CSV, Avro).
                             enum:
                               - Avro
                               - AvroConfluent
@@ -136,51 +154,67 @@ spec:
                               - TabSeparated
                             type: string
                           date_time_input_format:
-                            description: Method to read DateTime from text input formats
+                            description:
+                              Specifies how ClickHouse should parse DateTime
+                              values from text-based input formats. 'basic' uses simple
+                              parsing, 'best_effort' attempts more flexible parsing.
                             enum:
                               - basic
                               - best_effort
                               - best_effort_us
                             type: string
                           group_name:
-                            description: Kafka consumers group
+                            description:
+                              The Kafka consumer group name. Multiple consumers
+                              with the same group name will share the workload and maintain
+                              offset positions.
                             maxLength: 249
                             minLength: 1
                             type: string
                           handle_error_mode:
-                            description: How to handle errors for Kafka engine
+                            description:
+                              Defines how ClickHouse should handle errors
+                              when processing Kafka messages. 'default' stops on errors,
+                              'stream' continues processing and logs errors.
                             enum:
                               - default
                               - stream
                             type: string
                           max_block_size:
                             description:
-                              Number of row collected by poll(s) for flushing
-                              data from Kafka
+                              Maximum number of rows to collect before flushing
+                              data between Kafka and ClickHouse.
                             maximum: 1000000000
                             minimum: 0
                             type: integer
                           max_rows_per_message:
                             description:
-                              The maximum number of rows produced in one
-                              kafka message for row-based formats
+                              Maximum number of rows that can be processed
+                              from a single Kafka message for row-based formats. Useful
+                              for controlling memory usage.
                             maximum: 1000000000
                             minimum: 1
                             type: integer
                           name:
-                            description: Name of the table
+                            description:
+                              The name of the ClickHouse table to be created.
+                              This table can consume data from and write data to the
+                              specified Kafka topics.
                             maxLength: 40
                             minLength: 1
                             type: string
                           num_consumers:
-                            description: The number of consumers per table per replica
+                            description:
+                              Number of Kafka consumers to run per table
+                              per replica. Increasing this can improve throughput but
+                              may increase resource usage.
                             maximum: 10
                             minimum: 1
                             type: integer
                           poll_max_batch_size:
                             description:
-                              Maximum amount of messages to be polled in
-                              a single Kafka poll
+                              Maximum number of messages to fetch in a single
+                              Kafka poll operation for reading.
                             maximum: 1000000000
                             minimum: 0
                             type: integer
@@ -262,23 +296,32 @@ spec:
                             type: integer
                           skip_broken_messages:
                             description:
-                              Skip at least this number of broken messages
-                              from Kafka topic per block
+                              Number of broken messages to skip before stopping
+                              processing when reading from Kafka. Useful for handling
+                              corrupted data without failing the entire integration.
                             maximum: 1000000000
                             minimum: 0
                             type: integer
                           thread_per_consumer:
                             description:
-                              Provide an independent thread for each consumer.
-                              All consumers run in the same thread by default.
+                              When enabled, each consumer runs in its own
+                              thread, providing better isolation and potentially better
+                              performance for high-throughput scenarios.
                             type: boolean
                           topics:
-                            description: Kafka topics
+                            description:
+                              Array of Kafka topics that this table will
+                              read data from or write data to. Messages from all specified
+                              topics will be inserted into this table, and data inserted
+                              into this table will be published to the topics.
                             items:
                               description: Kafka topic
                               properties:
                                 name:
-                                  description: Name of the topic
+                                  description:
+                                    The name of the Kafka topic to read messages
+                                    from or write messages to. The topic must exist
+                                    in the Kafka cluster.
                                   maxLength: 249
                                   minLength: 1
                                   type: string

@@ -336,7 +336,7 @@ Clickhouse Kafka configuration values.
 
 **Required**
 
-- [`tables`](#spec.clickhouseKafka.tables-property){: name='spec.clickhouseKafka.tables-property'} (array of objects, MaxItems: 400). Tables to create. See below for [nested schema](#spec.clickhouseKafka.tables).
+- [`tables`](#spec.clickhouseKafka.tables-property){: name='spec.clickhouseKafka.tables-property'} (array of objects, MaxItems: 400). Array of table configurations that define how Kafka topics are mapped to ClickHouse tables. Each table configuration specifies the table structure, associated Kafka topics, and read/write settings. See below for [nested schema](#spec.clickhouseKafka.tables).
 
 ### tables {: #spec.clickhouseKafka.tables }
 
@@ -346,21 +346,21 @@ Table to create.
 
 **Required**
 
-- [`columns`](#spec.clickhouseKafka.tables.columns-property){: name='spec.clickhouseKafka.tables.columns-property'} (array of objects, MaxItems: 100). Table columns. See below for [nested schema](#spec.clickhouseKafka.tables.columns).
-- [`data_format`](#spec.clickhouseKafka.tables.data_format-property){: name='spec.clickhouseKafka.tables.data_format-property'} (string, Enum: `Avro`, `AvroConfluent`, `CSV`, `JSONAsString`, `JSONCompactEachRow`, `JSONCompactStringsEachRow`, `JSONEachRow`, `JSONStringsEachRow`, `MsgPack`, `Parquet`, `RawBLOB`, `TSKV`, `TSV`, `TabSeparated`). Message data format.
-- [`group_name`](#spec.clickhouseKafka.tables.group_name-property){: name='spec.clickhouseKafka.tables.group_name-property'} (string, MinLength: 1, MaxLength: 249). Kafka consumers group.
-- [`name`](#spec.clickhouseKafka.tables.name-property){: name='spec.clickhouseKafka.tables.name-property'} (string, MinLength: 1, MaxLength: 40). Name of the table.
-- [`topics`](#spec.clickhouseKafka.tables.topics-property){: name='spec.clickhouseKafka.tables.topics-property'} (array of objects, MaxItems: 100). Kafka topics. See below for [nested schema](#spec.clickhouseKafka.tables.topics).
+- [`columns`](#spec.clickhouseKafka.tables.columns-property){: name='spec.clickhouseKafka.tables.columns-property'} (array of objects, MaxItems: 100). Array of column definitions that specify the structure of the ClickHouse table. Each column maps to a field in the Kafka messages. See below for [nested schema](#spec.clickhouseKafka.tables.columns).
+- [`data_format`](#spec.clickhouseKafka.tables.data_format-property){: name='spec.clickhouseKafka.tables.data_format-property'} (string, Enum: `Avro`, `AvroConfluent`, `CSV`, `JSONAsString`, `JSONCompactEachRow`, `JSONCompactStringsEachRow`, `JSONEachRow`, `JSONStringsEachRow`, `MsgPack`, `Parquet`, `RawBLOB`, `TSKV`, `TSV`, `TabSeparated`). The format of the messages in the Kafka topics. Determines how ClickHouse parses and serializes the data (e.g., JSON, CSV, Avro).
+- [`group_name`](#spec.clickhouseKafka.tables.group_name-property){: name='spec.clickhouseKafka.tables.group_name-property'} (string, MinLength: 1, MaxLength: 249). The Kafka consumer group name. Multiple consumers with the same group name will share the workload and maintain offset positions.
+- [`name`](#spec.clickhouseKafka.tables.name-property){: name='spec.clickhouseKafka.tables.name-property'} (string, MinLength: 1, MaxLength: 40). The name of the ClickHouse table to be created. This table can consume data from and write data to the specified Kafka topics.
+- [`topics`](#spec.clickhouseKafka.tables.topics-property){: name='spec.clickhouseKafka.tables.topics-property'} (array of objects, MaxItems: 100). Array of Kafka topics that this table will read data from or write data to. Messages from all specified topics will be inserted into this table, and data inserted into this table will be published to the topics. See below for [nested schema](#spec.clickhouseKafka.tables.topics).
 
 **Optional**
 
-- [`auto_offset_reset`](#spec.clickhouseKafka.tables.auto_offset_reset-property){: name='spec.clickhouseKafka.tables.auto_offset_reset-property'} (string, Enum: `beginning`, `earliest`, `end`, `largest`, `latest`, `smallest`). Action to take when there is no initial offset in offset store or the desired offset is out of range.
-- [`date_time_input_format`](#spec.clickhouseKafka.tables.date_time_input_format-property){: name='spec.clickhouseKafka.tables.date_time_input_format-property'} (string, Enum: `basic`, `best_effort`, `best_effort_us`). Method to read DateTime from text input formats.
-- [`handle_error_mode`](#spec.clickhouseKafka.tables.handle_error_mode-property){: name='spec.clickhouseKafka.tables.handle_error_mode-property'} (string, Enum: `default`, `stream`). How to handle errors for Kafka engine.
-- [`max_block_size`](#spec.clickhouseKafka.tables.max_block_size-property){: name='spec.clickhouseKafka.tables.max_block_size-property'} (integer, Minimum: 0, Maximum: 1000000000). Number of row collected by poll(s) for flushing data from Kafka.
-- [`max_rows_per_message`](#spec.clickhouseKafka.tables.max_rows_per_message-property){: name='spec.clickhouseKafka.tables.max_rows_per_message-property'} (integer, Minimum: 1, Maximum: 1000000000). The maximum number of rows produced in one kafka message for row-based formats.
-- [`num_consumers`](#spec.clickhouseKafka.tables.num_consumers-property){: name='spec.clickhouseKafka.tables.num_consumers-property'} (integer, Minimum: 1, Maximum: 10). The number of consumers per table per replica.
-- [`poll_max_batch_size`](#spec.clickhouseKafka.tables.poll_max_batch_size-property){: name='spec.clickhouseKafka.tables.poll_max_batch_size-property'} (integer, Minimum: 0, Maximum: 1000000000). Maximum amount of messages to be polled in a single Kafka poll.
+- [`auto_offset_reset`](#spec.clickhouseKafka.tables.auto_offset_reset-property){: name='spec.clickhouseKafka.tables.auto_offset_reset-property'} (string, Enum: `beginning`, `earliest`, `end`, `largest`, `latest`, `smallest`). Determines where to start reading from Kafka when no offset is stored or the stored offset is out of range. `earliest` starts from the beginning, `latest` starts from the end.
+- [`date_time_input_format`](#spec.clickhouseKafka.tables.date_time_input_format-property){: name='spec.clickhouseKafka.tables.date_time_input_format-property'} (string, Enum: `basic`, `best_effort`, `best_effort_us`). Specifies how ClickHouse should parse DateTime values from text-based input formats. `basic` uses simple parsing, `best_effort` attempts more flexible parsing.
+- [`handle_error_mode`](#spec.clickhouseKafka.tables.handle_error_mode-property){: name='spec.clickhouseKafka.tables.handle_error_mode-property'} (string, Enum: `default`, `stream`). Defines how ClickHouse should handle errors when processing Kafka messages. `default` stops on errors, `stream` continues processing and logs errors.
+- [`max_block_size`](#spec.clickhouseKafka.tables.max_block_size-property){: name='spec.clickhouseKafka.tables.max_block_size-property'} (integer, Minimum: 0, Maximum: 1000000000). Maximum number of rows to collect before flushing data between Kafka and ClickHouse.
+- [`max_rows_per_message`](#spec.clickhouseKafka.tables.max_rows_per_message-property){: name='spec.clickhouseKafka.tables.max_rows_per_message-property'} (integer, Minimum: 1, Maximum: 1000000000). Maximum number of rows that can be processed from a single Kafka message for row-based formats. Useful for controlling memory usage.
+- [`num_consumers`](#spec.clickhouseKafka.tables.num_consumers-property){: name='spec.clickhouseKafka.tables.num_consumers-property'} (integer, Minimum: 1, Maximum: 10). Number of Kafka consumers to run per table per replica. Increasing this can improve throughput but may increase resource usage.
+- [`poll_max_batch_size`](#spec.clickhouseKafka.tables.poll_max_batch_size-property){: name='spec.clickhouseKafka.tables.poll_max_batch_size-property'} (integer, Minimum: 0, Maximum: 1000000000). Maximum number of messages to fetch in a single Kafka poll operation for reading.
 - [`poll_max_timeout_ms`](#spec.clickhouseKafka.tables.poll_max_timeout_ms-property){: name='spec.clickhouseKafka.tables.poll_max_timeout_ms-property'} (integer, Minimum: 0, Maximum: 30000). Timeout in milliseconds for a single poll from Kafka. Takes the value of the stream_flush_interval_ms server setting by default (500ms).
 - [`producer_batch_num_messages`](#spec.clickhouseKafka.tables.producer_batch_num_messages-property){: name='spec.clickhouseKafka.tables.producer_batch_num_messages-property'} (integer, Minimum: 1, Maximum: 1000000). The maximum number of messages in a batch sent to Kafka. If the number of messages exceeds this value, the batch is sent.
 - [`producer_batch_size`](#spec.clickhouseKafka.tables.producer_batch_size-property){: name='spec.clickhouseKafka.tables.producer_batch_size-property'} (integer, Minimum: 0, Maximum: 2147483647). The maximum size in bytes of a batch of messages sent to Kafka. If the batch size is exceeded, the batch is sent.
@@ -370,8 +370,8 @@ Table to create.
 - [`producer_queue_buffering_max_kbytes`](#spec.clickhouseKafka.tables.producer_queue_buffering_max_kbytes-property){: name='spec.clickhouseKafka.tables.producer_queue_buffering_max_kbytes-property'} (integer, Minimum: 0, Maximum: 2147483647). The maximum size of the buffer in kilobytes before sending.
 - [`producer_queue_buffering_max_messages`](#spec.clickhouseKafka.tables.producer_queue_buffering_max_messages-property){: name='spec.clickhouseKafka.tables.producer_queue_buffering_max_messages-property'} (integer, Minimum: 0, Maximum: 2147483647). The maximum number of messages to buffer before sending.
 - [`producer_request_required_acks`](#spec.clickhouseKafka.tables.producer_request_required_acks-property){: name='spec.clickhouseKafka.tables.producer_request_required_acks-property'} (integer, Minimum: -1, Maximum: 1000). The number of acknowledgements the leader broker must receive from ISR brokers before responding to the request: 0=Broker does not send any response/ack to client, -1 will block until message is committed by all in sync replicas (ISRs).
-- [`skip_broken_messages`](#spec.clickhouseKafka.tables.skip_broken_messages-property){: name='spec.clickhouseKafka.tables.skip_broken_messages-property'} (integer, Minimum: 0, Maximum: 1000000000). Skip at least this number of broken messages from Kafka topic per block.
-- [`thread_per_consumer`](#spec.clickhouseKafka.tables.thread_per_consumer-property){: name='spec.clickhouseKafka.tables.thread_per_consumer-property'} (boolean). Provide an independent thread for each consumer. All consumers run in the same thread by default.
+- [`skip_broken_messages`](#spec.clickhouseKafka.tables.skip_broken_messages-property){: name='spec.clickhouseKafka.tables.skip_broken_messages-property'} (integer, Minimum: 0, Maximum: 1000000000). Number of broken messages to skip before stopping processing when reading from Kafka. Useful for handling corrupted data without failing the entire integration.
+- [`thread_per_consumer`](#spec.clickhouseKafka.tables.thread_per_consumer-property){: name='spec.clickhouseKafka.tables.thread_per_consumer-property'} (boolean). When enabled, each consumer runs in its own thread, providing better isolation and potentially better performance for high-throughput scenarios.
 
 #### columns {: #spec.clickhouseKafka.tables.columns }
 
@@ -381,8 +381,8 @@ Table column.
 
 **Required**
 
-- [`name`](#spec.clickhouseKafka.tables.columns.name-property){: name='spec.clickhouseKafka.tables.columns.name-property'} (string, MinLength: 1, MaxLength: 40). Column name.
-- [`type`](#spec.clickhouseKafka.tables.columns.type-property){: name='spec.clickhouseKafka.tables.columns.type-property'} (string, MinLength: 1, MaxLength: 1000). Column type.
+- [`name`](#spec.clickhouseKafka.tables.columns.name-property){: name='spec.clickhouseKafka.tables.columns.name-property'} (string, MinLength: 1, MaxLength: 40). The name of the column in the ClickHouse table. This should match the field names in your Kafka message format.
+- [`type`](#spec.clickhouseKafka.tables.columns.type-property){: name='spec.clickhouseKafka.tables.columns.type-property'} (string, MinLength: 1, MaxLength: 1000). The ClickHouse data type for this column. Must be a valid ClickHouse data type that can handle the data format.
 
 #### topics {: #spec.clickhouseKafka.tables.topics }
 
@@ -392,7 +392,7 @@ Kafka topic.
 
 **Required**
 
-- [`name`](#spec.clickhouseKafka.tables.topics.name-property){: name='spec.clickhouseKafka.tables.topics.name-property'} (string, MinLength: 1, MaxLength: 249). Name of the topic.
+- [`name`](#spec.clickhouseKafka.tables.topics.name-property){: name='spec.clickhouseKafka.tables.topics.name-property'} (string, MinLength: 1, MaxLength: 249). The name of the Kafka topic to read messages from or write messages to. The topic must exist in the Kafka cluster.
 
 ## clickhousePostgresql {: #spec.clickhousePostgresql }
 

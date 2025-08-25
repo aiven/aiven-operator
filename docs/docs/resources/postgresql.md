@@ -32,9 +32,6 @@ spec:
 
   maintenanceWindowDow: sunday
   maintenanceWindowTime: 11:00:00
-
-  userConfig:
-    pg_version: "15"
 ```
 
 Apply the resource with:

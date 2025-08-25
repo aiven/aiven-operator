@@ -7,12 +7,12 @@ package clickhousekafkauserconfig
 type Columns struct {
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=40
-	// Column name
+	// The name of the column in the ClickHouse table. This should match the field names in your Kafka message format.
 	Name string `groups:"create,update" json:"name"`
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=1000
-	// Column type
+	// The ClickHouse data type for this column. Must be a valid ClickHouse data type that can handle the data format.
 	Type string `groups:"create,update" json:"type"`
 }
 
@@ -20,60 +20,60 @@ type Columns struct {
 type Topics struct {
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=249
-	// Name of the topic
+	// The name of the Kafka topic to read messages from or write messages to. The topic must exist in the Kafka cluster.
 	Name string `groups:"create,update" json:"name"`
 }
 
 // Table to create
 type Tables struct {
 	// +kubebuilder:validation:Enum="beginning";"earliest";"end";"largest";"latest";"smallest"
-	// Action to take when there is no initial offset in offset store or the desired offset is out of range
+	// Determines where to start reading from Kafka when no offset is stored or the stored offset is out of range. 'earliest' starts from the beginning, 'latest' starts from the end.
 	AutoOffsetReset *string `groups:"create,update" json:"auto_offset_reset,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=100
-	// Table columns
+	// Array of column definitions that specify the structure of the ClickHouse table. Each column maps to a field in the Kafka messages.
 	Columns []*Columns `groups:"create,update" json:"columns"`
 
 	// +kubebuilder:validation:Enum="Avro";"AvroConfluent";"CSV";"JSONAsString";"JSONCompactEachRow";"JSONCompactStringsEachRow";"JSONEachRow";"JSONStringsEachRow";"MsgPack";"Parquet";"RawBLOB";"TSKV";"TSV";"TabSeparated"
-	// Message data format
+	// The format of the messages in the Kafka topics. Determines how ClickHouse parses and serializes the data (e.g., JSON, CSV, Avro).
 	DataFormat string `groups:"create,update" json:"data_format"`
 
 	// +kubebuilder:validation:Enum="basic";"best_effort";"best_effort_us"
-	// Method to read DateTime from text input formats
+	// Specifies how ClickHouse should parse DateTime values from text-based input formats. 'basic' uses simple parsing, 'best_effort' attempts more flexible parsing.
 	DateTimeInputFormat *string `groups:"create,update" json:"date_time_input_format,omitempty"`
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=249
-	// Kafka consumers group
+	// The Kafka consumer group name. Multiple consumers with the same group name will share the workload and maintain offset positions.
 	GroupName string `groups:"create,update" json:"group_name"`
 
 	// +kubebuilder:validation:Enum="default";"stream"
-	// How to handle errors for Kafka engine
+	// Defines how ClickHouse should handle errors when processing Kafka messages. 'default' stops on errors, 'stream' continues processing and logs errors.
 	HandleErrorMode *string `groups:"create,update" json:"handle_error_mode,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=1000000000
-	// Number of row collected by poll(s) for flushing data from Kafka
+	// Maximum number of rows to collect before flushing data between Kafka and ClickHouse.
 	MaxBlockSize *int `groups:"create,update" json:"max_block_size,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=1000000000
-	// The maximum number of rows produced in one kafka message for row-based formats
+	// Maximum number of rows that can be processed from a single Kafka message for row-based formats. Useful for controlling memory usage.
 	MaxRowsPerMessage *int `groups:"create,update" json:"max_rows_per_message,omitempty"`
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=40
-	// Name of the table
+	// The name of the ClickHouse table to be created. This table can consume data from and write data to the specified Kafka topics.
 	Name string `groups:"create,update" json:"name"`
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=10
-	// The number of consumers per table per replica
+	// Number of Kafka consumers to run per table per replica. Increasing this can improve throughput but may increase resource usage.
 	NumConsumers *int `groups:"create,update" json:"num_consumers,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=1000000000
-	// Maximum amount of messages to be polled in a single Kafka poll
+	// Maximum number of messages to fetch in a single Kafka poll operation for reading.
 	PollMaxBatchSize *int `groups:"create,update" json:"poll_max_batch_size,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
@@ -122,20 +122,20 @@ type Tables struct {
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=1000000000
-	// Skip at least this number of broken messages from Kafka topic per block
+	// Number of broken messages to skip before stopping processing when reading from Kafka. Useful for handling corrupted data without failing the entire integration.
 	SkipBrokenMessages *int `groups:"create,update" json:"skip_broken_messages,omitempty"`
 
-	// Provide an independent thread for each consumer. All consumers run in the same thread by default.
+	// When enabled, each consumer runs in its own thread, providing better isolation and potentially better performance for high-throughput scenarios.
 	ThreadPerConsumer *bool `groups:"create,update" json:"thread_per_consumer,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=100
-	// Kafka topics
+	// Array of Kafka topics that this table will read data from or write data to. Messages from all specified topics will be inserted into this table, and data inserted into this table will be published to the topics.
 	Topics []*Topics `groups:"create,update" json:"topics"`
 }
 
 // Integration user config
 type ClickhouseKafkaUserConfig struct {
 	// +kubebuilder:validation:MaxItems=400
-	// Tables to create
+	// Array of table configurations that define how Kafka topics are mapped to ClickHouse tables. Each table configuration specifies the table structure, associated Kafka topics, and read/write settings.
 	Tables []*Tables `groups:"create,update" json:"tables,omitempty"`
 }
