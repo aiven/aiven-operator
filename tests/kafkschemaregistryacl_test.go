@@ -75,7 +75,7 @@ func TestKafkaSchemaRegistryACL(t *testing.T) {
 	defer cancel()
 
 	kafkaName := randName("kafka-service")
-	topicName := randName("kafka-topic")
+	topicName := randName("schema-registry-topic")
 	aclName := randName("kafka-schema-registry-acl")
 	yml := getKafkaSchemaRegistryACLYaml(cfg.Project, cfg.PrimaryCloudName, kafkaName, topicName, aclName)
 	s := NewSession(ctx, k8sClient)

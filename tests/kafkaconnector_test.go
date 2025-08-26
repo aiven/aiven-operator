@@ -21,9 +21,9 @@ func TestKafkaConnector(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	kafkaName := randName("kafka-connector")
-	osName := randName("kafka-connector")
-	topicName := randName("kafka-connector")
+	kafkaName := randName("kafka-service")
+	osName := randName("opensearch-service")
+	topicName := randName("kafka-topic")
 	connectorName := randName("kafka-connector")
 	yml, err := loadExampleYaml("kafkaconnector.yaml", map[string]string{
 		// Kafka
@@ -42,9 +42,10 @@ func TestKafkaConnector(t *testing.T) {
 		"doc[2].spec.cloudName": cfg.PrimaryCloudName,
 
 		// Kafka Connector
-		"doc[3].metadata.name":    connectorName,
-		"doc[3].spec.project":     cfg.Project,
-		"doc[3].spec.serviceName": kafkaName,
+		"doc[3].metadata.name":          connectorName,
+		"doc[3].spec.project":           cfg.Project,
+		"doc[3].spec.serviceName":       kafkaName,
+		"doc[3].spec.userConfig.topics": topicName,
 	})
 	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient)

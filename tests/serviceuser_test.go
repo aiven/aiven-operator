@@ -3,10 +3,15 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"testing"
+	"time"
 
+	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/service"
+	"github.com/avast/retry-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -95,7 +100,7 @@ func TestServiceUserKafka(t *testing.T) {
 	assert.Equal(t, kafkaAvn.CloudName, kafka.Spec.CloudName)
 
 	// Validates ServiceUser
-	userAvn, err := avnGen.ServiceUserGet(ctx, cfg.Project, kafkaName, userName)
+	userAvn, err := getServiceUserWithRetry(ctx, avnGen, cfg.Project, kafkaName, userName)
 	require.NoError(t, err)
 	assert.Equal(t, userName, user.GetName())
 	assert.Equal(t, userName, userAvn.Username)
@@ -296,7 +301,7 @@ spec:
 		user := new(v1alpha1.ServiceUser)
 		require.NoError(t, s.GetRunning(user, userName))
 
-		userAvn, err := avnGen.ServiceUserGet(ctx, cfg.Project, pgName, userName)
+		userAvn, err := getServiceUserWithRetry(ctx, avnGen, cfg.Project, pgName, userName)
 		require.NoError(t, err)
 		assert.Equal(t, userName, user.GetName())
 		assert.Equal(t, userName, userAvn.Username)
@@ -334,7 +339,7 @@ spec:
 		user := new(v1alpha1.ServiceUser)
 		require.NoError(t, s.GetRunning(user, "avnadmin"))
 
-		userAvn, err := avnGen.ServiceUserGet(ctx, cfg.Project, pgName, "avnadmin")
+		userAvn, err := getServiceUserWithRetry(ctx, avnGen, cfg.Project, pgName, "avnadmin")
 		require.NoError(t, err)
 		assert.Equal(t, "avnadmin", user.GetName())
 		assert.Equal(t, "avnadmin", userAvn.Username)
@@ -539,4 +544,24 @@ spec:
   project: %[1]s
   serviceName: %[2]s
 `, project, pgName, userName, cloudName, secretName)
+}
+
+func getServiceUserWithRetry(
+	ctx context.Context,
+	avnGen avngen.Client,
+	project, serviceName, username string,
+) (*service.ServiceUserGetOut, error) {
+	var user *service.ServiceUserGetOut
+	err := retry.Do(
+		func() error {
+			var retryErr error
+			user, retryErr = avnGen.ServiceUserGet(ctx, project, serviceName, username)
+			return retryErr
+		},
+		retry.RetryIf(isNotFound),
+		retry.Attempts(3),
+		retry.Delay(200*time.Millisecond),
+	)
+
+	return user, err
 }

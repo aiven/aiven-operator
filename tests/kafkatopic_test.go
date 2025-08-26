@@ -13,7 +13,7 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getKafkaTopicNameYaml(project, ksName, cloudName string) string {
+func getKafkaTopicNameYaml(project, ksName, cloudName, fooTopicName, barTopicName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: Kafka
@@ -37,7 +37,7 @@ spec:
 apiVersion: aiven.io/v1alpha1
 kind: KafkaTopic
 metadata:
-  name: foo-topic
+  name: %[4]s
 spec:
   authSecretRef:
     name: aiven-token
@@ -58,7 +58,7 @@ spec:
 apiVersion: aiven.io/v1alpha1
 kind: KafkaTopic
 metadata:
-  name: bar-topic
+  name: %[5]s
 spec:
   authSecretRef:
     name: aiven-token
@@ -67,9 +67,9 @@ spec:
   project: %[1]s
   serviceName: %[2]s
   topicName: bar_topic_name_with_underscores
-  replication: 3
+  replication: 2
   partitions: 2
-`, project, ksName, cloudName)
+`, project, ksName, cloudName, fooTopicName, barTopicName)
 }
 
 // TestKafkaTopic creates two topics: one with metadata.name, another one with spec.topicName
@@ -82,8 +82,10 @@ func TestKafkaTopic(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	ksName := randName("kafka-topic")
-	yml := getKafkaTopicNameYaml(cfg.Project, ksName, cfg.PrimaryCloudName)
+	ksName := randName("kafka-service")
+	fooTopicName := randName("foo-topic")
+	barTopicName := randName("bar-topic")
+	yml := getKafkaTopicNameYaml(cfg.Project, ksName, cfg.PrimaryCloudName, fooTopicName, barTopicName)
 	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
@@ -99,10 +101,10 @@ func TestKafkaTopic(t *testing.T) {
 
 	// Finds topics by metadata.Name, because you don't store it by spec.topicName
 	fooTopic := new(v1alpha1.KafkaTopic)
-	require.NoError(t, s.GetRunning(fooTopic, "foo-topic"))
+	require.NoError(t, s.GetRunning(fooTopic, fooTopicName))
 
 	barTopic := new(v1alpha1.KafkaTopic)
-	require.NoError(t, s.GetRunning(barTopic, "bar-topic"))
+	require.NoError(t, s.GetRunning(barTopic, barTopicName))
 
 	// THEN
 	// Validates Kafka
@@ -117,11 +119,11 @@ func TestKafkaTopic(t *testing.T) {
 	assert.True(t, meta.IsStatusConditionTrue(fooTopic.Status.Conditions, "Running"))
 	assert.True(t, meta.IsStatusConditionTrue(barTopic.Status.Conditions, "Running"))
 
-	// KafkaTopic with name `foo-topic`
+	// KafkaTopic with dynamic name
 	fooAvn, err := avnGen.ServiceKafkaTopicGet(ctx, cfg.Project, ksName, fooTopic.GetTopicName())
 	require.NoError(t, err)
-	assert.Equal(t, "foo-topic", fooTopic.GetName())
-	assert.Equal(t, "foo-topic", fooTopic.GetTopicName())
+	assert.Equal(t, fooTopicName, fooTopic.GetName())
+	assert.Equal(t, fooTopicName, fooTopic.GetTopicName())
 	assert.Equal(t, fooAvn.TopicName, fooTopic.GetTopicName())
 	assert.Equal(t, fooAvn.State, fooTopic.Status.State)
 	assert.Equal(t, fooAvn.State, fooTopic.Status.State)
@@ -140,7 +142,7 @@ func TestKafkaTopic(t *testing.T) {
 	// KafkaTopic with name `bar_topic_name_with_underscores`
 	barAvn, err := avnGen.ServiceKafkaTopicGet(ctx, cfg.Project, ksName, barTopic.GetTopicName())
 	require.NoError(t, err)
-	assert.Equal(t, "bar-topic", barTopic.GetName())
+	assert.Equal(t, barTopicName, barTopic.GetName())
 	assert.Equal(t, "bar_topic_name_with_underscores", barTopic.GetTopicName())
 	assert.Equal(t, barAvn.TopicName, barTopic.GetTopicName())
 	assert.Equal(t, barAvn.State, barTopic.Status.State)

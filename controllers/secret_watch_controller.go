@@ -4,7 +4,6 @@ package controllers
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"reflect"
 	"time"
@@ -214,21 +213,23 @@ func (c *SecretWatchController) findResourcesUsingSecret(ctx context.Context, se
 func (c *SecretWatchController) triggerReconciliation(ctx context.Context, resource SecretSourceResource) error {
 	resourceName := types.NamespacedName{Name: resource.GetName(), Namespace: resource.GetNamespace()}
 
-	patchData := map[string]any{
-		"metadata": map[string]any{
-			"annotations": map[string]any{
-				secretSourceUpdatedAnnotation: fmt.Sprintf("%d", time.Now().Unix()),
-				processedGenerationAnnotation: nil, // null remove the annotation
-			},
-		},
+	if err := c.Get(ctx, resourceName, resource); err != nil {
+		return fmt.Errorf("failed to get resource for patching: %w", err)
 	}
 
-	patchBytes, err := json.Marshal(patchData)
-	if err != nil {
-		return fmt.Errorf("failed to marshal patch data: %w", err)
-	}
+	original := resource.DeepCopyObject().(client.Object)
+	patch := client.MergeFrom(original)
 
-	if err = c.Patch(ctx, resource, client.RawPatch(types.MergePatchType, patchBytes)); err != nil {
+	annotations := resource.GetAnnotations()
+	if annotations == nil {
+		annotations = make(map[string]string)
+	}
+	annotations[secretSourceUpdatedAnnotation] = fmt.Sprintf("%d", time.Now().Unix())
+
+	delete(annotations, processedGenerationAnnotation) // remove the annotation
+	resource.SetAnnotations(annotations)
+
+	if err := c.Patch(ctx, resource, patch); err != nil {
 		if errors.IsConflict(err) {
 			c.Log.Info("resource modified by another controller, skipping annotation update",
 				"resource", resourceName,
