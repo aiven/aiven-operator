@@ -189,6 +189,10 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 
 	// Step 1: Create PostgreSQL service directly
 	pgObj := &v1alpha1.PostgreSQL{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "aiven.io/v1alpha1",
+			Kind:       "PostgreSQL",
+		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      pgName,
 			Namespace: defaultNamespace,
@@ -215,6 +219,10 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 	}
 
 	dbObj := &v1alpha1.Database{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "aiven.io/v1alpha1",
+			Kind:       "Database",
+		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      dbName,
 			Namespace: defaultNamespace,
@@ -240,6 +248,10 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 	}
 
 	poolObj := &v1alpha1.ConnectionPool{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "aiven.io/v1alpha1",
+			Kind:       "ConnectionPool",
+		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      poolName,
 			Namespace: defaultNamespace,
@@ -270,6 +282,10 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 
 	// Create service user for testing "Reuse Inbound User" functionality
 	userObj := &v1alpha1.ServiceUser{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "aiven.io/v1alpha1",
+			Kind:       "ServiceUser",
+		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      userName,
 			Namespace: defaultNamespace,
