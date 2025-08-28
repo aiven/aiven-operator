@@ -4,10 +4,13 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
+	"github.com/avast/retry-go"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -113,16 +116,48 @@ func (h *ServiceUserHandler) delete(ctx context.Context, avnGen avngen.Client, o
 	return true, nil
 }
 
+// errEmptyPassword password is not received from the API:
+// 1. it was changed by TF but the API did not return it
+// 2. user has changed it in PG directly, so the API does not have it
+var errEmptyPassword = fmt.Errorf("received empty password from the API")
+
+const (
+	emptyPasswordRetryAttempts = 10
+	emptyPasswordRetryDelay    = 5 * time.Second
+)
+
 func (h *ServiceUserHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
 	user, err := h.convert(obj)
 	if err != nil {
 		return nil, err
 	}
 
-	u, err := avnGen.ServiceUserGet(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
-	if err != nil {
-		return nil, err
-	}
+	// Retries empty password up to ~1m.
+	// It should be enough to get the backend to a consistent state.
+	// Though if user has changed the password in PG directly,
+	// the API will never return the password.
+	var u *service.ServiceUserGetOut
+	err = retry.Do(
+		func() error {
+			u, err = avnGen.ServiceUserGet(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
+			if err == nil && u.Password == "" {
+				err = errEmptyPassword
+			}
+			return err
+		},
+		retry.Context(ctx),
+		// Retries errEmptyPassword only.
+		// The rest is retried by the client itself and the outer controller.
+		retry.RetryIf(func(err error) bool {
+			return errors.Is(err, errEmptyPassword)
+		}),
+		// ≈1m total wait time
+		retry.Attempts(emptyPasswordRetryAttempts),
+		retry.Delay(emptyPasswordRetryDelay),
+		// retry.Do returns a custom list of errors.
+		// Outer controller must be able to detect error types like "server error".
+		retry.LastErrorOnly(true),
+	)
 
 	s, err := avnGen.ServiceGet(ctx, user.Spec.Project, user.Spec.ServiceName)
 	if err != nil {
