@@ -7,6 +7,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/ClickHouse/clickhouse-go/v2"
 	avngen "github.com/aiven/go-client-codegen"
@@ -33,16 +34,12 @@ func TestClickhouseUser(t *testing.T) {
 	chName := ch.GetName()
 	userName := randName("clickhouse-user")
 	yml, err := loadExampleYaml("clickhouseuser.yaml", map[string]string{
-		"doc[0].metadata.name":                  userName,
-		"doc[0].spec.project":                   cfg.Project,
-		"doc[0].spec.serviceName":               chName,
-		"doc[0].spec.connInfoSecretTarget.name": userName,
+		"metadata.name":                  userName,
+		"spec.project":                   cfg.Project,
+		"spec.serviceName":               chName,
+		"spec.connInfoSecretTarget.name": userName,
 		// Remove 'username' from the initial yaml
-		"doc[0].spec.username": "REMOVE",
-
-		"doc[1].metadata.name":  chName,
-		"doc[1].spec.project":   cfg.Project,
-		"doc[1].spec.cloudName": cfg.PrimaryCloudName,
+		"spec.username": "REMOVE",
 	})
 	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient)
@@ -119,15 +116,11 @@ func TestClickhouseUser(t *testing.T) {
 	// New manifest with 'username' field set
 	updatedUserName := randName("clickhouse-user")
 	ymlUsernameSet, err := loadExampleYaml("clickhouseuser.yaml", map[string]string{
-		"doc[0].metadata.name":                  "metadata-name",
-		"doc[0].spec.project":                   cfg.Project,
-		"doc[0].spec.connInfoSecretTarget.name": userName,
-		"doc[0].spec.serviceName":               chName,
-		"doc[0].spec.username":                  updatedUserName,
-
-		"doc[1].metadata.name":  chName,
-		"doc[1].spec.project":   cfg.Project,
-		"doc[1].spec.cloudName": cfg.PrimaryCloudName,
+		"metadata.name":                  "metadata-name",
+		"spec.project":                   cfg.Project,
+		"spec.connInfoSecretTarget.name": userName,
+		"spec.serviceName":               chName,
+		"spec.username":                  updatedUserName,
 	})
 	require.NoError(t, err)
 
@@ -149,16 +142,39 @@ func TestClickhouseUser(t *testing.T) {
 }
 
 func pingClickhouse[T string | []byte](ctx context.Context, host, port, username, password T) error {
-	conn, err := clickhouse.Open(&clickhouse.Options{
-		Protocol: clickhouse.Native,
-		Addr:     []string{fmt.Sprintf("%s:%s", host, port)},
-		Auth:     clickhouse.Auth{Username: string(username), Password: string(password)},
-		TLS:      &tls.Config{InsecureSkipVerify: true},
-	})
-	if err != nil {
-		return err
+	var (
+		lastErr     error
+		maxAttempts = 3
+	)
+
+	for attempt := 1; attempt <= maxAttempts; attempt++ {
+		err := func() error {
+			conn, err := clickhouse.Open(&clickhouse.Options{
+				Protocol: clickhouse.Native,
+				Addr:     []string{fmt.Sprintf("%s:%s", host, port)},
+				Auth:     clickhouse.Auth{Username: string(username), Password: string(password)},
+				TLS:      &tls.Config{InsecureSkipVerify: true},
+			})
+			if err != nil {
+				return err
+			}
+			defer conn.Close()
+
+			return conn.Ping(ctx)
+		}()
+
+		if err == nil {
+			return nil
+		}
+
+		lastErr = err
+
+		if attempt < maxAttempts {
+			time.Sleep(time.Duration(attempt) * time.Second)
+		}
 	}
-	return conn.Ping(ctx)
+
+	return fmt.Errorf("failed after %d attempts: %w", maxAttempts, lastErr)
 }
 
 func getClickHouseUserByID(ctx context.Context, avnGen avngen.Client, project, serviceName, userID string) (*clickhouse2.UserOut, error) {
@@ -563,7 +579,7 @@ func getClickhouseUserWithInvalidPasswordYaml(project, chName, userName, cloudNa
 apiVersion: v1
 kind: Secret
 metadata:
-  name: invalid-clickhouse-password-secret
+  name: invalid-clickhouse-password-secret-%[3]s
 data:
   PASSWORD: c2hvcnQ= # short - invalid password length (5 chars) # gitleaks:allow
 ---
@@ -585,7 +601,7 @@ spec:
       type: validation-test
 
   connInfoSecretSource:
-    name: invalid-clickhouse-password-secret
+    name: invalid-clickhouse-password-secret-%[3]s
     passwordKey: PASSWORD
 
   project: %[1]s
@@ -625,7 +641,7 @@ func getClickhouseUserWithMissingPasswordKeyYaml(project, chName, userName, clou
 apiVersion: v1
 kind: Secret
 metadata:
-  name: missing-key-clickhouse-secret
+  name: missing-key-clickhouse-secret-%[3]s
 data:
   WRONG_KEY: VmFsaWRQYXNzd29yZDEyMyE= # ValidPassword123! base64 encoded # gitleaks:allow
 ---
@@ -647,7 +663,7 @@ spec:
       type: validation-test
 
   connInfoSecretSource:
-    name: missing-key-clickhouse-secret
+    name: missing-key-clickhouse-secret-%[3]s
     passwordKey: PASSWORD
 
   project: %[1]s

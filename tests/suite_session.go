@@ -5,12 +5,12 @@ package tests
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"log"
-	"math/rand"
 	"path/filepath"
 	"reflect"
 	"runtime/debug"
@@ -182,6 +182,11 @@ func (s *session) Destroy(t testingT) {
 // Tolerant to "not found" error,
 // because resource may have been deleted manually
 func (s *session) DestroyError() (err error) {
+	log.Printf("SESSION DESTROY: Starting cleanup of %d resources", len(s.objs))
+	for name := range s.objs {
+		log.Printf("SESSION DESTROY: Will delete resource: %s", objKey(s.objs[name]))
+	}
+
 	var wg sync.WaitGroup
 	wg.Add(len(s.objs))
 	for n := range s.objs {
@@ -224,6 +229,9 @@ func (s *session) delete(o client.Object) error {
 		return fmt.Errorf("resource %q not applied", objKey(o))
 	}
 
+	log.Printf("SESSION DELETE: Deleting resource %s (kind: %s, namespace: %s)",
+		objKey(o), o.GetObjectKind().GroupVersionKind().Kind, o.GetNamespace())
+
 	// Delete operation doesn't share the context,
 	// because it shouldn't leave artifacts
 	ctx, cancel := context.WithTimeout(context.Background(), deleteTimeout)
@@ -231,8 +239,11 @@ func (s *session) delete(o client.Object) error {
 
 	err := s.k8s.Delete(ctx, o)
 	if err != nil {
+		log.Printf("SESSION DELETE: Failed to delete %s: %v", objKey(o), err)
 		return fmt.Errorf("kubernetes error: %w", err)
 	}
+
+	log.Printf("SESSION DELETE: Successfully deleted %s", objKey(o))
 
 	// Waits being deleted from kube
 	key := types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()}
@@ -290,11 +301,19 @@ const (
 
 // randID generates Aiven compatible random id
 func randID() string {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	b := make([]byte, randIDSize)
-	for i := range b {
-		b[i] = randIDChars[r.Intn(len(randIDChars))]
+
+	randomBytes := make([]byte, randIDSize)
+
+	_, err := rand.Read(randomBytes)
+	if err != nil {
+		panic("failed to read random: " + err.Error())
 	}
+
+	for i, randomByte := range randomBytes {
+		b[i] = randIDChars[int(randomByte)%len(randIDChars)]
+	}
+
 	return string(b)
 }
 

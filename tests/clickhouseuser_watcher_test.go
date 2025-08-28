@@ -118,8 +118,9 @@ func TestClickhouseUserSecretWatch(t *testing.T) {
 	t.Run("PasswordKeyAndPasswordUpdate", func(t *testing.T) {
 		userName := randName("ch-pwd-key-user")
 		secretName := randName("ch-pwd-key-secret")
+		secretTargetName := randName("ch-pwd-key-target-secret") // Generate once for consistency
 
-		yml := getClickhouseUserWithPasswordKeyYaml(cfg.Project, serviceName, userName, secretName, cfg.PrimaryCloudName, "PASSWORD")
+		yml := getClickhouseUserWithPasswordKeyYamlWithTarget(cfg.Project, serviceName, userName, secretName, cfg.PrimaryCloudName, "PASSWORD", secretTargetName)
 		require.NoError(t, s.Apply(yml))
 
 		user := new(v1alpha1.ClickhouseUser)
@@ -139,7 +140,7 @@ func TestClickhouseUserSecretWatch(t *testing.T) {
 
 		// Apply simultaneous changes - change passwordKey from PASSWORD to SECRET_PASSWORD
 		// AND update the password value in the secret
-		updatedYml := getClickhouseUserWithPasswordKeyYaml(cfg.Project, serviceName, userName, secretName, cfg.PrimaryCloudName, "SECRET_PASSWORD")
+		updatedYml := getClickhouseUserWithPasswordKeyYamlWithTarget(cfg.Project, serviceName, userName, secretName, cfg.PrimaryCloudName, "SECRET_PASSWORD", secretTargetName)
 		require.NoError(t, s.Apply(updatedYml))
 
 		require.Eventually(t, func() bool {
@@ -200,6 +201,7 @@ func TestClickhouseUserSecretWatch(t *testing.T) {
 }
 
 func getClickhouseUserWithSecretSourceYaml(project, serviceName, userName, secretName string) string {
+	secretTargetName := randName("clickhouse-user-secret")
 	return fmt.Sprintf(`
 apiVersion: v1
 kind: Secret
@@ -218,7 +220,7 @@ spec:
     key: token
 
   connInfoSecretTarget:
-    name: my-clickhouse-user-secret
+    name: %[5]s
 
   connInfoSecretSource:
     name: %[4]s
@@ -226,11 +228,12 @@ spec:
 
   project: %[1]s
   serviceName: %[2]s
-`, project, serviceName, userName, secretName)
+`, project, serviceName, userName, secretName, secretTargetName)
 }
 
 // getClickhouseUserWithPasswordKeyYaml creates YAML for ClickhouseUser with specified passwordKey
 func getClickhouseUserWithPasswordKeyYaml(project, serviceName, userName, secretName, cloudName, passwordKey string) string {
+	secretTargetName := randName("ch-pwd-key-secret")
 	var passwordValue string
 	switch passwordKey {
 	case "PASSWORD":
@@ -260,7 +263,7 @@ spec:
     key: token
 
   connInfoSecretTarget:
-    name: my-ch-pwd-key-secret
+    name: %[8]s
 
   connInfoSecretSource:
     name: %[4]s
@@ -268,5 +271,47 @@ spec:
 
   project: %[1]s
   serviceName: %[2]s
-`, project, serviceName, userName, secretName, cloudName, passwordValue, passwordKey)
+`, project, serviceName, userName, secretName, cloudName, passwordValue, passwordKey, secretTargetName)
+}
+
+// getClickhouseUserWithPasswordKeyYamlWithTarget creates YAML for ClickhouseUser with specified passwordKey and explicit target name
+func getClickhouseUserWithPasswordKeyYamlWithTarget(project, serviceName, userName, secretName, cloudName, passwordKey, secretTargetName string) string {
+	var passwordValue string
+	switch passwordKey {
+	case "PASSWORD":
+		passwordValue = "aW5pdGlhbC1jaC1wYXNzd29yZC0xMjM0NQ==" // initial-ch-password-12345
+	case "SECRET_PASSWORD":
+		passwordValue = "dXBkYXRlZC1zZWNyZXQtcGFzc3dvcmQtNjc4OTA=" // updated-secret-password-67890
+	default:
+		passwordValue = "ZGVmYXVsdC1wYXNzd29yZA==" // default-password # gitleaks:allow
+	}
+
+	return fmt.Sprintf(`
+apiVersion: v1
+kind: Secret
+metadata:
+  name: %[4]s
+data:
+  PASSWORD: aW5pdGlhbC1jaC1wYXNzd29yZC0xMjM0NQ== # initial-ch-password-12345 # gitleaks:allow
+  SECRET_PASSWORD: %[6]s # gitleaks:allow
+---
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseUser
+metadata:
+  name: %[3]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: %[8]s
+
+  connInfoSecretSource:
+    name: %[4]s
+    passwordKey: %[7]s
+
+  project: %[1]s
+  serviceName: %[2]s
+`, project, serviceName, userName, secretName, cloudName, passwordValue, passwordKey, secretTargetName)
 }

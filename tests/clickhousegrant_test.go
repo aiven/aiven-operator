@@ -32,7 +32,7 @@ func chConnFromSecret(secret *corev1.Secret) (clickhouse.Conn, error) {
 	return c, err
 }
 
-func getClickhouseGrantYaml(project, chName, cloudName, dbName, userName string) string {
+func getClickhouseGrantYaml(project, chName, cloudName, dbName, userName, roleName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: Clickhouse
@@ -74,7 +74,7 @@ spec:
 apiVersion: aiven.io/v1alpha1
 kind: ClickhouseRole
 metadata:
-  name: writer
+  name: %[6]s
 spec:
   authSecretRef:
     name: aiven-token
@@ -82,7 +82,7 @@ spec:
 
   project: %[1]s
   serviceName: %[2]s
-  role: writer
+  role: %[6]s
 ---
 apiVersion: aiven.io/v1alpha1
 kind: ClickhouseGrant
@@ -99,7 +99,7 @@ spec:
   privilegeGrants:
     - grantees:
         - user: %[5]s
-        - role: writer
+        - role: %[6]s
       privileges:
         - SELECT
         - INSERT
@@ -111,11 +111,11 @@ spec:
 
   roleGrants:
     - roles:
-        - writer
+        - %[6]s
       grantees:
         - user: %[5]s
       withAdminOption: true
-`, project, chName, cloudName, dbName, userName)
+`, project, chName, cloudName, dbName, userName, roleName)
 }
 
 func TestClickhouseGrant(t *testing.T) {
@@ -129,8 +129,9 @@ func TestClickhouseGrant(t *testing.T) {
 	chName := randName("clickhouse")
 	userName := "clickhouse-user"
 	dbName := "clickhouse-db"
+	roleName := randName("writer")
 
-	yml := getClickhouseGrantYaml(cfg.Project, chName, cfg.PrimaryCloudName, dbName, userName)
+	yml := getClickhouseGrantYaml(cfg.Project, chName, cfg.PrimaryCloudName, dbName, userName, roleName)
 	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
@@ -143,9 +144,13 @@ func TestClickhouseGrant(t *testing.T) {
 	// Waits kube objects
 	ch := new(v1alpha1.Clickhouse)
 	db := new(v1alpha1.ClickhouseDatabase)
+	user := new(v1alpha1.ClickhouseUser)
+	role := new(v1alpha1.ClickhouseRole)
 
 	require.NoError(t, s.GetRunning(ch, chName))
 	require.NoError(t, s.GetRunning(db, dbName))
+	require.NoError(t, s.GetRunning(user, userName))
+	require.NoError(t, s.GetRunning(role, roleName))
 
 	// Constructs connection to ClickHouse from service secret
 	secret, err := s.GetSecret(ch.GetName())
@@ -163,6 +168,49 @@ func TestClickhouseGrant(t *testing.T) {
 
 	filteredResults := filterPrivilegeGrantResults(results)
 	assert.Len(t, filteredResults, 4)
+
+	expectedPrivilegeGrants := []ClickhouseGrant{
+		{
+			UserName:        ptr(userName),
+			RoleName:        nil,
+			AccessType:      "SELECT",
+			Database:        ptr(dbName),
+			Table:           ptr("example-table"),
+			Column:          ptr("col1"),
+			IsPartialRevoke: false,
+			GrantOption:     true,
+		},
+		{
+			UserName:        ptr(userName),
+			RoleName:        nil,
+			AccessType:      "INSERT",
+			Database:        ptr(dbName),
+			Table:           ptr("example-table"),
+			Column:          ptr("col1"),
+			IsPartialRevoke: false,
+			GrantOption:     true,
+		},
+		{
+			UserName:        nil,
+			RoleName:        ptr(roleName),
+			AccessType:      "SELECT",
+			Database:        ptr(dbName),
+			Table:           ptr("example-table"),
+			Column:          ptr("col1"),
+			IsPartialRevoke: false,
+			GrantOption:     true,
+		},
+		{
+			UserName:        nil,
+			RoleName:        ptr(roleName),
+			AccessType:      "INSERT",
+			Database:        ptr(dbName),
+			Table:           ptr("example-table"),
+			Column:          ptr("col1"),
+			IsPartialRevoke: false,
+			GrantOption:     true,
+		},
+	}
 	assert.ElementsMatch(t, filteredResults, expectedPrivilegeGrants)
 
 	// Query and collect ClickhouseRoleGrant results
@@ -175,6 +223,16 @@ func TestClickhouseGrant(t *testing.T) {
 	}
 
 	assert.Len(t, roleGrantResults, 1)
+	expectedRoleGrants := []ClickhouseRoleGrant{
+		{
+			UserName:             ptr(userName),
+			RoleName:             nil,
+			GrantedRoleName:      ptr(roleName),
+			GrantedRoleID:        nil,
+			GrantedRoleIsDefault: true,
+			WithAdminOption:      true,
+		},
+	}
 	assert.ElementsMatch(t, roleGrantResults, expectedRoleGrants)
 }
 
@@ -222,65 +280,6 @@ type ClickhouseGrant struct {
 	GrantOption     bool    `ch:"grant_option"`
 }
 
-/**
- * Expected privilege grants are constructed from this part of the manifest:
- *
- * privilegeGrants:
- *   - grantees:
- *       - user: %[5]s
- *       - role: writer
- *     privileges:
- *       - SELECT
- *       - INSERT
- *     database: %[4]s
- *     table: example-table
- *     columns:
- *       - col1
- *     withGrantOption: true
- */
-var expectedPrivilegeGrants = []ClickhouseGrant{
-	{
-		UserName:        ptr("clickhouse-user"),
-		RoleName:        nil,
-		AccessType:      "SELECT",
-		Database:        ptr("clickhouse-db"),
-		Table:           ptr("example-table"),
-		Column:          ptr("col1"),
-		IsPartialRevoke: false,
-		GrantOption:     true,
-	},
-	{
-		UserName:        ptr("clickhouse-user"),
-		RoleName:        nil,
-		AccessType:      "INSERT",
-		Database:        ptr("clickhouse-db"),
-		Table:           ptr("example-table"),
-		Column:          ptr("col1"),
-		IsPartialRevoke: false,
-		GrantOption:     true,
-	},
-	{
-		UserName:        nil,
-		RoleName:        ptr("writer"),
-		AccessType:      "SELECT",
-		Database:        ptr("clickhouse-db"),
-		Table:           ptr("example-table"),
-		Column:          ptr("col1"),
-		IsPartialRevoke: false,
-		GrantOption:     true,
-	},
-	{
-		UserName:        nil,
-		RoleName:        ptr("writer"),
-		AccessType:      "INSERT",
-		Database:        ptr("clickhouse-db"),
-		Table:           ptr("example-table"),
-		Column:          ptr("col1"),
-		IsPartialRevoke: false,
-		GrantOption:     true,
-	},
-}
-
 type ClickhouseRoleGrant struct {
 	UserName             *string `ch:"user_name"`
 	RoleName             *string `ch:"role_name"`
@@ -288,27 +287,6 @@ type ClickhouseRoleGrant struct {
 	GrantedRoleID        *string `ch:"granted_role_id"`
 	GrantedRoleIsDefault bool    `ch:"granted_role_is_default"`
 	WithAdminOption      bool    `ch:"with_admin_option"`
-}
-
-/**
- * Expected role grants are constructed from this part of the manifest:
- *
- * roleGrants:
- *   - roles:
- *       - writer
- *     grantees:
- *       - user: %[5]s
- *     withAdminOption: true
- */
-var expectedRoleGrants = []ClickhouseRoleGrant{
-	{
-		UserName:             ptr("clickhouse-user"),
-		RoleName:             nil,
-		GrantedRoleName:      ptr("writer"),
-		GrantedRoleID:        nil, // Not actually nil, changes between test runs. We override this in the test.
-		GrantedRoleIsDefault: true,
-		WithAdminOption:      true,
-	},
 }
 
 func clickhouseGrantExampleExtra(project, serviceName, db, user, role, grant string) string {
@@ -328,7 +306,7 @@ spec:
 apiVersion: aiven.io/v1alpha1
 kind: ClickhouseRole
 metadata:
-  name: writer
+  name: %[5]s
 spec:
   authSecretRef:
     name: aiven-token

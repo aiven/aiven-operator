@@ -80,7 +80,12 @@ func acquire[T client.Object](_ context.Context, s *sharedResourcesImpl, key str
 	v, ok := s.resources.Load(key)
 	if ok {
 		log.Printf("Using shared resource from cache %q", key)
-		return v.(T), m.Unlock, nil
+		releaseFunc := func() {
+			log.Printf("SHARED RESOURCE RELEASE: Releasing cached shared resource %q (name: %s)", key, v.(T).GetName())
+			m.Unlock()
+			log.Printf("SHARED RESOURCE RELEASE: Released cached shared resource %q", key)
+		}
+		return v.(T), releaseFunc, nil
 	}
 
 	// Generate a random name for the resource if not set.
@@ -102,7 +107,12 @@ func acquire[T client.Object](_ context.Context, s *sharedResourcesImpl, key str
 
 	s.resources.Store(key, obj)
 	log.Printf("Shared resource %q created", key)
-	return obj, m.Unlock, nil
+	releaseFunc := func() {
+		log.Printf("SHARED RESOURCE RELEASE: Releasing shared resource %q (name: %s)", key, obj.GetName())
+		m.Unlock()
+		log.Printf("SHARED RESOURCE RELEASE: Released shared resource %q", key)
+	}
+	return obj, releaseFunc, nil
 }
 
 func (s *sharedResourcesImpl) Destroy() error {
