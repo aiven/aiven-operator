@@ -217,7 +217,7 @@ func TestServiceUserPg(t *testing.T) {
 	assert.Equal(t, pgAvn.CloudName, pg.Spec.CloudName)
 
 	// Validates ServiceUser
-	userAvn, err := avnGen.ServiceUserGet(ctx, cfg.Project, pgName, userName)
+	userAvn, err := getServiceUserWithRetry(ctx, avnGen, cfg.Project, pgName, userName)
 	require.NoError(t, err)
 	assert.Equal(t, userName, user.GetName())
 	assert.Equal(t, userName, userAvn.Username)
