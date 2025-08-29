@@ -10,3 +10,6 @@ crash.log
 *.terraform.lock.hcl
 # Taskfile temporary files
 .task/
+
+test-resources/overlays/*
+!test-resources/overlays/templates/

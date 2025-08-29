@@ -1,0 +1,34 @@
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: test-postgresql
+  namespace: default
+  labels:
+    developer: DEVELOPER-NAME
+    environment: test
+    managed-by: aiven-operator-dev
+spec:
+  project: YOUR-AIVEN-PROJECT-NAME
+  cloudName: google-europe-west1
+  plan: startup-4
+
+  connInfoSecretTarget:
+    name: test-postgresql-connection
+
+  userConfig:
+    pg_version: "16"
+    public_access:
+      pg: true
+
+  maintenanceWindowDow: sunday
+  maintenanceWindowTime: "10:00:00"
+---
+apiVersion: aiven.io/v1alpha1
+kind: Database
+metadata:
+  name: test-app-db
+  namespace: default
+spec:
+  project: YOUR-AIVEN-PROJECT-NAME
+  serviceName: test-postgresql
+  databaseName: app_database

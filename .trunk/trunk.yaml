@@ -36,6 +36,7 @@ lint:
       paths:
         - .trunk/**
         - docs/docs/**
+        - gke/**
     - linters: [gitleaks]
       paths:
         - docs/docs/resources/examples/alloydbomni.yaml

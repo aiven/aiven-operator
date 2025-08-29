@@ -1,0 +1,47 @@
+apiVersion: aiven.io/v1alpha1
+kind: Kafka
+metadata:
+  name: test-kafka
+  namespace: default
+spec:
+  project: YOUR-AIVEN-PROJECT-NAME
+  cloudName: google-europe-west1
+  plan: startup-2
+
+  connInfoSecretTarget:
+    name: test-kafka-connection
+
+  userConfig:
+    kafka_version: "3.8"
+    public_access:
+      kafka: true
+      kafka_rest: true
+
+    kafka_authentication_methods:
+      sasl: true
+
+    kafka:
+      group_max_session_timeout_ms: 70000
+      log_retention_hours: 24
+
+    kafka_rest: true
+
+  maintenanceWindowDow: sunday
+  maintenanceWindowTime: "11:00:00"
+---
+apiVersion: aiven.io/v1alpha1
+kind: KafkaTopic
+metadata:
+  name: test-events-topic
+  namespace: default
+spec:
+  project: YOUR-AIVEN-PROJECT-NAME
+  serviceName: test-kafka
+  topicName: events
+  partitions: 3
+  replication: 2
+
+  config:
+    cleanup_policy: delete
+    retention_ms: 604800000 # 7 days
+    compression_type: producer
