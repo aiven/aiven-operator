@@ -1603,7 +1603,7 @@ spec:
                           type: integer
                       type: object
                     opensearch_version:
-                      description: OpenSearch major version
+                      description: OpenSearch version
                       enum:
                         - "1"
                         - "2"
