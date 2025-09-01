@@ -275,7 +275,7 @@ type MysqlUserConfig struct {
 	BackupMinute *int `groups:"create,update" json:"backup_minute,omitempty"`
 
 	// +kubebuilder:validation:Minimum=600
-	// +kubebuilder:validation:Maximum=86400
+	// +kubebuilder:validation:Maximum=604800
 	// The minimum amount of time in seconds to keep binlog entries before deletion. This may be extended for services that require binlog entries for longer than the default for example if using the MySQL Debezium Kafka connector.
 	BinlogRetentionPeriod *int `groups:"create,update" json:"binlog_retention_period,omitempty"`
 

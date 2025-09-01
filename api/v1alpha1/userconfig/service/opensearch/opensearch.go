@@ -1050,7 +1050,7 @@ type OpensearchUserConfig struct {
 	OpensearchDashboards *OpensearchDashboards `groups:"create,update" json:"opensearch_dashboards,omitempty"`
 
 	// +kubebuilder:validation:Enum="1";"2"
-	// OpenSearch major version
+	// OpenSearch version
 	OpensearchVersion *string `groups:"create,update" json:"opensearch_version,omitempty"`
 
 	// Allow access to selected service ports from private networks
