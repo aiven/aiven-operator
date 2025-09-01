@@ -4,8 +4,8 @@ go 1.24.0
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.40.1
-	github.com/aiven/go-api-schemas v1.140.0
-	github.com/aiven/go-client-codegen v0.117.0
+	github.com/aiven/go-api-schemas v1.142.0
+	github.com/aiven/go-client-codegen v0.118.0
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/dave/jennifer v1.7.1
 	github.com/docker/go-units v0.5.0
@@ -18,7 +18,7 @@ require (
 	github.com/liip/sheriff v0.12.0
 	github.com/otiai10/copy v1.14.1
 	github.com/stoewer/go-strcase v1.3.1
-	github.com/stretchr/testify v1.11.0
+	github.com/stretchr/testify v1.11.1
 	github.com/xeipuuv/gojsonschema v1.2.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c
