@@ -33,6 +33,7 @@ func newAlloyDBOmniReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=alloydbomnis/finalizers,verbs=get;create;update
 
 func (r *AlloyDBOmniReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	r.Log.Info("END OF LIFE NOTICE: AlloyDB Omni is deprecated. Service creation ends 5 September 2025, deletion 5 December 2025. Migrate to PostgreSQL, ClickHouse, or MySQL.", "name", req.Name, "namespace", req.Namespace)
 	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newAlloyDBOmniAdapter, r.Log), &v1alpha1.AlloyDBOmni{})
 }
 
