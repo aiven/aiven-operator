@@ -158,6 +158,9 @@ func (h *ServiceUserHandler) get(ctx context.Context, avnGen avngen.Client, obj 
 		// Outer controller must be able to detect error types like "server error".
 		retry.LastErrorOnly(true),
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	s, err := avnGen.ServiceGet(ctx, user.Spec.Project, user.Spec.ServiceName)
 	if err != nil {
