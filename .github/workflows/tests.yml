@@ -53,6 +53,7 @@ jobs:
           go-version-file: go.mod
       - run: make test-tag tag=${{ matrix.name }}
         env:
+          AIVEN_DEBUG: ${{ secrets.AIVEN_DEBUG }}
           AIVEN_TOKEN: ${{ secrets.AIVEN_TOKEN }}
           AIVEN_ACCOUNT_ID: ${{ secrets.AIVEN_ACCOUNT_ID }}
           AIVEN_PROJECT_NAME: >-
