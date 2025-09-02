@@ -5,7 +5,7 @@ go 1.24.0
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.40.1
 	github.com/aiven/go-api-schemas v1.142.0
-	github.com/aiven/go-client-codegen v0.118.0
+	github.com/aiven/go-client-codegen v0.121.0
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/dave/jennifer v1.7.1
 	github.com/docker/go-units v0.5.0
