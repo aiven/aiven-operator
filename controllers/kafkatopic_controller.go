@@ -91,12 +91,8 @@ func (h KafkaTopicHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cli
 		}
 	}
 
-	switch {
-	case isServerError(err):
-		// Service is not ready yet, retry later.
-		return nil
-	case err != nil:
-		return err
+	if err != nil {
+		return fmt.Errorf("failed to create Kafka Topic: %w", err)
 	}
 
 	return nil
