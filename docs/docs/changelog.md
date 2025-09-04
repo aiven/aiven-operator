@@ -1,8 +1,31 @@
 # Changelog
 
 
+## v0.32.0 - 2025-09-04
+
+- **BREAKING CHANGE**: Removed unprefixed keys from ServiceUser secrets to resolve environment variable collisions. Previously ServiceUser secrets contained both prefixed keys (e.g., `SERVICEUSER_HOST`, `SERVICEUSER_PASSWORD`) and unprefixed keys (e.g., `HOST`, `PASSWORD`). The unprefixed keys have been removed.
+- **Important:** Status conditions `Create`, `Update` and `CreateOrUpdate` (all cases) have been consolidated into `CreatedOrUpdated` due to limitations in reliably determining operation type
+- Added secret watcher controller to automatically update resources when their `connInfoSecretSource` secrets change
+- Fix `ServiceUser`: retry API calls when password is not received in response
+- Add `AlloyDBOmni` field `userConfig.pg.max_sync_workers_per_subscription`, type `integer`: Maximum
+  number of synchronization workers per subscription. The default is `2`
+- Change `AlloyDBOmni` field `userConfig.pg.max_logical_replication_workers`: maximum ~~`64`~~ → `256`
+- Change `AlloyDBOmni` field `userConfig.pg.max_replication_slots`: maximum ~~`64`~~ → `256`
+- Change `AlloyDBOmni` field `userConfig.pg.max_worker_processes`: maximum ~~`96`~~ → `288`
+- Add `MySQL` field `userConfig.mysql_incremental_backup`, type `object`: MySQL incremental backup configuration
+- Add `PostgreSQL` field `userConfig.pg.max_connections`, type `integer`: Sets the PostgreSQL maximum
+  number of concurrent connections to the database server
+- Add `PostgreSQL` field `userConfig.pg.max_sync_workers_per_subscription`, type `integer`: Maximum number
+  of synchronization workers per subscription. The default is `2`
+- Change `PostgreSQL` field `userConfig.pg.max_logical_replication_workers`: maximum ~~`64`~~ → `256`
+- Change `PostgreSQL` field `userConfig.pg.max_replication_slots`: maximum ~~`64`~~ → `256`
+- Change `PostgreSQL` field `userConfig.pg.max_worker_processes`: maximum ~~`96`~~ → `288`
+- Change `ServiceIntegrationEndpoint` field `prometheus.basic_auth_password`: maxLength ~~`64`~~ → `256`
+- Change `MySQL` field `userConfig.binlog_retention_period`: maximum ~~`86400`~~ → `604800`
+
 ## v0.31.0 - 2025-07-25
 
+- `KafkaTopic`: added concurrent reconcilers and optimized API calls
 - Upgraded HPA from deprecated `autoscaling/v2beta1` to stable `autoscaling/v2` API
 - Added `ServiceUser` field `connInfoSecretSource`: Allows reading passwords from existing secrets for credential management. Supports setting passwords for new users and existing users
 - Change `AlloyDBOmni` field `userConfig.pg.max_wal_senders`: maximum ~~`64`~~ → `256`
