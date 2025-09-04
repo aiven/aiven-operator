@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -42,7 +43,6 @@ func SetupControllers(mgr ctrl.Manager, defaultToken, kubeVersion, operatorVersi
 		"Database":                         newDatabaseReconciler,
 		"Flink":                            newFlinkReconciler,
 		"Grafana":                          newGrafanaReconciler,
-		"Kafka":                            newKafkaReconciler,
 		"KafkaACL":                         newKafkaACLReconciler,
 		"KafkaNativeACL":                   newKafkaNativeACLReconciler,
 		"KafkaConnect":                     newKafkaConnectReconciler,
@@ -62,10 +62,30 @@ func SetupControllers(mgr ctrl.Manager, defaultToken, kubeVersion, operatorVersi
 		"Valkey":                           newValkeyReconciler,
 	}
 
+	useNewKafkaController := false
+	if val := os.Getenv("KAFKA_CONTROLLER_ENABLED"); val != "true" {
+		useNewKafkaController = true
+	}
+
+	if !useNewKafkaController {
+		builders["Kafka"] = newKafkaReconciler
+	}
+
 	for k, v := range builders {
 		err := v(newController(mgr, k, defaultToken, kubeVersion, operatorVersion)).SetupWithManager(mgr)
 		if err != nil {
 			return fmt.Errorf("controller %s setup error: %w", k, err)
+		}
+	}
+
+	if useNewKafkaController {
+		kafkaControllerV2, err := NewKafkaControllerV2(mgr, defaultToken, kubeVersion, operatorVersion)
+		if err != nil {
+			return fmt.Errorf("kafka controller v2 creation error: %w", err)
+		}
+
+		if err = kafkaControllerV2.SetupWithManager(mgr); err != nil {
+			return fmt.Errorf("kafka controller v2 setup error: %w", err)
 		}
 	}
 
