@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.32.0 - 2025-09-04
+
 - **BREAKING CHANGE**: Removed unprefixed keys from ServiceUser secrets to resolve environment variable collisions. Previously ServiceUser secrets contained both prefixed keys (e.g., `SERVICEUSER_HOST`, `SERVICEUSER_PASSWORD`) and unprefixed keys (e.g., `HOST`, `PASSWORD`). The unprefixed keys have been removed.
 - **Important:** Status conditions `Create`, `Update` and `CreateOrUpdate` (all cases) have been consolidated into `CreatedOrUpdated` due to limitations in reliably determining operation type
 - Added secret watcher controller to automatically update resources when their `connInfoSecretSource` secrets change
