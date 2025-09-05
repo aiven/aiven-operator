@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- **DEPRECATION**: `AlloyDBOmni` is deprecated and entering its end-of-life cycle. See <https://aiven.io/docs/platform/reference/end-of-life> for details
+
 ## v0.32.0 - 2025-09-04
 
 - **BREAKING CHANGE**: Removed unprefixed keys from ServiceUser secrets to resolve environment variable collisions. Previously ServiceUser secrets contained both prefixed keys (e.g., `SERVICEUSER_HOST`, `SERVICEUSER_PASSWORD`) and unprefixed keys (e.g., `HOST`, `PASSWORD`). The unprefixed keys have been removed.

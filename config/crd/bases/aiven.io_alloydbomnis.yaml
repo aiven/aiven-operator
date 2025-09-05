@@ -27,12 +27,17 @@ spec:
         - jsonPath: .status.state
           name: State
           type: string
+      deprecated: true
+      deprecationWarning:
+        AlloyDBOmni is deprecated and will be removed in a future
+        version
       name: v1alpha1
       schema:
         openAPIV3Schema:
           description: |-
             AlloyDBOmni is the Schema for the alloydbomni API.
             Info "Exposes secret keys": `ALLOYDBOMNI_HOST`, `ALLOYDBOMNI_PORT`, `ALLOYDBOMNI_DATABASE`, `ALLOYDBOMNI_USER`, `ALLOYDBOMNI_PASSWORD`, `ALLOYDBOMNI_SSLMODE`, `ALLOYDBOMNI_DATABASE_URI`
+            Deprecated: End of life notice - Aiven for AlloyDB Omni is entering its end-of-life cycle. See https://aiven.io/docs/platform/reference/end-of-life for details. From 5 September 2025, you can no longer create new Aiven for AlloyDB Omni services. Existing services continue to operate until the end of life (EOL) date but you cannot change plans for these services. On 5 December 2025, all active Aiven for AlloyDB Omni services are powered off and deleted, making data from these services inaccessible. The recommended alternatives are Aiven for PostgreSQL®, Aiven for ClickHouse®, and Aiven for MySQL®. To ensure uninterrupted service, complete your migration before December 5, 2025. For further assistance, contact the Aiven support team at support@aiven.io or your account team.
           properties:
             apiVersion:
               description: |-
