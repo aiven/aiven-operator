@@ -12,7 +12,7 @@ plugins:
 lint:
   enabled:
     - markdown-link-check@3.13.7
-    - hadolint@2.12.1-beta
+    - hadolint@2.13.1
     - codespell@2.4.1
     - actionlint@1.7.7
     - git-diff-check
