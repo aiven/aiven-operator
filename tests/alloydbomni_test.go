@@ -15,6 +15,8 @@ import (
 )
 
 func TestAlloyDBOmni(t *testing.T) {
+	t.Skip("AlloyDBOmni is deprecated")
+
 	t.Parallel()
 	defer recoverPanic(t)
 
