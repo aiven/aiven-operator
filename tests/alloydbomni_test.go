@@ -109,6 +109,8 @@ func TestAlloyDBOmni(t *testing.T) {
 }
 
 func TestAlloyDBOmniServiceAccountCredentials(t *testing.T) {
+	t.Skip("AlloyDBOmni is deprecated")
+
 	defer recoverPanic(t)
 
 	// GIVEN
