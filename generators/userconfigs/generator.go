@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -16,6 +17,8 @@ import (
 	"golang.org/x/exp/slices"
 	"golang.org/x/tools/imports"
 )
+
+var errUnknownType = errors.New("unknown type")
 
 // generate writes to file a service user config for a given serviceList
 func generate(dstDir string, serviceTypes []byte, serviceList []string) error {
@@ -241,6 +244,10 @@ func addObject(file *jen.File, obj *object) error {
 func addField(file *jen.File, s *jen.Statement, obj *object) (*jen.Statement, error) {
 	s, err := addFieldType(file, s, obj)
 	if err != nil {
+		if errors.Is(err, errUnknownType) {
+			log.Printf("skipping field %q with unknown type %q", obj.jsonName, obj.Type)
+			return nil, nil
+		}
 		return nil, err
 	}
 
@@ -275,7 +282,7 @@ func addFieldType(file *jen.File, s *jen.Statement, obj *object) (*jen.Statement
 	case objectTypeNumber:
 		s = s.Float64()
 	default:
-		return nil, fmt.Errorf("unknown type %q", obj.Type)
+		return nil, errUnknownType
 	}
 	return s, nil
 }

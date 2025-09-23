@@ -280,7 +280,7 @@ spec:
                         - message: Value is immutable
                           rule: self == oldSelf
                     alloydbomni_version:
-                      description: PostgreSQL major version
+                      description: "PostgreSQL major version. Deprecated values: `15`"
                       enum:
                         - "15"
                       type: string

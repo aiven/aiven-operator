@@ -3,6 +3,15 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - **DEPRECATION**: `AlloyDBOmni` is deprecated and entering its end-of-life cycle. See <https://aiven.io/docs/platform/reference/end-of-life> for details
+- Add `Kafka` field `userConfig.kafka.log_message_timestamp_after_max_ms`, type `integer`: The maximum
+  difference allowed between the timestamp when a broker receives a message and the timestamp specified
+  in the message
+- Add `Kafka` field `userConfig.kafka.log_message_timestamp_before_max_ms`, type `integer`: The maximum
+  difference allowed between the timestamp when a broker receives a message and the timestamp specified
+  in the message
+- Add `OpenSearch` field `userConfig.custom_keystores`, type `array`: Allow to register custom keystores
+  in OpenSearch
+- Change `OpenSearch` field `userConfig.opensearch_version`: enum add `2.19`
 
 ## v0.32.0 - 2025-09-04
 

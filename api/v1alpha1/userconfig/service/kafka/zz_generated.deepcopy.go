@@ -169,6 +169,16 @@ func (in *Kafka) DeepCopyInto(out *Kafka) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.LogMessageTimestampAfterMaxMs != nil {
+		in, out := &in.LogMessageTimestampAfterMaxMs, &out.LogMessageTimestampAfterMaxMs
+		*out = new(int)
+		**out = **in
+	}
+	if in.LogMessageTimestampBeforeMaxMs != nil {
+		in, out := &in.LogMessageTimestampBeforeMaxMs, &out.LogMessageTimestampBeforeMaxMs
+		*out = new(int)
+		**out = **in
+	}
 	if in.LogMessageTimestampDifferenceMaxMs != nil {
 		in, out := &in.LogMessageTimestampDifferenceMaxMs, &out.LogMessageTimestampDifferenceMaxMs
 		*out = new(int)

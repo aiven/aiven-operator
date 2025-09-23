@@ -410,7 +410,7 @@ type AlloydbomniUserConfig struct {
 	AdminUsername *string `groups:"create" json:"admin_username,omitempty"`
 
 	// +kubebuilder:validation:Enum="15"
-	// PostgreSQL major version
+	// PostgreSQL major version. Deprecated values: `15`
 	AlloydbomniVersion *string `groups:"create,update" json:"alloydbomni_version,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0

@@ -53,6 +53,13 @@ type AzureMigration struct {
 	// The snapshot name to restore from
 	SnapshotName string `groups:"create,update" json:"snapshot_name"`
 }
+type CustomKeystores struct {
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	Name string `groups:"create,update" json:"name"`
+
+	// +kubebuilder:validation:Enum="azure";"gcs";"s3"
+	Type string `groups:"create,update" json:"type"`
+}
 
 // Google Cloud Storage migration settings
 type GcsMigration struct {
@@ -1013,6 +1020,10 @@ type OpensearchUserConfig struct {
 	// Serve the web frontend using a custom CNAME pointing to the Aiven DNS name
 	CustomDomain *string `groups:"create,update" json:"custom_domain,omitempty"`
 
+	// +kubebuilder:validation:MaxItems=10
+	// Allow to register custom keystores in OpenSearch
+	CustomKeystores []*CustomKeystores `groups:"create,update" json:"custom_keystores,omitempty"`
+
 	// Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can not be activated unless specifically allowed for the project.
 	DisableReplicationFactorAdjustment *bool `groups:"create,update" json:"disable_replication_factor_adjustment,omitempty"`
 
@@ -1049,7 +1060,7 @@ type OpensearchUserConfig struct {
 	// OpenSearch Dashboards settings
 	OpensearchDashboards *OpensearchDashboards `groups:"create,update" json:"opensearch_dashboards,omitempty"`
 
-	// +kubebuilder:validation:Enum="1";"2"
+	// +kubebuilder:validation:Enum="1";"2";"2.19"
 	// OpenSearch version
 	OpensearchVersion *string `groups:"create,update" json:"opensearch_version,omitempty"`
 
