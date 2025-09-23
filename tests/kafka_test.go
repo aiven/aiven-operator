@@ -5,10 +5,13 @@ package tests
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	kafkauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/kafka"
@@ -168,4 +171,321 @@ func TestKafka(t *testing.T) {
 	poweredOffAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Equal(t, service.ServiceStateTypePoweroff, poweredOffAvn.State)
+}
+
+// TestKafkaControllerProvisioningAndUpdates tests the complete flow
+func TestKafkaControllerProvisioningAndUpdates(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	name := randName("kafka-provisioning-flow")
+	yml := getKafkaYaml(cfg.Project, name, cfg.PrimaryCloudName)
+	s := NewSession(ctx, k8sClient)
+	defer s.Destroy(t)
+
+	require.NoError(t, s.Apply(yml))
+
+	ks := new(v1alpha1.Kafka)
+
+	// Step 1: wait for Kafka object to exist and be processed
+	require.Eventually(t, func() bool {
+		if err := k8sClient.Get(ctx, client.ObjectKey{Name: name, Namespace: defaultNamespace}, ks); err != nil {
+			return false
+		}
+
+		annotations := ks.GetAnnotations()
+		if annotations == nil {
+			return false
+		}
+
+		_, exists := annotations["controllers.aiven.io/generation-was-processed"]
+		return exists
+	}, 30*time.Second, 2*time.Second, "Kafka should be processed by controller")
+
+	initialAnnotations := ks.GetAnnotations()
+	require.NotNil(t, initialAnnotations, "annotations should exist in initialized state")
+
+	initialProcessedGen, exists := initialAnnotations["controllers.aiven.io/generation-was-processed"]
+	require.True(t, exists, "processedGeneration should be set when initialized")
+
+	initialCurrentGen := fmt.Sprintf("%d", ks.GetGeneration())
+	assert.Equal(t, initialCurrentGen, initialProcessedGen, "processedGeneration should match generation when initialized")
+
+	// Step 2: wait for Initialized condition
+	require.Eventually(t, func() bool {
+		if err := k8sClient.Get(ctx, client.ObjectKeyFromObject(ks), ks); err != nil {
+			return false
+		}
+
+		for _, condition := range ks.Status.Conditions {
+			if condition.Type == "Initialized" && condition.Status == metav1.ConditionTrue {
+				return true
+			}
+		}
+		return false
+	}, 30*time.Second, 5*time.Second, "Kafka should become Initialized after createOrUpdate")
+
+	// Step 3: wait for service to be actually running
+	require.NoError(t, s.GetRunning(ks, name), "Kafka should eventually become running")
+
+	// Step 4: validate all metadata
+	runningAnnotations := ks.GetAnnotations()
+	runningProcessedGen := runningAnnotations["controllers.aiven.io/generation-was-processed"]
+	runningCurrentGen := fmt.Sprintf("%d", ks.GetGeneration())
+	assert.Equal(t, runningCurrentGen, runningProcessedGen, "processedGeneration should remain current in running state")
+
+	runningAnnotationValue := runningAnnotations["controllers.aiven.io/instance-is-running"]
+	assert.Equal(t, "true", runningAnnotationValue, "instanceIsRunning should be 'true' for running service")
+
+	var runningCondition *metav1.Condition
+	for i := range ks.Status.Conditions {
+		if ks.Status.Conditions[i].Type == "Running" {
+			runningCondition = &ks.Status.Conditions[i]
+			break
+		}
+	}
+	require.NotNil(t, runningCondition, "Running condition should exist")
+	assert.Equal(t, metav1.ConditionTrue, runningCondition.Status, "Running condition should be True")
+
+	// update tags
+	updated1 := ks.DeepCopy()
+	if updated1.Spec.Tags == nil {
+		updated1.Spec.Tags = make(map[string]string)
+	}
+	updated1.Spec.Tags["continuous-test"] = "change-1"
+	require.NoError(t, k8sClient.Update(ctx, updated1))
+
+	require.Eventually(t, func() bool {
+		if err := k8sClient.Get(ctx, client.ObjectKeyFromObject(ks), ks); err != nil {
+			return false
+		}
+		return ks.Spec.Tags != nil && ks.Spec.Tags["continuous-test"] == "change-1"
+	}, 30*time.Second, 2*time.Second, "first tag change should be processed")
+
+	require.Eventually(t, func() bool {
+		if err := k8sClient.Get(ctx, client.ObjectKeyFromObject(ks), ks); err != nil {
+			return false
+		}
+
+		annotations := ks.GetAnnotations()
+		if annotations == nil {
+			return false
+		}
+
+		processedGen, exists := annotations["controllers.aiven.io/generation-was-processed"]
+		if !exists {
+			return false
+		}
+
+		currentGen := fmt.Sprintf("%d", ks.GetGeneration())
+		return processedGen == currentGen
+	}, 30*time.Second, 2*time.Second, "first change should be processed and generation updated")
+
+	change1Annotations := ks.GetAnnotations()
+	change1ProcessedGen := change1Annotations["controllers.aiven.io/generation-was-processed"]
+	change1CurrentGen := fmt.Sprintf("%d", ks.GetGeneration())
+	assert.Equal(t, change1CurrentGen, change1ProcessedGen, "processedGeneration should match after first change")
+
+	assert.NotNil(t, ks.Spec.Tags, "tags should be set")
+	assert.Equal(t, "change-1", ks.Spec.Tags["continuous-test"], "Tag should be applied")
+
+	// update disk space and add second tag
+	updated2 := ks.DeepCopy()
+	updated2.Spec.DiskSpace = "630GiB"
+	if updated2.Spec.Tags == nil {
+		updated2.Spec.Tags = make(map[string]string)
+	}
+	updated2.Spec.Tags["advanced-test"] = "change-2"
+	require.NoError(t, k8sClient.Update(ctx, updated2))
+
+	require.Eventually(t, func() bool {
+		if err := k8sClient.Get(ctx, client.ObjectKeyFromObject(ks), ks); err != nil {
+			return false
+		}
+
+		if ks.Spec.DiskSpace != "630GiB" {
+			return false
+		}
+		if ks.Spec.Tags == nil || ks.Spec.Tags["advanced-test"] != "change-2" {
+			return false
+		}
+
+		annotations := ks.GetAnnotations()
+		if annotations == nil {
+			return false
+		}
+
+		processedGen, exists := annotations["controllers.aiven.io/generation-was-processed"]
+		if !exists {
+			return false
+		}
+
+		currentGen := fmt.Sprintf("%d", ks.GetGeneration())
+		return processedGen == currentGen
+	}, 2*time.Minute, 2*time.Second, "second change should be processed and generation updated")
+
+	change2Annotations := ks.GetAnnotations()
+	change2ProcessedGen := change2Annotations["controllers.aiven.io/generation-was-processed"]
+	change2CurrentGen := fmt.Sprintf("%d", ks.GetGeneration())
+	assert.Equal(t, change2CurrentGen, change2ProcessedGen, "processedGeneration should match after second change")
+
+	assert.Equal(t, "630GiB", ks.Spec.DiskSpace, "disk space should be updated")
+
+	finalRunningAnnotation := change2Annotations["controllers.aiven.io/instance-is-running"]
+	assert.Equal(t, "true", finalRunningAnnotation, "service should remain running through continuous changes")
+
+	require.NoError(t, k8sClient.Get(ctx, client.ObjectKeyFromObject(ks), ks))
+
+	finalCurrentGen := fmt.Sprintf("%d", ks.GetGeneration())
+	finalAnnotations := ks.GetAnnotations()
+	finalProcessedGen, exists := finalAnnotations["controllers.aiven.io/generation-was-processed"]
+	require.True(t, exists, "processedGeneration annotation should exist at end")
+	assert.Equal(t, finalCurrentGen, finalProcessedGen, "processedGeneration should be current at end")
+
+	assert.Equal(t, "change-1", ks.Spec.Tags["continuous-test"], "first tag change should persist")
+	assert.Equal(t, "change-2", ks.Spec.Tags["advanced-test"], "second tag change should persist")
+
+	finalRunningValue := finalAnnotations["controllers.aiven.io/instance-is-running"]
+	assert.Equal(t, "true", finalRunningValue, "service should be running at test end")
+
+	finalConditions := ks.Status.Conditions
+	hasInitialized := false
+	hasRunning := false
+	hasError := false
+
+	for _, condition := range finalConditions {
+		switch condition.Type {
+		case "Initialized":
+			hasInitialized = true
+			assert.Equal(t, metav1.ConditionTrue, condition.Status, "initialized condition should remain True")
+		case "Running":
+			hasRunning = true
+			assert.Equal(t, metav1.ConditionTrue, condition.Status, "running condition should be True (powered-off is valid)")
+		case "Error":
+			hasError = true
+			t.Logf("unexpected Error condition: %s - %s", condition.Reason, condition.Message)
+		}
+	}
+
+	assert.True(t, hasInitialized, "should have Initialized condition")
+	assert.True(t, hasRunning, "should have Running condition")
+	assert.False(t, hasError, "should not have Error conditions in final state")
+}
+
+// TestKafkaController_SecretManagement tests secret creation, updates, and management
+func TestKafkaController_SecretManagement(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	t.Run("SecretRecreation", func(t *testing.T) {
+		t.Parallel()
+
+		ctx, cancel := testCtx()
+		defer cancel()
+
+		name := randName("kafka-secret-recreation")
+		yml := getKafkaYaml(cfg.Project, name, cfg.PrimaryCloudName)
+		s := NewSession(ctx, k8sClient)
+		defer s.Destroy(t)
+
+		require.NoError(t, s.Apply(yml))
+
+		ks := new(v1alpha1.Kafka)
+		require.NoError(t, s.GetRunning(ks, name))
+
+		secret, err := s.GetSecret(ks.GetName())
+		require.NoError(t, err, "connection secret should exist")
+
+		requiredFields := []string{
+			"KAFKA_HOST", "KAFKA_PORT", "KAFKA_USERNAME", "KAFKA_PASSWORD",
+			"KAFKA_ACCESS_CERT", "KAFKA_ACCESS_KEY", "KAFKA_CA_CERT",
+		}
+
+		for _, field := range requiredFields {
+			assert.NotEmpty(t, secret.Data[field], "secret should have %s field", field)
+		}
+
+		originalHost := string(secret.Data["KAFKA_HOST"])
+		require.NotEmpty(t, originalHost, "original host should not be empty")
+
+		require.NoError(t, k8sClient.Delete(ctx, secret))
+
+		require.Eventually(t, func() bool {
+			_, err := s.GetSecret(ks.GetName())
+			return err != nil // should return error when secret doesn't exist
+		}, 10*time.Second, 1*time.Second, "secret should be deleted")
+
+		// trigger reconciliation with a spec change
+		require.NoError(t, k8sClient.Get(ctx, client.ObjectKeyFromObject(ks), ks))
+		updated := ks.DeepCopy()
+		if updated.Spec.Tags == nil {
+			updated.Spec.Tags = make(map[string]string)
+		}
+		updated.Spec.Tags["secret-test"] = fmt.Sprintf("trigger-%d", time.Now().Unix())
+		require.NoError(t, k8sClient.Update(ctx, updated))
+
+		// wait for secret to be recreated by controller
+		require.Eventually(t, func() bool {
+			recreatedSecret, err := s.GetSecret(ks.GetName())
+			if err != nil {
+				return false
+			}
+
+			for _, field := range requiredFields {
+				if len(recreatedSecret.Data[field]) == 0 {
+					return false
+				}
+			}
+
+			newHost := string(recreatedSecret.Data["KAFKA_HOST"])
+			return newHost != "" && newHost == originalHost
+		}, 2*time.Minute, 5*time.Second, "secret should be recreated with all required fields")
+
+		finalSecret, err := s.GetSecret(ks.GetName())
+		require.NoError(t, err, "final secret should exist")
+		finalHost := string(finalSecret.Data["KAFKA_HOST"])
+		assert.Equal(t, originalHost, finalHost, "recreated secret should have same host")
+	})
+
+	t.Run("SecretDisabled", func(t *testing.T) {
+		t.Parallel()
+
+		ctx, cancel := testCtx()
+		defer cancel()
+
+		noSecretName := randName("kafka-no-secret")
+
+		noSecretYml := fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: Kafka
+metadata:
+  name: %s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+  project: %s
+  cloudName: %s
+  plan: startup-2
+  connInfoSecretTargetDisabled: true
+  userConfig:
+    kafka_rest: true
+`, noSecretName, cfg.Project, cfg.PrimaryCloudName)
+
+		s := NewSession(ctx, k8sClient)
+		defer s.Destroy(t)
+
+		require.NoError(t, s.Apply(noSecretYml))
+
+		noSecretKs := new(v1alpha1.Kafka)
+		require.NoError(t, s.GetRunning(noSecretKs, noSecretName))
+
+		_, err := s.GetSecret(noSecretName)
+		assert.Error(t, err, "no secret should be created when connInfoSecretTargetDisabled is true")
+
+		assert.Equal(t, serviceRunningState, noSecretKs.Status.State)
+	})
 }
