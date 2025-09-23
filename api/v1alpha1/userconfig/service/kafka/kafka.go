@@ -106,6 +106,14 @@ type Kafka struct {
 	LogMessageDownconversionEnable *bool `groups:"create,update" json:"log_message_downconversion_enable,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
+	// The maximum difference allowed between the timestamp when a broker receives a message and the timestamp specified in the message. If message.timestamp.type=CreateTime, a message will be rejected if the difference in timestamp exceeds this threshold. Applies only for messages with timestamps later than the broker's timestamp. (Default: 9223372036854775807 (Long.MAX_VALUE))
+	LogMessageTimestampAfterMaxMs *int `groups:"create,update" json:"log_message_timestamp_after_max_ms,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// The maximum difference allowed between the timestamp when a broker receives a message and the timestamp specified in the message. If message.timestamp.type=CreateTime, a message will be rejected if the difference in timestamp exceeds this threshold. Applies only for messages with timestamps earlier than the broker's timestamp. (Default: 9223372036854775807 (Long.MAX_VALUE))
+	LogMessageTimestampBeforeMaxMs *int `groups:"create,update" json:"log_message_timestamp_before_max_ms,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
 	// The maximum difference allowed between the timestamp when a broker receives a message and the timestamp specified in the message (Default: 9223372036854775807 (Long.MAX_VALUE))
 	LogMessageTimestampDifferenceMaxMs *int `groups:"create,update" json:"log_message_timestamp_difference_max_ms,omitempty"`
 

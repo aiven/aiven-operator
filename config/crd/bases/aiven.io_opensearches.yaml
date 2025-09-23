@@ -328,6 +328,25 @@ spec:
                         to the Aiven DNS name
                       maxLength: 255
                       type: string
+                    custom_keystores:
+                      description: Allow to register custom keystores in OpenSearch
+                      items:
+                        properties:
+                          name:
+                            pattern: ^[^\r\n]*$
+                            type: string
+                          type:
+                            enum:
+                              - azure
+                              - gcs
+                              - s3
+                            type: string
+                        required:
+                          - name
+                          - type
+                        type: object
+                      maxItems: 10
+                      type: array
                     disable_replication_factor_adjustment:
                       description:
                         "Disable automatic replication factor adjustment
@@ -1607,6 +1626,7 @@ spec:
                       enum:
                         - "1"
                         - "2"
+                        - "2.19"
                       type: string
                     private_access:
                       description:

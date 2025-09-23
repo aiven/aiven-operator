@@ -37,10 +37,10 @@ github.com/ClickHouse/ch-go v0.68.0 h1:zd2VD8l2aVYnXFRyhTyKCrxvhSz1AaY4wBUXu/f0G
 github.com/ClickHouse/ch-go v0.68.0/go.mod h1:C89Fsm7oyck9hr6rRo5gqqiVtaIY6AjdD0WFMyNRQ5s=
 github.com/ClickHouse/clickhouse-go/v2 v2.40.3 h1:46jB4kKwVDUOnECpStKMVXxvR0Cg9zeV9vdbPjtn6po=
 github.com/ClickHouse/clickhouse-go/v2 v2.40.3/go.mod h1:qO0HwvjCnTB4BPL/k6EE3l4d9f/uF+aoimAhJX70eKA=
-github.com/aiven/go-api-schemas v1.142.0 h1:Al9RB5JY7U4en2RgQe2KJplM3IdMkdcIEvj/SPUQatc=
-github.com/aiven/go-api-schemas v1.142.0/go.mod h1:gKq9h6Btptv6HzrqVOK+gEq4/5xvVXohQyFoU4hzAyc=
-github.com/aiven/go-client-codegen v0.121.0 h1:In4qsv3WHlPds1yPkYgRldGHoPRbGmTS2r9hhk6Mvqw=
-github.com/aiven/go-client-codegen v0.121.0/go.mod h1:QFo0OEL3lqbALcv0s3NU8BxDX6J/ARUfBvR4UFBdCVs=
+github.com/aiven/go-api-schemas v1.143.0 h1:5vbFZKqkgxMapwlPbQ4FDy/WHQxGNUUTHMovftPpeQo=
+github.com/aiven/go-api-schemas v1.143.0/go.mod h1:f4TOPdykD7o01CWAWsFuacJNvZHeV0dPKyD5h1OGTZM=
+github.com/aiven/go-client-codegen v0.122.0 h1:uDT7Hlry6cLIwq6tnQJ+vkaURmlxXn7DDHkLOGQKkbM=
+github.com/aiven/go-client-codegen v0.122.0/go.mod h1:QFo0OEL3lqbALcv0s3NU8BxDX6J/ARUfBvR4UFBdCVs=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
