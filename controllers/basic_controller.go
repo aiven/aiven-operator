@@ -379,8 +379,6 @@ func (i *instanceReconcilerHelper) getObjectRefs(ctx context.Context, o client.O
 // that we can retry during the next reconciliation. When applicable, it retrieves an associated object that
 // has to be deleted from Kubernetes, and it could be a secret associated with an instance.
 func (i *instanceReconcilerHelper) finalize(ctx context.Context, o v1alpha1.AivenManagedObject) (bool, error) {
-	i.rec.Event(o, corev1.EventTypeNormal, eventTryingToDeleteAtAiven, "trying to delete instance at aiven")
-
 	var err error
 	finalised := true
 	deletionPolicy := deletionPolicyDelete
@@ -388,14 +386,17 @@ func (i *instanceReconcilerHelper) finalize(ctx context.Context, o v1alpha1.Aive
 	// Parse the annotations for the deletion policy. For simplicity, we only allow 'Orphan'.
 	// If set will skip the deletion of the remote object. Disable by removing the annotation.
 	if p, ok := o.GetAnnotations()[deletionPolicyAnnotation]; ok {
-		deletionPolicy = deletionPolicyOrphan
-		if p != deletionPolicyOrphan {
+		if p == deletionPolicyOrphan {
+			deletionPolicy = deletionPolicyOrphan
+			i.log.Info("'Orphan' deletion policy detected - Aiven resource will be preserved on Kubernetes resource deletion")
+		} else {
 			i.log.Info(fmt.Sprintf("Invalid deletion policy! Only '%s' is allowed.", deletionPolicyOrphan))
 			finalised = false
 		}
 	}
 
 	if deletionPolicy == deletionPolicyDelete {
+		i.rec.Event(o, corev1.EventTypeNormal, eventTryingToDeleteAtAiven, "trying to delete instance at aiven")
 		finalised, err = i.h.delete(ctx, i.avnGen, o)
 		if err != nil {
 			meta.SetStatusCondition(o.Conditions(), getErrorCondition(errConditionDelete, err))
@@ -432,12 +433,16 @@ func (i *instanceReconcilerHelper) finalize(ctx context.Context, o v1alpha1.Aive
 
 	// checking if instance was finalized, if not triggering a requeue
 	if !finalised {
-		i.log.Info("instance is not yet deleted at aiven, triggering requeue")
+		i.log.Info("instance is not yet deleted at Aiven, triggering requeue")
 		return true, nil
 	}
 
-	i.log.Info("instance was successfully deleted at aiven, removing finalizer")
-	i.rec.Event(o, corev1.EventTypeNormal, eventSuccessfullyDeletedAtAiven, "instance is gone at aiven now")
+	if deletionPolicy == deletionPolicyOrphan {
+		i.log.Info("Kubernetes resource finalized with orphan policy - Aiven resource preserved")
+	} else {
+		i.log.Info("instance was successfully deleted at Aiven, removing finalizer")
+		i.rec.Event(o, corev1.EventTypeNormal, eventSuccessfullyDeletedAtAiven, "instance is gone at aiven now")
+	}
 
 	// remove finalizer, once all finalizers have been removed, the object will be deleted.
 	if err := removeFinalizer(ctx, i.k8s, o, instanceDeletionFinalizer); err != nil {
@@ -445,7 +450,7 @@ func (i *instanceReconcilerHelper) finalize(ctx context.Context, o v1alpha1.Aive
 		return false, fmt.Errorf("unable to remove finalizer: %w", err)
 	}
 
-	i.log.Info("finalizer was removed, instance is deleted")
+	i.log.Info("finalizer was removed, resource is deleted")
 	return false, nil
 }
 
