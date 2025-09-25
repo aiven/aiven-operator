@@ -73,6 +73,7 @@ nav:
           - troubleshooting.md
           - installation/uninstalling.md
           - guides/token-management.md
+          - guides/deletion-policy.md
       - Resources: &crds
           - resources/alloydbomni.md
           - resources/cassandra.md
