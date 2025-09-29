@@ -860,6 +860,7 @@ spec:
                         - "15"
                         - "16"
                         - "17"
+                        - "18"
                       type: string
                     pgaudit:
                       description: System-wide settings for the pgaudit extension.

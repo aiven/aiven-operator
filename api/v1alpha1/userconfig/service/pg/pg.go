@@ -532,7 +532,7 @@ type PgUserConfig struct {
 	// Enable the pg_stat_monitor extension. Changing this parameter causes a service restart. When this extension is enabled, pg_stat_statements results for utility commands are unreliable
 	PgStatMonitorEnable *bool `groups:"create,update" json:"pg_stat_monitor_enable,omitempty"`
 
-	// +kubebuilder:validation:Enum="13";"14";"15";"16";"17"
+	// +kubebuilder:validation:Enum="13";"14";"15";"16";"17";"18"
 	// PostgreSQL major version. Deprecated values: `13`
 	PgVersion *string `groups:"create,update" json:"pg_version,omitempty"`
 

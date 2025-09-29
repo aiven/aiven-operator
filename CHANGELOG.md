@@ -12,6 +12,13 @@
 - Add `OpenSearch` field `userConfig.custom_keystores`, type `array`: Allow to register custom keystores
   in OpenSearch
 - Change `OpenSearch` field `userConfig.opensearch_version`: enum add `2.19`
+- Add `Kafka` field `userConfig.kafka_diskless`, type `object`: Kafka Diskless configuration values
+- Change `Kafka` field `userConfig.kafka_version`: enum add `4.0`
+- Change `MySQL` field `userConfig.mysql.innodb_log_buffer_size`: maximum ~~`4294967295`~~ → `4294967296`
+- Add `OpenSearch` field `userConfig.custom_repos`, type `array`: Allow to register object storage repositories
+  in OpenSearch
+- Change `OpenSearch` field `userConfig.opensearch.knn_memory_circuit_breaker_limit`: minimum ~~`3`~~ → `0`
+- Change `PostgreSQL` field `userConfig.pg_version`: enum add `18`
 
 ## v0.32.0 - 2025-09-04
 

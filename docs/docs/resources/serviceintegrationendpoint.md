@@ -170,7 +170,7 @@ Autoscaling properties for a service.
 
 **Required**
 
-- [`cap_gb`](#spec.autoscaler.autoscaling.cap_gb-property){: name='spec.autoscaler.autoscaling.cap_gb-property'} (integer, Minimum: 50). The maximum total disk size (in gb) to allow autoscaler to scale up to.
+- [`cap_gb`](#spec.autoscaler.autoscaling.cap_gb-property){: name='spec.autoscaler.autoscaling.cap_gb-property'} (integer, Minimum: 50, Maximum: 9007199254740991). The maximum total disk size (in gb) to allow autoscaler to scale up to.
 - [`type`](#spec.autoscaler.autoscaling.type-property){: name='spec.autoscaler.autoscaling.type-property'} (string, Enum: `autoscale_disk`). Type of autoscale event.
 
 ## datadog {: #spec.datadog }

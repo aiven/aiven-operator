@@ -347,6 +347,27 @@ spec:
                         type: object
                       maxItems: 10
                       type: array
+                    custom_repos:
+                      description:
+                        Allow to register object storage repositories in
+                        OpenSearch
+                      items:
+                        properties:
+                          name:
+                            pattern: ^[^\r\n]*$
+                            type: string
+                          type:
+                            enum:
+                              - azure
+                              - gcs
+                              - s3
+                            type: string
+                        required:
+                          - name
+                          - type
+                        type: object
+                      maxItems: 10
+                      type: array
                     disable_replication_factor_adjustment:
                       description:
                         "Disable automatic replication factor adjustment
@@ -1052,10 +1073,12 @@ spec:
                           type: boolean
                         knn_memory_circuit_breaker_limit:
                           description:
-                            Maximum amount of memory that can be used for
-                            KNN index. Defaults to 50% of the JVM heap size.
+                            Maximum amount of memory in percentage that can
+                            be used for the KNN index. Defaults to 50% of the JVM heap
+                            size. 0 is used to set it to null which can be used to invalidate
+                            caches.
                           maximum: 100
-                          minimum: 3
+                          minimum: 0
                           type: integer
                         node.search.cache.size:
                           description:
