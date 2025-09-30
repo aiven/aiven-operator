@@ -37,7 +37,7 @@ spec:
   # cloud provider and plan of your choice
   # you can check all of the possibilities here https://aiven.io/pricing
   cloudName: google-europe-west1
-  plan: startup-2
+  plan: startup-4
 
   # general Aiven configuration
   maintenanceWindowDow: friday
@@ -65,7 +65,7 @@ The output has the project name and state, similar to the following:
 ```{ .shell .no-copy }
 
 NAME           PROJECT          REGION                PLAN        STATE
-kafka-sample   PROJECT_NAME   google-europe-west1   startup-2   RUNNING
+kafka-sample   PROJECT_NAME   google-europe-west1   startup-4   RUNNING
 ```
 
 After a couple of minutes, the `STATE` field is changed to `RUNNING`, and is ready to be used.

@@ -30,7 +30,7 @@ spec:
 
   project: PROJECT_NAME
   cloudName: google-europe-west1
-  plan: startup-2
+  plan: startup-4
   maintenanceWindowDow: friday
   maintenanceWindowTime: 23:00:00
 

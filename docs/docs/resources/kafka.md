@@ -28,7 +28,7 @@ spec:
 
   project: my-aiven-project
   cloudName: google-europe-west1
-  plan: startup-2
+  plan: startup-4
 
   maintenanceWindowDow: friday
   maintenanceWindowTime: 23:00:00
@@ -49,7 +49,7 @@ kubectl get kafkas my-kafka
 The output is similar to the following:
 ```shell
 Name        Project             Region                 Plan         State      
-my-kafka    my-aiven-project    google-europe-west1    startup-2    RUNNING    
+my-kafka    my-aiven-project    google-europe-west1    startup-4    RUNNING    
 ```
 
 To view the details of the `Secret`, use the following command:
