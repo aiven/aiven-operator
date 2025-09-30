@@ -28,7 +28,7 @@ spec:
 
   project: %[1]s
   cloudName: %[2]s
-  plan: startup-2
+  plan: startup-4
 
 ---
 

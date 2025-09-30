@@ -59,7 +59,7 @@ spec:
 
   project: %[1]s
   cloudName: %[4]s
-  plan: startup-2
+  plan: startup-4
   projectVpcId: %[2]s
 `, project, vpcID, kafkaName, cloudName)
 }
