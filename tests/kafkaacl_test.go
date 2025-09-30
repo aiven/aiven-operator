@@ -30,7 +30,7 @@ spec:
 
   project: %[1]s
   cloudName: %[5]s
-  plan: startup-2
+  plan: startup-4
 
 ---
 
