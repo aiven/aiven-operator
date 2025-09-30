@@ -6,6 +6,7 @@ package autoscaleruserconfig
 // Autoscaling properties for a service
 type Autoscaling struct {
 	// +kubebuilder:validation:Minimum=50
+	// +kubebuilder:validation:Maximum=9007199254740991
 	// The maximum total disk size (in gb) to allow autoscaler to scale up to
 	CapGb int `groups:"create,update" json:"cap_gb"`
 

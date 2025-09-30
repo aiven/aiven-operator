@@ -60,6 +60,13 @@ type CustomKeystores struct {
 	// +kubebuilder:validation:Enum="azure";"gcs";"s3"
 	Type string `groups:"create,update" json:"type"`
 }
+type CustomRepos struct {
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	Name string `groups:"create,update" json:"name"`
+
+	// +kubebuilder:validation:Enum="azure";"gcs";"s3"
+	Type string `groups:"create,update" json:"type"`
+}
 
 // Google Cloud Storage migration settings
 type GcsMigration struct {
@@ -762,9 +769,9 @@ type Opensearch struct {
 	// Enable or disable KNN memory circuit breaker. Defaults to true.
 	KnnMemoryCircuitBreakerEnabled *bool `groups:"create,update" json:"knn_memory_circuit_breaker_enabled,omitempty"`
 
-	// +kubebuilder:validation:Minimum=3
+	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=100
-	// Maximum amount of memory that can be used for KNN index. Defaults to 50% of the JVM heap size.
+	// Maximum amount of memory in percentage that can be used for the KNN index. Defaults to 50% of the JVM heap size. 0 is used to set it to null which can be used to invalidate caches.
 	KnnMemoryCircuitBreakerLimit *int `groups:"create,update" json:"knn_memory_circuit_breaker_limit,omitempty"`
 
 	// +kubebuilder:validation:Pattern=`\d+(?:b|kb|mb|gb|tb)`
@@ -1023,6 +1030,10 @@ type OpensearchUserConfig struct {
 	// +kubebuilder:validation:MaxItems=10
 	// Allow to register custom keystores in OpenSearch
 	CustomKeystores []*CustomKeystores `groups:"create,update" json:"custom_keystores,omitempty"`
+
+	// +kubebuilder:validation:MaxItems=10
+	// Allow to register object storage repositories in OpenSearch
+	CustomRepos []*CustomRepos `groups:"create,update" json:"custom_repos,omitempty"`
 
 	// Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can not be activated unless specifically allowed for the project.
 	DisableReplicationFactorAdjustment *bool `groups:"create,update" json:"disable_replication_factor_adjustment,omitempty"`
