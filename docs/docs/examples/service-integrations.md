@@ -44,7 +44,7 @@ spec:
   # cloud provider and plan of your choice
   # you can check all of the possibilities here https://aiven.io/pricing
   cloudName: google-europe-west1
-  plan: startup-2
+  plan: startup-4
 
   # general Aiven configuration
   maintenanceWindowDow: friday
