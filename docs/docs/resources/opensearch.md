@@ -211,6 +211,7 @@ OpenSearch specific user configuration options.
 - [`azure_migration`](#spec.userConfig.azure_migration-property){: name='spec.userConfig.azure_migration-property'} (object). Azure migration settings. See below for [nested schema](#spec.userConfig.azure_migration).
 - [`custom_domain`](#spec.userConfig.custom_domain-property){: name='spec.userConfig.custom_domain-property'} (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name.
 - [`custom_keystores`](#spec.userConfig.custom_keystores-property){: name='spec.userConfig.custom_keystores-property'} (array of objects, MaxItems: 10). Allow to register custom keystores in OpenSearch. See below for [nested schema](#spec.userConfig.custom_keystores).
+- [`custom_repos`](#spec.userConfig.custom_repos-property){: name='spec.userConfig.custom_repos-property'} (array of objects, MaxItems: 10). Allow to register object storage repositories in OpenSearch. See below for [nested schema](#spec.userConfig.custom_repos).
 - [`disable_replication_factor_adjustment`](#spec.userConfig.disable_replication_factor_adjustment-property){: name='spec.userConfig.disable_replication_factor_adjustment-property'} (boolean). Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can not be activated unless specifically allowed for the project.
 - [`gcs_migration`](#spec.userConfig.gcs_migration-property){: name='spec.userConfig.gcs_migration-property'} (object). Google Cloud Storage migration settings. See below for [nested schema](#spec.userConfig.gcs_migration).
 - [`index_patterns`](#spec.userConfig.index_patterns-property){: name='spec.userConfig.index_patterns-property'} (array of objects, MaxItems: 512). Index patterns. See below for [nested schema](#spec.userConfig.index_patterns).
@@ -269,6 +270,17 @@ Allow to register custom keystores in OpenSearch.
 
 - [`name`](#spec.userConfig.custom_keystores.name-property){: name='spec.userConfig.custom_keystores.name-property'} (string, Pattern: `^[^\r\n]*$`).
 - [`type`](#spec.userConfig.custom_keystores.type-property){: name='spec.userConfig.custom_keystores.type-property'} (string, Enum: `azure`, `gcs`, `s3`).
+
+### custom_repos {: #spec.userConfig.custom_repos }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+Allow to register object storage repositories in OpenSearch.
+
+**Required**
+
+- [`name`](#spec.userConfig.custom_repos.name-property){: name='spec.userConfig.custom_repos.name-property'} (string, Pattern: `^[^\r\n]*$`).
+- [`type`](#spec.userConfig.custom_repos.type-property){: name='spec.userConfig.custom_repos.type-property'} (string, Enum: `azure`, `gcs`, `s3`).
 
 ### gcs_migration {: #spec.userConfig.gcs_migration }
 
@@ -414,7 +426,7 @@ OpenSearch settings.
 - [`ism_history_rollover_check_period`](#spec.userConfig.opensearch.ism_history_rollover_check_period-property){: name='spec.userConfig.opensearch.ism_history_rollover_check_period-property'} (integer, Minimum: 1, Maximum: 2147483647). The time between rollover checks for the audit history index in hours.
 - [`ism_history_rollover_retention_period`](#spec.userConfig.opensearch.ism_history_rollover_retention_period-property){: name='spec.userConfig.opensearch.ism_history_rollover_retention_period-property'} (integer, Minimum: 1, Maximum: 2147483647). How long audit history indices are kept in days.
 - [`knn_memory_circuit_breaker_enabled`](#spec.userConfig.opensearch.knn_memory_circuit_breaker_enabled-property){: name='spec.userConfig.opensearch.knn_memory_circuit_breaker_enabled-property'} (boolean). Enable or disable KNN memory circuit breaker. Defaults to true.
-- [`knn_memory_circuit_breaker_limit`](#spec.userConfig.opensearch.knn_memory_circuit_breaker_limit-property){: name='spec.userConfig.opensearch.knn_memory_circuit_breaker_limit-property'} (integer, Minimum: 3, Maximum: 100). Maximum amount of memory that can be used for KNN index. Defaults to 50% of the JVM heap size.
+- [`knn_memory_circuit_breaker_limit`](#spec.userConfig.opensearch.knn_memory_circuit_breaker_limit-property){: name='spec.userConfig.opensearch.knn_memory_circuit_breaker_limit-property'} (integer, Minimum: 0, Maximum: 100). Maximum amount of memory in percentage that can be used for the KNN index. Defaults to 50% of the JVM heap size. 0 is used to set it to null which can be used to invalidate caches.
 - [`node.search.cache.size`](#spec.userConfig.opensearch.node.search.cache.size-property){: name='spec.userConfig.opensearch.node.search.cache.size-property'} (string, Pattern: `\d+(?:b|kb|mb|gb|tb)`). Defines a limit of how much total remote data can be referenced as a ratio of the size of the disk reserved for the file cache. This is designed to be a safeguard to prevent oversubscribing a cluster. Defaults to 5gb. Requires restarting all OpenSearch nodes.
 - [`override_main_response_version`](#spec.userConfig.opensearch.override_main_response_version-property){: name='spec.userConfig.opensearch.override_main_response_version-property'} (boolean). Compatibility mode sets OpenSearch to report its version as 7.10 so clients continue to work. Default is false.
 - [`plugins_alerting_filter_by_backend_roles`](#spec.userConfig.opensearch.plugins_alerting_filter_by_backend_roles-property){: name='spec.userConfig.opensearch.plugins_alerting_filter_by_backend_roles-property'} (boolean). Enable or disable filtering of alerting by backend roles. Requires Security plugin. Defaults to false.
