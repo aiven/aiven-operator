@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
@@ -18,6 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/retry"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -35,6 +37,7 @@ const (
 	processedGenerationAnnotation = "controllers.aiven.io/generation-was-processed"
 	instanceIsRunningAnnotation   = "controllers.aiven.io/instance-is-running"
 	secretSourceUpdatedAnnotation = "controllers.aiven.io/secret-source-updated"
+	ForceReconcileAnnotation      = "controllers.aiven.io/force-reconcile"
 
 	deletionPolicyAnnotation = "controllers.aiven.io/deletion-policy"
 	deletionPolicyOrphan     = "Orphan"
@@ -325,4 +328,75 @@ func isServerError(err error) bool {
 		return e.Status >= http.StatusInternalServerError && e.Status < 600
 	}
 	return false
+}
+
+func requeue(after time.Duration) ctrl.Result {
+	return ctrl.Result{RequeueAfter: after}
+}
+
+func createAivenClient(
+	ctx context.Context,
+	obj v1alpha1.AivenManagedObject,
+	k8sClient client.Client,
+	defaultToken, kubeVersion, operatorVersion string,
+) (avngen.Client, error) {
+	var token string
+
+	switch authRef := obj.AuthSecretRef(); {
+	case authRef != nil:
+		// get token from resource secret
+		secret := &corev1.Secret{}
+		secretKey := types.NamespacedName{
+			Name:      authRef.Name,
+			Namespace: obj.GetNamespace(),
+		}
+
+		if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
+			return nil, fmt.Errorf("cannot get auth secret %q: %w", authRef.Name, err)
+		}
+
+		token = string(secret.Data[authRef.Key])
+		if token == "" {
+			return nil, fmt.Errorf("token is empty in secret %q key %q", authRef.Name, authRef.Key)
+		}
+
+	case defaultToken != "":
+		token = defaultToken
+
+	default:
+		return nil, errNoTokenProvided
+	}
+
+	return NewAivenGeneratedClient(token, kubeVersion, operatorVersion)
+}
+
+// addDeletionProtection adds deletion finalizers to an AivenManagedObject and its auth secret.
+// This protects the resource and its auth secret from deletion until properly cleaned up.
+func addDeletionProtection(ctx context.Context, c client.Client, obj v1alpha1.AivenManagedObject) error {
+	authRef := obj.AuthSecretRef()
+	if authRef != nil {
+		authSecret := &corev1.Secret{}
+		secretKey := types.NamespacedName{
+			Name:      authRef.Name,
+			Namespace: obj.GetNamespace(),
+		}
+
+		if err := c.Get(ctx, secretKey, authSecret); err != nil {
+			return fmt.Errorf("failed to get auth secret %q: %w", authRef.Name, err)
+		}
+
+		// the finalizer is automatically removed by SecretFinalizerGCController when no resources reference the secret
+		if !controllerutil.ContainsFinalizer(authSecret, secretProtectionFinalizer) {
+			if err := addFinalizer(ctx, c, authSecret, secretProtectionFinalizer); err != nil {
+				return fmt.Errorf("unable to add finalizer to auth secret: %w", err)
+			}
+		}
+	}
+
+	return addFinalizer(ctx, c, obj, instanceDeletionFinalizer)
+}
+
+// removeDeletionProtection removes the deletion finalizer from an AivenManagedObject.
+func removeDeletionProtection(ctx context.Context, c client.Client, obj v1alpha1.AivenManagedObject) error {
+	return removeFinalizer(ctx, c, obj, instanceDeletionFinalizer)
 }
