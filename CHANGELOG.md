@@ -2,6 +2,14 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `Kafka` field `userConfig.kafka_diskless`, type `object`: Kafka Diskless configuration values
+- Change `Kafka` field `userConfig.kafka_version`: enum add `4.0`
+- Change `MySQL` field `userConfig.mysql.innodb_log_buffer_size`: maximum ~~`4294967295`~~ → `4294967296`
+- Add `OpenSearch` field `userConfig.custom_repos`, type `array`: Allow to register object storage repositories
+  in OpenSearch
+- Change `OpenSearch` field `userConfig.opensearch.knn_memory_circuit_breaker_limit`: minimum ~~`3`~~ → `0`
+- Change `PostgreSQL` field `userConfig.pg_version`: enum add `18`
+
 ## v0.33.0 - 2025-09-30
 
 - **DEPRECATION**: `AlloyDBOmni` is deprecated and entering its end-of-life cycle. See <https://aiven.io/docs/platform/reference/end-of-life> for details

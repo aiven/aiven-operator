@@ -949,6 +949,18 @@ spec:
                           - name
                         type: object
                       type: array
+                    kafka_diskless:
+                      description: Kafka Diskless configuration values
+                      properties:
+                        enabled:
+                          description: Whether to enable the Diskless functionality
+                          type: boolean
+                          x-kubernetes-validations:
+                            - message: Value is immutable
+                              rule: self == oldSelf
+                      required:
+                        - enabled
+                      type: object
                     kafka_rest:
                       description: Enable Kafka-REST service
                       type: boolean
@@ -1075,6 +1087,7 @@ spec:
                         - "3.7"
                         - "3.8"
                         - "3.9"
+                        - "4.0"
                       type: string
                     letsencrypt_sasl_privatelink:
                       description: Use Letsencrypt CA for Kafka SASL via Privatelink

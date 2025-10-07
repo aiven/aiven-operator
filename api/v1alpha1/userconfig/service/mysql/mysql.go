@@ -101,7 +101,7 @@ type Mysql struct {
 	InnodbLockWaitTimeout *int `groups:"create,update" json:"innodb_lock_wait_timeout,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1048576
-	// +kubebuilder:validation:Maximum=4294967295
+	// +kubebuilder:validation:Maximum=4294967296
 	// The size in bytes of the buffer that InnoDB uses to write to the log files on disk.
 	InnodbLogBufferSize *int `groups:"create,update" json:"innodb_log_buffer_size,omitempty"`
 
