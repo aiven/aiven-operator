@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.33.1 - 2025-10-08
+
 - Fix `PostgreSQL`: resolved panic during upgrade check task fails
 
 ## v0.33.0 - 2025-09-30
