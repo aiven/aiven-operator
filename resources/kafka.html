@@ -610,52 +610,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../guides/token-management.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Token Management
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../guides/deletion-policy.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Deletion Policy
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -719,7 +673,7 @@
   
   
   <span class="md-ellipsis">
-    AlloyDBOmni [DEPRECATED]
+    AlloyDBOmni
     
   </span>
   
@@ -1850,7 +1804,7 @@
   
   
   <span class="md-ellipsis">
-    AlloyDBOmni [DEPRECATED]
+    AlloyDBOmni
     
   </span>
   
@@ -3803,7 +3757,7 @@
 <a id="__codelineno-0-17" name="__codelineno-0-17"></a>
 <a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-aiven-project</span>
 <a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="w">  </span><span class="nt">cloudName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">google-europe-west1</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="w">  </span><span class="nt">plan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">startup-4</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="w">  </span><span class="nt">plan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">startup-2</span>
 <a id="__codelineno-0-21" name="__codelineno-0-21"></a>
 <a id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="w">  </span><span class="nt">maintenanceWindowDow</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">friday</span>
 <a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="w">  </span><span class="nt">maintenanceWindowTime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">23:00:00</span>
@@ -3816,7 +3770,7 @@
 </code></pre></div>
 <p>The output is similar to the following:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Name<span class="w">        </span>Project<span class="w">             </span>Region<span class="w">                 </span>Plan<span class="w">         </span>State<span class="w">      </span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>my-kafka<span class="w">    </span>my-aiven-project<span class="w">    </span>google-europe-west1<span class="w">    </span>startup-4<span class="w">    </span>RUNNING<span class="w">    </span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>my-kafka<span class="w">    </span>my-aiven-project<span class="w">    </span>google-europe-west1<span class="w">    </span>startup-2<span class="w">    </span>RUNNING<span class="w">    </span>
 </code></pre></div></p>
 <p>To view the details of the <code>Secret</code>, use the following command:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>secret<span class="w"> </span>kafka-secret
@@ -4022,8 +3976,6 @@
 <li><a href="#spec.userConfig.kafka.log_local_retention_bytes-property" name="spec.userConfig.kafka.log_local_retention_bytes-property"><code>log_local_retention_bytes</code></a> (integer, Minimum: -2). The maximum size of local log segments that can grow for a partition before it gets eligible for deletion. If set to -2, the value of log.retention.bytes is used. The effective value should always be less than or equal to log.retention.bytes value. (Default: -2).</li>
 <li><a href="#spec.userConfig.kafka.log_local_retention_ms-property" name="spec.userConfig.kafka.log_local_retention_ms-property"><code>log_local_retention_ms</code></a> (integer, Minimum: -2). The number of milliseconds to keep the local log segments before it gets eligible for deletion. If set to -2, the value of log.retention.ms is used. The effective value should always be less than or equal to log.retention.ms value. (Default: -2).</li>
 <li><a href="#spec.userConfig.kafka.log_message_downconversion_enable-property" name="spec.userConfig.kafka.log_message_downconversion_enable-property"><code>log_message_downconversion_enable</code></a> (boolean). This configuration controls whether down-conversion of message formats is enabled to satisfy consume requests. (Default: true).</li>
-<li><a href="#spec.userConfig.kafka.log_message_timestamp_after_max_ms-property" name="spec.userConfig.kafka.log_message_timestamp_after_max_ms-property"><code>log_message_timestamp_after_max_ms</code></a> (integer, Minimum: 0). The maximum difference allowed between the timestamp when a broker receives a message and the timestamp specified in the message. If message.timestamp.type=CreateTime, a message will be rejected if the difference in timestamp exceeds this threshold. Applies only for messages with timestamps later than the broker's timestamp. (Default: 9223372036854775807 (Long.MAX_VALUE)).</li>
-<li><a href="#spec.userConfig.kafka.log_message_timestamp_before_max_ms-property" name="spec.userConfig.kafka.log_message_timestamp_before_max_ms-property"><code>log_message_timestamp_before_max_ms</code></a> (integer, Minimum: 0). The maximum difference allowed between the timestamp when a broker receives a message and the timestamp specified in the message. If message.timestamp.type=CreateTime, a message will be rejected if the difference in timestamp exceeds this threshold. Applies only for messages with timestamps earlier than the broker's timestamp. (Default: 9223372036854775807 (Long.MAX_VALUE)).</li>
 <li><a href="#spec.userConfig.kafka.log_message_timestamp_difference_max_ms-property" name="spec.userConfig.kafka.log_message_timestamp_difference_max_ms-property"><code>log_message_timestamp_difference_max_ms</code></a> (integer, Minimum: 0). The maximum difference allowed between the timestamp when a broker receives a message and the timestamp specified in the message (Default: 9223372036854775807 (Long.MAX_VALUE)).</li>
 <li><a href="#spec.userConfig.kafka.log_message_timestamp_type-property" name="spec.userConfig.kafka.log_message_timestamp_type-property"><code>log_message_timestamp_type</code></a> (string, Enum: <code>CreateTime</code>, <code>LogAppendTime</code>). Define whether the timestamp in the message is message create time or log append time. (Default: CreateTime).</li>
 <li><a href="#spec.userConfig.kafka.log_preallocate-property" name="spec.userConfig.kafka.log_preallocate-property"><code>log_preallocate</code></a> (boolean). Should pre allocate file when create new segment? (Default: false).</li>

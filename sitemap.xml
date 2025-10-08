@@ -81,14 +81,6 @@
          <lastmod>2025-10-08</lastmod>
     </url>
     <url>
-         <loc>https://aiven.github.io/aiven-operator/guides/deletion-policy.html</loc>
-         <lastmod>2025-10-08</lastmod>
-    </url>
-    <url>
-         <loc>https://aiven.github.io/aiven-operator/guides/token-management.html</loc>
-         <lastmod>2025-10-08</lastmod>
-    </url>
-    <url>
          <loc>https://aiven.github.io/aiven-operator/installation/helm.html</loc>
          <lastmod>2025-10-08</lastmod>
     </url>

@@ -610,52 +610,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../guides/token-management.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Token Management
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../guides/deletion-policy.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Deletion Policy
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -719,7 +673,7 @@
   
   
   <span class="md-ellipsis">
-    AlloyDBOmni [DEPRECATED]
+    AlloyDBOmni
     
   </span>
   
@@ -1413,15 +1367,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#spec.userConfig.custom_keystores" class="md-nav__link">
-    <span class="md-ellipsis">
-      custom_keystores
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#spec.userConfig.gcs_migration" class="md-nav__link">
     <span class="md-ellipsis">
       gcs_migration
@@ -2051,7 +1996,7 @@
   
   
   <span class="md-ellipsis">
-    AlloyDBOmni [DEPRECATED]
+    AlloyDBOmni
     
   </span>
   
@@ -2745,15 +2690,6 @@
   <a href="#spec.userConfig.azure_migration" class="md-nav__link">
     <span class="md-ellipsis">
       azure_migration
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#spec.userConfig.custom_keystores" class="md-nav__link">
-    <span class="md-ellipsis">
-      custom_keystores
     </span>
   </a>
   
@@ -3956,15 +3892,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#spec.userConfig.custom_keystores" class="md-nav__link">
-    <span class="md-ellipsis">
-      custom_keystores
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#spec.userConfig.gcs_migration" class="md-nav__link">
     <span class="md-ellipsis">
       gcs_migration
@@ -4548,7 +4475,6 @@
 <li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.</li>
 <li><a href="#spec.userConfig.azure_migration-property" name="spec.userConfig.azure_migration-property"><code>azure_migration</code></a> (object). Azure migration settings. See below for <a href="#spec.userConfig.azure_migration">nested schema</a>.</li>
 <li><a href="#spec.userConfig.custom_domain-property" name="spec.userConfig.custom_domain-property"><code>custom_domain</code></a> (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name.</li>
-<li><a href="#spec.userConfig.custom_keystores-property" name="spec.userConfig.custom_keystores-property"><code>custom_keystores</code></a> (array of objects, MaxItems: 10). Allow to register custom keystores in OpenSearch. See below for <a href="#spec.userConfig.custom_keystores">nested schema</a>.</li>
 <li><a href="#spec.userConfig.disable_replication_factor_adjustment-property" name="spec.userConfig.disable_replication_factor_adjustment-property"><code>disable_replication_factor_adjustment</code></a> (boolean). Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can not be activated unless specifically allowed for the project.</li>
 <li><a href="#spec.userConfig.gcs_migration-property" name="spec.userConfig.gcs_migration-property"><code>gcs_migration</code></a> (object). Google Cloud Storage migration settings. See below for <a href="#spec.userConfig.gcs_migration">nested schema</a>.</li>
 <li><a href="#spec.userConfig.index_patterns-property" name="spec.userConfig.index_patterns-property"><code>index_patterns</code></a> (array of objects, MaxItems: 512). Index patterns. See below for <a href="#spec.userConfig.index_patterns">nested schema</a>.</li>
@@ -4560,7 +4486,7 @@
 <li><a href="#spec.userConfig.openid-property" name="spec.userConfig.openid-property"><code>openid</code></a> (object). OpenSearch OpenID Connect Configuration. See below for <a href="#spec.userConfig.openid">nested schema</a>.</li>
 <li><a href="#spec.userConfig.opensearch-property" name="spec.userConfig.opensearch-property"><code>opensearch</code></a> (object). OpenSearch settings. See below for <a href="#spec.userConfig.opensearch">nested schema</a>.</li>
 <li><a href="#spec.userConfig.opensearch_dashboards-property" name="spec.userConfig.opensearch_dashboards-property"><code>opensearch_dashboards</code></a> (object). OpenSearch Dashboards settings. See below for <a href="#spec.userConfig.opensearch_dashboards">nested schema</a>.</li>
-<li><a href="#spec.userConfig.opensearch_version-property" name="spec.userConfig.opensearch_version-property"><code>opensearch_version</code></a> (string, Enum: <code>1</code>, <code>2</code>, <code>2.19</code>). OpenSearch version.</li>
+<li><a href="#spec.userConfig.opensearch_version-property" name="spec.userConfig.opensearch_version-property"><code>opensearch_version</code></a> (string, Enum: <code>1</code>, <code>2</code>). OpenSearch major version.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.project_to_fork_from-property" name="spec.userConfig.project_to_fork_from-property"><code>project_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.</li>
@@ -4593,14 +4519,6 @@
 <li><a href="#spec.userConfig.azure_migration.readonly-property" name="spec.userConfig.azure_migration.readonly-property"><code>readonly</code></a> (boolean). Whether the repository is read-only.</li>
 <li><a href="#spec.userConfig.azure_migration.restore_global_state-property" name="spec.userConfig.azure_migration.restore_global_state-property"><code>restore_global_state</code></a> (boolean). If true, restore the cluster state. Defaults to false.</li>
 <li><a href="#spec.userConfig.azure_migration.sas_token-property" name="spec.userConfig.azure_migration.sas_token-property"><code>sas_token</code></a> (string, Pattern: <code>^[^\r\n]*$</code>). A shared access signatures (SAS) token. One of key or sas_token should be specified.</li>
-</ul>
-<h3 id="spec.userConfig.custom_keystores">custom_keystores<a class="headerlink" href="#spec.userConfig.custom_keystores" title="Permanent link">&para;</a></h3>
-<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
-<p>Allow to register custom keystores in OpenSearch.</p>
-<p><strong>Required</strong></p>
-<ul>
-<li><a href="#spec.userConfig.custom_keystores.name-property" name="spec.userConfig.custom_keystores.name-property"><code>name</code></a> (string, Pattern: <code>^[^\r\n]*$</code>).</li>
-<li><a href="#spec.userConfig.custom_keystores.type-property" name="spec.userConfig.custom_keystores.type-property"><code>type</code></a> (string, Enum: <code>azure</code>, <code>gcs</code>, <code>s3</code>).</li>
 </ul>
 <h3 id="spec.userConfig.gcs_migration">gcs_migration<a class="headerlink" href="#spec.userConfig.gcs_migration" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
@@ -4649,9 +4567,9 @@
 <p>Template settings for all new indexes.</p>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.userConfig.index_template.mapping_nested_objects_limit-property" name="spec.userConfig.index_template.mapping_nested_objects_limit-property"><code>mapping_nested_objects_limit</code></a> (integer, Minimum: 0, Maximum: 100000). The maximum number of nested JSON objects that a single document can contain across all nested types. This limit helps to prevent out of memory errors when a document contains too many nested objects. Default is 10000. Deprecated, use an index template instead.</li>
-<li><a href="#spec.userConfig.index_template.number_of_replicas-property" name="spec.userConfig.index_template.number_of_replicas-property"><code>number_of_replicas</code></a> (integer, Minimum: 0, Maximum: 29). The number of replicas each primary shard has. Deprecated, use an index template instead.</li>
-<li><a href="#spec.userConfig.index_template.number_of_shards-property" name="spec.userConfig.index_template.number_of_shards-property"><code>number_of_shards</code></a> (integer, Minimum: 1, Maximum: 1024). The number of primary shards that an index should have. Deprecated, use an index template instead.</li>
+<li><a href="#spec.userConfig.index_template.mapping_nested_objects_limit-property" name="spec.userConfig.index_template.mapping_nested_objects_limit-property"><code>mapping_nested_objects_limit</code></a> (integer, Minimum: 0, Maximum: 100000). The maximum number of nested JSON objects that a single document can contain across all nested types. This limit helps to prevent out of memory errors when a document contains too many nested objects. Default is 10000.</li>
+<li><a href="#spec.userConfig.index_template.number_of_replicas-property" name="spec.userConfig.index_template.number_of_replicas-property"><code>number_of_replicas</code></a> (integer, Minimum: 0, Maximum: 29). The number of replicas each primary shard has.</li>
+<li><a href="#spec.userConfig.index_template.number_of_shards-property" name="spec.userConfig.index_template.number_of_shards-property"><code>number_of_shards</code></a> (integer, Minimum: 1, Maximum: 1024). The number of primary shards that an index should have.</li>
 </ul>
 <h3 id="spec.userConfig.ip_filter">ip_filter<a class="headerlink" href="#spec.userConfig.ip_filter" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
@@ -4924,7 +4842,7 @@
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.userConfig.opensearch.shard_indexing_pressure.enabled-property" name="spec.userConfig.opensearch.shard_indexing_pressure.enabled-property"><code>enabled</code></a> (boolean). Enable or disable shard indexing backpressure. Default is false.</li>
-<li><a href="#spec.userConfig.opensearch.shard_indexing_pressure.enforced-property" name="spec.userConfig.opensearch.shard_indexing_pressure.enforced-property"><code>enforced</code></a> (boolean). Run shard indexing backpressure in shadow mode or enforced mode. In shadow mode (value set as false), shard indexing backpressure tracks all granular-level metrics, but it doesn’t actually reject any indexing requests. In enforced mode (value set as true), shard indexing backpressure rejects any requests to the cluster that might cause a dip in its performance. Default is false.</li>
+<li><a href="#spec.userConfig.opensearch.shard_indexing_pressure.enforced-property" name="spec.userConfig.opensearch.shard_indexing_pressure.enforced-property"><code>enforced</code></a> (boolean). Run shard indexing backpressure in shadow mode or enforced mode.             In shadow mode (value set as false), shard indexing backpressure tracks all granular-level metrics,             but it doesn’t actually reject any indexing requests.             In enforced mode (value set as true),             shard indexing backpressure rejects any requests to the cluster that might cause a dip in its performance.             Default is false.</li>
 <li><a href="#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor-property" name="spec.userConfig.opensearch.shard_indexing_pressure.operating_factor-property"><code>operating_factor</code></a> (object). Operating factor. See below for <a href="#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor">nested schema</a>.</li>
 <li><a href="#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter-property" name="spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter-property"><code>primary_parameter</code></a> (object). Primary parameter. See below for <a href="#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter">nested schema</a>.</li>
 </ul>
@@ -4933,9 +4851,9 @@
 <p>Operating factor.</p>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.lower-property" name="spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.lower-property"><code>lower</code></a> (number, Minimum: 0). Specify the lower occupancy limit of the allocated quota of memory for the shard. If the total memory usage of a shard is below this limit, shard indexing backpressure decreases the current allocated memory for that shard. Default is 0.75.</li>
-<li><a href="#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.optimal-property" name="spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.optimal-property"><code>optimal</code></a> (number, Minimum: 0). Specify the optimal occupancy of the allocated quota of memory for the shard. If the total memory usage of a shard is at this level, shard indexing backpressure doesn’t change the current allocated memory for that shard. Default is 0.85.</li>
-<li><a href="#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.upper-property" name="spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.upper-property"><code>upper</code></a> (number, Minimum: 0). Specify the upper occupancy limit of the allocated quota of memory for the shard. If the total memory usage of a shard is above this limit, shard indexing backpressure increases the current allocated memory for that shard. Default is 0.95.</li>
+<li><a href="#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.lower-property" name="spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.lower-property"><code>lower</code></a> (number, Minimum: 0). Specify the lower occupancy limit of the allocated quota of memory for the shard.                     If the total memory usage of a shard is below this limit,                     shard indexing backpressure decreases the current allocated memory for that shard.                     Default is 0.75.</li>
+<li><a href="#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.optimal-property" name="spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.optimal-property"><code>optimal</code></a> (number, Minimum: 0). Specify the optimal occupancy of the allocated quota of memory for the shard.                     If the total memory usage of a shard is at this level,                     shard indexing backpressure doesn’t change the current allocated memory for that shard.                     Default is 0.85.</li>
+<li><a href="#spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.upper-property" name="spec.userConfig.opensearch.shard_indexing_pressure.operating_factor.upper-property"><code>upper</code></a> (number, Minimum: 0). Specify the upper occupancy limit of the allocated quota of memory for the shard.                     If the total memory usage of a shard is above this limit,                     shard indexing backpressure increases the current allocated memory for that shard.                     Default is 0.95.</li>
 </ul>
 <h5 id="spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter">primary_parameter<a class="headerlink" href="#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter" title="Permanent link">&para;</a></h5>
 <p><em>Appears on <a href="#spec.userConfig.opensearch.shard_indexing_pressure"><code>spec.userConfig.opensearch.shard_indexing_pressure</code></a>.</em></p>
@@ -4949,13 +4867,13 @@
 <p><em>Appears on <a href="#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter"><code>spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter</code></a>.</em></p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.node.soft_limit-property" name="spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.node.soft_limit-property"><code>soft_limit</code></a> (number, Minimum: 0). Define the percentage of the node-level memory threshold that acts as a soft indicator for strain on a node. Default is 0.7.</li>
+<li><a href="#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.node.soft_limit-property" name="spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.node.soft_limit-property"><code>soft_limit</code></a> (number, Minimum: 0). Define the percentage of the node-level memory                             threshold that acts as a soft indicator for strain on a node.                             Default is 0.7.</li>
 </ul>
 <h6 id="spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.shard">shard<a class="headerlink" href="#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.shard" title="Permanent link">&para;</a></h6>
 <p><em>Appears on <a href="#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter"><code>spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter</code></a>.</em></p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.shard.min_limit-property" name="spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.shard.min_limit-property"><code>min_limit</code></a> (number, Minimum: 0). Specify the minimum assigned quota for a new shard in any role (coordinator, primary, or replica). Shard indexing backpressure increases or decreases this allocated quota based on the inflow of traffic for the shard. Default is 0.001.</li>
+<li><a href="#spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.shard.min_limit-property" name="spec.userConfig.opensearch.shard_indexing_pressure.primary_parameter.shard.min_limit-property"><code>min_limit</code></a> (number, Minimum: 0). Specify the minimum assigned quota for a new shard in any role (coordinator, primary, or replica).                             Shard indexing backpressure increases or decreases this allocated quota based on the inflow of traffic for the shard.                             Default is 0.001.</li>
 </ul>
 <h3 id="spec.userConfig.opensearch_dashboards">opensearch_dashboards<a class="headerlink" href="#spec.userConfig.opensearch_dashboards" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>

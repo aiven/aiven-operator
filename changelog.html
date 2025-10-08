@@ -468,27 +468,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#v0331-2025-10-08" class="md-nav__link">
+  <a href="#v0311-2025-10-08" class="md-nav__link">
     <span class="md-ellipsis">
-      v0.33.1 - 2025-10-08
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#v0330-2025-09-30" class="md-nav__link">
-    <span class="md-ellipsis">
-      v0.33.0 - 2025-09-30
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#v0320-2025-09-04" class="md-nav__link">
-    <span class="md-ellipsis">
-      v0.32.0 - 2025-09-04
+      v0.31.1 - 2025-10-08
     </span>
   </a>
   
@@ -1011,52 +993,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="guides/token-management.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Token Management
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="guides/deletion-policy.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Deletion Policy
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1123,7 +1059,7 @@
   
   
   <span class="md-ellipsis">
-    AlloyDBOmni [DEPRECATED]
+    AlloyDBOmni
     
   </span>
   
@@ -1950,7 +1886,7 @@
   
   
   <span class="md-ellipsis">
-    AlloyDBOmni [DEPRECATED]
+    AlloyDBOmni
     
   </span>
   
@@ -3260,27 +3196,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#v0331-2025-10-08" class="md-nav__link">
+  <a href="#v0311-2025-10-08" class="md-nav__link">
     <span class="md-ellipsis">
-      v0.33.1 - 2025-10-08
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#v0330-2025-09-30" class="md-nav__link">
-    <span class="md-ellipsis">
-      v0.33.0 - 2025-09-30
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#v0320-2025-09-04" class="md-nav__link">
-    <span class="md-ellipsis">
-      v0.32.0 - 2025-09-04
+      v0.31.1 - 2025-10-08
     </span>
   </a>
   
@@ -3638,44 +3556,9 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
-<h2 id="v0331-2025-10-08">v0.33.1 - 2025-10-08<a class="headerlink" href="#v0331-2025-10-08" title="Permanent link">&para;</a></h2>
+<h2 id="v0311-2025-10-08">v0.31.1 - 2025-10-08<a class="headerlink" href="#v0311-2025-10-08" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Fix <code>PostgreSQL</code>: resolved panic during upgrade check task fails</li>
-</ul>
-<h2 id="v0330-2025-09-30">v0.33.0 - 2025-09-30<a class="headerlink" href="#v0330-2025-09-30" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>DEPRECATION</strong>: <code>AlloyDBOmni</code> is deprecated and entering its end-of-life cycle. See <a href="https://aiven.io/docs/platform/reference/end-of-life">https://aiven.io/docs/platform/reference/end-of-life</a> for details</li>
-<li>Add <code>Kafka</code> field <code>userConfig.kafka.log_message_timestamp_after_max_ms</code>, type <code>integer</code>: The maximum
-  difference allowed between the timestamp when a broker receives a message and the timestamp specified
-  in the message</li>
-<li>Add <code>Kafka</code> field <code>userConfig.kafka.log_message_timestamp_before_max_ms</code>, type <code>integer</code>: The maximum
-  difference allowed between the timestamp when a broker receives a message and the timestamp specified
-  in the message</li>
-<li>Add <code>OpenSearch</code> field <code>userConfig.custom_keystores</code>, type <code>array</code>: Allow to register custom keystores
-  in OpenSearch</li>
-<li>Change <code>OpenSearch</code> field <code>userConfig.opensearch_version</code>: enum add <code>2.19</code></li>
-</ul>
-<h2 id="v0320-2025-09-04">v0.32.0 - 2025-09-04<a class="headerlink" href="#v0320-2025-09-04" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>BREAKING CHANGE</strong>: Removed unprefixed keys from ServiceUser secrets to resolve environment variable collisions. Previously ServiceUser secrets contained both prefixed keys (e.g., <code>SERVICEUSER_HOST</code>, <code>SERVICEUSER_PASSWORD</code>) and unprefixed keys (e.g., <code>HOST</code>, <code>PASSWORD</code>). The unprefixed keys have been removed.</li>
-<li><strong>Important:</strong> Status conditions <code>Create</code>, <code>Update</code> and <code>CreateOrUpdate</code> (all cases) have been consolidated into <code>CreatedOrUpdated</code> due to limitations in reliably determining operation type</li>
-<li>Added secret watcher controller to automatically update resources when their <code>connInfoSecretSource</code> secrets change</li>
-<li>Fix <code>ServiceUser</code>: retry API calls when password is not received in response</li>
-<li>Add <code>AlloyDBOmni</code> field <code>userConfig.pg.max_sync_workers_per_subscription</code>, type <code>integer</code>: Maximum
-  number of synchronization workers per subscription. The default is <code>2</code></li>
-<li>Change <code>AlloyDBOmni</code> field <code>userConfig.pg.max_logical_replication_workers</code>: maximum <del><code>64</code></del> → <code>256</code></li>
-<li>Change <code>AlloyDBOmni</code> field <code>userConfig.pg.max_replication_slots</code>: maximum <del><code>64</code></del> → <code>256</code></li>
-<li>Change <code>AlloyDBOmni</code> field <code>userConfig.pg.max_worker_processes</code>: maximum <del><code>96</code></del> → <code>288</code></li>
-<li>Add <code>MySQL</code> field <code>userConfig.mysql_incremental_backup</code>, type <code>object</code>: MySQL incremental backup configuration</li>
-<li>Add <code>PostgreSQL</code> field <code>userConfig.pg.max_connections</code>, type <code>integer</code>: Sets the PostgreSQL maximum
-  number of concurrent connections to the database server</li>
-<li>Add <code>PostgreSQL</code> field <code>userConfig.pg.max_sync_workers_per_subscription</code>, type <code>integer</code>: Maximum number
-  of synchronization workers per subscription. The default is <code>2</code></li>
-<li>Change <code>PostgreSQL</code> field <code>userConfig.pg.max_logical_replication_workers</code>: maximum <del><code>64</code></del> → <code>256</code></li>
-<li>Change <code>PostgreSQL</code> field <code>userConfig.pg.max_replication_slots</code>: maximum <del><code>64</code></del> → <code>256</code></li>
-<li>Change <code>PostgreSQL</code> field <code>userConfig.pg.max_worker_processes</code>: maximum <del><code>96</code></del> → <code>288</code></li>
-<li>Change <code>ServiceIntegrationEndpoint</code> field <code>prometheus.basic_auth_password</code>: maxLength <del><code>64</code></del> → <code>256</code></li>
-<li>Change <code>MySQL</code> field <code>userConfig.binlog_retention_period</code>: maximum <del><code>86400</code></del> → <code>604800</code></li>
+<li>Fix <code>PostgreSQL</code>: resolved panic during version upgrade when upgrade check task fails</li>
 </ul>
 <h2 id="v0310-2025-07-25">v0.31.0 - 2025-07-25<a class="headerlink" href="#v0310-2025-07-25" title="Permanent link">&para;</a></h2>
 <ul>

@@ -22,7 +22,7 @@
     
     
       
-        <title>AlloyDBOmni [DEPRECATED] - Aiven Operator</title>
+        <title>AlloyDBOmni - Aiven Operator</title>
       
     
     
@@ -109,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              AlloyDBOmni [DEPRECATED]
+              AlloyDBOmni
             
           </span>
         </div>
@@ -610,52 +610,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../guides/token-management.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Token Management
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../guides/deletion-policy.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Deletion Policy
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -726,7 +680,7 @@
   
   
   <span class="md-ellipsis">
-    AlloyDBOmni [DEPRECATED]
+    AlloyDBOmni
     
   </span>
   
@@ -739,7 +693,7 @@
   
   
   <span class="md-ellipsis">
-    AlloyDBOmni [DEPRECATED]
+    AlloyDBOmni
     
   </span>
   
@@ -1755,7 +1709,7 @@
   
   
   <span class="md-ellipsis">
-    AlloyDBOmni [DEPRECATED]
+    AlloyDBOmni
     
   </span>
   
@@ -1768,7 +1722,7 @@
   
   
   <span class="md-ellipsis">
-    AlloyDBOmni [DEPRECATED]
+    AlloyDBOmni
     
   </span>
   
@@ -3444,12 +3398,8 @@
   
 
 
-  <h1>AlloyDBOmni [DEPRECATED]</h1>
+  <h1>AlloyDBOmni</h1>
 
-<div class="admonition warning">
-<p class="admonition-title">Deprecation warning</p>
-<p>AlloyDBOmni is deprecated and will be removed in a future version</p>
-</div>
 <h2 id="usage-example">Usage example<a class="headerlink" href="#usage-example" title="Permanent link">&para;</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Prerequisites</p>
@@ -3578,8 +3528,7 @@
 <p>AlloyDBOmni is the Schema for the alloydbomni API.</p>
 <div class="admonition info">
 <p class="admonition-title">Exposes secret keys</p>
-<p><code>ALLOYDBOMNI_HOST</code>, <code>ALLOYDBOMNI_PORT</code>, <code>ALLOYDBOMNI_DATABASE</code>, <code>ALLOYDBOMNI_USER</code>, <code>ALLOYDBOMNI_PASSWORD</code>, <code>ALLOYDBOMNI_SSLMODE</code>, <code>ALLOYDBOMNI_DATABASE_URI</code>
-Deprecated: End of life notice - Aiven for AlloyDB Omni is entering its end-of-life cycle. See <a href="https://aiven.io/docs/platform/reference/end-of-life">https://aiven.io/docs/platform/reference/end-of-life</a> for details. From 5 September 2025, you can no longer create new Aiven for AlloyDB Omni services. Existing services continue to operate until the end of life (EOL) date but you cannot change plans for these services. On 5 December 2025, all active Aiven for AlloyDB Omni services are powered off and deleted, making data from these services inaccessible. The recommended alternatives are Aiven for PostgreSQL®, Aiven for ClickHouse®, and Aiven for MySQL®. To ensure uninterrupted service, complete your migration before December 5, 2025. For further assistance, contact the Aiven support team at <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#115;&#117;&#112;&#112;&#111;&#114;&#116;&#64;&#97;&#105;&#118;&#101;&#110;&#46;&#105;&#111;">&#115;&#117;&#112;&#112;&#111;&#114;&#116;&#64;&#97;&#105;&#118;&#101;&#110;&#46;&#105;&#111;</a> or your account team.</p>
+<p><code>ALLOYDBOMNI_HOST</code>, <code>ALLOYDBOMNI_PORT</code>, <code>ALLOYDBOMNI_DATABASE</code>, <code>ALLOYDBOMNI_USER</code>, <code>ALLOYDBOMNI_PASSWORD</code>, <code>ALLOYDBOMNI_SSLMODE</code>, <code>ALLOYDBOMNI_DATABASE_URI</code>.</p>
 </div>
 <p><strong>Required</strong></p>
 <ul>
@@ -3687,7 +3636,7 @@ Deprecated: End of life notice - Aiven for AlloyDB Omni is entering its end-of-l
 <li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.</li>
 <li><a href="#spec.userConfig.admin_password-property" name="spec.userConfig.admin_password-property"><code>admin_password</code></a> (string, Immutable, Pattern: <code>^[a-zA-Z0-9-_]+$</code>, MinLength: 8, MaxLength: 256). Custom password for admin user. Defaults to random string. This must be set only when a new service is being created.</li>
 <li><a href="#spec.userConfig.admin_username-property" name="spec.userConfig.admin_username-property"><code>admin_username</code></a> (string, Immutable, Pattern: <code>^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$</code>, MaxLength: 64). Custom username for admin user. This must be set only when a new service is being created.</li>
-<li><a href="#spec.userConfig.alloydbomni_version-property" name="spec.userConfig.alloydbomni_version-property"><code>alloydbomni_version</code></a> (string, Enum: <code>15</code>). PostgreSQL major version. Deprecated values: <code>15</code>.</li>
+<li><a href="#spec.userConfig.alloydbomni_version-property" name="spec.userConfig.alloydbomni_version-property"><code>alloydbomni_version</code></a> (string, Enum: <code>15</code>). PostgreSQL major version.</li>
 <li><a href="#spec.userConfig.backup_hour-property" name="spec.userConfig.backup_hour-property"><code>backup_hour</code></a> (integer, Minimum: 0, Maximum: 23). The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.</li>
 <li><a href="#spec.userConfig.backup_minute-property" name="spec.userConfig.backup_minute-property"><code>backup_minute</code></a> (integer, Minimum: 0, Maximum: 59). The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.</li>
 <li><a href="#spec.userConfig.enable_ipv6-property" name="spec.userConfig.enable_ipv6-property"><code>enable_ipv6</code></a> (boolean). Register AAAA DNS records for the service, and allow IPv6 packets to service ports.</li>
@@ -3754,19 +3703,18 @@ Deprecated: End of life notice - Aiven for AlloyDB Omni is entering its end-of-l
 <li><a href="#spec.userConfig.pg.log_temp_files-property" name="spec.userConfig.pg.log_temp_files-property"><code>log_temp_files</code></a> (integer, Minimum: -1, Maximum: 2147483647). Log statements for each temporary file created larger than this number of kilobytes, -1 disables.</li>
 <li><a href="#spec.userConfig.pg.max_files_per_process-property" name="spec.userConfig.pg.max_files_per_process-property"><code>max_files_per_process</code></a> (integer, Minimum: 1000, Maximum: 4096). PostgreSQL maximum number of files that can be open per process. The default is <code>1000</code> (upstream default). Changing this parameter causes a service restart.</li>
 <li><a href="#spec.userConfig.pg.max_locks_per_transaction-property" name="spec.userConfig.pg.max_locks_per_transaction-property"><code>max_locks_per_transaction</code></a> (integer, Minimum: 64, Maximum: 6400). PostgreSQL maximum locks per transaction. Changing this parameter causes a service restart.</li>
-<li><a href="#spec.userConfig.pg.max_logical_replication_workers-property" name="spec.userConfig.pg.max_logical_replication_workers-property"><code>max_logical_replication_workers</code></a> (integer, Minimum: 4, Maximum: 256). PostgreSQL maximum logical replication workers (taken from the pool of max_parallel_workers). The default is <code>4</code> (upstream default). Changing this parameter causes a service restart.</li>
+<li><a href="#spec.userConfig.pg.max_logical_replication_workers-property" name="spec.userConfig.pg.max_logical_replication_workers-property"><code>max_logical_replication_workers</code></a> (integer, Minimum: 4, Maximum: 64). PostgreSQL maximum logical replication workers (taken from the pool of max_parallel_workers). The default is <code>4</code> (upstream default). Changing this parameter causes a service restart.</li>
 <li><a href="#spec.userConfig.pg.max_parallel_workers-property" name="spec.userConfig.pg.max_parallel_workers-property"><code>max_parallel_workers</code></a> (integer, Minimum: 0, Maximum: 96). Sets the maximum number of workers that the system can support for parallel queries. The default is <code>8</code> (upstream default).</li>
 <li><a href="#spec.userConfig.pg.max_parallel_workers_per_gather-property" name="spec.userConfig.pg.max_parallel_workers_per_gather-property"><code>max_parallel_workers_per_gather</code></a> (integer, Minimum: 0, Maximum: 96). Sets the maximum number of workers that can be started by a single Gather or Gather Merge node. The default is <code>2</code> (upstream default).</li>
 <li><a href="#spec.userConfig.pg.max_pred_locks_per_transaction-property" name="spec.userConfig.pg.max_pred_locks_per_transaction-property"><code>max_pred_locks_per_transaction</code></a> (integer, Minimum: 64, Maximum: 5120). PostgreSQL maximum predicate locks per transaction. The default is <code>64</code> (upstream default). Changing this parameter causes a service restart.</li>
 <li><a href="#spec.userConfig.pg.max_prepared_transactions-property" name="spec.userConfig.pg.max_prepared_transactions-property"><code>max_prepared_transactions</code></a> (integer, Minimum: 0, Maximum: 10000). PostgreSQL maximum prepared transactions. The default is <code>0</code>. Changing this parameter causes a service restart.</li>
-<li><a href="#spec.userConfig.pg.max_replication_slots-property" name="spec.userConfig.pg.max_replication_slots-property"><code>max_replication_slots</code></a> (integer, Minimum: 8, Maximum: 256). PostgreSQL maximum replication slots. The default is <code>20</code>. Changing this parameter causes a service restart.</li>
+<li><a href="#spec.userConfig.pg.max_replication_slots-property" name="spec.userConfig.pg.max_replication_slots-property"><code>max_replication_slots</code></a> (integer, Minimum: 8, Maximum: 64). PostgreSQL maximum replication slots. The default is <code>20</code>. Changing this parameter causes a service restart.</li>
 <li><a href="#spec.userConfig.pg.max_slot_wal_keep_size-property" name="spec.userConfig.pg.max_slot_wal_keep_size-property"><code>max_slot_wal_keep_size</code></a> (integer, Minimum: -1, Maximum: 2147483647). PostgreSQL maximum WAL size (MB) reserved for replication slots. If <code>-1</code> is specified, replication slots may retain an unlimited amount of WAL files. The default is <code>-1</code> (upstream default). wal_keep_size minimum WAL size setting takes precedence over this.</li>
 <li><a href="#spec.userConfig.pg.max_stack_depth-property" name="spec.userConfig.pg.max_stack_depth-property"><code>max_stack_depth</code></a> (integer, Minimum: 2097152, Maximum: 6291456). Maximum depth of the stack in bytes. The default is <code>2097152</code> (upstream default).</li>
 <li><a href="#spec.userConfig.pg.max_standby_archive_delay-property" name="spec.userConfig.pg.max_standby_archive_delay-property"><code>max_standby_archive_delay</code></a> (integer, Minimum: 1, Maximum: 43200000). Max standby archive delay in milliseconds. The default is <code>30000</code> (upstream default).</li>
 <li><a href="#spec.userConfig.pg.max_standby_streaming_delay-property" name="spec.userConfig.pg.max_standby_streaming_delay-property"><code>max_standby_streaming_delay</code></a> (integer, Minimum: 1, Maximum: 43200000). Max standby streaming delay in milliseconds. The default is <code>30000</code> (upstream default).</li>
-<li><a href="#spec.userConfig.pg.max_sync_workers_per_subscription-property" name="spec.userConfig.pg.max_sync_workers_per_subscription-property"><code>max_sync_workers_per_subscription</code></a> (integer, Minimum: 2, Maximum: 8). Maximum number of synchronization workers per subscription. The default is <code>2</code>.</li>
 <li><a href="#spec.userConfig.pg.max_wal_senders-property" name="spec.userConfig.pg.max_wal_senders-property"><code>max_wal_senders</code></a> (integer, Minimum: 20, Maximum: 256). PostgreSQL maximum WAL senders. The default is <code>20</code>. Changing this parameter causes a service restart.</li>
-<li><a href="#spec.userConfig.pg.max_worker_processes-property" name="spec.userConfig.pg.max_worker_processes-property"><code>max_worker_processes</code></a> (integer, Minimum: 8, Maximum: 288). Sets the maximum number of background processes that the system can support. The default is <code>8</code>. Changing this parameter causes a service restart.</li>
+<li><a href="#spec.userConfig.pg.max_worker_processes-property" name="spec.userConfig.pg.max_worker_processes-property"><code>max_worker_processes</code></a> (integer, Minimum: 8, Maximum: 96). Sets the maximum number of background processes that the system can support. The default is <code>8</code>. Changing this parameter causes a service restart.</li>
 <li><a href="#spec.userConfig.pg.password_encryption-property" name="spec.userConfig.pg.password_encryption-property"><code>password_encryption</code></a> (string, Enum: <code>md5</code>, <code>scram-sha-256</code>). Chooses the algorithm for encrypting passwords.</li>
 <li><a href="#spec.userConfig.pg.pg_partman_bgw.interval-property" name="spec.userConfig.pg.pg_partman_bgw.interval-property"><code>pg_partman_bgw.interval</code></a> (integer, Minimum: 3600, Maximum: 604800). Sets the time interval in seconds to run pg_partman's scheduled tasks. The default is <code>3600</code>.</li>
 <li><a href="#spec.userConfig.pg.pg_partman_bgw.role-property" name="spec.userConfig.pg.pg_partman_bgw.role-property"><code>pg_partman_bgw.role</code></a> (string, Pattern: <code>^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$</code>, MaxLength: 64). Controls which role to use for pg_partman's scheduled background tasks.</li>
@@ -3787,7 +3735,7 @@ Deprecated: End of life notice - Aiven for AlloyDB Omni is entering its end-of-l
 <ul>
 <li><a href="#spec.userConfig.pgaudit.feature_enabled-property" name="spec.userConfig.pgaudit.feature_enabled-property"><code>feature_enabled</code></a> (boolean). Enable pgaudit extension. When enabled, pgaudit extension will be automatically installed.Otherwise, extension will be uninstalled but auditing configurations will be preserved.</li>
 <li><a href="#spec.userConfig.pgaudit.log-property" name="spec.userConfig.pgaudit.log-property"><code>log</code></a> (array of strings). Specifies which classes of statements will be logged by session audit logging.</li>
-<li><a href="#spec.userConfig.pgaudit.log_catalog-property" name="spec.userConfig.pgaudit.log_catalog-property"><code>log_catalog</code></a> (boolean). Specifies that session logging should be enabled in the case where all relations in a statement are in pg_catalog.</li>
+<li><a href="#spec.userConfig.pgaudit.log_catalog-property" name="spec.userConfig.pgaudit.log_catalog-property"><code>log_catalog</code></a> (boolean). Specifies that session logging should be enabled in the casewhere all relations in a statement are in pg_catalog.</li>
 <li><a href="#spec.userConfig.pgaudit.log_client-property" name="spec.userConfig.pgaudit.log_client-property"><code>log_client</code></a> (boolean). Specifies whether log messages will be visible to a client process such as psql.</li>
 <li><a href="#spec.userConfig.pgaudit.log_level-property" name="spec.userConfig.pgaudit.log_level-property"><code>log_level</code></a> (string, Enum: <code>debug1</code>, <code>debug2</code>, <code>debug3</code>, <code>debug4</code>, <code>debug5</code>, <code>info</code>, <code>log</code>, <code>notice</code>, <code>warning</code>). Specifies the log level that will be used for log entries.</li>
 <li><a href="#spec.userConfig.pgaudit.log_max_string_length-property" name="spec.userConfig.pgaudit.log_max_string_length-property"><code>log_max_string_length</code></a> (integer, Minimum: -1, Maximum: 102400). Crop parameters representation and whole statements if they exceed this threshold. A (default) value of -1 disable the truncation.</li>
@@ -3795,7 +3743,7 @@ Deprecated: End of life notice - Aiven for AlloyDB Omni is entering its end-of-l
 <li><a href="#spec.userConfig.pgaudit.log_parameter-property" name="spec.userConfig.pgaudit.log_parameter-property"><code>log_parameter</code></a> (boolean). Specifies that audit logging should include the parameters that were passed with the statement.</li>
 <li><a href="#spec.userConfig.pgaudit.log_parameter_max_size-property" name="spec.userConfig.pgaudit.log_parameter_max_size-property"><code>log_parameter_max_size</code></a> (integer). Specifies that parameter values longer than this setting (in bytes) should not be logged, but replaced with <long param suppressed>.</li>
 <li><a href="#spec.userConfig.pgaudit.log_relation-property" name="spec.userConfig.pgaudit.log_relation-property"><code>log_relation</code></a> (boolean). Specifies whether session audit logging should create a separate log entry for each relation (TABLE, VIEW, etc.) referenced in a SELECT or DML statement.</li>
-<li><a href="#spec.userConfig.pgaudit.log_rows-property" name="spec.userConfig.pgaudit.log_rows-property"><code>log_rows</code></a> (boolean). Log Rows.</li>
+<li><a href="#spec.userConfig.pgaudit.log_rows-property" name="spec.userConfig.pgaudit.log_rows-property"><code>log_rows</code></a> (boolean). Specifies that audit logging should include the rows retrieved or affected by a statement. When enabled the rows field will be included after the parameter field.</li>
 <li><a href="#spec.userConfig.pgaudit.log_statement-property" name="spec.userConfig.pgaudit.log_statement-property"><code>log_statement</code></a> (boolean). Specifies whether logging will include the statement text and parameters (if enabled).</li>
 <li><a href="#spec.userConfig.pgaudit.log_statement_once-property" name="spec.userConfig.pgaudit.log_statement_once-property"><code>log_statement_once</code></a> (boolean). Specifies whether logging will include the statement text and parameters with the first log entry for a statement/substatement combination or with every entry.</li>
 <li><a href="#spec.userConfig.pgaudit.role-property" name="spec.userConfig.pgaudit.role-property"><code>role</code></a> (string, Pattern: <code>^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$</code>, MaxLength: 64). Specifies the master role to use for object audit logging.</li>

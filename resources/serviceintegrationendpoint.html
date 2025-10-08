@@ -610,52 +610,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../guides/token-management.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Token Management
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../guides/deletion-policy.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Deletion Policy
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -719,7 +673,7 @@
   
   
   <span class="md-ellipsis">
-    AlloyDBOmni [DEPRECATED]
+    AlloyDBOmni
     
   </span>
   
@@ -1781,7 +1735,7 @@
   
   
   <span class="md-ellipsis">
-    AlloyDBOmni [DEPRECATED]
+    AlloyDBOmni
     
   </span>
   
@@ -3738,7 +3692,7 @@
 <p>Autoscaling properties for a service.</p>
 <p><strong>Required</strong></p>
 <ul>
-<li><a href="#spec.autoscaler.autoscaling.cap_gb-property" name="spec.autoscaler.autoscaling.cap_gb-property"><code>cap_gb</code></a> (integer, Minimum: 50). The maximum total disk size (in gb) to allow autoscaler to scale up to.</li>
+<li><a href="#spec.autoscaler.autoscaling.cap_gb-property" name="spec.autoscaler.autoscaling.cap_gb-property"><code>cap_gb</code></a> (integer, Minimum: 50, Maximum: 10000). The maximum total disk size (in gb) to allow autoscaler to scale up to.</li>
 <li><a href="#spec.autoscaler.autoscaling.type-property" name="spec.autoscaler.autoscaling.type-property"><code>type</code></a> (string, Enum: <code>autoscale_disk</code>). Type of autoscale event.</li>
 </ul>
 <h2 id="spec.datadog">datadog<a class="headerlink" href="#spec.datadog" title="Permanent link">&para;</a></h2>
@@ -3870,7 +3824,7 @@
 <li><a href="#spec.externalPostgresql.password-property" name="spec.externalPostgresql.password-property"><code>password</code></a> (string, MaxLength: 256). Password.</li>
 <li><a href="#spec.externalPostgresql.ssl_client_certificate-property" name="spec.externalPostgresql.ssl_client_certificate-property"><code>ssl_client_certificate</code></a> (string, MaxLength: 16384). Client certificate.</li>
 <li><a href="#spec.externalPostgresql.ssl_client_key-property" name="spec.externalPostgresql.ssl_client_key-property"><code>ssl_client_key</code></a> (string, MaxLength: 16384). Client key.</li>
-<li><a href="#spec.externalPostgresql.ssl_mode-property" name="spec.externalPostgresql.ssl_mode-property"><code>ssl_mode</code></a> (string, Enum: <code>prefer</code>, <code>require</code>, <code>verify-ca</code>, <code>verify-full</code>). SSL mode to use for the connection. Please note that Aiven requires TLS for all connections to external PostgreSQL services. Deprecated values: <code>prefer</code>.</li>
+<li><a href="#spec.externalPostgresql.ssl_mode-property" name="spec.externalPostgresql.ssl_mode-property"><code>ssl_mode</code></a> (string, Enum: <code>prefer</code>, <code>require</code>, <code>verify-ca</code>, <code>verify-full</code>). SSL mode to use for the connection.  Please note that Aiven requires TLS for all connections to external PostgreSQL services. Deprecated values: <code>prefer</code>.</li>
 <li><a href="#spec.externalPostgresql.ssl_root_cert-property" name="spec.externalPostgresql.ssl_root_cert-property"><code>ssl_root_cert</code></a> (string, MaxLength: 16384). SSL Root Cert.</li>
 </ul>
 <h2 id="spec.externalSchemaRegistry">externalSchemaRegistry<a class="headerlink" href="#spec.externalSchemaRegistry" title="Permanent link">&para;</a></h2>
@@ -3899,7 +3853,7 @@
 <p>Prometheus configuration values.</p>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.prometheus.basic_auth_password-property" name="spec.prometheus.basic_auth_password-property"><code>basic_auth_password</code></a> (string, MinLength: 8, MaxLength: 256). Prometheus basic authentication password.</li>
+<li><a href="#spec.prometheus.basic_auth_password-property" name="spec.prometheus.basic_auth_password-property"><code>basic_auth_password</code></a> (string, MinLength: 8, MaxLength: 64). Prometheus basic authentication password.</li>
 <li><a href="#spec.prometheus.basic_auth_username-property" name="spec.prometheus.basic_auth_username-property"><code>basic_auth_username</code></a> (string, Pattern: <code>^[a-z0-9\-@_]{5,32}$</code>, MinLength: 5, MaxLength: 32). Prometheus basic authentication username.</li>
 </ul>
 <h2 id="spec.rsyslog">rsyslog<a class="headerlink" href="#spec.rsyslog" title="Permanent link">&para;</a></h2>

@@ -610,52 +610,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../guides/token-management.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Token Management
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../guides/deletion-policy.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Deletion Policy
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -719,7 +673,7 @@
   
   
   <span class="md-ellipsis">
-    AlloyDBOmni [DEPRECATED]
+    AlloyDBOmni
     
   </span>
   
@@ -1643,7 +1597,7 @@
   
   
   <span class="md-ellipsis">
-    AlloyDBOmni [DEPRECATED]
+    AlloyDBOmni
     
   </span>
   
@@ -3376,14 +3330,21 @@ Built-in users like <code>avnadmin</code> cannot be deleted but their passwords 
 <ul>
 <li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
 <li><a href="#spec.authentication-property" name="spec.authentication-property"><code>authentication</code></a> (string, Enum: <code>caching_sha2_password</code>, <code>mysql_native_password</code>). Authentication details.</li>
-<li><a href="#spec.connInfoSecretSource-property" name="spec.connInfoSecretSource-property"><code>connInfoSecretSource</code></a> (object). ConnInfoSecretSource allows specifying an existing secret to read credentials from.
+<li>
+<p><a href="#spec.connInfoSecretSource-property" name="spec.connInfoSecretSource-property"><code>connInfoSecretSource</code></a> (object). ConnInfoSecretSource allows specifying an existing secret to read credentials from.
     The password from this secret will be used to modify the service user credentials.
     Password must be 8-256 characters long as per Aiven API requirements.
-    This can be used to set passwords for new users or modify passwords for existing users (e.g., avnadmin).
-    The source secret is watched for changes, and reconciliation will be automatically triggered
-    when the secret data is updated. See below for <a href="#spec.connInfoSecretSource">nested schema</a>.</li>
+    This can be used to set passwords for new users or modify passwords for existing users (e.g., avnadmin).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This secret is not watched - changes to the source secret require manual reconciliation.
+To apply password changes, trigger reconciliation by adding/updating an annotation on the ServiceUser. See below for <a href="#spec.connInfoSecretSource">nested schema</a>.</p>
+</div>
+<ul>
 <li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Secret configuration. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
 <li><a href="#spec.connInfoSecretTargetDisabled-property" name="spec.connInfoSecretTargetDisabled-property"><code>connInfoSecretTargetDisabled</code></a> (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.</li>
+</ul>
+</li>
 </ul>
 <h2 id="spec.authSecretRef">authSecretRef<a class="headerlink" href="#spec.authSecretRef" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -3398,9 +3359,12 @@ Built-in users like <code>avnadmin</code> cannot be deleted but their passwords 
 <p>ConnInfoSecretSource allows specifying an existing secret to read credentials from.
 The password from this secret will be used to modify the service user credentials.
 Password must be 8-256 characters long as per Aiven API requirements.
-This can be used to set passwords for new users or modify passwords for existing users (e.g., avnadmin).
-The source secret is watched for changes, and reconciliation will be automatically triggered
-when the secret data is updated.</p>
+This can be used to set passwords for new users or modify passwords for existing users (e.g., avnadmin).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This secret is not watched - changes to the source secret require manual reconciliation.
+To apply password changes, trigger reconciliation by adding/updating an annotation on the ServiceUser.</p>
+</div>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.connInfoSecretSource.name-property" name="spec.connInfoSecretSource.name-property"><code>name</code></a> (string, MinLength: 1). Name of the secret resource to read connection parameters from.</li>

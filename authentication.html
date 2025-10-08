@@ -680,52 +680,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="guides/token-management.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Token Management
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="guides/deletion-policy.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Deletion Policy
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -792,7 +746,7 @@
   
   
   <span class="md-ellipsis">
-    AlloyDBOmni [DEPRECATED]
+    AlloyDBOmni
     
   </span>
   
@@ -1619,7 +1573,7 @@
   
   
   <span class="md-ellipsis">
-    AlloyDBOmni [DEPRECATED]
+    AlloyDBOmni
     
   </span>
   
@@ -2979,16 +2933,11 @@ You can then refer to the Secret's name on every custom resource in the <code>au
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <p>An Aiven user account. <a href="https://console.aiven.io/signup?utm_source=github&amp;utm_medium=organic&amp;utm_campaign=k8s-operator&amp;utm_content=signup">Sign up for free</a>.</p>
 <h2 id="store-a-token-in-a-secret">Store a token in a Secret<a class="headerlink" href="#store-a-token-in-a-secret" title="Permanent link">&para;</a></h2>
-<p>1. Create an <a href="https://aiven.io/docs/platform/concepts/application-users">application user</a> in the Aiven Console.</p>
-<p>2. Create an <a href="https://aiven.io/docs/platform/howto/manage-application-users#create-a-token-for-an-application-user">application token</a> for the application user.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>You can also use a <a href="https://aiven.io/docs/platform/howto/create_authentication_token">personal token</a>.</p>
-</div>
-<p>3. To create a Kubernetes Secret with the token, run:</p>
+<p>1. <a href="https://aiven.io/docs/platform/howto/create_authentication_token">Create a personal token</a> in the Aiven Console.</p>
+<p>2. To create a Kubernetes Secret, run: </p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>aiven-token<span class="w"> </span>--from-literal<span class="o">=</span><span class="nv">token</span><span class="o">=</span><span class="s2">&quot;TOKEN&quot;</span>
 </code></pre></div>
-<p>Where <code>TOKEN</code> is the token. This creates a Secret named <code>aiven-token</code>.</p>
+<p>Where <code>TOKEN</code> is your personal token. This creates a Secret named <code>aiven-token</code>.</p>
 <p>When managing your Aiven resources, you use the Secret in the <code>authSecretRef</code> field. The following is an example
 for a PostgreSQL service with the token:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>

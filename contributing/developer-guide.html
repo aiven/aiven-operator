@@ -610,52 +610,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../guides/token-management.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Token Management
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../guides/deletion-policy.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Deletion Policy
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -719,7 +673,7 @@
   
   
   <span class="md-ellipsis">
-    AlloyDBOmni [DEPRECATED]
+    AlloyDBOmni
     
   </span>
   
@@ -1546,7 +1500,7 @@
   
   
   <span class="md-ellipsis">
-    AlloyDBOmni [DEPRECATED]
+    AlloyDBOmni
     
   </span>
   
@@ -2876,15 +2830,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#gke-development-environment" class="md-nav__link">
-    <span class="md-ellipsis">
-      GKE Development Environment
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#testing" class="md-nav__link">
     <span class="md-ellipsis">
       Testing
@@ -3044,15 +2989,6 @@
   <a href="#running" class="md-nav__link">
     <span class="md-ellipsis">
       Running
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#gke-development-environment" class="md-nav__link">
-    <span class="md-ellipsis">
-      GKE Development Environment
     </span>
   </a>
   
@@ -3249,14 +3185,6 @@ named <code>aiven-token</code> (use the Aiven authentication token created earli
 <p>... or by running <code>k9s</code> in another terminal window and type ": postgresqls" to see the provisioned
 PostgreSQL resources:</p>
 <p><img alt="k9s" src="../assets/developer-guide-k9s.jpg" /></p>
-<h2 id="gke-development-environment">GKE Development Environment<a class="headerlink" href="#gke-development-environment" title="Permanent link">&para;</a></h2>
-<p>For meticulous development and testing, each developer can deploy their own isolated GKE cluster with the Aiven Operator. This environment provides:</p>
-<ul>
-<li><strong>Individual GKE clusters</strong> for isolated development</li>
-<li><strong>Artifact repository</strong> for built operator images in Google Container Registry (GCR)</li>
-<li><strong>Resource deployment templates</strong> for testing of Aiven services</li>
-</ul>
-<p>See the <a href="../../../gke/README.md">GKE Development Setup</a> for detailed instructions on setting up your personal development cluster.</p>
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
 <p>For this section you'll need to set <code>export AIVEN_TOKEN=...</code> and an <code>export AIVEN_PROJECT_NAME=...</code> as well as <code>export ENABLE_WEBHOOKS=false</code> (see <a href="developer-guide.html#prerequisites">Prerequisites</a>).</p>
 <div class="admonition note">
