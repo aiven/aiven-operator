@@ -1,6 +1,10 @@
 # Changelog
 
 
+## v0.33.1 - 2025-10-08
+
+- Fix `PostgreSQL`: resolved panic during upgrade check task fails
+
 ## v0.33.0 - 2025-09-30
 
 - **DEPRECATION**: `AlloyDBOmni` is deprecated and entering its end-of-life cycle. See <https://aiven.io/docs/platform/reference/end-of-life> for details
