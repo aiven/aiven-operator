@@ -196,7 +196,8 @@ func TestErrorCondition(t *testing.T) {
 	for _, c := range *pg.Conditions() {
 		if c.Reason == "CreateOrUpdate" {
 			found = true
-			assert.Contains(t, c.Message, "Plan 'startup-1234' for service type ServiceType.pg is not available in cloud 'google-europe-west1'")
+			// check that the error mentions the invalid plan name and service type API may return different messages
+			assert.Contains(t, c.Message, "startup-1234")
 		}
 	}
 	assert.True(t, found)

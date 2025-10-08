@@ -91,7 +91,7 @@ jobs:
       SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
 
   notify-slack-failure:
-    if: always() && (needs.test.result == 'failure' || needs.test.result == 'cancelled')
+    if: failure() && needs.test.result != 'success'
     needs: [test, sweep]
     uses: ./.github/workflows/slack-notify.yml
     with:
