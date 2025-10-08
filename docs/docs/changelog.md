@@ -1,8 +1,13 @@
 # Changelog
 
 
+## v0.31.1 - 2025-10-08
+
+- Fix `PostgreSQL`: resolved panic during version upgrade when upgrade check task fails
+
 ## v0.31.0 - 2025-07-25
 
+- `KafkaTopic`: added concurrent reconcilers and optimized API calls
 - Upgraded HPA from deprecated `autoscaling/v2beta1` to stable `autoscaling/v2` API
 - Added `ServiceUser` field `connInfoSecretSource`: Allows reading passwords from existing secrets for credential management. Supports setting passwords for new users and existing users
 - Change `AlloyDBOmni` field `userConfig.pg.max_wal_senders`: maximum ~~`64`~~ → `256`

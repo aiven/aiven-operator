@@ -128,7 +128,7 @@ func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avnG
 	finalTaskResult, err := waitForTaskToComplete(ctx, func() (bool, *service.ServiceTaskGetOut, error) {
 		t, getErr := avnGen.ServiceTaskGet(ctx, a.getServiceCommonSpec().Project, a.getObjectMeta().Name, task.TaskId)
 		if getErr != nil {
-			return true, nil, fmt.Errorf("error fetching service task %s: %w", t.TaskId, getErr)
+			return true, nil, fmt.Errorf("error fetching service task %s: %w", task.TaskId, getErr)
 		}
 
 		if !t.Success {

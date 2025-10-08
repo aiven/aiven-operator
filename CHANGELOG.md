@@ -2,6 +2,10 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.31.1 - 2025-10-08
+
+- Fix `PostgreSQL`: resolved panic during version upgrade when upgrade check task fails
+
 ## v0.31.0 - 2025-07-25
 
 - `KafkaTopic`: added concurrent reconcilers and optimized API calls
