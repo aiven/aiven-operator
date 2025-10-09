@@ -329,7 +329,8 @@ func TestPgUpgradeVersion(t *testing.T) {
 			return false, err
 		}
 
-		return pgAvnUpd.UserConfig["pg_version"] != startingVersion, nil
+		// keep retrying while still on the old version
+		return pgAvnUpd.UserConfig["pg_version"] == startingVersion, nil
 	}))
 
 	pgUpd := new(v1alpha1.PostgreSQL)
