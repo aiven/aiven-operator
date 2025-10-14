@@ -3,10 +3,12 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"testing"
 
+	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -425,4 +427,199 @@ func TestWebhookMultipleUserConfigsDenied(t *testing.T) {
 		`"vserviceintegration.kb.io" denied the request: ` +
 		`got additional configuration for integration type "clickhouse_postgresql"`
 	assert.EqualError(t, err, errStringExpected)
+}
+
+// TestServiceIntegrationAdoptExisting tests that the operator adopts an existing integration
+// when a K8s resource is created with matching configuration.
+func TestServiceIntegrationAdoptExisting(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	ctx := context.Background()
+
+	ch, releaseClickhouse, err := sharedResources.AcquireClickhouse(ctx)
+	require.NoError(t, err)
+	defer releaseClickhouse()
+
+	pg, releasePostgreSQL, err := sharedResources.AcquirePostgreSQL(ctx)
+	require.NoError(t, err)
+	defer releasePostgreSQL()
+
+	chName := ch.Name
+	pgName := pg.Name
+
+	s := NewSession(context.Background(), k8sClient)
+	defer s.Destroy(t)
+
+	t.Run("adopts matching integration", func(t *testing.T) {
+		subCtx, subCancel := testCtx()
+		defer subCancel()
+
+		siName := randName("si-adopt")
+
+		// create the integration via API first
+		integrationOut, err := avnGen.ServiceIntegrationCreate(subCtx, cfg.Project, &service.ServiceIntegrationCreateIn{
+			IntegrationType: "clickhouse_postgresql",
+			SourceService:   &pgName,
+			DestService:     &chName,
+		})
+		require.NoError(t, err)
+		require.NotEmpty(t, integrationOut.ServiceIntegrationId)
+		existingIntegrationID := integrationOut.ServiceIntegrationId
+
+		// cleanup integration
+		defer func() {
+			_ = avnGen.ServiceIntegrationDelete(subCtx, cfg.Project, existingIntegrationID)
+		}()
+
+		// create the K8s ServiceIntegration resource with the same configuration
+		integrationYml := fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: %s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+  project: %s
+  integrationType: clickhouse_postgresql
+  sourceServiceName: %s
+  destinationServiceName: %s
+  clickhousePostgresql:
+    databases:
+      - database: defaultdb
+        schema: public
+`, siName, cfg.Project, pgName, chName)
+
+		require.NoError(t, s.Apply(integrationYml))
+
+		si := new(v1alpha1.ServiceIntegration)
+		require.NoError(t, s.GetRunning(si, siName))
+
+		assert.Equal(t, existingIntegrationID, si.Status.ID, "operator should adopt the existing integration")
+
+		siAvn, err := avnGen.ServiceIntegrationGet(subCtx, cfg.Project, si.Status.ID)
+		require.NoError(t, err)
+		assert.EqualValues(t, "clickhouse_postgresql", siAvn.IntegrationType)
+		assert.Equal(t, pgName, siAvn.SourceService)
+		assert.Equal(t, chName, *siAvn.DestService)
+		assert.True(t, siAvn.Active)
+		assert.True(t, siAvn.Enabled)
+
+		// check that no duplicate integration was created
+		pgService, err := avnGen.ServiceGet(subCtx, cfg.Project, pgName)
+		require.NoError(t, err)
+
+		clickhousePostgresqlCount := 0
+		for _, integration := range pgService.ServiceIntegrations {
+			if integration.IntegrationType == "clickhouse_postgresql" &&
+				integration.DestService != nil &&
+				*integration.DestService == chName {
+				clickhousePostgresqlCount++
+			}
+		}
+		assert.Equal(t, 1, clickhousePostgresqlCount, "should have exactly one integration, not duplicates")
+	})
+
+	t.Run("adopts with explicit project fields", func(t *testing.T) {
+		subCtx, subCancel := testCtx()
+		defer subCancel()
+
+		siName := randName("si-explicit")
+
+		integrationOut, err := avnGen.ServiceIntegrationCreate(subCtx, cfg.Project, &service.ServiceIntegrationCreateIn{
+			IntegrationType: "clickhouse_postgresql",
+			SourceService:   &pgName,
+			SourceProject:   &cfg.Project,
+			DestService:     &chName,
+			DestProject:     &cfg.Project,
+		})
+		require.NoError(t, err)
+		existingIntegrationID := integrationOut.ServiceIntegrationId
+
+		defer func() {
+			_ = avnGen.ServiceIntegrationDelete(subCtx, cfg.Project, existingIntegrationID)
+		}()
+
+		integrationYml := fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: %s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+  project: %s
+  integrationType: clickhouse_postgresql
+  sourceServiceName: %s
+  sourceProjectName: %s
+  destinationServiceName: %s
+  destinationProjectName: %s
+  clickhousePostgresql:
+    databases:
+      - database: defaultdb
+        schema: public
+`, siName, cfg.Project, pgName, cfg.Project, chName, cfg.Project)
+
+		require.NoError(t, s.Apply(integrationYml))
+
+		si := new(v1alpha1.ServiceIntegration)
+		require.NoError(t, s.GetRunning(si, siName))
+
+		assert.Equal(t, existingIntegrationID, si.Status.ID, "should adopt with explicit project fields")
+	})
+
+	t.Run("updates userConfig after adoption", func(t *testing.T) {
+		subCtx, subCancel := testCtx()
+		defer subCancel()
+
+		siName := randName("si-userconfig")
+
+		// integration WITHOUT userConfig
+		integrationOut, err := avnGen.ServiceIntegrationCreate(subCtx, cfg.Project, &service.ServiceIntegrationCreateIn{
+			IntegrationType: "clickhouse_postgresql",
+			SourceService:   &pgName,
+			DestService:     &chName,
+		})
+		require.NoError(t, err)
+		existingIntegrationID := integrationOut.ServiceIntegrationId
+
+		defer func() {
+			_ = avnGen.ServiceIntegrationDelete(subCtx, cfg.Project, existingIntegrationID)
+		}()
+
+		// K8s resource WITH userConfig
+		integrationYml := fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: %s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+  project: %s
+  integrationType: clickhouse_postgresql
+  sourceServiceName: %s
+  destinationServiceName: %s
+  clickhousePostgresql:
+    databases:
+      - database: defaultdb
+        schema: public
+`, siName, cfg.Project, pgName, chName)
+
+		require.NoError(t, s.Apply(integrationYml))
+
+		si := new(v1alpha1.ServiceIntegration)
+		require.NoError(t, s.GetRunning(si, siName))
+
+		assert.Equal(t, existingIntegrationID, si.Status.ID, "should adopt existing integration")
+
+		siAvn, err := avnGen.ServiceIntegrationGet(subCtx, cfg.Project, si.Status.ID)
+		require.NoError(t, err)
+		assert.True(t, siAvn.Active, "integration should be active")
+		assert.True(t, siAvn.Enabled, "integration should be enabled")
+	})
 }

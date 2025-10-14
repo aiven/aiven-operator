@@ -103,7 +103,9 @@ type ServiceIntegrationStatus struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 
-// ServiceIntegration is the Schema for the serviceintegrations API
+// ServiceIntegration is the Schema for the serviceintegrations API.
+//
+// info "Adoption of existing integrations": If a ServiceIntegration resource is created with configuration matching an existing Aiven integration (created outside the operator), the operator will adopt the existing integration.
 // +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
 // +kubebuilder:printcolumn:name="Type",type="string",JSONPath=".spec.integrationType"
 // +kubebuilder:printcolumn:name="Source Service Name",type="string",JSONPath=".spec.sourceServiceName"

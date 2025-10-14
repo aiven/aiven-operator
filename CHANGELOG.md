@@ -2,6 +2,7 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Change `ServiceIntegration`: operator now adopts existing integrations instead of failing with conflict
 - Fix `PostgreSQL`: added retry logic for errors during upgrade task
 
 ## v0.33.1 - 2025-10-08

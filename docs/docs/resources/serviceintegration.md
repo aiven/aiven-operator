@@ -279,6 +279,10 @@ my-service-integration    aiven-project-name    autoscaler    my-pg             
 
 ServiceIntegration is the Schema for the serviceintegrations API.
 
+!!! info "Adoption of existing integrations"
+
+    If a ServiceIntegration resource is created with configuration matching an existing Aiven integration (created outside the operator), the operator will adopt the existing integration.
+
 **Required**
 
 - [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.

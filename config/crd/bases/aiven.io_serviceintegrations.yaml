@@ -36,9 +36,11 @@ spec:
       name: v1alpha1
       schema:
         openAPIV3Schema:
-          description:
-            ServiceIntegration is the Schema for the serviceintegrations
-            API
+          description: |-
+            ServiceIntegration is the Schema for the serviceintegrations API.
+
+
+            info "Adoption of existing integrations": If a ServiceIntegration resource is created with configuration matching an existing Aiven integration (created outside the operator), the operator will adopt the existing integration.
           properties:
             apiVersion:
               description: |-

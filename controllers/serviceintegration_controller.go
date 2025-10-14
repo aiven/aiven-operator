@@ -11,6 +11,7 @@ import (
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/avast/retry-go"
+	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -57,31 +58,43 @@ func (h ServiceIntegrationHandler) createOrUpdate(ctx context.Context, avnGen av
 	}
 
 	if si.Status.ID == "" {
-		userConfigMap, err := CreateUserConfiguration(userConfig)
+		existingIntegration, err := h.findExistingIntegration(ctx, avnGen, si)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to check for existing integration: %w", err)
 		}
 
-		integration, err := avnGen.ServiceIntegrationCreate(
-			ctx,
-			si.Spec.Project,
-			&service.ServiceIntegrationCreateIn{
-				DestEndpointId:   NilIfZero(si.Spec.DestinationEndpointID),
-				DestService:      NilIfZero(si.Spec.DestinationServiceName),
-				DestProject:      NilIfZero(si.Spec.DestinationProjectName),
-				IntegrationType:  si.Spec.IntegrationType,
-				SourceEndpointId: NilIfZero(si.Spec.SourceEndpointID),
-				SourceService:    NilIfZero(si.Spec.SourceServiceName),
-				SourceProject:    NilIfZero(si.Spec.SourceProjectName),
-				UserConfig:       &userConfigMap,
-			},
-		)
-		if err != nil {
-			return fmt.Errorf("cannot createOrUpdate service integration: %w", err)
-		}
+		if existingIntegration != nil {
+			si.Status.ID = existingIntegration.ServiceIntegrationId // adopt existing
+		} else {
+			userConfigMap, err := CreateUserConfiguration(userConfig)
+			if err != nil {
+				return err
+			}
 
-		si.Status.ID = integration.ServiceIntegrationId
-	} else {
+			integration, err := avnGen.ServiceIntegrationCreate(
+				ctx,
+				si.Spec.Project,
+				&service.ServiceIntegrationCreateIn{
+					DestEndpointId:   NilIfZero(si.Spec.DestinationEndpointID),
+					DestService:      NilIfZero(si.Spec.DestinationServiceName),
+					DestProject:      NilIfZero(si.Spec.DestinationProjectName),
+					IntegrationType:  si.Spec.IntegrationType,
+					SourceEndpointId: NilIfZero(si.Spec.SourceEndpointID),
+					SourceService:    NilIfZero(si.Spec.SourceServiceName),
+					SourceProject:    NilIfZero(si.Spec.SourceProjectName),
+					UserConfig:       &userConfigMap,
+				},
+			)
+			if err != nil {
+				return fmt.Errorf("cannot createOrUpdate service integration: %w", err)
+			}
+
+			si.Status.ID = integration.ServiceIntegrationId
+			return nil
+		}
+	}
+
+	if si.Status.ID != "" {
 		if !si.HasUserConfig() {
 			return nil
 		}
@@ -198,4 +211,83 @@ func (h ServiceIntegrationHandler) convert(i client.Object) (*v1alpha1.ServiceIn
 	}
 
 	return si, nil
+}
+
+// findExistingIntegration checks if an integration with matching configuration already exists on Aiven.
+func (h ServiceIntegrationHandler) findExistingIntegration(
+	ctx context.Context,
+	avnGen avngen.Client,
+	si *v1alpha1.ServiceIntegration,
+) (*service.ServiceIntegrationOut, error) {
+	if si.Spec.SourceServiceName == "" {
+		return nil, nil // integration with only endpoints, cannot list integrations
+	}
+
+	sourceProject := si.Spec.SourceProjectName
+	if sourceProject == "" {
+		sourceProject = si.Spec.Project
+	}
+
+	svc, err := avnGen.ServiceGet(ctx, sourceProject, si.Spec.SourceServiceName)
+	if err != nil {
+		if isNotFound(err) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to get service %s/%s: %w", sourceProject, si.Spec.SourceServiceName, err)
+	}
+
+	for _, integration := range svc.ServiceIntegrations {
+		if h.integrationMatches(&integration, si) {
+			return &integration, nil
+		}
+	}
+
+	return nil, nil
+}
+
+type integrationKey struct {
+	IntegrationType  service.IntegrationType
+	SourceService    string
+	SourceProject    string
+	SourceEndpointID *string
+	DestService      *string
+	DestProject      string
+	DestEndpointID   *string
+}
+
+func (h ServiceIntegrationHandler) integrationMatches(
+	existing *service.ServiceIntegrationOut,
+	desired *v1alpha1.ServiceIntegration,
+) bool {
+	sourceProject := desired.Spec.SourceProjectName
+	if sourceProject == "" {
+		sourceProject = desired.Spec.Project
+	}
+
+	destProject := desired.Spec.DestinationProjectName
+	if destProject == "" {
+		destProject = desired.Spec.Project
+	}
+
+	existingKey := integrationKey{
+		IntegrationType:  existing.IntegrationType,
+		SourceService:    existing.SourceService,
+		SourceProject:    existing.SourceProject,
+		SourceEndpointID: existing.SourceEndpointId,
+		DestService:      existing.DestService,
+		DestProject:      existing.DestProject,
+		DestEndpointID:   existing.DestEndpointId,
+	}
+
+	desiredKey := integrationKey{
+		IntegrationType:  desired.Spec.IntegrationType,
+		SourceService:    desired.Spec.SourceServiceName,
+		SourceProject:    sourceProject,
+		SourceEndpointID: NilIfZero(desired.Spec.SourceEndpointID),
+		DestService:      NilIfZero(desired.Spec.DestinationServiceName),
+		DestProject:      destProject,
+		DestEndpointID:   NilIfZero(desired.Spec.DestinationEndpointID),
+	}
+
+	return cmp.Equal(existingKey, desiredKey)
 }
