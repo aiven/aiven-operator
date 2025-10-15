@@ -4,11 +4,13 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
+	"github.com/avast/retry-go"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -27,7 +29,7 @@ func newPostgreSQLReconciler(c Controller) reconcilerType {
 	return &PostgreSQLReconciler{Controller: c}
 }
 
-const waitForTaskToCompleteInterval = time.Second * 10
+const waitForTaskToCompleteInterval = time.Second * 3
 
 //+kubebuilder:rbac:groups=aiven.io,resources=postgresqls,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=postgresqls/status,verbs=get;update;patch
@@ -104,6 +106,16 @@ func (a *postgreSQLAdapter) getDiskSpace() string {
 	return a.Spec.DiskSpace
 }
 
+// performUpgradeTaskIfNeeded validates that a PostgreSQL version upgrade is possible before
+// attempting the actual upgrade.
+//
+//  1. ServiceTaskCreate runs a compatibility check that validates if the upgrade is
+//     possible. Multiple checks can be created without conflicts.
+//  2. ServiceTaskGet polls for the check result. This step is required to unblock ServiceUpdate with
+//     upgrade request.
+//  3. If the check fails, the function returns the error from the
+//     task result, preventing the upgrade attempt.
+//  4. Once the check passes, ServiceUpdate can proceed. The actual upgrade happens async after ServiceUpdate.
 func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avnGen avngen.Client, old *service.ServiceGetOut) error {
 	currentVersion := old.UserConfig["pg_version"].(string)
 	targetUserConfig := a.getUserConfig().(*pguserconfig.PgUserConfig)
@@ -125,39 +137,46 @@ func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avnG
 		return fmt.Errorf("cannot create PG upgrade check task: %w", err)
 	}
 
-	finalTaskResult, err := waitForTaskToComplete(ctx, func() (bool, *service.ServiceTaskGetOut, error) {
-		t, getErr := avnGen.ServiceTaskGet(ctx, a.getServiceCommonSpec().Project, a.getObjectMeta().Name, task.TaskId)
-		if getErr != nil {
-			return true, nil, fmt.Errorf("error fetching service task %s: %w", task.TaskId, getErr)
-		}
+	errTaskInProgress := fmt.Errorf("task in progress")
 
-		if !t.Success {
-			return false, nil, nil
-		}
-		return true, t, nil
-	})
-	if err != nil {
-		return err
-	}
-	if !finalTaskResult.Success {
-		return fmt.Errorf("PG service upgrade check error, version upgrade from %s to %s, result: %s", currentVersion, targetVersion, finalTaskResult.Result)
-	}
-	return nil
-}
-
-func waitForTaskToComplete[T any](ctx context.Context, f func() (bool, *T, error)) (*T, error) {
-	var err error
-	for {
-		select {
-		case <-ctx.Done():
-			return nil, fmt.Errorf("context timeout while retrying operation, error=%w", err)
-		case <-time.After(waitForTaskToCompleteInterval):
-			finished, val, err := f()
-			if finished {
-				return val, err
+	err = retry.Do(
+		func() error {
+			t, getErr := avnGen.ServiceTaskGet(
+				ctx,
+				a.getServiceCommonSpec().Project,
+				a.getObjectMeta().Name,
+				task.TaskId,
+			)
+			if getErr != nil {
+				return getErr
 			}
-		}
-	}
+
+			if t.Success {
+				return nil
+			}
+
+			if t.Result != "" {
+				return fmt.Errorf(
+					"PG service upgrade check error, version upgrade from %s to %s, result: %s",
+					currentVersion,
+					targetVersion,
+					task.Result,
+				)
+			}
+
+			return errTaskInProgress
+		},
+		retry.RetryIf(func(err error) bool {
+			return isServerError(err) || isNotFound(err) || errors.Is(err, errTaskInProgress)
+		}),
+		retry.Context(ctx),
+		retry.Attempts(3), //nolint:mnd
+		retry.Delay(waitForTaskToCompleteInterval),
+		retry.DelayType(retry.FixedDelay),
+		retry.LastErrorOnly(true),
+	)
+
+	return err
 }
 
 func (a *postgreSQLAdapter) createOrUpdateServiceSpecific(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
