@@ -230,9 +230,6 @@ func (h ServiceIntegrationHandler) findExistingIntegration(
 
 	svc, err := avnGen.ServiceGet(ctx, sourceProject, si.Spec.SourceServiceName)
 	if err != nil {
-		if isNotFound(err) {
-			return nil, nil
-		}
 		return nil, fmt.Errorf("failed to get service %s/%s: %w", sourceProject, si.Spec.SourceServiceName, err)
 	}
 
