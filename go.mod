@@ -4,8 +4,8 @@ go 1.24.0
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.40.3
-	github.com/aiven/go-api-schemas v1.143.0
-	github.com/aiven/go-client-codegen v0.122.0
+	github.com/aiven/go-api-schemas v1.151.0
+	github.com/aiven/go-client-codegen v0.128.0
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/dave/jennifer v1.7.1
 	github.com/docker/go-units v0.5.0
@@ -23,7 +23,7 @@ require (
 	go.uber.org/zap v1.27.0
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c
 	golang.org/x/sync v0.17.0
-	golang.org/x/tools v0.37.0
+	golang.org/x/tools v0.38.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.26.15
 	k8s.io/apimachinery v0.26.15
@@ -83,19 +83,19 @@ require (
 	github.com/rs/zerolog v1.34.0 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
-	github.com/spf13/pflag v1.0.7 // indirect
+	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	go.opentelemetry.io/otel v1.38.0 // indirect
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/mod v0.28.0 // indirect
-	golang.org/x/net v0.44.0 // indirect
+	golang.org/x/mod v0.29.0 // indirect
+	golang.org/x/net v0.46.0 // indirect
 	golang.org/x/oauth2 v0.27.0 // indirect
-	golang.org/x/sys v0.36.0 // indirect
-	golang.org/x/term v0.35.0 // indirect
-	golang.org/x/text v0.29.0 // indirect
+	golang.org/x/sys v0.37.0 // indirect
+	golang.org/x/term v0.36.0 // indirect
+	golang.org/x/text v0.30.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/protobuf v1.35.1 // indirect
