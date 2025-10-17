@@ -128,6 +128,7 @@ func main() {
 	}
 
 	defaultToken := os.Getenv("DEFAULT_AIVEN_TOKEN")
+
 	err = controllers.SetupControllers(mgr, defaultToken, kubeVersion.String(), operatorVersion)
 	if err != nil {
 		setupLog.Error(err, "controllers setup error")
