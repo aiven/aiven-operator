@@ -259,7 +259,9 @@ spec:
                     custom_domain:
                       description:
                         Serve the web frontend using a custom CNAME pointing
-                        to the Aiven DNS name
+                        to the Aiven DNS name. When you set a custom domain for a service
+                        deployed in a VPC, the service certificate is only created for
+                        the public-* hostname and the custom domain.
                       maxLength: 255
                       type: string
                     follower_fetching:
@@ -949,6 +951,18 @@ spec:
                           - name
                         type: object
                       type: array
+                    kafka_diskless:
+                      description: Kafka Diskless configuration values
+                      properties:
+                        enabled:
+                          description: Whether to enable the Diskless functionality
+                          type: boolean
+                          x-kubernetes-validations:
+                            - message: Value is immutable
+                              rule: self == oldSelf
+                      required:
+                        - enabled
+                      type: object
                     kafka_rest:
                       description: Enable Kafka-REST service
                       type: boolean
@@ -1075,6 +1089,7 @@ spec:
                         - "3.7"
                         - "3.8"
                         - "3.9"
+                        - "4.0"
                       type: string
                     letsencrypt_sasl_privatelink:
                       description: Use Letsencrypt CA for Kafka SASL via Privatelink

@@ -219,7 +219,7 @@ Kafka specific user configuration options.
 
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Deprecated. Additional Cloud Regions for Backup Replication.
 - [`aiven_kafka_topic_messages`](#spec.userConfig.aiven_kafka_topic_messages-property){: name='spec.userConfig.aiven_kafka_topic_messages-property'} (boolean). Allow access to read Kafka topic messages in the Aiven Console and REST API.
-- [`custom_domain`](#spec.userConfig.custom_domain-property){: name='spec.userConfig.custom_domain-property'} (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name.
+- [`custom_domain`](#spec.userConfig.custom_domain-property){: name='spec.userConfig.custom_domain-property'} (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name. When you set a custom domain for a service deployed in a VPC, the service certificate is only created for the public-* hostname and the custom domain.
 - [`follower_fetching`](#spec.userConfig.follower_fetching-property){: name='spec.userConfig.follower_fetching-property'} (object). Enable follower fetching. See below for [nested schema](#spec.userConfig.follower_fetching).
 - [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 8000). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
 - [`kafka`](#spec.userConfig.kafka-property){: name='spec.userConfig.kafka-property'} (object). Kafka broker configuration values. See below for [nested schema](#spec.userConfig.kafka).
@@ -228,11 +228,12 @@ Kafka specific user configuration options.
 - [`kafka_connect_config`](#spec.userConfig.kafka_connect_config-property){: name='spec.userConfig.kafka_connect_config-property'} (object). Kafka Connect configuration values. See below for [nested schema](#spec.userConfig.kafka_connect_config).
 - [`kafka_connect_plugin_versions`](#spec.userConfig.kafka_connect_plugin_versions-property){: name='spec.userConfig.kafka_connect_plugin_versions-property'} (array of objects). The plugin selected by the user. See below for [nested schema](#spec.userConfig.kafka_connect_plugin_versions).
 - [`kafka_connect_secret_providers`](#spec.userConfig.kafka_connect_secret_providers-property){: name='spec.userConfig.kafka_connect_secret_providers-property'} (array of objects). Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name>}. See below for [nested schema](#spec.userConfig.kafka_connect_secret_providers).
+- [`kafka_diskless`](#spec.userConfig.kafka_diskless-property){: name='spec.userConfig.kafka_diskless-property'} (object). Kafka Diskless configuration values. See below for [nested schema](#spec.userConfig.kafka_diskless).
 - [`kafka_rest`](#spec.userConfig.kafka_rest-property){: name='spec.userConfig.kafka_rest-property'} (boolean). Enable Kafka-REST service.
 - [`kafka_rest_authorization`](#spec.userConfig.kafka_rest_authorization-property){: name='spec.userConfig.kafka_rest_authorization-property'} (boolean). Enable authorization in Kafka-REST service.
 - [`kafka_rest_config`](#spec.userConfig.kafka_rest_config-property){: name='spec.userConfig.kafka_rest_config-property'} (object). Kafka REST configuration. See below for [nested schema](#spec.userConfig.kafka_rest_config).
 - [`kafka_sasl_mechanisms`](#spec.userConfig.kafka_sasl_mechanisms-property){: name='spec.userConfig.kafka_sasl_mechanisms-property'} (object). Kafka SASL mechanisms. See below for [nested schema](#spec.userConfig.kafka_sasl_mechanisms).
-- [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string, Enum: `3.7`, `3.8`, `3.9`). Kafka major version. Deprecated values: `3.7`.
+- [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string, Enum: `3.7`, `3.8`, `3.9`, `4.0`). Kafka major version. Deprecated values: `3.7`.
 - [`letsencrypt_sasl_privatelink`](#spec.userConfig.letsencrypt_sasl_privatelink-property){: name='spec.userConfig.letsencrypt_sasl_privatelink-property'} (boolean). Use Letsencrypt CA for Kafka SASL via Privatelink.
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
 - [`privatelink_access`](#spec.userConfig.privatelink_access-property){: name='spec.userConfig.privatelink_access-property'} (object). Allow access to selected service components through Privatelink. See below for [nested schema](#spec.userConfig.privatelink_access).
@@ -419,6 +420,16 @@ Vault secret provider configuration.
 - [`engine_version`](#spec.userConfig.kafka_connect_secret_providers.vault.engine_version-property){: name='spec.userConfig.kafka_connect_secret_providers.vault.engine_version-property'} (integer, Enum: `1`, `2`). KV Secrets Engine version of the Vault server instance.
 - [`prefix_path_depth`](#spec.userConfig.kafka_connect_secret_providers.vault.prefix_path_depth-property){: name='spec.userConfig.kafka_connect_secret_providers.vault.prefix_path_depth-property'} (integer). Prefix path depth of the secrets Engine. Default is 1. If the secrets engine path has more than one segment it has to be increased to the number of segments.
 - [`token`](#spec.userConfig.kafka_connect_secret_providers.vault.token-property){: name='spec.userConfig.kafka_connect_secret_providers.vault.token-property'} (string, MaxLength: 256). Token used to authenticate with vault and auth method `token`.
+
+### kafka_diskless {: #spec.userConfig.kafka_diskless }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+Kafka Diskless configuration values.
+
+**Required**
+
+- [`enabled`](#spec.userConfig.kafka_diskless.enabled-property){: name='spec.userConfig.kafka_diskless.enabled-property'} (boolean, Immutable). Whether to enable the Diskless functionality.
 
 ### kafka_rest_config {: #spec.userConfig.kafka_rest_config }
 

@@ -393,6 +393,13 @@ type KafkaConnectSecretProviders struct {
 	Vault *Vault `groups:"create,update" json:"vault,omitempty"`
 }
 
+// Kafka Diskless configuration values
+type KafkaDiskless struct {
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// Whether to enable the Diskless functionality
+	Enabled bool `groups:"create" json:"enabled"`
+}
+
 // Kafka REST configuration
 type KafkaRestConfig struct {
 	// If true the consumer's offset will be periodically committed to Kafka in the background
@@ -569,7 +576,7 @@ type KafkaUserConfig struct {
 	AivenKafkaTopicMessages *bool `groups:"create,update" json:"aiven_kafka_topic_messages,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=255
-	// Serve the web frontend using a custom CNAME pointing to the Aiven DNS name
+	// Serve the web frontend using a custom CNAME pointing to the Aiven DNS name. When you set a custom domain for a service deployed in a VPC, the service certificate is only created for the public-* hostname and the custom domain.
 	CustomDomain *string `groups:"create,update" json:"custom_domain,omitempty"`
 
 	// Enable follower fetching
@@ -597,6 +604,9 @@ type KafkaUserConfig struct {
 	// Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name>}
 	KafkaConnectSecretProviders []*KafkaConnectSecretProviders `groups:"create,update" json:"kafka_connect_secret_providers,omitempty"`
 
+	// Kafka Diskless configuration values
+	KafkaDiskless *KafkaDiskless `groups:"create,update" json:"kafka_diskless,omitempty"`
+
 	// Enable Kafka-REST service
 	KafkaRest *bool `groups:"create,update" json:"kafka_rest,omitempty"`
 
@@ -609,7 +619,7 @@ type KafkaUserConfig struct {
 	// Kafka SASL mechanisms
 	KafkaSaslMechanisms *KafkaSaslMechanisms `groups:"create,update" json:"kafka_sasl_mechanisms,omitempty"`
 
-	// +kubebuilder:validation:Enum="3.7";"3.8";"3.9"
+	// +kubebuilder:validation:Enum="3.7";"3.8";"3.9";"4.0"
 	// Kafka major version. Deprecated values: `3.7`
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
 

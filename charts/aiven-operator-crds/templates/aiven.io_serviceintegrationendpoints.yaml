@@ -81,6 +81,7 @@ spec:
                             description:
                               The maximum total disk size (in gb) to allow
                               autoscaler to scale up to
+                            maximum: 9007199254740991
                             minimum: 50
                             type: integer
                           type:

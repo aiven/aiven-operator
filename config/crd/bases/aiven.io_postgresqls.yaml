@@ -373,6 +373,11 @@ spec:
                         - host
                         - port
                       type: object
+                    node_count:
+                      description: Number of nodes for the service
+                      maximum: 100
+                      minimum: 1
+                      type: integer
                     pg:
                       description: postgresql.conf configuration values
                       properties:
@@ -518,6 +523,52 @@ spec:
                           maximum: 604800000
                           minimum: 0
                           type: integer
+                        io_combine_limit:
+                          description:
+                            "EXPERIMENTAL: Controls the largest I/O size
+                            in operations that combine I/O in 8kB units. Version 17
+                            and up only."
+                          maximum: 32
+                          minimum: 1
+                          type: integer
+                        io_max_combine_limit:
+                          description:
+                            "EXPERIMENTAL: Controls the largest I/O size
+                            in operations that combine I/O in 8kB units, and silently
+                            limits the user-settable parameter io_combine_limit. Version
+                            18 and up only. Changing this parameter causes a service
+                            restart."
+                          maximum: 128
+                          minimum: 1
+                          type: integer
+                        io_max_concurrency:
+                          description:
+                            "EXPERIMENTAL: Controls the maximum number of
+                            I/O operations that one process can execute simultaneously.
+                            Version 18 and up only. Changing this parameter causes a
+                            service restart."
+                          maximum: 1024
+                          minimum: -1
+                          type: integer
+                        io_method:
+                          description:
+                            "EXPERIMENTAL: Controls the maximum number of
+                            I/O operations that one process can execute simultaneously.
+                            Version 18 and up only. Changing this parameter causes a
+                            service restart."
+                          enum:
+                            - io_uring
+                            - sync
+                            - worker
+                          type: string
+                        io_workers:
+                          description:
+                            "EXPERIMENTAL: Number of IO worker processes,
+                            for io_method=worker. Version 18 and up only. Changing this
+                            parameter causes a service restart."
+                          maximum: 32
+                          minimum: 1
+                          type: integer
                         jit:
                           description:
                             Controls system-wide use of Just-in-Time Compilation
@@ -575,6 +626,7 @@ spec:
                             After the change is applied to the replica, you can increase
                             the primary service's value. Changing this parameter causes
                             a service restart.
+                          maximum: 60000
                           minimum: 25
                           type: integer
                         max_files_per_process:
@@ -860,6 +912,7 @@ spec:
                         - "15"
                         - "16"
                         - "17"
+                        - "18"
                       type: string
                     pgaudit:
                       description: System-wide settings for the pgaudit extension.
