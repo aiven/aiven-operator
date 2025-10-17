@@ -65,6 +65,11 @@ func (in *AlloydbomniUserConfig) DeepCopyInto(out *AlloydbomniUserConfig) {
 			}
 		}
 	}
+	if in.NodeCount != nil {
+		in, out := &in.NodeCount, &out.NodeCount
+		*out = new(int)
+		**out = **in
+	}
 	if in.Pg != nil {
 		in, out := &in.Pg, &out.Pg
 		*out = new(Pg)

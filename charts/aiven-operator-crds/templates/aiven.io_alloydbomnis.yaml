@@ -337,6 +337,11 @@ spec:
                         type: object
                       maxItems: 8000
                       type: array
+                    node_count:
+                      description: Number of nodes for the service
+                      maximum: 100
+                      minimum: 1
+                      type: integer
                     pg:
                       description: postgresql.conf configuration values
                       properties:
