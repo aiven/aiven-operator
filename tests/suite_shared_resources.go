@@ -19,6 +19,7 @@ import (
 type SharedResources interface {
 	AcquirePostgreSQL(ctx context.Context) (*v1alpha1.PostgreSQL, func(), error)
 	AcquireClickhouse(ctx context.Context) (*v1alpha1.Clickhouse, func(), error)
+	AcquireKafka(ctx context.Context) (*v1alpha1.Kafka, func(), error)
 	Destroy() error
 }
 
@@ -59,6 +60,19 @@ func (s *sharedResourcesImpl) AcquireClickhouse(ctx context.Context) (*v1alpha1.
 	obj.Spec.Project = cfg.Project
 	obj.Spec.CloudName = cfg.PrimaryCloudName
 	return acquire(ctx, s, "Clickhouse", obj)
+}
+
+func (s *sharedResourcesImpl) AcquireKafka(ctx context.Context) (*v1alpha1.Kafka, func(), error) {
+	obj := &v1alpha1.Kafka{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "aiven.io/v1alpha1",
+			Kind:       "Kafka",
+		},
+	}
+	obj.Spec.Plan = "business-4"
+	obj.Spec.Project = cfg.Project
+	obj.Spec.CloudName = cfg.PrimaryCloudName
+	return acquire(ctx, s, "Kafka", obj)
 }
 
 // acquire returns a shared resource: first call creates the resource.

@@ -17,23 +17,9 @@ import (
 	"github.com/aiven/aiven-operator/controllers"
 )
 
-func getKafkaACLYaml(project, kafka, topic, acl, cloudName string) string {
+// getKafkaACLComponentsYaml creates the ACL-related components
+func getKafkaACLComponentsYaml(project, kafka, topic, acl string) string {
 	return fmt.Sprintf(`
-apiVersion: aiven.io/v1alpha1
-kind: Kafka
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[5]s
-  plan: startup-4
-
----
-
 apiVersion: aiven.io/v1alpha1
 kind: KafkaTopic
 metadata:
@@ -62,10 +48,10 @@ spec:
 
   project: %[1]s
   serviceName: %[2]s
-  topic: %[3]s
   username: my-user
+  topic: %[3]s
   permission: admin
-`, project, kafka, topic, acl, cloudName)
+`, project, kafka, topic, acl)
 }
 
 func TestKafkaACL(t *testing.T) {
@@ -76,22 +62,21 @@ func TestKafkaACL(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	kafkaName := randName("kafka-service")
+	kafkaService, releaseKafka, err := sharedResources.AcquireKafka(ctx)
+	require.NoError(t, err)
+	defer releaseKafka()
+
+	kafkaName := kafkaService.GetName()
 	topicName := randName("kafka-topic")
 	aclName := randName("kafka-acl")
-	yml := getKafkaACLYaml(cfg.Project, kafkaName, topicName, aclName, cfg.PrimaryCloudName)
+
+	yml := getKafkaACLComponentsYaml(cfg.Project, kafkaName, topicName, aclName)
 	s := NewSession(ctx, k8sClient)
 
-	// Cleans test afterward
 	defer s.Destroy(t)
 
 	// WHEN
-	// Applies given manifest
 	require.NoError(t, s.Apply(yml))
-
-	// Waits kube objects
-	kafkaService := new(v1alpha1.Kafka)
-	require.NoError(t, s.GetRunning(kafkaService, kafkaName))
 
 	topic := new(v1alpha1.KafkaTopic)
 	require.NoError(t, s.GetRunning(topic, topicName))
@@ -100,14 +85,11 @@ func TestKafkaACL(t *testing.T) {
 	require.NoError(t, s.GetRunning(acl, aclName))
 
 	// THEN
-	// Kafka
 	kafkaAvn, err := avnGen.ServiceGet(ctx, cfg.Project, kafkaName)
 	require.NoError(t, err)
 	assert.Equal(t, kafkaAvn.ServiceName, kafkaService.GetName())
 	assert.Equal(t, serviceRunningState, kafkaService.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, kafkaAvn.State)
-	assert.Equal(t, kafkaAvn.Plan, kafkaService.Spec.Plan)
-	assert.Equal(t, kafkaAvn.CloudName, kafkaService.Spec.CloudName)
 
 	// KafkaTopic
 	topicAvn, err := avnGen.ServiceKafkaTopicGet(ctx, cfg.Project, kafkaName, topic.GetTopicName())
