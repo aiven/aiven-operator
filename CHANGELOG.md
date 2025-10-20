@@ -8,8 +8,6 @@
 - Add `Kafka` field `userConfig.kafka_diskless`, type `object`: Kafka Diskless configuration values
 - Change `Kafka` field `userConfig.kafka_version`: enum add `4.0`
 - Change `MySQL` field `userConfig.mysql.innodb_log_buffer_size`: maximum ~~`4294967295`~~ → `4294967296`
-- Add `OpenSearch` field `userConfig.custom_repos`, type `array`: Allow to register object storage repositories
-  in OpenSearch
 - Add `OpenSearch` field `userConfig.jwt`, type `object`: OpenSearch JWT Configuration
 - Change `OpenSearch` field `userConfig.opensearch.knn_memory_circuit_breaker_limit`: minimum ~~`3`~~ → `0`
 - Add `PostgreSQL` field `userConfig.node_count`, type `integer`: Number of nodes for the service
@@ -26,6 +24,11 @@
   processes, for io_method=worker. Version 18 and up only
 - Change `PostgreSQL` field `userConfig.pg.max_connections`: maximum `60000`
 - Change `PostgreSQL` field `userConfig.pg_version`: enum add `18`
+- Remove `OpenSearch` field `userConfig.custom_keystores`, type `array`: the field has invalid schema definition
+- Add `KafkaTopic` field `config.diskless_enable`, type `boolean`: Indicates whether diskless should
+  be enabled
+- Remove `KafkaTopic` field `config.inkless_enable`, type `boolean`: Indicates whether inkless should
+  be enabled
 
 ## v0.33.1 - 2025-10-08
 

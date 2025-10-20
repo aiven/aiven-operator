@@ -93,6 +93,9 @@ spec:
                         final stage (otherwise delete tombstones may be collected before
                         they complete their scan).
                       type: integer
+                    diskless_enable:
+                      description: Indicates whether diskless should be enabled.
+                      type: boolean
                     file_delete_delay_ms:
                       description:
                         The time to wait before deleting a file from the
@@ -126,9 +129,6 @@ spec:
                         but makes the index larger. You probably don't need to change
                         this.
                       type: integer
-                    inkless_enable:
-                      description: Indicates whether inkless should be enabled.
-                      type: boolean
                     local_retention_bytes:
                       description:
                         This configuration controls the maximum bytes tiered

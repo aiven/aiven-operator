@@ -35,9 +35,9 @@ func newKafkaTopicReconciler(c Controller) reconcilerType {
 
 type KafkaTopicHandler struct{}
 
-//+kubebuilder:rbac:groups=aiven.io,resources=kafkatopics,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=aiven.io,resources=kafkatopics/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=aiven.io,resources=kafkatopics/finalizers,verbs=get;create;update
+// +kubebuilder:rbac:groups=aiven.io,resources=kafkatopics,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aiven.io,resources=kafkatopics/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=aiven.io,resources=kafkatopics/finalizers,verbs=get;create;update
 
 func (r *KafkaTopicReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	return r.reconcileInstance(ctx, req, KafkaTopicHandler{}, &v1alpha1.KafkaTopic{})
@@ -218,7 +218,7 @@ func convertKafkaTopicConfig(topic *v1alpha1.KafkaTopic) *kafkatopic.ConfigIn {
 		FlushMessages:                   topic.Spec.Config.FlushMessages,
 		FlushMs:                         topic.Spec.Config.FlushMs,
 		IndexIntervalBytes:              topic.Spec.Config.IndexIntervalBytes,
-		InklessEnable:                   topic.Spec.Config.InklessEnable,
+		DisklessEnable:                  topic.Spec.Config.DisklessEnable,
 		LocalRetentionBytes:             topic.Spec.Config.LocalRetentionBytes,
 		LocalRetentionMs:                topic.Spec.Config.LocalRetentionMs,
 		MaxCompactionLagMs:              topic.Spec.Config.MaxCompactionLagMs,

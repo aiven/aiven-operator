@@ -82,8 +82,8 @@ type KafkaTopicConfig struct {
 	// This setting controls how frequently Kafka adds an index entry to its offset index. The default setting ensures that we index a message roughly every 4096 bytes. More indexing allows reads to jump closer to the exact position in the log but makes the index larger. You probably don't need to change this.
 	IndexIntervalBytes *int `json:"index_interval_bytes,omitempty"`
 
-	// Indicates whether inkless should be enabled.
-	InklessEnable *bool `json:"inkless_enable,omitempty"`
+	// Indicates whether diskless should be enabled.
+	DisklessEnable *bool `json:"diskless_enable,omitempty"`
 
 	// This configuration controls the maximum bytes tiered storage will retain segment files locally before it will discard old log segments to free up space. If set to -2, the limit is equal to overall retention time. If set to -1, no limit is applied but it's possible only if overall retention is also -1.
 	LocalRetentionBytes *int `json:"local_retention_bytes,omitempty"`

@@ -1969,8 +1969,8 @@ func (in *KafkaTopicConfig) DeepCopyInto(out *KafkaTopicConfig) {
 		*out = new(int)
 		**out = **in
 	}
-	if in.InklessEnable != nil {
-		in, out := &in.InklessEnable, &out.InklessEnable
+	if in.DisklessEnable != nil {
+		in, out := &in.DisklessEnable, &out.DisklessEnable
 		*out = new(bool)
 		**out = **in
 	}

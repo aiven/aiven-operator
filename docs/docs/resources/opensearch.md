@@ -210,8 +210,6 @@ OpenSearch specific user configuration options.
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.
 - [`azure_migration`](#spec.userConfig.azure_migration-property){: name='spec.userConfig.azure_migration-property'} (object). Azure migration settings. See below for [nested schema](#spec.userConfig.azure_migration).
 - [`custom_domain`](#spec.userConfig.custom_domain-property){: name='spec.userConfig.custom_domain-property'} (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name. When you set a custom domain for a service deployed in a VPC, the service certificate is only created for the public-* hostname and the custom domain.
-- [`custom_keystores`](#spec.userConfig.custom_keystores-property){: name='spec.userConfig.custom_keystores-property'} (array of objects, MaxItems: 10). Allow to register custom keystores in OpenSearch. See below for [nested schema](#spec.userConfig.custom_keystores).
-- [`custom_repos`](#spec.userConfig.custom_repos-property){: name='spec.userConfig.custom_repos-property'} (array of objects, MaxItems: 10). Allow to register object storage repositories in OpenSearch. See below for [nested schema](#spec.userConfig.custom_repos).
 - [`disable_replication_factor_adjustment`](#spec.userConfig.disable_replication_factor_adjustment-property){: name='spec.userConfig.disable_replication_factor_adjustment-property'} (boolean). Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can not be activated unless specifically allowed for the project.
 - [`gcs_migration`](#spec.userConfig.gcs_migration-property){: name='spec.userConfig.gcs_migration-property'} (object). Google Cloud Storage migration settings. See below for [nested schema](#spec.userConfig.gcs_migration).
 - [`index_patterns`](#spec.userConfig.index_patterns-property){: name='spec.userConfig.index_patterns-property'} (array of objects, MaxItems: 512). Index patterns. See below for [nested schema](#spec.userConfig.index_patterns).
@@ -260,28 +258,6 @@ Azure migration settings.
 - [`readonly`](#spec.userConfig.azure_migration.readonly-property){: name='spec.userConfig.azure_migration.readonly-property'} (boolean). Whether the repository is read-only.
 - [`restore_global_state`](#spec.userConfig.azure_migration.restore_global_state-property){: name='spec.userConfig.azure_migration.restore_global_state-property'} (boolean). If true, restore the cluster state. Defaults to false.
 - [`sas_token`](#spec.userConfig.azure_migration.sas_token-property){: name='spec.userConfig.azure_migration.sas_token-property'} (string, Pattern: `^[^\r\n]*$`). A shared access signatures (SAS) token. One of key or sas_token should be specified.
-
-### custom_keystores {: #spec.userConfig.custom_keystores }
-
-_Appears on [`spec.userConfig`](#spec.userConfig)._
-
-Allow to register custom keystores in OpenSearch.
-
-**Required**
-
-- [`name`](#spec.userConfig.custom_keystores.name-property){: name='spec.userConfig.custom_keystores.name-property'} (string, Pattern: `^[^\r\n]*$`).
-- [`type`](#spec.userConfig.custom_keystores.type-property){: name='spec.userConfig.custom_keystores.type-property'} (string, Enum: `azure`, `gcs`, `s3`).
-
-### custom_repos {: #spec.userConfig.custom_repos }
-
-_Appears on [`spec.userConfig`](#spec.userConfig)._
-
-Allow to register object storage repositories in OpenSearch.
-
-**Required**
-
-- [`name`](#spec.userConfig.custom_repos.name-property){: name='spec.userConfig.custom_repos.name-property'} (string, Pattern: `^[^\r\n]*$`).
-- [`type`](#spec.userConfig.custom_repos.type-property){: name='spec.userConfig.custom_repos.type-property'} (string, Enum: `azure`, `gcs`, `s3`).
 
 ### gcs_migration {: #spec.userConfig.gcs_migration }
 
