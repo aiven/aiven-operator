@@ -905,14 +905,9 @@ spec:
                         pg_stat_statements results for utility commands are unreliable
                       type: boolean
                     pg_version:
-                      description: "PostgreSQL major version. Deprecated values: `13`"
-                      enum:
-                        - "13"
-                        - "14"
-                        - "15"
-                        - "16"
-                        - "17"
-                        - "18"
+                      description: |-
+                        Available versions: `13`, `14`, `15`, `16`, `17`, `18`. Newer versions may also be available.
+                        PostgreSQL major version. Deprecated values: `13`
                       type: string
                     pgaudit:
                       description: System-wide settings for the pgaudit extension.

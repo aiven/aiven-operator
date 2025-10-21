@@ -166,7 +166,7 @@ type Vault struct {
 	// Auth method of the vault secret provider
 	AuthMethod string `groups:"create,update" json:"auth_method"`
 
-	// +kubebuilder:validation:Enum=1;2
+	// Available versions: `1`, `2`. Newer versions may also be available.
 	// KV Secrets Engine version of the Vault server instance
 	EngineVersion *int `groups:"create,update" json:"engine_version,omitempty"`
 

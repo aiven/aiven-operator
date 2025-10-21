@@ -222,7 +222,8 @@ OpenSearch specific user configuration options.
 - [`openid`](#spec.userConfig.openid-property){: name='spec.userConfig.openid-property'} (object). OpenSearch OpenID Connect Configuration. See below for [nested schema](#spec.userConfig.openid).
 - [`opensearch`](#spec.userConfig.opensearch-property){: name='spec.userConfig.opensearch-property'} (object). OpenSearch settings. See below for [nested schema](#spec.userConfig.opensearch).
 - [`opensearch_dashboards`](#spec.userConfig.opensearch_dashboards-property){: name='spec.userConfig.opensearch_dashboards-property'} (object). OpenSearch Dashboards settings. See below for [nested schema](#spec.userConfig.opensearch_dashboards).
-- [`opensearch_version`](#spec.userConfig.opensearch_version-property){: name='spec.userConfig.opensearch_version-property'} (string, Enum: `1`, `2`, `2.19`). OpenSearch version.
+- [`opensearch_version`](#spec.userConfig.opensearch_version-property){: name='spec.userConfig.opensearch_version-property'} (string). Available versions: `1`, `2`, `2.19`. Newer versions may also be available.
+    OpenSearch version.
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
 - [`privatelink_access`](#spec.userConfig.privatelink_access-property){: name='spec.userConfig.privatelink_access-property'} (object). Allow access to selected service components through Privatelink. See below for [nested schema](#spec.userConfig.privatelink_access).
 - [`project_to_fork_from`](#spec.userConfig.project_to_fork_from-property){: name='spec.userConfig.project_to_fork_from-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]{0,63}$|^$`, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.

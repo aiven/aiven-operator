@@ -253,11 +253,9 @@ spec:
                         - message: Value is immutable
                           rule: self == oldSelf
                     flink_version:
-                      description: "Flink major version. Deprecated values: `1.16`"
-                      enum:
-                        - "1.16"
-                        - "1.19"
-                        - "1.20"
+                      description: |-
+                        Available versions: `1.16`, `1.19`, `1.20`. Newer versions may also be available.
+                        Flink major version. Deprecated values: `1.16`
                       type: string
                       x-kubernetes-validations:
                         - message: Value is immutable

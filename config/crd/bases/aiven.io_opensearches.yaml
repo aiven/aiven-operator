@@ -1689,11 +1689,9 @@ spec:
                           type: integer
                       type: object
                     opensearch_version:
-                      description: OpenSearch version
-                      enum:
-                        - "1"
-                        - "2"
-                        - "2.19"
+                      description: |-
+                        Available versions: `1`, `2`, `2.19`. Newer versions may also be available.
+                        OpenSearch version
                       type: string
                     private_access:
                       description:

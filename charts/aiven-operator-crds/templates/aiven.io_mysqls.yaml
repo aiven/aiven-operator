@@ -637,9 +637,9 @@ spec:
                         - enabled
                       type: object
                     mysql_version:
-                      description: MySQL major version
-                      enum:
-                        - "8"
+                      description: |-
+                        Available versions: `8`. Newer versions may also be available.
+                        MySQL major version
                       type: string
                     private_access:
                       description:

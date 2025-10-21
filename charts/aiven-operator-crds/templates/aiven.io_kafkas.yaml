@@ -923,12 +923,9 @@ spec:
                                   - token
                                 type: string
                               engine_version:
-                                description:
-                                  KV Secrets Engine version of the Vault
-                                  server instance
-                                enum:
-                                  - 1
-                                  - 2
+                                description: |-
+                                  Available versions: `1`, `2`. Newer versions may also be available.
+                                  KV Secrets Engine version of the Vault server instance
                                 type: integer
                               prefix_path_depth:
                                 description:
@@ -1084,12 +1081,9 @@ spec:
                           type: boolean
                       type: object
                     kafka_version:
-                      description: "Kafka major version. Deprecated values: `3.7`"
-                      enum:
-                        - "3.7"
-                        - "3.8"
-                        - "3.9"
-                        - "4.0"
+                      description: |-
+                        Available versions: `3.7`, `3.8`, `3.9`, `4.0`. Newer versions may also be available.
+                        Kafka major version. Deprecated values: `3.7`
                       type: string
                     letsencrypt_sasl_privatelink:
                       description: Use Letsencrypt CA for Kafka SASL via Privatelink

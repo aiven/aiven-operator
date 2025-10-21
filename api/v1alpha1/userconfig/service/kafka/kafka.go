@@ -369,7 +369,7 @@ type Vault struct {
 	// Auth method of the vault secret provider
 	AuthMethod string `groups:"create,update" json:"auth_method"`
 
-	// +kubebuilder:validation:Enum=1;2
+	// Available versions: `1`, `2`. Newer versions may also be available.
 	// KV Secrets Engine version of the Vault server instance
 	EngineVersion *int `groups:"create,update" json:"engine_version,omitempty"`
 
@@ -619,7 +619,7 @@ type KafkaUserConfig struct {
 	// Kafka SASL mechanisms
 	KafkaSaslMechanisms *KafkaSaslMechanisms `groups:"create,update" json:"kafka_sasl_mechanisms,omitempty"`
 
-	// +kubebuilder:validation:Enum="3.7";"3.8";"3.9";"4.0"
+	// Available versions: `3.7`, `3.8`, `3.9`, `4.0`. Newer versions may also be available.
 	// Kafka major version. Deprecated values: `3.7`
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
 

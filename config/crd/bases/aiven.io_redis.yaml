@@ -497,9 +497,9 @@ spec:
                       minimum: 0
                       type: integer
                     redis_version:
-                      description: Redis major version
-                      enum:
-                        - "7.0"
+                      description: |-
+                        Available versions: `7.0`. Newer versions may also be available.
+                        Redis major version
                       type: string
                     service_log:
                       description:

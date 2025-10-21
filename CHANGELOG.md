@@ -2,11 +2,19 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Change `AlloyDBOmni` field `userConfig.alloydbomni_version`: removed enum validation
+- Change `AlloyDBOmni` field `userConfig.pg_version`: removed enum validation
+- Change `Cassandra` field `userConfig.cassandra_version`: removed enum validation
+- Change `Flink` field `userConfig.flink_version`: removed enum validation
+- Change `MySQL` field `userConfig.mysql_version`: removed enum validation
+- Change `OpenSearch` field `userConfig.opensearch_version`: removed enum validation
+- Change `Redis` field `userConfig.redis_version`: removed enum validation
+- Change `PostgreSQL` field `userConfig.pg_version`: removed enum validation
+- Change `Kafka` field `userConfig.kafka_version`: removed enum validation
 - Change `ServiceIntegration`: operator now adopts existing integrations instead of failing with conflict
 - Fix `PostgreSQL`: added retry logic for errors during upgrade task
 - Add `AlloyDBOmni` field `userConfig.node_count`, type `integer`: Number of nodes for the service
 - Add `Kafka` field `userConfig.kafka_diskless`, type `object`: Kafka Diskless configuration values
-- Change `Kafka` field `userConfig.kafka_version`: enum add `4.0`
 - Change `MySQL` field `userConfig.mysql.innodb_log_buffer_size`: maximum ~~`4294967295`~~ → `4294967296`
 - Add `OpenSearch` field `userConfig.jwt`, type `object`: OpenSearch JWT Configuration
 - Change `OpenSearch` field `userConfig.opensearch.knn_memory_circuit_breaker_limit`: minimum ~~`3`~~ → `0`
@@ -23,7 +31,6 @@
 - Add `PostgreSQL` field `userConfig.pg.io_workers`, type `integer`: EXPERIMENTAL: Number of IO worker
   processes, for io_method=worker. Version 18 and up only
 - Change `PostgreSQL` field `userConfig.pg.max_connections`: maximum `60000`
-- Change `PostgreSQL` field `userConfig.pg_version`: enum add `18`
 - Remove `OpenSearch` field `userConfig.custom_keystores`, type `array`: the field has invalid schema definition
 - Add `KafkaTopic` field `config.diskless_enable`, type `boolean`: Indicates whether diskless should
   be enabled

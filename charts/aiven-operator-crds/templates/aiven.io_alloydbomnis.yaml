@@ -280,9 +280,9 @@ spec:
                         - message: Value is immutable
                           rule: self == oldSelf
                     alloydbomni_version:
-                      description: "PostgreSQL major version. Deprecated values: `15`"
-                      enum:
-                        - "15"
+                      description: |-
+                        Available versions: `15`. Newer versions may also be available.
+                        PostgreSQL major version. Deprecated values: `15`
                       type: string
                     backup_hour:
                       description:
@@ -760,9 +760,9 @@ spec:
                         - message: Value is immutable
                           rule: self == oldSelf
                     pg_version:
-                      description: PostgreSQL major version
-                      enum:
-                        - "15"
+                      description: |-
+                        Available versions: `15`. Newer versions may also be available.
+                        PostgreSQL major version
                       type: string
                     pgaudit:
                       description: System-wide settings for the pgaudit extension.

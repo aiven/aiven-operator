@@ -237,7 +237,8 @@ AlloyDBOmni specific user configuration options.
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.
 - [`admin_password`](#spec.userConfig.admin_password-property){: name='spec.userConfig.admin_password-property'} (string, Immutable, Pattern: `^[a-zA-Z0-9-_]+$`, MinLength: 8, MaxLength: 256). Custom password for admin user. Defaults to random string. This must be set only when a new service is being created.
 - [`admin_username`](#spec.userConfig.admin_username-property){: name='spec.userConfig.admin_username-property'} (string, Immutable, Pattern: `^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$`, MaxLength: 64). Custom username for admin user. This must be set only when a new service is being created.
-- [`alloydbomni_version`](#spec.userConfig.alloydbomni_version-property){: name='spec.userConfig.alloydbomni_version-property'} (string, Enum: `15`). PostgreSQL major version. Deprecated values: `15`.
+- [`alloydbomni_version`](#spec.userConfig.alloydbomni_version-property){: name='spec.userConfig.alloydbomni_version-property'} (string). Available versions: `15`. Newer versions may also be available.
+    PostgreSQL major version. Deprecated values: `15`.
 - [`backup_hour`](#spec.userConfig.backup_hour-property){: name='spec.userConfig.backup_hour-property'} (integer, Minimum: 0, Maximum: 23). The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.
 - [`backup_minute`](#spec.userConfig.backup_minute-property){: name='spec.userConfig.backup_minute-property'} (integer, Minimum: 0, Maximum: 59). The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
 - [`enable_ipv6`](#spec.userConfig.enable_ipv6-property){: name='spec.userConfig.enable_ipv6-property'} (boolean). Register AAAA DNS records for the service, and allow IPv6 packets to service ports.
@@ -248,7 +249,8 @@ AlloyDBOmni specific user configuration options.
 - [`pg`](#spec.userConfig.pg-property){: name='spec.userConfig.pg-property'} (object). postgresql.conf configuration values. See below for [nested schema](#spec.userConfig.pg).
 - [`pg_read_replica`](#spec.userConfig.pg_read_replica-property){: name='spec.userConfig.pg_read_replica-property'} (boolean). Should the service which is being forked be a read replica (deprecated, use read_replica service integration instead).
 - [`pg_service_to_fork_from`](#spec.userConfig.pg_service_to_fork_from-property){: name='spec.userConfig.pg_service_to_fork_from-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]{0,63}$|^$`, MaxLength: 64). Name of the PG Service from which to fork (deprecated, use service_to_fork_from). This has effect only when a new service is being created.
-- [`pg_version`](#spec.userConfig.pg_version-property){: name='spec.userConfig.pg_version-property'} (string, Enum: `15`). PostgreSQL major version.
+- [`pg_version`](#spec.userConfig.pg_version-property){: name='spec.userConfig.pg_version-property'} (string). Available versions: `15`. Newer versions may also be available.
+    PostgreSQL major version.
 - [`pgaudit`](#spec.userConfig.pgaudit-property){: name='spec.userConfig.pgaudit-property'} (object). System-wide settings for the pgaudit extension. See below for [nested schema](#spec.userConfig.pgaudit).
 - [`pgbouncer`](#spec.userConfig.pgbouncer-property){: name='spec.userConfig.pgbouncer-property'} (object). PGBouncer connection pooling settings. See below for [nested schema](#spec.userConfig.pgbouncer).
 - [`pglookout`](#spec.userConfig.pglookout-property){: name='spec.userConfig.pglookout-property'} (object). System-wide settings for pglookout. See below for [nested schema](#spec.userConfig.pglookout).
