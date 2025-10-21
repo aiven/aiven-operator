@@ -159,6 +159,31 @@ func (in *Pg) DeepCopyInto(out *Pg) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.IoCombineLimit != nil {
+		in, out := &in.IoCombineLimit, &out.IoCombineLimit
+		*out = new(int)
+		**out = **in
+	}
+	if in.IoMaxCombineLimit != nil {
+		in, out := &in.IoMaxCombineLimit, &out.IoMaxCombineLimit
+		*out = new(int)
+		**out = **in
+	}
+	if in.IoMaxConcurrency != nil {
+		in, out := &in.IoMaxConcurrency, &out.IoMaxConcurrency
+		*out = new(int)
+		**out = **in
+	}
+	if in.IoMethod != nil {
+		in, out := &in.IoMethod, &out.IoMethod
+		*out = new(string)
+		**out = **in
+	}
+	if in.IoWorkers != nil {
+		in, out := &in.IoWorkers, &out.IoWorkers
+		*out = new(int)
+		**out = **in
+	}
 	if in.Jit != nil {
 		in, out := &in.Jit, &out.Jit
 		*out = new(bool)
@@ -439,6 +464,11 @@ func (in *PgUserConfig) DeepCopyInto(out *PgUserConfig) {
 		in, out := &in.Migration, &out.Migration
 		*out = new(Migration)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.NodeCount != nil {
+		in, out := &in.NodeCount, &out.NodeCount
+		*out = new(int)
+		**out = **in
 	}
 	if in.Pg != nil {
 		in, out := &in.Pg, &out.Pg

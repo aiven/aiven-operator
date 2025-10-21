@@ -527,7 +527,9 @@ spec:
                     custom_domain:
                       description:
                         Serve the web frontend using a custom CNAME pointing
-                        to the Aiven DNS name
+                        to the Aiven DNS name. When you set a custom domain for a service
+                        deployed in a VPC, the service certificate is only created for
+                        the public-* hostname and the custom domain.
                       maxLength: 255
                       type: string
                     dashboard_previews_enabled:

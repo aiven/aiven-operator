@@ -346,7 +346,7 @@ type GrafanaUserConfig struct {
 	CookieSamesite *string `groups:"create,update" json:"cookie_samesite,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=255
-	// Serve the web frontend using a custom CNAME pointing to the Aiven DNS name
+	// Serve the web frontend using a custom CNAME pointing to the Aiven DNS name. When you set a custom domain for a service deployed in a VPC, the service certificate is only created for the public-* hostname and the custom domain.
 	CustomDomain *string `groups:"create,update" json:"custom_domain,omitempty"`
 
 	// Enable browsing of dashboards in grid (pictures) mode. This feature is new in Grafana 9 and is quite resource intensive. It may cause low-end plans to work more slowly while the dashboard previews are rendering.

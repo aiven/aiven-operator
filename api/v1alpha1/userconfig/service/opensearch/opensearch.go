@@ -53,13 +53,6 @@ type AzureMigration struct {
 	// The snapshot name to restore from
 	SnapshotName string `groups:"create,update" json:"snapshot_name"`
 }
-type CustomKeystores struct {
-	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
-	Name string `groups:"create,update" json:"name"`
-
-	// +kubebuilder:validation:Enum="azure";"gcs";"s3"
-	Type string `groups:"create,update" json:"type"`
-}
 
 // Google Cloud Storage migration settings
 type GcsMigration struct {
@@ -163,6 +156,58 @@ type IpFilter struct {
 	// +kubebuilder:validation:MaxLength=43
 	// CIDR address block
 	Network string `groups:"create,update" json:"network"`
+}
+
+// OpenSearch JWT Configuration
+type Jwt struct {
+	// Enables or disables JWT-based authentication for OpenSearch. When enabled, users can authenticate using JWT tokens.
+	Enabled bool `groups:"create,update" json:"enabled"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=300
+	// The maximum allowed time difference in seconds between the JWT issuer's clock and the OpenSearch server's clock. This helps prevent token validation failures due to minor time synchronization issues.
+	JwtClockSkewToleranceSeconds *int `groups:"create,update" json:"jwt_clock_skew_tolerance_seconds,omitempty"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=256
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// The HTTP header name where the JWT token is transmitted. Typically 'Authorization' for Bearer tokens.
+	JwtHeader *string `groups:"create,update" json:"jwt_header,omitempty"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=256
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// If the JWT token is transmitted as a URL parameter instead of an HTTP header, specify the parameter name here.
+	JwtUrlParameter *string `groups:"create,update" json:"jwt_url_parameter,omitempty"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// If specified, the JWT must contain an 'aud' claim that matches this value. This provides additional security by ensuring the JWT was issued for the expected audience.
+	RequiredAudience *string `groups:"create,update" json:"required_audience,omitempty"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// If specified, the JWT must contain an 'iss' claim that matches this value. This provides additional security by ensuring the JWT was issued by the expected issuer.
+	RequiredIssuer *string `groups:"create,update" json:"required_issuer,omitempty"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=256
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// The key in the JWT payload that contains the user's roles. If specified, roles will be extracted from the JWT for authorization.
+	RolesKey *string `groups:"create,update" json:"roles_key,omitempty"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=1024
+	// The secret key used to sign and verify JWT tokens. This should be a secure, randomly generated key HMAC key or public RSA/ECDSA key.
+	SigningKey string `groups:"create,update" json:"signing_key"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=256
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// The key in the JWT payload that contains the user's subject identifier. If not specified, the 'sub' claim is used by default.
+	SubjectKey *string `groups:"create,update" json:"subject_key,omitempty"`
 }
 
 // OpenSearch OpenID Connect Configuration
@@ -762,9 +807,9 @@ type Opensearch struct {
 	// Enable or disable KNN memory circuit breaker. Defaults to true.
 	KnnMemoryCircuitBreakerEnabled *bool `groups:"create,update" json:"knn_memory_circuit_breaker_enabled,omitempty"`
 
-	// +kubebuilder:validation:Minimum=3
+	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=100
-	// Maximum amount of memory that can be used for KNN index. Defaults to 50% of the JVM heap size.
+	// Maximum amount of memory in percentage that can be used for the KNN index. Defaults to 50% of the JVM heap size. 0 is used to set it to null which can be used to invalidate caches.
 	KnnMemoryCircuitBreakerLimit *int `groups:"create,update" json:"knn_memory_circuit_breaker_limit,omitempty"`
 
 	// +kubebuilder:validation:Pattern=`\d+(?:b|kb|mb|gb|tb)`
@@ -1017,12 +1062,8 @@ type OpensearchUserConfig struct {
 	AzureMigration *AzureMigration `groups:"create,update" json:"azure_migration,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=255
-	// Serve the web frontend using a custom CNAME pointing to the Aiven DNS name
+	// Serve the web frontend using a custom CNAME pointing to the Aiven DNS name. When you set a custom domain for a service deployed in a VPC, the service certificate is only created for the public-* hostname and the custom domain.
 	CustomDomain *string `groups:"create,update" json:"custom_domain,omitempty"`
-
-	// +kubebuilder:validation:MaxItems=10
-	// Allow to register custom keystores in OpenSearch
-	CustomKeystores []*CustomKeystores `groups:"create,update" json:"custom_keystores,omitempty"`
 
 	// Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can not be activated unless specifically allowed for the project.
 	DisableReplicationFactorAdjustment *bool `groups:"create,update" json:"disable_replication_factor_adjustment,omitempty"`
@@ -1043,6 +1084,9 @@ type OpensearchUserConfig struct {
 	// +kubebuilder:validation:MaxItems=8000
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
 	IpFilter []*IpFilter `groups:"create,update" json:"ip_filter,omitempty"`
+
+	// OpenSearch JWT Configuration
+	Jwt *Jwt `groups:"create,update" json:"jwt,omitempty"`
 
 	// Aiven automation resets index.refresh_interval to default value for every index to be sure that indices are always visible to search. If it doesn't fit your case, you can disable this by setting up this flag to true.
 	KeepIndexRefreshInterval *bool `groups:"create,update" json:"keep_index_refresh_interval,omitempty"`

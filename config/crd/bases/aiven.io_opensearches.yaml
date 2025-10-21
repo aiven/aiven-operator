@@ -325,28 +325,11 @@ spec:
                     custom_domain:
                       description:
                         Serve the web frontend using a custom CNAME pointing
-                        to the Aiven DNS name
+                        to the Aiven DNS name. When you set a custom domain for a service
+                        deployed in a VPC, the service certificate is only created for
+                        the public-* hostname and the custom domain.
                       maxLength: 255
                       type: string
-                    custom_keystores:
-                      description: Allow to register custom keystores in OpenSearch
-                      items:
-                        properties:
-                          name:
-                            pattern: ^[^\r\n]*$
-                            type: string
-                          type:
-                            enum:
-                              - azure
-                              - gcs
-                              - s3
-                            type: string
-                        required:
-                          - name
-                          - type
-                        type: object
-                      maxItems: 10
-                      type: array
                     disable_replication_factor_adjustment:
                       description:
                         "Disable automatic replication factor adjustment
@@ -533,6 +516,88 @@ spec:
                         type: object
                       maxItems: 8000
                       type: array
+                    jwt:
+                      description: OpenSearch JWT Configuration
+                      properties:
+                        enabled:
+                          description:
+                            Enables or disables JWT-based authentication
+                            for OpenSearch. When enabled, users can authenticate using
+                            JWT tokens.
+                          type: boolean
+                        jwt_clock_skew_tolerance_seconds:
+                          description:
+                            The maximum allowed time difference in seconds
+                            between the JWT issuer's clock and the OpenSearch server's
+                            clock. This helps prevent token validation failures due
+                            to minor time synchronization issues.
+                          maximum: 300
+                          minimum: 0
+                          type: integer
+                        jwt_header:
+                          description:
+                            The HTTP header name where the JWT token is transmitted.
+                            Typically 'Authorization' for Bearer tokens.
+                          maxLength: 256
+                          minLength: 1
+                          pattern: ^[^\r\n]*$
+                          type: string
+                        jwt_url_parameter:
+                          description:
+                            If the JWT token is transmitted as a URL parameter
+                            instead of an HTTP header, specify the parameter name here.
+                          maxLength: 256
+                          minLength: 1
+                          pattern: ^[^\r\n]*$
+                          type: string
+                        required_audience:
+                          description:
+                            If specified, the JWT must contain an 'aud' claim
+                            that matches this value. This provides additional security
+                            by ensuring the JWT was issued for the expected audience.
+                          maxLength: 1024
+                          minLength: 1
+                          pattern: ^[^\r\n]*$
+                          type: string
+                        required_issuer:
+                          description:
+                            If specified, the JWT must contain an 'iss' claim
+                            that matches this value. This provides additional security
+                            by ensuring the JWT was issued by the expected issuer.
+                          maxLength: 1024
+                          minLength: 1
+                          pattern: ^[^\r\n]*$
+                          type: string
+                        roles_key:
+                          description:
+                            The key in the JWT payload that contains the
+                            user's roles. If specified, roles will be extracted from
+                            the JWT for authorization.
+                          maxLength: 256
+                          minLength: 1
+                          pattern: ^[^\r\n]*$
+                          type: string
+                        signing_key:
+                          description:
+                            The secret key used to sign and verify JWT tokens.
+                            This should be a secure, randomly generated key HMAC key
+                            or public RSA/ECDSA key.
+                          maxLength: 1024
+                          minLength: 1
+                          type: string
+                        subject_key:
+                          description:
+                            The key in the JWT payload that contains the
+                            user's subject identifier. If not specified, the 'sub' claim
+                            is used by default.
+                          maxLength: 256
+                          minLength: 1
+                          pattern: ^[^\r\n]*$
+                          type: string
+                      required:
+                        - enabled
+                        - signing_key
+                      type: object
                     keep_index_refresh_interval:
                       description:
                         Aiven automation resets index.refresh_interval to
@@ -1052,10 +1117,12 @@ spec:
                           type: boolean
                         knn_memory_circuit_breaker_limit:
                           description:
-                            Maximum amount of memory that can be used for
-                            KNN index. Defaults to 50% of the JVM heap size.
+                            Maximum amount of memory in percentage that can
+                            be used for the KNN index. Defaults to 50% of the JVM heap
+                            size. 0 is used to set it to null which can be used to invalidate
+                            caches.
                           maximum: 100
-                          minimum: 3
+                          minimum: 0
                           type: integer
                         node.search.cache.size:
                           description:

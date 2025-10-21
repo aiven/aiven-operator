@@ -209,14 +209,14 @@ OpenSearch specific user configuration options.
 
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.
 - [`azure_migration`](#spec.userConfig.azure_migration-property){: name='spec.userConfig.azure_migration-property'} (object). Azure migration settings. See below for [nested schema](#spec.userConfig.azure_migration).
-- [`custom_domain`](#spec.userConfig.custom_domain-property){: name='spec.userConfig.custom_domain-property'} (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name.
-- [`custom_keystores`](#spec.userConfig.custom_keystores-property){: name='spec.userConfig.custom_keystores-property'} (array of objects, MaxItems: 10). Allow to register custom keystores in OpenSearch. See below for [nested schema](#spec.userConfig.custom_keystores).
+- [`custom_domain`](#spec.userConfig.custom_domain-property){: name='spec.userConfig.custom_domain-property'} (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name. When you set a custom domain for a service deployed in a VPC, the service certificate is only created for the public-* hostname and the custom domain.
 - [`disable_replication_factor_adjustment`](#spec.userConfig.disable_replication_factor_adjustment-property){: name='spec.userConfig.disable_replication_factor_adjustment-property'} (boolean). Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can not be activated unless specifically allowed for the project.
 - [`gcs_migration`](#spec.userConfig.gcs_migration-property){: name='spec.userConfig.gcs_migration-property'} (object). Google Cloud Storage migration settings. See below for [nested schema](#spec.userConfig.gcs_migration).
 - [`index_patterns`](#spec.userConfig.index_patterns-property){: name='spec.userConfig.index_patterns-property'} (array of objects, MaxItems: 512). Index patterns. See below for [nested schema](#spec.userConfig.index_patterns).
 - [`index_rollup`](#spec.userConfig.index_rollup-property){: name='spec.userConfig.index_rollup-property'} (object). Index rollup settings. See below for [nested schema](#spec.userConfig.index_rollup).
 - [`index_template`](#spec.userConfig.index_template-property){: name='spec.userConfig.index_template-property'} (object). Template settings for all new indexes. See below for [nested schema](#spec.userConfig.index_template).
 - [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 8000). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
+- [`jwt`](#spec.userConfig.jwt-property){: name='spec.userConfig.jwt-property'} (object). OpenSearch JWT Configuration. See below for [nested schema](#spec.userConfig.jwt).
 - [`keep_index_refresh_interval`](#spec.userConfig.keep_index_refresh_interval-property){: name='spec.userConfig.keep_index_refresh_interval-property'} (boolean). Aiven automation resets index.refresh_interval to default value for every index to be sure that indices are always visible to search. If it doesn't fit your case, you can disable this by setting up this flag to true.
 - [`max_index_count`](#spec.userConfig.max_index_count-property){: name='spec.userConfig.max_index_count-property'} (integer, Minimum: 0). DEPRECATED: use index_patterns instead.
 - [`openid`](#spec.userConfig.openid-property){: name='spec.userConfig.openid-property'} (object). OpenSearch OpenID Connect Configuration. See below for [nested schema](#spec.userConfig.openid).
@@ -258,17 +258,6 @@ Azure migration settings.
 - [`readonly`](#spec.userConfig.azure_migration.readonly-property){: name='spec.userConfig.azure_migration.readonly-property'} (boolean). Whether the repository is read-only.
 - [`restore_global_state`](#spec.userConfig.azure_migration.restore_global_state-property){: name='spec.userConfig.azure_migration.restore_global_state-property'} (boolean). If true, restore the cluster state. Defaults to false.
 - [`sas_token`](#spec.userConfig.azure_migration.sas_token-property){: name='spec.userConfig.azure_migration.sas_token-property'} (string, Pattern: `^[^\r\n]*$`). A shared access signatures (SAS) token. One of key or sas_token should be specified.
-
-### custom_keystores {: #spec.userConfig.custom_keystores }
-
-_Appears on [`spec.userConfig`](#spec.userConfig)._
-
-Allow to register custom keystores in OpenSearch.
-
-**Required**
-
-- [`name`](#spec.userConfig.custom_keystores.name-property){: name='spec.userConfig.custom_keystores.name-property'} (string, Pattern: `^[^\r\n]*$`).
-- [`type`](#spec.userConfig.custom_keystores.type-property){: name='spec.userConfig.custom_keystores.type-property'} (string, Enum: `azure`, `gcs`, `s3`).
 
 ### gcs_migration {: #spec.userConfig.gcs_migration }
 
@@ -347,6 +336,27 @@ CIDR address block, either as a string, or in a dict with an optional descriptio
 
 - [`description`](#spec.userConfig.ip_filter.description-property){: name='spec.userConfig.ip_filter.description-property'} (string, MaxLength: 1024). Description for IP filter list entry.
 
+### jwt {: #spec.userConfig.jwt }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+OpenSearch JWT Configuration.
+
+**Required**
+
+- [`enabled`](#spec.userConfig.jwt.enabled-property){: name='spec.userConfig.jwt.enabled-property'} (boolean). Enables or disables JWT-based authentication for OpenSearch. When enabled, users can authenticate using JWT tokens.
+- [`signing_key`](#spec.userConfig.jwt.signing_key-property){: name='spec.userConfig.jwt.signing_key-property'} (string, MinLength: 1, MaxLength: 1024). The secret key used to sign and verify JWT tokens. This should be a secure, randomly generated key HMAC key or public RSA/ECDSA key.
+
+**Optional**
+
+- [`jwt_clock_skew_tolerance_seconds`](#spec.userConfig.jwt.jwt_clock_skew_tolerance_seconds-property){: name='spec.userConfig.jwt.jwt_clock_skew_tolerance_seconds-property'} (integer, Minimum: 0, Maximum: 300). The maximum allowed time difference in seconds between the JWT issuer's clock and the OpenSearch server's clock. This helps prevent token validation failures due to minor time synchronization issues.
+- [`jwt_header`](#spec.userConfig.jwt.jwt_header-property){: name='spec.userConfig.jwt.jwt_header-property'} (string, Pattern: `^[^\r\n]*$`, MinLength: 1, MaxLength: 256). The HTTP header name where the JWT token is transmitted. Typically `Authorization` for Bearer tokens.
+- [`jwt_url_parameter`](#spec.userConfig.jwt.jwt_url_parameter-property){: name='spec.userConfig.jwt.jwt_url_parameter-property'} (string, Pattern: `^[^\r\n]*$`, MinLength: 1, MaxLength: 256). If the JWT token is transmitted as a URL parameter instead of an HTTP header, specify the parameter name here.
+- [`required_audience`](#spec.userConfig.jwt.required_audience-property){: name='spec.userConfig.jwt.required_audience-property'} (string, Pattern: `^[^\r\n]*$`, MinLength: 1, MaxLength: 1024). If specified, the JWT must contain an `aud` claim that matches this value. This provides additional security by ensuring the JWT was issued for the expected audience.
+- [`required_issuer`](#spec.userConfig.jwt.required_issuer-property){: name='spec.userConfig.jwt.required_issuer-property'} (string, Pattern: `^[^\r\n]*$`, MinLength: 1, MaxLength: 1024). If specified, the JWT must contain an `iss` claim that matches this value. This provides additional security by ensuring the JWT was issued by the expected issuer.
+- [`roles_key`](#spec.userConfig.jwt.roles_key-property){: name='spec.userConfig.jwt.roles_key-property'} (string, Pattern: `^[^\r\n]*$`, MinLength: 1, MaxLength: 256). The key in the JWT payload that contains the user's roles. If specified, roles will be extracted from the JWT for authorization.
+- [`subject_key`](#spec.userConfig.jwt.subject_key-property){: name='spec.userConfig.jwt.subject_key-property'} (string, Pattern: `^[^\r\n]*$`, MinLength: 1, MaxLength: 256). The key in the JWT payload that contains the user's subject identifier. If not specified, the `sub` claim is used by default.
+
 ### openid {: #spec.userConfig.openid }
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
@@ -414,7 +424,7 @@ OpenSearch settings.
 - [`ism_history_rollover_check_period`](#spec.userConfig.opensearch.ism_history_rollover_check_period-property){: name='spec.userConfig.opensearch.ism_history_rollover_check_period-property'} (integer, Minimum: 1, Maximum: 2147483647). The time between rollover checks for the audit history index in hours.
 - [`ism_history_rollover_retention_period`](#spec.userConfig.opensearch.ism_history_rollover_retention_period-property){: name='spec.userConfig.opensearch.ism_history_rollover_retention_period-property'} (integer, Minimum: 1, Maximum: 2147483647). How long audit history indices are kept in days.
 - [`knn_memory_circuit_breaker_enabled`](#spec.userConfig.opensearch.knn_memory_circuit_breaker_enabled-property){: name='spec.userConfig.opensearch.knn_memory_circuit_breaker_enabled-property'} (boolean). Enable or disable KNN memory circuit breaker. Defaults to true.
-- [`knn_memory_circuit_breaker_limit`](#spec.userConfig.opensearch.knn_memory_circuit_breaker_limit-property){: name='spec.userConfig.opensearch.knn_memory_circuit_breaker_limit-property'} (integer, Minimum: 3, Maximum: 100). Maximum amount of memory that can be used for KNN index. Defaults to 50% of the JVM heap size.
+- [`knn_memory_circuit_breaker_limit`](#spec.userConfig.opensearch.knn_memory_circuit_breaker_limit-property){: name='spec.userConfig.opensearch.knn_memory_circuit_breaker_limit-property'} (integer, Minimum: 0, Maximum: 100). Maximum amount of memory in percentage that can be used for the KNN index. Defaults to 50% of the JVM heap size. 0 is used to set it to null which can be used to invalidate caches.
 - [`node.search.cache.size`](#spec.userConfig.opensearch.node.search.cache.size-property){: name='spec.userConfig.opensearch.node.search.cache.size-property'} (string, Pattern: `\d+(?:b|kb|mb|gb|tb)`). Defines a limit of how much total remote data can be referenced as a ratio of the size of the disk reserved for the file cache. This is designed to be a safeguard to prevent oversubscribing a cluster. Defaults to 5gb. Requires restarting all OpenSearch nodes.
 - [`override_main_response_version`](#spec.userConfig.opensearch.override_main_response_version-property){: name='spec.userConfig.opensearch.override_main_response_version-property'} (boolean). Compatibility mode sets OpenSearch to report its version as 7.10 so clients continue to work. Default is false.
 - [`plugins_alerting_filter_by_backend_roles`](#spec.userConfig.opensearch.plugins_alerting_filter_by_backend_roles-property){: name='spec.userConfig.opensearch.plugins_alerting_filter_by_backend_roles-property'} (boolean). Enable or disable filtering of alerting by backend roles. Requires Security plugin. Defaults to false.

@@ -453,7 +453,7 @@ spec:
                           description:
                             The size in bytes of the buffer that InnoDB uses
                             to write to the log files on disk.
-                          maximum: 4294967295
+                          maximum: 4294967296
                           minimum: 1048576
                           type: integer
                         innodb_online_alter_log_max_size:

@@ -225,8 +225,15 @@ func addObject(file *jen.File, obj *object) error {
 	for i, key := range obj.propertyNames {
 		child := obj.Properties[key]
 		f, err := addField(file, jen.Id(child.structName), child)
+		if errors.Is(err, errUnknownType) {
+			if child.Required {
+				return fmt.Errorf("%q is required: %w", child.jsonName, err)
+			}
+			log.Printf("skipping optional field %q: %s", child.jsonName, err)
+			continue
+		}
 		if err != nil {
-			return fmt.Errorf("%s: %w", key, err)
+			return fmt.Errorf("can't add field %q: %w", key, err)
 		}
 		fields[i] = f
 	}
@@ -244,10 +251,6 @@ func addObject(file *jen.File, obj *object) error {
 func addField(file *jen.File, s *jen.Statement, obj *object) (*jen.Statement, error) {
 	s, err := addFieldType(file, s, obj)
 	if err != nil {
-		if errors.Is(err, errUnknownType) {
-			log.Printf("skipping field %q with unknown type %q", obj.jsonName, obj.Type)
-			return nil, nil
-		}
 		return nil, err
 	}
 

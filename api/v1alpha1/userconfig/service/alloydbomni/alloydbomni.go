@@ -438,6 +438,11 @@ type AlloydbomniUserConfig struct {
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
 	IpFilter []*IpFilter `groups:"create,update" json:"ip_filter,omitempty"`
 
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=100
+	// Number of nodes for the service
+	NodeCount *int `groups:"create,update" json:"node_count,omitempty"`
+
 	// postgresql.conf configuration values
 	Pg *Pg `groups:"create,update" json:"pg,omitempty"`
 

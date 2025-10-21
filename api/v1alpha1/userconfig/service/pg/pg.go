@@ -134,6 +134,30 @@ type Pg struct {
 	// Time out sessions with open transactions after this number of milliseconds
 	IdleInTransactionSessionTimeout *int `groups:"create,update" json:"idle_in_transaction_session_timeout,omitempty"`
 
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=32
+	// EXPERIMENTAL: Controls the largest I/O size in operations that combine I/O in 8kB units. Version 17 and up only.
+	IoCombineLimit *int `groups:"create,update" json:"io_combine_limit,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=128
+	// EXPERIMENTAL: Controls the largest I/O size in operations that combine I/O in 8kB units, and silently limits the user-settable parameter io_combine_limit. Version 18 and up only. Changing this parameter causes a service restart.
+	IoMaxCombineLimit *int `groups:"create,update" json:"io_max_combine_limit,omitempty"`
+
+	// +kubebuilder:validation:Minimum=-1
+	// +kubebuilder:validation:Maximum=1024
+	// EXPERIMENTAL: Controls the maximum number of I/O operations that one process can execute simultaneously. Version 18 and up only. Changing this parameter causes a service restart.
+	IoMaxConcurrency *int `groups:"create,update" json:"io_max_concurrency,omitempty"`
+
+	// +kubebuilder:validation:Enum="io_uring";"sync";"worker"
+	// EXPERIMENTAL: Controls the maximum number of I/O operations that one process can execute simultaneously. Version 18 and up only. Changing this parameter causes a service restart.
+	IoMethod *string `groups:"create,update" json:"io_method,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=32
+	// EXPERIMENTAL: Number of IO worker processes, for io_method=worker. Version 18 and up only. Changing this parameter causes a service restart.
+	IoWorkers *int `groups:"create,update" json:"io_workers,omitempty"`
+
 	// Controls system-wide use of Just-in-Time Compilation (JIT).
 	Jit *bool `groups:"create,update" json:"jit,omitempty"`
 
@@ -161,6 +185,7 @@ type Pg struct {
 	LogTempFiles *int `groups:"create,update" json:"log_temp_files,omitempty"`
 
 	// +kubebuilder:validation:Minimum=25
+	// +kubebuilder:validation:Maximum=60000
 	// Sets the PostgreSQL maximum number of concurrent connections to the database server. This is a limited-release parameter. Contact your account team to confirm your eligibility. You cannot decrease this parameter value when set. For services with a read replica, first increase the read replica's value. After the change is applied to the replica, you can increase the primary service's value. Changing this parameter causes a service restart.
 	MaxConnections *int `groups:"create,update" json:"max_connections,omitempty"`
 
@@ -513,6 +538,11 @@ type PgUserConfig struct {
 	// Migrate data from existing server
 	Migration *Migration `groups:"create,update" json:"migration,omitempty"`
 
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=100
+	// Number of nodes for the service
+	NodeCount *int `groups:"create,update" json:"node_count,omitempty"`
+
 	// postgresql.conf configuration values
 	Pg *Pg `groups:"create,update" json:"pg,omitempty"`
 
@@ -532,7 +562,7 @@ type PgUserConfig struct {
 	// Enable the pg_stat_monitor extension. Changing this parameter causes a service restart. When this extension is enabled, pg_stat_statements results for utility commands are unreliable
 	PgStatMonitorEnable *bool `groups:"create,update" json:"pg_stat_monitor_enable,omitempty"`
 
-	// +kubebuilder:validation:Enum="13";"14";"15";"16";"17"
+	// +kubebuilder:validation:Enum="13";"14";"15";"16";"17";"18"
 	// PostgreSQL major version. Deprecated values: `13`
 	PgVersion *string `groups:"create,update" json:"pg_version,omitempty"`
 

@@ -4,6 +4,31 @@
 
 - Change `ServiceIntegration`: operator now adopts existing integrations instead of failing with conflict
 - Fix `PostgreSQL`: added retry logic for errors during upgrade task
+- Add `AlloyDBOmni` field `userConfig.node_count`, type `integer`: Number of nodes for the service
+- Add `Kafka` field `userConfig.kafka_diskless`, type `object`: Kafka Diskless configuration values
+- Change `Kafka` field `userConfig.kafka_version`: enum add `4.0`
+- Change `MySQL` field `userConfig.mysql.innodb_log_buffer_size`: maximum ~~`4294967295`~~ → `4294967296`
+- Add `OpenSearch` field `userConfig.jwt`, type `object`: OpenSearch JWT Configuration
+- Change `OpenSearch` field `userConfig.opensearch.knn_memory_circuit_breaker_limit`: minimum ~~`3`~~ → `0`
+- Add `PostgreSQL` field `userConfig.node_count`, type `integer`: Number of nodes for the service
+- Add `PostgreSQL` field `userConfig.pg.io_combine_limit`, type `integer`: EXPERIMENTAL: Controls the
+  largest I/O size in operations that combine I/O in 8kB units
+- Add `PostgreSQL` field `userConfig.pg.io_max_combine_limit`, type `integer`: EXPERIMENTAL: Controls
+  the largest I/O size in operations that combine I/O in 8kB units, and silently limits the user-settable
+  parameter io_combine_limit
+- Add `PostgreSQL` field `userConfig.pg.io_max_concurrency`, type `integer`: EXPERIMENTAL: Controls the
+  maximum number of I/O operations that one process can execute simultaneously
+- Add `PostgreSQL` field `userConfig.pg.io_method`, type `string`: EXPERIMENTAL: Controls the maximum
+  number of I/O operations that one process can execute simultaneously
+- Add `PostgreSQL` field `userConfig.pg.io_workers`, type `integer`: EXPERIMENTAL: Number of IO worker
+  processes, for io_method=worker. Version 18 and up only
+- Change `PostgreSQL` field `userConfig.pg.max_connections`: maximum `60000`
+- Change `PostgreSQL` field `userConfig.pg_version`: enum add `18`
+- Remove `OpenSearch` field `userConfig.custom_keystores`, type `array`: the field has invalid schema definition
+- Add `KafkaTopic` field `config.diskless_enable`, type `boolean`: Indicates whether diskless should
+  be enabled
+- Remove `KafkaTopic` field `config.inkless_enable`, type `boolean`: Indicates whether inkless should
+  be enabled
 
 ## v0.33.1 - 2025-10-08
 
