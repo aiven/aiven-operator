@@ -2,15 +2,13 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
-- Change `AlloyDBOmni` field `userConfig.alloydbomni_version`: removed enum validation
-- Change `AlloyDBOmni` field `userConfig.pg_version`: removed enum validation
-- Change `Cassandra` field `userConfig.cassandra_version`: removed enum validation
-- Change `Flink` field `userConfig.flink_version`: removed enum validation
-- Change `MySQL` field `userConfig.mysql_version`: removed enum validation
-- Change `OpenSearch` field `userConfig.opensearch_version`: removed enum validation
-- Change `Redis` field `userConfig.redis_version`: removed enum validation
-- Change `PostgreSQL` field `userConfig.pg_version`: removed enum validation
-- Change `Kafka` field `userConfig.kafka_version`: removed enum validation
+## v0.34.0 - 2025-10-21
+
+- Change service version fields: removed enum validation from `userConfig`
+  (affects `AlloyDBOmni.userConfig.alloydbomni_version`, `AlloyDBOmni.userConfig.pg_version`,
+  `Cassandra.userConfig.cassandra_version`, `Flink.userConfig.flink_version`,
+  `MySQL.userConfig.mysql_version`, `OpenSearch.userConfig.opensearch_version`,
+  `Redis.userConfig.redis_version`, `PostgreSQL.userConfig.pg_version`, `Kafka.userConfig.kafka_version`)
 - Change `ServiceIntegration`: operator now adopts existing integrations instead of failing with conflict
 - Fix `PostgreSQL`: added retry logic for errors during upgrade task
 - Add `AlloyDBOmni` field `userConfig.node_count`, type `integer`: Number of nodes for the service
