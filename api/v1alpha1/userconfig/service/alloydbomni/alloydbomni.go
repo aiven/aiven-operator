@@ -409,7 +409,7 @@ type AlloydbomniUserConfig struct {
 	// Custom username for admin user. This must be set only when a new service is being created.
 	AdminUsername *string `groups:"create" json:"admin_username,omitempty"`
 
-	// +kubebuilder:validation:Enum="15"
+	// Available versions: `15`. Newer versions may also be available.
 	// PostgreSQL major version. Deprecated values: `15`
 	AlloydbomniVersion *string `groups:"create,update" json:"alloydbomni_version,omitempty"`
 
@@ -455,7 +455,7 @@ type AlloydbomniUserConfig struct {
 	// Name of the PG Service from which to fork (deprecated, use service_to_fork_from). This has effect only when a new service is being created.
 	PgServiceToForkFrom *string `groups:"create" json:"pg_service_to_fork_from,omitempty"`
 
-	// +kubebuilder:validation:Enum="15"
+	// Available versions: `15`. Newer versions may also be available.
 	// PostgreSQL major version
 	PgVersion *string `groups:"create,update" json:"pg_version,omitempty"`
 

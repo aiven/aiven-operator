@@ -171,7 +171,7 @@ type RedisUserConfig struct {
 	// Redis idle connection timeout in seconds
 	RedisTimeout *int `groups:"create,update" json:"redis_timeout,omitempty"`
 
-	// +kubebuilder:validation:Enum="7.0"
+	// Available versions: `7.0`. Newer versions may also be available.
 	// Redis major version
 	RedisVersion *string `groups:"create,update" json:"redis_version,omitempty"`
 

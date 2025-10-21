@@ -309,10 +309,9 @@ spec:
                           type: integer
                       type: object
                     cassandra_version:
-                      description: "Cassandra version. Deprecated values: `4`"
-                      enum:
-                        - "4"
-                        - "4.1"
+                      description: |-
+                        Available versions: `4`, `4.1`. Newer versions may also be available.
+                        Cassandra version. Deprecated values: `4`
                       pattern: ^[0-9]+(\.[0-9]+)?$
                       type: string
                     ip_filter:

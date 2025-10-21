@@ -219,6 +219,11 @@ func (o *object) init(name string) {
 	}
 }
 
+// isVersionField returns true if this field is a version field (e.g., pg_version, kafka_version).
+func (o *object) isVersionField() bool {
+	return strings.HasSuffix(o.jsonName, "_version")
+}
+
 // addObject adds object to jen.File
 func addObject(file *jen.File, obj *object) error {
 	fields := make([]jen.Code, len(obj.propertyNames))
@@ -371,7 +376,15 @@ func addFieldComments(s *jen.Statement, obj *object) *jen.Statement {
 
 		if len(enum) != 0 {
 			enum = enum[max(0, len(deprecatedEnums)-supportLastDeprecatedEnum):]
-			c = append(c, fmt.Sprintf("// +kubebuilder:validation:Enum=%s", strings.Join(enum, ";")))
+			if obj.isVersionField() {
+				comments := make([]string, len(enum))
+				for i, v := range enum {
+					comments[i] = fmt.Sprintf("`%s`", strings.Trim(v, `"`))
+				}
+				c = append(c, "// Available versions: "+strings.Join(comments, ", ")+". Newer versions may also be available.")
+			} else {
+				c = append(c, fmt.Sprintf("// +kubebuilder:validation:Enum=%s", strings.Join(enum, ";")))
+			}
 		}
 	}
 

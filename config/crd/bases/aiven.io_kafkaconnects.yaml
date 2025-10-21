@@ -499,12 +499,9 @@ spec:
                                   - token
                                 type: string
                               engine_version:
-                                description:
-                                  KV Secrets Engine version of the Vault
-                                  server instance
-                                enum:
-                                  - 1
-                                  - 2
+                                description: |-
+                                  Available versions: `1`, `2`. Newer versions may also be available.
+                                  KV Secrets Engine version of the Vault server instance
                                 type: integer
                               prefix_path_depth:
                                 description:
