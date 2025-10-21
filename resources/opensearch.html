@@ -1413,15 +1413,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#spec.userConfig.custom_keystores" class="md-nav__link">
-    <span class="md-ellipsis">
-      custom_keystores
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#spec.userConfig.gcs_migration" class="md-nav__link">
     <span class="md-ellipsis">
       gcs_migration
@@ -1461,6 +1452,15 @@
   <a href="#spec.userConfig.ip_filter" class="md-nav__link">
     <span class="md-ellipsis">
       ip_filter
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.jwt" class="md-nav__link">
+    <span class="md-ellipsis">
+      jwt
     </span>
   </a>
   
@@ -2751,15 +2751,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#spec.userConfig.custom_keystores" class="md-nav__link">
-    <span class="md-ellipsis">
-      custom_keystores
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#spec.userConfig.gcs_migration" class="md-nav__link">
     <span class="md-ellipsis">
       gcs_migration
@@ -2799,6 +2790,15 @@
   <a href="#spec.userConfig.ip_filter" class="md-nav__link">
     <span class="md-ellipsis">
       ip_filter
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.jwt" class="md-nav__link">
+    <span class="md-ellipsis">
+      jwt
     </span>
   </a>
   
@@ -3956,15 +3956,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#spec.userConfig.custom_keystores" class="md-nav__link">
-    <span class="md-ellipsis">
-      custom_keystores
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#spec.userConfig.gcs_migration" class="md-nav__link">
     <span class="md-ellipsis">
       gcs_migration
@@ -4004,6 +3995,15 @@
   <a href="#spec.userConfig.ip_filter" class="md-nav__link">
     <span class="md-ellipsis">
       ip_filter
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.jwt" class="md-nav__link">
+    <span class="md-ellipsis">
+      jwt
     </span>
   </a>
   
@@ -4547,20 +4547,21 @@
 <ul>
 <li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Additional Cloud Regions for Backup Replication.</li>
 <li><a href="#spec.userConfig.azure_migration-property" name="spec.userConfig.azure_migration-property"><code>azure_migration</code></a> (object). Azure migration settings. See below for <a href="#spec.userConfig.azure_migration">nested schema</a>.</li>
-<li><a href="#spec.userConfig.custom_domain-property" name="spec.userConfig.custom_domain-property"><code>custom_domain</code></a> (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name.</li>
-<li><a href="#spec.userConfig.custom_keystores-property" name="spec.userConfig.custom_keystores-property"><code>custom_keystores</code></a> (array of objects, MaxItems: 10). Allow to register custom keystores in OpenSearch. See below for <a href="#spec.userConfig.custom_keystores">nested schema</a>.</li>
+<li><a href="#spec.userConfig.custom_domain-property" name="spec.userConfig.custom_domain-property"><code>custom_domain</code></a> (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name. When you set a custom domain for a service deployed in a VPC, the service certificate is only created for the public-* hostname and the custom domain.</li>
 <li><a href="#spec.userConfig.disable_replication_factor_adjustment-property" name="spec.userConfig.disable_replication_factor_adjustment-property"><code>disable_replication_factor_adjustment</code></a> (boolean). Disable automatic replication factor adjustment for multi-node services. By default, Aiven ensures all indexes are replicated at least to two nodes. Note: Due to potential data loss in case of losing a service node, this setting can not be activated unless specifically allowed for the project.</li>
 <li><a href="#spec.userConfig.gcs_migration-property" name="spec.userConfig.gcs_migration-property"><code>gcs_migration</code></a> (object). Google Cloud Storage migration settings. See below for <a href="#spec.userConfig.gcs_migration">nested schema</a>.</li>
 <li><a href="#spec.userConfig.index_patterns-property" name="spec.userConfig.index_patterns-property"><code>index_patterns</code></a> (array of objects, MaxItems: 512). Index patterns. See below for <a href="#spec.userConfig.index_patterns">nested schema</a>.</li>
 <li><a href="#spec.userConfig.index_rollup-property" name="spec.userConfig.index_rollup-property"><code>index_rollup</code></a> (object). Index rollup settings. See below for <a href="#spec.userConfig.index_rollup">nested schema</a>.</li>
 <li><a href="#spec.userConfig.index_template-property" name="spec.userConfig.index_template-property"><code>index_template</code></a> (object). Template settings for all new indexes. See below for <a href="#spec.userConfig.index_template">nested schema</a>.</li>
 <li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 8000). Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
+<li><a href="#spec.userConfig.jwt-property" name="spec.userConfig.jwt-property"><code>jwt</code></a> (object). OpenSearch JWT Configuration. See below for <a href="#spec.userConfig.jwt">nested schema</a>.</li>
 <li><a href="#spec.userConfig.keep_index_refresh_interval-property" name="spec.userConfig.keep_index_refresh_interval-property"><code>keep_index_refresh_interval</code></a> (boolean). Aiven automation resets index.refresh_interval to default value for every index to be sure that indices are always visible to search. If it doesn't fit your case, you can disable this by setting up this flag to true.</li>
 <li><a href="#spec.userConfig.max_index_count-property" name="spec.userConfig.max_index_count-property"><code>max_index_count</code></a> (integer, Minimum: 0). DEPRECATED: use index_patterns instead.</li>
 <li><a href="#spec.userConfig.openid-property" name="spec.userConfig.openid-property"><code>openid</code></a> (object). OpenSearch OpenID Connect Configuration. See below for <a href="#spec.userConfig.openid">nested schema</a>.</li>
 <li><a href="#spec.userConfig.opensearch-property" name="spec.userConfig.opensearch-property"><code>opensearch</code></a> (object). OpenSearch settings. See below for <a href="#spec.userConfig.opensearch">nested schema</a>.</li>
 <li><a href="#spec.userConfig.opensearch_dashboards-property" name="spec.userConfig.opensearch_dashboards-property"><code>opensearch_dashboards</code></a> (object). OpenSearch Dashboards settings. See below for <a href="#spec.userConfig.opensearch_dashboards">nested schema</a>.</li>
-<li><a href="#spec.userConfig.opensearch_version-property" name="spec.userConfig.opensearch_version-property"><code>opensearch_version</code></a> (string, Enum: <code>1</code>, <code>2</code>, <code>2.19</code>). OpenSearch version.</li>
+<li><a href="#spec.userConfig.opensearch_version-property" name="spec.userConfig.opensearch_version-property"><code>opensearch_version</code></a> (string). Available versions: <code>1</code>, <code>2</code>, <code>2.19</code>. Newer versions may also be available.
+    OpenSearch version.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.project_to_fork_from-property" name="spec.userConfig.project_to_fork_from-property"><code>project_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.</li>
@@ -4593,14 +4594,6 @@
 <li><a href="#spec.userConfig.azure_migration.readonly-property" name="spec.userConfig.azure_migration.readonly-property"><code>readonly</code></a> (boolean). Whether the repository is read-only.</li>
 <li><a href="#spec.userConfig.azure_migration.restore_global_state-property" name="spec.userConfig.azure_migration.restore_global_state-property"><code>restore_global_state</code></a> (boolean). If true, restore the cluster state. Defaults to false.</li>
 <li><a href="#spec.userConfig.azure_migration.sas_token-property" name="spec.userConfig.azure_migration.sas_token-property"><code>sas_token</code></a> (string, Pattern: <code>^[^\r\n]*$</code>). A shared access signatures (SAS) token. One of key or sas_token should be specified.</li>
-</ul>
-<h3 id="spec.userConfig.custom_keystores">custom_keystores<a class="headerlink" href="#spec.userConfig.custom_keystores" title="Permanent link">&para;</a></h3>
-<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
-<p>Allow to register custom keystores in OpenSearch.</p>
-<p><strong>Required</strong></p>
-<ul>
-<li><a href="#spec.userConfig.custom_keystores.name-property" name="spec.userConfig.custom_keystores.name-property"><code>name</code></a> (string, Pattern: <code>^[^\r\n]*$</code>).</li>
-<li><a href="#spec.userConfig.custom_keystores.type-property" name="spec.userConfig.custom_keystores.type-property"><code>type</code></a> (string, Enum: <code>azure</code>, <code>gcs</code>, <code>s3</code>).</li>
 </ul>
 <h3 id="spec.userConfig.gcs_migration">gcs_migration<a class="headerlink" href="#spec.userConfig.gcs_migration" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
@@ -4664,6 +4657,24 @@
 <ul>
 <li><a href="#spec.userConfig.ip_filter.description-property" name="spec.userConfig.ip_filter.description-property"><code>description</code></a> (string, MaxLength: 1024). Description for IP filter list entry.</li>
 </ul>
+<h3 id="spec.userConfig.jwt">jwt<a class="headerlink" href="#spec.userConfig.jwt" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
+<p>OpenSearch JWT Configuration.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.userConfig.jwt.enabled-property" name="spec.userConfig.jwt.enabled-property"><code>enabled</code></a> (boolean). Enables or disables JWT-based authentication for OpenSearch. When enabled, users can authenticate using JWT tokens.</li>
+<li><a href="#spec.userConfig.jwt.signing_key-property" name="spec.userConfig.jwt.signing_key-property"><code>signing_key</code></a> (string, MinLength: 1, MaxLength: 1024). The secret key used to sign and verify JWT tokens. This should be a secure, randomly generated key HMAC key or public RSA/ECDSA key.</li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.jwt.jwt_clock_skew_tolerance_seconds-property" name="spec.userConfig.jwt.jwt_clock_skew_tolerance_seconds-property"><code>jwt_clock_skew_tolerance_seconds</code></a> (integer, Minimum: 0, Maximum: 300). The maximum allowed time difference in seconds between the JWT issuer's clock and the OpenSearch server's clock. This helps prevent token validation failures due to minor time synchronization issues.</li>
+<li><a href="#spec.userConfig.jwt.jwt_header-property" name="spec.userConfig.jwt.jwt_header-property"><code>jwt_header</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 256). The HTTP header name where the JWT token is transmitted. Typically <code>Authorization</code> for Bearer tokens.</li>
+<li><a href="#spec.userConfig.jwt.jwt_url_parameter-property" name="spec.userConfig.jwt.jwt_url_parameter-property"><code>jwt_url_parameter</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 256). If the JWT token is transmitted as a URL parameter instead of an HTTP header, specify the parameter name here.</li>
+<li><a href="#spec.userConfig.jwt.required_audience-property" name="spec.userConfig.jwt.required_audience-property"><code>required_audience</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 1024). If specified, the JWT must contain an <code>aud</code> claim that matches this value. This provides additional security by ensuring the JWT was issued for the expected audience.</li>
+<li><a href="#spec.userConfig.jwt.required_issuer-property" name="spec.userConfig.jwt.required_issuer-property"><code>required_issuer</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 1024). If specified, the JWT must contain an <code>iss</code> claim that matches this value. This provides additional security by ensuring the JWT was issued by the expected issuer.</li>
+<li><a href="#spec.userConfig.jwt.roles_key-property" name="spec.userConfig.jwt.roles_key-property"><code>roles_key</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 256). The key in the JWT payload that contains the user's roles. If specified, roles will be extracted from the JWT for authorization.</li>
+<li><a href="#spec.userConfig.jwt.subject_key-property" name="spec.userConfig.jwt.subject_key-property"><code>subject_key</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 256). The key in the JWT payload that contains the user's subject identifier. If not specified, the <code>sub</code> claim is used by default.</li>
+</ul>
 <h3 id="spec.userConfig.openid">openid<a class="headerlink" href="#spec.userConfig.openid" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
 <p>OpenSearch OpenID Connect Configuration.</p>
@@ -4725,7 +4736,7 @@
 <li><a href="#spec.userConfig.opensearch.ism_history_rollover_check_period-property" name="spec.userConfig.opensearch.ism_history_rollover_check_period-property"><code>ism_history_rollover_check_period</code></a> (integer, Minimum: 1, Maximum: 2147483647). The time between rollover checks for the audit history index in hours.</li>
 <li><a href="#spec.userConfig.opensearch.ism_history_rollover_retention_period-property" name="spec.userConfig.opensearch.ism_history_rollover_retention_period-property"><code>ism_history_rollover_retention_period</code></a> (integer, Minimum: 1, Maximum: 2147483647). How long audit history indices are kept in days.</li>
 <li><a href="#spec.userConfig.opensearch.knn_memory_circuit_breaker_enabled-property" name="spec.userConfig.opensearch.knn_memory_circuit_breaker_enabled-property"><code>knn_memory_circuit_breaker_enabled</code></a> (boolean). Enable or disable KNN memory circuit breaker. Defaults to true.</li>
-<li><a href="#spec.userConfig.opensearch.knn_memory_circuit_breaker_limit-property" name="spec.userConfig.opensearch.knn_memory_circuit_breaker_limit-property"><code>knn_memory_circuit_breaker_limit</code></a> (integer, Minimum: 3, Maximum: 100). Maximum amount of memory that can be used for KNN index. Defaults to 50% of the JVM heap size.</li>
+<li><a href="#spec.userConfig.opensearch.knn_memory_circuit_breaker_limit-property" name="spec.userConfig.opensearch.knn_memory_circuit_breaker_limit-property"><code>knn_memory_circuit_breaker_limit</code></a> (integer, Minimum: 0, Maximum: 100). Maximum amount of memory in percentage that can be used for the KNN index. Defaults to 50% of the JVM heap size. 0 is used to set it to null which can be used to invalidate caches.</li>
 <li><a href="#spec.userConfig.opensearch.node.search.cache.size-property" name="spec.userConfig.opensearch.node.search.cache.size-property"><code>node.search.cache.size</code></a> (string, Pattern: <code>\d+(?:b|kb|mb|gb|tb)</code>). Defines a limit of how much total remote data can be referenced as a ratio of the size of the disk reserved for the file cache. This is designed to be a safeguard to prevent oversubscribing a cluster. Defaults to 5gb. Requires restarting all OpenSearch nodes.</li>
 <li><a href="#spec.userConfig.opensearch.override_main_response_version-property" name="spec.userConfig.opensearch.override_main_response_version-property"><code>override_main_response_version</code></a> (boolean). Compatibility mode sets OpenSearch to report its version as 7.10 so clients continue to work. Default is false.</li>
 <li><a href="#spec.userConfig.opensearch.plugins_alerting_filter_by_backend_roles-property" name="spec.userConfig.opensearch.plugins_alerting_filter_by_backend_roles-property"><code>plugins_alerting_filter_by_backend_roles</code></a> (boolean). Enable or disable filtering of alerting by backend roles. Requires Security plugin. Defaults to false.</li>

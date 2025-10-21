@@ -468,6 +468,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0340-2025-10-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      v0.34.0 - 2025-10-21
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0331-2025-10-08" class="md-nav__link">
     <span class="md-ellipsis">
       v0.33.1 - 2025-10-08
@@ -3260,6 +3269,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0340-2025-10-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      v0.34.0 - 2025-10-21
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0331-2025-10-08" class="md-nav__link">
     <span class="md-ellipsis">
       v0.33.1 - 2025-10-08
@@ -3638,6 +3656,39 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0340-2025-10-21">v0.34.0 - 2025-10-21<a class="headerlink" href="#v0340-2025-10-21" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Change service version fields: removed enum validation from <code>userConfig</code>
+  (affects <code>AlloyDBOmni.userConfig.alloydbomni_version</code>,
+  <code>Cassandra.userConfig.cassandra_version</code>, <code>Flink.userConfig.flink_version</code>,
+  <code>MySQL.userConfig.mysql_version</code>, <code>OpenSearch.userConfig.opensearch_version</code>,
+  <code>Redis.userConfig.redis_version</code>, <code>PostgreSQL.userConfig.pg_version</code>, <code>Kafka.userConfig.kafka_version</code>)</li>
+<li>Change <code>ServiceIntegration</code>: operator now adopts existing integrations instead of failing with conflict</li>
+<li>Fix <code>PostgreSQL</code>: added retry logic for errors during upgrade task</li>
+<li>Add <code>AlloyDBOmni</code> field <code>userConfig.node_count</code>, type <code>integer</code>: Number of nodes for the service</li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka_diskless</code>, type <code>object</code>: Kafka Diskless configuration values</li>
+<li>Change <code>MySQL</code> field <code>userConfig.mysql.innodb_log_buffer_size</code>: maximum <del><code>4294967295</code></del> → <code>4294967296</code></li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.jwt</code>, type <code>object</code>: OpenSearch JWT Configuration</li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.opensearch.knn_memory_circuit_breaker_limit</code>: minimum <del><code>3</code></del> → <code>0</code></li>
+<li>Add <code>PostgreSQL</code> field <code>userConfig.node_count</code>, type <code>integer</code>: Number of nodes for the service</li>
+<li>Add <code>PostgreSQL</code> field <code>userConfig.pg.io_combine_limit</code>, type <code>integer</code>: EXPERIMENTAL: Controls the
+  largest I/O size in operations that combine I/O in 8kB units</li>
+<li>Add <code>PostgreSQL</code> field <code>userConfig.pg.io_max_combine_limit</code>, type <code>integer</code>: EXPERIMENTAL: Controls
+  the largest I/O size in operations that combine I/O in 8kB units, and silently limits the user-settable
+  parameter io_combine_limit</li>
+<li>Add <code>PostgreSQL</code> field <code>userConfig.pg.io_max_concurrency</code>, type <code>integer</code>: EXPERIMENTAL: Controls the
+  maximum number of I/O operations that one process can execute simultaneously</li>
+<li>Add <code>PostgreSQL</code> field <code>userConfig.pg.io_method</code>, type <code>string</code>: EXPERIMENTAL: Controls the maximum
+  number of I/O operations that one process can execute simultaneously</li>
+<li>Add <code>PostgreSQL</code> field <code>userConfig.pg.io_workers</code>, type <code>integer</code>: EXPERIMENTAL: Number of IO worker
+  processes, for io_method=worker. Version 18 and up only</li>
+<li>Change <code>PostgreSQL</code> field <code>userConfig.pg.max_connections</code>: maximum <code>60000</code></li>
+<li>Remove <code>OpenSearch</code> field <code>userConfig.custom_keystores</code>, type <code>array</code>: the field has invalid schema definition</li>
+<li>Add <code>KafkaTopic</code> field <code>config.diskless_enable</code>, type <code>boolean</code>: Indicates whether diskless should
+  be enabled</li>
+<li>Remove <code>KafkaTopic</code> field <code>config.inkless_enable</code>, type <code>boolean</code>: Indicates whether inkless should
+  be enabled</li>
+</ul>
 <h2 id="v0331-2025-10-08">v0.33.1 - 2025-10-08<a class="headerlink" href="#v0331-2025-10-08" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Fix <code>PostgreSQL</code>: resolved panic during upgrade check task fails</li>

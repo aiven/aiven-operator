@@ -3514,7 +3514,8 @@
 <ul>
 <li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Deprecated. Additional Cloud Regions for Backup Replication.</li>
 <li><a href="#spec.userConfig.custom_code-property" name="spec.userConfig.custom_code-property"><code>custom_code</code></a> (boolean, Immutable). Enable to upload Custom JARs for Flink applications.</li>
-<li><a href="#spec.userConfig.flink_version-property" name="spec.userConfig.flink_version-property"><code>flink_version</code></a> (string, Enum: <code>1.16</code>, <code>1.19</code>, <code>1.20</code>, Immutable). Flink major version. Deprecated values: <code>1.16</code>.</li>
+<li><a href="#spec.userConfig.flink_version-property" name="spec.userConfig.flink_version-property"><code>flink_version</code></a> (string, Immutable). Available versions: <code>1.16</code>, <code>1.19</code>, <code>1.20</code>. Newer versions may also be available.
+    Flink major version. Deprecated values: <code>1.16</code>.</li>
 <li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 8000). Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
 <li><a href="#spec.userConfig.number_of_task_slots-property" name="spec.userConfig.number_of_task_slots-property"><code>number_of_task_slots</code></a> (integer, Minimum: 1, Maximum: 1024). Task slots per node. For a 3 node plan, total number of task slots is 3x this value.</li>
 <li><a href="#spec.userConfig.pekko_ask_timeout_s-property" name="spec.userConfig.pekko_ask_timeout_s-property"><code>pekko_ask_timeout_s</code></a> (integer, Minimum: 5, Maximum: 60). Timeout in seconds used for all futures and blocking Pekko requests.</li>

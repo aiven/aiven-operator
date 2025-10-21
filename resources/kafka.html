@@ -1276,6 +1276,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#spec.userConfig.kafka_diskless" class="md-nav__link">
+    <span class="md-ellipsis">
+      kafka_diskless
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#spec.userConfig.kafka_rest_config" class="md-nav__link">
     <span class="md-ellipsis">
       kafka_rest_config
@@ -2411,6 +2420,15 @@
         
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.kafka_diskless" class="md-nav__link">
+    <span class="md-ellipsis">
+      kafka_diskless
+    </span>
+  </a>
   
 </li>
         
@@ -3634,6 +3652,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#spec.userConfig.kafka_diskless" class="md-nav__link">
+    <span class="md-ellipsis">
+      kafka_diskless
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#spec.userConfig.kafka_rest_config" class="md-nav__link">
     <span class="md-ellipsis">
       kafka_rest_config
@@ -3955,7 +3982,7 @@
 <ul>
 <li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Deprecated. Additional Cloud Regions for Backup Replication.</li>
 <li><a href="#spec.userConfig.aiven_kafka_topic_messages-property" name="spec.userConfig.aiven_kafka_topic_messages-property"><code>aiven_kafka_topic_messages</code></a> (boolean). Allow access to read Kafka topic messages in the Aiven Console and REST API.</li>
-<li><a href="#spec.userConfig.custom_domain-property" name="spec.userConfig.custom_domain-property"><code>custom_domain</code></a> (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name.</li>
+<li><a href="#spec.userConfig.custom_domain-property" name="spec.userConfig.custom_domain-property"><code>custom_domain</code></a> (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name. When you set a custom domain for a service deployed in a VPC, the service certificate is only created for the public-* hostname and the custom domain.</li>
 <li><a href="#spec.userConfig.follower_fetching-property" name="spec.userConfig.follower_fetching-property"><code>follower_fetching</code></a> (object). Enable follower fetching. See below for <a href="#spec.userConfig.follower_fetching">nested schema</a>.</li>
 <li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 8000). Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
 <li><a href="#spec.userConfig.kafka-property" name="spec.userConfig.kafka-property"><code>kafka</code></a> (object). Kafka broker configuration values. See below for <a href="#spec.userConfig.kafka">nested schema</a>.</li>
@@ -3964,11 +3991,13 @@
 <li><a href="#spec.userConfig.kafka_connect_config-property" name="spec.userConfig.kafka_connect_config-property"><code>kafka_connect_config</code></a> (object). Kafka Connect configuration values. See below for <a href="#spec.userConfig.kafka_connect_config">nested schema</a>.</li>
 <li><a href="#spec.userConfig.kafka_connect_plugin_versions-property" name="spec.userConfig.kafka_connect_plugin_versions-property"><code>kafka_connect_plugin_versions</code></a> (array of objects). The plugin selected by the user. See below for <a href="#spec.userConfig.kafka_connect_plugin_versions">nested schema</a>.</li>
 <li><a href="#spec.userConfig.kafka_connect_secret_providers-property" name="spec.userConfig.kafka_connect_secret_providers-property"><code>kafka_connect_secret_providers</code></a>. See below for } (array of objects). Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name><a href="#spec.userConfig.kafka_connect_secret_providers">nested schema</a>.</li>
+<li><a href="#spec.userConfig.kafka_diskless-property" name="spec.userConfig.kafka_diskless-property"><code>kafka_diskless</code></a> (object). Kafka Diskless configuration values. See below for <a href="#spec.userConfig.kafka_diskless">nested schema</a>.</li>
 <li><a href="#spec.userConfig.kafka_rest-property" name="spec.userConfig.kafka_rest-property"><code>kafka_rest</code></a> (boolean). Enable Kafka-REST service.</li>
 <li><a href="#spec.userConfig.kafka_rest_authorization-property" name="spec.userConfig.kafka_rest_authorization-property"><code>kafka_rest_authorization</code></a> (boolean). Enable authorization in Kafka-REST service.</li>
 <li><a href="#spec.userConfig.kafka_rest_config-property" name="spec.userConfig.kafka_rest_config-property"><code>kafka_rest_config</code></a> (object). Kafka REST configuration. See below for <a href="#spec.userConfig.kafka_rest_config">nested schema</a>.</li>
 <li><a href="#spec.userConfig.kafka_sasl_mechanisms-property" name="spec.userConfig.kafka_sasl_mechanisms-property"><code>kafka_sasl_mechanisms</code></a> (object). Kafka SASL mechanisms. See below for <a href="#spec.userConfig.kafka_sasl_mechanisms">nested schema</a>.</li>
-<li><a href="#spec.userConfig.kafka_version-property" name="spec.userConfig.kafka_version-property"><code>kafka_version</code></a> (string, Enum: <code>3.7</code>, <code>3.8</code>, <code>3.9</code>). Kafka major version. Deprecated values: <code>3.7</code>.</li>
+<li><a href="#spec.userConfig.kafka_version-property" name="spec.userConfig.kafka_version-property"><code>kafka_version</code></a> (string). Available versions: <code>3.7</code>, <code>3.8</code>, <code>3.9</code>, <code>4.0</code>. Newer versions may also be available.
+    Kafka major version. Deprecated values: <code>3.7</code>.</li>
 <li><a href="#spec.userConfig.letsencrypt_sasl_privatelink-property" name="spec.userConfig.letsencrypt_sasl_privatelink-property"><code>letsencrypt_sasl_privatelink</code></a> (boolean). Use Letsencrypt CA for Kafka SASL via Privatelink.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
@@ -4125,9 +4154,17 @@
 </ul>
 <p><strong>Optional</strong></p>
 <ul>
-<li><a href="#spec.userConfig.kafka_connect_secret_providers.vault.engine_version-property" name="spec.userConfig.kafka_connect_secret_providers.vault.engine_version-property"><code>engine_version</code></a> (integer, Enum: <code>1</code>, <code>2</code>). KV Secrets Engine version of the Vault server instance.</li>
+<li><a href="#spec.userConfig.kafka_connect_secret_providers.vault.engine_version-property" name="spec.userConfig.kafka_connect_secret_providers.vault.engine_version-property"><code>engine_version</code></a> (integer). Available versions: <code>1</code>, <code>2</code>. Newer versions may also be available.
+    KV Secrets Engine version of the Vault server instance.</li>
 <li><a href="#spec.userConfig.kafka_connect_secret_providers.vault.prefix_path_depth-property" name="spec.userConfig.kafka_connect_secret_providers.vault.prefix_path_depth-property"><code>prefix_path_depth</code></a> (integer). Prefix path depth of the secrets Engine. Default is 1. If the secrets engine path has more than one segment it has to be increased to the number of segments.</li>
 <li><a href="#spec.userConfig.kafka_connect_secret_providers.vault.token-property" name="spec.userConfig.kafka_connect_secret_providers.vault.token-property"><code>token</code></a> (string, MaxLength: 256). Token used to authenticate with vault and auth method <code>token</code>.</li>
+</ul>
+<h3 id="spec.userConfig.kafka_diskless">kafka_diskless<a class="headerlink" href="#spec.userConfig.kafka_diskless" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
+<p>Kafka Diskless configuration values.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.userConfig.kafka_diskless.enabled-property" name="spec.userConfig.kafka_diskless.enabled-property"><code>enabled</code></a> (boolean, Immutable). Whether to enable the Diskless functionality.</li>
 </ul>
 <h3 id="spec.userConfig.kafka_rest_config">kafka_rest_config<a class="headerlink" href="#spec.userConfig.kafka_rest_config" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>

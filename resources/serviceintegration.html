@@ -4302,6 +4302,10 @@
 <hr />
 <h2 id="ServiceIntegration">ServiceIntegration<a class="headerlink" href="#ServiceIntegration" title="Permanent link">&para;</a></h2>
 <p>ServiceIntegration is the Schema for the serviceintegrations API.</p>
+<div class="admonition info">
+<p class="admonition-title">Adoption of existing integrations</p>
+<p>If a ServiceIntegration resource is created with configuration matching an existing Aiven integration (created outside the operator), the operator will adopt the existing integration.</p>
+</div>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#apiVersion-property" name="apiVersion-property"><code>apiVersion</code></a> (string). Value <code>aiven.io/v1alpha1</code>.</li>
