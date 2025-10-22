@@ -408,63 +408,100 @@ func TestClickhouseUserCustomCredentials(t *testing.T) {
 			return err
 		}))
 	})
+}
 
-	t.Run("BuiltInUserAvnadmin", func(t *testing.T) {
-		// tests ClickhouseUser creation for the built-in user 'avnadmin'
-		// verifies that built-in users work correctly with custom credentials
-		userName := "avnadmin" // built-in username
-		yml := getClickhouseUserWithBuiltInUserYaml(cfg.Project, chName, userName, cfg.PrimaryCloudName)
+// TestClickhouseUserBuiltInAvnadmin tests the built-in 'avnadmin' user with custom password.
+// This test creates its own Clickhouse instance because it modifies the avnadmin password,
+// which would interfere with other tests using shared Clickhouse.
+func TestClickhouseUserBuiltInAvnadmin(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
 
-		require.NoError(t, s.Apply(yml))
+	// GIVEN
+	ctx, cancel := testCtx()
+	defer cancel()
 
-		user := new(v1alpha1.ClickhouseUser)
-		require.NoError(t, s.GetRunning(user, userName))
+	chName := randName("clickhouse-avnadmin")
 
-		userAvn, err := getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
-		require.NoError(t, err)
-		assert.Equal(t, userName, user.GetName())
-		assert.Equal(t, userName, userAvn.Name)
-		assert.Equal(t, chName, user.Spec.ServiceName)
+	yml := fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: Clickhouse
+metadata:
+  name: %s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
 
-		secretName := fmt.Sprintf("my-clickhouse-builtin-user-secret-%s", userName)
-		secret, err := s.GetSecret(secretName)
-		require.NoError(t, err)
-		assert.NotEmpty(t, secret.Data["HOST"])
-		assert.NotEmpty(t, secret.Data["PORT"])
-		assert.NotEmpty(t, secret.Data["USERNAME"])
-		assert.NotEmpty(t, secret.Data["PASSWORD"])
-		assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_HOST"])
-		assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_PORT"])
-		assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_USERNAME"])
-		assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_PASSWORD"])
+  connInfoSecretTarget:
+    name: %s
 
-		// verify the password matches predefined value for built-in user
-		actualPassword := string(secret.Data["PASSWORD"])
-		assert.Equal(t, "BuiltInUserPassword123!", actualPassword, "Password should match predefined value for built-in user")
+  project: %s
+  cloudName: %s
+  plan: startup-v2-16
+`, chName, chName, cfg.Project, cfg.PrimaryCloudName)
 
-		assert.Equal(t, map[string]string{"test": "builtin-user"}, secret.Annotations)
-		assert.Equal(t, map[string]string{"type": "built-in-user"}, secret.Labels)
+	s := NewSession(ctx, k8sClient)
+	defer s.Destroy(t)
 
-		// verify that the built-in user works the same as regular users
-		assert.NoError(t, pingClickhouse(
-			ctx,
-			secret.Data["CLICKHOUSEUSER_HOST"],
-			secret.Data["CLICKHOUSEUSER_PORT"],
-			secret.Data["CLICKHOUSEUSER_USERNAME"],
-			secret.Data["CLICKHOUSEUSER_PASSWORD"],
-		))
+	require.NoError(t, s.Apply(yml))
 
-		// the user should be successfully deleted from Kubernetes, but the isBuiltInUser logic
-		// should prevent actual deletion from Aiven
-		assert.NoError(t, s.Delete(user, func() error {
-			_, err = getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
-			// for built-in users, the user would still exist in Aiven after "deletion"
-			if isNotFound(err) {
-				return nil
-			}
-			return err
-		}))
-	})
+	ch := new(v1alpha1.Clickhouse)
+	require.NoError(t, s.GetRunning(ch, chName))
+
+	// WHEN
+	userName := "avnadmin" // built-in username
+	userYml := getClickhouseUserWithBuiltInUserYaml(cfg.Project, chName, userName, cfg.PrimaryCloudName)
+	require.NoError(t, s.Apply(userYml))
+
+	user := new(v1alpha1.ClickhouseUser)
+	require.NoError(t, s.GetRunning(user, userName))
+
+	// THEN
+	userAvn, err := getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
+	require.NoError(t, err)
+	assert.Equal(t, userName, user.GetName())
+	assert.Equal(t, userName, userAvn.Name)
+	assert.Equal(t, chName, user.Spec.ServiceName)
+
+	secretName := fmt.Sprintf("my-clickhouse-builtin-user-secret-%s", userName)
+	secret, err := s.GetSecret(secretName)
+	require.NoError(t, err)
+	assert.NotEmpty(t, secret.Data["HOST"])
+	assert.NotEmpty(t, secret.Data["PORT"])
+	assert.NotEmpty(t, secret.Data["USERNAME"])
+	assert.NotEmpty(t, secret.Data["PASSWORD"])
+	assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_HOST"])
+	assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_PORT"])
+	assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_USERNAME"])
+	assert.NotEmpty(t, secret.Data["CLICKHOUSEUSER_PASSWORD"])
+
+	// verify the password matches predefined value for built-in user
+	actualPassword := string(secret.Data["PASSWORD"])
+	assert.Equal(t, "BuiltInUserPassword123!", actualPassword, "Password should match predefined value for built-in user")
+
+	assert.Equal(t, map[string]string{"test": "builtin-user"}, secret.Annotations)
+	assert.Equal(t, map[string]string{"type": "built-in-user"}, secret.Labels)
+
+	// verify that the built-in user works the same as regular users
+	assert.NoError(t, pingClickhouse(
+		ctx,
+		secret.Data["CLICKHOUSEUSER_HOST"],
+		secret.Data["CLICKHOUSEUSER_PORT"],
+		secret.Data["CLICKHOUSEUSER_USERNAME"],
+		secret.Data["CLICKHOUSEUSER_PASSWORD"],
+	))
+
+	// the user should be successfully deleted from Kubernetes, but the isBuiltInUser logic
+	// should prevent actual deletion from Aiven
+	assert.NoError(t, s.Delete(user, func() error {
+		_, err = getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
+		// for built-in users, the user would still exist in Aiven after "deletion"
+		if isNotFound(err) {
+			return nil
+		}
+		return err
+	}))
 }
 
 func getClickhouseUserWithBuiltInUserYaml(project, chName, userName, cloudName string) string {
