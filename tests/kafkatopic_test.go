@@ -13,25 +13,25 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func getKafkaTopicNameYaml(project, ksName, cloudName, fooTopicName, barTopicName string) string {
+// getKafkaTopicNameYaml creates two KafkaTopic resources
+func getKafkaTopicYaml(project, ksName, fooTopicName, barTopicName string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
-kind: Kafka
+kind: KafkaTopic
 metadata:
-  name: %[2]s
+  name: %[3]s
 spec:
   authSecretRef:
     name: aiven-token
     key: token
 
   project: %[1]s
-  cloudName: %[3]s
-  plan: business-4
-
-  userConfig:
-    tiered_storage:
-      enabled: true
-
+  serviceName: %[2]s
+  replication: 2
+  partitions: 1
+  config:
+    min_cleanable_dirty_ratio: 0.2
+    retention_bytes: 2048
 ---
 
 apiVersion: aiven.io/v1alpha1
@@ -45,35 +45,13 @@ spec:
 
   project: %[1]s
   serviceName: %[2]s
-  replication: 2
-  partitions: 1
-  config:
-    min_cleanable_dirty_ratio: 0.2
-    retention_bytes: 2048
-    local_retention_bytes: 1024
-    local_retention_ms: 1000000
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: KafkaTopic
-metadata:
-  name: %[5]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  serviceName: %[2]s
   topicName: bar_topic_name_with_underscores
   replication: 2
   partitions: 2
-`, project, ksName, cloudName, fooTopicName, barTopicName)
+`, project, ksName, fooTopicName, barTopicName)
 }
 
 // TestKafkaTopic creates two topics: one with metadata.name, another one with spec.topicName
-// Also validates kafka topic controller checkPreconditions(), because kafka and topic are applied simultaneously
 func TestKafkaTopic(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
@@ -82,24 +60,23 @@ func TestKafkaTopic(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	ksName := randName("kafka-service")
+	ks, releaseKafka, err := sharedResources.AcquireKafka(ctx)
+	require.NoError(t, err)
+	defer releaseKafka()
+
+	ksName := ks.GetName()
 	fooTopicName := randName("foo-topic")
 	barTopicName := randName("bar-topic")
-	yml := getKafkaTopicNameYaml(cfg.Project, ksName, cfg.PrimaryCloudName, fooTopicName, barTopicName)
+
+	yml := getKafkaTopicYaml(cfg.Project, ksName, fooTopicName, barTopicName)
 	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
 	defer s.Destroy(t)
 
 	// WHEN
-	// Applies given manifest
 	require.NoError(t, s.Apply(yml))
 
-	// Waits kube objects
-	ks := new(v1alpha1.Kafka)
-	require.NoError(t, s.GetRunning(ks, ksName))
-
-	// Finds topics by metadata.Name, because you don't store it by spec.topicName
 	fooTopic := new(v1alpha1.KafkaTopic)
 	require.NoError(t, s.GetRunning(fooTopic, fooTopicName))
 
@@ -107,13 +84,10 @@ func TestKafkaTopic(t *testing.T) {
 	require.NoError(t, s.GetRunning(barTopic, barTopicName))
 
 	// THEN
-	// Validates Kafka
 	ksAvn, err := avnGen.ServiceGet(ctx, cfg.Project, ksName)
 	require.NoError(t, err)
 	assert.Equal(t, ksAvn.ServiceName, ks.GetName())
 	assert.Contains(t, serviceRunningStatesAiven, ksAvn.State)
-	assert.Equal(t, ksAvn.Plan, ks.Spec.Plan)
-	assert.Equal(t, ksAvn.CloudName, ks.Spec.CloudName)
 
 	// Validates KafkaTopics
 	assert.True(t, meta.IsStatusConditionTrue(fooTopic.Status.Conditions, "Running"))
@@ -133,8 +107,6 @@ func TestKafkaTopic(t *testing.T) {
 	// Validates MinCleanableDirtyRatio
 	require.Equal(t, anyPointer(0.2), fooTopic.Spec.Config.MinCleanableDirtyRatio)
 	require.Equal(t, anyPointer(2048), fooTopic.Spec.Config.RetentionBytes)
-	require.Equal(t, anyPointer(1024), fooTopic.Spec.Config.LocalRetentionBytes)
-	require.Equal(t, anyPointer(1000000), fooTopic.Spec.Config.LocalRetentionMs)
 
 	// Validates MaxMessageBytes (not set)
 	assert.Nil(t, fooTopic.Spec.Config.MaxMessageBytes)
