@@ -1,4 +1,4 @@
-//go:build serviceuser
+//go:build postgresql
 
 package tests
 

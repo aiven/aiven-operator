@@ -37,7 +37,7 @@ import (
 const (
 	retryInterval      = time.Second * 10
 	createTimeout      = time.Second * 15
-	waitRunningTimeout = time.Minute * 20
+	waitRunningTimeout = time.Minute * 25
 	deleteTimeout      = time.Minute * 5
 	yamlBufferSize     = 100
 	defaultNamespace   = "default"
@@ -179,8 +179,7 @@ func (s *session) Destroy(t testingT) {
 }
 
 // DestroyError deletes all applied resources.
-// Tolerant to "not found" error,
-// because resource may have been deleted manually
+// Tolerant to "not found" error, because resource may have been deleted manually
 func (s *session) DestroyError() (err error) {
 	log.Printf("SESSION DESTROY: Starting cleanup of %d resources", len(s.objs))
 	for name := range s.objs {

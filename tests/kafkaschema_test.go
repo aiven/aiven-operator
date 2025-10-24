@@ -1,4 +1,4 @@
-//go:build kafkaschema
+//go:build kafka
 
 package tests
 
@@ -17,25 +17,8 @@ import (
 	"github.com/aiven/aiven-operator/controllers"
 )
 
-func getKafkaSchemaYaml(project, kafkaName, schemaName, subjectName, cloudName string) string {
+func getKafkaSchemaYaml(project, kafkaName, schemaName, subjectName string) string {
 	return fmt.Sprintf(`
-apiVersion: aiven.io/v1alpha1
-kind: Kafka
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[5]s
-  plan: startup-4
-  userConfig:
-    schema_registry: true
-
----
-
 apiVersion: aiven.io/v1alpha1
 kind: KafkaSchema
 metadata:
@@ -64,7 +47,7 @@ spec:
         "namespace": "example_namespace",
         "type": "record"
     }
-`, project, kafkaName, schemaName, subjectName, cloudName)
+`, project, kafkaName, schemaName, subjectName)
 }
 
 func TestKafkaSchema(t *testing.T) {
@@ -75,10 +58,14 @@ func TestKafkaSchema(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	kafkaName := randName("kafka-schema")
+	kafka, releaseKafka, err := sharedResources.AcquireKafka(ctx)
+	require.NoError(t, err)
+	defer releaseKafka()
+
+	kafkaName := kafka.GetName()
 	schemaName := randName("kafka-schema")
 	subjectName := randName("kafka-schema")
-	yml := getKafkaSchemaYaml(cfg.Project, kafkaName, schemaName, subjectName, cfg.PrimaryCloudName)
+	yml := getKafkaSchemaYaml(cfg.Project, kafkaName, schemaName, subjectName)
 	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
@@ -88,12 +75,7 @@ func TestKafkaSchema(t *testing.T) {
 	// Applies given manifest
 	require.NoError(t, s.Apply(yml))
 
-	// Waits kube objects
-	kafka := new(v1alpha1.Kafka)
-	require.NoError(t, s.GetRunning(kafka, kafkaName))
-
 	// THEN
-	// Kafka test
 	kafkaAvn, err := avnGen.ServiceGet(ctx, cfg.Project, kafkaName)
 	require.NoError(t, err)
 	assert.Equal(t, kafkaAvn.ServiceName, kafka.GetName())

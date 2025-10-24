@@ -1,4 +1,4 @@
-//go:build serviceintegrationendpoint
+//go:build misc
 
 package tests
 

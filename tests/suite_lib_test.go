@@ -12,11 +12,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func setupTestYamlFile(t *testing.T, yamlContent string) (string, func()) {
+func setupTestYamlFile(t *testing.T, yamlContent string) (string, string, func()) {
 	tempDir, err := os.MkdirTemp("", "yaml-tests")
 	require.NoError(t, err)
-
-	examplesDirPath = tempDir
 
 	// Use last part of the test name as the filename:
 	// Example:
@@ -32,7 +30,7 @@ func setupTestYamlFile(t *testing.T, yamlContent string) (string, func()) {
 		os.RemoveAll(tempDir)
 	}
 
-	return filename, cleanup
+	return tempDir, filename, cleanup
 }
 
 type testCase struct {
@@ -209,10 +207,10 @@ data:
 		t.Run(groupName, func(t *testing.T) {
 			for _, tc := range testCases {
 				t.Run(tc.name, func(t *testing.T) {
-					filename, cleanup := setupTestYamlFile(t, tc.yamlContent)
+					tempDir, filename, cleanup := setupTestYamlFile(t, tc.yamlContent)
 					defer cleanup()
 
-					result, err := loadExampleYaml(filename, tc.replacements)
+					result, err := loadExampleYamlFromDir(tempDir, filename, tc.replacements)
 
 					if tc.errorMsg != nil {
 						require.Error(t, err)

@@ -14,14 +14,21 @@ import (
 	"github.com/goccy/go-yaml/parser"
 )
 
-var examplesDirPath = "../docs/docs/resources/examples"
+const defaultExamplesDirPath = "../docs/docs/resources/examples"
 
 type exampleYamlProcessor struct {
-	docs []*ast.DocumentNode
+	docs        []*ast.DocumentNode
+	examplesDir string
 }
 
 func loadExampleYaml(name string, replacements map[string]string) (string, error) {
-	p := &exampleYamlProcessor{}
+	return loadExampleYamlFromDir(defaultExamplesDirPath, name, replacements)
+}
+
+func loadExampleYamlFromDir(examplesDir, name string, replacements map[string]string) (string, error) {
+	p := &exampleYamlProcessor{
+		examplesDir: examplesDir,
+	}
 	if err := p.loadFile(name); err != nil {
 		return "", err
 	}
@@ -34,7 +41,7 @@ func loadExampleYaml(name string, replacements map[string]string) (string, error
 }
 
 func (p *exampleYamlProcessor) loadFile(name string) error {
-	filePath := path.Join(examplesDirPath, name)
+	filePath := path.Join(p.examplesDir, name)
 	file, err := os.ReadFile(filePath)
 	if err != nil {
 		return fmt.Errorf("failed to read file %s: %w", filePath, err)
