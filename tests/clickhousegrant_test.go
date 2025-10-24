@@ -32,21 +32,10 @@ func chConnFromSecret(secret *corev1.Secret) (clickhouse.Conn, error) {
 	return c, err
 }
 
+// getClickhouseGrantYaml returns YAML manifest
+// creating ClickhouseDatabase, ClickhouseUser, ClickhouseRole and ClickhouseGrant
 func getClickhouseGrantYaml(project, chName, cloudName, dbName, userName, roleName string) string {
 	return fmt.Sprintf(`
-apiVersion: aiven.io/v1alpha1
-kind: Clickhouse
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[3]s
-  plan: startup-16
----
 apiVersion: aiven.io/v1alpha1
 kind: ClickhouseDatabase
 metadata:
@@ -87,7 +76,7 @@ spec:
 apiVersion: aiven.io/v1alpha1
 kind: ClickhouseGrant
 metadata:
-  name: test-grant
+  name: %[6]s-grant
 spec:
   authSecretRef:
     name: aiven-token
@@ -126,7 +115,11 @@ func TestClickhouseGrant(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	chName := randName("clickhouse")
+	ch, releaseCH, err := sharedResources.AcquireClickhouse(ctx)
+	require.NoError(t, err)
+	defer releaseCH()
+
+	chName := ch.GetName()
 	userName := "clickhouse-user"
 	dbName := "clickhouse-db"
 	roleName := randName("writer")
@@ -142,12 +135,10 @@ func TestClickhouseGrant(t *testing.T) {
 	require.NoError(t, s.Apply(yml))
 
 	// Waits kube objects
-	ch := new(v1alpha1.Clickhouse)
 	db := new(v1alpha1.ClickhouseDatabase)
 	user := new(v1alpha1.ClickhouseUser)
 	role := new(v1alpha1.ClickhouseRole)
 
-	require.NoError(t, s.GetRunning(ch, chName))
 	require.NoError(t, s.GetRunning(db, dbName))
 	require.NoError(t, s.GetRunning(user, userName))
 	require.NoError(t, s.GetRunning(role, roleName))
@@ -160,7 +151,7 @@ func TestClickhouseGrant(t *testing.T) {
 
 	// THEN
 	grant := new(v1alpha1.ClickhouseGrant)
-	require.NoError(t, s.GetRunning(grant, "test-grant"))
+	require.NoError(t, s.GetRunning(grant, roleName+"-grant"))
 
 	// Query and collect ClickhouseGrant results
 	results, err := queryAndCollectResults[ClickhouseGrant](ctx, conn, chUtils.QueryNonAivenPrivileges)

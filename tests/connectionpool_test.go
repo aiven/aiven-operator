@@ -156,30 +156,11 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 
 	var (
 		ctx, cancel = testCtx()
-		pgName      = randName("pg")
 		dbName      = randName("database")
 		poolName    = randName("connection-pool-inbound")
 		userName    = randName("inbound-user") // Service user for testing "Reuse Inbound User" functionality
 
 		s = NewSession(ctx, k8sClient)
-
-		findPoolFunc = func(poolName string) *service.ConnectionPoolOut {
-			var avnPool *service.ConnectionPoolOut
-			services, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
-			if errors.IsNotFound(err) {
-				return avnPool
-			}
-			require.NoError(t, err)
-
-			for _, p := range services.ConnectionPools {
-				if p.PoolName == poolName {
-					avnPool = &p
-					break
-				}
-			}
-
-			return avnPool
-		}
 	)
 
 	defer func() {
@@ -187,35 +168,28 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 		s.Destroy(t)
 	}()
 
-	// Step 1: Create PostgreSQL service directly
-	pgObj := &v1alpha1.PostgreSQL{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: "aiven.io/v1alpha1",
-			Kind:       "PostgreSQL",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      pgName,
-			Namespace: defaultNamespace,
-		},
-		Spec: v1alpha1.PostgreSQLSpec{
-			ServiceCommonSpec: v1alpha1.ServiceCommonSpec{
-				BaseServiceFields: v1alpha1.BaseServiceFields{
-					ProjectDependant: v1alpha1.ProjectDependant{
-						ProjectField: v1alpha1.ProjectField{
-							Project: cfg.Project,
-						},
-						AuthSecretRefField: v1alpha1.AuthSecretRefField{
-							AuthSecretRef: &v1alpha1.AuthSecretReference{
-								Name: secretRefName,
-								Key:  secretRefKey,
-							},
-						},
-					},
-					Plan:      "startup-4",
-					CloudName: cfg.PrimaryCloudName,
-				},
-			},
-		},
+	pg, releasePG, err := sharedResources.AcquirePostgreSQL(ctx)
+	require.NoError(t, err)
+	defer releasePG()
+
+	pgName := pg.GetName()
+
+	findPoolFunc := func(poolName string) *service.ConnectionPoolOut {
+		var avnPool *service.ConnectionPoolOut
+		services, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
+		if errors.IsNotFound(err) {
+			return avnPool
+		}
+		require.NoError(t, err)
+
+		for _, p := range services.ConnectionPools {
+			if p.PoolName == poolName {
+				avnPool = &p
+				break
+			}
+		}
+
+		return avnPool
 	}
 
 	dbObj := &v1alpha1.Database{
@@ -310,8 +284,7 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 		},
 	}
 
-	require.NoError(t, s.ApplyObjects(pgObj, dbObj, poolObj, userObj))
-	require.NoError(t, s.GetRunning(pgObj, pgName))
+	require.NoError(t, s.ApplyObjects(dbObj, poolObj, userObj))
 	require.NoError(t, s.GetRunning(dbObj, dbName))
 	require.NoError(t, s.GetRunning(poolObj, poolName))
 	require.NoError(t, s.GetRunning(userObj, userName))

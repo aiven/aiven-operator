@@ -62,7 +62,9 @@ spec:
 `, project, kafkaName, userName, cloudName, secretName)
 }
 
-// TestServiceUserKafka kafka with sasl enabled changes its port to expose
+// TestServiceUserKafka verifies ServiceUser behavior with Kafka's SASL authentication.
+// It creates its own Kafka instance with SASL enabled and certificate
+// authentication disabled to test SASL-specific port behavior.
 func TestServiceUserKafka(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
@@ -144,21 +146,6 @@ func getServiceUserPgYaml(project, pgName, userName, cloudName string) string {
 	secretName := userName + "-secret"
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
-kind: PostgreSQL
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[4]s
-  plan: startup-4
-
----
-
-apiVersion: aiven.io/v1alpha1
 kind: ServiceUser
 metadata:
   name: %[3]s
@@ -187,8 +174,14 @@ func TestServiceUserPg(t *testing.T) {
 	// GIVEN
 	ctx, cancel := testCtx()
 	defer cancel()
-	pgName := randName("connection-pool")
+
+	pg, releasePG, err := sharedResources.AcquirePostgreSQL(ctx)
+	require.NoError(t, err)
+	defer releasePG()
+
+	pgName := pg.GetName()
 	userName := randName("connection-pool")
+
 	yml := getServiceUserPgYaml(cfg.Project, pgName, userName, cfg.PrimaryCloudName)
 	s := NewSession(ctx, k8sClient)
 
@@ -199,22 +192,15 @@ func TestServiceUserPg(t *testing.T) {
 	// Applies given manifest
 	require.NoError(t, s.Apply(yml))
 
-	// Waits kube objects
-	pg := new(v1alpha1.PostgreSQL)
-	require.NoError(t, s.GetRunning(pg, pgName))
-
 	user := new(v1alpha1.ServiceUser)
 	require.NoError(t, s.GetRunning(user, userName))
 
 	// THEN
-	// Validates PostgreSQL
 	pgAvn, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
 	assert.Equal(t, pgAvn.ServiceName, pg.GetName())
 	assert.Equal(t, serviceRunningState, pg.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, pgAvn.State)
-	assert.Equal(t, pgAvn.Plan, pg.Spec.Plan)
-	assert.Equal(t, pgAvn.CloudName, pg.Spec.CloudName)
 
 	// Validates ServiceUser
 	userAvn, err := getServiceUserWithRetry(ctx, avnGen, cfg.Project, pgName, userName)
@@ -258,30 +244,15 @@ func TestServiceUserCustomCredentials(t *testing.T) {
 	// GIVEN
 	ctx, cancel := testCtx()
 	defer cancel()
-	pgName := randName("serviceuser-scenarios")
+
+	pg, releasePG, err := sharedResources.AcquirePostgreSQL(ctx)
+	require.NoError(t, err)
+	defer releasePG()
+
+	pgName := pg.GetName()
 	s := NewSession(ctx, k8sClient)
 
 	defer s.Destroy(t)
-
-	pgYaml := fmt.Sprintf(`
-apiVersion: aiven.io/v1alpha1
-kind: PostgreSQL
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[3]s
-  plan: startup-4
-`, cfg.Project, pgName, cfg.PrimaryCloudName)
-
-	require.NoError(t, s.Apply(pgYaml))
-
-	pg := new(v1alpha1.PostgreSQL)
-	require.NoError(t, s.GetRunning(pg, pgName))
 
 	pgAvn, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
@@ -405,21 +376,6 @@ data:
 ---
 
 apiVersion: aiven.io/v1alpha1
-kind: PostgreSQL
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[4]s
-  plan: startup-4
-
----
-
-apiVersion: aiven.io/v1alpha1
 kind: ServiceUser
 metadata:
   name: %[3]s
@@ -452,21 +408,6 @@ metadata:
   name: avnadmin-new-password
 data:
   PASSWORD: TmV3QXZuYWRtaW5QYXNzd29yZDk5OSE= # NewAvnadminPassword999! base64 encoded # gitleaks:allow
----
-
-apiVersion: aiven.io/v1alpha1
-kind: PostgreSQL
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[3]s
-  plan: startup-4
-
 ---
 
 apiVersion: aiven.io/v1alpha1
@@ -504,21 +445,6 @@ metadata:
   name: empty-password-secret
 data:
   PASSWORD: "" # Empty password - this should trigger validation error
----
-
-apiVersion: aiven.io/v1alpha1
-kind: PostgreSQL
-metadata:
-  name: %[2]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  cloudName: %[4]s
-  plan: startup-4
-
 ---
 
 apiVersion: aiven.io/v1alpha1
