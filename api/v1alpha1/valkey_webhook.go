@@ -9,6 +9,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -34,29 +35,29 @@ func (in *Valkey) Default() {
 var _ webhook.Validator = &Valkey{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *Valkey) ValidateCreate() error {
+func (in *Valkey) ValidateCreate() (admission.Warnings, error) {
 	valkeylog.Info("validate create", "name", in.Name)
 
-	return in.Spec.Validate()
+	return nil, in.Spec.Validate()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *Valkey) ValidateUpdate(_ runtime.Object) error {
+func (in *Valkey) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
 	valkeylog.Info("validate update", "name", in.Name)
-	return in.Spec.Validate()
+	return nil, in.Spec.Validate()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *Valkey) ValidateDelete() error {
+func (in *Valkey) ValidateDelete() (admission.Warnings, error) {
 	valkeylog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
-		return errors.New("cannot delete Valkey service, termination protection is on")
+		return nil, errors.New("cannot delete Valkey service, termination protection is on")
 	}
 
 	if in.Spec.ProjectVPCID != "" && in.Spec.ProjectVPCRef != nil {
-		return errors.New("cannot use both projectVpcId and projectVPCRef")
+		return nil, errors.New("cannot use both projectVpcId and projectVPCRef")
 	}
 
-	return nil
+	return nil, nil
 }

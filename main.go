@@ -18,6 +18,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
+	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	"github.com/aiven/aiven-operator/controllers"
@@ -77,9 +79,13 @@ func main() {
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
 	ctrlOptions := ctrl.Options{
-		Scheme:                 scheme,
-		MetricsBindAddress:     metricsAddr,
-		Port:                   webhookPort,
+		Scheme: scheme,
+		Metrics: metricsserver.Options{
+			BindAddress: metricsAddr,
+		},
+		WebhookServer: webhook.NewServer(webhook.Options{
+			Port: webhookPort,
+		}),
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       "40db2fac.aiven.io",
@@ -107,7 +113,13 @@ func main() {
 			}
 		}
 		setupLog.Info(fmt.Sprintf("Watching namespaces: %s", strings.Join(namespaces, ", ")))
-		ctrlOptions.NewCache = cache.MultiNamespacedCacheBuilder(namespaces)
+		defaultNamespaces := make(map[string]cache.Config)
+		for _, ns := range namespaces {
+			defaultNamespaces[ns] = cache.Config{}
+		}
+		ctrlOptions.Cache = cache.Options{
+			DefaultNamespaces: defaultNamespaces,
+		}
 	}
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrlOptions)

@@ -7,6 +7,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -32,22 +33,22 @@ func (in *KafkaConnector) Default() {
 var _ webhook.Validator = &KafkaConnector{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaConnector) ValidateCreate() error {
+func (in *KafkaConnector) ValidateCreate() (admission.Warnings, error) {
 	kafkaconnectorlog.Info("validate create", "name", in.Name)
 
-	return nil
+	return nil, nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaConnector) ValidateUpdate(_ runtime.Object) error {
+func (in *KafkaConnector) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
 	kafkaconnectorlog.Info("validate update", "name", in.Name)
 
-	return nil
+	return nil, nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaConnector) ValidateDelete() error {
+func (in *KafkaConnector) ValidateDelete() (admission.Warnings, error) {
 	kafkaconnectorlog.Info("validate delete", "name", in.Name)
 
-	return nil
+	return nil, nil
 }

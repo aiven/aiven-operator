@@ -7,6 +7,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -32,26 +33,26 @@ func (in *ServiceIntegrationEndpoint) Default() {
 var _ webhook.Validator = &ServiceIntegrationEndpoint{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *ServiceIntegrationEndpoint) ValidateCreate() error {
+func (in *ServiceIntegrationEndpoint) ValidateCreate() (admission.Warnings, error) {
 	serviceintegrationendpointlog.Info("validate create", "name", in.Name)
 
 	// We need the validation here only
 	_, err := in.GetUserConfig()
-	return err
+	return nil, err
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *ServiceIntegrationEndpoint) ValidateUpdate(_ runtime.Object) error {
+func (in *ServiceIntegrationEndpoint) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
 	serviceintegrationendpointlog.Info("validate update", "name", in.Name)
 
 	// We need the validation here only
 	_, err := in.GetUserConfig()
-	return err
+	return nil, err
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *ServiceIntegrationEndpoint) ValidateDelete() error {
+func (in *ServiceIntegrationEndpoint) ValidateDelete() (admission.Warnings, error) {
 	serviceintegrationendpointlog.Info("validate delete", "name", in.Name)
 
-	return nil
+	return nil, nil
 }

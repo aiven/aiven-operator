@@ -9,6 +9,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -33,29 +34,29 @@ func (in *Cassandra) Default() {
 var _ webhook.Validator = &Cassandra{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *Cassandra) ValidateCreate() error {
+func (in *Cassandra) ValidateCreate() (admission.Warnings, error) {
 	cassandralog.Info("validate create", "name", in.Name)
-	return in.Spec.Validate()
+	return nil, in.Spec.Validate()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *Cassandra) ValidateUpdate(_ runtime.Object) error {
+func (in *Cassandra) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
 	cassandralog.Info("validate update", "name", in.Name)
 
-	return in.Spec.Validate()
+	return nil, in.Spec.Validate()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *Cassandra) ValidateDelete() error {
+func (in *Cassandra) ValidateDelete() (admission.Warnings, error) {
 	cassandralog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
-		return errors.New("cannot delete Cassandra service, termination protection is on")
+		return nil, errors.New("cannot delete Cassandra service, termination protection is on")
 	}
 
 	if in.Spec.ProjectVPCID != "" && in.Spec.ProjectVPCRef != nil {
-		return errors.New("cannot use both projectVpcId and projectVPCRef")
+		return nil, errors.New("cannot use both projectVpcId and projectVPCRef")
 	}
 
-	return nil
+	return nil, nil
 }

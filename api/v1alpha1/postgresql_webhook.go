@@ -9,6 +9,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -34,29 +35,29 @@ func (in *PostgreSQL) Default() {
 var _ webhook.Validator = &PostgreSQL{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *PostgreSQL) ValidateCreate() error {
+func (in *PostgreSQL) ValidateCreate() (admission.Warnings, error) {
 	pglog.Info("validate create", "name", in.Name)
 
-	return in.Spec.Validate()
+	return nil, in.Spec.Validate()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *PostgreSQL) ValidateUpdate(_ runtime.Object) error {
+func (in *PostgreSQL) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
 	pglog.Info("validate update", "name", in.Name)
-	return in.Spec.Validate()
+	return nil, in.Spec.Validate()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *PostgreSQL) ValidateDelete() error {
+func (in *PostgreSQL) ValidateDelete() (admission.Warnings, error) {
 	pglog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
-		return errors.New("cannot delete PostgreSQL service, termination protection is on")
+		return nil, errors.New("cannot delete PostgreSQL service, termination protection is on")
 	}
 
 	if in.Spec.ProjectVPCID != "" && in.Spec.ProjectVPCRef != nil {
-		return errors.New("cannot use both projectVpcId and projectVPCRef")
+		return nil, errors.New("cannot use both projectVpcId and projectVPCRef")
 	}
 
-	return nil
+	return nil, nil
 }
