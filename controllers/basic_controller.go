@@ -470,6 +470,12 @@ func (i *instanceReconcilerHelper) createOrUpdateInstance(ctx context.Context, o
 
 	err := i.h.createOrUpdate(ctx, i.avnGen, o, refs)
 
+	var requeueNeeded ErrRequeueNeeded
+	if errors.As(err, &requeueNeeded) {
+		i.log.Info("requeue needed", "reason", requeueNeeded.Error())
+		return true, nil
+	}
+
 	// API errors are retrayable.
 	if isServerError(err) {
 		i.log.Info(

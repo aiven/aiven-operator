@@ -37,7 +37,7 @@ import (
 const (
 	retryInterval      = time.Second * 10
 	createTimeout      = time.Second * 15
-	waitRunningTimeout = time.Minute * 25
+	waitRunningTimeout = time.Minute * 20
 	deleteTimeout      = time.Minute * 5
 	yamlBufferSize     = 100
 	defaultNamespace   = "default"
