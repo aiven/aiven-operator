@@ -1,4 +1,4 @@
-//go:build kafkaschemaregistryacl
+//go:build kafka
 
 package tests
 

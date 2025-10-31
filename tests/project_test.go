@@ -1,4 +1,4 @@
-//go:build project
+//go:build misc
 
 package tests
 

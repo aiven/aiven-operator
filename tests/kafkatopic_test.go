@@ -1,4 +1,4 @@
-//go:build kafkatopic
+//go:build kafka
 
 package tests
 

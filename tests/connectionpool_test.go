@@ -1,4 +1,4 @@
-//go:build connectionpool
+//go:build postgresql
 
 package tests
 

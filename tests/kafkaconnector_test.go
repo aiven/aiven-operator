@@ -1,4 +1,4 @@
-//go:build kafkaconnector
+//go:build kafka
 
 package tests
 

@@ -12,6 +12,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
+	kafkauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/kafka"
 )
 
 // SharedResources creates and manages shared resources that can be used across multiple tests.
@@ -72,6 +73,9 @@ func (s *sharedResourcesImpl) AcquireKafka(ctx context.Context) (*v1alpha1.Kafka
 	obj.Spec.Plan = "business-4"
 	obj.Spec.Project = cfg.Project
 	obj.Spec.CloudName = cfg.PrimaryCloudName
+	obj.Spec.UserConfig = &kafkauserconfig.KafkaUserConfig{
+		SchemaRegistry: anyPointer(true),
+	}
 	return acquire(ctx, s, "Kafka", obj)
 }
 
