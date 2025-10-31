@@ -28,9 +28,8 @@ vars:
   # Tool versions
   KUSTOMIZE_VERSION: v4.5.7
   CONTROLLER_TOOLS_VERSION: v0.19.0
-  OPERATOR_SDK_VERSION: v1.36.0
   ENVTEST_VERSION: release-0.16
-  GOLANGCILINT_VERSION: v2.1.6
+  GOLANGCILINT_VERSION: v2.5.0
   SELPROJ_VERSION: v0.1.0
   CERT_MANAGER_TAG: v1.13.0
   KIND_KUBECTL_CONTEXT: kind-{{.KIND_CLUSTER_NAME}}
@@ -38,7 +37,6 @@ vars:
   # Tool binaries
   KUSTOMIZE: "{{.LOCALBIN}}/kustomize-{{.KUSTOMIZE_VERSION}}"
   CONTROLLER_GEN: "{{.LOCALBIN}}/controller-gen-{{.CONTROLLER_TOOLS_VERSION}}"
-  OPERATOR_SDK: "{{.LOCALBIN}}/operator-sdk-{{.OPERATOR_SDK_VERSION}}"
   ENVTEST: "{{.LOCALBIN}}/setup-envtest-{{.ENVTEST_VERSION}}"
   GOLANGCILINT: "{{.LOCALBIN}}/golangci-lint-{{.GOLANGCILINT_VERSION}}"
   SELPROJ: "{{.LOCALBIN}}/selproj-{{.SELPROJ_VERSION}}"
@@ -88,19 +86,6 @@ tasks:
         mv {{.LOCALBIN}}/controller-gen {{.CONTROLLER_GEN}}
         echo "✅ controller-gen installed: {{.CONTROLLER_GEN}}"
 
-  tools:install:operator-sdk:
-    desc: Install operator-sdk for Kubernetes operator development
-    silent: true
-    status:
-      - test -f {{.OPERATOR_SDK}}
-    cmds:
-      - mkdir -p {{.LOCALBIN}}
-      - |
-        echo "📦 Installing operator-sdk {{.OPERATOR_SDK_VERSION}}..."
-        GOBIN={{.LOCALBIN}} go install github.com/operator-framework/operator-sdk/cmd/operator-sdk@{{.OPERATOR_SDK_VERSION}}
-        mv {{.LOCALBIN}}/operator-sdk {{.OPERATOR_SDK}}
-        echo "✅ operator-sdk installed: {{.OPERATOR_SDK}}"
-
   tools:install:envtest:
     desc: Install setup-envtest and download Kubebuilder test assets
     silent: true
@@ -148,7 +133,6 @@ tasks:
     cmds:
       - task: tools:install:kustomize
       - task: tools:install:controller-gen
-      - task: tools:install:operator-sdk
       - task: tools:install:envtest
       - task: tools:install:golangci-lint
       - task: tools:install:selproj
