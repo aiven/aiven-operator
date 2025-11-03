@@ -54,6 +54,20 @@ var (
 	errServicePoweredOff       = errors.New("service is powered off")
 )
 
+// ErrRequeueNeeded is an error type that indicates that the reconciliation should be requeued.
+// It is used to handle errors that are expected to be resolved on a subsequent retries.
+type ErrRequeueNeeded struct {
+	OriginalError error
+}
+
+func (e ErrRequeueNeeded) Error() string {
+	return fmt.Sprintf("requeue needed: %s", e.OriginalError.Error())
+}
+
+func (e ErrRequeueNeeded) Unwrap() error {
+	return e.OriginalError
+}
+
 // checkServiceIsOperational checks if a service is in operational state, i.e., can create databases, users, etc.
 // Returns errServicePoweredOff if the service is powered off.
 func checkServiceIsOperational(ctx context.Context, avnGen avngen.Client, project, serviceName string) (bool, error) {

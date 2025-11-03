@@ -80,7 +80,7 @@ func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avnGen avngen
 		// Means, the API isn't consistent yet,
 		// because checkPreconditions() passed, yet we get 404.
 		// Retry later.
-		return nil
+		return ErrRequeueNeeded{OriginalError: err}
 	case isServerError(err):
 		// Service is not ready yet, retry later.
 		return nil
