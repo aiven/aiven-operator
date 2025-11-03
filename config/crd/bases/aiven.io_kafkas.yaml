@@ -505,7 +505,9 @@ spec:
                         log_retention_hours:
                           description:
                             "The number of hours to keep a log file before
-                            deleting it (Default: 168 hours (1 week))"
+                            deleting it. Use -1 for unlimited retention or 1 or higher.
+                            Setting 0 is invalid and prevents Kafka from starting. (Default:
+                            168 hours, or 1 week)"
                           maximum: 2147483647
                           minimum: -1
                           type: integer

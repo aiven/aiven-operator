@@ -289,7 +289,7 @@ spec:
                         entries before deletion. This may be extended for services that
                         require binlog entries for longer than the default for example
                         if using the MySQL Debezium Kafka connector.
-                      maximum: 604800
+                      maximum: 9007199254740991
                       minimum: 600
                       type: integer
                     ip_filter:

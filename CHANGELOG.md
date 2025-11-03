@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Change `MySQL` field `userConfig.binlog_retention_period`: maximum ~~`604800`~~ → `9007199254740991`
+
 ## v0.34.0 - 2025-10-21
 
 - Change service version fields: removed enum validation from `userConfig`
