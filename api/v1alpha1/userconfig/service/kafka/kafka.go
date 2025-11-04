@@ -130,7 +130,7 @@ type Kafka struct {
 
 	// +kubebuilder:validation:Minimum=-1
 	// +kubebuilder:validation:Maximum=2147483647
-	// The number of hours to keep a log file before deleting it (Default: 168 hours (1 week))
+	// The number of hours to keep a log file before deleting it. Use -1 for unlimited retention or 1 or higher. Setting 0 is invalid and prevents Kafka from starting. (Default: 168 hours, or 1 week)
 	LogRetentionHours *int `groups:"create,update" json:"log_retention_hours,omitempty"`
 
 	// +kubebuilder:validation:Minimum=-1
