@@ -1,0 +1,78 @@
+name: PR Test Command
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  check-command:
+    name: Check Test Command
+    runs-on: ubuntu-latest
+    if: |
+      github.event.issue.pull_request &&
+      (startsWith(github.event.comment.body, '/test') || startsWith(github.event.comment.body, '/test-all'))
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+      pr_number: ${{ steps.pr.outputs.number }}
+      pr_ref: ${{ steps.pr.outputs.ref }}
+      test_tags: ${{ steps.parse_command.outputs.test_tags }}
+    steps:
+      - name: Check user permissions
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const association = context.payload.comment.author_association;
+            const allowedAssociations = ['OWNER', 'MEMBER', 'COLLABORATOR'];
+            const shouldRun = allowedAssociations.includes(association);
+
+            core.setOutput('should_run', shouldRun);
+            return shouldRun;
+
+      - name: Get PR details
+        id: pr
+        if: steps.check.outputs.should_run == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            core.setOutput('number', pr.data.number);
+            core.setOutput('ref', pr.data.head.ref);
+
+      - name: Parse test command
+        id: parse_command
+        if: steps.check.outputs.should_run == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = context.payload.comment.body;
+            const lines = comment.split('\n');
+            const commandLine = lines[0].trim();
+
+            // Extract test tags from command
+            if (commandLine.startsWith('/test ')) {
+              testTags = commandLine.substring(6).trim();
+            }
+
+            core.setOutput('test_tags', testTags);
+
+  run-tests:
+    name: Run Acceptance Tests
+    needs: check-command
+    if: needs.check-command.outputs.should_run == 'true'
+    uses: ./.github/workflows/tests.yml
+    with:
+      pr_number: ${{ needs.check-command.outputs.pr_number }}
+      notify_slack: false
+      test_tags: ${{ needs.check-command.outputs.test_tags }}
+    secrets:
+      AIVEN_TOKEN: ${{ secrets.AIVEN_TOKEN }}
+      AIVEN_ACCOUNT_ID: ${{ secrets.AIVEN_ACCOUNT_ID }}
+      AIVEN_PROJECT_NAME_PREFIX: ${{ secrets.AIVEN_PROJECT_NAME_PREFIX }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
