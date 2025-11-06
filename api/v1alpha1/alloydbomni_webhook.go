@@ -10,6 +10,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
 	alloydbomniUtils "github.com/aiven/aiven-operator/utils/alloydbomni"
 )
@@ -37,38 +38,38 @@ func (in *AlloyDBOmni) Default() {
 var _ webhook.Validator = &AlloyDBOmni{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *AlloyDBOmni) ValidateCreate() error {
+func (in *AlloyDBOmni) ValidateCreate() (admission.Warnings, error) {
 	alloydbomnilog.Info("validate create", "name", in.Name)
 
 	if err := alloydbomniUtils.ValidateServiceAccountCredentials(in.Spec.ServiceAccountCredentials); err != nil {
-		return fmt.Errorf("invalid serviceAccountCredentials: %w", err)
+		return nil, fmt.Errorf("invalid serviceAccountCredentials: %w", err)
 	}
 
-	return nil
+	return nil, nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *AlloyDBOmni) ValidateUpdate(_ runtime.Object) error {
+func (in *AlloyDBOmni) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
 	alloydbomnilog.Info("validate update", "name", in.Name)
 
 	if err := alloydbomniUtils.ValidateServiceAccountCredentials(in.Spec.ServiceAccountCredentials); err != nil {
-		return fmt.Errorf("invalid serviceAccountCredentials: %w", err)
+		return nil, fmt.Errorf("invalid serviceAccountCredentials: %w", err)
 	}
 
-	return nil
+	return nil, nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *AlloyDBOmni) ValidateDelete() error {
+func (in *AlloyDBOmni) ValidateDelete() (admission.Warnings, error) {
 	alloydbomnilog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
-		return errors.New("cannot delete AlloyDBOmni service, termination protection is on")
+		return nil, errors.New("cannot delete AlloyDBOmni service, termination protection is on")
 	}
 
 	if in.Spec.ProjectVPCID != "" && in.Spec.ProjectVPCRef != nil {
-		return errors.New("cannot use both projectVpcId and projectVPCRef")
+		return nil, errors.New("cannot use both projectVpcId and projectVPCRef")
 	}
 
-	return nil
+	return nil, nil
 }

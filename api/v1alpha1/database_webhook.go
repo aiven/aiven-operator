@@ -9,6 +9,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -34,25 +35,25 @@ func (in *Database) Default() {
 var _ webhook.Validator = &Database{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *Database) ValidateCreate() error {
+func (in *Database) ValidateCreate() (admission.Warnings, error) {
 	databaselog.Info("validate create", "name", in.Name)
 
-	return nil
+	return nil, nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *Database) ValidateUpdate(_ runtime.Object) error {
+func (in *Database) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
 	databaselog.Info("validate update", "name", in.Name)
 
-	return nil
+	return nil, nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *Database) ValidateDelete() error {
+func (in *Database) ValidateDelete() (admission.Warnings, error) {
 	databaselog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
-		return errors.New("cannot delete Database, termination protection is on")
+		return nil, errors.New("cannot delete Database, termination protection is on")
 	}
-	return nil
+	return nil, nil
 }

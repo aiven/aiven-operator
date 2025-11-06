@@ -7,6 +7,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -36,21 +37,21 @@ func (in *ConnectionPool) Default() {
 var _ webhook.Validator = &ConnectionPool{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *ConnectionPool) ValidateCreate() error {
+func (in *ConnectionPool) ValidateCreate() (admission.Warnings, error) {
 	connectionpoollog.Info("validate create", "name", in.Name)
 
-	return nil
+	return nil, nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *ConnectionPool) ValidateUpdate(_ runtime.Object) error {
+func (in *ConnectionPool) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
 	connectionpoollog.Info("validate update", "name", in.Name)
-	return nil
+	return nil, nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *ConnectionPool) ValidateDelete() error {
+func (in *ConnectionPool) ValidateDelete() (admission.Warnings, error) {
 	connectionpoollog.Info("validate delete", "name", in.Name)
 
-	return nil
+	return nil, nil
 }

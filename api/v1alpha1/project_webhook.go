@@ -9,6 +9,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -36,25 +37,25 @@ func (in *Project) Default() {
 var _ webhook.Validator = &Project{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *Project) ValidateCreate() error {
+func (in *Project) ValidateCreate() (admission.Warnings, error) {
 	projectlog.Info("validate create", "name", in.Name)
 
-	return nil
+	return nil, nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *Project) ValidateUpdate(_ runtime.Object) error {
+func (in *Project) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
 	projectlog.Info("validate update", "name", in.Name)
-	return nil
+	return nil, nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *Project) ValidateDelete() error {
+func (in *Project) ValidateDelete() (admission.Warnings, error) {
 	projectlog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.AccountID == "" && in.Status.EstimatedBalance != "0.00" {
-		return errors.New("project with an open balance cannot be deleted")
+		return nil, errors.New("project with an open balance cannot be deleted")
 	}
 
-	return nil
+	return nil, nil
 }

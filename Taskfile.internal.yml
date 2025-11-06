@@ -226,6 +226,7 @@ tasks:
 
   fmt:go:
     desc: Format go code using golangci-lint
+    deps: [tools:install:golangci-lint]
     cmds:
       - "{{.GOLANGCILINT}} fmt"
 

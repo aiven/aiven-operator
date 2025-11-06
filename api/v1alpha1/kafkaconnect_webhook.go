@@ -9,6 +9,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -34,34 +35,34 @@ func (in *KafkaConnect) Default() {
 var _ webhook.Validator = &KafkaConnect{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaConnect) ValidateCreate() error {
+func (in *KafkaConnect) ValidateCreate() (admission.Warnings, error) {
 	kafkaconnectlog.Info("validate create", "name", in.Name)
 
-	return in.Spec.Validate()
+	return nil, in.Spec.Validate()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaConnect) ValidateUpdate(old runtime.Object) error {
+func (in *KafkaConnect) ValidateUpdate(old runtime.Object) (admission.Warnings, error) {
 	kafkaconnectlog.Info("validate update", "name", in.Name)
 
 	if in.Spec.Project != old.(*KafkaConnect).Spec.Project {
-		return errors.New("cannot update a KafkaConnect service, project field is immutable and cannot be updated")
+		return nil, errors.New("cannot update a KafkaConnect service, project field is immutable and cannot be updated")
 	}
 
-	return in.Spec.Validate()
+	return nil, in.Spec.Validate()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaConnect) ValidateDelete() error {
+func (in *KafkaConnect) ValidateDelete() (admission.Warnings, error) {
 	kafkaconnectlog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
-		return errors.New("cannot delete KafkaConnect service, termination protection is on")
+		return nil, errors.New("cannot delete KafkaConnect service, termination protection is on")
 	}
 
 	if in.Spec.ProjectVPCID != "" && in.Spec.ProjectVPCRef != nil {
-		return errors.New("cannot use both projectVpcId and projectVPCRef")
+		return nil, errors.New("cannot use both projectVpcId and projectVPCRef")
 	}
 
-	return nil
+	return nil, nil
 }

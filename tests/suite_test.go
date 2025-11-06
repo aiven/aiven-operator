@@ -20,6 +20,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
+	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	"github.com/aiven/aiven-operator/controllers"
@@ -100,10 +102,14 @@ func setupSuite(ctx context.Context) (*envtest.Environment, error) {
 	}
 
 	mgr, err := ctrl.NewManager(c, ctrl.Options{
-		Scheme:             scheme.Scheme,
-		MetricsBindAddress: "0",
-		CertDir:            env.WebhookInstallOptions.LocalServingCertDir,
-		Port:               env.WebhookInstallOptions.LocalServingPort,
+		Scheme: scheme.Scheme,
+		Metrics: metricsserver.Options{
+			BindAddress: "0",
+		},
+		WebhookServer: webhook.NewServer(webhook.Options{
+			CertDir: env.WebhookInstallOptions.LocalServingCertDir,
+			Port:    env.WebhookInstallOptions.LocalServingPort,
+		}),
 	})
 	if err != nil {
 		return nil, err

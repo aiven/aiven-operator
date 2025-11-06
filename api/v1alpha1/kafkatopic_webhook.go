@@ -9,6 +9,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -34,34 +35,34 @@ func (in *KafkaTopic) Default() {
 var _ webhook.Validator = &KafkaTopic{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaTopic) ValidateCreate() error {
+func (in *KafkaTopic) ValidateCreate() (admission.Warnings, error) {
 	kafkatopiclog.Info("validate create", "name", in.Name)
 
-	return nil
+	return nil, nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaTopic) ValidateUpdate(old runtime.Object) error {
+func (in *KafkaTopic) ValidateUpdate(old runtime.Object) (admission.Warnings, error) {
 	kafkatopiclog.Info("validate update", "name", in.Name)
 
 	if in.Spec.Project != old.(*KafkaTopic).Spec.Project {
-		return errors.New("cannot update a KafkaTopic, project field is immutable and cannot be updated")
+		return nil, errors.New("cannot update a KafkaTopic, project field is immutable and cannot be updated")
 	}
 
 	if in.Spec.ServiceName != old.(*KafkaTopic).Spec.ServiceName {
-		return errors.New("cannot update a KafkaTopic, serviceName field is immutable and cannot be updated")
+		return nil, errors.New("cannot update a KafkaTopic, serviceName field is immutable and cannot be updated")
 	}
 
-	return nil
+	return nil, nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaTopic) ValidateDelete() error {
+func (in *KafkaTopic) ValidateDelete() (admission.Warnings, error) {
 	kafkatopiclog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
-		return errors.New("cannot delete KafkaTopic, termination protection is on")
+		return nil, errors.New("cannot delete KafkaTopic, termination protection is on")
 	}
 
-	return nil
+	return nil, nil
 }

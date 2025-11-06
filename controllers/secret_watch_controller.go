@@ -19,7 +19,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
@@ -62,8 +61,8 @@ func (c *SecretWatchController) SetupWithManager(mgr ctrl.Manager) error {
 	// watch CRDs that have connInfoSecretSource to queue reconciliations
 	for i := range resourcesWithSecretSource {
 		builder.Watches(
-			&source.Kind{Type: resourcesWithSecretSource[i]},
-			handler.EnqueueRequestsFromMapFunc(func(a client.Object) []reconcile.Request {
+			resourcesWithSecretSource[i],
+			handler.EnqueueRequestsFromMapFunc(func(_ context.Context, a client.Object) []reconcile.Request {
 				if resource, ok := a.(SecretSourceResource); ok {
 					if secretSource := resource.GetConnInfoSecretSource(); secretSource != nil {
 						sourceNamespace := secretSource.Namespace

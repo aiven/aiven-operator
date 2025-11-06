@@ -7,6 +7,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -32,24 +33,24 @@ func (in *KafkaACL) Default() {
 var _ webhook.Validator = &KafkaACL{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaACL) ValidateCreate() error {
+func (in *KafkaACL) ValidateCreate() (admission.Warnings, error) {
 	kafkaacllog.Info("validate create", "name", in.Name)
 
-	return nil
+	return nil, nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaACL) ValidateUpdate(_ runtime.Object) error {
+func (in *KafkaACL) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
 	kafkaacllog.Info("validate update", "name", in.Name)
 
 	// TODO: validate that the spec does not get updated; this will fail on the aiven api
 
-	return nil
+	return nil, nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaACL) ValidateDelete() error {
+func (in *KafkaACL) ValidateDelete() (admission.Warnings, error) {
 	kafkaacllog.Info("validate delete", "name", in.Name)
 
-	return nil
+	return nil, nil
 }

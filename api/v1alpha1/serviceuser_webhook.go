@@ -7,6 +7,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -32,21 +33,21 @@ func (in *ServiceUser) Default() {
 var _ webhook.Validator = &ServiceUser{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *ServiceUser) ValidateCreate() error {
+func (in *ServiceUser) ValidateCreate() (admission.Warnings, error) {
 	serviceuserlog.Info("validate create", "name", in.Name)
 
-	return nil
+	return nil, nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *ServiceUser) ValidateUpdate(_ runtime.Object) error {
+func (in *ServiceUser) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
 	serviceuserlog.Info("validate update", "name", in.Name)
-	return nil
+	return nil, nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *ServiceUser) ValidateDelete() error {
+func (in *ServiceUser) ValidateDelete() (admission.Warnings, error) {
 	serviceuserlog.Info("validate delete", "name", in.Name)
 
-	return nil
+	return nil, nil
 }

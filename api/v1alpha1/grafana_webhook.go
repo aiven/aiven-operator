@@ -9,6 +9,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
@@ -33,29 +34,29 @@ func (in *Grafana) Default() {
 var _ webhook.Validator = &Grafana{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *Grafana) ValidateCreate() error {
+func (in *Grafana) ValidateCreate() (admission.Warnings, error) {
 	grafanalog.Info("validate create", "name", in.Name)
 
-	return in.Spec.Validate()
+	return nil, in.Spec.Validate()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *Grafana) ValidateUpdate(_ runtime.Object) error {
+func (in *Grafana) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
 	grafanalog.Info("validate update", "name", in.Name)
-	return in.Spec.Validate()
+	return nil, in.Spec.Validate()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *Grafana) ValidateDelete() error {
+func (in *Grafana) ValidateDelete() (admission.Warnings, error) {
 	grafanalog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
-		return errors.New("cannot delete Grafana service, termination protection is on")
+		return nil, errors.New("cannot delete Grafana service, termination protection is on")
 	}
 
 	if in.Spec.ProjectVPCID != "" && in.Spec.ProjectVPCRef != nil {
-		return errors.New("cannot use both projectVpcId and projectVPCRef")
+		return nil, errors.New("cannot use both projectVpcId and projectVPCRef")
 	}
 
-	return nil
+	return nil, nil
 }
