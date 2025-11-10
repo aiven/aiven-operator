@@ -77,11 +77,9 @@ func setupSuite(ctx context.Context) (*envtest.Environment, error) {
 		return nil, err
 	}
 
-	if cfg.DebugLogging {
-		ctrl.SetLogger(zap.New(func(o *zap.Options) {
-			o.Development = true
-		}))
-	}
+	ctrl.SetLogger(zap.New(func(o *zap.Options) {
+		o.Development = cfg.DebugLogging
+	}))
 
 	env := &envtest.Environment{
 		ErrorIfCRDPathMissing: true,
