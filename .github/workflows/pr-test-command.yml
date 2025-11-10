@@ -55,6 +55,8 @@ jobs:
             const commandLine = lines[0].trim();
 
             // Extract test tags from command
+            let testTags = '';
+
             if (commandLine.startsWith('/test ')) {
               testTags = commandLine.substring(6).trim();
             }
