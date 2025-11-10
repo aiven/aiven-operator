@@ -3,7 +3,49 @@ name: tests
 on:
   schedule:
     - cron: 0 0 * * *
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: PR number to post results to (optional)
+        required: false
+        type: string
+      notify_slack:
+        description: Send Slack notifications
+        required: false
+        type: boolean
+        default: false
+      test_tags:
+        description: Test tags to run (space-separated, e.g. 'postgresql kafka mysql'). Leave empty for all tests.
+        required: false
+        type: string
+        default: ""
+  workflow_call:
+    inputs:
+      pr_number:
+        description: PR number to post results to (optional)
+        required: false
+        type: string
+      notify_slack:
+        description: Send Slack notifications
+        required: false
+        type: boolean
+        default: false
+      test_tags:
+        description: Test tags to run (space-separated, e.g. 'postgresql kafka mysql'). Leave empty for all tests.
+        required: false
+        type: string
+        default: ""
+    secrets:
+      AIVEN_TOKEN:
+        required: true
+      AIVEN_ACCOUNT_ID:
+        required: true
+      AIVEN_PROJECT_NAME_PREFIX:
+        required: true
+      SLACK_WEBHOOK_URL:
+        required: false
+      SLACK_CHANNEL:
+        required: false
 
 jobs:
   setup_aiven_project_suffix:
@@ -23,21 +65,54 @@ jobs:
           AIVEN_TOKEN: ${{ secrets.AIVEN_TOKEN }}
           AIVEN_PROJECT_NAME_PREFIX: ${{ secrets.AIVEN_PROJECT_NAME_PREFIX }}
 
+  post-initial-comment:
+    runs-on: ubuntu-latest
+    if: inputs.pr_number != ''
+    outputs:
+      comment_id: ${{ steps.comment.outputs.comment_id }}
+    steps:
+      - name: Post initial comment to PR
+        id: comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: parseInt('${{ inputs.pr_number }}'),
+              body: `## Running Acceptance Tests\n\nTriggered by @${context.actor}\n\n⏳ **Status:** Running...\n\n🔗 **Workflow:** [View Progress](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
+            });
+
+            core.setOutput('comment_id', comment.data.id);
+
   find_tests:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.find_tests.outputs.matrix }}
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-go@v6
+      - uses: arduino/setup-task@v2
         with:
-          go-version-file: go.mod
+          version: 3.x
       - id: find_tests
         run: |
-          echo "matrix=$(grep -r '^//go:build' tests/ | cut -d' ' -f2- | tr ' ' '\n' | grep -v '!' | grep -v 'suite' | sort -u | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
+          output=$(task find-test-tags TAGS="${{ inputs.test_tags }}")
+          echo "$output" >> $GITHUB_OUTPUT
+
+  validate_matrix:
+    needs: find_tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if matrix is empty
+        run: |
+          matrix='${{ needs.find_tests.outputs.matrix }}'
+          if [ "$matrix" = "[]" ]; then
+            echo "Error: No matching test tags found!"
+            exit 1
+          fi
 
   test:
-    needs: [setup_aiven_project_suffix, find_tests]
+    needs: [setup_aiven_project_suffix, find_tests, validate_matrix]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -78,8 +153,32 @@ jobs:
           AIVEN_PROJECT_NAME: >-
             ${{ secrets.AIVEN_PROJECT_NAME_PREFIX }}${{ needs.setup_aiven_project_suffix.outputs.project_name_suffix }}
 
+  update-pr-comment:
+    if: always() && inputs.pr_number != ''
+    needs: [setup_aiven_project_suffix, post-initial-comment, test, sweep]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update PR comment with results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const testResult = '${{ needs.test.result }}';
+
+            const success = testResult === 'success';
+            const emoji = success ? '✅' : '❌';
+            const status = success ? 'Passed' : 'Failed';
+
+            const body = `## ${emoji} Acceptance Tests ${status}\n\n**Workflow:** [View Details](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`;
+
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: ${{ needs.post-initial-comment.outputs.comment_id }},
+              body: body
+            });
+
   notify-slack-success:
-    if: always() && needs.test.result == 'success'
+    if: always() && needs.test.result == 'success' && (github.event_name == 'schedule' || inputs.notify_slack)
     needs: [test, sweep]
     uses: ./.github/workflows/slack-notify.yml
     with:
@@ -91,7 +190,7 @@ jobs:
       SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
 
   notify-slack-failure:
-    if: failure() && needs.test.result != 'success'
+    if: failure() && needs.test.result != 'success' && (github.event_name == 'schedule' || inputs.notify_slack)
     needs: [test, sweep]
     uses: ./.github/workflows/slack-notify.yml
     with:

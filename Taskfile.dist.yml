@@ -287,3 +287,33 @@ tasks:
     prompt: This will destroy infrastructure. Use only in development accounts. Do you want to continue?
     cmds:
       - "{{.GO_CMD}} run ./sweeper/..."
+
+  find-test-tags:
+    desc: Find test tags and output as JSON matrix for GitHub Actions
+    silent: true
+    vars:
+      TAGS: '{{.TAGS | default ""}}'
+    cmds:
+      - |
+        # find all available test tags
+        all_tags=$(
+          grep -r '^//go:build' tests/ \
+            | cut -d' ' -f2- \
+            | tr ' ' '\n' \
+            | grep -v '!' \
+            | grep -v 'suite' \
+            | sort -u
+        )
+
+        # filter to requested tags if provided, otherwise use all, ignores invalid ones
+        if [ -n "{{.TAGS}}" ]; then
+          tags=$(
+            for tag in {{.TAGS}}; do
+              echo "$all_tags" | grep -x "$tag" || true
+            done | jq -cnR '[inputs | select(length>0)]'
+          )
+        else
+          tags=$(echo "$all_tags" | jq -cnR '[inputs | select(length>0)]')
+        fi
+
+        echo "matrix=$tags"
