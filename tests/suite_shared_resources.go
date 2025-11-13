@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"sync"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -57,6 +58,35 @@ func (s *sharedResourcesImpl) AcquireClickhouse(ctx context.Context) (*v1alpha1.
 			Kind:       "Clickhouse",
 		},
 	}
+	// Reuse an existing ClickHouse service when provided via env.
+	if name := os.Getenv("E2E_CLICKHOUSE_SERVICE_NAME"); name != "" {
+		if avnGen == nil {
+			return obj, nil, fmt.Errorf("Aiven client is not initialized")
+		}
+
+		svc, err := avnGen.ServiceGet(ctx, cfg.Project, name)
+		if err != nil {
+			return obj, nil, fmt.Errorf("existing ClickHouse %q not found or inaccessible: %w", name, err)
+		}
+
+		obj.SetName(svc.ServiceName)
+		obj.Spec.Project = cfg.Project
+		obj.Annotations = map[string]string{
+			// Preserve the external service (controllers/common.go)
+			"controllers.aiven.io/deletion-policy":          "Orphan",
+			"controllers.aiven.io/generation-was-processed": "1",
+		}
+
+		ch, release, err := acquire(ctx, s, "Clickhouse", obj)
+		if err != nil {
+			return ch, release, err
+		}
+		ch.Spec.Plan = svc.Plan
+		ch.Spec.CloudName = svc.CloudName
+
+		return ch, release, nil
+	}
+
 	obj.Spec.Plan = "startup-16"
 	obj.Spec.Project = cfg.Project
 	obj.Spec.CloudName = cfg.PrimaryCloudName
