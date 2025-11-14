@@ -351,63 +351,73 @@ func TestClickhouseUserCustomCredentials(t *testing.T) {
 		err = s.GetRunning(user, userName)
 		require.Error(t, err, "ClickhouseUser should fail to be created with missing password key")
 	})
+}
 
-	t.Run("DocumentationExample", func(t *testing.T) {
-		// tests the exact ClickhouseUser configuration from the example
-		userName := "my-clickhouse-user"
+func TestClickhouseUserCustomCredentials_DocumentationExample(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
 
-		docExampleChName := randName("ch-doc-example")
+	// GIVEN
+	ctx, cancel := testCtx()
+	defer cancel()
 
-		yml, err := loadExampleYaml("clickhouseuser.custom_credentials.yaml", map[string]string{
-			"doc[1].metadata.name":  docExampleChName,
-			"doc[1].spec.project":   cfg.Project,
-			"doc[1].spec.cloudName": cfg.PrimaryCloudName,
+	s := NewSession(ctx, k8sClient)
+	defer s.Destroy(t)
 
-			"doc[2].metadata.name":    userName,
-			"doc[2].spec.project":     cfg.Project,
-			"doc[2].spec.serviceName": docExampleChName,
-		})
-		require.NoError(t, err)
+	// tests the exact ClickhouseUser configuration from the example
+	userName := "my-clickhouse-user"
 
-		require.NoError(t, s.Apply(yml))
+	docExampleChName := randName("ch-doc-example")
 
-		user := new(v1alpha1.ClickhouseUser)
-		require.NoError(t, s.GetRunning(user, userName))
+	yml, err := loadExampleYaml("clickhouseuser.custom_credentials.yaml", map[string]string{
+		"doc[1].metadata.name":  docExampleChName,
+		"doc[1].spec.project":   cfg.Project,
+		"doc[1].spec.cloudName": cfg.PrimaryCloudName,
 
-		userAvn, err := getClickHouseUserByID(ctx, avnGen, cfg.Project, docExampleChName, user.Status.UUID)
-		require.NoError(t, err)
-		assert.Equal(t, "example-username", userAvn.Name) // username field from the example
-		assert.Equal(t, docExampleChName, user.Spec.ServiceName)
-
-		secret, err := s.GetSecret("clickhouse-user-secret")
-		require.NoError(t, err)
-		assert.NotEmpty(t, secret.Data["MY_CLICKHOUSE_PREFIX_HOST"])
-		assert.NotEmpty(t, secret.Data["MY_CLICKHOUSE_PREFIX_PORT"])
-		assert.NotEmpty(t, secret.Data["MY_CLICKHOUSE_PREFIX_USERNAME"])
-		assert.NotEmpty(t, secret.Data["MY_CLICKHOUSE_PREFIX_PASSWORD"])
-
-		// verify the password matches the exact value from the documentation example
-		actualPassword := string(secret.Data["MY_CLICKHOUSE_PREFIX_PASSWORD"])
-		assert.Equal(t, "MyCustomPassword123!", actualPassword, "Password should match documentation example")
-
-		// verify annotations and labels from the documentation example
-		assert.Equal(t, map[string]string{"foo": "bar"}, secret.Annotations)
-		assert.Equal(t, map[string]string{"baz": "egg"}, secret.Labels)
-
-		// test ClickHouse connection with the password from documentation example
-		assert.NoError(t, pingClickhouse(
-			ctx,
-			secret.Data["MY_CLICKHOUSE_PREFIX_HOST"],
-			secret.Data["MY_CLICKHOUSE_PREFIX_PORT"],
-			secret.Data["MY_CLICKHOUSE_PREFIX_USERNAME"],
-			secret.Data["MY_CLICKHOUSE_PREFIX_PASSWORD"],
-		))
-
-		assert.NoError(t, s.Delete(user, func() error {
-			_, err = getClickHouseUserByID(ctx, avnGen, cfg.Project, docExampleChName, user.Status.UUID)
-			return err
-		}))
+		"doc[2].metadata.name":    userName,
+		"doc[2].spec.project":     cfg.Project,
+		"doc[2].spec.serviceName": docExampleChName,
 	})
+	require.NoError(t, err)
+
+	require.NoError(t, s.Apply(yml))
+
+	user := new(v1alpha1.ClickhouseUser)
+	require.NoError(t, s.GetRunning(user, userName))
+
+	userAvn, err := getClickHouseUserByID(ctx, avnGen, cfg.Project, docExampleChName, user.Status.UUID)
+	require.NoError(t, err)
+	assert.Equal(t, "example-username", userAvn.Name) // username field from the example
+	assert.Equal(t, docExampleChName, user.Spec.ServiceName)
+
+	secret, err := s.GetSecret("clickhouse-user-secret")
+	require.NoError(t, err)
+	assert.NotEmpty(t, secret.Data["MY_CLICKHOUSE_PREFIX_HOST"])
+	assert.NotEmpty(t, secret.Data["MY_CLICKHOUSE_PREFIX_PORT"])
+	assert.NotEmpty(t, secret.Data["MY_CLICKHOUSE_PREFIX_USERNAME"])
+	assert.NotEmpty(t, secret.Data["MY_CLICKHOUSE_PREFIX_PASSWORD"])
+
+	// verify the password matches the exact value from the documentation example
+	actualPassword := string(secret.Data["MY_CLICKHOUSE_PREFIX_PASSWORD"])
+	assert.Equal(t, "MyCustomPassword123!", actualPassword, "Password should match documentation example")
+
+	// verify annotations and labels from the documentation example
+	assert.Equal(t, map[string]string{"foo": "bar"}, secret.Annotations)
+	assert.Equal(t, map[string]string{"baz": "egg"}, secret.Labels)
+
+	// test ClickHouse connection with the password from documentation example
+	assert.NoError(t, pingClickhouse(
+		ctx,
+		secret.Data["MY_CLICKHOUSE_PREFIX_HOST"],
+		secret.Data["MY_CLICKHOUSE_PREFIX_PORT"],
+		secret.Data["MY_CLICKHOUSE_PREFIX_USERNAME"],
+		secret.Data["MY_CLICKHOUSE_PREFIX_PASSWORD"],
+	))
+
+	assert.NoError(t, s.Delete(user, func() error {
+		_, err = getClickHouseUserByID(ctx, avnGen, cfg.Project, docExampleChName, user.Status.UUID)
+		return err
+	}))
 }
 
 // TestClickhouseUserBuiltInAvnadmin tests the built-in 'avnadmin' user with custom password.
