@@ -19,7 +19,7 @@ import (
 // Destroys all the resources on Destroy() on session teardown.
 type SharedResources interface {
 	AcquirePostgreSQL(ctx context.Context) (*v1alpha1.PostgreSQL, func(), error)
-	AcquireClickhouse(ctx context.Context) (*v1alpha1.Clickhouse, func(), error)
+	AcquireClickhouse(ctx context.Context, opts ...clickhouseOption) (*v1alpha1.Clickhouse, func(), error)
 	AcquireKafka(ctx context.Context) (*v1alpha1.Kafka, func(), error)
 	Destroy() error
 }
@@ -37,6 +37,14 @@ func NewSharedResources(ctx context.Context, k8sClient client.Client) SharedReso
 	return s
 }
 
+type clickhouseOption func(*v1alpha1.Clickhouse)
+
+func WithClickhouseTags(tags map[string]string) clickhouseOption {
+	return func(ch *v1alpha1.Clickhouse) {
+		ch.Spec.Tags = tags
+	}
+}
+
 func (s *sharedResourcesImpl) AcquirePostgreSQL(ctx context.Context) (*v1alpha1.PostgreSQL, func(), error) {
 	obj := &v1alpha1.PostgreSQL{
 		TypeMeta: metav1.TypeMeta{
@@ -50,7 +58,7 @@ func (s *sharedResourcesImpl) AcquirePostgreSQL(ctx context.Context) (*v1alpha1.
 	return acquire(ctx, s, "PostgreSQL", obj)
 }
 
-func (s *sharedResourcesImpl) AcquireClickhouse(ctx context.Context) (*v1alpha1.Clickhouse, func(), error) {
+func (s *sharedResourcesImpl) AcquireClickhouse(ctx context.Context, opts ...clickhouseOption) (*v1alpha1.Clickhouse, func(), error) {
 	obj := &v1alpha1.Clickhouse{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "aiven.io/v1alpha1",
@@ -60,6 +68,9 @@ func (s *sharedResourcesImpl) AcquireClickhouse(ctx context.Context) (*v1alpha1.
 	obj.Spec.Plan = "startup-16"
 	obj.Spec.Project = cfg.Project
 	obj.Spec.CloudName = cfg.PrimaryCloudName
+	for _, opt := range opts {
+		opt(obj)
+	}
 	return acquire(ctx, s, "Clickhouse", obj)
 }
 

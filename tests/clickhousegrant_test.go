@@ -115,7 +115,7 @@ func TestClickhouseGrant(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	ch, releaseCH, err := sharedResources.AcquireClickhouse(ctx)
+	ch, releaseCH, err := sharedResources.AcquireClickhouse(ctx, WithClickhouseTags(map[string]string{"test": "TestClickhouseGrant"}))
 	require.NoError(t, err)
 	defer releaseCH()
 
