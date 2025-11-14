@@ -27,7 +27,7 @@ func TestClickhouseUser(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	ch, release, err := sharedResources.AcquireClickhouse(ctx)
+	ch, release, err := sharedResources.AcquireClickhouse(ctx, WithClickhouseTags(map[string]string{"test": "TestClickhouseUser"}))
 	require.NoError(t, err)
 	defer release()
 
@@ -200,7 +200,7 @@ func TestClickhouseUserCustomCredentials(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	ch, release, err := sharedResources.AcquireClickhouse(ctx)
+	ch, release, err := sharedResources.AcquireClickhouse(ctx, WithClickhouseTags(map[string]string{"test": "TestClickhouseUserCustomCredentials"}))
 	require.NoError(t, err)
 	defer release()
 
@@ -435,11 +435,13 @@ spec:
 
   connInfoSecretTarget:
     name: %s
+  tags:
+    test: %s
 
   project: %s
   cloudName: %s
   plan: startup-v2-16
-`, chName, chName, cfg.Project, cfg.PrimaryCloudName)
+`, chName, chName, "TestClickhouseUserBuiltInAvnadmin", cfg.Project, cfg.PrimaryCloudName)
 
 	s := NewSession(ctx, k8sClient)
 	defer s.Destroy(t)

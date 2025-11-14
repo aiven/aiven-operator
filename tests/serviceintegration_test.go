@@ -437,7 +437,7 @@ func TestServiceIntegrationAdoptExisting(t *testing.T) {
 
 	ctx := context.Background()
 
-	ch, releaseClickhouse, err := sharedResources.AcquireClickhouse(ctx)
+	ch, releaseClickhouse, err := sharedResources.AcquireClickhouse(ctx, WithClickhouseTags(map[string]string{"test": "TestServiceIntegrationAdoptExisting"}))
 	require.NoError(t, err)
 	defer releaseClickhouse()
 
