@@ -264,13 +264,16 @@ func retryForever(ctx context.Context, operation string, f func() (bool, error))
 	retry := false
 	log.Printf("Operation %q started\n", operation)
 
+	retryInterval2 := time.Second * 1
+
 outer:
 	for {
 		select {
 		case <-ctx.Done():
 			err = multierror.Append(err, ctx.Err())
 			break outer
-		case <-time.After(retryInterval):
+		case <-time.After(retryInterval2):
+			retryInterval2 = retryInterval
 			retry, err = f()
 			if err != nil {
 				err = multierror.Append(err, err)
