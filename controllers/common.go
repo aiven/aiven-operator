@@ -100,6 +100,39 @@ func checkServiceIsOperational(ctx context.Context, avnGen avngen.Client, projec
 	return false, nil
 }
 
+// checkServiceIsOperational checks if a service is in operational state, i.e., can create databases, users, etc.
+// Returns errServicePoweredOff if the service is powered off.
+func checkServiceIsOperational2(ctx context.Context, avnGen avngen.Client, project, serviceName string) error {
+	s, err := avnGen.ServiceGet(ctx, project, serviceName)
+	if isNotFound(err) {
+		// Service not found indicates it hasn't started running.
+		// We ignore not found errors since they could mean either:
+		// 1. The service doesn't exist yet
+		// 2. The project doesn't exist yet (may be created by operator)
+		return fmt.Errorf("%w: %w", errPreconditionNotMet, err)
+	}
+
+	if err != nil {
+		// Preserve original error semantics (including 5xx) so that handleObserveError can classify retryable Aiven errors.
+		return err
+	}
+
+	switch s.State {
+	case service.ServiceStateTypeRebalancing, service.ServiceStateTypeRunning:
+		// Running means the service is fully operational.
+		// Rebalancing doesn't block most of the operations.
+		// But depending on the service type and the operation, additional checks may be needed.
+		return nil
+	case service.ServiceStateTypePoweroff:
+		// If the service is powered off, returns an error,
+		// so that Kube won't infinitely retry the Aiven API.
+		return fmt.Errorf("%w: %s/%s", errServicePoweredOff, project, serviceName)
+	}
+
+	// Must be an intermediate state, e.g. rebuilding, etc.
+	return fmt.Errorf("%w: service %s/%s is not yet operational", errPreconditionNotMet, project, serviceName)
+}
+
 func getInitializedCondition(reason, message string) metav1.Condition {
 	return metav1.Condition{
 		Type:    conditionTypeInitialized,
@@ -339,4 +372,27 @@ func isServerError(err error) bool {
 		return e.Status >= http.StatusInternalServerError && e.Status < 600
 	}
 	return false
+}
+
+// isRetryableAivenError returns true if the error represents a transient Aiven API failure that should be retried by the reconciler.
+//
+// Current policy:
+// - 404: resource may not be visible yet (eventual consistency).
+// - 5xx: server-side issues are considered transient.
+// - 403: eventual consistency in IAM / permissions.
+func isRetryableAivenError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	switch {
+	case isNotFound(err):
+		return true
+	case isServerError(err):
+		return true
+	case isAivenError(err, http.StatusForbidden):
+		return true
+	default:
+		return false
+	}
 }

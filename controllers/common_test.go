@@ -12,6 +12,6 @@ import (
 func TestCreateEmptyUserConfiguration(t *testing.T) {
 	var uc *kafkaconnectuserconfig.KafkaConnectUserConfig
 	m, err := CreateUserConfiguration(uc)
-	assert.Nil(t, m)
+	assert.Empty(t, m)
 	assert.NoError(t, err)
 }

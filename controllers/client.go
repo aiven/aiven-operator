@@ -1,14 +1,16 @@
-package managed
+package controllers
 
 import (
 	"context"
+	"errors"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-// AivenClient manages the lifecycle of a resource.
+// AivenController manages the lifecycle of a resource.
 // Controllers implement this interface to define how to process their specific resource type.
-type AivenClient[T v1alpha1.AivenManagedObject] interface {
+// Implementations are expected to update status fields and annotations directly on obj.
+type AivenController[T v1alpha1.AivenManagedObject] interface {
 	// Observe the external resource and return its current state.
 	// This method should:
 	// - Check if the resource exists on Aiven side
@@ -22,16 +24,31 @@ type AivenClient[T v1alpha1.AivenManagedObject] interface {
 
 	// Create a new resource.
 	// This is called when Observe indicates the resource doesn't exist.
-	Create(ctx context.Context, obj T) error
+	// It may return optional information about the created external resource (for example, connection details).
+	Create(ctx context.Context, obj T) (CreateResult, error)
 
 	// Update an existing resource.
 	// This is called when Observe indicates the resource exists but is not up-to-date.
-	Update(ctx context.Context, obj T) error
+	Update(ctx context.Context, obj T) (UpdateResult, error)
 
 	// Delete the resource.
 	// This is called when the Kubernetes object is being deleted.
 	// If the resource is already deleted (not found), should return nil.
 	Delete(ctx context.Context, obj T) error
+}
+
+// CreateResult is returned from Create and carries optional information about the created external resource (for example, connection details).
+type CreateResult struct {
+	// SecretDetails contains secret data for the resource (credentials, endpoints, CA certs, etc.).
+	// Will be written to the connInfoSecretTarget if not nil and not empty.
+	SecretDetails map[string][]byte
+}
+
+// UpdateResult is returned from Update and carries optional information about the external resource (for example, connection details).
+type UpdateResult struct {
+	// SecretDetails contains secret data for the resource (credentials, endpoints, CA certs, etc.).
+	// Will be written to the connInfoSecretTarget if not nil and not empty.
+	SecretDetails map[string][]byte
 }
 
 // Observation is the result of observing the resource.
@@ -44,28 +61,11 @@ type Observation struct {
 	// Only meaningful when ResourceExists is true.
 	ResourceUpToDate bool
 
-	// ResourceReady indicates whether the resource is in a ready/running state.
-	// This is used to determine when to create the connection secret and mark the resource as ready.
-	ResourceReady bool
-
-	// IsPoweredOff indicates whether the resource is currently powered off.
-	IsPoweredOff bool
-
-	// PreconditionsMet indicates whether all preconditions for the resource are satisfied.
-	PreconditionsMet bool
-
-	// PreconditionError contains the error if preconditions are not met.
-	// This error will be set in status conditions.
-	// Should be nil if PreconditionsMet is true.
-	PreconditionError error
-
 	// SecretDetails contains secret data for the resource (credentials, endpoints, CA certs, etc.).
 	// Will be written to the connInfoSecretTarget if not nil and not empty.
 	// Keys should NOT include prefixes - the reconciler will apply the appropriate prefix.
 	// Example keys: "HOST", "PORT", "USERNAME", "PASSWORD", "CA_CERT"
 	SecretDetails map[string][]byte
-
-	// Metadata contains additional observed information that should be stored in the status.
-	// The reconciler may update status fields based on this data.
-	Metadata map[string]string
 }
+
+var errPreconditionNotMet = errors.New("preconditions are not met")

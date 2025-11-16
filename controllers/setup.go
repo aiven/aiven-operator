@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -30,13 +31,19 @@ func SetupControllers(mgr ctrl.Manager, defaultToken, kubeVersion, operatorVersi
 		return fmt.Errorf("controller SecretWatchController: %w", err)
 	}
 
+	clickhouseUserBuilder := newClickhouseUserReconciler
+	if strings.ToLower(os.Getenv("AIVEN_OPERATOR_CLICKHOUSEUSER_RECONCILER")) == "v2" {
+		clickhouseUserBuilder = newClickhouseUserReconcilerV2
+		ctrl.Log.WithName("controllers").WithName("ClickhouseUser").Info("using ClickhouseUser v2 reconciler")
+	}
+
 	builders := map[string]reconcilerBuilder{
 		"AlloyDBOmni":                      newAlloyDBOmniReconciler,
 		"Cassandra":                        newCassandraReconciler,
 		"Clickhouse":                       newClickhouseReconciler,
 		"ClickhouseDatabase":               newClickhouseDatabaseReconciler,
 		"ClickhouseRole":                   newClickhouseRoleReconciler,
-		"ClickhouseUser":                   newClickhouseUserReconciler,
+		"ClickhouseUser":                   clickhouseUserBuilder,
 		"ClickhouseGrant":                  newClickhouseGrantReconciler,
 		"ConnectionPool":                   newConnectionPoolReconciler,
 		"Database":                         newDatabaseReconciler,

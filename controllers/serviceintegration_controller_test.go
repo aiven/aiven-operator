@@ -205,6 +205,6 @@ func TestServiceIntegrationHandler_integrationMatches(t *testing.T) {
 	}
 }
 
-func ptr(s string) *string {
-	return &s
+func ptr[T any](v T) *T {
+	return &v
 }
