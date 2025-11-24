@@ -267,6 +267,7 @@ Migrate data from existing server.
 **Optional**
 
 - [`dbname`](#spec.userConfig.migration.dbname-property){: name='spec.userConfig.migration.dbname-property'} (string, MaxLength: 63). Database name for bootstrapping the initial connection.
+- [`dump_tool`](#spec.userConfig.migration.dump_tool-property){: name='spec.userConfig.migration.dump_tool-property'} (string, Enum: `mydumper`, `mysqldump`). Experimental! Tool to use for database dump and restore during migration. Default: mysqldump.
 - [`ignore_dbs`](#spec.userConfig.migration.ignore_dbs-property){: name='spec.userConfig.migration.ignore_dbs-property'} (string, MaxLength: 2048). Comma-separated list of databases, which should be ignored during migration (supported by MySQL and PostgreSQL only at the moment).
 - [`ignore_roles`](#spec.userConfig.migration.ignore_roles-property){: name='spec.userConfig.migration.ignore_roles-property'} (string, MaxLength: 2048). Comma-separated list of database roles, which should be ignored during migration (supported by PostgreSQL only at the moment).
 - [`method`](#spec.userConfig.migration.method-property){: name='spec.userConfig.migration.method-property'} (string, Enum: `dump`, `replication`). The migration method to be used (currently supported only by Redis, Dragonfly, MySQL and PostgreSQL service types).

@@ -321,6 +321,14 @@ spec:
                           description: Database name for bootstrapping the initial connection
                           maxLength: 63
                           type: string
+                        dump_tool:
+                          description:
+                            "Experimental! Tool to use for database dump
+                            and restore during migration. Default: mysqldump"
+                          enum:
+                            - mydumper
+                            - mysqldump
+                          type: string
                         host:
                           description:
                             Hostname or IP address of the server where to

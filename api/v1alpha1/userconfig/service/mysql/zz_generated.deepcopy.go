@@ -34,6 +34,11 @@ func (in *Migration) DeepCopyInto(out *Migration) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.DumpTool != nil {
+		in, out := &in.DumpTool, &out.DumpTool
+		*out = new(string)
+		**out = **in
+	}
 	if in.IgnoreDbs != nil {
 		in, out := &in.IgnoreDbs, &out.IgnoreDbs
 		*out = new(string)
