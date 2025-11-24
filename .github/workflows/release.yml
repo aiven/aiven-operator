@@ -9,7 +9,7 @@ jobs:
   build_default_release_manifest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - id: action_vars
@@ -64,7 +64,7 @@ jobs:
       - build_and_push_docker_image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - uses: BetaHuhn/repo-file-sync-action@v1

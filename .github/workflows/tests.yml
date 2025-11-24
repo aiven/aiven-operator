@@ -44,7 +44,7 @@ jobs:
     outputs:
       project_name_suffix: ${{ steps.selproj.outputs.project_name_suffix }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -84,7 +84,7 @@ jobs:
     outputs:
       matrix: ${{ steps.find_tests.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: arduino/setup-task@v2
         with:
           version: 3.x
@@ -114,7 +114,7 @@ jobs:
       matrix:
         name: ${{ fromJson(needs.find_tests.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - uses: actions/setup-go@v6
@@ -134,7 +134,7 @@ jobs:
     needs: [setup_aiven_project_suffix, test]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - uses: actions/setup-go@v6
