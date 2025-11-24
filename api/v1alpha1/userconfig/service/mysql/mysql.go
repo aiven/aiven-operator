@@ -20,7 +20,7 @@ type Migration struct {
 	// Database name for bootstrapping the initial connection
 	Dbname *string `groups:"create,update" json:"dbname,omitempty"`
 
-	// +kubebuilder:validation:Enum="";"mydumper";"mysqldump"
+	// +kubebuilder:validation:Enum="mydumper";"mysqldump"
 	// Experimental! Tool to use for database dump and restore during migration. Default: mysqldump
 	DumpTool *string `groups:"create,update" json:"dump_tool,omitempty"`
 

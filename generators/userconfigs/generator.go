@@ -371,7 +371,13 @@ func addFieldComments(s *jen.Statement, obj *object) *jen.Statement {
 			if obj.Type == objectTypeString {
 				v = fmt.Sprintf("%q", e.Value)
 			}
-			enum = append(enum, v)
+
+			// In some cases enum value is "null", meaning, the field takes null value.
+			// The yaml lib renders "null" as empty string.
+			// We skip empty enum values as they are invalid.
+			if e.Value != "" {
+				enum = append(enum, v)
+			}
 		}
 
 		if len(enum) != 0 {

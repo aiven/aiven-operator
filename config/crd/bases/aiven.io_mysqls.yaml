@@ -326,7 +326,6 @@ spec:
                             "Experimental! Tool to use for database dump
                             and restore during migration. Default: mysqldump"
                           enum:
-                            - ""
                             - mydumper
                             - mysqldump
                           type: string
