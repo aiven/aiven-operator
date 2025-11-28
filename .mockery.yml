@@ -1,0 +1,13 @@
+dir: controllers
+filename: mocks_test.go
+formatter: goimports
+structname: "{{.Mock}}{{.InterfaceName}}"
+pkgname: "{{.SrcPackageName}}"
+recursive: false
+require-template-schema-exists: true
+template: testify
+template-schema: "{{.Template}}.schema.json"
+packages:
+  github.com/aiven/aiven-operator/controllers:
+    config:
+      all: true

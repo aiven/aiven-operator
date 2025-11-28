@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
@@ -35,9 +34,6 @@ const (
 // formatIntBaseDecimal it is a base to format int64 to string
 const formatIntBaseDecimal = 10
 
-// requeueTimeout sets timeout to requeue controller
-const requeueTimeout = 10 * time.Second
-
 var errNoTokenProvided = fmt.Errorf("no Aiven API token available: authSecretRef is not set and no DEFAULT_AIVEN_TOKEN configured")
 
 type (
@@ -49,7 +45,6 @@ type (
 		Scheme          *runtime.Scheme
 		Recorder        record.EventRecorder
 		DefaultToken    string
-		AvGenClient     avngen.Client
 		KubeVersion     string
 		OperatorVersion string
 	}
@@ -104,6 +99,7 @@ const (
 	eventWaitingForTheInstanceToBeRunning   = "WaitingForInstanceToBeRunning"
 	eventUnableToWaitForInstanceToBeRunning = "UnableToWaitForInstanceToBeRunning"
 	eventInstanceIsRunning                  = "InstanceIsRunning"
+	eventUnableToSyncConnectionSecret       = "UnableToSyncConnectionSecret"
 	eventConnInfoSecretCreationDisabled     = "ConnInfoSecretCreationDisabled"
 )
 
