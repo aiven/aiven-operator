@@ -350,26 +350,6 @@ webhooks:
       service:
         name: webhook-service
         namespace: system
-        path: /mutate-aiven-io-v1alpha1-redis
-    failurePolicy: Fail
-    name: mredis.kb.io
-    rules:
-      - apiGroups:
-          - aiven.io
-        apiVersions:
-          - v1alpha1
-        operations:
-          - CREATE
-          - UPDATE
-        resources:
-          - redis
-    sideEffects: None
-  - admissionReviewVersions:
-      - v1
-    clientConfig:
-      service:
-        name: webhook-service
-        namespace: system
         path: /mutate-aiven-io-v1alpha1-serviceintegration
     failurePolicy: Fail
     name: mserviceintegration.kb.io
@@ -804,27 +784,6 @@ webhooks:
           - DELETE
         resources:
           - projects
-    sideEffects: None
-  - admissionReviewVersions:
-      - v1
-    clientConfig:
-      service:
-        name: webhook-service
-        namespace: system
-        path: /validate-aiven-io-v1alpha1-redis
-    failurePolicy: Fail
-    name: vredis.kb.io
-    rules:
-      - apiGroups:
-          - aiven.io
-        apiVersions:
-          - v1alpha1
-        operations:
-          - CREATE
-          - UPDATE
-          - DELETE
-        resources:
-          - redis
     sideEffects: None
   - admissionReviewVersions:
       - v1

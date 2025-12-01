@@ -8,7 +8,6 @@ testDirs:
   - test/e2e/kafka
   - test/e2e/kafka-topic
   - test/e2e/kafka-connector
-  - test/e2e/redis
   - test/e2e/opensearch
   - test/e2e/clickhouse
   - test/e2e/projectvpc

@@ -50,7 +50,6 @@ rules:
       - postgresqls
       - projects
       - projectvpcs
-      - redis
       - serviceintegrationendpoints
       - serviceintegrations
       - serviceusers
@@ -89,7 +88,6 @@ rules:
       - postgresqls/finalizers
       - projects/finalizers
       - projectvpcs/finalizers
-      - redis/finalizers
       - serviceintegrationendpoints/finalizers
       - serviceintegrations/finalizers
       - serviceusers/finalizers
@@ -125,7 +123,6 @@ rules:
       - postgresqls/status
       - projects/status
       - projectvpcs/status
-      - redis/status
       - serviceintegrationendpoints/status
       - serviceintegrations/status
       - serviceusers/status

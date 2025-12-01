@@ -101,7 +101,6 @@ nav:
           - resources/postgresql.md
           - resources/project.md
           - resources/projectvpc.md
-          - resources/redis.md
           - resources/serviceintegration.md
           - resources/serviceintegrationendpoint.md
           - resources/serviceuser.md
@@ -115,7 +114,6 @@ nav:
       - examples/mysql.md
       - examples/opensearch.md
       - examples/postgresql.md
-      - examples/redis.md
       - examples/service-integrations.md
       - Kafka:
           - examples/kafka/index.md

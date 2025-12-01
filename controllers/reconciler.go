@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	avngen "github.com/aiven/go-client-codegen"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
@@ -20,7 +21,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
-	avngen "github.com/aiven/go-client-codegen"
 )
 
 // Reconciler handles the boilerplate reconciliation logic for Aiven resources.

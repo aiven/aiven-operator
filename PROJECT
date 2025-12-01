@@ -192,18 +192,6 @@ resources:
     namespaced: true
   controller: true
   domain: aiven.io
-  kind: Redis
-  path: github.com/aiven/aiven-operator/api/v1alpha1
-  version: v1alpha1
-  webhooks:
-    defaulting: true
-    validation: true
-    webhookVersion: v1
-- api:
-    crdVersion: v1
-    namespaced: true
-  controller: true
-  domain: aiven.io
   kind: ServiceIntegration
   path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
