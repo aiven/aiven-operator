@@ -444,6 +444,11 @@ func (in *PgUserConfig) DeepCopyInto(out *PgUserConfig) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.EnableHaReplicaDns != nil {
+		in, out := &in.EnableHaReplicaDns, &out.EnableHaReplicaDns
+		*out = new(bool)
+		**out = **in
+	}
 	if in.EnableIpv6 != nil {
 		in, out := &in.EnableIpv6, &out.EnableIpv6
 		*out = new(bool)

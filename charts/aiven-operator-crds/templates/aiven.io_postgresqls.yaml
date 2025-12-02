@@ -283,6 +283,12 @@ spec:
                       maximum: 59
                       minimum: 0
                       type: integer
+                    enable_ha_replica_dns:
+                      description:
+                        Creates a dedicated read-only DNS that automatically
+                        falls back to the primary if standby nodes are unavailable.
+                        It switches back when a standby recovers.
+                      type: boolean
                     enable_ipv6:
                       description:
                         Register AAAA DNS records for the service, and allow

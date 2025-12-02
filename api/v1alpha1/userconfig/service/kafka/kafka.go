@@ -623,7 +623,10 @@ type KafkaUserConfig struct {
 	// Kafka major version. Deprecated values: `3.7`
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
 
-	// Use Letsencrypt CA for Kafka SASL via Privatelink
+	// Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication. (Default: False)
+	LetsencryptSasl *bool `groups:"create,update" json:"letsencrypt_sasl,omitempty"`
+
+	// Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication via Privatelink. (Default: False)
 	LetsencryptSaslPrivatelink *bool `groups:"create,update" json:"letsencrypt_sasl_privatelink,omitempty"`
 
 	// Allow access to selected service ports from private networks
@@ -634,6 +637,9 @@ type KafkaUserConfig struct {
 
 	// Allow access to selected service ports from the public Internet
 	PublicAccess *PublicAccess `groups:"create,update" json:"public_access,omitempty"`
+
+	// List of allowed URLs for SASL OAUTHBEARER authentication. Only HTTPS URLs are allowed for security reasons.
+	SaslOauthbearerAllowedUrls []string `groups:"create,update" json:"sasl_oauthbearer_allowed_urls,omitempty"`
 
 	// Enable Schema-Registry service
 	SchemaRegistry *bool `groups:"create,update" json:"schema_registry,omitempty"`

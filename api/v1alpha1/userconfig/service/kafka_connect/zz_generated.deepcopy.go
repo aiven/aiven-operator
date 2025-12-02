@@ -196,6 +196,11 @@ func (in *KafkaConnectUserConfig) DeepCopyInto(out *KafkaConnectUserConfig) {
 		*out = new(PublicAccess)
 		(*in).DeepCopyInto(*out)
 	}
+	if in.SaslOauthbearerAllowedUrls != nil {
+		in, out := &in.SaslOauthbearerAllowedUrls, &out.SaslOauthbearerAllowedUrls
+		*out = make([]string, len(*in))
+		copy(*out, *in)
+	}
 	if in.SecretProviders != nil {
 		in, out := &in.SecretProviders, &out.SecretProviders
 		*out = make([]*SecretProviders, len(*in))

@@ -528,6 +528,9 @@ type PgUserConfig struct {
 	// The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
 	BackupMinute *int `groups:"create,update" json:"backup_minute,omitempty"`
 
+	// Creates a dedicated read-only DNS that automatically falls back to the primary if standby nodes are unavailable. It switches back when a standby recovers.
+	EnableHaReplicaDns *bool `groups:"create,update" json:"enable_ha_replica_dns,omitempty"`
+
 	// Register AAAA DNS records for the service, and allow IPv6 packets to service ports
 	EnableIpv6 *bool `groups:"create,update" json:"enable_ipv6,omitempty"`
 

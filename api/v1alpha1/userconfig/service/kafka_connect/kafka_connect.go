@@ -214,6 +214,9 @@ type KafkaConnectUserConfig struct {
 	// Allow access to selected service ports from the public Internet
 	PublicAccess *PublicAccess `groups:"create,update" json:"public_access,omitempty"`
 
+	// List of allowed URLs for SASL OAUTHBEARER authentication. Only HTTPS URLs are allowed for security reasons.
+	SaslOauthbearerAllowedUrls []string `groups:"create,update" json:"sasl_oauthbearer_allowed_urls,omitempty"`
+
 	// Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name>}
 	SecretProviders []*SecretProviders `groups:"create,update" json:"secret_providers,omitempty"`
 
