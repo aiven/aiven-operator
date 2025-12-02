@@ -15,7 +15,6 @@ resources:
   - _v1alpha1_postgresql.yaml
   - _v1alpha1_project.yaml
   - _v1alpha1_projectvpc.yaml
-  - _v1alpha1_redis.yaml
   - _v1alpha1_serviceintegration.yaml
   - _v1alpha1_serviceuser.yaml
   - _v1alpha1_mysql.yaml

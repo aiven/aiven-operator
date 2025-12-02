@@ -114,7 +114,7 @@ defaultTokenSecret:
 ```yaml
 # Most resources use default token
 apiVersion: aiven.io/v1alpha1
-kind: Redis
+kind: Valkey
 metadata:
   name: shared-cache
   namespace: development

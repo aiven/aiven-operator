@@ -6,6 +6,7 @@
 - Change `MySQL` field `userConfig.binlog_retention_period`: maximum ~~`604800`~~ → `9007199254740991`
 - Add `MySQL` field `userConfig.migration.dump_tool`, type `string`: Experimental! Tool to use for database
   dump and restore during migration. Default: mysqldump
+- Remove `Redis` kind and controller from the operator: use `Valkey` instead for caching services, since Redis has reached end of life (EOL)
 
 ## v0.34.0 - 2025-10-21
 
@@ -39,6 +40,7 @@
   be enabled
 - Remove `KafkaTopic` field `config.inkless_enable`, type `boolean`: Indicates whether inkless should
   be enabled
+- Remove `Redis` kind and controller from the operator: use `Valkey` instead for caching services
 
 ## v0.33.1 - 2025-10-08
 

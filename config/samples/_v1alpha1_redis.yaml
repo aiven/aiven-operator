@@ -1,6 +1,0 @@
-apiVersion: aiven.io/v1alpha1
-kind: Redis
-metadata:
-  name: redis-sample
-spec:
-  # TODO(user): Add fields here

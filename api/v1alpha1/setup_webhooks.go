@@ -52,9 +52,6 @@ func SetupWebhooks(mgr ctrl.Manager) error {
 	if err := (&KafkaConnector{}).SetupWebhookWithManager(mgr); err != nil {
 		return fmt.Errorf("webhook KafkaConnector: %w", err)
 	}
-	if err := (&Redis{}).SetupWebhookWithManager(mgr); err != nil {
-		return fmt.Errorf("webhook Redis: %w", err)
-	}
 	if err := (&OpenSearch{}).SetupWebhookWithManager(mgr); err != nil {
 		return fmt.Errorf("webhook OpenSearch: %w", err)
 	}

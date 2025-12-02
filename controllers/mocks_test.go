@@ -7,18 +7,19 @@ package controllers
 import (
 	"context"
 
-	"github.com/aiven/aiven-operator/api/v1alpha1"
-	"github.com/aiven/go-client-codegen"
+	aiven "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	mock "github.com/stretchr/testify/mock"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	v10 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime"
+	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 // NewMockHandlers creates a new instance of MockHandlers. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

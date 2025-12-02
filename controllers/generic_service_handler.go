@@ -20,7 +20,7 @@ func newGenericServiceHandler(fabric serviceAdapterFabric, log logr.Logger) Hand
 }
 
 // genericServiceHandler provides common CRUD management for all service types using serviceAdapter,
-// which turns specific service (mysql, redis) into a generic.
+// which turns specific service (mysql, valkey) into a generic.
 type genericServiceHandler struct {
 	fabric serviceAdapterFabric
 	log    logr.Logger
@@ -305,7 +305,6 @@ const (
 	serviceTypeKafkaConnect serviceType = "kafka_connect"
 	serviceTypeMySQL        serviceType = "mysql"
 	serviceTypePostgreSQL   serviceType = "pg"
-	serviceTypeRedis        serviceType = "redis"
 	serviceTypeClickhouse   serviceType = "clickhouse"
 	serviceTypeOpenSearch   serviceType = "opensearch"
 	serviceTypeGrafana      serviceType = "grafana"

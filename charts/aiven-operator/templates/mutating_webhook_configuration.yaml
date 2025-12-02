@@ -372,27 +372,6 @@ webhooks:
       service:
         name: {{ include "aiven-operator.fullname" . }}-webhook-service
         namespace: {{ include "aiven-operator.namespace" . }}
-        path: /mutate-aiven-io-v1alpha1-redis
-    failurePolicy: Fail
-    name: mredis.kb.io
-    rules:
-      - apiGroups:
-          - aiven.io
-        apiVersions:
-          - v1alpha1
-        operations:
-          - CREATE
-          - UPDATE
-        resources:
-          - redis
-    sideEffects: None
-    {{- include "aiven-operator.webhookNamespaceSelector" . | indent 4 }}
-  - admissionReviewVersions:
-      - v1
-    clientConfig:
-      service:
-        name: {{ include "aiven-operator.fullname" . }}-webhook-service
-        namespace: {{ include "aiven-operator.namespace" . }}
         path: /mutate-aiven-io-v1alpha1-serviceintegration
     failurePolicy: Fail
     name: mserviceintegration.kb.io

@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	avngen "github.com/aiven/go-client-codegen"
 	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -31,7 +32,6 @@ import (
 	"sigs.k8s.io/yaml"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
-	avngen "github.com/aiven/go-client-codegen"
 )
 
 func mockNewAivenGeneratedClient(m *mock.Mock) func(token, kubeVersion, operatorVersion string) (avngen.Client, error) {
@@ -1749,7 +1749,6 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 			&v1alpha1.Cassandra{},
 			&v1alpha1.OpenSearch{},
 			&v1alpha1.Kafka{},
-			&v1alpha1.Redis{},
 			&v1alpha1.Valkey{},
 			&v1alpha1.Grafana{},
 			&v1alpha1.PostgreSQL{},
