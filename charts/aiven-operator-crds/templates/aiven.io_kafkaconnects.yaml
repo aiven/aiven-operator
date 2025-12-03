@@ -440,6 +440,13 @@ spec:
                             VPC or another type of private network
                           type: boolean
                       type: object
+                    sasl_oauthbearer_allowed_urls:
+                      description:
+                        List of allowed URLs for SASL OAUTHBEARER authentication.
+                        Only HTTPS URLs are allowed for security reasons.
+                      items:
+                        type: string
+                      type: array
                     secret_providers:
                       description:
                         "Configure external secret providers in order to

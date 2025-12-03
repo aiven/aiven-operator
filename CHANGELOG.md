@@ -7,6 +7,14 @@
 - Add `MySQL` field `userConfig.migration.dump_tool`, type `string`: Experimental! Tool to use for database
   dump and restore during migration. Default: mysqldump
 - Remove `Redis` kind and controller from the operator: use `Valkey` instead for caching services, since Redis has reached end of life (EOL)
+- Add `KafkaConnect` field `userConfig.sasl_oauthbearer_allowed_urls`, type `array`: List of allowed
+  URLs for SASL OAUTHBEARER authentication
+- Add `Kafka` field `userConfig.letsencrypt_sasl`, type `boolean`: Use a Let's Encrypt certificate authority
+  (CA) for Kafka SASL authentication. (Default: False)
+- Add `Kafka` field `userConfig.sasl_oauthbearer_allowed_urls`, type `array`: List of allowed URLs for
+  SASL OAUTHBEARER authentication
+- Add `PostgreSQL` field `userConfig.enable_ha_replica_dns`, type `boolean`: Creates a dedicated read-only
+  DNS that automatically falls back to the primary if standby nodes are unavailable
 
 ## v0.34.0 - 2025-10-21
 

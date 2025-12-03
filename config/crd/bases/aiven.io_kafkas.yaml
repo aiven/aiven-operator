@@ -1087,8 +1087,15 @@ spec:
                         Available versions: `3.7`, `3.8`, `3.9`, `4.0`. Newer versions may also be available.
                         Kafka major version. Deprecated values: `3.7`
                       type: string
+                    letsencrypt_sasl:
+                      description:
+                        "Use a Let's Encrypt certificate authority (CA)
+                        for Kafka SASL authentication. (Default: False)"
+                      type: boolean
                     letsencrypt_sasl_privatelink:
-                      description: Use Letsencrypt CA for Kafka SASL via Privatelink
+                      description:
+                        "Use a Let's Encrypt certificate authority (CA)
+                        for Kafka SASL authentication via Privatelink. (Default: False)"
                       type: boolean
                     private_access:
                       description:
@@ -1186,6 +1193,13 @@ spec:
                             VPC or another type of private network
                           type: boolean
                       type: object
+                    sasl_oauthbearer_allowed_urls:
+                      description:
+                        List of allowed URLs for SASL OAUTHBEARER authentication.
+                        Only HTTPS URLs are allowed for security reasons.
+                      items:
+                        type: string
+                      type: array
                     schema_registry:
                       description: Enable Schema-Registry service
                       type: boolean

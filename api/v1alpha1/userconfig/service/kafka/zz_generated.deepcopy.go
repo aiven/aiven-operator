@@ -707,6 +707,11 @@ func (in *KafkaUserConfig) DeepCopyInto(out *KafkaUserConfig) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.LetsencryptSasl != nil {
+		in, out := &in.LetsencryptSasl, &out.LetsencryptSasl
+		*out = new(bool)
+		**out = **in
+	}
 	if in.LetsencryptSaslPrivatelink != nil {
 		in, out := &in.LetsencryptSaslPrivatelink, &out.LetsencryptSaslPrivatelink
 		*out = new(bool)
@@ -726,6 +731,11 @@ func (in *KafkaUserConfig) DeepCopyInto(out *KafkaUserConfig) {
 		in, out := &in.PublicAccess, &out.PublicAccess
 		*out = new(PublicAccess)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.SaslOauthbearerAllowedUrls != nil {
+		in, out := &in.SaslOauthbearerAllowedUrls, &out.SaslOauthbearerAllowedUrls
+		*out = make([]string, len(*in))
+		copy(*out, *in)
 	}
 	if in.SchemaRegistry != nil {
 		in, out := &in.SchemaRegistry, &out.SchemaRegistry
