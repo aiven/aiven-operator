@@ -79,6 +79,7 @@ func newTestReconciler[T v1alpha1.AivenManagedObject](_ T, client crclient.Clien
 			Scheme:   scheme,
 			Recorder: recorder,
 		},
+		newSecret: newSecret,
 	}
 }
 
@@ -514,7 +515,7 @@ func TestReconciler_Reconcile(t *testing.T) {
 			Return(Observation{
 				ResourceExists:   true,
 				ResourceUpToDate: true,
-				SecretDetails:    map[string][]byte{"FOO": []byte("foo")},
+				SecretDetails:    map[string]string{"FOO": "foo"},
 			}, nil).
 			Once()
 
@@ -531,7 +532,8 @@ func TestReconciler_Reconcile(t *testing.T) {
 			newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
 				return c
 			},
-			newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+			newObj:    func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+			newSecret: newSecret,
 		}
 
 		res, err := r.Reconcile(t.Context(), ctrl.Request{
@@ -988,7 +990,7 @@ func TestReconciler_updateStatus(t *testing.T) {
 			On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once().
 			On("SubResourceUpdate", mock.Anything, mock.Anything, "status", mock.Anything, mock.Anything).Return(nil).Once()
 
-		k8sClientWithInterceptor := fake.NewClientBuilder().
+		k8sClient := fake.NewClientBuilder().
 			WithScheme(scheme).
 			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
 			WithObjects(obj).
@@ -1010,7 +1012,7 @@ func TestReconciler_updateStatus(t *testing.T) {
 
 		r := &Reconciler[*v1alpha1.ClickhouseUser]{
 			Controller: Controller{
-				Client: k8sClientWithInterceptor,
+				Client: k8sClient,
 			},
 		}
 
@@ -1352,12 +1354,13 @@ func TestReconciler_createResource(t *testing.T) {
 				Scheme:   scheme,
 				Recorder: recorder,
 			},
+			newSecret: newSecret,
 		}
 
 		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
 		c.EXPECT().
 			Create(mock.Anything, mock.Anything).
-			Return(CreateResult{SecretDetails: map[string][]byte{"FOO": []byte("foo")}}, nil).
+			Return(CreateResult{SecretDetails: map[string]string{"FOO": "foo"}}, nil).
 			Once()
 
 		res, err := r.createResource(t.Context(), c, obj)
@@ -1368,11 +1371,18 @@ func TestReconciler_createResource(t *testing.T) {
 		err = k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, secret)
 		require.True(t, apierrors.IsNotFound(err))
 
-		require.Empty(t, normalizedConditions(obj.Status.Conditions))
+		require.Equal(t, []metav1.Condition{
+			{
+				Type:    ConditionTypeError,
+				Status:  metav1.ConditionUnknown,
+				Reason:  string(errConditionConnInfoSecret),
+				Message: assert.AnError.Error(),
+			},
+		}, normalizedConditions(obj.Status.Conditions))
 		require.Equal(t, []string{
 			"Normal CreateOrUpdatedAtAiven about to create instance at aiven",
 			"Normal CreatedOrUpdatedAtAiven instance was created at aiven but may not be running yet",
-			"Warning UnableToSyncConnectionSecret " + assert.AnError.Error(),
+			"Warning CannotPublishConnectionDetails " + assert.AnError.Error(),
 		}, recorderEvents(recorder))
 	})
 
@@ -1392,12 +1402,13 @@ func TestReconciler_createResource(t *testing.T) {
 				Scheme:   scheme,
 				Recorder: recorder,
 			},
+			newSecret: newSecret,
 		}
 
 		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
 		c.EXPECT().
 			Create(mock.Anything, mock.Anything).
-			Return(CreateResult{SecretDetails: map[string][]byte{"FOO": []byte("foo")}}, nil).
+			Return(CreateResult{SecretDetails: map[string]string{"FOO": "foo"}}, nil).
 			Once()
 
 		res, err := r.createResource(t.Context(), c, obj)
@@ -1500,12 +1511,13 @@ func TestReconciler_updateResource(t *testing.T) {
 				Scheme:   scheme,
 				Recorder: recorder,
 			},
+			newSecret: newSecret,
 		}
 
 		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
 		c.EXPECT().
 			Update(mock.Anything, mock.Anything).
-			Return(UpdateResult{SecretDetails: map[string][]byte{"BAR": []byte("bar")}}, nil).
+			Return(UpdateResult{SecretDetails: map[string]string{"BAR": "bar"}}, nil).
 			Once()
 
 		res, err := r.updateResource(t.Context(), c, obj)
@@ -1516,10 +1528,17 @@ func TestReconciler_updateResource(t *testing.T) {
 		err = k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, secret)
 		require.True(t, apierrors.IsNotFound(err))
 
-		require.Empty(t, normalizedConditions(obj.Status.Conditions))
+		require.Equal(t, []metav1.Condition{
+			{
+				Type:    ConditionTypeError,
+				Status:  metav1.ConditionUnknown,
+				Reason:  string(errConditionConnInfoSecret),
+				Message: assert.AnError.Error(),
+			},
+		}, normalizedConditions(obj.Status.Conditions))
 		require.Equal(t, []string{
 			"Normal WaitingForInstanceToBeRunning waiting for the instance to be running",
-			"Warning UnableToSyncConnectionSecret " + assert.AnError.Error(),
+			"Warning CannotPublishConnectionDetails " + assert.AnError.Error(),
 		}, recorderEvents(recorder))
 	})
 
@@ -1539,12 +1558,13 @@ func TestReconciler_updateResource(t *testing.T) {
 				Scheme:   scheme,
 				Recorder: recorder,
 			},
+			newSecret: newSecret,
 		}
 
 		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
 		c.EXPECT().
 			Update(mock.Anything, mock.Anything).
-			Return(UpdateResult{SecretDetails: map[string][]byte{"BAR": []byte("bar")}}, nil).
+			Return(UpdateResult{SecretDetails: map[string]string{"BAR": "bar"}}, nil).
 			Once()
 
 		res, err := r.updateResource(t.Context(), c, obj)
@@ -1619,7 +1639,7 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 			},
 		}
 
-		err := r.publishSecretDetails(t.Context(), obj, map[string][]byte{"FOO": []byte("foo")})
+		err := r.publishSecretDetails(t.Context(), obj, map[string]string{"FOO": "foo"})
 
 		require.NoError(t, err)
 		require.Empty(t, normalizedConditions(obj.Status.Conditions))
@@ -1641,7 +1661,7 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 		sink := &logRecorderSink{}
 		ctx := logr.NewContext(t.Context(), logr.New(sink))
 
-		err := r.publishSecretDetails(ctx, obj, map[string][]byte{"FOO": []byte("foo")})
+		err := r.publishSecretDetails(ctx, obj, map[string]string{"FOO": "foo"})
 
 		require.NoError(t, err)
 		require.Empty(t, normalizedConditions(obj.Status.Conditions))
@@ -1674,18 +1694,26 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 				Scheme:   scheme,
 				Recorder: recorder,
 			},
+			newSecret: newSecret,
 		}
 
-		err := r.publishSecretDetails(t.Context(), obj, map[string][]byte{"FOO": []byte("foo")})
+		err := r.publishSecretDetails(t.Context(), obj, map[string]string{"FOO": "foo"})
 		require.EqualError(t, err, fmt.Sprintf("unable to sync connection secret: %s", assert.AnError.Error()))
 
 		secret := &corev1.Secret{}
 		err = k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, secret)
 		require.True(t, apierrors.IsNotFound(err))
 
-		require.Empty(t, normalizedConditions(obj.Status.Conditions))
+		require.Equal(t, []metav1.Condition{
+			{
+				Type:    ConditionTypeError,
+				Status:  metav1.ConditionUnknown,
+				Reason:  string(errConditionConnInfoSecret),
+				Message: assert.AnError.Error(),
+			},
+		}, normalizedConditions(obj.Status.Conditions))
 		require.Equal(t, []string{
-			"Warning UnableToSyncConnectionSecret " + assert.AnError.Error(),
+			"Warning CannotPublishConnectionDetails " + assert.AnError.Error(),
 		}, recorderEvents(recorder))
 	})
 
@@ -1714,11 +1742,12 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 				Scheme:   scheme,
 				Recorder: recorder,
 			},
+			newSecret: newSecret,
 		}
 
-		err := r.publishSecretDetails(t.Context(), obj, map[string][]byte{
-			"HOST": []byte("localhost"),
-			"PORT": []byte("5432"),
+		err := r.publishSecretDetails(t.Context(), obj, map[string]string{
+			"HOST": "localhost",
+			"PORT": "5432",
 		})
 		require.NoError(t, err)
 
@@ -1736,6 +1765,55 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 
 		require.Empty(t, normalizedConditions(obj.Status.Conditions))
 		require.Empty(t, recorderEvents(recorder))
+	})
+
+	t.Run("Merges Data and StringData from goal secret", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithObjects(obj).
+			Build()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client: k8sClient,
+				Scheme: scheme,
+			},
+			newSecret: newSecret,
+		}
+
+		m := &mock.Mock{}
+		t.Cleanup(func() {
+			m.AssertExpectations(t)
+		})
+
+		r.newSecret = func(o objWithSecret, details map[string]string, addPrefix bool) *corev1.Secret {
+			args := m.MethodCalled("newConnInfoSecret", o, details, addPrefix)
+			return args.Get(0).(*corev1.Secret)
+		}
+
+		m.On("newConnInfoSecret", mock.Anything, mock.Anything, mock.Anything).Return(&corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      obj.Name,
+				Namespace: obj.Namespace,
+			},
+			Data: map[string][]byte{
+				"BIN": []byte("bin"),
+			},
+			StringData: map[string]string{
+				"TXT": "txt",
+			},
+		}).Once()
+
+		require.NoError(t, r.publishSecretDetails(t.Context(), obj, map[string]string{"IGNORED": "ignored"}))
+
+		secret := &corev1.Secret{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, secret))
+		require.Equal(t, map[string][]byte{
+			"BIN": []byte("bin"),
+			"TXT": []byte("txt"),
+		}, secret.Data)
 	})
 
 	t.Run("Known types with conn info secret target don't trigger fallback log", func(t *testing.T) {
@@ -1774,7 +1852,7 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 				ctx := logr.NewContext(t.Context(), logger)
 
 				r := newTestReconciler(obj, k8sClient, scheme, events)
-				require.NoError(t, r.publishSecretDetails(ctx, obj, map[string][]byte{"FOO": []byte("foo")}))
+				require.NoError(t, r.publishSecretDetails(ctx, obj, map[string]string{"FOO": "foo"}))
 
 				require.NotContains(t, sink.logs, "object does not implement conn info secret target, skipping connection secret publish")
 			})

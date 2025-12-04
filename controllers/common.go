@@ -47,6 +47,7 @@ const (
 	errConditionDelete         errCondition = "Delete"
 	errConditionPreconditions  errCondition = "Preconditions"
 	errConditionCreateOrUpdate errCondition = "CreateOrUpdate"
+	errConditionConnInfoSecret errCondition = "ConnInfoSecret"
 )
 
 var (

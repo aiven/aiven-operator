@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
 	"strconv"
 	"strings"
 	"time"
@@ -35,6 +36,7 @@ type Reconciler[T v1alpha1.AivenManagedObject] struct {
 	newAivenGeneratedClient func(token, kubeVersion, operatorVersion string) (avngen.Client, error)
 	newController           func(avnGen avngen.Client) AivenController[T]
 	newObj                  func() T
+	newSecret               func(o objWithSecret, stringData map[string]string, addPrefix bool) *corev1.Secret
 }
 
 // pollInterval controls how often we re-run reconciliation for resources that are in a steady state.
@@ -233,7 +235,7 @@ func (r *Reconciler[T]) resolveToken(ctx context.Context, obj T) (string, error)
 func (r *Reconciler[T]) createResource(ctx context.Context, controller AivenController[T], obj T) (ctrl.Result, error) {
 	r.Recorder.Event(obj, corev1.EventTypeNormal, eventCreateOrUpdatedAtAiven, "about to create instance at aiven")
 
-	createRes, err := controller.Create(ctx, obj)
+	res, err := controller.Create(ctx, obj)
 	if err != nil {
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToCreateOrUpdateAtAiven, err.Error())
 		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionCreateOrUpdate, err))
@@ -241,7 +243,7 @@ func (r *Reconciler[T]) createResource(ctx context.Context, controller AivenCont
 	}
 	r.Recorder.Event(obj, corev1.EventTypeNormal, eventCreatedOrUpdatedAtAiven, "instance was created at aiven but may not be running yet")
 
-	if err := r.publishSecretDetails(ctx, obj, createRes.SecretDetails); err != nil {
+	if err := r.publishSecretDetails(ctx, obj, res.SecretDetails); err != nil {
 		return ctrl.Result{}, err
 	}
 
@@ -251,7 +253,7 @@ func (r *Reconciler[T]) createResource(ctx context.Context, controller AivenCont
 func (r *Reconciler[T]) updateResource(ctx context.Context, controller AivenController[T], obj T) (ctrl.Result, error) {
 	r.Recorder.Event(obj, corev1.EventTypeNormal, eventWaitingForTheInstanceToBeRunning, "waiting for the instance to be running")
 
-	updateRes, err := controller.Update(ctx, obj)
+	res, err := controller.Update(ctx, obj)
 	if err != nil {
 		if isNotFound(err) {
 			return ctrl.Result{RequeueAfter: requeueTimeout}, nil
@@ -261,7 +263,7 @@ func (r *Reconciler[T]) updateResource(ctx context.Context, controller AivenCont
 		return ctrl.Result{}, fmt.Errorf("unable to wait until instance is running: %w", err)
 	}
 
-	if err := r.publishSecretDetails(ctx, obj, updateRes.SecretDetails); err != nil {
+	if err := r.publishSecretDetails(ctx, obj, res.SecretDetails); err != nil {
 		return ctrl.Result{}, err
 	}
 
@@ -280,7 +282,7 @@ func (r *Reconciler[T]) completeReconcileSuccess(obj v1alpha1.AivenManagedObject
 
 // publishSecretDetails publishes connection details to the connection secret if present.
 // It emits appropriate events when secret creation is disabled or when syncing fails.
-func (r *Reconciler[T]) publishSecretDetails(ctx context.Context, obj T, details map[string][]byte) error {
+func (r *Reconciler[T]) publishSecretDetails(ctx context.Context, obj T, details map[string]string) error {
 	if len(details) == 0 {
 		return nil
 	}
@@ -302,11 +304,7 @@ func (r *Reconciler[T]) publishSecretDetails(ctx context.Context, obj T, details
 		return nil
 	}
 
-	stringData := make(map[string]string, len(details))
-	for k, v := range details {
-		stringData[k] = string(v)
-	}
-	goalSecret := newSecret(withSecret, stringData, false)
+	goalSecret := r.newSecret(withSecret, details, false)
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      goalSecret.Name,
@@ -314,6 +312,12 @@ func (r *Reconciler[T]) publishSecretDetails(ctx context.Context, obj T, details
 		},
 	}
 	if _, err := controllerutil.CreateOrUpdate(ctx, r.Client, secret, func() error {
+		if len(goalSecret.Data) > 0 {
+			if secret.Data == nil {
+				secret.Data = map[string][]byte{}
+			}
+			maps.Copy(secret.Data, goalSecret.Data)
+		}
 		if goalSecret.StringData != nil {
 			if secret.Data == nil {
 				secret.Data = map[string][]byte{}
@@ -328,7 +332,8 @@ func (r *Reconciler[T]) publishSecretDetails(ctx context.Context, obj T, details
 
 		return controllerutil.SetControllerReference(obj, secret, r.Scheme)
 	}); err != nil {
-		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToSyncConnectionSecret, err.Error())
+		r.Recorder.Event(obj, corev1.EventTypeWarning, eventCannotPublishConnectionDetails, err.Error())
+		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionConnInfoSecret, err))
 		return fmt.Errorf("unable to sync connection secret: %w", err)
 	}
 

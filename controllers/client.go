@@ -37,19 +37,7 @@ type AivenController[T v1alpha1.AivenManagedObject] interface {
 	Delete(ctx context.Context, obj T) error
 }
 
-// CreateResult is returned from Create and carries optional information about the created external resource (for example, connection details).
-type CreateResult struct {
-	// SecretDetails contains secret data for the resource (credentials, endpoints, CA certs, etc.).
-	// Will be written to the connInfoSecretTarget if not nil and not empty.
-	SecretDetails map[string][]byte
-}
-
-// UpdateResult is returned from Update and carries optional information about the external resource (for example, connection details).
-type UpdateResult struct {
-	// SecretDetails contains secret data for the resource (credentials, endpoints, CA certs, etc.).
-	// Will be written to the connInfoSecretTarget if not nil and not empty.
-	SecretDetails map[string][]byte
-}
+type SecretDetails = map[string]string
 
 // Observation is the result of observing the resource.
 // Can be extended with additional fields as needed.
@@ -65,7 +53,13 @@ type Observation struct {
 	// Will be written to the connInfoSecretTarget if not nil and not empty.
 	// Keys should NOT include prefixes - the reconciler will apply the appropriate prefix.
 	// Example keys: "HOST", "PORT", "USERNAME", "PASSWORD", "CA_CERT"
-	SecretDetails map[string][]byte
+	SecretDetails SecretDetails
 }
+
+// CreateResult is returned from Create and carries optional information about the created external resource (for example, connection details).
+type CreateResult = Observation
+
+// UpdateResult is returned from Update and carries optional information about the external resource (for example, connection details).
+type UpdateResult = Observation
 
 var errPreconditionNotMet = errors.New("preconditions are not met")

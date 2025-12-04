@@ -5,11 +5,11 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/clickhouse"
 	"github.com/aiven/go-client-codegen/handler/service"
-	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -40,151 +40,172 @@ func newClickhouseUserReconcilerV2(c Controller) reconcilerType {
 				avnGen: avnGen,
 			}
 		},
+		newSecret: newSecret,
 	}
 }
 
 func (r *ClickhouseUserControllerV2) Observe(ctx context.Context, user *v1alpha1.ClickhouseUser) (Observation, error) {
-	obs := Observation{
-		ResourceExists:   false,
-		ResourceUpToDate: false,
-		SecretDetails:    nil,
-	}
-
 	if err := checkServiceIsOperational2(ctx, r.avnGen, user.Spec.Project, user.Spec.ServiceName); err != nil {
-		return obs, err
+		return Observation{}, fmt.Errorf("checking service operational status: %w", err)
 	}
 
 	list, err := r.avnGen.ServiceClickHouseUserList(ctx, user.Spec.Project, user.Spec.ServiceName)
 	if err != nil {
-		return obs, err
-	}
-	for _, u := range list {
-		if u.Name == user.GetUsername() {
-			obs.ResourceExists = true
-			user.Status.UUID = u.Uuid
-			break
-		}
+		return Observation{}, fmt.Errorf("listing Clickhouse users: %w", err)
 	}
 
-	if obs.ResourceExists {
-		// TODO: extend the logic with more checks if needed
-		obs.ResourceUpToDate = IsReadyToUse(user)
+	idx := slices.IndexFunc(list, func(u clickhouse.UserOut) bool {
+		return u.Name == user.GetUsername()
+	})
+	if idx < 0 {
+		return Observation{}, nil
 	}
 
-	return obs, nil
-}
+	u := list[idx]
+	user.Status.UUID = u.Uuid
 
-// Create implements AivenClient for ClickhouseUser.
-func (r *ClickhouseUserControllerV2) Create(ctx context.Context, user *v1alpha1.ClickhouseUser) (CreateResult, error) {
-	logr.FromContextOrDiscard(ctx).Info("generation wasn't processed, creation or updating instance on aiven side")
-
-	// Validates the secret password if it exists
-	_, err := GetPasswordFromSecret(ctx, r.Client, user)
-	if err != nil {
-		return CreateResult{}, fmt.Errorf("failed to get password from secret: %w", err)
-	}
-
-	if user.Status.UUID == "" {
-		req := clickhouse.ServiceClickHouseUserCreateIn{
-			Name: user.GetUsername(),
-		}
-		rsp, err := r.avnGen.ServiceClickHouseUserCreate(ctx, user.Spec.Project, user.Spec.ServiceName, &req)
+	var password string
+	if user.Spec.ConnInfoSecretSource != nil {
+		// External mode: the password from ConnInfoSecretSource fully defines the desired password and should be reflected in the connection secret
+		var err error
+		password, err = GetPasswordFromSecret(ctx, r.Client, user)
 		if err != nil {
-			logr.FromContextOrDiscard(ctx).Info(
-				"unable to create or update instance, retrying",
-				"kind", user.GetObjectKind().GroupVersionKind().Kind,
-				"namespace", user.GetNamespace(),
-				"name", user.GetName(),
-				"error", err,
-			)
-			return CreateResult{}, err
+			return Observation{}, fmt.Errorf("determining desired password: %w", err)
 		}
-		user.Status.UUID = rsp.Uuid
+	} else if u.Password != nil && *u.Password != "" {
+		// Operator-managed mode: when ConnInfoSecretSource is not set, we treat the password returned by Aiven API (if any)
+		// as the source of truth for the connection secret. If the API does not expose the password (e.g. it was changed directly in ClickHouse),
+		// we leave password empty and do not touch password keys in the Secret.
+		password = *u.Password
 	}
 
-	logr.FromContextOrDiscard(ctx).Info(
-		"processed instance, updating annotations",
-		"generation", user.GetGeneration(),
-		"annotations", user.GetAnnotations(),
-	)
+	secretDetails, err := r.buildConnectionDetails(ctx, user, password)
+	if err != nil {
+		return Observation{}, fmt.Errorf("building connection details: %w", err)
+	}
 
-	return CreateResult{}, nil
+	return Observation{
+		ResourceExists: true,
+		// TODO: extend the logic with more checks if needed
+		ResourceUpToDate: IsReadyToUse(user),
+		SecretDetails:    secretDetails,
+	}, nil
 }
 
-// Update implements AivenClient for ClickhouseUser.
-func (r *ClickhouseUserControllerV2) Update(ctx context.Context, user *v1alpha1.ClickhouseUser) (UpdateResult, error) {
-	logr.FromContextOrDiscard(ctx).Info("checking if instance is ready")
-
-	s, err := r.avnGen.ServiceGet(ctx, user.Spec.Project, user.Spec.ServiceName, service.ServiceGetIncludeSecrets(true))
+func (r *ClickhouseUserControllerV2) Create(ctx context.Context, user *v1alpha1.ClickhouseUser) (CreateResult, error) {
+	password, err := GetPasswordFromSecret(ctx, r.Client, user)
 	if err != nil {
-		return UpdateResult{}, err
+		return CreateResult{}, fmt.Errorf("determining desired password: %w", err)
 	}
 
-	// User can set password in the secret
-	secretPassword, err := GetPasswordFromSecret(ctx, r.Client, user)
+	req := clickhouse.ServiceClickHouseUserCreateIn{
+		Name: user.GetUsername(),
+	}
+	if password != "" {
+		req.Password = &password
+	}
+
+	resp, err := r.avnGen.ServiceClickHouseUserCreate(ctx, user.Spec.Project, user.Spec.ServiceName, &req)
 	if err != nil {
-		return UpdateResult{}, fmt.Errorf("failed to get password from secret: %w", err)
+		return CreateResult{}, fmt.Errorf("creating Clickhouse user: %w", err)
+	}
+	user.Status.UUID = resp.Uuid
+
+	if password == "" {
+		if resp.Password != nil && *resp.Password != "" {
+			password = *resp.Password
+		} else {
+			resetReq := clickhouse.ServiceClickHousePasswordResetIn{}
+			password, err = r.avnGen.ServiceClickHousePasswordReset(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID, &resetReq)
+			if err != nil {
+				return CreateResult{}, fmt.Errorf("resetting Clickhouse user password: %w", err)
+			}
+		}
 	}
 
-	// By design, this handler can't create secret in createOrUpdate method, while the password is returned on create only.
-	// The only way to have a secret here is to reset it manually
-	req := clickhouse.ServiceClickHousePasswordResetIn{}
-	if secretPassword != "" {
-		req.Password = &secretPassword
-	}
-
-	password, err := r.avnGen.ServiceClickHousePasswordReset(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID, &req)
-	if err != nil {
-		return UpdateResult{}, err
-	}
-
-	prefix := getSecretPrefix(user)
-	stringData := map[string]string{
-		prefix + "HOST":     s.ServiceUriParams["host"],
-		prefix + "PORT":     s.ServiceUriParams["port"],
-		prefix + "PASSWORD": password,
-		prefix + "USERNAME": user.GetUsername(),
-		// todo: remove in future releases
-		"HOST":     s.ServiceUriParams["host"],
-		"PORT":     s.ServiceUriParams["port"],
-		"PASSWORD": password,
-		"USERNAME": user.GetUsername(),
-	}
-
-	meta.SetStatusCondition(&user.Status.Conditions,
-		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
-			"Instance is running on Aiven side"))
+	meta.SetStatusCondition(&user.Status.Conditions, getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
 	metav1.SetMetaDataAnnotation(&user.ObjectMeta, instanceIsRunningAnnotation, "true")
 
-	result := UpdateResult{
-		SecretDetails: make(map[string][]byte, len(stringData)),
-	}
-	for k, v := range stringData {
-		result.SecretDetails[k] = []byte(v)
+	secretDetails, err := r.buildConnectionDetails(ctx, user, password)
+	if err != nil {
+		return CreateResult{}, fmt.Errorf("building connection details: %w", err)
 	}
 
-	return result, nil
+	return CreateResult{SecretDetails: secretDetails}, nil
 }
 
-// Delete implements AivenClient for ClickhouseUser.
-// It mirrors the current delete behaviour used in reconcile2.
+func (r *ClickhouseUserControllerV2) Update(ctx context.Context, user *v1alpha1.ClickhouseUser) (UpdateResult, error) {
+	desiredPassword, err := GetPasswordFromSecret(ctx, r.Client, user)
+	if err != nil {
+		return UpdateResult{}, fmt.Errorf("determining desired password: %w", err)
+	}
+
+	// External mode: when a ConnInfoSecretSource is configured, we actively enforce the password from that source via PasswordReset.
+	//
+	// Operator-managed mode (no ConnInfoSecretSource): we do not modify the ClickHouse password on updates.
+	// Instead, we keep publishing connection details without touching the password in the connection Secret.
+	password := ""
+	if desiredPassword != "" {
+		req := clickhouse.ServiceClickHousePasswordResetIn{
+			Password: &desiredPassword,
+		}
+
+		password, err = r.avnGen.ServiceClickHousePasswordReset(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID, &req)
+		if err != nil {
+			return UpdateResult{}, fmt.Errorf("resetting Clickhouse user password: %w", err)
+		}
+	}
+
+	meta.SetStatusCondition(&user.Status.Conditions, getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
+	metav1.SetMetaDataAnnotation(&user.ObjectMeta, instanceIsRunningAnnotation, "true")
+
+	secretDetails, err := r.buildConnectionDetails(ctx, user, password)
+	if err != nil {
+		return UpdateResult{}, fmt.Errorf("building connection details: %w", err)
+	}
+
+	return UpdateResult{SecretDetails: secretDetails}, nil
+}
+
 func (r *ClickhouseUserControllerV2) Delete(ctx context.Context, user *v1alpha1.ClickhouseUser) error {
-	// Not processed yet
 	if user.Status.UUID == "" {
 		return nil
 	}
 
-	// skip deletion for built-in users that cannot be deleted
 	if isBuiltInUser(user.Name) {
-		// built-in users like 'default' cannot be deleted, this is expected behavior
-		// we consider this a successful deletion since we can't and shouldn't delete built-in users
 		return nil
 	}
 
 	err := r.avnGen.ServiceClickHouseUserDelete(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID)
-	if !isNotFound(err) {
-		return err
+	if err != nil && !isNotFound(err) {
+		return fmt.Errorf("deleting Clickhouse user: %w", err)
 	}
 
 	return nil
+}
+
+func (r *ClickhouseUserControllerV2) buildConnectionDetails(ctx context.Context, user *v1alpha1.ClickhouseUser, password string) (SecretDetails, error) {
+	s, err := r.avnGen.ServiceGet(ctx, user.Spec.Project, user.Spec.ServiceName, service.ServiceGetIncludeSecrets(true))
+	if err != nil {
+		return nil, fmt.Errorf("getting service details: %w", err)
+	}
+
+	prefix := getSecretPrefix(user)
+
+	details := SecretDetails{
+		prefix + "HOST":     s.ServiceUriParams["host"],
+		prefix + "PORT":     s.ServiceUriParams["port"],
+		prefix + "USERNAME": user.GetUsername(),
+		// todo: remove in future releases
+		"HOST":     s.ServiceUriParams["host"],
+		"PORT":     s.ServiceUriParams["port"],
+		"USERNAME": user.GetUsername(),
+	}
+
+	if password != "" {
+		details[prefix+"PASSWORD"] = password
+		details["PASSWORD"] = password
+	}
+
+	return details, nil
 }
