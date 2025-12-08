@@ -310,8 +310,8 @@ spec:
                       type: object
                     cassandra_version:
                       description: |-
-                        Available versions: `4`, `4.1`. Newer versions may also be available.
-                        Cassandra version. Deprecated values: `4`
+                        Available versions: `4.1`. Newer versions may also be available.
+                        Cassandra version. Deprecated values: `4.1`
                       pattern: ^[0-9]+(\.[0-9]+)?$
                       type: string
                     ip_filter:
