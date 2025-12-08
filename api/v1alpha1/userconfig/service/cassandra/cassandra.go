@@ -71,8 +71,8 @@ type CassandraUserConfig struct {
 	Cassandra *Cassandra `groups:"create,update" json:"cassandra,omitempty"`
 
 	// +kubebuilder:validation:Pattern=`^[0-9]+(\.[0-9]+)?$`
-	// Available versions: `4`, `4.1`. Newer versions may also be available.
-	// Cassandra version. Deprecated values: `4`
+	// Available versions: `4.1`. Newer versions may also be available.
+	// Cassandra version. Deprecated values: `4.1`
 	CassandraVersion *string `groups:"create,update" json:"cassandra_version,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=8000
