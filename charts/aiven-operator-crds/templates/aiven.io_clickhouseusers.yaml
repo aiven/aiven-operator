@@ -32,7 +32,7 @@ spec:
         openAPIV3Schema:
           description: |-
             ClickhouseUser is the Schema for the clickhouseusers API.
-            Info "Exposes secret keys": `CLICKHOUSEUSER_HOST`, `CLICKHOUSEUSER_PORT`, `CLICKHOUSEUSER_USER`, `CLICKHOUSEUSER_PASSWORD`
+            Info "Exposes secret keys": `CLICKHOUSEUSER_HOST`, `CLICKHOUSEUSER_PORT`, `CLICKHOUSEUSER_USERNAME`, `CLICKHOUSEUSER_PASSWORD`
           properties:
             apiVersion:
               description: |-

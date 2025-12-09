@@ -50,7 +50,7 @@ type ClickhouseUserStatus struct {
 //+kubebuilder:subresource:status
 
 // ClickhouseUser is the Schema for the clickhouseusers API.
-// Info "Exposes secret keys": `CLICKHOUSEUSER_HOST`, `CLICKHOUSEUSER_PORT`, `CLICKHOUSEUSER_USER`, `CLICKHOUSEUSER_PASSWORD`
+// Info "Exposes secret keys": `CLICKHOUSEUSER_HOST`, `CLICKHOUSEUSER_PORT`, `CLICKHOUSEUSER_USERNAME`, `CLICKHOUSEUSER_PASSWORD`
 // +kubebuilder:printcolumn:name="Username",type="string",JSONPath=".spec.username"
 // +kubebuilder:printcolumn:name="Service Name",type="string",JSONPath=".spec.serviceName"
 // +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"

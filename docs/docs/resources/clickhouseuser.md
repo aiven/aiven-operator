@@ -137,7 +137,7 @@ The output is similar to the following:
 {
 	"CLICKHOUSEUSER_HOST": "<secret>",
 	"CLICKHOUSEUSER_PORT": "<secret>",
-	"CLICKHOUSEUSER_USER": "<secret>",
+	"CLICKHOUSEUSER_USERNAME": "<secret>",
 	"CLICKHOUSEUSER_PASSWORD": "<secret>",
 }
 ```
@@ -150,7 +150,7 @@ ClickhouseUser is the Schema for the clickhouseusers API.
 
 !!! Info "Exposes secret keys"
 
-    `CLICKHOUSEUSER_HOST`, `CLICKHOUSEUSER_PORT`, `CLICKHOUSEUSER_USER`, `CLICKHOUSEUSER_PASSWORD`.
+    `CLICKHOUSEUSER_HOST`, `CLICKHOUSEUSER_PORT`, `CLICKHOUSEUSER_USERNAME`, `CLICKHOUSEUSER_PASSWORD`.
 
 **Required**
 
