@@ -88,7 +88,6 @@ func (r *Reconciler[T]) Reconcile(ctx context.Context, req ctrl.Request) (res ct
 	if err != nil {
 		return r.handleObserveError(ctx, obj, err)
 	}
-	r.Recorder.Event(obj, corev1.EventTypeNormal, eventPreconditionsAreMet, "preconditions are met, proceeding to create or update")
 
 	if !obs.ResourceExists {
 		return r.createResource(ctx, controller, obj)

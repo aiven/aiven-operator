@@ -66,7 +66,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 
 		_, err := ctrl.Observe(t.Context(), user)
 
-		require.EqualError(t, err, "checking service operational status: preconditions are not met: [404 ]: service not found")
+		require.EqualError(t, err, "preconditions are not met: [404 ]: service not found")
 	})
 
 	t.Run("Sets ResourceExists and UUID when user exists", func(t *testing.T) {
@@ -336,7 +336,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 		require.NotContains(t, obs.SecretDetails, "PASSWORD")
 	})
 
-	t.Run("Returns error when determining desired password fails in external mode", func(t *testing.T) {
+	t.Run("Returns error when reading password from source secret fails in external mode", func(t *testing.T) {
 		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 		user.Spec.ConnInfoSecretSource = &v1alpha1.ConnInfoSecretSource{
 			Name:        "missing-src",
@@ -369,7 +369,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 
 		_, err := ctrl.Observe(t.Context(), user)
 
-		require.EqualError(t, err, `determining desired password: failed to read connInfoSecretSource default/missing-src: secrets "missing-src" not found`)
+		require.EqualError(t, err, `failed to read connInfoSecretSource default/missing-src: secrets "missing-src" not found`)
 	})
 }
 
@@ -548,7 +548,7 @@ func TestClickhouseUserControllerV2_Create(t *testing.T) {
 		require.Equal(t, resetPassword, res.SecretDetails["PASSWORD"])
 	})
 
-	t.Run("Returns error when determining desired password fails", func(t *testing.T) {
+	t.Run("Returns error when reading password from source secret fails in Create", func(t *testing.T) {
 		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 		user.Spec.ConnInfoSecretSource = &v1alpha1.ConnInfoSecretSource{
 			Name:        "missing-src",
@@ -566,7 +566,7 @@ func TestClickhouseUserControllerV2_Create(t *testing.T) {
 
 		_, err := ctrl.Create(t.Context(), user)
 
-		require.EqualError(t, err, `determining desired password: failed to read connInfoSecretSource default/missing-src: secrets "missing-src" not found`)
+		require.EqualError(t, err, `failed to read connInfoSecretSource default/missing-src: secrets "missing-src" not found`)
 	})
 
 	t.Run("Wraps error from ServiceClickHouseUserCreate", func(t *testing.T) {
@@ -752,7 +752,7 @@ func TestClickhouseUserControllerV2_Update(t *testing.T) {
 		require.NotContains(t, res.SecretDetails, "PASSWORD")
 	})
 
-	t.Run("Returns error when determining desired password fails", func(t *testing.T) {
+	t.Run("Returns error when reading password from source secret fails in Update", func(t *testing.T) {
 		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 		user.Status.UUID = "uuid-desired-fail"
 		user.Spec.ConnInfoSecretSource = &v1alpha1.ConnInfoSecretSource{
@@ -771,7 +771,7 @@ func TestClickhouseUserControllerV2_Update(t *testing.T) {
 
 		_, err := ctrl.Update(t.Context(), user)
 
-		require.EqualError(t, err, `determining desired password: failed to read connInfoSecretSource default/missing-src: secrets "missing-src" not found`)
+		require.EqualError(t, err, `failed to read connInfoSecretSource default/missing-src: secrets "missing-src" not found`)
 	})
 
 	t.Run("Wraps error from ServiceClickHousePasswordReset", func(t *testing.T) {

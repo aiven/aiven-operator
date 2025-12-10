@@ -46,7 +46,7 @@ func newClickhouseUserReconcilerV2(c Controller) reconcilerType {
 
 func (r *ClickhouseUserControllerV2) Observe(ctx context.Context, user *v1alpha1.ClickhouseUser) (Observation, error) {
 	if err := checkServiceIsOperational2(ctx, r.avnGen, user.Spec.Project, user.Spec.ServiceName); err != nil {
-		return Observation{}, fmt.Errorf("checking service operational status: %w", err)
+		return Observation{}, err
 	}
 
 	list, err := r.avnGen.ServiceClickHouseUserList(ctx, user.Spec.Project, user.Spec.ServiceName)
@@ -58,7 +58,7 @@ func (r *ClickhouseUserControllerV2) Observe(ctx context.Context, user *v1alpha1
 		return u.Name == user.GetUsername()
 	})
 	if idx < 0 {
-		return Observation{}, nil
+		return Observation{ResourceExists: false}, nil
 	}
 
 	u := list[idx]
@@ -70,7 +70,7 @@ func (r *ClickhouseUserControllerV2) Observe(ctx context.Context, user *v1alpha1
 		var err error
 		password, err = GetPasswordFromSecret(ctx, r.Client, user)
 		if err != nil {
-			return Observation{}, fmt.Errorf("determining desired password: %w", err)
+			return Observation{}, err
 		}
 	} else if u.Password != nil && *u.Password != "" {
 		// Operator-managed mode: when ConnInfoSecretSource is not set, we treat the password returned by Aiven API (if any)
@@ -95,14 +95,12 @@ func (r *ClickhouseUserControllerV2) Observe(ctx context.Context, user *v1alpha1
 func (r *ClickhouseUserControllerV2) Create(ctx context.Context, user *v1alpha1.ClickhouseUser) (CreateResult, error) {
 	password, err := GetPasswordFromSecret(ctx, r.Client, user)
 	if err != nil {
-		return CreateResult{}, fmt.Errorf("determining desired password: %w", err)
+		return CreateResult{}, err
 	}
 
 	req := clickhouse.ServiceClickHouseUserCreateIn{
-		Name: user.GetUsername(),
-	}
-	if password != "" {
-		req.Password = &password
+		Name:     user.GetUsername(),
+		Password: NilIfZero(password),
 	}
 
 	resp, err := r.avnGen.ServiceClickHouseUserCreate(ctx, user.Spec.Project, user.Spec.ServiceName, &req)
@@ -137,7 +135,7 @@ func (r *ClickhouseUserControllerV2) Create(ctx context.Context, user *v1alpha1.
 func (r *ClickhouseUserControllerV2) Update(ctx context.Context, user *v1alpha1.ClickhouseUser) (UpdateResult, error) {
 	desiredPassword, err := GetPasswordFromSecret(ctx, r.Client, user)
 	if err != nil {
-		return UpdateResult{}, fmt.Errorf("determining desired password: %w", err)
+		return UpdateResult{}, err
 	}
 
 	// External mode: when a ConnInfoSecretSource is configured, we actively enforce the password from that source via PasswordReset.

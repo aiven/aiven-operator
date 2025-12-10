@@ -597,7 +597,6 @@ func TestReconciler_Reconcile(t *testing.T) {
 		require.Equal(t, ctrl.Result{RequeueAfter: pollInterval}, res)
 		require.Equal(t, []string{
 			"Normal InstanceFinalizerAdded instance finalizer added",
-			"Normal PreconditionsAreMet preconditions are met, proceeding to create or update",
 			"Normal CreateOrUpdatedAtAiven about to create instance at aiven",
 			"Normal CreatedOrUpdatedAtAiven instance was created at aiven but may not be running yet",
 		}, recorderEvents(recorder))
@@ -656,7 +655,6 @@ func TestReconciler_Reconcile(t *testing.T) {
 		require.Equal(t, ctrl.Result{RequeueAfter: pollInterval}, res)
 		require.Equal(t, []string{
 			"Normal InstanceFinalizerAdded instance finalizer added",
-			"Normal PreconditionsAreMet preconditions are met, proceeding to create or update",
 			"Normal WaitingForInstanceToBeRunning waiting for the instance to be running",
 		}, recorderEvents(recorder))
 	})
