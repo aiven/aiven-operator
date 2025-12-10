@@ -45,7 +45,8 @@ func newClickhouseUserReconcilerV2(c Controller) reconcilerType {
 }
 
 func (r *ClickhouseUserControllerV2) Observe(ctx context.Context, user *v1alpha1.ClickhouseUser) (Observation, error) {
-	if err := checkServiceIsOperational2(ctx, r.avnGen, user.Spec.Project, user.Spec.ServiceName); err != nil {
+	svc, err := getServiceIfOperational(ctx, r.avnGen, user.Spec.Project, user.Spec.ServiceName)
+	if err != nil {
 		return Observation{}, err
 	}
 
@@ -79,10 +80,7 @@ func (r *ClickhouseUserControllerV2) Observe(ctx context.Context, user *v1alpha1
 		password = *u.Password
 	}
 
-	secretDetails, err := r.buildConnectionDetails(ctx, user, password)
-	if err != nil {
-		return Observation{}, fmt.Errorf("building connection details: %w", err)
-	}
+	secretDetails := buildConnectionDetailsFromService(svc, user, password)
 
 	return Observation{
 		ResourceExists: true,
@@ -188,6 +186,11 @@ func (r *ClickhouseUserControllerV2) buildConnectionDetails(ctx context.Context,
 		return nil, fmt.Errorf("getting service details: %w", err)
 	}
 
+	details := buildConnectionDetailsFromService(s, user, password)
+	return details, nil
+}
+
+func buildConnectionDetailsFromService(s *service.ServiceGetOut, user *v1alpha1.ClickhouseUser, password string) SecretDetails {
 	prefix := getSecretPrefix(user)
 
 	details := SecretDetails{
@@ -205,5 +208,5 @@ func (r *ClickhouseUserControllerV2) buildConnectionDetails(ctx context.Context,
 		details["PASSWORD"] = password
 	}
 
-	return details, nil
+	return details
 }

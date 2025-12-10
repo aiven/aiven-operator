@@ -56,7 +56,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
 			Return(nil, newAivenError(404, "service not found")).
 			Once()
 
@@ -74,16 +74,15 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
-			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:            service.ServiceStateTypeRunning,
+				ServiceUriParams: map[string]string{"host": "host", "port": "9000"},
+			}, nil).
 			Once()
 		avn.EXPECT().
 			ServiceClickHouseUserList(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
 			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-1"}}, nil).
-			Once()
-		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
-			Return(&service.ServiceGetOut{ServiceUriParams: map[string]string{"host": "host", "port": "9000"}}, nil).
 			Once()
 
 		ctrl := &ClickhouseUserControllerV2{
@@ -109,16 +108,15 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
-			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:            service.ServiceStateTypeRunning,
+				ServiceUriParams: map[string]string{"host": "host", "port": "9440"},
+			}, nil).
 			Once()
 		avn.EXPECT().
 			ServiceClickHouseUserList(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
 			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-1"}}, nil).
-			Once()
-		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
-			Return(&service.ServiceGetOut{ServiceUriParams: map[string]string{"host": "host", "port": "9440"}}, nil).
 			Once()
 
 		ctrl := &ClickhouseUserControllerV2{
@@ -137,7 +135,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
 			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).
 			Once()
 		avn.EXPECT().
@@ -159,7 +157,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
 			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).
 			Once()
 		avn.EXPECT().
@@ -177,18 +175,10 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 		require.Equal(t, Observation{}, obs)
 	})
 
-	t.Run("Wraps error from buildConnectionDetails in Observe", func(t *testing.T) {
+	t.Run("Returns error when getting service details fails in Observe", func(t *testing.T) {
 		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 
 		avn := avngen.NewMockClient(t)
-		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
-			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).
-			Once()
-		avn.EXPECT().
-			ServiceClickHouseUserList(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
-			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-build-err"}}, nil).
-			Once()
 		avn.EXPECT().
 			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
 			Return(nil, assert.AnError).
@@ -200,7 +190,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 
 		_, err := ctrl.Observe(t.Context(), user)
 
-		require.EqualError(t, err, "building connection details: getting service details: "+assert.AnError.Error())
+		require.EqualError(t, err, assert.AnError.Error())
 	})
 
 	t.Run("Populates SecretDetails in external mode using ConnInfoSecretSource", func(t *testing.T) {
@@ -231,16 +221,15 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
-			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:            service.ServiceStateTypeRunning,
+				ServiceUriParams: map[string]string{"host": "host", "port": "8443"},
+			}, nil).
 			Once()
 		avn.EXPECT().
 			ServiceClickHouseUserList(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
 			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-ext"}}, nil).
-			Once()
-		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
-			Return(&service.ServiceGetOut{ServiceUriParams: map[string]string{"host": "host", "port": "8443"}}, nil).
 			Once()
 
 		ctrl := &ClickhouseUserControllerV2{
@@ -272,16 +261,15 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
-			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:            service.ServiceStateTypeRunning,
+				ServiceUriParams: map[string]string{"host": "host", "port": "9440"},
+			}, nil).
 			Once()
 		avn.EXPECT().
 			ServiceClickHouseUserList(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
 			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-api", Password: &apiPassword}}, nil).
-			Once()
-		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
-			Return(&service.ServiceGetOut{ServiceUriParams: map[string]string{"host": "host", "port": "9440"}}, nil).
 			Once()
 
 		ctrl := &ClickhouseUserControllerV2{
@@ -311,16 +299,15 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
-			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:            service.ServiceStateTypeRunning,
+				ServiceUriParams: map[string]string{"host": "host", "port": "9440"},
+			}, nil).
 			Once()
 		avn.EXPECT().
 			ServiceClickHouseUserList(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
 			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-nopw"}}, nil).
-			Once()
-		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
-			Return(&service.ServiceGetOut{ServiceUriParams: map[string]string{"host": "host", "port": "9440"}}, nil).
 			Once()
 
 		ctrl := &ClickhouseUserControllerV2{
@@ -354,7 +341,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
 			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).
 			Once()
 		avn.EXPECT().

@@ -101,21 +101,20 @@ func checkServiceIsOperational(ctx context.Context, avnGen avngen.Client, projec
 	return false, nil
 }
 
-// checkServiceIsOperational checks if a service is in operational state, i.e., can create databases, users, etc.
-// Returns errServicePoweredOff if the service is powered off.
-func checkServiceIsOperational2(ctx context.Context, avnGen avngen.Client, project, serviceName string) error {
-	s, err := avnGen.ServiceGet(ctx, project, serviceName)
+// getServiceIfOperational returns service details when the service is operational.
+func getServiceIfOperational(ctx context.Context, avnGen avngen.Client, project, serviceName string) (*service.ServiceGetOut, error) {
+	s, err := avnGen.ServiceGet(ctx, project, serviceName, service.ServiceGetIncludeSecrets(true))
 	if isNotFound(err) {
 		// Service not found indicates it hasn't started running.
 		// We ignore not found errors since they could mean either:
 		// 1. The service doesn't exist yet
 		// 2. The project doesn't exist yet (may be created by operator)
-		return fmt.Errorf("%w: %w", errPreconditionNotMet, err)
+		return nil, fmt.Errorf("%w: %w", errPreconditionNotMet, err)
 	}
 
 	if err != nil {
 		// Preserve original error semantics (including 5xx) so that handleObserveError can classify retryable Aiven errors.
-		return err
+		return nil, err
 	}
 
 	switch s.State {
@@ -123,15 +122,15 @@ func checkServiceIsOperational2(ctx context.Context, avnGen avngen.Client, proje
 		// Running means the service is fully operational.
 		// Rebalancing doesn't block most of the operations.
 		// But depending on the service type and the operation, additional checks may be needed.
-		return nil
+		return s, nil
 	case service.ServiceStateTypePoweroff:
 		// If the service is powered off, returns an error,
 		// so that Kube won't infinitely retry the Aiven API.
-		return fmt.Errorf("%w: %s/%s", errServicePoweredOff, project, serviceName)
+		return nil, fmt.Errorf("%w: %s/%s", errServicePoweredOff, project, serviceName)
 	}
 
 	// Must be an intermediate state, e.g. rebuilding, etc.
-	return fmt.Errorf("%w: service %s/%s is not yet operational", errPreconditionNotMet, project, serviceName)
+	return nil, fmt.Errorf("%w: service %s/%s is not yet operational", errPreconditionNotMet, project, serviceName)
 }
 
 func getInitializedCondition(reason, message string) metav1.Condition {
