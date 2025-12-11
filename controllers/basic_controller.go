@@ -101,6 +101,7 @@ const (
 	eventInstanceIsRunning                  = "InstanceIsRunning"
 	eventUnableToSyncConnectionSecret       = "UnableToSyncConnectionSecret"
 	eventConnInfoSecretCreationDisabled     = "ConnInfoSecretCreationDisabled"
+	eventCannotPublishConnectionDetails     = "CannotPublishConnectionDetails"
 )
 
 // +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;list;create;update
