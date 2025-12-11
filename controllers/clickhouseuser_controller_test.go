@@ -19,7 +19,7 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func Test_newClickhouseUserReconcilerV2(t *testing.T) {
+func Test_newClickhouseUserReconciler(t *testing.T) {
 	t.Parallel()
 
 	scheme := runtime.NewScheme()
@@ -34,7 +34,7 @@ func Test_newClickhouseUserReconcilerV2(t *testing.T) {
 		Client: k8sClient,
 	}
 
-	r := newClickhouseUserReconcilerV2(controller)
+	r := newClickhouseUserReconciler(controller)
 
 	rec, ok := r.(*Reconciler[*v1alpha1.ClickhouseUser])
 	require.True(t, ok)
@@ -43,12 +43,12 @@ func Test_newClickhouseUserReconcilerV2(t *testing.T) {
 	require.IsType(t, &v1alpha1.ClickhouseUser{}, obj)
 
 	ctrl := rec.newController(nil)
-	userCtrl, ok := ctrl.(*ClickhouseUserControllerV2)
+	userCtrl, ok := ctrl.(*ClickhouseUserController)
 	require.True(t, ok)
 	require.Equal(t, k8sClient, userCtrl.Client)
 }
 
-func TestClickhouseUserControllerV2_Observe(t *testing.T) {
+func TestClickhouseUserController_Observe(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Returns error when service is not operational", func(t *testing.T) {
@@ -60,7 +60,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 			Return(nil, newAivenError(404, "service not found")).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			avnGen: avn,
 		}
 
@@ -85,7 +85,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-1"}}, nil).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			Client: nil,
 			avnGen: avn,
 		}
@@ -119,7 +119,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-1"}}, nil).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			avnGen: avn,
 		}
 
@@ -143,7 +143,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 			Return(nil, assert.AnError).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			avnGen: avn,
 		}
 
@@ -165,7 +165,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 			Return([]clickhouse.UserOut{{Name: "other-user", Uuid: "uuid-other"}}, nil).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			avnGen: avn,
 		}
 
@@ -184,7 +184,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 			Return(nil, assert.AnError).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			avnGen: avn,
 		}
 
@@ -232,7 +232,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-ext"}}, nil).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			Client: k8sClient,
 			avnGen: avn,
 		}
@@ -272,7 +272,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-api", Password: &apiPassword}}, nil).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			Client: k8sClient,
 			avnGen: avn,
 		}
@@ -310,7 +310,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-nopw"}}, nil).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			Client: k8sClient,
 			avnGen: avn,
 		}
@@ -349,7 +349,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-err"}}, nil).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			Client: k8sClient,
 			avnGen: avn,
 		}
@@ -360,7 +360,7 @@ func TestClickhouseUserControllerV2_Observe(t *testing.T) {
 	})
 }
 
-func TestClickhouseUserControllerV2_Create(t *testing.T) {
+func TestClickhouseUserController_Create(t *testing.T) {
 	t.Parallel()
 
 	scheme := runtime.NewScheme()
@@ -409,7 +409,7 @@ func TestClickhouseUserControllerV2_Create(t *testing.T) {
 			}, nil).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			Client: k8sClient,
 			avnGen: avn,
 		}
@@ -455,7 +455,7 @@ func TestClickhouseUserControllerV2_Create(t *testing.T) {
 			Return(&service.ServiceGetOut{ServiceUriParams: map[string]string{"host": "host", "port": "9000"}}, nil).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			Client: k8sClient,
 			avnGen: avn,
 		}
@@ -489,7 +489,7 @@ func TestClickhouseUserControllerV2_Create(t *testing.T) {
 			Return(&service.ServiceGetOut{ServiceUriParams: map[string]string{"host": "host", "port": "9440"}}, nil).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			Client: k8sClient,
 			avnGen: avn,
 		}
@@ -529,7 +529,7 @@ func TestClickhouseUserControllerV2_Create(t *testing.T) {
 			Return(&service.ServiceGetOut{ServiceUriParams: map[string]string{"host": "host", "port": "9440"}}, nil).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			Client: k8sClient,
 			avnGen: avn,
 		}
@@ -553,7 +553,7 @@ func TestClickhouseUserControllerV2_Create(t *testing.T) {
 			WithObjects(user).
 			Build()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			Client: k8sClient,
 		}
 
@@ -577,7 +577,7 @@ func TestClickhouseUserControllerV2_Create(t *testing.T) {
 			Return(nil, assert.AnError).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			Client: k8sClient,
 			avnGen: avn,
 		}
@@ -608,7 +608,7 @@ func TestClickhouseUserControllerV2_Create(t *testing.T) {
 			Return("", assert.AnError).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			Client: k8sClient,
 			avnGen: avn,
 		}
@@ -640,7 +640,7 @@ func TestClickhouseUserControllerV2_Create(t *testing.T) {
 			Return(nil, assert.AnError).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			Client: k8sClient,
 			avnGen: avn,
 		}
@@ -651,7 +651,7 @@ func TestClickhouseUserControllerV2_Create(t *testing.T) {
 	})
 }
 
-func TestClickhouseUserControllerV2_Update(t *testing.T) {
+func TestClickhouseUserController_Update(t *testing.T) {
 	t.Parallel()
 
 	scheme := runtime.NewScheme()
@@ -696,7 +696,7 @@ func TestClickhouseUserControllerV2_Update(t *testing.T) {
 			}, nil).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			Client: k8sClient,
 			avnGen: avn,
 		}
@@ -734,7 +734,7 @@ func TestClickhouseUserControllerV2_Update(t *testing.T) {
 			Return(&service.ServiceGetOut{ServiceUriParams: map[string]string{"host": "host", "port": "9440"}}, nil).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			Client: k8sClient,
 			avnGen: avn,
 		}
@@ -758,7 +758,7 @@ func TestClickhouseUserControllerV2_Update(t *testing.T) {
 			WithObjects(user).
 			Build()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			Client: k8sClient,
 		}
 
@@ -799,7 +799,7 @@ func TestClickhouseUserControllerV2_Update(t *testing.T) {
 			Return("", assert.AnError).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			Client: k8sClient,
 			avnGen: avn,
 		}
@@ -824,7 +824,7 @@ func TestClickhouseUserControllerV2_Update(t *testing.T) {
 			Return(nil, assert.AnError).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			Client: k8sClient,
 			avnGen: avn,
 		}
@@ -835,13 +835,13 @@ func TestClickhouseUserControllerV2_Update(t *testing.T) {
 	})
 }
 
-func TestClickhouseUserControllerV2_Delete(t *testing.T) {
+func TestClickhouseUserController_Delete(t *testing.T) {
 	t.Parallel()
 
 	t.Run("No-op when UUID is empty", func(t *testing.T) {
 		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 
-		ctrl := &ClickhouseUserControllerV2{}
+		ctrl := &ClickhouseUserController{}
 
 		err := ctrl.Delete(t.Context(), user)
 
@@ -853,7 +853,7 @@ func TestClickhouseUserControllerV2_Delete(t *testing.T) {
 		user.Status.UUID = "uuid-1"
 		user.Name = defaultBuiltInUser
 
-		ctrl := &ClickhouseUserControllerV2{}
+		ctrl := &ClickhouseUserController{}
 
 		err := ctrl.Delete(t.Context(), user)
 
@@ -870,7 +870,7 @@ func TestClickhouseUserControllerV2_Delete(t *testing.T) {
 			Return(newAivenError(404, "not found")).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			avnGen: avn,
 		}
 
@@ -889,7 +889,7 @@ func TestClickhouseUserControllerV2_Delete(t *testing.T) {
 			Return(assert.AnError).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			avnGen: avn,
 		}
 
@@ -908,7 +908,7 @@ func TestClickhouseUserControllerV2_Delete(t *testing.T) {
 			Return(nil).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			avnGen: avn,
 		}
 
@@ -917,7 +917,7 @@ func TestClickhouseUserControllerV2_Delete(t *testing.T) {
 	})
 }
 
-func TestClickhouseUserControllerV2_buildConnectionDetails(t *testing.T) {
+func TestClickhouseUserController_buildConnectionDetails(t *testing.T) {
 	t.Parallel()
 
 	user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
@@ -929,7 +929,7 @@ func TestClickhouseUserControllerV2_buildConnectionDetails(t *testing.T) {
 			Return(&service.ServiceGetOut{ServiceUriParams: map[string]string{"host": "host", "port": "8443"}}, nil).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			avnGen: avn,
 		}
 
@@ -952,7 +952,7 @@ func TestClickhouseUserControllerV2_buildConnectionDetails(t *testing.T) {
 			Return(&service.ServiceGetOut{ServiceUriParams: map[string]string{"host": "host", "port": "8443"}}, nil).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			avnGen: avn,
 		}
 
@@ -975,7 +975,7 @@ func TestClickhouseUserControllerV2_buildConnectionDetails(t *testing.T) {
 			Return(nil, assert.AnError).
 			Once()
 
-		ctrl := &ClickhouseUserControllerV2{
+		ctrl := &ClickhouseUserController{
 			avnGen: avn,
 		}
 
