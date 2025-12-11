@@ -15,9 +15,9 @@ The controller reads the password from `spec.connInfoSecretSource`:
 - `passwordKey` - key in `data` with the password
 - `namespace` - optional; defaults to the ClickhouseUser namespace
 
-On create the password from the source Secret is sent to Aiven when creating the ClickHouse user, and the same password is written into the connection Secret configured by `spec.connInfoSecretTarget`.
+On create the password from the source Secret is sent to Aiven when creating the ClickHouse user, and the same password is written into the connection Secret configured by `spec.connInfoSecretTarget`. If the create call doesn't return a password (the field is optional in the API), the controller issues a password reset with the password from the source Secret and uses the returned value when publishing the connection Secret.
 
-On update the password from the source Secret is enforced via a password reset call to Aiven, and the connection Secret is refreshed to match.
+On update the password from the source Secret is always enforced via a password reset call to Aiven, and the connection Secret is refreshed to match.
 
 If the source Secret is missing, the key is missing, or the password length is invalid (must be 8-256 characters), reconciliation fails with a configuration error and the remote ClickHouse user is left unchanged until the configuration is fixed.
 
@@ -29,9 +29,7 @@ In operator-managed mode, the password is managed by Aiven and the connection Se
 
 On create the controller creates the ClickHouse user without an explicit password, then captures the password from the Aiven API (either directly from the create response or by making a one-time password reset) and writes it into the connection Secret.
 
-On later reconciles the controller keeps publishing connection details (host, port, username) to the connection Secret but never uses the connection Secret as input when deciding which password to use. The source of truth for the password remains Aiven.
-
-If the Aiven API no longer exposes the password (for example, if it was changed directly in ClickHouse), the controller stops touching password keys in the Secret instead of trying to guess or rotate the password.
+On later reconciles the controller keeps publishing connection details (host, port, username) to the connection Secret but never uses the connection Secret as input when deciding which password to use. The source of truth for the password remains Aiven. If the API doesn't return a password on observe, the controller leaves password keys in the Secret untouched and doesn't attempt to rotate the password.
 
 You switch between modes by setting or clearing `connInfoSecretSource` on the ClickhouseUser resource.
 
