@@ -96,26 +96,27 @@ func (r *ClickhouseUserControllerV2) Create(ctx context.Context, user *v1alpha1.
 		return CreateResult{}, err
 	}
 
-	req := clickhouse.ServiceClickHouseUserCreateIn{
+	resp, err := r.avnGen.ServiceClickHouseUserCreate(ctx, user.Spec.Project, user.Spec.ServiceName, &clickhouse.ServiceClickHouseUserCreateIn{
 		Name:     user.GetUsername(),
 		Password: NilIfZero(password),
-	}
-
-	resp, err := r.avnGen.ServiceClickHouseUserCreate(ctx, user.Spec.Project, user.Spec.ServiceName, &req)
+	})
 	if err != nil {
 		return CreateResult{}, fmt.Errorf("creating Clickhouse user: %w", err)
 	}
 	user.Status.UUID = resp.Uuid
 
-	if password == "" {
-		if resp.Password != nil && *resp.Password != "" {
-			password = *resp.Password
-		} else {
-			resetReq := clickhouse.ServiceClickHousePasswordResetIn{}
-			password, err = r.avnGen.ServiceClickHousePasswordReset(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID, &resetReq)
-			if err != nil {
-				return CreateResult{}, fmt.Errorf("resetting Clickhouse user password: %w", err)
-			}
+	if resp.Password != nil && *resp.Password != "" {
+		// We assume that Aiven API returns the same password that was specified.
+		// For operator-managed mode (no ConnInfoSecretSource), we take the password from the response to populate the connection secret.
+		// For external mode (with ConnInfoSecretSource), this is redundant but harmless.
+		password = *resp.Password
+	} else {
+		// Fallback for the Aiven API contract where Password is optional in the Create response.
+		// Let's explicitly reset the password to the desired value to ensure we have it.
+		// We assume that Aiven API returns the same password that was specified.
+		password, err = r.avnGen.ServiceClickHousePasswordReset(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID, &clickhouse.ServiceClickHousePasswordResetIn{Password: NilIfZero(password)})
+		if err != nil {
+			return CreateResult{}, fmt.Errorf("resetting Clickhouse user password: %w", err)
 		}
 	}
 
@@ -131,25 +132,21 @@ func (r *ClickhouseUserControllerV2) Create(ctx context.Context, user *v1alpha1.
 }
 
 func (r *ClickhouseUserControllerV2) Update(ctx context.Context, user *v1alpha1.ClickhouseUser) (UpdateResult, error) {
-	desiredPassword, err := GetPasswordFromSecret(ctx, r.Client, user)
+	password, err := GetPasswordFromSecret(ctx, r.Client, user)
 	if err != nil {
 		return UpdateResult{}, err
 	}
 
-	// External mode: when a ConnInfoSecretSource is configured, we actively enforce the password from that source via PasswordReset.
-	//
-	// Operator-managed mode (no ConnInfoSecretSource): we do not modify the ClickHouse password on updates.
-	// Instead, we keep publishing connection details without touching the password in the connection Secret.
-	password := ""
-	if desiredPassword != "" {
-		req := clickhouse.ServiceClickHousePasswordResetIn{
-			Password: &desiredPassword,
-		}
-
-		password, err = r.avnGen.ServiceClickHousePasswordReset(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID, &req)
+	if password != "" {
+		// External mode: when a ConnInfoSecretSource is configured, we actively enforce the password from that source via PasswordReset.
+		// We rely on the Aiven API behavior that PasswordReset echoes the provided password back in the response.
+		password, err = r.avnGen.ServiceClickHousePasswordReset(ctx, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID, &clickhouse.ServiceClickHousePasswordResetIn{Password: &password})
 		if err != nil {
 			return UpdateResult{}, fmt.Errorf("resetting Clickhouse user password: %w", err)
 		}
+		// Operator-managed mode (no ConnInfoSecretSource): password remains empty.
+		// We do not modify the ClickHouse password on updates and we omit password keys from SecretDetails,
+		// so existing password entries in the connection Secret stay untouched.
 	}
 
 	meta.SetStatusCondition(&user.Status.Conditions, getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))

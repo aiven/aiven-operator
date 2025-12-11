@@ -397,6 +397,12 @@ func TestClickhouseUserControllerV2_Create(t *testing.T) {
 			Return(&clickhouse.ServiceClickHouseUserCreateOut{Uuid: "uuid-1"}, nil).
 			Once()
 		avn.EXPECT().
+			ServiceClickHousePasswordReset(mock.Anything, user.Spec.Project, user.Spec.ServiceName, "uuid-1", mock.MatchedBy(func(in *clickhouse.ServiceClickHousePasswordResetIn) bool {
+				return in.Password != nil && *in.Password == "external-secret-password"
+			})).
+			Return("external-secret-password", nil).
+			Once()
+		avn.EXPECT().
 			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
 			Return(&service.ServiceGetOut{
 				ServiceUriParams: map[string]string{"host": "host", "port": "5432"},
