@@ -15,6 +15,12 @@
   SASL OAUTHBEARER authentication
 - Add `PostgreSQL` field `userConfig.enable_ha_replica_dns`, type `boolean`: Creates a dedicated read-only
   DNS that automatically falls back to the primary if standby nodes are unavailable
+- Add `OpenSearch` field `userConfig.opensearch.ml_commons_model_access_control_enabled`, type `boolean`:
+  Enable or disable model access control for ML Commons
+- Add `OpenSearch` field `userConfig.opensearch.ml_commons_native_memory_threshold`, type `integer`:
+  Native memory threshold percentage for ML Commons
+- Add `OpenSearch` field `userConfig.opensearch.ml_commons_only_run_on_ml_node`, type `boolean`: Enable
+  or disable running ML Commons tasks only on ML nodes
 
 ## v0.34.0 - 2025-10-21
 
