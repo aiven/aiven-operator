@@ -812,6 +812,17 @@ type Opensearch struct {
 	// Maximum amount of memory in percentage that can be used for the KNN index. Defaults to 50% of the JVM heap size. 0 is used to set it to null which can be used to invalidate caches.
 	KnnMemoryCircuitBreakerLimit *int `groups:"create,update" json:"knn_memory_circuit_breaker_limit,omitempty"`
 
+	// Enable or disable model access control for ML Commons. When enabled, access to ML models is controlled by security permissions. Defaults to false.
+	MlCommonsModelAccessControlEnabled *bool `groups:"create,update" json:"ml_commons_model_access_control_enabled,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=100
+	// Native memory threshold percentage for ML Commons. Controls the maximum percentage of native memory that can be used by ML Commons operations. Defaults to 90%.
+	MlCommonsNativeMemoryThreshold *int `groups:"create,update" json:"ml_commons_native_memory_threshold,omitempty"`
+
+	// Enable or disable running ML Commons tasks only on ML nodes. When enabled, ML tasks will only execute on nodes designated as ML nodes. Defaults to true.
+	MlCommonsOnlyRunOnMlNode *bool `groups:"create,update" json:"ml_commons_only_run_on_ml_node,omitempty"`
+
 	// +kubebuilder:validation:Pattern=`\d+(?:b|kb|mb|gb|tb)`
 	// Defines a limit of how much total remote data can be referenced as a ratio of the size of the disk reserved for the file cache. This is designed to be a safeguard to prevent oversubscribing a cluster. Defaults to 5gb. Requires restarting all OpenSearch nodes.
 	NodeSearchCacheSize *string `groups:"create,update" json:"node.search.cache.size,omitempty"`
