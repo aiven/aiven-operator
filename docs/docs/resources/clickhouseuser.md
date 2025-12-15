@@ -27,29 +27,6 @@ title: "ClickhouseUser"
     ---
     
     apiVersion: aiven.io/v1alpha1
-    kind: Clickhouse
-    metadata:
-      name: my-clickhouse
-    spec:
-      authSecretRef:
-        name: aiven-token
-        key: token
-    
-      project: aiven-project-name
-      cloudName: google-europe-west1
-      plan: startup-16
-    
-      connInfoSecretTarget:
-        name: clickhouse-connection
-        prefix: CH_
-        annotations:
-          example: clickhouse-service
-        labels:
-          service: clickhouse
-    
-    ---
-    
-    apiVersion: aiven.io/v1alpha1
     kind: ClickhouseUser
     metadata:
       name: my-clickhouse-user
