@@ -13,7 +13,9 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -860,6 +862,44 @@ func TestClickhouseUserController_Delete(t *testing.T) {
 		require.NoError(t, err)
 	})
 
+	t.Run("No-op when spec.username is built-in", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		user.Status.UUID = "uuid-spec-builtin"
+		user.Name = "custom-name"
+		user.Spec.Username = defaultBuiltInUser
+
+		avn := avngen.NewMockClient(t)
+
+		ctrl := &ClickhouseUserController{
+			avnGen: avn,
+		}
+
+		err := ctrl.Delete(t.Context(), user)
+
+		require.NoError(t, err)
+	})
+
+	t.Run("Deletes when metadata.name is built-in but spec.username is not", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		user.Status.UUID = "uuid-spec-custom"
+		user.Name = defaultBuiltInUser
+		user.Spec.Username = "custom-user"
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceClickHouseUserDelete(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Status.UUID).
+			Return(nil).
+			Once()
+
+		ctrl := &ClickhouseUserController{
+			avnGen: avn,
+		}
+
+		err := ctrl.Delete(t.Context(), user)
+
+		require.NoError(t, err)
+	})
+
 	t.Run("Treats not found as success", func(t *testing.T) {
 		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 		user.Status.UUID = "uuid-2"
@@ -982,5 +1022,181 @@ func TestClickhouseUserController_buildConnectionDetails(t *testing.T) {
 		_, err := ctrl.buildConnectionDetails(t.Context(), user, "pw")
 
 		require.EqualError(t, err, "getting service details: "+assert.AnError.Error())
+	})
+}
+
+func TestClickhouseUser_BackwardCompatibility(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Create uses metadata.name when spec.username is empty", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		user.Name = "metadata-name"
+		user.Spec.Username = ""
+
+		avn := avngen.NewMockClient(t)
+
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{ServiceUriParams: map[string]string{"host": "host", "port": "9440"}}, nil).
+			Once()
+		avn.EXPECT().
+			ServiceClickHouseUserCreate(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.MatchedBy(func(in *clickhouse.ServiceClickHouseUserCreateIn) bool {
+				return in.Name == user.Name && in.Password == nil
+			})).
+			Return(&clickhouse.ServiceClickHouseUserCreateOut{Uuid: "uuid-compat-create-metadata", Password: ptr("mypassword")}, nil).
+			Once()
+
+		ctrl := &ClickhouseUserController{
+			avnGen: avn,
+		}
+
+		res, err := ctrl.Create(t.Context(), user)
+		require.NoError(t, err)
+
+		prefix := getSecretPrefix(user)
+		require.Equal(t, user.Name, res.SecretDetails[prefix+"USERNAME"])
+		require.Equal(t, user.Name, res.SecretDetails["USERNAME"])
+	})
+
+	t.Run("Observe matches Aiven users by metadata.name when spec.username is empty", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		user.Name = "metadata-name"
+		user.Spec.Username = ""
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:            service.ServiceStateTypeRunning,
+				ServiceUriParams: map[string]string{"host": "host", "port": "9440"},
+			}, nil).
+			Once()
+		avn.EXPECT().
+			ServiceClickHouseUserList(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
+			Return([]clickhouse.UserOut{{Name: user.Name, Uuid: "uuid-compat-observe-metadata"}}, nil).
+			Once()
+
+		ctrl := &ClickhouseUserController{
+			avnGen: avn,
+		}
+
+		obs, err := ctrl.Observe(t.Context(), user)
+		require.NoError(t, err)
+		require.True(t, obs.ResourceExists)
+		require.Equal(t, "uuid-compat-observe-metadata", user.Status.UUID)
+
+		prefix := getSecretPrefix(user)
+		require.Equal(t, user.Name, obs.SecretDetails[prefix+"USERNAME"])
+		require.Equal(t, user.Name, obs.SecretDetails["USERNAME"])
+	})
+
+	t.Run("Create uses spec.username and publishes it to SecretDetails", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		user.Name = "metadata-name"
+		user.Spec.Username = "spec-username"
+
+		avn := avngen.NewMockClient(t)
+
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{ServiceUriParams: map[string]string{"host": "host", "port": "9440"}}, nil).
+			Once()
+		avn.EXPECT().
+			ServiceClickHouseUserCreate(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.MatchedBy(func(in *clickhouse.ServiceClickHouseUserCreateIn) bool {
+				return in.Name == user.Spec.Username && in.Password == nil
+			})).
+			Return(&clickhouse.ServiceClickHouseUserCreateOut{Uuid: "uuid-compat-create", Password: ptr("mypassword")}, nil).
+			Once()
+
+		ctrl := &ClickhouseUserController{
+			avnGen: avn,
+		}
+
+		res, err := ctrl.Create(t.Context(), user)
+		require.NoError(t, err)
+
+		prefix := getSecretPrefix(user)
+		require.Equal(t, user.Spec.Username, res.SecretDetails[prefix+"USERNAME"])
+		require.Equal(t, user.Spec.Username, res.SecretDetails["USERNAME"])
+	})
+
+	t.Run("Observe matches Aiven users by spec.username and publishes it to SecretDetails", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		user.Name = "metadata-name"
+		user.Spec.Username = "spec-username"
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:            service.ServiceStateTypeRunning,
+				ServiceUriParams: map[string]string{"host": "host", "port": "9440"},
+			}, nil).
+			Once()
+		avn.EXPECT().
+			ServiceClickHouseUserList(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
+			Return([]clickhouse.UserOut{{Name: user.Spec.Username, Uuid: "uuid-compat-observe"}}, nil).
+			Once()
+
+		ctrl := &ClickhouseUserController{
+			avnGen: avn,
+		}
+
+		obs, err := ctrl.Observe(t.Context(), user)
+		require.NoError(t, err)
+		require.True(t, obs.ResourceExists)
+		require.Equal(t, "uuid-compat-observe", user.Status.UUID)
+
+		prefix := getSecretPrefix(user)
+		require.Equal(t, user.Spec.Username, obs.SecretDetails[prefix+"USERNAME"])
+		require.Equal(t, user.Spec.Username, obs.SecretDetails["USERNAME"])
+	})
+
+	t.Run("publishSecretDetails preserves existing password keys when omitted from details", func(t *testing.T) {
+		scheme := runtime.NewScheme()
+		require.NoError(t, clientgoscheme.AddToScheme(scheme))
+		require.NoError(t, v1alpha1.AddToScheme(scheme))
+
+		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+
+		existingSecret := &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      user.Name,
+				Namespace: user.Namespace,
+			},
+			Data: map[string][]byte{
+				"PASSWORD":                []byte("old-password"),
+				"CLICKHOUSEUSER_PASSWORD": []byte("old-prefixed-password"),
+				"EXTRA":                   []byte("keep-me"),
+			},
+		}
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithObjects(user, existingSecret).
+			Build()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:   k8sClient,
+				Scheme:   scheme,
+				Recorder: record.NewFakeRecorder(10),
+			},
+			newSecret: newSecret,
+		}
+
+		details := buildConnectionDetailsFromService(
+			&service.ServiceGetOut{ServiceUriParams: map[string]string{"host": "host", "port": "9440"}},
+			user,
+			"",
+		)
+
+		require.NoError(t, r.publishSecretDetails(t.Context(), user, details))
+
+		updated := &corev1.Secret{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, updated))
+		require.Equal(t, []byte("old-password"), updated.Data["PASSWORD"])
+		require.Equal(t, []byte("old-prefixed-password"), updated.Data["CLICKHOUSEUSER_PASSWORD"])
+		require.Equal(t, []byte("keep-me"), updated.Data["EXTRA"])
 	})
 }
