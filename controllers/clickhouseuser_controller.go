@@ -165,7 +165,7 @@ func (r *ClickhouseUserController) Delete(ctx context.Context, user *v1alpha1.Cl
 		return nil
 	}
 
-	if isBuiltInUser(user.Name) {
+	if isBuiltInUser(user.GetUsername()) {
 		return nil
 	}
 
