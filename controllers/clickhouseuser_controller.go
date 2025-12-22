@@ -74,7 +74,8 @@ func (r *ClickhouseUserController) Observe(ctx context.Context, user *v1alpha1.C
 			return Observation{}, err
 		}
 	}
-	// Operator-managed mode: password is not available via user listing, so SecretDetails omit it and existing password keys stay untouched.
+	// Operator-managed mode: Aiven returns the password only in Create/PasswordReset responses.
+	// ServiceClickHouseUserList doesn't include it, so Observe omits password keys and preserves the existing Secret value.
 
 	secretDetails := buildConnectionDetailsFromService(svc, user, password)
 
