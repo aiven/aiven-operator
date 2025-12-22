@@ -14,6 +14,7 @@ import (
 	clickhouse2 "github.com/aiven/go-client-codegen/handler/clickhouse"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	"github.com/aiven/aiven-operator/controllers"
@@ -115,10 +116,11 @@ func TestClickhouseUser(t *testing.T) {
 	// GIVEN
 	// New manifest with 'username' field set
 	updatedUserName := randName("clickhouse-user")
+	updatedSecretName := randName("clickhouse-user-secret")
 	ymlUsernameSet, err := loadExampleYaml("clickhouseuser.yaml", map[string]string{
 		"metadata.name":                  "metadata-name",
 		"spec.project":                   cfg.Project,
-		"spec.connInfoSecretTarget.name": userName,
+		"spec.connInfoSecretTarget.name": updatedSecretName,
 		"spec.serviceName":               chName,
 		"spec.username":                  updatedUserName,
 	})
@@ -139,6 +141,182 @@ func TestClickhouseUser(t *testing.T) {
 	assert.NotEqual(t, updatedUserAvn.Name, updatedUser.ObjectMeta.Name)
 	assert.Equal(t, updatedUserName, updatedUser.Spec.Username)
 	assert.Equal(t, updatedUserAvn.Name, updatedUser.Spec.Username)
+}
+
+func TestClickhouseUserPreservesSecretPasswordOnUpdate(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	// GIVEN
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	ch, release, err := sharedResources.AcquireClickhouse(ctx)
+	require.NoError(t, err)
+	defer release()
+
+	chName := ch.GetName()
+	userName := randName("chu-secret-compat")
+	yml, err := loadExampleYaml("clickhouseuser.yaml", map[string]string{
+		"metadata.name":                  userName,
+		"spec.project":                   cfg.Project,
+		"spec.serviceName":               chName,
+		"spec.connInfoSecretTarget.name": userName,
+		// Remove 'username' from the initial yaml
+		"spec.username": "REMOVE",
+	})
+	require.NoError(t, err)
+	s := NewSession(ctx, k8sClient)
+	defer s.Destroy(t)
+
+	require.NoError(t, s.Apply(yml))
+
+	user := new(v1alpha1.ClickhouseUser)
+	require.NoError(t, s.GetRunning(user, userName))
+
+	secret, err := s.GetSecret(userName)
+	require.NoError(t, err)
+	require.NotEmpty(t, secret.Data["PASSWORD"])
+	require.NotEmpty(t, secret.Data["CLICKHOUSEUSER_PASSWORD"])
+
+	origPassword := append([]byte(nil), secret.Data["PASSWORD"]...)
+	origPasswordPrefixed := append([]byte(nil), secret.Data["CLICKHOUSEUSER_PASSWORD"]...)
+
+	require.NoError(t, pingClickhouse(
+		ctx,
+		secret.Data["CLICKHOUSEUSER_HOST"],
+		secret.Data["CLICKHOUSEUSER_PORT"],
+		secret.Data["CLICKHOUSEUSER_USERNAME"],
+		secret.Data["CLICKHOUSEUSER_PASSWORD"],
+	))
+
+	// Simulate a "legacy" secret that contains extra keys
+	secret.Data["EXTRA"] = []byte("keep-me")
+	require.NoError(t, k8sClient.Update(ctx, secret))
+
+	// WHEN
+	// Trigger Update in operator-managed mode, where the controller omits password keys from SecretDetails
+	ymlUpdated, err := loadExampleYaml("clickhouseuser.yaml", map[string]string{
+		"metadata.name":                             userName,
+		"spec.project":                              cfg.Project,
+		"spec.serviceName":                          chName,
+		"spec.connInfoSecretTarget.name":            userName,
+		"spec.connInfoSecretTarget.labels.baz":      "egg-updated",
+		"spec.connInfoSecretTarget.annotations.foo": "bar-updated",
+		// Keep operator-managed mode by leaving connInfoSecretSource unset, and keep username unset
+		"spec.username": "REMOVE",
+	})
+	require.NoError(t, err)
+
+	require.NoError(t, s.Apply(ymlUpdated))
+	require.NoError(t, s.GetRunning(user, userName))
+
+	// THEN
+	// Password keys should still be present and unchanged
+	updatedSecret, err := s.GetSecret(userName)
+	require.NoError(t, err)
+	require.Equal(t, origPassword, updatedSecret.Data["PASSWORD"])
+	require.Equal(t, origPasswordPrefixed, updatedSecret.Data["CLICKHOUSEUSER_PASSWORD"])
+	require.Equal(t, []byte("keep-me"), updatedSecret.Data["EXTRA"])
+
+	require.NoError(t, pingClickhouse(
+		ctx,
+		updatedSecret.Data["CLICKHOUSEUSER_HOST"],
+		updatedSecret.Data["CLICKHOUSEUSER_PORT"],
+		updatedSecret.Data["CLICKHOUSEUSER_USERNAME"],
+		updatedSecret.Data["CLICKHOUSEUSER_PASSWORD"],
+	))
+
+	require.NoError(t, s.Delete(user, func() error {
+		_, err = getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
+		return err
+	}))
+}
+
+// TestClickhouseUserDeletionPolicyOrphan verifies that ClickhouseUser with
+// deletion-policy Orphan keeps the Aiven user after the Kubernetes resource is deleted.
+func TestClickhouseUserDeletionPolicyOrphan(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	// GIVEN
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	ch, release, err := sharedResources.AcquireClickhouse(ctx)
+	require.NoError(t, err)
+	defer release()
+
+	chName := ch.GetName()
+	userName := randName("chu-orphan")
+	secretName := randName("chu-orphan-secret")
+
+	// Orphan deletion policy is set via annotation on the ClickhouseUser.
+	yml := fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseUser
+metadata:
+  name: %s
+  annotations:
+    controllers.aiven.io/deletion-policy: Orphan
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: %s
+
+  project: %s
+  serviceName: %s
+`, userName, secretName, cfg.Project, chName)
+
+	s := NewSession(ctx, k8sClient)
+	defer s.Destroy(t)
+
+	require.NoError(t, s.Apply(yml))
+
+	user := new(v1alpha1.ClickhouseUser)
+	require.NoError(t, s.GetRunning(user, userName))
+
+	userAvn, err := getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
+	require.NoError(t, err)
+	assert.Equal(t, userName, userAvn.Name)
+
+	secret, err := s.GetSecret(secretName)
+	require.NoError(t, err)
+	require.NotEmpty(t, secret.Data["HOST"])
+	require.NotEmpty(t, secret.Data["PORT"])
+	require.NotEmpty(t, secret.Data["USERNAME"])
+	require.NotEmpty(t, secret.Data["PASSWORD"])
+
+	host := append([]byte(nil), secret.Data["HOST"]...)
+	port := append([]byte(nil), secret.Data["PORT"]...)
+	username := append([]byte(nil), secret.Data["USERNAME"]...)
+	password := append([]byte(nil), secret.Data["PASSWORD"]...)
+
+	require.NoError(t, pingClickhouse(ctx, host, port, username, password))
+
+	// WHEN
+	// Delete the ClickhouseUser with deletion-policy Orphan.
+	require.NoError(t, s.Delete(user, func() error {
+		_, err := getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
+		return err
+	}))
+
+	// THEN
+	// The Kubernetes resource should be gone.
+	deleted := new(v1alpha1.ClickhouseUser)
+	err = k8sClient.Get(ctx, types.NamespacedName{Name: userName, Namespace: defaultNamespace}, deleted)
+	require.True(t, isNotFound(err))
+
+	// The Aiven user should still exist because of Orphan policy.
+	userAvnAfter, err := getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
+	require.NoError(t, err)
+	require.Equal(t, userAvn.Uuid, userAvnAfter.Uuid)
+
+	// And the saved credentials should still allow connecting to ClickHouse.
+	require.NoError(t, pingClickhouse(ctx, host, port, username, password))
 }
 
 func pingClickhouse[T string | []byte](ctx context.Context, host, port, username, password T) error {
@@ -356,16 +534,10 @@ func TestClickhouseUserCustomCredentials(t *testing.T) {
 		// tests the exact ClickhouseUser configuration from the example
 		userName := "my-clickhouse-user"
 
-		docExampleChName := randName("ch-doc-example")
-
 		yml, err := loadExampleYaml("clickhouseuser.custom_credentials.yaml", map[string]string{
-			"doc[1].metadata.name":  docExampleChName,
-			"doc[1].spec.project":   cfg.Project,
-			"doc[1].spec.cloudName": cfg.PrimaryCloudName,
-
-			"doc[2].metadata.name":    userName,
-			"doc[2].spec.project":     cfg.Project,
-			"doc[2].spec.serviceName": docExampleChName,
+			"doc[1].metadata.name":    userName,
+			"doc[1].spec.project":     cfg.Project,
+			"doc[1].spec.serviceName": chName,
 		})
 		require.NoError(t, err)
 
@@ -374,10 +546,10 @@ func TestClickhouseUserCustomCredentials(t *testing.T) {
 		user := new(v1alpha1.ClickhouseUser)
 		require.NoError(t, s.GetRunning(user, userName))
 
-		userAvn, err := getClickHouseUserByID(ctx, avnGen, cfg.Project, docExampleChName, user.Status.UUID)
+		userAvn, err := getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
 		require.NoError(t, err)
 		assert.Equal(t, "example-username", userAvn.Name) // username field from the example
-		assert.Equal(t, docExampleChName, user.Spec.ServiceName)
+		assert.Equal(t, chName, user.Spec.ServiceName)
 
 		secret, err := s.GetSecret("clickhouse-user-secret")
 		require.NoError(t, err)
@@ -404,7 +576,7 @@ func TestClickhouseUserCustomCredentials(t *testing.T) {
 		))
 
 		assert.NoError(t, s.Delete(user, func() error {
-			_, err = getClickHouseUserByID(ctx, avnGen, cfg.Project, docExampleChName, user.Status.UUID)
+			_, err = getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
 			return err
 		}))
 	})
