@@ -73,18 +73,15 @@ func (r *ClickhouseUserController) Observe(ctx context.Context, user *v1alpha1.C
 		if err != nil {
 			return Observation{}, err
 		}
-	} else if u.Password != nil && *u.Password != "" {
-		// Operator-managed mode: when ConnInfoSecretSource is not set, we treat the password returned by Aiven API (if any)
-		// as the source of truth for the connection secret. If the API does not expose the password (e.g. it was changed directly in ClickHouse),
-		// we leave password empty and do not touch password keys in the Secret.
-		password = *u.Password
 	}
+	// Operator-managed mode: password is not available via user listing, so SecretDetails omit it and existing password keys stay untouched.
 
 	secretDetails := buildConnectionDetailsFromService(svc, user, password)
 
 	return Observation{
 		ResourceExists: true,
-		// TODO: extend the logic with more checks if needed
+		// Up-to-date is driven by "controllers.aiven.io/generation-was-processed" and "controllers.aiven.io/instance-is-running" annotations.
+		// Secret source changes are handled by `SecretWatchController`, which clears "controllers.aiven.io/generation-was-processed" to force Update.
 		ResourceUpToDate: IsReadyToUse(user),
 		SecretDetails:    secretDetails,
 	}, nil

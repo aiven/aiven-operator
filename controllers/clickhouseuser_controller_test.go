@@ -247,47 +247,7 @@ func TestClickhouseUserController_Observe(t *testing.T) {
 		require.Equal(t, "external-observe-password", obs.SecretDetails["PASSWORD"])
 	})
 
-	t.Run("Populates SecretDetails in operator mode using password from Aiven API", func(t *testing.T) {
-		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
-
-		scheme := runtime.NewScheme()
-		require.NoError(t, clientgoscheme.AddToScheme(scheme))
-		require.NoError(t, v1alpha1.AddToScheme(scheme))
-
-		k8sClient := fake.NewClientBuilder().
-			WithScheme(scheme).
-			WithObjects(user).
-			Build()
-
-		apiPassword := "aiven-api-password"
-
-		avn := avngen.NewMockClient(t)
-		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
-			Return(&service.ServiceGetOut{
-				State:            service.ServiceStateTypeRunning,
-				ServiceUriParams: map[string]string{"host": "host", "port": "9440"},
-			}, nil).
-			Once()
-		avn.EXPECT().
-			ServiceClickHouseUserList(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
-			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-api", Password: &apiPassword}}, nil).
-			Once()
-
-		ctrl := &ClickhouseUserController{
-			Client: k8sClient,
-			avnGen: avn,
-		}
-
-		obs, err := ctrl.Observe(t.Context(), user)
-
-		require.NoError(t, err)
-		require.True(t, obs.ResourceExists)
-		require.Equal(t, "uuid-api", user.Status.UUID)
-		require.Equal(t, apiPassword, obs.SecretDetails["PASSWORD"])
-	})
-
-	t.Run("Omits password in operator mode when Aiven API does not expose it", func(t *testing.T) {
+	t.Run("Omits password in operator mode (Aiven API doesn't expose it)", func(t *testing.T) {
 		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 
 		scheme := runtime.NewScheme()
