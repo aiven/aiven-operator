@@ -464,7 +464,7 @@ spec:
                       description:
                         Set Valkey IO thread count. Changing this will cause
                         a restart of the Valkey service.
-                      maximum: 32
+                      maximum: 256
                       minimum: 1
                       type: integer
                     valkey_lfu_decay_time:

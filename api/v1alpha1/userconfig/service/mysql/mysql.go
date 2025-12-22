@@ -49,6 +49,9 @@ type Migration struct {
 	// Port number of the server where to migrate data from
 	Port int `groups:"create,update" json:"port"`
 
+	// Skip dump-restore part and start replication
+	ReestablishReplication *bool `groups:"create,update" json:"reestablish_replication,omitempty"`
+
 	// The server where to migrate data from is secured with SSL
 	Ssl *bool `groups:"create,update" json:"ssl,omitempty"`
 

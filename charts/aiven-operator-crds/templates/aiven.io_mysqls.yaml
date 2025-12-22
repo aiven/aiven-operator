@@ -370,6 +370,9 @@ spec:
                           maximum: 65535
                           minimum: 1
                           type: integer
+                        reestablish_replication:
+                          description: Skip dump-restore part and start replication
+                          type: boolean
                         ssl:
                           description:
                             The server where to migrate data from is secured

@@ -149,7 +149,7 @@ type ValkeyUserConfig struct {
 	ValkeyActiveExpireEffort *int `groups:"create,update" json:"valkey_active_expire_effort,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
-	// +kubebuilder:validation:Maximum=32
+	// +kubebuilder:validation:Maximum=256
 	// Set Valkey IO thread count. Changing this will cause a restart of the Valkey service.
 	ValkeyIoThreads *int `groups:"create,update" json:"valkey_io_threads,omitempty"`
 

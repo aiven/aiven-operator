@@ -21,6 +21,9 @@
   Native memory threshold percentage for ML Commons
 - Add `OpenSearch` field `userConfig.opensearch.ml_commons_only_run_on_ml_node`, type `boolean`: Enable
   or disable running ML Commons tasks only on ML nodes
+- Add `MySQL` field `userConfig.migration.reestablish_replication`, type `boolean`: Skip dump-restore
+  part and start replication
+- Change `Valkey` field `userConfig.valkey_io_threads`: maximum ~~`32`~~ → `256`
 
 ## v0.34.0 - 2025-10-21
 
