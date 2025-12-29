@@ -59,6 +59,11 @@ func (in *Migration) DeepCopyInto(out *Migration) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.ReestablishReplication != nil {
+		in, out := &in.ReestablishReplication, &out.ReestablishReplication
+		*out = new(bool)
+		**out = **in
+	}
 	if in.Ssl != nil {
 		in, out := &in.Ssl, &out.Ssl
 		*out = new(bool)
