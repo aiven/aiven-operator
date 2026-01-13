@@ -67,9 +67,9 @@ func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avnGen avngen
 	// and POST (ServiceKafkaConnectCreateConnector) returns NotFound error.
 	// So instead of asking Aiven API if the connector exists,
 	// we try to create it.
-	_, err = avnGen.ServiceKafkaConnectCreateConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, connCfg)
+	_, err = avnGen.ServiceKafkaConnectCreateConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, &connCfg)
 	if isAlreadyExists(err) {
-		_, err = avnGen.ServiceKafkaConnectEditConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name, connCfg)
+		_, err = avnGen.ServiceKafkaConnectEditConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name, &connCfg)
 		if err != nil {
 			return err
 		}
@@ -92,7 +92,7 @@ func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avnGen avngen
 }
 
 // buildConnectorConfig joins mandatory fields with additional connector specific config
-func (h KafkaConnectorHandler) buildConnectorConfig(ctx context.Context, conn *v1alpha1.KafkaConnector) (map[string]any, error) {
+func (h KafkaConnectorHandler) buildConnectorConfig(ctx context.Context, conn *v1alpha1.KafkaConnector) (map[string]string, error) {
 	const (
 		configFieldConnectorName  = "name"
 		configFieldConnectorClass = "connector.class"
@@ -116,7 +116,7 @@ func (h KafkaConnectorHandler) buildConnectorConfig(ctx context.Context, conn *v
 		}
 	)
 
-	m := make(map[string]any)
+	m := make(map[string]string)
 
 	m[configFieldConnectorName] = conn.GetName()
 	m[configFieldConnectorClass] = conn.Spec.ConnectorClass
