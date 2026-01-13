@@ -18,6 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
+	ctrlbuilder "sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -37,6 +38,7 @@ type Reconciler[T v1alpha1.AivenManagedObject] struct {
 	newController           func(avnGen avngen.Client) AivenController[T]
 	newObj                  func() T
 	newSecret               func(o objWithSecret, stringData map[string]string, addPrefix bool) *corev1.Secret
+	customizeBuilder        func(*ctrlbuilder.Builder) *ctrlbuilder.Builder
 }
 
 // requeueTimeout sets timeout to requeue controller
@@ -402,10 +404,17 @@ func (r *Reconciler[T]) handleDeleteError(ctx context.Context, obj T, err error)
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler[T]) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(r.newObj()).
-		Owns(&corev1.Secret{}).
-		Complete(r)
+	obj := r.newObj()
+	b := ctrl.NewControllerManagedBy(mgr).For(obj)
+	if _, ok := any(obj).(objWithSecret); ok {
+		b = b.Owns(&corev1.Secret{})
+	}
+
+	if r.customizeBuilder != nil {
+		b = r.customizeBuilder(b)
+	}
+
+	return b.Complete(r)
 }
 
 // isInvalidTokenError checks if the error is related to invalid token
