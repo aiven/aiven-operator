@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
@@ -47,6 +48,7 @@ type (
 		DefaultToken    string
 		KubeVersion     string
 		OperatorVersion string
+		PollInterval    time.Duration
 	}
 
 	// Handlers represents Aiven API handlers

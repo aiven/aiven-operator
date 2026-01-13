@@ -11,6 +11,7 @@ import (
 	"runtime/debug"
 	"syscall"
 	"testing"
+	"time"
 
 	"github.com/kelseyhightower/envconfig"
 	corev1 "k8s.io/api/core/v1"
@@ -142,7 +143,12 @@ func setupSuite(ctx context.Context) (*envtest.Environment, error) {
 		return nil, err
 	}
 
-	err = controllers.SetupControllers(mgr, cfg.Token, kubeVersion.String(), operatorVersion)
+	err = controllers.SetupControllersWithConfig(mgr, controllers.SetupConfig{
+		DefaultToken:    cfg.Token,
+		KubeVersion:     kubeVersion.String(),
+		OperatorVersion: operatorVersion,
+		PollInterval:    time.Minute,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("unable to setup controllers: %w", err)
 	}

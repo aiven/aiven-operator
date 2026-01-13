@@ -8,6 +8,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/go-logr/logr"
@@ -75,9 +76,10 @@ func recorderEvents(recorder *record.FakeRecorder) []string {
 func newTestReconciler[T v1alpha1.AivenManagedObject](_ T, client crclient.Client, scheme *runtime.Scheme, recorder *record.FakeRecorder) *Reconciler[T] { //nolint:unparam
 	return &Reconciler[T]{
 		Controller: Controller{
-			Client:   client,
-			Scheme:   scheme,
-			Recorder: recorder,
+			Client:       client,
+			Scheme:       scheme,
+			Recorder:     recorder,
+			PollInterval: testPollInterval,
 		},
 		newSecret: newSecret,
 	}
@@ -108,6 +110,8 @@ func newAivenError(status int, msg string) error {
 }
 
 const (
+	testPollInterval = time.Minute
+
 	// ClickhouseUser
 	yamlClickhouseUser = `
 apiVersion: aiven.io/v1alpha1
@@ -412,6 +416,7 @@ func TestReconciler_Reconcile(t *testing.T) {
 				DefaultToken:    "default-token",
 				KubeVersion:     "v1.30.0",
 				OperatorVersion: "v0.0.0-test",
+				PollInterval:    testPollInterval,
 			},
 			newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
 			newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
@@ -467,6 +472,7 @@ func TestReconciler_Reconcile(t *testing.T) {
 				DefaultToken:    "default-token",
 				KubeVersion:     "v1.30.0",
 				OperatorVersion: "v0.0.0-test",
+				PollInterval:    testPollInterval,
 			},
 			newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
 			newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
@@ -527,6 +533,7 @@ func TestReconciler_Reconcile(t *testing.T) {
 				DefaultToken:    "default-token",
 				KubeVersion:     "v1.30.0",
 				OperatorVersion: "v0.0.0-test",
+				PollInterval:    testPollInterval,
 			},
 			newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
 			newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
@@ -581,6 +588,7 @@ func TestReconciler_Reconcile(t *testing.T) {
 				DefaultToken:    "default-token",
 				KubeVersion:     "v1.30.0",
 				OperatorVersion: "v0.0.0-test",
+				PollInterval:    testPollInterval,
 			},
 			newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
 			newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
@@ -594,7 +602,7 @@ func TestReconciler_Reconcile(t *testing.T) {
 		})
 
 		require.NoError(t, err)
-		require.Equal(t, ctrl.Result{RequeueAfter: pollInterval}, res)
+		require.Equal(t, ctrl.Result{RequeueAfter: testPollInterval}, res)
 		require.Equal(t, []string{
 			"Normal InstanceFinalizerAdded instance finalizer added",
 			"Normal CreateOrUpdatedAtAiven about to create instance at aiven",
@@ -639,6 +647,7 @@ func TestReconciler_Reconcile(t *testing.T) {
 				DefaultToken:    "default-token",
 				KubeVersion:     "v1.30.0",
 				OperatorVersion: "v0.0.0-test",
+				PollInterval:    testPollInterval,
 			},
 			newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
 			newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
@@ -652,7 +661,7 @@ func TestReconciler_Reconcile(t *testing.T) {
 		})
 
 		require.NoError(t, err)
-		require.Equal(t, ctrl.Result{RequeueAfter: pollInterval}, res)
+		require.Equal(t, ctrl.Result{RequeueAfter: testPollInterval}, res)
 		require.Equal(t, []string{
 			"Normal InstanceFinalizerAdded instance finalizer added",
 			"Normal WaitingForInstanceToBeRunning waiting for the instance to be running",
@@ -694,6 +703,7 @@ func TestReconciler_Reconcile(t *testing.T) {
 				DefaultToken:    "default-token",
 				KubeVersion:     "v1.30.0",
 				OperatorVersion: "v0.0.0-test",
+				PollInterval:    testPollInterval,
 			},
 			newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
 			newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
@@ -707,7 +717,7 @@ func TestReconciler_Reconcile(t *testing.T) {
 		})
 
 		require.NoError(t, err)
-		require.Equal(t, ctrl.Result{RequeueAfter: pollInterval}, res)
+		require.Equal(t, ctrl.Result{RequeueAfter: testPollInterval}, res)
 
 		got := &v1alpha1.ClickhouseUser{}
 		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
@@ -722,7 +732,8 @@ func TestReconciler_handleObserveError(t *testing.T) {
 		recorder := record.NewFakeRecorder(10)
 		r := &Reconciler[*v1alpha1.ClickhouseUser]{
 			Controller: Controller{
-				Recorder: recorder,
+				Recorder:     recorder,
+				PollInterval: testPollInterval,
 			},
 		}
 
@@ -731,7 +742,7 @@ func TestReconciler_handleObserveError(t *testing.T) {
 		res, err := r.handleObserveError(t.Context(), obj, inner)
 
 		require.NoError(t, err)
-		require.Equal(t, ctrl.Result{RequeueAfter: pollInterval}, res)
+		require.Equal(t, ctrl.Result{RequeueAfter: testPollInterval}, res)
 		require.Equal(t, []string{"Warning UnableToWaitForPreconditions " + inner.Error()}, recorderEvents(recorder))
 		require.ElementsMatch(t, []metav1.Condition{
 			{
@@ -1348,9 +1359,10 @@ func TestReconciler_createResource(t *testing.T) {
 
 		r := &Reconciler[*v1alpha1.ClickhouseUser]{
 			Controller: Controller{
-				Client:   k8sClient,
-				Scheme:   scheme,
-				Recorder: recorder,
+				Client:       k8sClient,
+				Scheme:       scheme,
+				Recorder:     recorder,
+				PollInterval: testPollInterval,
 			},
 			newSecret: newSecret,
 		}
@@ -1396,9 +1408,10 @@ func TestReconciler_createResource(t *testing.T) {
 
 		r := &Reconciler[*v1alpha1.ClickhouseUser]{
 			Controller: Controller{
-				Client:   k8sClient,
-				Scheme:   scheme,
-				Recorder: recorder,
+				Client:       k8sClient,
+				Scheme:       scheme,
+				Recorder:     recorder,
+				PollInterval: testPollInterval,
 			},
 			newSecret: newSecret,
 		}
@@ -1411,7 +1424,7 @@ func TestReconciler_createResource(t *testing.T) {
 
 		res, err := r.createResource(t.Context(), c, obj)
 		require.NoError(t, err)
-		require.Equal(t, ctrl.Result{RequeueAfter: pollInterval}, res)
+		require.Equal(t, ctrl.Result{RequeueAfter: testPollInterval}, res)
 
 		secret := &corev1.Secret{}
 		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, secret))
@@ -1505,9 +1518,10 @@ func TestReconciler_updateResource(t *testing.T) {
 
 		r := &Reconciler[*v1alpha1.ClickhouseUser]{
 			Controller: Controller{
-				Client:   k8sClient,
-				Scheme:   scheme,
-				Recorder: recorder,
+				Client:       k8sClient,
+				Scheme:       scheme,
+				Recorder:     recorder,
+				PollInterval: testPollInterval,
 			},
 			newSecret: newSecret,
 		}
@@ -1552,9 +1566,10 @@ func TestReconciler_updateResource(t *testing.T) {
 
 		r := &Reconciler[*v1alpha1.ClickhouseUser]{
 			Controller: Controller{
-				Client:   k8sClient,
-				Scheme:   scheme,
-				Recorder: recorder,
+				Client:       k8sClient,
+				Scheme:       scheme,
+				Recorder:     recorder,
+				PollInterval: testPollInterval,
 			},
 			newSecret: newSecret,
 		}
@@ -1567,7 +1582,7 @@ func TestReconciler_updateResource(t *testing.T) {
 
 		res, err := r.updateResource(t.Context(), c, obj)
 		require.NoError(t, err)
-		require.Equal(t, ctrl.Result{RequeueAfter: pollInterval}, res)
+		require.Equal(t, ctrl.Result{RequeueAfter: testPollInterval}, res)
 
 		secret := &corev1.Secret{}
 		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, secret))

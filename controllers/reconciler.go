@@ -39,10 +39,6 @@ type Reconciler[T v1alpha1.AivenManagedObject] struct {
 	newSecret               func(o objWithSecret, stringData map[string]string, addPrefix bool) *corev1.Secret
 }
 
-// pollInterval controls how often we re-run reconciliation for resources that are in a steady state.
-// This enables continuous reconciliation without overwhelming the Aiven API.
-const pollInterval = 1 * time.Minute
-
 // requeueTimeout sets timeout to requeue controller
 const requeueTimeout = 10 * time.Second
 
@@ -108,7 +104,7 @@ func (r *Reconciler[T]) handleObserveError(ctx context.Context, obj T, err error
 	if errors.Is(err, errServicePoweredOff) {
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToWaitForPreconditions, err.Error())
 		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionPreconditions, err))
-		return ctrl.Result{RequeueAfter: pollInterval}, nil
+		return ctrl.Result{RequeueAfter: r.PollInterval}, nil
 	}
 
 	if errors.Is(err, errPreconditionNotMet) {
@@ -276,7 +272,7 @@ func (r *Reconciler[T]) completeReconcileSuccess(obj v1alpha1.AivenManagedObject
 		strconv.FormatInt(obj.GetGeneration(), formatIntBaseDecimal),
 	)
 
-	return ctrl.Result{RequeueAfter: pollInterval}, nil
+	return ctrl.Result{RequeueAfter: r.PollInterval}, nil
 }
 
 // publishSecretDetails publishes connection details to the connection secret if present.
