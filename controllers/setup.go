@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -15,11 +16,32 @@ type reconcilerType interface {
 	SetupWithManager(mgr ctrl.Manager) error
 }
 
+const defaultPollInterval = 10 * time.Minute
+
+type SetupConfig struct {
+	DefaultToken    string
+	KubeVersion     string
+	OperatorVersion string
+	PollInterval    time.Duration
+}
+
 func SetupControllers(mgr ctrl.Manager, defaultToken, kubeVersion, operatorVersion string) error {
+	return SetupControllersWithConfig(mgr, SetupConfig{
+		DefaultToken:    defaultToken,
+		KubeVersion:     kubeVersion,
+		OperatorVersion: operatorVersion,
+	})
+}
+
+func SetupControllersWithConfig(mgr ctrl.Manager, cfg SetupConfig) error {
+	if cfg.PollInterval <= 0 {
+		cfg.PollInterval = defaultPollInterval
+	}
+
 	if err := (&SecretFinalizerGCController{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("SecretFinalizerGCController"),
-	}).SetupWithManager(mgr, defaultToken != ""); err != nil {
+	}).SetupWithManager(mgr, cfg.DefaultToken != ""); err != nil {
 		return fmt.Errorf("controller SecretFinalizerGCController: %w", err)
 	}
 
@@ -62,7 +84,7 @@ func SetupControllers(mgr ctrl.Manager, defaultToken, kubeVersion, operatorVersi
 	}
 
 	for k, v := range builders {
-		err := v(newController(mgr, k, defaultToken, kubeVersion, operatorVersion)).SetupWithManager(mgr)
+		err := v(newController(mgr, k, cfg)).SetupWithManager(mgr)
 		if err != nil {
 			return fmt.Errorf("controller %s setup error: %w", k, err)
 		}
@@ -72,14 +94,15 @@ func SetupControllers(mgr ctrl.Manager, defaultToken, kubeVersion, operatorVersi
 	return nil
 }
 
-func newController(mgr ctrl.Manager, name, defaultToken, kubeVersion, operatorVersion string) Controller {
+func newController(mgr ctrl.Manager, name string, cfg SetupConfig) Controller {
 	return Controller{
 		Client:          mgr.GetClient(),
 		Log:             ctrl.Log.WithName("controllers").WithName(name),
 		Scheme:          mgr.GetScheme(),
 		Recorder:        mgr.GetEventRecorderFor(strings.ToLower(name) + "-reconciler"),
-		DefaultToken:    defaultToken,
-		KubeVersion:     kubeVersion,
-		OperatorVersion: operatorVersion,
+		DefaultToken:    cfg.DefaultToken,
+		KubeVersion:     cfg.KubeVersion,
+		OperatorVersion: cfg.OperatorVersion,
+		PollInterval:    cfg.PollInterval,
 	}
 }
