@@ -5,11 +5,28 @@ title: "Cassandra [DEPRECATED]"
 !!! warning "Deprecation warning"
 	EOL date **December 31, 2025**, see [end-of-life](https://aiven.io/docs/platform/reference/end-of-life). To ensure uninterrupted service, complete your migration out of Aiven for Apache Cassandra before December 31, 2025.
 
-## Usage example
+## Prerequisites
+	
+* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
+* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-!!! note "Prerequisites"
-	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
-	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
+### Required permissions
+	
+To create and manage this resource, you must have the appropriate [roles or permissions](https://aiven.io/docs/platform/concepts/permissions).
+See the [Aiven documentation](https://aiven.io/docs/platform/howto/manage-permissions) for details on managing permissions.
+For more precise access control, use permissions instead of roles.
+
+**Permissions**
+
+All of these permissions are required to create and manage this resource.
+
+- `organization:projects:write`
+- `project:services:read`
+- `project:services:write`
+- `service:configuration:write`
+- `service:secrets:read`
+
+## Usage example
 
 ```yaml linenums="1"
 apiVersion: aiven.io/v1alpha1

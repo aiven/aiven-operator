@@ -126,6 +126,7 @@ type schemaInternal struct {
 	Plural             string
 	Columns            []specTableColumn
 	UsageExamples      []usageExample
+	Permissions        permissionGroups
 }
 
 type schemaType struct {
@@ -524,12 +525,28 @@ title: "{{ .Kind }}{{ if .DeprecationWarning }} [DEPRECATED]{{ end }}"
 	{{ .DeprecationWarning }}
 {{ end }}
 
+## Prerequisites
+	
+* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
+* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
+
+{{ if .Permissions -}}
+### Required permissions
+	
+To create and manage this resource, you must have the appropriate [roles or permissions](https://aiven.io/docs/platform/concepts/permissions).
+See the [Aiven documentation](https://aiven.io/docs/platform/howto/manage-permissions) for details on managing permissions.
+For more precise access control, use permissions instead of roles.
+
+**Permissions**
+
+All of these permissions are required to create and manage this resource.
+{{ range .Permissions }}
+- {{ range $index, $element := . }}{{if $index}} or {{end}}{{ code $element }}{{ end }}
+{{- end }}
+{{- end }}
+
 {{ if .UsageExamples }}
 ## Usage example{{ if ne (len .UsageExamples) 1 }}s{{ end }}
-
-!!! note "Prerequisites"
-	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
-	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
 {{ if eq (len .UsageExamples) 1  }}
 {{ $example := index .UsageExamples 0 }}

@@ -12,8 +12,9 @@ const (
 	// crdDirPath CRDs location
 	crdDirPath = "./config/crd/bases/"
 	// docsDirPath CRDs docs location to export to
-	docsDirPath     = "./docs/docs/resources/"
-	examplesDirPath = docsDirPath + "examples"
+	docsDirPath         = "./docs/docs/resources/"
+	examplesDirPath     = docsDirPath + "examples"
+	permissionsFilePath = "./docs/permissions.yaml"
 )
 
 func main() {
@@ -25,6 +26,11 @@ func main() {
 
 func generate(crdDir, docsDir, examplesDir string) error {
 	crd, err := os.ReadDir(crdDir)
+	if err != nil {
+		return err
+	}
+
+	permissionsMap, err := readPermissionsFile(permissionsFilePath)
 	if err != nil {
 		return err
 	}
@@ -56,6 +62,11 @@ func generate(crdDir, docsDir, examplesDir string) error {
 
 	for _, s := range schemas {
 		err = setUsageExamples(examplesDir, validators, s)
+		if err != nil {
+			return err
+		}
+
+		err = setPermissions(permissionsMap, s)
 		if err != nil {
 			return err
 		}

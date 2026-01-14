@@ -1,0 +1,221 @@
+AlloyDBOmni:
+  [
+    ServiceGet,
+    ServiceCreate,
+    ServiceUpdate,
+    ServiceDelete,
+    ProjectServiceTagsReplace,
+    ProjectKmsGetCA,
+    ServiceBackupsGet,
+    AlloyDbOmniGoogleCloudPrivateKeyIdentify,
+    AlloyDbOmniGoogleCloudPrivateKeyRemove,
+    AlloyDbOmniGoogleCloudPrivateKeySet,
+  ]
+Cassandra:
+  [
+    ServiceGet,
+    ServiceCreate,
+    ServiceUpdate,
+    ServiceDelete,
+    ProjectServiceTagsReplace,
+    ProjectKmsGetCA,
+    ServiceBackupsGet,
+  ]
+Clickhouse:
+  [
+    ServiceGet,
+    ServiceCreate,
+    ServiceUpdate,
+    ServiceDelete,
+    ProjectServiceTagsReplace,
+    ProjectKmsGetCA,
+    ServiceBackupsGet,
+  ]
+ClickhouseDatabase:
+  [
+    ServiceGet,
+    ServiceClickHouseDatabaseCreate,
+    ServiceClickHouseDatabaseDelete,
+    ServiceClickHouseDatabaseList,
+  ]
+ClickhouseGrant: [ServiceGet, ServiceClickHouseQuery]
+ClickhouseRole: [ServiceGet, ServiceClickHouseQuery]
+ClickhouseUser:
+  [
+    ServiceGet,
+    ServiceClickHouseUserList,
+    ServiceClickHouseUserCreate,
+    ServiceClickHousePasswordReset,
+    ServiceClickHouseUserDelete,
+  ]
+ConnectionPool:
+  [
+    ServiceGet,
+    ServicePGBouncerCreate,
+    ServicePGBouncerUpdate,
+    ServicePGBouncerDelete,
+    ProjectKmsGetCA,
+    ServiceUserGet,
+  ]
+Database:
+  [
+    ServiceGet,
+    ServiceDatabaseCreate,
+    ServiceDatabaseDelete,
+    ServiceDatabaseList,
+  ]
+Flink:
+  [
+    ServiceGet,
+    ServiceCreate,
+    ServiceUpdate,
+    ServiceDelete,
+    ProjectServiceTagsReplace,
+    ProjectKmsGetCA,
+    ServiceBackupsGet,
+  ]
+Grafana:
+  [
+    ServiceGet,
+    ServiceCreate,
+    ServiceUpdate,
+    ServiceDelete,
+    ProjectServiceTagsReplace,
+    ProjectKmsGetCA,
+    ServiceBackupsGet,
+  ]
+Kafka:
+  [
+    ServiceGet,
+    ServiceCreate,
+    ServiceUpdate,
+    ServiceDelete,
+    ProjectServiceTagsReplace,
+    ProjectKmsGetCA,
+    ServiceBackupsGet,
+  ]
+KafkaACL:
+  [ServiceGet, ServiceKafkaAclAdd, ServiceKafkaAclDelete, ServiceKafkaAclList]
+KafkaConnect:
+  [
+    ServiceGet,
+    ServiceCreate,
+    ServiceUpdate,
+    ServiceDelete,
+    ProjectServiceTagsReplace,
+    ServiceBackupsGet,
+  ]
+KafkaConnector:
+  [
+    ServiceGet,
+    ServiceKafkaConnectCreateConnector,
+    ServiceKafkaConnectEditConnector,
+    ServiceKafkaConnectDeleteConnector,
+    ServiceKafkaConnectGetConnectorStatus,
+    ServiceKafkaConnectList,
+  ]
+KafkaNativeACL:
+  [
+    ServiceGet,
+    ServiceKafkaNativeAclAdd,
+    ServiceKafkaNativeAclDelete,
+    ServiceKafkaNativeAclGet,
+  ]
+KafkaSchema:
+  [
+    ServiceGet,
+    ServiceSchemaRegistrySubjectVersionPost,
+    ServiceSchemaRegistrySubjectConfigPut,
+    ServiceSchemaRegistrySubjectDelete,
+    ServiceSchemaRegistrySubjectVersionsGet,
+    ServiceSchemaRegistrySubjectVersionGet,
+  ]
+KafkaSchemaRegistryACL:
+  [
+    ServiceGet,
+    ServiceSchemaRegistryAclAdd,
+    ServiceSchemaRegistryAclDelete,
+    ServiceSchemaRegistryAclList,
+  ]
+KafkaTopic:
+  [
+    ServiceGet,
+    ServiceKafkaTopicCreate,
+    ServiceKafkaTopicUpdate,
+    ServiceKafkaTopicDelete,
+    ServiceKafkaTopicList,
+  ]
+MySQL:
+  [
+    ServiceGet,
+    ServiceCreate,
+    ServiceUpdate,
+    ServiceDelete,
+    ProjectServiceTagsReplace,
+    ProjectKmsGetCA,
+    ServiceBackupsGet,
+  ]
+OpenSearch:
+  [
+    ServiceGet,
+    ServiceCreate,
+    ServiceUpdate,
+    ServiceDelete,
+    ProjectServiceTagsReplace,
+    ProjectKmsGetCA,
+    ServiceBackupsGet,
+  ]
+PostgreSQL:
+  [
+    ServiceGet,
+    ServiceCreate,
+    ServiceUpdate,
+    ServiceDelete,
+    ProjectServiceTagsReplace,
+    ProjectKmsGetCA,
+    ServiceBackupsGet,
+    ServiceTaskCreate,
+    ServiceTaskGet,
+  ]
+Project:
+  [
+    UserCreditCardsList,
+    ProjectCreate,
+    ProjectUpdate,
+    ProjectKmsGetCA,
+    ProjectGet,
+    ProjectDelete,
+  ]
+ProjectVPC: [VpcCreate, VpcGet, ServiceList, VpcDelete]
+ServiceIntegration:
+  [
+    ServiceGet,
+    ServiceIntegrationCreate,
+    ServiceIntegrationUpdate,
+    ServiceIntegrationDelete,
+  ]
+ServiceIntegrationEndpoint:
+  [
+    ServiceIntegrationEndpointCreate,
+    ServiceIntegrationEndpointUpdate,
+    ServiceIntegrationEndpointDelete,
+  ]
+ServiceUser:
+  [
+    ServiceGet,
+    ServiceUserCreate,
+    ServiceUserCredentialsModify,
+    ServiceUserDelete,
+    ServiceUserGet,
+    ProjectKmsGetCA,
+  ]
+Valkey:
+  [
+    ServiceGet,
+    ServiceCreate,
+    ServiceUpdate,
+    ServiceDelete,
+    ProjectServiceTagsReplace,
+    ProjectKmsGetCA,
+    ServiceBackupsGet,
+  ]
