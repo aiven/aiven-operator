@@ -211,7 +211,7 @@ tasks:
       - sh: '[ -n "${AIVEN_PROJECT_NAME}" ]'
         msg: AIVEN_PROJECT_NAME environment variable must be set
     cmds:
-      - kubectl kuttl test --config test/e2e/kuttl-test.preinstalled.yaml
+      - kubectl kuttl test --context {{.KIND_KUBECTL_CONTEXT}} --config test/e2e/kuttl-test.preinstalled.yaml
 
   # ==============================================
   # ☸️ Kubernetes Operations
@@ -253,13 +253,13 @@ tasks:
         CLEANUP_NAMESPACES="cert-manager"
         CLEANUP_SECRETS="aiven-token" # Assuming default namespace for this secret
         for target in $CLEANUP_TARGETS; do
-          helm uninstall $target || true
+          helm uninstall $target --kube-context {{.KIND_KUBECTL_CONTEXT}} || true
         done
         for namespace in $CLEANUP_NAMESPACES; do
-          kubectl delete namespace $namespace --ignore-not-found=true || true
+          kubectl delete namespace $namespace --context {{.KIND_KUBECTL_CONTEXT}} --ignore-not-found=true || true
         done
         for secret in $CLEANUP_SECRETS; do
-          kubectl delete secret $secret --ignore-not-found=true || true
+          kubectl delete secret $secret --context {{.KIND_KUBECTL_CONTEXT}} --ignore-not-found=true || true
         done
         set -e
 

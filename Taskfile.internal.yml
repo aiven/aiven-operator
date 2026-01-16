@@ -19,10 +19,9 @@ vars:
 
   # Kubernetes & Kind configuration
   KUBECTL_BIN: kubectl
-  KIND_CLUSTER_NAME: kind
+  KIND_CLUSTER_NAME: aiven-operator
   KIND_NODE_IMAGE: kindest/node:v1.26.6
   KIND_WAIT_DURATION: 5m
-  KUBECTL_CONTEXT: kind-{{.KIND_CLUSTER_NAME}}
   ENVTEST_K8S_VERSION: 1.26.*
 
   # Tool versions
@@ -309,7 +308,8 @@ tasks:
         echo "🔐 Creating Aiven token secret..."
         kubectl create secret generic aiven-token \
           --from-literal=token=${AIVEN_TOKEN} \
-          --dry-run=client -o yaml | kubectl apply -f -
+          --context {{.KIND_KUBECTL_CONTEXT}} \
+          --dry-run=client -o yaml | kubectl apply --context {{.KIND_KUBECTL_CONTEXT}} -f -
 
         echo "Installing operator CRDs..."
         if [ ! -d "charts/aiven-operator-crds" ]; then
@@ -317,6 +317,7 @@ tasks:
           exit 1
         fi
         helm upgrade --install aiven-operator-crds charts/aiven-operator-crds \
+          --kube-context {{.KIND_KUBECTL_CONTEXT}} \
           --wait --timeout 3m
 
         echo "Installing operator with image: {{.OPERATOR_IMAGE_NAME}}:{{.OPERATOR_IMAGE_TAG}}..."
@@ -325,6 +326,7 @@ tasks:
           exit 1
         fi
         helm upgrade --install aiven-operator charts/aiven-operator \
+          --kube-context {{.KIND_KUBECTL_CONTEXT}} \
           --set defaultTokenSecret.name=aiven-token \
           --set defaultTokenSecret.key=token \
           --set leaderElect=true \
@@ -347,6 +349,7 @@ tasks:
           helm repo add jetstack https://charts.jetstack.io --force-update >/dev/null
           helm repo update >/dev/null
           helm upgrade --install cert-manager jetstack/cert-manager \
+            --kube-context {{.KIND_KUBECTL_CONTEXT}} \
             --namespace cert-manager \
             --create-namespace \
             --version {{.CERT_MANAGER_TAG}} \
@@ -377,7 +380,8 @@ tasks:
         echo "Creating Aiven token secret..."
         kubectl create secret generic aiven-token \
           --from-literal=token=${AIVEN_TOKEN} \
-          --dry-run=client -o yaml | kubectl apply -f -
+          --context {{.KIND_KUBECTL_CONTEXT}} \
+          --dry-run=client -o yaml | kubectl apply --context {{.KIND_KUBECTL_CONTEXT}} -f -
 
         echo "Installing operator CRDs..."
         if [ ! -d "charts/aiven-operator-crds" ]; then
@@ -385,6 +389,7 @@ tasks:
           exit 1
         fi
         helm upgrade --install aiven-operator-crds charts/aiven-operator-crds \
+          --kube-context {{.KIND_KUBECTL_CONTEXT}} \
           --wait --timeout 3m
 
         echo "🎯 Installing operator..."
@@ -393,6 +398,7 @@ tasks:
           exit 1
         fi
         helm upgrade --install aiven-operator charts/aiven-operator \
+          --kube-context {{.KIND_KUBECTL_CONTEXT}} \
           --set defaultTokenSecret.name=aiven-token \
           --set defaultTokenSecret.key=token \
           --set leaderElect=true \
@@ -413,18 +419,18 @@ tasks:
         echo "🔍 Verifying setup..."
 
         # Check CRDs
-        if kubectl get crd kafkas.aiven.io >/dev/null 2>&1; then
+        if kubectl get crd kafkas.aiven.io --context {{.KIND_KUBECTL_CONTEXT}} >/dev/null 2>&1; then
           echo "✅ CRDs are installed"
         else
           echo "⚠️ CRDs not found"
         fi
 
         # Check operator pods
-        POD_NAME=$(kubectl get pods -l app.kubernetes.io/instance=aiven-operator -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || \
-                   kubectl get pods -l app=aiven-operator -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+        POD_NAME=$(kubectl get pods -l app.kubernetes.io/instance=aiven-operator --context {{.KIND_KUBECTL_CONTEXT}} -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || \
+                   kubectl get pods -l app=aiven-operator --context {{.KIND_KUBECTL_CONTEXT}} -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
 
         if [ -n "$POD_NAME" ]; then
-          STATUS=$(kubectl get pod $POD_NAME -o jsonpath='{.status.phase}')
+          STATUS=$(kubectl get pod $POD_NAME --context {{.KIND_KUBECTL_CONTEXT}} -o jsonpath='{.status.phase}')
           echo "✅ Operator pod '$POD_NAME' is $STATUS"
         else
           echo "⚠️ Operator pod not found"
