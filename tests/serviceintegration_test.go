@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
+	"github.com/aiven/go-client-codegen/handler/kafkatopic"
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -151,8 +153,14 @@ func TestServiceIntegrationKafkaLogs(t *testing.T) {
 	assert.Equal(t, ksAvn.CloudName, ks.Spec.CloudName)
 
 	// Validates KafkaTopic
-	ktAvn, err := avnGen.ServiceKafkaTopicGet(ctx, cfg.Project, ksName, ktName)
-	require.NoError(t, err)
+	var ktAvn *kafkatopic.ServiceKafkaTopicGetOut
+	// Kafka topics are eventually consistent in Aiven API, so we poll until they become readable
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		var getErr error
+		ktAvn, getErr = avnGen.ServiceKafkaTopicGet(ctx, cfg.Project, ksName, ktName)
+		assert.NoError(collect, getErr)
+	}, 2*time.Minute, 10*time.Second)
+
 	assert.Equal(t, ktAvn.TopicName, kt.GetName())
 	assert.Equal(t, ktAvn.State, kt.Status.State)
 	assert.Equal(t, ktAvn.Replication, kt.Spec.Replication)

@@ -299,52 +299,6 @@ func TestServiceUserCustomCredentials(t *testing.T) {
 		}))
 	})
 
-	t.Run("AvnadminPasswordReset", func(t *testing.T) {
-		// Tests password reset functionality for the built-in 'avnadmin' user.
-		// Verifies that the operator can modify credentials for system user and that
-		// built-in users persist after ServiceUser resource deletion.
-		yml := getServiceUserAvnadminResetYaml(cfg.Project, pgName, cfg.PrimaryCloudName)
-
-		require.NoError(t, s.Apply(yml))
-
-		user := new(v1alpha1.ServiceUser)
-		require.NoError(t, s.GetRunning(user, "avnadmin"))
-
-		userAvn, err := getServiceUserWithRetry(ctx, avnGen, cfg.Project, pgName, "avnadmin")
-		require.NoError(t, err)
-		assert.Equal(t, "avnadmin", user.GetName())
-		assert.Equal(t, "avnadmin", userAvn.Username)
-		assert.Equal(t, pgName, user.Spec.ServiceName)
-
-		secret, err := s.GetSecret("my-avnadmin-secret")
-		require.NoError(t, err)
-		assert.NotEmpty(t, secret.Data["SERVICEUSER_HOST"])
-		assert.NotEmpty(t, secret.Data["SERVICEUSER_PORT"])
-		assert.NotEmpty(t, secret.Data["SERVICEUSER_USERNAME"])
-		assert.NotEmpty(t, secret.Data["SERVICEUSER_PASSWORD"])
-		assert.NotEmpty(t, secret.Data["SERVICEUSER_CA_CERT"])
-
-		actualUsernameInSecret := string(secret.Data["SERVICEUSER_USERNAME"])
-		assert.Equal(t, "avnadmin", actualUsernameInSecret, "Username should be avnadmin")
-
-		// verify the password was reset to custom value
-		actualPassword := string(secret.Data["SERVICEUSER_PASSWORD"])
-		assert.Equal(t, "NewAvnadminPassword999!", actualPassword, "Password should match our custom avnadmin password")
-
-		assert.Equal(t, map[string]string{"test": "avnadmin-reset"}, secret.Annotations)
-		assert.Equal(t, map[string]string{"type": "admin-password"}, secret.Labels)
-
-		// validate that built-in users persist after ServiceUser deletion
-		assert.NoError(t, s.Delete(user, func() error {
-			// avnadmin user should still exist after ServiceUser deletion since it's a built-in user
-			_, err = avnGen.ServiceUserGet(ctx, cfg.Project, pgName, "avnadmin")
-			if err != nil {
-				return fmt.Errorf("avnadmin user should still exist after ServiceUser deletion: %w", err)
-			}
-			return nil
-		}))
-	})
-
 	t.Run("EmptyPasswordValidation", func(t *testing.T) {
 		// Tests validation of empty passwords in connInfoSecretSource.
 		// Verifies that the operator properly validates password requirements
@@ -361,6 +315,66 @@ func TestServiceUserCustomCredentials(t *testing.T) {
 		// Verify that ServiceUser creation failed
 		require.Error(t, err, "ServiceUser should fail to be created with empty password")
 	})
+}
+
+func TestServiceUserAvnadminPasswordReset(t *testing.T) {
+	// Tests password reset functionality for the built-in 'avnadmin' user.
+	// Verifies that the operator can modify credentials for system user and that
+	// built-in users persist after ServiceUser resource deletion.
+	defer recoverPanic(t)
+
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	pg, releasePG, err := sharedResources.AcquirePostgreSQL(ctx)
+	require.NoError(t, err)
+	defer releasePG()
+
+	pgName := pg.GetName()
+	s := NewSession(ctx, k8sClient)
+
+	defer s.Destroy(t)
+
+	yml := getServiceUserAvnadminResetYaml(cfg.Project, pgName, cfg.PrimaryCloudName)
+
+	require.NoError(t, s.Apply(yml))
+
+	user := new(v1alpha1.ServiceUser)
+	require.NoError(t, s.GetRunning(user, "avnadmin"))
+
+	userAvn, err := getServiceUserWithRetry(ctx, avnGen, cfg.Project, pgName, "avnadmin")
+	require.NoError(t, err)
+	assert.Equal(t, "avnadmin", user.GetName())
+	assert.Equal(t, "avnadmin", userAvn.Username)
+	assert.Equal(t, pgName, user.Spec.ServiceName)
+
+	secret, err := s.GetSecret("my-avnadmin-secret")
+	require.NoError(t, err)
+	assert.NotEmpty(t, secret.Data["SERVICEUSER_HOST"])
+	assert.NotEmpty(t, secret.Data["SERVICEUSER_PORT"])
+	assert.NotEmpty(t, secret.Data["SERVICEUSER_USERNAME"])
+	assert.NotEmpty(t, secret.Data["SERVICEUSER_PASSWORD"])
+	assert.NotEmpty(t, secret.Data["SERVICEUSER_CA_CERT"])
+
+	actualUsernameInSecret := string(secret.Data["SERVICEUSER_USERNAME"])
+	assert.Equal(t, "avnadmin", actualUsernameInSecret, "Username should be avnadmin")
+
+	// verify the password was reset to custom value
+	actualPassword := string(secret.Data["SERVICEUSER_PASSWORD"])
+	assert.Equal(t, "NewAvnadminPassword999!", actualPassword, "Password should match our custom avnadmin password")
+
+	assert.Equal(t, map[string]string{"test": "avnadmin-reset"}, secret.Annotations)
+	assert.Equal(t, map[string]string{"type": "admin-password"}, secret.Labels)
+
+	// validate that built-in users persist after ServiceUser deletion
+	assert.NoError(t, s.Delete(user, func() error {
+		// avnadmin user should still exist after ServiceUser deletion since it's a built-in user
+		_, err = avnGen.ServiceUserGet(ctx, cfg.Project, pgName, "avnadmin")
+		if err != nil {
+			return fmt.Errorf("avnadmin user should still exist after ServiceUser deletion: %w", err)
+		}
+		return nil
+	}))
 }
 
 func getServiceUserWithSourceSecretYaml(project, pgName, userName, cloudName string) string {

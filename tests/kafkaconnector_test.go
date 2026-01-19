@@ -75,7 +75,7 @@ func TestKafkaConnector(t *testing.T) {
 	kcAvn, err := controllers.GetKafkaConnectorByName(ctx, avnGen, cfg.Project, kafkaName, connectorName)
 	require.NoError(t, err)
 	assert.Equal(t, kcAvn.Name, kafkaConnector.GetName())
-	assert.Equal(t, kcAvn.Config.ConnectorClass, kafkaConnector.Spec.ConnectorClass)
+	assert.Equal(t, kcAvn.Config["connector.class"], kafkaConnector.Spec.ConnectorClass)
 
 	// Validates Kafka Connector status
 	status, err := avnGen.ServiceKafkaConnectGetConnectorStatus(ctx, cfg.Project, kafkaName, connectorName)

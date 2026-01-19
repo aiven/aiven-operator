@@ -5,8 +5,10 @@ package tests
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/aiven/go-client-codegen/handler/kafkaschemaregistry"
+	"github.com/aiven/go-client-codegen/handler/kafkatopic"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -110,8 +112,14 @@ func TestKafkaSchemaRegistryACL(t *testing.T) {
 	// KafkaTopic
 	// todo: replace with code-generated client, when the API schema is fixed:
 	//  json: cannot unmarshal string into Go struct field SynonymOut.topic.config.cleanup_policy.synonyms.value of type bool
-	topicAvn, err := avnGen.ServiceKafkaTopicGet(ctx, cfg.Project, kafkaName, topic.GetTopicName())
-	require.NoError(t, err)
+	var topicAvn *kafkatopic.ServiceKafkaTopicGetOut
+	// Kafka topics are eventually consistent in Aiven API, so we poll until they become readable
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		var getErr error
+		topicAvn, getErr = avnGen.ServiceKafkaTopicGet(ctx, cfg.Project, kafkaName, topic.GetTopicName())
+		assert.NoError(collect, getErr)
+	}, 2*time.Minute, 10*time.Second)
+
 	assert.Equal(t, topicName, topic.GetName())
 	assert.Equal(t, topicName, topic.GetTopicName())
 	assert.Equal(t, topicAvn.TopicName, topic.GetTopicName())

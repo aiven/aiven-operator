@@ -58,6 +58,7 @@ var _ Session = &session{}
 type session struct {
 	k8s  client.Client
 	ctx  context.Context
+	mu   sync.RWMutex
 	objs map[string]client.Object
 }
 
@@ -88,6 +89,7 @@ func (s *session) Apply(src string) error {
 
 // ApplyObjects applies multiple Kubernetes objects
 func (s *session) ApplyObjects(objects ...client.Object) error {
+	s.mu.Lock()
 	for _, o := range objects {
 		s.objs[o.GetName()] = o
 		if o.GetNamespace() == "" {
@@ -95,6 +97,7 @@ func (s *session) ApplyObjects(objects ...client.Object) error {
 			o.SetNamespace(defaultNamespace)
 		}
 	}
+	s.mu.Unlock()
 
 	ctx, cancel := context.WithTimeout(s.ctx, createTimeout)
 	defer cancel()
@@ -181,22 +184,33 @@ func (s *session) Destroy(t testingT) {
 // DestroyError deletes all applied resources.
 // Tolerant to "not found" error, because resource may have been deleted manually
 func (s *session) DestroyError() (err error) {
-	log.Printf("SESSION DESTROY: Starting cleanup of %d resources", len(s.objs))
-	for name := range s.objs {
-		log.Printf("SESSION DESTROY: Will delete resource: %s", objKey(s.objs[name]))
+	s.mu.RLock()
+	objs := make([]client.Object, 0, len(s.objs))
+	for _, obj := range s.objs {
+		objs = append(objs, obj)
+	}
+	s.mu.RUnlock()
+
+	log.Printf("SESSION DESTROY: Starting cleanup of %d resources", len(objs))
+	for _, obj := range objs {
+		log.Printf("SESSION DESTROY: Will delete resource: %s", objKey(obj))
 	}
 
+	var errMu sync.Mutex
+
 	var wg sync.WaitGroup
-	wg.Add(len(s.objs))
-	for n := range s.objs {
-		go func(n string) {
+	wg.Add(len(objs))
+	for _, obj := range objs {
+		go func(obj client.Object) {
 			defer wg.Done()
 			defer s.recover()
-			errDel := s.delete(s.objs[n])
+			errDel := s.delete(obj)
 			if errDel != nil && !isNotFound(errDel) {
+				errMu.Lock()
 				err = multierror.Append(err, errDel)
+				errMu.Unlock()
 			}
-		}(n)
+		}(obj)
 	}
 	wg.Wait()
 	return err
@@ -223,7 +237,9 @@ func (s *session) Delete(o client.Object, exists func() error) error {
 // delete deletes object from kube, and makes sure it is not there anymore
 // Removes from applied list to not delete object on Destroy()
 func (s *session) delete(o client.Object) error {
+	s.mu.RLock()
 	_, ok := s.objs[o.GetName()]
+	s.mu.RUnlock()
 	if !ok {
 		return fmt.Errorf("resource %q not applied", objKey(o))
 	}
@@ -246,10 +262,19 @@ func (s *session) delete(o client.Object) error {
 
 	// Waits being deleted from kube
 	key := types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()}
-	return retryForever(ctx, fmt.Sprintf("delete %s", objKey(o)), func() (bool, error) {
+	err = retryForever(ctx, fmt.Sprintf("delete %s", objKey(o)), func() (bool, error) {
 		err := s.k8s.Get(ctx, key, o)
 		return !isNotFound(err), nil
 	})
+	if err != nil {
+		return err
+	}
+
+	s.mu.Lock()
+	delete(s.objs, o.GetName())
+	s.mu.Unlock()
+
+	return nil
 }
 
 func (s *session) recover() {

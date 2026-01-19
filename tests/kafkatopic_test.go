@@ -5,7 +5,9 @@ package tests
 import (
 	"fmt"
 	"testing"
+	"time"
 
+	"github.com/aiven/go-client-codegen/handler/kafkatopic"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -94,8 +96,13 @@ func TestKafkaTopic(t *testing.T) {
 	assert.True(t, meta.IsStatusConditionTrue(barTopic.Status.Conditions, "Running"))
 
 	// KafkaTopic with dynamic name
-	fooAvn, err := avnGen.ServiceKafkaTopicGet(ctx, cfg.Project, ksName, fooTopic.GetTopicName())
-	require.NoError(t, err)
+	var fooAvn *kafkatopic.ServiceKafkaTopicGetOut
+	// Kafka topics are eventually consistent in Aiven API, so we poll until they become readable
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		fooAvn, err = avnGen.ServiceKafkaTopicGet(ctx, cfg.Project, ksName, fooTopic.GetTopicName())
+		assert.NoError(collect, err)
+	}, 2*time.Minute, 10*time.Second)
+
 	assert.Equal(t, fooTopicName, fooTopic.GetName())
 	assert.Equal(t, fooTopicName, fooTopic.GetTopicName())
 	assert.Equal(t, fooAvn.TopicName, fooTopic.GetTopicName())
@@ -112,8 +119,13 @@ func TestKafkaTopic(t *testing.T) {
 	assert.Nil(t, fooTopic.Spec.Config.MaxMessageBytes)
 
 	// KafkaTopic with name `bar_topic_name_with_underscores`
-	barAvn, err := avnGen.ServiceKafkaTopicGet(ctx, cfg.Project, ksName, barTopic.GetTopicName())
-	require.NoError(t, err)
+	var barAvn *kafkatopic.ServiceKafkaTopicGetOut
+	// Kafka topics are eventually consistent in Aiven API, so we poll until they become readable
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		barAvn, err = avnGen.ServiceKafkaTopicGet(ctx, cfg.Project, ksName, barTopic.GetTopicName())
+		assert.NoError(collect, err)
+	}, 2*time.Minute, 10*time.Second)
+
 	assert.Equal(t, barTopicName, barTopic.GetName())
 	assert.Equal(t, "bar_topic_name_with_underscores", barTopic.GetTopicName())
 	assert.Equal(t, barAvn.TopicName, barTopic.GetTopicName())

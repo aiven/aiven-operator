@@ -6,9 +6,11 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafka"
+	"github.com/aiven/go-client-codegen/handler/kafkatopic"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -92,8 +94,13 @@ func TestKafkaACL(t *testing.T) {
 	assert.Contains(t, serviceRunningStatesAiven, kafkaAvn.State)
 
 	// KafkaTopic
-	topicAvn, err := avnGen.ServiceKafkaTopicGet(ctx, cfg.Project, kafkaName, topic.GetTopicName())
-	require.NoError(t, err)
+	var topicAvn *kafkatopic.ServiceKafkaTopicGetOut
+	// Kafka topics are eventually consistent in Aiven API, so we poll until they become readable
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		topicAvn, err = avnGen.ServiceKafkaTopicGet(ctx, cfg.Project, kafkaName, topic.GetTopicName())
+		assert.NoError(collect, err)
+	}, 2*time.Minute, 10*time.Second)
+
 	assert.Equal(t, topicName, topic.GetName())
 	assert.Equal(t, topicName, topic.GetTopicName())
 	assert.Equal(t, topicAvn.TopicName, topic.GetTopicName())
