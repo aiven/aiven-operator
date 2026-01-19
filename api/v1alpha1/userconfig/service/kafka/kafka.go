@@ -395,9 +395,8 @@ type KafkaConnectSecretProviders struct {
 
 // Kafka Diskless configuration values
 type KafkaDiskless struct {
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Whether to enable the Diskless functionality
-	Enabled bool `groups:"create" json:"enabled"`
+	Enabled bool `groups:"create,update" json:"enabled"`
 }
 
 // Kafka REST configuration
@@ -574,6 +573,16 @@ type KafkaUserConfig struct {
 
 	// Allow access to read Kafka topic messages in the Aiven Console and REST API.
 	AivenKafkaTopicMessages *bool `groups:"create,update" json:"aiven_kafka_topic_messages,omitempty"`
+
+	// +kubebuilder:validation:Minimum=3
+	// +kubebuilder:validation:Maximum=24
+	// Interval in hours between automatic backups. Minimum value is 3 hours. Must be a divisor of 24 (3, 4, 6, 8, 12, 24). (Applicable to ACU plans only)
+	BackupIntervalHours *int `groups:"create,update" json:"backup_interval_hours,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=30
+	// Number of days to retain automatic backups. Backups older than this value will be automatically deleted. (Applicable to ACU plans only)
+	BackupRetentionDays *int `groups:"create,update" json:"backup_retention_days,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=255
 	// Serve the web frontend using a custom CNAME pointing to the Aiven DNS name. When you set a custom domain for a service deployed in a VPC, the service certificate is only created for the public-* hostname and the custom domain.

@@ -256,6 +256,22 @@ spec:
                         Allow access to read Kafka topic messages in the
                         Aiven Console and REST API.
                       type: boolean
+                    backup_interval_hours:
+                      description:
+                        Interval in hours between automatic backups. Minimum
+                        value is 3 hours. Must be a divisor of 24 (3, 4, 6, 8, 12, 24).
+                        (Applicable to ACU plans only)
+                      maximum: 24
+                      minimum: 3
+                      type: integer
+                    backup_retention_days:
+                      description:
+                        Number of days to retain automatic backups. Backups
+                        older than this value will be automatically deleted. (Applicable
+                        to ACU plans only)
+                      maximum: 30
+                      minimum: 1
+                      type: integer
                     custom_domain:
                       description:
                         Serve the web frontend using a custom CNAME pointing
@@ -956,9 +972,6 @@ spec:
                         enabled:
                           description: Whether to enable the Diskless functionality
                           type: boolean
-                          x-kubernetes-validations:
-                            - message: Value is immutable
-                              rule: self == oldSelf
                       required:
                         - enabled
                       type: object
