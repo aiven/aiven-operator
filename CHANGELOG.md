@@ -24,6 +24,15 @@
 - Add `MySQL` field `userConfig.migration.reestablish_replication`, type `boolean`: Skip dump-restore
   part and start replication
 - Change `Valkey` field `userConfig.valkey_io_threads`: maximum ~~`32`~~ → `256`
+- Add `Kafka` field `userConfig.backup_interval_hours`, type `integer`: Interval in hours between automatic
+  backups. Minimum value is 3 hours
+- Add `Kafka` field `userConfig.backup_retention_days`, type `integer`: Number of days to retain automatic
+  backups
+- Change `Kafka` field `userConfig.kafka_diskless.enabled`: immutable ~~`true`~~
+- Add `PostgreSQL` field `userConfig.backup_interval_hours`, type `integer`: Interval in hours between
+  automatic backups. Minimum value is 3 hours
+- Add `PostgreSQL` field `userConfig.backup_retention_days`, type `integer`: Number of days to retain
+  automatic backups
 
 ## v0.34.0 - 2025-10-21
 

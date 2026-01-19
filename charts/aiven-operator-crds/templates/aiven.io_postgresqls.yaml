@@ -275,6 +275,14 @@ spec:
                       maximum: 23
                       minimum: 0
                       type: integer
+                    backup_interval_hours:
+                      description:
+                        Interval in hours between automatic backups. Minimum
+                        value is 3 hours. Must be a divisor of 24 (3, 4, 6, 8, 12, 24).
+                        (Applicable to ACU plans only)
+                      maximum: 24
+                      minimum: 3
+                      type: integer
                     backup_minute:
                       description:
                         The minute of an hour when backup for the service
@@ -282,6 +290,14 @@ spec:
                         already completed.
                       maximum: 59
                       minimum: 0
+                      type: integer
+                    backup_retention_days:
+                      description:
+                        Number of days to retain automatic backups. Backups
+                        older than this value will be automatically deleted. (Applicable
+                        to ACU plans only)
+                      maximum: 30
+                      minimum: 1
                       type: integer
                     enable_ha_replica_dns:
                       description:

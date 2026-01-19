@@ -219,6 +219,8 @@ Kafka specific user configuration options.
 
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Deprecated. Additional Cloud Regions for Backup Replication.
 - [`aiven_kafka_topic_messages`](#spec.userConfig.aiven_kafka_topic_messages-property){: name='spec.userConfig.aiven_kafka_topic_messages-property'} (boolean). Allow access to read Kafka topic messages in the Aiven Console and REST API.
+- [`backup_interval_hours`](#spec.userConfig.backup_interval_hours-property){: name='spec.userConfig.backup_interval_hours-property'} (integer, Minimum: 3, Maximum: 24). Interval in hours between automatic backups. Minimum value is 3 hours. Must be a divisor of 24 (3, 4, 6, 8, 12, 24). (Applicable to ACU plans only).
+- [`backup_retention_days`](#spec.userConfig.backup_retention_days-property){: name='spec.userConfig.backup_retention_days-property'} (integer, Minimum: 1, Maximum: 30). Number of days to retain automatic backups. Backups older than this value will be automatically deleted. (Applicable to ACU plans only).
 - [`custom_domain`](#spec.userConfig.custom_domain-property){: name='spec.userConfig.custom_domain-property'} (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name. When you set a custom domain for a service deployed in a VPC, the service certificate is only created for the public-* hostname and the custom domain.
 - [`follower_fetching`](#spec.userConfig.follower_fetching-property){: name='spec.userConfig.follower_fetching-property'} (object). Enable follower fetching. See below for [nested schema](#spec.userConfig.follower_fetching).
 - [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 8000). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
@@ -433,7 +435,7 @@ Kafka Diskless configuration values.
 
 **Required**
 
-- [`enabled`](#spec.userConfig.kafka_diskless.enabled-property){: name='spec.userConfig.kafka_diskless.enabled-property'} (boolean, Immutable). Whether to enable the Diskless functionality.
+- [`enabled`](#spec.userConfig.kafka_diskless.enabled-property){: name='spec.userConfig.kafka_diskless.enabled-property'} (boolean). Whether to enable the Diskless functionality.
 
 ### kafka_rest_config {: #spec.userConfig.kafka_rest_config }
 

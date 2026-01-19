@@ -523,10 +523,20 @@ type PgUserConfig struct {
 	// The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.
 	BackupHour *int `groups:"create,update" json:"backup_hour,omitempty"`
 
+	// +kubebuilder:validation:Minimum=3
+	// +kubebuilder:validation:Maximum=24
+	// Interval in hours between automatic backups. Minimum value is 3 hours. Must be a divisor of 24 (3, 4, 6, 8, 12, 24). (Applicable to ACU plans only)
+	BackupIntervalHours *int `groups:"create,update" json:"backup_interval_hours,omitempty"`
+
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=59
 	// The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
 	BackupMinute *int `groups:"create,update" json:"backup_minute,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=30
+	// Number of days to retain automatic backups. Backups older than this value will be automatically deleted. (Applicable to ACU plans only)
+	BackupRetentionDays *int `groups:"create,update" json:"backup_retention_days,omitempty"`
 
 	// Creates a dedicated read-only DNS that automatically falls back to the primary if standby nodes are unavailable. It switches back when a standby recovers.
 	EnableHaReplicaDns *bool `groups:"create,update" json:"enable_ha_replica_dns,omitempty"`

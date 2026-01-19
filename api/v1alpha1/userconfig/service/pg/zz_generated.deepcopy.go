@@ -439,8 +439,18 @@ func (in *PgUserConfig) DeepCopyInto(out *PgUserConfig) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.BackupIntervalHours != nil {
+		in, out := &in.BackupIntervalHours, &out.BackupIntervalHours
+		*out = new(int)
+		**out = **in
+	}
 	if in.BackupMinute != nil {
 		in, out := &in.BackupMinute, &out.BackupMinute
+		*out = new(int)
+		**out = **in
+	}
+	if in.BackupRetentionDays != nil {
+		in, out := &in.BackupRetentionDays, &out.BackupRetentionDays
 		*out = new(int)
 		**out = **in
 	}
