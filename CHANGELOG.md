@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.35.0 - 2026-01-20
+
 - **Upgraded controller-runtime to v0.16.6**: This version supports Kubernetes v0.28 and requires Go 1.20+. See [compatibility matrix](https://github.com/kubernetes-sigs/controller-runtime?tab=readme-ov-file#compatibility) for details.
 - Change `MySQL` field `userConfig.binlog_retention_period`: maximum ~~`604800`~~ → `9007199254740991`
 - Add `MySQL` field `userConfig.migration.dump_tool`, type `string`: Experimental! Tool to use for database
