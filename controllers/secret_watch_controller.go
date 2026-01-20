@@ -8,7 +8,6 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/aiven/aiven-operator/api/v1alpha1"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -18,6 +17,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 // SecretWatchController watches for changes to secrets referenced by connInfoSecretSource
