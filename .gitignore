@@ -30,6 +30,7 @@ kubeconfig
 *.coverprofile
 kind-logs*
 bundle-*
+_kuttl_artifacts/
 
 # Internal Tools
 hack/tools/bin/*

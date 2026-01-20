@@ -102,13 +102,21 @@ check-env-vars: ## Check if required environment variables are set.
 
 ##@ Tests
 
+E2E_ARTIFACTS_DIR ?= _kuttl_artifacts/$(shell date +%s)
+override E2E_ARTIFACTS_DIR := $(abspath $(E2E_ARTIFACTS_DIR))
+
+.PHONY: e2e-artifacts-dir
+e2e-artifacts-dir:
+	@mkdir -p "$(E2E_ARTIFACTS_DIR)"
+	@echo ">> E2E artifacts dir: $(E2E_ARTIFACTS_DIR)"
+
 .PHONY: test-e2e
-test-e2e: check-env-vars check-avn-client build ## Run end-to-end tests using kuttl (https://kuttl.dev).
-	kubectl kuttl test --config test/e2e/kuttl-test.yaml
+test-e2e: check-env-vars check-avn-client build e2e-artifacts-dir ## Run end-to-end tests using kuttl (https://kuttl.dev).
+	@bash -o pipefail -c 'E2E_ARTIFACTS_DIR="$(E2E_ARTIFACTS_DIR)" kubectl kuttl test --config test/e2e/kuttl-test.yaml --artifacts-dir "$(E2E_ARTIFACTS_DIR)" 2>&1 | tee "$(E2E_ARTIFACTS_DIR)/kuttl.log"'
 
 .PHONY: test-e2e-preinstalled
-test-e2e-preinstalled: check-env-vars check-avn-client ## Run end-to-end tests using kuttl (https://kuttl.dev) with preinstalled operator ('make e2e-setup-kind' should be run before this target).
-	kubectl kuttl test --config test/e2e/kuttl-test.preinstalled.yaml
+test-e2e-preinstalled: check-env-vars check-avn-client e2e-artifacts-dir ## Run end-to-end tests using kuttl (https://kuttl.dev) with preinstalled operator ('make e2e-setup-kind' should be run before this target).
+	@bash -o pipefail -c 'E2E_ARTIFACTS_DIR="$(E2E_ARTIFACTS_DIR)" kubectl kuttl test --config test/e2e/kuttl-test.preinstalled.yaml --artifacts-dir "$(E2E_ARTIFACTS_DIR)" 2>&1 | tee "$(E2E_ARTIFACTS_DIR)/kuttl.log"'
 
 test: envtest ## Run tests. To target a specific test, use 'run=TestName make test'.
 	export KUBEBUILDER_ASSETS=$(shell eval ${KUBEBUILDER_ASSETS_CMD}); \
