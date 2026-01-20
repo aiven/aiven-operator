@@ -8,11 +8,11 @@ commands:
       done
 
       # Verify required fields exist
-      kubectl --namespace $NAMESPACE get secret passworduser-secret -o jsonpath='{.data.PASSWORD}' | base64 -d >/dev/null
-      kubectl --namespace $NAMESPACE get secret passworduser-secret -o jsonpath='{.data.USERNAME}' | base64 -d >/dev/null
+      kubectl --namespace $NAMESPACE get secret passworduser-secret -o jsonpath='{.data.SERVICEUSER_PASSWORD}' | base64 -d >/dev/null
+      kubectl --namespace $NAMESPACE get secret passworduser-secret -o jsonpath='{.data.SERVICEUSER_USERNAME}' | base64 -d >/dev/null
 
       # Verify the password matches our predefined one
-      actual_password=$(kubectl --namespace $NAMESPACE get secret passworduser-secret -o jsonpath='{.data.PASSWORD}' | base64 -d)
+      actual_password=$(kubectl --namespace $NAMESPACE get secret passworduser-secret -o jsonpath='{.data.SERVICEUSER_PASSWORD}' | base64 -d)
       if [ "$actual_password" = "MyCustomPassword123!" ]; then
         echo "✓ Password matches predefined value"
       else

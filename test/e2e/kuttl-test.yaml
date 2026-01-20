@@ -17,6 +17,27 @@ testDirs:
   - test/e2e/grafana
   - test/e2e/serviceuser
 commands:
-  - script: ENABLE_WEBHOOKS=false ./bin/manager --metrics-bind-address=0 --health-probe-bind-address=0
+  - script: |
+      echo "Waiting for Aiven CRDs to be established..."
+      kubectl wait --for=condition=Established --timeout=120s crd/valkeys.aiven.io
+
+      echo "Waiting for Aiven CRDs to become discoverable..."
+      i=0
+      while ! kubectl api-resources --api-group aiven.io -o name 2>/dev/null | grep -Eq '^valkeys(\.aiven\.io)?$'; do
+        i=$((i + 1))
+        if [ "$i" -ge 30 ]; then
+          echo "Timed out waiting for aiven.io CRDs to become discoverable"
+          kubectl api-resources --api-group aiven.io || true
+          exit 1
+        fi
+        sleep 2
+      done
+
+      operator_log_dir="${E2E_ARTIFACTS_DIR:-$(pwd)}"
+      mkdir -p "${operator_log_dir}"
+
+      export OPERATOR_LOG_FILE="${operator_log_dir%/}/operator.log"
+      touch "${OPERATOR_LOG_FILE}"
+      bash -o pipefail -c 'DEFAULT_AIVEN_TOKEN="${AIVEN_TOKEN}" ENABLE_WEBHOOKS=false ./bin/manager --metrics-bind-address=0 --health-probe-bind-address=0 2>&1 | tee -a "${OPERATOR_LOG_FILE}"'
     background: true
 blockOnNamespaceDelete: false

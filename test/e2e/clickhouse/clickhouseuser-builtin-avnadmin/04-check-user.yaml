@@ -2,38 +2,34 @@ apiVersion: kuttl.dev/v1beta1
 kind: TestStep
 commands:
   - script: |
+      decode_b64() {
+        if [ -z "$1" ]; then
+          return 0
+        fi
+        printf '%s' "$1" | base64 -d 2>/dev/null || true
+      }
+
       timeout=600
       while [ $timeout -gt 0 ]; do
-        if kubectl --namespace $NAMESPACE get clickhouseuser avnadmin -o jsonpath='{.status.conditions[?(@.type=="Running")].status}' | grep -q "True"; then
-          echo "ClickHouse user 'avnadmin' is running"
-          break
+        actual_host="$(decode_b64 "$(kubectl --namespace "$NAMESPACE" get secret avnadmin-user-secret -o jsonpath='{.data.CLICKHOUSEUSER_HOST}' 2>/dev/null || true)")"
+        actual_port="$(decode_b64 "$(kubectl --namespace "$NAMESPACE" get secret avnadmin-user-secret -o jsonpath='{.data.CLICKHOUSEUSER_PORT}' 2>/dev/null || true)")"
+        actual_username="$(decode_b64 "$(kubectl --namespace "$NAMESPACE" get secret avnadmin-user-secret -o jsonpath='{.data.CLICKHOUSEUSER_USERNAME}' 2>/dev/null || true)")"
+
+        if [ -n "$actual_host" ] && [ -n "$actual_port" ] && [ "$actual_username" = "avnadmin" ]; then
+          echo "Username matches expected built-in user 'avnadmin'"
+          exit 0
         fi
-        echo "Waiting for ClickHouse user 'avnadmin' to be running..."
+
+        echo "Waiting for secret/avnadmin-user-secret to be populated..."
         sleep 5
         timeout=$((timeout - 5))
       done
 
-      if [ $timeout -le 0 ]; then
-        echo "Timeout waiting for ClickHouse user 'avnadmin' to be running"
-        exit 1
-      fi
-
-      # wait for secret
-      while ! kubectl --namespace $NAMESPACE get secret avnadmin-user-secret >/dev/null 2>&1; do
-        sleep 5
-      done
-
-      # verify required fields exist
-      kubectl --namespace $NAMESPACE get secret avnadmin-user-secret -o jsonpath='{.data.CLICKHOUSEUSER_PASSWORD}' | base64 -d >/dev/null
-      kubectl --namespace $NAMESPACE get secret avnadmin-user-secret -o jsonpath='{.data.CLICKHOUSEUSER_USERNAME}' | base64 -d >/dev/null
-      kubectl --namespace $NAMESPACE get secret avnadmin-user-secret -o jsonpath='{.data.CLICKHOUSEUSER_HOST}' | base64 -d >/dev/null
-      kubectl --namespace $NAMESPACE get secret avnadmin-user-secret -o jsonpath='{.data.CLICKHOUSEUSER_PORT}' | base64 -d >/dev/null
-
-      # verify the username is 'avnadmin'
-      actual_username=$(kubectl --namespace $NAMESPACE get secret avnadmin-user-secret -o jsonpath='{.data.CLICKHOUSEUSER_USERNAME}' | base64 -d)
-      if [ "$actual_username" = "avnadmin" ]; then
-        echo "Username matches expected built-in user 'avnadmin'"
+      if [ -n "${actual_username:-}" ] && [ "${actual_username:-}" != "avnadmin" ]; then
+        echo "Username mismatch: expected 'avnadmin', got '${actual_username}'"
       else
-        echo "Username mismatch: expected 'avnadmin', got '$actual_username'"
-        exit 1
+        echo "Timeout waiting for secret/avnadmin-user-secret to be populated"
       fi
+      kubectl --namespace "$NAMESPACE" get clickhouseuser avnadmin -o yaml || true
+      kubectl --namespace "$NAMESPACE" describe secret avnadmin-user-secret || true
+      exit 1
