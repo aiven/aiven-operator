@@ -1,10 +1,44 @@
 # Changelog
 
 
+## v0.35.0 - 2026-01-20
+
+- **Upgraded controller-runtime to v0.16.6**: This version supports Kubernetes v0.28 and requires Go 1.20+. See [compatibility matrix](https://github.com/kubernetes-sigs/controller-runtime?tab=readme-ov-file#compatibility) for details.
+- Change `MySQL` field `userConfig.binlog_retention_period`: maximum ~~`604800`~~ → `9007199254740991`
+- Add `MySQL` field `userConfig.migration.dump_tool`, type `string`: Experimental! Tool to use for database
+  dump and restore during migration. Default: mysqldump
+- Remove `Redis` kind and controller from the operator: use `Valkey` instead for caching services, since Redis has reached end of life (EOL)
+- Add `KafkaConnect` field `userConfig.sasl_oauthbearer_allowed_urls`, type `array`: List of allowed
+  URLs for SASL OAUTHBEARER authentication
+- Add `Kafka` field `userConfig.letsencrypt_sasl`, type `boolean`: Use a Let's Encrypt certificate authority
+  (CA) for Kafka SASL authentication. (Default: False)
+- Add `Kafka` field `userConfig.sasl_oauthbearer_allowed_urls`, type `array`: List of allowed URLs for
+  SASL OAUTHBEARER authentication
+- Add `PostgreSQL` field `userConfig.enable_ha_replica_dns`, type `boolean`: Creates a dedicated read-only
+  DNS that automatically falls back to the primary if standby nodes are unavailable
+- Add `OpenSearch` field `userConfig.opensearch.ml_commons_model_access_control_enabled`, type `boolean`:
+  Enable or disable model access control for ML Commons
+- Add `OpenSearch` field `userConfig.opensearch.ml_commons_native_memory_threshold`, type `integer`:
+  Native memory threshold percentage for ML Commons
+- Add `OpenSearch` field `userConfig.opensearch.ml_commons_only_run_on_ml_node`, type `boolean`: Enable
+  or disable running ML Commons tasks only on ML nodes
+- Add `MySQL` field `userConfig.migration.reestablish_replication`, type `boolean`: Skip dump-restore
+  part and start replication
+- Change `Valkey` field `userConfig.valkey_io_threads`: maximum ~~`32`~~ → `256`
+- Add `Kafka` field `userConfig.backup_interval_hours`, type `integer`: Interval in hours between automatic
+  backups. Minimum value is 3 hours
+- Add `Kafka` field `userConfig.backup_retention_days`, type `integer`: Number of days to retain automatic
+  backups
+- Change `Kafka` field `userConfig.kafka_diskless.enabled`: immutable ~~`true`~~
+- Add `PostgreSQL` field `userConfig.backup_interval_hours`, type `integer`: Interval in hours between
+  automatic backups. Minimum value is 3 hours
+- Add `PostgreSQL` field `userConfig.backup_retention_days`, type `integer`: Number of days to retain
+  automatic backups
+
 ## v0.34.0 - 2025-10-21
 
 - Change service version fields: removed enum validation from `userConfig`
-  (affects `AlloyDBOmni.userConfig.alloydbomni_version`,
+  (affects `AlloyDBOmni.userConfig.alloydbomni_version`, `AlloyDBOmni.userConfig.pg_version`,
   `Cassandra.userConfig.cassandra_version`, `Flink.userConfig.flink_version`,
   `MySQL.userConfig.mysql_version`, `OpenSearch.userConfig.opensearch_version`,
   `Redis.userConfig.redis_version`, `PostgreSQL.userConfig.pg_version`, `Kafka.userConfig.kafka_version`)
@@ -33,6 +67,7 @@
   be enabled
 - Remove `KafkaTopic` field `config.inkless_enable`, type `boolean`: Indicates whether inkless should
   be enabled
+- Remove `Redis` kind and controller from the operator: use `Valkey` instead for caching services
 
 ## v0.33.1 - 2025-10-08
 
