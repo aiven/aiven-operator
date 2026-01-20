@@ -26,6 +26,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
+	ctrlbuilder "sigs.k8s.io/controller-runtime/pkg/builder"
 	crclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/client/interceptor"
@@ -2155,42 +2156,93 @@ func TestReconciler_SetupWithManager(t *testing.T) {
 	require.NoError(t, clientgoscheme.AddToScheme(scheme))
 	require.NoError(t, v1alpha1.AddToScheme(scheme))
 
-	restMapper := meta.NewDefaultRESTMapper(nil)
-	restMapper.Add(corev1.SchemeGroupVersion.WithKind("Secret"), meta.RESTScopeNamespace)
-	restMapper.Add(v1alpha1.GroupVersion.WithKind("ClickhouseUser"), meta.RESTScopeNamespace)
-
 	cfg := &rest.Config{
 		Host: "https://127.0.0.1",
 	}
 
-	mgr, err := ctrl.NewManager(cfg, ctrl.Options{
-		Scheme: scheme,
-		Metrics: metricsserver.Options{
-			BindAddress: "0",
-		},
-		HealthProbeBindAddress: "0",
-		PprofBindAddress:       "0",
-		LeaderElection:         false,
-		MapperProvider: func(*rest.Config, *http.Client) (meta.RESTMapper, error) {
-			return restMapper, nil
-		},
-		NewClient: func(*rest.Config, crclient.Options) (crclient.Client, error) {
-			return fake.NewClientBuilder().WithScheme(scheme).Build(), nil
-		},
-	})
-	require.NoError(t, err)
+	newManager := func(t *testing.T, restMapper meta.RESTMapper) ctrl.Manager {
+		t.Helper()
 
-	recorder := record.NewFakeRecorder(10)
+		mgr, err := ctrl.NewManager(cfg, ctrl.Options{
+			Scheme: scheme,
+			Metrics: metricsserver.Options{
+				BindAddress: "0",
+			},
+			HealthProbeBindAddress: "0",
+			PprofBindAddress:       "0",
+			LeaderElection:         false,
+			MapperProvider: func(*rest.Config, *http.Client) (meta.RESTMapper, error) {
+				return restMapper, nil
+			},
+			NewClient: func(*rest.Config, crclient.Options) (crclient.Client, error) {
+				return fake.NewClientBuilder().WithScheme(scheme).Build(), nil
+			},
+		})
+		require.NoError(t, err)
 
-	r := &Reconciler[*v1alpha1.ClickhouseUser]{
-		Controller: Controller{
-			Client:   mgr.GetClient(),
-			Scheme:   mgr.GetScheme(),
-			Recorder: recorder,
-		},
-		newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+		return mgr
 	}
 
-	err = r.SetupWithManager(mgr)
-	require.NoError(t, err)
+	t.Run("Owns Secret for resources with secret target", func(t *testing.T) {
+		restMapper := meta.NewDefaultRESTMapper(nil)
+		restMapper.Add(corev1.SchemeGroupVersion.WithKind("Secret"), meta.RESTScopeNamespace)
+		restMapper.Add(v1alpha1.GroupVersion.WithKind("ClickhouseUser"), meta.RESTScopeNamespace)
+
+		mgr := newManager(t, restMapper)
+
+		recorder := record.NewFakeRecorder(10)
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:   mgr.GetClient(),
+				Scheme:   mgr.GetScheme(),
+				Recorder: recorder,
+			},
+			newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+		}
+
+		err := r.SetupWithManager(mgr)
+		require.NoError(t, err)
+	})
+
+	t.Run("Doesn't Own Secret for resources without secret target", func(t *testing.T) {
+		restMapper := meta.NewDefaultRESTMapper(nil)
+		restMapper.Add(v1alpha1.GroupVersion.WithKind("KafkaTopic"), meta.RESTScopeNamespace)
+
+		mgr := newManager(t, restMapper)
+
+		r := &Reconciler[*v1alpha1.KafkaTopic]{
+			Controller: Controller{
+				Client: mgr.GetClient(),
+				Scheme: mgr.GetScheme(),
+			},
+			newObj: func() *v1alpha1.KafkaTopic { return &v1alpha1.KafkaTopic{} },
+		}
+
+		err := r.SetupWithManager(mgr)
+		require.NoError(t, err)
+	})
+
+	t.Run("Calls builder customizer", func(t *testing.T) {
+		restMapper := meta.NewDefaultRESTMapper(nil)
+		restMapper.Add(v1alpha1.GroupVersion.WithKind("KafkaTopic"), meta.RESTScopeNamespace)
+
+		mgr := newManager(t, restMapper)
+
+		called := false
+		r := &Reconciler[*v1alpha1.KafkaTopic]{
+			Controller: Controller{
+				Client: mgr.GetClient(),
+				Scheme: mgr.GetScheme(),
+			},
+			newObj: func() *v1alpha1.KafkaTopic { return &v1alpha1.KafkaTopic{} },
+			customizeBuilder: func(b *ctrlbuilder.Builder) *ctrlbuilder.Builder {
+				called = true
+				return b
+			},
+		}
+
+		err := r.SetupWithManager(mgr)
+		require.NoError(t, err)
+		require.True(t, called)
+	})
 }
