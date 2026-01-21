@@ -17,7 +17,7 @@ jobs:
       - name: Generate docs
         uses: addnab/docker-run-action@v3
         with:
-          image: squidfunk/mkdocs-material:latest
+          image: zensical/zensical:latest
           options: -v ${{ github.workspace }}/docs/:/docs
           run: mkdocs build
       - name: Deploy

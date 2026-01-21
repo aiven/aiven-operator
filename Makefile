@@ -175,7 +175,7 @@ docs: ## Generate CRDs docs.
 
 .PHONY: docs-serve
 docs-serve: ## Run live preview.
-	$(CONTAINER_TOOL) run --rm -it -p 8000:8000 -v ${PWD}/docs:/docs squidfunk/mkdocs-material
+	$(CONTAINER_TOOL) run --rm -it -p 8000:8000 -v ${PWD}/docs:/docs zensical/zensical
 
 # Alias
 .PONY: serve-docs
@@ -183,7 +183,7 @@ serve-docs: docs-serve
 
 .PHONY: docs-build
 docs-build: docs ## Builds docs website.
-	$(CONTAINER_TOOL) run --rm -it -v ${PWD}/docs:/docs squidfunk/mkdocs-material build
+	$(CONTAINER_TOOL) run --rm -it -v ${PWD}/docs:/docs zensical/zensical build
 
 ##@ Build dependencies
 

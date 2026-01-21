@@ -270,13 +270,13 @@ tasks:
   docs:serve:
     desc: Run live preview of docs.
     cmds:
-      - "{{.CONTAINER_TOOL}} run --rm -it -p 8000:8000 -v $(pwd)/docs:/docs squidfunk/mkdocs-material"
+      - "{{.CONTAINER_TOOL}} run --rm -it -p 8000:8000 -v $(pwd)/docs:/docs zensical/zensical"
 
   docs:build:
     desc: Builds docs website.
     deps: [internal:generate:docs]
     cmds:
-      - "{{.CONTAINER_TOOL}} run --rm -it -v $(pwd)/docs:/docs squidfunk/mkdocs-material build"
+      - "{{.CONTAINER_TOOL}} run --rm -it -v $(pwd)/docs:/docs zensical/zensical build"
 
   #-------------------------------------
   # Test setup and cleanup
