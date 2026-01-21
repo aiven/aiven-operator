@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#usage-example" class="md-skip">
+        <a href="#prerequisites" class="md-skip">
           Skip to content
         </a>
       
@@ -1189,6 +1189,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required permissions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#usage-example" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2253,6 +2281,34 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required permissions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#usage-example" class="md-nav__link">
@@ -3532,6 +3588,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required permissions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#usage-example" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3605,14 +3689,22 @@
 
   <h1>Database</h1>
 
-<h2 id="usage-example">Usage example<a class="headerlink" href="#usage-example" title="Permanent link">&para;</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Prerequisites</p>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <ul>
 <li>A Kubernetes cluster with the operator installed using <a href="../installation/helm.html">helm</a>, <a href="../installation/kubectl.html">kubectl</a> or <a href="../contributing/developer-guide.html">kind</a> (for local development).</li>
 <li>A Kubernetes <a href="../authentication.html">Secret</a> with an Aiven authentication token.</li>
 </ul>
-</div>
+<h3 id="required-permissions">Required permissions<a class="headerlink" href="#required-permissions" title="Permanent link">&para;</a></h3>
+<p>To create and manage this resource, you must have the appropriate <a href="https://aiven.io/docs/platform/concepts/permissions">roles or permissions</a>.
+See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven documentation</a> for details on managing permissions.
+For more precise access control, use permissions instead of roles.</p>
+<p><strong>Permissions</strong></p>
+<p>All of these permissions are required to create and manage this resource.</p>
+<ul>
+<li><code>project:services:read</code></li>
+<li><code>read_only</code></li>
+</ul>
+<h2 id="usage-example">Usage example<a class="headerlink" href="#usage-example" title="Permanent link">&para;</a></h2>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
