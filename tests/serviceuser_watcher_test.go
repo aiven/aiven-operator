@@ -37,7 +37,8 @@ func TestServiceUserSecretWatch(t *testing.T) {
 	t.Run("BasicSecretUpdate", func(t *testing.T) {
 		userName := randName("secret-watch-user")
 		secretName := randName("password-secret")
-		yml := getServiceUserWithSecretSourceYaml(cfg.Project, serviceName, userName, secretName)
+		targetSecretName := randName("service-user-secret")
+		yml := getServiceUserWithSecretSourceYaml(cfg.Project, serviceName, userName, secretName, targetSecretName)
 
 		require.NoError(t, s.Apply(yml))
 
@@ -83,15 +84,16 @@ func TestServiceUserSecretWatch(t *testing.T) {
 	t.Run("RaceCondition", func(t *testing.T) {
 		userName := randName("race-user")
 		secretName := randName("race-secret")
+		targetSecretName := randName("race-service-user-secret")
 
-		yml := getServiceUserWithSecretSourceYaml(cfg.Project, serviceName, userName, secretName)
+		yml := getServiceUserWithSecretSourceYaml(cfg.Project, serviceName, userName, secretName, targetSecretName)
 		require.NoError(t, s.Apply(yml))
 
 		user := new(v1alpha1.ServiceUser)
 		require.NoError(t, s.GetRunning(user, userName))
 
 		// apply changes to both secret and ServiceUser simultaneously
-		updatedYml := getUpdatedServiceUserAndSecretYaml(cfg.Project, serviceName, userName, secretName)
+		updatedYml := getUpdatedServiceUserAndSecretYaml(cfg.Project, serviceName, userName, secretName, targetSecretName)
 		require.NoError(t, s.Apply(updatedYml))
 
 		// verify secret watcher handles the race condition properly
@@ -131,15 +133,17 @@ func TestServiceUserSecretWatch(t *testing.T) {
 		initialUserName := randName("initial-user")
 		newUserName := randName("renamed-user")
 		secretName := randName("name-change-secret")
+		oldTargetSecretName := randName("initial-service-user-secret")
+		newTargetSecretName := randName("renamed-service-user-secret")
 
-		yml := getServiceUserWithSecretSourceYaml(cfg.Project, serviceName, initialUserName, secretName)
+		yml := getServiceUserWithSecretSourceYaml(cfg.Project, serviceName, initialUserName, secretName, oldTargetSecretName)
 		require.NoError(t, s.Apply(yml))
 
 		user := new(v1alpha1.ServiceUser)
 		require.NoError(t, s.GetRunning(user, initialUserName))
 
 		// apply changes that rename ServiceUser AND update secret simultaneously
-		updatedYml := getServiceUserWithNameChangeAndSecretYaml(cfg.Project, serviceName, initialUserName, newUserName, secretName)
+		updatedYml := getServiceUserWithNameChangeAndSecretYaml(cfg.Project, serviceName, initialUserName, newUserName, secretName, newTargetSecretName)
 		require.NoError(t, s.Apply(updatedYml))
 
 		newUser := new(v1alpha1.ServiceUser)
@@ -177,7 +181,7 @@ func TestServiceUserSecretWatch(t *testing.T) {
 	})
 }
 
-func getServiceUserWithSecretSourceYaml(project, serviceName, userName, secretName string) string {
+func getServiceUserWithSecretSourceYaml(project, serviceName, userName, secretName, targetSecretName string) string {
 	return fmt.Sprintf(`
 apiVersion: v1
 kind: Secret
@@ -196,7 +200,7 @@ spec:
     key: token
 
   connInfoSecretTarget:
-    name: my-service-user-secret
+    name: %[5]s
 
   connInfoSecretSource:
     name: %[4]s
@@ -204,7 +208,7 @@ spec:
 
   project: %[1]s
   serviceName: %[2]s
-`, project, serviceName, userName, secretName)
+`, project, serviceName, userName, secretName, targetSecretName)
 }
 
 // TestCrossNamespaceSecretWatch tests secret watching across namespaces
@@ -313,7 +317,7 @@ spec:
 
 // getUpdatedServiceUserAndSecretYaml returns YAML with both secret and ServiceUser changes
 // This simulates a user doing "kubectl apply -f config.yaml" with multiple resource changes
-func getUpdatedServiceUserAndSecretYaml(project, serviceName, userName, secretName string) string {
+func getUpdatedServiceUserAndSecretYaml(project, serviceName, userName, secretName, targetSecretName string) string {
 	return fmt.Sprintf(`
 apiVersion: v1
 kind: Secret
@@ -335,7 +339,7 @@ spec:
     key: token
 
   connInfoSecretTarget:
-    name: my-service-user-secret
+    name: %[5]s
 
   connInfoSecretSource:
     name: %[4]s
@@ -345,12 +349,12 @@ spec:
   serviceName: %[2]s
 
   authentication: caching_sha2_password  # User changes authentication method
-`, project, serviceName, userName, secretName)
+`, project, serviceName, userName, secretName, targetSecretName)
 }
 
 // getServiceUserWithNameChangeAndSecretYaml returns YAML that renames ServiceUser and updates secret
 // This simulates the most complex race condition scenario
-func getServiceUserWithNameChangeAndSecretYaml(project, serviceName, oldUserName, newUserName, secretName string) string {
+func getServiceUserWithNameChangeAndSecretYaml(project, serviceName, oldUserName, newUserName, secretName, targetSecretName string) string {
 	return fmt.Sprintf(`
 apiVersion: v1
 kind: Secret
@@ -372,7 +376,7 @@ spec:
     key: token
 
   connInfoSecretTarget:
-    name: my-renamed-service-user-secret
+    name: %[6]s
 
   connInfoSecretSource:
     name: %[5]s
@@ -380,5 +384,5 @@ spec:
 
   project: %[1]s
   serviceName: %[2]s
-`, project, serviceName, oldUserName, newUserName, secretName)
+`, project, serviceName, oldUserName, newUserName, secretName, targetSecretName)
 }

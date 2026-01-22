@@ -6,131 +6,171 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"time"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/avast/retry-go"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-// ServiceUserReconciler reconciles a ServiceUser object
-type ServiceUserReconciler struct {
-	Controller
-}
-
 func newServiceUserReconciler(c Controller) reconcilerType {
-	return &ServiceUserReconciler{Controller: c}
-}
-
-type ServiceUserHandler struct {
-	k8s client.Client
+	return &Reconciler[*v1alpha1.ServiceUser]{
+		Controller:              c,
+		newAivenGeneratedClient: NewAivenGeneratedClient,
+		newObj: func() *v1alpha1.ServiceUser {
+			return &v1alpha1.ServiceUser{}
+		},
+		newController: func(avnGen avngen.Client) AivenController[*v1alpha1.ServiceUser] {
+			return &ServiceUserController{
+				Client: c.Client,
+				avnGen: avnGen,
+			}
+		},
+		newSecret: newSecret,
+	}
 }
 
 //+kubebuilder:rbac:groups=aiven.io,resources=serviceusers,verbs=update;get;list;watch;create;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=serviceusers/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=aiven.io,resources=serviceusers/finalizers,verbs=get;create;update
 
-func (r *ServiceUserReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	handler := &ServiceUserHandler{
-		k8s: r.Client,
-	}
-	return r.reconcileInstance(ctx, req, handler, &v1alpha1.ServiceUser{})
+// ServiceUserController reconciles a ServiceUser object
+type ServiceUserController struct {
+	client.Client
+	avnGen avngen.Client
 }
 
-func (r *ServiceUserReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.ServiceUser{}).
-		Complete(r)
+func (r *ServiceUserController) Observe(ctx context.Context, user *v1alpha1.ServiceUser) (Observation, error) {
+	details, err := r.fetchSecretDetails(ctx, user)
+	if err != nil {
+		// ServiceUser 404 means "user doesn't exist yet" and should trigger Create.
+		// But service/project 404 is wrapped as errPreconditionNotMet in getServiceIfOperational
+		// and must be treated as a soft precondition failure.
+		if isNotFound(err) && !errors.Is(err, errPreconditionNotMet) {
+			return Observation{ResourceExists: false}, nil
+		}
+		return Observation{}, err
+	}
+
+	return Observation{
+		ResourceExists:   true,
+		ResourceUpToDate: IsReadyToUse(user),
+		SecretDetails:    details,
+	}, nil
 }
 
-func (h *ServiceUserHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
-	user, err := h.convert(obj)
+func (r *ServiceUserController) Create(ctx context.Context, user *v1alpha1.ServiceUser) (CreateResult, error) {
+	password, err := GetPasswordFromSecret(ctx, r.Client, user)
 	if err != nil {
-		return err
+		return CreateResult{}, err
 	}
 
-	newPassword, err := GetPasswordFromSecret(ctx, h.k8s, user)
-	if err != nil {
-		return fmt.Errorf("failed to get password from secret: %w", err)
-	}
-
-	u, err := avnGen.ServiceUserCreate(
-		ctx, user.Spec.Project, user.Spec.ServiceName,
-		&service.ServiceUserCreateIn{
-			Username: user.Name,
-		},
+	u, err := r.avnGen.ServiceUserCreate(
+		ctx,
+		user.Spec.Project,
+		user.Spec.ServiceName,
+		&service.ServiceUserCreateIn{Username: user.Name},
 	)
 	if err != nil && !isAlreadyExists(err) {
-		return fmt.Errorf("cannot createOrUpdate service user on aiven side: %w", err)
+		return CreateResult{}, fmt.Errorf("creating service user: %w", err)
 	}
 
-	// modify credentials using the password from source secret
-	if newPassword != "" {
-		modifyReq := &service.ServiceUserCredentialsModifyIn{
-			NewPassword: &newPassword,
-			Operation:   service.ServiceUserCredentialsModifyOperationTypeResetCredentials,
-		}
-
-		_, err = avnGen.ServiceUserCredentialsModify(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name, modifyReq)
-		if err != nil {
-			return err
-		}
+	if err := r.setAivenPasswordIfProvided(ctx, user, password); err != nil {
+		return CreateResult{}, err
 	}
 
 	if u != nil {
 		user.Status.Type = u.Type
 	}
 
-	return nil
-}
+	meta.SetStatusCondition(&user.Status.Conditions, getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
+	metav1.SetMetaDataAnnotation(&user.ObjectMeta, instanceIsRunningAnnotation, "true")
 
-func (h *ServiceUserHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
-	user, err := h.convert(obj)
+	details, err := r.fetchSecretDetails(ctx, user)
 	if err != nil {
-		return false, err
+		return CreateResult{}, fmt.Errorf("building connection details: %w", err)
 	}
 
+	return CreateResult{SecretDetails: details}, nil
+}
+
+func (r *ServiceUserController) Update(ctx context.Context, user *v1alpha1.ServiceUser) (UpdateResult, error) {
+	password, err := GetPasswordFromSecret(ctx, r.Client, user)
+	if err != nil {
+		return UpdateResult{}, err
+	}
+
+	if err := r.setAivenPasswordIfProvided(ctx, user, password); err != nil {
+		return UpdateResult{}, err
+	}
+
+	meta.SetStatusCondition(&user.Status.Conditions, getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
+	metav1.SetMetaDataAnnotation(&user.ObjectMeta, instanceIsRunningAnnotation, "true")
+
+	details, err := r.fetchSecretDetails(ctx, user)
+	if err != nil {
+		return UpdateResult{}, fmt.Errorf("building connection details: %w", err)
+	}
+
+	return UpdateResult{SecretDetails: details}, nil
+}
+
+func (r *ServiceUserController) Delete(ctx context.Context, user *v1alpha1.ServiceUser) error {
 	// skip deletion for built-in users that cannot be deleted
 	if isBuiltInUser(user.Name) {
 		// built-in users like avnadmin cannot be deleted, this is expected behavior
-		// we consider this a successful deletion since we can't and shouldn't delete built-in users
-		return true, nil
+		return nil
 	}
 
-	err = avnGen.ServiceUserDelete(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
-	if isNotFound(err) {
-		// consider it a successful deletion
-		return true, nil
-	}
-	if err != nil {
-		return false, err
+	err := r.avnGen.ServiceUserDelete(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
+	if err != nil && !isNotFound(err) {
+		return fmt.Errorf("deleting service user: %w", err)
 	}
 
-	return true, nil
+	return nil
 }
 
-// errEmptyPassword password is not received from the API:
-// 1. it was changed by TF but the API did not return it
-// 2. user has changed it in PG directly, so the API does not have it
-var errEmptyPassword = fmt.Errorf("received empty password from the API")
+func (r *ServiceUserController) setAivenPasswordIfProvided(ctx context.Context, user *v1alpha1.ServiceUser, password string) error {
+	if password == "" {
+		return nil
+	}
 
-const (
-	emptyPasswordRetryAttempts = 10
-	emptyPasswordRetryDelay    = 5 * time.Second
-)
+	if _, err := r.avnGen.ServiceUserCredentialsModify(
+		ctx,
+		user.Spec.Project,
+		user.Spec.ServiceName,
+		user.Name,
+		&service.ServiceUserCredentialsModifyIn{
+			NewPassword: &password,
+			Operation:   service.ServiceUserCredentialsModifyOperationTypeResetCredentials,
+		},
+	); err != nil {
+		return fmt.Errorf("modifying service user credentials: %w", err)
+	}
 
-func (h *ServiceUserHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
-	user, err := h.convert(obj)
+	return nil
+}
+
+func (r *ServiceUserController) fetchSecretDetails(ctx context.Context, user *v1alpha1.ServiceUser) (SecretDetails, error) {
+	svc, err := getServiceIfOperational(ctx, r.avnGen, user.Spec.Project, user.Spec.ServiceName)
 	if err != nil {
 		return nil, err
 	}
+
+	// errEmptyPassword password is not received from the API:
+	// 1. it was changed by TF but the API did not return it
+	// 2. user has changed it in PG directly, so the API does not have it
+	errEmptyPassword := errors.New("received empty password from the API")
+	const (
+		emptyPasswordRetryAttempts = 10
+		emptyPasswordRetryDelay    = 5 * time.Second
+	)
 
 	// Retries empty password up to ~1m.
 	// It should be enough to get the backend to a consistent state.
@@ -139,7 +179,7 @@ func (h *ServiceUserHandler) get(ctx context.Context, avnGen avngen.Client, obj 
 	var u *service.ServiceUserGetOut
 	err = retry.Do(
 		func() error {
-			u, err = avnGen.ServiceUserGet(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
+			u, err = r.avnGen.ServiceUserGet(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
 			if err == nil && u.Password == "" {
 				err = errEmptyPassword
 			}
@@ -162,36 +202,30 @@ func (h *ServiceUserHandler) get(ctx context.Context, avnGen avngen.Client, obj 
 		return nil, err
 	}
 
-	s, err := avnGen.ServiceGet(ctx, user.Spec.Project, user.Spec.ServiceName)
-	if err != nil {
-		return nil, err
+	idx := slices.IndexFunc(svc.Components, func(c service.ComponentOut) bool {
+		return c.Component == svc.ServiceType || (svc.ServiceType == "alloydbomni" && c.Component == "pg")
+	})
+	if idx < 0 {
+		return nil, fmt.Errorf("service component %q not found", svc.ServiceType)
 	}
+	component := &svc.Components[idx]
 
-	var component *service.ComponentOut
-	for _, c := range s.Components {
-		if c.Component == s.ServiceType || (s.ServiceType == "alloydbomni" && c.Component == "pg") {
-			component = &c
-			break
-		}
-	}
-
-	if component == nil {
-		return nil, fmt.Errorf("service component %q not found", s.ServiceType)
-	}
-
-	caCert, err := avnGen.ProjectKmsGetCA(ctx, user.Spec.Project)
+	caCert, err := r.avnGen.ProjectKmsGetCA(ctx, user.Spec.Project)
 	if err != nil {
 		return nil, fmt.Errorf("aiven client error %w", err)
 	}
 
-	meta.SetStatusCondition(&user.Status.Conditions,
-		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
-			"Instance is running on Aiven side"))
+	return buildSecretDetailsFromComponent(component, user, u, caCert), nil
+}
 
-	metav1.SetMetaDataAnnotation(&user.ObjectMeta, instanceIsRunningAnnotation, "true")
-
+func buildSecretDetailsFromComponent(
+	component *service.ComponentOut,
+	user *v1alpha1.ServiceUser,
+	u *service.ServiceUserGetOut,
+	caCert string,
+) SecretDetails {
 	prefix := getSecretPrefix(user)
-	stringData := map[string]string{
+	details := SecretDetails{
 		prefix + "HOST":        component.Host,
 		prefix + "PORT":        fmt.Sprintf("%d", component.Port),
 		prefix + "USERNAME":    u.Username,
@@ -201,26 +235,5 @@ func (h *ServiceUserHandler) get(ctx context.Context, avnGen avngen.Client, obj 
 		prefix + "CA_CERT":     caCert,
 	}
 
-	return newSecret(user, stringData, false), nil
-}
-
-func (h *ServiceUserHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
-	user, err := h.convert(obj)
-	if err != nil {
-		return false, err
-	}
-
-	meta.SetStatusCondition(&user.Status.Conditions,
-		getInitializedCondition("Preconditions", "Checking preconditions"))
-
-	return checkServiceIsOperational(ctx, avnGen, user.Spec.Project, user.Spec.ServiceName)
-}
-
-func (h *ServiceUserHandler) convert(i client.Object) (*v1alpha1.ServiceUser, error) {
-	db, ok := i.(*v1alpha1.ServiceUser)
-	if !ok {
-		return nil, fmt.Errorf("cannot convert object to ServiceUser")
-	}
-
-	return db, nil
+	return details
 }
