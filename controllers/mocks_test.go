@@ -27,7 +27,8 @@ import (
 func NewMockHandlers(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *MockHandlers {
+},
+) *MockHandlers {
 	mock := &MockHandlers{}
 	mock.Mock.Test(t)
 
@@ -341,7 +342,8 @@ func (_c *MockHandlers_get_Call) RunAndReturn(run func(ctx context.Context, avnG
 func newMockrefsObject(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockrefsObject {
+},
+) *mockrefsObject {
 	mock := &mockrefsObject{}
 	mock.Mock.Test(t)
 
@@ -1780,7 +1782,8 @@ func (_c *mockrefsObject_SetUID_Call) RunAndReturn(run func(uid types.UID)) *moc
 func NewMockAivenController[T v1alpha1.AivenManagedObject](t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *MockAivenController[T] {
+},
+) *MockAivenController[T] {
 	mock := &MockAivenController[T]{}
 	mock.Mock.Test(t)
 
@@ -2062,7 +2065,8 @@ func (_c *MockAivenController_Update_Call[T]) RunAndReturn(run func(ctx context.
 func newMockobjWithSecret(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockobjWithSecret {
+},
+) *mockobjWithSecret {
 	mock := &mockobjWithSecret{}
 	mock.Mock.Test(t)
 
@@ -2267,7 +2271,8 @@ func (_c *mockobjWithSecret_GetObjectKind_Call) RunAndReturn(run func() schema.O
 func newMockserviceAdapter(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockserviceAdapter {
+},
+) *mockserviceAdapter {
 	mock := &mockserviceAdapter{}
 	mock.Mock.Test(t)
 
@@ -2938,7 +2943,8 @@ func (_c *mockserviceAdapter_performUpgradeTaskIfNeeded_Call) RunAndReturn(run f
 func NewMockPasswordSource(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *MockPasswordSource {
+},
+) *MockPasswordSource {
 	mock := &MockPasswordSource{}
 	mock.Mock.Test(t)
 
@@ -4285,7 +4291,8 @@ func (_c *MockPasswordSource_SetUID_Call) RunAndReturn(run func(uid types.UID)) 
 func NewMockSecretSourceResource(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *MockSecretSourceResource {
+},
+) *MockSecretSourceResource {
 	mock := &MockSecretSourceResource{}
 	mock.Mock.Test(t)
 
@@ -5724,7 +5731,8 @@ func (_c *MockSecretSourceResource_SetUID_Call) RunAndReturn(run func(uid types.
 func newMockreconcilerType(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockreconcilerType {
+},
+) *mockreconcilerType {
 	mock := &mockreconcilerType{}
 	mock.Mock.Test(t)
 
