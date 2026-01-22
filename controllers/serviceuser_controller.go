@@ -81,7 +81,7 @@ func (r *ServiceUserController) Create(ctx context.Context, user *v1alpha1.Servi
 		return CreateResult{}, fmt.Errorf("creating service user: %w", err)
 	}
 
-	if err := r.enforceExternalPassword(ctx, user, password); err != nil {
+	if err := r.setAivenPasswordIfProvided(ctx, user, password); err != nil {
 		return CreateResult{}, err
 	}
 
@@ -106,7 +106,7 @@ func (r *ServiceUserController) Update(ctx context.Context, user *v1alpha1.Servi
 		return UpdateResult{}, err
 	}
 
-	if err := r.enforceExternalPassword(ctx, user, password); err != nil {
+	if err := r.setAivenPasswordIfProvided(ctx, user, password); err != nil {
 		return UpdateResult{}, err
 	}
 
@@ -136,7 +136,7 @@ func (r *ServiceUserController) Delete(ctx context.Context, user *v1alpha1.Servi
 	return nil
 }
 
-func (r *ServiceUserController) enforceExternalPassword(ctx context.Context, user *v1alpha1.ServiceUser, password string) error {
+func (r *ServiceUserController) setAivenPasswordIfProvided(ctx context.Context, user *v1alpha1.ServiceUser, password string) error {
 	if password == "" {
 		return nil
 	}
