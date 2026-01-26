@@ -8,18 +8,19 @@ title: "KafkaTopic"
 * A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
 ### Required permissions
-	
+
 To create and manage this resource, you must have the appropriate [roles or permissions](https://aiven.io/docs/platform/concepts/permissions).
 See the [Aiven documentation](https://aiven.io/docs/platform/howto/manage-permissions) for details on managing permissions.
-For more precise access control, use permissions instead of roles.
 
-**Permissions**
+This resource uses the following API operations, and for each operation, _any_ of the listed permissions is sufficient:
 
-All of these permissions are required to create and manage this resource.
-
-- `developer` or `operator`
-- `project:services:read`
-- `service:data:write`
+| Operation | Permissions  |
+| ----------- | ----------- |
+| [ServiceGet](https://api.aiven.io/doc/#operation/ServiceGet) | `project:services:read` |
+| [ServiceKafkaTopicCreate](https://api.aiven.io/doc/#operation/ServiceKafkaTopicCreate) | `developer` or `operator` |
+| [ServiceKafkaTopicDelete](https://api.aiven.io/doc/#operation/ServiceKafkaTopicDelete) | `service:data:write` |
+| [ServiceKafkaTopicList](https://api.aiven.io/doc/#operation/ServiceKafkaTopicList) | `service:data:write` |
+| [ServiceKafkaTopicUpdate](https://api.aiven.io/doc/#operation/ServiceKafkaTopicUpdate) | `service:data:write` |
 
 ## Usage example
 

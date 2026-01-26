@@ -126,7 +126,7 @@ type schemaInternal struct {
 	Plural             string
 	Columns            []specTableColumn
 	UsageExamples      []usageExample
-	Permissions        permissionGroups
+	Permissions        kindOperations
 }
 
 type schemaType struct {
@@ -532,16 +532,16 @@ title: "{{ .Kind }}{{ if .DeprecationWarning }} [DEPRECATED]{{ end }}"
 
 {{ if .Permissions -}}
 ### Required permissions
-	
+
 To create and manage this resource, you must have the appropriate [roles or permissions](https://aiven.io/docs/platform/concepts/permissions).
 See the [Aiven documentation](https://aiven.io/docs/platform/howto/manage-permissions) for details on managing permissions.
-For more precise access control, use permissions instead of roles.
 
-**Permissions**
+This resource uses the following API operations, and for each operation, _any_ of the listed permissions is sufficient:
 
-All of these permissions are required to create and manage this resource.
-{{ range .Permissions }}
-- {{ range $index, $element := . }}{{if $index}} or {{end}}{{ code $element }}{{ end }}
+| Operation | Permissions  |
+| ----------- | ----------- |
+{{- range $item := .Permissions }}
+| [{{ $item.OperationID }}](https://api.aiven.io/doc/#operation/{{ $item.OperationID }}) | {{ range $index, $element := $item.Permissions }}{{if eq $index 1 }} or {{ else if gt $index 1 }}, or {{end}}{{ code $element }}{{ end }} |
 {{- end }}
 {{- end }}
 

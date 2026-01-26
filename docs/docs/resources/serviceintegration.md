@@ -8,17 +8,18 @@ title: "ServiceIntegration"
 * A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
 ### Required permissions
-	
+
 To create and manage this resource, you must have the appropriate [roles or permissions](https://aiven.io/docs/platform/concepts/permissions).
 See the [Aiven documentation](https://aiven.io/docs/platform/howto/manage-permissions) for details on managing permissions.
-For more precise access control, use permissions instead of roles.
 
-**Permissions**
+This resource uses the following API operations, and for each operation, _any_ of the listed permissions is sufficient:
 
-All of these permissions are required to create and manage this resource.
-
-- `project:integrations:write`
-- `project:services:read`
+| Operation | Permissions  |
+| ----------- | ----------- |
+| [ServiceGet](https://api.aiven.io/doc/#operation/ServiceGet) | `project:services:read` |
+| [ServiceIntegrationCreate](https://api.aiven.io/doc/#operation/ServiceIntegrationCreate) | `project:integrations:write` |
+| [ServiceIntegrationDelete](https://api.aiven.io/doc/#operation/ServiceIntegrationDelete) | `project:integrations:write` or `role:services:recover` |
+| [ServiceIntegrationUpdate](https://api.aiven.io/doc/#operation/ServiceIntegrationUpdate) | `project:integrations:write` |
 
 ## Usage examples
 

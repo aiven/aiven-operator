@@ -8,18 +8,19 @@ title: "ClickhouseUser"
 * A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
 ### Required permissions
-	
+
 To create and manage this resource, you must have the appropriate [roles or permissions](https://aiven.io/docs/platform/concepts/permissions).
 See the [Aiven documentation](https://aiven.io/docs/platform/howto/manage-permissions) for details on managing permissions.
-For more precise access control, use permissions instead of roles.
 
-**Permissions**
+This resource uses the following API operations, and for each operation, _any_ of the listed permissions is sufficient:
 
-All of these permissions are required to create and manage this resource.
-
-- `project:services:read`
-- `service:data:write` or `service:users:write`
-- `service:secrets:read`
+| Operation | Permissions  |
+| ----------- | ----------- |
+| [ServiceClickHousePasswordReset](https://api.aiven.io/doc/#operation/ServiceClickHousePasswordReset) | `service:data:write` or `service:users:write` |
+| [ServiceClickHouseUserCreate](https://api.aiven.io/doc/#operation/ServiceClickHouseUserCreate) | `service:data:write` or `service:users:write` |
+| [ServiceClickHouseUserDelete](https://api.aiven.io/doc/#operation/ServiceClickHouseUserDelete) | `service:data:write` or `service:users:write` |
+| [ServiceClickHouseUserList](https://api.aiven.io/doc/#operation/ServiceClickHouseUserList) | `service:data:write` or `service:users:write` |
+| [ServiceGet](https://api.aiven.io/doc/#operation/ServiceGet) | `service:secrets:read` |
 
 ## Usage examples
 

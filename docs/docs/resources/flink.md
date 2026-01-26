@@ -8,20 +8,21 @@ title: "Flink"
 * A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
 ### Required permissions
-	
+
 To create and manage this resource, you must have the appropriate [roles or permissions](https://aiven.io/docs/platform/concepts/permissions).
 See the [Aiven documentation](https://aiven.io/docs/platform/howto/manage-permissions) for details on managing permissions.
-For more precise access control, use permissions instead of roles.
 
-**Permissions**
+This resource uses the following API operations, and for each operation, _any_ of the listed permissions is sufficient:
 
-All of these permissions are required to create and manage this resource.
-
-- `organization:projects:write`
-- `project:services:read`
-- `project:services:write`
-- `service:configuration:write`
-- `service:secrets:read`
+| Operation | Permissions  |
+| ----------- | ----------- |
+| [ProjectKmsGetCA](https://api.aiven.io/doc/#operation/ProjectKmsGetCA) | `organization:projects:write` |
+| [ProjectServiceTagsReplace](https://api.aiven.io/doc/#operation/ProjectServiceTagsReplace) | `service:configuration:write` |
+| [ServiceBackupsGet](https://api.aiven.io/doc/#operation/ServiceBackupsGet) | `service:configuration:write` |
+| [ServiceCreate](https://api.aiven.io/doc/#operation/ServiceCreate) | `project:services:write` or `role:services:recover` |
+| [ServiceDelete](https://api.aiven.io/doc/#operation/ServiceDelete) | `project:services:write` |
+| [ServiceGet](https://api.aiven.io/doc/#operation/ServiceGet) | `service:secrets:read` |
+| [ServiceUpdate](https://api.aiven.io/doc/#operation/ServiceUpdate) | `project:services:write` or `role:services:maintenance`, or `role:services:recover`, or `service:configuration:write` |
 
 ## Usage example
 

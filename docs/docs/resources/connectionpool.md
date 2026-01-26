@@ -8,20 +8,20 @@ title: "ConnectionPool"
 * A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
 ### Required permissions
-	
+
 To create and manage this resource, you must have the appropriate [roles or permissions](https://aiven.io/docs/platform/concepts/permissions).
 See the [Aiven documentation](https://aiven.io/docs/platform/howto/manage-permissions) for details on managing permissions.
-For more precise access control, use permissions instead of roles.
 
-**Permissions**
+This resource uses the following API operations, and for each operation, _any_ of the listed permissions is sufficient:
 
-All of these permissions are required to create and manage this resource.
-
-- `organization:projects:write`
-- `project:services:read`
-- `service:configuration:write` or `service:users:write`
-- `service:data:write`
-- `service:secrets:read`
+| Operation | Permissions  |
+| ----------- | ----------- |
+| [ProjectKmsGetCA](https://api.aiven.io/doc/#operation/ProjectKmsGetCA) | `organization:projects:write` |
+| [ServiceGet](https://api.aiven.io/doc/#operation/ServiceGet) | `service:secrets:read` |
+| [ServicePGBouncerCreate](https://api.aiven.io/doc/#operation/ServicePGBouncerCreate) | `service:data:write` |
+| [ServicePGBouncerDelete](https://api.aiven.io/doc/#operation/ServicePGBouncerDelete) | `service:data:write` |
+| [ServicePGBouncerUpdate](https://api.aiven.io/doc/#operation/ServicePGBouncerUpdate) | `service:data:write` |
+| [ServiceUserGet](https://api.aiven.io/doc/#operation/ServiceUserGet) | `service:configuration:write` or `service:users:write` |
 
 ## Usage example
 
