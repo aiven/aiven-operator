@@ -2,11 +2,26 @@
 title: "ServiceIntegration"
 ---
 
-## Usage examples
+## Prerequisites
+	
+* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
+* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-!!! note "Prerequisites"
-	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
-	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
+### Required permissions
+
+To create and manage this resource, you must have the appropriate [roles or permissions](https://aiven.io/docs/platform/concepts/permissions).
+See the [Aiven documentation](https://aiven.io/docs/platform/howto/manage-permissions) for details on managing permissions.
+
+This resource uses the following API operations, and for each operation, _any_ of the listed permissions is sufficient:
+
+| Operation | Permissions  |
+| ----------- | ----------- |
+| [ServiceGet](https://api.aiven.io/doc/#operation/ServiceGet) | `project:services:read` |
+| [ServiceIntegrationCreate](https://api.aiven.io/doc/#operation/ServiceIntegrationCreate) | `project:integrations:write` |
+| [ServiceIntegrationDelete](https://api.aiven.io/doc/#operation/ServiceIntegrationDelete) | `project:integrations:write` or `role:services:recover` |
+| [ServiceIntegrationUpdate](https://api.aiven.io/doc/#operation/ServiceIntegrationUpdate) | `project:integrations:write` |
+
+## Usage examples
 
 	
 === "autoscaler"

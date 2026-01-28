@@ -19,7 +19,7 @@ jobs:
         with:
           image: zensical/zensical:latest
           options: -v ${{ github.workspace }}/docs/:/docs
-          run: mkdocs build
+          run: zensical build --clean
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         with:

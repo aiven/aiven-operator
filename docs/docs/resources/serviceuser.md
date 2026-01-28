@@ -2,11 +2,28 @@
 title: "ServiceUser"
 ---
 
-## Usage examples
+## Prerequisites
+	
+* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
+* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-!!! note "Prerequisites"
-	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
-	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
+### Required permissions
+
+To create and manage this resource, you must have the appropriate [roles or permissions](https://aiven.io/docs/platform/concepts/permissions).
+See the [Aiven documentation](https://aiven.io/docs/platform/howto/manage-permissions) for details on managing permissions.
+
+This resource uses the following API operations, and for each operation, _any_ of the listed permissions is sufficient:
+
+| Operation | Permissions  |
+| ----------- | ----------- |
+| [ProjectKmsGetCA](https://api.aiven.io/doc/#operation/ProjectKmsGetCA) | `organization:projects:write` |
+| [ServiceGet](https://api.aiven.io/doc/#operation/ServiceGet) | `project:services:read` |
+| [ServiceUserCreate](https://api.aiven.io/doc/#operation/ServiceUserCreate) | `service:users:write` |
+| [ServiceUserCredentialsModify](https://api.aiven.io/doc/#operation/ServiceUserCredentialsModify) | `service:users:write` |
+| [ServiceUserDelete](https://api.aiven.io/doc/#operation/ServiceUserDelete) | `service:users:write` |
+| [ServiceUserGet](https://api.aiven.io/doc/#operation/ServiceUserGet) | `service:configuration:write` or `service:users:write` |
+
+## Usage examples
 
 	
 === "custom_credentials"

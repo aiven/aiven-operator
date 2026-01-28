@@ -2,11 +2,25 @@
 title: "ServiceIntegrationEndpoint"
 ---
 
-## Usage examples
+## Prerequisites
+	
+* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
+* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-!!! note "Prerequisites"
-	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
-	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
+### Required permissions
+
+To create and manage this resource, you must have the appropriate [roles or permissions](https://aiven.io/docs/platform/concepts/permissions).
+See the [Aiven documentation](https://aiven.io/docs/platform/howto/manage-permissions) for details on managing permissions.
+
+This resource uses the following API operations, and for each operation, _any_ of the listed permissions is sufficient:
+
+| Operation | Permissions  |
+| ----------- | ----------- |
+| [ServiceIntegrationEndpointCreate](https://api.aiven.io/doc/#operation/ServiceIntegrationEndpointCreate) | `project:integrations:write` |
+| [ServiceIntegrationEndpointDelete](https://api.aiven.io/doc/#operation/ServiceIntegrationEndpointDelete) | `project:integrations:write` |
+| [ServiceIntegrationEndpointUpdate](https://api.aiven.io/doc/#operation/ServiceIntegrationEndpointUpdate) | `project:integrations:write` |
+
+## Usage examples
 
 	
 === "autoscaler"

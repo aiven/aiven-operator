@@ -2,11 +2,28 @@
 title: "KafkaSchema"
 ---
 
-## Usage example
+## Prerequisites
+	
+* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
+* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-!!! note "Prerequisites"
-	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
-	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
+### Required permissions
+
+To create and manage this resource, you must have the appropriate [roles or permissions](https://aiven.io/docs/platform/concepts/permissions).
+See the [Aiven documentation](https://aiven.io/docs/platform/howto/manage-permissions) for details on managing permissions.
+
+This resource uses the following API operations, and for each operation, _any_ of the listed permissions is sufficient:
+
+| Operation | Permissions  |
+| ----------- | ----------- |
+| [ServiceGet](https://api.aiven.io/doc/#operation/ServiceGet) | `project:services:read` |
+| [ServiceSchemaRegistrySubjectConfigPut](https://api.aiven.io/doc/#operation/ServiceSchemaRegistrySubjectConfigPut) | `service:data:write` |
+| [ServiceSchemaRegistrySubjectDelete](https://api.aiven.io/doc/#operation/ServiceSchemaRegistrySubjectDelete) | `service:data:write` |
+| [ServiceSchemaRegistrySubjectVersionGet](https://api.aiven.io/doc/#operation/ServiceSchemaRegistrySubjectVersionGet) | `service:data:write` |
+| [ServiceSchemaRegistrySubjectVersionPost](https://api.aiven.io/doc/#operation/ServiceSchemaRegistrySubjectVersionPost) | `service:data:write` |
+| [ServiceSchemaRegistrySubjectVersionsGet](https://api.aiven.io/doc/#operation/ServiceSchemaRegistrySubjectVersionsGet) | `service:data:write` |
+
+## Usage example
 
 ```yaml linenums="1"
 apiVersion: aiven.io/v1alpha1

@@ -2,11 +2,27 @@
 title: "ClickhouseUser"
 ---
 
-## Usage examples
+## Prerequisites
+	
+* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
+* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-!!! note "Prerequisites"
-	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
-	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
+### Required permissions
+
+To create and manage this resource, you must have the appropriate [roles or permissions](https://aiven.io/docs/platform/concepts/permissions).
+See the [Aiven documentation](https://aiven.io/docs/platform/howto/manage-permissions) for details on managing permissions.
+
+This resource uses the following API operations, and for each operation, _any_ of the listed permissions is sufficient:
+
+| Operation | Permissions  |
+| ----------- | ----------- |
+| [ServiceClickHousePasswordReset](https://api.aiven.io/doc/#operation/ServiceClickHousePasswordReset) | `service:data:write` or `service:users:write` |
+| [ServiceClickHouseUserCreate](https://api.aiven.io/doc/#operation/ServiceClickHouseUserCreate) | `service:data:write` or `service:users:write` |
+| [ServiceClickHouseUserDelete](https://api.aiven.io/doc/#operation/ServiceClickHouseUserDelete) | `service:data:write` or `service:users:write` |
+| [ServiceClickHouseUserList](https://api.aiven.io/doc/#operation/ServiceClickHouseUserList) | `service:data:write` or `service:users:write` |
+| [ServiceGet](https://api.aiven.io/doc/#operation/ServiceGet) | `service:secrets:read` |
+
+## Usage examples
 
 	
 === "custom_credentials"

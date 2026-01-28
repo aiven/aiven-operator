@@ -5,11 +5,32 @@ title: "AlloyDBOmni [DEPRECATED]"
 !!! warning "Deprecation warning"
 	AlloyDBOmni is deprecated and will be removed in a future version
 
-## Usage example
+## Prerequisites
+	
+* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
+* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
 
-!!! note "Prerequisites"
-	* A Kubernetes cluster with the operator installed using [helm](../installation/helm.md), [kubectl](../installation/kubectl.md) or [kind](../contributing/developer-guide.md) (for local development).
-	* A Kubernetes [Secret](../authentication.md) with an Aiven authentication token.
+### Required permissions
+
+To create and manage this resource, you must have the appropriate [roles or permissions](https://aiven.io/docs/platform/concepts/permissions).
+See the [Aiven documentation](https://aiven.io/docs/platform/howto/manage-permissions) for details on managing permissions.
+
+This resource uses the following API operations, and for each operation, _any_ of the listed permissions is sufficient:
+
+| Operation | Permissions  |
+| ----------- | ----------- |
+| [AlloyDbOmniGoogleCloudPrivateKeyIdentify](https://api.aiven.io/doc/#operation/AlloyDbOmniGoogleCloudPrivateKeyIdentify) | `service:data:write` |
+| [AlloyDbOmniGoogleCloudPrivateKeyRemove](https://api.aiven.io/doc/#operation/AlloyDbOmniGoogleCloudPrivateKeyRemove) | `service:data:write` |
+| [AlloyDbOmniGoogleCloudPrivateKeySet](https://api.aiven.io/doc/#operation/AlloyDbOmniGoogleCloudPrivateKeySet) | `service:data:write` |
+| [ProjectKmsGetCA](https://api.aiven.io/doc/#operation/ProjectKmsGetCA) | `organization:projects:write` |
+| [ProjectServiceTagsReplace](https://api.aiven.io/doc/#operation/ProjectServiceTagsReplace) | `service:configuration:write` |
+| [ServiceBackupsGet](https://api.aiven.io/doc/#operation/ServiceBackupsGet) | `service:configuration:write` |
+| [ServiceCreate](https://api.aiven.io/doc/#operation/ServiceCreate) | `project:services:write` or `role:services:recover` |
+| [ServiceDelete](https://api.aiven.io/doc/#operation/ServiceDelete) | `project:services:write` |
+| [ServiceGet](https://api.aiven.io/doc/#operation/ServiceGet) | `service:secrets:read` |
+| [ServiceUpdate](https://api.aiven.io/doc/#operation/ServiceUpdate) | `project:services:write` or `role:services:maintenance`, or `role:services:recover`, or `service:configuration:write` |
+
+## Usage example
 
 ```yaml linenums="1"
 apiVersion: aiven.io/v1alpha1
