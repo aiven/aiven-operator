@@ -603,7 +603,7 @@ func TestReconciler_Reconcile(t *testing.T) {
 		})
 
 		require.NoError(t, err)
-		require.Equal(t, ctrl.Result{RequeueAfter: testPollInterval}, res)
+		require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
 		require.Equal(t, []string{
 			"Normal InstanceFinalizerAdded instance finalizer added",
 			"Normal CreateOrUpdatedAtAiven about to create instance at aiven",
@@ -662,7 +662,7 @@ func TestReconciler_Reconcile(t *testing.T) {
 		})
 
 		require.NoError(t, err)
-		require.Equal(t, ctrl.Result{RequeueAfter: testPollInterval}, res)
+		require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
 		require.Equal(t, []string{
 			"Normal InstanceFinalizerAdded instance finalizer added",
 			"Normal WaitingForInstanceToBeRunning waiting for the instance to be running",
@@ -673,6 +673,7 @@ func TestReconciler_Reconcile(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 		// Clear processedGenerationAnnotation to verify that a steady-state reconcile will mark the current generation as processed.
 		delete(obj.GetAnnotations(), processedGenerationAnnotation)
+		obj.Annotations = map[string]string{instanceIsRunningAnnotation: "true"}
 
 		k8sClient := fake.NewClientBuilder().
 			WithScheme(scheme).
@@ -1425,7 +1426,7 @@ func TestReconciler_createResource(t *testing.T) {
 
 		res, err := r.createResource(t.Context(), c, obj)
 		require.NoError(t, err)
-		require.Equal(t, ctrl.Result{RequeueAfter: testPollInterval}, res)
+		require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
 
 		secret := &corev1.Secret{}
 		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, secret))
@@ -1583,7 +1584,7 @@ func TestReconciler_updateResource(t *testing.T) {
 
 		res, err := r.updateResource(t.Context(), c, obj)
 		require.NoError(t, err)
-		require.Equal(t, ctrl.Result{RequeueAfter: testPollInterval}, res)
+		require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
 
 		secret := &corev1.Secret{}
 		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, secret))

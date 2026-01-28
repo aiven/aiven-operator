@@ -274,7 +274,13 @@ func (r *Reconciler[T]) completeReconcileSuccess(obj v1alpha1.AivenManagedObject
 		strconv.FormatInt(obj.GetGeneration(), formatIntBaseDecimal),
 	)
 
-	return ctrl.Result{RequeueAfter: r.PollInterval}, nil
+	if IsReadyToUse(obj) {
+		return ctrl.Result{RequeueAfter: r.PollInterval}, nil
+	}
+
+	// Many Aiven operations are asynchronous. After a successful API call the resource may still be starting up,
+	// so requeue soon to check again instead of waiting for the normal periodic reconcile.
+	return ctrl.Result{RequeueAfter: requeueTimeout}, nil
 }
 
 // publishSecretDetails publishes connection details to the connection secret if present.
