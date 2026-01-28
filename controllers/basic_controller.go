@@ -49,6 +49,7 @@ type (
 		KubeVersion     string
 		OperatorVersion string
 		PollInterval    time.Duration
+		newAivenClient  func(token, kubeVersion, operatorVersion string) (avngen.Client, error)
 	}
 
 	// Handlers represents Aiven API handlers
@@ -133,7 +134,11 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 		return ctrl.Result{}, errNoTokenProvided
 	}
 
-	avnGen, err := NewAivenGeneratedClient(token, c.KubeVersion, c.OperatorVersion)
+	newClient := c.newAivenClient
+	if newClient == nil {
+		newClient = NewAivenGeneratedClient
+	}
+	avnGen, err := newClient(token, c.KubeVersion, c.OperatorVersion)
 	if err != nil {
 		c.Recorder.Event(o, corev1.EventTypeWarning, eventUnableToCreateClient, err.Error())
 		return ctrl.Result{}, fmt.Errorf("cannot initialize aiven generated client: %w", err)
