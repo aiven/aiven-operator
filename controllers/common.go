@@ -202,6 +202,12 @@ func hasLatestGeneration(o client.Object) bool {
 	return o.GetAnnotations()[processedGenerationAnnotation] == strconv.FormatInt(o.GetGeneration(), formatIntBaseDecimal)
 }
 
+// wasEverApplied returns true if the client.Object's controller has successfully processed any generation of the object.
+func wasEverApplied(o client.Object) bool {
+	_, ok := o.GetAnnotations()[processedGenerationAnnotation]
+	return ok
+}
+
 // hasIsRunningAnnotation means the client.Object is running/rebalancing in Aiven or powered-off (for services).
 func hasIsRunningAnnotation(o client.Object) bool {
 	_, ok := o.GetAnnotations()[instanceIsRunningAnnotation]
