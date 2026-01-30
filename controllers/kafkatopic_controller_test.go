@@ -168,6 +168,42 @@ func TestKafkaTopicReconciler(t *testing.T) {
 		require.NotContains(t, got.Annotations, instanceIsRunningAnnotation)
 	})
 
+	t.Run("Updates KafkaTopic when list returns server error during spec update", func(t *testing.T) {
+		topic := newObjectFromYAML[v1alpha1.KafkaTopic](t, yamlKafkaTopic)
+		topic.Generation = 2
+		topic.Spec.Project = "test-project-update-list-5xx"
+		topic.Spec.ServiceName = "test-service-update-list-5xx"
+		topic.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+		}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, topic.Spec.Project, topic.Spec.ServiceName).
+			Return(&service.ServiceGetOut{
+				NodeStates: []service.NodeStateOut{
+					{State: service.NodeStateTypeRunning},
+					{State: service.NodeStateTypeRunning},
+				},
+			}, nil).Once()
+		avn.EXPECT().
+			ServiceKafkaTopicList(mock.Anything, topic.Spec.Project, topic.Spec.ServiceName).
+			Return(nil, newAivenError(500, "server error")).Once()
+		avn.EXPECT().
+			ServiceKafkaTopicUpdate(mock.Anything, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName(), mock.Anything).
+			Return(nil).Once()
+
+		r, res, err := runScenario(t, topic, avn)
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
+
+		got := &v1alpha1.KafkaTopic{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: topic.Name, Namespace: topic.Namespace}, got))
+		require.Equal(t, "2", got.Annotations[processedGenerationAnnotation])
+		require.NotContains(t, got.Annotations, instanceIsRunningAnnotation)
+	})
+
 	t.Run("Updates status and requeues when KafkaTopic is configuring", func(t *testing.T) {
 		topic := newObjectFromYAML[v1alpha1.KafkaTopic](t, yamlKafkaTopic)
 		topic.Generation = 1

@@ -68,9 +68,13 @@ func (r *KafkaTopicController) Observe(ctx context.Context, topic *v1alpha1.Kafk
 
 	switch {
 	case isServerError(err):
-		// ServiceKafkaTopicList can temporarily fail with 5xx. Retry via requeue.
-		ok := hasLatestGeneration(topic)
-		return Observation{ResourceExists: ok, ResourceUpToDate: ok}, nil
+		// Getting topic info can sometimes temporarily fail with 5xx.
+		// Don't treat that as a fatal error but keep on retrying instead.
+		// When this happens during a spec update, assume the topic exists if it was applied before.
+		return Observation{
+			ResourceExists:   wasEverApplied(topic) || hasIsRunningAnnotation(topic),
+			ResourceUpToDate: hasLatestGeneration(topic),
+		}, nil
 	case err != nil:
 		return Observation{}, err
 	}
