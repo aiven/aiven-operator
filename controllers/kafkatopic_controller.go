@@ -104,8 +104,7 @@ func (r *KafkaTopicController) Observe(ctx context.Context, topic *v1alpha1.Kafk
 		}, nil
 	}
 
-	// Topic not found in list.
-	// Treat this as existence drift: reconcile will Create.
+	// Topic not found in list. Report it as missing.
 	return Observation{ResourceExists: false}, nil
 }
 
