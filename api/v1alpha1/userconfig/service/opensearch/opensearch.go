@@ -1115,7 +1115,7 @@ type OpensearchUserConfig struct {
 	// OpenSearch Dashboards settings
 	OpensearchDashboards *OpensearchDashboards `groups:"create,update" json:"opensearch_dashboards,omitempty"`
 
-	// Available versions: `1`, `2`, `2.19`. Newer versions may also be available.
+	// Available versions: `1`, `2`, `2.19`, `3.3`. Newer versions may also be available.
 	// OpenSearch version
 	OpensearchVersion *string `groups:"create,update" json:"opensearch_version,omitempty"`
 

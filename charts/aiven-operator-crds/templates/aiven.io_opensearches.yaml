@@ -1710,7 +1710,7 @@ spec:
                       type: object
                     opensearch_version:
                       description: |-
-                        Available versions: `1`, `2`, `2.19`. Newer versions may also be available.
+                        Available versions: `1`, `2`, `2.19`, `3.3`. Newer versions may also be available.
                         OpenSearch version
                       type: string
                     private_access:
