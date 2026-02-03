@@ -146,11 +146,18 @@ func (s *session) GetRunning(obj client.Object, keys ...string) error {
 
 		// Exits on condition errors
 		if o, ok := obj.(v1alpha1.AivenManagedObject); ok {
+			// If the resource is already Ready, ignore stale transient errors (e.g. "already exists").
+			if controllers.IsReadyToUse(obj) {
+				return false, nil
+			}
+
 			for _, c := range *o.Conditions() {
 				if c.Type == controllers.ConditionTypeError {
 					// Sometimes it is OK that API returns "not ready" condition.
-					// Retries "try again later" errors.
-					return strings.Contains(c.Message, "try again later"), errors.New(c.Message)
+					// Retries "try again later" and "already exists" errors.
+					msg := c.Message
+					retry := strings.Contains(msg, "try again later") || strings.Contains(strings.ToLower(msg), "already exists")
+					return retry, errors.New(msg)
 				}
 			}
 		}
