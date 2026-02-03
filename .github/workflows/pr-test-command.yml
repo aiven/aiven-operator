@@ -14,7 +14,7 @@ jobs:
     outputs:
       should_run: ${{ steps.check.outputs.should_run }}
       pr_number: ${{ steps.pr.outputs.number }}
-      pr_ref: ${{ steps.pr.outputs.ref }}
+      pr_sha: ${{ steps.pr.outputs.sha }}
       test_tags: ${{ steps.parse_command.outputs.test_tags }}
     steps:
       - name: Check user permissions
@@ -42,7 +42,7 @@ jobs:
             });
 
             core.setOutput('number', pr.data.number);
-            core.setOutput('ref', pr.data.head.ref);
+            core.setOutput('sha', pr.data.head.sha);
 
       - name: Parse test command
         id: parse_command
@@ -72,6 +72,7 @@ jobs:
       pr_number: ${{ needs.check-command.outputs.pr_number }}
       notify_slack: false
       test_tags: ${{ needs.check-command.outputs.test_tags }}
+      ref: ${{ needs.check-command.outputs.pr_sha }}
     secrets:
       AIVEN_TOKEN: ${{ secrets.AIVEN_TOKEN }}
       AIVEN_ACCOUNT_ID: ${{ secrets.AIVEN_ACCOUNT_ID }}
