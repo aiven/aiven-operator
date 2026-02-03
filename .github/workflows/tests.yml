@@ -26,6 +26,11 @@ on:
         required: false
         type: string
         default: ""
+      ref:
+        description: Git ref (branch/tag/SHA) to checkout. Defaults to the default branch.
+        required: false
+        type: string
+        default: ""
     secrets:
       AIVEN_TOKEN:
         required: true
@@ -46,6 +51,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.ref || github.ref }}
           fetch-depth: 0
 
       - run: make selproj
@@ -85,6 +91,8 @@ jobs:
       matrix: ${{ steps.find_tests.outputs.matrix }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.ref }}
       - uses: arduino/setup-task@v2
         with:
           version: 3.x
@@ -116,6 +124,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.ref || github.ref }}
           fetch-depth: 0
       - uses: actions/setup-go@v6
         with:
@@ -136,6 +145,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.ref || github.ref }}
           fetch-depth: 0
       - uses: actions/setup-go@v6
         with:
