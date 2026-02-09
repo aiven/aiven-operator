@@ -4,8 +4,8 @@ github.com/ClickHouse/clickhouse-go/v2 v2.43.0 h1:fUR05TrF1GyvLDa/mAQjkx7KbgwdLR
 github.com/ClickHouse/clickhouse-go/v2 v2.43.0/go.mod h1:o6jf7JM/zveWC/PP277BLxjHy5KjnGX/jfljhM4s34g=
 github.com/aiven/go-api-schemas v1.167.0 h1:jDSZRqKkf1zrprOGfZ8MF7Aq3c9qWlOYLnWe4W29+Jk=
 github.com/aiven/go-api-schemas v1.167.0/go.mod h1:WTWdlammndlBvINEUP2F8JDmOef6rEWkpNVhJS33GcQ=
-github.com/aiven/go-client-codegen v0.148.0 h1:tAhpxjwfqp5w15orJbuniaH3vLc74PRh6KMeXedBbLQ=
-github.com/aiven/go-client-codegen v0.148.0/go.mod h1:r92Au9BGB9zMloWaA+Jfp579QjXjhS/wjxW5++S6L+g=
+github.com/aiven/go-client-codegen v0.149.0 h1:ADMZK1KbzoEKTsIz0YRDePaz6vse3Rl/pnfpn7suvac=
+github.com/aiven/go-client-codegen v0.149.0/go.mod h1:0LjjBOo11prsM/gDRyvla52VRJMqJFv5/z4fiFQax0o=
 github.com/andybalholm/brotli v1.2.0 h1:ukwgCxwYrmACq68yiUqwIWnGY0cTPox/M94sVwToPjQ=
 github.com/andybalholm/brotli v1.2.0/go.mod h1:rzTDkvFWvIrjDXZHkuS16NPggd91W3kUSvPlQ1pLaKY=
 github.com/avast/retry-go v3.0.0+incompatible h1:4SOWQ7Qs+oroOTQOYnAHqelpCO0biHSxpiH9JdtuBj0=
