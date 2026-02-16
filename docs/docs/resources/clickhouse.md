@@ -245,6 +245,7 @@ OpenSearch specific user configuration options.
 - [`service_log`](#spec.userConfig.service_log-property){: name='spec.userConfig.service_log-property'} (boolean). Store logs for the service so that they are available in the HTTP API and console.
 - [`service_to_fork_from`](#spec.userConfig.service_to_fork_from-property){: name='spec.userConfig.service_to_fork_from-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]{0,63}$|^$`, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.
 - [`static_ips`](#spec.userConfig.static_ips-property){: name='spec.userConfig.static_ips-property'} (boolean). Use static public IP addresses.
+- [`tiered_storage_move_factor`](#spec.userConfig.tiered_storage_move_factor-property){: name='spec.userConfig.tiered_storage_move_factor-property'} (number, Minimum: 0, Maximum: 1). The percentage of free disk space required on local storage before data is moved to object storage. A value of 0.2 means data is moved when local storage has less than 20% free space.
 
 ### ip_filter {: #spec.userConfig.ip_filter }
 

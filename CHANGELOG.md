@@ -3,6 +3,25 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - `KafkaTopic`: continuous reconciliation now automatically re-creates topics that are deleted directly in Aiven (outside Kubernetes).
+- Add `Clickhouse` field `userConfig.tiered_storage_move_factor`, type `number`: The percentage of free
+  disk space required on local storage before data is moved to object storage
+- Change `Grafana` field `userConfig.smtp_server.from_address`: maxLength ~~`319`~~ → `254`, pattern
+  ~~`^[A-Za-z0-9_\-\.+\'&]+@(([\da-zA-Z])([_\w-]{,62})\.){,127}(([\da-zA-Z])[_\w-]{,61})?([\da-zA-Z]\.((xn\-\-[a-zA-Z\d]+)|([a-zA-Z\d]{2,})))$`~~
+- Add `KafkaConnect` field `userConfig.gcp_auth_allowed_urls`, type `array`: Allow-list of HTTPS URLs
+  used to validate GCP credential_source requests for Kafka Connect
+- Add `Kafka` field `userConfig.gcp_auth_allowed_urls`, type `array`: Allow-list of HTTPS URLs used to
+  validate GCP credential_source requests for Kafka Connect
+- Change `OpenSearch` field `userConfig.opensearch.search.insights.top_queries.cpu.window_size`: pattern
+  ~~`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`~~
+  → `\d+(?:d|h|m|s|ms|micros|nanos)`
+- Change `OpenSearch` field `userConfig.opensearch.search.insights.top_queries.latency.window_size`:
+  pattern ~~`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`~~
+  → `\d+(?:d|h|m|s|ms|micros|nanos)`
+- Change `OpenSearch` field `userConfig.opensearch.search.insights.top_queries.memory.window_size`: pattern
+  ~~`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`~~
+  → `\d+(?:d|h|m|s|ms|micros|nanos)`
+- Change `ServiceIntegrationEndpoint` field `datadog.site`: enum add `ap2.datadoghq.com`
+- Change `Valkey` field `userConfig.valkey_pubsub_client_output_buffer_limit`: maximum ~~`512`~~ → `262144`
 
 ## v0.35.0 - 2026-01-20
 

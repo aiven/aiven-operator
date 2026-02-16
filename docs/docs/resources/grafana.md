@@ -455,7 +455,7 @@ SMTP server settings.
 
 **Required**
 
-- [`from_address`](#spec.userConfig.smtp_server.from_address-property){: name='spec.userConfig.smtp_server.from_address-property'} (string, MaxLength: 319). Address used for sending emails.
+- [`from_address`](#spec.userConfig.smtp_server.from_address-property){: name='spec.userConfig.smtp_server.from_address-property'} (string, MaxLength: 254). Address used for sending emails.
 - [`host`](#spec.userConfig.smtp_server.host-property){: name='spec.userConfig.smtp_server.host-property'} (string, MaxLength: 255). Server hostname or IP.
 - [`port`](#spec.userConfig.smtp_server.port-property){: name='spec.userConfig.smtp_server.port-property'} (integer, Minimum: 1, Maximum: 65535). SMTP server port.
 

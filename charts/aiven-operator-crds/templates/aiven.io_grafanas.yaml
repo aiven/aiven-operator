@@ -784,8 +784,7 @@ spec:
                       properties:
                         from_address:
                           description: Address used for sending emails
-                          maxLength: 319
-                          pattern: ^[A-Za-z0-9_\-\.+\'&]+@(([\da-zA-Z])([_\w-]{,62})\.){,127}(([\da-zA-Z])[_\w-]{,61})?([\da-zA-Z]\.((xn\-\-[a-zA-Z\d]+)|([a-zA-Z\d]{2,})))$
+                          maxLength: 254
                           type: string
                         from_name:
                           description: Name used in outgoing emails, defaults to Grafana

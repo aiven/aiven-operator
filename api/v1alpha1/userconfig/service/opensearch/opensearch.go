@@ -435,8 +435,8 @@ type Cpu struct {
 	// Specify the value of N for the top N queries by the metric
 	TopNSize *int `groups:"create,update" json:"top_n_size,omitempty"`
 
-	// +kubebuilder:validation:Pattern=`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`
-	// The window size of the top N queries by the metric
+	// +kubebuilder:validation:Pattern=`\d+(?:d|h|m|s|ms|micros|nanos)`
+	// Configure the window size of the top N queries. The value should be a time value with unit, e.g. 1m, 5s, 1h.
 	WindowSize *string `groups:"create,update" json:"window_size,omitempty"`
 }
 
@@ -449,8 +449,8 @@ type Latency struct {
 	// Specify the value of N for the top N queries by the metric
 	TopNSize *int `groups:"create,update" json:"top_n_size,omitempty"`
 
-	// +kubebuilder:validation:Pattern=`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`
-	// The window size of the top N queries by the metric
+	// +kubebuilder:validation:Pattern=`\d+(?:d|h|m|s|ms|micros|nanos)`
+	// Configure the window size of the top N queries. The value should be a time value with unit, e.g. 1m, 5s, 1h.
 	WindowSize *string `groups:"create,update" json:"window_size,omitempty"`
 }
 
@@ -463,8 +463,8 @@ type Memory struct {
 	// Specify the value of N for the top N queries by the metric
 	TopNSize *int `groups:"create,update" json:"top_n_size,omitempty"`
 
-	// +kubebuilder:validation:Pattern=`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`
-	// The window size of the top N queries by the metric
+	// +kubebuilder:validation:Pattern=`\d+(?:d|h|m|s|ms|micros|nanos)`
+	// Configure the window size of the top N queries. The value should be a time value with unit, e.g. 1m, 5s, 1h.
 	WindowSize *string `groups:"create,update" json:"window_size,omitempty"`
 }
 type SearchInsightsTopQueries struct {

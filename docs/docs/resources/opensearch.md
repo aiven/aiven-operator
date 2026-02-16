@@ -584,7 +584,7 @@ Top N queries monitoring by CPU.
 
 - [`enabled`](#spec.userConfig.opensearch.search.insights.top_queries.cpu.enabled-property){: name='spec.userConfig.opensearch.search.insights.top_queries.cpu.enabled-property'} (boolean). Enable or disable top N query monitoring by the metric.
 - [`top_n_size`](#spec.userConfig.opensearch.search.insights.top_queries.cpu.top_n_size-property){: name='spec.userConfig.opensearch.search.insights.top_queries.cpu.top_n_size-property'} (integer, Minimum: 1). Specify the value of N for the top N queries by the metric.
-- [`window_size`](#spec.userConfig.opensearch.search.insights.top_queries.cpu.window_size-property){: name='spec.userConfig.opensearch.search.insights.top_queries.cpu.window_size-property'} (string). The window size of the top N queries by the metric.
+- [`window_size`](#spec.userConfig.opensearch.search.insights.top_queries.cpu.window_size-property){: name='spec.userConfig.opensearch.search.insights.top_queries.cpu.window_size-property'} (string, Pattern: `\d+(?:d|h|m|s|ms|micros|nanos)`). Configure the window size of the top N queries. The value should be a time value with unit, e.g. 1m, 5s, 1h.
 
 ##### latency {: #spec.userConfig.opensearch.search.insights.top_queries.latency }
 
@@ -596,7 +596,7 @@ Top N queries monitoring by latency.
 
 - [`enabled`](#spec.userConfig.opensearch.search.insights.top_queries.latency.enabled-property){: name='spec.userConfig.opensearch.search.insights.top_queries.latency.enabled-property'} (boolean). Enable or disable top N query monitoring by the metric.
 - [`top_n_size`](#spec.userConfig.opensearch.search.insights.top_queries.latency.top_n_size-property){: name='spec.userConfig.opensearch.search.insights.top_queries.latency.top_n_size-property'} (integer, Minimum: 1). Specify the value of N for the top N queries by the metric.
-- [`window_size`](#spec.userConfig.opensearch.search.insights.top_queries.latency.window_size-property){: name='spec.userConfig.opensearch.search.insights.top_queries.latency.window_size-property'} (string). The window size of the top N queries by the metric.
+- [`window_size`](#spec.userConfig.opensearch.search.insights.top_queries.latency.window_size-property){: name='spec.userConfig.opensearch.search.insights.top_queries.latency.window_size-property'} (string, Pattern: `\d+(?:d|h|m|s|ms|micros|nanos)`). Configure the window size of the top N queries. The value should be a time value with unit, e.g. 1m, 5s, 1h.
 
 ##### memory {: #spec.userConfig.opensearch.search.insights.top_queries.memory }
 
@@ -608,7 +608,7 @@ Top N queries monitoring by memory.
 
 - [`enabled`](#spec.userConfig.opensearch.search.insights.top_queries.memory.enabled-property){: name='spec.userConfig.opensearch.search.insights.top_queries.memory.enabled-property'} (boolean). Enable or disable top N query monitoring by the metric.
 - [`top_n_size`](#spec.userConfig.opensearch.search.insights.top_queries.memory.top_n_size-property){: name='spec.userConfig.opensearch.search.insights.top_queries.memory.top_n_size-property'} (integer, Minimum: 1). Specify the value of N for the top N queries by the metric.
-- [`window_size`](#spec.userConfig.opensearch.search.insights.top_queries.memory.window_size-property){: name='spec.userConfig.opensearch.search.insights.top_queries.memory.window_size-property'} (string). The window size of the top N queries by the metric.
+- [`window_size`](#spec.userConfig.opensearch.search.insights.top_queries.memory.window_size-property){: name='spec.userConfig.opensearch.search.insights.top_queries.memory.window_size-property'} (string, Pattern: `\d+(?:d|h|m|s|ms|micros|nanos)`). Configure the window size of the top N queries. The value should be a time value with unit, e.g. 1m, 5s, 1h.
 
 #### search_backpressure {: #spec.userConfig.opensearch.search_backpressure }
 

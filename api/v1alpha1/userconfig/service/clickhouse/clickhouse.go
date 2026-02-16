@@ -112,4 +112,9 @@ type ClickhouseUserConfig struct {
 
 	// Use static public IP addresses
 	StaticIps *bool `groups:"create,update" json:"static_ips,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1
+	// The percentage of free disk space required on local storage before data is moved to object storage. A value of 0.2 means data is moved when local storage has less than 20% free space.
+	TieredStorageMoveFactor *float64 `groups:"create,update" json:"tiered_storage_move_factor,omitempty"`
 }

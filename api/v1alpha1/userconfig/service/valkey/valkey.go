@@ -182,7 +182,7 @@ type ValkeyUserConfig struct {
 	ValkeyPersistence *string `groups:"create,update" json:"valkey_persistence,omitempty"`
 
 	// +kubebuilder:validation:Minimum=32
-	// +kubebuilder:validation:Maximum=512
+	// +kubebuilder:validation:Maximum=262144
 	// Set output buffer limit for pub / sub clients in MB. The value is the hard limit, the soft limit is 1/4 of the hard limit. When setting the limit, be mindful of the available memory in the selected service plan.
 	ValkeyPubsubClientOutputBufferLimit *int `groups:"create,update" json:"valkey_pubsub_client_output_buffer_limit,omitempty"`
 

@@ -287,6 +287,13 @@ spec:
                           description: Whether to enable the follower fetching functionality
                           type: boolean
                       type: object
+                    gcp_auth_allowed_urls:
+                      description:
+                        Allow-list of HTTPS URLs used to validate GCP credential_source
+                        requests for Kafka Connect.
+                      items:
+                        type: string
+                      type: array
                     ip_filter:
                       description:
                         Allow incoming connections from CIDR address block,

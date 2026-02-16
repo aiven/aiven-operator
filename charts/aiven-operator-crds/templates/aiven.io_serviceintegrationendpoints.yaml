@@ -160,6 +160,7 @@ spec:
                       description: Datadog intake site. Defaults to datadoghq.com
                       enum:
                         - ap1.datadoghq.com
+                        - ap2.datadoghq.com
                         - datadoghq.com
                         - datadoghq.eu
                         - ddog-gov.com

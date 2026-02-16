@@ -1230,9 +1230,10 @@ spec:
                                   type: integer
                                 window_size:
                                   description:
-                                    The window size of the top N queries
-                                    by the metric
-                                  pattern: ^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$
+                                    Configure the window size of the top
+                                    N queries. The value should be a time value with
+                                    unit, e.g. 1m, 5s, 1h.
+                                  pattern: \d+(?:d|h|m|s|ms|micros|nanos)
                                   type: string
                               type: object
                             latency:
@@ -1251,9 +1252,10 @@ spec:
                                   type: integer
                                 window_size:
                                   description:
-                                    The window size of the top N queries
-                                    by the metric
-                                  pattern: ^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$
+                                    Configure the window size of the top
+                                    N queries. The value should be a time value with
+                                    unit, e.g. 1m, 5s, 1h.
+                                  pattern: \d+(?:d|h|m|s|ms|micros|nanos)
                                   type: string
                               type: object
                             memory:
@@ -1272,9 +1274,10 @@ spec:
                                   type: integer
                                 window_size:
                                   description:
-                                    The window size of the top N queries
-                                    by the metric
-                                  pattern: ^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$
+                                    Configure the window size of the top
+                                    N queries. The value should be a time value with
+                                    unit, e.g. 1m, 5s, 1h.
+                                  pattern: \d+(?:d|h|m|s|ms|micros|nanos)
                                   type: string
                               type: object
                           type: object

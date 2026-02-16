@@ -263,8 +263,7 @@ type PublicAccess struct {
 
 // SMTP server settings
 type SmtpServer struct {
-	// +kubebuilder:validation:MaxLength=319
-	// +kubebuilder:validation:Pattern=`^[A-Za-z0-9_\-\.+\'&]+@(([\da-zA-Z])([_\w-]{,62})\.){,127}(([\da-zA-Z])[_\w-]{,61})?([\da-zA-Z]\.((xn\-\-[a-zA-Z\d]+)|([a-zA-Z\d]{2,})))$`
+	// +kubebuilder:validation:MaxLength=254
 	// Address used for sending emails
 	FromAddress string `groups:"create,update" json:"from_address"`
 

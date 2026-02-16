@@ -195,6 +195,9 @@ type KafkaConnectUserConfig struct {
 	// Deprecated. Additional Cloud Regions for Backup Replication
 	AdditionalBackupRegions []string `groups:"create,update" json:"additional_backup_regions,omitempty"`
 
+	// Allow-list of HTTPS URLs used to validate GCP credential_source requests for Kafka Connect.
+	GcpAuthAllowedUrls []string `groups:"create,update" json:"gcp_auth_allowed_urls,omitempty"`
+
 	// +kubebuilder:validation:MaxItems=8000
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
 	IpFilter []*IpFilter `groups:"create,update" json:"ip_filter,omitempty"`
