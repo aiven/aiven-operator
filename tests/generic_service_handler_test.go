@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -142,6 +143,67 @@ func TestCreateUpdateService(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, service.ServiceStateTypeRunning, avnPgPoweredOn.State)
 	assert.Equal(t, "true", controllers.GetIsRunningAnnotation(pgPoweredOn))
+}
+
+// TestTerminationProtectionDeletion verifies that the controller can delete a service
+// when termination protection is disabled in the K8s spec but still enabled on the Aiven side.
+func TestTerminationProtectionDeletion(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	// GIVEN
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	pgName := randName("tp-delete")
+	s := NewSession(ctx, k8sClient)
+	defer s.Destroy(t)
+
+	// Create a PostgreSQL service with termination protection disabled.
+	yml := fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: %[2]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  cloudName: google-europe-west1
+  plan: startup-4
+  terminationProtection: false
+`, cfg.Project, pgName)
+	require.NoError(t, s.Apply(yml))
+
+	pg := new(v1alpha1.PostgreSQL)
+	require.NoError(t, s.GetRunning(pg, pgName))
+
+	avnPg, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
+	require.NoError(t, err)
+	require.False(t, avnPg.TerminationProtection)
+
+	// Simulate the race condition: enable termination protection directly on Aiven, bypassing the controller.
+	// This creates the exact inconsistent state: K8s: terminationProtection=false / Aiven: terminationProtection=true
+	tp := true
+	_, err = avnGen.ServiceUpdate(ctx, cfg.Project, pgName, &service.ServiceUpdateIn{
+		TerminationProtection: &tp,
+	})
+	require.NoError(t, err)
+
+	// WHEN: delete the K8s resource.
+	// If the deadlock occurs, this times out.
+	require.NoError(t, s.Delete(pg, func() error {
+		_, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
+		return err
+	}))
+
+	// THEN: verify the service is gone from Aiven, not just from K8s.
+	assert.Eventually(t, func() bool {
+		_, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
+		return avngen.IsNotFound(err)
+	}, 2*time.Minute, 5*time.Second, "service %s should be deleted from Aiven", pgName)
 }
 
 func getErrorConditionYaml(project, pgName string) string {

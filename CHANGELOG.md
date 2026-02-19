@@ -3,6 +3,7 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - `KafkaTopic`: continuous reconciliation now automatically re-creates topics that are deleted directly in Aiven (outside Kubernetes).
+- Fix service resources: resolve deadlock when deleting a service whose `terminationProtection` was set to `false` shortly before deletion
 
 ## v0.35.0 - 2026-01-20
 
