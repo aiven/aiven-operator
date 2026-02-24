@@ -18,7 +18,7 @@ lint:
     - git-diff-check
     - gitleaks@8.30.0
     - gofmt@1.20.4
-    - golangci-lint2@2.9.0
+    - golangci-lint2@2.10.1
     - markdownlint@0.47.0
     - prettier@3.8.1
     - yamllint@1.38.0
