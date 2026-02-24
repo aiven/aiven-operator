@@ -263,27 +263,44 @@ func TestServiceIntegrationAutoscaler(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
 
-	endpointID := os.Getenv("AUTOSCALER_ENDPOINT_ID")
-	if endpointID == "" {
-		t.Skip("Provide AUTOSCALER_ENDPOINT_ID for this test")
-	}
-
 	// GIVEN
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	pgName := randName("postgresql")
+	pg, releasePostgreSQL, err := sharedResources.AcquirePostgreSQL(ctx)
+	require.NoError(t, err)
+	defer releasePostgreSQL()
+
+	pgName := pg.Name
+
+	endpointName := randName("autoscaler-endpoint")
+	endpointDisplayName := randName("autoscaler")
+
+	endpointYml, err := loadExampleYaml("serviceintegrationendpoint.autoscaler.yaml", map[string]string{
+		"metadata.name":     endpointName,
+		"spec.project":      cfg.Project,
+		"spec.endpointName": endpointDisplayName,
+	})
+	require.NoError(t, err)
+
 	siName := randName("autoscaler")
+
+	sEndpoint := NewSession(ctx, k8sClient)
+	defer sEndpoint.Destroy(t)
+
+	require.NoError(t, sEndpoint.Apply(endpointYml))
+
+	endpoint := new(v1alpha1.ServiceIntegrationEndpoint)
+	require.NoError(t, sEndpoint.GetRunning(endpoint, endpointName))
+	require.NotEmpty(t, endpoint.Status.ID)
+	endpointID := endpoint.Status.ID
 
 	yml, err := loadExampleYaml("serviceintegration.autoscaler.yaml", map[string]string{
 		"doc[0].metadata.name":              siName,
 		"doc[0].spec.project":               cfg.Project,
 		"doc[0].spec.sourceServiceName":     pgName,
 		"doc[0].spec.destinationEndpointId": endpointID,
-
-		"doc[1].metadata.name":  pgName,
-		"doc[1].spec.project":   cfg.Project,
-		"doc[1].spec.cloudName": cfg.PrimaryCloudName,
+		"doc[1]":                            "REMOVE",
 	})
 	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient)
@@ -295,10 +312,6 @@ func TestServiceIntegrationAutoscaler(t *testing.T) {
 	// Applies given manifest
 	require.NoError(t, s.Apply(yml))
 
-	// Waits kube objects
-	pg := new(v1alpha1.PostgreSQL)
-	require.NoError(t, s.GetRunning(pg, pgName))
-
 	si := new(v1alpha1.ServiceIntegration)
 	require.NoError(t, s.GetRunning(si, siName))
 
@@ -306,7 +319,7 @@ func TestServiceIntegrationAutoscaler(t *testing.T) {
 	// Validates PostgreSQL
 	pgAvn, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
 	require.NoError(t, err)
-	assert.Equal(t, pgAvn.ServiceName, pg.GetName())
+	assert.Equal(t, pgAvn.ServiceName, pgName)
 	assert.Contains(t, serviceRunningStatesAiven, pgAvn.State)
 
 	// Validates ServiceIntegration
