@@ -163,6 +163,23 @@ func (h *genericServiceHandler) delete(ctx context.Context, avnGen avngen.Client
 		return false, errTerminationProtectionOn
 	}
 
+	// Sync termination protection to Aiven before deletion.
+	// The Kubernetes workqueue deduplicates events, when a user sets
+	// spec.terminationProtection=false and deletes the resource immediately after,
+	// the workqueue may collapse both events into a single reconciliation.
+	// By the time Reconcile runs, deletionTimestamp is already set, so the controller.
+	// Without this call, Aiven still has termination protection enabled and rejects
+	// ServiceDelete, causing the controller to retry indefinitely.
+	//
+	// Note: the guard above already verifies that spec.terminationProtection is not true,
+	// so this only fires when the user has explicitly disabled or omitted TP.
+	terminationProtection := false
+	if _, err := avnGen.ServiceUpdate(ctx, spec.Project, o.getObjectMeta().Name, &service.ServiceUpdateIn{
+		TerminationProtection: &terminationProtection,
+	}); err != nil && !isNotFound(err) {
+		return false, fmt.Errorf("failed to disable termination protection before deletion: %w", err)
+	}
+
 	err = avnGen.ServiceDelete(ctx, spec.Project, o.getObjectMeta().Name)
 	if err == nil || isNotFound(err) {
 		return true, nil
