@@ -101,7 +101,7 @@ func TestClickhouse(t *testing.T) {
 	require.Len(t, ch.Spec.UserConfig.IpFilter, 2)
 
 	// First entry
-	assert.Equal(t, "0.0.0.0/32", ch.Spec.UserConfig.IpFilter[0].Network)
+	assert.Equal(t, "0.0.0.0/0", ch.Spec.UserConfig.IpFilter[0].Network)
 	assert.Equal(t, "bar", *ch.Spec.UserConfig.IpFilter[0].Description)
 
 	// Second entry
