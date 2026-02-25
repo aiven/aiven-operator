@@ -41,6 +41,14 @@ spec:
     retention_bytes: 123
 `
 
+func Test_newKafkaTopicReconciler(t *testing.T) {
+	t.Parallel()
+
+	r := newKafkaTopicReconciler(Controller{}).(*Reconciler[*v1alpha1.KafkaTopic])
+	require.NotNil(t, r.options)
+	require.Equal(t, kafkaTopicMaxConcurrentReconciles, r.options.MaxConcurrentReconciles)
+}
+
 func TestKafkaTopicReconciler(t *testing.T) {
 	t.Parallel()
 

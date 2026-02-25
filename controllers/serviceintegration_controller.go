@@ -20,20 +20,16 @@ import (
 )
 
 func newServiceIntegrationReconciler(c Controller) reconcilerType {
-	return &Reconciler[*v1alpha1.ServiceIntegration]{
-		Controller:              c,
-		newAivenGeneratedClient: NewAivenGeneratedClient,
-		newObj: func() *v1alpha1.ServiceIntegration {
-			return &v1alpha1.ServiceIntegration{}
-		},
-		newController: func(avnGen avngen.Client) AivenController[*v1alpha1.ServiceIntegration] {
+	return newManagedReconciler(
+		c,
+		func(c Controller, avnGen avngen.Client) AivenController[*v1alpha1.ServiceIntegration] {
 			return &ServiceIntegrationController{
 				Client: c.Client,
 				avnGen: avnGen,
 			}
 		},
-		newSecret: newSecret,
-	}
+		nil,
+	)
 }
 
 //+kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations,verbs=get;list;watch;create;update;patch;delete
@@ -197,12 +193,8 @@ func (r *ServiceIntegrationController) checkPreconditions(ctx context.Context, s
 			project = si.Spec.Project
 		}
 
-		running, err := checkServiceIsOperational(ctx, r.avnGen, project, si.Spec.SourceServiceName)
-		if err != nil {
+		if err := r.checkService(ctx, project, si.Spec.SourceServiceName); err != nil {
 			return err
-		}
-		if !running {
-			return fmt.Errorf("%w: service %s/%s is not yet operational", errPreconditionNotMet, project, si.Spec.SourceServiceName)
 		}
 	}
 
@@ -212,15 +204,22 @@ func (r *ServiceIntegrationController) checkPreconditions(ctx context.Context, s
 			project = si.Spec.Project
 		}
 
-		running, err := checkServiceIsOperational(ctx, r.avnGen, project, si.Spec.DestinationServiceName)
-		if err != nil {
+		if err := r.checkService(ctx, project, si.Spec.DestinationServiceName); err != nil {
 			return err
-		}
-		if !running {
-			return fmt.Errorf("%w: service %s/%s is not yet operational", errPreconditionNotMet, project, si.Spec.DestinationServiceName)
 		}
 	}
 
+	return nil
+}
+
+func (r *ServiceIntegrationController) checkService(ctx context.Context, project, serviceName string) error {
+	on, err := checkServiceIsOperational(ctx, r.avnGen, project, serviceName)
+	if err != nil {
+		return err
+	}
+	if !on {
+		return fmt.Errorf("%w: service %s/%s is not yet operational", errPreconditionNotMet, project, serviceName)
+	}
 	return nil
 }
 

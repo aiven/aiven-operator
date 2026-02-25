@@ -20,20 +20,16 @@ import (
 )
 
 func newServiceUserReconciler(c Controller) reconcilerType {
-	return &Reconciler[*v1alpha1.ServiceUser]{
-		Controller:              c,
-		newAivenGeneratedClient: NewAivenGeneratedClient,
-		newObj: func() *v1alpha1.ServiceUser {
-			return &v1alpha1.ServiceUser{}
-		},
-		newController: func(avnGen avngen.Client) AivenController[*v1alpha1.ServiceUser] {
+	return newManagedReconciler(
+		c,
+		func(c Controller, avnGen avngen.Client) AivenController[*v1alpha1.ServiceUser] {
 			return &ServiceUserController{
 				Client: c.Client,
 				avnGen: avnGen,
 			}
 		},
-		newSecret: newSecret,
-	}
+		nil,
+	)
 }
 
 //+kubebuilder:rbac:groups=aiven.io,resources=serviceusers,verbs=update;get;list;watch;create;delete

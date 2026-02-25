@@ -28,20 +28,16 @@ type ClickhouseUserController struct {
 }
 
 func newClickhouseUserReconciler(c Controller) reconcilerType {
-	return &Reconciler[*v1alpha1.ClickhouseUser]{
-		Controller:              c,
-		newAivenGeneratedClient: NewAivenGeneratedClient,
-		newObj: func() *v1alpha1.ClickhouseUser {
-			return &v1alpha1.ClickhouseUser{}
-		},
-		newController: func(avnGen avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+	return newManagedReconciler(
+		c,
+		func(c Controller, avnGen avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
 			return &ClickhouseUserController{
 				Client: c.Client,
 				avnGen: avnGen,
 			}
 		},
-		newSecret: newSecret,
-	}
+		nil,
+	)
 }
 
 func (r *ClickhouseUserController) Observe(ctx context.Context, user *v1alpha1.ClickhouseUser) (Observation, error) {
