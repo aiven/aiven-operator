@@ -22,8 +22,8 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func TestServiceIntegrationHandler_integrationMatches(t *testing.T) {
-	handler := ServiceIntegrationHandler{}
+func TestServiceIntegrationController_integrationMatches(t *testing.T) {
+	r := &ServiceIntegrationController{}
 
 	tests := []struct {
 		name      string
@@ -212,7 +212,7 @@ func TestServiceIntegrationHandler_integrationMatches(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := handler.integrationMatches(tt.existing, tt.desired)
+			got := r.integrationMatches(tt.existing, tt.desired)
 			assert.Equal(t, tt.wantMatch, got)
 		})
 	}
@@ -238,7 +238,7 @@ spec:
 func TestServiceIntegrationReconciler(t *testing.T) {
 	t.Parallel()
 
-	runScenario := func(t *testing.T, si *v1alpha1.ServiceIntegration, avn avngen.Client, additionalObjects ...client.Object) (*ServiceIntegrationReconciler, ctrlruntime.Result) {
+	runScenario := func(t *testing.T, si *v1alpha1.ServiceIntegration, avn avngen.Client, additionalObjects ...client.Object) (*Reconciler[*v1alpha1.ServiceIntegration], ctrlruntime.Result) {
 		t.Helper()
 
 		scheme := runtime.NewScheme()
@@ -258,8 +258,8 @@ func TestServiceIntegrationReconciler(t *testing.T) {
 			Recorder:     recorder,
 			DefaultToken: "test-token",
 			PollInterval: testPollInterval,
-		}).(*ServiceIntegrationReconciler)
-		r.newAivenClient = func(_, _, _ string) (avngen.Client, error) {
+		}).(*Reconciler[*v1alpha1.ServiceIntegration])
+		r.newAivenGeneratedClient = func(_, _, _ string) (avngen.Client, error) {
 			return avn, nil
 		}
 
@@ -283,7 +283,7 @@ func TestServiceIntegrationReconciler(t *testing.T) {
 			Return(nil, newAivenError(404, "service not found")).Once()
 
 		r, res := runScenario(t, si, avn)
-		require.Equal(t, ctrlruntime.Result{Requeue: true, RequeueAfter: requeueTimeout}, res)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
 
 		got := &v1alpha1.ServiceIntegration{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got))
@@ -307,12 +307,48 @@ func TestServiceIntegrationReconciler(t *testing.T) {
 			Return(&service.ServiceIntegrationCreateOut{ServiceIntegrationId: "si-123"}, nil).Once()
 
 		r, res := runScenario(t, si, avn)
-		require.Equal(t, ctrlruntime.Result{}, res)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
 
 		got := &v1alpha1.ServiceIntegration{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got))
 		require.Equal(t, "si-123", got.Status.ID)
 		require.Contains(t, got.Finalizers, instanceDeletionFinalizer)
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
+		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
+	})
+
+	t.Run("Creates ServiceIntegration with endpoints only when source service name is empty", func(t *testing.T) {
+		const yaml = `
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: test-si
+  namespace: default
+spec:
+  project: test-project
+  integrationType: autoscaler
+  sourceEndpointId: source-endpoint-123
+  destinationEndpointId: destination-endpoint-456
+`
+		si := newObjectFromYAML[v1alpha1.ServiceIntegration](t, yaml)
+		si.Generation = 1
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceIntegrationCreate(mock.Anything, si.Spec.Project, mock.MatchedBy(func(in *service.ServiceIntegrationCreateIn) bool {
+				return in.IntegrationType == si.Spec.IntegrationType &&
+					in.SourceService == nil &&
+					in.SourceEndpointId != nil && *in.SourceEndpointId == si.Spec.SourceEndpointID &&
+					in.DestEndpointId != nil && *in.DestEndpointId == si.Spec.DestinationEndpointID
+			})).
+			Return(&service.ServiceIntegrationCreateOut{ServiceIntegrationId: "si-123"}, nil).Once()
+
+		r, res := runScenario(t, si, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		got := &v1alpha1.ServiceIntegration{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got))
+		require.Equal(t, "si-123", got.Status.ID)
 		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
 		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
 	})
@@ -354,11 +390,98 @@ spec:
 			}, nil).Twice()
 
 		r, res := runScenario(t, si, avn)
-		require.Equal(t, ctrlruntime.Result{}, res)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
 
 		got := &v1alpha1.ServiceIntegration{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got))
 		require.Equal(t, "existing-123", got.Status.ID)
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
+		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
+	})
+
+	t.Run("Adopts existing ServiceIntegration and applies user config", func(t *testing.T) {
+		const yaml = `
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: test-si
+  namespace: default
+spec:
+  project: test-project
+  integrationType: datadog
+  sourceServiceName: test-pg
+  datadog:
+    datadog_dbm_enabled: true
+`
+		si := newObjectFromYAML[v1alpha1.ServiceIntegration](t, yaml)
+		si.Generation = 1
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, si.Spec.Project, si.Spec.SourceServiceName).
+			Return(&service.ServiceGetOut{
+				State: service.ServiceStateTypeRunning,
+				ServiceIntegrations: []service.ServiceIntegrationOut{
+					{
+						ServiceIntegrationId: "existing-123",
+						IntegrationType:      si.Spec.IntegrationType,
+						SourceService:        si.Spec.SourceServiceName,
+						SourceProject:        si.Spec.Project,
+						DestProject:          si.Spec.Project,
+					},
+				},
+			}, nil).Twice()
+		avn.EXPECT().
+			ServiceIntegrationUpdate(mock.Anything, si.Spec.Project, "existing-123", mock.MatchedBy(func(in *service.ServiceIntegrationUpdateIn) bool {
+				enabled, ok := in.UserConfig["datadog_dbm_enabled"].(bool)
+				return ok && enabled
+			})).
+			Return(nil, errors.New("User config not changed")).Once()
+
+		r, res := runScenario(t, si, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		got := &v1alpha1.ServiceIntegration{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got))
+		require.Equal(t, "existing-123", got.Status.ID)
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
+		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
+	})
+
+	t.Run("Updates ServiceIntegration user config and stores ID returned by API", func(t *testing.T) {
+		const yaml = `
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: test-si
+  namespace: default
+spec:
+  project: test-project
+  integrationType: datadog
+  datadog:
+    datadog_dbm_enabled: true
+`
+		si := newObjectFromYAML[v1alpha1.ServiceIntegration](t, yaml)
+		si.Generation = 1
+		si.Status.ID = "si-123"
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceIntegrationGet(mock.Anything, si.Spec.Project, si.Status.ID).
+			Return(&service.ServiceIntegrationGetOut{}, nil).Once()
+		avn.EXPECT().
+			ServiceIntegrationUpdate(mock.Anything, si.Spec.Project, si.Status.ID, mock.MatchedBy(func(in *service.ServiceIntegrationUpdateIn) bool {
+				enabled, ok := in.UserConfig["datadog_dbm_enabled"].(bool)
+				return ok && enabled
+			})).
+			Return(&service.ServiceIntegrationUpdateOut{ServiceIntegrationId: "si-456"}, nil).Once()
+
+		r, res := runScenario(t, si, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		got := &v1alpha1.ServiceIntegration{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got))
+		require.Equal(t, "si-456", got.Status.ID)
 		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
 		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
 	})
@@ -382,11 +505,14 @@ spec:
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
+			ServiceIntegrationGet(mock.Anything, si.Spec.Project, si.Status.ID).
+			Return(&service.ServiceIntegrationGetOut{}, nil).Once()
+		avn.EXPECT().
 			ServiceIntegrationUpdate(mock.Anything, si.Spec.Project, si.Status.ID, mock.Anything).
 			Return(nil, errors.New("User config not changed")).Once()
 
 		r, res := runScenario(t, si, avn)
-		require.Equal(t, ctrlruntime.Result{}, res)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
 
 		got := &v1alpha1.ServiceIntegration{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got))

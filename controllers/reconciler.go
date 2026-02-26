@@ -18,12 +18,39 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
-	ctrlbuilder "sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
+
+func newManagedReconciler[
+	T any,
+	Obj interface {
+		*T
+		v1alpha1.AivenManagedObject
+	},
+](
+	c Controller,
+	newController func(c Controller, avnGen avngen.Client) AivenController[Obj],
+	options *controller.Options,
+) *Reconciler[Obj] {
+	r := &Reconciler[Obj]{
+		Controller:              c,
+		newAivenGeneratedClient: NewAivenGeneratedClient,
+		newObj: func() Obj {
+			return new(T)
+		},
+		newController: func(avnGen avngen.Client) AivenController[Obj] {
+			return newController(c, avnGen)
+		},
+		newSecret: newSecret,
+		options:   options,
+	}
+
+	return r
+}
 
 // Reconciler handles the boilerplate reconciliation logic for Aiven resources.
 // It orchestrates the ExternalClient lifecycle methods and manages:
@@ -38,7 +65,7 @@ type Reconciler[T v1alpha1.AivenManagedObject] struct {
 	newController           func(avnGen avngen.Client) AivenController[T]
 	newObj                  func() T
 	newSecret               func(o objWithSecret, stringData map[string]string, addPrefix bool) *corev1.Secret
-	customizeBuilder        func(*ctrlbuilder.Builder) *ctrlbuilder.Builder
+	options                 *controller.Options
 }
 
 // requeueTimeout sets timeout to requeue controller
@@ -416,8 +443,8 @@ func (r *Reconciler[T]) SetupWithManager(mgr ctrl.Manager) error {
 		b = b.Owns(&corev1.Secret{})
 	}
 
-	if r.customizeBuilder != nil {
-		b = r.customizeBuilder(b)
+	if r.options != nil {
+		b = b.WithOptions(*r.options)
 	}
 
 	return b.Complete(r)

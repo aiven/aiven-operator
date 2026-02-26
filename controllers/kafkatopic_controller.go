@@ -12,7 +12,6 @@ import (
 	"golang.org/x/sync/singleflight"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ctrlbuilder "sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
@@ -22,22 +21,16 @@ import (
 const kafkaTopicMaxConcurrentReconciles = 20
 
 func newKafkaTopicReconciler(c Controller) reconcilerType {
-	return &Reconciler[*v1alpha1.KafkaTopic]{
-		Controller:              c,
-		newAivenGeneratedClient: NewAivenGeneratedClient,
-		newObj: func() *v1alpha1.KafkaTopic {
-			return &v1alpha1.KafkaTopic{}
-		},
-		newController: func(avnGen avngen.Client) AivenController[*v1alpha1.KafkaTopic] {
+	return newManagedReconciler(
+		c,
+		func(c Controller, avnGen avngen.Client) AivenController[*v1alpha1.KafkaTopic] {
 			return &KafkaTopicController{
 				Client: c.Client,
 				avnGen: avnGen,
 			}
 		},
-		customizeBuilder: func(b *ctrlbuilder.Builder) *ctrlbuilder.Builder {
-			return b.WithOptions(controller.Options{MaxConcurrentReconciles: kafkaTopicMaxConcurrentReconciles})
-		},
-	}
+		&controller.Options{MaxConcurrentReconciles: kafkaTopicMaxConcurrentReconciles},
+	)
 }
 
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkatopics,verbs=get;list;watch;create;update;patch;delete

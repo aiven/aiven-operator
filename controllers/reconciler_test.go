@@ -26,10 +26,10 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
-	ctrlbuilder "sigs.k8s.io/controller-runtime/pkg/builder"
 	crclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/client/interceptor"
+	ctrlcontroller "sigs.k8s.io/controller-runtime/pkg/controller"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/yaml"
 
@@ -2223,27 +2223,24 @@ func TestReconciler_SetupWithManager(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("Calls builder customizer", func(t *testing.T) {
+	t.Run("Applies controller options when configured", func(t *testing.T) {
 		restMapper := meta.NewDefaultRESTMapper(nil)
 		restMapper.Add(v1alpha1.GroupVersion.WithKind("KafkaTopic"), meta.RESTScopeNamespace)
 
 		mgr := newManager(t, restMapper)
 
-		called := false
 		r := &Reconciler[*v1alpha1.KafkaTopic]{
 			Controller: Controller{
 				Client: mgr.GetClient(),
 				Scheme: mgr.GetScheme(),
 			},
 			newObj: func() *v1alpha1.KafkaTopic { return &v1alpha1.KafkaTopic{} },
-			customizeBuilder: func(b *ctrlbuilder.Builder) *ctrlbuilder.Builder {
-				called = true
-				return b
+			options: &ctrlcontroller.Options{
+				MaxConcurrentReconciles: 2,
 			},
 		}
 
 		err := r.SetupWithManager(mgr)
 		require.NoError(t, err)
-		require.True(t, called)
 	})
 }
