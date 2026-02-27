@@ -28,6 +28,25 @@ This resource uses the following API operations, and for each operation, _any_ o
 
     ```yaml linenums="1"
     apiVersion: aiven.io/v1alpha1
+    kind: ServiceIntegrationEndpoint
+    metadata:
+      name: my-autoscaler
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: aiven-project-name
+      endpointType: autoscaler
+      endpointName: my-autoscaler
+      autoscaler:
+        autoscaling:
+          - type: autoscale_disk
+            cap_gb: 100
+    
+    ---
+    
+    apiVersion: aiven.io/v1alpha1
     kind: ServiceIntegration
     metadata:
       name: my-service-integration
@@ -39,8 +58,8 @@ This resource uses the following API operations, and for each operation, _any_ o
       project: aiven-project-name
       integrationType: autoscaler
       sourceServiceName: my-pg
-      # Look up autoscaler integration endpoint ID via Console
-      destinationEndpointId: my-destination-endpoint-id
+      destinationEndpointRef:
+        name: my-autoscaler
     
     ---
     
@@ -284,8 +303,8 @@ kubectl get serviceintegrations my-service-integration
 
 The output is similar to the following:
 ```shell
-Name                      Project               Type          Source Service Name    Destination Endpoint ID       
-my-service-integration    aiven-project-name    autoscaler    my-pg                  my-destination-endpoint-id    
+Name                      Project               Type          Source Service Name    
+my-service-integration    aiven-project-name    autoscaler    my-pg                  
 ```
 
 ---
@@ -297,6 +316,10 @@ ServiceIntegration is the Schema for the serviceintegrations API.
 !!! info "Adoption of existing integrations"
 
     If a ServiceIntegration resource is created with configuration matching an existing Aiven integration (created outside the operator), the operator will adopt the existing integration.
+
+!!! info "destinationEndpointRef"
+
+    Use destinationEndpointRef to reference a ServiceIntegrationEndpoint (instead of copying spec.destinationEndpointId). The controller resolves the endpoint ID from the referenced object's status.id. The reference must be same-namespace (namespace must be omitted) and destinationEndpointId and destinationEndpointRef are mutually exclusive.
 
 **Required**
 
@@ -324,6 +347,11 @@ ServiceIntegrationSpec defines the desired state of ServiceIntegration.
 - [`clickhousePostgresql`](#spec.clickhousePostgresql-property){: name='spec.clickhousePostgresql-property'} (object). Clickhouse PostgreSQL configuration values. See below for [nested schema](#spec.clickhousePostgresql).
 - [`datadog`](#spec.datadog-property){: name='spec.datadog-property'} (object). Datadog specific user configuration options. See below for [nested schema](#spec.datadog).
 - [`destinationEndpointId`](#spec.destinationEndpointId-property){: name='spec.destinationEndpointId-property'} (string, Immutable, MaxLength: 36). Destination endpoint for the integration (if any).
+- [`destinationEndpointRef`](#spec.destinationEndpointRef-property){: name='spec.destinationEndpointRef-property'} (object, Immutable). Destination endpoint reference for the integration (if any).
+
+    The reference must point to a ServiceIntegrationEndpoint in the same namespace.
+    Only the name is allowed: namespace must be omitted and name must not contain a namespace (no "ns/name" form).
+    The controller resolves the destination endpoint ID from ServiceIntegrationEndpoint.status.id. See below for [nested schema](#spec.destinationEndpointRef).
 - [`destinationProjectName`](#spec.destinationProjectName-property){: name='spec.destinationProjectName-property'} (string, Immutable, MaxLength: 63). Destination project for the integration (if any).
 - [`destinationServiceName`](#spec.destinationServiceName-property){: name='spec.destinationServiceName-property'} (string, Immutable, MaxLength: 64). Destination service for the integration (if any).
 - [`externalAWSCloudwatchMetrics`](#spec.externalAWSCloudwatchMetrics-property){: name='spec.externalAWSCloudwatchMetrics-property'} (object). External AWS CloudWatch Metrics integration Logs configuration values. See below for [nested schema](#spec.externalAWSCloudwatchMetrics).
@@ -491,6 +519,20 @@ Datadog Redis Options.
 **Required**
 
 - [`command_stats_enabled`](#spec.datadog.redis.command_stats_enabled-property){: name='spec.datadog.redis.command_stats_enabled-property'} (boolean). Enable command_stats option in the agent's configuration.
+
+## destinationEndpointRef {: #spec.destinationEndpointRef }
+
+_Appears on [`spec`](#spec)._
+
+Destination endpoint reference for the integration (if any).
+
+The reference must point to a ServiceIntegrationEndpoint in the same namespace.
+Only the name is allowed: namespace must be omitted and name must not contain a namespace (no "ns/name" form).
+The controller resolves the destination endpoint ID from ServiceIntegrationEndpoint.status.id.
+
+**Required**
+
+- [`name`](#spec.destinationEndpointRef.name-property){: name='spec.destinationEndpointRef.name-property'} (string, MinLength: 1).
 
 ## externalAWSCloudwatchMetrics {: #spec.externalAWSCloudwatchMetrics }
 

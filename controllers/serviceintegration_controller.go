@@ -12,8 +12,10 @@ import (
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/avast/retry-go"
 	"github.com/google/go-cmp/cmp"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -35,6 +37,7 @@ func newServiceIntegrationReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=aiven.io,resources=serviceintegrations/finalizers,verbs=get;create;update
+//+kubebuilder:rbac:groups=aiven.io,resources=serviceintegrationendpoints,verbs=get;list;watch
 
 // ServiceIntegrationController reconciles a ServiceIntegration object
 type ServiceIntegrationController struct {
@@ -48,7 +51,12 @@ func (r *ServiceIntegrationController) Observe(ctx context.Context, si *v1alpha1
 	}
 
 	if si.Status.ID == "" {
-		existingIntegration, err := r.findExistingIntegration(ctx, si)
+		destEndpointID, err := r.resolveDestinationEndpointID(ctx, si)
+		if err != nil {
+			return Observation{}, err
+		}
+
+		existingIntegration, err := r.findExistingIntegration(ctx, si, destEndpointID)
 		if err != nil {
 			return Observation{}, fmt.Errorf("checking for existing integration: %w", err)
 		}
@@ -88,6 +96,11 @@ func (r *ServiceIntegrationController) Create(ctx context.Context, si *v1alpha1.
 		return CreateResult{}, err
 	}
 
+	destEndpointID, err := r.resolveDestinationEndpointID(ctx, si)
+	if err != nil {
+		return CreateResult{}, err
+	}
+
 	userConfigMap, err := CreateUserConfiguration(userConfig)
 	if err != nil {
 		return CreateResult{}, err
@@ -97,7 +110,7 @@ func (r *ServiceIntegrationController) Create(ctx context.Context, si *v1alpha1.
 		ctx,
 		si.Spec.Project,
 		&service.ServiceIntegrationCreateIn{
-			DestEndpointId:   NilIfZero(si.Spec.DestinationEndpointID),
+			DestEndpointId:   NilIfZero(destEndpointID),
 			DestService:      NilIfZero(si.Spec.DestinationServiceName),
 			DestProject:      NilIfZero(si.Spec.DestinationProjectName),
 			IntegrationType:  si.Spec.IntegrationType,
@@ -187,6 +200,10 @@ func (r *ServiceIntegrationController) Delete(ctx context.Context, si *v1alpha1.
 func (r *ServiceIntegrationController) checkPreconditions(ctx context.Context, si *v1alpha1.ServiceIntegration) error {
 	// todo: validate SourceEndpointID, DestinationEndpointID when ServiceIntegrationEndpoint kind released
 
+	if si.Spec.DestinationEndpointID != "" && si.Spec.DestinationEndpointRef != nil {
+		return fmt.Errorf("destinationEndpointId and destinationEndpointRef are mutually exclusive")
+	}
+
 	if si.Spec.SourceServiceName != "" {
 		project := si.Spec.SourceProjectName
 		if project == "" {
@@ -209,6 +226,10 @@ func (r *ServiceIntegrationController) checkPreconditions(ctx context.Context, s
 		}
 	}
 
+	if _, err := r.resolveDestinationEndpointID(ctx, si); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -223,10 +244,53 @@ func (r *ServiceIntegrationController) checkService(ctx context.Context, project
 	return nil
 }
 
+// resolveDestinationEndpointID resolves the endpoint ID from destinationEndpointId or destinationEndpointRef.
+func (r *ServiceIntegrationController) resolveDestinationEndpointID(ctx context.Context, si *v1alpha1.ServiceIntegration) (string, error) {
+	if si.Spec.DestinationEndpointID != "" {
+		return si.Spec.DestinationEndpointID, nil
+	}
+
+	ref := si.Spec.DestinationEndpointRef
+	if ref == nil {
+		return "", nil
+	}
+	if strings.Contains(ref.Name, "/") {
+		return "", fmt.Errorf("destinationEndpointRef.name must not contain a namespace")
+	}
+
+	endpoint := &v1alpha1.ServiceIntegrationEndpoint{}
+	if err := r.Client.Get(ctx, types.NamespacedName{Name: ref.Name, Namespace: si.GetNamespace()}, endpoint); err != nil {
+		if apierrors.IsNotFound(err) {
+			return "", fmt.Errorf("%w: destination endpoint %s is not yet available", errPreconditionNotMet, ref.Name)
+		}
+		return "", fmt.Errorf("getting destination endpoint: %w", err)
+	}
+
+	if endpoint.Spec.Project != si.Spec.Project {
+		return "", fmt.Errorf("destination endpoint %s has project %q, expected %q", endpoint.GetName(), endpoint.Spec.Project, si.Spec.Project)
+	}
+
+	if !IsReadyToUse(endpoint) {
+		return "", fmt.Errorf("%w: destination endpoint %s is not ready", errPreconditionNotMet, endpoint.GetName())
+	}
+
+	if endpoint.Status.ID == "" {
+		return "", fmt.Errorf("%w: destination endpoint %s has no status.id yet", errPreconditionNotMet, endpoint.GetName())
+	}
+
+	return endpoint.Status.ID, nil
+}
+
 // findExistingIntegration checks if an integration with matching configuration already exists on Aiven.
-func (r *ServiceIntegrationController) findExistingIntegration(ctx context.Context, si *v1alpha1.ServiceIntegration) (*service.ServiceIntegrationOut, error) {
+func (r *ServiceIntegrationController) findExistingIntegration(ctx context.Context, si *v1alpha1.ServiceIntegration, destEndpointID string) (*service.ServiceIntegrationOut, error) {
 	if si.Spec.SourceServiceName == "" {
 		return nil, nil // integration with only endpoints, cannot list integrations
+	}
+
+	matchCandidate := si
+	if destEndpointID != "" && si.Spec.DestinationEndpointID == "" {
+		matchCandidate = si.DeepCopy()
+		matchCandidate.Spec.DestinationEndpointID = destEndpointID
 	}
 
 	sourceProject := si.Spec.SourceProjectName
@@ -240,7 +304,7 @@ func (r *ServiceIntegrationController) findExistingIntegration(ctx context.Conte
 	}
 
 	for _, integration := range svc.ServiceIntegrations {
-		if r.integrationMatches(&integration, si) {
+		if r.integrationMatches(&integration, matchCandidate) {
 			return &integration, nil
 		}
 	}
