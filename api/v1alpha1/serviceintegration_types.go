@@ -5,9 +5,11 @@ package v1alpha1
 import (
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/aiven/go-client-codegen/handler/service"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	autoscalerintegration "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/autoscaler"
 	clickhousekafkauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/clickhouse_kafka"
@@ -21,7 +23,14 @@ import (
 	metricsintegration "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/integration/metrics"
 )
 
+// DestinationEndpointReference is a name-only reference to a ServiceIntegrationEndpoint in the same namespace.
+type DestinationEndpointReference struct {
+	// +kubebuilder:validation:MinLength=1
+	Name string `json:"name"`
+}
+
 // ServiceIntegrationSpec defines the desired state of ServiceIntegration
+// +kubebuilder:validation:XValidation:rule="!(has(self.destinationEndpointRef) && has(self.destinationEndpointId) && self.destinationEndpointId != \"\")",message="destinationEndpointId and destinationEndpointRef are mutually exclusive"
 type ServiceIntegrationSpec struct {
 	ProjectDependant `json:",inline"`
 
@@ -49,6 +58,15 @@ type ServiceIntegrationSpec struct {
 	// +kubebuilder:validation:MaxLength=36
 	// Destination endpoint for the integration (if any)
 	DestinationEndpointID string `json:"destinationEndpointId,omitempty"`
+
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// +kubebuilder:validation:XValidation:rule="!self.name.contains('/')",message="destinationEndpointRef.name must not contain a namespace"
+	// Destination endpoint reference for the integration (if any).
+	//
+	// The reference must point to a ServiceIntegrationEndpoint in the same namespace.
+	// Only the name is allowed: namespace must be omitted and name must not contain a namespace (no "ns/name" form).
+	// The controller resolves the destination endpoint ID from ServiceIntegrationEndpoint.status.id.
+	DestinationEndpointRef *DestinationEndpointReference `json:"destinationEndpointRef,omitempty"`
 
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// +kubebuilder:validation:MaxLength=64
@@ -106,6 +124,8 @@ type ServiceIntegrationStatus struct {
 // ServiceIntegration is the Schema for the serviceintegrations API.
 //
 // info "Adoption of existing integrations": If a ServiceIntegration resource is created with configuration matching an existing Aiven integration (created outside the operator), the operator will adopt the existing integration.
+//
+// info "destinationEndpointRef": Use destinationEndpointRef to reference a ServiceIntegrationEndpoint (instead of copying spec.destinationEndpointId). The controller resolves the endpoint ID from the referenced object's status.id. The reference must be same-namespace (namespace must be omitted) and destinationEndpointId and destinationEndpointRef are mutually exclusive.
 // +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
 // +kubebuilder:printcolumn:name="Type",type="string",JSONPath=".spec.integrationType"
 // +kubebuilder:printcolumn:name="Source Service Name",type="string",JSONPath=".spec.sourceServiceName"
@@ -128,6 +148,32 @@ func (*ServiceIntegration) NoSecret() bool {
 
 func (in *ServiceIntegration) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
+}
+
+func (in *ServiceIntegration) GetRefs() []*ResourceReferenceObject {
+	if in.DeletionTimestamp != nil {
+		return nil
+	}
+
+	ref := in.Spec.DestinationEndpointRef
+	if ref == nil {
+		return nil
+	}
+
+	// Defensive: gate only for the name-only shape validated by CEL.
+	if strings.Contains(ref.Name, "/") {
+		return nil
+	}
+
+	return []*ResourceReferenceObject{
+		{
+			GroupVersionKind: GroupVersion.WithKind("ServiceIntegrationEndpoint"),
+			NamespacedName: types.NamespacedName{
+				Namespace: in.GetNamespace(),
+				Name:      ref.Name,
+			},
+		},
+	}
 }
 
 func (in *ServiceIntegration) Conditions() *[]metav1.Condition {
