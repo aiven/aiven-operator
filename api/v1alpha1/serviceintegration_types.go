@@ -5,7 +5,6 @@ package v1alpha1
 import (
 	"fmt"
 	"reflect"
-	"strings"
 
 	"github.com/aiven/go-client-codegen/handler/service"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -157,11 +156,6 @@ func (in *ServiceIntegration) GetRefs() []*ResourceReferenceObject {
 
 	ref := in.Spec.DestinationEndpointRef
 	if ref == nil {
-		return nil
-	}
-
-	// Defensive: gate only for the name-only shape validated by CEL.
-	if strings.Contains(ref.Name, "/") {
 		return nil
 	}
 
