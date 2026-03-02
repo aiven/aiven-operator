@@ -238,7 +238,7 @@ spec:
 func TestServiceIntegrationReconciler(t *testing.T) {
 	t.Parallel()
 
-	runScenario := func(t *testing.T, si *v1alpha1.ServiceIntegration, avn avngen.Client, additionalObjects ...client.Object) (*Reconciler[*v1alpha1.ServiceIntegration], ctrlruntime.Result) {
+	runScenario := func(t *testing.T, si *v1alpha1.ServiceIntegration, avn avngen.Client, additionalObjects ...client.Object) (*Reconciler[*v1alpha1.ServiceIntegration], ctrlruntime.Result, error) {
 		t.Helper()
 
 		scheme := runtime.NewScheme()
@@ -269,8 +269,7 @@ func TestServiceIntegrationReconciler(t *testing.T) {
 				Namespace: si.Namespace,
 			},
 		})
-		require.NoError(t, err)
-		return r, res
+		return r, res, err
 	}
 
 	t.Run("Requeues when service preconditions aren't met", func(t *testing.T) {
@@ -282,7 +281,8 @@ func TestServiceIntegrationReconciler(t *testing.T) {
 			ServiceGet(mock.Anything, si.Spec.Project, si.Spec.SourceServiceName).
 			Return(nil, newAivenError(404, "service not found")).Once()
 
-		r, res := runScenario(t, si, avn)
+		r, res, err := runScenario(t, si, avn)
+		require.NoError(t, err)
 		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
 
 		got := &v1alpha1.ServiceIntegration{}
@@ -306,7 +306,8 @@ func TestServiceIntegrationReconciler(t *testing.T) {
 			})).
 			Return(&service.ServiceIntegrationCreateOut{ServiceIntegrationId: "si-123"}, nil).Once()
 
-		r, res := runScenario(t, si, avn)
+		r, res, err := runScenario(t, si, avn)
+		require.NoError(t, err)
 		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
 
 		got := &v1alpha1.ServiceIntegration{}
@@ -343,7 +344,8 @@ spec:
 			})).
 			Return(&service.ServiceIntegrationCreateOut{ServiceIntegrationId: "si-123"}, nil).Once()
 
-		r, res := runScenario(t, si, avn)
+		r, res, err := runScenario(t, si, avn)
+		require.NoError(t, err)
 		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
 
 		got := &v1alpha1.ServiceIntegration{}
@@ -389,7 +391,8 @@ spec:
 				},
 			}, nil).Twice()
 
-		r, res := runScenario(t, si, avn)
+		r, res, err := runScenario(t, si, avn)
+		require.NoError(t, err)
 		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
 
 		got := &v1alpha1.ServiceIntegration{}
@@ -438,7 +441,8 @@ spec:
 			})).
 			Return(nil, errors.New("User config not changed")).Once()
 
-		r, res := runScenario(t, si, avn)
+		r, res, err := runScenario(t, si, avn)
+		require.NoError(t, err)
 		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
 
 		got := &v1alpha1.ServiceIntegration{}
@@ -476,7 +480,8 @@ spec:
 			})).
 			Return(&service.ServiceIntegrationUpdateOut{ServiceIntegrationId: "si-456"}, nil).Once()
 
-		r, res := runScenario(t, si, avn)
+		r, res, err := runScenario(t, si, avn)
+		require.NoError(t, err)
 		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
 
 		got := &v1alpha1.ServiceIntegration{}
@@ -511,7 +516,8 @@ spec:
 			ServiceIntegrationUpdate(mock.Anything, si.Spec.Project, si.Status.ID, mock.Anything).
 			Return(nil, errors.New("User config not changed")).Once()
 
-		r, res := runScenario(t, si, avn)
+		r, res, err := runScenario(t, si, avn)
+		require.NoError(t, err)
 		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
 
 		got := &v1alpha1.ServiceIntegration{}
@@ -530,11 +536,12 @@ spec:
 		si.DeletionTimestamp = &now
 
 		avn := avngen.NewMockClient(t)
-		r, res := runScenario(t, si, avn)
+		r, res, err := runScenario(t, si, avn)
+		require.NoError(t, err)
 		require.Equal(t, ctrlruntime.Result{}, res)
 
 		got := &v1alpha1.ServiceIntegration{}
-		err := r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got)
+		err = r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got)
 		require.True(t, apierrors.IsNotFound(err))
 	})
 
@@ -553,11 +560,224 @@ spec:
 			ServiceIntegrationDelete(mock.Anything, si.Spec.Project, si.Status.ID).
 			Return(newAivenError(404, "not found")).Once()
 
-		r, res := runScenario(t, si, avn)
+		r, res, err := runScenario(t, si, avn)
+		require.NoError(t, err)
 		require.Equal(t, ctrlruntime.Result{}, res)
 
 		got := &v1alpha1.ServiceIntegration{}
-		err := r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got)
+		err = r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got)
+		require.True(t, apierrors.IsNotFound(err))
+	})
+
+	t.Run("Creates ServiceIntegration by destinationEndpointRef", func(t *testing.T) {
+		const yaml = `
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: test-si
+  namespace: default
+spec:
+  project: test-project
+  integrationType: autoscaler
+  sourceServiceName: test-pg
+  destinationEndpointRef:
+    name: test-endpoint
+`
+		si := newObjectFromYAML[v1alpha1.ServiceIntegration](t, yaml)
+		si.Generation = 1
+
+		endpoint := &v1alpha1.ServiceIntegrationEndpoint{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "test-endpoint",
+				Namespace: si.Namespace,
+				Annotations: map[string]string{
+					processedGenerationAnnotation: "1",
+					instanceIsRunningAnnotation:   "true",
+				},
+			},
+			Spec: v1alpha1.ServiceIntegrationEndpointSpec{
+				ProjectDependant: v1alpha1.ProjectDependant{
+					ProjectField: v1alpha1.ProjectField{Project: si.Spec.Project},
+				},
+				EndpointType: "autoscaler",
+				EndpointName: "autoscaler",
+			},
+			Status: v1alpha1.ServiceIntegrationEndpointStatus{ID: "endpoint-123"},
+		}
+		endpoint.Generation = 1
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, si.Spec.Project, si.Spec.SourceServiceName).
+			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).Twice()
+		avn.EXPECT().
+			ServiceIntegrationCreate(mock.Anything, si.Spec.Project, mock.MatchedBy(func(in *service.ServiceIntegrationCreateIn) bool {
+				return in.DestEndpointId != nil && *in.DestEndpointId == endpoint.Status.ID
+			})).
+			Return(&service.ServiceIntegrationCreateOut{ServiceIntegrationId: "si-123"}, nil).Once()
+
+		r, res, err := runScenario(t, si, avn, endpoint)
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		got := &v1alpha1.ServiceIntegration{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got))
+		require.Equal(t, "si-123", got.Status.ID)
+	})
+
+	t.Run("Requeues when destinationEndpointRef is missing", func(t *testing.T) {
+		const yaml = `
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: test-si
+  namespace: default
+spec:
+  project: test-project
+  integrationType: autoscaler
+  sourceServiceName: test-pg
+  destinationEndpointRef:
+    name: missing
+`
+		si := newObjectFromYAML[v1alpha1.ServiceIntegration](t, yaml)
+		si.Generation = 1
+
+		avn := avngen.NewMockClient(t)
+		_, res, err := runScenario(t, si, avn)
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
+	})
+
+	t.Run("Requeues when destinationEndpointRef is ready but status.id is empty", func(t *testing.T) {
+		const yaml = `
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: test-si
+  namespace: default
+spec:
+  project: test-project
+  integrationType: autoscaler
+  destinationEndpointRef:
+    name: test-endpoint
+`
+		si := newObjectFromYAML[v1alpha1.ServiceIntegration](t, yaml)
+		si.Generation = 1
+
+		endpoint := &v1alpha1.ServiceIntegrationEndpoint{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "test-endpoint",
+				Namespace: si.Namespace,
+				Annotations: map[string]string{
+					processedGenerationAnnotation: "1",
+					instanceIsRunningAnnotation:   "true",
+				},
+			},
+			Spec: v1alpha1.ServiceIntegrationEndpointSpec{
+				ProjectDependant: v1alpha1.ProjectDependant{
+					ProjectField: v1alpha1.ProjectField{Project: si.Spec.Project},
+				},
+				EndpointType: "autoscaler",
+				EndpointName: "autoscaler",
+			},
+		}
+		endpoint.Generation = 1
+
+		avn := avngen.NewMockClient(t)
+		_, res, err := runScenario(t, si, avn, endpoint)
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
+	})
+
+	t.Run("Returns hard error on destinationEndpointRef project mismatch", func(t *testing.T) {
+		const yaml = `
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: test-si
+  namespace: default
+spec:
+  project: test-project
+  integrationType: autoscaler
+  destinationEndpointRef:
+    name: test-endpoint
+`
+		si := newObjectFromYAML[v1alpha1.ServiceIntegration](t, yaml)
+		si.Generation = 1
+
+		endpoint := &v1alpha1.ServiceIntegrationEndpoint{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "test-endpoint",
+				Namespace: si.Namespace,
+				Annotations: map[string]string{
+					processedGenerationAnnotation: "1",
+					instanceIsRunningAnnotation:   "true",
+				},
+			},
+			Spec: v1alpha1.ServiceIntegrationEndpointSpec{
+				ProjectDependant: v1alpha1.ProjectDependant{
+					ProjectField: v1alpha1.ProjectField{Project: "other-project"},
+				},
+				EndpointType: "autoscaler",
+				EndpointName: "autoscaler",
+			},
+			Status: v1alpha1.ServiceIntegrationEndpointStatus{ID: "endpoint-123"},
+		}
+		endpoint.Generation = 1
+
+		avn := avngen.NewMockClient(t)
+		_, _, err := runScenario(t, si, avn, endpoint)
+		require.Error(t, err)
+	})
+
+	t.Run("Requeues after poll interval when up to date", func(t *testing.T) {
+		si := newObjectFromYAML[v1alpha1.ServiceIntegration](t, yamlServiceIntegrationAutoscalerLegacy)
+		si.Generation = 1
+		si.Status.ID = "si-123"
+		si.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+		}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, si.Spec.Project, si.Spec.SourceServiceName).
+			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).Once()
+		avn.EXPECT().
+			ServiceIntegrationGet(mock.Anything, si.Spec.Project, si.Status.ID).
+			Return(&service.ServiceIntegrationGetOut{}, nil).Once()
+
+		_, res, err := runScenario(t, si, avn)
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+	})
+
+	t.Run("Deletes without being blocked when destinationEndpointRef is missing", func(t *testing.T) {
+		const yaml = `
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: test-si
+  namespace: default
+spec:
+  project: test-project
+  integrationType: autoscaler
+  destinationEndpointRef:
+    name: missing
+`
+		si := newObjectFromYAML[v1alpha1.ServiceIntegration](t, yaml)
+		si.Generation = 1
+		si.Finalizers = []string{instanceDeletionFinalizer}
+		now := metav1.Now()
+		si.DeletionTimestamp = &now
+
+		avn := avngen.NewMockClient(t)
+		r, res, err := runScenario(t, si, avn)
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{}, res)
+
+		got := &v1alpha1.ServiceIntegration{}
+		err = r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got)
 		require.True(t, apierrors.IsNotFound(err))
 	})
 }

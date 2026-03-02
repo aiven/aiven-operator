@@ -259,6 +259,8 @@ func TestServiceIntegrationKafkaConnect(t *testing.T) {
 	assert.Equal(t, "__connect_offsets", *si.Spec.KafkaConnectUserConfig.KafkaConnect.OffsetStorageTopic)
 }
 
+// TestServiceIntegrationAutoscaler covers legacy destinationEndpointId behavior kept for backward compatibility.
+// We no longer promote this approach in examples. destinationEndpointRef is the recommended path.
 func TestServiceIntegrationAutoscaler(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
@@ -283,8 +285,6 @@ func TestServiceIntegrationAutoscaler(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	siName := randName("autoscaler")
-
 	sEndpoint := NewSession(ctx, k8sClient)
 	defer sEndpoint.Destroy(t)
 
@@ -295,14 +295,22 @@ func TestServiceIntegrationAutoscaler(t *testing.T) {
 	require.NotEmpty(t, endpoint.Status.ID)
 	endpointID := endpoint.Status.ID
 
-	yml, err := loadExampleYaml("serviceintegration.autoscaler.yaml", map[string]string{
-		"doc[0].metadata.name":              siName,
-		"doc[0].spec.project":               cfg.Project,
-		"doc[0].spec.sourceServiceName":     pgName,
-		"doc[0].spec.destinationEndpointId": endpointID,
-		"doc[1]":                            "REMOVE",
-	})
-	require.NoError(t, err)
+	siName := randName("autoscaler")
+	yml := fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: %s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+  project: %s
+  integrationType: autoscaler
+  sourceServiceName: %s
+  destinationEndpointId: %s
+`, siName, cfg.Project, pgName, endpointID)
+
 	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
@@ -331,6 +339,102 @@ func TestServiceIntegrationAutoscaler(t *testing.T) {
 	assert.Equal(t, endpointID, *siAvn.DestEndpointId)
 	assert.True(t, siAvn.Active)
 	assert.True(t, siAvn.Enabled)
+}
+
+func TestServiceIntegrationAutoscalerRef(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	// GIVEN
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	pg, releasePostgreSQL, err := sharedResources.AcquirePostgreSQL(ctx)
+	require.NoError(t, err)
+	defer releasePostgreSQL()
+
+	pgName := pg.Name
+
+	endpointName := randName("autoscaler-endpoint")
+	endpointDisplayName := randName("autoscaler")
+	siName := randName("autoscaler")
+
+	yml, err := loadExampleYaml("serviceintegration.autoscaler.yaml", map[string]string{
+		"doc[0].metadata.name":     endpointName,
+		"doc[0].spec.project":      cfg.Project,
+		"doc[0].spec.endpointName": endpointDisplayName,
+
+		"doc[1].metadata.name":                    siName,
+		"doc[1].spec.project":                     cfg.Project,
+		"doc[1].spec.sourceServiceName":           pgName,
+		"doc[1].spec.destinationEndpointRef.name": endpointName,
+
+		"doc[2]": "REMOVE",
+	})
+	require.NoError(t, err)
+	s := NewSession(ctx, k8sClient)
+
+	// Cleans test afterward
+	defer s.Destroy(t)
+
+	// WHEN
+	// Applies given manifest
+	require.NoError(t, s.Apply(yml))
+
+	endpoint := new(v1alpha1.ServiceIntegrationEndpoint)
+	require.NoError(t, s.GetRunning(endpoint, endpointName))
+
+	si := new(v1alpha1.ServiceIntegration)
+	require.NoError(t, s.GetRunning(si, siName))
+
+	// THEN
+	// Validates PostgreSQL
+	pgAvn, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
+	require.NoError(t, err)
+	assert.Equal(t, pgAvn.ServiceName, pgName)
+	assert.Contains(t, serviceRunningStatesAiven, pgAvn.State)
+
+	// Validates ServiceIntegration
+	siAvn, err := avnGen.ServiceIntegrationGet(ctx, cfg.Project, si.Status.ID)
+	require.NoError(t, err)
+	assert.EqualValues(t, "autoscaler", siAvn.IntegrationType)
+	assert.Equal(t, siAvn.IntegrationType, si.Spec.IntegrationType)
+	assert.Equal(t, pgName, siAvn.SourceService)
+	assert.Equal(t, endpoint.Status.ID, *siAvn.DestEndpointId)
+	assert.True(t, siAvn.Active)
+	assert.True(t, siAvn.Enabled)
+}
+
+func TestServiceIntegrationRejectsEndpointIDAndRefTogether(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	siName := randName("si-invalid")
+	yml := fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegration
+metadata:
+  name: %s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+  project: %s
+  integrationType: autoscaler
+  sourceServiceName: whatever
+  destinationEndpointId: endpoint-123
+  destinationEndpointRef:
+    name: endpoint
+`, siName, cfg.Project)
+
+	s := NewSession(ctx, k8sClient)
+	defer s.Destroy(t)
+
+	err := s.Apply(yml)
+	assert.ErrorContains(t, err, "destinationEndpointId and destinationEndpointRef are mutually exclusive")
 }
 
 // todo: refactor when ServiceIntegrationEndpoint released

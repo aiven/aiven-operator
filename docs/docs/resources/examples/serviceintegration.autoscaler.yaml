@@ -1,4 +1,23 @@
 apiVersion: aiven.io/v1alpha1
+kind: ServiceIntegrationEndpoint
+metadata:
+  name: my-autoscaler
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: aiven-project-name
+  endpointType: autoscaler
+  endpointName: my-autoscaler
+  autoscaler:
+    autoscaling:
+      - type: autoscale_disk
+        cap_gb: 100
+
+---
+
+apiVersion: aiven.io/v1alpha1
 kind: ServiceIntegration
 metadata:
   name: my-service-integration
@@ -10,8 +29,8 @@ spec:
   project: aiven-project-name
   integrationType: autoscaler
   sourceServiceName: my-pg
-  # Look up autoscaler integration endpoint ID via Console
-  destinationEndpointId: my-destination-endpoint-id
+  destinationEndpointRef:
+    name: my-autoscaler
 
 ---
 

@@ -40,6 +40,8 @@ spec:
             ServiceIntegration is the Schema for the serviceintegrations API.
 
             info "Adoption of existing integrations": If a ServiceIntegration resource is created with configuration matching an existing Aiven integration (created outside the operator), the operator will adopt the existing integration.
+
+            info "destinationEndpointRef": Use destinationEndpointRef to reference a ServiceIntegrationEndpoint (instead of copying spec.destinationEndpointId). The controller resolves the endpoint ID from the referenced object's status.id. The reference must be same-namespace (namespace must be omitted) and destinationEndpointId and destinationEndpointRef are mutually exclusive.
           properties:
             apiVersion:
               description: |-
@@ -465,6 +467,25 @@ spec:
                   x-kubernetes-validations:
                     - message: Value is immutable
                       rule: self == oldSelf
+                destinationEndpointRef:
+                  description: |-
+                    Destination endpoint reference for the integration (if any).
+
+                    The reference must point to a ServiceIntegrationEndpoint in the same namespace.
+                    Only the name is allowed: namespace must be omitted and name must not contain a namespace (no "ns/name" form).
+                    The controller resolves the destination endpoint ID from ServiceIntegrationEndpoint.status.id.
+                  properties:
+                    name:
+                      minLength: 1
+                      type: string
+                  required:
+                    - name
+                  type: object
+                  x-kubernetes-validations:
+                    - message: Value is immutable
+                      rule: self == oldSelf
+                    - message: destinationEndpointRef.name must not contain a namespace
+                      rule: "!self.name.contains('/')"
                 destinationProjectName:
                   description: Destination project for the integration (if any)
                   maxLength: 63
@@ -872,6 +893,13 @@ spec:
                 - integrationType
                 - project
               type: object
+              x-kubernetes-validations:
+                - message:
+                    destinationEndpointId and destinationEndpointRef are mutually
+                    exclusive
+                  rule:
+                    '!(has(self.destinationEndpointRef) && has(self.destinationEndpointId)
+                    && self.destinationEndpointId != "")'
             status:
               description: ServiceIntegrationStatus defines the observed state of ServiceIntegration
               properties:
