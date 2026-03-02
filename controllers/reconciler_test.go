@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -885,6 +886,31 @@ func TestReconciler_resolveK8sRefs(t *testing.T) {
 		requeue, err := r.resolveK8sRefs(t.Context(), obj)
 
 		require.EqualError(t, err, fmt.Sprintf("gvk %s is not client.Object", gvk))
+		require.False(t, requeue)
+	})
+
+	t.Run("Error if dependency Get returns non-not-found error", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgresWithRef)
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithInterceptorFuncs(interceptor.Funcs{
+				Get: func(context.Context, crclient.WithWatch, crclient.ObjectKey, crclient.Object, ...crclient.GetOption) error {
+					return errors.New("boom")
+				},
+			}).
+			Build()
+
+		r := &Reconciler[*v1alpha1.PostgreSQL]{
+			Controller: Controller{
+				Client: k8sClient,
+				Scheme: scheme,
+			},
+		}
+
+		requeue, err := r.resolveK8sRefs(t.Context(), obj)
+
+		require.EqualError(t, err, `getting referenced resource aiven.io/v1alpha1, Kind=ProjectVPC default/test-vpc: boom`)
 		require.False(t, requeue)
 	})
 

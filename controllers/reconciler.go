@@ -13,6 +13,7 @@ import (
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -177,9 +178,13 @@ func (r *Reconciler[T]) resolveK8sRefs(ctx context.Context, obj T) (requeue bool
 		}
 
 		if err := r.Get(ctx, ref.NamespacedName, dep); err != nil {
-			// Matching legacy behaviour: missing or not-yet-created refs trigger a soft requeue.
-			logr.FromContextOrDiscard(ctx).V(1).Info("referenced resource is not yet available", "ref", ref.NamespacedName, "gvk", ref.GroupVersionKind, "error", err)
-			return true, nil
+			if apierrors.IsNotFound(err) {
+				// Matching legacy behaviour: missing or not-yet-created refs trigger a soft requeue.
+				logr.FromContextOrDiscard(ctx).V(1).Info("referenced resource is not yet available", "ref", ref.NamespacedName, "gvk", ref.GroupVersionKind, "error", err)
+				return true, nil
+			}
+
+			return false, fmt.Errorf("getting referenced resource %s %s: %w", ref.GroupVersionKind, ref.NamespacedName, err)
 		}
 
 		if !IsReadyToUse(dep) {
