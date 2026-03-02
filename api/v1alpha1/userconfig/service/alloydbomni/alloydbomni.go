@@ -391,6 +391,8 @@ type PublicAccess struct {
 	// Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network
 	Prometheus *bool `groups:"create,update" json:"prometheus,omitempty"`
 }
+
+// Deprecated.
 type AlloydbomniUserConfig struct {
 	// +kubebuilder:validation:MaxItems=1
 	// Additional Cloud Regions for Backup Replication

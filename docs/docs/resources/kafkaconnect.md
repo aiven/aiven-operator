@@ -177,6 +177,7 @@ KafkaConnect specific user configuration options.
 **Optional**
 
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Deprecated. Additional Cloud Regions for Backup Replication.
+- [`gcp_auth_allowed_urls`](#spec.userConfig.gcp_auth_allowed_urls-property){: name='spec.userConfig.gcp_auth_allowed_urls-property'} (array of strings). Allow-list of HTTPS URLs used to validate GCP credential_source requests for Kafka Connect.
 - [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 8000). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
 - [`kafka_connect`](#spec.userConfig.kafka_connect-property){: name='spec.userConfig.kafka_connect-property'} (object). Kafka Connect configuration values. See below for [nested schema](#spec.userConfig.kafka_connect).
 - [`plugin_versions`](#spec.userConfig.plugin_versions-property){: name='spec.userConfig.plugin_versions-property'} (array of objects). The plugin selected by the user. See below for [nested schema](#spec.userConfig.plugin_versions).

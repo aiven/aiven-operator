@@ -355,15 +355,15 @@ type AuthFailureListeners struct {
 	IpRateLimiting *IpRateLimiting `groups:"create,update" json:"ip_rate_limiting,omitempty"`
 }
 type ClusterRemoteStore struct {
-	// +kubebuilder:validation:Pattern=`\d+(?:d|h|m|s|ms|micros|nanos)`
+	// +kubebuilder:validation:Pattern=`^\d+\s*(?:[dhms]|ms|micros|nanos)$`
 	// The amount of time to wait for the cluster state upload to complete. Defaults to 20s.
 	StateGlobalMetadataUploadTimeout *string `groups:"create,update" json:"state.global_metadata.upload_timeout,omitempty"`
 
-	// +kubebuilder:validation:Pattern=`\d+(?:d|h|m|s|ms|micros|nanos)`
+	// +kubebuilder:validation:Pattern=`^\d+\s*(?:[dhms]|ms|micros|nanos)$`
 	// The amount of time to wait for the manifest file upload to complete. The manifest file contains the details of each of the files uploaded for a single cluster state, both index metadata files and global metadata files. Defaults to 20s.
 	StateMetadataManifestUploadTimeout *string `groups:"create,update" json:"state.metadata_manifest.upload_timeout,omitempty"`
 
-	// +kubebuilder:validation:Pattern=`\d+(?:d|h|m|s|ms|micros|nanos)`
+	// +kubebuilder:validation:Pattern=`^\d+\s*(?:[dhms]|ms|micros|nanos)$`
 	// The default value of the translog buffer interval used when performing periodic translog updates. This setting is only effective when the index setting `index.remote_store.translog.buffer_interval` is not present. Defaults to 650ms.
 	TranslogBufferInterval *string `groups:"create,update" json:"translog.buffer_interval,omitempty"`
 
@@ -435,8 +435,8 @@ type Cpu struct {
 	// Specify the value of N for the top N queries by the metric
 	TopNSize *int `groups:"create,update" json:"top_n_size,omitempty"`
 
-	// +kubebuilder:validation:Pattern=`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`
-	// The window size of the top N queries by the metric
+	// +kubebuilder:validation:Pattern=`^\d+\s*(?:[dhms]|ms|micros|nanos)$`
+	// Configure the window size of the top N queries. The value should be a time value with unit, e.g. 1m, 5s, 1h.
 	WindowSize *string `groups:"create,update" json:"window_size,omitempty"`
 }
 
@@ -449,8 +449,8 @@ type Latency struct {
 	// Specify the value of N for the top N queries by the metric
 	TopNSize *int `groups:"create,update" json:"top_n_size,omitempty"`
 
-	// +kubebuilder:validation:Pattern=`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`
-	// The window size of the top N queries by the metric
+	// +kubebuilder:validation:Pattern=`^\d+\s*(?:[dhms]|ms|micros|nanos)$`
+	// Configure the window size of the top N queries. The value should be a time value with unit, e.g. 1m, 5s, 1h.
 	WindowSize *string `groups:"create,update" json:"window_size,omitempty"`
 }
 
@@ -463,8 +463,8 @@ type Memory struct {
 	// Specify the value of N for the top N queries by the metric
 	TopNSize *int `groups:"create,update" json:"top_n_size,omitempty"`
 
-	// +kubebuilder:validation:Pattern=`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`
-	// The window size of the top N queries by the metric
+	// +kubebuilder:validation:Pattern=`^\d+\s*(?:[dhms]|ms|micros|nanos)$`
+	// Configure the window size of the top N queries. The value should be a time value with unit, e.g. 1m, 5s, 1h.
 	WindowSize *string `groups:"create,update" json:"window_size,omitempty"`
 }
 type SearchInsightsTopQueries struct {
@@ -827,7 +827,7 @@ type Opensearch struct {
 	// Defines a limit of how much total remote data can be referenced as a ratio of the size of the disk reserved for the file cache. This is designed to be a safeguard to prevent oversubscribing a cluster. Defaults to 5gb. Requires restarting all OpenSearch nodes.
 	NodeSearchCacheSize *string `groups:"create,update" json:"node.search.cache.size,omitempty"`
 
-	// Compatibility mode sets OpenSearch to report its version as 7.10 so clients continue to work. Default is false
+	// Compatibility mode sets OpenSearch to report its version as 7.10 so clients continue to work. Default is false. Deprecated and ignored for service version 3.3 and higher.
 	OverrideMainResponseVersion *bool `groups:"create,update" json:"override_main_response_version,omitempty"`
 
 	// Enable or disable filtering of alerting by backend roles. Requires Security plugin. Defaults to false
@@ -933,6 +933,13 @@ type OpensearchDashboards struct {
 	// +kubebuilder:validation:Maximum=120000
 	// Timeout in milliseconds for requests made by OpenSearch Dashboards towards OpenSearch
 	OpensearchRequestTimeout *int `groups:"create,update" json:"opensearch_request_timeout,omitempty"`
+
+	// Determines whether the session TTL resets (is “kept alive”) on each user activity. Optional. Default is true.
+	SessionKeepalive *bool `groups:"create,update" json:"session_keepalive,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^\d+\s*(?:[dhms]|ms|micros|nanos)$`
+	// Defines the time-to-live (TTL) for user sessions. The value should be a time value with unit, e.g. 1m, 5s, 1h, 3d, 100ms. Default is 1 hour.
+	SessionTtl *string `groups:"create,update" json:"session_ttl,omitempty"`
 }
 
 // Allow access to selected service ports from private networks

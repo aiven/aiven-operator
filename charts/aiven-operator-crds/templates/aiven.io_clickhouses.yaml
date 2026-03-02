@@ -262,6 +262,11 @@ spec:
                       maximum: 59
                       minimum: 0
                       type: integer
+                    clickhouse_version:
+                      description: |-
+                        Available versions: `25.3`. Newer versions may also be available.
+                        ClickHouse major version
+                      type: string
                     enable_ipv6:
                       description:
                         Register AAAA DNS records for the service, and allow
@@ -400,6 +405,15 @@ spec:
                     static_ips:
                       description: Use static public IP addresses
                       type: boolean
+                    tiered_storage_move_factor:
+                      description:
+                        The percentage of free disk space required on local
+                        storage before data is moved to object storage. A value of 0.2
+                        means data is moved when local storage has less than 20% free
+                        space.
+                      maximum: 1
+                      minimum: 0
+                      type: number
                   type: object
               required:
                 - plan

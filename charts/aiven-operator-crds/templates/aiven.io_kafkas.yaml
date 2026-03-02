@@ -280,6 +280,11 @@ spec:
                         the public-* hostname and the custom domain.
                       maxLength: 255
                       type: string
+                    enable_ipv6:
+                      description:
+                        Register AAAA DNS records for the service, and allow
+                        IPv6 packets to service ports
+                      type: boolean
                     follower_fetching:
                       description: Enable follower fetching
                       properties:
@@ -287,6 +292,13 @@ spec:
                           description: Whether to enable the follower fetching functionality
                           type: boolean
                       type: object
+                    gcp_auth_allowed_urls:
+                      description:
+                        Allow-list of HTTPS URLs used to validate GCP credential_source
+                        requests for Kafka Connect.
+                      items:
+                        type: string
+                      type: array
                     ip_filter:
                       description:
                         Allow incoming connections from CIDR address block,

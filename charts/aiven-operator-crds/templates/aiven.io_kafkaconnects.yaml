@@ -196,6 +196,13 @@ spec:
                         type: string
                       maxItems: 1
                       type: array
+                    gcp_auth_allowed_urls:
+                      description:
+                        Allow-list of HTTPS URLs used to validate GCP credential_source
+                        requests for Kafka Connect.
+                      items:
+                        type: string
+                      type: array
                     ip_filter:
                       description:
                         Allow incoming connections from CIDR address block,
