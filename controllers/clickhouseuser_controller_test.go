@@ -53,7 +53,7 @@ func Test_newClickhouseUserReconciler(t *testing.T) {
 func TestClickhouseUserController_Observe(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Returns error when service is not operational", func(t *testing.T) {
+	t.Run("Returns soft requeue error when service preconditions are not met", func(t *testing.T) {
 		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 
 		avn := avngen.NewMockClient(t)
@@ -66,9 +66,12 @@ func TestClickhouseUserController_Observe(t *testing.T) {
 			avnGen: avn,
 		}
 
-		_, err := ctrl.Observe(t.Context(), user)
+		obs, err := ctrl.Observe(t.Context(), user)
 
-		require.EqualError(t, err, "preconditions are not met: [404 ]: service not found")
+		var requeueNeeded ErrRequeueNeeded
+		require.ErrorAs(t, err, &requeueNeeded)
+		require.Equal(t, Observation{}, obs)
+		require.ErrorIs(t, requeueNeeded.OriginalError, errPreconditionNotMet)
 	})
 
 	t.Run("Sets ResourceExists and UUID when user exists", func(t *testing.T) {

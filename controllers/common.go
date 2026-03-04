@@ -27,6 +27,7 @@ import (
 const (
 	conditionTypeRunning     = "Running"
 	conditionTypeInitialized = "Initialized"
+	conditionTypeSynced      = "Synced"
 	ConditionTypeError       = "Error"
 
 	secretProtectionFinalizer = "finalizers.aiven.io/needed-to-delete-services"
@@ -41,11 +42,17 @@ const (
 	deletionPolicyDelete     = "Delete"
 )
 
+const (
+	reconcileReasonSuccess = "ReconcileSuccess"
+	reconcileReasonError   = "ReconcileError"
+)
+
 type errCondition string
 
 const (
 	errConditionDelete         errCondition = "Delete"
 	errConditionPreconditions  errCondition = "Preconditions"
+	errConditionObserve        errCondition = "Observe"
 	errConditionCreateOrUpdate errCondition = "CreateOrUpdate"
 	errConditionConnInfoSecret errCondition = "ConnInfoSecret"
 )
@@ -113,7 +120,7 @@ func getServiceIfOperational(ctx context.Context, avnGen avngen.Client, project,
 	}
 
 	if err != nil {
-		// Preserve original error semantics (including 5xx) so that handleObserveError can classify retryable Aiven errors.
+		// Preserve original error semantics (including 5xx) for Observe error handling and diagnostics.
 		return nil, err
 	}
 
@@ -156,6 +163,24 @@ func getErrorCondition(reason errCondition, err error) metav1.Condition {
 		Type:    ConditionTypeError,
 		Status:  metav1.ConditionUnknown,
 		Reason:  string(reason),
+		Message: err.Error(),
+	}
+}
+
+func getSyncedSuccessCondition() metav1.Condition {
+	return metav1.Condition{
+		Type:    conditionTypeSynced,
+		Status:  metav1.ConditionTrue,
+		Reason:  reconcileReasonSuccess,
+		Message: "Successfully reconciled resource",
+	}
+}
+
+func getSyncedErrorCondition(err error) metav1.Condition {
+	return metav1.Condition{
+		Type:    conditionTypeSynced,
+		Status:  metav1.ConditionFalse,
+		Reason:  reconcileReasonError,
 		Message: err.Error(),
 	}
 }
@@ -378,27 +403,4 @@ func isServerError(err error) bool {
 		return e.Status >= http.StatusInternalServerError && e.Status < 600
 	}
 	return false
-}
-
-// isRetryableAivenError returns true if the error represents a transient Aiven API failure that should be retried by the reconciler.
-//
-// Current policy:
-// - 404: resource may not be visible yet (eventual consistency).
-// - 5xx: server-side issues are considered transient.
-// - 403: eventual consistency in IAM / permissions.
-func isRetryableAivenError(err error) bool {
-	if err == nil {
-		return false
-	}
-
-	switch {
-	case isNotFound(err):
-		return true
-	case isServerError(err):
-		return true
-	case isAivenError(err, http.StatusForbidden):
-		return true
-	default:
-		return false
-	}
 }

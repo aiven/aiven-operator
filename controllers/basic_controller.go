@@ -94,6 +94,7 @@ const (
 	eventAddedFinalizer                     = "InstanceFinalizerAdded"
 	eventWaitingForPreconditions            = "WaitingForPreconditions"
 	eventUnableToWaitForPreconditions       = "UnableToWaitForPreconditions"
+	eventUnableToObserve                    = "UnableToObserve"
 	eventPreconditionsAreMet                = "PreconditionsAreMet"
 	eventPreconditionsNotMet                = "PreconditionsNotMet"
 	eventUnableToCreateOrUpdateAtAiven      = "UnableToCreateOrUpdateAtAiven"

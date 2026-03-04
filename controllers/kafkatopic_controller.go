@@ -4,6 +4,7 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	avngen "github.com/aiven/go-client-codegen"
@@ -48,6 +49,9 @@ var topicListCallGroup singleflight.Group
 
 func (r *KafkaTopicController) Observe(ctx context.Context, topic *v1alpha1.KafkaTopic) (Observation, error) {
 	if err := r.checkPreconditions(ctx, topic); err != nil {
+		if errors.Is(err, errPreconditionNotMet) {
+			return Observation{}, ErrRequeueNeeded{OriginalError: err}
+		}
 		return Observation{}, err
 	}
 

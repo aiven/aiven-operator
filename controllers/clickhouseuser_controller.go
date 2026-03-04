@@ -4,6 +4,7 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"slices"
 
@@ -43,6 +44,13 @@ func newClickhouseUserReconciler(c Controller) reconcilerType {
 func (r *ClickhouseUserController) Observe(ctx context.Context, user *v1alpha1.ClickhouseUser) (Observation, error) {
 	svc, err := getServiceIfOperational(ctx, r.avnGen, user.Spec.Project, user.Spec.ServiceName)
 	if err != nil {
+		if errors.Is(err, errPreconditionNotMet) {
+			return Observation{}, ErrRequeueNeeded{OriginalError: err}
+		}
+		if errors.Is(err, errServicePoweredOff) {
+			meta.SetStatusCondition(&user.Status.Conditions, getErrorCondition(errConditionPreconditions, err))
+			return Observation{}, ErrRequeueNeeded{OriginalError: err}
+		}
 		return Observation{}, err
 	}
 

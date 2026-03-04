@@ -20,6 +20,8 @@ type AivenController[T v1alpha1.AivenManagedObject] interface {
 	// - Update status fields on the object if needed
 	//
 	// Observe should be idempotent and not modify the external resource.
+	// Return ErrRequeueNeeded for temporary states when reconcile should retry soon
+	// without treating the condition as a hard observe failure.
 	Observe(ctx context.Context, obj T) (Observation, error)
 
 	// Create a new resource.

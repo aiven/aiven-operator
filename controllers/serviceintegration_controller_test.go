@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -308,14 +309,14 @@ func TestServiceIntegrationReconciler(t *testing.T) {
 
 		r, res, err := runScenario(t, si, avn)
 		require.NoError(t, err)
-		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+		require.Equal(t, ctrlruntime.Result{Requeue: true}, res)
 
 		got := &v1alpha1.ServiceIntegration{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got))
 		require.Equal(t, "si-123", got.Status.ID)
 		require.Contains(t, got.Finalizers, instanceDeletionFinalizer)
 		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
-		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
+		require.Empty(t, got.Annotations[processedGenerationAnnotation])
 	})
 
 	t.Run("Creates ServiceIntegration with endpoints only when source service name is empty", func(t *testing.T) {
@@ -346,13 +347,13 @@ spec:
 
 		r, res, err := runScenario(t, si, avn)
 		require.NoError(t, err)
-		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+		require.Equal(t, ctrlruntime.Result{Requeue: true}, res)
 
 		got := &v1alpha1.ServiceIntegration{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got))
 		require.Equal(t, "si-123", got.Status.ID)
 		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
-		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
+		require.Empty(t, got.Annotations[processedGenerationAnnotation])
 	})
 
 	t.Run("Adopts existing ServiceIntegration when configuration matches", func(t *testing.T) {
@@ -618,7 +619,7 @@ spec:
 
 		r, res, err := runScenario(t, si, avn, endpoint)
 		require.NoError(t, err)
-		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+		require.Equal(t, ctrlruntime.Result{Requeue: true}, res)
 
 		got := &v1alpha1.ServiceIntegration{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got))
@@ -689,7 +690,7 @@ spec:
 		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
 	})
 
-	t.Run("Returns hard error on destinationEndpointRef project mismatch", func(t *testing.T) {
+	t.Run("Requeues with Observe error condition on destinationEndpointRef project mismatch", func(t *testing.T) {
 		const yaml = `
 apiVersion: aiven.io/v1alpha1
 kind: ServiceIntegration
@@ -726,8 +727,16 @@ spec:
 		endpoint.Generation = 1
 
 		avn := avngen.NewMockClient(t)
-		_, _, err := runScenario(t, si, avn, endpoint)
-		require.Error(t, err)
+		r, res, err := runScenario(t, si, avn, endpoint)
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{Requeue: true}, res)
+
+		got := &v1alpha1.ServiceIntegration{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got))
+		cond := meta.FindStatusCondition(got.Status.Conditions, ConditionTypeError)
+		require.NotNil(t, cond)
+		require.Equal(t, string(errConditionObserve), cond.Reason)
+		require.Contains(t, cond.Message, "destination endpoint test-endpoint has project")
 	})
 
 	t.Run("Requeues after poll interval when up to date", func(t *testing.T) {

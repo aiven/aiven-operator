@@ -103,7 +103,7 @@ func TestKafkaTopicReconciler(t *testing.T) {
 		got := &v1alpha1.KafkaTopic{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: topic.Name, Namespace: topic.Namespace}, got))
 		require.Contains(t, got.Finalizers, instanceDeletionFinalizer)
-		require.NotContains(t, got.Annotations, processedGenerationAnnotation)
+		require.Empty(t, got.Annotations[processedGenerationAnnotation])
 	})
 
 	t.Run("Creates KafkaTopic on Aiven", func(t *testing.T) {
@@ -137,12 +137,12 @@ func TestKafkaTopicReconciler(t *testing.T) {
 
 		r, res, err := runScenario(t, topic, avn)
 		require.NoError(t, err)
-		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
+		require.Equal(t, ctrlruntime.Result{Requeue: true}, res)
 
 		got := &v1alpha1.KafkaTopic{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: topic.Name, Namespace: topic.Namespace}, got))
 		require.Contains(t, got.Finalizers, instanceDeletionFinalizer)
-		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
+		require.Empty(t, got.Annotations[processedGenerationAnnotation])
 		require.NotContains(t, got.Annotations, instanceIsRunningAnnotation)
 	})
 
@@ -168,7 +168,7 @@ func TestKafkaTopicReconciler(t *testing.T) {
 
 		r, res, err := runScenario(t, topic, avn)
 		require.NoError(t, err)
-		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
 
 		got := &v1alpha1.KafkaTopic{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: topic.Name, Namespace: topic.Namespace}, got))
@@ -236,7 +236,7 @@ func TestKafkaTopicReconciler(t *testing.T) {
 
 		r, res, err := runScenario(t, topic, avn)
 		require.NoError(t, err)
-		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
 
 		got := &v1alpha1.KafkaTopic{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: topic.Name, Namespace: topic.Namespace}, got))
@@ -319,7 +319,7 @@ func TestKafkaTopicReconciler(t *testing.T) {
 		require.Equal(t, kafkatopic.TopicStateTypeActive, got.Status.State)
 	})
 
-	t.Run("Returns error when KafkaTopic isn't visible yet but API reports it already exists", func(t *testing.T) {
+	t.Run("Requeues when KafkaTopic isn't visible yet but API reports it already exists", func(t *testing.T) {
 		topic := newObjectFromYAML[v1alpha1.KafkaTopic](t, yamlKafkaTopic)
 		topic.Generation = 1
 		topic.Spec.Project = "test-project-not-visible"
@@ -346,13 +346,34 @@ func TestKafkaTopicReconciler(t *testing.T) {
 			})).Return(newAivenError(409, "already exists")).Once()
 
 		r, res, err := runScenario(t, topic, avn)
-		require.EqualError(t, err, `unable to create or update instance at aiven: creating Kafka topic: [409 ]: already exists`)
-		require.Equal(t, ctrlruntime.Result{}, res)
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{Requeue: true}, res)
 
 		got := &v1alpha1.KafkaTopic{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: topic.Name, Namespace: topic.Namespace}, got))
+		require.Contains(t, got.Finalizers, instanceDeletionFinalizer)
 		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
 		require.NotContains(t, got.Annotations, instanceIsRunningAnnotation)
+		require.ElementsMatch(t, []metav1.Condition{
+			{
+				Type:    "Initialized",
+				Status:  metav1.ConditionTrue,
+				Reason:  "Creating",
+				Message: "creating resource at Aiven",
+			},
+			{
+				Type:    ConditionTypeError,
+				Status:  metav1.ConditionUnknown,
+				Reason:  string(errConditionCreateOrUpdate),
+				Message: "creating Kafka topic: [409 ]: already exists",
+			},
+			{
+				Type:    conditionTypeSynced,
+				Status:  metav1.ConditionFalse,
+				Reason:  reconcileReasonError,
+				Message: "creating Kafka topic: [409 ]: already exists",
+			},
+		}, normalizedConditions(got.Status.Conditions))
 	})
 
 	t.Run("Recreates KafkaTopic when it disappears after being ready", func(t *testing.T) {
@@ -386,7 +407,7 @@ func TestKafkaTopicReconciler(t *testing.T) {
 
 		r, res, err := runScenario(t, topic, avn)
 		require.NoError(t, err)
-		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
+		require.Equal(t, ctrlruntime.Result{Requeue: true}, res)
 
 		got := &v1alpha1.KafkaTopic{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: topic.Name, Namespace: topic.Namespace}, got))

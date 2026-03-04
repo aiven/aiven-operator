@@ -113,12 +113,12 @@ func TestServiceUserReconciler(t *testing.T) {
 			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
 
 		r, res := runScenario(t, user, avn)
-		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+		require.Equal(t, ctrlruntime.Result{Requeue: true}, res)
 
 		got := &v1alpha1.ServiceUser{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, got))
 		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
-		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
+		require.Empty(t, got.Annotations[processedGenerationAnnotation])
 		require.Contains(t, got.Finalizers, instanceDeletionFinalizer)
 
 		secret := &corev1.Secret{}

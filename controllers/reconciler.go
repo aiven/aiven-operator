@@ -12,16 +12,17 @@ import (
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/equality"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"sigs.k8s.io/controller-runtime/pkg/event"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
@@ -54,12 +55,8 @@ func newManagedReconciler[
 }
 
 // Reconciler handles the boilerplate reconciliation logic for Aiven resources.
-// It orchestrates the ExternalClient lifecycle methods and manages:
-// - Finalizers
-// - Status conditions
-// - Secrets (connection details)
-// - Events
-// - Requeue logic
+//
+// It orchestrates the ExternalClient lifecycle and shared status/metadata persistence.
 type Reconciler[T v1alpha1.AivenManagedObject] struct {
 	Controller
 	newAivenGeneratedClient func(token, kubeVersion, operatorVersion string) (avngen.Client, error)
@@ -72,87 +69,134 @@ type Reconciler[T v1alpha1.AivenManagedObject] struct {
 // requeueTimeout sets timeout to requeue controller
 const requeueTimeout = 10 * time.Second
 
-// Reconcile performs the full reconciliation loop for a managed resource.
+// Reconcile performs one full reconcile cycle.
+//
+// The reconciliation process:
+// 1. Load latest object state and scope logs to this resource.
+// 2. Prioritize deletion so dependency checks never block cleanup.
+// 3. Gate create/update until referenced resources exist and are ready.
+// 4. Protect per-resource auth secret from early deletion.
+// 5. Initialize the external client used by Observe/Create/Update.
+// 6. Persist finalizer before any external mutation path.
+// 7. Observe remote state to decide flow and collect connection details.
+// 8. If the remote resource is missing, continue with creation.
+// 9. If remote state is stale, continue with update.
+// 10. Persist metadata side effects from Observe, even on no-op reconcile.
+// 11. Sync Kubernetes Secret with current remote connection details.
+// 12. Report successful sync and schedule the next poll.
 func (r *Reconciler[T]) Reconcile(ctx context.Context, req ctrl.Request) (res ctrl.Result, err error) {
+	defer func() {
+		if apierrors.IsConflict(err) {
+			res, err = ctrl.Result{Requeue: true}, nil
+		}
+	}()
+
+	// 1. Load latest object state and scope logs to this resource.
 	obj := r.newObj()
 	if err := r.Get(ctx, req.NamespacedName, obj); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 	ctx = logr.NewContext(ctx, setupLogger(r.Log, obj))
 
+	// 2. Prioritize deletion so dependency checks never block cleanup.
+	if isMarkedForDeletion(obj) {
+		return r.finalize(ctx, obj)
+	}
+
+	// 3. Gate create/update until referenced resources exist and are ready.
 	if requeue, err := r.resolveK8sRefs(ctx, obj); err != nil {
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToWaitForPreconditions, err.Error())
 		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionPreconditions, err))
-		return ctrl.Result{}, fmt.Errorf("unable to resolve references: %w", err)
+		r.setSyncedErrorCondition(obj, err)
+		return ctrl.Result{Requeue: true}, r.updateStatus(ctx, obj)
 	} else if requeue {
-		r.Recorder.Event(obj, corev1.EventTypeNormal, eventWaitingForPreconditions, "waiting for referenced resources to be ready")
-		return ctrl.Result{RequeueAfter: requeueTimeout}, nil
+		err := errors.New("waiting for referenced resources to be ready")
+		r.Recorder.Event(obj, corev1.EventTypeNormal, eventWaitingForPreconditions, err.Error())
+		r.setSyncedErrorCondition(obj, err)
+		return ctrl.Result{RequeueAfter: requeueTimeout}, r.updateStatus(ctx, obj)
 	}
 
+	// 4. Protect per-resource auth secret from early deletion before external operations.
+	if err := r.ensureAuthSecretFinalizer(ctx, obj); err != nil {
+		if apierrors.IsConflict(err) {
+			return ctrl.Result{Requeue: true}, nil
+		}
+		r.setSyncedErrorCondition(obj, err)
+		return ctrl.Result{Requeue: true}, r.updateStatus(ctx, obj)
+	}
+
+	// 5. Initialize the external client used by Observe/Create/Update.
 	avnGen, err := r.newAivenClient(ctx, obj)
 	if err != nil {
-		return ctrl.Result{}, err
+		r.setSyncedErrorCondition(obj, err)
+		return ctrl.Result{Requeue: true}, r.updateStatus(ctx, obj)
 	}
 	controller := r.newController(avnGen)
 
-	if isMarkedForDeletion(obj) {
-		return r.finalize(ctx, controller, obj)
-	}
-
-	orig := obj.DeepCopyObject().(v1alpha1.AivenManagedObject)
-	defer func() {
-		err = errors.Join(err, r.updateStatus(ctx, orig, obj))
-	}()
-
+	// 6. Persist finalizer before any external mutation path.
 	if controllerutil.AddFinalizer(obj, instanceDeletionFinalizer) {
 		logr.FromContextOrDiscard(ctx).Info("added finalizer to instance")
 		r.Recorder.Event(obj, corev1.EventTypeNormal, eventAddedFinalizer, "instance finalizer added")
+		if err := r.updateObject(ctx, obj); err != nil {
+			if apierrors.IsConflict(err) {
+				return ctrl.Result{Requeue: true}, nil
+			}
+			return ctrl.Result{}, err
+		}
 	}
 
+	annotationsBeforeObserve := maps.Clone(obj.GetAnnotations())
+
+	// 7. Observe remote state to decide flow and collect connection details.
 	meta.SetStatusCondition(obj.Conditions(), getInitializedCondition("Preconditions", "Checking preconditions"))
 	obs, err := controller.Observe(ctx, obj)
 	if err != nil {
 		return r.handleObserveError(ctx, obj, err)
 	}
 
+	// 8. If the remote resource is missing, continue with creation.
 	if !obs.ResourceExists {
 		return r.createResource(ctx, controller, obj)
 	}
 
+	// 9. If remote state is stale, continue with update.
 	if !obs.ResourceUpToDate {
 		return r.updateResource(ctx, controller, obj)
 	}
 
-	if err := r.publishSecretDetails(ctx, obj, obs.SecretDetails); err != nil {
-		return ctrl.Result{}, err
+	// 10. Persist metadata side effects from Observe, even on no-op reconcile.
+	if !maps.Equal(annotationsBeforeObserve, obj.GetAnnotations()) {
+		if err := r.updateObject(ctx, obj); err != nil {
+			if apierrors.IsConflict(err) {
+				return ctrl.Result{Requeue: true}, nil
+			}
+			return ctrl.Result{}, err
+		}
 	}
 
-	return r.completeReconcileSuccess(obj)
+	// 11. Sync Kubernetes Secret with current remote connection details.
+	if err := r.publishSecretDetails(ctx, obj, obs.SecretDetails); err != nil {
+		r.setSyncedErrorCondition(obj, err)
+		return ctrl.Result{Requeue: true}, r.updateStatus(ctx, obj)
+	}
+
+	// 12. Report successful sync and schedule the next poll.
+	r.setSyncedSuccessCondition(obj)
+	return ctrl.Result{RequeueAfter: r.PollInterval}, r.updateStatus(ctx, obj)
 }
 
 func (r *Reconciler[T]) handleObserveError(ctx context.Context, obj T, err error) (ctrl.Result, error) {
-	if errors.Is(err, errServicePoweredOff) {
-		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToWaitForPreconditions, err.Error())
-		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionPreconditions, err))
-		return ctrl.Result{RequeueAfter: r.PollInterval}, nil
+	var requeueNeeded ErrRequeueNeeded
+	if errors.As(err, &requeueNeeded) {
+		r.Recorder.Event(obj, corev1.EventTypeNormal, eventWaitingForPreconditions, requeueNeeded.OriginalError.Error())
+		r.setSyncedErrorCondition(obj, requeueNeeded.OriginalError)
+		return ctrl.Result{RequeueAfter: requeueTimeout}, r.updateStatus(ctx, obj)
 	}
 
-	if errors.Is(err, errPreconditionNotMet) {
-		const msg = "preconditions are not met, requeue"
-		r.Recorder.Event(obj, corev1.EventTypeNormal, eventPreconditionsNotMet, msg)
-		logr.FromContextOrDiscard(ctx).V(1).Info(msg)
-		return ctrl.Result{RequeueAfter: requeueTimeout}, nil
-	}
-
-	if isRetryableAivenError(err) {
-		logr.FromContextOrDiscard(ctx).Info("retryable Aiven API error, requeue", "error", err)
-		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToWaitForPreconditions, err.Error())
-		return ctrl.Result{RequeueAfter: requeueTimeout}, nil
-	}
-
-	r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToWaitForPreconditions, err.Error())
-	meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionPreconditions, err))
-	return ctrl.Result{}, fmt.Errorf("cannot observe the resource: %w", err)
+	r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToObserve, err.Error())
+	meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionObserve, err))
+	r.setSyncedErrorCondition(obj, err)
+	return ctrl.Result{Requeue: true}, r.updateStatus(ctx, obj)
 }
 
 // resolveK8sRefs ensures that all referenced Kubernetes resources exist and are ready
@@ -196,35 +240,15 @@ func (r *Reconciler[T]) resolveK8sRefs(ctx context.Context, obj T) (requeue bool
 	return false, nil
 }
 
-func (r *Reconciler[T]) updateStatus(ctx context.Context, orig v1alpha1.AivenManagedObject, obj v1alpha1.AivenManagedObject) error {
-	if equality.Semantic.DeepEqual(orig, obj) {
-		return nil
+func (r *Reconciler[T]) updateStatus(ctx context.Context, obj T) error {
+	if err := r.Status().Update(ctx, obj); err != nil {
+		if apierrors.IsNotFound(err) && isMarkedForDeletion(obj) {
+			return nil
+		}
+		return err
 	}
 
-	// Order matters.
-	// First need to update the object, and then update the status.
-	// So dependent resources won't see READY before it has been updated with new values
-
-	// Now we can update the status
-	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		// When updated, object status is vanished.
-		// So we waste a copy for that,
-		// while the original object must already have all the fields updated in runtime
-		// Additionally, it gets the "latest version" to resolve optimistic concurrency control conflict
-		latest := obj.DeepCopyObject().(client.Object)
-		if err := r.Get(ctx, types.NamespacedName{Name: latest.GetName(), Namespace: latest.GetNamespace()}, latest); err != nil {
-			return err
-		}
-
-		updated := obj.DeepCopyObject().(client.Object)
-		updated.SetResourceVersion(latest.GetResourceVersion())
-		if err := r.Update(ctx, updated); err != nil {
-			return err
-		}
-
-		obj.SetResourceVersion(updated.GetResourceVersion())
-		return r.Status().Update(ctx, obj)
-	})
+	return nil
 }
 
 func (r *Reconciler[T]) newAivenClient(ctx context.Context, obj T) (avngen.Client, error) {
@@ -240,6 +264,41 @@ func (r *Reconciler[T]) newAivenClient(ctx context.Context, obj T) (avngen.Clien
 	}
 
 	return avnGen, nil
+}
+
+func (r *Reconciler[T]) ensureAuthSecretFinalizer(ctx context.Context, obj T) error {
+	if r.DefaultToken != "" {
+		return nil
+	}
+
+	auth := obj.AuthSecretRef()
+	if auth == nil {
+		return nil
+	}
+
+	clientAuthSecret := &corev1.Secret{}
+	if err := r.Get(ctx, types.NamespacedName{Name: auth.Name, Namespace: obj.GetNamespace()}, clientAuthSecret); err == nil {
+		if controllerutil.ContainsFinalizer(clientAuthSecret, secretProtectionFinalizer) {
+			return nil
+		}
+
+		// We cannot add new finalizers to a Secret that is already terminating.
+		// During managed resource deletion proceed best-effort to avoid getting stuck.
+		if isMarkedForDeletion(obj) && isMarkedForDeletion(clientAuthSecret) {
+			return nil
+		}
+
+		if err := addFinalizer(ctx, r.Client, clientAuthSecret, secretProtectionFinalizer); err != nil {
+			if isMarkedForDeletion(obj) {
+				logr.FromContextOrDiscard(ctx).V(1).Info("unable to protect auth secret during deletion, proceeding", "error", err)
+			} else {
+				return fmt.Errorf("unable to add finalizer to secret: %w", err)
+			}
+		}
+	}
+
+	// resolveToken emits user-facing auth errors; keep this step best-effort.
+	return nil
 }
 
 func (r *Reconciler[T]) resolveToken(ctx context.Context, obj T) (string, error) {
@@ -261,22 +320,54 @@ func (r *Reconciler[T]) resolveToken(ctx context.Context, obj T) (string, error)
 	return string(clientAuthSecret.Data[auth.Key]), nil
 }
 
+func (r *Reconciler[T]) updateObject(ctx context.Context, obj T) error {
+	// Update a deep copy to avoid clobbering in-memory status changes with the API server response.
+	updated := obj.DeepCopyObject().(client.Object)
+	if err := r.Update(ctx, updated); err != nil {
+		if apierrors.IsNotFound(err) && isMarkedForDeletion(obj) {
+			return nil
+		}
+		return err
+	}
+	obj.SetResourceVersion(updated.GetResourceVersion())
+	return nil
+}
+
 func (r *Reconciler[T]) createResource(ctx context.Context, controller AivenController[T], obj T) (ctrl.Result, error) {
+	meta.SetStatusCondition(obj.Conditions(), getInitializedCondition("Creating", "creating resource at Aiven"))
 	r.Recorder.Event(obj, corev1.EventTypeNormal, eventCreateOrUpdatedAtAiven, "about to create instance at aiven")
+
+	annotationsBeforeCreate := maps.Clone(obj.GetAnnotations())
 
 	res, err := controller.Create(ctx, obj)
 	if err != nil {
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToCreateOrUpdateAtAiven, err.Error())
 		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionCreateOrUpdate, err))
-		return ctrl.Result{}, fmt.Errorf("unable to create or update instance at aiven: %w", err)
+		r.setSyncedErrorCondition(obj, err)
+		return ctrl.Result{Requeue: true}, r.updateStatus(ctx, obj)
 	}
-	r.Recorder.Event(obj, corev1.EventTypeNormal, eventCreatedOrUpdatedAtAiven, "instance was created at aiven but may not be running yet")
+
+	if !maps.Equal(annotationsBeforeCreate, obj.GetAnnotations()) {
+		if err := r.updateObject(ctx, obj); err != nil {
+			if apierrors.IsConflict(err) {
+				return ctrl.Result{Requeue: true}, nil
+			}
+			r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToCreateOrUpdateAtAiven, err.Error())
+			meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionCreateOrUpdate, err))
+			r.setSyncedErrorCondition(obj, err)
+			return ctrl.Result{Requeue: true}, r.updateStatus(ctx, obj)
+		}
+	}
 
 	if err := r.publishSecretDetails(ctx, obj, res.SecretDetails); err != nil {
-		return ctrl.Result{}, err
+		r.setSyncedErrorCondition(obj, err)
+		return ctrl.Result{Requeue: true}, r.updateStatus(ctx, obj)
 	}
 
-	return r.completeReconcileSuccess(obj)
+	meta.SetStatusCondition(obj.Conditions(), getInitializedCondition("Creating", "creation requested at Aiven"))
+	r.setSyncedSuccessCondition(obj)
+	r.Recorder.Event(obj, corev1.EventTypeNormal, eventCreatedOrUpdatedAtAiven, "instance was created at aiven but may not be running yet")
+	return ctrl.Result{Requeue: true}, r.updateStatus(ctx, obj)
 }
 
 func (r *Reconciler[T]) updateResource(ctx context.Context, controller AivenController[T], obj T) (ctrl.Result, error) {
@@ -285,34 +376,55 @@ func (r *Reconciler[T]) updateResource(ctx context.Context, controller AivenCont
 	res, err := controller.Update(ctx, obj)
 	if err != nil {
 		if isNotFound(err) {
+			// Keep this path status-only no-op: we intentionally don't persist status on transient update misses.
 			return ctrl.Result{RequeueAfter: requeueTimeout}, nil
 		}
 
+		// Align with main/legacy behaviour: return reconcile error and let backoff handle retries.
+		// We don't persist status here unless this branch starts mutating conditions in the future.
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToWaitForInstanceToBeRunning, err.Error())
 		return ctrl.Result{}, fmt.Errorf("unable to wait until instance is running: %w", err)
 	}
 
 	if err := r.publishSecretDetails(ctx, obj, res.SecretDetails); err != nil {
-		return ctrl.Result{}, err
+		r.setSyncedErrorCondition(obj, err)
+		return ctrl.Result{Requeue: true}, r.updateStatus(ctx, obj)
 	}
 
-	return r.completeReconcileSuccess(obj)
-}
-
-func (r *Reconciler[T]) completeReconcileSuccess(obj v1alpha1.AivenManagedObject) (ctrl.Result, error) {
 	metav1.SetMetaDataAnnotation(
 		obj.GetObjectMeta(),
 		processedGenerationAnnotation,
 		strconv.FormatInt(obj.GetGeneration(), formatIntBaseDecimal),
 	)
+	if err := r.updateObject(ctx, obj); err != nil {
+		if apierrors.IsConflict(err) {
+			return ctrl.Result{Requeue: true}, nil
+		}
 
-	if IsReadyToUse(obj) {
-		return ctrl.Result{RequeueAfter: r.PollInterval}, nil
+		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToCreateOrUpdateAtAiven, err.Error())
+		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionCreateOrUpdate, err))
+		r.setSyncedErrorCondition(obj, err)
+		return ctrl.Result{Requeue: true}, r.updateStatus(ctx, obj)
 	}
 
-	// Many Aiven operations are asynchronous. After a successful API call the resource may still be starting up,
-	// so requeue soon to check again instead of waiting for the normal periodic reconcile.
-	return ctrl.Result{RequeueAfter: requeueTimeout}, nil
+	if IsReadyToUse(obj) {
+		r.setSyncedSuccessCondition(obj)
+		return ctrl.Result{RequeueAfter: r.PollInterval}, r.updateStatus(ctx, obj)
+	}
+
+	// Many Aiven operations are asynchronous. After a successful API call the resource may still be
+	// starting up, so requeue soon to check again instead of waiting for the normal periodic reconcile.
+	r.setSyncedSuccessCondition(obj)
+	return ctrl.Result{RequeueAfter: requeueTimeout}, r.updateStatus(ctx, obj)
+}
+
+func (r *Reconciler[T]) setSyncedErrorCondition(obj T, err error) {
+	meta.SetStatusCondition(obj.Conditions(), getSyncedErrorCondition(err))
+}
+
+func (r *Reconciler[T]) setSyncedSuccessCondition(obj T) {
+	meta.SetStatusCondition(obj.Conditions(), getSyncedSuccessCondition())
+	meta.RemoveStatusCondition(obj.Conditions(), ConditionTypeError)
 }
 
 // publishSecretDetails publishes connection details to the connection secret if present.
@@ -375,31 +487,54 @@ func (r *Reconciler[T]) publishSecretDetails(ctx context.Context, obj T, details
 	return nil
 }
 
-func (r *Reconciler[T]) finalize(ctx context.Context, controller AivenController[T], obj T) (ctrl.Result, error) {
+func (r *Reconciler[T]) finalize(ctx context.Context, obj T) (ctrl.Result, error) {
 	if !controllerutil.ContainsFinalizer(obj, instanceDeletionFinalizer) {
 		return ctrl.Result{}, nil
 	}
 
 	// Parse the annotations for the deletion policy. For simplicity, we only allow 'Orphan'.
 	// If set will skip the deletion of the remote object. Disable by removing the annotation.
-	if p, ok := obj.GetAnnotations()[deletionPolicyAnnotation]; !ok {
+	if p, ok := obj.GetAnnotations()[deletionPolicyAnnotation]; ok {
+		if p == deletionPolicyOrphan {
+			logr.FromContextOrDiscard(ctx).Info("finalizing with Orphan deletion policy - Aiven resource will be preserved on Kubernetes resource deletion")
+		} else {
+			msg := fmt.Sprintf("invalid deletion policy %q, only %q is allowed", p, deletionPolicyOrphan)
+			meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionDelete, errors.New(msg)))
+			// This is a delete-path reconcile. Persisting the condition must not depend on external deps.
+			// We also don't have the general persistence defer on the delete path.
+			if err := r.updateStatus(ctx, obj); err != nil {
+				return ctrl.Result{}, err
+			}
+			return ctrl.Result{}, fmt.Errorf("unable to delete instance: %s", msg)
+		}
+	} else {
+		if err := r.ensureAuthSecretFinalizer(ctx, obj); err != nil {
+			return ctrl.Result{}, err
+		}
+
+		avnGen, err := r.newAivenClient(ctx, obj)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		controller := r.newController(avnGen)
+
 		r.Recorder.Event(obj, corev1.EventTypeNormal, eventTryingToDeleteAtAiven, "trying to delete instance at aiven")
 		if err := controller.Delete(ctx, obj); err != nil {
 			if isInvalidTokenError(err) && !hasIsRunningAnnotation(obj) {
 				logr.FromContextOrDiscard(ctx).Info("invalid token error on deletion, removing finalizer", "apiError", err)
 			} else {
-				return r.handleDeleteError(ctx, obj, err)
+				res, err := r.handleDeleteError(ctx, obj, err)
+				// This is a delete-path reconcile. Persisting the condition must not depend on external deps.
+				// We also don't have the general persistence defer on the delete path.
+				if err := r.updateStatus(ctx, obj); err != nil {
+					return ctrl.Result{}, err
+				}
+				return res, err
 			}
 		}
 
 		logr.FromContextOrDiscard(ctx).Info("instance was successfully deleted at Aiven, removing finalizer")
 		r.Recorder.Event(obj, corev1.EventTypeNormal, eventSuccessfullyDeletedAtAiven, "instance is gone at aiven now")
-	} else if ok && p == deletionPolicyOrphan {
-		logr.FromContextOrDiscard(ctx).Info("finalizing with Orphan deletion policy - Aiven resource will be preserved on Kubernetes resource deletion")
-	} else {
-		msg := fmt.Sprintf("invalid deletion policy %q, only %q is allowed", p, deletionPolicyOrphan)
-		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionDelete, errors.New(msg)))
-		return ctrl.Result{}, fmt.Errorf("unable to delete instance: %s", msg)
 	}
 
 	// remove finalizer, once all finalizers have been removed, the object will be deleted.
@@ -443,7 +578,14 @@ func (r *Reconciler[T]) handleDeleteError(ctx context.Context, obj T, err error)
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler[T]) SetupWithManager(mgr ctrl.Manager) error {
 	obj := r.newObj()
-	b := ctrl.NewControllerManagedBy(mgr).For(obj)
+	b := ctrl.NewControllerManagedBy(mgr).For(obj, builder.WithPredicates(predicate.Or(
+		deletionTimestampChanged(),
+		predicate.GenerationChangedPredicate{},
+		predicate.LabelChangedPredicate{},
+		annotationsChangedExcluding(
+			processedGenerationAnnotation,
+			instanceIsRunningAnnotation,
+		))))
 	if _, ok := any(obj).(objWithSecret); ok {
 		b = b.Owns(&corev1.Secret{})
 	}
@@ -461,4 +603,58 @@ func isInvalidTokenError(err error) bool {
 	// and no generation was ever processed, allow deleting such instance
 	msg := err.Error()
 	return strings.Contains(msg, "Invalid token") || strings.Contains(msg, "Missing (expired) db token")
+}
+
+func deletionTimestampChanged() predicate.Funcs {
+	return predicate.Funcs{
+		UpdateFunc: func(e event.UpdateEvent) bool {
+			if e.ObjectOld == nil || e.ObjectNew == nil {
+				return false
+			}
+
+			oldDT := e.ObjectOld.GetDeletionTimestamp()
+			newDT := e.ObjectNew.GetDeletionTimestamp()
+			switch {
+			case oldDT == nil && newDT == nil:
+				return false
+			case oldDT == nil || newDT == nil:
+				return true
+			default:
+				return !oldDT.Time.Equal(newDT.Time)
+			}
+		},
+	}
+}
+
+func annotationsChangedExcluding(keys ...string) predicate.Funcs {
+	ignored := make(map[string]struct{}, len(keys))
+	for _, key := range keys {
+		ignored[key] = struct{}{}
+	}
+
+	subsetEq := func(a, b map[string]string) bool {
+		for k, v := range a {
+			if _, skip := ignored[k]; skip {
+				continue
+			}
+
+			bv, ok := b[k]
+			if !ok || bv != v {
+				return false
+			}
+		}
+		return true
+	}
+
+	return predicate.Funcs{
+		UpdateFunc: func(e event.UpdateEvent) bool {
+			if e.ObjectOld == nil || e.ObjectNew == nil {
+				return false
+			}
+
+			oldAnnotations := e.ObjectOld.GetAnnotations()
+			newAnnotations := e.ObjectNew.GetAnnotations()
+			return !subsetEq(oldAnnotations, newAnnotations) || !subsetEq(newAnnotations, oldAnnotations)
+		},
+	}
 }

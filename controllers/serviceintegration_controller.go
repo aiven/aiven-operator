@@ -4,6 +4,7 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -47,12 +48,22 @@ type ServiceIntegrationController struct {
 
 func (r *ServiceIntegrationController) Observe(ctx context.Context, si *v1alpha1.ServiceIntegration) (Observation, error) {
 	if err := r.checkPreconditions(ctx, si); err != nil {
+		if errors.Is(err, errPreconditionNotMet) {
+			return Observation{}, ErrRequeueNeeded{OriginalError: err}
+		}
+		if errors.Is(err, errServicePoweredOff) {
+			meta.SetStatusCondition(&si.Status.Conditions, getErrorCondition(errConditionPreconditions, err))
+			return Observation{}, ErrRequeueNeeded{OriginalError: err}
+		}
 		return Observation{}, err
 	}
 
 	if si.Status.ID == "" {
 		destEndpointID, err := r.resolveDestinationEndpointID(ctx, si)
 		if err != nil {
+			if errors.Is(err, errPreconditionNotMet) {
+				return Observation{}, ErrRequeueNeeded{OriginalError: err}
+			}
 			return Observation{}, err
 		}
 

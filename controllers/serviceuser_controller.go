@@ -45,6 +45,14 @@ type ServiceUserController struct {
 func (r *ServiceUserController) Observe(ctx context.Context, user *v1alpha1.ServiceUser) (Observation, error) {
 	details, err := r.fetchSecretDetails(ctx, user)
 	if err != nil {
+		if errors.Is(err, errPreconditionNotMet) {
+			return Observation{}, ErrRequeueNeeded{OriginalError: err}
+		}
+		if errors.Is(err, errServicePoweredOff) {
+			// Keep a meaningful status while waiting for the service to become operational again.
+			meta.SetStatusCondition(&user.Status.Conditions, getErrorCondition(errConditionPreconditions, err))
+			return Observation{}, ErrRequeueNeeded{OriginalError: err}
+		}
 		// ServiceUser 404 means "user doesn't exist yet" and should trigger Create.
 		// But service/project 404 is wrapped as errPreconditionNotMet in getServiceIfOperational
 		// and must be treated as a soft precondition failure.
