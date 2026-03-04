@@ -834,7 +834,7 @@ spec:
                               description:
                                 The amount of time to wait for the cluster
                                 state upload to complete. Defaults to 20s.
-                              pattern: \d+(?:d|h|m|s|ms|micros|nanos)
+                              pattern: ^\d+\s*(?:[dhms]|ms|micros|nanos)$
                               type: string
                             state.metadata_manifest.upload_timeout:
                               description:
@@ -843,7 +843,7 @@ spec:
                                 the details of each of the files uploaded for a single
                                 cluster state, both index metadata files and global
                                 metadata files. Defaults to 20s.
-                              pattern: \d+(?:d|h|m|s|ms|micros|nanos)
+                              pattern: ^\d+\s*(?:[dhms]|ms|micros|nanos)$
                               type: string
                             translog.buffer_interval:
                               description:
@@ -852,7 +852,7 @@ spec:
                                 This setting is only effective when the index setting
                                 `index.remote_store.translog.buffer_interval` is not
                                 present. Defaults to 650ms.
-                              pattern: \d+(?:d|h|m|s|ms|micros|nanos)
+                              pattern: ^\d+\s*(?:[dhms]|ms|micros|nanos)$
                               type: string
                             translog.max_readers:
                               description:
@@ -1157,7 +1157,8 @@ spec:
                           description:
                             Compatibility mode sets OpenSearch to report
                             its version as 7.10 so clients continue to work. Default
-                            is false
+                            is false. Deprecated and ignored for service version 3.3
+                            and higher.
                           type: boolean
                         plugins_alerting_filter_by_backend_roles:
                           description:
@@ -1230,9 +1231,10 @@ spec:
                                   type: integer
                                 window_size:
                                   description:
-                                    The window size of the top N queries
-                                    by the metric
-                                  pattern: ^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$
+                                    Configure the window size of the top
+                                    N queries. The value should be a time value with
+                                    unit, e.g. 1m, 5s, 1h.
+                                  pattern: ^\d+\s*(?:[dhms]|ms|micros|nanos)$
                                   type: string
                               type: object
                             latency:
@@ -1251,9 +1253,10 @@ spec:
                                   type: integer
                                 window_size:
                                   description:
-                                    The window size of the top N queries
-                                    by the metric
-                                  pattern: ^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$
+                                    Configure the window size of the top
+                                    N queries. The value should be a time value with
+                                    unit, e.g. 1m, 5s, 1h.
+                                  pattern: ^\d+\s*(?:[dhms]|ms|micros|nanos)$
                                   type: string
                               type: object
                             memory:
@@ -1272,9 +1275,10 @@ spec:
                                   type: integer
                                 window_size:
                                   description:
-                                    The window size of the top N queries
-                                    by the metric
-                                  pattern: ^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$
+                                    Configure the window size of the top
+                                    N queries. The value should be a time value with
+                                    unit, e.g. 1m, 5s, 1h.
+                                  pattern: ^\d+\s*(?:[dhms]|ms|micros|nanos)$
                                   type: string
                               type: object
                           type: object
@@ -1707,6 +1711,19 @@ spec:
                           maximum: 120000
                           minimum: 5000
                           type: integer
+                        session_keepalive:
+                          description:
+                            Determines whether the session TTL resets (is
+                            “kept alive”) on each user activity. Optional. Default is
+                            true.
+                          type: boolean
+                        session_ttl:
+                          description:
+                            Defines the time-to-live (TTL) for user sessions.
+                            The value should be a time value with unit, e.g. 1m, 5s,
+                            1h, 3d, 100ms. Default is 1 hour.
+                          pattern: ^\d+\s*(?:[dhms]|ms|micros|nanos)$
+                          type: string
                       type: object
                     opensearch_version:
                       description: |-

@@ -239,7 +239,7 @@ func GetKafkaConnectorByName(ctx context.Context, avnGen avngen.Client, projectN
 		return nil, err
 	}
 
-	for _, v := range list {
+	for _, v := range list.Connectors {
 		if v.Name == name {
 			return &v, nil
 		}

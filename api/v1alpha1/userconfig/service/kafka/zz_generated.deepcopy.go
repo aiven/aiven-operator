@@ -629,10 +629,20 @@ func (in *KafkaUserConfig) DeepCopyInto(out *KafkaUserConfig) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.EnableIpv6 != nil {
+		in, out := &in.EnableIpv6, &out.EnableIpv6
+		*out = new(bool)
+		**out = **in
+	}
 	if in.FollowerFetching != nil {
 		in, out := &in.FollowerFetching, &out.FollowerFetching
 		*out = new(FollowerFetching)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.GcpAuthAllowedUrls != nil {
+		in, out := &in.GcpAuthAllowedUrls, &out.GcpAuthAllowedUrls
+		*out = make([]string, len(*in))
+		copy(*out, *in)
 	}
 	if in.IpFilter != nil {
 		in, out := &in.IpFilter, &out.IpFilter

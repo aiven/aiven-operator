@@ -24,6 +24,11 @@ func (in *ClickhouseUserConfig) DeepCopyInto(out *ClickhouseUserConfig) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.ClickhouseVersion != nil {
+		in, out := &in.ClickhouseVersion, &out.ClickhouseVersion
+		*out = new(string)
+		**out = **in
+	}
 	if in.EnableIpv6 != nil {
 		in, out := &in.EnableIpv6, &out.EnableIpv6
 		*out = new(bool)
@@ -78,6 +83,11 @@ func (in *ClickhouseUserConfig) DeepCopyInto(out *ClickhouseUserConfig) {
 	if in.StaticIps != nil {
 		in, out := &in.StaticIps, &out.StaticIps
 		*out = new(bool)
+		**out = **in
+	}
+	if in.TieredStorageMoveFactor != nil {
+		in, out := &in.TieredStorageMoveFactor, &out.TieredStorageMoveFactor
+		*out = new(float64)
 		**out = **in
 	}
 }

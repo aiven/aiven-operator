@@ -588,8 +588,14 @@ type KafkaUserConfig struct {
 	// Serve the web frontend using a custom CNAME pointing to the Aiven DNS name. When you set a custom domain for a service deployed in a VPC, the service certificate is only created for the public-* hostname and the custom domain.
 	CustomDomain *string `groups:"create,update" json:"custom_domain,omitempty"`
 
+	// Register AAAA DNS records for the service, and allow IPv6 packets to service ports
+	EnableIpv6 *bool `groups:"create,update" json:"enable_ipv6,omitempty"`
+
 	// Enable follower fetching
 	FollowerFetching *FollowerFetching `groups:"create,update" json:"follower_fetching,omitempty"`
+
+	// Allow-list of HTTPS URLs used to validate GCP credential_source requests for Kafka Connect.
+	GcpAuthAllowedUrls []string `groups:"create,update" json:"gcp_auth_allowed_urls,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=8000
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'

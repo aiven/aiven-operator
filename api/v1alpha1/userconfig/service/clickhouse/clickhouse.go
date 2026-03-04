@@ -74,6 +74,10 @@ type ClickhouseUserConfig struct {
 	// The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
 	BackupMinute *int `groups:"create,update" json:"backup_minute,omitempty"`
 
+	// Available versions: `25.3`. Newer versions may also be available.
+	// ClickHouse major version
+	ClickhouseVersion *string `groups:"create,update" json:"clickhouse_version,omitempty"`
+
 	// Register AAAA DNS records for the service, and allow IPv6 packets to service ports
 	EnableIpv6 *bool `groups:"create,update" json:"enable_ipv6,omitempty"`
 
@@ -112,4 +116,9 @@ type ClickhouseUserConfig struct {
 
 	// Use static public IP addresses
 	StaticIps *bool `groups:"create,update" json:"static_ips,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1
+	// The percentage of free disk space required on local storage before data is moved to object storage. A value of 0.2 means data is moved when local storage has less than 20% free space.
+	TieredStorageMoveFactor *float64 `groups:"create,update" json:"tiered_storage_move_factor,omitempty"`
 }
