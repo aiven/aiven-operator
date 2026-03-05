@@ -20,7 +20,7 @@ spec:
 
   userConfig:
     ip_filter:
-      - network: 0.0.0.0/32
+      - network: 0.0.0.0/0
         description: bar
       - network: 10.20.0.0/16
 
