@@ -12,7 +12,7 @@ jobs:
   trunk_upgrade:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # For trunk to create PRs
+      contents: write # For trunk to create PRs test
       pull-requests: write # For trunk to create PRs
     steps:
       - uses: actions/checkout@v6
