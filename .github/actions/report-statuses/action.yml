@@ -1,0 +1,39 @@
+name: Report commit job statuses
+description: Report commit statuses for CI checks on automated PRs
+
+inputs:
+  sha:
+    description: The commit SHA to report statuses for
+    required: true
+  statuses:
+    description: >-
+      JSON object mapping check context names to results.
+      Example: {"commitlint": "success", "trunk": "failure"}
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/github-script@v8
+      env:
+        COMMIT_SHA: ${{ inputs.sha }}
+        STATUSES: ${{ inputs.statuses }}
+      with:
+        script: |
+          const sha = process.env.COMMIT_SHA;
+          const statuses = JSON.parse(process.env.STATUSES);
+          const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+          for (const [name, result] of Object.entries(statuses)) {
+            const state = (result === 'success' || result === 'skipped') ? 'success' : 'failure';
+            console.log(`Reporting ${name}: ${state} (${result})`);
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha,
+              state,
+              context: name,
+              description: `${name} ${result}`,
+              target_url: runUrl
+            });
+          }

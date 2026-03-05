@@ -4,12 +4,17 @@ on:
   pull_request: {}
 
 permissions:
+  actions: read
+  checks: write
   contents: write
+  statuses: write
 
 jobs:
   generate:
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' }}
+    outputs:
+      commit_hash: ${{ steps.auto_commit.outputs.commit_hash }}
+      changes_detected: ${{ steps.auto_commit.outputs.changes_detected }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -23,6 +28,35 @@ jobs:
       - run: curl https://get.trunk.io -fsSL | bash
       - name: generate files
         run: make generate
-      - uses: stefanzweifel/git-auto-commit-action@v7
+      - id: auto_commit
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore(userconfigs): generate files"
+
+  run_lint:
+    needs: generate
+    if: needs.generate.outputs.changes_detected == 'true'
+    uses: ./.github/workflows/lint.yml
+    with:
+      ref: ${{ needs.generate.outputs.commit_hash }}
+
+  report_statuses:
+    needs: [generate, run_lint]
+    if: always() && needs.generate.outputs.changes_detected == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: .github/actions
+      - uses: ./.github/actions/report-statuses
+        with:
+          sha: ${{ needs.generate.outputs.commit_hash }}
+          statuses: >-
+            {
+              "generate": "success",
+              "commitlint": "${{ needs.run_lint.outputs.commitlint }}",
+              "lint-go": "${{ needs.run_lint.outputs.lint-go }}",
+              "trunk": "${{ needs.run_lint.outputs.trunk }}",
+              "codeql_analysis": "${{ needs.run_lint.outputs.codeql_analysis }}",
+              "kustomize_can_build_deployment": "${{ needs.run_lint.outputs.kustomize_can_build_deployment }}"
+            }
