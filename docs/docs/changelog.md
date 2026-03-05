@@ -1,6 +1,46 @@
 # Changelog
 
 
+## v0.36.0 - 2026-03-05
+
+- `KafkaTopic`: continuous reconciliation now automatically re-creates topics that are deleted directly in Aiven (outside Kubernetes).
+- Add `ServiceIntegration` field `destinationEndpointRef`, type `object`: Destination endpoint reference for the integration (if any).
+- Fix service resources: resolve deadlock when deleting a service whose `terminationProtection` was set to `false` shortly before deletion
+- Add `Clickhouse` field `userConfig.clickhouse_version`, type `string`: Available versions: `25.3`.
+  Newer versions may also be available.
+ClickHouse major version
+- Add `Clickhouse` field `userConfig.tiered_storage_move_factor`, type `number`: The percentage of free
+  disk space required on local storage before data is moved to object storage
+- Change `Grafana` field `userConfig.smtp_server.from_address`: maxLength ~~`319`~~ → `254`, pattern
+  ~~`^[A-Za-z0-9_\-\.+\'&]+@(([\da-zA-Z])([_\w-]{,62})\.){,127}(([\da-zA-Z])[_\w-]{,61})?([\da-zA-Z]\.((xn\-\-[a-zA-Z\d]+)|([a-zA-Z\d]{2,})))$`~~
+- Add `KafkaConnect` field `userConfig.gcp_auth_allowed_urls`, type `array`: Allow-list of HTTPS URLs
+  used to validate GCP credential_source requests for Kafka Connect
+- Add `Kafka` field `userConfig.enable_ipv6`, type `boolean`: Register AAAA DNS records for the service,
+  and allow IPv6 packets to service ports
+- Add `Kafka` field `userConfig.gcp_auth_allowed_urls`, type `array`: Allow-list of HTTPS URLs used to
+  validate GCP credential_source requests for Kafka Connect
+- Add `OpenSearch` field `userConfig.opensearch_dashboards.session_keepalive`, type `boolean`: Determines
+  whether the session TTL resets (is “kept alive”) on each user activity. Optional
+- Add `OpenSearch` field `userConfig.opensearch_dashboards.session_ttl`, type `string`: Defines the time-to-live
+  (TTL) for user sessions. The value should be a time value with unit, e.g
+- Change `OpenSearch` field `userConfig.opensearch.cluster.remote_store.state.global_metadata.upload_timeout`:
+  pattern ~~`\d+(?:d|h|m|s|ms|micros|nanos)`~~ → `^\d+\s*(?:[dhms]|ms|micros|nanos)$`
+- Change `OpenSearch` field `userConfig.opensearch.cluster.remote_store.state.metadata_manifest.upload_timeout`:
+  pattern ~~`\d+(?:d|h|m|s|ms|micros|nanos)`~~ → `^\d+\s*(?:[dhms]|ms|micros|nanos)$`
+- Change `OpenSearch` field `userConfig.opensearch.cluster.remote_store.translog.buffer_interval`: pattern
+  ~~`\d+(?:d|h|m|s|ms|micros|nanos)`~~ → `^\d+\s*(?:[dhms]|ms|micros|nanos)$`
+- Change `OpenSearch` field `userConfig.opensearch.search.insights.top_queries.cpu.window_size`: pattern
+  ~~`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`~~
+  → `^\d+\s*(?:[dhms]|ms|micros|nanos)$`
+- Change `OpenSearch` field `userConfig.opensearch.search.insights.top_queries.latency.window_size`:
+  pattern ~~`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`~~
+  → `^\d+\s*(?:[dhms]|ms|micros|nanos)$`
+- Change `OpenSearch` field `userConfig.opensearch.search.insights.top_queries.memory.window_size`: pattern
+  ~~`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`~~
+  → `^\d+\s*(?:[dhms]|ms|micros|nanos)$`
+- Change `ServiceIntegrationEndpoint` field `datadog.site`: enum add `ap2.datadoghq.com`
+- Change `Valkey` field `userConfig.valkey_pubsub_client_output_buffer_limit`: maximum ~~`512`~~ → `262144`
+
 ## v0.35.0 - 2026-01-20
 
 - **Upgraded controller-runtime to v0.16.6**: This version supports Kubernetes v0.28 and requires Go 1.20+. See [compatibility matrix](https://github.com/kubernetes-sigs/controller-runtime?tab=readme-ov-file#compatibility) for details.

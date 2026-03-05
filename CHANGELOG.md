@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.36.0 - 2026-03-05
+
 - `KafkaTopic`: continuous reconciliation now automatically re-creates topics that are deleted directly in Aiven (outside Kubernetes).
 - Add `ServiceIntegration` field `destinationEndpointRef`, type `object`: Destination endpoint reference for the integration (if any).
 - Fix service resources: resolve deadlock when deleting a service whose `terminationProtection` was set to `false` shortly before deletion
