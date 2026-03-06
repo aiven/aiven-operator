@@ -1,6 +1,6 @@
 module github.com/aiven/aiven-operator
 
-go 1.25.3
+go 1.26
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.43.0
