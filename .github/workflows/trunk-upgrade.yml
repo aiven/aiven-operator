@@ -6,7 +6,9 @@ on:
     - cron: 0 8 * * 1
   workflow_dispatch: {}
 
-permissions: read-all
+permissions:
+  contents: read
+  statuses: write
 
 jobs:
   trunk_upgrade:
@@ -14,6 +16,9 @@ jobs:
     permissions:
       contents: write # For trunk to create PRs
       pull-requests: write # For trunk to create PRs
+    outputs:
+      pr_head_sha: ${{ steps.upgrade.outputs.pull-request-head-sha }}
+      pr_created: ${{ steps.upgrade.outputs.pull-request-number != '' }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -21,7 +26,43 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
-      - uses: trunk-io/trunk-action/upgrade@v1
+      - id: upgrade
+        uses: trunk-io/trunk-action/upgrade@v1
         with:
           prefix: "ci(deps): "
           lowercase-title: true
+
+  verify_trunk:
+    needs: trunk_upgrade
+    if: needs.trunk_upgrade.outputs.pr_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.trunk_upgrade.outputs.pr_head_sha }}
+          fetch-depth: 0
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - uses: trunk-io/trunk-action@v1
+
+  report_statuses:
+    needs: [trunk_upgrade, verify_trunk]
+    if: always() && needs.trunk_upgrade.outputs.pr_created == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: .github/actions
+      - uses: ./.github/actions/report-statuses
+        with:
+          sha: ${{ needs.trunk_upgrade.outputs.pr_head_sha }}
+          statuses: >-
+            {
+              "trunk": "${{ needs.verify_trunk.result }}",
+              "commitlint": "skipped",
+              "codeql_analysis": "skipped",
+              "generate": "skipped"
+            }

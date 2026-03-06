@@ -7,22 +7,48 @@ on:
   pull_request:
     branches:
       - main
+  workflow_call:
+    inputs:
+      ref:
+        description: The git ref to run checks against
+        required: true
+        type: string
+    outputs:
+      commitlint:
+        value: ${{ jobs.commitlint.outputs.result }}
+      lint-go:
+        value: ${{ jobs.lint-go.outputs.result }}
+      trunk:
+        value: ${{ jobs.trunk.outputs.result }}
+      codeql_analysis:
+        value: ${{ jobs.codeql_analysis.outputs.result }}
+      kustomize_can_build_deployment:
+        value: ${{ jobs.kustomize_can_build_deployment.outputs.result }}
 
 jobs:
   commitlint:
     runs-on: ubuntu-latest
+    outputs:
+      result: ${{ job.status }}
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.ref }}
           fetch-depth: 0
       - uses: wagoid/commitlint-github-action@v6
 
   lint-go:
     runs-on: ubuntu-latest
-    if: (github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'skip workflows')) || github.event_name == 'push'
+    outputs:
+      result: ${{ job.status }}
+    if: >-
+      github.event_name == 'push'
+      || github.event_name == 'workflow_call'
+      || (github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'skip workflows'))
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.ref }}
           fetch-depth: 0
       - uses: actions/setup-go@v6
         with:
@@ -36,11 +62,14 @@ jobs:
 
   trunk:
     runs-on: ubuntu-latest
+    outputs:
+      result: ${{ job.status }}
     permissions:
       checks: write # For trunk to post annotations
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.ref }}
           fetch-depth: 0
       - uses: actions/setup-go@v6
         with:
@@ -48,6 +77,8 @@ jobs:
       - uses: trunk-io/trunk-action@v1
   codeql_analysis:
     runs-on: ubuntu-latest
+    outputs:
+      result: ${{ job.status }}
     permissions:
       actions: read
       contents: read
@@ -55,6 +86,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.ref }}
           fetch-depth: 0
       - uses: actions/setup-go@v6
         with:
@@ -66,9 +98,12 @@ jobs:
       - uses: github/codeql-action/analyze@v4
   kustomize_can_build_deployment:
     runs-on: ubuntu-latest
+    outputs:
+      result: ${{ job.status }}
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.ref }}
           fetch-depth: 0
       - uses: karancode/kustomize-github-action@master
         with:
