@@ -36,6 +36,9 @@ linters:
       - std-error-handling
     rules:
       - linters:
+          - gocritic
+        text: "deprecatedComment"
+      - linters:
           - dupl
           - goconst
           - golint
