@@ -392,7 +392,7 @@ func TestReconciler_Reconcile(t *testing.T) {
 
 	t.Run("Calls finalize when object is marked for deletion", func(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
-		obj.DeletionTimestamp = ptr(metav1.Now())
+		obj.DeletionTimestamp = new(metav1.Now())
 		obj.Finalizers = []string{instanceDeletionFinalizer}
 
 		m := &mock.Mock{}
@@ -1670,7 +1670,7 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 
 	t.Run("Skips secret and emits event when NoSecret is true", func(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
-		obj.Spec.ConnInfoSecretTargetDisabled = ptr(true)
+		obj.Spec.ConnInfoSecretTargetDisabled = new(true)
 
 		recorder := record.NewFakeRecorder(10)
 

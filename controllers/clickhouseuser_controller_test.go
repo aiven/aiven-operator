@@ -1003,7 +1003,7 @@ func TestClickhouseUser_BackwardCompatibility(t *testing.T) {
 			ServiceClickHouseUserCreate(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.MatchedBy(func(in *clickhouse.ServiceClickHouseUserCreateIn) bool {
 				return in.Name == user.Name && in.Password == nil
 			})).
-			Return(&clickhouse.ServiceClickHouseUserCreateOut{Uuid: "uuid-compat-create-metadata", Password: ptr("mypassword")}, nil).
+			Return(&clickhouse.ServiceClickHouseUserCreateOut{Uuid: "uuid-compat-create-metadata", Password: new("mypassword")}, nil).
 			Once()
 
 		ctrl := &ClickhouseUserController{
@@ -1065,7 +1065,7 @@ func TestClickhouseUser_BackwardCompatibility(t *testing.T) {
 			ServiceClickHouseUserCreate(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.MatchedBy(func(in *clickhouse.ServiceClickHouseUserCreateIn) bool {
 				return in.Name == user.Spec.Username && in.Password == nil
 			})).
-			Return(&clickhouse.ServiceClickHouseUserCreateOut{Uuid: "uuid-compat-create", Password: ptr("mypassword")}, nil).
+			Return(&clickhouse.ServiceClickHouseUserCreateOut{Uuid: "uuid-compat-create", Password: new("mypassword")}, nil).
 			Once()
 
 		ctrl := &ClickhouseUserController{

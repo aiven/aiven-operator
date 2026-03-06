@@ -342,10 +342,7 @@ func (s *schemaType) GetHeader() string {
 	// Flattens TOC, puts first two levels on the same level
 	// otherwise it starts with "spec" and then drills down to the atoms.
 	// And that makes TOC navigation useless
-	level := s.level
-	if level < minHeaderLevel {
-		level = minHeaderLevel
-	}
+	level := max(s.level, minHeaderLevel)
 	return fmt.Sprintf("%s %s {: #%s }", strings.Repeat("#", level), s.Name, s.GetID())
 }
 
@@ -458,8 +455,8 @@ func (s *schemaType) GetExample() *exampleType {
 	// Takes columns from the spec and values from the example
 	for _, c := range s.Columns {
 		column := exampleTableColumn{}
-		if strings.HasPrefix(c.Path, ".spec.") {
-			k := strings.TrimPrefix(c.Path, ".spec.")
+		if after, ok := strings.CutPrefix(c.Path, ".spec."); ok {
+			k := after
 			column.Value = fmt.Sprintf("%v", example.Spec[k])
 		} else {
 			switch c.Path {
@@ -683,7 +680,7 @@ func loadYAMLs[T any](b []byte) []*T {
 
 // ReplaceAllStringSubmatchFunc Credits https://gist.github.com/elliotchance/d419395aa776d632d897
 func ReplaceAllStringSubmatchFunc(re *regexp.Regexp, str string, repl func([]string) string) string {
-	result := ""
+	var result strings.Builder
 	lastIndex := 0
 
 	for _, v := range re.FindAllSubmatchIndex([]byte(str), -1) {
@@ -696,9 +693,9 @@ func ReplaceAllStringSubmatchFunc(re *regexp.Regexp, str string, repl func([]str
 			}
 		}
 
-		result += str[lastIndex:v[0]] + repl(groups)
+		result.WriteString(str[lastIndex:v[0]] + repl(groups))
 		lastIndex = v[1]
 	}
 
-	return result + str[lastIndex:]
+	return result.String() + str[lastIndex:]
 }

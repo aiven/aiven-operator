@@ -18,8 +18,8 @@ type whManifest struct {
 	APIVersion string `yaml:"apiVersion"`
 	Kind       string `yaml:"kind"`
 	Metadata   struct {
-		CreationTimestamp interface{} `yaml:"creationTimestamp"`
-		Name              string      `yaml:"name"`
+		CreationTimestamp any    `yaml:"creationTimestamp"`
+		Name              string `yaml:"name"`
 	} `yaml:"metadata"`
 
 	whManifestProp `yaml:",inline"`
@@ -44,8 +44,8 @@ type whManifestProp struct {
 			Operations  []string `yaml:"operations"`
 			Resources   []string `yaml:"resources"`
 		} `yaml:"rules"`
-		SideEffects       string      `yaml:"sideEffects"`
-		NamespaceSelector interface{} `yaml:"namespaceSelector"`
+		SideEffects       string `yaml:"sideEffects"`
+		NamespaceSelector any    `yaml:"namespaceSelector"`
 	} `yaml:"webhooks"`
 }
 
