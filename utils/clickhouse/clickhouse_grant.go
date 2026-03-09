@@ -109,7 +109,7 @@ func QueryTables(ctx context.Context, avnGen avngen.Client, projectName, service
 }
 
 // Helper function to extract column values from a nested array
-func extractColumnValues(data [][]interface{}, columnIndex int) []string {
+func extractColumnValues(data [][]any, columnIndex int) []string {
 	values := make([]string, 0, len(data))
 	for _, row := range data {
 		if value, ok := row[columnIndex].(string); ok && value != "" {

@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"slices"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/postgresql"
@@ -245,11 +246,8 @@ func (h ConnectionPoolHandler) checkPreconditions(ctx context.Context, avnGen av
 		return false, err
 	}
 
-	for _, db := range dbList.Databases {
-		if db == cp.Spec.DatabaseName {
-			exists = true
-			break
-		}
+	if slices.Contains(dbList.Databases, cp.Spec.DatabaseName) {
+		exists = true
 	}
 
 	if !exists {

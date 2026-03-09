@@ -2,6 +2,7 @@ package alloydbomniutils
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/xeipuuv/gojsonschema"
 )
@@ -20,11 +21,11 @@ func ValidateServiceAccountCredentials(s string) error {
 	}
 
 	if !r.Valid() {
-		var errMsg string
+		var errMsg strings.Builder
 		for _, e := range r.Errors() {
-			errMsg += e.String() + "\n"
+			errMsg.WriteString(e.String() + "\n")
 		}
-		return errors.New(errMsg)
+		return errors.New(errMsg.String())
 	}
 
 	return nil

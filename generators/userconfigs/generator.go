@@ -134,7 +134,7 @@ type object struct {
 
 	// OpenAPI Spec
 	Type           objectType         `yaml:"-"`
-	OrigType       interface{}        `yaml:"type"`
+	OrigType       any                `yaml:"type"`
 	Format         string             `yaml:"format"`
 	Title          string             `yaml:"title"`
 	Description    string             `yaml:"description"`
@@ -199,7 +199,7 @@ func (o *object) init(name string) {
 	// Types can be list of strings, or a string
 	if v, ok := o.OrigType.(string); ok {
 		o.Type = objectType(v)
-	} else if v, ok := o.OrigType.([]interface{}); ok {
+	} else if v, ok := o.OrigType.([]any); ok {
 		o.Type = objectType(v[0].(string))
 		for _, t := range v {
 			switch s := t.(string); s {

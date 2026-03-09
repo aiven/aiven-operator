@@ -104,8 +104,8 @@ func TestSecretWatchController_getResourcesWithSecretSource(t *testing.T) {
 		foundTypes[reflect.TypeOf(resource)] = true
 	}
 
-	assert.True(t, foundTypes[reflect.TypeOf(&v1alpha1.ServiceUser{})], "should find ServiceUser")
-	assert.True(t, foundTypes[reflect.TypeOf(&v1alpha1.ClickhouseUser{})], "should find ClickhouseUser")
+	assert.True(t, foundTypes[reflect.TypeFor[*v1alpha1.ServiceUser]()], "should find ServiceUser")
+	assert.True(t, foundTypes[reflect.TypeFor[*v1alpha1.ClickhouseUser]()], "should find ClickhouseUser")
 }
 
 func TestConnInfoSecretRefIndexFunc(t *testing.T) {

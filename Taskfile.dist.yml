@@ -125,6 +125,7 @@ tasks:
   fmt:
     desc: Format code.
     cmds:
+      - go fix ./...
       - task: internal:fmt:fumpt
       - task: internal:fmt:go
       - task: internal:fmt:trunk

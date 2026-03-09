@@ -122,7 +122,7 @@ func (a *alloyDBOmniAdapter) createOrUpdateServiceSpecific(ctx context.Context, 
 	}
 
 	// Parse credentials to get key ID
-	var credsMap map[string]interface{}
+	var credsMap map[string]any
 	if err := json.Unmarshal([]byte(a.Spec.ServiceAccountCredentials), &credsMap); err != nil {
 		return fmt.Errorf("failed to parse credentials: %w", err)
 	}

@@ -37,7 +37,7 @@ func TestServiceIntegrationController_integrationMatches(t *testing.T) {
 				IntegrationType: "kafka_logs",
 				SourceService:   "kafka-src",
 				SourceProject:   "project-a",
-				DestService:     ptr("kafka-dest"),
+				DestService:     new("kafka-dest"),
 				DestProject:     "project-b",
 			},
 			desired: &v1alpha1.ServiceIntegration{
@@ -62,7 +62,7 @@ func TestServiceIntegrationController_integrationMatches(t *testing.T) {
 				IntegrationType: "datadog",
 				SourceService:   "pg-src",
 				SourceProject:   "project-a",
-				DestEndpointId:  ptr("endpoint-123"),
+				DestEndpointId:  new("endpoint-123"),
 				DestProject:     "project-a",
 			},
 			desired: &v1alpha1.ServiceIntegration{
@@ -146,7 +146,7 @@ func TestServiceIntegrationController_integrationMatches(t *testing.T) {
 				IntegrationType: "kafka_logs",
 				SourceService:   "kafka-src",
 				SourceProject:   "project-a",
-				DestService:     ptr("kafka-dest-1"),
+				DestService:     new("kafka-dest-1"),
 				DestProject:     "project-a",
 			},
 			desired: &v1alpha1.ServiceIntegration{
@@ -216,10 +216,6 @@ func TestServiceIntegrationController_integrationMatches(t *testing.T) {
 			assert.Equal(t, tt.wantMatch, got)
 		})
 	}
-}
-
-func ptr[T any](v T) *T {
-	return &v
 }
 
 const yamlServiceIntegrationAutoscalerLegacy = `
@@ -385,7 +381,7 @@ spec:
 						IntegrationType:      si.Spec.IntegrationType,
 						SourceService:        si.Spec.SourceServiceName,
 						SourceProject:        si.Spec.Project,
-						DestService:          ptr(si.Spec.DestinationServiceName),
+						DestService:          new(si.Spec.DestinationServiceName),
 						DestProject:          si.Spec.Project,
 					},
 				},
