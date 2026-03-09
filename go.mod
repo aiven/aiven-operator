@@ -22,7 +22,7 @@ require (
 	github.com/xeipuuv/gojsonschema v1.2.0
 	go.uber.org/zap v1.27.1
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c
-	golang.org/x/sync v0.19.0
+	golang.org/x/sync v0.20.0
 	golang.org/x/tools v0.42.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.28.15
