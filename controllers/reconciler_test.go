@@ -444,6 +444,125 @@ func TestReconciler_Reconcile(t *testing.T) {
 		}, recorderEvents(recorder))
 	})
 
+	t.Run("Bypasses refs before finalizing delete", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgresWithRef)
+		obj.DeletionTimestamp = new(metav1.Now())
+		obj.Finalizers = []string{instanceDeletionFinalizer}
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+			Return(avngen.NewMockClient(t), nil).
+			Once()
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithObjects(obj).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		c := NewMockAivenController[*v1alpha1.PostgreSQL](t)
+		c.EXPECT().Delete(mock.Anything, mock.Anything).Return(nil).Once()
+
+		r := &Reconciler[*v1alpha1.PostgreSQL]{
+			Controller: Controller{
+				Client:          k8sClient,
+				Scheme:          scheme,
+				Recorder:        recorder,
+				DefaultToken:    "default-token",
+				KubeVersion:     "v1.30.0",
+				OperatorVersion: "v0.0.0-test",
+			},
+			newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
+			newController: func(avngen.Client) AivenController[*v1alpha1.PostgreSQL] {
+				return c
+			},
+			newObj: func() *v1alpha1.PostgreSQL { return &v1alpha1.PostgreSQL{} },
+		}
+
+		ctx := t.Context()
+		res, err := r.Reconcile(ctx, ctrl.Request{
+			NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, ctrl.Result{}, res)
+
+		got := &v1alpha1.PostgreSQL{}
+		err = k8sClient.Get(ctx, types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got)
+		require.True(t, apierrors.IsNotFound(err))
+		require.Equal(t, []string{
+			"Normal TryingToDeleteAtAiven trying to delete instance at aiven",
+			"Normal SuccessfullyDeletedAtAiven instance is gone at aiven now",
+		}, recorderEvents(recorder))
+	})
+
+	t.Run("Skips Aiven client init when deleting object without managed finalizer", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		obj.DeletionTimestamp = new(metav1.Now())
+		obj.Finalizers = []string{"example.com/other-finalizer"}
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithObjects(obj).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:   k8sClient,
+				Scheme:   scheme,
+				Recorder: recorder,
+			},
+			newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+		}
+
+		res, err := r.Reconcile(t.Context(), ctrl.Request{
+			NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, ctrl.Result{}, res)
+		require.Empty(t, recorderEvents(recorder))
+	})
+
+	t.Run("Skips Aiven client init when deleting object with Orphan policy", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		obj.DeletionTimestamp = new(metav1.Now())
+		obj.Finalizers = []string{instanceDeletionFinalizer}
+		obj.Annotations = map[string]string{
+			deletionPolicyAnnotation: deletionPolicyOrphan,
+		}
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithObjects(obj).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:   k8sClient,
+				Scheme:   scheme,
+				Recorder: recorder,
+			},
+			newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+		}
+
+		ctx := t.Context()
+		res, err := r.Reconcile(ctx, ctrl.Request{
+			NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, ctrl.Result{}, res)
+		require.Empty(t, recorderEvents(recorder))
+
+		got := &v1alpha1.ClickhouseUser{}
+		err = k8sClient.Get(ctx, types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got)
+		require.True(t, apierrors.IsNotFound(err))
+	})
+
 	t.Run("Uses handleObserveError for observe errors", func(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 
@@ -1901,21 +2020,65 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 	})
 }
 
-func TestReconciler_finalize(t *testing.T) {
+func TestReconciler_reconcileDeletion(t *testing.T) {
 	t.Parallel()
 
 	scheme := runtime.NewScheme()
 	require.NoError(t, clientgoscheme.AddToScheme(scheme))
 	require.NoError(t, v1alpha1.AddToScheme(scheme))
 
+	newDeleteReconciler := func(
+		k8sClient crclient.Client,
+		recorder *record.FakeRecorder,
+		clientFactory func(token, kubeVersion, operatorVersion string) (avngen.Client, error),
+		controllerFactory func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser],
+	) *Reconciler[*v1alpha1.ClickhouseUser] {
+		return &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:          k8sClient,
+				Scheme:          scheme,
+				Recorder:        recorder,
+				DefaultToken:    "default-token",
+				KubeVersion:     "v1.30.0",
+				OperatorVersion: "v0.0.0-test",
+			},
+			newAivenGeneratedClient: clientFactory,
+			newController:           controllerFactory,
+		}
+	}
+
 	t.Run("No-op when instance deletion finalizer is missing", func(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 		r := &Reconciler[*v1alpha1.ClickhouseUser]{}
 
-		res, err := r.finalize(t.Context(), nil, obj)
+		res, err := r.reconcileDeletion(t.Context(), obj)
 
 		require.NoError(t, err)
 		require.Equal(t, ctrl.Result{}, res)
+	})
+
+	t.Run("Deletion fails when Aiven client cannot be initialized", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		obj.Finalizers = []string{instanceDeletionFinalizer}
+
+		recorder := record.NewFakeRecorder(10)
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+			Return((*struct{ avngen.Client })(nil), assert.AnError).
+			Once()
+
+		r := newDeleteReconciler(nil, recorder, mockNewAivenGeneratedClient(m), nil)
+
+		res, err := r.reconcileDeletion(t.Context(), obj)
+
+		require.Equal(t, ctrl.Result{}, res)
+		require.EqualError(t, err, fmt.Sprintf("cannot initialize aiven generated client: %s", assert.AnError.Error()))
+		require.Equal(t, []string{
+			"Warning UnableToCreateClient " + assert.AnError.Error(),
+		}, recorderEvents(recorder))
+		require.Empty(t, normalizedConditions(obj.Status.Conditions))
 	})
 
 	t.Run("Deletes remote resource and removes finalizer on success", func(t *testing.T) {
@@ -1928,18 +2091,25 @@ func TestReconciler_finalize(t *testing.T) {
 			Build()
 		recorder := record.NewFakeRecorder(10)
 
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+			Return(avngen.NewMockClient(t), nil).
+			Once()
+
 		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
 		c.EXPECT().Delete(mock.Anything, mock.Anything).Return(nil).Once()
 
-		r := &Reconciler[*v1alpha1.ClickhouseUser]{
-			Controller: Controller{
-				Client:   k8sClient,
-				Scheme:   scheme,
-				Recorder: recorder,
+		r := newDeleteReconciler(
+			k8sClient,
+			recorder,
+			mockNewAivenGeneratedClient(m),
+			func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+				return c
 			},
-		}
+		)
 
-		res, err := r.finalize(t.Context(), c, obj)
+		res, err := r.reconcileDeletion(t.Context(), obj)
 		require.NoError(t, err)
 		require.Equal(t, ctrl.Result{}, res)
 
@@ -1963,19 +2133,27 @@ func TestReconciler_finalize(t *testing.T) {
 			Build()
 		recorder := record.NewFakeRecorder(10)
 
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+			Return(avngen.NewMockClient(t), nil).
+			Once()
+
 		deleteErr := fmt.Errorf("Invalid token")
 
 		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
 		c.EXPECT().Delete(mock.Anything, mock.Anything).Return(deleteErr).Once()
 
-		r := &Reconciler[*v1alpha1.ClickhouseUser]{
-			Controller: Controller{
-				Client:   k8sClient,
-				Recorder: recorder,
+		r := newDeleteReconciler(
+			k8sClient,
+			recorder,
+			mockNewAivenGeneratedClient(m),
+			func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+				return c
 			},
-		}
+		)
 
-		res, err := r.finalize(t.Context(), c, obj)
+		res, err := r.reconcileDeletion(t.Context(), obj)
 		require.NoError(t, err)
 		require.Equal(t, ctrl.Result{}, res)
 
@@ -1994,16 +2172,26 @@ func TestReconciler_finalize(t *testing.T) {
 		obj.Finalizers = []string{instanceDeletionFinalizer}
 
 		recorder := record.NewFakeRecorder(10)
-		r := &Reconciler[*v1alpha1.ClickhouseUser]{
-			Controller: Controller{
-				Recorder: recorder,
-			},
-		}
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+			Return(avngen.NewMockClient(t), nil).
+			Once()
 
 		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
 		c.EXPECT().Delete(mock.Anything, mock.Anything).Return(assert.AnError).Once()
 
-		res, err := r.finalize(t.Context(), c, obj)
+		r := newDeleteReconciler(
+			nil,
+			recorder,
+			mockNewAivenGeneratedClient(m),
+			func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+				return c
+			},
+		)
+
+		res, err := r.reconcileDeletion(t.Context(), obj)
 
 		require.Equal(t, ctrl.Result{}, res)
 		require.EqualError(t, err, `unable to delete instance: `+assert.AnError.Error())
@@ -2031,7 +2219,7 @@ func TestReconciler_finalize(t *testing.T) {
 			},
 		}
 
-		res, err := r.finalize(t.Context(), nil, obj)
+		res, err := r.reconcileDeletion(t.Context(), obj)
 		require.NoError(t, err)
 		require.Equal(t, ctrl.Result{}, res)
 
@@ -2050,7 +2238,7 @@ func TestReconciler_finalize(t *testing.T) {
 
 		r := &Reconciler[*v1alpha1.ClickhouseUser]{}
 
-		res, err := r.finalize(t.Context(), nil, obj)
+		res, err := r.reconcileDeletion(t.Context(), obj)
 		require.EqualError(t, err, `unable to delete instance: invalid deletion policy "invalid", only "Orphan" is allowed`)
 		require.Equal(t, ctrl.Result{}, res)
 		require.ElementsMatch(t, []metav1.Condition{
@@ -2071,6 +2259,9 @@ func TestReconciler_finalize(t *testing.T) {
 		m := &mock.Mock{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 		m.On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(assert.AnError).Once()
+		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+			Return(avngen.NewMockClient(t), nil).
+			Once()
 
 		k8sClient := fake.NewClientBuilder().
 			WithScheme(scheme).
@@ -2087,14 +2278,16 @@ func TestReconciler_finalize(t *testing.T) {
 		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
 		c.EXPECT().Delete(mock.Anything, mock.Anything).Return(nil).Once()
 
-		r := &Reconciler[*v1alpha1.ClickhouseUser]{
-			Controller: Controller{
-				Client:   k8sClient,
-				Recorder: recorder,
+		r := newDeleteReconciler(
+			k8sClient,
+			recorder,
+			mockNewAivenGeneratedClient(m),
+			func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+				return c
 			},
-		}
+		)
 
-		res, err := r.finalize(t.Context(), c, obj)
+		res, err := r.reconcileDeletion(t.Context(), obj)
 		require.EqualError(t, err, fmt.Sprintf("unable to remove finalizer: %s", assert.AnError.Error()))
 		require.Equal(t, ctrl.Result{}, res)
 

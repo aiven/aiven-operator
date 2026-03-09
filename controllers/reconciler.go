@@ -80,6 +80,10 @@ func (r *Reconciler[T]) Reconcile(ctx context.Context, req ctrl.Request) (res ct
 	}
 	ctx = logr.NewContext(ctx, setupLogger(r.Log, obj))
 
+	if isMarkedForDeletion(obj) {
+		return r.reconcileDeletion(ctx, obj)
+	}
+
 	if requeue, err := r.resolveK8sRefs(ctx, obj); err != nil {
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToWaitForPreconditions, err.Error())
 		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionPreconditions, err))
@@ -94,10 +98,6 @@ func (r *Reconciler[T]) Reconcile(ctx context.Context, req ctrl.Request) (res ct
 		return ctrl.Result{}, err
 	}
 	controller := r.newController(avnGen)
-
-	if isMarkedForDeletion(obj) {
-		return r.finalize(ctx, controller, obj)
-	}
 
 	orig := obj.DeepCopyObject().(v1alpha1.AivenManagedObject)
 	defer func() {
@@ -375,14 +375,21 @@ func (r *Reconciler[T]) publishSecretDetails(ctx context.Context, obj T, details
 	return nil
 }
 
-func (r *Reconciler[T]) finalize(ctx context.Context, controller AivenController[T], obj T) (ctrl.Result, error) {
+func (r *Reconciler[T]) reconcileDeletion(ctx context.Context, obj T) (ctrl.Result, error) {
 	if !controllerutil.ContainsFinalizer(obj, instanceDeletionFinalizer) {
 		return ctrl.Result{}, nil
 	}
 
 	// Parse the annotations for the deletion policy. For simplicity, we only allow 'Orphan'.
 	// If set will skip the deletion of the remote object. Disable by removing the annotation.
-	if p, ok := obj.GetAnnotations()[deletionPolicyAnnotation]; !ok {
+	switch policy, hasDeletionPolicy := obj.GetAnnotations()[deletionPolicyAnnotation]; {
+	case !hasDeletionPolicy:
+		avnGen, err := r.newAivenClient(ctx, obj)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+
+		controller := r.newController(avnGen)
 		r.Recorder.Event(obj, corev1.EventTypeNormal, eventTryingToDeleteAtAiven, "trying to delete instance at aiven")
 		if err := controller.Delete(ctx, obj); err != nil {
 			if isInvalidTokenError(err) && !hasIsRunningAnnotation(obj) {
@@ -394,10 +401,10 @@ func (r *Reconciler[T]) finalize(ctx context.Context, controller AivenController
 
 		logr.FromContextOrDiscard(ctx).Info("instance was successfully deleted at Aiven, removing finalizer")
 		r.Recorder.Event(obj, corev1.EventTypeNormal, eventSuccessfullyDeletedAtAiven, "instance is gone at aiven now")
-	} else if ok && p == deletionPolicyOrphan {
+	case policy == deletionPolicyOrphan:
 		logr.FromContextOrDiscard(ctx).Info("finalizing with Orphan deletion policy - Aiven resource will be preserved on Kubernetes resource deletion")
-	} else {
-		msg := fmt.Sprintf("invalid deletion policy %q, only %q is allowed", p, deletionPolicyOrphan)
+	default:
+		msg := fmt.Sprintf("invalid deletion policy %q, only %q is allowed", policy, deletionPolicyOrphan)
 		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionDelete, errors.New(msg)))
 		return ctrl.Result{}, fmt.Errorf("unable to delete instance: %s", msg)
 	}
@@ -412,7 +419,7 @@ func (r *Reconciler[T]) finalize(ctx context.Context, controller AivenController
 	return ctrl.Result{}, nil
 }
 
-// handleDeleteError handles errors returned from Delete during finalization.
+// handleDeleteError handles errors returned from Delete during deletion reconciliation.
 func (r *Reconciler[T]) handleDeleteError(ctx context.Context, obj T, err error) (ctrl.Result, error) {
 	meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionDelete, err))
 
