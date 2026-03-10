@@ -93,6 +93,10 @@ func (r *Reconciler[T]) Reconcile(ctx context.Context, req ctrl.Request) (res ct
 		return ctrl.Result{RequeueAfter: requeueTimeout}, nil
 	}
 
+	if err := r.ensureFinalizer(ctx, obj); err != nil {
+		return ctrl.Result{}, err
+	}
+
 	avnGen, err := r.newAivenClient(ctx, obj)
 	if err != nil {
 		return ctrl.Result{}, err
@@ -103,11 +107,6 @@ func (r *Reconciler[T]) Reconcile(ctx context.Context, req ctrl.Request) (res ct
 	defer func() {
 		err = errors.Join(err, r.updateStatus(ctx, orig, obj))
 	}()
-
-	if controllerutil.AddFinalizer(obj, instanceDeletionFinalizer) {
-		logr.FromContextOrDiscard(ctx).Info("added finalizer to instance")
-		r.Recorder.Event(obj, corev1.EventTypeNormal, eventAddedFinalizer, "instance finalizer added")
-	}
 
 	meta.SetStatusCondition(obj.Conditions(), getInitializedCondition("Preconditions", "Checking preconditions"))
 	obs, err := controller.Observe(ctx, obj)
@@ -128,6 +127,20 @@ func (r *Reconciler[T]) Reconcile(ctx context.Context, req ctrl.Request) (res ct
 	}
 
 	return r.completeReconcileSuccess(obj)
+}
+
+func (r *Reconciler[T]) ensureFinalizer(ctx context.Context, obj client.Object) error {
+	if controllerutil.ContainsFinalizer(obj, instanceDeletionFinalizer) {
+		return nil
+	}
+
+	if err := addFinalizer(ctx, r.Client, obj, instanceDeletionFinalizer); err != nil {
+		return fmt.Errorf("persisting finalizer: %w", err)
+	}
+
+	logr.FromContextOrDiscard(ctx).Info("added finalizer to instance")
+	r.Recorder.Event(obj, corev1.EventTypeNormal, eventAddedFinalizer, "instance finalizer added")
+	return nil
 }
 
 func (r *Reconciler[T]) handleObserveError(ctx context.Context, obj T, err error) (ctrl.Result, error) {
