@@ -351,6 +351,42 @@ func TestReconciler_Reconcile(t *testing.T) {
 		}, recorderEvents(recorder))
 	})
 
+	t.Run("Reconcile stops before external calls when persisting finalizer fails", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(assert.AnError).Once()
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithObjects(obj).
+			WithInterceptorFuncs(interceptor.Funcs{
+				Update: func(ctx context.Context, c crclient.WithWatch, o crclient.Object, opts ...crclient.UpdateOption) error {
+					return m.MethodCalled("Update", ctx, c, o, opts).Error(0)
+				},
+			}).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:   k8sClient,
+				Scheme:   scheme,
+				Recorder: recorder,
+			},
+			newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+		}
+
+		res, err := r.Reconcile(t.Context(), ctrl.Request{
+			NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+		})
+
+		require.Equal(t, ctrl.Result{}, res)
+		require.EqualError(t, err, `persisting finalizer: `+assert.AnError.Error())
+		require.Empty(t, recorderEvents(recorder))
+	})
+
 	t.Run("Propagates error when creating Aiven client", func(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 
@@ -385,7 +421,11 @@ func TestReconciler_Reconcile(t *testing.T) {
 
 		require.Equal(t, ctrl.Result{}, res)
 		require.EqualError(t, err, fmt.Sprintf("cannot initialize aiven generated client: %s", assert.AnError.Error()))
+		got := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+		require.Contains(t, got.Finalizers, instanceDeletionFinalizer)
 		require.Equal(t, []string{
+			"Normal InstanceFinalizerAdded instance finalizer added",
 			"Warning UnableToCreateClient " + assert.AnError.Error(),
 		}, recorderEvents(recorder))
 	})
@@ -692,6 +732,11 @@ func TestReconciler_Reconcile(t *testing.T) {
 			Once()
 		c.EXPECT().
 			Create(mock.Anything, mock.Anything).
+			Run(func(context.Context, *v1alpha1.ClickhouseUser) {
+				got := &v1alpha1.ClickhouseUser{}
+				require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+				require.Contains(t, got.Finalizers, instanceDeletionFinalizer)
+			}).
 			Return(CreateResult{}, nil).
 			Once()
 
@@ -751,6 +796,11 @@ func TestReconciler_Reconcile(t *testing.T) {
 			Once()
 		c.EXPECT().
 			Update(mock.Anything, mock.Anything).
+			Run(func(context.Context, *v1alpha1.ClickhouseUser) {
+				got := &v1alpha1.ClickhouseUser{}
+				require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+				require.Contains(t, got.Finalizers, instanceDeletionFinalizer)
+			}).
 			Return(UpdateResult{}, nil).
 			Once()
 
@@ -844,6 +894,100 @@ func TestReconciler_Reconcile(t *testing.T) {
 		got := &v1alpha1.ClickhouseUser{}
 		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
 		require.True(t, hasLatestGeneration(got))
+	})
+}
+
+func TestReconciler_ensureFinalizer(t *testing.T) {
+	t.Parallel()
+
+	scheme := runtime.NewScheme()
+	require.NoError(t, clientgoscheme.AddToScheme(scheme))
+	require.NoError(t, v1alpha1.AddToScheme(scheme))
+
+	t.Run("No-op when instance deletion finalizer is already present", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		obj.Finalizers = []string{instanceDeletionFinalizer}
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithObjects(obj).
+			WithInterceptorFuncs(interceptor.Funcs{
+				Update: func(context.Context, crclient.WithWatch, crclient.Object, ...crclient.UpdateOption) error {
+					t.Fatal("Update should not be called when finalizer is already present")
+					return nil
+				},
+			}).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:   k8sClient,
+				Scheme:   scheme,
+				Recorder: recorder,
+			},
+		}
+
+		require.NoError(t, r.ensureFinalizer(t.Context(), obj))
+		require.Empty(t, recorderEvents(recorder))
+	})
+
+	t.Run("Persists instance deletion finalizer and emits event", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithObjects(obj).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:   k8sClient,
+				Scheme:   scheme,
+				Recorder: recorder,
+			},
+		}
+
+		require.NoError(t, r.ensureFinalizer(t.Context(), obj))
+
+		got := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+		require.Contains(t, got.Finalizers, instanceDeletionFinalizer)
+		require.Equal(t, []string{
+			"Normal InstanceFinalizerAdded instance finalizer added",
+		}, recorderEvents(recorder))
+	})
+
+	t.Run("Returns wrapped error when persisting finalizer fails", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(assert.AnError).Once()
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithObjects(obj).
+			WithInterceptorFuncs(interceptor.Funcs{
+				Update: func(ctx context.Context, c crclient.WithWatch, o crclient.Object, opts ...crclient.UpdateOption) error {
+					return m.MethodCalled("Update", ctx, c, o, opts).Error(0)
+				},
+			}).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:   k8sClient,
+				Scheme:   scheme,
+				Recorder: recorder,
+			},
+		}
+
+		err := r.ensureFinalizer(t.Context(), obj)
+		require.EqualError(t, err, `persisting finalizer: `+assert.AnError.Error())
+		require.Empty(t, recorderEvents(recorder))
 	})
 }
 
