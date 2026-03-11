@@ -404,6 +404,9 @@ func TestKafkaTopicReconciler(t *testing.T) {
 		topic.Spec.TerminationProtection = &enabled
 
 		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceKafkaTopicList(mock.Anything, topic.Spec.Project, topic.Spec.ServiceName).
+			Return([]kafkatopic.TopicOut{{TopicName: topic.GetTopicName()}}, nil).Once()
 		r, _, err := runScenario(t, topic, avn)
 		require.EqualError(t, err, `unable to delete instance: termination protection is on`)
 
@@ -412,7 +415,7 @@ func TestKafkaTopicReconciler(t *testing.T) {
 		require.Contains(t, got.Finalizers, instanceDeletionFinalizer)
 	})
 
-	t.Run("Deletes KafkaTopic and removes finalizer on deletion", func(t *testing.T) {
+	t.Run("Requests KafkaTopic deletion before removing finalizer", func(t *testing.T) {
 		topic := newObjectFromYAML[v1alpha1.KafkaTopic](t, yamlKafkaTopic)
 		topic.Generation = 1
 		topic.Finalizers = []string{instanceDeletionFinalizer}
@@ -423,14 +426,29 @@ func TestKafkaTopicReconciler(t *testing.T) {
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
+			ServiceKafkaTopicList(mock.Anything, topic.Spec.Project, topic.Spec.ServiceName).
+			Return([]kafkatopic.TopicOut{{TopicName: topic.GetTopicName()}}, nil).Once()
+		avn.EXPECT().
 			ServiceKafkaTopicDelete(mock.Anything, topic.Spec.Project, topic.Spec.ServiceName, topic.GetTopicName()).
 			Return(nil).Once()
+		avn.EXPECT().
+			ServiceKafkaTopicList(mock.Anything, topic.Spec.Project, topic.Spec.ServiceName).
+			Return([]kafkatopic.TopicOut{}, nil).Once()
 
 		r, res, err := runScenario(t, topic, avn)
 		require.NoError(t, err)
-		require.Equal(t, ctrlruntime.Result{}, res)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
 
 		got := &v1alpha1.KafkaTopic{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: topic.Name, Namespace: topic.Namespace}, got))
+		require.Equal(t, []string{instanceDeletionFinalizer}, got.Finalizers)
+
+		res, err = r.Reconcile(t.Context(), ctrlruntime.Request{
+			NamespacedName: types.NamespacedName{Name: topic.Name, Namespace: topic.Namespace},
+		})
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{}, res)
+
 		err = r.Get(t.Context(), types.NamespacedName{Name: topic.Name, Namespace: topic.Namespace}, got)
 		require.True(t, apierrors.IsNotFound(err))
 	})

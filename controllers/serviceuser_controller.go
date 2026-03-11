@@ -43,6 +43,10 @@ type ServiceUserController struct {
 }
 
 func (r *ServiceUserController) Observe(ctx context.Context, user *v1alpha1.ServiceUser) (Observation, error) {
+	if isMarkedForDeletion(user) {
+		return r.observeDeletion(ctx, user)
+	}
+
 	details, err := r.fetchSecretDetails(ctx, user)
 	if err != nil {
 		// ServiceUser 404 means "user doesn't exist yet" and should trigger Create.
@@ -151,6 +155,22 @@ func (r *ServiceUserController) setAivenPasswordIfProvided(ctx context.Context, 
 	}
 
 	return nil
+}
+
+func (r *ServiceUserController) observeDeletion(ctx context.Context, user *v1alpha1.ServiceUser) (Observation, error) {
+	if isBuiltInUser(user.Name) {
+		return Observation{ResourceExists: false}, nil
+	}
+
+	_, err := r.avnGen.ServiceUserGet(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
+	switch {
+	case isNotFound(err):
+		return Observation{ResourceExists: false}, nil
+	case err != nil:
+		return Observation{}, fmt.Errorf("getting service user: %w", err)
+	default:
+		return Observation{ResourceExists: true}, nil
+	}
 }
 
 func (r *ServiceUserController) fetchSecretDetails(ctx context.Context, user *v1alpha1.ServiceUser) (SecretDetails, error) {

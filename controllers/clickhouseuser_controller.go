@@ -41,6 +41,10 @@ func newClickhouseUserReconciler(c Controller) reconcilerType {
 }
 
 func (r *ClickhouseUserController) Observe(ctx context.Context, user *v1alpha1.ClickhouseUser) (Observation, error) {
+	if isMarkedForDeletion(user) {
+		return r.observeDeletion(ctx, user)
+	}
+
 	svc, err := getServiceIfOperational(ctx, r.avnGen, user.Spec.Project, user.Spec.ServiceName)
 	if err != nil {
 		return Observation{}, err
@@ -169,6 +173,26 @@ func (r *ClickhouseUserController) Delete(ctx context.Context, user *v1alpha1.Cl
 	}
 
 	return nil
+}
+
+func (r *ClickhouseUserController) observeDeletion(ctx context.Context, user *v1alpha1.ClickhouseUser) (Observation, error) {
+	if user.Status.UUID == "" || isBuiltInUser(user.GetUsername()) {
+		return Observation{ResourceExists: false}, nil
+	}
+
+	list, err := r.avnGen.ServiceClickHouseUserList(ctx, user.Spec.Project, user.Spec.ServiceName)
+	switch {
+	case isNotFound(err):
+		return Observation{ResourceExists: false}, nil
+	case err != nil:
+		return Observation{}, fmt.Errorf("listing Clickhouse users: %w", err)
+	}
+
+	resourceExists := slices.ContainsFunc(list, func(u clickhouse.UserOut) bool {
+		return u.Uuid == user.Status.UUID
+	})
+
+	return Observation{ResourceExists: resourceExists}, nil
 }
 
 func (r *ClickhouseUserController) buildConnectionDetails(ctx context.Context, user *v1alpha1.ClickhouseUser, password string) (SecretDetails, error) {

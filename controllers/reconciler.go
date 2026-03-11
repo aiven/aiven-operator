@@ -240,6 +240,16 @@ func (r *Reconciler[T]) updateStatus(ctx context.Context, orig v1alpha1.AivenMan
 	})
 }
 
+func (r *Reconciler[T]) finalizeDeletion(ctx context.Context, obj T) (ctrl.Result, error) {
+	if err := removeFinalizer(ctx, r.Client, obj, instanceDeletionFinalizer); err != nil {
+		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToDeleteFinalizer, err.Error())
+		return ctrl.Result{}, fmt.Errorf("unable to remove finalizer: %w", err)
+	}
+
+	logr.FromContextOrDiscard(ctx).Info("finalizer was removed, resource is deleted")
+	return ctrl.Result{}, nil
+}
+
 func (r *Reconciler[T]) newAivenClient(ctx context.Context, obj T) (avngen.Client, error) {
 	token, err := r.resolveToken(ctx, obj)
 	if err != nil {
@@ -393,71 +403,97 @@ func (r *Reconciler[T]) reconcileDeletion(ctx context.Context, obj T) (ctrl.Resu
 		return ctrl.Result{}, nil
 	}
 
-	// Parse the annotations for the deletion policy. For simplicity, we only allow 'Orphan'.
-	// If set will skip the deletion of the remote object. Disable by removing the annotation.
+	orig := obj.DeepCopyObject().(v1alpha1.AivenManagedObject)
+
+	// First decide whether this Kubernetes deletion should also delete the external Aiven resource.
 	switch policy, hasDeletionPolicy := obj.GetAnnotations()[deletionPolicyAnnotation]; {
 	case !hasDeletionPolicy:
-		avnGen, err := r.newAivenClient(ctx, obj)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-
-		controller := r.newController(avnGen)
-		r.Recorder.Event(obj, corev1.EventTypeNormal, eventTryingToDeleteAtAiven, "trying to delete instance at aiven")
-		if err := controller.Delete(ctx, obj); err != nil {
-			if isInvalidTokenError(err) && !hasIsRunningAnnotation(obj) {
-				logr.FromContextOrDiscard(ctx).Info("invalid token error on deletion, removing finalizer", "apiError", err)
-			} else {
-				return r.handleDeleteError(ctx, obj, err)
-			}
-		}
-
-		logr.FromContextOrDiscard(ctx).Info("instance was successfully deleted at Aiven, removing finalizer")
-		r.Recorder.Event(obj, corev1.EventTypeNormal, eventSuccessfullyDeletedAtAiven, "instance is gone at aiven now")
 	case policy == deletionPolicyOrphan:
 		logr.FromContextOrDiscard(ctx).Info("finalizing with Orphan deletion policy - Aiven resource will be preserved on Kubernetes resource deletion")
+		return r.finalizeDeletion(ctx, obj)
 	default:
 		msg := fmt.Sprintf("invalid deletion policy %q, only %q is allowed", policy, deletionPolicyOrphan)
 		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionDelete, errors.New(msg)))
-		return ctrl.Result{}, fmt.Errorf("unable to delete instance: %s", msg)
+		return ctrl.Result{}, errors.Join(
+			fmt.Errorf("unable to delete instance: %s", msg),
+			r.updateStatus(ctx, orig, obj),
+		)
 	}
 
-	// remove finalizer, once all finalizers have been removed, the object will be deleted.
-	if err := removeFinalizer(ctx, r.Client, obj, instanceDeletionFinalizer); err != nil {
-		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToDeleteFinalizer, err.Error())
-		return ctrl.Result{}, fmt.Errorf("unable to remove finalizer: %w", err)
+	avnGen, err := r.newAivenClient(ctx, obj)
+	if err != nil {
+		return ctrl.Result{}, err
 	}
+	controller := r.newController(avnGen)
 
-	logr.FromContextOrDiscard(ctx).Info("finalizer was removed, resource is deleted")
-	return ctrl.Result{}, nil
-}
+	// Observe first so delete can distinguish between an already-gone resource and one that still exists before requesting deletion.
+	obs, err := controller.Observe(ctx, obj)
+	if err != nil {
+		// If we cannot confirm the external state, delete-path must stop here and surface a delete-specific failure.
+		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionDelete, err))
 
-// handleDeleteError handles errors returned from Delete during deletion reconciliation.
-func (r *Reconciler[T]) handleDeleteError(ctx context.Context, obj T, err error) (ctrl.Result, error) {
-	meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionDelete, err))
+		if isRetryableAivenError(err) {
+			logr.FromContextOrDiscard(ctx).Info("unable to confirm instance deletion at Aiven, will requeue delete", "apiError", err)
+			return ctrl.Result{RequeueAfter: requeueTimeout}, r.updateStatus(ctx, orig, obj)
+		}
 
-	// There are dependencies on Aiven side.
-	// We keep the finalizer and trigger a soft requeue so that reconciliation can
-	// be retried once dependencies are removed, but do not surface this as a hard error.
-	if errors.Is(err, v1alpha1.ErrDeleteDependencies) {
-		logr.FromContextOrDiscard(ctx).Info("object has dependencies, requeue delete", "apiError", err)
-		return ctrl.Result{RequeueAfter: requeueTimeout}, nil
-	}
-
-	// If the deletion failed, don't remove the finalizer so that we can retry during the next reconciliation.
-	switch {
-	case isNotFound(err):
-		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToDeleteAtAiven, err.Error())
-		return ctrl.Result{}, fmt.Errorf("unable to delete instance at aiven: %w", err)
-	case isServerError(err):
-		// If failed to delete due to a transient server error, keep the finalizer
-		// and trigger a soft requeue so that deletion can be retried.
-		logr.FromContextOrDiscard(ctx).Info("unable to delete instance at Aiven, will requeue delete", "apiError", err)
-		return ctrl.Result{RequeueAfter: requeueTimeout}, nil
-	default:
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToDelete, err.Error())
-		return ctrl.Result{}, fmt.Errorf("unable to delete instance: %w", err)
+		return ctrl.Result{}, errors.Join(
+			fmt.Errorf("unable to confirm instance deletion: %w", err),
+			r.updateStatus(ctx, orig, obj),
+		)
 	}
+	if !obs.ResourceExists {
+		// Once Aiven confirms the resource is gone, the Kubernetes object can be finalized immediately.
+		removeErrorConditionIfReason(obj, errConditionDelete)
+		logr.FromContextOrDiscard(ctx).Info("instance is already gone at Aiven, removing finalizer")
+		r.Recorder.Event(obj, corev1.EventTypeNormal, eventSuccessfullyDeletedAtAiven, "instance is gone at aiven now")
+		return r.finalizeDeletion(ctx, obj)
+	}
+
+	// The external resource still exists, so ask Aiven to delete it.
+	r.Recorder.Event(obj, corev1.EventTypeNormal, eventTryingToDeleteAtAiven, "trying to delete instance at aiven")
+	if err := controller.Delete(ctx, obj); err != nil {
+		// Preserve legacy behavior for resources that never became running with an invalid token.
+		if isInvalidTokenError(err) && !hasIsRunningAnnotation(obj) {
+			removeErrorConditionIfReason(obj, errConditionDelete)
+			logr.FromContextOrDiscard(ctx).Info("invalid token error on deletion, removing finalizer", "apiError", err)
+			r.Recorder.Event(obj, corev1.EventTypeNormal, eventSuccessfullyDeletedAtAiven, "instance is gone at aiven now")
+			return r.finalizeDeletion(ctx, obj)
+		}
+
+		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionDelete, err))
+
+		// After a failed delete request, keep retryable cases in the delete loop and surface terminal failures.
+		if errors.Is(err, v1alpha1.ErrDeleteDependencies) {
+			logr.FromContextOrDiscard(ctx).Info("object has dependencies, requeue delete", "apiError", err)
+			return ctrl.Result{RequeueAfter: requeueTimeout}, r.updateStatus(ctx, orig, obj)
+		}
+
+		switch {
+		case isNotFound(err):
+			r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToDeleteAtAiven, err.Error())
+			return ctrl.Result{}, errors.Join(
+				fmt.Errorf("unable to delete instance at aiven: %w", err),
+				r.updateStatus(ctx, orig, obj),
+			)
+		case isServerError(err):
+			// If failed to delete due to a transient server error, keep the finalizer and trigger a soft requeue so that deletion can be retried.
+			logr.FromContextOrDiscard(ctx).Info("unable to delete instance at Aiven, will requeue delete", "apiError", err)
+			return ctrl.Result{RequeueAfter: requeueTimeout}, r.updateStatus(ctx, orig, obj)
+		default:
+			r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToDelete, err.Error())
+			return ctrl.Result{}, errors.Join(
+				fmt.Errorf("unable to delete instance: %w", err),
+				r.updateStatus(ctx, orig, obj),
+			)
+		}
+	}
+
+	// A successful Delete() only means deletion was requested. Keep the finalizer until a later observe confirms absence.
+	removeErrorConditionIfReason(obj, errConditionDelete)
+	logr.FromContextOrDiscard(ctx).Info("delete requested at Aiven, waiting for resource to disappear")
+	return ctrl.Result{RequeueAfter: requeueTimeout}, r.updateStatus(ctx, orig, obj)
 }
 
 // SetupWithManager sets up the controller with the Manager.

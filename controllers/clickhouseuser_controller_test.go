@@ -177,6 +177,44 @@ func TestClickhouseUserController_Observe(t *testing.T) {
 		require.Equal(t, Observation{}, obs)
 	})
 
+	t.Run("Checks existence without service preconditions during deletion", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		user.Status.UUID = "uuid-1"
+		now := metav1.Now()
+		user.DeletionTimestamp = &now
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceClickHouseUserList(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
+			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: user.Status.UUID}}, nil).
+			Once()
+
+		ctrl := &ClickhouseUserController{
+			avnGen: avn,
+		}
+
+		obs, err := ctrl.Observe(t.Context(), user)
+
+		require.NoError(t, err)
+		require.True(t, obs.ResourceExists)
+		require.False(t, obs.ResourceUpToDate)
+	})
+
+	t.Run("Treats built-in user as absent during deletion", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		user.Status.UUID = "uuid-builtin"
+		user.Spec.Username = defaultBuiltInUser
+		now := metav1.Now()
+		user.DeletionTimestamp = &now
+
+		ctrl := &ClickhouseUserController{}
+
+		obs, err := ctrl.Observe(t.Context(), user)
+
+		require.NoError(t, err)
+		require.Equal(t, Observation{ResourceExists: false}, obs)
+	})
+
 	t.Run("Returns error when getting service details fails in Observe", func(t *testing.T) {
 		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 

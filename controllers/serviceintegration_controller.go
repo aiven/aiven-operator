@@ -45,7 +45,13 @@ type ServiceIntegrationController struct {
 	avnGen avngen.Client
 }
 
+const serviceIntegrationUpdateAttempts = 3
+
 func (r *ServiceIntegrationController) Observe(ctx context.Context, si *v1alpha1.ServiceIntegration) (Observation, error) {
+	if isMarkedForDeletion(si) {
+		return r.observeDeletion(ctx, si)
+	}
+
 	if err := r.checkPreconditions(ctx, si); err != nil {
 		return Observation{}, err
 	}
@@ -163,7 +169,7 @@ func (r *ServiceIntegrationController) Update(ctx context.Context, si *v1alpha1.
 			return updateErr
 		},
 		retry.RetryIf(isNotFound),
-		retry.Attempts(3), //nolint:mnd
+		retry.Attempts(serviceIntegrationUpdateAttempts),
 		retry.Delay(1*time.Second),
 	)
 	if err != nil {
@@ -195,6 +201,22 @@ func (r *ServiceIntegrationController) Delete(ctx context.Context, si *v1alpha1.
 	}
 
 	return nil
+}
+
+func (r *ServiceIntegrationController) observeDeletion(ctx context.Context, si *v1alpha1.ServiceIntegration) (Observation, error) {
+	if si.Status.ID == "" {
+		return Observation{ResourceExists: false}, nil
+	}
+
+	_, err := r.avnGen.ServiceIntegrationGet(ctx, si.Spec.Project, si.Status.ID)
+	switch {
+	case isNotFound(err):
+		return Observation{ResourceExists: false}, nil
+	case err != nil:
+		return Observation{}, fmt.Errorf("getting service integration: %w", err)
+	default:
+		return Observation{ResourceExists: true}, nil
+	}
 }
 
 func (r *ServiceIntegrationController) checkPreconditions(ctx context.Context, si *v1alpha1.ServiceIntegration) error {

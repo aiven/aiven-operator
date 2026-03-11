@@ -5,6 +5,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafkatopic"
@@ -47,17 +48,18 @@ type KafkaTopicController struct {
 var topicListCallGroup singleflight.Group
 
 func (r *KafkaTopicController) Observe(ctx context.Context, topic *v1alpha1.KafkaTopic) (Observation, error) {
+	if isMarkedForDeletion(topic) {
+		return r.observeDeletion(ctx, topic)
+	}
+
 	if err := r.checkPreconditions(ctx, topic); err != nil {
 		return Observation{}, err
 	}
 
-	callKey := fmt.Sprintf("%s/%s", topic.Spec.Project, topic.Spec.ServiceName)
 	targetTopicName := topic.GetTopicName()
 
 	// let requeuing handle retries
-	result, err, _ := topicListCallGroup.Do(callKey, func() (any, error) {
-		return r.avnGen.ServiceKafkaTopicList(ctx, topic.Spec.Project, topic.Spec.ServiceName)
-	})
+	topicList, err := r.listTopics(ctx, topic.Spec.Project, topic.Spec.ServiceName)
 
 	switch {
 	case isServerError(err):
@@ -70,11 +72,6 @@ func (r *KafkaTopicController) Observe(ctx context.Context, topic *v1alpha1.Kafk
 		}, nil
 	case err != nil:
 		return Observation{}, err
-	}
-
-	topicList, ok := result.([]kafkatopic.TopicOut)
-	if !ok {
-		return Observation{}, fmt.Errorf("unexpected result type from ServiceKafkaTopicList") // this should not happen
 	}
 
 	for _, topicInfo := range topicList {
@@ -170,6 +167,41 @@ func (r *KafkaTopicController) Delete(ctx context.Context, topic *v1alpha1.Kafka
 	}
 
 	return nil
+}
+
+func (r *KafkaTopicController) observeDeletion(ctx context.Context, topic *v1alpha1.KafkaTopic) (Observation, error) {
+	targetTopicName := topic.GetTopicName()
+
+	topicList, err := r.listTopics(ctx, topic.Spec.Project, topic.Spec.ServiceName)
+	switch {
+	case isNotFound(err):
+		return Observation{ResourceExists: false}, nil
+	case err != nil:
+		return Observation{}, err
+	}
+
+	resourceExists := slices.ContainsFunc(topicList, func(topicInfo kafkatopic.TopicOut) bool {
+		return topicInfo.TopicName == targetTopicName
+	})
+	return Observation{ResourceExists: resourceExists}, nil
+}
+
+func (r *KafkaTopicController) listTopics(ctx context.Context, project, serviceName string) ([]kafkatopic.TopicOut, error) {
+	callKey := fmt.Sprintf("%s/%s", project, serviceName)
+
+	result, err, _ := topicListCallGroup.Do(callKey, func() (any, error) {
+		return r.avnGen.ServiceKafkaTopicList(ctx, project, serviceName)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	topicList, ok := result.([]kafkatopic.TopicOut)
+	if !ok {
+		return nil, fmt.Errorf("unexpected result type from ServiceKafkaTopicList")
+	}
+
+	return topicList, nil
 }
 
 func (r *KafkaTopicController) checkPreconditions(ctx context.Context, topic *v1alpha1.KafkaTopic) error {

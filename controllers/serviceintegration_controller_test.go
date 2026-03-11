@@ -541,6 +541,45 @@ spec:
 		require.True(t, apierrors.IsNotFound(err))
 	})
 
+	t.Run("Requests ServiceIntegration deletion before removing finalizer", func(t *testing.T) {
+		si := newObjectFromYAML[v1alpha1.ServiceIntegration](t, yamlServiceIntegrationAutoscalerLegacy)
+		si.Generation = 1
+		si.Finalizers = []string{instanceDeletionFinalizer}
+		si.Spec.SourceServiceName = ""
+		si.Spec.DestinationEndpointID = ""
+		si.Status.ID = "si-123"
+		now := metav1.Now()
+		si.DeletionTimestamp = &now
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceIntegrationGet(mock.Anything, si.Spec.Project, si.Status.ID).
+			Return(&service.ServiceIntegrationGetOut{}, nil).Once()
+		avn.EXPECT().
+			ServiceIntegrationDelete(mock.Anything, si.Spec.Project, si.Status.ID).
+			Return(nil).Once()
+		avn.EXPECT().
+			ServiceIntegrationGet(mock.Anything, si.Spec.Project, si.Status.ID).
+			Return(nil, newAivenError(404, "not found")).Once()
+
+		r, res, err := runScenario(t, si, avn)
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
+
+		got := &v1alpha1.ServiceIntegration{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got))
+		require.Equal(t, []string{instanceDeletionFinalizer}, got.Finalizers)
+
+		res, err = r.Reconcile(t.Context(), ctrlruntime.Request{
+			NamespacedName: types.NamespacedName{Name: si.Name, Namespace: si.Namespace},
+		})
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{}, res)
+
+		err = r.Get(t.Context(), types.NamespacedName{Name: si.Name, Namespace: si.Namespace}, got)
+		require.True(t, apierrors.IsNotFound(err))
+	})
+
 	t.Run("Removes finalizer on deletion when Aiven returns NotFound", func(t *testing.T) {
 		si := newObjectFromYAML[v1alpha1.ServiceIntegration](t, yamlServiceIntegrationAutoscalerLegacy)
 		si.Generation = 1
@@ -553,8 +592,8 @@ spec:
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
-			ServiceIntegrationDelete(mock.Anything, si.Spec.Project, si.Status.ID).
-			Return(newAivenError(404, "not found")).Once()
+			ServiceIntegrationGet(mock.Anything, si.Spec.Project, si.Status.ID).
+			Return(nil, newAivenError(404, "not found")).Once()
 
 		r, res, err := runScenario(t, si, avn)
 		require.NoError(t, err)

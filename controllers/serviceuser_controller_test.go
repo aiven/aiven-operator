@@ -200,7 +200,7 @@ func TestServiceUserReconciler(t *testing.T) {
 		require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
 	})
 
-	t.Run("Deletes ServiceUser and removes finalizer on deletion", func(t *testing.T) {
+	t.Run("Requests ServiceUser deletion before removing finalizer", func(t *testing.T) {
 		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
 		user.Generation = 1
 		user.Finalizers = []string{instanceDeletionFinalizer}
@@ -209,14 +209,29 @@ func TestServiceUserReconciler(t *testing.T) {
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name}, nil).Once()
+		avn.EXPECT().
 			ServiceUserDelete(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
 			Return(nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(nil, newAivenError(404, "not found")).Once()
 
 		r, res := runScenario(t, user, avn)
-		require.Equal(t, ctrlruntime.Result{}, res)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
 
 		got := &v1alpha1.ServiceUser{}
-		err := r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, got)
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, got))
+		require.Equal(t, []string{instanceDeletionFinalizer}, got.Finalizers)
+
+		res, err := r.Reconcile(t.Context(), ctrlruntime.Request{
+			NamespacedName: types.NamespacedName{Name: user.Name, Namespace: user.Namespace},
+		})
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{}, res)
+
+		err = r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, got)
 		require.True(t, apierrors.IsNotFound(err))
 	})
 }

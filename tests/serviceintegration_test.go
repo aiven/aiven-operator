@@ -405,6 +405,68 @@ func TestServiceIntegrationAutoscalerRef(t *testing.T) {
 	assert.True(t, siAvn.Enabled)
 }
 
+func TestServiceIntegrationDeleteWithMissingDestinationEndpointRef(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	pg, releasePostgreSQL, err := sharedResources.AcquirePostgreSQL(ctx)
+	require.NoError(t, err)
+	defer releasePostgreSQL()
+
+	pgName := pg.Name
+
+	endpointName := randName("autoscaler-endpoint")
+	endpointDisplayName := randName("autoscaler")
+	siName := randName("autoscaler")
+
+	yml, err := loadExampleYaml("serviceintegration.autoscaler.yaml", map[string]string{
+		"doc[0].metadata.name":     endpointName,
+		"doc[0].spec.project":      cfg.Project,
+		"doc[0].spec.endpointName": endpointDisplayName,
+
+		"doc[1].metadata.name":                    siName,
+		"doc[1].spec.project":                     cfg.Project,
+		"doc[1].spec.sourceServiceName":           pgName,
+		"doc[1].spec.destinationEndpointRef.name": endpointName,
+
+		"doc[2]": "REMOVE",
+	})
+	require.NoError(t, err)
+
+	s := NewSession(ctx, k8sClient)
+	defer s.Destroy(t)
+
+	require.NoError(t, s.Apply(yml))
+
+	endpoint := &v1alpha1.ServiceIntegrationEndpoint{}
+	require.NoError(t, s.GetRunning(endpoint, endpointName))
+
+	si := &v1alpha1.ServiceIntegration{}
+	require.NoError(t, s.GetRunning(si, siName))
+
+	if endpoint.Annotations == nil {
+		endpoint.Annotations = map[string]string{}
+	}
+	endpoint.Annotations["controllers.aiven.io/deletion-policy"] = "Orphan"
+	require.NoError(t, k8sClient.Update(ctx, endpoint))
+
+	require.NoError(t, s.(*session).delete(endpoint))
+
+	_, err = avnGen.ServiceIntegrationEndpointGet(ctx, cfg.Project, endpoint.Status.ID, service.ServiceIntegrationEndpointGetIncludeSecrets(true))
+	require.NoError(t, err)
+
+	_, err = avnGen.ServiceIntegrationGet(ctx, cfg.Project, si.Status.ID)
+	require.NoError(t, err)
+
+	require.NoError(t, s.Delete(si, func() error {
+		_, err := avnGen.ServiceIntegrationGet(ctx, cfg.Project, si.Status.ID)
+		return err
+	}))
+}
+
 func TestServiceIntegrationRejectsEndpointIDAndRefTogether(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
