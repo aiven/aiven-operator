@@ -9,6 +9,13 @@ type FollowerFetching struct {
 	Enabled *bool `groups:"create,update" json:"enabled,omitempty"`
 }
 
+// Inkless configuration values
+type Inkless struct {
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// Whether to enable the Inkless functionality
+	Enabled bool `groups:"create" json:"enabled"`
+}
+
 // CIDR address block, either as a string, or in a dict with an optional description field
 type IpFilter struct {
 	// +kubebuilder:validation:MaxLength=1024
@@ -22,7 +29,7 @@ type IpFilter struct {
 
 // Kafka broker configuration values
 type Kafka struct {
-	// Enable auto-creation of topics. (Default: true)
+	// Enable auto-creation of topics. (Default: false)
 	AutoCreateTopicsEnable *bool `groups:"create,update" json:"auto_create_topics_enable,omitempty"`
 
 	// +kubebuilder:validation:Enum="gzip";"lz4";"producer";"snappy";"uncompressed";"zstd"
@@ -358,6 +365,15 @@ type Aws struct {
 	SecretKey *string `groups:"create,update" json:"secret_key,omitempty"`
 }
 
+// Key/value map of secrets for ENV secret provider
+type Secrets struct{}
+
+// ENV secret provider configuration
+type Env struct {
+	// Key/value map of secrets for ENV secret provider
+	Secrets Secrets `groups:"create,update" json:"secrets"`
+}
+
 // Vault secret provider configuration
 type Vault struct {
 	// +kubebuilder:validation:MinLength=1
@@ -381,11 +397,15 @@ type Vault struct {
 	Token *string `groups:"create,update" json:"token,omitempty"`
 }
 
-// Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault and AWS Secrets Manager are supported.
+// Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault, AWS Secrets Manager, and ENV secret providers are supported.
 type KafkaConnectSecretProviders struct {
 	// AWS secret provider configuration
 	Aws *Aws `groups:"create,update" json:"aws,omitempty"`
 
+	// ENV secret provider configuration
+	Env *Env `groups:"create,update" json:"env,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^[A-Za-z0-9_-]+$`
 	// Name of the secret provider. Used to reference secrets in connector config.
 	Name string `groups:"create,update" json:"name"`
 
@@ -596,6 +616,9 @@ type KafkaUserConfig struct {
 
 	// Allow-list of HTTPS URLs used to validate GCP credential_source requests for Kafka Connect.
 	GcpAuthAllowedUrls []string `groups:"create,update" json:"gcp_auth_allowed_urls,omitempty"`
+
+	// Inkless configuration values
+	Inkless *Inkless `groups:"create,update" json:"inkless,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=8000
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'

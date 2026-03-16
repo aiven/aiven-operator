@@ -2,6 +2,16 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `Kafka` field `userConfig.inkless`, type `object`: Inkless configuration values
+- Add `MySQL` field `userConfig.mysql.lower_case_table_names`, type `integer`: Sets how table and database
+  names are stored and compared
+- Add `PostgreSQL` field `userConfig.switchover_windows`, type `array`: no description
+- Add `ServiceIntegration` field `metrics.source_mysql.telegraf.gather_replica_status`, type `boolean`:
+  Gather metrics from SHOW REPLICA STATUS command output
+- Add `Valkey` field `userConfig.valkey_version`, type `string`: Available versions: `8.1`, `9.0`. Newer
+  versions may also be available.
+Valkey major version
+
 ## v0.36.0 - 2026-03-05
 
 - `KafkaTopic`: continuous reconciliation now automatically re-creates topics that are deleted directly in Aiven (outside Kubernetes).

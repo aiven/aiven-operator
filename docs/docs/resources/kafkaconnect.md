@@ -277,15 +277,16 @@ Allow access to selected service ports from the public Internet.
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
 
-Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault and AWS Secrets Manager are supported.
+Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault, AWS Secrets Manager, and ENV secret providers are supported.
 
 **Required**
 
-- [`name`](#spec.userConfig.secret_providers.name-property){: name='spec.userConfig.secret_providers.name-property'} (string). Name of the secret provider. Used to reference secrets in connector config.
+- [`name`](#spec.userConfig.secret_providers.name-property){: name='spec.userConfig.secret_providers.name-property'} (string, Pattern: `^[A-Za-z0-9_-]+$`). Name of the secret provider. Used to reference secrets in connector config.
 
 **Optional**
 
 - [`aws`](#spec.userConfig.secret_providers.aws-property){: name='spec.userConfig.secret_providers.aws-property'} (object). AWS secret provider configuration. See below for [nested schema](#spec.userConfig.secret_providers.aws).
+- [`env`](#spec.userConfig.secret_providers.env-property){: name='spec.userConfig.secret_providers.env-property'} (object). ENV secret provider configuration. See below for [nested schema](#spec.userConfig.secret_providers.env).
 - [`vault`](#spec.userConfig.secret_providers.vault-property){: name='spec.userConfig.secret_providers.vault-property'} (object). Vault secret provider configuration. See below for [nested schema](#spec.userConfig.secret_providers.vault).
 
 #### aws {: #spec.userConfig.secret_providers.aws }
@@ -303,6 +304,16 @@ AWS secret provider configuration.
 
 - [`access_key`](#spec.userConfig.secret_providers.aws.access_key-property){: name='spec.userConfig.secret_providers.aws.access_key-property'} (string, MaxLength: 128). Access key used to authenticate with aws.
 - [`secret_key`](#spec.userConfig.secret_providers.aws.secret_key-property){: name='spec.userConfig.secret_providers.aws.secret_key-property'} (string, MaxLength: 128). Secret key used to authenticate with aws.
+
+#### env {: #spec.userConfig.secret_providers.env }
+
+_Appears on [`spec.userConfig.secret_providers`](#spec.userConfig.secret_providers)._
+
+ENV secret provider configuration.
+
+**Required**
+
+- [`secrets`](#spec.userConfig.secret_providers.env.secrets-property){: name='spec.userConfig.secret_providers.env.secrets-property'} (object). Key/value map of secrets for ENV secret provider.
 
 #### vault {: #spec.userConfig.secret_providers.vault }
 

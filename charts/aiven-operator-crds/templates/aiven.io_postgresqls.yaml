@@ -641,12 +641,10 @@ spec:
                         max_connections:
                           description:
                             Sets the PostgreSQL maximum number of concurrent
-                            connections to the database server. This is a limited-release
-                            parameter. Contact your account team to confirm your eligibility.
-                            You cannot decrease this parameter value when set. For services
-                            with a read replica, first increase the read replica's value.
-                            After the change is applied to the replica, you can increase
-                            the primary service's value. Changing this parameter causes
+                            connections to the database server. For services with a
+                            read replica, first increase the read replica's value. After
+                            the change is applied to the replica, you can increase the
+                            primary service's value. Changing this parameter causes
                             a service restart.
                           maximum: 60000
                           minimum: 25
@@ -669,9 +667,9 @@ spec:
                         max_logical_replication_workers:
                           description:
                             PostgreSQL maximum logical replication workers
-                            (taken from the pool of max_parallel_workers). The default
-                            is `4` (upstream default). Changing this parameter causes
-                            a service restart.
+                            (taken from the pool defined by max_worker_processes). The
+                            default is `4` (upstream default). Changing this parameter
+                            causes a service restart.
                           maximum: 256
                           minimum: 4
                           type: integer
@@ -1228,6 +1226,36 @@ spec:
                     static_ips:
                       description: Use static public IP addresses
                       type: boolean
+                    switchover_windows:
+                      items:
+                        properties:
+                          dow:
+                            enum:
+                              - friday
+                              - monday
+                              - saturday
+                              - sunday
+                              - thursday
+                              - tuesday
+                              - wednesday
+                            type: string
+                          end_time:
+                            maxLength: 8
+                            minLength: 8
+                            pattern: ^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$
+                            type: string
+                          start_time:
+                            maxLength: 8
+                            minLength: 8
+                            pattern: ^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$
+                            type: string
+                        required:
+                          - dow
+                          - end_time
+                          - start_time
+                        type: object
+                      maxItems: 28
+                      type: array
                     synchronous_replication:
                       description:
                         Synchronous replication type. Note that the service

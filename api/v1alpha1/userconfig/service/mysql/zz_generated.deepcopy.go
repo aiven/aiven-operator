@@ -189,6 +189,11 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 		*out = new(float64)
 		**out = **in
 	}
+	if in.LowerCaseTableNames != nil {
+		in, out := &in.LowerCaseTableNames, &out.LowerCaseTableNames
+		*out = new(int)
+		**out = **in
+	}
 	if in.MaxAllowedPacket != nil {
 		in, out := &in.MaxAllowedPacket, &out.MaxAllowedPacket
 		*out = new(int)
