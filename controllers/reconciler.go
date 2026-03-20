@@ -393,6 +393,8 @@ func (r *Reconciler[T]) reconcileDeletion(ctx context.Context, obj T) (ctrl.Resu
 		return ctrl.Result{}, nil
 	}
 
+	orig := obj.DeepCopyObject().(v1alpha1.AivenManagedObject)
+
 	// Parse the annotations for the deletion policy. For simplicity, we only allow 'Orphan'.
 	// If set will skip the deletion of the remote object. Disable by removing the annotation.
 	switch policy, hasDeletionPolicy := obj.GetAnnotations()[deletionPolicyAnnotation]; {
@@ -408,7 +410,7 @@ func (r *Reconciler[T]) reconcileDeletion(ctx context.Context, obj T) (ctrl.Resu
 			if isInvalidTokenError(err) && !hasIsRunningAnnotation(obj) {
 				logr.FromContextOrDiscard(ctx).Info("invalid token error on deletion, removing finalizer", "apiError", err)
 			} else {
-				return r.handleDeleteError(ctx, obj, err)
+				return r.handleDeleteError(ctx, orig, obj, err)
 			}
 		}
 
@@ -419,7 +421,10 @@ func (r *Reconciler[T]) reconcileDeletion(ctx context.Context, obj T) (ctrl.Resu
 	default:
 		msg := fmt.Sprintf("invalid deletion policy %q, only %q is allowed", policy, deletionPolicyOrphan)
 		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionDelete, errors.New(msg)))
-		return ctrl.Result{}, fmt.Errorf("unable to delete instance: %s", msg)
+		return ctrl.Result{}, errors.Join(
+			fmt.Errorf("deleting instance: %s", msg),
+			r.updateStatus(ctx, orig, obj),
+		)
 	}
 
 	// remove finalizer, once all finalizers have been removed, the object will be deleted.
@@ -433,7 +438,7 @@ func (r *Reconciler[T]) reconcileDeletion(ctx context.Context, obj T) (ctrl.Resu
 }
 
 // handleDeleteError handles errors returned from Delete during deletion reconciliation.
-func (r *Reconciler[T]) handleDeleteError(ctx context.Context, obj T, err error) (ctrl.Result, error) {
+func (r *Reconciler[T]) handleDeleteError(ctx context.Context, orig v1alpha1.AivenManagedObject, obj T, err error) (ctrl.Result, error) {
 	meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionDelete, err))
 
 	// There are dependencies on Aiven side.
@@ -441,22 +446,28 @@ func (r *Reconciler[T]) handleDeleteError(ctx context.Context, obj T, err error)
 	// be retried once dependencies are removed, but do not surface this as a hard error.
 	if errors.Is(err, v1alpha1.ErrDeleteDependencies) {
 		logr.FromContextOrDiscard(ctx).Info("object has dependencies, requeue delete", "apiError", err)
-		return ctrl.Result{RequeueAfter: requeueTimeout}, nil
+		return ctrl.Result{RequeueAfter: requeueTimeout}, r.updateStatus(ctx, orig, obj)
 	}
 
 	// If the deletion failed, don't remove the finalizer so that we can retry during the next reconciliation.
 	switch {
 	case isNotFound(err):
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToDeleteAtAiven, err.Error())
-		return ctrl.Result{}, fmt.Errorf("unable to delete instance at aiven: %w", err)
+		return ctrl.Result{}, errors.Join(
+			fmt.Errorf("deleting instance at Aiven: %w", err),
+			r.updateStatus(ctx, orig, obj),
+		)
 	case isServerError(err):
 		// If failed to delete due to a transient server error, keep the finalizer
 		// and trigger a soft requeue so that deletion can be retried.
 		logr.FromContextOrDiscard(ctx).Info("unable to delete instance at Aiven, will requeue delete", "apiError", err)
-		return ctrl.Result{RequeueAfter: requeueTimeout}, nil
+		return ctrl.Result{RequeueAfter: requeueTimeout}, r.updateStatus(ctx, orig, obj)
 	default:
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToDelete, err.Error())
-		return ctrl.Result{}, fmt.Errorf("unable to delete instance: %w", err)
+		return ctrl.Result{}, errors.Join(
+			fmt.Errorf("unable to delete instance: %w", err),
+			r.updateStatus(ctx, orig, obj),
+		)
 	}
 }
 
