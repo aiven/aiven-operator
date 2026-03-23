@@ -2,6 +2,9 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `ServiceUser` field `accessControl`, type `object`: AccessControl configures service-specific access control rules for the user.
+When this block is present, the operator manages the full access-control scope it contains
+
 ## v0.36.0 - 2026-03-05
 
 - `KafkaTopic`: continuous reconciliation now automatically re-creates topics that are deleted directly in Aiven (outside Kubernetes).

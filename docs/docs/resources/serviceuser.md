@@ -199,6 +199,8 @@ ServiceUserSpec defines the desired state of ServiceUser.
 
 **Optional**
 
+- [`accessControl`](#spec.accessControl-property){: name='spec.accessControl-property'} (object). AccessControl Service type specific access control rules for user.
+    When this block is present, the operator manages the full access-control scope it contains. See below for [nested schema](#spec.accessControl).
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
 - [`authentication`](#spec.authentication-property){: name='spec.authentication-property'} (string, Enum: `caching_sha2_password`, `mysql_native_password`). Authentication details.
 - [`connInfoSecretSource`](#spec.connInfoSecretSource-property){: name='spec.connInfoSecretSource-property'} (object). ConnInfoSecretSource allows specifying an existing secret to read credentials from.
@@ -209,6 +211,20 @@ ServiceUserSpec defines the desired state of ServiceUser.
     when the secret data is updated. See below for [nested schema](#spec.connInfoSecretSource).
 - [`connInfoSecretTarget`](#spec.connInfoSecretTarget-property){: name='spec.connInfoSecretTarget-property'} (object). Secret configuration. See below for [nested schema](#spec.connInfoSecretTarget).
 - [`connInfoSecretTargetDisabled`](#spec.connInfoSecretTargetDisabled-property){: name='spec.connInfoSecretTargetDisabled-property'} (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
+
+## accessControl {: #spec.accessControl }
+
+_Appears on [`spec`](#spec)._
+
+AccessControl Service type specific access control rules for user.
+When this block is present, the operator manages the full access-control scope it contains.
+
+**Optional**
+
+- [`valkeyAclCategories`](#spec.accessControl.valkeyAclCategories-property){: name='spec.accessControl.valkeyAclCategories-property'} (array of strings). Command category rules. Order matters.
+- [`valkeyAclChannels`](#spec.accessControl.valkeyAclChannels-property){: name='spec.accessControl.valkeyAclChannels-property'} (array of strings). Glob-style patterns defining which pub/sub channels can be accessed.
+- [`valkeyAclCommands`](#spec.accessControl.valkeyAclCommands-property){: name='spec.accessControl.valkeyAclCommands-property'} (array of strings). Rules for individual commands. Order matters.
+- [`valkeyAclKeys`](#spec.accessControl.valkeyAclKeys-property){: name='spec.accessControl.valkeyAclKeys-property'} (array of strings). Key access rules.
 
 ## authSecretRef {: #spec.authSecretRef }
 
