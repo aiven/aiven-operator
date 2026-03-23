@@ -2311,7 +2311,100 @@ func TestReconciler_reconcileDeletion(t *testing.T) {
 		}, recorderEvents(recorder))
 	})
 
-	t.Run("Delegates delete errors to handleDeleteError", func(t *testing.T) {
+	t.Run("Persists status for delete errors", func(t *testing.T) {
+		errDeps := fmt.Errorf("%w: underlying error", v1alpha1.ErrDeleteDependencies)
+		errNotFound := NewNotFound("instance not found")
+
+		cases := []struct {
+			name          string
+			deletionError error
+			result        ctrl.Result
+			err           string
+			events        []string
+		}{
+			{
+				name:          "dependencies",
+				deletionError: errDeps,
+				result:        ctrl.Result{RequeueAfter: requeueTimeout},
+				events: []string{
+					"Normal TryingToDeleteAtAiven trying to delete instance at aiven",
+				},
+			},
+			{
+				name:          "not found",
+				deletionError: errNotFound,
+				err:           "unable to delete instance at Aiven: " + errNotFound.Error(),
+				events: []string{
+					"Normal TryingToDeleteAtAiven trying to delete instance at aiven",
+					"Warning UnableToDeleteAtAiven " + errNotFound.Error(),
+				},
+			},
+			{
+				name:          "server error",
+				deletionError: newAivenError(500, "internal error"),
+				result:        ctrl.Result{RequeueAfter: requeueTimeout},
+				events: []string{
+					"Normal TryingToDeleteAtAiven trying to delete instance at aiven",
+				},
+			},
+		}
+
+		for _, tc := range cases {
+			t.Run(tc.name, func(t *testing.T) {
+				obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+				obj.Finalizers = []string{instanceDeletionFinalizer}
+
+				recorder := record.NewFakeRecorder(10)
+
+				m := &mock.Mock{}
+				t.Cleanup(func() { m.AssertExpectations(t) })
+				m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+					Return(avngen.NewMockClient(t), nil).
+					Once()
+
+				c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+				c.EXPECT().Delete(mock.Anything, mock.Anything).Return(tc.deletionError).Once()
+
+				k8sClient := fake.NewClientBuilder().
+					WithScheme(scheme).
+					WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+					WithObjects(obj).
+					Build()
+
+				r := newDeleteReconciler(
+					k8sClient,
+					recorder,
+					mockNewAivenGeneratedClient(m),
+					func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+						return c
+					},
+				)
+
+				res, err := r.reconcileDeletion(t.Context(), obj)
+				require.Equal(t, tc.result, res)
+				if tc.err == "" {
+					require.NoError(t, err)
+				} else {
+					require.EqualError(t, err, tc.err)
+				}
+
+				got := &v1alpha1.ClickhouseUser{}
+				require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+				require.Equal(t, []string{instanceDeletionFinalizer}, got.Finalizers)
+				require.ElementsMatch(t, []metav1.Condition{
+					{
+						Type:    ConditionTypeError,
+						Status:  metav1.ConditionUnknown,
+						Reason:  string(errConditionDelete),
+						Message: tc.deletionError.Error(),
+					},
+				}, normalizedConditions(got.Status.Conditions))
+				require.Equal(t, tc.events, recorderEvents(recorder))
+			})
+		}
+	})
+
+	t.Run("Returns error for generic delete failures", func(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 		obj.Finalizers = []string{instanceDeletionFinalizer}
 
@@ -2326,8 +2419,14 @@ func TestReconciler_reconcileDeletion(t *testing.T) {
 		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
 		c.EXPECT().Delete(mock.Anything, mock.Anything).Return(assert.AnError).Once()
 
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(obj).
+			Build()
+
 		r := newDeleteReconciler(
-			nil,
+			k8sClient,
 			recorder,
 			mockNewAivenGeneratedClient(m),
 			func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
@@ -2339,6 +2438,17 @@ func TestReconciler_reconcileDeletion(t *testing.T) {
 
 		require.Equal(t, ctrl.Result{}, res)
 		require.EqualError(t, err, `unable to delete instance: `+assert.AnError.Error())
+		got := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+		require.Equal(t, []string{instanceDeletionFinalizer}, got.Finalizers)
+		require.ElementsMatch(t, []metav1.Condition{
+			{
+				Type:    ConditionTypeError,
+				Status:  metav1.ConditionUnknown,
+				Reason:  string(errConditionDelete),
+				Message: assert.AnError.Error(),
+			},
+		}, normalizedConditions(got.Status.Conditions))
 		require.Equal(t, []string{
 			"Normal TryingToDeleteAtAiven trying to delete instance at aiven",
 			"Warning UnableToDelete " + assert.AnError.Error(),
@@ -2357,11 +2467,7 @@ func TestReconciler_reconcileDeletion(t *testing.T) {
 			WithObjects(obj).
 			Build()
 
-		r := &Reconciler[*v1alpha1.ClickhouseUser]{
-			Controller: Controller{
-				Client: k8sClient,
-			},
-		}
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{Controller: Controller{Client: k8sClient}}
 
 		res, err := r.reconcileDeletion(t.Context(), obj)
 		require.NoError(t, err)
@@ -2380,11 +2486,24 @@ func TestReconciler_reconcileDeletion(t *testing.T) {
 			deletionPolicyAnnotation: "invalid",
 		}
 
-		r := &Reconciler[*v1alpha1.ClickhouseUser]{}
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(obj).
+			Build()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client: k8sClient,
+				Scheme: scheme,
+			},
+		}
 
 		res, err := r.reconcileDeletion(t.Context(), obj)
 		require.EqualError(t, err, `unable to delete instance: invalid deletion policy "invalid", only "Orphan" is allowed`)
 		require.Equal(t, ctrl.Result{}, res)
+		got := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
 		require.ElementsMatch(t, []metav1.Condition{
 			{
 				Type:    ConditionTypeError,
@@ -2392,7 +2511,7 @@ func TestReconciler_reconcileDeletion(t *testing.T) {
 				Reason:  string(errConditionDelete),
 				Message: `invalid deletion policy "invalid", only "Orphan" is allowed`,
 			},
-		}, normalizedConditions(obj.Status.Conditions))
+		}, normalizedConditions(got.Status.Conditions))
 	})
 
 	t.Run("Returns error when removing finalizer fails", func(t *testing.T) {
@@ -2445,72 +2564,6 @@ func TestReconciler_reconcileDeletion(t *testing.T) {
 			"Warning UnableToDeleteFinalizer " + assert.AnError.Error(),
 		}, recorderEvents(recorder))
 	})
-}
-
-func TestReconciler_handleDeleteError(t *testing.T) {
-	t.Parallel()
-
-	errDeps := fmt.Errorf("%w: underlying error", v1alpha1.ErrDeleteDependencies)
-	errNotFound := NewNotFound("instance not found")
-
-	cases := []struct {
-		deletionError error
-		result        ctrl.Result
-		err           error
-		events        []string
-	}{
-		{
-			deletionError: fmt.Errorf("%w: underlying error", errDeps),
-			result:        ctrl.Result{RequeueAfter: requeueTimeout},
-			err:           nil,
-			events:        nil,
-		},
-		{
-			deletionError: errNotFound,
-			result:        ctrl.Result{},
-			err:           fmt.Errorf("unable to delete instance at aiven: %w", errNotFound),
-			events: []string{
-				"Warning UnableToDeleteAtAiven " + errNotFound.Error(),
-			},
-		},
-		{
-			deletionError: newAivenError(500, "internal error"),
-			result:        ctrl.Result{RequeueAfter: requeueTimeout},
-			err:           nil,
-			events:        nil,
-		},
-		{
-			deletionError: assert.AnError,
-			result:        ctrl.Result{},
-			err:           fmt.Errorf("unable to delete instance: %w", assert.AnError),
-			events:        []string{"Warning UnableToDelete " + assert.AnError.Error()},
-		},
-	}
-
-	for i, c := range cases {
-		t.Run(fmt.Sprintf("[%d] %s", i, c.deletionError.Error()), func(t *testing.T) {
-			obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
-			recorder := record.NewFakeRecorder(10)
-			r := &Reconciler[*v1alpha1.ClickhouseUser]{
-				Controller: Controller{
-					Recorder: recorder,
-				},
-			}
-			res, err := r.handleDeleteError(t.Context(), obj, c.deletionError)
-
-			require.Equal(t, c.err, err)
-			require.Equal(t, c.result, res)
-			require.ElementsMatch(t, []metav1.Condition{
-				{
-					Type:    ConditionTypeError,
-					Status:  metav1.ConditionUnknown,
-					Reason:  string(errConditionDelete),
-					Message: c.deletionError.Error(),
-				},
-			}, normalizedConditions(obj.Status.Conditions))
-			require.Equal(t, c.events, recorderEvents(recorder))
-		})
-	}
 }
 
 func TestReconciler_SetupWithManager(t *testing.T) {
