@@ -188,7 +188,39 @@ func (r *ServiceUserController) fetchUser(ctx context.Context, user *v1alpha1.Se
 	const (
 		emptyPasswordRetryAttempts = 10
 		emptyPasswordRetryDelay    = 5 * time.Second
+		notFoundRetryAttempts      = 5
+		notFoundRetryDelay         = 1 * time.Second
 	)
+
+	running := hasIsRunningAnnotation(user)
+
+	getUser := func() (*service.ServiceUserGetOut, error) {
+		attempts := uint(notFoundRetryAttempts)
+		if !running {
+			attempts = 1
+		}
+
+		var u *service.ServiceUserGetOut
+		// ServiceUsers that are already marked running also retry transient 404s
+		// for a short time. Aiven may briefly report the user as missing immediately
+		// after create or update, even though a follow-up get returns it.
+		// Treating that 404 as "absent" too early pushes reconcile down the Create -> 409 path.
+		if err := retry.Do(
+			func() error {
+				u, err = r.avnGen.ServiceUserGet(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
+				return err
+			},
+			retry.Context(ctx),
+			retry.RetryIf(isNotFound),
+			retry.Attempts(attempts),
+			retry.Delay(notFoundRetryDelay),
+			retry.LastErrorOnly(true),
+		); err != nil {
+			return nil, fmt.Errorf("getting service user: %w", err)
+		}
+
+		return u, nil
+	}
 
 	// Retries empty password up to ~1m.
 	// It should be enough to get the backend to a consistent state.
@@ -197,7 +229,7 @@ func (r *ServiceUserController) fetchUser(ctx context.Context, user *v1alpha1.Se
 	var u *service.ServiceUserGetOut
 	err = retry.Do(
 		func() error {
-			u, err = r.avnGen.ServiceUserGet(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
+			u, err = getUser()
 			if err == nil && u.Password == "" {
 				err = errEmptyPassword
 			}

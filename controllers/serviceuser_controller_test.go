@@ -4,6 +4,7 @@ import (
 	"context"
 	"slices"
 	"testing"
+	"testing/synctest"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
@@ -313,6 +314,45 @@ func TestServiceUserReconciler(t *testing.T) {
 		require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
 	})
 
+	t.Run("Retries transient not found after create before publishing secrets", func(t *testing.T) {
+		synctest.Test(t, func(t *testing.T) {
+			user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+			user.Generation = 1
+
+			avn := avngen.NewMockClient(t)
+			avn.EXPECT().
+				ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+				Return(&service.ServiceGetOut{
+					State:       service.ServiceStateTypeRunning,
+					ServiceType: "kafka",
+					Components:  []service.ComponentOut{{Component: "kafka", Host: "host", Port: 9092}},
+				}, nil).Twice()
+			avn.EXPECT().
+				ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+				Return(nil, newAivenError(404, "not found")).Once()
+			avn.EXPECT().
+				ServiceUserCreate(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.MatchedBy(func(in *service.ServiceUserCreateIn) bool {
+					return in.Username == user.Name
+				})).
+				Return(&service.ServiceUserCreateOut{}, nil).Once()
+			avn.EXPECT().
+				ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+				Return(nil, newAivenError(404, "not found")).Once()
+			avn.EXPECT().
+				ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+				Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw"}, nil).Once()
+			avn.EXPECT().
+				ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+			r, res := runScenario(t, user, avn)
+			require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+			secret := &corev1.Secret{}
+			require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
+			require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
+		})
+	})
+
 	t.Run("Creates ServiceUser with managed Valkey ACL", func(t *testing.T) {
 		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
 		user.Generation = 1
@@ -592,6 +632,76 @@ func TestServiceUserReconciler(t *testing.T) {
 		secret := &corev1.Secret{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
 		require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
+	})
+
+	t.Run("Retries transient not found for ready ServiceUser before treating it as absent", func(t *testing.T) {
+		synctest.Test(t, func(t *testing.T) {
+			user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+			user.Generation = 1
+			user.Annotations = map[string]string{
+				processedGenerationAnnotation: "1",
+				instanceIsRunningAnnotation:   "true",
+			}
+
+			avn := avngen.NewMockClient(t)
+			avn.EXPECT().
+				ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+				Return(&service.ServiceGetOut{
+					State:       service.ServiceStateTypeRunning,
+					ServiceType: "kafka",
+					Components:  []service.ComponentOut{{Component: "kafka", Host: "host", Port: 9092}},
+				}, nil).Once()
+			avn.EXPECT().
+				ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+				Return(nil, newAivenError(404, "not found")).Twice()
+			avn.EXPECT().
+				ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+				Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw"}, nil).Once()
+			avn.EXPECT().
+				ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+			r, res := runScenario(t, user, avn)
+			require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+			secret := &corev1.Secret{}
+			require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
+			require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
+		})
+	})
+
+	t.Run("Preserves empty password retries for ready ServiceUser", func(t *testing.T) {
+		synctest.Test(t, func(t *testing.T) {
+			user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+			user.Generation = 1
+			user.Annotations = map[string]string{
+				processedGenerationAnnotation: "1",
+				instanceIsRunningAnnotation:   "true",
+			}
+
+			avn := avngen.NewMockClient(t)
+			avn.EXPECT().
+				ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+				Return(&service.ServiceGetOut{
+					State:       service.ServiceStateTypeRunning,
+					ServiceType: "kafka",
+					Components:  []service.ComponentOut{{Component: "kafka", Host: "host", Port: 9092}},
+				}, nil).Once()
+			avn.EXPECT().
+				ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+				Return(&service.ServiceUserGetOut{Username: user.Name, Password: ""}, nil).Times(6)
+			avn.EXPECT().
+				ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+				Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw"}, nil).Once()
+			avn.EXPECT().
+				ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+			r, res := runScenario(t, user, avn)
+			require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+			secret := &corev1.Secret{}
+			require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
+			require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
+		})
 	})
 
 	t.Run("Repairs managed Valkey ACL drift during periodic reconcile", func(t *testing.T) {
