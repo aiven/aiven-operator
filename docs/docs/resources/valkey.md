@@ -260,6 +260,8 @@ Valkey specific user configuration options.
 - [`valkey_pubsub_client_output_buffer_limit`](#spec.userConfig.valkey_pubsub_client_output_buffer_limit-property){: name='spec.userConfig.valkey_pubsub_client_output_buffer_limit-property'} (integer, Minimum: 32, Maximum: 262144). Set output buffer limit for pub / sub clients in MB. The value is the hard limit, the soft limit is 1/4 of the hard limit. When setting the limit, be mindful of the available memory in the selected service plan.
 - [`valkey_ssl`](#spec.userConfig.valkey_ssl-property){: name='spec.userConfig.valkey_ssl-property'} (boolean). Require SSL to access Valkey.
 - [`valkey_timeout`](#spec.userConfig.valkey_timeout-property){: name='spec.userConfig.valkey_timeout-property'} (integer, Minimum: 0, Maximum: 2073600). Valkey idle connection timeout in seconds.
+- [`valkey_version`](#spec.userConfig.valkey_version-property){: name='spec.userConfig.valkey_version-property'} (string). Available versions: `8.1`, `9.0`. Newer versions may also be available.
+    Valkey major version.
 
 ### ip_filter {: #spec.userConfig.ip_filter }
 

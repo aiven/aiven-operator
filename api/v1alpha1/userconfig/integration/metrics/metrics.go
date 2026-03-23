@@ -26,6 +26,9 @@ type Telegraf struct {
 	// Gather thread state counts from INFORMATION_SCHEMA.PROCESSLIST
 	GatherProcessList *bool `groups:"create,update" json:"gather_process_list,omitempty"`
 
+	// Gather metrics from SHOW REPLICA STATUS command output
+	GatherReplicaStatus *bool `groups:"create,update" json:"gather_replica_status,omitempty"`
+
 	// Gather metrics from SHOW SLAVE STATUS command output
 	GatherSlaveStatus *bool `groups:"create,update" json:"gather_slave_status,omitempty"`
 
