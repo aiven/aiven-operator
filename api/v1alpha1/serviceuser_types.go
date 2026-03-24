@@ -20,9 +20,39 @@ type ServiceUserSpec struct {
 	// when the secret data is updated.
 	ConnInfoSecretSource *ConnInfoSecretSource `json:"connInfoSecretSource,omitempty"`
 
+	// AccessControl Service type specific access control rules for user.
+	// When this block is present, the operator manages the full access-control scope it contains.
+	AccessControl *ServiceUserAccessControl `json:"accessControl,omitempty"`
+
 	// +kubebuilder:validation:Enum=caching_sha2_password;mysql_native_password
 	// Authentication details
 	Authentication service.AuthenticationType `json:"authentication,omitempty"`
+}
+
+// ServiceUserAccessControl defines the full desired Valkey ACL snapshot managed by the operator.
+//
+// When this block is present, omitted inner fields are treated as empty lists.
+//
+// Valkey command and category rules are order-sensitive because ACL SETUSER
+// applies rules from left to right:
+// https://valkey.io/commands/acl-setuser/
+//
+// Key and channel rules are treated as unordered collections for drift detection.
+// The operator intentionally ignores their remote ordering to avoid false drift
+// if the backend returns an equivalent canonicalized ACL via ACL GETUSER:
+// https://valkey.io/commands/acl-getuser/
+type ServiceUserAccessControl struct {
+	// Key access rules.
+	ValkeyACLKeys []string `json:"valkeyAclKeys,omitempty"`
+
+	// Rules for individual commands. Order matters.
+	ValkeyACLCommands []string `json:"valkeyAclCommands,omitempty"`
+
+	// Command category rules. Order matters.
+	ValkeyACLCategories []string `json:"valkeyAclCategories,omitempty"`
+
+	// Glob-style patterns defining which pub/sub channels can be accessed.
+	ValkeyACLChannels []string `json:"valkeyAclChannels,omitempty"`
 }
 
 // ServiceUserStatus defines the observed state of ServiceUser

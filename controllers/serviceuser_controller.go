@@ -12,6 +12,8 @@ import (
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/avast/retry-go"
+	"github.com/go-logr/logr"
+	"github.com/samber/lo"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -43,7 +45,7 @@ type ServiceUserController struct {
 }
 
 func (r *ServiceUserController) Observe(ctx context.Context, user *v1alpha1.ServiceUser) (Observation, error) {
-	details, err := r.fetchSecretDetails(ctx, user)
+	u, details, err := r.fetchUser(ctx, user)
 	if err != nil {
 		// ServiceUser 404 means "user doesn't exist yet" and should trigger Create.
 		// But service/project 404 is wrapped as errPreconditionNotMet in getServiceIfOperational
@@ -56,7 +58,7 @@ func (r *ServiceUserController) Observe(ctx context.Context, user *v1alpha1.Serv
 
 	return Observation{
 		ResourceExists:   true,
-		ResourceUpToDate: IsReadyToUse(user),
+		ResourceUpToDate: IsReadyToUse(user) && accessControlMatches(user.Spec.AccessControl, u.AccessControl),
 		SecretDetails:    details,
 	}, nil
 }
@@ -71,9 +73,12 @@ func (r *ServiceUserController) Create(ctx context.Context, user *v1alpha1.Servi
 		ctx,
 		user.Spec.Project,
 		user.Spec.ServiceName,
-		&service.ServiceUserCreateIn{Username: user.Name},
+		&service.ServiceUserCreateIn{
+			Username:      user.Name,
+			AccessControl: buildServiceUserAccessControlIn(user.Spec.AccessControl),
+		},
 	)
-	if err != nil && !isAlreadyExists(err) {
+	if err != nil {
 		return CreateResult{}, fmt.Errorf("creating service user: %w", err)
 	}
 
@@ -88,7 +93,7 @@ func (r *ServiceUserController) Create(ctx context.Context, user *v1alpha1.Servi
 	meta.SetStatusCondition(&user.Status.Conditions, getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
 	metav1.SetMetaDataAnnotation(&user.ObjectMeta, instanceIsRunningAnnotation, "true")
 
-	details, err := r.fetchSecretDetails(ctx, user)
+	_, details, err := r.fetchUser(ctx, user)
 	if err != nil {
 		return CreateResult{}, fmt.Errorf("building connection details: %w", err)
 	}
@@ -102,6 +107,23 @@ func (r *ServiceUserController) Update(ctx context.Context, user *v1alpha1.Servi
 		return UpdateResult{}, err
 	}
 
+	if ac := buildServiceUserAccessControlIn(user.Spec.AccessControl); ac != nil {
+		if _, err := r.avnGen.ServiceUserCredentialsModify(
+			ctx,
+			user.Spec.Project,
+			user.Spec.ServiceName,
+			user.Name,
+			&service.ServiceUserCredentialsModifyIn{
+				AccessControl: ac,
+				Operation:     service.ServiceUserCredentialsModifyOperationTypeSetAccessControl,
+			},
+		); err != nil {
+			return UpdateResult{}, fmt.Errorf("modifying service user access control: %w", err)
+		}
+	} else {
+		logr.FromContextOrDiscard(ctx).V(1).Info("skipping access control update since it isn't provided in the spec")
+	}
+
 	if err := r.setAivenPasswordIfProvided(ctx, user, password); err != nil {
 		return UpdateResult{}, err
 	}
@@ -109,7 +131,7 @@ func (r *ServiceUserController) Update(ctx context.Context, user *v1alpha1.Servi
 	meta.SetStatusCondition(&user.Status.Conditions, getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
 	metav1.SetMetaDataAnnotation(&user.ObjectMeta, instanceIsRunningAnnotation, "true")
 
-	details, err := r.fetchSecretDetails(ctx, user)
+	_, details, err := r.fetchUser(ctx, user)
 	if err != nil {
 		return UpdateResult{}, fmt.Errorf("building connection details: %w", err)
 	}
@@ -153,10 +175,10 @@ func (r *ServiceUserController) setAivenPasswordIfProvided(ctx context.Context, 
 	return nil
 }
 
-func (r *ServiceUserController) fetchSecretDetails(ctx context.Context, user *v1alpha1.ServiceUser) (SecretDetails, error) {
+func (r *ServiceUserController) fetchUser(ctx context.Context, user *v1alpha1.ServiceUser) (*service.ServiceUserGetOut, SecretDetails, error) {
 	svc, err := getServiceIfOperational(ctx, r.avnGen, user.Spec.Project, user.Spec.ServiceName)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// errEmptyPassword password is not received from the API:
@@ -166,7 +188,39 @@ func (r *ServiceUserController) fetchSecretDetails(ctx context.Context, user *v1
 	const (
 		emptyPasswordRetryAttempts = 10
 		emptyPasswordRetryDelay    = 5 * time.Second
+		notFoundRetryAttempts      = 5
+		notFoundRetryDelay         = 1 * time.Second
 	)
+
+	running := hasIsRunningAnnotation(user)
+
+	getUser := func() (*service.ServiceUserGetOut, error) {
+		attempts := uint(notFoundRetryAttempts)
+		if !running {
+			attempts = 1
+		}
+
+		var u *service.ServiceUserGetOut
+		// ServiceUsers that are already marked running also retry transient 404s
+		// for a short time. Aiven may briefly report the user as missing immediately
+		// after create or update, even though a follow-up get returns it.
+		// Treating that 404 as "absent" too early pushes reconcile down the Create -> 409 path.
+		if err := retry.Do(
+			func() error {
+				u, err = r.avnGen.ServiceUserGet(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
+				return err
+			},
+			retry.Context(ctx),
+			retry.RetryIf(isNotFound),
+			retry.Attempts(attempts),
+			retry.Delay(notFoundRetryDelay),
+			retry.LastErrorOnly(true),
+		); err != nil {
+			return nil, fmt.Errorf("getting service user: %w", err)
+		}
+
+		return u, nil
+	}
 
 	// Retries empty password up to ~1m.
 	// It should be enough to get the backend to a consistent state.
@@ -175,7 +229,7 @@ func (r *ServiceUserController) fetchSecretDetails(ctx context.Context, user *v1
 	var u *service.ServiceUserGetOut
 	err = retry.Do(
 		func() error {
-			u, err = r.avnGen.ServiceUserGet(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
+			u, err = getUser()
 			if err == nil && u.Password == "" {
 				err = errEmptyPassword
 			}
@@ -195,23 +249,60 @@ func (r *ServiceUserController) fetchSecretDetails(ctx context.Context, user *v1
 		retry.LastErrorOnly(true),
 	)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	idx := slices.IndexFunc(svc.Components, func(c service.ComponentOut) bool {
 		return c.Component == svc.ServiceType || (svc.ServiceType == "alloydbomni" && c.Component == "pg")
 	})
 	if idx < 0 {
-		return nil, fmt.Errorf("service component %q not found", svc.ServiceType)
+		return nil, nil, fmt.Errorf("service component %q not found", svc.ServiceType)
 	}
 	component := &svc.Components[idx]
 
 	caCert, err := r.avnGen.ProjectKmsGetCA(ctx, user.Spec.Project)
 	if err != nil {
-		return nil, fmt.Errorf("aiven client error %w", err)
+		return nil, nil, fmt.Errorf("aiven client error %w", err)
 	}
 
-	return buildSecretDetailsFromComponent(component, user, u, caCert), nil
+	return u, buildSecretDetailsFromComponent(component, user, u, caCert), nil
+}
+
+func buildServiceUserAccessControlIn(ac *v1alpha1.ServiceUserAccessControl) *service.AccessControlIn {
+	if ac == nil {
+		return nil
+	}
+
+	ptr := func(in []string) *[]string {
+		out := make([]string, len(in))
+		copy(out, in)
+		return &out
+	}
+
+	return &service.AccessControlIn{
+		ValkeyAclKeys:       ptr(ac.ValkeyACLKeys),
+		ValkeyAclCommands:   ptr(ac.ValkeyACLCommands),
+		ValkeyAclCategories: ptr(ac.ValkeyACLCategories),
+		ValkeyAclChannels:   ptr(ac.ValkeyACLChannels),
+	}
+}
+
+func accessControlMatches(desired *v1alpha1.ServiceUserAccessControl, actual *service.AccessControlOut) bool {
+	if desired == nil {
+		return true
+	}
+
+	if actual == nil {
+		return len(desired.ValkeyACLKeys) == 0 &&
+			len(desired.ValkeyACLCommands) == 0 &&
+			len(desired.ValkeyACLCategories) == 0 &&
+			len(desired.ValkeyACLChannels) == 0
+	}
+
+	return lo.ElementsMatch(desired.ValkeyACLKeys, actual.ValkeyAclKeys) &&
+		slices.Equal(desired.ValkeyACLCommands, actual.ValkeyAclCommands) &&
+		slices.Equal(desired.ValkeyACLCategories, actual.ValkeyAclCategories) &&
+		lo.ElementsMatch(desired.ValkeyACLChannels, actual.ValkeyAclChannels)
 }
 
 func buildSecretDetailsFromComponent(

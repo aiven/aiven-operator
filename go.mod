@@ -17,6 +17,7 @@ require (
 	github.com/lib/pq v1.11.2
 	github.com/liip/sheriff v0.12.0
 	github.com/otiai10/copy v1.14.1
+	github.com/samber/lo v1.53.0
 	github.com/stoewer/go-strcase v1.3.1
 	github.com/stretchr/testify v1.11.1
 	github.com/xeipuuv/gojsonschema v1.2.0

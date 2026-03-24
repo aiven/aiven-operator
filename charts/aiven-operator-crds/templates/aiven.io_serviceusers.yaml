@@ -53,6 +53,34 @@ spec:
             spec:
               description: ServiceUserSpec defines the desired state of ServiceUser
               properties:
+                accessControl:
+                  description: |-
+                    AccessControl Service type specific access control rules for user.
+                    When this block is present, the operator manages the full access-control scope it contains.
+                  properties:
+                    valkeyAclCategories:
+                      description: Command category rules. Order matters.
+                      items:
+                        type: string
+                      type: array
+                    valkeyAclChannels:
+                      description:
+                        Glob-style patterns defining which pub/sub channels
+                        can be accessed.
+                      items:
+                        type: string
+                      type: array
+                    valkeyAclCommands:
+                      description: Rules for individual commands. Order matters.
+                      items:
+                        type: string
+                      type: array
+                    valkeyAclKeys:
+                      description: Key access rules.
+                      items:
+                        type: string
+                      type: array
+                  type: object
                 authSecretRef:
                   description: Authentication reference to Aiven token in a secret
                   properties:
