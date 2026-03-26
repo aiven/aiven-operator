@@ -2,6 +2,9 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `MySQL` and `PostgreSQL` field `migrationSecretSource`, type `object`: Reference to a Secret containing migration
+  credentials. Secret keys must match userConfig.migration JSON field names. If set, takes precedence over userConfig.migration.
+
 ## v0.37.0 - 2026-04-09
 
 - Add `ServiceUser` field `accessControl`, type `object`: AccessControl configures service-specific access control rules for the user.

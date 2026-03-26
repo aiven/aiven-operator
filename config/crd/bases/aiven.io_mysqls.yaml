@@ -138,6 +138,19 @@ spec:
                     UTC time in HH:mm:ss format.
                   maxLength: 8
                   type: string
+                migrationSecretSource:
+                  description: |-
+                    Reference to a Secret containing migration credentials.
+                    Secret keys must match userConfig.migration JSON field names.
+                    If set, takes precedence over userConfig.migration.
+                  properties:
+                    name:
+                      description: Name of the Secret containing migration credentials
+                      minLength: 1
+                      type: string
+                  required:
+                    - name
+                  type: object
                 plan:
                   description: Subscription plan.
                   maxLength: 128

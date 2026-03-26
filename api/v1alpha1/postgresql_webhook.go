@@ -38,13 +38,16 @@ var _ webhook.Validator = &PostgreSQL{}
 func (in *PostgreSQL) ValidateCreate() (admission.Warnings, error) {
 	pglog.Info("validate create", "name", in.Name)
 
-	return nil, in.Spec.Validate()
+	warnings := in.Spec.migrationWarnings()
+	return warnings, in.Spec.Validate()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (in *PostgreSQL) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
 	pglog.Info("validate update", "name", in.Name)
-	return nil, in.Spec.Validate()
+
+	warnings := in.Spec.migrationWarnings()
+	return warnings, in.Spec.Validate()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
@@ -60,4 +63,11 @@ func (in *PostgreSQL) ValidateDelete() (admission.Warnings, error) {
 	}
 
 	return nil, nil
+}
+
+func (s *PostgreSQLSpec) migrationWarnings() admission.Warnings {
+	if s.MigrationSecretSource != nil && s.UserConfig != nil && s.UserConfig.Migration != nil {
+		return admission.Warnings{"migrationSecretSource is set; userConfig.migration will be ignored"}
+	}
+	return nil
 }

@@ -6,11 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/avast/retry-go"
+	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -36,7 +38,7 @@ const waitForTaskToCompleteInterval = time.Second * 3
 //+kubebuilder:rbac:groups=aiven.io,resources=postgresqls/finalizers,verbs=get;create;update
 
 func (r *PostgreSQLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newPostgreSQLAdapter, r.Log), &v1alpha1.PostgreSQL{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newPostgreSQLAdapterFactory(r.Client), r.Log), &v1alpha1.PostgreSQL{})
 }
 
 func (r *PostgreSQLReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -46,17 +48,20 @@ func (r *PostgreSQLReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func newPostgreSQLAdapter(object client.Object) (serviceAdapter, error) {
-	pg, ok := object.(*v1alpha1.PostgreSQL)
-	if !ok {
-		return nil, fmt.Errorf("object is not of type v1alpha1.PostgreSQL")
+func newPostgreSQLAdapterFactory(k8s client.Reader) serviceAdapterFabric {
+	return func(object client.Object) (serviceAdapter, error) {
+		pg, ok := object.(*v1alpha1.PostgreSQL)
+		if !ok {
+			return nil, fmt.Errorf("object is not of type v1alpha1.PostgreSQL")
+		}
+		return &postgreSQLAdapter{PostgreSQL: pg, k8s: k8s}, nil
 	}
-	return &postgreSQLAdapter{pg}, nil
 }
 
 // postgreSQLAdapter handles an Aiven PostgreSQL service
 type postgreSQLAdapter struct {
 	*v1alpha1.PostgreSQL
+	k8s client.Reader
 }
 
 func (a *postgreSQLAdapter) getObjectMeta() *metav1.ObjectMeta {
@@ -96,6 +101,72 @@ func (a *postgreSQLAdapter) newSecret(_ context.Context, s *service.ServiceGetOu
 	}
 
 	return newSecret(a, stringData, false), nil
+}
+
+func (a *postgreSQLAdapter) getMigrationSecretSource() *v1alpha1.MigrationSecretSource {
+	return a.Spec.MigrationSecretSource
+}
+
+func (a *postgreSQLAdapter) getUserConfigWithMigration(ctx context.Context) (any, error) {
+	ref := a.Spec.MigrationSecretSource
+	if ref == nil {
+		return a.getUserConfig(), nil
+	}
+
+	data, err := readMigrationSecret(ctx, a.k8s, a.GetNamespace(), ref)
+	if err != nil {
+		return nil, err
+	}
+
+	port, err := strconv.Atoi(data["port"])
+	if err != nil {
+		return nil, fmt.Errorf("migration secret %q: invalid or missing port: %w", ref.Name, err)
+	}
+
+	host := data["host"]
+	if host == "" {
+		return nil, fmt.Errorf("migration secret %q must contain \"host\"", ref.Name)
+	}
+
+	m := &pguserconfig.Migration{
+		Host: host,
+		Port: port,
+	}
+	if v, ok := data["password"]; ok {
+		m.Password = lo.ToPtr(v)
+	}
+	if v, ok := data["dbname"]; ok {
+		m.Dbname = lo.ToPtr(v)
+	}
+	if v, ok := data["username"]; ok {
+		m.Username = lo.ToPtr(v)
+	}
+	if v, ok := data["ssl"]; ok {
+		b, err := strconv.ParseBool(v)
+		if err != nil {
+			return nil, fmt.Errorf("migration secret %q: invalid ssl value %q: %w", ref.Name, v, err)
+		}
+		m.Ssl = lo.ToPtr(b)
+	}
+	if v, ok := data["method"]; ok {
+		m.Method = lo.ToPtr(v)
+	}
+	if v, ok := data["ignore_dbs"]; ok {
+		m.IgnoreDbs = lo.ToPtr(v)
+	}
+	if v, ok := data["ignore_roles"]; ok {
+		m.IgnoreRoles = lo.ToPtr(v)
+	}
+
+	// Build a shallow copy of the user config with migration from the secret.
+	// The original CR spec is never mutated.
+	cfg := &pguserconfig.PgUserConfig{}
+	if a.Spec.UserConfig != nil {
+		clone := *a.Spec.UserConfig
+		cfg = &clone
+	}
+	cfg.Migration = m
+	return cfg, nil
 }
 
 func (a *postgreSQLAdapter) getServiceType() serviceType {

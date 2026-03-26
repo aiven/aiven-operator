@@ -32,6 +32,15 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 		return err
 	}
 
+	userCfg := o.getUserConfig()
+	if mp, ok := o.(migrationSecretProvider); ok {
+		resolved, err := mp.getUserConfigWithMigration(ctx)
+		if err != nil {
+			return fmt.Errorf("failed to resolve migration secret: %w", err)
+		}
+		userCfg = resolved
+	}
+
 	spec := o.getServiceCommonSpec()
 	ometa := o.getObjectMeta()
 
@@ -66,7 +75,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 
 	// Creates if not exists or updates existing service
 	if !exists {
-		userConfig, err := CreateUserConfiguration(o.getUserConfig())
+		userConfig, err := CreateUserConfiguration(userCfg)
 		if err != nil {
 			return err
 		}
@@ -102,7 +111,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 			return fmt.Errorf("failed to create service: %w", err)
 		}
 	} else {
-		userConfig, err := UpdateUserConfiguration(o.getUserConfig())
+		userConfig, err := UpdateUserConfiguration(userCfg)
 		if err != nil {
 			return err
 		}
@@ -231,6 +240,12 @@ func (h *genericServiceHandler) get(ctx context.Context, avnGen avngen.Client, o
 	// Service is powered
 	metav1.SetMetaDataAnnotation(o.getObjectMeta(), instanceIsRunningAnnotation, "true")
 
+	if mp, ok := o.(migrationSecretProvider); ok && mp.getMigrationSecretSource() != nil {
+		if err := h.updateMigrationStatus(ctx, avnGen, o, spec); err != nil {
+			return nil, err
+		}
+	}
+
 	// Some services get secrets after they are running only,
 	// like ip addresses (hosts)
 	secret, err := o.newSecret(ctx, avnService)
@@ -258,6 +273,54 @@ func (h *genericServiceHandler) get(ctx context.Context, avnGen avngen.Client, o
 		secret.StringData["CA_CERT"] = cert
 	}
 	return secret, nil
+}
+
+func (h *genericServiceHandler) updateMigrationStatus(ctx context.Context, avnGen avngen.Client, o serviceAdapter, spec *v1alpha1.ServiceCommonSpec) error {
+	status := o.getServiceStatus()
+
+	migrationStatus, err := avnGen.ServiceGetMigrationStatus(ctx, spec.Project, o.getObjectMeta().Name)
+	if err != nil {
+		if isNotFound(err) {
+			// 404 means no migration is active. Since migrationSecretSource was configured, most likely
+			// the migration has already completed and been cleaned up
+			meta.SetStatusCondition(&status.Conditions, metav1.Condition{
+				Type:               v1alpha1.ConditionTypeMigrationComplete,
+				Status:             metav1.ConditionTrue,
+				ObservedGeneration: o.getObjectMeta().Generation,
+				Reason:             v1alpha1.MigrationReasonDone,
+				Message:            "Migration completed (no active migration found)",
+			})
+			return nil
+		}
+
+		return fmt.Errorf("failed to get migration status: %w", err)
+	}
+
+	condition := metav1.Condition{
+		Type:               v1alpha1.ConditionTypeMigrationComplete,
+		ObservedGeneration: o.getObjectMeta().Generation,
+	}
+
+	switch migrationStatus.Migration.Status {
+	case service.MigrationStatusTypeDone:
+		condition.Status = metav1.ConditionTrue
+		condition.Reason = v1alpha1.MigrationReasonDone
+		condition.Message = "Migration completed successfully"
+	case service.MigrationStatusTypeFailed:
+		condition.Status = metav1.ConditionFalse
+		condition.Reason = v1alpha1.MigrationReasonFailed
+		condition.Message = "Migration failed"
+		if migrationStatus.Migration.Error != nil {
+			condition.Message = *migrationStatus.Migration.Error
+		}
+	default:
+		condition.Status = metav1.ConditionFalse
+		condition.Reason = v1alpha1.MigrationReasonInProgress
+		condition.Message = fmt.Sprintf("Migration status: %s", migrationStatus.Migration.Status)
+	}
+
+	meta.SetStatusCondition(&status.Conditions, condition)
+	return nil
 }
 
 // checkPreconditions not required for now by services to be implemented
@@ -342,4 +405,14 @@ type serviceAdapter interface {
 	newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error)
 	performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error
 	createOrUpdateServiceSpecific(ctx context.Context, avnGen avngen.Client, old *service.ServiceGetOut) error
+}
+
+// migrationSecretProvider is an optional interface for service adapters that support
+// migration credentials from a Kubernetes Secret.
+type migrationSecretProvider interface {
+	getMigrationSecretSource() *v1alpha1.MigrationSecretSource
+	// getUserConfigWithMigration returns a copy of the user config with migration
+	// credentials merged in from the referenced Kubernetes Secret.
+	// The original CR spec should never be mutated, so secret data cannot leak into the persisted object.
+	getUserConfigWithMigration(ctx context.Context) (any, error)
 }
