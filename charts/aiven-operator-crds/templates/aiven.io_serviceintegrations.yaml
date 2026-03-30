@@ -815,6 +815,11 @@ spec:
                             gather_process_list:
                               description: Gather thread state counts from INFORMATION_SCHEMA.PROCESSLIST
                               type: boolean
+                            gather_replica_status:
+                              description:
+                                Gather metrics from SHOW REPLICA STATUS command
+                                output
+                              type: boolean
                             gather_slave_status:
                               description:
                                 Gather metrics from SHOW SLAVE STATUS command

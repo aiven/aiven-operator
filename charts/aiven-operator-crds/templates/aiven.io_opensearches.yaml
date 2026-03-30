@@ -926,7 +926,7 @@ spec:
                             Controls the number of shards allowed in the
                             cluster per data node
                           maximum: 10000
-                          minimum: 100
+                          minimum: 10
                           type: integer
                         cluster_routing_allocation_node_concurrent_recoveries:
                           description:

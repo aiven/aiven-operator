@@ -104,6 +104,11 @@ func (in *Telegraf) DeepCopyInto(out *Telegraf) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.GatherReplicaStatus != nil {
+		in, out := &in.GatherReplicaStatus, &out.GatherReplicaStatus
+		*out = new(bool)
+		**out = **in
+	}
 	if in.GatherSlaveStatus != nil {
 		in, out := &in.GatherSlaveStatus, &out.GatherSlaveStatus
 		*out = new(bool)
