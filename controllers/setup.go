@@ -74,6 +74,7 @@ func SetupControllersWithConfig(mgr ctrl.Manager, cfg SetupConfig) error {
 		"KafkaTopic":                       newKafkaTopicReconciler,
 		"MySQL":                            newMySQLReconciler,
 		"OpenSearch":                       newOpenSearchReconciler,
+		"OpenSearchACLConfig":              newOpenSearchACLConfigReconciler,
 		"PostgreSQL":                       newPostgreSQLReconciler,
 		"Project":                          newProjectReconciler,
 		"ProjectVPC":                       newProjectVPCReconciler,
