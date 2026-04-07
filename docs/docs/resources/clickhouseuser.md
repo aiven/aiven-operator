@@ -62,7 +62,6 @@ This resource uses the following API operations, and for each operation, _any_ o
       # Use existing secret for credential management
       connInfoSecretSource:
         name: predefined-credentials
-        # namespace: my-namespace  # Optional: defaults to same namespace as ClickhouseUser
         passwordKey: PASSWORD
     
       project: aiven-project-name
@@ -205,11 +204,8 @@ when the secret data is updated.
 **Required**
 
 - [`name`](#spec.connInfoSecretSource.name-property){: name='spec.connInfoSecretSource.name-property'} (string, MinLength: 1). Name of the secret resource to read connection parameters from.
+    The secret must be in the same namespace as the resource.
 - [`passwordKey`](#spec.connInfoSecretSource.passwordKey-property){: name='spec.connInfoSecretSource.passwordKey-property'} (string, MinLength: 1). Key in the secret containing the password to use for authentication.
-
-**Optional**
-
-- [`namespace`](#spec.connInfoSecretSource.namespace-property){: name='spec.connInfoSecretSource.namespace-property'} (string). Namespace of the source secret. If not specified, defaults to the same namespace as the resource.
 
 ## connInfoSecretTarget {: #spec.connInfoSecretTarget }
 

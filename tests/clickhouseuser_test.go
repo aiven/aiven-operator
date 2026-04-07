@@ -443,52 +443,6 @@ func TestClickhouseUserCustomCredentials(t *testing.T) {
 		}))
 	})
 
-	t.Run("CrossNamespacePasswordSource", func(t *testing.T) {
-		// tests ClickhouseUser creation with a password from a different namespace
-		userName := randName("chu-cross-ns")
-		yml := getClickhouseUserWithCrossNamespaceSecretYaml(cfg.Project, chName, userName, cfg.PrimaryCloudName)
-
-		require.NoError(t, s.Apply(yml))
-
-		user := new(v1alpha1.ClickhouseUser)
-		require.NoError(t, s.GetRunning(user, userName))
-
-		userAvn, err := getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
-		require.NoError(t, err)
-		assert.Equal(t, userName, user.GetName())
-		assert.Equal(t, userName, userAvn.Name)
-		assert.Equal(t, chName, user.Spec.ServiceName)
-
-		secretName := fmt.Sprintf("my-clickhouse-user-secret-%s", userName)
-		secret, err := s.GetSecret(secretName)
-		require.NoError(t, err)
-		assert.NotEmpty(t, secret.Data["HOST"])
-		assert.NotEmpty(t, secret.Data["PORT"])
-		assert.NotEmpty(t, secret.Data["USERNAME"])
-		assert.NotEmpty(t, secret.Data["PASSWORD"])
-
-		// verify the password matches cross-namespace secret value
-		actualPassword := string(secret.Data["PASSWORD"])
-		assert.Equal(t, "CrossNamespacePassword456!", actualPassword, "Password should match cross-namespace secret value")
-
-		assert.Equal(t, map[string]string{"test": "cross-namespace-password"}, secret.Annotations)
-		assert.Equal(t, map[string]string{"type": "cross-namespace"}, secret.Labels)
-
-		// test ClickHouse connection with cross-namespace password
-		assert.NoError(t, pingClickhouse(
-			ctx,
-			secret.Data["CLICKHOUSEUSER_HOST"],
-			secret.Data["CLICKHOUSEUSER_PORT"],
-			secret.Data["CLICKHOUSEUSER_USERNAME"],
-			secret.Data["CLICKHOUSEUSER_PASSWORD"],
-		))
-
-		assert.NoError(t, s.Delete(user, func() error {
-			_, err = getClickHouseUserByID(ctx, avnGen, cfg.Project, chName, user.Status.UUID)
-			return err
-		}))
-	})
-
 	t.Run("InvalidPasswordValidation", func(t *testing.T) {
 		// tests validation of invalid passwords in connInfoSecretSource
 		userName := randName("chu-invalid-pass")
@@ -739,43 +693,6 @@ spec:
 
   connInfoSecretSource:
     name: predefined-clickhouse-password-secret-%[3]s
-    passwordKey: PASSWORD
-
-  project: %[1]s
-  serviceName: %[2]s
-`, project, chName, userName, cloudName)
-}
-
-func getClickhouseUserWithCrossNamespaceSecretYaml(project, chName, userName, cloudName string) string {
-	return fmt.Sprintf(`
-apiVersion: v1
-kind: Secret
-metadata:
-  name: cross-namespace-password-secret-%[3]s
-  namespace: kube-system
-data:
-  PASSWORD: Q3Jvc3NOYW1lc3BhY2VQYXNzd29yZDQ1NiE= # CrossNamespacePassword456! base64 encoded # gitleaks:allow
----
-
-apiVersion: aiven.io/v1alpha1
-kind: ClickhouseUser
-metadata:
-  name: %[3]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  connInfoSecretTarget:
-    name: my-clickhouse-user-secret-%[3]s
-    annotations:
-      test: cross-namespace-password
-    labels:
-      type: cross-namespace
-
-  connInfoSecretSource:
-    name: cross-namespace-password-secret-%[3]s
-    namespace: kube-system
     passwordKey: PASSWORD
 
   project: %[1]s

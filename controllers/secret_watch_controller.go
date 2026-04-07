@@ -112,12 +112,7 @@ func (c *SecretWatchController) getResourcesWithSecretSource() []SecretSourceRes
 func connInfoSecretRefIndexFunc(o client.Object) []string {
 	if resource, ok := o.(SecretSourceResource); ok {
 		if secretSource := resource.GetConnInfoSecretSource(); secretSource != nil {
-			sourceNamespace := secretSource.Namespace
-			if sourceNamespace == "" {
-				sourceNamespace = resource.GetNamespace()
-			}
-
-			return []string{fmt.Sprintf("%s/%s", sourceNamespace, secretSource.Name)}
+			return []string{fmt.Sprintf("%s/%s", resource.GetNamespace(), secretSource.Name)}
 		}
 	}
 

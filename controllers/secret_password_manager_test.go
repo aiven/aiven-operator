@@ -54,26 +54,6 @@ func TestPasswordManager_GetPasswordFromSecret(t *testing.T) {
 			expectError:    false,
 		},
 		{
-			name: "Valid password from secret in different namespace",
-			secretSource: &v1alpha1.ConnInfoSecretSource{
-				Name:        "test-secret",
-				Namespace:   "other-ns",
-				PasswordKey: "PASSWORD",
-			},
-			resourceNS: "default",
-			secret: &corev1.Secret{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "test-secret",
-					Namespace: "other-ns",
-				},
-				Data: map[string][]byte{
-					"PASSWORD": []byte("CrossNSPassword123!"),
-				},
-			},
-			expectedResult: "CrossNSPassword123!",
-			expectError:    false,
-		},
-		{
 			name: "Secret not found",
 			secretSource: &v1alpha1.ConnInfoSecretSource{
 				Name:        "nonexistent-secret",
@@ -256,72 +236,33 @@ func TestPasswordManager_NamespaceResolution(t *testing.T) {
 	require.NoError(t, corev1.AddToScheme(scheme))
 	require.NoError(t, v1alpha1.AddToScheme(scheme))
 
-	tests := []struct {
-		name         string
-		resourceNS   string
-		sourceNS     string
-		expectedNS   string
-		secretExists bool
-	}{
-		{
-			name:         "Uses resource namespace when source namespace is empty",
-			resourceNS:   "resource-ns",
-			sourceNS:     "",
-			expectedNS:   "resource-ns",
-			secretExists: true,
+	// Secret must always be in the same namespace as the resource
+	secret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-secret",
+			Namespace: "resource-ns",
 		},
-		{
-			name:         "Uses source namespace when specified",
-			resourceNS:   "resource-ns",
-			sourceNS:     "source-ns",
-			expectedNS:   "source-ns",
-			secretExists: true,
+		Data: map[string][]byte{
+			"PASSWORD": []byte("ValidPassword123!"),
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			var objects []client.Object
-			if tt.secretExists {
-				secret := &corev1.Secret{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-secret",
-						Namespace: tt.expectedNS,
-					},
-					Data: map[string][]byte{
-						"PASSWORD": []byte("ValidPassword123!"),
-					},
-				}
-				objects = append(objects, secret)
-			}
-
-			secretSource := &v1alpha1.ConnInfoSecretSource{
+	user := &v1alpha1.ClickhouseUser{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-user",
+			Namespace: "resource-ns",
+		},
+		Spec: v1alpha1.ClickhouseUserSpec{
+			ConnInfoSecretSource: &v1alpha1.ConnInfoSecretSource{
 				Name:        "test-secret",
 				PasswordKey: "PASSWORD",
-			}
-			if tt.sourceNS != "" {
-				secretSource.Namespace = tt.sourceNS
-			}
-
-			user := &v1alpha1.ClickhouseUser{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "test-user",
-					Namespace: tt.resourceNS,
-				},
-				Spec: v1alpha1.ClickhouseUserSpec{
-					ConnInfoSecretSource: secretSource,
-				},
-			}
-
-			k8sClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()
-			result, err := GetPasswordFromSecret(context.Background(), k8sClient, user)
-
-			if tt.secretExists {
-				require.NoError(t, err)
-				assert.Equal(t, "ValidPassword123!", result)
-			} else {
-				require.Error(t, err)
-			}
-		})
+			},
+		},
 	}
+
+	k8sClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(secret).Build()
+	result, err := GetPasswordFromSecret(context.Background(), k8sClient, user)
+
+	require.NoError(t, err)
+	assert.Equal(t, "ValidPassword123!", result)
 }

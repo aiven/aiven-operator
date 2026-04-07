@@ -110,15 +110,10 @@ spec:
                     when the secret data is updated.
                   properties:
                     name:
-                      description:
-                        Name of the secret resource to read connection parameters
-                        from
+                      description: |-
+                        Name of the secret resource to read connection parameters from.
+                        The secret must be in the same namespace as the resource.
                       minLength: 1
-                      type: string
-                    namespace:
-                      description:
-                        Namespace of the source secret. If not specified,
-                        defaults to the same namespace as the resource
                       type: string
                     passwordKey:
                       description:
