@@ -31,7 +31,6 @@ func ValidateServiceAccountCredentials(s string) error {
 	return nil
 }
 
-// trunk-ignore-all(gitleaks/private-key)
 const serviceAccountCredentialsSchema = `{
   "title": "Google service account credentials map",
   "type": "object",

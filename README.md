@@ -2,7 +2,7 @@
 
 Provision and manage [Aiven Services](https://aiven.io/) from your Kubernetes cluster.
 
-See the full documentation [here](https://aiven.github.io/aiven-operator/).
+See the [full documentation](https://aiven.github.io/aiven-operator/).
 
 ## Installation
 
