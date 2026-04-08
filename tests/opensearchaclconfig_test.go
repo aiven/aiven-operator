@@ -169,21 +169,24 @@ spec:
 	requireOpenSearchACLConfigEventually(t, ctx, cfg.Project, serviceName, resetConfig, "OpenSearch ACL config should be reset on resource deletion")
 }
 
-func TestOpenSearchACLConfig_duplicateUsernamesDenied(t *testing.T) {
+func TestOpenSearchACLConfig_validation(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
 
-	ctx, cancel := testCtx()
-	defer cancel()
-
-	configName := randName("opensearch-acl")
-	yml := fmt.Sprintf(`
+	testCases := []struct {
+		name string
+		yml  string
+		err  string
+	}{
+		{
+			name: "duplicate usernames denied",
+			yml: `
 apiVersion: aiven.io/v1alpha1
 kind: OpenSearchACLConfig
 metadata:
-  name: %s
+  name: duplicate-usernames
 spec:
-  project: %s
+  project: ` + cfg.Project + `
   serviceName: test-service
   enabled: true
   acls:
@@ -195,14 +198,39 @@ spec:
       rules:
         - index: metrics*
           permission: write
-`, configName, cfg.Project)
+`,
+			errSnippet: "duplicate",
+		},
+		{
+			name: "missing rules denied",
+			yml: `
+apiVersion: aiven.io/v1alpha1
+kind: OpenSearchACLConfig
+metadata:
+  name: missing-rules
+spec:
+  project: ` + cfg.Project + `
+  serviceName: test-service
+  enabled: true
+  acls:
+    - username: admin*
+`,
+			err: "rules",
+		},
+	}
 
-	s := NewSession(ctx, k8sClient)
-	defer s.Destroy(t)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			ctx, cancel := testCtx()
+			defer cancel()
 
-	err := s.Apply(yml)
-	assert.ErrorContains(t, err, "duplicate")
-	assert.ErrorContains(t, err, "username")
+			s := NewSession(ctx, k8sClient)
+			defer s.Destroy(t)
+
+			err := s.Apply(tc.yml)
+			assert.ErrorContains(t, err, tc.err)
+		})
+	}
 }
 
 func requireOpenSearchACLConfigEventually(

@@ -26,8 +26,9 @@ type OpenSearchACLConfigACL struct {
 	// Username
 	Username string `json:"username"`
 
+	// +kubebuilder:validation:Required
 	// OpenSearch rules
-	Rules []OpenSearchACLConfigRule `json:"rules,omitempty"`
+	Rules []OpenSearchACLConfigRule `json:"rules"`
 }
 
 // OpenSearchACLConfigRule defines a single OpenSearch ACL rule.

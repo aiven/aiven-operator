@@ -121,11 +121,8 @@ OpenSearchACLConfigACL defines a single OpenSearch ACL entry.
 
 **Required**
 
-- [`username`](#spec.acls.username-property){: name='spec.acls.username-property'} (string, MinLength: 1). Username.
-
-**Optional**
-
 - [`rules`](#spec.acls.rules-property){: name='spec.acls.rules-property'} (array of objects). OpenSearch rules. See below for [nested schema](#spec.acls.rules).
+- [`username`](#spec.acls.username-property){: name='spec.acls.username-property'} (string, MinLength: 1). Username.
 
 ### rules {: #spec.acls.rules }
 
