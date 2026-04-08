@@ -5,6 +5,18 @@
 - Add `ServiceUser` field `accessControl`, type `object`: AccessControl configures service-specific access control rules for the user.
 When this block is present, the operator manages the full access-control scope it contains
 - Add `OpenSearchACLConfig` to manage OpenSearch ACL
+- Add `Kafka` field `userConfig.inkless`, type `object`: Inkless configuration values
+- Add `MySQL` field `userConfig.mysql.lower_case_table_names`, type `integer`: Sets how table and database
+  names are stored and compared
+- Change `OpenSearch` field `userConfig.opensearch.cluster_max_shards_per_node`: minimum ~~`100`~~ → `10`
+- Add `PostgreSQL` field `userConfig.pg.synchronous_commit`, type `string`: Sets the current transaction's
+  synchronization level. The default is `off`
+- Add `PostgreSQL` field `userConfig.switchover_windows`, type `array`: no description
+- Add `ServiceIntegration` field `metrics.source_mysql.telegraf.gather_replica_status`, type `boolean`:
+  Gather metrics from SHOW REPLICA STATUS command output
+- Add `Valkey` field `userConfig.valkey_version`, type `string`: Available versions: `8.1`, `9.0`. Newer
+  versions may also be available.
+Valkey major version
 
 ## v0.36.0 - 2026-03-05
 

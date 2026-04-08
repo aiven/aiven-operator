@@ -186,7 +186,7 @@ type Pg struct {
 
 	// +kubebuilder:validation:Minimum=25
 	// +kubebuilder:validation:Maximum=60000
-	// Sets the PostgreSQL maximum number of concurrent connections to the database server. This is a limited-release parameter. Contact your account team to confirm your eligibility. You cannot decrease this parameter value when set. For services with a read replica, first increase the read replica's value. After the change is applied to the replica, you can increase the primary service's value. Changing this parameter causes a service restart.
+	// Sets the PostgreSQL maximum number of concurrent connections to the database server. For services with a read replica, first increase the read replica's value. After the change is applied to the replica, you can increase the primary service's value. Changing this parameter causes a service restart.
 	MaxConnections *int `groups:"create,update" json:"max_connections,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1000
@@ -201,7 +201,7 @@ type Pg struct {
 
 	// +kubebuilder:validation:Minimum=4
 	// +kubebuilder:validation:Maximum=256
-	// PostgreSQL maximum logical replication workers (taken from the pool of max_parallel_workers). The default is `4` (upstream default). Changing this parameter causes a service restart.
+	// PostgreSQL maximum logical replication workers (taken from the pool defined by max_worker_processes). The default is `4` (upstream default). Changing this parameter causes a service restart.
 	MaxLogicalReplicationWorkers *int `groups:"create,update" json:"max_logical_replication_workers,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
@@ -289,6 +289,10 @@ type Pg struct {
 	// +kubebuilder:validation:Enum="all";"none";"top"
 	// Controls which statements are counted. Specify top to track top-level statements (those issued directly by clients), all to also track nested statements (such as statements invoked within functions), or none to disable statement statistics collection. The default is `top`.
 	PgStatStatementsTrack *string `groups:"create,update" json:"pg_stat_statements.track,omitempty"`
+
+	// +kubebuilder:validation:Enum="local";"off";"on";"remote_apply";"remote_write"
+	// Sets the current transaction's synchronization level. The default is `off`. This setting takes precedence over `synchronous_replication`.
+	SynchronousCommit *string `groups:"create,update" json:"synchronous_commit,omitempty"`
 
 	// +kubebuilder:validation:Minimum=-1
 	// +kubebuilder:validation:Maximum=2147483647
@@ -492,6 +496,20 @@ type PublicAccess struct {
 	// Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network
 	Prometheus *bool `groups:"create,update" json:"prometheus,omitempty"`
 }
+type SwitchoverWindows struct {
+	// +kubebuilder:validation:Enum="friday";"monday";"saturday";"sunday";"thursday";"tuesday";"wednesday"
+	Dow string `groups:"create,update" json:"dow"`
+
+	// +kubebuilder:validation:MinLength=8
+	// +kubebuilder:validation:MaxLength=8
+	// +kubebuilder:validation:Pattern=`^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$`
+	EndTime string `groups:"create,update" json:"end_time"`
+
+	// +kubebuilder:validation:MinLength=8
+	// +kubebuilder:validation:MaxLength=8
+	// +kubebuilder:validation:Pattern=`^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$`
+	StartTime string `groups:"create,update" json:"start_time"`
+}
 
 // System-wide settings for the timescaledb extension
 type Timescaledb struct {
@@ -625,8 +643,11 @@ type PgUserConfig struct {
 	// Use static public IP addresses
 	StaticIps *bool `groups:"create,update" json:"static_ips,omitempty"`
 
+	// +kubebuilder:validation:MaxItems=28
+	SwitchoverWindows []*SwitchoverWindows `groups:"create,update" json:"switchover_windows,omitempty"`
+
 	// +kubebuilder:validation:Enum="off";"quorum"
-	// Synchronous replication type. Note that the service plan also needs to support synchronous replication.
+	// This setting is deprecated. Use synchronous_commit instead. Any change to this setting will automatically update synchronous_commit. Setting the value to quorum changes synchronous_commit to remote_write, while setting it to off changes synchronous_commit to off.
 	SynchronousReplication *string `groups:"create,update" json:"synchronous_replication,omitempty"`
 
 	// System-wide settings for the timescaledb extension

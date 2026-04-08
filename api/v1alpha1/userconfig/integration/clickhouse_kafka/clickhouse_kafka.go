@@ -47,8 +47,8 @@ type Tables struct {
 	// The Kafka consumer group name. Multiple consumers with the same group name will share the workload and maintain offset positions.
 	GroupName string `groups:"create,update" json:"group_name"`
 
-	// +kubebuilder:validation:Enum="default";"stream"
-	// Defines how ClickHouse should handle errors when processing Kafka messages. 'default' stops on errors, 'stream' continues processing and logs errors.
+	// +kubebuilder:validation:Enum="dead_letter_queue";"default";"stream"
+	// Defines how ClickHouse should handle errors when processing Kafka messages. 'default' stops on errors, 'stream' continues processing and logs errors, 'dead_letter_queue' saves error data to system.dead_letter_queue (requires ClickHouse 25.8+).
 	HandleErrorMode *string `groups:"create,update" json:"handle_error_mode,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0

@@ -74,7 +74,7 @@ type ClickhouseUserConfig struct {
 	// The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
 	BackupMinute *int `groups:"create,update" json:"backup_minute,omitempty"`
 
-	// Available versions: `25.3`. Newer versions may also be available.
+	// Available versions: `25.3`, `25.8`. Newer versions may also be available.
 	// ClickHouse major version
 	ClickhouseVersion *string `groups:"create,update" json:"clickhouse_version,omitempty"`
 

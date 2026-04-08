@@ -178,8 +178,11 @@ spec:
                             description:
                               Defines how ClickHouse should handle errors
                               when processing Kafka messages. 'default' stops on errors,
-                              'stream' continues processing and logs errors.
+                              'stream' continues processing and logs errors, 'dead_letter_queue'
+                              saves error data to system.dead_letter_queue (requires
+                              ClickHouse 25.8+).
                             enum:
+                              - dead_letter_queue
                               - default
                               - stream
                             type: string
@@ -814,6 +817,11 @@ spec:
                               type: boolean
                             gather_process_list:
                               description: Gather thread state counts from INFORMATION_SCHEMA.PROCESSLIST
+                              type: boolean
+                            gather_replica_status:
+                              description:
+                                Gather metrics from SHOW REPLICA STATUS command
+                                output
                               type: boolean
                             gather_slave_status:
                               description:
