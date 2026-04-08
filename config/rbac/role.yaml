@@ -46,6 +46,7 @@ rules:
       - kafkaschemas
       - kafkatopics
       - mysqls
+      - opensearchaclconfigs
       - opensearches
       - postgresqls
       - projects
@@ -84,6 +85,7 @@ rules:
       - kafkaschemas/finalizers
       - kafkatopics/finalizers
       - mysqls/finalizers
+      - opensearchaclconfigs/finalizers
       - opensearches/finalizers
       - postgresqls/finalizers
       - projects/finalizers
@@ -119,6 +121,7 @@ rules:
       - kafkaschemas/status
       - kafkatopics/status
       - mysqls/status
+      - opensearchaclconfigs/status
       - opensearches/status
       - postgresqls/status
       - projects/status

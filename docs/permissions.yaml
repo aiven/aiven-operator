@@ -165,6 +165,13 @@ OpenSearch:
     ProjectKmsGetCA,
     ServiceBackupsGet,
   ]
+OpenSearchACLConfig:
+  [
+    ServiceGet,
+    ServiceOpenSearchAclGet,
+    ServiceOpenSearchAclSet,
+    ServiceOpenSearchAclUpdate,
+  ]
 PostgreSQL:
   [
     ServiceGet,

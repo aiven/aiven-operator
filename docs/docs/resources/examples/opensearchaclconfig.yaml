@@ -1,0 +1,38 @@
+apiVersion: aiven.io/v1alpha1
+kind: OpenSearch
+metadata:
+  name: my-os
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  cloudName: google-europe-west1
+  plan: startup-4
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: OpenSearchACLConfig
+metadata:
+  name: my-os-acl-config
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  serviceName: my-os
+  enabled: true
+  acls:
+    - username: admin*
+      rules:
+        - index: ind*
+          permission: deny
+        - index: logs*
+          permission: read
+    - username: ops*
+      rules:
+        - index: metrics*
+          permission: write
