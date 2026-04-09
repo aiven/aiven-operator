@@ -46,10 +46,9 @@ type ConnInfoSecretTarget struct {
 type ConnInfoSecretSource struct {
 	// +kubebuilder:validation:Required
 	// +kubebuilder:validation:MinLength=1
-	// Name of the secret resource to read connection parameters from
+	// Name of the secret resource to read connection parameters from.
+	// The secret must be in the same namespace as the resource.
 	Name string `json:"name"`
-	// Namespace of the source secret. If not specified, defaults to the same namespace as the resource
-	Namespace string `json:"namespace,omitempty"`
 	// +kubebuilder:validation:Required
 	// +kubebuilder:validation:MinLength=1
 	// Key in the secret containing the password to use for authentication

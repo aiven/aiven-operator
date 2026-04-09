@@ -3,7 +3,6 @@
 package tests
 
 import (
-	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -11,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -209,110 +207,6 @@ spec:
   project: %[1]s
   serviceName: %[2]s
 `, project, serviceName, userName, secretName, targetSecretName)
-}
-
-// TestCrossNamespaceSecretWatch tests secret watching across namespaces
-func TestCrossNamespaceSecretWatch(t *testing.T) {
-	defer recoverPanic(t)
-
-	// GIVEN
-	ctx, cancel := testCtx()
-	defer cancel()
-
-	pg, release, err := sharedResources.AcquirePostgreSQL(ctx)
-	require.NoError(t, err)
-	defer release()
-
-	serviceName := pg.GetName()
-	userName := randName("cross-ns-user")
-	secretName := randName("cross-ns-secret")
-	secretNamespace := "test-secrets"
-
-	testNs := &corev1.Namespace{
-		ObjectMeta: metav1.ObjectMeta{Name: secretNamespace},
-	}
-	err = k8sClient.Create(ctx, testNs)
-	require.NoError(t, err)
-
-	defer func() {
-		deleteCtx, deleteCancel := context.WithTimeout(context.Background(), 30*time.Second)
-		defer deleteCancel()
-		_ = k8sClient.Delete(deleteCtx, testNs)
-	}()
-
-	yml := fmt.Sprintf(`
-apiVersion: v1
-kind: Secret
-metadata:
-  name: %[4]s
-  namespace: %[5]s
-data:
-  password: Y3Jvc3MtbnMtcGFzc3dvcmQtMTIzNDU= # cross-ns-password-12345 # gitleaks:allow
----
-apiVersion: aiven.io/v1alpha1
-kind: ServiceUser
-metadata:
-  name: %[3]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  connInfoSecretTarget:
-    name: cross-ns-service-user-secret
-
-  connInfoSecretSource:
-    name: %[4]s
-    namespace: %[5]s
-    passwordKey: password
-
-  project: %[1]s
-  serviceName: %[2]s
-`, cfg.Project, serviceName, userName, secretName, secretNamespace)
-
-	s := NewSession(ctx, k8sClient)
-	defer s.Destroy(t)
-
-	// WHEN
-	require.NoError(t, s.Apply(yml))
-
-	// wait for ServiceUser to be running
-	user := new(v1alpha1.ServiceUser)
-	require.NoError(t, s.GetRunning(user, userName))
-
-	// THEN
-	userAvn, err := avnGen.ServiceUserGet(ctx, cfg.Project, serviceName, userName)
-	require.NoError(t, err)
-	assert.Equal(t, userName, userAvn.Username)
-
-	initialPassword := userAvn.Password
-
-	secret := &corev1.Secret{}
-	err = k8sClient.Get(ctx, types.NamespacedName{
-		Name:      secretName,
-		Namespace: secretNamespace,
-	}, secret)
-	require.NoError(t, err)
-
-	secret.Data["password"] = []byte("updated-cross-ns-password-67890")
-	err = k8sClient.Update(ctx, secret)
-	require.NoError(t, err)
-
-	// wait for the password to be updated in Aiven
-	require.Eventually(t, func() bool {
-		finalUserAvn, err := avnGen.ServiceUserGet(ctx, cfg.Project, serviceName, userName)
-		if err != nil {
-			return false
-		}
-		return finalUserAvn.Password == "updated-cross-ns-password-67890"
-	}, 1*time.Minute, 5*time.Second, "Cross-namespace secret watcher should trigger password update")
-
-	finalUserAvn, err := avnGen.ServiceUserGet(ctx, cfg.Project, serviceName, userName)
-	require.NoError(t, err)
-	assert.Equal(t, userName, finalUserAvn.Username)
-
-	assert.Equal(t, "updated-cross-ns-password-67890", finalUserAvn.Password, "Cross-namespace password should be updated to the new value from the secret")
-	assert.NotEqual(t, initialPassword, finalUserAvn.Password, "Cross-namespace password should have changed from initial value")
 }
 
 // getUpdatedServiceUserAndSecretYaml returns YAML with both secret and ServiceUser changes

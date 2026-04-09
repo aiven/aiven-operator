@@ -25,23 +25,20 @@ func GetPasswordFromSecret(ctx context.Context, k8sClient client.Client, resourc
 		return "", nil
 	}
 
-	sourceNamespace := secretSource.Namespace
-	if sourceNamespace == "" {
-		sourceNamespace = resource.GetNamespace()
-	}
+	ns := resource.GetNamespace()
 
 	sourceSecret := &corev1.Secret{}
 	err := k8sClient.Get(ctx, types.NamespacedName{
 		Name:      secretSource.Name,
-		Namespace: sourceNamespace,
+		Namespace: ns,
 	}, sourceSecret)
 	if err != nil {
-		return "", fmt.Errorf("failed to read connInfoSecretSource %s/%s: %w", sourceNamespace, secretSource.Name, err)
+		return "", fmt.Errorf("failed to read connInfoSecretSource %s/%s: %w", ns, secretSource.Name, err)
 	}
 
 	passwordBytes, exists := sourceSecret.Data[secretSource.PasswordKey]
 	if !exists {
-		return "", fmt.Errorf("password not found in source secret %s/%s (expected %s key)", sourceNamespace, secretSource.Name, secretSource.PasswordKey)
+		return "", fmt.Errorf("password not found in source secret %s/%s (expected %s key)", ns, secretSource.Name, secretSource.PasswordKey)
 	}
 
 	newPassword := string(passwordBytes)
@@ -49,7 +46,7 @@ func GetPasswordFromSecret(ctx context.Context, k8sClient client.Client, resourc
 	// validate password length according to API requirements
 	if len(newPassword) < 8 || len(newPassword) > 256 {
 		return "", fmt.Errorf("password length must be between 8 and 256 characters, got %d characters from source secret %s/%s (key: %s)",
-			len(newPassword), sourceNamespace, secretSource.Name, secretSource.PasswordKey)
+			len(newPassword), ns, secretSource.Name, secretSource.PasswordKey)
 	}
 
 	return newPassword, nil

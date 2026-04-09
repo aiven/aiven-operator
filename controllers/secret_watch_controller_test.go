@@ -133,23 +133,6 @@ func TestConnInfoSecretRefIndexFunc(t *testing.T) {
 			expected: []string{"default/my-secret"},
 		},
 		{
-			name: "ServiceUser with secretSource in different namespace",
-			resource: &v1alpha1.ServiceUser{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "test-user",
-					Namespace: "default",
-				},
-				Spec: v1alpha1.ServiceUserSpec{
-					ConnInfoSecretSource: &v1alpha1.ConnInfoSecretSource{
-						Name:        "my-secret",
-						Namespace:   "other-namespace",
-						PasswordKey: "password",
-					},
-				},
-			},
-			expected: []string{"other-namespace/my-secret"},
-		},
-		{
 			name: "ServiceUser without secretSource",
 			resource: &v1alpha1.ServiceUser{
 				ObjectMeta: metav1.ObjectMeta{
@@ -177,23 +160,6 @@ func TestConnInfoSecretRefIndexFunc(t *testing.T) {
 				},
 			},
 			expected: []string{"default/ch-secret"},
-		},
-		{
-			name: "ClickhouseUser with cross-namespace secretSource",
-			resource: &v1alpha1.ClickhouseUser{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "test-ch-user",
-					Namespace: "app-namespace",
-				},
-				Spec: v1alpha1.ClickhouseUserSpec{
-					ConnInfoSecretSource: &v1alpha1.ConnInfoSecretSource{
-						Name:        "shared-secret",
-						Namespace:   "secrets-namespace",
-						PasswordKey: "password",
-					},
-				},
-			},
-			expected: []string{"secrets-namespace/shared-secret"},
 		},
 		{
 			name: "Non-SecretSourceResource",
@@ -242,29 +208,6 @@ func TestSecretWatchController_resourceMatchesSecret(t *testing.T) {
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "my-secret",
 					Namespace: "default",
-				},
-			},
-			expected: true,
-		},
-		{
-			name: "ServiceUser matches secret in different namespace",
-			resource: &v1alpha1.ServiceUser{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "test-user",
-					Namespace: "app-ns",
-				},
-				Spec: v1alpha1.ServiceUserSpec{
-					ConnInfoSecretSource: &v1alpha1.ConnInfoSecretSource{
-						Name:        "my-secret",
-						Namespace:   "secret-ns",
-						PasswordKey: "password",
-					},
-				},
-			},
-			secret: &corev1.Secret{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "my-secret",
-					Namespace: "secret-ns",
 				},
 			},
 			expected: true,
@@ -342,12 +285,7 @@ func TestSecretWatchController_resourceMatchesSecret(t *testing.T) {
 				return
 			}
 
-			sourceNamespace := secretSource.Namespace
-			if sourceNamespace == "" {
-				sourceNamespace = tt.resource.GetNamespace()
-			}
-
-			matches := secretSource.Name == tt.secret.Name && sourceNamespace == tt.secret.Namespace
+			matches := secretSource.Name == tt.secret.Name && tt.resource.GetNamespace() == tt.secret.Namespace
 			assert.Equal(t, tt.expected, matches)
 		})
 	}
