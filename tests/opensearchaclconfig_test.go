@@ -199,7 +199,7 @@ spec:
         - index: metrics*
           permission: write
 `,
-			errSnippet: "duplicate",
+			err: "duplicate",
 		},
 		{
 			name: "missing rules denied",
