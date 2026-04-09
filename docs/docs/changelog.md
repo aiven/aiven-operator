@@ -1,6 +1,15 @@
 # Changelog
 
 
+## v0.37.0 - 2026-04-09
+
+- Add `ServiceUser` field `accessControl`, type `object`: AccessControl configures service-specific access control rules for the user.
+When this block is present, the operator manages the full access-control scope it contains
+- Add `OpenSearchACLConfig` to manage OpenSearch ACL
+- **BREAKING**: Removed `ClickhouseUser`/`ServiceUser` field `connInfoSecretSource.namespace`, type `string`: cross-namespace
+  secret references are no longer supported. The source secret must be in the same namespace as the resource.
+  This fixes a potential confused deputy vulnerability where the operator could be exploited to exfiltrate secrets from other namespaces.
+
 ## v0.36.0 - 2026-03-05
 
 - `KafkaTopic`: continuous reconciliation now automatically re-creates topics that are deleted directly in Aiven (outside Kubernetes).
