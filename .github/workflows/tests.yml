@@ -70,7 +70,7 @@ jobs:
     steps:
       - name: Post initial comment to PR
         id: comment
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const testTags = '${{ inputs.test_tags }}';
@@ -163,7 +163,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Update PR comment with results
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const testResult = '${{ needs.test.result }}';
