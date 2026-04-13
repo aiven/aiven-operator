@@ -261,6 +261,13 @@ spec:
                         Interval in hours between automatic backups. Minimum
                         value is 3 hours. Must be a divisor of 24 (3, 4, 6, 8, 12, 24).
                         (Applicable to ACU plans only)
+                      enum:
+                        - 12
+                        - 24
+                        - 3
+                        - 4
+                        - 6
+                        - 8
                       maximum: 24
                       minimum: 3
                       type: integer
@@ -299,6 +306,18 @@ spec:
                       items:
                         type: string
                       type: array
+                    inkless:
+                      description: Inkless configuration values
+                      properties:
+                        enabled:
+                          description: Whether to enable the Inkless functionality
+                          type: boolean
+                          x-kubernetes-validations:
+                            - message: Value is immutable
+                              rule: self == oldSelf
+                      required:
+                        - enabled
+                      type: object
                     ip_filter:
                       description:
                         Allow incoming connections from CIDR address block,
@@ -325,7 +344,7 @@ spec:
                       description: Kafka broker configuration values
                       properties:
                         auto_create_topics_enable:
-                          description: "Enable auto-creation of topics. (Default: true)"
+                          description: "Enable auto-creation of topics. (Default: false)"
                           type: boolean
                         compression_type:
                           description:
@@ -906,7 +925,8 @@ spec:
                         description:
                           Configure external secret providers in order to
                           reference external secrets in connector configuration. Currently
-                          Hashicorp Vault and AWS Secrets Manager are supported.
+                          Hashicorp Vault, AWS Secrets Manager, and ENV secret providers
+                          are supported.
                         properties:
                           aws:
                             description: AWS secret provider configuration
@@ -934,10 +954,22 @@ spec:
                               - auth_method
                               - region
                             type: object
+                          env:
+                            description: ENV secret provider configuration
+                            properties:
+                              secrets:
+                                description:
+                                  Key/value map of secrets for ENV secret
+                                  provider
+                                type: object
+                            required:
+                              - secrets
+                            type: object
                           name:
                             description:
                               Name of the secret provider. Used to reference
                               secrets in connector config.
+                            pattern: ^[A-Za-z0-9_-]+$
                             type: string
                           vault:
                             description: Vault secret provider configuration

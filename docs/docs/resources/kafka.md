@@ -237,12 +237,13 @@ Kafka specific user configuration options.
 
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Deprecated. Additional Cloud Regions for Backup Replication.
 - [`aiven_kafka_topic_messages`](#spec.userConfig.aiven_kafka_topic_messages-property){: name='spec.userConfig.aiven_kafka_topic_messages-property'} (boolean). Allow access to read Kafka topic messages in the Aiven Console and REST API.
-- [`backup_interval_hours`](#spec.userConfig.backup_interval_hours-property){: name='spec.userConfig.backup_interval_hours-property'} (integer, Minimum: 3, Maximum: 24). Interval in hours between automatic backups. Minimum value is 3 hours. Must be a divisor of 24 (3, 4, 6, 8, 12, 24). (Applicable to ACU plans only).
+- [`backup_interval_hours`](#spec.userConfig.backup_interval_hours-property){: name='spec.userConfig.backup_interval_hours-property'} (integer, Enum: `12`, `24`, `3`, `4`, `6`, `8`, Minimum: 3, Maximum: 24). Interval in hours between automatic backups. Minimum value is 3 hours. Must be a divisor of 24 (3, 4, 6, 8, 12, 24). (Applicable to ACU plans only).
 - [`backup_retention_days`](#spec.userConfig.backup_retention_days-property){: name='spec.userConfig.backup_retention_days-property'} (integer, Minimum: 1, Maximum: 30). Number of days to retain automatic backups. Backups older than this value will be automatically deleted. (Applicable to ACU plans only).
 - [`custom_domain`](#spec.userConfig.custom_domain-property){: name='spec.userConfig.custom_domain-property'} (string, MaxLength: 255). Serve the web frontend using a custom CNAME pointing to the Aiven DNS name. When you set a custom domain for a service deployed in a VPC, the service certificate is only created for the public-* hostname and the custom domain.
 - [`enable_ipv6`](#spec.userConfig.enable_ipv6-property){: name='spec.userConfig.enable_ipv6-property'} (boolean). Register AAAA DNS records for the service, and allow IPv6 packets to service ports.
 - [`follower_fetching`](#spec.userConfig.follower_fetching-property){: name='spec.userConfig.follower_fetching-property'} (object). Enable follower fetching. See below for [nested schema](#spec.userConfig.follower_fetching).
 - [`gcp_auth_allowed_urls`](#spec.userConfig.gcp_auth_allowed_urls-property){: name='spec.userConfig.gcp_auth_allowed_urls-property'} (array of strings). Allow-list of HTTPS URLs used to validate GCP credential_source requests for Kafka Connect.
+- [`inkless`](#spec.userConfig.inkless-property){: name='spec.userConfig.inkless-property'} (object). Inkless configuration values. See below for [nested schema](#spec.userConfig.inkless).
 - [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 8000). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
 - [`kafka`](#spec.userConfig.kafka-property){: name='spec.userConfig.kafka-property'} (object). Kafka broker configuration values. See below for [nested schema](#spec.userConfig.kafka).
 - [`kafka_authentication_methods`](#spec.userConfig.kafka_authentication_methods-property){: name='spec.userConfig.kafka_authentication_methods-property'} (object). Kafka authentication methods. See below for [nested schema](#spec.userConfig.kafka_authentication_methods).
@@ -280,6 +281,16 @@ Enable follower fetching.
 
 - [`enabled`](#spec.userConfig.follower_fetching.enabled-property){: name='spec.userConfig.follower_fetching.enabled-property'} (boolean). Whether to enable the follower fetching functionality.
 
+### inkless {: #spec.userConfig.inkless }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+Inkless configuration values.
+
+**Required**
+
+- [`enabled`](#spec.userConfig.inkless.enabled-property){: name='spec.userConfig.inkless.enabled-property'} (boolean, Immutable). Whether to enable the Inkless functionality.
+
 ### ip_filter {: #spec.userConfig.ip_filter }
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
@@ -302,7 +313,7 @@ Kafka broker configuration values.
 
 **Optional**
 
-- [`auto_create_topics_enable`](#spec.userConfig.kafka.auto_create_topics_enable-property){: name='spec.userConfig.kafka.auto_create_topics_enable-property'} (boolean). Enable auto-creation of topics. (Default: true).
+- [`auto_create_topics_enable`](#spec.userConfig.kafka.auto_create_topics_enable-property){: name='spec.userConfig.kafka.auto_create_topics_enable-property'} (boolean). Enable auto-creation of topics. (Default: false).
 - [`compression_type`](#spec.userConfig.kafka.compression_type-property){: name='spec.userConfig.kafka.compression_type-property'} (string, Enum: `gzip`, `lz4`, `producer`, `snappy`, `uncompressed`, `zstd`). Specify the final compression type for a given topic. This configuration accepts the standard compression codecs (`gzip`, `snappy`, `lz4`, `zstd`). It additionally accepts `uncompressed` which is equivalent to no compression; and `producer` which means retain the original compression codec set by the producer.(Default: producer).
 - [`connections_max_idle_ms`](#spec.userConfig.kafka.connections_max_idle_ms-property){: name='spec.userConfig.kafka.connections_max_idle_ms-property'} (integer, Minimum: 1000, Maximum: 3600000). Idle connections timeout: the server socket processor threads close the connections that idle for longer than this. (Default: 600000 ms (10 minutes)).
 - [`default_replication_factor`](#spec.userConfig.kafka.default_replication_factor-property){: name='spec.userConfig.kafka.default_replication_factor-property'} (integer, Minimum: 1, Maximum: 10). Replication factor for auto-created topics (Default: 3).
@@ -402,15 +413,16 @@ A Kafka Connect plugin.
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
 
-Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault and AWS Secrets Manager are supported.
+Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault, AWS Secrets Manager, and ENV secret providers are supported.
 
 **Required**
 
-- [`name`](#spec.userConfig.kafka_connect_secret_providers.name-property){: name='spec.userConfig.kafka_connect_secret_providers.name-property'} (string). Name of the secret provider. Used to reference secrets in connector config.
+- [`name`](#spec.userConfig.kafka_connect_secret_providers.name-property){: name='spec.userConfig.kafka_connect_secret_providers.name-property'} (string, Pattern: `^[A-Za-z0-9_-]+$`). Name of the secret provider. Used to reference secrets in connector config.
 
 **Optional**
 
 - [`aws`](#spec.userConfig.kafka_connect_secret_providers.aws-property){: name='spec.userConfig.kafka_connect_secret_providers.aws-property'} (object). AWS secret provider configuration. See below for [nested schema](#spec.userConfig.kafka_connect_secret_providers.aws).
+- [`env`](#spec.userConfig.kafka_connect_secret_providers.env-property){: name='spec.userConfig.kafka_connect_secret_providers.env-property'} (object). ENV secret provider configuration. See below for [nested schema](#spec.userConfig.kafka_connect_secret_providers.env).
 - [`vault`](#spec.userConfig.kafka_connect_secret_providers.vault-property){: name='spec.userConfig.kafka_connect_secret_providers.vault-property'} (object). Vault secret provider configuration. See below for [nested schema](#spec.userConfig.kafka_connect_secret_providers.vault).
 
 #### aws {: #spec.userConfig.kafka_connect_secret_providers.aws }
@@ -428,6 +440,16 @@ AWS secret provider configuration.
 
 - [`access_key`](#spec.userConfig.kafka_connect_secret_providers.aws.access_key-property){: name='spec.userConfig.kafka_connect_secret_providers.aws.access_key-property'} (string, MaxLength: 128). Access key used to authenticate with aws.
 - [`secret_key`](#spec.userConfig.kafka_connect_secret_providers.aws.secret_key-property){: name='spec.userConfig.kafka_connect_secret_providers.aws.secret_key-property'} (string, MaxLength: 128). Secret key used to authenticate with aws.
+
+#### env {: #spec.userConfig.kafka_connect_secret_providers.env }
+
+_Appears on [`spec.userConfig.kafka_connect_secret_providers`](#spec.userConfig.kafka_connect_secret_providers)._
+
+ENV secret provider configuration.
+
+**Required**
+
+- [`secrets`](#spec.userConfig.kafka_connect_secret_providers.env.secrets-property){: name='spec.userConfig.kafka_connect_secret_providers.env.secrets-property'} (object). Key/value map of secrets for ENV secret provider.
 
 #### vault {: #spec.userConfig.kafka_connect_secret_providers.vault }
 

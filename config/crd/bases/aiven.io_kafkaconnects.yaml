@@ -466,7 +466,8 @@ spec:
                         description:
                           Configure external secret providers in order to
                           reference external secrets in connector configuration. Currently
-                          Hashicorp Vault and AWS Secrets Manager are supported.
+                          Hashicorp Vault, AWS Secrets Manager, and ENV secret providers
+                          are supported.
                         properties:
                           aws:
                             description: AWS secret provider configuration
@@ -494,10 +495,22 @@ spec:
                               - auth_method
                               - region
                             type: object
+                          env:
+                            description: ENV secret provider configuration
+                            properties:
+                              secrets:
+                                description:
+                                  Key/value map of secrets for ENV secret
+                                  provider
+                                type: object
+                            required:
+                              - secrets
+                            type: object
                           name:
                             description:
                               Name of the secret provider. Used to reference
                               secrets in connector config.
+                            pattern: ^[A-Za-z0-9_-]+$
                             type: string
                           vault:
                             description: Vault secret provider configuration

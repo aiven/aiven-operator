@@ -178,11 +178,94 @@ spec:
                             description:
                               Defines how ClickHouse should handle errors
                               when processing Kafka messages. 'default' stops on errors,
-                              'stream' continues processing and logs errors.
+                              'stream' continues processing and logs errors, 'dead_letter_queue'
+                              saves error data to system.dead_letter_queue (requires
+                              ClickHouse 25.8+).
                             enum:
+                              - dead_letter_queue
                               - default
                               - stream
                             type: string
+                          materialized_view:
+                            description:
+                              Optional materialized view that persists data
+                              from the Kafka engine table into a MergeTree-family table.
+                              When specified, a ClickHouse materialized view is created
+                              that automatically reads from the Kafka table and inserts
+                              into a durable target table.
+                            properties:
+                              database_name:
+                                description:
+                                  The database to create the materialized
+                                  view in. Must not be the Kafka integration database
+                                  as it is not replicated and may be dropped.
+                                maxLength: 40
+                                minLength: 1
+                                type: string
+                              engine:
+                                description:
+                                  The MergeTree-family engine for the materialized
+                                  view's target table.
+                                enum:
+                                  - AggregatingMergeTree
+                                  - CollapsingMergeTree
+                                  - MergeTree
+                                  - ReplacingMergeTree
+                                  - SummingMergeTree
+                                  - VersionedCollapsingMergeTree
+                                type: string
+                              engine_params:
+                                description:
+                                  Column names passed as engine arguments,
+                                  e.g. the sign column for CollapsingMergeTree or the
+                                  sign and version columns for VersionedCollapsingMergeTree.
+                                items:
+                                  type: string
+                                maxItems: 10
+                                type: array
+                              local_disk_ttl_days:
+                                description:
+                                  Number of days after which data is moved
+                                  from local disk to remote storage (tiered storage).
+                                  Must be specified together with ttl_column.
+                                maximum: 36500
+                                minimum: 1
+                                type: integer
+                              order_by:
+                                description:
+                                  Columns for the ORDER BY clause of the
+                                  target table. Determines the sort order and primary
+                                  index.
+                                items:
+                                  type: string
+                                maxItems: 100
+                                type: array
+                              ttl_column:
+                                description:
+                                  Date or DateTime column used for both row
+                                  deletion TTL and local disk tiered storage TTL. Must
+                                  be specified when ttl_days or local_disk_ttl_days
+                                  is set.
+                                maxLength: 40
+                                minLength: 1
+                                type: string
+                              ttl_days:
+                                description:
+                                  Number of days after which rows are deleted,
+                                  calculated from the TTL column value. Must be specified
+                                  together with ttl_column.
+                                maximum: 36500
+                                minimum: 1
+                                type: integer
+                              view_name:
+                                description: The name of the materialized view to create.
+                                maxLength: 40
+                                minLength: 1
+                                type: string
+                            required:
+                              - order_by
+                              - view_name
+                            type: object
                           max_block_size:
                             description:
                               Maximum number of rows to collect before flushing
@@ -814,6 +897,11 @@ spec:
                               type: boolean
                             gather_process_list:
                               description: Gather thread state counts from INFORMATION_SCHEMA.PROCESSLIST
+                              type: boolean
+                            gather_replica_status:
+                              description:
+                                Gather metrics from SHOW REPLICA STATUS command
+                                output
                               type: boolean
                             gather_slave_status:
                               description:

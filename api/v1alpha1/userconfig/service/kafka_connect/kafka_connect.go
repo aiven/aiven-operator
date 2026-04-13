@@ -155,6 +155,15 @@ type Aws struct {
 	SecretKey *string `groups:"create,update" json:"secret_key,omitempty"`
 }
 
+// Key/value map of secrets for ENV secret provider
+type Secrets struct{}
+
+// ENV secret provider configuration
+type Env struct {
+	// Key/value map of secrets for ENV secret provider
+	Secrets Secrets `groups:"create,update" json:"secrets"`
+}
+
 // Vault secret provider configuration
 type Vault struct {
 	// +kubebuilder:validation:MinLength=1
@@ -178,11 +187,15 @@ type Vault struct {
 	Token *string `groups:"create,update" json:"token,omitempty"`
 }
 
-// Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault and AWS Secrets Manager are supported.
+// Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault, AWS Secrets Manager, and ENV secret providers are supported.
 type SecretProviders struct {
 	// AWS secret provider configuration
 	Aws *Aws `groups:"create,update" json:"aws,omitempty"`
 
+	// ENV secret provider configuration
+	Env *Env `groups:"create,update" json:"env,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^[A-Za-z0-9_-]+$`
 	// Name of the secret provider. Used to reference secrets in connector config.
 	Name string `groups:"create,update" json:"name"`
 

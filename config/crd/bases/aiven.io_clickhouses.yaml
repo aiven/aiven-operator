@@ -264,7 +264,7 @@ spec:
                       type: integer
                     clickhouse_version:
                       description: |-
-                        Available versions: `25.3`. Newer versions may also be available.
+                        Available versions: `25.3`, `25.8`. Newer versions may also be available.
                         ClickHouse major version
                       type: string
                     enable_ipv6:
