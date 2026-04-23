@@ -8,6 +8,7 @@ import (
 )
 
 // KafkaSchemaSpec defines the desired state of KafkaSchema
+// +kubebuilder:validation:XValidation:rule="!has(self.references) || size(self.references) == 0 || self.schemaType in ['PROTOBUF', 'JSON']",message="references are only supported for PROTOBUF and JSON schema types"
 type KafkaSchemaSpec struct {
 	ServiceDependant `json:",inline"`
 
@@ -27,6 +28,24 @@ type KafkaSchemaSpec struct {
 	// +kubebuilder:validation:Enum=BACKWARD;BACKWARD_TRANSITIVE;FORWARD;FORWARD_TRANSITIVE;FULL;FULL_TRANSITIVE;NONE
 	// Kafka Schemas compatibility level
 	CompatibilityLevel kafkaschemaregistry.CompatibilityType `json:"compatibilityLevel,omitempty"`
+
+	// Schema references for Protobuf or JSON schemas that import other schemas
+	References []SchemaReference `json:"references,omitempty"`
+}
+
+// SchemaReference is a reference to another schema in the registry
+type SchemaReference struct {
+	// +kubebuilder:validation:MinLength=1
+	// Name used to reference the schema (e.g., the import path in Protobuf)
+	Name string `json:"name"`
+
+	// +kubebuilder:validation:MinLength=1
+	// Subject name of the referenced schema in the registry
+	Subject string `json:"subject"`
+
+	// +kubebuilder:validation:Minimum=1
+	// Version of the referenced schema
+	Version int `json:"version"`
 }
 
 // KafkaSchemaStatus defines the observed state of KafkaSchema

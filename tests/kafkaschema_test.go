@@ -17,39 +17,6 @@ import (
 	"github.com/aiven/aiven-operator/controllers"
 )
 
-func getKafkaSchemaYaml(project, kafkaName, schemaName, subjectName string) string {
-	return fmt.Sprintf(`
-apiVersion: aiven.io/v1alpha1
-kind: KafkaSchema
-metadata:
-  name: %[3]s
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: %[1]s
-  serviceName: %[2]s
-  subjectName: %[4]s
-  schemaType: AVRO
-  compatibilityLevel: BACKWARD
-  schema: |
-    {
-        "doc": "example_doc",
-        "fields": [{
-            "default": 5,
-            "doc": "field_doc",
-            "name": "field_name",
-            "namespace": "field_namespace",
-            "type": "int"
-        }],
-        "name": "example_name",
-        "namespace": "example_namespace",
-        "type": "record"
-    }
-`, project, kafkaName, schemaName, subjectName)
-}
-
 func TestKafkaSchema(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
@@ -190,4 +157,272 @@ func TestKafkaSchema(t *testing.T) {
 	// First proves that it won't give false positive on GET
 	require.NoError(t, subjectExists())
 	assert.NoError(t, s.Delete(schemaA, subjectExists))
+}
+
+func TestKafkaSchemaReferences(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	// GIVEN
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	kafka, releaseKafka, err := sharedResources.AcquireKafka(ctx)
+	require.NoError(t, err)
+	defer releaseKafka()
+
+	kafkaName := kafka.GetName()
+	refSchemaName := randName("kafka-schema-ref")
+	refSubjectName := randName("kafka-schema-ref")
+	mainSchemaName := randName("kafka-schema-main")
+	mainSubjectName := randName("kafka-schema-main")
+
+	s := NewSession(ctx, k8sClient)
+
+	// Create the referenced (base) schema first
+	refYml := getKafkaSchemaRefBaseYaml(cfg.Project, kafkaName, refSchemaName, refSubjectName)
+	require.NoError(t, s.Apply(refYml))
+
+	refSchema := new(v1alpha1.KafkaSchema)
+	require.NoError(t, s.GetRunning(refSchema, refSchemaName))
+	assert.Equal(t, refSubjectName, refSchema.Spec.SubjectName)
+	assert.Equal(t, kafkaschemaregistry.SchemaTypeProtobuf, refSchema.Spec.SchemaType)
+	assert.Equal(t, 1, refSchema.Status.Version)
+
+	// Create a schema that references the base schema
+	mainYml := getKafkaSchemaRefYaml(cfg.Project, kafkaName, mainSchemaName, mainSubjectName, refSubjectName, refSchema.Status.Version)
+	require.NoError(t, s.Apply(mainYml))
+
+	mainSchema := new(v1alpha1.KafkaSchema)
+	require.NoError(t, s.GetRunning(mainSchema, mainSchemaName))
+	assert.Equal(t, mainSubjectName, mainSchema.Spec.SubjectName)
+	assert.Equal(t, kafkaschemaregistry.SchemaTypeProtobuf, mainSchema.Spec.SchemaType)
+
+	// Verify the references are set in the spec
+	require.Len(t, mainSchema.Spec.References, 1)
+	assert.Equal(t, "customer.proto", mainSchema.Spec.References[0].Name)
+	assert.Equal(t, refSubjectName, mainSchema.Spec.References[0].Subject)
+	assert.Equal(t, refSchema.Status.Version, mainSchema.Spec.References[0].Version)
+
+	// Verify the schema was created with references
+	avnSchema, err := avnGen.ServiceSchemaRegistrySubjectVersionGet(ctx, cfg.Project, kafkaName, mainSubjectName, mainSchema.Status.Version)
+	require.NoError(t, err)
+	assert.Equal(t, mainSchema.Status.ID, avnSchema.Id)
+	require.Len(t, avnSchema.References, 1)
+	assert.Equal(t, "customer.proto", avnSchema.References[0].Name)
+	assert.Equal(t, refSubjectName, avnSchema.References[0].Subject)
+	assert.Equal(t, refSchema.Status.Version, avnSchema.References[0].Version)
+
+	// Cleanup: delete the referencing schema explicitly.
+	// The referenced (base) schema is cleaned up by the shared Kafka service teardown,
+	// because schema registry soft-delete does not clear the reference —
+	// a referenced schema cannot be soft-deleted even after the referencing one is removed.
+	assert.NoError(t, s.Delete(mainSchema, func() error {
+		_, err := avnGen.ServiceSchemaRegistrySubjectVersionGet(ctx, cfg.Project, kafkaName, mainSubjectName, mainSchema.Status.Version)
+		return err
+	}))
+}
+
+func TestKafkaSchemaReferencesValidation(t *testing.T) {
+	t.Parallel()
+
+	defer recoverPanic(t)
+
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	s := NewSession(ctx, k8sClient)
+	defer s.Destroy(t)
+
+	testCases := []struct {
+		name                   string
+		yaml                   string
+		expectErrorMsgContains string
+	}{
+		{
+			name: "references with AVRO schema type",
+			yaml: fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: KafkaSchema
+metadata:
+  name: %s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+  project: %s
+  serviceName: fake-kafka
+  subjectName: avro-with-refs
+  schemaType: AVRO
+  schema: '{}'
+  references:
+    - name: other.avsc
+      subject: other-subject
+      version: 1
+`, randName("kafka-schema-val"), cfg.Project),
+			expectErrorMsgContains: "references are only supported for PROTOBUF and JSON schema types",
+		},
+		{
+			name: "reference with empty name",
+			yaml: fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: KafkaSchema
+metadata:
+  name: %s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+  project: %s
+  serviceName: fake-kafka
+  subjectName: empty-ref-name
+  schemaType: PROTOBUF
+  schema: 'syntax = "proto3";'
+  references:
+    - name: ""
+      subject: valid-subject
+      version: 1
+`, randName("kafka-schema-val"), cfg.Project),
+			expectErrorMsgContains: "spec.references[0].name",
+		},
+		{
+			name: "reference with empty subject",
+			yaml: fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: KafkaSchema
+metadata:
+  name: %s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+  project: %s
+  serviceName: fake-kafka
+  subjectName: empty-ref-subject
+  schemaType: PROTOBUF
+  schema: 'syntax = "proto3";'
+  references:
+    - name: customer.proto
+      subject: ""
+      version: 1
+`, randName("kafka-schema-val"), cfg.Project),
+			expectErrorMsgContains: "spec.references[0].subject",
+		},
+		{
+			name: "reference with zero version",
+			yaml: fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: KafkaSchema
+metadata:
+  name: %s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+  project: %s
+  serviceName: fake-kafka
+  subjectName: zero-ref-version
+  schemaType: PROTOBUF
+  schema: 'syntax = "proto3";'
+  references:
+    - name: customer.proto
+      subject: valid-subject
+      version: 0
+`, randName("kafka-schema-val"), cfg.Project),
+			expectErrorMsgContains: "spec.references[0].version",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := s.Apply(tc.yaml)
+			assert.ErrorContains(t, err, tc.expectErrorMsgContains)
+		})
+	}
+}
+
+func getKafkaSchemaRefYaml(project, kafkaName, schemaName, subjectName, refSubject string, refVersion int) string {
+	return fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: KafkaSchema
+metadata:
+  name: %[3]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  serviceName: %[2]s
+  subjectName: %[4]s
+  schemaType: PROTOBUF
+  schema: |
+    syntax = "proto3";
+    import "customer.proto";
+    message Order {
+      string order_id = 1;
+      Customer customer = 2;
+    }
+  references:
+    - name: customer.proto
+      subject: %[5]s
+      version: %[6]d
+`, project, kafkaName, schemaName, subjectName, refSubject, refVersion)
+}
+
+func getKafkaSchemaRefBaseYaml(project, kafkaName, schemaName, subjectName string) string {
+	return fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: KafkaSchema
+metadata:
+  name: %[3]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  serviceName: %[2]s
+  subjectName: %[4]s
+  schemaType: PROTOBUF
+  schema: |
+    syntax = "proto3";
+    message Customer {
+      string name = 1;
+      string email = 2;
+    }
+`, project, kafkaName, schemaName, subjectName)
+}
+
+func getKafkaSchemaYaml(project, kafkaName, schemaName, subjectName string) string {
+	return fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: KafkaSchema
+metadata:
+  name: %[3]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  serviceName: %[2]s
+  subjectName: %[4]s
+  schemaType: AVRO
+  compatibilityLevel: BACKWARD
+  schema: |
+    {
+        "doc": "example_doc",
+        "fields": [{
+            "default": 5,
+            "doc": "field_doc",
+            "name": "field_name",
+            "namespace": "field_namespace",
+            "type": "int"
+        }],
+        "name": "example_name",
+        "namespace": "example_namespace",
+        "type": "record"
+    }
+`, project, kafkaName, schemaName, subjectName)
 }

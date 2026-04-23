@@ -87,6 +87,35 @@ spec:
                   x-kubernetes-validations:
                     - message: Value is immutable
                       rule: self == oldSelf
+                references:
+                  description:
+                    Schema references for Protobuf or JSON schemas that import
+                    other schemas
+                  items:
+                    description:
+                      SchemaReference is a reference to another schema in
+                      the registry
+                    properties:
+                      name:
+                        description:
+                          Name used to reference the schema (e.g., the import
+                          path in Protobuf)
+                        minLength: 1
+                        type: string
+                      subject:
+                        description: Subject name of the referenced schema in the registry
+                        minLength: 1
+                        type: string
+                      version:
+                        description: Version of the referenced schema
+                        minimum: 1
+                        type: integer
+                    required:
+                      - name
+                      - subject
+                      - version
+                    type: object
+                  type: array
                 schema:
                   description:
                     Kafka Schema configuration should be a valid Avro Schema
@@ -125,6 +154,13 @@ spec:
                 - serviceName
                 - subjectName
               type: object
+              x-kubernetes-validations:
+                - message:
+                    references are only supported for PROTOBUF and JSON schema
+                    types
+                  rule:
+                    "!has(self.references) || size(self.references) == 0 || self.schemaType
+                    in ['PROTOBUF', 'JSON']"
             status:
               description: KafkaSchemaStatus defines the observed state of KafkaSchema
               properties:
