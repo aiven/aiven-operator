@@ -282,10 +282,20 @@ func ErrorSubstrChecker(substrings ...string) func(error) bool {
 // MigrationSecretSource contains a reference to a Kubernetes Secret with migration credentials.
 // The Secret must be in the same namespace as the resource.
 // Secret keys must match the JSON field names of the migration user config (e.g., host, port, password).
+//
+// Note: once submitted, Aiven stores the migration configuration on the service user config
+// and returns it via ServiceGet.
 type MigrationSecretSource struct {
 	// +kubebuilder:validation:MinLength=1
 	// Name of the Secret containing migration credentials
 	Name string `json:"name"`
+
+	// +kubebuilder:default=false
+	// When true, the operator deletes the referenced Kubernetes Secret after
+	// migration completes successfully. Defaults to false.
+	// This field remains mutable after migration has completed: flipping it from
+	// false to true on a Done resource triggers Secret deletion on the next reconcile.
+	DeleteAfterMigration bool `json:"deleteAfterMigration,omitempty"`
 }
 
 const (

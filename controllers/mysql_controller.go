@@ -32,7 +32,7 @@ func newMySQLReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=mysqls/finalizers,verbs=get;create;update
 
 func (r *MySQLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newMySQLAdapterFactory(r.Client), r.Log), &v1alpha1.MySQL{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandlerWithClient(r.Client, newMySQLAdapterFactory(r.Client), r.Log), &v1alpha1.MySQL{})
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -43,7 +43,7 @@ func (r *MySQLReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func newMySQLAdapterFactory(k8s client.Reader) serviceAdapterFabric {
+func newMySQLAdapterFactory(k8s client.Client) serviceAdapterFabric {
 	return func(object client.Object) (serviceAdapter, error) {
 		mysql, ok := object.(*v1alpha1.MySQL)
 		if !ok {
@@ -56,7 +56,7 @@ func newMySQLAdapterFactory(k8s client.Reader) serviceAdapterFabric {
 // mySQLAdapter handles an Aiven MySQL service
 type mySQLAdapter struct {
 	*v1alpha1.MySQL
-	k8s client.Reader
+	k8s client.Client
 }
 
 func (a *mySQLAdapter) getObjectMeta() *metav1.ObjectMeta {
@@ -94,20 +94,18 @@ func (a *mySQLAdapter) getMigrationSecretSource() *v1alpha1.MigrationSecretSourc
 	return a.Spec.MigrationSecretSource
 }
 
-func (a *mySQLAdapter) getUserConfigWithMigration(ctx context.Context) (any, error) {
+// buildUserConfigWithMigration merges pre-resolved migration Secret data into a
+// clone of the user config. Pure: no I/O, no context. The Secret is read upstream
+// in the handler; this method only maps fields and validates them.
+func (a *mySQLAdapter) buildUserConfigWithMigration(data map[string]string) (any, error) {
 	ref := a.Spec.MigrationSecretSource
 	if ref == nil {
 		return a.getUserConfig(), nil
 	}
 
-	data, err := readMigrationSecret(ctx, a.k8s, a.GetNamespace(), ref)
+	port, err := parseMigrationPort(ref.Name, data["port"])
 	if err != nil {
 		return nil, err
-	}
-
-	port, err := strconv.Atoi(data["port"])
-	if err != nil {
-		return nil, fmt.Errorf("migration secret %q: invalid or missing port: %w", ref.Name, err)
 	}
 
 	host := data["host"]
@@ -180,4 +178,8 @@ func (a *mySQLAdapter) performUpgradeTaskIfNeeded(_ context.Context, _ avngen.Cl
 
 func (a *mySQLAdapter) createOrUpdateServiceSpecific(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
+}
+
+func (a *mySQLAdapter) deleteMigrationSecret(ctx context.Context) error {
+	return deleteMigrationSecret(ctx, a.k8s, a.GetNamespace(), a.Spec.MigrationSecretSource)
 }

@@ -15,6 +15,8 @@ type MySQLSpec struct {
 	// Reference to a Secret containing migration credentials.
 	// Secret keys must match userConfig.migration JSON field names.
 	// If set, takes precedence over userConfig.migration.
+	// Leading and trailing whitespace is stripped from every value, including the password.
+	// Store credentials without surrounding whitespace.
 	MigrationSecretSource *MigrationSecretSource `json:"migrationSecretSource,omitempty"`
 
 	// MySQL specific user configuration options

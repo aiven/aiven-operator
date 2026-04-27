@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -228,6 +229,129 @@ spec:
   migrationSecretSource:
     name: %[3]s
 `, project, name, secretName, cloudName)
+}
+
+func getTargetPgWithMigrationSecretDeleteAfterYaml(project, name, secretName, cloudName string) string {
+	return fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: %[2]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  cloudName: %[4]s
+  plan: startup-4
+
+  migrationSecretSource:
+    name: %[3]s
+    deleteAfterMigration: true
+`, project, name, secretName, cloudName)
+}
+
+func TestPgMigrationSecretDeleteAfterMigration(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	// GIVEN
+	// 1. Create source PG service
+	sourceName := randName("pg-del-src")
+	sourceYml := getSourcePgYaml(cfg.Project, sourceName, cfg.PrimaryCloudName)
+	sourceSession := NewSession(ctx, k8sClient)
+	defer sourceSession.Destroy(t)
+
+	require.NoError(t, sourceSession.Apply(sourceYml))
+
+	sourcePg := new(v1alpha1.PostgreSQL)
+	require.NoError(t, sourceSession.GetRunning(sourcePg, sourceName))
+
+	sourceAvn, err := avnGen.ServiceGet(ctx, cfg.Project, sourceName, service.ServiceGetIncludeSecrets(true))
+	require.NoError(t, err)
+
+	// 2. Create migration credentials Secret
+	secretName := sourceName + "-migration-creds"
+	migrationSecret := createMigrationSecretFromService(t, secretName, sourceAvn)
+	require.NoError(t, k8sClient.Create(ctx, migrationSecret))
+	// Best-effort cleanup; the operator is expected to delete it during the test.
+	defer func() {
+		_ = k8sClient.Delete(ctx, migrationSecret)
+	}()
+
+	// WHEN
+	// 3. Create target PG with deleteAfterMigration: true
+	targetName := randName("pg-del-tgt")
+	targetYml := getTargetPgWithMigrationSecretDeleteAfterYaml(cfg.Project, targetName, secretName, cfg.PrimaryCloudName)
+	targetSession := NewSession(ctx, k8sClient)
+	defer targetSession.Destroy(t)
+
+	require.NoError(t, targetSession.Apply(targetYml))
+
+	targetPg := new(v1alpha1.PostgreSQL)
+	require.NoError(t, targetSession.GetRunning(targetPg, targetName))
+
+	// THEN
+	// 4. Wait for migration to complete
+	require.NoError(t, retryForever(ctx, "wait for migration to complete", func() (bool, error) {
+		pg := new(v1alpha1.PostgreSQL)
+		if err := k8sClient.Get(ctx, types.NamespacedName{Name: targetName, Namespace: defaultNamespace}, pg); err != nil {
+			return false, err
+		}
+
+		cond := meta.FindStatusCondition(pg.Status.Conditions, v1alpha1.ConditionTypeMigrationComplete)
+		if cond == nil {
+			return true, nil
+		}
+		if cond.Status == metav1.ConditionTrue {
+			return false, nil
+		}
+		if cond.Reason == v1alpha1.MigrationReasonFailed {
+			return false, fmt.Errorf("migration failed: %s", cond.Message)
+		}
+		return true, nil
+	}))
+
+	// 5. Wait for the operator to delete the Secret after completion
+	require.NoError(t, retryForever(ctx, "wait for migration secret deletion", func() (bool, error) {
+		err := k8sClient.Get(ctx, types.NamespacedName{Name: secretName, Namespace: defaultNamespace}, &corev1.Secret{})
+		if apierrors.IsNotFound(err) {
+			return false, nil
+		}
+		if err != nil {
+			return false, err
+		}
+		return true, nil
+	}))
+
+	// 6. Confirm Secret is gone
+	err = k8sClient.Get(ctx, types.NamespacedName{Name: secretName, Namespace: defaultNamespace}, &corev1.Secret{})
+	assert.True(t, apierrors.IsNotFound(err), "migration secret should be deleted, got err: %v", err)
+
+	// 7. Trigger a reconcile after deletion and verify the target stays healthy.
+	//    The skip-read guard in createOrUpdate relies on MigrationComplete=True to
+	//    avoid re-resolving the (now missing) Secret.
+	require.NoError(t, k8sClient.Get(ctx, types.NamespacedName{Name: targetName, Namespace: defaultNamespace}, targetPg))
+	if targetPg.Annotations == nil {
+		targetPg.Annotations = map[string]string{}
+	}
+	targetPg.Annotations["aiven.io/trigger-reconcile"] = randName("touch")
+	require.NoError(t, k8sClient.Update(ctx, targetPg))
+
+	require.NoError(t, retryForever(ctx, "target stays running after secret deletion", func() (bool, error) {
+		pg := new(v1alpha1.PostgreSQL)
+		if err := k8sClient.Get(ctx, types.NamespacedName{Name: targetName, Namespace: defaultNamespace}, pg); err != nil {
+			return false, err
+		}
+		if pg.Status.State == serviceRunningState {
+			return false, nil
+		}
+		return true, nil
+	}))
 }
 
 // createMigrationSecretFromService creates a Kubernetes Secret with migration credentials

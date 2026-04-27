@@ -325,4 +325,15 @@ func TestHasPendingMigration(t *testing.T) {
 		})
 		assert.False(t, hasPendingMigration(pg))
 	})
+
+	t.Run("Condition False with unknown Reason — returns false", func(t *testing.T) {
+		t.Parallel()
+		pg := &v1alpha1.PostgreSQL{}
+		meta.SetStatusCondition(&pg.Status.Conditions, metav1.Condition{
+			Type:   v1alpha1.ConditionTypeMigrationComplete,
+			Status: metav1.ConditionFalse,
+			Reason: "SomethingElse",
+		})
+		assert.False(t, hasPendingMigration(pg))
+	})
 }
