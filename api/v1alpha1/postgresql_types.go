@@ -12,6 +12,11 @@ import (
 type PostgreSQLSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
+	// Reference to a Secret containing migration credentials.
+	// Secret keys must match userConfig.migration JSON field names.
+	// If set, takes precedence over userConfig.migration.
+	MigrationSecretSource *MigrationSecretSource `json:"migrationSecretSource,omitempty"`
+
 	// PostgreSQL specific user configuration options
 	UserConfig *pguserconfig.PgUserConfig `json:"userConfig,omitempty"`
 }

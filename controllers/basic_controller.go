@@ -191,7 +191,7 @@ func (i *instanceReconcilerHelper) reconcile(ctx context.Context, o v1alpha1.Aiv
 		return false, nil
 	}
 
-	if IsReadyToUse(o) {
+	if IsReadyToUse(o) && !hasPendingMigration(o) {
 		return false, nil
 	}
 
@@ -312,7 +312,20 @@ func (i *instanceReconcilerHelper) reconcileInstance(ctx context.Context, o v1al
 
 	i.rec.Event(o, corev1.EventTypeNormal, eventInstanceIsRunning, "instance is in a RUNNING state")
 	i.log.Info("instance was successfully reconciled")
+
+	// Keep reconciling while migration is in progress so the status gets polled
+	if hasPendingMigration(o) {
+		return true, nil
+	}
+
 	return false, nil
+}
+
+// hasPendingMigration returns true if the object has a MigrationComplete condition
+// that is not yet True and migration is still in progress (not failed).
+func hasPendingMigration(o v1alpha1.AivenManagedObject) bool {
+	cond := meta.FindStatusCondition(*o.Conditions(), v1alpha1.ConditionTypeMigrationComplete)
+	return cond != nil && cond.Status != metav1.ConditionTrue && cond.Reason != v1alpha1.MigrationReasonFailed
 }
 
 func (i *instanceReconcilerHelper) checkPreconditions(ctx context.Context, o client.Object, refs []client.Object) (bool, error) {

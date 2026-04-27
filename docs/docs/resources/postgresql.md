@@ -137,6 +137,9 @@ PostgreSQLSpec defines the desired state of postgres instance.
     The removal of this field does not change the value.
 - [`maintenanceWindowDow`](#spec.maintenanceWindowDow-property){: name='spec.maintenanceWindowDow-property'} (string, Enum: `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`). Day of week when maintenance operations should be performed. One monday, tuesday, wednesday, etc.
 - [`maintenanceWindowTime`](#spec.maintenanceWindowTime-property){: name='spec.maintenanceWindowTime-property'} (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
+- [`migrationSecretSource`](#spec.migrationSecretSource-property){: name='spec.migrationSecretSource-property'} (object). Reference to a Secret containing migration credentials.
+    Secret keys must match userConfig.migration JSON field names.
+    If set, takes precedence over userConfig.migration. See below for [nested schema](#spec.migrationSecretSource).
 - [`powered`](#spec.powered-property){: name='spec.powered-property'} (boolean, Default value: `true`). Determines the power state of the service. When `true` (default), the service is running.
     When `false`, the service is powered off.
     For more information please see [Aiven documentation](https://aiven.io/docs/platform/concepts/service-power-cycle).
@@ -185,6 +188,18 @@ Secret configuration.
 - [`prefix`](#spec.connInfoSecretTarget.prefix-property){: name='spec.connInfoSecretTarget.prefix-property'} (string). Prefix for the secret's keys.
     Added "as is" without any transformations.
     By default, is equal to the kind name in uppercase + underscore, e.g. `KAFKA_`, `REDIS_`, etc.
+
+## migrationSecretSource {: #spec.migrationSecretSource }
+
+_Appears on [`spec`](#spec)._
+
+Reference to a Secret containing migration credentials.
+Secret keys must match userConfig.migration JSON field names.
+If set, takes precedence over userConfig.migration.
+
+**Required**
+
+- [`name`](#spec.migrationSecretSource.name-property){: name='spec.migrationSecretSource.name-property'} (string, MinLength: 1). Name of the Secret containing migration credentials.
 
 ## projectVPCRef {: #spec.projectVPCRef }
 

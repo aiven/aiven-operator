@@ -12,6 +12,11 @@ import (
 type MySQLSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
+	// Reference to a Secret containing migration credentials.
+	// Secret keys must match userConfig.migration JSON field names.
+	// If set, takes precedence over userConfig.migration.
+	MigrationSecretSource *MigrationSecretSource `json:"migrationSecretSource,omitempty"`
+
 	// MySQL specific user configuration options
 	UserConfig *mysqluserconfig.MysqlUserConfig `json:"userConfig,omitempty"`
 }

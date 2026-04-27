@@ -279,6 +279,27 @@ func ErrorSubstrChecker(substrings ...string) func(error) bool {
 	}
 }
 
+// MigrationSecretSource contains a reference to a Kubernetes Secret with migration credentials.
+// The Secret must be in the same namespace as the resource.
+// Secret keys must match the JSON field names of the migration user config (e.g., host, port, password).
+type MigrationSecretSource struct {
+	// +kubebuilder:validation:MinLength=1
+	// Name of the Secret containing migration credentials
+	Name string `json:"name"`
+}
+
+const (
+	// ConditionTypeMigrationComplete indicates whether a database migration has completed
+	ConditionTypeMigrationComplete = "MigrationComplete"
+
+	// MigrationReasonDone indicates the migration completed successfully
+	MigrationReasonDone = "MigrationDone"
+	// MigrationReasonFailed indicates the migration failed
+	MigrationReasonFailed = "MigrationFailed"
+	// MigrationReasonInProgress indicates the migration is still running
+	MigrationReasonInProgress = "MigrationInProgress"
+)
+
 // Service integrations to specify when creating a service. Not applied after initial service creation
 type ServiceIntegrationItem struct {
 	// +kubebuilder:validation:Enum=read_replica
