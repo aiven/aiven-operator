@@ -4,13 +4,13 @@ package tests
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -112,40 +112,16 @@ func TestPgMigrationFromSecretSource(t *testing.T) {
 	assert.Equal(t, v1alpha1.MigrationReasonDone, cond.Reason)
 }
 
-func TestPgMigrationSecretTakesPrecedenceOverInline(t *testing.T) {
+// The CEL rule on spec must reject CRs that set both migrationSecretSource and
+// userConfig.migration. The two inputs are mutually exclusive.
+func TestPgMigrationSecretRejectsBothSet(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
 
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	// GIVEN
-	// 1. Create source PG service
-	sourceName := randName("pg-prec-src")
-	sourceYml := getSourcePgYaml(cfg.Project, sourceName, cfg.PrimaryCloudName)
-	sourceSession := NewSession(ctx, k8sClient)
-	defer sourceSession.Destroy(t)
-
-	require.NoError(t, sourceSession.Apply(sourceYml))
-
-	sourcePg := new(v1alpha1.PostgreSQL)
-	require.NoError(t, sourceSession.GetRunning(sourcePg, sourceName))
-
-	sourceAvn, err := avnGen.ServiceGet(ctx, cfg.Project, sourceName, service.ServiceGetIncludeSecrets(true))
-	require.NoError(t, err)
-
-	// 2. Create Secret with real source connection details
-	secretName := sourceName + "-migration-creds"
-	migrationSecret := createMigrationSecretFromService(t, secretName, sourceAvn)
-	require.NoError(t, k8sClient.Create(ctx, migrationSecret))
-	defer func() {
-		_ = k8sClient.Delete(ctx, migrationSecret)
-	}()
-
-	// WHEN
-	// 3. Create target with BOTH migrationSecretSource AND inline migration config
-	//    The inline config has bogus values that would fail if used
-	targetName := randName("pg-prec-tgt")
+	targetName := randName("pg-both-set")
 	yml := fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: PostgreSQL
@@ -157,40 +133,24 @@ spec:
     key: token
 
   project: %[1]s
-  cloudName: %[4]s
+  cloudName: %[3]s
   plan: startup-4
 
   migrationSecretSource:
-    name: %[3]s
+    name: some-creds
 
   userConfig:
     migration:
-      host: bogus-host-that-does-not-exist.example.com
-      port: 9999
-      password: wrong-password
-`, cfg.Project, targetName, secretName, cfg.PrimaryCloudName)
+      host: db.example.com
+      port: 5432
+`, cfg.Project, targetName, cfg.PrimaryCloudName)
 
 	targetSession := NewSession(ctx, k8sClient)
 	defer targetSession.Destroy(t)
 
-	require.NoError(t, targetSession.Apply(yml))
-
-	targetPg := new(v1alpha1.PostgreSQL)
-	require.NoError(t, targetSession.GetRunning(targetPg, targetName))
-
-	// THEN
-	// Secret should take precedence: the real host from the Secret, not the bogus inline one
-	targetAvn, err := avnGen.ServiceGet(ctx, cfg.Project, targetName)
-	require.NoError(t, err)
-
-	migrationConfig, ok := targetAvn.UserConfig["migration"].(map[string]any)
-	require.True(t, ok, "migration config should be present")
-
-	actualHost := fmt.Sprintf("%v", migrationConfig["host"])
-	assert.NotEqual(t, "bogus-host-that-does-not-exist.example.com", actualHost,
-		"inline migration host should be overridden by Secret")
-	assert.True(t, strings.Contains(actualHost, sourceAvn.ServiceUriParams["host"]),
-		"migration host should come from Secret, got: %s", actualHost)
+	err := targetSession.Apply(yml)
+	require.Error(t, err, "apiserver should reject both migrationSecretSource and userConfig.migration")
+	assert.Contains(t, err.Error(), "mutually exclusive")
 }
 
 func getSourcePgYaml(project, name, cloudName string) string {
@@ -228,6 +188,132 @@ spec:
   migrationSecretSource:
     name: %[3]s
 `, project, name, secretName, cloudName)
+}
+
+func getTargetPgWithMigrationSecretDeleteAfterYaml(project, name, secretName, cloudName string) string {
+	return fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: PostgreSQL
+metadata:
+  name: %[2]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  cloudName: %[4]s
+  plan: startup-4
+
+  migrationSecretSource:
+    name: %[3]s
+    deleteAfterMigration: true
+`, project, name, secretName, cloudName)
+}
+
+func TestPgMigrationSecretDeleteAfterMigration(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	// GIVEN
+	// 1. Create source PG service
+	sourceName := randName("pg-del-src")
+	sourceYml := getSourcePgYaml(cfg.Project, sourceName, cfg.PrimaryCloudName)
+	sourceSession := NewSession(ctx, k8sClient)
+	defer sourceSession.Destroy(t)
+
+	require.NoError(t, sourceSession.Apply(sourceYml))
+
+	sourcePg := new(v1alpha1.PostgreSQL)
+	require.NoError(t, sourceSession.GetRunning(sourcePg, sourceName))
+
+	sourceAvn, err := avnGen.ServiceGet(ctx, cfg.Project, sourceName, service.ServiceGetIncludeSecrets(true))
+	require.NoError(t, err)
+
+	// 2. Create migration credentials Secret
+	secretName := sourceName + "-migration-creds"
+	migrationSecret := createMigrationSecretFromService(t, secretName, sourceAvn)
+	require.NoError(t, k8sClient.Create(ctx, migrationSecret))
+	// Best-effort cleanup; the operator is expected to delete it during the test.
+	defer func() {
+		_ = k8sClient.Delete(ctx, migrationSecret)
+	}()
+
+	// WHEN
+	// 3. Create target PG with deleteAfterMigration: true
+	targetName := randName("pg-del-tgt")
+	targetYml := getTargetPgWithMigrationSecretDeleteAfterYaml(cfg.Project, targetName, secretName, cfg.PrimaryCloudName)
+	targetSession := NewSession(ctx, k8sClient)
+	defer targetSession.Destroy(t)
+
+	require.NoError(t, targetSession.Apply(targetYml))
+
+	targetPg := new(v1alpha1.PostgreSQL)
+	require.NoError(t, targetSession.GetRunning(targetPg, targetName))
+
+	// THEN
+	// 4. Wait for migration to complete
+	require.NoError(t, retryForever(ctx, "wait for migration to complete", func() (bool, error) {
+		pg := new(v1alpha1.PostgreSQL)
+		if err := k8sClient.Get(ctx, types.NamespacedName{Name: targetName, Namespace: defaultNamespace}, pg); err != nil {
+			return false, err
+		}
+
+		cond := meta.FindStatusCondition(pg.Status.Conditions, v1alpha1.ConditionTypeMigrationComplete)
+		if cond == nil {
+			return true, nil
+		}
+		if cond.Status == metav1.ConditionTrue {
+			return false, nil
+		}
+		if cond.Reason == v1alpha1.MigrationReasonFailed {
+			return false, fmt.Errorf("migration failed: %s", cond.Message)
+		}
+		return true, nil
+	}))
+
+	// 5. Wait for the operator to delete the Secret after completion
+	require.NoError(t, retryForever(ctx, "wait for migration secret deletion", func() (bool, error) {
+		err := k8sClient.Get(ctx, types.NamespacedName{Name: secretName, Namespace: defaultNamespace}, &corev1.Secret{})
+		if apierrors.IsNotFound(err) {
+			return false, nil
+		}
+		if err != nil {
+			return false, err
+		}
+		return true, nil
+	}))
+
+	// 6. Confirm Secret is gone
+	err = k8sClient.Get(ctx, types.NamespacedName{Name: secretName, Namespace: defaultNamespace}, &corev1.Secret{})
+	assert.True(t, apierrors.IsNotFound(err), "migration secret should be deleted, got err: %v", err)
+
+	// 7. Bump a safe spec field so .metadata.generation advances and the reconciler
+	//    runs createOrUpdate (annotations alone don't change generation). The
+	//    skip-read guard there must keep the target healthy even though the Secret
+	//    is gone: MigrationComplete=True should short-circuit the Secret read.
+	require.NoError(t, k8sClient.Get(ctx, types.NamespacedName{Name: targetName, Namespace: defaultNamespace}, targetPg))
+	if targetPg.Spec.Tags == nil {
+		targetPg.Spec.Tags = map[string]string{}
+	}
+	targetPg.Spec.Tags["migration-secret-test"] = randName("touch")
+	require.NoError(t, k8sClient.Update(ctx, targetPg))
+
+	targetGeneration := targetPg.GetGeneration()
+	require.NoError(t, retryForever(ctx, "new generation processed after secret deletion", func() (bool, error) {
+		pg := new(v1alpha1.PostgreSQL)
+		if err := k8sClient.Get(ctx, types.NamespacedName{Name: targetName, Namespace: defaultNamespace}, pg); err != nil {
+			return false, err
+		}
+		processed := pg.Annotations["controllers.aiven.io/generation-was-processed"]
+		if processed == fmt.Sprintf("%d", targetGeneration) && pg.Status.State == serviceRunningState {
+			return false, nil
+		}
+		return true, nil
+	}))
 }
 
 // createMigrationSecretFromService creates a Kubernetes Secret with migration credentials

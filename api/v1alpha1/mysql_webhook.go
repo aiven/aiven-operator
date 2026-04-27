@@ -38,16 +38,14 @@ var _ webhook.Validator = &MySQL{}
 func (in *MySQL) ValidateCreate() (admission.Warnings, error) {
 	mysqllog.Info("validate create", "name", in.Name)
 
-	warnings := in.Spec.migrationWarnings()
-	return warnings, in.Spec.Validate()
+	return nil, in.Spec.Validate()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (in *MySQL) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
 	mysqllog.Info("validate update", "name", in.Name)
 
-	warnings := in.Spec.migrationWarnings()
-	return warnings, in.Spec.Validate()
+	return nil, in.Spec.Validate()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
@@ -63,11 +61,4 @@ func (in *MySQL) ValidateDelete() (admission.Warnings, error) {
 	}
 
 	return nil, nil
-}
-
-func (s *MySQLSpec) migrationWarnings() admission.Warnings {
-	if s.MigrationSecretSource != nil && s.UserConfig != nil && s.UserConfig.Migration != nil {
-		return admission.Warnings{"migrationSecretSource is set; userConfig.migration will be ignored"}
-	}
-	return nil
 }

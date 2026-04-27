@@ -9,12 +9,15 @@ import (
 )
 
 // PostgreSQLSpec defines the desired state of postgres instance
+// +kubebuilder:validation:XValidation:rule="!(has(self.migrationSecretSource) && has(self.userConfig) && has(self.userConfig.migration))",message="migrationSecretSource and userConfig.migration are mutually exclusive; set only one"
 type PostgreSQLSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
 	// Reference to a Secret containing migration credentials.
 	// Secret keys must match userConfig.migration JSON field names.
-	// If set, takes precedence over userConfig.migration.
+	// Mutually exclusive with userConfig.migration.
+	// Values must not contain leading or trailing whitespace; such values are rejected
+	// at reconcile time so malformed credentials surface clearly instead of being silently altered.
 	MigrationSecretSource *MigrationSecretSource `json:"migrationSecretSource,omitempty"`
 
 	// PostgreSQL specific user configuration options

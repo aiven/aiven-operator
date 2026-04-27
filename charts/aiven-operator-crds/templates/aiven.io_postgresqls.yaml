@@ -142,8 +142,19 @@ spec:
                   description: |-
                     Reference to a Secret containing migration credentials.
                     Secret keys must match userConfig.migration JSON field names.
-                    If set, takes precedence over userConfig.migration.
+                    Mutually exclusive with userConfig.migration.
+                    Values must not contain leading or trailing whitespace; such values are rejected
+                    at reconcile time so malformed credentials surface clearly instead of being silently altered.
                   properties:
+                    deleteAfterMigration:
+                      default: false
+                      description: |-
+                        When true, the operator deletes the referenced Kubernetes Secret after
+                        migration completes successfully. Defaults to false.
+                        The field remains mutable post-migration: flipping false→true on a Done
+                        resource deletes the Secret on the next reconcile.
+                        Flipping true→false after deletion is a no-op.
+                      type: boolean
                     name:
                       description: Name of the Secret containing migration credentials
                       minLength: 1
@@ -1336,6 +1347,12 @@ spec:
                 - project
               type: object
               x-kubernetes-validations:
+                - message:
+                    migrationSecretSource and userConfig.migration are mutually
+                    exclusive; set only one
+                  rule:
+                    "!(has(self.migrationSecretSource) && has(self.userConfig) &&
+                    has(self.userConfig.migration))"
                 - message:
                     connInfoSecretTargetDisabled can only be set during resource
                     creation.

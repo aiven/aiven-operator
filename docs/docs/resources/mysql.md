@@ -146,7 +146,8 @@ MySQLSpec defines the desired state of MySQL.
 - [`maintenanceWindowTime`](#spec.maintenanceWindowTime-property){: name='spec.maintenanceWindowTime-property'} (string, MaxLength: 8). Time of day when maintenance operations should be performed. UTC time in HH:mm:ss format.
 - [`migrationSecretSource`](#spec.migrationSecretSource-property){: name='spec.migrationSecretSource-property'} (object). Reference to a Secret containing migration credentials.
     Secret keys must match userConfig.migration JSON field names.
-    If set, takes precedence over userConfig.migration. See below for [nested schema](#spec.migrationSecretSource).
+    Mutually exclusive with userConfig.migration.
+    Values must not contain leading or trailing whitespace; such values are rejected. See below for [nested schema](#spec.migrationSecretSource).
 - [`powered`](#spec.powered-property){: name='spec.powered-property'} (boolean, Default value: `true`). Determines the power state of the service. When `true` (default), the service is running.
     When `false`, the service is powered off.
     For more information please see [Aiven documentation](https://aiven.io/docs/platform/concepts/service-power-cycle).
@@ -202,11 +203,20 @@ _Appears on [`spec`](#spec)._
 
 Reference to a Secret containing migration credentials.
 Secret keys must match userConfig.migration JSON field names.
-If set, takes precedence over userConfig.migration.
+Mutually exclusive with userConfig.migration.
+Values must not contain leading or trailing whitespace; such values are rejected.
 
 **Required**
 
 - [`name`](#spec.migrationSecretSource.name-property){: name='spec.migrationSecretSource.name-property'} (string, MinLength: 1). Name of the Secret containing migration credentials.
+
+**Optional**
+
+- [`deleteAfterMigration`](#spec.migrationSecretSource.deleteAfterMigration-property){: name='spec.migrationSecretSource.deleteAfterMigration-property'} (boolean, Default value: `false`). When true, the operator deletes the referenced Kubernetes Secret after
+    migration completes successfully. Defaults to false.
+    The field remains mutable post-migration: flipping false→true on a Done
+    resource deletes the Secret on the next reconcile.
+    Flipping true→false after deletion is a no-op.
 
 ## projectVPCRef {: #spec.projectVPCRef }
 
