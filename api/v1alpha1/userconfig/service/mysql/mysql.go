@@ -156,6 +156,11 @@ type Mysql struct {
 	// The slow_query_logs work as SQL statements that take more than long_query_time seconds to execute.
 	LongQueryTime *float64 `groups:"create,update" json:"long_query_time,omitempty"`
 
+	// +kubebuilder:validation:Enum=0;1
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// Sets how table and database names are stored and compared. 0 = case-sensitive (default), 1 = names stored lowercase, comparisons are case-insensitive. This option can only be set when creating the service and cannot be changed later. See https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html for details.
+	LowerCaseTableNames *int `groups:"create" json:"lower_case_table_names,omitempty"`
+
 	// +kubebuilder:validation:Minimum=102400
 	// +kubebuilder:validation:Maximum=1073741824
 	// Size of the largest message in bytes that can be received by the server. Default is 67108864 (64M)

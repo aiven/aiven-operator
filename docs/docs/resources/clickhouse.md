@@ -235,7 +235,7 @@ OpenSearch specific user configuration options.
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Deprecated. Additional Cloud Regions for Backup Replication.
 - [`backup_hour`](#spec.userConfig.backup_hour-property){: name='spec.userConfig.backup_hour-property'} (integer, Minimum: 0, Maximum: 23). The hour of day (in UTC) when backup for the service is started. New backup is only started if previous backup has already completed.
 - [`backup_minute`](#spec.userConfig.backup_minute-property){: name='spec.userConfig.backup_minute-property'} (integer, Minimum: 0, Maximum: 59). The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
-- [`clickhouse_version`](#spec.userConfig.clickhouse_version-property){: name='spec.userConfig.clickhouse_version-property'} (string). Available versions: `25.3`. Newer versions may also be available.
+- [`clickhouse_version`](#spec.userConfig.clickhouse_version-property){: name='spec.userConfig.clickhouse_version-property'} (string). Available versions: `25.3`, `25.8`. Newer versions may also be available.
     ClickHouse major version.
 - [`enable_ipv6`](#spec.userConfig.enable_ipv6-property){: name='spec.userConfig.enable_ipv6-property'} (boolean). Register AAAA DNS records for the service, and allow IPv6 packets to service ports.
 - [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 8000). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
@@ -244,8 +244,10 @@ OpenSearch specific user configuration options.
 - [`project_to_fork_from`](#spec.userConfig.project_to_fork_from-property){: name='spec.userConfig.project_to_fork_from-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]{0,63}$|^$`, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.
 - [`public_access`](#spec.userConfig.public_access-property){: name='spec.userConfig.public_access-property'} (object). Allow access to selected service ports from the public Internet. See below for [nested schema](#spec.userConfig.public_access).
 - [`recovery_basebackup_name`](#spec.userConfig.recovery_basebackup_name-property){: name='spec.userConfig.recovery_basebackup_name-property'} (string, Pattern: `^[a-zA-Z0-9-_:.+]+$`, MaxLength: 128). Name of the basebackup to restore in forked service.
+- [`server_settings`](#spec.userConfig.server_settings-property){: name='spec.userConfig.server_settings-property'} (object). ClickHouse server settings, which can be found in the `system.server_settings` table. See below for [nested schema](#spec.userConfig.server_settings).
 - [`service_log`](#spec.userConfig.service_log-property){: name='spec.userConfig.service_log-property'} (boolean). Store logs for the service so that they are available in the HTTP API and console.
 - [`service_to_fork_from`](#spec.userConfig.service_to_fork_from-property){: name='spec.userConfig.service_to_fork_from-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]{0,63}$|^$`, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.
+- [`session_settings`](#spec.userConfig.session_settings-property){: name='spec.userConfig.session_settings-property'} (object). ClickHouse session settings, which can be found in the `system.settings` table. See below for [nested schema](#spec.userConfig.session_settings).
 - [`static_ips`](#spec.userConfig.static_ips-property){: name='spec.userConfig.static_ips-property'} (boolean). Use static public IP addresses.
 - [`tiered_storage_move_factor`](#spec.userConfig.tiered_storage_move_factor-property){: name='spec.userConfig.tiered_storage_move_factor-property'} (number, Minimum: 0, Maximum: 1). The percentage of free disk space required on local storage before data is moved to object storage. A value of 0.2 means data is moved when local storage has less than 20% free space.
 
@@ -301,3 +303,23 @@ Allow access to selected service ports from the public Internet.
 - [`clickhouse_https`](#spec.userConfig.public_access.clickhouse_https-property){: name='spec.userConfig.public_access.clickhouse_https-property'} (boolean). Allow clients to connect to clickhouse_https from the public internet for service nodes that are in a project VPC or another type of private network.
 - [`clickhouse_mysql`](#spec.userConfig.public_access.clickhouse_mysql-property){: name='spec.userConfig.public_access.clickhouse_mysql-property'} (boolean). Allow clients to connect to clickhouse_mysql from the public internet for service nodes that are in a project VPC or another type of private network.
 - [`prometheus`](#spec.userConfig.public_access.prometheus-property){: name='spec.userConfig.public_access.prometheus-property'} (boolean). Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network.
+
+### server_settings {: #spec.userConfig.server_settings }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+ClickHouse server settings, which can be found in the `system.server_settings` table.
+
+**Required**
+
+- [`vector_similarity_index_cache_size`](#spec.userConfig.server_settings.vector_similarity_index_cache_size-property){: name='spec.userConfig.server_settings.vector_similarity_index_cache_size-property'} (number, Minimum: 0, Maximum: 0.5). Fraction of total server memory allocated to the vector similarity index cache. 0 disables the cache. Default is 0.07 (7% of server memory). Only effective on ClickHouse 25.8+.
+
+### session_settings {: #spec.userConfig.session_settings }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+ClickHouse session settings, which can be found in the `system.settings` table.
+
+**Required**
+
+- [`compatibility`](#spec.userConfig.session_settings.compatibility-property){: name='spec.userConfig.session_settings.compatibility-property'} (string, Pattern: `^\d{2}\.\d{1,2}$`). When set, ClickHouse applies backward-compatible behavior from the specified version. Automatically set to the previous version on major version upgrade. Set to null to disable compatibility mode once all incompatibilities have been resolved. Takes effect after the next service restart/upgrade.

@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
@@ -194,7 +193,7 @@ func TestPgAdapter_SecretOverridesInlineConfig(t *testing.T) {
 		Migration: &pguserconfig.Migration{
 			Host:     "inline-host.example.com",
 			Port:     9999,
-			Password: lo.ToPtr("inline-password"),
+			Password: new("inline-password"),
 		},
 	}
 	adapter := &postgreSQLAdapter{PostgreSQL: pg, k8s: newFakeClient(s).Build()}

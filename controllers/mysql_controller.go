@@ -9,7 +9,6 @@ import (
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
-	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -121,39 +120,39 @@ func (a *mySQLAdapter) getUserConfigWithMigration(ctx context.Context) (any, err
 		Port: port,
 	}
 	if v, ok := data["password"]; ok {
-		m.Password = lo.ToPtr(v)
+		m.Password = new(v)
 	}
 	if v, ok := data["dbname"]; ok {
-		m.Dbname = lo.ToPtr(v)
+		m.Dbname = new(v)
 	}
 	if v, ok := data["username"]; ok {
-		m.Username = lo.ToPtr(v)
+		m.Username = new(v)
 	}
 	if v, ok := data["ssl"]; ok {
 		b, err := strconv.ParseBool(v)
 		if err != nil {
 			return nil, fmt.Errorf("migration secret %q: invalid ssl value %q: %w", ref.Name, v, err)
 		}
-		m.Ssl = lo.ToPtr(b)
+		m.Ssl = new(b)
 	}
 	if v, ok := data["method"]; ok {
-		m.Method = lo.ToPtr(v)
+		m.Method = new(v)
 	}
 	if v, ok := data["ignore_dbs"]; ok {
-		m.IgnoreDbs = lo.ToPtr(v)
+		m.IgnoreDbs = new(v)
 	}
 	if v, ok := data["ignore_roles"]; ok {
-		m.IgnoreRoles = lo.ToPtr(v)
+		m.IgnoreRoles = new(v)
 	}
 	if v, ok := data["dump_tool"]; ok {
-		m.DumpTool = lo.ToPtr(v)
+		m.DumpTool = new(v)
 	}
 	if v, ok := data["reestablish_replication"]; ok {
 		b, err := strconv.ParseBool(v)
 		if err != nil {
 			return nil, fmt.Errorf("migration secret %q: invalid reestablish_replication value %q: %w", ref.Name, v, err)
 		}
-		m.ReestablishReplication = lo.ToPtr(b)
+		m.ReestablishReplication = new(b)
 	}
 
 	// Build a shallow copy of the user config with migration from the secret.

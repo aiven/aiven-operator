@@ -305,6 +305,12 @@ spec:
                           maximum: 2147483647
                           minimum: 1
                           type: integer
+                        prefer_ipv6_address_enable:
+                          description:
+                            When enabled, connectors will automatically resolve
+                            IPv6 addresses from external server names configured with
+                            dual-stack.
+                          type: boolean
                         producer_batch_size:
                           description:
                             This setting gives the upper bound of the batch
@@ -466,7 +472,8 @@ spec:
                         description:
                           Configure external secret providers in order to
                           reference external secrets in connector configuration. Currently
-                          Hashicorp Vault and AWS Secrets Manager are supported.
+                          Hashicorp Vault, AWS Secrets Manager, and ENV secret providers
+                          are supported.
                         properties:
                           aws:
                             description: AWS secret provider configuration
@@ -494,10 +501,22 @@ spec:
                               - auth_method
                               - region
                             type: object
+                          env:
+                            description: ENV secret provider configuration
+                            properties:
+                              secrets:
+                                description:
+                                  Key/value map of secrets for ENV secret
+                                  provider
+                                type: object
+                            required:
+                              - secrets
+                            type: object
                           name:
                             description:
                               Name of the secret provider. Used to reference
                               secrets in connector config.
+                            pattern: ^[A-Za-z0-9_-]+$
                             type: string
                           vault:
                             description: Vault secret provider configuration
@@ -524,6 +543,12 @@ spec:
                                   than one segment it has to be increased to the number
                                   of segments.
                                 type: integer
+                              server_pem:
+                                description:
+                                  PEM encoded certificate of the Vault server.
+                                  Required if the vault server uses a self-signed certificate.
+                                maxLength: 4096
+                                type: string
                               token:
                                 description:
                                   Token used to authenticate with vault and

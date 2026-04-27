@@ -9,6 +9,13 @@ type FollowerFetching struct {
 	Enabled *bool `groups:"create,update" json:"enabled,omitempty"`
 }
 
+// Inkless configuration values
+type Inkless struct {
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// Whether to enable the Inkless functionality
+	Enabled bool `groups:"create" json:"enabled"`
+}
+
 // CIDR address block, either as a string, or in a dict with an optional description field
 type IpFilter struct {
 	// +kubebuilder:validation:MaxLength=1024
@@ -22,7 +29,7 @@ type IpFilter struct {
 
 // Kafka broker configuration values
 type Kafka struct {
-	// Enable auto-creation of topics. (Default: true)
+	// Enable auto-creation of topics. (Default: false)
 	AutoCreateTopicsEnable *bool `groups:"create,update" json:"auto_create_topics_enable,omitempty"`
 
 	// +kubebuilder:validation:Enum="gzip";"lz4";"producer";"snappy";"uncompressed";"zstd"
@@ -291,6 +298,9 @@ type KafkaConnectConfig struct {
 	// Maximum number of milliseconds to wait for records to flush and partition offset data to be committed to offset storage before cancelling the process and restoring the offset data to be committed in a future attempt (defaults to 5000).
 	OffsetFlushTimeoutMs *int `groups:"create,update" json:"offset_flush_timeout_ms,omitempty"`
 
+	// When enabled, connectors will automatically resolve IPv6 addresses from external server names configured with dual-stack.
+	PreferIpv6AddressEnable *bool `groups:"create,update" json:"prefer_ipv6_address_enable,omitempty"`
+
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=5242880
 	// This setting gives the upper bound of the batch size to be sent. If there are fewer than this many bytes accumulated for this partition, the producer will 'linger' for the linger.ms time waiting for more records to show up. A batch size of zero will disable batching entirely (defaults to 16384).
@@ -358,6 +368,15 @@ type Aws struct {
 	SecretKey *string `groups:"create,update" json:"secret_key,omitempty"`
 }
 
+// Key/value map of secrets for ENV secret provider
+type Secrets struct{}
+
+// ENV secret provider configuration
+type Env struct {
+	// Key/value map of secrets for ENV secret provider
+	Secrets Secrets `groups:"create,update" json:"secrets"`
+}
+
 // Vault secret provider configuration
 type Vault struct {
 	// +kubebuilder:validation:MinLength=1
@@ -376,16 +395,24 @@ type Vault struct {
 	// Prefix path depth of the secrets Engine. Default is 1. If the secrets engine path has more than one segment it has to be increased to the number of segments.
 	PrefixPathDepth *int `groups:"create,update" json:"prefix_path_depth,omitempty"`
 
+	// +kubebuilder:validation:MaxLength=4096
+	// PEM encoded certificate of the Vault server. Required if the vault server uses a self-signed certificate.
+	ServerPem *string `groups:"create,update" json:"server_pem,omitempty"`
+
 	// +kubebuilder:validation:MaxLength=256
 	// Token used to authenticate with vault and auth method `token`.
 	Token *string `groups:"create,update" json:"token,omitempty"`
 }
 
-// Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault and AWS Secrets Manager are supported.
+// Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault, AWS Secrets Manager, and ENV secret providers are supported.
 type KafkaConnectSecretProviders struct {
 	// AWS secret provider configuration
 	Aws *Aws `groups:"create,update" json:"aws,omitempty"`
 
+	// ENV secret provider configuration
+	Env *Env `groups:"create,update" json:"env,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^[A-Za-z0-9_-]+$`
 	// Name of the secret provider. Used to reference secrets in connector config.
 	Name string `groups:"create,update" json:"name"`
 
@@ -576,6 +603,7 @@ type KafkaUserConfig struct {
 
 	// +kubebuilder:validation:Minimum=3
 	// +kubebuilder:validation:Maximum=24
+	// +kubebuilder:validation:Enum=12;24;3;4;6;8
 	// Interval in hours between automatic backups. Minimum value is 3 hours. Must be a divisor of 24 (3, 4, 6, 8, 12, 24). (Applicable to ACU plans only)
 	BackupIntervalHours *int `groups:"create,update" json:"backup_interval_hours,omitempty"`
 
@@ -596,6 +624,9 @@ type KafkaUserConfig struct {
 
 	// Allow-list of HTTPS URLs used to validate GCP credential_source requests for Kafka Connect.
 	GcpAuthAllowedUrls []string `groups:"create,update" json:"gcp_auth_allowed_urls,omitempty"`
+
+	// Inkless configuration values
+	Inkless *Inkless `groups:"create,update" json:"inkless,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=8000
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'

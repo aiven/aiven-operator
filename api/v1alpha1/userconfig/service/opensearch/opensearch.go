@@ -684,7 +684,7 @@ type Opensearch struct {
 
 	ClusterSearchRequestSlowlog *ClusterSearchRequestSlowlog `groups:"create,update" json:"cluster.search.request.slowlog,omitempty"`
 
-	// +kubebuilder:validation:Minimum=100
+	// +kubebuilder:validation:Minimum=10
 	// +kubebuilder:validation:Maximum=10000
 	// Controls the number of shards allowed in the cluster per data node
 	ClusterMaxShardsPerNode *int `groups:"create,update" json:"cluster_max_shards_per_node,omitempty"`

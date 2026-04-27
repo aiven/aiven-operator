@@ -16,6 +16,46 @@ type Columns struct {
 	Type string `groups:"create,update" json:"type"`
 }
 
+// Optional materialized view that persists data from the Kafka engine table into a MergeTree-family table. When specified, a ClickHouse materialized view is created that automatically reads from the Kafka table and inserts into a durable target table.
+type MaterializedView struct {
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=40
+	// The database to create the materialized view in. Must not be the Kafka integration database as it is not replicated and may be dropped.
+	DatabaseName *string `groups:"create,update" json:"database_name,omitempty"`
+
+	// +kubebuilder:validation:Enum="AggregatingMergeTree";"CollapsingMergeTree";"MergeTree";"ReplacingMergeTree";"SummingMergeTree";"VersionedCollapsingMergeTree"
+	// The MergeTree-family engine for the materialized view's target table.
+	Engine *string `groups:"create,update" json:"engine,omitempty"`
+
+	// +kubebuilder:validation:MaxItems=10
+	// Column names passed as engine arguments, e.g. the sign column for CollapsingMergeTree or the sign and version columns for VersionedCollapsingMergeTree.
+	EngineParams []string `groups:"create,update" json:"engine_params,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=36500
+	// Number of days after which data is moved from local disk to remote storage (tiered storage). Must be specified together with ttl_column.
+	LocalDiskTtlDays *int `groups:"create,update" json:"local_disk_ttl_days,omitempty"`
+
+	// +kubebuilder:validation:MaxItems=100
+	// Columns for the ORDER BY clause of the target table. Determines the sort order and primary index.
+	OrderBy []string `groups:"create,update" json:"order_by"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=40
+	// Date or DateTime column used for both row deletion TTL and local disk tiered storage TTL. Must be specified when ttl_days or local_disk_ttl_days is set.
+	TtlColumn *string `groups:"create,update" json:"ttl_column,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=36500
+	// Number of days after which rows are deleted, calculated from the TTL column value. Must be specified together with ttl_column.
+	TtlDays *int `groups:"create,update" json:"ttl_days,omitempty"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=40
+	// The name of the materialized view to create.
+	ViewName string `groups:"create,update" json:"view_name"`
+}
+
 // Kafka topic
 type Topics struct {
 	// +kubebuilder:validation:MinLength=1
@@ -47,9 +87,12 @@ type Tables struct {
 	// The Kafka consumer group name. Multiple consumers with the same group name will share the workload and maintain offset positions.
 	GroupName string `groups:"create,update" json:"group_name"`
 
-	// +kubebuilder:validation:Enum="default";"stream"
-	// Defines how ClickHouse should handle errors when processing Kafka messages. 'default' stops on errors, 'stream' continues processing and logs errors.
+	// +kubebuilder:validation:Enum="dead_letter_queue";"default";"stream"
+	// Defines how ClickHouse should handle errors when processing Kafka messages. 'default' stops on errors, 'stream' continues processing and logs errors, 'dead_letter_queue' saves error data to system.dead_letter_queue (requires ClickHouse 25.8+).
 	HandleErrorMode *string `groups:"create,update" json:"handle_error_mode,omitempty"`
+
+	// Optional materialized view that persists data from the Kafka engine table into a MergeTree-family table. When specified, a ClickHouse materialized view is created that automatically reads from the Kafka table and inserts into a durable target table.
+	MaterializedView *MaterializedView `groups:"create,update" json:"materialized_view,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=1000000000

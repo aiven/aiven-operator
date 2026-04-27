@@ -403,7 +403,8 @@ Table to create.
 
 - [`auto_offset_reset`](#spec.clickhouseKafka.tables.auto_offset_reset-property){: name='spec.clickhouseKafka.tables.auto_offset_reset-property'} (string, Enum: `beginning`, `earliest`, `end`, `largest`, `latest`, `smallest`). Determines where to start reading from Kafka when no offset is stored or the stored offset is out of range. `earliest` starts from the beginning, `latest` starts from the end.
 - [`date_time_input_format`](#spec.clickhouseKafka.tables.date_time_input_format-property){: name='spec.clickhouseKafka.tables.date_time_input_format-property'} (string, Enum: `basic`, `best_effort`, `best_effort_us`). Specifies how ClickHouse should parse DateTime values from text-based input formats. `basic` uses simple parsing, `best_effort` attempts more flexible parsing.
-- [`handle_error_mode`](#spec.clickhouseKafka.tables.handle_error_mode-property){: name='spec.clickhouseKafka.tables.handle_error_mode-property'} (string, Enum: `default`, `stream`). Defines how ClickHouse should handle errors when processing Kafka messages. `default` stops on errors, `stream` continues processing and logs errors.
+- [`handle_error_mode`](#spec.clickhouseKafka.tables.handle_error_mode-property){: name='spec.clickhouseKafka.tables.handle_error_mode-property'} (string, Enum: `dead_letter_queue`, `default`, `stream`). Defines how ClickHouse should handle errors when processing Kafka messages. `default` stops on errors, `stream` continues processing and logs errors, `dead_letter_queue` saves error data to system.dead_letter_queue (requires ClickHouse 25.8+).
+- [`materialized_view`](#spec.clickhouseKafka.tables.materialized_view-property){: name='spec.clickhouseKafka.tables.materialized_view-property'} (object). Optional materialized view that persists data from the Kafka engine table into a MergeTree-family table. When specified, a ClickHouse materialized view is created that automatically reads from the Kafka table and inserts into a durable target table. See below for [nested schema](#spec.clickhouseKafka.tables.materialized_view).
 - [`max_block_size`](#spec.clickhouseKafka.tables.max_block_size-property){: name='spec.clickhouseKafka.tables.max_block_size-property'} (integer, Minimum: 0, Maximum: 1000000000). Maximum number of rows to collect before flushing data between Kafka and ClickHouse.
 - [`max_rows_per_message`](#spec.clickhouseKafka.tables.max_rows_per_message-property){: name='spec.clickhouseKafka.tables.max_rows_per_message-property'} (integer, Minimum: 1, Maximum: 1000000000). Maximum number of rows that can be processed from a single Kafka message for row-based formats. Useful for controlling memory usage.
 - [`num_consumers`](#spec.clickhouseKafka.tables.num_consumers-property){: name='spec.clickhouseKafka.tables.num_consumers-property'} (integer, Minimum: 1, Maximum: 10). Number of Kafka consumers to run per table per replica. Increasing this can improve throughput but may increase resource usage.
@@ -430,6 +431,26 @@ Table column.
 
 - [`name`](#spec.clickhouseKafka.tables.columns.name-property){: name='spec.clickhouseKafka.tables.columns.name-property'} (string, MinLength: 1, MaxLength: 40). The name of the column in the ClickHouse table. This should match the field names in your Kafka message format.
 - [`type`](#spec.clickhouseKafka.tables.columns.type-property){: name='spec.clickhouseKafka.tables.columns.type-property'} (string, MinLength: 1, MaxLength: 1000). The ClickHouse data type for this column. Must be a valid ClickHouse data type that can handle the data format.
+
+#### materialized_view {: #spec.clickhouseKafka.tables.materialized_view }
+
+_Appears on [`spec.clickhouseKafka.tables`](#spec.clickhouseKafka.tables)._
+
+Optional materialized view that persists data from the Kafka engine table into a MergeTree-family table. When specified, a ClickHouse materialized view is created that automatically reads from the Kafka table and inserts into a durable target table.
+
+**Required**
+
+- [`order_by`](#spec.clickhouseKafka.tables.materialized_view.order_by-property){: name='spec.clickhouseKafka.tables.materialized_view.order_by-property'} (array of strings, MaxItems: 100). Columns for the ORDER BY clause of the target table. Determines the sort order and primary index.
+- [`view_name`](#spec.clickhouseKafka.tables.materialized_view.view_name-property){: name='spec.clickhouseKafka.tables.materialized_view.view_name-property'} (string, MinLength: 1, MaxLength: 40). The name of the materialized view to create.
+
+**Optional**
+
+- [`database_name`](#spec.clickhouseKafka.tables.materialized_view.database_name-property){: name='spec.clickhouseKafka.tables.materialized_view.database_name-property'} (string, MinLength: 1, MaxLength: 40). The database to create the materialized view in. Must not be the Kafka integration database as it is not replicated and may be dropped.
+- [`engine`](#spec.clickhouseKafka.tables.materialized_view.engine-property){: name='spec.clickhouseKafka.tables.materialized_view.engine-property'} (string, Enum: `AggregatingMergeTree`, `CollapsingMergeTree`, `MergeTree`, `ReplacingMergeTree`, `SummingMergeTree`, `VersionedCollapsingMergeTree`). The MergeTree-family engine for the materialized view's target table.
+- [`engine_params`](#spec.clickhouseKafka.tables.materialized_view.engine_params-property){: name='spec.clickhouseKafka.tables.materialized_view.engine_params-property'} (array of strings, MaxItems: 10). Column names passed as engine arguments, e.g. the sign column for CollapsingMergeTree or the sign and version columns for VersionedCollapsingMergeTree.
+- [`local_disk_ttl_days`](#spec.clickhouseKafka.tables.materialized_view.local_disk_ttl_days-property){: name='spec.clickhouseKafka.tables.materialized_view.local_disk_ttl_days-property'} (integer, Minimum: 1, Maximum: 36500). Number of days after which data is moved from local disk to remote storage (tiered storage). Must be specified together with ttl_column.
+- [`ttl_column`](#spec.clickhouseKafka.tables.materialized_view.ttl_column-property){: name='spec.clickhouseKafka.tables.materialized_view.ttl_column-property'} (string, MinLength: 1, MaxLength: 40). Date or DateTime column used for both row deletion TTL and local disk tiered storage TTL. Must be specified when ttl_days or local_disk_ttl_days is set.
+- [`ttl_days`](#spec.clickhouseKafka.tables.materialized_view.ttl_days-property){: name='spec.clickhouseKafka.tables.materialized_view.ttl_days-property'} (integer, Minimum: 1, Maximum: 36500). Number of days after which rows are deleted, calculated from the TTL column value. Must be specified together with ttl_column.
 
 #### topics {: #spec.clickhouseKafka.tables.topics }
 
@@ -683,6 +704,7 @@ Configuration options for Telegraf MySQL input plugin.
 - [`gather_innodb_metrics`](#spec.metrics.source_mysql.telegraf.gather_innodb_metrics-property){: name='spec.metrics.source_mysql.telegraf.gather_innodb_metrics-property'} (boolean). Gather metrics from INFORMATION_SCHEMA.INNODB_METRICS.
 - [`gather_perf_events_statements`](#spec.metrics.source_mysql.telegraf.gather_perf_events_statements-property){: name='spec.metrics.source_mysql.telegraf.gather_perf_events_statements-property'} (boolean). Gather metrics from PERFORMANCE_SCHEMA.EVENTS_STATEMENTS_SUMMARY_BY_DIGEST.
 - [`gather_process_list`](#spec.metrics.source_mysql.telegraf.gather_process_list-property){: name='spec.metrics.source_mysql.telegraf.gather_process_list-property'} (boolean). Gather thread state counts from INFORMATION_SCHEMA.PROCESSLIST.
+- [`gather_replica_status`](#spec.metrics.source_mysql.telegraf.gather_replica_status-property){: name='spec.metrics.source_mysql.telegraf.gather_replica_status-property'} (boolean). Gather metrics from SHOW REPLICA STATUS command output.
 - [`gather_slave_status`](#spec.metrics.source_mysql.telegraf.gather_slave_status-property){: name='spec.metrics.source_mysql.telegraf.gather_slave_status-property'} (boolean). Gather metrics from SHOW SLAVE STATUS command output.
 - [`gather_table_io_waits`](#spec.metrics.source_mysql.telegraf.gather_table_io_waits-property){: name='spec.metrics.source_mysql.telegraf.gather_table_io_waits-property'} (boolean). Gather metrics from PERFORMANCE_SCHEMA.TABLE_IO_WAITS_SUMMARY_BY_TABLE.
 - [`gather_table_lock_waits`](#spec.metrics.source_mysql.telegraf.gather_table_lock_waits-property){: name='spec.metrics.source_mysql.telegraf.gather_table_lock_waits-property'} (boolean). Gather metrics from PERFORMANCE_SCHEMA.TABLE_LOCK_WAITS.
