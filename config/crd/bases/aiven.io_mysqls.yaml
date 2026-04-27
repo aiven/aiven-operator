@@ -558,6 +558,21 @@ spec:
                           maximum: 3600
                           minimum: 0
                           type: number
+                        lower_case_table_names:
+                          description:
+                            Sets how table and database names are stored
+                            and compared. 0 = case-sensitive (default), 1 = names stored
+                            lowercase, comparisons are case-insensitive. This option
+                            can only be set when creating the service and cannot be
+                            changed later. See https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html
+                            for details.
+                          enum:
+                            - 0
+                            - 1
+                          type: integer
+                          x-kubernetes-validations:
+                            - message: Value is immutable
+                              rule: self == oldSelf
                         max_allowed_packet:
                           description:
                             Size of the largest message in bytes that can

@@ -220,6 +220,7 @@ Kafka Connect configuration values.
 - [`consumer_max_poll_records`](#spec.userConfig.kafka_connect.consumer_max_poll_records-property){: name='spec.userConfig.kafka_connect.consumer_max_poll_records-property'} (integer, Minimum: 1, Maximum: 10000). The maximum number of records returned in a single call to poll() (defaults to 500).
 - [`offset_flush_interval_ms`](#spec.userConfig.kafka_connect.offset_flush_interval_ms-property){: name='spec.userConfig.kafka_connect.offset_flush_interval_ms-property'} (integer, Minimum: 1, Maximum: 100000000). The interval at which to try committing offsets for tasks (defaults to 60000).
 - [`offset_flush_timeout_ms`](#spec.userConfig.kafka_connect.offset_flush_timeout_ms-property){: name='spec.userConfig.kafka_connect.offset_flush_timeout_ms-property'} (integer, Minimum: 1, Maximum: 2147483647). Maximum number of milliseconds to wait for records to flush and partition offset data to be committed to offset storage before cancelling the process and restoring the offset data to be committed in a future attempt (defaults to 5000).
+- [`prefer_ipv6_address_enable`](#spec.userConfig.kafka_connect.prefer_ipv6_address_enable-property){: name='spec.userConfig.kafka_connect.prefer_ipv6_address_enable-property'} (boolean). When enabled, connectors will automatically resolve IPv6 addresses from external server names configured with dual-stack.
 - [`producer_batch_size`](#spec.userConfig.kafka_connect.producer_batch_size-property){: name='spec.userConfig.kafka_connect.producer_batch_size-property'} (integer, Minimum: 0, Maximum: 5242880). This setting gives the upper bound of the batch size to be sent. If there are fewer than this many bytes accumulated for this partition, the producer will `linger` for the linger.ms time waiting for more records to show up. A batch size of zero will disable batching entirely (defaults to 16384).
 - [`producer_buffer_memory`](#spec.userConfig.kafka_connect.producer_buffer_memory-property){: name='spec.userConfig.kafka_connect.producer_buffer_memory-property'} (integer, Minimum: 5242880, Maximum: 134217728). The total bytes of memory the producer can use to buffer records waiting to be sent to the broker (defaults to 33554432).
 - [`producer_compression_type`](#spec.userConfig.kafka_connect.producer_compression_type-property){: name='spec.userConfig.kafka_connect.producer_compression_type-property'} (string, Enum: `gzip`, `lz4`, `none`, `snappy`, `zstd`). Specify the default compression type for producers. This configuration accepts the standard compression codecs (`gzip`, `snappy`, `lz4`, `zstd`). It additionally accepts `none` which is the default and equivalent to no compression.
@@ -277,15 +278,16 @@ Allow access to selected service ports from the public Internet.
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
 
-Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault and AWS Secrets Manager are supported.
+Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault, AWS Secrets Manager, and ENV secret providers are supported.
 
 **Required**
 
-- [`name`](#spec.userConfig.secret_providers.name-property){: name='spec.userConfig.secret_providers.name-property'} (string). Name of the secret provider. Used to reference secrets in connector config.
+- [`name`](#spec.userConfig.secret_providers.name-property){: name='spec.userConfig.secret_providers.name-property'} (string, Pattern: `^[A-Za-z0-9_-]+$`). Name of the secret provider. Used to reference secrets in connector config.
 
 **Optional**
 
 - [`aws`](#spec.userConfig.secret_providers.aws-property){: name='spec.userConfig.secret_providers.aws-property'} (object). AWS secret provider configuration. See below for [nested schema](#spec.userConfig.secret_providers.aws).
+- [`env`](#spec.userConfig.secret_providers.env-property){: name='spec.userConfig.secret_providers.env-property'} (object). ENV secret provider configuration. See below for [nested schema](#spec.userConfig.secret_providers.env).
 - [`vault`](#spec.userConfig.secret_providers.vault-property){: name='spec.userConfig.secret_providers.vault-property'} (object). Vault secret provider configuration. See below for [nested schema](#spec.userConfig.secret_providers.vault).
 
 #### aws {: #spec.userConfig.secret_providers.aws }
@@ -304,6 +306,16 @@ AWS secret provider configuration.
 - [`access_key`](#spec.userConfig.secret_providers.aws.access_key-property){: name='spec.userConfig.secret_providers.aws.access_key-property'} (string, MaxLength: 128). Access key used to authenticate with aws.
 - [`secret_key`](#spec.userConfig.secret_providers.aws.secret_key-property){: name='spec.userConfig.secret_providers.aws.secret_key-property'} (string, MaxLength: 128). Secret key used to authenticate with aws.
 
+#### env {: #spec.userConfig.secret_providers.env }
+
+_Appears on [`spec.userConfig.secret_providers`](#spec.userConfig.secret_providers)._
+
+ENV secret provider configuration.
+
+**Required**
+
+- [`secrets`](#spec.userConfig.secret_providers.env.secrets-property){: name='spec.userConfig.secret_providers.env.secrets-property'} (object). Key/value map of secrets for ENV secret provider.
+
 #### vault {: #spec.userConfig.secret_providers.vault }
 
 _Appears on [`spec.userConfig.secret_providers`](#spec.userConfig.secret_providers)._
@@ -320,5 +332,6 @@ Vault secret provider configuration.
 - [`engine_version`](#spec.userConfig.secret_providers.vault.engine_version-property){: name='spec.userConfig.secret_providers.vault.engine_version-property'} (integer). Available versions: `1`, `2`. Newer versions may also be available.
     KV Secrets Engine version of the Vault server instance.
 - [`prefix_path_depth`](#spec.userConfig.secret_providers.vault.prefix_path_depth-property){: name='spec.userConfig.secret_providers.vault.prefix_path_depth-property'} (integer). Prefix path depth of the secrets Engine. Default is 1. If the secrets engine path has more than one segment it has to be increased to the number of segments.
+- [`server_pem`](#spec.userConfig.secret_providers.vault.server_pem-property){: name='spec.userConfig.secret_providers.vault.server_pem-property'} (string, MaxLength: 4096). PEM encoded certificate of the Vault server. Required if the vault server uses a self-signed certificate.
 - [`token`](#spec.userConfig.secret_providers.vault.token-property){: name='spec.userConfig.secret_providers.vault.token-property'} (string, MaxLength: 256). Token used to authenticate with vault and auth method `token`.
 

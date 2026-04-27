@@ -7,7 +7,6 @@ import (
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/go-logr/logr"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -235,7 +234,7 @@ func TestUpdateMigrationStatus(t *testing.T) {
 			Return(&service.ServiceGetMigrationStatusOut{
 				Migration: service.MigrationOut{
 					Status: service.MigrationStatusTypeFailed,
-					Error:  lo.ToPtr("connection refused"),
+					Error:  new("connection refused"),
 				},
 			}, nil).Once()
 

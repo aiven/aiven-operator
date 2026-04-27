@@ -58,6 +58,21 @@ type PublicAccess struct {
 	// Allow clients to connect to prometheus from the public internet for service nodes that are in a project VPC or another type of private network
 	Prometheus *bool `groups:"create,update" json:"prometheus,omitempty"`
 }
+
+// ClickHouse server settings, which can be found in the `system.server_settings` table.
+type ServerSettings struct {
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=0.5
+	// Fraction of total server memory allocated to the vector similarity index cache. 0 disables the cache. Default is 0.07 (7% of server memory). Only effective on ClickHouse 25.8+.
+	VectorSimilarityIndexCacheSize *float64 `groups:"create,update" json:"vector_similarity_index_cache_size,omitempty"`
+}
+
+// ClickHouse session settings, which can be found in the `system.settings` table.
+type SessionSettings struct {
+	// +kubebuilder:validation:Pattern=`^\d{2}\.\d{1,2}$`
+	// When set, ClickHouse applies backward-compatible behavior from the specified version. Automatically set to the previous version on major version upgrade. Set to null to disable compatibility mode once all incompatibilities have been resolved. Takes effect after the next service restart/upgrade.
+	Compatibility *string `groups:"create,update" json:"compatibility,omitempty"`
+}
 type ClickhouseUserConfig struct {
 	// +kubebuilder:validation:MaxItems=1
 	// +kubebuilder:deprecatedversion:warning="additional_backup_regions is deprecated"
@@ -74,7 +89,7 @@ type ClickhouseUserConfig struct {
 	// The minute of an hour when backup for the service is started. New backup is only started if previous backup has already completed.
 	BackupMinute *int `groups:"create,update" json:"backup_minute,omitempty"`
 
-	// Available versions: `25.3`. Newer versions may also be available.
+	// Available versions: `25.3`, `25.8`. Newer versions may also be available.
 	// ClickHouse major version
 	ClickhouseVersion *string `groups:"create,update" json:"clickhouse_version,omitempty"`
 
@@ -105,6 +120,9 @@ type ClickhouseUserConfig struct {
 	// Name of the basebackup to restore in forked service
 	RecoveryBasebackupName *string `groups:"create,update" json:"recovery_basebackup_name,omitempty"`
 
+	// ClickHouse server settings, which can be found in the `system.server_settings` table.
+	ServerSettings *ServerSettings `groups:"create,update" json:"server_settings,omitempty"`
+
 	// Store logs for the service so that they are available in the HTTP API and console.
 	ServiceLog *bool `groups:"create,update" json:"service_log,omitempty"`
 
@@ -113,6 +131,9 @@ type ClickhouseUserConfig struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Name of another service to fork from. This has effect only when a new service is being created.
 	ServiceToForkFrom *string `groups:"create" json:"service_to_fork_from,omitempty"`
+
+	// ClickHouse session settings, which can be found in the `system.settings` table.
+	SessionSettings *SessionSettings `groups:"create,update" json:"session_settings,omitempty"`
 
 	// Use static public IP addresses
 	StaticIps *bool `groups:"create,update" json:"static_ips,omitempty"`
