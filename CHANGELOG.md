@@ -28,6 +28,8 @@
 - Add `Valkey` field `userConfig.valkey_version`, type `string`: Available versions: `8.1`, `9.0`. Newer
   versions may also be available.
 Valkey major version
+- Add `KafkaSchema` field `references`, type `array`: Schema references for Protobuf or JSON schemas
+  that import other schemas
 
 ## v0.37.0 - 2026-04-09
 

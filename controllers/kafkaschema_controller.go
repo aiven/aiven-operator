@@ -57,15 +57,29 @@ func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cl
 	// Schema A -> ID:1, Version:1
 	// Schema B -> ID:2, Version:2
 	// Revert to A -> ID:1, Version:1
+	postIn := &kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionPostIn{
+		Schema:     schema.Spec.Schema,
+		SchemaType: schema.Spec.SchemaType,
+	}
+
+	if len(schema.Spec.References) > 0 {
+		refs := make([]kafkaschemaregistry.ReferenceIn, len(schema.Spec.References))
+		for i, r := range schema.Spec.References {
+			refs[i] = kafkaschemaregistry.ReferenceIn{
+				Name:    r.Name,
+				Subject: r.Subject,
+				Version: r.Version,
+			}
+		}
+		postIn.References = &refs
+	}
+
 	schemaID, err := avnGen.ServiceSchemaRegistrySubjectVersionPost(
 		ctx,
 		schema.Spec.Project,
 		schema.Spec.ServiceName,
 		schema.Spec.SubjectName,
-		&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionPostIn{
-			Schema:     schema.Spec.Schema,
-			SchemaType: schema.Spec.SchemaType,
-		},
+		postIn,
 	)
 	if err != nil {
 		return fmt.Errorf("cannot add Kafka Schema Subject: %w", err)

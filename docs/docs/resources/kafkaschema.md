@@ -103,6 +103,7 @@ KafkaSchemaSpec defines the desired state of KafkaSchema.
 
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
 - [`compatibilityLevel`](#spec.compatibilityLevel-property){: name='spec.compatibilityLevel-property'} (string, Enum: `BACKWARD`, `BACKWARD_TRANSITIVE`, `FORWARD`, `FORWARD_TRANSITIVE`, `FULL`, `FULL_TRANSITIVE`, `NONE`). Kafka Schemas compatibility level.
+- [`references`](#spec.references-property){: name='spec.references-property'} (array of objects). Schema references for Protobuf or JSON schemas that import other schemas. See below for [nested schema](#spec.references).
 - [`schemaType`](#spec.schemaType-property){: name='spec.schemaType-property'} (string, Enum: `AVRO`, `JSON`, `PROTOBUF`, Immutable). Schema type.
 
 ## authSecretRef {: #spec.authSecretRef }
@@ -115,3 +116,16 @@ Authentication reference to Aiven token in a secret.
 
 - [`key`](#spec.authSecretRef.key-property){: name='spec.authSecretRef.key-property'} (string, MinLength: 1).
 - [`name`](#spec.authSecretRef.name-property){: name='spec.authSecretRef.name-property'} (string, MinLength: 1).
+
+## references {: #spec.references }
+
+_Appears on [`spec`](#spec)._
+
+SchemaReference is a reference to another schema in the registry.
+
+**Required**
+
+- [`name`](#spec.references.name-property){: name='spec.references.name-property'} (string, MinLength: 1). Name used to reference the schema (e.g., the import path in Protobuf).
+- [`subject`](#spec.references.subject-property){: name='spec.references.subject-property'} (string, MinLength: 1). Subject name of the referenced schema in the registry.
+- [`version`](#spec.references.version-property){: name='spec.references.version-property'} (integer, Minimum: 1). Version of the referenced schema.
+
