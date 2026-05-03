@@ -8,55 +8,129 @@ import (
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafkaschemaregistry"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ctrl "sigs.k8s.io/controller-runtime"
+	"k8s.io/client-go/util/retry"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-// KafkaSchemaReconciler reconciles a KafkaSchema object
-type KafkaSchemaReconciler struct {
-	Controller
-}
-
-func newKafkaSchemaReconciler(c Controller) reconcilerType {
-	return &KafkaSchemaReconciler{Controller: c}
-}
-
-type KafkaSchemaHandler struct{}
-
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkaschemas,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkaschemas/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkaschemas/finalizers,verbs=get;create;update
 
-func (r *KafkaSchemaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, KafkaSchemaHandler{}, &v1alpha1.KafkaSchema{})
+// KafkaSchemaController reconciles a KafkaSchema object.
+type KafkaSchemaController struct {
+	client.Client
+	avnGen avngen.Client
 }
 
-func (r *KafkaSchemaReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.KafkaSchema{}).
-		Complete(r)
+func newKafkaSchemaReconciler(c Controller) reconcilerType {
+	return newManagedReconciler(
+		c,
+		func(c Controller, avnGen avngen.Client) AivenController[*v1alpha1.KafkaSchema] {
+			return &KafkaSchemaController{Client: c.Client, avnGen: avnGen}
+		},
+		nil,
+	)
 }
 
-func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
-	schema, err := h.convert(obj)
-	if err != nil {
-		return err
+func (r *KafkaSchemaController) Observe(ctx context.Context, schema *v1alpha1.KafkaSchema) (Observation, error) {
+	if _, err := getServiceIfOperational(ctx, r.avnGen, schema.Spec.Project, schema.Spec.ServiceName); err != nil {
+		return Observation{}, err
 	}
 
-	// This operation handles schema creation and updates idempotently:
-	// - New schemas get a new ID and version 1
-	// - Schema updates get a new ID and version
-	// - Submitting the same schema is idempotent (returns existing ID and version)
-	//
-	// Example:
-	// Schema A -> ID:1, Version:1
-	// Schema B -> ID:2, Version:2
-	// Revert to A -> ID:1, Version:1
+	versions, err := r.avnGen.ServiceSchemaRegistrySubjectVersionsGet(
+		ctx,
+		schema.Spec.Project,
+		schema.Spec.ServiceName,
+		schema.Spec.SubjectName,
+	)
+	switch {
+	case isServerError(err):
+		// The service is operational but the schema registry may not yet be ready.
+		// Surface this as a precondition miss so the reconciler does a soft requeue.
+		return Observation{}, fmt.Errorf("%w: schema registry not ready", errPreconditionNotMet)
+	case isNotFound(err):
+		// Subject is not registered yet
+		return Observation{ResourceExists: false}, nil
+	case err != nil:
+		return Observation{}, fmt.Errorf("listing Kafka Schema versions: %w", err)
+	}
+
+	if schema.Status.ID == 0 {
+		// No ID tracked yet, fall through to Create; it is idempotent.
+		return Observation{ResourceExists: false}, nil
+	}
+
+	for _, v := range versions {
+		got, err := r.avnGen.ServiceSchemaRegistrySubjectVersionGet(
+			ctx,
+			schema.Spec.Project,
+			schema.Spec.ServiceName,
+			schema.Spec.SubjectName,
+			v,
+		)
+		if err != nil {
+			return Observation{}, fmt.Errorf("getting Kafka Schema version %d: %w", v, err)
+		}
+
+		if got.Id != schema.Status.ID {
+			continue
+		}
+
+		schema.Status.Version = got.Version
+		meta.SetStatusCondition(&schema.Status.Conditions,
+			getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
+		metav1.SetMetaDataAnnotation(&schema.ObjectMeta, instanceIsRunningAnnotation, "true")
+
+		return Observation{
+			ResourceExists:   true,
+			ResourceUpToDate: hasLatestGeneration(schema),
+		}, nil
+	}
+
+	// Tracked version is not visible, maybe eventual-consistency lag after POST
+	return Observation{}, fmt.Errorf("%w: tracked schema ID %d not visible in registry", errPreconditionNotMet, schema.Status.ID)
+}
+
+func (r *KafkaSchemaController) Create(ctx context.Context, schema *v1alpha1.KafkaSchema) (CreateResult, error) {
+	delete(schema.GetAnnotations(), instanceIsRunningAnnotation)
+	if err := r.applySchema(ctx, schema); err != nil {
+		return CreateResult{}, err
+	}
+
+	const reason = "CreatedOrUpdated"
+	meta.SetStatusCondition(&schema.Status.Conditions, getInitializedCondition(reason, "Successfully created or updated the instance in Aiven"))
+	meta.SetStatusCondition(&schema.Status.Conditions, getRunningCondition(metav1.ConditionUnknown, reason, "Successfully created or updated the instance in Aiven, status remains unknown"))
+
+	return CreateResult{}, nil
+}
+
+func (r *KafkaSchemaController) Update(ctx context.Context, schema *v1alpha1.KafkaSchema) (UpdateResult, error) {
+	delete(schema.GetAnnotations(), instanceIsRunningAnnotation)
+	if err := r.applySchema(ctx, schema); err != nil {
+		return UpdateResult{}, err
+	}
+
+	const reason = "CreatedOrUpdated"
+	meta.SetStatusCondition(&schema.Status.Conditions, getInitializedCondition(reason, "Successfully created or updated the instance in Aiven"))
+	meta.SetStatusCondition(&schema.Status.Conditions, getRunningCondition(metav1.ConditionUnknown, reason, "Successfully created or updated the instance in Aiven, status remains unknown"))
+
+	return UpdateResult{}, nil
+}
+
+// applySchema handles schema creation and updates idempotently:
+// - New schemas get a new ID and version 1
+// - Schema updates get a new ID and version
+// - Submitting the same schema is idempotent (returns existing ID and version)
+//
+// Example:
+// Schema A -> ID:1, Version:1
+// Schema B -> ID:2, Version:2
+// Revert to A -> ID:1, Version:1
+func (r *KafkaSchemaController) applySchema(ctx context.Context, schema *v1alpha1.KafkaSchema) error {
 	postIn := &kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionPostIn{
 		Schema:     schema.Spec.Schema,
 		SchemaType: schema.Spec.SchemaType,
@@ -64,17 +138,17 @@ func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cl
 
 	if len(schema.Spec.References) > 0 {
 		refs := make([]kafkaschemaregistry.ReferenceIn, len(schema.Spec.References))
-		for i, r := range schema.Spec.References {
+		for i, ref := range schema.Spec.References {
 			refs[i] = kafkaschemaregistry.ReferenceIn{
-				Name:    r.Name,
-				Subject: r.Subject,
-				Version: r.Version,
+				Name:    ref.Name,
+				Subject: ref.Subject,
+				Version: ref.Version,
 			}
 		}
 		postIn.References = &refs
 	}
 
-	schemaID, err := avnGen.ServiceSchemaRegistrySubjectVersionPost(
+	schemaID, err := r.avnGen.ServiceSchemaRegistrySubjectVersionPost(
 		ctx,
 		schema.Spec.Project,
 		schema.Spec.ServiceName,
@@ -85,21 +159,22 @@ func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cl
 		return fmt.Errorf("cannot add Kafka Schema Subject: %w", err)
 	}
 
-	// The ID is used by the get() to poll the schema version which usually takes some time to be available.
+	// ID is used by Observe to look up the version, which may take some time to appear.
 	schema.Status.ID = schemaID
 
-	// Sets compatibility level if defined
+	// TODO: workaround for a stale-cache race in the managed. Remove once the reconciler fix lands.
+	if err := r.persistStatusID(ctx, schema); err != nil {
+		return fmt.Errorf("persisting Status.ID: %w", err)
+	}
+
 	if schema.Spec.CompatibilityLevel != "" {
-		_, err := avnGen.ServiceSchemaRegistrySubjectConfigPut(
+		if _, err := r.avnGen.ServiceSchemaRegistrySubjectConfigPut(
 			ctx,
 			schema.Spec.Project,
 			schema.Spec.ServiceName,
 			schema.Spec.SubjectName,
-			&kafkaschemaregistry.ServiceSchemaRegistrySubjectConfigPutIn{
-				Compatibility: schema.Spec.CompatibilityLevel,
-			},
-		)
-		if err != nil {
+			&kafkaschemaregistry.ServiceSchemaRegistrySubjectConfigPutIn{Compatibility: schema.Spec.CompatibilityLevel},
+		); err != nil {
 			return fmt.Errorf("cannot update Kafka Schema Configuration: %w", err)
 		}
 	}
@@ -107,113 +182,28 @@ func (h KafkaSchemaHandler) createOrUpdate(ctx context.Context, avnGen avngen.Cl
 	return nil
 }
 
-func (h KafkaSchemaHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
-	schema, err := h.convert(obj)
-	if err != nil {
-		return false, err
-	}
-
-	// This is a soft delete, the schema still can be fetched with ?deleted=true flag.
-	// The hard delete operation is recommended to be only used in development environments or when the topic needs to be recycled.
-	err = avnGen.ServiceSchemaRegistrySubjectDelete(ctx, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName)
-	return isDeleted(err)
-}
-
-func (h KafkaSchemaHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
-	schema, err := h.convert(obj)
-	if err != nil {
-		return nil, err
-	}
-
-	version, err := getKafkaSchemaVersion(
-		ctx,
-		avnGen,
-		schema.Spec.Project,
-		schema.Spec.ServiceName,
-		schema.Spec.SubjectName,
-		schema.Status.ID,
-	)
-
-	switch {
-	case isNotFound(err), isServerError(err):
-		// Eventual consistency issue.
-		// The resource is not replicated yet.
-		return nil, nil
-	case err != nil:
-		return nil, err
-	}
-
-	schema.Status.Version = version
-	meta.SetStatusCondition(&schema.Status.Conditions,
-		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
-			"Instance is running on Aiven side"))
-
-	metav1.SetMetaDataAnnotation(&schema.ObjectMeta, instanceIsRunningAnnotation, "true")
-
-	return nil, nil
-}
-
-func (h KafkaSchemaHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
-	schema, err := h.convert(obj)
-	if err != nil {
-		return false, err
-	}
-
-	ok, err := checkServiceIsOperational(ctx, avnGen, schema.Spec.Project, schema.Spec.ServiceName)
-	if !ok || err != nil {
-		return ok, err
-	}
-
-	// Makes a GET call to retry 5xx errors.
-	// Even when the service is operational, the schema registry may not be ready yet.
-	// The client retries errors under the hood, but sometimes it's not enough.
-	// Let Kubernetes controller-runtime handle retries by returning false to requeue
-	// the reconciliation request.
-	_, err = avnGen.ServiceSchemaRegistrySubjectVersionsGet(
-		ctx,
-		schema.Spec.Project,
-		schema.Spec.ServiceName,
-		schema.Spec.SubjectName,
-	)
-
-	switch {
-	case isServerError(err):
-		// It is not a fatal error, just means that the schema registry is not ready yet.
-		return false, nil
-	case isNotFound(err):
-		// The schema does not exist yet, which is fine.
-		// If it exists, it will be updated in createOrUpdate.
-		return true, nil
-	}
-
-	return err == nil, err
-}
-
-func (h KafkaSchemaHandler) convert(i client.Object) (*v1alpha1.KafkaSchema, error) {
-	schema, ok := i.(*v1alpha1.KafkaSchema)
-	if !ok {
-		return nil, fmt.Errorf("cannot convert object to KafkaSchema")
-	}
-
-	return schema, nil
-}
-
-func getKafkaSchemaVersion(ctx context.Context, client avngen.Client, projectName, serviceName, subjectName string, schemaID int) (int, error) {
-	versions, err := client.ServiceSchemaRegistrySubjectVersionsGet(ctx, projectName, serviceName, subjectName)
-	if err != nil {
-		return 0, err
-	}
-
-	for _, v := range versions {
-		version, err := client.ServiceSchemaRegistrySubjectVersionGet(ctx, projectName, serviceName, subjectName, v)
-		if err != nil {
-			return 0, err
+// persistStatusID writes schema.Status.ID to the API server in its own status
+// subresource update, retrying on optimistic-concurrency conflicts.
+//
+// This is a workaround for the reconciler race issue.
+// It should be removed when updateStatus in the managed reconciler no longer clobbers
+// concurrently-written status fields.
+func (r *KafkaSchemaController) persistStatusID(ctx context.Context, schema *v1alpha1.KafkaSchema) error {
+	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		latest := &v1alpha1.KafkaSchema{}
+		if err := r.Get(ctx, client.ObjectKeyFromObject(schema), latest); err != nil {
+			return err
 		}
+		latest.Status.ID = schema.Status.ID
+		return r.Status().Update(ctx, latest)
+	})
+}
 
-		if version.Id == schemaID {
-			return version.Version, nil
-		}
+func (r *KafkaSchemaController) Delete(ctx context.Context, schema *v1alpha1.KafkaSchema) error {
+	// Soft delete: the schema is still accessible via ?deleted=true.
+	err := r.avnGen.ServiceSchemaRegistrySubjectDelete(ctx, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName)
+	if err != nil && !isNotFound(err) {
+		return err
 	}
-
-	return 0, NewNotFound(fmt.Sprintf("the schema with id %d not found", schemaID))
+	return nil
 }
