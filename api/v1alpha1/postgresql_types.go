@@ -15,6 +15,9 @@ type PostgreSQLSpec struct {
 	// Reference to a Secret containing migration credentials.
 	// Secret keys must match userConfig.migration JSON field names.
 	// If set, takes precedence over userConfig.migration.
+	// Leading and trailing whitespace is stripped from every value, including the password,
+	// to accommodate newline-terminated values from editors or `stringData` manifests.
+	// Store credentials without surrounding whitespace.
 	MigrationSecretSource *MigrationSecretSource `json:"migrationSecretSource,omitempty"`
 
 	// PostgreSQL specific user configuration options

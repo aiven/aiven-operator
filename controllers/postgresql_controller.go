@@ -37,7 +37,7 @@ const waitForTaskToCompleteInterval = time.Second * 3
 //+kubebuilder:rbac:groups=aiven.io,resources=postgresqls/finalizers,verbs=get;create;update
 
 func (r *PostgreSQLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newPostgreSQLAdapterFactory(r.Client), r.Log), &v1alpha1.PostgreSQL{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandlerWithClient(r.Client, newPostgreSQLAdapterFactory(r.Client), r.Log), &v1alpha1.PostgreSQL{})
 }
 
 func (r *PostgreSQLReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -47,7 +47,7 @@ func (r *PostgreSQLReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func newPostgreSQLAdapterFactory(k8s client.Reader) serviceAdapterFabric {
+func newPostgreSQLAdapterFactory(k8s client.Client) serviceAdapterFabric {
 	return func(object client.Object) (serviceAdapter, error) {
 		pg, ok := object.(*v1alpha1.PostgreSQL)
 		if !ok {
@@ -60,7 +60,7 @@ func newPostgreSQLAdapterFactory(k8s client.Reader) serviceAdapterFabric {
 // postgreSQLAdapter handles an Aiven PostgreSQL service
 type postgreSQLAdapter struct {
 	*v1alpha1.PostgreSQL
-	k8s client.Reader
+	k8s client.Client
 }
 
 func (a *postgreSQLAdapter) getObjectMeta() *metav1.ObjectMeta {
@@ -106,20 +106,18 @@ func (a *postgreSQLAdapter) getMigrationSecretSource() *v1alpha1.MigrationSecret
 	return a.Spec.MigrationSecretSource
 }
 
-func (a *postgreSQLAdapter) getUserConfigWithMigration(ctx context.Context) (any, error) {
+// buildUserConfigWithMigration merges pre-resolved migration Secret data into a
+// clone of the user config. Pure: no I/O, no context. The Secret is read upstream
+// in the handler; this method only maps fields and validates them.
+func (a *postgreSQLAdapter) buildUserConfigWithMigration(data map[string]string) (any, error) {
 	ref := a.Spec.MigrationSecretSource
 	if ref == nil {
 		return a.getUserConfig(), nil
 	}
 
-	data, err := readMigrationSecret(ctx, a.k8s, a.GetNamespace(), ref)
+	port, err := parseMigrationPort(ref.Name, data["port"])
 	if err != nil {
 		return nil, err
-	}
-
-	port, err := strconv.Atoi(data["port"])
-	if err != nil {
-		return nil, fmt.Errorf("migration secret %q: invalid or missing port: %w", ref.Name, err)
 	}
 
 	host := data["host"]
@@ -251,4 +249,8 @@ func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avnG
 
 func (a *postgreSQLAdapter) createOrUpdateServiceSpecific(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
+}
+
+func (a *postgreSQLAdapter) deleteMigrationSecret(ctx context.Context) error {
+	return deleteMigrationSecret(ctx, a.k8s, a.GetNamespace(), a.Spec.MigrationSecretSource)
 }

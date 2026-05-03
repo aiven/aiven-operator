@@ -143,7 +143,17 @@ spec:
                     Reference to a Secret containing migration credentials.
                     Secret keys must match userConfig.migration JSON field names.
                     If set, takes precedence over userConfig.migration.
+                    Leading and trailing whitespace is stripped from every value, including the password.
+                    Store credentials without surrounding whitespace.
                   properties:
+                    deleteAfterMigration:
+                      default: false
+                      description: |-
+                        When true, the operator deletes the referenced Kubernetes Secret after
+                        migration completes successfully. Defaults to false.
+                        This field remains mutable after migration has completed: flipping it from
+                        false to true on a Done resource triggers Secret deletion on the next reconcile.
+                      type: boolean
                     name:
                       description: Name of the Secret containing migration credentials
                       minLength: 1

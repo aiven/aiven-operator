@@ -19,11 +19,18 @@ func newGenericServiceHandler(fabric serviceAdapterFabric, log logr.Logger) Hand
 	return &genericServiceHandler{fabric: fabric, log: log}
 }
 
+// newGenericServiceHandlerWithClient wires a Kubernetes client into the handler so it can
+// read migration Secrets.
+func newGenericServiceHandlerWithClient(k8s client.Client, fabric serviceAdapterFabric, log logr.Logger) Handlers {
+	return &genericServiceHandler{fabric: fabric, log: log, k8s: k8s}
+}
+
 // genericServiceHandler provides common CRUD management for all service types using serviceAdapter,
 // which turns specific service (mysql, valkey) into a generic.
 type genericServiceHandler struct {
 	fabric serviceAdapterFabric
 	log    logr.Logger
+	k8s    client.Client
 }
 
 func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
@@ -33,12 +40,27 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 	}
 
 	userCfg := o.getUserConfig()
-	if mp, ok := o.(migrationSecretProvider); ok {
-		resolved, err := mp.getUserConfigWithMigration(ctx)
-		if err != nil {
-			return fmt.Errorf("failed to resolve migration secret: %w", err)
+	if mp, ok := o.(migrationSecretProvider); ok && mp.getMigrationSecretSource() != nil {
+		// Once migration has completed, skip re-resolving credentials from the Secret.
+		//
+		// Aiven persists the submitted userConfig.migration block and returns it on subsequent ServiceGet calls.
+		// We deliberately do not re-send it here to avoid refreshing a persisted plaintext copy and to
+		// allow DeleteAfterMigration to actually remove the Secret from the cluster.
+		migrationDone := meta.IsStatusConditionTrue(
+			o.getServiceStatus().Conditions,
+			v1alpha1.ConditionTypeMigrationComplete,
+		)
+		if !migrationDone {
+			data, err := readMigrationSecret(ctx, h.k8s, o.getObjectMeta().Namespace, mp.getMigrationSecretSource())
+			if err != nil {
+				return fmt.Errorf("failed to read migration secret: %w", err)
+			}
+			resolved, err := mp.buildUserConfigWithMigration(data)
+			if err != nil {
+				return fmt.Errorf("failed to build migration user config: %w", err)
+			}
+			userCfg = resolved
 		}
-		userCfg = resolved
 	}
 
 	spec := o.getServiceCommonSpec()
@@ -241,7 +263,18 @@ func (h *genericServiceHandler) get(ctx context.Context, avnGen avngen.Client, o
 	metav1.SetMetaDataAnnotation(o.getObjectMeta(), instanceIsRunningAnnotation, "true")
 
 	if mp, ok := o.(migrationSecretProvider); ok && mp.getMigrationSecretSource() != nil {
-		if err := h.updateMigrationStatus(ctx, avnGen, o, spec); err != nil {
+		// Skip polling Aiven once the migration has completed; the status won't change,
+		// and ServiceGetMigrationStatus would 404 on every subsequent reconcile.
+		migrationDone := meta.IsStatusConditionTrue(
+			o.getServiceStatus().Conditions,
+			v1alpha1.ConditionTypeMigrationComplete,
+		)
+		if !migrationDone {
+			if err := h.updateMigrationStatus(ctx, avnGen, o, spec); err != nil {
+				return nil, err
+			}
+		}
+		if err := h.maybeDeleteMigrationSecret(ctx, o, mp); err != nil {
 			return nil, err
 		}
 	}
@@ -411,8 +444,11 @@ type serviceAdapter interface {
 // migration credentials from a Kubernetes Secret.
 type migrationSecretProvider interface {
 	getMigrationSecretSource() *v1alpha1.MigrationSecretSource
-	// getUserConfigWithMigration returns a copy of the user config with migration
-	// credentials merged in from the referenced Kubernetes Secret.
+	// buildUserConfigWithMigration returns a copy of the user config with migration
+	// credentials merged in from the pre-resolved Secret data.
 	// The original CR spec should never be mutated, so secret data cannot leak into the persisted object.
-	getUserConfigWithMigration(ctx context.Context) (any, error)
+	buildUserConfigWithMigration(data map[string]string) (any, error)
+	// deleteMigrationSecret removes the referenced Secret from the cluster.
+	// Returns nil if the Secret is already gone (idempotent).
+	deleteMigrationSecret(ctx context.Context) error
 }

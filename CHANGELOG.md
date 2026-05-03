@@ -30,6 +30,8 @@
 Valkey major version
 - Add `KafkaSchema` field `references`, type `array`: Schema references for Protobuf or JSON schemas
   that import other schemas
+- Add `MySQL` and `PostgreSQL` field `migrationSecretSource.deleteAfterMigration`, type `boolean`: When
+  true, the operator deletes the referenced Secret after migration completes successfully. Defaults to `false`.
 
 ## v0.37.0 - 2026-04-09
 

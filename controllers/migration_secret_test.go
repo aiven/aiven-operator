@@ -4,11 +4,15 @@ import (
 	"context"
 	"testing"
 
+	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -21,7 +25,7 @@ var adapters = []adapterFactory{
 		return newPgAdapter(ns, secret, k8s)
 	}},
 	{"mysql", func(ns, secret string, k8s *fake.ClientBuilder) migrationAdapter {
-		return newMySQLAdapter(ns, secret, k8s)
+		return newTestMySQLAdapter(ns, secret, k8s)
 	}},
 }
 
@@ -40,7 +44,7 @@ func TestPgAdapter_FullFields(t *testing.T) {
 		"ignore_roles": []byte("rdsadmin"),
 	})
 	adapter := newPgAdapter("default", "creds", newFakeClient(s))
-	result, err := adapter.getUserConfigWithMigration(context.Background())
+	result, err := resolveForTest(context.Background(), adapter)
 	require.NoError(t, err)
 
 	cfg := result.(*pguserconfig.PgUserConfig)
@@ -76,8 +80,8 @@ func TestMySQLAdapter_FullFields(t *testing.T) {
 		"dump_tool":               []byte("mydumper"),
 		"reestablish_replication": []byte("true"),
 	})
-	adapter := newMySQLAdapter("default", "creds", newFakeClient(s))
-	result, err := adapter.getUserConfigWithMigration(context.Background())
+	adapter := newTestMySQLAdapter("default", "creds", newFakeClient(s))
+	result, err := resolveForTest(context.Background(), adapter)
 	require.NoError(t, err)
 
 	cfg := result.(*mysqluserconfig.MysqlUserConfig)
@@ -119,7 +123,7 @@ func TestAdapters_StringFieldsPreservedAsStrings(t *testing.T) {
 				"username": []byte(tt.username),
 			})
 			adapter := newPgAdapter("default", "creds", newFakeClient(s))
-			result, err := adapter.getUserConfigWithMigration(context.Background())
+			result, err := resolveForTest(context.Background(), adapter)
 			require.NoError(t, err)
 
 			cfg := result.(*pguserconfig.PgUserConfig)
@@ -156,7 +160,7 @@ func TestAdapters_Errors(t *testing.T) {
 				} else {
 					k = newFakeClient()
 				}
-				_, err := af.newFunc(tt.ns, tt.secret, k).getUserConfigWithMigration(context.Background())
+				_, err := resolveForTest(context.Background(), af.newFunc(tt.ns, tt.secret, k))
 				require.Error(t, err)
 				assert.Contains(t, err.Error(), tt.errSubstr)
 			})
@@ -172,9 +176,9 @@ func TestMySQLAdapter_InvalidReestablishReplication(t *testing.T) {
 		"port":                    []byte("3306"),
 		"reestablish_replication": []byte("nope"),
 	})
-	adapter := newMySQLAdapter("default", "creds", newFakeClient(s))
+	adapter := newTestMySQLAdapter("default", "creds", newFakeClient(s))
 
-	_, err := adapter.getUserConfigWithMigration(context.Background())
+	_, err := resolveForTest(context.Background(), adapter)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "reestablish_replication")
 }
@@ -197,7 +201,7 @@ func TestPgAdapter_SecretOverridesInlineConfig(t *testing.T) {
 		},
 	}
 	adapter := &postgreSQLAdapter{PostgreSQL: pg, k8s: newFakeClient(s).Build()}
-	result, err := adapter.getUserConfigWithMigration(context.Background())
+	result, err := resolveForTest(context.Background(), adapter)
 	require.NoError(t, err)
 
 	cfg := result.(*pguserconfig.PgUserConfig)
@@ -220,7 +224,7 @@ func TestPgAdapter_NilRef(t *testing.T) {
 	pg := &v1alpha1.PostgreSQL{}
 	adapter := &postgreSQLAdapter{PostgreSQL: pg, k8s: nil}
 
-	result, err := adapter.getUserConfigWithMigration(context.Background())
+	result, err := resolveForTest(context.Background(), adapter)
 	require.NoError(t, err)
 	assert.Nil(t, result)
 	assert.Nil(t, pg.Spec.UserConfig)
@@ -250,7 +254,7 @@ func newPgAdapter(ns string, secretName string, k8s *fake.ClientBuilder) *postgr
 	return &postgreSQLAdapter{PostgreSQL: pg, k8s: k8s.Build()}
 }
 
-func newMySQLAdapter(ns string, secretName string, k8s *fake.ClientBuilder) *mySQLAdapter {
+func newTestMySQLAdapter(ns string, secretName string, k8s *fake.ClientBuilder) *mySQLAdapter {
 	mysql := &v1alpha1.MySQL{}
 	mysql.Namespace = ns
 	mysql.Spec.MigrationSecretSource = &v1alpha1.MigrationSecretSource{Name: secretName}
@@ -259,10 +263,154 @@ func newMySQLAdapter(ns string, secretName string, k8s *fake.ClientBuilder) *myS
 
 // migrationAdapter abstracts over PG and MySQL adapters for shared tests.
 type migrationAdapter interface {
-	getUserConfigWithMigration(ctx context.Context) (any, error)
+	migrationSecretProvider
+	k8sClient() client.Client
+	namespace() string
+}
+
+func (a *postgreSQLAdapter) k8sClient() client.Client { return a.k8s }
+func (a *postgreSQLAdapter) namespace() string        { return a.GetNamespace() }
+func (a *mySQLAdapter) k8sClient() client.Client      { return a.k8s }
+func (a *mySQLAdapter) namespace() string             { return a.GetNamespace() }
+
+// resolveForTest reproduces the handler's two-step resolution (read Secret → build config)
+// so tests can exercise the adapter mapping without duplicating handler wiring.
+func resolveForTest(ctx context.Context, a migrationAdapter) (any, error) {
+	ref := a.getMigrationSecretSource()
+	if ref == nil {
+		return a.buildUserConfigWithMigration(nil)
+	}
+	data, err := readMigrationSecret(ctx, a.k8sClient(), a.namespace(), ref)
+	if err != nil {
+		return nil, err
+	}
+	return a.buildUserConfigWithMigration(data)
 }
 
 type adapterFactory struct {
 	name    string
 	newFunc func(ns, secretName string, k8s *fake.ClientBuilder) migrationAdapter
+}
+
+func markMigrationDone(pg *v1alpha1.PostgreSQL) {
+	pg.Status.Conditions = append(pg.Status.Conditions, metav1.Condition{
+		Type:    v1alpha1.ConditionTypeMigrationComplete,
+		Status:  metav1.ConditionTrue,
+		Reason:  v1alpha1.MigrationReasonDone,
+		Message: "done",
+	})
+}
+
+func markMigrationInProgress(pg *v1alpha1.PostgreSQL) {
+	pg.Status.Conditions = append(pg.Status.Conditions, metav1.Condition{
+		Type:    v1alpha1.ConditionTypeMigrationComplete,
+		Status:  metav1.ConditionFalse,
+		Reason:  v1alpha1.MigrationReasonInProgress,
+		Message: "syncing",
+	})
+}
+
+func secretExists(t *testing.T, k8s client.Client, name, ns string) bool {
+	t.Helper()
+	err := k8s.Get(context.Background(), types.NamespacedName{Name: name, Namespace: ns}, &corev1.Secret{})
+	if err == nil {
+		return true
+	}
+	if apierrors.IsNotFound(err) {
+		return false
+	}
+	t.Fatalf("unexpected error reading secret: %v", err)
+	return false
+}
+
+func TestMaybeDeleteMigrationSecret(t *testing.T) {
+	t.Parallel()
+
+	newPgAdapterWithClient := func(k8s client.Client, deleteAfter bool) (*v1alpha1.PostgreSQL, *postgreSQLAdapter) {
+		pg := &v1alpha1.PostgreSQL{}
+		pg.Namespace = "default"
+		pg.Name = "pg-1"
+		pg.Spec.MigrationSecretSource = &v1alpha1.MigrationSecretSource{
+			Name:                 "creds",
+			DeleteAfterMigration: deleteAfter,
+		}
+		return pg, &postgreSQLAdapter{PostgreSQL: pg, k8s: k8s}
+	}
+
+	buildClient := func(withSecret bool) client.Client {
+		scheme := runtime.NewScheme()
+		_ = corev1.AddToScheme(scheme)
+		b := fake.NewClientBuilder().WithScheme(scheme)
+		if withSecret {
+			s := secretInNs("creds", "default", map[string][]byte{"host": []byte("x")})
+			b = b.WithObjects(&s)
+		}
+		return b.Build()
+	}
+
+	h := &genericServiceHandler{log: logr.Discard()}
+
+	t.Run("Deletes secret when flag true and migration complete", func(t *testing.T) {
+		t.Parallel()
+
+		k8s := buildClient(true)
+		pg, adapter := newPgAdapterWithClient(k8s, true)
+		markMigrationDone(pg)
+
+		require.NoError(t, h.maybeDeleteMigrationSecret(context.Background(), adapter, adapter))
+		assert.False(t, secretExists(t, k8s, "creds", "default"))
+	})
+
+	t.Run("Does not delete when flag is false", func(t *testing.T) {
+		t.Parallel()
+
+		k8s := buildClient(true)
+		pg, adapter := newPgAdapterWithClient(k8s, false)
+		markMigrationDone(pg)
+
+		require.NoError(t, h.maybeDeleteMigrationSecret(context.Background(), adapter, adapter))
+		assert.True(t, secretExists(t, k8s, "creds", "default"))
+	})
+
+	t.Run("Does not delete when condition absent", func(t *testing.T) {
+		t.Parallel()
+
+		k8s := buildClient(true)
+		_, adapter := newPgAdapterWithClient(k8s, true)
+
+		require.NoError(t, h.maybeDeleteMigrationSecret(context.Background(), adapter, adapter))
+		assert.True(t, secretExists(t, k8s, "creds", "default"))
+	})
+
+	t.Run("Does not delete when migration is still in progress", func(t *testing.T) {
+		t.Parallel()
+
+		k8s := buildClient(true)
+		pg, adapter := newPgAdapterWithClient(k8s, true)
+		markMigrationInProgress(pg)
+
+		require.NoError(t, h.maybeDeleteMigrationSecret(context.Background(), adapter, adapter))
+		assert.True(t, secretExists(t, k8s, "creds", "default"))
+	})
+
+	t.Run("Idempotent when secret already gone", func(t *testing.T) {
+		t.Parallel()
+
+		k8s := buildClient(false)
+		pg, adapter := newPgAdapterWithClient(k8s, true)
+		markMigrationDone(pg)
+
+		require.NoError(t, h.maybeDeleteMigrationSecret(context.Background(), adapter, adapter))
+	})
+
+	t.Run("No-op when MigrationSecretSource is nil", func(t *testing.T) {
+		t.Parallel()
+
+		k8s := buildClient(false)
+		pg := &v1alpha1.PostgreSQL{}
+		pg.Namespace = "default"
+		adapter := &postgreSQLAdapter{PostgreSQL: pg, k8s: k8s}
+
+		require.NoError(t, h.maybeDeleteMigrationSecret(context.Background(), adapter, adapter))
+	})
 }

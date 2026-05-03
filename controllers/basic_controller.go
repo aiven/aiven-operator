@@ -321,11 +321,10 @@ func (i *instanceReconcilerHelper) reconcileInstance(ctx context.Context, o v1al
 	return false, nil
 }
 
-// hasPendingMigration returns true if the object has a MigrationComplete condition
-// that is not yet True and migration is still in progress (not failed).
+// hasPendingMigration returns true when migration is explicitly in progress.
 func hasPendingMigration(o v1alpha1.AivenManagedObject) bool {
 	cond := meta.FindStatusCondition(*o.Conditions(), v1alpha1.ConditionTypeMigrationComplete)
-	return cond != nil && cond.Status != metav1.ConditionTrue && cond.Reason != v1alpha1.MigrationReasonFailed
+	return cond != nil && cond.Reason == v1alpha1.MigrationReasonInProgress
 }
 
 func (i *instanceReconcilerHelper) checkPreconditions(ctx context.Context, o client.Object, refs []client.Object) (bool, error) {
