@@ -304,7 +304,7 @@ type MysqlUserConfig struct {
 	// MySQL incremental backup configuration
 	MysqlIncrementalBackup *MysqlIncrementalBackup `groups:"create,update" json:"mysql_incremental_backup,omitempty"`
 
-	// Available versions: `8`. Newer versions may also be available.
+	// Available versions: `8`, `8.4`. Newer versions may also be available.
 	// MySQL major version
 	MysqlVersion *string `groups:"create,update" json:"mysql_version,omitempty"`
 
