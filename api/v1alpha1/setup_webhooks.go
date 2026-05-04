@@ -10,9 +10,6 @@ func SetupWebhooks(mgr ctrl.Manager) error {
 	if err := (&Project{}).SetupWebhookWithManager(mgr); err != nil {
 		return fmt.Errorf("webhook Project: %w", err)
 	}
-	if err := (&AlloyDBOmni{}).SetupWebhookWithManager(mgr); err != nil {
-		return fmt.Errorf("webhook AlloyDBOmni: %w", err)
-	}
 	if err := (&PostgreSQL{}).SetupWebhookWithManager(mgr); err != nil {
 		return fmt.Errorf("webhook PostgreSQL: %w", err)
 	}
@@ -60,9 +57,6 @@ func SetupWebhooks(mgr ctrl.Manager) error {
 	}
 	if err := (&MySQL{}).SetupWebhookWithManager(mgr); err != nil {
 		return fmt.Errorf("webhook MySQL: %w", err)
-	}
-	if err := (&Cassandra{}).SetupWebhookWithManager(mgr); err != nil {
-		return fmt.Errorf("webhook Cassandra: %w", err)
 	}
 	if err := (&Grafana{}).SetupWebhookWithManager(mgr); err != nil {
 		return fmt.Errorf("webhook Grafana: %w", err)

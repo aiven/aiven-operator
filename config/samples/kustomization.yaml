@@ -1,6 +1,5 @@
 ## Append samples you want in your CSV to this file as resources ##
 resources:
-  - _v1alpha1_alloydbomni.yaml
   - _v1alpha1_clickhouse.yaml
   - _v1alpha1_clickhouseuser.yaml
   - _v1alpha1_connectionpool.yaml
@@ -18,7 +17,6 @@ resources:
   - _v1alpha1_serviceintegration.yaml
   - _v1alpha1_serviceuser.yaml
   - _v1alpha1_mysql.yaml
-  - _v1alpha1_cassandra.yaml
   - _v1alpha1_grafana.yaml
   - _v1alpha1_clickhousedatabase.yaml
   - _v1alpha1_kafkaschemaregistryacl.yaml

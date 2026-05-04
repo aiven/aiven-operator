@@ -1,26 +1,3 @@
-AlloyDBOmni:
-  [
-    ServiceGet,
-    ServiceCreate,
-    ServiceUpdate,
-    ServiceDelete,
-    ProjectServiceTagsReplace,
-    ProjectKmsGetCA,
-    ServiceBackupsGet,
-    AlloyDbOmniGoogleCloudPrivateKeyIdentify,
-    AlloyDbOmniGoogleCloudPrivateKeyRemove,
-    AlloyDbOmniGoogleCloudPrivateKeySet,
-  ]
-Cassandra:
-  [
-    ServiceGet,
-    ServiceCreate,
-    ServiceUpdate,
-    ServiceDelete,
-    ProjectServiceTagsReplace,
-    ProjectKmsGetCA,
-    ServiceBackupsGet,
-  ]
 Clickhouse:
   [
     ServiceGet,

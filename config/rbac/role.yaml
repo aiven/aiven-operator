@@ -26,8 +26,6 @@ rules:
   - apiGroups:
       - aiven.io
     resources:
-      - alloydbomnis
-      - cassandras
       - clickhousedatabases
       - clickhousegrants
       - clickhouseroles
@@ -66,8 +64,6 @@ rules:
   - apiGroups:
       - aiven.io
     resources:
-      - alloydbomnis/finalizers
-      - cassandras/finalizers
       - clickhousedatabases/finalizers
       - clickhousegrants/finalizers
       - clickhouseroles/finalizers
@@ -101,8 +97,6 @@ rules:
   - apiGroups:
       - aiven.io
     resources:
-      - alloydbomnis/status
-      - cassandras/status
       - clickhousedatabases/status
       - clickhousegrants/status
       - clickhouseroles/status

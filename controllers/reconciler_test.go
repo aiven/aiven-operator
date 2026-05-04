@@ -2128,14 +2128,12 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 			&v1alpha1.ConnectionPool{},
 			&v1alpha1.Flink{},
 			&v1alpha1.ServiceUser{},
-			&v1alpha1.Cassandra{},
 			&v1alpha1.OpenSearch{},
 			&v1alpha1.Kafka{},
 			&v1alpha1.Valkey{},
 			&v1alpha1.Grafana{},
 			&v1alpha1.PostgreSQL{},
 			&v1alpha1.ClickhouseUser{},
-			&v1alpha1.AlloyDBOmni{},
 		}
 
 		for _, obj := range cases {
