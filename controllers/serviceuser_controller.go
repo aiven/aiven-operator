@@ -253,7 +253,7 @@ func (r *ServiceUserController) fetchUser(ctx context.Context, user *v1alpha1.Se
 	}
 
 	idx := slices.IndexFunc(svc.Components, func(c service.ComponentOut) bool {
-		return c.Component == svc.ServiceType || (svc.ServiceType == "alloydbomni" && c.Component == "pg")
+		return c.Component == svc.ServiceType
 	})
 	if idx < 0 {
 		return nil, nil, fmt.Errorf("service component %q not found", svc.ServiceType)

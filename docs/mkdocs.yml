@@ -77,8 +77,6 @@ nav:
           - controllers/reconciler.md
           - controllers/clickhouseuser.md
       - Resources: &crds
-          - resources/alloydbomni.md
-          - resources/cassandra.md
           - Clickhouse:
               - resources/clickhouse.md
               - resources/clickhousedatabase.md
@@ -111,7 +109,6 @@ nav:
   - Examples:
       - examples/project.md
       - examples/project-vpc.md
-      - examples/cassandra.md
       - examples/clickhouse.md
       - examples/mysql.md
       - examples/opensearch.md

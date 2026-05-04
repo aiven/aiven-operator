@@ -2,7 +2,6 @@
 # since it depends on service name and namespace that are out of this kustomize package.
 # It should be run by config/default
 resources:
-  - bases/aiven.io_alloydbomnis.yaml
   - bases/aiven.io_clickhouses.yaml
   - bases/aiven.io_clickhouseusers.yaml
   - bases/aiven.io_connectionpools.yaml
@@ -21,7 +20,6 @@ resources:
   - bases/aiven.io_serviceintegrations.yaml
   - bases/aiven.io_serviceusers.yaml
   - bases/aiven.io_mysqls.yaml
-  - bases/aiven.io_cassandras.yaml
   - bases/aiven.io_grafanas.yaml
   - bases/aiven.io_clickhousedatabases.yaml
   - bases/aiven.io_kafkaschemaregistryacls.yaml
@@ -35,7 +33,6 @@ resources:
 patchesStrategicMerge:
   # [WEBHOOK] To enable webhook, uncomment all the sections with [WEBHOOK] prefix.
   # patches here are for enabling the conversion webhook for each CRD
-  - patches/webhook_in_alloydbomnis.yaml
   - patches/webhook_in_clickhouses.yaml
   - patches/webhook_in_connectionpools.yaml
   - patches/webhook_in_databases.yaml
@@ -51,7 +48,6 @@ patchesStrategicMerge:
   - patches/webhook_in_serviceintegrations.yaml
   - patches/webhook_in_serviceusers.yaml
   - patches/webhook_in_mysqls.yaml
-  - patches/webhook_in_cassandras.yaml
   - patches/webhook_in_grafanas.yaml
   - patches/webhook_in_serviceintegrationendpoints.yaml
   - patches/webhook_in_flinks.yaml
@@ -60,7 +56,6 @@ patchesStrategicMerge:
 
   # [CERTMANAGER] To enable cert-manager, uncomment all the sections with [CERTMANAGER] prefix.
   # patches here are for enabling the CA injection for each CRD
-  - patches/cainjection_in_alloydbomnis.yaml
   - patches/cainjection_in_clickhouses.yaml
   - patches/cainjection_in_connectionpools.yaml
   - patches/cainjection_in_databases.yaml
@@ -76,7 +71,6 @@ patchesStrategicMerge:
   - patches/cainjection_in_serviceintegrations.yaml
   - patches/cainjection_in_serviceusers.yaml
   - patches/cainjection_in_mysqls.yaml
-  - patches/cainjection_in_cassandras.yaml
   - patches/cainjection_in_grafanas.yaml
   - patches/cainjection_in_serviceintegrationendpoints.yaml
   - patches/cainjection_in_flinks.yaml

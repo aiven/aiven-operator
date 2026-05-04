@@ -14,7 +14,7 @@ import (
 type GrafanaSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
-	// Cassandra specific user configuration options
+	// Grafana specific user configuration options
 	UserConfig *grafanauserconfig.GrafanaUserConfig `json:"userConfig,omitempty"`
 }
 

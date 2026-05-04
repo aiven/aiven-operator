@@ -157,7 +157,7 @@ FlinkSpec defines the desired state of Flink.
 - [`tags`](#spec.tags-property){: name='spec.tags-property'} (object, AdditionalProperties: string). Tags are key-value pairs that allow you to categorize services.
 - [`technicalEmails`](#spec.technicalEmails-property){: name='spec.technicalEmails-property'} (array of objects, MaxItems: 10). Defines the email addresses that will receive alerts about upcoming maintenance updates or warnings about service instability. See below for [nested schema](#spec.technicalEmails).
 - [`terminationProtection`](#spec.terminationProtection-property){: name='spec.terminationProtection-property'} (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services.
-- [`userConfig`](#spec.userConfig-property){: name='spec.userConfig-property'} (object). Cassandra specific user configuration options. See below for [nested schema](#spec.userConfig).
+- [`userConfig`](#spec.userConfig-property){: name='spec.userConfig-property'} (object). Flink specific user configuration options. See below for [nested schema](#spec.userConfig).
 
 ## authSecretRef {: #spec.authSecretRef }
 
@@ -227,7 +227,7 @@ Defines the email addresses that will receive alerts about upcoming maintenance 
 
 _Appears on [`spec`](#spec)._
 
-Cassandra specific user configuration options.
+Flink specific user configuration options.
 
 **Optional**
 

@@ -238,7 +238,7 @@ spec:
                     to have this enabled for all services.
                   type: boolean
                 userConfig:
-                  description: Cassandra specific user configuration options
+                  description: Flink specific user configuration options
                   properties:
                     additional_backup_regions:
                       description: Deprecated. Additional Cloud Regions for Backup Replication

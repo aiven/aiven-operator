@@ -254,7 +254,7 @@ func (h *genericServiceHandler) get(ctx context.Context, avnGen avngen.Client, o
 	}
 
 	switch o.getServiceType() {
-	case serviceTypeKafka, serviceTypePostgreSQL, serviceTypeMySQL, serviceTypeCassandra:
+	case serviceTypeKafka, serviceTypePostgreSQL, serviceTypeMySQL:
 		// CA_CERT can be used with these service types only
 	default:
 		return secret, nil
@@ -380,7 +380,6 @@ type serviceType string
 
 const (
 	// Service types that can be returned by getServiceType()
-	serviceTypeAlloyDBOmni  serviceType = "alloydbomni"
 	serviceTypeKafka        serviceType = "kafka"
 	serviceTypeKafkaConnect serviceType = "kafka_connect"
 	serviceTypeMySQL        serviceType = "mysql"
@@ -388,7 +387,6 @@ const (
 	serviceTypeClickhouse   serviceType = "clickhouse"
 	serviceTypeOpenSearch   serviceType = "opensearch"
 	serviceTypeGrafana      serviceType = "grafana"
-	serviceTypeCassandra    serviceType = "cassandra"
 	serviceTypeFlink        serviceType = "flink"
 	serviceTypeValkey       serviceType = "valkey"
 )

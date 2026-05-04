@@ -659,8 +659,6 @@ spec:
                     - kafka_logs
                     - kafka_mirrormaker
                     - logs
-                    - m3aggregator
-                    - m3coordinator
                     - metrics
                     - opensearch_cross_cluster_replication
                     - opensearch_cross_cluster_search

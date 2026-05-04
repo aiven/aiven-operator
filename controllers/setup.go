@@ -53,8 +53,6 @@ func SetupControllersWithConfig(mgr ctrl.Manager, cfg SetupConfig) error {
 	}
 
 	builders := map[string]reconcilerBuilder{
-		"AlloyDBOmni":                      newAlloyDBOmniReconciler,
-		"Cassandra":                        newCassandraReconciler,
 		"Clickhouse":                       newClickhouseReconciler,
 		"ClickhouseDatabase":               newClickhouseDatabaseReconciler,
 		"ClickhouseRole":                   newClickhouseRoleReconciler,

@@ -30,6 +30,8 @@
 Valkey major version
 - Add `KafkaSchema` field `references`, type `array`: Schema references for Protobuf or JSON schemas
   that import other schemas
+- **BREAKING**: Remove deprecated `AlloyDBOmni` and `Cassandra` kinds and controllers from the operator
+- **BREAKING**: Change `ServiceIntegration` field `integrationType`: enum remove `m3aggregator`, `m3coordinator`
 
 ## v0.37.0 - 2026-04-09
 

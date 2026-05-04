@@ -12,7 +12,7 @@ import (
 type FlinkSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
-	// Cassandra specific user configuration options
+	// Flink specific user configuration options
 	UserConfig *flinkuserconfig.FlinkUserConfig `json:"userConfig,omitempty"`
 }
 
