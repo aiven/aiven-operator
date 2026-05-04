@@ -3,8 +3,8 @@ module github.com/aiven/aiven-operator
 go 1.26
 
 require (
-	github.com/ClickHouse/clickhouse-go/v2 v2.45.0
-	github.com/aiven/go-api-schemas v1.184.0
+	github.com/ClickHouse/clickhouse-go/v2 v2.46.0
+	github.com/aiven/go-api-schemas v1.186.0
 	github.com/aiven/go-client-codegen v0.155.0
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/dave/jennifer v1.7.1
@@ -21,7 +21,7 @@ require (
 	github.com/stoewer/go-strcase v1.3.1
 	github.com/stretchr/testify v1.11.1
 	github.com/xeipuuv/gojsonschema v1.2.0
-	go.uber.org/zap v1.27.1
+	go.uber.org/zap v1.28.0
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c
 	golang.org/x/sync v0.20.0
 	golang.org/x/tools v0.44.0

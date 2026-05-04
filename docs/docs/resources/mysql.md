@@ -261,7 +261,7 @@ MySQL specific user configuration options.
 - [`migration`](#spec.userConfig.migration-property){: name='spec.userConfig.migration-property'} (object). Migrate data from existing server. See below for [nested schema](#spec.userConfig.migration).
 - [`mysql`](#spec.userConfig.mysql-property){: name='spec.userConfig.mysql-property'} (object). mysql.conf configuration values. See below for [nested schema](#spec.userConfig.mysql).
 - [`mysql_incremental_backup`](#spec.userConfig.mysql_incremental_backup-property){: name='spec.userConfig.mysql_incremental_backup-property'} (object). MySQL incremental backup configuration. See below for [nested schema](#spec.userConfig.mysql_incremental_backup).
-- [`mysql_version`](#spec.userConfig.mysql_version-property){: name='spec.userConfig.mysql_version-property'} (string). Available versions: `8`. Newer versions may also be available.
+- [`mysql_version`](#spec.userConfig.mysql_version-property){: name='spec.userConfig.mysql_version-property'} (string). Available versions: `8`, `8.4`. Newer versions may also be available.
     MySQL major version.
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
 - [`privatelink_access`](#spec.userConfig.privatelink_access-property){: name='spec.userConfig.privatelink_access-property'} (object). Allow access to selected service components through Privatelink. See below for [nested schema](#spec.userConfig.privatelink_access).
