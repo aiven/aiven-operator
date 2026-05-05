@@ -9,12 +9,14 @@ import (
 )
 
 // MySQLSpec defines the desired state of MySQL
+// +kubebuilder:validation:XValidation:rule="!(has(self.migrationSecretSource) && has(self.userConfig) && has(self.userConfig.migration))",message="migrationSecretSource and userConfig.migration are mutually exclusive; set only one"
 type MySQLSpec struct {
 	ServiceCommonSpec `json:",inline"`
 
 	// Reference to a Secret containing migration credentials.
 	// Secret keys must match userConfig.migration JSON field names.
-	// If set, takes precedence over userConfig.migration.
+	// Mutually exclusive with userConfig.migration.
+	// Values must not contain leading or trailing whitespace; such values are rejected.
 	MigrationSecretSource *MigrationSecretSource `json:"migrationSecretSource,omitempty"`
 
 	// MySQL specific user configuration options

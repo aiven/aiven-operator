@@ -10,8 +10,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
@@ -284,6 +289,56 @@ func TestUpdateMigrationStatus(t *testing.T) {
 	})
 }
 
+// TestGet_SecretCleanupRunsWhenPoweredOff locks in the fix for the case where a
+// powered-off service with deleteAfterMigration=true would otherwise return early
+// and never remove the referenced Secret.
+func TestGet_SecretCleanupRunsWhenPoweredOff(t *testing.T) {
+	t.Parallel()
+
+	scheme := runtime.NewScheme()
+	_ = corev1.AddToScheme(scheme)
+
+	secret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{Name: "creds", Namespace: "default"},
+		Data:       map[string][]byte{"host": []byte("x")},
+	}
+	k8s := fake.NewClientBuilder().WithScheme(scheme).WithObjects(secret).Build()
+
+	pg := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgres)
+	pg.Namespace = "default"
+	poweredOff := false
+	pg.Spec.Powered = &poweredOff
+	pg.Spec.MigrationSecretSource = &v1alpha1.MigrationSecretSource{
+		Name:                 "creds",
+		DeleteAfterMigration: true,
+	}
+	meta.SetStatusCondition(&pg.Status.Conditions, metav1.Condition{
+		Type:   v1alpha1.ConditionTypeMigrationComplete,
+		Status: metav1.ConditionTrue,
+		Reason: v1alpha1.MigrationReasonDone,
+	})
+
+	avn := avngen.NewMockClient(t)
+	avn.EXPECT().
+		ServiceGet(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
+		Return(&service.ServiceGetOut{State: service.ServiceStateTypePoweroff}, nil).Once()
+	// ServiceGetMigrationStatus must NOT be called — migration is Done.
+
+	h := &genericServiceHandler{
+		fabric: newPostgreSQLAdapterFactory(k8s),
+		log:    logr.Discard(),
+		k8s:    k8s,
+	}
+
+	out, err := h.get(t.Context(), avn, pg)
+	require.NoError(t, err)
+	assert.Nil(t, out, "no connection Secret expected when powered off")
+
+	err = k8s.Get(t.Context(), types.NamespacedName{Name: "creds", Namespace: "default"}, &corev1.Secret{})
+	assert.True(t, apierrors.IsNotFound(err),
+		"migration Secret should have been deleted even though service is powered off, got err: %v", err)
+}
+
 func TestHasPendingMigration(t *testing.T) {
 	t.Parallel()
 
@@ -322,6 +377,17 @@ func TestHasPendingMigration(t *testing.T) {
 			Type:   v1alpha1.ConditionTypeMigrationComplete,
 			Status: metav1.ConditionFalse,
 			Reason: v1alpha1.MigrationReasonFailed,
+		})
+		assert.False(t, hasPendingMigration(pg))
+	})
+
+	t.Run("Condition False with unknown Reason — returns false", func(t *testing.T) {
+		t.Parallel()
+		pg := &v1alpha1.PostgreSQL{}
+		meta.SetStatusCondition(&pg.Status.Conditions, metav1.Condition{
+			Type:   v1alpha1.ConditionTypeMigrationComplete,
+			Status: metav1.ConditionFalse,
+			Reason: "SomethingElse",
 		})
 		assert.False(t, hasPendingMigration(pg))
 	})
