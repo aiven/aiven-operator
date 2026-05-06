@@ -17,7 +17,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -214,30 +213,25 @@ func (r *Reconciler[T]) updateStatus(ctx context.Context, orig v1alpha1.AivenMan
 		return nil
 	}
 
-	// Order matters.
-	// First need to update the object, and then update the status.
-	// So dependent resources won't see READY before it has been updated with new values
+	// Patch only the fields this pass actually changed, not a full Update.
+	// A full Update re-sends every field — including values read
+	// from a potentially-stale informer cache — and would clobber status
+	// writes made by a concurrent reconcile pass.
+	// A merge patch contains just the diff, so any field this pass didn't touch
+	// retains whatever the server currently has.
+	//
+	// Order matters: patch metadata/spec before status so dependent resources
+	// don't observe a Ready status before they see the new spec.
+	target := obj.(client.Object)
+	base := orig.(client.Object)
 
-	// Now we can update the status
-	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		// When updated, object status is vanished.
-		// So we waste a copy for that,
-		// while the original object must already have all the fields updated in runtime
-		// Additionally, it gets the "latest version" to resolve optimistic concurrency control conflict
-		latest := obj.DeepCopyObject().(client.Object)
-		if err := r.Get(ctx, types.NamespacedName{Name: latest.GetName(), Namespace: latest.GetNamespace()}, latest); err != nil {
-			return err
-		}
-
-		updated := obj.DeepCopyObject().(client.Object)
-		updated.SetResourceVersion(latest.GetResourceVersion())
-		if err := r.Update(ctx, updated); err != nil {
-			return err
-		}
-
-		obj.SetResourceVersion(updated.GetResourceVersion())
-		return r.Status().Update(ctx, obj)
-	})
+	// Patch mutates the object it is passed with the server response; use a
+	// copy so target retains the intended status for the status patch below.
+	specCopy := target.DeepCopyObject().(client.Object)
+	if err := r.Patch(ctx, specCopy, client.MergeFrom(base)); err != nil {
+		return err
+	}
+	return r.Status().Patch(ctx, target, client.MergeFrom(base))
 }
 
 func (r *Reconciler[T]) newAivenClient(ctx context.Context, obj T) (avngen.Client, error) {

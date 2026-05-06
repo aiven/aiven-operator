@@ -36,6 +36,12 @@ Valkey major version
   true, the operator deletes the referenced Secret after migration completes successfully. Defaults to `false`.
 - Remove the 63-character limit for the `KafkaSchema` field `subjectName`
 - Make `ConnectionPool` fields `databaseName` and `username` immutable
+- Fix stale-status race in the managed reconciler framework that could permanently
+  overwrite server-assigned status fields (e.g. `KafkaSchema.status.id`) with stale
+  values from a cached read
+- Change `KafkaTopic` field `status.state` to optional: the controller cannot always
+  populate it before the first status write, and marking it required caused status
+  updates to be rejected by the API server
 
 ## v0.37.0 - 2026-04-09
 

@@ -152,7 +152,7 @@ type KafkaTopicStatus struct {
 	Conditions []metav1.Condition `json:"conditions"`
 
 	// State represents the state of the kafka topic
-	State kafkatopic.TopicStateType `json:"state"`
+	State kafkatopic.TopicStateType `json:"state,omitempty"`
 }
 
 // +kubebuilder:object:root=true

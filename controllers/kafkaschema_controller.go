@@ -10,7 +10,6 @@ import (
 	"github.com/aiven/go-client-codegen/handler/kafkaschemaregistry"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/util/retry"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -162,11 +161,6 @@ func (r *KafkaSchemaController) applySchema(ctx context.Context, schema *v1alpha
 	// ID is used by Observe to look up the version, which may take some time to appear.
 	schema.Status.ID = schemaID
 
-	// TODO: workaround for a stale-cache race in the managed. Remove once the reconciler fix lands.
-	if err := r.persistStatusID(ctx, schema); err != nil {
-		return fmt.Errorf("persisting Status.ID: %w", err)
-	}
-
 	if schema.Spec.CompatibilityLevel != "" {
 		if _, err := r.avnGen.ServiceSchemaRegistrySubjectConfigPut(
 			ctx,
@@ -180,23 +174,6 @@ func (r *KafkaSchemaController) applySchema(ctx context.Context, schema *v1alpha
 	}
 
 	return nil
-}
-
-// persistStatusID writes schema.Status.ID to the API server in its own status
-// subresource update, retrying on optimistic-concurrency conflicts.
-//
-// This is a workaround for the reconciler race issue.
-// It should be removed when updateStatus in the managed reconciler no longer clobbers
-// concurrently-written status fields.
-func (r *KafkaSchemaController) persistStatusID(ctx context.Context, schema *v1alpha1.KafkaSchema) error {
-	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		latest := &v1alpha1.KafkaSchema{}
-		if err := r.Get(ctx, client.ObjectKeyFromObject(schema), latest); err != nil {
-			return err
-		}
-		latest.Status.ID = schema.Status.ID
-		return r.Status().Update(ctx, latest)
-	})
 }
 
 func (r *KafkaSchemaController) Delete(ctx context.Context, schema *v1alpha1.KafkaSchema) error {

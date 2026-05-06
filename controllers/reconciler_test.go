@@ -1279,50 +1279,6 @@ func TestReconciler_updateStatus(t *testing.T) {
 		require.EqualError(t, err, `clickhouseusers.aiven.io "test-user" not found`)
 	})
 
-	t.Run("Retries on conflict error and eventually succeeds", func(t *testing.T) {
-		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
-
-		conflictErr := apierrors.NewConflict(schema.GroupResource{Group: "aiven.io", Resource: "clickhouseusers"}, obj.Name, fmt.Errorf("conflict"))
-		m := &mock.Mock{}
-		t.Cleanup(func() { m.AssertExpectations(t) })
-		m.On("Get", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Twice().
-			On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(conflictErr).Once().
-			On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once().
-			On("SubResourceUpdate", mock.Anything, mock.Anything, "status", mock.Anything, mock.Anything).Return(nil).Once()
-
-		k8sClient := fake.NewClientBuilder().
-			WithScheme(scheme).
-			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
-			WithObjects(obj).
-			WithInterceptorFuncs(interceptor.Funcs{
-				Get: func(ctx context.Context, c crclient.WithWatch, key crclient.ObjectKey, o crclient.Object, opts ...crclient.GetOption) error {
-					args := m.MethodCalled("Get", ctx, c, key, o, opts)
-					return args.Error(0)
-				},
-				Update: func(ctx context.Context, c crclient.WithWatch, o crclient.Object, opts ...crclient.UpdateOption) error {
-					args := m.MethodCalled("Update", ctx, c, o, opts)
-					return args.Error(0)
-				},
-				SubResourceUpdate: func(ctx context.Context, c crclient.Client, subResourceName string, o crclient.Object, opts ...crclient.SubResourceUpdateOption) error {
-					args := m.MethodCalled("SubResourceUpdate", ctx, c, subResourceName, o, opts)
-					return args.Error(0)
-				},
-			}).
-			Build()
-
-		r := &Reconciler[*v1alpha1.ClickhouseUser]{
-			Controller: Controller{
-				Client: k8sClient,
-			},
-		}
-
-		orig := obj.DeepCopy()
-		obj.Status.UUID = "uuid-after"
-
-		err := r.updateStatus(t.Context(), orig, obj)
-		require.NoError(t, err)
-	})
-
 	t.Run("Updates spec and status when objects differ", func(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 		obj.Status.UUID = "old-uuid"
@@ -1376,20 +1332,20 @@ func TestReconciler_updateStatus(t *testing.T) {
 		}, normalizedConditions(got.Status.Conditions))
 	})
 
-	t.Run("Returns error when Update fails with non-conflict error", func(t *testing.T) {
+	t.Run("Returns error when spec patch fails", func(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 
 		m := &mock.Mock{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
-		m.On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(assert.AnError).Once()
+		m.On("Patch", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(assert.AnError).Once()
 
 		k8sClient := fake.NewClientBuilder().
 			WithScheme(scheme).
 			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
 			WithObjects(obj).
 			WithInterceptorFuncs(interceptor.Funcs{
-				Update: func(ctx context.Context, c crclient.WithWatch, o crclient.Object, opts ...crclient.UpdateOption) error {
-					args := m.MethodCalled("Update", ctx, c, o, opts)
+				Patch: func(ctx context.Context, c crclient.WithWatch, o crclient.Object, patch crclient.Patch, opts ...crclient.PatchOption) error {
+					args := m.MethodCalled("Patch", ctx, c, o, patch, opts)
 					return args.Error(0)
 				},
 			}).
@@ -1408,20 +1364,20 @@ func TestReconciler_updateStatus(t *testing.T) {
 		require.EqualError(t, err, assert.AnError.Error())
 	})
 
-	t.Run("Returns error when Status update fails", func(t *testing.T) {
+	t.Run("Returns error when status patch fails", func(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 
 		m := &mock.Mock{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
-		m.On("SubResourceUpdate", mock.Anything, mock.Anything, "status", mock.Anything, mock.Anything).Return(assert.AnError).Once()
+		m.On("SubResourcePatch", mock.Anything, mock.Anything, "status", mock.Anything, mock.Anything, mock.Anything).Return(assert.AnError).Once()
 
 		k8sClient := fake.NewClientBuilder().
 			WithScheme(scheme).
 			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
 			WithObjects(obj).
 			WithInterceptorFuncs(interceptor.Funcs{
-				SubResourceUpdate: func(ctx context.Context, c crclient.Client, subResourceName string, o crclient.Object, opts ...crclient.SubResourceUpdateOption) error {
-					args := m.MethodCalled("SubResourceUpdate", ctx, c, subResourceName, o, opts)
+				SubResourcePatch: func(ctx context.Context, c crclient.Client, subResourceName string, o crclient.Object, patch crclient.Patch, opts ...crclient.SubResourcePatchOption) error {
+					args := m.MethodCalled("SubResourcePatch", ctx, c, subResourceName, o, patch, opts)
 					return args.Error(0)
 				},
 			}).
@@ -1439,6 +1395,112 @@ func TestReconciler_updateStatus(t *testing.T) {
 
 		err := r.updateStatus(t.Context(), orig, obj)
 		require.EqualError(t, err, assert.AnError.Error())
+	})
+
+	t.Run("Does not overwrite server status when only metadata changed", func(t *testing.T) {
+		server := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		server.Status.UUID = "new"
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(server).
+			Build()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{Client: k8sClient},
+		}
+
+		// Pass B's snapshot: cache has not yet observed Pass A's status write.
+		orig := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		orig.Status.UUID = "old"
+
+		obj := orig.DeepCopy()
+		// Pass B only mutates metadata (annotation), not status.
+		metav1.SetMetaDataAnnotation(&obj.ObjectMeta, instanceIsRunningAnnotation, "true")
+
+		require.NoError(t, r.updateStatus(t.Context(), orig, obj))
+
+		got := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(),
+			types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
+		require.Equal(t, "new", got.Status.UUID,
+			"status must not be clobbered by a pass that didn't change status")
+	})
+
+	t.Run("Does not overwrite status fields that the pass did not mutate", func(t *testing.T) {
+		server := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		server.Status.UUID = "new"
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(server).
+			Build()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{Client: k8sClient},
+		}
+
+		orig := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		orig.Status.UUID = "old"
+
+		obj := orig.DeepCopy()
+		obj.Status.Conditions = []metav1.Condition{{
+			Type:   "Running",
+			Status: metav1.ConditionTrue,
+			Reason: "Ok",
+		}}
+
+		require.NoError(t, r.updateStatus(t.Context(), orig, obj))
+
+		got := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(),
+			types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+
+		require.Equal(t, "new", got.Status.UUID,
+			"UUID must not be clobbered: this pass only changed Conditions")
+		require.Len(t, got.Status.Conditions, 1)
+	})
+
+	t.Run("Conditions written concurrently are replaced, not merged", func(t *testing.T) {
+		server := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		server.Status.Conditions = []metav1.Condition{{
+			Type:   "FromPassA",
+			Status: metav1.ConditionTrue,
+			Reason: "A",
+		}}
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(server).
+			Build()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{Client: k8sClient},
+		}
+
+		// Pass B's cache snapshot: does not yet see the FromPassA condition.
+		orig := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		obj := orig.DeepCopy()
+		obj.Status.Conditions = []metav1.Condition{{
+			Type:   "FromPassB",
+			Status: metav1.ConditionTrue,
+			Reason: "B",
+		}}
+
+		require.NoError(t, r.updateStatus(t.Context(), orig, obj))
+
+		got := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(),
+			types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+
+		// Only FromPassB survives: merge-patch replaces the slice whole.
+		require.Len(t, got.Status.Conditions, 1)
+		require.Equal(t, "FromPassB", got.Status.Conditions[0].Type)
 	})
 }
 
