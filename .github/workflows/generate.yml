@@ -14,8 +14,8 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     outputs:
-      commit_hash: ${{ steps.auto_commit.outputs.commit_hash }}
-      changes_detected: ${{ steps.auto_commit.outputs.changes_detected }}
+      commit_hash: ${{ steps.auto_commit.outputs.commit-hash }}
+      changes_detected: ${{ steps.detect.outputs.changes_detected }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -29,10 +29,24 @@ jobs:
       - run: curl https://get.trunk.io -fsSL | bash
       - name: generate files
         run: make generate
-      - id: auto_commit
-        uses: stefanzweifel/git-auto-commit-action@v7
+      - name: detect changes
+        id: detect
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "changes_detected=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changes_detected=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: commit generated files
+        if: steps.detect.outputs.changes_detected == 'true'
+        id: auto_commit
+        uses: planetscale/ghcommit-action@v0.2.20
         with:
           commit_message: "chore(userconfigs): generate files"
+          repo: ${{ github.repository }}
+          branch: ${{ github.event.pull_request.head.ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   run_lint:
     needs: generate
