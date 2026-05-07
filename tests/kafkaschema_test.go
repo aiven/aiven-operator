@@ -31,7 +31,9 @@ func TestKafkaSchema(t *testing.T) {
 
 	kafkaName := kafka.GetName()
 	schemaName := randName("kafka-schema")
-	subjectName := randName("kafka-schema")
+	// Keep the subject over the old 63-character operator limit to verify the CRD accepts it.
+	subjectName := randName("kafka-schema-subject-name-longer-than-sixty-three-characters")
+	require.Greater(t, len(subjectName), 63)
 	yml := getKafkaSchemaYaml(cfg.Project, kafkaName, schemaName, subjectName)
 	s := NewSession(ctx, k8sClient)
 

@@ -12,7 +12,6 @@ import (
 type KafkaSchemaSpec struct {
 	ServiceDependant `json:",inline"`
 
-	// +kubebuilder:validation:MaxLength=63
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Kafka Schema Subject name
 	SubjectName string `json:"subjectName"`

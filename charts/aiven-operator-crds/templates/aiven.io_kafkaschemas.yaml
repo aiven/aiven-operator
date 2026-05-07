@@ -143,7 +143,6 @@ spec:
                       rule: self == oldSelf
                 subjectName:
                   description: Kafka Schema Subject name
-                  maxLength: 63
                   type: string
                   x-kubernetes-validations:
                     - message: Value is immutable
