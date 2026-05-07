@@ -118,6 +118,9 @@ spec:
                   description: Name of the database the pool connects to
                   maxLength: 40
                   type: string
+                  x-kubernetes-validations:
+                    - message: databaseName is immutable
+                      rule: self == oldSelf
                 poolMode:
                   description: Mode the pool operates in (session, transaction, statement)
                   enum:
@@ -152,12 +155,20 @@ spec:
                   description: Name of the service user used to connect to the database
                   maxLength: 64
                   type: string
+                  x-kubernetes-validations:
+                    - message: username is immutable
+                      rule: self == oldSelf
               required:
                 - databaseName
                 - project
                 - serviceName
               type: object
               x-kubernetes-validations:
+                - message: username is immutable
+                  rule:
+                    ((!has(oldSelf.username) || size(oldSelf.username) == 0) && (!has(self.username)
+                    || size(self.username) == 0)) || (has(oldSelf.username) && size(oldSelf.username)
+                    > 0 && has(self.username) && self.username == oldSelf.username)
                 - message:
                     connInfoSecretTargetDisabled can only be set during resource
                     creation.

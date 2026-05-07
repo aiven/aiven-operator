@@ -8,15 +8,18 @@ import (
 )
 
 // ConnectionPoolSpec defines the desired state of ConnectionPool
+// +kubebuilder:validation:XValidation:rule="((!has(oldSelf.username) || size(oldSelf.username) == 0) && (!has(self.username) || size(self.username) == 0)) || (has(oldSelf.username) && size(oldSelf.username) > 0 && has(self.username) && self.username == oldSelf.username)",message="username is immutable"
 type ConnectionPoolSpec struct {
 	ServiceDependant `json:",inline"`
 	SecretFields     `json:",inline"`
 
 	// +kubebuilder:validation:MaxLength=40
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="databaseName is immutable"
 	// Name of the database the pool connects to
 	DatabaseName string `json:"databaseName"`
 
 	// +kubebuilder:validation:MaxLength=64
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="username is immutable"
 	// Name of the service user used to connect to the database
 	Username string `json:"username,omitempty"`
 

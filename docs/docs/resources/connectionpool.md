@@ -129,7 +129,7 @@ ConnectionPoolSpec defines the desired state of ConnectionPool.
 
 **Required**
 
-- [`databaseName`](#spec.databaseName-property){: name='spec.databaseName-property'} (string, MaxLength: 40). Name of the database the pool connects to.
+- [`databaseName`](#spec.databaseName-property){: name='spec.databaseName-property'} (string, Immutable, MaxLength: 40). Name of the database the pool connects to.
 - [`project`](#spec.project-property){: name='spec.project-property'} (string, Immutable, Pattern: `^[a-zA-Z0-9_-]+$`, MaxLength: 63). Identifies the project this resource belongs to.
 - [`serviceName`](#spec.serviceName-property){: name='spec.serviceName-property'} (string, Immutable, Pattern: `^[a-z][-a-z0-9]+$`, MaxLength: 63). Specifies the name of the service that this resource belongs to.
 
@@ -140,7 +140,7 @@ ConnectionPoolSpec defines the desired state of ConnectionPool.
 - [`connInfoSecretTargetDisabled`](#spec.connInfoSecretTargetDisabled-property){: name='spec.connInfoSecretTargetDisabled-property'} (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
 - [`poolMode`](#spec.poolMode-property){: name='spec.poolMode-property'} (string, Enum: `session`, `transaction`, `statement`). Mode the pool operates in (session, transaction, statement).
 - [`poolSize`](#spec.poolSize-property){: name='spec.poolSize-property'} (integer). Number of connections the pool may create towards the backend server.
-- [`username`](#spec.username-property){: name='spec.username-property'} (string, MaxLength: 64). Name of the service user used to connect to the database.
+- [`username`](#spec.username-property){: name='spec.username-property'} (string, Immutable, MaxLength: 64). Name of the service user used to connect to the database.
 
 ## authSecretRef {: #spec.authSecretRef }
 
