@@ -34,6 +34,7 @@ Valkey major version
 - **BREAKING**: Change `ServiceIntegration` field `integrationType`: enum remove `m3aggregator`, `m3coordinator`
 - Add `MySQL` and `PostgreSQL` field `migrationSecretSource.deleteAfterMigration`, type `boolean`: When
   true, the operator deletes the referenced Secret after migration completes successfully. Defaults to `false`.
+- Remove the 63-character limit for the `KafkaSchema` field `subjectName`
 
 ## v0.37.0 - 2026-04-09
 
