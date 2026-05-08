@@ -33,7 +33,15 @@ spec:
       name: v1alpha1
       schema:
         openAPIV3Schema:
-          description: KafkaSchema is the Schema for the kafkaschemas API
+          description: |-
+            KafkaSchema is the Schema for the kafkaschemas API.
+
+            Self-references (A -> A) are blocked at admission; transitive cycles
+            (A -> B -> A) are not detected at admission time.
+
+            Deletion: the operator performs a soft delete followed by a hard delete on
+            the subject. The subject disappears from the registry's listing, re-applying a KafkaSchema with the same subjectName
+            after deletion starts a brand-new subject at version 1.
           properties:
             apiVersion:
               description: |-
@@ -88,38 +96,70 @@ spec:
                     - message: Value is immutable
                       rule: self == oldSelf
                 references:
-                  description:
-                    Schema references for Protobuf or JSON schemas that import
-                    other schemas
+                  description: |-
+                    Schema references for Protobuf or JSON schemas that import other schemas.
+                    References must form a directed acyclic graph (DAG); cycles are not allowed.
                   items:
-                    description:
-                      SchemaReference is a reference to another schema in
-                      the registry
+                    description: |-
+                      SchemaReference is a reference to another schema in the registry.
+                      Exactly one of {subject+version} or kafkaSchemaRef must be set.
                     properties:
+                      kafkaSchemaRef:
+                        description: |-
+                          Reference to another KafkaSchema resource in the same namespace.
+                          Mutually exclusive with subject/version.
+
+                          Cleanup order matters: delete the dependent before the referent.
+                        properties:
+                          name:
+                            description:
+                              Name of the KafkaSchema resource in the same
+                              namespace.
+                            maxLength: 253
+                            minLength: 1
+                            type: string
+                        required:
+                          - name
+                        type: object
                       name:
                         description:
                           Name used to reference the schema (e.g., the import
                           path in Protobuf)
+                        maxLength: 512
                         minLength: 1
                         type: string
                       subject:
-                        description: Subject name of the referenced schema in the registry
+                        description:
+                          Subject name of the referenced schema in the registry.
+                          Mutually exclusive with kafkaSchemaRef.
+                        maxLength: 512
                         minLength: 1
                         type: string
                       version:
-                        description: Version of the referenced schema
+                        description:
+                          Version of the referenced schema. Mutually exclusive
+                          with kafkaSchemaRef.
                         minimum: 1
                         type: integer
                     required:
                       - name
-                      - subject
-                      - version
                     type: object
+                    x-kubernetes-validations:
+                      - message:
+                          set both subject and version, or set kafkaSchemaRef,
+                          but not both
+                        rule:
+                          (has(self.subject) && has(self.version) && !has(self.kafkaSchemaRef))
+                          || (!has(self.subject) && !has(self.version) && has(self.kafkaSchemaRef))
+                  maxItems: 100
                   type: array
+                  x-kubernetes-list-map-keys:
+                    - name
+                  x-kubernetes-list-type: map
                 schema:
                   description:
-                    Kafka Schema configuration should be a valid Avro Schema
-                    JSON format
+                    Kafka Schema definition. Format depends on schemaType
+                    (AVRO/JSON/PROTOBUF)
                   type: string
                 schemaType:
                   description: Schema type
@@ -235,6 +275,11 @@ spec:
                 - version
               type: object
           type: object
+          x-kubernetes-validations:
+            - message: kafkaSchemaRef cannot point to the KafkaSchema itself
+              rule:
+                "!has(self.spec.references) || self.spec.references.all(r, !has(r.kafkaSchemaRef)
+                || r.kafkaSchemaRef.name != self.metadata.name)"
       served: true
       storage: true
       subresources:

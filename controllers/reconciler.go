@@ -19,6 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -67,6 +68,20 @@ type Reconciler[T v1alpha1.AivenManagedObject] struct {
 	newObj                  func() T
 	newSecret               func(o objWithSecret, stringData map[string]string, addPrefix bool) *corev1.Secret
 	options                 *controller.Options
+	watches                 []func(*builder.Builder) *builder.Builder
+	indexes                 []func(context.Context, ctrl.Manager) error
+}
+
+// WithWatches registers extra watches that compose with the controller's builder.
+func (r *Reconciler[T]) WithWatches(fns ...func(*builder.Builder) *builder.Builder) *Reconciler[T] {
+	r.watches = append(r.watches, fns...)
+	return r
+}
+
+// WithIndexes registers field indexers for the controller-runtime cache.
+func (r *Reconciler[T]) WithIndexes(fns ...func(context.Context, ctrl.Manager) error) *Reconciler[T] {
+	r.indexes = append(r.indexes, fns...)
+	return r
 }
 
 // requeueTimeout sets timeout to requeue controller
@@ -206,6 +221,8 @@ func (r *Reconciler[T]) resolveK8sRefs(ctx context.Context, obj T) (requeue bool
 			return false, fmt.Errorf("getting referenced resource %s %s: %w", ref.GroupVersionKind, ref.NamespacedName, err)
 		}
 
+		// Block the dependent until the referent is Ready.
+		// Note: if the referent gets stuck, it keeps the dependent stuck too.
 		if !IsReadyToUse(dep) {
 			return true, nil
 		}
@@ -293,6 +310,9 @@ func (r *Reconciler[T]) createResource(ctx context.Context, controller AivenCont
 
 	res, err := controller.Create(ctx, obj)
 	if err != nil {
+		if requeue, ok := r.handlePreconditionNotMet(ctx, obj, err); ok {
+			return requeue, nil
+		}
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToCreateOrUpdateAtAiven, err.Error())
 		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionCreateOrUpdate, err))
 		return ctrl.Result{}, fmt.Errorf("unable to create or update instance at aiven: %w", err)
@@ -313,6 +333,10 @@ func (r *Reconciler[T]) updateResource(ctx context.Context, controller AivenCont
 	if err != nil {
 		if isNotFound(err) {
 			return ctrl.Result{RequeueAfter: requeueTimeout}, nil
+		}
+
+		if requeue, ok := r.handlePreconditionNotMet(ctx, obj, err); ok {
+			return requeue, nil
 		}
 
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToWaitForInstanceToBeRunning, err.Error())
@@ -485,8 +509,28 @@ func (r *Reconciler[T]) handleDeleteError(ctx context.Context, orig v1alpha1.Aiv
 	}
 }
 
+// handlePreconditionNotMet matches errPreconditionNotMet and returns
+// (soft-requeue result, true); for any other error it returns (zero, false).
+// Create/Update may need dependency state that Observe never reads or resolves.
+func (r *Reconciler[T]) handlePreconditionNotMet(ctx context.Context, obj T, err error) (ctrl.Result, bool) {
+	if !errors.Is(err, errPreconditionNotMet) {
+		return ctrl.Result{}, false
+	}
+	const msg = "preconditions are not met, requeue"
+	r.Recorder.Event(obj, corev1.EventTypeNormal, eventPreconditionsNotMet, msg)
+	logr.FromContextOrDiscard(ctx).V(1).Info(msg, "error", err)
+	return ctrl.Result{RequeueAfter: requeueTimeout}, true
+}
+
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler[T]) SetupWithManager(mgr ctrl.Manager) error {
+	// Indexers must be registered before the cache starts, so they run first.
+	for _, fn := range r.indexes {
+		if err := fn(context.Background(), mgr); err != nil {
+			return fmt.Errorf("registering field indexer: %w", err)
+		}
+	}
+
 	obj := r.newObj()
 	b := ctrl.NewControllerManagedBy(mgr).For(obj)
 	if _, ok := any(obj).(objWithSecret); ok {
@@ -495,6 +539,10 @@ func (r *Reconciler[T]) SetupWithManager(mgr ctrl.Manager) error {
 
 	if r.options != nil {
 		b = b.WithOptions(*r.options)
+	}
+
+	for _, fn := range r.watches {
+		b = fn(b)
 	}
 
 	return b.Complete(r)

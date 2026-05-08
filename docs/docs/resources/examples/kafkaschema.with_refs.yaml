@@ -1,0 +1,46 @@
+apiVersion: aiven.io/v1alpha1
+kind: KafkaSchema
+metadata:
+  name: money-type
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  serviceName: my-kafka
+  subjectName: common.Money
+  schemaType: PROTOBUF
+  schema: |
+    syntax = "proto3";
+    package common;
+    message Money {
+      string currency = 1;
+      int64 amount_cents = 2;
+    }
+---
+apiVersion: aiven.io/v1alpha1
+kind: KafkaSchema
+metadata:
+  name: order-event
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  serviceName: my-kafka
+  subjectName: com.example.OrderEvent
+  schemaType: PROTOBUF
+  schema: |
+    syntax = "proto3";
+    import "common/money.proto";
+    message OrderEvent {
+      common.Money total = 1;
+    }
+  references:
+    # Resolve subject and version from another KafkaSchema in the same namespace.
+    # No need to hard-code the version - dependents pick up new versions automatically.
+    - name: common/money.proto
+      kafkaSchemaRef:
+        name: money-type
