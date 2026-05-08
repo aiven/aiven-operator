@@ -35,6 +35,7 @@ Valkey major version
 - Add `MySQL` and `PostgreSQL` field `migrationSecretSource.deleteAfterMigration`, type `boolean`: When
   true, the operator deletes the referenced Secret after migration completes successfully. Defaults to `false`.
 - Remove the 63-character limit for the `KafkaSchema` field `subjectName`
+- Make `ConnectionPool` fields `databaseName` and `username` immutable
 
 ## v0.37.0 - 2026-04-09
 
