@@ -209,6 +209,14 @@ func (r *Reconciler[T]) resolveK8sRefs(ctx context.Context, obj T) (requeue bool
 	return false, nil
 }
 
+// updateStatus persists spec/metadata and status of obj.
+//
+// KNOWN ISSUE — stale-status race:
+// The Status().Update below sends obj.Status verbatim. If obj was built from
+// a stale informer-cache snapshot, this can clobber a status field that a
+// concurrent reconcile pass just persisted.
+//
+// For controllers built: do not use .status as an input to control flow. Treat .status as user-observable output only.
 func (r *Reconciler[T]) updateStatus(ctx context.Context, orig v1alpha1.AivenManagedObject, obj v1alpha1.AivenManagedObject) error {
 	if equality.Semantic.DeepEqual(orig, obj) {
 		return nil
