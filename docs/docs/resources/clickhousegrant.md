@@ -111,6 +111,9 @@ This resource uses the following API operations, and for each operation, _any_ o
       cloudName: google-europe-west1
       plan: startup-16
     
+      userConfig:
+        clickhouse_version: "25.3"
+    
     ---
     
     apiVersion: aiven.io/v1alpha1

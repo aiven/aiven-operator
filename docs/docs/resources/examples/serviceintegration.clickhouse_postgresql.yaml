@@ -34,6 +34,9 @@ spec:
   maintenanceWindowDow: friday
   maintenanceWindowTime: 23:00:00
 
+  userConfig:
+    clickhouse_version: "25.3"
+
 ---
 
 apiVersion: aiven.io/v1alpha1

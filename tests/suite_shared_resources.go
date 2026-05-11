@@ -12,6 +12,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
+	clickhouseuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/clickhouse"
 	kafkauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/kafka"
 )
 
@@ -60,6 +61,9 @@ func (s *sharedResourcesImpl) AcquireClickhouse(ctx context.Context) (*v1alpha1.
 	obj.Spec.Plan = "startup-16"
 	obj.Spec.Project = cfg.Project
 	obj.Spec.CloudName = cfg.PrimaryCloudName
+	obj.Spec.UserConfig = &clickhouseuserconfig.ClickhouseUserConfig{
+		ClickhouseVersion: anyPointer("25.3"),
+	}
 	return acquire(ctx, s, "Clickhouse", obj)
 }
 
