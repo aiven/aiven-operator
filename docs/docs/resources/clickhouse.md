@@ -48,6 +48,7 @@ spec:
     instance: foo
 
   userConfig:
+    clickhouse_version: "25.3"
     ip_filter:
       - network: 0.0.0.0/0
         description: bar

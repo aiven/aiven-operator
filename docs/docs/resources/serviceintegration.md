@@ -117,6 +117,9 @@ This resource uses the following API operations, and for each operation, _any_ o
       maintenanceWindowDow: friday
       maintenanceWindowTime: 23:00:00
     
+      userConfig:
+        clickhouse_version: "25.3"
+    
     ---
     
     apiVersion: aiven.io/v1alpha1

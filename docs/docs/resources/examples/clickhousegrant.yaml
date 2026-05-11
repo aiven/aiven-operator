@@ -40,6 +40,9 @@ spec:
   cloudName: google-europe-west1
   plan: startup-16
 
+  userConfig:
+    clickhouse_version: "25.3"
+
 ---
 
 apiVersion: aiven.io/v1alpha1

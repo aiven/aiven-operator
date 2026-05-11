@@ -565,6 +565,9 @@ spec:
   project: %s
   cloudName: %s
   plan: startup-v2-16
+
+  userConfig:
+    clickhouse_version: "25.3"
 `, chName, chName, cfg.Project, cfg.PrimaryCloudName)
 
 	s := NewSession(ctx, k8sClient)
