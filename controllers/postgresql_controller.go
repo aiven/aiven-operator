@@ -196,8 +196,8 @@ func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avnG
 	}
 
 	task, err := avnGen.ServiceTaskCreate(ctx, a.getServiceCommonSpec().Project, a.getObjectMeta().Name, &service.ServiceTaskCreateIn{
-		TargetVersion: service.TargetVersionType(targetVersion),
-		TaskType:      service.TaskTypeUpgradeCheck,
+		UpgradeCheck: &service.UpgradeCheckIn{TargetVersion: targetVersion},
+		TaskType:     service.TaskTypeUpgradeCheck,
 	})
 	if err != nil {
 		return fmt.Errorf("cannot create PG upgrade check task: %w", err)
