@@ -7,7 +7,7 @@ plugins:
   sources:
     - id: trunk
       uri: https://github.com/trunk-io/plugins
-      ref: v1.7.6
+      ref: v1.9.0
 
 lint:
   enabled:
@@ -18,7 +18,7 @@ lint:
     - git-diff-check
     - gitleaks@8.30.1
     - gofmt@1.20.4
-    - golangci-lint2@2.11.4
+    - golangci-lint2@2.12.2
     - markdownlint@0.48.0
     - prettier@3.8.3
     - yamllint@1.38.0
@@ -52,7 +52,7 @@ runtimes:
   enabled:
     - go@1.26.0
     - node@22.16.0
-    - python@3.10.8
+    - python@3.14.4
 
 actions:
   disabled:

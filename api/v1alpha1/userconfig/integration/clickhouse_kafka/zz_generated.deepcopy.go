@@ -105,6 +105,11 @@ func (in *Tables) DeepCopyInto(out *Tables) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.AutoOffsetResetByDurationMs != nil {
+		in, out := &in.AutoOffsetResetByDurationMs, &out.AutoOffsetResetByDurationMs
+		*out = new(int)
+		**out = **in
+	}
 	if in.Columns != nil {
 		in, out := &in.Columns, &out.Columns
 		*out = make([]*Columns, len(*in))

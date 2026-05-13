@@ -119,14 +119,12 @@ spec:
 		avn.EXPECT().
 			ServiceOpenSearchAclGet(mock.Anything, cfg.Spec.Project, cfg.Spec.ServiceName).
 			Return(&avnopensearch.ServiceOpenSearchAclGetOut{
-				OpensearchAclConfig: avnopensearch.OpensearchAclConfigOut{
-					Enabled: false,
-					Acls: []avnopensearch.AclOut{
-						{
-							Username: "admin*",
-							Rules: []avnopensearch.RuleOut{
-								{Index: "ind*", Permission: avnopensearch.PermissionTypeRead},
-							},
+				Enabled: false,
+				Acls: []avnopensearch.AclOut{
+					{
+						Username: "admin*",
+						Rules: []avnopensearch.RuleOut{
+							{Index: "ind*", Permission: avnopensearch.PermissionTypeRead},
 						},
 					},
 				},
@@ -163,21 +161,19 @@ spec:
 		avn.EXPECT().
 			ServiceOpenSearchAclGet(mock.Anything, cfg.Spec.Project, cfg.Spec.ServiceName).
 			Return(&avnopensearch.ServiceOpenSearchAclGetOut{
-				OpensearchAclConfig: avnopensearch.OpensearchAclConfigOut{
-					Enabled: true,
-					Acls: []avnopensearch.AclOut{
-						{
-							Username: "ops*",
-							Rules: []avnopensearch.RuleOut{
-								{Index: "metrics*", Permission: avnopensearch.PermissionTypeWrite},
-							},
+				Enabled: true,
+				Acls: []avnopensearch.AclOut{
+					{
+						Username: "ops*",
+						Rules: []avnopensearch.RuleOut{
+							{Index: "metrics*", Permission: avnopensearch.PermissionTypeWrite},
 						},
-						{
-							Username: "admin*",
-							Rules: []avnopensearch.RuleOut{
-								{Index: "logs*", Permission: avnopensearch.PermissionTypeRead},
-								{Index: "ind*", Permission: avnopensearch.PermissionTypeDeny},
-							},
+					},
+					{
+						Username: "admin*",
+						Rules: []avnopensearch.RuleOut{
+							{Index: "logs*", Permission: avnopensearch.PermissionTypeRead},
+							{Index: "ind*", Permission: avnopensearch.PermissionTypeDeny},
 						},
 					},
 				},

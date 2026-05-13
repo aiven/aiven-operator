@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"fmt"
 	"os"
 	"path"
@@ -9,8 +10,7 @@ import (
 	"strings"
 
 	"github.com/goccy/go-yaml"
-	"github.com/google/go-cmp/cmp"
-	"golang.org/x/exp/constraints"
+	gocmp "github.com/google/go-cmp/cmp"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
@@ -115,7 +115,7 @@ type changelog struct {
 }
 
 func cmpSchemas(kind, parent string, wasSpec, hasSpec *schema) []changelog {
-	if cmp.Equal(wasSpec, hasSpec) {
+	if gocmp.Equal(wasSpec, hasSpec) {
 		return nil
 	}
 
@@ -136,7 +136,7 @@ func cmpSchemas(kind, parent string, wasSpec, hasSpec *schema) []changelog {
 		case !oOk:
 			title := fmt.Sprintf("Add `%s` field `%s`, type `%s`", kind, fieldPath, nv.Type)
 			changes = append(changes, changelog{title: title, value: shortDescription(nv.Description)})
-		case !cmp.Equal(ov, nv):
+		case !gocmp.Equal(ov, nv):
 			c := fmtChanges(ov, nv)
 			if c != "" {
 				title := fmt.Sprintf("Change `%s` field `%s`", kind, fieldPath)
@@ -180,7 +180,7 @@ func fmtChanges(was, has *schema) string {
 
 // fmtChange returns a string like: foo ~~`0`~~ → `1` or empty string
 func fmtChange[T any](title string, was, has *T) string {
-	if cmp.Equal(was, has) {
+	if gocmp.Equal(was, has) {
 		return ""
 	}
 
@@ -384,7 +384,7 @@ func readFiles(p string) (map[string][]byte, error) {
 }
 
 // sortedKeys returns map's keys sorted to have predictable output
-func sortedKeys[K constraints.Ordered, V any](m map[K]V) []K {
+func sortedKeys[K cmp.Ordered, V any](m map[K]V) []K {
 	keys := make([]K, 0, len(m))
 	for k := range m {
 		keys = append(keys, k)
@@ -394,7 +394,7 @@ func sortedKeys[K constraints.Ordered, V any](m map[K]V) []K {
 }
 
 // mergedKeys returns merged keys of multiple maps
-func mergedKeys[K constraints.Ordered, V any](maps ...map[K]V) []K {
+func mergedKeys[K cmp.Ordered, V any](maps ...map[K]V) []K {
 	unique := make(map[K]bool)
 	for _, m := range maps {
 		for k := range m {

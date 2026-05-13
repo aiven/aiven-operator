@@ -132,7 +132,7 @@ func (h ProjectHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client
 			Tags:             &project.Spec.Tags,
 		}
 
-		p, err := avnGen.ProjectUpdate(ctx, project.Name, req)
+		p, err := avnGen.ProjectUpdate(ctx, project.Name, req) // nolint:staticcheck
 		if err != nil {
 			return fmt.Errorf("failed to update project on aiven side: %w", err)
 		}
@@ -175,7 +175,7 @@ func (h ProjectHandler) get(ctx context.Context, avnGen avngen.Client, obj clien
 
 // exists checks if project already exists on Aiven side
 func (h ProjectHandler) exists(ctx context.Context, client avngen.Client, project *v1alpha1.Project) (bool, error) {
-	pr, err := client.ProjectGet(ctx, project.Name)
+	pr, err := client.ProjectGet(ctx, project.Name) // nolint:staticcheck
 	if isNotFound(err) {
 		return false, nil
 	}
@@ -191,7 +191,7 @@ func (h ProjectHandler) delete(ctx context.Context, avnGen avngen.Client, obj cl
 	}
 
 	// Delete project on Aiven side
-	err = avnGen.ProjectDelete(ctx, project.Name)
+	err = avnGen.ProjectDelete(ctx, project.Name) // nolint:staticcheck
 	return isDeleted(err)
 }
 

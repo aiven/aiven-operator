@@ -36,6 +36,14 @@ Valkey major version
   true, the operator deletes the referenced Secret after migration completes successfully. Defaults to `false`.
 - Remove the 63-character limit for the `KafkaSchema` field `subjectName`
 - Make `ConnectionPool` fields `databaseName` and `username` immutable
+- Add `Clickhouse` field `userConfig.private_access.clickhouse_arrowflight`, type `boolean`: Allow clients
+  to connect to clickhouse_arrowflight with a DNS name that always resolves to the service's private
+  IP addresses
+- Add `Clickhouse` field `userConfig.privatelink_access.clickhouse_arrowflight`, type `boolean`: Enable
+  clickhouse_arrowflight
+- Add `Clickhouse` field `userConfig.public_access.clickhouse_arrowflight`, type `boolean`: Allow clients
+  to connect to clickhouse_arrowflight from the public internet for service nodes that are in a
+  project VPC or another type of private network
 
 ## v0.37.0 - 2026-04-09
 

@@ -19,6 +19,9 @@ type PrivateAccess struct {
 	// Allow clients to connect to clickhouse with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
 	Clickhouse *bool `groups:"create,update" json:"clickhouse,omitempty"`
 
+	// Allow clients to connect to clickhouse_arrowflight with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
+	ClickhouseArrowflight *bool `groups:"create,update" json:"clickhouse_arrowflight,omitempty"`
+
 	// Allow clients to connect to clickhouse_https with a DNS name that always resolves to the service's private IP addresses. Only available in certain network locations
 	ClickhouseHttps *bool `groups:"create,update" json:"clickhouse_https,omitempty"`
 
@@ -34,6 +37,9 @@ type PrivatelinkAccess struct {
 	// Enable clickhouse
 	Clickhouse *bool `groups:"create,update" json:"clickhouse,omitempty"`
 
+	// Enable clickhouse_arrowflight
+	ClickhouseArrowflight *bool `groups:"create,update" json:"clickhouse_arrowflight,omitempty"`
+
 	// Enable clickhouse_https
 	ClickhouseHttps *bool `groups:"create,update" json:"clickhouse_https,omitempty"`
 
@@ -48,6 +54,9 @@ type PrivatelinkAccess struct {
 type PublicAccess struct {
 	// Allow clients to connect to clickhouse from the public internet for service nodes that are in a project VPC or another type of private network
 	Clickhouse *bool `groups:"create,update" json:"clickhouse,omitempty"`
+
+	// Allow clients to connect to clickhouse_arrowflight from the public internet for service nodes that are in a project VPC or another type of private network
+	ClickhouseArrowflight *bool `groups:"create,update" json:"clickhouse_arrowflight,omitempty"`
 
 	// Allow clients to connect to clickhouse_https from the public internet for service nodes that are in a project VPC or another type of private network
 	ClickhouseHttps *bool `groups:"create,update" json:"clickhouse_https,omitempty"`

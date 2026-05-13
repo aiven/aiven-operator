@@ -68,7 +68,7 @@ func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avnGen avngen
 	}
 
 	if !exists {
-		req := postgresql.ServicePgBouncerCreateIn{
+		req := postgresql.ServicePGBouncerCreateIn{
 			Database: connPool.Spec.DatabaseName,
 			PoolMode: connPool.Spec.PoolMode,
 			PoolName: connPool.Name,
@@ -80,7 +80,7 @@ func (h ConnectionPoolHandler) createOrUpdate(ctx context.Context, avnGen avngen
 			return fmt.Errorf("cannot create connection pool: %w", err)
 		}
 	} else {
-		req := postgresql.ServicePgBouncerUpdateIn{
+		req := postgresql.ServicePGBouncerUpdateIn{
 			Database: NilIfZero(connPool.Spec.DatabaseName),
 			PoolMode: connPool.Spec.PoolMode,
 			PoolSize: NilIfZero(connPool.Spec.PoolSize),

@@ -70,6 +70,11 @@ type Tables struct {
 	// Determines where to start reading from Kafka when no offset is stored or the stored offset is out of range. 'earliest' starts from the beginning, 'latest' starts from the end.
 	AutoOffsetReset *string `groups:"create,update" json:"auto_offset_reset,omitempty"`
 
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=2147483647
+	// When set to a non-zero value and there are no committed offsets, the consumer starts from the offset corresponding to (now - auto_offset_reset_by_duration_ms). This overrides auto_offset_reset when set. Requires ClickHouse >= 25.8.
+	AutoOffsetResetByDurationMs *int `groups:"create,update" json:"auto_offset_reset_by_duration_ms,omitempty"`
+
 	// +kubebuilder:validation:MaxItems=100
 	// Array of column definitions that specify the structure of the ClickHouse table. Each column maps to a field in the Kafka messages.
 	Columns []*Columns `groups:"create,update" json:"columns"`

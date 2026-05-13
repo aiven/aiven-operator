@@ -49,8 +49,8 @@ func (r *OpenSearchACLConfigController) Observe(ctx context.Context, cr *v1alpha
 
 	return Observation{
 		ResourceExists: true,
-		ResourceUpToDate: cr.Spec.Enabled == actual.OpensearchAclConfig.Enabled &&
-			openSearchACLsMatch(cr.Spec.Acls, actual.OpensearchAclConfig.Acls),
+		ResourceUpToDate: cr.Spec.Enabled == actual.Enabled &&
+			openSearchACLsMatch(cr.Spec.Acls, actual.Acls),
 	}, nil
 }
 
