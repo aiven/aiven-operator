@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.38.0 - 2026-05-18
+
 - Add `MySQL` and `PostgreSQL` field `migrationSecretSource`, type `object`: Reference to a Secret containing migration
   credentials. Secret keys must match userConfig.migration JSON field names. If set, takes precedence over userConfig.migration.
 - Add `Clickhouse` field `userConfig.server_settings`, type `object`: ClickHouse server settings, which
