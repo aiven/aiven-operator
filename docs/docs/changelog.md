@@ -1,6 +1,51 @@
 # Changelog
 
 
+## v0.38.0 - 2026-05-18
+
+- Add `MySQL` and `PostgreSQL` field `migrationSecretSource`, type `object`: Reference to a Secret containing migration
+  credentials. Secret keys must match userConfig.migration JSON field names. If set, takes precedence over userConfig.migration.
+- Add `Clickhouse` field `userConfig.server_settings`, type `object`: ClickHouse server settings, which
+  can be found in the `system.server_settings` table
+- Add `Clickhouse` field `userConfig.session_settings`, type `object`: ClickHouse session settings, which
+  can be found in the `system.settings` table
+- Add `KafkaConnect` field `userConfig.kafka_connect.prefer_ipv6_address_enable`, type `boolean`: When
+  enabled, connectors will automatically resolve IPv6 addresses from external server names configured
+  with dual-stack
+- Add `Kafka` field `userConfig.inkless`, type `object`: Inkless configuration values
+- Add `Kafka` field `userConfig.kafka_connect_config.prefer_ipv6_address_enable`, type `boolean`: When
+  enabled, connectors will automatically resolve IPv6 addresses from external server names configured
+  with dual-stack
+- Change `Kafka` field `userConfig.backup_interval_hours`: enum add `12`, `24`, `3`, `4`, `6`, `8`
+- Add `MySQL` field `userConfig.mysql.lower_case_table_names`, type `integer`: Sets how table and database
+  names are stored and compared
+- Change `OpenSearch` field `userConfig.opensearch.cluster_max_shards_per_node`: minimum ~~`100`~~ → `10`
+- Add `PostgreSQL` field `userConfig.pg.synchronous_commit`, type `string`: Sets the current transaction's
+  synchronization level. The default is `off`
+- Add `PostgreSQL` field `userConfig.switchover_windows`, type `array`: no description
+- Change `PostgreSQL` field `userConfig.backup_interval_hours`: enum add `12`, `24`, `3`, `4`, `6`, `8`
+- Add `ServiceIntegration` field `metrics.source_mysql.telegraf.gather_replica_status`, type `boolean`:
+  Gather metrics from SHOW REPLICA STATUS command output
+- Add `Valkey` field `userConfig.valkey_version`, type `string`: Available versions: `8.1`, `9.0`. Newer
+  versions may also be available.
+Valkey major version
+- Add `KafkaSchema` field `references`, type `array`: Schema references for Protobuf or JSON schemas
+  that import other schemas
+- **BREAKING**: Remove deprecated `AlloyDBOmni` and `Cassandra` kinds and controllers from the operator
+- **BREAKING**: Change `ServiceIntegration` field `integrationType`: enum remove `m3aggregator`, `m3coordinator`
+- Add `MySQL` and `PostgreSQL` field `migrationSecretSource.deleteAfterMigration`, type `boolean`: When
+  true, the operator deletes the referenced Secret after migration completes successfully. Defaults to `false`.
+- Remove the 63-character limit for the `KafkaSchema` field `subjectName`
+- Make `ConnectionPool` fields `databaseName` and `username` immutable
+- Add `Clickhouse` field `userConfig.private_access.clickhouse_arrowflight`, type `boolean`: Allow clients
+  to connect to clickhouse_arrowflight with a DNS name that always resolves to the service's private
+  IP addresses
+- Add `Clickhouse` field `userConfig.privatelink_access.clickhouse_arrowflight`, type `boolean`: Enable
+  clickhouse_arrowflight
+- Add `Clickhouse` field `userConfig.public_access.clickhouse_arrowflight`, type `boolean`: Allow clients
+  to connect to clickhouse_arrowflight from the public internet for service nodes that are in a
+  project VPC or another type of private network
+
 ## v0.37.0 - 2026-04-09
 
 - Add `ServiceUser` field `accessControl`, type `object`: AccessControl configures service-specific access control rules for the user.
