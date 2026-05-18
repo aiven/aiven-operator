@@ -1,0 +1,366 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
+
+/*
+  Link system (ported from Infima / Docusaurus concepts → MkDocs Material):
+
+  Docusaurus                         Material (approx.)
+  .theme-doc-markdown / .markdown   .md-typeset
+  .hash-link                         .headerlink
+  .table-of-contents__link           .md-sidebar--secondary .md-nav__link
+  .pagination-nav__link              .md-footer-nav__link
+  .theme-edit-this-page             .md-content__button
+  .breadcrumbs__link                 .md-path__link (when navigation.path is enabled)
+*/
+
+:root {
+  --aiven-brand-font: "Inter", "Montserrat", system-ui, sans-serif;
+  --aiven-brand-near-black: #05080f;
+  --aiven-chrome-divider: rgba(255, 255, 255, 0.12);
+  --aiven-header-letter-spacing: -0.02em;
+  --aiven-radius: 2px;
+}
+
+/* Light theme tokens */
+[data-md-color-scheme="default"] {
+  --aiven-deep-blue-400: #8a8aff;
+  --aiven-deep-blue-300: #9ca5ff;
+  --aiven-body-text: #454c60;
+  --aiven-heading-text: #252a3a;
+  /* Chrome (header, tabs, TOC, accent UI): purple pair */
+  --aiven-chrome-link: var(--aiven-deep-blue-400);
+  --aiven-chrome-link-hover: var(--aiven-deep-blue-300);
+  /* Prose / inline links — same as chrome in light */
+  --aiven-inline-link: var(--aiven-deep-blue-400);
+  --aiven-inline-link-hover: var(--aiven-deep-blue-300);
+  /* Legacy aliases */
+  --aiven-link: var(--aiven-chrome-link);
+  --aiven-link-hover: var(--aiven-chrome-link-hover);
+  --md-typeset-a-color: var(--aiven-inline-link);
+  --md-typeset-a-color--hover: var(--aiven-inline-link-hover);
+  --aiven-surface-bg: #ffffff;
+  --aiven-divider: #d8dbe3;
+  --aiven-header-fg: #252a3a;
+  --aiven-footer-link: #636976;
+  --aiven-badge-label-color: var(--aiven-heading-text);
+  --aiven-announce-link: #fff066;
+  --aiven-search-bg: #f4f5f7;
+  --aiven-search-placeholder: #454c60;
+  --aiven-search-icon: #252a3a;
+  --aiven-search-kbd-bg: rgba(37, 42, 58, 0.08);
+  --aiven-search-kbd-fg: #252a3a;
+}
+
+/* Dark theme tokens */
+[data-md-color-scheme="slate"] {
+  --aiven-primary-60: #5ffa74;
+  --aiven-primary-70: #34d957;
+  --aiven-body-text: #c5c9d4;
+  --aiven-heading-text: #f4f5f7;
+  /* Chrome (header, tabs, TOC): green pair */
+  --aiven-chrome-link: var(--aiven-primary-60);
+  --aiven-chrome-link-hover: var(--aiven-primary-70);
+  /* Prose / inline: body by default; hover brand green */
+  --aiven-inline-link: var(--aiven-body-text);
+  --aiven-inline-link-hover: var(--aiven-primary-60);
+  --aiven-link: var(--aiven-chrome-link);
+  --aiven-link-hover: var(--aiven-chrome-link-hover);
+  --md-typeset-a-color: var(--aiven-inline-link);
+  --md-typeset-a-color--hover: var(--aiven-inline-link-hover);
+  --aiven-surface-bg: var(--aiven-brand-near-black);
+  --aiven-divider: var(--aiven-chrome-divider);
+  --aiven-header-fg: #f4f5f7;
+  --aiven-badge-label-color: var(--aiven-heading-text);
+  --aiven-announce-link: #fff066;
+  --aiven-search-bg: rgba(255, 255, 255, 0.08);
+  --aiven-search-placeholder: #c5c9d4;
+  --aiven-search-icon: #f4f5f7;
+  --aiven-search-kbd-bg: rgba(255, 255, 255, 0.12);
+  --aiven-search-kbd-fg: #f4f5f7;
+}
+
+[data-md-color-scheme="default"],
+[data-md-color-scheme="slate"] {
+  /* MkDocs Material tokens */
+  --md-default-bg-color: var(--aiven-surface-bg);
+  --md-default-bg-color--light: var(--aiven-surface-bg);
+  --md-default-bg-color--lighter: var(--aiven-surface-bg);
+  --md-default-bg-color--lightest: var(--aiven-surface-bg);
+  --md-primary-fg-color: var(--aiven-surface-bg);
+  --md-primary-fg-color--light: var(--aiven-surface-bg);
+  --md-primary-fg-color--dark: var(--aiven-surface-bg);
+  --md-accent-fg-color: var(--aiven-chrome-link);
+}
+
+body,
+.md-typeset,
+.md-nav,
+.md-footer,
+.md-search-result__teaser {
+  font-family: var(--aiven-brand-font);
+  color: var(--aiven-body-text);
+}
+
+body,
+.md-main,
+.md-main__inner,
+.md-content,
+.md-content__inner,
+.md-sidebar,
+.md-sidebar__scrollwrap,
+.md-header,
+.md-tabs,
+.md-footer {
+  background-color: var(--aiven-surface-bg);
+}
+
+.md-header {
+  border-bottom: 1px solid var(--aiven-divider);
+}
+
+.md-header,
+.md-header a,
+.md-header__button,
+.md-header__topic,
+.md-source,
+.md-source__icon,
+.md-source__repository,
+.md-source__facts,
+.md-search__icon {
+  color: var(--aiven-header-fg);
+}
+
+.md-header__button:hover,
+.md-header a:hover,
+.md-source:hover {
+  color: var(--aiven-chrome-link-hover);
+}
+
+.md-search__form {
+  position: relative;
+  background-color: var(--aiven-search-bg);
+  border: 1px solid var(--aiven-divider);
+}
+
+.md-search__input {
+  color: var(--aiven-header-fg);
+  caret-color: var(--aiven-header-fg);
+}
+
+.md-search__input::placeholder {
+  color: var(--aiven-search-placeholder);
+  opacity: 1;
+}
+
+/* Ensure search icon contrast in both themes */
+.md-search__icon,
+.md-search__icon svg {
+  color: var(--aiven-search-icon);
+  fill: currentColor;
+  opacity: 1;
+}
+
+.md-footer {
+  border-top: 1px solid var(--aiven-divider);
+}
+
+.md-sidebar--primary,
+.md-sidebar--secondary,
+.md-nav--secondary {
+  border-color: var(--aiven-divider);
+}
+
+.md-nav--secondary {
+  border-left: 1px solid var(--aiven-divider);
+}
+
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3,
+.md-typeset h4,
+.md-typeset h5,
+.md-typeset h6 {
+  font-family: var(--aiven-brand-font);
+  font-weight: 600;
+  color: var(--aiven-heading-text);
+}
+
+/* Header/nav display text tightening */
+.md-header__title,
+.md-tabs__link,
+.md-nav__title,
+.md-nav__item .md-nav__link {
+  letter-spacing: var(--aiven-header-letter-spacing);
+}
+
+.md-header__title,
+.md-header__topic {
+  color: var(--aiven-header-fg);
+}
+
+.md-nav__title,
+.md-ellipsis,
+.md-search__input {
+  color: var(--aiven-body-text);
+}
+
+/* Idle chrome navigation + footer */
+.md-tabs__link,
+.md-nav__link,
+.md-nav__item .md-nav__link,
+.md-nav--secondary .md-nav__link,
+.md-footer__link {
+  color: var(--aiven-body-text);
+}
+
+[data-md-color-scheme="default"] .md-footer__link {
+  color: var(--aiven-footer-link);
+}
+
+/*
+  Chrome navigation: hover/focus → chrome hover; active/current → chrome link.
+*/
+.md-tabs__link:hover,
+.md-tabs__link:focus,
+.md-nav__link:hover,
+.md-nav__link:focus,
+.md-nav__item .md-nav__link:hover,
+.md-nav__item .md-nav__link:focus,
+.md-nav--secondary .md-nav__link:hover,
+.md-nav--secondary .md-nav__link:focus {
+  color: var(--aiven-chrome-link-hover);
+}
+
+.md-tabs__link--active,
+.md-tabs__item--active .md-tabs__link,
+.md-nav__item--active > .md-nav__link,
+.md-nav__link--active,
+.md-nav--secondary .md-nav__link--active,
+.md-nav--secondary .md-nav__item--active > .md-nav__link,
+.md-nav__link[aria-current="page"],
+.md-nav__link[aria-current="true"] {
+  color: var(--aiven-chrome-link);
+}
+
+.md-tabs__link--active:hover,
+.md-tabs__link--active:focus,
+.md-tabs__item--active .md-tabs__link:hover,
+.md-tabs__item--active .md-tabs__link:focus,
+.md-nav__item--active > .md-nav__link:hover,
+.md-nav__item--active > .md-nav__link:focus,
+.md-nav__link--active:hover,
+.md-nav__link--active:focus,
+.md-nav--secondary .md-nav__link--active:hover,
+.md-nav--secondary .md-nav__link--active:focus,
+.md-nav--secondary .md-nav__item--active > .md-nav__link:hover,
+.md-nav--secondary .md-nav__item--active > .md-nav__link:focus,
+.md-nav__link[aria-current="page"]:hover,
+.md-nav__link[aria-current="page"]:focus,
+.md-nav__link[aria-current="true"]:hover,
+.md-nav__link[aria-current="true"]:focus {
+  color: var(--aiven-chrome-link-hover);
+}
+
+[data-md-color-scheme="default"] .md-footer__link:hover,
+[data-md-color-scheme="default"] .md-footer__link:focus {
+  color: var(--aiven-inline-link-hover);
+}
+
+[data-md-color-scheme="slate"] .md-footer__link:hover,
+[data-md-color-scheme="slate"] .md-footer__link:focus {
+  color: var(--aiven-chrome-link-hover);
+}
+
+/* Dark header dropdowns: hover/focus → primary green (#5ffa74) */
+[data-md-color-scheme="slate"] .md-version__link:hover,
+[data-md-color-scheme="slate"] .md-version__link:focus,
+[data-md-color-scheme="slate"] .md-lang__link:hover,
+[data-md-color-scheme="slate"] .md-lang__link:focus {
+  color: var(--aiven-chrome-link);
+}
+
+/*
+  Prose underlines — mirrors .theme-doc-markdown scoped links.
+  Strip decoration on chrome/UI anchors via exclusions (clearer than a long :not() list).
+*/
+.md-typeset a {
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+  text-underline-offset: 0.15em;
+}
+
+.md-typeset .headerlink,
+.md-typeset .md-tag,
+.md-typeset .tabbed-set .tabbed-labels label > a,
+.md-typeset .md-path__link,
+.md-typeset .md-pagination__page,
+.md-typeset .md-footer-nav__link,
+.md-typeset .md-button,
+.md-typeset .md-social__link,
+.md-typeset .aiven-btn-link,
+.md-typeset .aiven-card-link,
+.md-typeset .release-badge {
+  text-decoration: none;
+}
+
+.md-content__button {
+  text-decoration: none;
+}
+
+.md-typeset .headerlink {
+  color: inherit;
+}
+
+.md-typeset .headerlink:hover,
+.md-typeset .headerlink:focus {
+  color: inherit;
+}
+
+.md-typeset .release-badge {
+  color: var(--aiven-badge-label-color);
+}
+
+/* Announcement bar: brand yellow + underline; hover → white */
+.md-banner a {
+  color: var(--aiven-announce-link);
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+  text-underline-offset: 0.15em;
+}
+
+.md-banner a:hover,
+.md-banner a:focus {
+  color: #ffffff;
+}
+
+.card a:hover,
+.card a:focus {
+  text-decoration: none;
+}
+
+/*
+  Admonitions: inline link palette; default no underline (Material still applies colors via vars).
+*/
+.md-typeset .admonition {
+  --md-typeset-a-color: var(--aiven-inline-link);
+  --md-typeset-a-color--hover: var(--aiven-inline-link-hover);
+}
+
+.md-typeset .admonition a {
+  text-decoration: none;
+  text-decoration-color: currentColor;
+}
+
+.md-typeset .admonition a:hover,
+.md-typeset .admonition a:focus {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* Use white logo in dark mode */
+[data-md-color-scheme="slate"] .md-header__button.md-logo img {
+  content: url("../assets/aiven_logo_RGB_wht.svg");
+}
+
+[data-md-color-scheme="slate"] .md-nav__button.md-logo img {
+  content: url("../assets/aiven_logo_RGB_wht.svg");
+}
