@@ -4,7 +4,7 @@ go 1.26
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.46.0
-	github.com/aiven/go-api-schemas v1.189.0
+	github.com/aiven/go-api-schemas v1.190.0
 	github.com/aiven/go-client-codegen v0.182.0
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/dave/jennifer v1.7.1
@@ -60,7 +60,9 @@ require (
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.8 // indirect
 	github.com/hashicorp/go-version v1.8.0 // indirect
+	github.com/huandu/xstrings v1.5.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.18.3 // indirect
@@ -85,6 +87,7 @@ require (
 	github.com/rs/zerolog v1.35.1 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
+	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect

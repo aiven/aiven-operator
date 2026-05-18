@@ -969,8 +969,8 @@ spec:
                       type: boolean
                     pg_version:
                       description: |-
-                        Available versions: `13`, `14`, `15`, `16`, `17`, `18`. Newer versions may also be available.
-                        PostgreSQL major version. Deprecated values: `13`
+                        Available versions: `14`, `15`, `16`, `17`, `18`. Newer versions may also be available.
+                        PostgreSQL major version. Deprecated values: `14`
                       type: string
                     pgaudit:
                       description: System-wide settings for the pgaudit extension.
