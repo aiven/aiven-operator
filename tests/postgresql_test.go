@@ -179,7 +179,7 @@ spec:
     instance: pg
 
   userConfig:
-    pg_version: "14"
+    pg_version: "17"
 `, project, pgName, cloudName)
 }
 
@@ -225,9 +225,8 @@ func TestPgCustomPrefix(t *testing.T) {
 	assert.NotNil(t, pgAvn.UserConfig) // "Aiven instance has defaults set"
 
 	// Tests non-strict yaml. By sending string-integer we expect it's parsed as a string.
-	// Default version is 15, we get 14, as we set it.
-	assert.Equal(t, "14", pgAvn.UserConfig["pg_version"])
-	assert.Equal(t, anyPointer("14"), pg.Spec.UserConfig.PgVersion)
+	assert.Equal(t, "17", pgAvn.UserConfig["pg_version"])
+	assert.Equal(t, anyPointer("17"), pg.Spec.UserConfig.PgVersion)
 
 	// Validates secret
 	secret, err := s.GetSecret("postgresql-secret")
@@ -290,9 +289,9 @@ func TestPgUpgradeVersion(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
 
-	pgVersions := service.TargetVersionTypeChoices()
 	// The latest reported version from the upgrade check task may not be available in the operator yet.
 	// Therefore, we set targetVersion to the second to last version.
+	pgVersions := []string{"13", "14", "15", "16", "17", "18"}
 	startingVersion := pgVersions[len(pgVersions)-3] // third to last
 	targetVersion := pgVersions[len(pgVersions)-2]   // second to last
 

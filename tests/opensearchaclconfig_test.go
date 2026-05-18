@@ -27,7 +27,7 @@ func TestOpenSearchACLConfig(t *testing.T) {
 
 	serviceName := randName("opensearch")
 	configName := randName("opensearch-acl")
-	initialConfig := avnopensearch.OpensearchAclConfigOut{
+	initialConfig := avnopensearch.ServiceOpenSearchAclGetOut{
 		Enabled: true,
 		Acls: []avnopensearch.AclOut{
 			{
@@ -45,7 +45,7 @@ func TestOpenSearchACLConfig(t *testing.T) {
 			},
 		},
 	}
-	updatedConfig := avnopensearch.OpensearchAclConfigOut{
+	updatedConfig := avnopensearch.ServiceOpenSearchAclGetOut{
 		Enabled: true,
 		Acls: []avnopensearch.AclOut{
 			{
@@ -56,7 +56,7 @@ func TestOpenSearchACLConfig(t *testing.T) {
 			},
 		},
 	}
-	disabledConfig := avnopensearch.OpensearchAclConfigOut{
+	disabledConfig := avnopensearch.ServiceOpenSearchAclGetOut{
 		Enabled: false,
 		Acls: []avnopensearch.AclOut{
 			{
@@ -67,7 +67,7 @@ func TestOpenSearchACLConfig(t *testing.T) {
 			},
 		},
 	}
-	resetConfig := avnopensearch.OpensearchAclConfigOut{
+	resetConfig := avnopensearch.ServiceOpenSearchAclGetOut{
 		Enabled: false,
 		Acls:    []avnopensearch.AclOut{},
 	}
@@ -238,7 +238,7 @@ func requireOpenSearchACLConfigEventually(
 	ctx context.Context,
 	project string,
 	serviceName string,
-	expected avnopensearch.OpensearchAclConfigOut,
+	expected avnopensearch.ServiceOpenSearchAclGetOut,
 	message string,
 ) {
 	t.Helper()
@@ -249,11 +249,11 @@ func requireOpenSearchACLConfigEventually(
 			return false
 		}
 
-		return openSearchACLConfigEquals(current.OpensearchAclConfig, expected)
+		return openSearchACLConfigEquals(*current, expected)
 	}, 3*time.Minute, 10*time.Second, message)
 }
 
-func openSearchACLConfigEquals(actual, expected avnopensearch.OpensearchAclConfigOut) bool {
+func openSearchACLConfigEquals(actual, expected avnopensearch.ServiceOpenSearchAclGetOut) bool {
 	normalizeACLs := func(acls []avnopensearch.AclOut) []avnopensearch.AclOut {
 		out := make([]avnopensearch.AclOut, 0, len(acls))
 		for _, acl := range acls {
