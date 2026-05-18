@@ -37,12 +37,6 @@
         <loc>https://aiven.github.io/aiven-operator/controllers/clickhouseuser.html</loc>
       </url>
       <url>
-        <loc>https://aiven.github.io/aiven-operator/resources/alloydbomni.html</loc>
-      </url>
-      <url>
-        <loc>https://aiven.github.io/aiven-operator/resources/cassandra.html</loc>
-      </url>
-      <url>
         <loc>https://aiven.github.io/aiven-operator/resources/clickhouse.html</loc>
       </url>
       <url>
@@ -119,12 +113,6 @@
       </url>
       <url>
         <loc>https://aiven.github.io/aiven-operator/resources/valkey.html</loc>
-      </url>
-      <url>
-        <loc>https://aiven.github.io/aiven-operator/resources/alloydbomni.html</loc>
-      </url>
-      <url>
-        <loc>https://aiven.github.io/aiven-operator/resources/cassandra.html</loc>
       </url>
       <url>
         <loc>https://aiven.github.io/aiven-operator/resources/clickhouse.html</loc>
@@ -209,9 +197,6 @@
       </url>
       <url>
         <loc>https://aiven.github.io/aiven-operator/examples/project-vpc.html</loc>
-      </url>
-      <url>
-        <loc>https://aiven.github.io/aiven-operator/examples/cassandra.html</loc>
       </url>
       <url>
         <loc>https://aiven.github.io/aiven-operator/examples/clickhouse.html</loc>
