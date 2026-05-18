@@ -195,6 +195,9 @@ func (r *KafkaSchemaController) persistStatusID(ctx context.Context, schema *v1a
 			return err
 		}
 		latest.Status.ID = schema.Status.ID
+		if latest.Status.Conditions == nil {
+			latest.Status.Conditions = []metav1.Condition{}
+		}
 		return r.Status().Update(ctx, latest)
 	})
 }
