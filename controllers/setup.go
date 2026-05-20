@@ -79,6 +79,7 @@ func SetupControllersWithConfig(mgr ctrl.Manager, cfg SetupConfig) error {
 		"ServiceIntegration":               newServiceIntegrationReconciler,
 		"ServiceIntegrationEndpoint":       newServiceIntegrationEndpointReconciler,
 		"ServiceUser":                      newServiceUserReconciler,
+		"UpgradePipelineStep":              newUpgradePipelineStepReconciler,
 		"Valkey":                           newValkeyReconciler,
 	}
 

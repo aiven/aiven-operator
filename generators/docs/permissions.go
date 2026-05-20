@@ -33,6 +33,7 @@ func readPermissionsFile(permissionsFile string) (map[string]kindOperations, err
 	res := make(map[string]kindOperations)
 	for kind, ids := range operationIDs {
 		slices.Sort(ids)
+		res[kind] = kindOperations{}
 
 		for _, id := range ids {
 			v := permissionsMap[id]

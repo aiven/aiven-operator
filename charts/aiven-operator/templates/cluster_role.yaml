@@ -55,6 +55,7 @@ rules:
       - serviceintegrationendpoints
       - serviceintegrations
       - serviceusers
+      - upgradepipelinesteps
       - valkeys
     verbs:
       - create
@@ -92,6 +93,7 @@ rules:
       - serviceintegrationendpoints/finalizers
       - serviceintegrations/finalizers
       - serviceusers/finalizers
+      - upgradepipelinesteps/finalizers
       - valkeys/finalizers
     verbs:
       - create
@@ -126,6 +128,7 @@ rules:
       - serviceintegrationendpoints/status
       - serviceintegrations/status
       - serviceusers/status
+      - upgradepipelinesteps/status
       - valkeys/status
     verbs:
       - get
