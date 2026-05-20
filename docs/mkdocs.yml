@@ -32,7 +32,7 @@ plugins:
   - offline
 theme:
   name: material
-  logo: assets/logo.svg
+  logo: assets/aiven_logo_RGB_blk.svg
   features:
     - navigation.top
     - navigation.footer
@@ -46,21 +46,23 @@ theme:
   palette:
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
-      scheme: slate
-      primary: red
-      accent: deep-orange
+      scheme: default
+      primary: blue grey
+      accent: blue
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
 
     # Palette toggle for dark mode
     - media: "(prefers-color-scheme: dark)"
-      scheme: default
-      primary: deep-orange
-      accent: red
+      scheme: slate
+      primary: blue grey
+      accent: blue
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+extra_css:
+  - stylesheets/branding.css
 nav:
   - Home:
       - index.md
