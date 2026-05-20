@@ -193,6 +193,14 @@ ServiceUser:
     ServiceUserGet,
     ProjectKmsGetCA,
   ]
+UpgradePipelineStep:
+  [
+    UpgradePipelineStepCreate,
+    UpgradePipelineStepGet,
+    UpgradePipelineStepList,
+    UpgradePipelineStepUpdate,
+    UpgradePipelineStepDelete,
+  ]
 Valkey:
   [
     ServiceGet,

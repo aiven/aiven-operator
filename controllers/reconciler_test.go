@@ -1365,6 +1365,40 @@ func TestReconciler_persistReconcileState(t *testing.T) {
 		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
 	})
 
+	t.Run("Patches unregistered annotations changed during reconcile", func(t *testing.T) {
+		stored := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		stored.Annotations = map[string]string{
+			"example.com/unrelated": "fresh",
+		}
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(stored).
+			Build()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client: k8sClient,
+			},
+		}
+
+		obj := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: stored.Name, Namespace: stored.Namespace}, obj))
+		orig := obj.DeepCopy()
+		obj.Status.UUID = "new-uuid"
+		metav1.SetMetaDataAnnotation(&obj.ObjectMeta, secretSourceUpdatedAnnotation, "123")
+
+		err := r.persistReconcileState(t.Context(), orig, obj)
+		require.NoError(t, err)
+
+		got := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+		require.Equal(t, "new-uuid", got.Status.UUID)
+		require.Equal(t, "fresh", got.Annotations["example.com/unrelated"])
+		require.Equal(t, "123", got.Annotations[secretSourceUpdatedAnnotation])
+	})
+
 	t.Run("Preserves extra annotations unknown to local object", func(t *testing.T) {
 		stored := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 		stored.Annotations = map[string]string{
@@ -1438,6 +1472,41 @@ func TestReconciler_persistReconcileState(t *testing.T) {
 		require.Equal(t, "fresh", got.Annotations["example.com/unrelated"])
 		require.NotContains(t, got.Annotations, processedGenerationAnnotation)
 		require.NotContains(t, got.Annotations, instanceIsRunningAnnotation)
+	})
+
+	t.Run("Removes unregistered annotations changed during reconcile", func(t *testing.T) {
+		stored := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		stored.Annotations = map[string]string{
+			"example.com/unrelated":       "fresh",
+			secretSourceUpdatedAnnotation: "123",
+		}
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(stored).
+			Build()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client: k8sClient,
+			},
+		}
+
+		obj := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: stored.Name, Namespace: stored.Namespace}, obj))
+		orig := obj.DeepCopy()
+		delete(obj.Annotations, secretSourceUpdatedAnnotation)
+		obj.Status.UUID = "new-uuid"
+
+		err := r.persistReconcileState(t.Context(), orig, obj)
+		require.NoError(t, err)
+
+		got := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+		require.Equal(t, "new-uuid", got.Status.UUID)
+		require.Equal(t, "fresh", got.Annotations["example.com/unrelated"])
+		require.NotContains(t, got.Annotations, secretSourceUpdatedAnnotation)
 	})
 
 	t.Run("Updates status when objects differ", func(t *testing.T) {

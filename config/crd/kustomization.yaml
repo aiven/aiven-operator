@@ -26,6 +26,7 @@ resources:
   - bases/aiven.io_clickhouseroles.yaml
   - bases/aiven.io_clickhousegrants.yaml
   - bases/aiven.io_serviceintegrationendpoints.yaml
+  - bases/aiven.io_upgradepipelinesteps.yaml
   - bases/aiven.io_flinks.yaml
   - bases/aiven.io_valkeys.yaml
 #+kubebuilder:scaffold:crdkustomizeresource

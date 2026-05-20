@@ -59,6 +59,16 @@ data:
 				expected: []string{"my-new-app"},
 			},
 			{
+				name: "should_update_numeric_value",
+				yamlContent: `
+data:
+  replicas: 7`,
+				replacements: map[string]string{
+					"data.replicas": "3",
+				},
+				expected: []string{"replicas: 3"},
+			},
+			{
 				name: "should_update_multiline_value",
 				yamlContent: `
 data:

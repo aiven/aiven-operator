@@ -1,0 +1,15 @@
+apiVersion: aiven.io/v1alpha1
+kind: UpgradePipelineStep
+metadata:
+  name: upgrade-pipeline-step
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  organizationId: org123
+  sourceProjectName: sandbox
+  sourceServiceName: billing-pg-sandbox
+  destinationProjectName: prod
+  destinationServiceName: billing-pg-prod
+  autoValidationDelayDays: 7

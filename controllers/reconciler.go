@@ -241,29 +241,27 @@ func (r *Reconciler[T]) resolveK8sRefs(ctx context.Context, obj T) (requeue bool
 	return false, nil
 }
 
-// persistReconcileState persists status and controller-owned readiness annotations.
+// persistReconcileState persists status and metadata annotations changed during reconcile.
 func (r *Reconciler[T]) persistReconcileState(ctx context.Context, orig v1alpha1.AivenManagedObject, obj v1alpha1.AivenManagedObject) error {
 	if equality.Semantic.DeepEqual(orig, obj) {
 		return nil
 	}
 
 	// Capture annotation changes before Status().Update because it may mutate obj metadata.
-	annotations := map[string]any{}
-	for _, key := range []string{
-		processedGenerationAnnotation,
-		instanceIsRunningAnnotation,
-		kafkaSchemaAppliedFingerprintAnnotation,
-	} {
-		origValue, origOk := orig.GetAnnotations()[key]
-		value, ok := obj.GetAnnotations()[key]
-		if origOk == ok && origValue == value {
-			continue
-		}
+	origAnnotations := orig.GetAnnotations()
+	currentAnnotations := obj.GetAnnotations()
 
-		if ok {
-			annotations[key] = value
-		} else {
+	annotations := map[string]any{}
+	for key, origValue := range origAnnotations {
+		if value, ok := currentAnnotations[key]; !ok {
 			annotations[key] = nil
+		} else if value != origValue {
+			annotations[key] = value
+		}
+	}
+	for key, value := range currentAnnotations {
+		if _, ok := origAnnotations[key]; !ok {
+			annotations[key] = value
 		}
 	}
 
