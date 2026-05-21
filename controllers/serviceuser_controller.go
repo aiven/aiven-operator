@@ -184,9 +184,10 @@ func (r *ServiceUserController) fetchUser(ctx context.Context, user *v1alpha1.Se
 	// errEmptyPassword password is not received from the API:
 	// 1. it was changed by TF but the API did not return it
 	// 2. user has changed it in PG directly, so the API does not have it
-	errEmptyPassword := errors.New("received empty password from the API")
+	// Wraps errPreconditionNotMet for the soft-requeue.
+	errEmptyPassword := fmt.Errorf("%w: received empty password from the API", errPreconditionNotMet)
 	const (
-		emptyPasswordRetryAttempts = 10
+		emptyPasswordRetryAttempts = 3
 		emptyPasswordRetryDelay    = 5 * time.Second
 		notFoundRetryAttempts      = 5
 		notFoundRetryDelay         = 1 * time.Second
@@ -222,10 +223,7 @@ func (r *ServiceUserController) fetchUser(ctx context.Context, user *v1alpha1.Se
 		return u, nil
 	}
 
-	// Retries empty password up to ~1m.
-	// It should be enough to get the backend to a consistent state.
-	// Though if user has changed the password in PG directly,
-	// the API will never return the password.
+	// Retries empty password ≈10s in-reconcile to absorb a brief backend lag.
 	var u *service.ServiceUserGetOut
 	err = retry.Do(
 		func() error {
@@ -241,7 +239,6 @@ func (r *ServiceUserController) fetchUser(ctx context.Context, user *v1alpha1.Se
 		retry.RetryIf(func(err error) bool {
 			return errors.Is(err, errEmptyPassword)
 		}),
-		// ≈1m total wait time
 		retry.Attempts(emptyPasswordRetryAttempts),
 		retry.Delay(emptyPasswordRetryDelay),
 		// retry.Do returns a custom list of errors.
