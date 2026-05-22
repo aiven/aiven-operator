@@ -144,6 +144,12 @@ func (r *Reconciler[T]) ensureFinalizer(ctx context.Context, obj client.Object) 
 }
 
 func (r *Reconciler[T]) handleObserveError(ctx context.Context, obj T, err error) (ctrl.Result, error) {
+	// context.Canceled almost always means the manager is shutting down.
+	if errors.Is(err, context.Canceled) {
+		logr.FromContextOrDiscard(ctx).V(1).Info("reconcile context canceled, will retry", "error", err)
+		return ctrl.Result{RequeueAfter: requeueTimeout}, nil
+	}
+
 	if errors.Is(err, errServicePoweredOff) {
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToWaitForPreconditions, err.Error())
 		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionPreconditions, err))
