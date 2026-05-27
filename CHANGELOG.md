@@ -2,6 +2,15 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `KafkaSchema` field `references[].kafkaSchemaRef`, type `object`: Reference to another
+  `KafkaSchema` resource in the same namespace. The subject and version are resolved from the
+  referenced resource's spec and status, dependents pick up new versions automatically.
+  Mutually exclusive with `subject` + `version` on the same entry.
+- Change `KafkaSchema` field `references`: maxItems `100`
+- **BREAKING**: Change `KafkaSchema` deletion to perform a hard delete instead of soft delete only.
+  The subject is no longer visible in the registry's listing after deletion,
+  and re-applying a `KafkaSchema` with the same `subjectName` after deletion starts at version 1.
+
 ## v0.38.0 - 2026-05-18
 
 - Add `MySQL` and `PostgreSQL` field `migrationSecretSource`, type `object`: Reference to a Secret containing migration
