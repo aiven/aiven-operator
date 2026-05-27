@@ -688,7 +688,7 @@ func TestServiceUserReconciler(t *testing.T) {
 				}, nil).Once()
 			avn.EXPECT().
 				ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
-				Return(&service.ServiceUserGetOut{Username: user.Name, Password: ""}, nil).Times(6)
+				Return(&service.ServiceUserGetOut{Username: user.Name, Password: ""}, nil).Times(2)
 			avn.EXPECT().
 				ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
 				Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw"}, nil).Once()

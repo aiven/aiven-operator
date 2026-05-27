@@ -196,6 +196,11 @@ tasks:
         echo "Using KUBEBUILDER_ASSETS: $KUBEBUILDER_ASSETS"
         {{.GO_CMD}} test ./tests/... -race {{.CLI_ARGS}} -v -timeout={{.TEST_TIMEOUT}} -parallel 10 -cover -coverpkg=./controllers -covermode=atomic -coverprofile=coverage.out
 
+  test:unit:
+    desc: Run unit tests.
+    cmds:
+      - "{{.GO_CMD}} test ./api/... ./controllers/... ./generators/... -race {{.CLI_ARGS}} -timeout=2m"
+
   test:kuttl:
     desc: Run end-to-end tests using kuttl.
     #    deps: [check-env-vars, build]

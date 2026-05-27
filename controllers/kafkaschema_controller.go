@@ -11,6 +11,7 @@ import (
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafkaschemaregistry"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/util/retry"
@@ -289,6 +290,9 @@ func (r *KafkaSchemaController) resolveReferences(
 				Name:      ref.KafkaSchemaRef.Name,
 			}
 			if err := r.Get(ctx, key, target); err != nil {
+				if apierrors.IsNotFound(err) {
+					return nil, fmt.Errorf("%w: referenced KafkaSchema %s not found", errPreconditionNotMet, key)
+				}
 				return nil, fmt.Errorf("resolving kafkaSchemaRef %s: %w", key, err)
 			}
 			if target.Status.Version == 0 {
