@@ -202,12 +202,14 @@ ServiceUserSpec defines the desired state of ServiceUser.
     When this block is present, the operator manages the full access-control scope it contains. See below for [nested schema](#spec.accessControl).
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
 - [`authentication`](#spec.authentication-property){: name='spec.authentication-property'} (string, Enum: `caching_sha2_password`, `mysql_native_password`). Authentication details.
-- [`connInfoSecretSource`](#spec.connInfoSecretSource-property){: name='spec.connInfoSecretSource-property'} (object). ConnInfoSecretSource allows specifying an existing secret to read credentials from.
-    The password from this secret will be used to modify the service user credentials.
-    Password must be 8-256 characters long as per Aiven API requirements.
-    This can be used to set passwords for new users or modify passwords for existing users (e.g., avnadmin).
-    The source secret is watched for changes, and reconciliation will be automatically triggered
-    when the secret data is updated. See below for [nested schema](#spec.connInfoSecretSource).
+- [`connInfoSecretSource`](#spec.connInfoSecretSource-property){: name='spec.connInfoSecretSource-property'} (object). ConnInfoSecretSource declares the password the operator should enforce on the user.
+    Direct password changes in the database will be reverted on the next reconcile cycle.
+    To rotate, update the source secret.
+    When unset, the Operator does not manage the password:
+    the target secret holds whatever password the Aiven API returns.
+    If the password is later changed directly in the database,
+    the API returns an empty value and the target secret is emptied on the next reconcile.
+    Password must be 8-256 characters long. See below for [nested schema](#spec.connInfoSecretSource).
 - [`connInfoSecretTarget`](#spec.connInfoSecretTarget-property){: name='spec.connInfoSecretTarget-property'} (object). Secret configuration. See below for [nested schema](#spec.connInfoSecretTarget).
 - [`connInfoSecretTargetDisabled`](#spec.connInfoSecretTargetDisabled-property){: name='spec.connInfoSecretTargetDisabled-property'} (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
 
@@ -240,12 +242,14 @@ Authentication reference to Aiven token in a secret.
 
 _Appears on [`spec`](#spec)._
 
-ConnInfoSecretSource allows specifying an existing secret to read credentials from.
-The password from this secret will be used to modify the service user credentials.
-Password must be 8-256 characters long as per Aiven API requirements.
-This can be used to set passwords for new users or modify passwords for existing users (e.g., avnadmin).
-The source secret is watched for changes, and reconciliation will be automatically triggered
-when the secret data is updated.
+ConnInfoSecretSource declares the password the operator should enforce on the user.
+Direct password changes in the database will be reverted on the next reconcile cycle.
+To rotate, update the source secret.
+When unset, the Operator does not manage the password:
+the target secret holds whatever password the Aiven API returns.
+If the password is later changed directly in the database,
+the API returns an empty value and the target secret is emptied on the next reconcile.
+Password must be 8-256 characters long.
 
 **Required**
 

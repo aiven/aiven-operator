@@ -45,7 +45,7 @@ type ServiceUserController struct {
 }
 
 func (r *ServiceUserController) Observe(ctx context.Context, user *v1alpha1.ServiceUser) (Observation, error) {
-	u, details, err := r.fetchUser(ctx, user)
+	u, details, err := r.fetchUser(ctx, user, false)
 	if err != nil {
 		// ServiceUser 404 means "user doesn't exist yet" and should trigger Create.
 		// But service/project 404 is wrapped as errPreconditionNotMet in getServiceIfOperational
@@ -54,6 +54,12 @@ func (r *ServiceUserController) Observe(ctx context.Context, user *v1alpha1.Serv
 			return Observation{ResourceExists: false}, nil
 		}
 		return Observation{}, err
+	}
+
+	// Empty password with a source secret: Update so the declared value gets pushed back to Aiven.
+	// Empty without a source: nothing to enforce, user may change it bypassing the API.
+	if u.Password == "" && user.Spec.ConnInfoSecretSource != nil {
+		return Observation{ResourceExists: true, ResourceUpToDate: false, SecretDetails: details}, nil
 	}
 
 	return Observation{
@@ -82,7 +88,7 @@ func (r *ServiceUserController) Create(ctx context.Context, user *v1alpha1.Servi
 		return CreateResult{}, fmt.Errorf("creating service user: %w", err)
 	}
 
-	if err := r.setAivenPasswordIfProvided(ctx, user, password); err != nil {
+	if _, err := r.setAivenPasswordIfProvided(ctx, user, password); err != nil {
 		return CreateResult{}, err
 	}
 
@@ -93,7 +99,8 @@ func (r *ServiceUserController) Create(ctx context.Context, user *v1alpha1.Servi
 	meta.SetStatusCondition(&user.Status.Conditions, getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
 	metav1.SetMetaDataAnnotation(&user.ObjectMeta, instanceIsRunningAnnotation, "true")
 
-	_, details, err := r.fetchUser(ctx, user)
+	// Retry to absorb the potential API lag.
+	_, details, err := r.fetchUser(ctx, user, true)
 	if err != nil {
 		return CreateResult{}, fmt.Errorf("building connection details: %w", err)
 	}
@@ -124,14 +131,16 @@ func (r *ServiceUserController) Update(ctx context.Context, user *v1alpha1.Servi
 		logr.FromContextOrDiscard(ctx).V(1).Info("skipping access control update since it isn't provided in the spec")
 	}
 
-	if err := r.setAivenPasswordIfProvided(ctx, user, password); err != nil {
+	wrotePassword, err := r.setAivenPasswordIfProvided(ctx, user, password)
+	if err != nil {
 		return UpdateResult{}, err
 	}
 
 	meta.SetStatusCondition(&user.Status.Conditions, getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
 	metav1.SetMetaDataAnnotation(&user.ObjectMeta, instanceIsRunningAnnotation, "true")
 
-	_, details, err := r.fetchUser(ctx, user)
+	// Retry empty-password only when a password was actually updated during this cycle.
+	_, details, err := r.fetchUser(ctx, user, wrotePassword)
 	if err != nil {
 		return UpdateResult{}, fmt.Errorf("building connection details: %w", err)
 	}
@@ -154,9 +163,11 @@ func (r *ServiceUserController) Delete(ctx context.Context, user *v1alpha1.Servi
 	return nil
 }
 
-func (r *ServiceUserController) setAivenPasswordIfProvided(ctx context.Context, user *v1alpha1.ServiceUser, password string) error {
+// setAivenPasswordIfProvided pushes the password to Aiven if non-empty.
+// Returns true when the password was actually updated.
+func (r *ServiceUserController) setAivenPasswordIfProvided(ctx context.Context, user *v1alpha1.ServiceUser, password string) (bool, error) {
 	if password == "" {
-		return nil
+		return false, nil
 	}
 
 	if _, err := r.avnGen.ServiceUserCredentialsModify(
@@ -169,28 +180,31 @@ func (r *ServiceUserController) setAivenPasswordIfProvided(ctx context.Context, 
 			Operation:   service.ServiceUserCredentialsModifyOperationTypeResetCredentials,
 		},
 	); err != nil {
-		return fmt.Errorf("modifying service user credentials: %w", err)
+		return false, fmt.Errorf("modifying service user credentials: %w", err)
 	}
 
-	return nil
+	return true, nil
 }
 
-func (r *ServiceUserController) fetchUser(ctx context.Context, user *v1alpha1.ServiceUser) (*service.ServiceUserGetOut, SecretDetails, error) {
+// fetchUser gets the ServiceUser from Aiven and builds the secret details.
+//
+// retryEmptyPassword absorbs the eventual-consistency window where
+// ServiceUserGet returns an empty password right after the password change.
+func (r *ServiceUserController) fetchUser(
+	ctx context.Context,
+	user *v1alpha1.ServiceUser,
+	retryEmptyPassword bool,
+) (*service.ServiceUserGetOut, SecretDetails, error) {
 	svc, err := getServiceIfOperational(ctx, r.avnGen, user.Spec.Project, user.Spec.ServiceName)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// errEmptyPassword password is not received from the API:
-	// 1. it was changed by TF but the API did not return it
-	// 2. user has changed it in PG directly, so the API does not have it
-	// Wraps errPreconditionNotMet for the soft-requeue.
-	errEmptyPassword := fmt.Errorf("%w: received empty password from the API", errPreconditionNotMet)
 	const (
-		emptyPasswordRetryAttempts = 3
-		emptyPasswordRetryDelay    = 5 * time.Second
-		notFoundRetryAttempts      = 5
-		notFoundRetryDelay         = 1 * time.Second
+		emptyPasswordExtraRetries = 2
+		emptyPasswordRetryDelay   = 5 * time.Second
+		notFoundRetryAttempts     = 5
+		notFoundRetryDelay        = 1 * time.Second
 	)
 
 	running := hasIsRunningAnnotation(user)
@@ -223,30 +237,39 @@ func (r *ServiceUserController) fetchUser(ctx context.Context, user *v1alpha1.Se
 		return u, nil
 	}
 
-	// Retries empty password ≈10s in-reconcile to absorb a brief backend lag.
-	var u *service.ServiceUserGetOut
-	err = retry.Do(
-		func() error {
-			u, err = getUser()
-			if err == nil && u.Password == "" {
-				err = errEmptyPassword
-			}
-			return err
-		},
-		retry.Context(ctx),
-		// Retries errEmptyPassword only.
-		// The rest is retried by the client itself and the outer controller.
-		retry.RetryIf(func(err error) bool {
-			return errors.Is(err, errEmptyPassword)
-		}),
-		retry.Attempts(emptyPasswordRetryAttempts),
-		retry.Delay(emptyPasswordRetryDelay),
-		// retry.Do returns a custom list of errors.
-		// Outer controller must be able to detect error types like "server error".
-		retry.LastErrorOnly(true),
-	)
+	u, err := getUser()
 	if err != nil {
 		return nil, nil, err
+	}
+
+	if retryEmptyPassword && u.Password == "" {
+		errEmptyPassword := errors.New("received empty password from the API")
+		err = retry.Do(
+			func() error {
+				u, err = getUser()
+				if err != nil {
+					return err
+				}
+				if u.Password == "" {
+					return errEmptyPassword
+				}
+				return nil
+			},
+			retry.Context(ctx),
+			retry.RetryIf(func(err error) bool {
+				return errors.Is(err, errEmptyPassword)
+			}),
+			retry.Attempts(emptyPasswordExtraRetries),
+			retry.Delay(emptyPasswordRetryDelay),
+			retry.LastErrorOnly(true),
+		)
+		// Real API errors propagate. Exhausted empty-password retries returns as precondition.
+		switch {
+		case errors.Is(err, errEmptyPassword):
+			return nil, nil, fmt.Errorf("%w: ServiceUser password not yet available from API", errPreconditionNotMet)
+		case err != nil:
+			return nil, nil, err
+		}
 	}
 
 	idx := slices.IndexFunc(svc.Components, func(c service.ComponentOut) bool {

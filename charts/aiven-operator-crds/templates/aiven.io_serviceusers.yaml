@@ -102,12 +102,14 @@ spec:
                   type: string
                 connInfoSecretSource:
                   description: |-
-                    ConnInfoSecretSource allows specifying an existing secret to read credentials from.
-                    The password from this secret will be used to modify the service user credentials.
-                    Password must be 8-256 characters long as per Aiven API requirements.
-                    This can be used to set passwords for new users or modify passwords for existing users (e.g., avnadmin).
-                    The source secret is watched for changes, and reconciliation will be automatically triggered
-                    when the secret data is updated.
+                    ConnInfoSecretSource declares the password the operator should enforce on the user.
+                    Direct password changes in the database will be reverted on the next reconcile cycle.
+                    To rotate, update the source secret.
+                    When unset, the Operator does not manage the password:
+                    the target secret holds whatever password the Aiven API returns.
+                    If the password is later changed directly in the database,
+                    the API returns an empty value and the target secret is emptied on the next reconcile.
+                    Password must be 8-256 characters long.
                   properties:
                     name:
                       description: |-
