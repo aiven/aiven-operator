@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.39.0 - 2026-05-29
+
 - Add `KafkaSchema` field `references[].kafkaSchemaRef`, type `object`: Reference to another
   `KafkaSchema` resource in the same namespace. The subject and version are resolved from the
   referenced resource's spec and status, dependents pick up new versions automatically.
