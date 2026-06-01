@@ -31,6 +31,9 @@
         <loc>https://aiven.github.io/aiven-operator/guides/deletion-policy.html</loc>
       </url>
       <url>
+        <loc>https://aiven.github.io/aiven-operator/guides/serviceuser-password-management.html</loc>
+      </url>
+      <url>
         <loc>https://aiven.github.io/aiven-operator/controllers/reconciler.html</loc>
       </url>
       <url>

@@ -1,0 +1,31 @@
+apiVersion: aiven.io/v1alpha1
+kind: KafkaSchema
+metadata:
+  name: order-event-pinned
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  serviceName: my-kafka
+  subjectName: com.example.OrderEvent
+  schemaType: PROTOBUF
+  schema: |
+    syntax = "proto3";
+    import "common/money.proto";
+    message OrderEvent {
+      common.Money total = 1;
+    }
+  references:
+    # Pin the referenced subject and version explicitly. Use this when the
+    # referenced schema is managed outside this operator, or when you want
+    # the dependent to keep pointing at a specific version regardless of
+    # what the referent advances to.
+    #
+    # If the referent IS another KafkaSchema in the same namespace, prefer
+    # the kafkaSchemaRef variant — see the with_refs example. That form
+    # auto-propagates new versions instead of requiring manual updates here.
+    - name: common/money.proto
+      subject: common.Money
+      version: 1

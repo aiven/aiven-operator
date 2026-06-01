@@ -728,6 +728,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../guides/serviceuser-password-management.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ServiceUser Password Management
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../controllers/reconciler.html" class="md-nav__link">
         
   
@@ -3694,12 +3721,14 @@ Built-in users like <code>avnadmin</code> cannot be deleted but their passwords 
     When this block is present, the operator manages the full access-control scope it contains. See below for <a href="#spec.accessControl">nested schema</a>.</li>
 <li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
 <li><a href="#spec.authentication-property" name="spec.authentication-property"><code>authentication</code></a> (string, Enum: <code>caching_sha2_password</code>, <code>mysql_native_password</code>). Authentication details.</li>
-<li><a href="#spec.connInfoSecretSource-property" name="spec.connInfoSecretSource-property"><code>connInfoSecretSource</code></a> (object). ConnInfoSecretSource allows specifying an existing secret to read credentials from.
-    The password from this secret will be used to modify the service user credentials.
-    Password must be 8-256 characters long as per Aiven API requirements.
-    This can be used to set passwords for new users or modify passwords for existing users (e.g., avnadmin).
-    The source secret is watched for changes, and reconciliation will be automatically triggered
-    when the secret data is updated. See below for <a href="#spec.connInfoSecretSource">nested schema</a>.</li>
+<li><a href="#spec.connInfoSecretSource-property" name="spec.connInfoSecretSource-property"><code>connInfoSecretSource</code></a> (object). ConnInfoSecretSource declares the password the operator should enforce on the user.
+    Direct password changes in the database will be reverted on the next reconcile cycle.
+    To rotate, update the source secret.
+    When unset, the Operator does not manage the password:
+    the target secret holds whatever password the Aiven API returns.
+    If the password is later changed directly in the database,
+    the API returns an empty value and the target secret is emptied on the next reconcile.
+    Password must be 8-256 characters long. See below for <a href="#spec.connInfoSecretSource">nested schema</a>.</li>
 <li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Secret configuration. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
 <li><a href="#spec.connInfoSecretTargetDisabled-property" name="spec.connInfoSecretTargetDisabled-property"><code>connInfoSecretTargetDisabled</code></a> (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.</li>
 </ul>
@@ -3724,12 +3753,14 @@ When this block is present, the operator manages the full access-control scope i
 </ul>
 <h2 id="spec.connInfoSecretSource">connInfoSecretSource<a class="headerlink" href="#spec.connInfoSecretSource" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
-<p>ConnInfoSecretSource allows specifying an existing secret to read credentials from.
-The password from this secret will be used to modify the service user credentials.
-Password must be 8-256 characters long as per Aiven API requirements.
-This can be used to set passwords for new users or modify passwords for existing users (e.g., avnadmin).
-The source secret is watched for changes, and reconciliation will be automatically triggered
-when the secret data is updated.</p>
+<p>ConnInfoSecretSource declares the password the operator should enforce on the user.
+Direct password changes in the database will be reverted on the next reconcile cycle.
+To rotate, update the source secret.
+When unset, the Operator does not manage the password:
+the target secret holds whatever password the Aiven API returns.
+If the password is later changed directly in the database,
+the API returns an empty value and the target secret is emptied on the next reconcile.
+Password must be 8-256 characters long.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.connInfoSecretSource.name-property" name="spec.connInfoSecretSource.name-property"><code>name</code></a> (string, MinLength: 1). Name of the secret resource to read connection parameters from.

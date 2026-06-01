@@ -491,6 +491,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0390-2026-05-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.39.0 - 2026-05-29
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0380-2026-05-18" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1240,6 +1251,33 @@
     
   
   Deletion Policy
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./guides/serviceuser-password-management.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ServiceUser Password Management
 
     
   </span>
@@ -3666,6 +3704,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0390-2026-05-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.39.0 - 2026-05-29
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0380-2026-05-18" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -4176,6 +4225,17 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0390-2026-05-29">v0.39.0 - 2026-05-29<a class="headerlink" href="#v0390-2026-05-29" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Add <code>KafkaSchema</code> field <code>references[].kafkaSchemaRef</code>, type <code>object</code>: Reference to another
+  <code>KafkaSchema</code> resource in the same namespace. The subject and version are resolved from the
+  referenced resource's spec and status, dependents pick up new versions automatically.
+  Mutually exclusive with <code>subject</code> + <code>version</code> on the same entry.</li>
+<li>Change <code>KafkaSchema</code> field <code>references</code>: maxItems <code>100</code></li>
+<li><strong>BREAKING</strong>: Change <code>KafkaSchema</code> deletion to perform a hard delete instead of soft delete only.
+  The subject is no longer visible in the registry's listing after deletion,
+  and re-applying a <code>KafkaSchema</code> with the same <code>subjectName</code> after deletion starts at version 1.</li>
+</ul>
 <h2 id="v0380-2026-05-18">v0.38.0 - 2026-05-18<a class="headerlink" href="#v0380-2026-05-18" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Add <code>MySQL</code> and <code>PostgreSQL</code> field <code>migrationSecretSource</code>, type <code>object</code>: Reference to a Secret containing migration
