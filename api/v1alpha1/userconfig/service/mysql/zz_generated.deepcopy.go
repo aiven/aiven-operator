@@ -219,6 +219,11 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.PerformanceSchemaEventsStatementsHistorySize != nil {
+		in, out := &in.PerformanceSchemaEventsStatementsHistorySize, &out.PerformanceSchemaEventsStatementsHistorySize
+		*out = new(int)
+		**out = **in
+	}
 	if in.SlowQueryLog != nil {
 		in, out := &in.SlowQueryLog, &out.SlowQueryLog
 		*out = new(bool)
