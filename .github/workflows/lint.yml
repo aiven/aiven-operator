@@ -75,6 +75,9 @@ jobs:
         with:
           go-version-file: go.mod
       - uses: trunk-io/trunk-action@v1
+        with:
+          # fall back to a full check when invoked via workflow_call
+          check-mode: ${{ inputs.ref != '' && 'all' || '' }}
   codeql_analysis:
     runs-on: ubuntu-latest
     outputs:
