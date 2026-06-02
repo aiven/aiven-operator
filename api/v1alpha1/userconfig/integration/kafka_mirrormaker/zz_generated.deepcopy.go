@@ -14,13 +14,33 @@ func (in *KafkaMirrormaker) DeepCopyInto(out *KafkaMirrormaker) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.ConsumerFetchMaxBytes != nil {
+		in, out := &in.ConsumerFetchMaxBytes, &out.ConsumerFetchMaxBytes
+		*out = new(int)
+		**out = **in
+	}
 	if in.ConsumerFetchMinBytes != nil {
 		in, out := &in.ConsumerFetchMinBytes, &out.ConsumerFetchMinBytes
 		*out = new(int)
 		**out = **in
 	}
+	if in.ConsumerMaxPartitionFetchBytes != nil {
+		in, out := &in.ConsumerMaxPartitionFetchBytes, &out.ConsumerMaxPartitionFetchBytes
+		*out = new(int)
+		**out = **in
+	}
 	if in.ConsumerMaxPollRecords != nil {
 		in, out := &in.ConsumerMaxPollRecords, &out.ConsumerMaxPollRecords
+		*out = new(int)
+		**out = **in
+	}
+	if in.ConsumerReceiveBufferBytes != nil {
+		in, out := &in.ConsumerReceiveBufferBytes, &out.ConsumerReceiveBufferBytes
+		*out = new(int)
+		**out = **in
+	}
+	if in.ConsumerRequestTimeoutMs != nil {
+		in, out := &in.ConsumerRequestTimeoutMs, &out.ConsumerRequestTimeoutMs
 		*out = new(int)
 		**out = **in
 	}
@@ -46,6 +66,16 @@ func (in *KafkaMirrormaker) DeepCopyInto(out *KafkaMirrormaker) {
 	}
 	if in.ProducerMaxRequestSize != nil {
 		in, out := &in.ProducerMaxRequestSize, &out.ProducerMaxRequestSize
+		*out = new(int)
+		**out = **in
+	}
+	if in.ProducerRequestTimeoutMs != nil {
+		in, out := &in.ProducerRequestTimeoutMs, &out.ProducerRequestTimeoutMs
+		*out = new(int)
+		**out = **in
+	}
+	if in.ProducerSendBufferBytes != nil {
+		in, out := &in.ProducerSendBufferBytes, &out.ProducerSendBufferBytes
 		*out = new(int)
 		**out = **in
 	}

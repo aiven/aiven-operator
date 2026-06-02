@@ -763,6 +763,13 @@ spec:
                             - earliest
                             - latest
                           type: string
+                        consumer_fetch_max_bytes:
+                          description:
+                            The maximum amount of data the server should
+                            return for a fetch request.
+                          maximum: 104857600
+                          minimum: 0
+                          type: integer
                         consumer_fetch_min_bytes:
                           description:
                             The minimum amount of data the server should
@@ -770,12 +777,33 @@ spec:
                           maximum: 5242880
                           minimum: 1
                           type: integer
+                        consumer_max_partition_fetch_bytes:
+                          description:
+                            The maximum amount of data per partition the
+                            server will return.
+                          maximum: 104857600
+                          minimum: 0
+                          type: integer
                         consumer_max_poll_records:
                           description:
                             Set consumer max.poll.records. The default is
                             500.
                           maximum: 20000
                           minimum: 100
+                          type: integer
+                        consumer_receive_buffer_bytes:
+                          description:
+                            The size of the TCP receive buffer (SO_RCVBUF)
+                            to use when reading data. -1 uses the OS default.
+                          maximum: 104857600
+                          minimum: -1
+                          type: integer
+                        consumer_request_timeout_ms:
+                          description:
+                            The maximum time the client will wait for a response
+                            to a request.
+                          maximum: 600000
+                          minimum: 0
                           type: integer
                         producer_batch_size:
                           description:
@@ -815,6 +843,20 @@ spec:
                           description: The maximum request size in bytes.
                           maximum: 268435456
                           minimum: 0
+                          type: integer
+                        producer_request_timeout_ms:
+                          description:
+                            The maximum time the client will wait for a response
+                            to a request.
+                          maximum: 600000
+                          minimum: 0
+                          type: integer
+                        producer_send_buffer_bytes:
+                          description:
+                            The size of the TCP send buffer (SO_SNDBUF) to
+                            use when sending data. -1 uses the OS default.
+                          maximum: 104857600
+                          minimum: -1
                           type: integer
                       type: object
                   type: object

@@ -2,6 +2,23 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `MySQL` field `userConfig.mysql.performance_schema_events_statements_history_size`, type `integer`:
+  The number of rows per thread in the events_statements_history table
+- Add `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.consumer_fetch_max_bytes`, type
+  `integer`: The maximum amount of data the server should return for a fetch request
+- Add `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.consumer_max_partition_fetch_bytes`,
+  type `integer`: The maximum amount of data per partition the server will return
+- Add `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.consumer_receive_buffer_bytes`,
+  type `integer`: The size of the TCP receive buffer (SO_RCVBUF) to use when reading data. -1 uses the
+  OS default
+- Add `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.consumer_request_timeout_ms`, type
+  `integer`: The maximum time the client will wait for a response to a request
+- Add `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.producer_request_timeout_ms`, type
+  `integer`: The maximum time the client will wait for a response to a request
+- Add `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.producer_send_buffer_bytes`, type
+  `integer`: The size of the TCP send buffer (SO_SNDBUF) to use when sending data. -1 uses the OS
+  default
+
 ## v0.39.0 - 2026-05-29
 
 - Add `KafkaSchema` field `references[].kafkaSchemaRef`, type `object`: Reference to another

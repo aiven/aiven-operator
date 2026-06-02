@@ -186,6 +186,11 @@ type Mysql struct {
 	// The number of seconds to wait for a block to be written to a connection before aborting the write.
 	NetWriteTimeout *int `groups:"create,update" json:"net_write_timeout,omitempty"`
 
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1024
+	// The number of rows per thread in the events_statements_history table. Changing this parameter will lead to a restart of the MySQL service.
+	PerformanceSchemaEventsStatementsHistorySize *int `groups:"create,update" json:"performance_schema_events_statements_history_size,omitempty"`
+
 	// Slow query log enables capturing of slow queries. Setting slow_query_log to false also truncates the mysql.slow_log table.
 	SlowQueryLog *bool `groups:"create,update" json:"slow_query_log,omitempty"`
 

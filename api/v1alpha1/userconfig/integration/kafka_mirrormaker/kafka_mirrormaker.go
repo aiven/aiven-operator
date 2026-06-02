@@ -9,15 +9,35 @@ type KafkaMirrormaker struct {
 	// Set where consumer starts to consume data. Value `earliest`: Start replication from the earliest offset. Value `latest`: Start replication from the latest offset. Default is `earliest`.
 	ConsumerAutoOffsetReset *string `groups:"create,update" json:"consumer_auto_offset_reset,omitempty"`
 
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=104857600
+	// The maximum amount of data the server should return for a fetch request.
+	ConsumerFetchMaxBytes *int `groups:"create,update" json:"consumer_fetch_max_bytes,omitempty"`
+
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=5242880
 	// The minimum amount of data the server should return for a fetch request
 	ConsumerFetchMinBytes *int `groups:"create,update" json:"consumer_fetch_min_bytes,omitempty"`
 
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=104857600
+	// The maximum amount of data per partition the server will return.
+	ConsumerMaxPartitionFetchBytes *int `groups:"create,update" json:"consumer_max_partition_fetch_bytes,omitempty"`
+
 	// +kubebuilder:validation:Minimum=100
 	// +kubebuilder:validation:Maximum=20000
 	// Set consumer max.poll.records. The default is 500.
 	ConsumerMaxPollRecords *int `groups:"create,update" json:"consumer_max_poll_records,omitempty"`
+
+	// +kubebuilder:validation:Minimum=-1
+	// +kubebuilder:validation:Maximum=104857600
+	// The size of the TCP receive buffer (SO_RCVBUF) to use when reading data. -1 uses the OS default.
+	ConsumerReceiveBufferBytes *int `groups:"create,update" json:"consumer_receive_buffer_bytes,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=600000
+	// The maximum time the client will wait for a response to a request.
+	ConsumerRequestTimeoutMs *int `groups:"create,update" json:"consumer_request_timeout_ms,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=5242880
@@ -42,6 +62,16 @@ type KafkaMirrormaker struct {
 	// +kubebuilder:validation:Maximum=268435456
 	// The maximum request size in bytes.
 	ProducerMaxRequestSize *int `groups:"create,update" json:"producer_max_request_size,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=600000
+	// The maximum time the client will wait for a response to a request.
+	ProducerRequestTimeoutMs *int `groups:"create,update" json:"producer_request_timeout_ms,omitempty"`
+
+	// +kubebuilder:validation:Minimum=-1
+	// +kubebuilder:validation:Maximum=104857600
+	// The size of the TCP send buffer (SO_SNDBUF) to use when sending data. -1 uses the OS default.
+	ProducerSendBufferBytes *int `groups:"create,update" json:"producer_send_buffer_bytes,omitempty"`
 }
 
 // Integration user config
