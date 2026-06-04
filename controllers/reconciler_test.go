@@ -1365,6 +1365,43 @@ func TestReconciler_persistReconcileState(t *testing.T) {
 		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
 	})
 
+	t.Run("Preserves extra annotations unknown to local object", func(t *testing.T) {
+		stored := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		stored.Annotations = map[string]string{
+			"example.com/unrelated": "fresh",
+		}
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(stored).
+			Build()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client: k8sClient,
+			},
+		}
+
+		latest := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: stored.Name, Namespace: stored.Namespace}, latest))
+
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		obj.SetResourceVersion(latest.GetResourceVersion())
+		orig := obj.DeepCopy()
+		obj.Status.UUID = "new-uuid"
+		metav1.SetMetaDataAnnotation(&obj.ObjectMeta, processedGenerationAnnotation, "1")
+
+		err := r.persistReconcileState(t.Context(), orig, obj)
+		require.NoError(t, err)
+
+		got := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+		require.Equal(t, "new-uuid", got.Status.UUID)
+		require.Equal(t, "fresh", got.Annotations["example.com/unrelated"])
+		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
+	})
+
 	t.Run("Removes managed annotations when they change", func(t *testing.T) {
 		stored := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 		stored.Annotations = map[string]string{
