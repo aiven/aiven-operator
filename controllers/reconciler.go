@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"maps"
@@ -17,7 +18,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -87,6 +87,15 @@ func (r *Reconciler[T]) WithIndexes(fns ...func(context.Context, ctrl.Manager) e
 // requeueTimeout sets timeout to requeue controller
 const requeueTimeout = 10 * time.Second
 
+type managedAnnotationsPatchPayload struct {
+	Metadata managedAnnotationsPatchMetadata `json:"metadata"`
+}
+
+type managedAnnotationsPatchMetadata struct {
+	ResourceVersion string         `json:"resourceVersion"`
+	Annotations     map[string]any `json:"annotations"`
+}
+
 // Reconcile performs the full reconciliation loop for a managed resource.
 func (r *Reconciler[T]) Reconcile(ctx context.Context, req ctrl.Request) (res ctrl.Result, err error) {
 	obj := r.newObj()
@@ -120,7 +129,7 @@ func (r *Reconciler[T]) Reconcile(ctx context.Context, req ctrl.Request) (res ct
 
 	orig := obj.DeepCopyObject().(v1alpha1.AivenManagedObject)
 	defer func() {
-		err = errors.Join(err, r.updateStatus(ctx, orig, obj))
+		err = errors.Join(err, r.persistReconcileState(ctx, orig, obj))
 	}()
 
 	meta.SetStatusCondition(obj.Conditions(), getInitializedCondition("Preconditions", "Checking preconditions"))
@@ -232,43 +241,51 @@ func (r *Reconciler[T]) resolveK8sRefs(ctx context.Context, obj T) (requeue bool
 	return false, nil
 }
 
-// updateStatus persists spec/metadata and status of obj.
-//
-// KNOWN ISSUE — stale-status race:
-// The Status().Update below sends obj.Status verbatim. If obj was built from
-// a stale informer-cache snapshot, this can clobber a status field that a
-// concurrent reconcile pass just persisted.
-//
-// For controllers built: do not use .status as an input to control flow. Treat .status as user-observable output only.
-func (r *Reconciler[T]) updateStatus(ctx context.Context, orig v1alpha1.AivenManagedObject, obj v1alpha1.AivenManagedObject) error {
+// persistReconcileState persists status and controller-owned readiness annotations.
+func (r *Reconciler[T]) persistReconcileState(ctx context.Context, orig v1alpha1.AivenManagedObject, obj v1alpha1.AivenManagedObject) error {
 	if equality.Semantic.DeepEqual(orig, obj) {
 		return nil
 	}
 
-	// Order matters.
-	// First need to update the object, and then update the status.
-	// So dependent resources won't see READY before it has been updated with new values
-
-	// Now we can update the status
-	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		// When updated, object status is vanished.
-		// So we waste a copy for that,
-		// while the original object must already have all the fields updated in runtime
-		// Additionally, it gets the "latest version" to resolve optimistic concurrency control conflict
-		latest := obj.DeepCopyObject().(client.Object)
-		if err := r.Get(ctx, types.NamespacedName{Name: latest.GetName(), Namespace: latest.GetNamespace()}, latest); err != nil {
-			return err
+	// Capture annotation changes before Status().Update because it may mutate obj metadata.
+	annotations := map[string]any{}
+	for _, key := range []string{processedGenerationAnnotation, instanceIsRunningAnnotation} {
+		origValue, origOk := orig.GetAnnotations()[key]
+		value, ok := obj.GetAnnotations()[key]
+		if origOk == ok && origValue == value {
+			continue
 		}
 
-		updated := obj.DeepCopyObject().(client.Object)
-		updated.SetResourceVersion(latest.GetResourceVersion())
-		if err := r.Update(ctx, updated); err != nil {
-			return err
+		if ok {
+			annotations[key] = value
+		} else {
+			annotations[key] = nil
 		}
+	}
 
-		obj.SetResourceVersion(updated.GetResourceVersion())
-		return r.Status().Update(ctx, obj)
+	if err := r.Status().Update(ctx, obj); err != nil {
+		return err
+	}
+
+	if len(annotations) == 0 {
+		return nil
+	}
+
+	payload, err := json.Marshal(managedAnnotationsPatchPayload{
+		Metadata: managedAnnotationsPatchMetadata{
+			ResourceVersion: obj.GetResourceVersion(),
+			Annotations:     annotations,
+		},
 	})
+	if err != nil {
+		return fmt.Errorf("marshalling managed annotations patch: %w", err)
+	}
+
+	if err := r.Patch(ctx, obj, client.RawPatch(types.MergePatchType, payload)); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *Reconciler[T]) newAivenClient(ctx context.Context, obj T) (avngen.Client, error) {
@@ -461,7 +478,7 @@ func (r *Reconciler[T]) reconcileDeletion(ctx context.Context, obj T) (ctrl.Resu
 		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionDelete, errors.New(msg)))
 		return ctrl.Result{}, errors.Join(
 			fmt.Errorf("unable to delete instance: %s", msg),
-			r.updateStatus(ctx, orig, obj),
+			r.persistReconcileState(ctx, orig, obj),
 		)
 	}
 
@@ -484,7 +501,7 @@ func (r *Reconciler[T]) handleDeleteError(ctx context.Context, orig v1alpha1.Aiv
 	// be retried once dependencies are removed, but do not surface this as a hard error.
 	if errors.Is(err, v1alpha1.ErrDeleteDependencies) {
 		logr.FromContextOrDiscard(ctx).Info("object has dependencies, requeue delete", "apiError", err)
-		return ctrl.Result{RequeueAfter: requeueTimeout}, r.updateStatus(ctx, orig, obj)
+		return ctrl.Result{RequeueAfter: requeueTimeout}, r.persistReconcileState(ctx, orig, obj)
 	}
 
 	// If the deletion failed, don't remove the finalizer so that we can retry during the next reconciliation.
@@ -493,18 +510,18 @@ func (r *Reconciler[T]) handleDeleteError(ctx context.Context, orig v1alpha1.Aiv
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToDeleteAtAiven, err.Error())
 		return ctrl.Result{}, errors.Join(
 			fmt.Errorf("unable to delete instance at Aiven: %w", err),
-			r.updateStatus(ctx, orig, obj),
+			r.persistReconcileState(ctx, orig, obj),
 		)
 	case isServerError(err):
 		// If failed to delete due to a transient server error, keep the finalizer
 		// and trigger a soft requeue so that deletion can be retried.
 		logr.FromContextOrDiscard(ctx).Info("unable to delete instance at Aiven, will requeue delete", "apiError", err)
-		return ctrl.Result{RequeueAfter: requeueTimeout}, r.updateStatus(ctx, orig, obj)
+		return ctrl.Result{RequeueAfter: requeueTimeout}, r.persistReconcileState(ctx, orig, obj)
 	default:
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToDelete, err.Error())
 		return ctrl.Result{}, errors.Join(
 			fmt.Errorf("unable to delete instance: %w", err),
-			r.updateStatus(ctx, orig, obj),
+			r.persistReconcileState(ctx, orig, obj),
 		)
 	}
 }

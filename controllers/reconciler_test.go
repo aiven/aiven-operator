@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -27,6 +28,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	crclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/client/interceptor"
@@ -994,6 +996,18 @@ func TestReconciler_ensureFinalizer(t *testing.T) {
 func TestReconciler_handleObserveError(t *testing.T) {
 	t.Parallel()
 
+	t.Run("Requeues when context is canceled", func(t *testing.T) {
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{}
+		obj := &v1alpha1.ClickhouseUser{}
+		errCanceled := fmt.Errorf("wrapped: %w", context.Canceled)
+
+		res, err := r.handleObserveError(t.Context(), obj, errCanceled)
+
+		require.NoError(t, err)
+		require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
+		require.Empty(t, normalizedConditions(obj.Status.Conditions))
+	})
+
 	t.Run("Preconditions fail when service is powered off", func(t *testing.T) {
 		recorder := record.NewFakeRecorder(10)
 		r := &Reconciler[*v1alpha1.ClickhouseUser]{
@@ -1241,7 +1255,7 @@ func TestReconciler_resolveK8sRefs(t *testing.T) {
 	})
 }
 
-func TestReconciler_updateStatus(t *testing.T) {
+func TestReconciler_persistReconcileState(t *testing.T) {
 	t.Parallel()
 
 	scheme := runtime.NewScheme()
@@ -1255,14 +1269,17 @@ func TestReconciler_updateStatus(t *testing.T) {
 
 		r := &Reconciler[*v1alpha1.ClickhouseUser]{}
 
-		err := r.updateStatus(t.Context(), orig, obj)
+		err := r.persistReconcileState(t.Context(), orig, obj)
 		require.NoError(t, err)
 	})
 
-	t.Run("Returns error when Get fails", func(t *testing.T) {
+	t.Run("Returns conflict when status object is stale", func(t *testing.T) {
+		stored := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+
 		k8sClient := fake.NewClientBuilder().
 			WithScheme(scheme).
 			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(stored).
 			Build()
 
 		r := &Reconciler[*v1alpha1.ClickhouseUser]{
@@ -1272,42 +1289,22 @@ func TestReconciler_updateStatus(t *testing.T) {
 		}
 
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		obj.SetResourceVersion("1")
 		orig := obj.DeepCopy()
 		obj.Status.UUID = "uuid-after"
 
-		err := r.updateStatus(t.Context(), orig, obj)
-		require.EqualError(t, err, `clickhouseusers.aiven.io "test-user" not found`)
+		err := r.persistReconcileState(t.Context(), orig, obj)
+		require.True(t, apierrors.IsConflict(err), err)
 	})
 
-	t.Run("Retries on conflict error and eventually succeeds", func(t *testing.T) {
-		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
-
-		conflictErr := apierrors.NewConflict(schema.GroupResource{Group: "aiven.io", Resource: "clickhouseusers"}, obj.Name, fmt.Errorf("conflict"))
-		m := &mock.Mock{}
-		t.Cleanup(func() { m.AssertExpectations(t) })
-		m.On("Get", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Twice().
-			On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(conflictErr).Once().
-			On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once().
-			On("SubResourceUpdate", mock.Anything, mock.Anything, "status", mock.Anything, mock.Anything).Return(nil).Once()
+	t.Run("Doesn't overwrite fresh spec when object is stale", func(t *testing.T) {
+		stored := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		stored.Spec.Project = "fresh-project"
 
 		k8sClient := fake.NewClientBuilder().
 			WithScheme(scheme).
 			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
-			WithObjects(obj).
-			WithInterceptorFuncs(interceptor.Funcs{
-				Get: func(ctx context.Context, c crclient.WithWatch, key crclient.ObjectKey, o crclient.Object, opts ...crclient.GetOption) error {
-					args := m.MethodCalled("Get", ctx, c, key, o, opts)
-					return args.Error(0)
-				},
-				Update: func(ctx context.Context, c crclient.WithWatch, o crclient.Object, opts ...crclient.UpdateOption) error {
-					args := m.MethodCalled("Update", ctx, c, o, opts)
-					return args.Error(0)
-				},
-				SubResourceUpdate: func(ctx context.Context, c crclient.Client, subResourceName string, o crclient.Object, opts ...crclient.SubResourceUpdateOption) error {
-					args := m.MethodCalled("SubResourceUpdate", ctx, c, subResourceName, o, opts)
-					return args.Error(0)
-				},
-			}).
+			WithObjects(stored).
 			Build()
 
 		r := &Reconciler[*v1alpha1.ClickhouseUser]{
@@ -1316,17 +1313,100 @@ func TestReconciler_updateStatus(t *testing.T) {
 			},
 		}
 
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		latest := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: stored.Name, Namespace: stored.Namespace}, latest))
+		obj.SetResourceVersion(latest.GetResourceVersion())
 		orig := obj.DeepCopy()
 		obj.Status.UUID = "uuid-after"
 
-		err := r.updateStatus(t.Context(), orig, obj)
+		err := r.persistReconcileState(t.Context(), orig, obj)
 		require.NoError(t, err)
+
+		got := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+		require.Equal(t, "fresh-project", got.Spec.Project)
+		require.Equal(t, "uuid-after", got.Status.UUID)
 	})
 
-	t.Run("Updates spec and status when objects differ", func(t *testing.T) {
-		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
-		obj.Status.UUID = "old-uuid"
-		obj.Status.Conditions = []metav1.Condition{
+	t.Run("Patches managed annotations when they change", func(t *testing.T) {
+		stored := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		stored.Annotations = map[string]string{
+			"example.com/unrelated": "fresh",
+		}
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(stored).
+			Build()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client: k8sClient,
+			},
+		}
+
+		obj := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: stored.Name, Namespace: stored.Namespace}, obj))
+		orig := obj.DeepCopy()
+		obj.Status.UUID = "new-uuid"
+		metav1.SetMetaDataAnnotation(&obj.ObjectMeta, processedGenerationAnnotation, "1")
+		metav1.SetMetaDataAnnotation(&obj.ObjectMeta, instanceIsRunningAnnotation, "true")
+
+		err := r.persistReconcileState(t.Context(), orig, obj)
+		require.NoError(t, err)
+
+		got := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+		require.Equal(t, "new-uuid", got.Status.UUID)
+		require.Equal(t, "fresh", got.Annotations["example.com/unrelated"])
+		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
+	})
+
+	t.Run("Removes managed annotations when they change", func(t *testing.T) {
+		stored := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		stored.Annotations = map[string]string{
+			"example.com/unrelated":       "fresh",
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+		}
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(stored).
+			Build()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client: k8sClient,
+			},
+		}
+
+		obj := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: stored.Name, Namespace: stored.Namespace}, obj))
+		orig := obj.DeepCopy()
+		delete(obj.Annotations, processedGenerationAnnotation)
+		delete(obj.Annotations, instanceIsRunningAnnotation)
+		obj.Status.UUID = "new-uuid"
+
+		err := r.persistReconcileState(t.Context(), orig, obj)
+		require.NoError(t, err)
+
+		got := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+		require.Equal(t, "new-uuid", got.Status.UUID)
+		require.Equal(t, "fresh", got.Annotations["example.com/unrelated"])
+		require.NotContains(t, got.Annotations, processedGenerationAnnotation)
+		require.NotContains(t, got.Annotations, instanceIsRunningAnnotation)
+	})
+
+	t.Run("Updates status when objects differ", func(t *testing.T) {
+		stored := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		stored.Status.UUID = "old-uuid"
+		stored.Status.Conditions = []metav1.Condition{
 			{
 				Type:   "Some",
 				Status: metav1.ConditionFalse,
@@ -1337,7 +1417,7 @@ func TestReconciler_updateStatus(t *testing.T) {
 		k8sClient := fake.NewClientBuilder().
 			WithScheme(scheme).
 			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
-			WithObjects(obj).
+			WithObjects(stored).
 			Build()
 
 		r := &Reconciler[*v1alpha1.ClickhouseUser]{
@@ -1346,10 +1426,9 @@ func TestReconciler_updateStatus(t *testing.T) {
 			},
 		}
 
+		obj := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: stored.Name, Namespace: stored.Namespace}, obj))
 		orig := obj.DeepCopy()
-
-		// Mutate both spec and status to force an update
-		obj.Spec.Project = "new-project"
 		obj.Status.UUID = "new-uuid"
 		obj.Status.Conditions = []metav1.Condition{
 			{
@@ -1359,13 +1438,12 @@ func TestReconciler_updateStatus(t *testing.T) {
 			},
 		}
 
-		err := r.updateStatus(t.Context(), orig, obj)
+		err := r.persistReconcileState(t.Context(), orig, obj)
 		require.NoError(t, err)
 
 		got := &v1alpha1.ClickhouseUser{}
 		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
 
-		require.Equal(t, "new-project", got.Spec.Project)
 		require.Equal(t, "new-uuid", got.Status.UUID)
 		require.ElementsMatch(t, []metav1.Condition{
 			{
@@ -1374,38 +1452,6 @@ func TestReconciler_updateStatus(t *testing.T) {
 				Reason: "New",
 			},
 		}, normalizedConditions(got.Status.Conditions))
-	})
-
-	t.Run("Returns error when Update fails with non-conflict error", func(t *testing.T) {
-		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
-
-		m := &mock.Mock{}
-		t.Cleanup(func() { m.AssertExpectations(t) })
-		m.On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(assert.AnError).Once()
-
-		k8sClient := fake.NewClientBuilder().
-			WithScheme(scheme).
-			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
-			WithObjects(obj).
-			WithInterceptorFuncs(interceptor.Funcs{
-				Update: func(ctx context.Context, c crclient.WithWatch, o crclient.Object, opts ...crclient.UpdateOption) error {
-					args := m.MethodCalled("Update", ctx, c, o, opts)
-					return args.Error(0)
-				},
-			}).
-			Build()
-
-		r := &Reconciler[*v1alpha1.ClickhouseUser]{
-			Controller: Controller{
-				Client: k8sClient,
-			},
-		}
-
-		orig := obj.DeepCopy()
-		obj.Status.UUID = "uuid-after"
-
-		err := r.updateStatus(t.Context(), orig, obj)
-		require.EqualError(t, err, assert.AnError.Error())
 	})
 
 	t.Run("Returns error when Status update fails", func(t *testing.T) {
@@ -1430,14 +1476,57 @@ func TestReconciler_updateStatus(t *testing.T) {
 		r := &Reconciler[*v1alpha1.ClickhouseUser]{
 			Controller: Controller{
 				Client: k8sClient,
-				Scheme: scheme,
 			},
 		}
 
 		orig := obj.DeepCopy()
 		obj.Status.UUID = "uuid-after"
 
-		err := r.updateStatus(t.Context(), orig, obj)
+		err := r.persistReconcileState(t.Context(), orig, obj)
+		require.EqualError(t, err, assert.AnError.Error())
+	})
+
+	t.Run("Returns error when managed annotations patch fails", func(t *testing.T) {
+		stored := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("Patch", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(assert.AnError).Once()
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(stored).
+			WithInterceptorFuncs(interceptor.Funcs{
+				Patch: func(ctx context.Context, c crclient.WithWatch, o crclient.Object, patch crclient.Patch, opts ...crclient.PatchOption) error {
+					data, err := patch.Data(o)
+					require.NoError(t, err)
+
+					var payload managedAnnotationsPatchPayload
+					require.NoError(t, json.Unmarshal(data, &payload))
+					require.Equal(t, o.GetResourceVersion(), payload.Metadata.ResourceVersion)
+					require.Equal(t, "1", payload.Metadata.Annotations[processedGenerationAnnotation])
+
+					args := m.MethodCalled("Patch", ctx, c, o, patch, opts)
+					return args.Error(0)
+				},
+			}).
+			Build()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client: k8sClient,
+				Scheme: scheme,
+			},
+		}
+
+		obj := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: stored.Name, Namespace: stored.Namespace}, obj))
+		orig := obj.DeepCopy()
+		obj.Status.UUID = "uuid-after"
+		metav1.SetMetaDataAnnotation(&obj.ObjectMeta, processedGenerationAnnotation, "1")
+
+		err := r.persistReconcileState(t.Context(), orig, obj)
 		require.EqualError(t, err, assert.AnError.Error())
 	})
 }
@@ -1596,6 +1685,30 @@ func TestReconciler_createResource(t *testing.T) {
 	scheme := runtime.NewScheme()
 	require.NoError(t, clientgoscheme.AddToScheme(scheme))
 	require.NoError(t, v1alpha1.AddToScheme(scheme))
+
+	t.Run("Requeues when preconditions are not met", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		recorder := record.NewFakeRecorder(10)
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Recorder: recorder,
+			},
+		}
+
+		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+		c.EXPECT().Create(mock.Anything, mock.Anything).Return(CreateResult{}, errPreconditionNotMet).Once()
+
+		res, err := r.createResource(t.Context(), c, obj)
+
+		require.NoError(t, err)
+		require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
+		require.Empty(t, normalizedConditions(obj.Status.Conditions))
+		require.Equal(t, []string{
+			"Normal CreateOrUpdatedAtAiven about to create instance at aiven",
+			"Normal PreconditionsNotMet preconditions are not met, requeue",
+		}, recorderEvents(recorder))
+	})
 
 	t.Run("Sets error condition and returns error when creation fails", func(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
@@ -1760,6 +1873,30 @@ func TestReconciler_updateResource(t *testing.T) {
 		require.Empty(t, normalizedConditions(obj.Status.Conditions))
 		require.Equal(t, []string{
 			"Normal WaitingForInstanceToBeRunning waiting for the instance to be running",
+		}, recorderEvents(recorder))
+	})
+
+	t.Run("Requeues when preconditions are not met", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		recorder := record.NewFakeRecorder(10)
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Recorder: recorder,
+			},
+		}
+
+		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+		c.EXPECT().Update(mock.Anything, mock.Anything).Return(UpdateResult{}, errPreconditionNotMet).Once()
+
+		res, err := r.updateResource(t.Context(), c, obj)
+
+		require.NoError(t, err)
+		require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
+		require.Empty(t, normalizedConditions(obj.Status.Conditions))
+		require.Equal(t, []string{
+			"Normal WaitingForInstanceToBeRunning waiting for the instance to be running",
+			"Normal PreconditionsNotMet preconditions are not met, requeue",
 		}, recorderEvents(recorder))
 	})
 
@@ -2656,5 +2793,48 @@ func TestReconciler_SetupWithManager(t *testing.T) {
 
 		err := r.SetupWithManager(mgr)
 		require.NoError(t, err)
+	})
+
+	t.Run("Returns error when indexer registration fails", func(t *testing.T) {
+		restMapper := meta.NewDefaultRESTMapper(nil)
+		mgr := newManager(t, restMapper)
+		called := false
+
+		r := (&Reconciler[*v1alpha1.KafkaTopic]{
+			Controller: Controller{
+				Client: mgr.GetClient(),
+				Scheme: mgr.GetScheme(),
+			},
+		}).WithIndexes(func(context.Context, ctrl.Manager) error {
+			called = true
+			return assert.AnError
+		})
+
+		err := r.SetupWithManager(mgr)
+		require.EqualError(t, err, "registering field indexer: "+assert.AnError.Error())
+		require.True(t, called)
+	})
+
+	t.Run("Applies configured watches", func(t *testing.T) {
+		restMapper := meta.NewDefaultRESTMapper(nil)
+		restMapper.Add(v1alpha1.GroupVersion.WithKind("KafkaTopic"), meta.RESTScopeNamespace)
+
+		mgr := newManager(t, restMapper)
+		calls := 0
+
+		r := (&Reconciler[*v1alpha1.KafkaTopic]{
+			Controller: Controller{
+				Client: mgr.GetClient(),
+				Scheme: mgr.GetScheme(),
+			},
+			newObj: func() *v1alpha1.KafkaTopic { return &v1alpha1.KafkaTopic{} },
+		}).WithWatches(func(b *builder.Builder) *builder.Builder {
+			calls++
+			return b
+		})
+
+		err := r.SetupWithManager(mgr)
+		require.NoError(t, err)
+		require.Equal(t, 1, calls)
 	})
 }
