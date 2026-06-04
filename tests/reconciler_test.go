@@ -1,4 +1,4 @@
-//go:build suite && reconciler
+//go:build reconciler
 
 package tests
 
