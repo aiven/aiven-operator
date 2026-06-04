@@ -94,6 +94,7 @@ func setupSuite(ctx context.Context) (*envtest.Environment, error) {
 	if err != nil {
 		return nil, err
 	}
+	restConfig = c
 
 	err = v1alpha1.AddToScheme(scheme.Scheme)
 	if err != nil {

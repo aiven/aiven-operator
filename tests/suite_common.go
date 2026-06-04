@@ -7,11 +7,13 @@ import (
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
+	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 var (
 	cfg             *testConfig
+	restConfig      *rest.Config
 	k8sClient       client.Client
 	avnGen          avngen.Client
 	sharedResources SharedResources
