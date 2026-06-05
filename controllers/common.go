@@ -14,6 +14,7 @@ import (
 	"github.com/liip/sheriff"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
@@ -149,6 +150,16 @@ func getRunningCondition(status metav1.ConditionStatus, reason, message string) 
 		Reason:  reason,
 		Message: message,
 	}
+}
+
+func markInstanceRunning(obj v1alpha1.AivenManagedObject) {
+	meta.SetStatusCondition(obj.Conditions(), getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
+	metav1.SetMetaDataAnnotation(obj.GetObjectMeta(), instanceIsRunningAnnotation, "true")
+}
+
+func markInstanceNotReconciled(obj v1alpha1.AivenManagedObject) {
+	delete(obj.GetAnnotations(), instanceIsRunningAnnotation)
+	meta.SetStatusCondition(obj.Conditions(), getRunningCondition(metav1.ConditionFalse, "CheckRunning", "Instance is not reconciled on Aiven side"))
 }
 
 func getErrorCondition(reason errCondition, err error) metav1.Condition {
