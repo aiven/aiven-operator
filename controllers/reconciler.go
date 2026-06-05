@@ -249,7 +249,11 @@ func (r *Reconciler[T]) persistReconcileState(ctx context.Context, orig v1alpha1
 
 	// Capture annotation changes before Status().Update because it may mutate obj metadata.
 	annotations := map[string]any{}
-	for _, key := range []string{processedGenerationAnnotation, instanceIsRunningAnnotation} {
+	for _, key := range []string{
+		processedGenerationAnnotation,
+		instanceIsRunningAnnotation,
+		kafkaSchemaAppliedFingerprintAnnotation,
+	} {
 		origValue, origOk := orig.GetAnnotations()[key]
 		value, ok := obj.GetAnnotations()[key]
 		if origOk == ok && origValue == value {

@@ -102,6 +102,14 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 						in.References == nil
 				}),
 			).Return(42, nil).Once()
+		// applySchema looks up the version that holds the freshly-written id
+		// so Status.Version reflects what THIS CR registered.
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
+			Return([]int{1}, nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, 1).
+			Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{Id: 42, Version: 1}, nil).Once()
 
 		r, res, err := runKafkaSchemaScenario(t, schema, avn)
 		require.NoError(t, err)
@@ -112,6 +120,9 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
 		require.NotContains(t, got.Annotations, instanceIsRunningAnnotation)
 		require.Equal(t, 42, got.Status.ID)
+		require.Equal(t, 1, got.Status.Version, "Status.Version must be the version that holds the freshly-written id")
+		require.Equal(t, fingerprintSchema(schema, nil), got.Annotations[kafkaSchemaAppliedFingerprintAnnotation],
+			"applySchema must record the applied fingerprint so the next Observe sees no drift")
 	})
 
 	t.Run("Creates KafkaSchema with compatibility level", func(t *testing.T) {
@@ -130,6 +141,12 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 			ServiceSchemaRegistrySubjectVersionPost(
 				mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, mock.Anything,
 			).Return(7, nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
+			Return([]int{1}, nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, 1).
+			Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{Id: 7, Version: 1}, nil).Once()
 		avn.EXPECT().
 			ServiceSchemaRegistrySubjectConfigPut(
 				mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName,
@@ -173,6 +190,12 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 					return ref.Name == "common.proto" && ref.Subject == "common-subject" && ref.Version == 1
 				}),
 			).Return(11, nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
+			Return([]int{1}, nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, 1).
+			Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{Id: 11, Version: 1}, nil).Once()
 
 		r, res, err := runKafkaSchemaScenario(t, schema, avn)
 		require.NoError(t, err)
@@ -183,11 +206,15 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 		require.Equal(t, 11, got.Status.ID)
 	})
 
-	t.Run("Marks KafkaSchema running when tracked ID is visible", func(t *testing.T) {
+	t.Run("Marks KafkaSchema running when applied fingerprint matches the spec", func(t *testing.T) {
 		schema := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
 		schema.Generation = 1
-		schema.Annotations = map[string]string{processedGenerationAnnotation: "1"}
+		schema.Annotations = map[string]string{
+			processedGenerationAnnotation:           "1",
+			kafkaSchemaAppliedFingerprintAnnotation: fingerprintSchema(schema, nil),
+		}
 		schema.Status.ID = 42
+		schema.Status.Version = 2
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
@@ -195,10 +222,7 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 			Return(runningService(), nil).Once()
 		avn.EXPECT().
 			ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
-			Return([]int{1}, nil).Once()
-		avn.EXPECT().
-			ServiceSchemaRegistrySubjectVersionGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, 1).
-			Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{Id: 42, Version: 1}, nil).Once()
+			Return([]int{1, 3, 2}, nil).Once()
 
 		r, res, err := runKafkaSchemaScenario(t, schema, avn)
 		require.NoError(t, err)
@@ -206,16 +230,20 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 
 		got := &v1alpha1.KafkaSchema{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: schema.Name, Namespace: schema.Namespace}, got))
-		require.Equal(t, 1, got.Status.Version)
 		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
+		require.Equal(t, 2, got.Status.Version,
+			"Observe must not clobber Status.Version with the registry's max")
 	})
 
-	t.Run("Updates KafkaSchema when generation changes", func(t *testing.T) {
+	t.Run("Updates KafkaSchema when fingerprint disagrees with spec", func(t *testing.T) {
 		schema := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
 		schema.Generation = 2
+		// Stale fingerprint pinned to a previous spec body — drift is detected
+		// independently of generation.
 		schema.Annotations = map[string]string{
-			processedGenerationAnnotation: "1",
-			instanceIsRunningAnnotation:   "true",
+			processedGenerationAnnotation:           "1",
+			instanceIsRunningAnnotation:             "true",
+			kafkaSchemaAppliedFingerprintAnnotation: "stale-fingerprint",
 		}
 		schema.Status.ID = 42
 		schema.Status.Version = 1
@@ -228,12 +256,15 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 			ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
 			Return([]int{1}, nil).Once()
 		avn.EXPECT().
-			ServiceSchemaRegistrySubjectVersionGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, 1).
-			Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{Id: 42, Version: 1}, nil).Once()
-		avn.EXPECT().
 			ServiceSchemaRegistrySubjectVersionPost(
 				mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, mock.Anything,
 			).Return(99, nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
+			Return([]int{1, 2}, nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, 2).
+			Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{Id: 99, Version: 2}, nil).Once()
 
 		r, res, err := runKafkaSchemaScenario(t, schema, avn)
 		require.NoError(t, err)
@@ -244,18 +275,30 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 		require.Equal(t, "2", got.Annotations[processedGenerationAnnotation])
 		require.NotContains(t, got.Annotations, instanceIsRunningAnnotation)
 		require.Equal(t, 99, got.Status.ID)
+		require.Equal(t, 2, got.Status.Version, "Status.Version must follow the freshly-written id")
+		require.Equal(t, fingerprintSchema(schema, nil), got.Annotations[kafkaSchemaAppliedFingerprintAnnotation],
+			"applySchema must overwrite the stale fingerprint")
 	})
 
-	t.Run("Requeues when tracked ID is not yet visible in the registry", func(t *testing.T) {
+	t.Run("Re-applies via idempotent POST when no fingerprint annotation is set", func(t *testing.T) {
 		schema := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
 		schema.Generation = 1
 		schema.Annotations = map[string]string{processedGenerationAnnotation: "1"}
+		// Stale Status.ID
 		schema.Status.ID = 42
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
 			ServiceGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, mock.Anything).
 			Return(runningService(), nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
+			Return([]int{1}, nil).Once()
+		// Observe never iterates versions; only applySchema does, after POST.
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionPost(
+				mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, mock.Anything,
+			).Return(7, nil).Once()
 		avn.EXPECT().
 			ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
 			Return([]int{1}, nil).Once()
@@ -269,7 +312,10 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 
 		got := &v1alpha1.KafkaSchema{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: schema.Name, Namespace: schema.Namespace}, got))
-		require.NotContains(t, got.Annotations, instanceIsRunningAnnotation)
+		require.Equal(t, 7, got.Status.ID, "Status.ID is overwritten by the POST response")
+		require.Equal(t, 1, got.Status.Version, "Status.Version follows the freshly-written id")
+		require.Equal(t, fingerprintSchema(schema, nil), got.Annotations[kafkaSchemaAppliedFingerprintAnnotation],
+			"the fingerprint annotation is the source of truth for drift detection on the next pass")
 	})
 
 	// Soft-delete followed by hard-delete
@@ -352,6 +398,12 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 					return ref.Name == "common.proto" && ref.Subject == "resolved-subject" && ref.Version == 7
 				}),
 			).Return(11, nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
+			Return([]int{1}, nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, 1).
+			Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{Id: 11, Version: 1}, nil).Once()
 
 		r, res, err := runKafkaSchemaScenario(t, schema, avn, referent)
 		require.NoError(t, err)
@@ -412,6 +464,12 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 						second.Name == "shared.proto" && second.Subject == "shared-subject" && second.Version == 3
 				}),
 			).Return(55, nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
+			Return([]int{1}, nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, 1).
+			Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{Id: 55, Version: 1}, nil).Once()
 
 		r, res, err := runKafkaSchemaScenario(t, schema, avn, referent)
 		require.NoError(t, err)
@@ -575,6 +633,12 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 						ref.Version == 7
 				}),
 			).Return(99, nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, dependent.Spec.Project, dependent.Spec.ServiceName, dependent.Spec.SubjectName).
+			Return([]int{1}, nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionGet(mock.Anything, dependent.Spec.Project, dependent.Spec.ServiceName, dependent.Spec.SubjectName, 1).
+			Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{Id: 99, Version: 1}, nil).Once()
 
 		res, err = r.Reconcile(t.Context(), ctrlruntime.Request{
 			NamespacedName: types.NamespacedName{Name: dependent.Name, Namespace: dependent.Namespace},
@@ -613,15 +677,21 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 
 		schema := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
 		schema.Generation = 1
-		schema.Annotations = map[string]string{
-			processedGenerationAnnotation: "1",
-			instanceIsRunningAnnotation:   "true",
-		}
 		schema.Spec.SchemaType = kafkaschemaregistry.SchemaTypeProtobuf
 		schema.Spec.References = []v1alpha1.SchemaReference{
 			{Name: "common.proto", KafkaSchemaRef: &v1alpha1.LocalKafkaSchemaRef{Name: "referent"}},
 		}
-		// Dependent's own Status.ID was assigned at version=1 of the referent.
+		// Fingerprint pinned to the referent's previous version (1).
+		// When the referent advances to version 2 the desired fingerprint
+		// changes and Observe detects drift without ever reading Status.
+		oldFP := fingerprintSchema(schema, []kafkaschemaregistry.ReferenceIn{
+			{Name: "common.proto", Subject: "resolved-subject", Version: 1},
+		})
+		schema.Annotations = map[string]string{
+			processedGenerationAnnotation:           "1",
+			instanceIsRunningAnnotation:             "true",
+			kafkaSchemaAppliedFingerprintAnnotation: oldFP,
+		}
 		schema.Status.ID = 50
 		schema.Status.Version = 1
 
@@ -629,13 +699,9 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 		avn.EXPECT().
 			ServiceGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, mock.Anything).
 			Return(runningService(), nil).Once()
-		// The registry currently has the dependent at version=1. Observe will see Status.ID match.
 		avn.EXPECT().
 			ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
 			Return([]int{1}, nil).Once()
-		avn.EXPECT().
-			ServiceSchemaRegistrySubjectVersionGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, 1).
-			Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{Id: 50, Version: 1}, nil).Once()
 
 		// EXPECTED: a fresh POST that carries the referent's NEW version (2).
 		avn.EXPECT().
@@ -649,6 +715,12 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 					return ref.Name == "common.proto" && ref.Subject == "resolved-subject" && ref.Version == 2
 				}),
 			).Return(60, nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
+			Return([]int{1, 2}, nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, 2).
+			Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{Id: 60, Version: 2}, nil).Once()
 
 		r, res, err := runKafkaSchemaScenario(t, schema, avn, referent)
 		require.NoError(t, err)
@@ -660,18 +732,26 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 		require.NotContains(t, got.Annotations, instanceIsRunningAnnotation, "Update must clear the running annotation when re-POSTing")
 	})
 
-	// Remove all references when Spec.References is empty, but
-	// the registry currently serves the schema with reference still attached.
+	// Spec drops all references. Fingerprint annotation still reflects an
+	// earlier WITH-references state, so Observe sees drift and re-POSTs
+	// without consulting Status or fetching individual versions.
 	t.Run("Re-POSTs without References when spec drops all references", func(t *testing.T) {
 		schema := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
 		schema.Generation = 1
-		schema.Annotations = map[string]string{
-			processedGenerationAnnotation: "1",
-			instanceIsRunningAnnotation:   "true",
-		}
 		schema.Spec.SchemaType = kafkaschemaregistry.SchemaTypeProtobuf
-		// Spec carries no references.
 		schema.Spec.References = nil
+
+		// Fingerprint pinned to a previous spec that carried a reference.
+		stalePrev := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+		stalePrev.Spec.SchemaType = kafkaschemaregistry.SchemaTypeProtobuf
+		staleFP := fingerprintSchema(stalePrev, []kafkaschemaregistry.ReferenceIn{
+			{Name: "stale.proto", Subject: "stale-subject", Version: 1},
+		})
+		schema.Annotations = map[string]string{
+			processedGenerationAnnotation:           "1",
+			instanceIsRunningAnnotation:             "true",
+			kafkaSchemaAppliedFingerprintAnnotation: staleFP,
+		}
 		schema.Status.ID = 77
 		schema.Status.Version = 3
 
@@ -682,16 +762,6 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 		avn.EXPECT().
 			ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
 			Return([]int{3}, nil).Once()
-		// Registry reports one reference. Observe must treat this as stale.
-		avn.EXPECT().
-			ServiceSchemaRegistrySubjectVersionGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, 3).
-			Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{
-				Id:      77,
-				Version: 3,
-				References: []kafkaschemaregistry.ReferenceOut{
-					{Name: "stale.proto", Subject: "stale-subject", Version: 1},
-				},
-			}, nil).Once()
 
 		avn.EXPECT().
 			ServiceSchemaRegistrySubjectVersionPost(
@@ -700,6 +770,12 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 					return in.References == nil
 				}),
 			).Return(78, nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
+			Return([]int{3, 4}, nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, 4).
+			Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{Id: 78, Version: 4}, nil).Once()
 
 		r, res, err := runKafkaSchemaScenario(t, schema, avn)
 		require.NoError(t, err)
@@ -946,82 +1022,56 @@ func TestKafkaSchemaRefIndexValues(t *testing.T) {
 	})
 }
 
-// The schema parser identifies refs by name (the import path / $ref key), ordering guarantee
-// is not documented. Reordered ref lists must compare equal.
-func TestReferencesEqual(t *testing.T) {
-	in := func(name, subject string, version int) kafkaschemaregistry.ReferenceIn {
-		return kafkaschemaregistry.ReferenceIn{Name: name, Subject: subject, Version: version}
-	}
-	out := func(name, subject string, version int) kafkaschemaregistry.ReferenceOut {
-		return kafkaschemaregistry.ReferenceOut{Name: name, Subject: subject, Version: version}
-	}
-
-	t.Run("both empty", func(t *testing.T) {
-		require.True(t, referencesEqual(nil, nil))
+func TestFingerprintSchema(t *testing.T) {
+	t.Run("empty CompatibilityLevel must equal absent CompatibilityLevel", func(t *testing.T) {
+		absent := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+		empty := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+		empty.Spec.CompatibilityLevel = ""
+		require.Equal(t, fingerprintSchema(absent, nil), fingerprintSchema(empty, nil),
+			"empty CompatibilityLevel must hash identically to an absent one — applySchema treats both as 'unmanaged'")
 	})
 
-	t.Run("different lengths", func(t *testing.T) {
-		require.False(t, referencesEqual(
-			[]kafkaschemaregistry.ReferenceIn{in("a.proto", "a", 1)},
-			[]kafkaschemaregistry.ReferenceOut{out("a.proto", "a", 1), out("b.proto", "b", 1)},
-		))
+	t.Run("non-empty CompatibilityLevel changes the fingerprint", func(t *testing.T) {
+		absent := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+		set := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+		set.Spec.CompatibilityLevel = kafkaschemaregistry.CompatibilityTypeBackward
+		require.NotEqual(t, fingerprintSchema(absent, nil), fingerprintSchema(set, nil),
+			"setting a CompatibilityLevel must change the fingerprint so the next pass detects drift and PUTs the config")
 	})
 
-	t.Run("identical, same order", func(t *testing.T) {
-		require.True(t, referencesEqual(
-			[]kafkaschemaregistry.ReferenceIn{in("a.proto", "a", 1), in("b.proto", "b", 2)},
-			[]kafkaschemaregistry.ReferenceOut{out("a.proto", "a", 1), out("b.proto", "b", 2)},
-		))
+	t.Run("schema body change flips the fingerprint", func(t *testing.T) {
+		a := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+		b := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+		b.Spec.Schema = `{"type":"record","name":"Test","fields":[{"name":"id","type":"int"}]}`
+		require.NotEqual(t, fingerprintSchema(a, nil), fingerprintSchema(b, nil))
 	})
 
-	t.Run("identical, reordered", func(t *testing.T) {
-		require.True(t, referencesEqual(
-			[]kafkaschemaregistry.ReferenceIn{in("a.proto", "a", 1), in("b.proto", "b", 2)},
-			[]kafkaschemaregistry.ReferenceOut{out("b.proto", "b", 2), out("a.proto", "a", 1)},
-		))
+	t.Run("schema type change flips the fingerprint", func(t *testing.T) {
+		a := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+		b := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+		b.Spec.SchemaType = kafkaschemaregistry.SchemaTypeProtobuf
+		require.NotEqual(t, fingerprintSchema(a, nil), fingerprintSchema(b, nil))
 	})
 
-	t.Run("subject mismatch under same name", func(t *testing.T) {
-		require.False(t, referencesEqual(
-			[]kafkaschemaregistry.ReferenceIn{in("a.proto", "a", 1)},
-			[]kafkaschemaregistry.ReferenceOut{out("a.proto", "a-other", 1)},
-		))
+	t.Run("references are order-insensitive", func(t *testing.T) {
+		s := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+		refsA := []kafkaschemaregistry.ReferenceIn{
+			{Name: "a.proto", Subject: "a", Version: 1},
+			{Name: "b.proto", Subject: "b", Version: 2},
+		}
+		refsB := []kafkaschemaregistry.ReferenceIn{
+			{Name: "b.proto", Subject: "b", Version: 2},
+			{Name: "a.proto", Subject: "a", Version: 1},
+		}
+		require.Equal(t, fingerprintSchema(s, refsA), fingerprintSchema(s, refsB))
 	})
 
-	t.Run("version mismatch under same name", func(t *testing.T) {
-		require.False(t, referencesEqual(
-			[]kafkaschemaregistry.ReferenceIn{in("a.proto", "a", 1)},
-			[]kafkaschemaregistry.ReferenceOut{out("a.proto", "a", 2)},
-		))
-	})
-
-	t.Run("name not present in got", func(t *testing.T) {
-		require.False(t, referencesEqual(
-			[]kafkaschemaregistry.ReferenceIn{in("a.proto", "a", 1)},
-			[]kafkaschemaregistry.ReferenceOut{out("z.proto", "a", 1)},
-		))
-	})
-
-	t.Run("desired empty, got non-empty", func(t *testing.T) {
-		require.False(t, referencesEqual(
-			nil,
-			[]kafkaschemaregistry.ReferenceOut{out("a.proto", "a", 1)},
-		))
-	})
-
-	t.Run("desired non-empty, got empty", func(t *testing.T) {
-		require.False(t, referencesEqual(
-			[]kafkaschemaregistry.ReferenceIn{in("a.proto", "a", 1)},
-			nil,
-		))
-	})
-
-	// If the registry returns duplicate Names, the length check must reject the comparison.
-	t.Run("duplicate names in got are not equal", func(t *testing.T) {
-		require.False(t, referencesEqual(
-			[]kafkaschemaregistry.ReferenceIn{in("a.proto", "a", 1)},
-			[]kafkaschemaregistry.ReferenceOut{out("a.proto", "a", 1), out("a.proto", "a", 1)},
-		))
+	t.Run("a reference version bump flips the fingerprint", func(t *testing.T) {
+		s := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+		v1 := []kafkaschemaregistry.ReferenceIn{{Name: "a.proto", Subject: "a", Version: 1}}
+		v2 := []kafkaschemaregistry.ReferenceIn{{Name: "a.proto", Subject: "a", Version: 2}}
+		require.NotEqual(t, fingerprintSchema(s, v1), fingerprintSchema(s, v2),
+			"a referent advancing to a new version must re-fingerprint so dependents re-POST")
 	})
 }
 
