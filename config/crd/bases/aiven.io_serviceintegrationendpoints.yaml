@@ -164,6 +164,7 @@ spec:
                         - datadoghq.com
                         - datadoghq.eu
                         - ddog-gov.com
+                        - us2.ddog-gov.com
                         - us3.datadoghq.com
                         - us5.datadoghq.com
                       type: string
