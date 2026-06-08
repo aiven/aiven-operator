@@ -17,15 +17,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/event"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 func TestSecretWatchController_secretDataChanged(t *testing.T) {
 	t.Parallel()
-
-	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
 
 	scheme := runtime.NewScheme()
 	require.NoError(t, clientgoscheme.AddToScheme(scheme))
@@ -85,8 +82,6 @@ func TestSecretWatchController_secretDataChanged(t *testing.T) {
 
 func TestSecretWatchController_getResourcesWithSecretSource(t *testing.T) {
 	t.Parallel()
-
-	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
 
 	scheme := runtime.NewScheme()
 	require.NoError(t, clientgoscheme.AddToScheme(scheme))
@@ -294,8 +289,6 @@ func TestSecretWatchController_resourceMatchesSecret(t *testing.T) {
 func TestSecretWatchController_triggerReconciliation(t *testing.T) {
 	t.Parallel()
 
-	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
-
 	scheme := runtime.NewScheme()
 	require.NoError(t, clientgoscheme.AddToScheme(scheme))
 	require.NoError(t, v1alpha1.AddToScheme(scheme))
@@ -379,8 +372,6 @@ func TestSecretWatchController_triggerReconciliation(t *testing.T) {
 // TestAnnotationHandling tests annotation management scenarios
 func TestAnnotationHandling(t *testing.T) {
 	t.Parallel()
-
-	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
 
 	scheme := runtime.NewScheme()
 	require.NoError(t, clientgoscheme.AddToScheme(scheme))
