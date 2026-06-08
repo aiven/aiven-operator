@@ -278,7 +278,11 @@ func (r *KafkaSchemaController) lookupVersionForID(
 		schema.Spec.ServiceName,
 		schema.Spec.SubjectName,
 	)
-	if err != nil {
+	switch {
+	case isNotFound(err):
+		// soft-requeue and retry
+		return 0, fmt.Errorf("%w: subject not visible in registry yet", errPreconditionNotMet)
+	case err != nil:
 		return 0, fmt.Errorf("listing Kafka Schema versions: %w", err)
 	}
 
@@ -291,7 +295,10 @@ func (r *KafkaSchemaController) lookupVersionForID(
 			schema.Spec.SubjectName,
 			v,
 		)
-		if err != nil {
+		switch {
+		case isNotFound(err):
+			return 0, fmt.Errorf("%w: schema version %d not visible in registry yet", errPreconditionNotMet, v)
+		case err != nil:
 			return 0, fmt.Errorf("getting Kafka Schema version %d: %w", v, err)
 		}
 		if got.Id == id {
