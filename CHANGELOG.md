@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.40.0 - 2026-06-05
+
 - Add `MySQL` field `userConfig.mysql.performance_schema_events_statements_history_size`, type `integer`:
   The number of rows per thread in the events_statements_history table
 - Add `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.consumer_fetch_max_bytes`, type
@@ -18,7 +20,7 @@
 - Add `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.producer_send_buffer_bytes`, type
   `integer`: The size of the TCP send buffer (SO_SNDBUF) to use when sending data. -1 uses the OS
   default
-- Add `UpgradePipelineStep` to manage [Aiven upgrade pipeline steps](https://aiven.io/docs/platform/howto/controlled-upgrade)
+- Add `UpgradePipelineStep` to manage Aiven upgrade pipeline steps
 
 ## v0.39.0 - 2026-05-29
 
