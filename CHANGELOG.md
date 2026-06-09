@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Change `ServiceIntegrationEndpoint` field `datadog.site`: enum add `us2.ddog-gov.com`
+
 ## v0.40.0 - 2026-06-05
 
 - Add `MySQL` field `userConfig.mysql.performance_schema_events_statements_history_size`, type `integer`:
