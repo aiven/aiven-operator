@@ -4,8 +4,8 @@ go 1.26
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.46.0
-	github.com/aiven/go-api-schemas v1.192.0
-	github.com/aiven/go-client-codegen v0.188.0
+	github.com/aiven/go-api-schemas v1.193.0
+	github.com/aiven/go-client-codegen v0.191.0
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/dave/jennifer v1.7.1
 	github.com/docker/go-units v0.5.0
@@ -23,10 +23,11 @@ require (
 	github.com/xeipuuv/gojsonschema v1.2.0
 	go.uber.org/zap v1.28.0
 	golang.org/x/exp v0.0.0-20260508232706-74f9aab9d74a
-	golang.org/x/sync v0.20.0
+	golang.org/x/sync v0.21.0
 	golang.org/x/tools v0.45.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.28.15
+	k8s.io/apiextensions-apiserver v0.28.9
 	k8s.io/apimachinery v0.28.15
 	k8s.io/client-go v0.28.15
 	k8s.io/utils v0.0.0-20230406110748-d93618cff8a2
@@ -105,7 +106,6 @@ require (
 	google.golang.org/protobuf v1.35.1 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	k8s.io/apiextensions-apiserver v0.28.9 // indirect
 	k8s.io/component-base v0.28.9 // indirect
 	k8s.io/klog/v2 v2.100.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20230717233707-2695361300d9 // indirect
