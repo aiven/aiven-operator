@@ -4,6 +4,8 @@
 
 - Change `ServiceIntegrationEndpoint` field `datadog.site`: enum add `us2.ddog-gov.com`
 - Add new 'KafkaQuota' resource to manage quotas for Aiven for Apache Kafka® services.
+- `ConnectionPool` reconciliation: changes to `poolMode` and `poolSize` are now detected and applied on
+  update, and the connection info secret is kept in sync on every reconcile
 
 ## v0.40.0 - 2026-06-05
 
