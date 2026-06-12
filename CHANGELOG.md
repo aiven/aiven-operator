@@ -79,6 +79,7 @@ Valkey major version
 - Add `Clickhouse` field `userConfig.public_access.clickhouse_arrowflight`, type `boolean`: Allow clients
   to connect to clickhouse_arrowflight from the public internet for service nodes that are in a
   project VPC or another type of private network
+- Add kind: `KafkaQuota`
 
 ## v0.37.0 - 2026-04-09
 
