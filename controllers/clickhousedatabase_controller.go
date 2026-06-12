@@ -8,120 +8,85 @@ import (
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/clickhouse"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-// ClickhouseDatabaseReconciler reconciles a ClickhouseDatabase object
-type ClickhouseDatabaseReconciler struct {
-	Controller
-}
-
-func newClickhouseDatabaseReconciler(c Controller) reconcilerType {
-	return &ClickhouseDatabaseReconciler{Controller: c}
-}
-
-// ClickhouseDatabaseHandler handles an Aiven ClickhouseDatabase
-type ClickhouseDatabaseHandler struct{}
-
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhousedatabases,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhousedatabases/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhousedatabases/finalizers,verbs=get;create;update
 
-func (r *ClickhouseDatabaseReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, &ClickhouseDatabaseHandler{}, &v1alpha1.ClickhouseDatabase{})
+// ClickhouseDatabaseController reconciles a ClickhouseDatabase object.
+type ClickhouseDatabaseController struct {
+	client.Client
+	avnGen avngen.Client
 }
 
-func (r *ClickhouseDatabaseReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.ClickhouseDatabase{}).
-		Complete(r)
+func newClickhouseDatabaseReconciler(c Controller) reconcilerType {
+	return newManagedReconciler(
+		c,
+		func(c Controller, avnGen avngen.Client) AivenController[*v1alpha1.ClickhouseDatabase] {
+			return &ClickhouseDatabaseController{Client: c.Client, avnGen: avnGen}
+		},
+		nil,
+	)
 }
 
-func (h *ClickhouseDatabaseHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
-	db, err := h.convert(obj)
-	if err != nil {
-		return err
+func (r *ClickhouseDatabaseController) Observe(ctx context.Context, db *v1alpha1.ClickhouseDatabase) (Observation, error) {
+	if _, err := getServiceIfOperational(ctx, r.avnGen, db.Spec.Project, db.Spec.ServiceName); err != nil {
+		return Observation{}, err
 	}
 
-	dbName := db.GetDatabaseName()
-	_, err = GetClickhouseDatabaseByName(ctx, avnGen, db.Spec.Project, db.Spec.ServiceName, dbName)
+	_, err := GetClickhouseDatabaseByName(ctx, r.avnGen, db.Spec.Project, db.Spec.ServiceName, db.GetDatabaseName())
 	switch {
 	case isNotFound(err):
-		req := clickhouse.ServiceClickHouseDatabaseCreateIn{
-			Database: dbName,
-		}
-		err = avnGen.ServiceClickHouseDatabaseCreate(ctx, db.Spec.Project, db.Spec.ServiceName, &req)
-		if err != nil {
-			return err
-		}
+		return Observation{ResourceExists: false}, nil
 	case err != nil:
-		return fmt.Errorf("cannot create clickhouse database on Aiven side: %w", err)
+		return Observation{}, fmt.Errorf("describing ClickHouse database: %w", err)
 	}
 
-	return nil
+	markInstanceRunning(db)
+
+	return Observation{
+		ResourceExists:   true,
+		ResourceUpToDate: hasLatestGeneration(db),
+	}, nil
 }
 
-func (h *ClickhouseDatabaseHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
-	db, err := h.convert(obj)
-	if err != nil {
-		return false, err
+func (r *ClickhouseDatabaseController) Create(ctx context.Context, db *v1alpha1.ClickhouseDatabase) (CreateResult, error) {
+	req := clickhouse.ServiceClickHouseDatabaseCreateIn{
+		Database: db.GetDatabaseName(),
+	}
+	if err := r.avnGen.ServiceClickHouseDatabaseCreate(ctx, db.Spec.Project, db.Spec.ServiceName, &req); err != nil {
+		// The service can report RUNNING via ServiceGet while its ClickHouse database
+		// is not ready yet, returning a transient 5xx.
+		if isServerError(err) {
+			return CreateResult{}, fmt.Errorf("%w: %w", errPreconditionNotMet, err)
+		}
+		return CreateResult{}, fmt.Errorf("cannot create clickhouse database on Aiven side: %w", err)
 	}
 
-	dbName := db.GetDatabaseName()
-	err = avnGen.ServiceClickHouseDatabaseDelete(ctx, db.Spec.Project, db.Spec.ServiceName, dbName)
+	const reason = "Created"
+	meta.SetStatusCondition(&db.Status.Conditions, getInitializedCondition(reason, "Successfully created the instance in Aiven"))
+	meta.SetStatusCondition(&db.Status.Conditions, getRunningCondition(metav1.ConditionUnknown, reason, "Successfully created the instance in Aiven, status remains unknown"))
+
+	return CreateResult{}, nil
+}
+
+func (r *ClickhouseDatabaseController) Update(_ context.Context, _ *v1alpha1.ClickhouseDatabase) (UpdateResult, error) {
+	// ClickHouse databases have no mutable fields, so there is nothing to update.
+	return UpdateResult{}, nil
+}
+
+func (r *ClickhouseDatabaseController) Delete(ctx context.Context, db *v1alpha1.ClickhouseDatabase) error {
+	err := r.avnGen.ServiceClickHouseDatabaseDelete(ctx, db.Spec.Project, db.Spec.ServiceName, db.GetDatabaseName())
 	if err != nil && !isNotFound(err) {
-		return false, err
+		return err
 	}
-
-	return true, nil
-}
-
-func (h *ClickhouseDatabaseHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
-	db, err := h.convert(obj)
-	if err != nil {
-		return nil, err
-	}
-
-	dbName := db.GetDatabaseName()
-	_, err = GetClickhouseDatabaseByName(ctx, avnGen, db.Spec.Project, db.Spec.ServiceName, dbName)
-	if err != nil {
-		return nil, err
-	}
-
-	meta.SetStatusCondition(&db.Status.Conditions,
-		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
-			"Instance is running on Aiven side"))
-
-	metav1.SetMetaDataAnnotation(&db.ObjectMeta, instanceIsRunningAnnotation, "true")
-
-	return nil, nil
-}
-
-func (h *ClickhouseDatabaseHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
-	db, err := h.convert(obj)
-	if err != nil {
-		return false, err
-	}
-
-	meta.SetStatusCondition(&db.Status.Conditions,
-		getInitializedCondition("Preconditions", "Checking preconditions"))
-
-	return checkServiceIsOperational(ctx, avnGen, db.Spec.Project, db.Spec.ServiceName)
-}
-
-func (h *ClickhouseDatabaseHandler) convert(i client.Object) (*v1alpha1.ClickhouseDatabase, error) {
-	db, ok := i.(*v1alpha1.ClickhouseDatabase)
-	if !ok {
-		return nil, fmt.Errorf("cannot convert object to ClickhouseDatabase")
-	}
-
-	return db, nil
+	return nil
 }
 
 func GetClickhouseDatabaseByName(ctx context.Context, avnGen avngen.Client, project, service, name string) (*clickhouse.DatabaseOut, error) {
