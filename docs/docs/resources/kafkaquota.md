@@ -21,69 +21,6 @@ This resource uses the following API operations, and for each operation, _any_ o
 | [ServiceKafkaQuotaDelete](https://api.aiven.io/doc/#operation/ServiceKafkaQuotaDelete) | `service:data:write` |
 | [ServiceKafkaQuotaDescribe](https://api.aiven.io/doc/#operation/ServiceKafkaQuotaDescribe) | `service:data:write` |
 
-## Usage example
-
-```yaml linenums="1"
-apiVersion: aiven.io/v1alpha1
-kind: Kafka
-metadata:
-  name: my-kafka
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  connInfoSecretTarget:
-    name: kafka-secret
-
-  project: my-aiven-project
-  cloudName: google-europe-west1
-  plan: startup-4
-
-  maintenanceWindowDow: friday
-  maintenanceWindowTime: 23:00:00
-
----
-
-apiVersion: aiven.io/v1alpha1
-kind: KafkaQuota
-metadata:
-  name: my-kafka-quota
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
-
-  project: my-aiven-project
-  serviceName: my-kafka
-
-  user: my-user
-  clientId: my-client
-  consumerByteRate: 1000
-  producerByteRate: 1000
-  requestPercentage: 50
-```
-
-Apply the resource with:
-
-```shell
-kubectl apply -f example.yaml
-```
-
-Verify the newly created `KafkaQuota`:
-
-```shell
-kubectl get kafkaquotas my-kafka-quota
-```
-
-The output is similar to the following:
-```shell
-Name              Project             Service Name    User       Client ID    
-my-kafka-quota    my-aiven-project    my-kafka        my-user    my-client    
-```
-
----
-
 ## KafkaQuota {: #KafkaQuota }
 
 KafkaQuota is the Schema for the kafkaquotas API.
