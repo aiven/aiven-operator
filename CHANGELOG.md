@@ -3,6 +3,7 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - Change `ServiceIntegrationEndpoint` field `datadog.site`: enum add `us2.ddog-gov.com`
+- Add new 'KafkaQuota' resource to manage quotas for Aiven for Apache Kafka® services.
 
 ## v0.40.0 - 2026-06-05
 
@@ -79,6 +80,7 @@ Valkey major version
 - Add `Clickhouse` field `userConfig.public_access.clickhouse_arrowflight`, type `boolean`: Allow clients
   to connect to clickhouse_arrowflight from the public internet for service nodes that are in a
   project VPC or another type of private network
+- Add kind: `KafkaQuota`
 
 ## v0.37.0 - 2026-04-09
 

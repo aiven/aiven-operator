@@ -1,0 +1,38 @@
+apiVersion: aiven.io/v1alpha1
+kind: Kafka
+metadata:
+  name: my-kafka
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: kafka-secret
+
+  project: my-aiven-project
+  cloudName: google-europe-west1
+  plan: startup-4
+
+  maintenanceWindowDow: friday
+  maintenanceWindowTime: 23:00:00
+
+---
+
+apiVersion: aiven.io/v1alpha1
+kind: KafkaQuota
+metadata:
+  name: my-kafka-quota
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  serviceName: my-kafka
+
+  user: my-user
+  clientId: my-client
+  consumerByteRate: 1000
+  producerByteRate: 1000
+  requestPercentage: 50

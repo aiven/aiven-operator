@@ -42,6 +42,7 @@ rules:
       - kafkaconnectors
       - kafkaconnects
       - kafkanativeacls
+      - kafkaquotas
       - kafkas
       - kafkaschemaregistryacls
       - kafkaschemas
@@ -80,6 +81,7 @@ rules:
       - kafkaacls/finalizers
       - kafkaconnectors/finalizers
       - kafkaconnects/finalizers
+      - kafkaquotas/finalizers
       - kafkas/finalizers
       - kafkaschemaregistryacls/finalizers
       - kafkaschemas/finalizers
@@ -115,6 +117,7 @@ rules:
       - kafkaconnectors/status
       - kafkaconnects/status
       - kafkanativeacls/status
+      - kafkaquotas/status
       - kafkas/status
       - kafkaschemaregistryacls/status
       - kafkaschemas/status

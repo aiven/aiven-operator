@@ -67,6 +67,7 @@ func SetupControllersWithConfig(mgr ctrl.Manager, cfg SetupConfig) error {
 		"KafkaNativeACL":                   newKafkaNativeACLReconciler,
 		"KafkaConnect":                     newKafkaConnectReconciler,
 		"KafkaConnector":                   newKafkaConnectorReconciler,
+		"KafkaQuota":                       newKafkaQuotaReconciler,
 		"KafkaSchema":                      newKafkaSchemaReconciler,
 		"KafkaSchemaRegistryACLReconciler": newKafkaSchemaRegistryACLReconciler,
 		"KafkaTopic":                       newKafkaTopicReconciler,

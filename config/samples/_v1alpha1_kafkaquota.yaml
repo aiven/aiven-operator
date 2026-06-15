@@ -1,0 +1,23 @@
+apiVersion: aiven.io/v1alpha1
+kind: KafkaQuota
+metadata:
+  labels:
+    app.kubernetes.io/name: kafkaquota
+    app.kubernetes.io/instance: kafkaquota-sample
+    app.kubernetes.io/part-of: aiven-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: aiven-operator
+  name: kafkaquota-sample
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  serviceName: my-kafka
+
+  user: my-user
+  clientId: my-client
+  consumerByteRate: 1000
+  producerByteRate: 1000
+  requestPercentage: 50
