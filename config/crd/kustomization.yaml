@@ -29,6 +29,7 @@ resources:
   - bases/aiven.io_upgradepipelinesteps.yaml
   - bases/aiven.io_flinks.yaml
   - bases/aiven.io_valkeys.yaml
+  - bases/aiven.io_kafkaquotas.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:
