@@ -3,6 +3,36 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - Change `ServiceIntegrationEndpoint` field `datadog.site`: enum add `us2.ddog-gov.com`
+- Add `Kafka` field `userConfig.kafka.group_coordinator_rebalance_protocols`, type `string`: The enabled
+  consumer group rebalance protocols
+- Add `Kafka` field `userConfig.kafka.group_share_delivery_count_limit`, type `integer`: The maximum
+  delivery attempts for a share-group record
+- Add `Kafka` field `userConfig.kafka.group_share_heartbeat_interval_ms`, type `integer`: The heartbeat
+  interval used by share group members
+- Add `Kafka` field `userConfig.kafka.group_share_max_groups`, type `integer`: The maximum number of
+  share groups allowed on the broker
+- Add `Kafka` field `userConfig.kafka.group_share_max_heartbeat_interval_ms`, type `integer`: The maximum
+  heartbeat interval allowed for share group members
+- Add `Kafka` field `userConfig.kafka.group_share_max_record_lock_duration_ms`, type `integer`: The maximum
+  record lock duration allowed for share groups
+- Add `Kafka` field `userConfig.kafka.group_share_max_session_timeout_ms`, type `integer`: The maximum
+  session timeout allowed for share group members
+- Add `Kafka` field `userConfig.kafka.group_share_max_size`, type `integer`: The maximum number of members
+  allowed in a share group
+- Add `Kafka` field `userConfig.kafka.group_share_min_heartbeat_interval_ms`, type `integer`: The minimum
+  heartbeat interval allowed for share group members
+- Add `Kafka` field `userConfig.kafka.group_share_min_record_lock_duration_ms`, type `integer`: The minimum
+  record lock duration allowed for share groups
+- Add `Kafka` field `userConfig.kafka.group_share_min_session_timeout_ms`, type `integer`: The minimum
+  session timeout allowed for share group members
+- Add `Kafka` field `userConfig.kafka.group_share_partition_max_record_locks`, type `integer`: The maximum
+  number of record locks allowed per share group partition
+- Add `Kafka` field `userConfig.kafka.group_share_record_lock_duration_ms`, type `integer`: The duration
+  for which a fetched share-group record is locked
+- Add `Kafka` field `userConfig.kafka.group_share_session_timeout_ms`, type `integer`: The timeout used
+  to detect share group member failures
+- Add `MySQL` field `userConfig.mysql.relay_log_space_limit`, type `integer`: The maximum amount of space
+  in bytes to use for all relay logs while replicating from an external migration source
 
 ## v0.40.0 - 2026-06-05
 

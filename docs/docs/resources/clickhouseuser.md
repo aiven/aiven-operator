@@ -16,10 +16,10 @@ This resource uses the following API operations, and for each operation, _any_ o
 
 | Operation | Permissions  |
 | ----------- | ----------- |
-| [ServiceClickHousePasswordReset](https://api.aiven.io/doc/#operation/ServiceClickHousePasswordReset) | `service:data:write` or `service:users:write` |
-| [ServiceClickHouseUserCreate](https://api.aiven.io/doc/#operation/ServiceClickHouseUserCreate) | `service:data:write` or `service:users:write` |
-| [ServiceClickHouseUserDelete](https://api.aiven.io/doc/#operation/ServiceClickHouseUserDelete) | `service:data:write` or `service:users:write` |
-| [ServiceClickHouseUserList](https://api.aiven.io/doc/#operation/ServiceClickHouseUserList) | `service:data:write` or `service:users:write` |
+| [ServiceClickHousePasswordReset](https://api.aiven.io/doc/#operation/ServiceClickHousePasswordReset) | `service:users:write` |
+| [ServiceClickHouseUserCreate](https://api.aiven.io/doc/#operation/ServiceClickHouseUserCreate) | `service:users:write` |
+| [ServiceClickHouseUserDelete](https://api.aiven.io/doc/#operation/ServiceClickHouseUserDelete) | `service:users:write` |
+| [ServiceClickHouseUserList](https://api.aiven.io/doc/#operation/ServiceClickHouseUserList) | `service:users:write` |
 | [ServiceGet](https://api.aiven.io/doc/#operation/ServiceGet) | `service:secrets:read` |
 
 ## Usage examples

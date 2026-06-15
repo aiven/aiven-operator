@@ -46,6 +46,10 @@ type Kafka struct {
 	// Replication factor for auto-created topics (Default: 3)
 	DefaultReplicationFactor *int `groups:"create,update" json:"default_replication_factor,omitempty"`
 
+	// +kubebuilder:validation:Enum="classic";"classic,consumer";"classic,consumer,share";"classic,consumer,share,streams";"classic,consumer,streams";"classic,share";"classic,streams"
+	// The enabled consumer group rebalance protocols. Use consumer, classic, share, streams to enable Kafka share groups.
+	GroupCoordinatorRebalanceProtocols *string `groups:"create,update" json:"group_coordinator_rebalance_protocols,omitempty"`
+
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=300000
 	// The amount of time, in milliseconds, the group coordinator will wait for more consumers to join a new group before performing the first rebalance. A longer delay means potentially fewer rebalances, but increases the time until processing begins. The default value for this is 3 seconds. During development and testing it might be desirable to set this to 0 in order to not delay test execution time. (Default: 3000 ms (3 seconds))
@@ -60,6 +64,53 @@ type Kafka struct {
 	// +kubebuilder:validation:Maximum=60000
 	// The minimum allowed session timeout for registered consumers. Longer timeouts give consumers more time to process messages in between heartbeats at the cost of a longer time to detect failures. (Default: 6000 ms (6 seconds))
 	GroupMinSessionTimeoutMs *int `groups:"create,update" json:"group_min_session_timeout_ms,omitempty"`
+
+	// +kubebuilder:validation:Minimum=2
+	// +kubebuilder:validation:Maximum=10
+	// The maximum delivery attempts for a share-group record.
+	GroupShareDeliveryCountLimit *int `groups:"create,update" json:"group_share_delivery_count_limit,omitempty"`
+
+	// The heartbeat interval used by share group members.
+	GroupShareHeartbeatIntervalMs *int `groups:"create,update" json:"group_share_heartbeat_interval_ms,omitempty"`
+
+	// The maximum number of share groups allowed on the broker.
+	GroupShareMaxGroups *int `groups:"create,update" json:"group_share_max_groups,omitempty"`
+
+	// The maximum heartbeat interval allowed for share group members.
+	GroupShareMaxHeartbeatIntervalMs *int `groups:"create,update" json:"group_share_max_heartbeat_interval_ms,omitempty"`
+
+	// The maximum record lock duration allowed for share groups.
+	GroupShareMaxRecordLockDurationMs *int `groups:"create,update" json:"group_share_max_record_lock_duration_ms,omitempty"`
+
+	// The maximum session timeout allowed for share group members.
+	GroupShareMaxSessionTimeoutMs *int `groups:"create,update" json:"group_share_max_session_timeout_ms,omitempty"`
+
+	// +kubebuilder:validation:Minimum=10
+	// +kubebuilder:validation:Maximum=1000
+	// The maximum number of members allowed in a share group.
+	GroupShareMaxSize *int `groups:"create,update" json:"group_share_max_size,omitempty"`
+
+	// The minimum heartbeat interval allowed for share group members.
+	GroupShareMinHeartbeatIntervalMs *int `groups:"create,update" json:"group_share_min_heartbeat_interval_ms,omitempty"`
+
+	// The minimum record lock duration allowed for share groups.
+	GroupShareMinRecordLockDurationMs *int `groups:"create,update" json:"group_share_min_record_lock_duration_ms,omitempty"`
+
+	// The minimum session timeout allowed for share group members.
+	GroupShareMinSessionTimeoutMs *int `groups:"create,update" json:"group_share_min_session_timeout_ms,omitempty"`
+
+	// +kubebuilder:validation:Minimum=100
+	// +kubebuilder:validation:Maximum=10000
+	// The maximum number of record locks allowed per share group partition.
+	GroupSharePartitionMaxRecordLocks *int `groups:"create,update" json:"group_share_partition_max_record_locks,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1000
+	// +kubebuilder:validation:Maximum=3600000
+	// The duration for which a fetched share-group record is locked.
+	GroupShareRecordLockDurationMs *int `groups:"create,update" json:"group_share_record_lock_duration_ms,omitempty"`
+
+	// The timeout used to detect share group member failures.
+	GroupShareSessionTimeoutMs *int `groups:"create,update" json:"group_share_session_timeout_ms,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=315569260000

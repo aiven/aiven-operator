@@ -224,6 +224,11 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.RelayLogSpaceLimit != nil {
+		in, out := &in.RelayLogSpaceLimit, &out.RelayLogSpaceLimit
+		*out = new(int)
+		**out = **in
+	}
 	if in.SlowQueryLog != nil {
 		in, out := &in.SlowQueryLog, &out.SlowQueryLog
 		*out = new(bool)
