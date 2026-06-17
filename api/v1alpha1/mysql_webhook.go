@@ -3,6 +3,7 @@
 package v1alpha1
 
 import (
+	"context"
 	"errors"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -18,38 +19,47 @@ var mysqllog = logf.Log.WithName("mysql-resource")
 func (in *MySQL) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(in).
+		WithDefaulter(&MySQLWebhook{}).
+		WithValidator(&MySQLWebhook{}).
 		Complete()
 }
 
+type MySQLWebhook struct{}
+
 //+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-mysql,mutating=true,failurePolicy=fail,sideEffects=None,groups=aiven.io,resources=mysqls,verbs=create;update,versions=v1alpha1,name=mmysql.kb.io,admissionReviewVersions=v1
 
-var _ webhook.Defaulter = &MySQL{}
+var _ webhook.CustomDefaulter = &MySQLWebhook{}
 
-// Default implements webhook.Defaulter so a webhook will be registered for the type
-func (in *MySQL) Default() {
+// Default implements webhook.CustomDefaulter so a webhook will be registered for the type
+func (h *MySQLWebhook) Default(_ context.Context, obj runtime.Object) error {
+	in := obj.(*MySQL)
 	mysqllog.Info("default", "name", in.Name)
+	return nil
 }
 
 //+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-mysql,mutating=false,failurePolicy=fail,groups=aiven.io,resources=mysqls,versions=v1alpha1,name=vmysql.kb.io,sideEffects=none,admissionReviewVersions=v1
 
-var _ webhook.Validator = &MySQL{}
+var _ webhook.CustomValidator = &MySQLWebhook{}
 
-// ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *MySQL) ValidateCreate() (admission.Warnings, error) {
+// ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
+func (h *MySQLWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
+	in := obj.(*MySQL)
 	mysqllog.Info("validate create", "name", in.Name)
 
 	return nil, in.Spec.Validate()
 }
 
-// ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *MySQL) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
+// ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
+func (h *MySQLWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Object) (admission.Warnings, error) {
+	in := newObj.(*MySQL)
 	mysqllog.Info("validate update", "name", in.Name)
 
 	return nil, in.Spec.Validate()
 }
 
-// ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *MySQL) ValidateDelete() (admission.Warnings, error) {
+// ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
+func (h *MySQLWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
+	in := obj.(*MySQL)
 	mysqllog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {

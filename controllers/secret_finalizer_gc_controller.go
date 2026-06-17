@@ -40,6 +40,7 @@ func (c *SecretFinalizerGCController) SetupWithManager(mgr ctrl.Manager, hasDefa
 		return fmt.Errorf("unable to add index for secret ref fields: %w", err)
 	}
 	builder := ctrl.NewControllerManagedBy(mgr)
+	builder.Named("secret-finalizer-gc")
 	builder.For(&corev1.Secret{})
 
 	// only watch for delete events

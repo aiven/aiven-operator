@@ -46,6 +46,7 @@ func (c *SecretWatchController) SetupWithManager(mgr ctrl.Manager) error {
 	}
 
 	builder := ctrl.NewControllerManagedBy(mgr)
+	builder.Named("secret-watch")
 	builder.For(&corev1.Secret{})
 
 	// only watch for update events on secrets

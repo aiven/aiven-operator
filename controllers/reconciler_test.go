@@ -34,6 +34,7 @@ import (
 	crclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/client/interceptor"
+	"sigs.k8s.io/controller-runtime/pkg/config"
 	ctrlcontroller "sigs.k8s.io/controller-runtime/pkg/controller"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/yaml"
@@ -3164,6 +3165,9 @@ func TestReconciler_SetupWithManager(t *testing.T) {
 
 		mgr, err := ctrl.NewManager(cfg, ctrl.Options{
 			Scheme: scheme,
+			Controller: config.Controller{
+				SkipNameValidation: new(true),
+			},
 			Metrics: metricsserver.Options{
 				BindAddress: "0",
 			},

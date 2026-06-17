@@ -3,6 +3,7 @@
 package v1alpha1
 
 import (
+	"context"
 	"errors"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -18,37 +19,46 @@ var clickhouselog = logf.Log.WithName("clickhouse-resource")
 func (in *Clickhouse) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(in).
+		WithDefaulter(&ClickhouseWebhook{}).
+		WithValidator(&ClickhouseWebhook{}).
 		Complete()
 }
 
+type ClickhouseWebhook struct{}
+
 //+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-clickhouse,mutating=true,failurePolicy=fail,groups=aiven.io,resources=clickhouses,verbs=create;update,versions=v1alpha1,name=mclickhouse.kb.io,sideEffects=none,admissionReviewVersions=v1
 
-var _ webhook.Defaulter = &Clickhouse{}
+var _ webhook.CustomDefaulter = &ClickhouseWebhook{}
 
-// Default implements webhook.Defaulter so a webhook will be registered for the type
-func (in *Clickhouse) Default() {
+// Default implements webhook.CustomDefaulter so a webhook will be registered for the type
+func (h *ClickhouseWebhook) Default(_ context.Context, obj runtime.Object) error {
+	in := obj.(*Clickhouse)
 	clickhouselog.Info("default", "name", in.Name)
+	return nil
 }
 
 //+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-clickhouse,mutating=false,failurePolicy=fail,groups=aiven.io,resources=clickhouses,versions=v1alpha1,name=vclickhouse.kb.io,sideEffects=none,admissionReviewVersions=v1
 
-var _ webhook.Validator = &Clickhouse{}
+var _ webhook.CustomValidator = &ClickhouseWebhook{}
 
-// ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *Clickhouse) ValidateCreate() (admission.Warnings, error) {
+// ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
+func (h *ClickhouseWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
+	in := obj.(*Clickhouse)
 	clickhouselog.Info("validate create", "name", in.Name)
 
 	return nil, in.Spec.Validate()
 }
 
-// ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *Clickhouse) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
+// ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
+func (h *ClickhouseWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Object) (admission.Warnings, error) {
+	in := newObj.(*Clickhouse)
 	clickhouselog.Info("validate update", "name", in.Name)
 	return nil, in.Spec.Validate()
 }
 
-// ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *Clickhouse) ValidateDelete() (admission.Warnings, error) {
+// ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
+func (h *ClickhouseWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
+	in := obj.(*Clickhouse)
 	clickhouselog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
