@@ -22,8 +22,8 @@ This resource uses the following API operations, and for each operation, _any_ o
 | [ServiceCreate](https://api.aiven.io/doc/#operation/ServiceCreate) | `project:services:write` or `role:services:recover` |
 | [ServiceDelete](https://api.aiven.io/doc/#operation/ServiceDelete) | `project:services:write` |
 | [ServiceGet](https://api.aiven.io/doc/#operation/ServiceGet) | `service:secrets:read` |
-| [ServiceTaskCreate](https://api.aiven.io/doc/#operation/ServiceTaskCreate) | `operator` |
-| [ServiceTaskGet](https://api.aiven.io/doc/#operation/ServiceTaskGet) | `operator` |
+| [ServiceTaskCreate](https://api.aiven.io/doc/#operation/ServiceTaskCreate) | `role:services:maintenance` |
+| [ServiceTaskGet](https://api.aiven.io/doc/#operation/ServiceTaskGet) | `role:services:maintenance` |
 | [ServiceUpdate](https://api.aiven.io/doc/#operation/ServiceUpdate) | `project:services:write` or `role:services:maintenance`, or `role:services:recover`, or `service:configuration:write` |
 
 ## Usage example
