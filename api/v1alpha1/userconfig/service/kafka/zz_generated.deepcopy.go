@@ -125,6 +125,11 @@ func (in *Kafka) DeepCopyInto(out *Kafka) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.GroupCoordinatorRebalanceProtocols != nil {
+		in, out := &in.GroupCoordinatorRebalanceProtocols, &out.GroupCoordinatorRebalanceProtocols
+		*out = new(string)
+		**out = **in
+	}
 	if in.GroupInitialRebalanceDelayMs != nil {
 		in, out := &in.GroupInitialRebalanceDelayMs, &out.GroupInitialRebalanceDelayMs
 		*out = new(int)
@@ -137,6 +142,71 @@ func (in *Kafka) DeepCopyInto(out *Kafka) {
 	}
 	if in.GroupMinSessionTimeoutMs != nil {
 		in, out := &in.GroupMinSessionTimeoutMs, &out.GroupMinSessionTimeoutMs
+		*out = new(int)
+		**out = **in
+	}
+	if in.GroupShareDeliveryCountLimit != nil {
+		in, out := &in.GroupShareDeliveryCountLimit, &out.GroupShareDeliveryCountLimit
+		*out = new(int)
+		**out = **in
+	}
+	if in.GroupShareHeartbeatIntervalMs != nil {
+		in, out := &in.GroupShareHeartbeatIntervalMs, &out.GroupShareHeartbeatIntervalMs
+		*out = new(int)
+		**out = **in
+	}
+	if in.GroupShareMaxGroups != nil {
+		in, out := &in.GroupShareMaxGroups, &out.GroupShareMaxGroups
+		*out = new(int)
+		**out = **in
+	}
+	if in.GroupShareMaxHeartbeatIntervalMs != nil {
+		in, out := &in.GroupShareMaxHeartbeatIntervalMs, &out.GroupShareMaxHeartbeatIntervalMs
+		*out = new(int)
+		**out = **in
+	}
+	if in.GroupShareMaxRecordLockDurationMs != nil {
+		in, out := &in.GroupShareMaxRecordLockDurationMs, &out.GroupShareMaxRecordLockDurationMs
+		*out = new(int)
+		**out = **in
+	}
+	if in.GroupShareMaxSessionTimeoutMs != nil {
+		in, out := &in.GroupShareMaxSessionTimeoutMs, &out.GroupShareMaxSessionTimeoutMs
+		*out = new(int)
+		**out = **in
+	}
+	if in.GroupShareMaxSize != nil {
+		in, out := &in.GroupShareMaxSize, &out.GroupShareMaxSize
+		*out = new(int)
+		**out = **in
+	}
+	if in.GroupShareMinHeartbeatIntervalMs != nil {
+		in, out := &in.GroupShareMinHeartbeatIntervalMs, &out.GroupShareMinHeartbeatIntervalMs
+		*out = new(int)
+		**out = **in
+	}
+	if in.GroupShareMinRecordLockDurationMs != nil {
+		in, out := &in.GroupShareMinRecordLockDurationMs, &out.GroupShareMinRecordLockDurationMs
+		*out = new(int)
+		**out = **in
+	}
+	if in.GroupShareMinSessionTimeoutMs != nil {
+		in, out := &in.GroupShareMinSessionTimeoutMs, &out.GroupShareMinSessionTimeoutMs
+		*out = new(int)
+		**out = **in
+	}
+	if in.GroupSharePartitionMaxRecordLocks != nil {
+		in, out := &in.GroupSharePartitionMaxRecordLocks, &out.GroupSharePartitionMaxRecordLocks
+		*out = new(int)
+		**out = **in
+	}
+	if in.GroupShareRecordLockDurationMs != nil {
+		in, out := &in.GroupShareRecordLockDurationMs, &out.GroupShareRecordLockDurationMs
+		*out = new(int)
+		**out = **in
+	}
+	if in.GroupShareSessionTimeoutMs != nil {
+		in, out := &in.GroupShareSessionTimeoutMs, &out.GroupShareSessionTimeoutMs
 		*out = new(int)
 		**out = **in
 	}

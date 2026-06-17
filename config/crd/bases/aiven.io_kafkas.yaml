@@ -377,6 +377,20 @@ spec:
                           maximum: 10
                           minimum: 1
                           type: integer
+                        group_coordinator_rebalance_protocols:
+                          description:
+                            The enabled consumer group rebalance protocols.
+                            Use consumer, classic, share, streams to enable Kafka share
+                            groups.
+                          enum:
+                            - classic
+                            - classic,consumer
+                            - classic,consumer,share
+                            - classic,consumer,share,streams
+                            - classic,consumer,streams
+                            - classic,share
+                            - classic,streams
+                          type: string
                         group_initial_rebalance_delay_ms:
                           description:
                             "The amount of time, in milliseconds, the group
@@ -407,6 +421,77 @@ spec:
                             to detect failures. (Default: 6000 ms (6 seconds))"
                           maximum: 60000
                           minimum: 0
+                          type: integer
+                        group_share_delivery_count_limit:
+                          description:
+                            The maximum delivery attempts for a share-group
+                            record.
+                          maximum: 10
+                          minimum: 2
+                          type: integer
+                        group_share_heartbeat_interval_ms:
+                          description: The heartbeat interval used by share group members.
+                          type: integer
+                        group_share_max_groups:
+                          description:
+                            The maximum number of share groups allowed on
+                            the broker.
+                          type: integer
+                        group_share_max_heartbeat_interval_ms:
+                          description:
+                            The maximum heartbeat interval allowed for share
+                            group members.
+                          type: integer
+                        group_share_max_record_lock_duration_ms:
+                          description:
+                            The maximum record lock duration allowed for
+                            share groups.
+                          type: integer
+                        group_share_max_session_timeout_ms:
+                          description:
+                            The maximum session timeout allowed for share
+                            group members.
+                          type: integer
+                        group_share_max_size:
+                          description:
+                            The maximum number of members allowed in a share
+                            group.
+                          maximum: 1000
+                          minimum: 10
+                          type: integer
+                        group_share_min_heartbeat_interval_ms:
+                          description:
+                            The minimum heartbeat interval allowed for share
+                            group members.
+                          type: integer
+                        group_share_min_record_lock_duration_ms:
+                          description:
+                            The minimum record lock duration allowed for
+                            share groups.
+                          type: integer
+                        group_share_min_session_timeout_ms:
+                          description:
+                            The minimum session timeout allowed for share
+                            group members.
+                          type: integer
+                        group_share_partition_max_record_locks:
+                          description:
+                            The maximum number of record locks allowed per
+                            share group partition.
+                          maximum: 10000
+                          minimum: 100
+                          type: integer
+                        group_share_record_lock_duration_ms:
+                          description:
+                            The duration for which a fetched share-group
+                            record is locked.
+                          maximum: 3600000
+                          minimum: 1000
+                          type: integer
+                        group_share_session_timeout_ms:
+                          description:
+                            The timeout used to detect share group member
+                            failures.
                           type: integer
                         log_cleaner_delete_retention_ms:
                           description:
