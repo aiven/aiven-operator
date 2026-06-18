@@ -8,65 +8,59 @@ import (
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafka"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/meta"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-// KafkaNativeACLReconciler reconciles a KafkaNativeACL object
-type KafkaNativeACLReconciler struct {
-	Controller
+//+kubebuilder:rbac:groups=aiven.io,resources=kafkanativeacls,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aiven.io,resources=kafkanativeacls/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aiven.io,resources=kafkanativeacls/finalizers,verbs=get;create;update
+
+// KafkaNativeACLController reconciles a KafkaNativeACL object.
+type KafkaNativeACLController struct {
+	client.Client
+	avnGen avngen.Client
 }
 
 func newKafkaNativeACLReconciler(c Controller) reconcilerType {
-	return &KafkaNativeACLReconciler{Controller: c}
+	return newManagedReconciler(
+		c,
+		func(c Controller, avnGen avngen.Client) AivenController[*v1alpha1.KafkaNativeACL] {
+			return &KafkaNativeACLController{Client: c.Client, avnGen: avnGen}
+		},
+		nil,
+	)
 }
 
-//+kubebuilder:rbac:groups=aiven.io,resources=kafkanativeacls,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=aiven.io,resources=kafkanativeacls/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=aiven.io,resources=kafkanativeacls/finalizers,verbs=update
-
-func (r *KafkaNativeACLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, KafkaNativeACLHandler{}, &v1alpha1.KafkaNativeACL{})
-}
-
-// SetupWithManager sets up the controller with the Manager.
-func (r *KafkaNativeACLReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.KafkaNativeACL{}).
-		Complete(r)
-}
-
-type KafkaNativeACLHandler struct{}
-
-// checkPreconditions check whether all preconditions for creating (or updating) the resource are in place.
-func (h KafkaNativeACLHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
-	acl, err := h.convert(obj)
-	if err != nil {
-		return false, err
+func (r *KafkaNativeACLController) Observe(ctx context.Context, acl *v1alpha1.KafkaNativeACL) (Observation, error) {
+	if _, err := getServiceIfOperational(ctx, r.avnGen, acl.Spec.Project, acl.Spec.ServiceName); err != nil {
+		return Observation{}, err
 	}
 
-	meta.SetStatusCondition(&acl.Status.Conditions,
-		getInitializedCondition("Preconditions", "Checking preconditions"))
+	if acl.Status.ID == "" {
+		return Observation{ResourceExists: false}, nil
+	}
 
-	return checkServiceIsOperational(ctx, avnGen, acl.Spec.Project, acl.Spec.ServiceName)
+	_, err := r.avnGen.ServiceKafkaNativeAclGet(ctx, acl.Spec.Project, acl.Spec.ServiceName, acl.Status.ID)
+	switch {
+	case isNotFound(err):
+		return Observation{ResourceExists: false}, nil
+	case err != nil:
+		return Observation{}, fmt.Errorf("get Kafka-native ACL error: %w", err)
+	}
+
+	markInstanceRunning(acl)
+
+	// The spec is immutable, so an existing ACL is always up to date.
+	return Observation{
+		ResourceExists:   true,
+		ResourceUpToDate: hasLatestGeneration(acl),
+	}, nil
 }
 
-// createOrUpdate creates or updates an instance on the Aiven side.
-func (h KafkaNativeACLHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
-	acl, err := h.convert(obj)
-	if err != nil {
-		return err
-	}
-
-	if acl.Status.ID != "" {
-		// The resource already exists, nothing to do
-		return nil
-	}
+func (r *KafkaNativeACLController) Create(ctx context.Context, acl *v1alpha1.KafkaNativeACL) (CreateResult, error) {
+	delete(acl.GetAnnotations(), instanceIsRunningAnnotation)
 
 	in := &kafka.ServiceKafkaNativeAclAddIn{
 		Host:           &acl.Spec.Host,
@@ -78,59 +72,27 @@ func (h KafkaNativeACLHandler) createOrUpdate(ctx context.Context, avnGen avngen
 		ResourceType:   acl.Spec.ResourceType,
 	}
 
-	rsp, err := avnGen.ServiceKafkaNativeAclAdd(ctx, acl.Spec.Project, acl.Spec.ServiceName, in)
+	rsp, err := r.avnGen.ServiceKafkaNativeAclAdd(ctx, acl.Spec.Project, acl.Spec.ServiceName, in)
 	if err != nil {
-		return fmt.Errorf("create Kafka-native ACL error: %w", err)
+		return CreateResult{}, fmt.Errorf("create Kafka-native ACL error: %w", err)
 	}
 
 	acl.Status.ID = rsp.Id
+	markInstanceRunning(acl)
+
+	return CreateResult{ResourceExists: true, ResourceUpToDate: true}, nil
+}
+
+// Update is a no-op: the spec is immutable, so an existing ACL never needs updating.
+func (r *KafkaNativeACLController) Update(_ context.Context, acl *v1alpha1.KafkaNativeACL) (UpdateResult, error) {
+	markInstanceRunning(acl)
+	return UpdateResult{ResourceExists: true, ResourceUpToDate: true}, nil
+}
+
+func (r *KafkaNativeACLController) Delete(ctx context.Context, acl *v1alpha1.KafkaNativeACL) error {
+	err := r.avnGen.ServiceKafkaNativeAclDelete(ctx, acl.Spec.Project, acl.Spec.ServiceName, acl.Status.ID)
+	if err != nil && !isNotFound(err) {
+		return fmt.Errorf("delete Kafka-native ACL error: %w", err)
+	}
 	return nil
-}
-
-// delete removes an instance on Aiven side.
-func (h KafkaNativeACLHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
-	acl, err := h.convert(obj)
-	if err != nil {
-		return false, err
-	}
-
-	err = avnGen.ServiceKafkaNativeAclDelete(ctx, acl.Spec.Project, acl.Spec.ServiceName, acl.Status.ID)
-	switch {
-	case isNotFound(err):
-		return true, nil
-	case err != nil:
-		return false, fmt.Errorf("delete Kafka-native ACL error: %w", err)
-	}
-
-	return true, nil
-}
-
-// get retrieves an object and a secret.
-func (h KafkaNativeACLHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
-	acl, err := h.convert(obj)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = avnGen.ServiceKafkaNativeAclGet(ctx, acl.Spec.Project, acl.Spec.ServiceName, acl.Status.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	meta.SetStatusCondition(&acl.Status.Conditions,
-		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
-			"Instance is running on Aiven side"))
-
-	metav1.SetMetaDataAnnotation(&acl.ObjectMeta, instanceIsRunningAnnotation, "true")
-
-	return nil, nil
-}
-
-func (h KafkaNativeACLHandler) convert(i client.Object) (*v1alpha1.KafkaNativeACL, error) {
-	acl, ok := i.(*v1alpha1.KafkaNativeACL)
-	if !ok {
-		return nil, fmt.Errorf("cannot convert object to KafkaNativeACL")
-	}
-
-	return acl, nil
 }
