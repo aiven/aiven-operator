@@ -57,6 +57,8 @@ func (r *ClickhouseDatabaseController) Observe(ctx context.Context, db *v1alpha1
 }
 
 func (r *ClickhouseDatabaseController) Create(ctx context.Context, db *v1alpha1.ClickhouseDatabase) (CreateResult, error) {
+	delete(db.GetAnnotations(), instanceIsRunningAnnotation)
+
 	req := clickhouse.ServiceClickHouseDatabaseCreateIn{
 		Database: db.GetDatabaseName(),
 	}

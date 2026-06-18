@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 	"reflect"
 	"slices"
 	"strings"
@@ -53,6 +55,20 @@ func newObjectFromYAML[T any](t *testing.T, y string) *T {
 	require.NoError(t, yaml.Unmarshal([]byte(y), &obj))
 
 	return &obj
+}
+
+// examplesDirPath points to the documented resource examples that the docs site publishes.
+const examplesDirPath = "../docs/docs/resources/examples"
+
+// newObjectFromExampleYAML loads a documented resource example so tests exercise the
+// exact YAML shipped in the docs, catching drift between the examples and the API types.
+func newObjectFromExampleYAML[T any](t *testing.T, exampleName string) *T {
+	t.Helper()
+
+	data, err := os.ReadFile(filepath.Join(examplesDirPath, exampleName+".yaml"))
+	require.NoError(t, err)
+
+	return newObjectFromYAML[T](t, string(data))
 }
 
 func normalizedConditions(conds []metav1.Condition) []metav1.Condition {

@@ -21,19 +21,15 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-const yamlClickhouseDatabase = `
-apiVersion: aiven.io/v1alpha1
-kind: ClickhouseDatabase
-metadata:
-  name: test-db
-  namespace: default
-spec:
-  project: test-project
-  serviceName: test-service
-`
-
 func TestClickhouseDatabaseReconciler(t *testing.T) {
 	t.Parallel()
+
+	newClickhouseDatabase := func(t *testing.T) *v1alpha1.ClickhouseDatabase {
+		t.Helper()
+		db := newObjectFromExampleYAML[v1alpha1.ClickhouseDatabase](t, "clickhousedatabase")
+		db.Namespace = "default"
+		return db
+	}
 
 	runScenarioErr := func(t *testing.T, db *v1alpha1.ClickhouseDatabase, avn avngen.Client) (*Reconciler[*v1alpha1.ClickhouseDatabase], ctrlruntime.Result, error) {
 		t.Helper()
@@ -79,7 +75,7 @@ func TestClickhouseDatabaseReconciler(t *testing.T) {
 	}
 
 	t.Run("Requeues when service preconditions aren't met", func(t *testing.T) {
-		db := newObjectFromYAML[v1alpha1.ClickhouseDatabase](t, yamlClickhouseDatabase)
+		db := newClickhouseDatabase(t)
 		db.Generation = 1
 
 		avn := avngen.NewMockClient(t)
@@ -96,7 +92,7 @@ func TestClickhouseDatabaseReconciler(t *testing.T) {
 	})
 
 	t.Run("Creates database on Aiven when it doesn't exist", func(t *testing.T) {
-		db := newObjectFromYAML[v1alpha1.ClickhouseDatabase](t, yamlClickhouseDatabase)
+		db := newClickhouseDatabase(t)
 		db.Generation = 1
 
 		avn := avngen.NewMockClient(t)
@@ -120,7 +116,7 @@ func TestClickhouseDatabaseReconciler(t *testing.T) {
 	})
 
 	t.Run("Requeues without hard error on transient server error during create", func(t *testing.T) {
-		db := newObjectFromYAML[v1alpha1.ClickhouseDatabase](t, yamlClickhouseDatabase)
+		db := newClickhouseDatabase(t)
 		db.Generation = 1
 
 		avn := avngen.NewMockClient(t)
@@ -143,7 +139,7 @@ func TestClickhouseDatabaseReconciler(t *testing.T) {
 	})
 
 	t.Run("Marks running and requeues when database already exists", func(t *testing.T) {
-		db := newObjectFromYAML[v1alpha1.ClickhouseDatabase](t, yamlClickhouseDatabase)
+		db := newClickhouseDatabase(t)
 		db.Generation = 1
 
 		avn := avngen.NewMockClient(t)
@@ -162,7 +158,7 @@ func TestClickhouseDatabaseReconciler(t *testing.T) {
 	})
 
 	t.Run("Deletes database and removes finalizer on deletion", func(t *testing.T) {
-		db := newObjectFromYAML[v1alpha1.ClickhouseDatabase](t, yamlClickhouseDatabase)
+		db := newClickhouseDatabase(t)
 		db.Generation = 1
 		db.Finalizers = []string{instanceDeletionFinalizer}
 		now := metav1.Now()
@@ -182,7 +178,7 @@ func TestClickhouseDatabaseReconciler(t *testing.T) {
 	})
 
 	t.Run("Ignores not found on deletion", func(t *testing.T) {
-		db := newObjectFromYAML[v1alpha1.ClickhouseDatabase](t, yamlClickhouseDatabase)
+		db := newClickhouseDatabase(t)
 		db.Generation = 1
 		db.Finalizers = []string{instanceDeletionFinalizer}
 		now := metav1.Now()
