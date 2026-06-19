@@ -109,6 +109,11 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.InnodbAdaptiveHashIndex != nil {
+		in, out := &in.InnodbAdaptiveHashIndex, &out.InnodbAdaptiveHashIndex
+		*out = new(bool)
+		**out = **in
+	}
 	if in.InnodbChangeBufferMaxSize != nil {
 		in, out := &in.InnodbChangeBufferMaxSize, &out.InnodbChangeBufferMaxSize
 		*out = new(int)
@@ -127,6 +132,16 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 	if in.InnodbFtServerStopwordTable != nil {
 		in, out := &in.InnodbFtServerStopwordTable, &out.InnodbFtServerStopwordTable
 		*out = new(string)
+		**out = **in
+	}
+	if in.InnodbIoCapacity != nil {
+		in, out := &in.InnodbIoCapacity, &out.InnodbIoCapacity
+		*out = new(int)
+		**out = **in
+	}
+	if in.InnodbIoCapacityMax != nil {
+		in, out := &in.InnodbIoCapacityMax, &out.InnodbIoCapacityMax
+		*out = new(int)
 		**out = **in
 	}
 	if in.InnodbLockWaitTimeout != nil {

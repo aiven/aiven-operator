@@ -203,7 +203,7 @@ Datadog configuration values.
 - [`disable_consumer_stats`](#spec.datadog.disable_consumer_stats-property){: name='spec.datadog.disable_consumer_stats-property'} (boolean). Disable consumer group metrics.
 - [`extra_tags_prefix`](#spec.datadog.extra_tags_prefix-property){: name='spec.datadog.extra_tags_prefix-property'} (string, Pattern: `^[A-Za-z0-9\-]{0,64}$`, MinLength: 0, MaxLength: 64). Extra tags prefix. Defaults to aiven.
 - [`kafka_consumer_check_instances`](#spec.datadog.kafka_consumer_check_instances-property){: name='spec.datadog.kafka_consumer_check_instances-property'} (integer, Minimum: 1, Maximum: 100). Number of separate instances to fetch kafka consumer statistics with.
-- [`kafka_consumer_stats_timeout`](#spec.datadog.kafka_consumer_stats_timeout-property){: name='spec.datadog.kafka_consumer_stats_timeout-property'} (integer, Minimum: 2, Maximum: 300). Number of seconds that datadog will wait to get consumer statistics from brokers.
+- [`kafka_consumer_stats_timeout`](#spec.datadog.kafka_consumer_stats_timeout-property){: name='spec.datadog.kafka_consumer_stats_timeout-property'} (integer, Minimum: 2, Maximum: 298). Number of seconds that datadog will wait to get consumer statistics from brokers.
 - [`max_partition_contexts`](#spec.datadog.max_partition_contexts-property){: name='spec.datadog.max_partition_contexts-property'} (integer, Minimum: 200, Maximum: 200000). Maximum number of partition contexts to send.
 - [`site`](#spec.datadog.site-property){: name='spec.datadog.site-property'} (string, Enum: `ap1.datadoghq.com`, `ap2.datadoghq.com`, `datadoghq.com`, `datadoghq.eu`, `ddog-gov.com`, `us2.ddog-gov.com`, `us3.datadoghq.com`, `us5.datadoghq.com`). Datadog intake site. Defaults to datadoghq.com.
 
@@ -404,6 +404,7 @@ Rsyslog configuration values.
 
 - [`ca`](#spec.rsyslog.ca-property){: name='spec.rsyslog.ca-property'} (string, MaxLength: 16384). PEM encoded CA certificate.
 - [`cert`](#spec.rsyslog.cert-property){: name='spec.rsyslog.cert-property'} (string, MaxLength: 16384). PEM encoded client certificate.
+- [`escape_newlines`](#spec.rsyslog.escape_newlines-property){: name='spec.rsyslog.escape_newlines-property'} (boolean). When true, embedded newlines in a log message are escaped so a multi-line record (e.g. a stack trace) is delivered as one complete log entry. Useful for newline-delimited cloud log intakes that drop continuation lines.
 - [`key`](#spec.rsyslog.key-property){: name='spec.rsyslog.key-property'} (string, MaxLength: 16384). PEM encoded client key.
 - [`logline`](#spec.rsyslog.logline-property){: name='spec.rsyslog.logline-property'} (string, Pattern: `^[ -~\t]+$`, MinLength: 1, MaxLength: 512). Custom syslog message format.
 - [`max_message_size`](#spec.rsyslog.max_message_size-property){: name='spec.rsyslog.max_message_size-property'} (integer, Minimum: 2048, Maximum: 2147483647). Rsyslog max message size.

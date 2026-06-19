@@ -148,7 +148,7 @@ spec:
                       description:
                         Number of seconds that datadog will wait to get consumer
                         statistics from brokers
-                      maximum: 300
+                      maximum: 298
                       minimum: 2
                       type: integer
                     max_partition_contexts:
@@ -550,6 +550,13 @@ spec:
                       description: PEM encoded client certificate
                       maxLength: 16384
                       type: string
+                    escape_newlines:
+                      description:
+                        When true, embedded newlines in a log message are
+                        escaped so a multi-line record (e.g. a stack trace) is delivered
+                        as one complete log entry. Useful for newline-delimited cloud
+                        log intakes that drop continuation lines.
+                      type: boolean
                     format:
                       description: Message format
                       enum:

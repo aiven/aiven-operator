@@ -27,8 +27,30 @@ type IpFilter struct {
 	Network string `groups:"create,update" json:"network"`
 }
 
+// Enable Kafka audit logging by providing this object. Removing it disables the feature. Enabling, updating, or disabling audit logging causes a rolling restart of all Kafka brokers.
+type AuditLog struct {
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=600
+	// Aggregation period in seconds over which audit log entries are batched before being emitted.
+	AggregationPeriodSec *int `groups:"create,update" json:"aggregation_period_sec,omitempty"`
+
+	// +kubebuilder:validation:Enum="user";"user_and_ip"
+	// Group audit log entries by user or by user and IP address. Only valid when record_type is user_operations.
+	GroupBy *string `groups:"create,update" json:"group_by,omitempty"`
+
+	// Whether to include denied authorization attempts in the audit log.
+	IncludeDenials *bool `groups:"create,update" json:"include_denials,omitempty"`
+
+	// +kubebuilder:validation:Enum="user_activity";"user_operations"
+	// user_operations records individual Kafka API calls (produce, fetch, etc.). user_activity records higher-level user actions.
+	RecordType *string `groups:"create,update" json:"record_type,omitempty"`
+}
+
 // Kafka broker configuration values
 type Kafka struct {
+	// Enable Kafka audit logging by providing this object. Removing it disables the feature. Enabling, updating, or disabling audit logging causes a rolling restart of all Kafka brokers.
+	AuditLog *AuditLog `groups:"create,update" json:"audit_log,omitempty"`
+
 	// Enable auto-creation of topics. (Default: false)
 	AutoCreateTopicsEnable *bool `groups:"create,update" json:"auto_create_topics_enable,omitempty"`
 
@@ -716,7 +738,7 @@ type KafkaUserConfig struct {
 	// Kafka SASL mechanisms
 	KafkaSaslMechanisms *KafkaSaslMechanisms `groups:"create,update" json:"kafka_sasl_mechanisms,omitempty"`
 
-	// Available versions: `3.7`, `3.8`, `3.9`, `4.0`, `4.1`. Newer versions may also be available.
+	// Available versions: `3.7`, `3.8`, `3.9`, `4.0`, `4.1`, `4.2`. Newer versions may also be available.
 	// Kafka major version. Deprecated values: `3.7`
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
 
