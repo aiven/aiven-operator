@@ -40,7 +40,7 @@ type DatadogUserConfig struct {
 	KafkaConsumerCheckInstances *int `groups:"create,update" json:"kafka_consumer_check_instances,omitempty"`
 
 	// +kubebuilder:validation:Minimum=2
-	// +kubebuilder:validation:Maximum=300
+	// +kubebuilder:validation:Maximum=298
 	// Number of seconds that datadog will wait to get consumer statistics from brokers
 	KafkaConsumerStatsTimeout *int `groups:"create,update" json:"kafka_consumer_stats_timeout,omitempty"`
 

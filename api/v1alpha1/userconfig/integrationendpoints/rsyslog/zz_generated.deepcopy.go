@@ -19,6 +19,11 @@ func (in *RsyslogUserConfig) DeepCopyInto(out *RsyslogUserConfig) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.EscapeNewlines != nil {
+		in, out := &in.EscapeNewlines, &out.EscapeNewlines
+		*out = new(bool)
+		**out = **in
+	}
 	if in.Key != nil {
 		in, out := &in.Key, &out.Key
 		*out = new(string)

@@ -39,6 +39,14 @@ type AzureMigration struct {
 	// Azure account secret key. One of key or sas_token should be specified
 	Key *string `groups:"create,update" json:"key,omitempty"`
 
+	// +kubebuilder:validation:Pattern=`^\d+\s*(?:[bB]|[kKmMgGtTpP][bB])$`
+	// Throttles the restore rate per node. Defaults to unlimited. Note that if the recovery settings for managed services are set, this value is overridden by the recovery settings. Value should be a byte size with unit, e.g. 40mb, 100kb, 1gb
+	MaxRestoreBytesPerSec *string `groups:"create,update" json:"max_restore_bytes_per_sec,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^\d+\s*(?:[bB]|[kKmMgGtTpP][bB])$`
+	// Throttles the snapshot rate per node. Defaults to 40mb. Note that if the recovery settings for managed services are set, this value is overridden by the recovery settings. Value should be a byte size with unit, e.g. 40mb, 100kb, 1gb
+	MaxSnapshotBytesPerSec *string `groups:"create,update" json:"max_snapshot_bytes_per_sec,omitempty"`
+
 	// Whether the repository is read-only.
 	Readonly *bool `groups:"create,update" json:"readonly,omitempty"`
 
@@ -81,6 +89,14 @@ type GcsMigration struct {
 	// +kubebuilder:validation:Pattern=`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`
 	// A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported.
 	Indices string `groups:"create,update" json:"indices"`
+
+	// +kubebuilder:validation:Pattern=`^\d+\s*(?:[bB]|[kKmMgGtTpP][bB])$`
+	// Throttles the restore rate per node. Defaults to unlimited. Note that if the recovery settings for managed services are set, this value is overridden by the recovery settings. Value should be a byte size with unit, e.g. 40mb, 100kb, 1gb
+	MaxRestoreBytesPerSec *string `groups:"create,update" json:"max_restore_bytes_per_sec,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^\d+\s*(?:[bB]|[kKmMgGtTpP][bB])$`
+	// Throttles the snapshot rate per node. Defaults to 40mb. Note that if the recovery settings for managed services are set, this value is overridden by the recovery settings. Value should be a byte size with unit, e.g. 40mb, 100kb, 1gb
+	MaxSnapshotBytesPerSec *string `groups:"create,update" json:"max_snapshot_bytes_per_sec,omitempty"`
 
 	// Whether the repository is read-only.
 	Readonly *bool `groups:"create,update" json:"readonly,omitempty"`
@@ -1009,6 +1025,14 @@ type S3Migration struct {
 	// +kubebuilder:validation:Pattern=`^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$`
 	// A comma-delimited list of indices to restore from the snapshot. Multi-index syntax is supported.
 	Indices string `groups:"create,update" json:"indices"`
+
+	// +kubebuilder:validation:Pattern=`^\d+\s*(?:[bB]|[kKmMgGtTpP][bB])$`
+	// Throttles the restore rate per node. Defaults to unlimited. Note that if the recovery settings for managed services are set, this value is overridden by the recovery settings. Value should be a byte size with unit, e.g. 40mb, 100kb, 1gb
+	MaxRestoreBytesPerSec *string `groups:"create,update" json:"max_restore_bytes_per_sec,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^\d+\s*(?:[bB]|[kKmMgGtTpP][bB])$`
+	// Throttles the snapshot rate per node. Defaults to 40mb. Note that if the recovery settings for managed services are set, this value is overridden by the recovery settings. Value should be a byte size with unit, e.g. 40mb, 100kb, 1gb
+	MaxSnapshotBytesPerSec *string `groups:"create,update" json:"max_snapshot_bytes_per_sec,omitempty"`
 
 	// Whether the repository is read-only.
 	Readonly *bool `groups:"create,update" json:"readonly,omitempty"`

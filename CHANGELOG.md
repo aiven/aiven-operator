@@ -38,6 +38,31 @@
   to detect share group member failures
 - Add `MySQL` field `userConfig.mysql.relay_log_space_limit`, type `integer`: The maximum amount of space
   in bytes to use for all relay logs while replicating from an external migration source
+- Add `Kafka` field `userConfig.kafka.audit_log`, type `object`: Enable Kafka audit logging by providing
+  this object. Removing it disables the feature
+- Add `MySQL` field `userConfig.mysql.innodb_adaptive_hash_index`, type `boolean`: Whether InnoDB adaptive
+  hash indexing is enabled
+- Add `MySQL` field `userConfig.mysql.innodb_io_capacity_max`, type `integer`: The maximum number of
+  I/O operations per second (IOPS) that InnoDB background tasks may perform when flushing falls behind
+- Add `MySQL` field `userConfig.mysql.innodb_io_capacity`, type `integer`: The number of I/O operations
+  per second (IOPS) available to InnoDB background tasks, such as flushing pages from the buffer
+  pool and merging data from the change buffer
+- Add `OpenSearch` field `userConfig.azure_migration.max_restore_bytes_per_sec`, type `string`: Throttles
+  the restore rate per node. Defaults to unlimited
+- Add `OpenSearch` field `userConfig.azure_migration.max_snapshot_bytes_per_sec`, type `string`: Throttles
+  the snapshot rate per node. Defaults to 40mb
+- Add `OpenSearch` field `userConfig.gcs_migration.max_restore_bytes_per_sec`, type `string`: Throttles
+  the restore rate per node. Defaults to unlimited
+- Add `OpenSearch` field `userConfig.gcs_migration.max_snapshot_bytes_per_sec`, type `string`: Throttles
+  the snapshot rate per node. Defaults to 40mb
+- Add `OpenSearch` field `userConfig.s3_migration.max_restore_bytes_per_sec`, type `string`: Throttles
+  the restore rate per node. Defaults to unlimited
+- Add `OpenSearch` field `userConfig.s3_migration.max_snapshot_bytes_per_sec`, type `string`: Throttles
+  the snapshot rate per node. Defaults to 40mb
+- Add `ServiceIntegrationEndpoint` field `rsyslog.escape_newlines`, type `boolean`: When true, embedded
+  newlines in a log message are escaped so a multi-line record (e.g
+- Change `ServiceIntegrationEndpoint` field `datadog.kafka_consumer_stats_timeout`: maximum ~~`300`~~
+  → `298`
 
 ## v0.40.0 - 2026-06-05
 

@@ -256,7 +256,7 @@ Kafka specific user configuration options.
 - [`kafka_rest_authorization`](#spec.userConfig.kafka_rest_authorization-property){: name='spec.userConfig.kafka_rest_authorization-property'} (boolean). Enable authorization in Kafka-REST service.
 - [`kafka_rest_config`](#spec.userConfig.kafka_rest_config-property){: name='spec.userConfig.kafka_rest_config-property'} (object). Kafka REST configuration. See below for [nested schema](#spec.userConfig.kafka_rest_config).
 - [`kafka_sasl_mechanisms`](#spec.userConfig.kafka_sasl_mechanisms-property){: name='spec.userConfig.kafka_sasl_mechanisms-property'} (object). Kafka SASL mechanisms. See below for [nested schema](#spec.userConfig.kafka_sasl_mechanisms).
-- [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string). Available versions: `3.7`, `3.8`, `3.9`, `4.0`, `4.1`. Newer versions may also be available.
+- [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string). Available versions: `3.7`, `3.8`, `3.9`, `4.0`, `4.1`, `4.2`. Newer versions may also be available.
     Kafka major version. Deprecated values: `3.7`.
 - [`letsencrypt_sasl`](#spec.userConfig.letsencrypt_sasl-property){: name='spec.userConfig.letsencrypt_sasl-property'} (boolean). Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication. (Default: False).
 - [`letsencrypt_sasl_privatelink`](#spec.userConfig.letsencrypt_sasl_privatelink-property){: name='spec.userConfig.letsencrypt_sasl_privatelink-property'} (boolean). Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication via Privatelink. (Default: False).
@@ -313,6 +313,7 @@ Kafka broker configuration values.
 
 **Optional**
 
+- [`audit_log`](#spec.userConfig.kafka.audit_log-property){: name='spec.userConfig.kafka.audit_log-property'} (object). Enable Kafka audit logging by providing this object. Removing it disables the feature. Enabling, updating, or disabling audit logging causes a rolling restart of all Kafka brokers. See below for [nested schema](#spec.userConfig.kafka.audit_log).
 - [`auto_create_topics_enable`](#spec.userConfig.kafka.auto_create_topics_enable-property){: name='spec.userConfig.kafka.auto_create_topics_enable-property'} (boolean). Enable auto-creation of topics. (Default: false).
 - [`compression_type`](#spec.userConfig.kafka.compression_type-property){: name='spec.userConfig.kafka.compression_type-property'} (string, Enum: `gzip`, `lz4`, `producer`, `snappy`, `uncompressed`, `zstd`). Specify the final compression type for a given topic. This configuration accepts the standard compression codecs (`gzip`, `snappy`, `lz4`, `zstd`). It additionally accepts `uncompressed` which is equivalent to no compression; and `producer` which means retain the original compression codec set by the producer.(Default: producer).
 - [`connections_max_idle_ms`](#spec.userConfig.kafka.connections_max_idle_ms-property){: name='spec.userConfig.kafka.connections_max_idle_ms-property'} (integer, Minimum: 1000, Maximum: 3600000). Idle connections timeout: the server socket processor threads close the connections that idle for longer than this. (Default: 600000 ms (10 minutes)).
@@ -375,6 +376,19 @@ Kafka broker configuration values.
 - [`transaction_partition_verification_enable`](#spec.userConfig.kafka.transaction_partition_verification_enable-property){: name='spec.userConfig.kafka.transaction_partition_verification_enable-property'} (boolean). Enable verification that checks that the partition has been added to the transaction before writing transactional records to the partition. (Default: true).
 - [`transaction_remove_expired_transaction_cleanup_interval_ms`](#spec.userConfig.kafka.transaction_remove_expired_transaction_cleanup_interval_ms-property){: name='spec.userConfig.kafka.transaction_remove_expired_transaction_cleanup_interval_ms-property'} (integer, Minimum: 600000, Maximum: 3600000). The interval at which to remove transactions that have expired due to transactional.id.expiration.ms passing (Default: 3600000 ms (1 hour)).
 - [`transaction_state_log_segment_bytes`](#spec.userConfig.kafka.transaction_state_log_segment_bytes-property){: name='spec.userConfig.kafka.transaction_state_log_segment_bytes-property'} (integer, Minimum: 1048576, Maximum: 2147483647). The transaction topic segment bytes should be kept relatively small in order to facilitate faster log compaction and cache loads (Default: 104857600 bytes (100 mebibytes)).
+
+#### audit_log {: #spec.userConfig.kafka.audit_log }
+
+_Appears on [`spec.userConfig.kafka`](#spec.userConfig.kafka)._
+
+Enable Kafka audit logging by providing this object. Removing it disables the feature. Enabling, updating, or disabling audit logging causes a rolling restart of all Kafka brokers.
+
+**Optional**
+
+- [`aggregation_period_sec`](#spec.userConfig.kafka.audit_log.aggregation_period_sec-property){: name='spec.userConfig.kafka.audit_log.aggregation_period_sec-property'} (integer, Minimum: 1, Maximum: 600). Aggregation period in seconds over which audit log entries are batched before being emitted.
+- [`group_by`](#spec.userConfig.kafka.audit_log.group_by-property){: name='spec.userConfig.kafka.audit_log.group_by-property'} (string, Enum: `user`, `user_and_ip`). Group audit log entries by user or by user and IP address. Only valid when record_type is user_operations.
+- [`include_denials`](#spec.userConfig.kafka.audit_log.include_denials-property){: name='spec.userConfig.kafka.audit_log.include_denials-property'} (boolean). Whether to include denied authorization attempts in the audit log.
+- [`record_type`](#spec.userConfig.kafka.audit_log.record_type-property){: name='spec.userConfig.kafka.audit_log.record_type-property'} (string, Enum: `user_activity`, `user_operations`). user_operations records individual Kafka API calls (produce, fetch, etc.). user_activity records higher-level user actions.
 
 ### kafka_authentication_methods {: #spec.userConfig.kafka_authentication_methods }
 

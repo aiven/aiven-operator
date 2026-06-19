@@ -59,6 +59,16 @@ func (in *AzureMigration) DeepCopyInto(out *AzureMigration) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.MaxRestoreBytesPerSec != nil {
+		in, out := &in.MaxRestoreBytesPerSec, &out.MaxRestoreBytesPerSec
+		*out = new(string)
+		**out = **in
+	}
+	if in.MaxSnapshotBytesPerSec != nil {
+		in, out := &in.MaxSnapshotBytesPerSec, &out.MaxSnapshotBytesPerSec
+		*out = new(string)
+		**out = **in
+	}
 	if in.Readonly != nil {
 		in, out := &in.Readonly, &out.Readonly
 		*out = new(bool)
@@ -207,6 +217,16 @@ func (in *GcsMigration) DeepCopyInto(out *GcsMigration) {
 	if in.IncludeAliases != nil {
 		in, out := &in.IncludeAliases, &out.IncludeAliases
 		*out = new(bool)
+		**out = **in
+	}
+	if in.MaxRestoreBytesPerSec != nil {
+		in, out := &in.MaxRestoreBytesPerSec, &out.MaxRestoreBytesPerSec
+		*out = new(string)
+		**out = **in
+	}
+	if in.MaxSnapshotBytesPerSec != nil {
+		in, out := &in.MaxSnapshotBytesPerSec, &out.MaxSnapshotBytesPerSec
+		*out = new(string)
 		**out = **in
 	}
 	if in.Readonly != nil {
@@ -1374,6 +1394,16 @@ func (in *S3Migration) DeepCopyInto(out *S3Migration) {
 	if in.IncludeAliases != nil {
 		in, out := &in.IncludeAliases, &out.IncludeAliases
 		*out = new(bool)
+		**out = **in
+	}
+	if in.MaxRestoreBytesPerSec != nil {
+		in, out := &in.MaxRestoreBytesPerSec, &out.MaxRestoreBytesPerSec
+		*out = new(string)
+		**out = **in
+	}
+	if in.MaxSnapshotBytesPerSec != nil {
+		in, out := &in.MaxSnapshotBytesPerSec, &out.MaxSnapshotBytesPerSec
+		*out = new(string)
 		**out = **in
 	}
 	if in.Readonly != nil {

@@ -82,6 +82,9 @@ type Mysql struct {
 	// The time, in seconds, before cached statistics expire
 	InformationSchemaStatsExpiry *int `groups:"create,update" json:"information_schema_stats_expiry,omitempty"`
 
+	// Whether InnoDB adaptive hash indexing is enabled. The optimal setting is workload-dependent: it speeds up lookups for some workloads but its internal latch can become a contention point under high concurrency, in which case disabling it can improve throughput.
+	InnodbAdaptiveHashIndex *bool `groups:"create,update" json:"innodb_adaptive_hash_index,omitempty"`
+
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=50
 	// Maximum size for the InnoDB change buffer, as a percentage of the total size of the buffer pool. Default is 25
@@ -101,6 +104,16 @@ type Mysql struct {
 	// +kubebuilder:validation:Pattern=`^.+/.+$`
 	// This option is used to specify your own InnoDB FULLTEXT index stopword list for all InnoDB tables.
 	InnodbFtServerStopwordTable *string `groups:"create,update" json:"innodb_ft_server_stopword_table,omitempty"`
+
+	// +kubebuilder:validation:Minimum=100
+	// +kubebuilder:validation:Maximum=4294967295
+	// The number of I/O operations per second (IOPS) available to InnoDB background tasks, such as flushing pages from the buffer pool and merging data from the change buffer. Set this to a value appropriate for the underlying storage; it must not exceed innodb_io_capacity_max.
+	InnodbIoCapacity *int `groups:"create,update" json:"innodb_io_capacity,omitempty"`
+
+	// +kubebuilder:validation:Minimum=100
+	// +kubebuilder:validation:Maximum=4294967295
+	// The maximum number of I/O operations per second (IOPS) that InnoDB background tasks may perform when flushing falls behind. Defaults to twice innodb_io_capacity (minimum 2000). This must be greater than or equal to innodb_io_capacity.
+	InnodbIoCapacityMax *int `groups:"create,update" json:"innodb_io_capacity_max,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=3600
@@ -314,7 +327,7 @@ type MysqlUserConfig struct {
 	MysqlIncrementalBackup *MysqlIncrementalBackup `groups:"create,update" json:"mysql_incremental_backup,omitempty"`
 
 	// Available versions: `8`, `8.4`. Newer versions may also be available.
-	// MySQL major version
+	// MySQL major version. Deprecated values: `8`
 	MysqlVersion *string `groups:"create,update" json:"mysql_version,omitempty"`
 
 	// Allow access to selected service ports from private networks

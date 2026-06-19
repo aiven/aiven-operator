@@ -297,6 +297,24 @@ spec:
                             should be specified
                           pattern: ^[^\r\n]*$
                           type: string
+                        max_restore_bytes_per_sec:
+                          description:
+                            Throttles the restore rate per node. Defaults
+                            to unlimited. Note that if the recovery settings for managed
+                            services are set, this value is overridden by the recovery
+                            settings. Value should be a byte size with unit, e.g. 40mb,
+                            100kb, 1gb
+                          pattern: ^\d+\s*(?:[bB]|[kKmMgGtTpP][bB])$
+                          type: string
+                        max_snapshot_bytes_per_sec:
+                          description:
+                            Throttles the snapshot rate per node. Defaults
+                            to 40mb. Note that if the recovery settings for managed
+                            services are set, this value is overridden by the recovery
+                            settings. Value should be a byte size with unit, e.g. 40mb,
+                            100kb, 1gb
+                          pattern: ^\d+\s*(?:[bB]|[kKmMgGtTpP][bB])$
+                          type: string
                         readonly:
                           description: Whether the repository is read-only.
                           type: boolean
@@ -378,6 +396,24 @@ spec:
                             A comma-delimited list of indices to restore
                             from the snapshot. Multi-index syntax is supported.
                           pattern: ^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$
+                          type: string
+                        max_restore_bytes_per_sec:
+                          description:
+                            Throttles the restore rate per node. Defaults
+                            to unlimited. Note that if the recovery settings for managed
+                            services are set, this value is overridden by the recovery
+                            settings. Value should be a byte size with unit, e.g. 40mb,
+                            100kb, 1gb
+                          pattern: ^\d+\s*(?:[bB]|[kKmMgGtTpP][bB])$
+                          type: string
+                        max_snapshot_bytes_per_sec:
+                          description:
+                            Throttles the snapshot rate per node. Defaults
+                            to 40mb. Note that if the recovery settings for managed
+                            services are set, this value is overridden by the recovery
+                            settings. Value should be a byte size with unit, e.g. 40mb,
+                            100kb, 1gb
+                          pattern: ^\d+\s*(?:[bB]|[kKmMgGtTpP][bB])$
                           type: string
                         readonly:
                           description: Whether the repository is read-only.
@@ -1855,6 +1891,24 @@ spec:
                             A comma-delimited list of indices to restore
                             from the snapshot. Multi-index syntax is supported.
                           pattern: ^(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?)(,(\*?[a-z0-9._-]*\*?|-\*?[a-z0-9._-]*\*?))*[,]?$
+                          type: string
+                        max_restore_bytes_per_sec:
+                          description:
+                            Throttles the restore rate per node. Defaults
+                            to unlimited. Note that if the recovery settings for managed
+                            services are set, this value is overridden by the recovery
+                            settings. Value should be a byte size with unit, e.g. 40mb,
+                            100kb, 1gb
+                          pattern: ^\d+\s*(?:[bB]|[kKmMgGtTpP][bB])$
+                          type: string
+                        max_snapshot_bytes_per_sec:
+                          description:
+                            Throttles the snapshot rate per node. Defaults
+                            to 40mb. Note that if the recovery settings for managed
+                            services are set, this value is overridden by the recovery
+                            settings. Value should be a byte size with unit, e.g. 40mb,
+                            100kb, 1gb
+                          pattern: ^\d+\s*(?:[bB]|[kKmMgGtTpP][bB])$
                           type: string
                         readonly:
                           description: Whether the repository is read-only.
