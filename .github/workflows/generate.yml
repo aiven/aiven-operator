@@ -17,7 +17,7 @@ jobs:
       commit_hash: ${{ steps.auto_commit.outputs.commit-hash }}
       changes_detected: ${{ steps.detect.outputs.changes_detected }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: actions/setup-go@v6
@@ -60,7 +60,7 @@ jobs:
     if: always() && needs.generate.outputs.changes_detected == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           sparse-checkout: .github/actions
       - uses: ./.github/actions/report-statuses

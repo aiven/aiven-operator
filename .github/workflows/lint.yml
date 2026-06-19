@@ -31,7 +31,7 @@ jobs:
     outputs:
       result: ${{ job.status }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 0
@@ -46,7 +46,7 @@ jobs:
       || github.event_name == 'workflow_call'
       || (github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'skip workflows'))
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 0
@@ -67,7 +67,7 @@ jobs:
     permissions:
       checks: write # For trunk to post annotations
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 0
@@ -87,7 +87,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 0
@@ -104,7 +104,7 @@ jobs:
     outputs:
       result: ${{ job.status }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 0
