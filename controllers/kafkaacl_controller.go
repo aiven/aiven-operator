@@ -8,55 +8,83 @@ import (
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafka"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/meta"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-// KafkaACLReconciler reconciles a KafkaACL object
-type KafkaACLReconciler struct {
-	Controller
-}
-
-func newKafkaACLReconciler(c Controller) reconcilerType {
-	return &KafkaACLReconciler{Controller: c}
-}
-
-type KafkaACLHandler struct{}
-
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkaacls,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkaacls/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkaacls/finalizers,verbs=get;create;update
 
-func (r *KafkaACLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, KafkaACLHandler{}, &v1alpha1.KafkaACL{})
+// KafkaACLController reconciles a KafkaACL object
+type KafkaACLController struct {
+	client.Client
+	avnGen avngen.Client
 }
 
-func (r *KafkaACLReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.KafkaACL{}).
-		Complete(r)
+func newKafkaACLReconciler(c Controller) reconcilerType {
+	return newManagedReconciler(
+		c,
+		func(c Controller, avnGen avngen.Client) AivenController[*v1alpha1.KafkaACL] {
+			return &KafkaACLController{Client: c.Client, avnGen: avnGen}
+		},
+		nil,
+	)
 }
 
-func (h KafkaACLHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
-	acl, err := h.convert(obj)
-	if err != nil {
+func (r *KafkaACLController) Observe(ctx context.Context, acl *v1alpha1.KafkaACL) (Observation, error) {
+	if _, err := getServiceIfOperational(ctx, r.avnGen, acl.Spec.Project, acl.Spec.ServiceName); err != nil {
+		return Observation{}, err
+	}
+
+	// ACLs are immutable and identified by (topic, username, permission).
+	id, err := r.findIDByContent(ctx, acl)
+	switch {
+	case isNotFound(err):
+		// Nothing matches the spec. Status.ID set => spec changed, recreate via Update.
+		// Status.ID empty => never created, go to Create.
+		return Observation{ResourceExists: acl.Status.ID != ""}, nil
+	case err != nil:
+		return Observation{}, err
+	}
+
+	acl.Status.ID = id
+	markInstanceRunning(acl)
+
+	return Observation{
+		ResourceExists:   true,
+		ResourceUpToDate: true,
+	}, nil
+}
+
+func (r *KafkaACLController) Create(ctx context.Context, acl *v1alpha1.KafkaACL) (CreateResult, error) {
+	if err := r.applyACL(ctx, acl); err != nil {
+		return CreateResult{}, err
+	}
+	return CreateResult{}, nil
+}
+
+func (r *KafkaACLController) Update(ctx context.Context, acl *v1alpha1.KafkaACL) (UpdateResult, error) {
+	if err := r.applyACL(ctx, acl); err != nil {
+		return UpdateResult{}, err
+	}
+	return UpdateResult{}, nil
+}
+
+func (r *KafkaACLController) Delete(ctx context.Context, acl *v1alpha1.KafkaACL) error {
+	return r.deleteACL(ctx, acl)
+}
+
+// applyACL recreates the ACL from scratch, it can't be modified in place.
+func (r *KafkaACLController) applyACL(ctx context.Context, acl *v1alpha1.KafkaACL) error {
+	delete(acl.GetAnnotations(), instanceIsRunningAnnotation)
+
+	if err := r.deleteACL(ctx, acl); err != nil {
 		return err
 	}
 
-	// ACL can't be really modified
-	// Tries to delete it instead
-	_, err = h.delete(ctx, avnGen, obj)
-	if err != nil {
-		return err
-	}
-
-	// Creates it from scratch
-	_, err = avnGen.ServiceKafkaAclAdd(
+	_, err := r.avnGen.ServiceKafkaAclAdd(
 		ctx,
 		acl.Spec.Project,
 		acl.Spec.ServiceName,
@@ -70,41 +98,29 @@ func (h KafkaACLHandler) createOrUpdate(ctx context.Context, avnGen avngen.Clien
 		return err
 	}
 
-	// Resets the old ID in case it was set
-	acl.Status.ID = ""
-
-	// Gets the ID of the newly created ACL
+	// Reset the old ID and resolve the newly created one.
 	// The server doesn't return the ACL we created, but the list of all ACLs currently defined.
-	// Need to find the correct one manually.
-	acl.Status.ID, err = h.getID(ctx, avnGen, acl)
-	if err != nil {
-		return err
+	acl.Status.ID = ""
+	acl.Status.ID, err = r.getID(ctx, acl)
+	return err
+}
+
+func (r *KafkaACLController) deleteACL(ctx context.Context, acl *v1alpha1.KafkaACL) error {
+	id, err := r.getID(ctx, acl)
+	if err == nil {
+		_, err = r.avnGen.ServiceKafkaAclDelete(ctx, acl.Spec.Project, acl.Spec.ServiceName, id)
+	}
+
+	if err != nil && !isNotFound(err) {
+		return fmt.Errorf("aiven client delete Kafka ACL error: %w", err)
 	}
 
 	return nil
 }
 
-func (h KafkaACLHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
-	acl, err := h.convert(obj)
-	if err != nil {
-		return false, err
-	}
-
-	id, err := h.getID(ctx, avnGen, acl)
-	if err == nil {
-		_, err = avnGen.ServiceKafkaAclDelete(ctx, acl.Spec.Project, acl.Spec.ServiceName, id)
-	}
-
-	if err != nil && !isNotFound(err) {
-		return false, fmt.Errorf("aiven client delete Kafka ACL error: %w", err)
-	}
-
-	return true, nil
-}
-
 // todo: remove in v1
 // getID returns ACL's ID in < v0.5.1 compatible mode
-func (h KafkaACLHandler) getID(ctx context.Context, avnGen avngen.Client, acl *v1alpha1.KafkaACL) (string, error) {
+func (r *KafkaACLController) getID(ctx context.Context, acl *v1alpha1.KafkaACL) (string, error) {
 	// ACLs made prior to v0.5.1 doesn't have an ID.
 	// This block is for fresh made ACLs only
 	// The rest of this function tries to guess it filtering the list.
@@ -113,7 +129,12 @@ func (h KafkaACLHandler) getID(ctx context.Context, avnGen avngen.Client, acl *v
 	}
 
 	// For old ACLs only
-	list, err := avnGen.ServiceKafkaAclList(ctx, acl.Spec.Project, acl.Spec.ServiceName)
+	return r.findIDByContent(ctx, acl)
+}
+
+// findIDByContent resolves the ID of the ACL matching the current spec.
+func (r *KafkaACLController) findIDByContent(ctx context.Context, acl *v1alpha1.KafkaACL) (string, error) {
+	list, err := r.avnGen.ServiceKafkaAclList(ctx, acl.Spec.Project, acl.Spec.ServiceName)
 	if err != nil {
 		return "", err
 	}
@@ -131,47 +152,5 @@ func (h KafkaACLHandler) getID(ctx context.Context, avnGen avngen.Client, acl *v
 		return latestID, nil
 	}
 
-	// Error should mimic client error to play well with isNotFound(err)
 	return "", NewNotFound(fmt.Sprintf("Kafka ACL %q not found", acl.Name))
-}
-
-func (h KafkaACLHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
-	acl, err := h.convert(obj)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = h.getID(ctx, avnGen, acl)
-	if err != nil {
-		return nil, err
-	}
-
-	meta.SetStatusCondition(&acl.Status.Conditions,
-		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
-			"Instance is running on Aiven side"))
-
-	metav1.SetMetaDataAnnotation(&acl.ObjectMeta, instanceIsRunningAnnotation, "true")
-
-	return nil, nil
-}
-
-func (h KafkaACLHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
-	acl, err := h.convert(obj)
-	if err != nil {
-		return false, err
-	}
-
-	meta.SetStatusCondition(&acl.Status.Conditions,
-		getInitializedCondition("Preconditions", "Checking preconditions"))
-
-	return checkServiceIsOperational(ctx, avnGen, acl.Spec.Project, acl.Spec.ServiceName)
-}
-
-func (h KafkaACLHandler) convert(i client.Object) (*v1alpha1.KafkaACL, error) {
-	acl, ok := i.(*v1alpha1.KafkaACL)
-	if !ok {
-		return nil, fmt.Errorf("cannot convert object to KafkaACL")
-	}
-
-	return acl, nil
 }
