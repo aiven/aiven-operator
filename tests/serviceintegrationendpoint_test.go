@@ -16,43 +16,106 @@ func TestServiceIntegrationEndpointExternalPostgres(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
 
-	// GIVEN
-	ctx, cancel := testCtx()
-	defer cancel()
+	t.Run("creates and reconciles a new endpoint", func(t *testing.T) {
+		t.Parallel()
+		defer recoverPanic(t)
 
-	endpointPgName := randName("postgresql")
+		// GIVEN
+		ctx, cancel := testCtx()
+		defer cancel()
 
-	yml, err := loadExampleYaml("serviceintegrationendpoint.external_postgresql.yaml", map[string]string{
-		"metadata.name": endpointPgName,
-		"spec.project":  cfg.Project,
+		endpointPgName := randName("postgresql")
+
+		yml, err := loadExampleYaml("serviceintegrationendpoint.external_postgresql.yaml", map[string]string{
+			"metadata.name": endpointPgName,
+			"spec.project":  cfg.Project,
+		})
+		require.NoError(t, err)
+		s := NewSession(ctx, k8sClient)
+
+		// Cleans test afterward
+		defer s.Destroy(t)
+
+		// WHEN
+		// Applies given manifest
+		require.NoError(t, s.Apply(yml))
+
+		// THEN
+
+		// Validates ServiceIntegrationEndpoint externalPostgresql
+		endpointPg := new(v1alpha1.ServiceIntegrationEndpoint)
+		require.NoError(t, s.GetRunning(endpointPg, endpointPgName))
+		endpointPgAvn, err := avnGen.ServiceIntegrationEndpointGet(ctx, cfg.Project, endpointPg.Status.ID, service.ServiceIntegrationEndpointGetIncludeSecrets(true))
+		require.NoError(t, err)
+		assert.Equal(t, "external_postgresql", string(endpointPgAvn.EndpointType))
+		assert.Equal(t, "username", endpointPg.Spec.ExternalPostgresql.Username)
+		assert.Equal(t, "password", *endpointPg.Spec.ExternalPostgresql.Password)
+		assert.Equal(t, "example.example", endpointPg.Spec.ExternalPostgresql.Host)
+		assert.Equal(t, 5432, endpointPg.Spec.ExternalPostgresql.Port)
+		assert.EqualValues(t, endpointPgAvn.EndpointType, endpointPg.Spec.EndpointType)
+		assert.EqualValues(t, endpointPgAvn.UserConfig["username"], endpointPg.Spec.ExternalPostgresql.Username)
+		assert.EqualValues(t, endpointPgAvn.UserConfig["password"], *endpointPg.Spec.ExternalPostgresql.Password)
+		assert.EqualValues(t, endpointPgAvn.UserConfig["host"], endpointPg.Spec.ExternalPostgresql.Host)
+		assert.EqualValues(t, endpointPgAvn.UserConfig["port"], endpointPg.Spec.ExternalPostgresql.Port)
 	})
-	require.NoError(t, err)
-	s := NewSession(ctx, k8sClient)
 
-	// Cleans test afterward
-	defer s.Destroy(t)
+	// Verifies that the controller adopts a pre-existing Aiven endpoint that matches the
+	// manifest's name+type instead of trying to create a duplicate.
+	t.Run("adopts a pre-existing endpoint with the same name and type", func(t *testing.T) {
+		t.Parallel()
+		defer recoverPanic(t)
 
-	// WHEN
-	// Applies given manifest
-	require.NoError(t, s.Apply(yml))
+		// GIVEN
+		ctx, cancel := testCtx()
+		defer cancel()
 
-	// THEN
+		endpointName := randName("adoption")
 
-	// Validates ServiceIntegrationEndpoint externalPostgresql
-	endpointPg := new(v1alpha1.ServiceIntegrationEndpoint)
-	require.NoError(t, s.GetRunning(endpointPg, endpointPgName))
-	endpointPgAvn, err := avnGen.ServiceIntegrationEndpointGet(ctx, cfg.Project, endpointPg.Status.ID, service.ServiceIntegrationEndpointGetIncludeSecrets(true))
-	require.NoError(t, err)
-	assert.Equal(t, "external_postgresql", string(endpointPgAvn.EndpointType))
-	assert.Equal(t, "username", endpointPg.Spec.ExternalPostgresql.Username)
-	assert.Equal(t, "password", *endpointPg.Spec.ExternalPostgresql.Password)
-	assert.Equal(t, "example.example", endpointPg.Spec.ExternalPostgresql.Host)
-	assert.Equal(t, 5432, endpointPg.Spec.ExternalPostgresql.Port)
-	assert.EqualValues(t, endpointPgAvn.EndpointType, endpointPg.Spec.EndpointType)
-	assert.EqualValues(t, endpointPgAvn.UserConfig["username"], endpointPg.Spec.ExternalPostgresql.Username)
-	assert.EqualValues(t, endpointPgAvn.UserConfig["password"], *endpointPg.Spec.ExternalPostgresql.Password)
-	assert.EqualValues(t, endpointPgAvn.UserConfig["host"], endpointPg.Spec.ExternalPostgresql.Host)
-	assert.EqualValues(t, endpointPgAvn.UserConfig["port"], endpointPg.Spec.ExternalPostgresql.Port)
+		// Pre-create the endpoint directly via the Aiven API, simulating an endpoint that exists.
+		preCreated, err := avnGen.ServiceIntegrationEndpointCreate(ctx, cfg.Project, &service.ServiceIntegrationEndpointCreateIn{
+			EndpointName: endpointName,
+			EndpointType: service.EndpointTypeExternalPostgresql,
+			UserConfig: map[string]any{
+				"username": "username",
+				"password": "password",
+				"host":     "example.example",
+				"port":     5432,
+				"ssl_mode": "require",
+			},
+		})
+		require.NoError(t, err)
+		require.NotEmpty(t, preCreated.EndpointId)
+
+		yml, err := loadExampleYaml("serviceintegrationendpoint.external_postgresql.yaml", map[string]string{
+			"metadata.name":     endpointName,
+			"spec.project":      cfg.Project,
+			"spec.endpointName": endpointName,
+		})
+		require.NoError(t, err)
+		s := NewSession(ctx, k8sClient)
+
+		defer s.Destroy(t)
+
+		// WHEN
+		require.NoError(t, s.Apply(yml))
+
+		// THEN
+		// The controller must adopt the pre-existing endpoint.
+		endpoint := new(v1alpha1.ServiceIntegrationEndpoint)
+		require.NoError(t, s.GetRunning(endpoint, endpointName))
+		assert.Equal(t, preCreated.EndpointId, endpoint.Status.ID, "controller should adopt the existing endpoint, not create a new one")
+
+		// And exactly one endpoint with this name+type exists on Aiven.
+		list, err := avnGen.ServiceIntegrationEndpointList(ctx, cfg.Project)
+		require.NoError(t, err)
+		var matching int
+		for i := range list {
+			if list[i].EndpointName == endpointName && list[i].EndpointType == service.EndpointTypeExternalPostgresql {
+				matching++
+			}
+		}
+		assert.Equal(t, 1, matching, "expected exactly one endpoint with this name+type after adoption")
+	})
 }
 
 func TestServiceIntegrationEndpoint(t *testing.T) {

@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Change `ServiceIntegrationEndpoint` reconciliation to the managed reconciler: the resource now adopts a
+  pre-existing endpoint matching its `endpointName` and `endpointType`.
 - Change `ServiceIntegrationEndpoint` field `datadog.site`: enum add `us2.ddog-gov.com`
 - Add new 'KafkaQuota' resource to manage quotas for Aiven for Apache Kafka® services.
 - Change `ClickhouseDatabase` reconciliation to the managed reconciler: the resource now registers a
