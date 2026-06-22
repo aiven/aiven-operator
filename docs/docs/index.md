@@ -15,7 +15,7 @@ Aiven is a global data and AI platform company that enables organizations to get
 ## Get started
 
 - Follow the [setup guides](./installation/prerequisites.md) to install Aiven Operator and create a token.
-- Try out the [resource examples](examples/project.md) to set up a project or deploy a service, or review the [API reference](resources/project.md).
+- Try out the [PostgreSQL example](examples/postgresql.md) to deploy a service, or review the [API reference](resources/postgresql.md).
 - View the [Aiven documentation](https://aiven.io/docs) for more information on the Aiven Platform and services.
 
 ## Contribute

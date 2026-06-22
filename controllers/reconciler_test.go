@@ -2382,7 +2382,6 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 	t.Run("Known types with conn info secret target don't trigger fallback log", func(t *testing.T) {
 		cases := []v1alpha1.AivenManagedObject{
 			&v1alpha1.MySQL{},
-			&v1alpha1.Project{},
 			&v1alpha1.Clickhouse{},
 			&v1alpha1.ConnectionPool{},
 			&v1alpha1.Flink{},

@@ -168,15 +168,6 @@ PostgreSQL:
     ServiceTaskCreate,
     ServiceTaskGet,
   ]
-Project:
-  [
-    UserCreditCardsList,
-    ProjectCreate,
-    ProjectUpdate,
-    ProjectKmsGetCA,
-    ProjectGet,
-    ProjectDelete,
-  ]
 ProjectVPC: [VpcCreate, VpcGet, ServiceList, VpcDelete]
 ServiceIntegration:
   [

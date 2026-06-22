@@ -102,7 +102,6 @@ nav:
           - resources/mysql.md
           - resources/opensearch.md
           - resources/postgresql.md
-          - resources/project.md
           - resources/projectvpc.md
           - resources/serviceintegration.md
           - resources/serviceintegrationendpoint.md
@@ -110,7 +109,6 @@ nav:
           - resources/valkey.md
   - Resources: *crds
   - Examples:
-      - examples/project.md
       - examples/project-vpc.md
       - examples/clickhouse.md
       - examples/mysql.md

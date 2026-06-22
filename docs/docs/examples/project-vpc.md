@@ -39,7 +39,7 @@ spec:
   networkCidr: 192.168.0.0/24
 ```
 
-2\. Create the Project by applying the configuration:
+2\. Create the ProjectVPC by applying the configuration:
 
 ```shell
 kubectl apply -f vpc-sample.yaml
@@ -48,7 +48,7 @@ kubectl apply -f vpc-sample.yaml
 3\. Review the resource you created with the following command:
 
 ```shell
-kubectl get projects.aiven.io vpc-sample
+kubectl get projectvpcs.aiven.io vpc-sample
 ```
 
 The output is similar to the following:

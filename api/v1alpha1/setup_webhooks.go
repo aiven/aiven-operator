@@ -7,9 +7,6 @@ import (
 )
 
 func SetupWebhooks(mgr ctrl.Manager) error {
-	if err := (&Project{}).SetupWebhookWithManager(mgr); err != nil {
-		return fmt.Errorf("webhook Project: %w", err)
-	}
 	if err := (&PostgreSQL{}).SetupWebhookWithManager(mgr); err != nil {
 		return fmt.Errorf("webhook PostgreSQL: %w", err)
 	}

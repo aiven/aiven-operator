@@ -56,7 +56,7 @@ Here how it goes in the details:
 
 [go-api-schemas]: https://github.com/aiven/go-api-schemas
 [service-types]: https://api.aiven.io/doc/#tag/Service/operation/ListPublicServiceTypes
-[resources]: ../resources/project.md
+[resources]: ../resources/kafka.md
 [controller-gen]: https://book.kubebuilder.io/reference/controller-gen.html
 [crd]: https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/
 

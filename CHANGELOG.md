@@ -4,6 +4,13 @@
 
 - Change `ServiceIntegrationEndpoint` field `datadog.site`: enum add `us2.ddog-gov.com`
 - Add new 'KafkaQuota' resource to manage quotas for Aiven for Apache Kafka® services.
+- **BREAKING**: Remove the `Project` kind and controller from the operator.
+  Before upgrading, protect existing Aiven projects from deletion. Add the
+  `controllers.aiven.io/deletion-policy: Orphan` annotation to each `Project` Kubernetes resource.
+  Then delete the `Project` Kubernetes resources while the previous operator version is still
+  running. Wait until the Kubernetes resources are gone. If a `Project` Kubernetes resource is
+  already stuck deleting, remove the `finalizers.aiven.io/delete-remote-resource` finalizer by hand
+  before removing the `projects.aiven.io` CRD.
 - Change `ClickhouseDatabase` reconciliation to the managed reconciler: the resource now registers a
   finalizer, periodically re-reconciles, and reports `Running` status conditions
 - `ConnectionPool` reconciliation: changes to `poolMode` and `poolSize` are now detected and applied on

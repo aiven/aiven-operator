@@ -48,7 +48,6 @@ rules:
       - opensearchaclconfigs
       - opensearches
       - postgresqls
-      - projects
       - projectvpcs
       - serviceintegrationendpoints
       - serviceintegrations
@@ -87,7 +86,6 @@ rules:
       - opensearchaclconfigs/finalizers
       - opensearches/finalizers
       - postgresqls/finalizers
-      - projects/finalizers
       - projectvpcs/finalizers
       - serviceintegrationendpoints/finalizers
       - serviceintegrations/finalizers
@@ -123,7 +121,6 @@ rules:
       - opensearchaclconfigs/status
       - opensearches/status
       - postgresqls/status
-      - projects/status
       - projectvpcs/status
       - serviceintegrationendpoints/status
       - serviceintegrations/status
