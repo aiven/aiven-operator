@@ -10,7 +10,6 @@ import (
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/clickhouse"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -70,15 +69,15 @@ func (h *clickhouseRoleHandler) delete(ctx context.Context, avnGen avngen.Client
 	return isDeleted(err)
 }
 
-func (h *clickhouseRoleHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *clickhouseRoleHandler) observe(ctx context.Context, avnGen avngen.Client, obj client.Object) error {
 	role, err := h.convert(obj)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	err = ClickhouseRoleExists(ctx, avnGen, role)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	meta.SetStatusCondition(&role.Status.Conditions,
@@ -86,7 +85,7 @@ func (h *clickhouseRoleHandler) get(ctx context.Context, avnGen avngen.Client, o
 			"Instance is running on Aiven side"))
 
 	metav1.SetMetaDataAnnotation(&role.ObjectMeta, instanceIsRunningAnnotation, "true")
-	return nil, nil
+	return nil
 }
 
 func (h *clickhouseRoleHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

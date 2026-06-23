@@ -32,7 +32,7 @@ func newMySQLReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=mysqls/finalizers,verbs=get;create;update
 
 func (r *MySQLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandlerWithClient(r.Client, newMySQLAdapterFactory(r.Client), r.Log), &v1alpha1.MySQL{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(r.Client, r.Recorder, newMySQLAdapterFactory(r.Client), r.Log), &v1alpha1.MySQL{})
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -75,7 +75,7 @@ func (a *mySQLAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *mySQLAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
+func (a *mySQLAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) *corev1.Secret {
 	stringData := map[string]string{
 		"HOST":        s.ServiceUriParams["host"],
 		"PORT":        s.ServiceUriParams["port"],
@@ -87,7 +87,7 @@ func (a *mySQLAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*
 		"REPLICA_URI": *s.ConnectionInfo.MysqlReplicaUri,
 	}
 
-	return newSecret(a, stringData, true), nil
+	return newSecret(a, stringData, true)
 }
 
 func (a *mySQLAdapter) getMigrationSecretSource() *v1alpha1.MigrationSecretSource {

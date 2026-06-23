@@ -64,9 +64,8 @@ type (
 		// errors, return an error.
 		delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error)
 
-		// get retrieve an object and a secret (for example, connection credentials) that is generated on the
-		// fly based on data from Aiven API.  When not applicable to service, it should return nil.
-		get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error)
+		// observe retrieves an object from Aiven and updates Kubernetes status fields.
+		observe(ctx context.Context, avnGen avngen.Client, obj client.Object) error
 
 		// checkPreconditions check whether all preconditions for creating (or updating) the resource are in place.
 		// For example, it is applicable when a service needs to be running before this resource can be created.
@@ -295,7 +294,7 @@ func (i *instanceReconcilerHelper) reconcileInstance(ctx context.Context, o v1al
 	}
 
 	i.rec.Event(o, corev1.EventTypeNormal, eventWaitingForTheInstanceToBeRunning, "waiting for the instance to be running")
-	err = i.updateInstanceStateAndSecretUntilRunning(ctx, o)
+	err = i.updateInstanceStateUntilRunning(ctx, o)
 	if err != nil {
 		if isNotFound(err) {
 			return true, nil
@@ -547,51 +546,12 @@ func (i *instanceReconcilerHelper) createOrUpdateInstance(ctx context.Context, o
 	return false, nil
 }
 
-func (i *instanceReconcilerHelper) updateInstanceStateAndSecretUntilRunning(ctx context.Context, o v1alpha1.AivenManagedObject) error {
+func (i *instanceReconcilerHelper) updateInstanceStateUntilRunning(ctx context.Context, o v1alpha1.AivenManagedObject) error {
 	i.log.Info("checking if instance is ready")
 
-	// Needs to be before o.NoSecret() check because `get` mutates the object's metadata annotations.
+	// Needs to be before o.NoSecret() check because `observe` mutates the object's metadata annotations.
 	// It set the instanceIsRunningAnnotation annotation when the instance is running on Aiven's side.
-	goalSecret, err := i.h.get(ctx, i.avnGen, o)
-
-	if goalSecret == nil || err != nil {
-		return err
-	}
-
-	if o.NoSecret() {
-		i.rec.Event(o, corev1.EventTypeNormal, eventConnInfoSecretCreationDisabled, "connInfoSecretTargetDisabled is true, secret will not be created")
-		return nil
-	}
-
-	// `CreateOrUpdate` will populate this secret by calling Get
-	secret := &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      goalSecret.Name,
-			Namespace: goalSecret.Namespace,
-		},
-	}
-
-	_, err = controllerutil.CreateOrUpdate(ctx, i.k8s, secret, func() error {
-		if secret.Data == nil {
-			secret.Data = make(map[string][]byte)
-		}
-
-		// copy data from our goalSecret's StringData.
-		// this handles both Create and Update
-		if goalSecret.StringData != nil {
-			secret.Data = make(map[string][]byte) // clear existing data
-			for key, value := range goalSecret.StringData {
-				secret.Data[key] = []byte(value)
-			}
-		}
-
-		secret.Labels = goalSecret.Labels
-		secret.Annotations = goalSecret.Annotations
-
-		return controllerutil.SetControllerReference(o, secret, i.k8s.Scheme())
-	})
-
-	return err
+	return i.h.observe(ctx, i.avnGen, o)
 }
 
 func setupLogger(log logr.Logger, o client.Object) logr.Logger {

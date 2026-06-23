@@ -32,7 +32,7 @@ type OpenSearchHandler struct{}
 //+kubebuilder:rbac:groups=aiven.io,resources=opensearches/finalizers,verbs=get;create;update
 
 func (r *OpenSearchReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newOpenSearchAdapter, r.Log), &v1alpha1.OpenSearch{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(r.Client, r.Recorder, newOpenSearchAdapter, r.Log), &v1alpha1.OpenSearch{})
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -72,7 +72,7 @@ func (a *opensearchAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *opensearchAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
+func (a *opensearchAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) *corev1.Secret {
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
 		prefix + "URI":      s.ServiceUri,
@@ -87,7 +87,7 @@ func (a *opensearchAdapter) newSecret(_ context.Context, s *service.ServiceGetOu
 		"USER":     s.ServiceUriParams["user"],
 	}
 
-	return newSecret(a, stringData, false), nil
+	return newSecret(a, stringData, false)
 }
 
 func (a *opensearchAdapter) getServiceType() serviceType {

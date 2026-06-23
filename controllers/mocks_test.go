@@ -10,8 +10,8 @@ import (
 	aiven "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	mock "github.com/stretchr/testify/mock"
-	v1 "k8s.io/api/core/v1"
-	v10 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	v10 "k8s.io/api/core/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
@@ -85,7 +85,7 @@ type MockHandlers_checkPreconditions_Call struct {
 //   - ctx context.Context
 //   - avnGen aiven.Client
 //   - obj client.Object
-func (_e *MockHandlers_Expecter) checkPreconditions(ctx interface{}, avnGen interface{}, obj interface{}) *MockHandlers_checkPreconditions_Call {
+func (_e *MockHandlers_Expecter) checkPreconditions(ctx any, avnGen any, obj any) *MockHandlers_checkPreconditions_Call {
 	return &MockHandlers_checkPreconditions_Call{Call: _e.mock.On("checkPreconditions", ctx, avnGen, obj)}
 }
 
@@ -149,7 +149,7 @@ type MockHandlers_createOrUpdate_Call struct {
 //   - avnGen aiven.Client
 //   - obj client.Object
 //   - refs []client.Object
-func (_e *MockHandlers_Expecter) createOrUpdate(ctx interface{}, avnGen interface{}, obj interface{}, refs interface{}) *MockHandlers_createOrUpdate_Call {
+func (_e *MockHandlers_Expecter) createOrUpdate(ctx any, avnGen any, obj any, refs any) *MockHandlers_createOrUpdate_Call {
 	return &MockHandlers_createOrUpdate_Call{Call: _e.mock.On("createOrUpdate", ctx, avnGen, obj, refs)}
 }
 
@@ -226,7 +226,7 @@ type MockHandlers_delete_Call struct {
 //   - ctx context.Context
 //   - avnGen aiven.Client
 //   - obj client.Object
-func (_e *MockHandlers_Expecter) delete(ctx interface{}, avnGen interface{}, obj interface{}) *MockHandlers_delete_Call {
+func (_e *MockHandlers_Expecter) delete(ctx any, avnGen any, obj any) *MockHandlers_delete_Call {
 	return &MockHandlers_delete_Call{Call: _e.mock.On("delete", ctx, avnGen, obj)}
 }
 
@@ -263,48 +263,37 @@ func (_c *MockHandlers_delete_Call) RunAndReturn(run func(ctx context.Context, a
 	return _c
 }
 
-// get provides a mock function for the type MockHandlers
-func (_mock *MockHandlers) get(ctx context.Context, avnGen aiven.Client, obj client.Object) (*v1.Secret, error) {
+// observe provides a mock function for the type MockHandlers
+func (_mock *MockHandlers) observe(ctx context.Context, avnGen aiven.Client, obj client.Object) error {
 	ret := _mock.Called(ctx, avnGen, obj)
 
 	if len(ret) == 0 {
-		panic("no return value specified for get")
+		panic("no return value specified for observe")
 	}
 
-	var r0 *v1.Secret
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, aiven.Client, client.Object) (*v1.Secret, error)); ok {
-		return returnFunc(ctx, avnGen, obj)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, aiven.Client, client.Object) *v1.Secret); ok {
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, aiven.Client, client.Object) error); ok {
 		r0 = returnFunc(ctx, avnGen, obj)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*v1.Secret)
-		}
+		r0 = ret.Error(0)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, aiven.Client, client.Object) error); ok {
-		r1 = returnFunc(ctx, avnGen, obj)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
+	return r0
 }
 
-// MockHandlers_get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'get'
-type MockHandlers_get_Call struct {
+// MockHandlers_observe_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'observe'
+type MockHandlers_observe_Call struct {
 	*mock.Call
 }
 
-// get is a helper method to define mock.On call
+// observe is a helper method to define mock.On call
 //   - ctx context.Context
 //   - avnGen aiven.Client
 //   - obj client.Object
-func (_e *MockHandlers_Expecter) get(ctx interface{}, avnGen interface{}, obj interface{}) *MockHandlers_get_Call {
-	return &MockHandlers_get_Call{Call: _e.mock.On("get", ctx, avnGen, obj)}
+func (_e *MockHandlers_Expecter) observe(ctx any, avnGen any, obj any) *MockHandlers_observe_Call {
+	return &MockHandlers_observe_Call{Call: _e.mock.On("observe", ctx, avnGen, obj)}
 }
 
-func (_c *MockHandlers_get_Call) Run(run func(ctx context.Context, avnGen aiven.Client, obj client.Object)) *MockHandlers_get_Call {
+func (_c *MockHandlers_observe_Call) Run(run func(ctx context.Context, avnGen aiven.Client, obj client.Object)) *MockHandlers_observe_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -327,12 +316,12 @@ func (_c *MockHandlers_get_Call) Run(run func(ctx context.Context, avnGen aiven.
 	return _c
 }
 
-func (_c *MockHandlers_get_Call) Return(secret *v1.Secret, err error) *MockHandlers_get_Call {
-	_c.Call.Return(secret, err)
+func (_c *MockHandlers_observe_Call) Return(err error) *MockHandlers_observe_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockHandlers_get_Call) RunAndReturn(run func(ctx context.Context, avnGen aiven.Client, obj client.Object) (*v1.Secret, error)) *MockHandlers_get_Call {
+func (_c *MockHandlers_observe_Call) RunAndReturn(run func(ctx context.Context, avnGen aiven.Client, obj client.Object) error) *MockHandlers_observe_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -458,18 +447,18 @@ func (_c *mockrefsObject_GetAnnotations_Call) RunAndReturn(run func() map[string
 }
 
 // GetCreationTimestamp provides a mock function for the type mockrefsObject
-func (_mock *mockrefsObject) GetCreationTimestamp() v10.Time {
+func (_mock *mockrefsObject) GetCreationTimestamp() v1.Time {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetCreationTimestamp")
 	}
 
-	var r0 v10.Time
-	if returnFunc, ok := ret.Get(0).(func() v10.Time); ok {
+	var r0 v1.Time
+	if returnFunc, ok := ret.Get(0).(func() v1.Time); ok {
 		r0 = returnFunc()
 	} else {
-		r0 = ret.Get(0).(v10.Time)
+		r0 = ret.Get(0).(v1.Time)
 	}
 	return r0
 }
@@ -491,12 +480,12 @@ func (_c *mockrefsObject_GetCreationTimestamp_Call) Run(run func()) *mockrefsObj
 	return _c
 }
 
-func (_c *mockrefsObject_GetCreationTimestamp_Call) Return(time v10.Time) *mockrefsObject_GetCreationTimestamp_Call {
+func (_c *mockrefsObject_GetCreationTimestamp_Call) Return(time v1.Time) *mockrefsObject_GetCreationTimestamp_Call {
 	_c.Call.Return(time)
 	return _c
 }
 
-func (_c *mockrefsObject_GetCreationTimestamp_Call) RunAndReturn(run func() v10.Time) *mockrefsObject_GetCreationTimestamp_Call {
+func (_c *mockrefsObject_GetCreationTimestamp_Call) RunAndReturn(run func() v1.Time) *mockrefsObject_GetCreationTimestamp_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -548,19 +537,19 @@ func (_c *mockrefsObject_GetDeletionGracePeriodSeconds_Call) RunAndReturn(run fu
 }
 
 // GetDeletionTimestamp provides a mock function for the type mockrefsObject
-func (_mock *mockrefsObject) GetDeletionTimestamp() *v10.Time {
+func (_mock *mockrefsObject) GetDeletionTimestamp() *v1.Time {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetDeletionTimestamp")
 	}
 
-	var r0 *v10.Time
-	if returnFunc, ok := ret.Get(0).(func() *v10.Time); ok {
+	var r0 *v1.Time
+	if returnFunc, ok := ret.Get(0).(func() *v1.Time); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*v10.Time)
+			r0 = ret.Get(0).(*v1.Time)
 		}
 	}
 	return r0
@@ -583,12 +572,12 @@ func (_c *mockrefsObject_GetDeletionTimestamp_Call) Run(run func()) *mockrefsObj
 	return _c
 }
 
-func (_c *mockrefsObject_GetDeletionTimestamp_Call) Return(time *v10.Time) *mockrefsObject_GetDeletionTimestamp_Call {
+func (_c *mockrefsObject_GetDeletionTimestamp_Call) Return(time *v1.Time) *mockrefsObject_GetDeletionTimestamp_Call {
 	_c.Call.Return(time)
 	return _c
 }
 
-func (_c *mockrefsObject_GetDeletionTimestamp_Call) RunAndReturn(run func() *v10.Time) *mockrefsObject_GetDeletionTimestamp_Call {
+func (_c *mockrefsObject_GetDeletionTimestamp_Call) RunAndReturn(run func() *v1.Time) *mockrefsObject_GetDeletionTimestamp_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -774,19 +763,19 @@ func (_c *mockrefsObject_GetLabels_Call) RunAndReturn(run func() map[string]stri
 }
 
 // GetManagedFields provides a mock function for the type mockrefsObject
-func (_mock *mockrefsObject) GetManagedFields() []v10.ManagedFieldsEntry {
+func (_mock *mockrefsObject) GetManagedFields() []v1.ManagedFieldsEntry {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetManagedFields")
 	}
 
-	var r0 []v10.ManagedFieldsEntry
-	if returnFunc, ok := ret.Get(0).(func() []v10.ManagedFieldsEntry); ok {
+	var r0 []v1.ManagedFieldsEntry
+	if returnFunc, ok := ret.Get(0).(func() []v1.ManagedFieldsEntry); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]v10.ManagedFieldsEntry)
+			r0 = ret.Get(0).([]v1.ManagedFieldsEntry)
 		}
 	}
 	return r0
@@ -809,12 +798,12 @@ func (_c *mockrefsObject_GetManagedFields_Call) Run(run func()) *mockrefsObject_
 	return _c
 }
 
-func (_c *mockrefsObject_GetManagedFields_Call) Return(managedFieldsEntrys []v10.ManagedFieldsEntry) *mockrefsObject_GetManagedFields_Call {
+func (_c *mockrefsObject_GetManagedFields_Call) Return(managedFieldsEntrys []v1.ManagedFieldsEntry) *mockrefsObject_GetManagedFields_Call {
 	_c.Call.Return(managedFieldsEntrys)
 	return _c
 }
 
-func (_c *mockrefsObject_GetManagedFields_Call) RunAndReturn(run func() []v10.ManagedFieldsEntry) *mockrefsObject_GetManagedFields_Call {
+func (_c *mockrefsObject_GetManagedFields_Call) RunAndReturn(run func() []v1.ManagedFieldsEntry) *mockrefsObject_GetManagedFields_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -954,19 +943,19 @@ func (_c *mockrefsObject_GetObjectKind_Call) RunAndReturn(run func() schema.Obje
 }
 
 // GetOwnerReferences provides a mock function for the type mockrefsObject
-func (_mock *mockrefsObject) GetOwnerReferences() []v10.OwnerReference {
+func (_mock *mockrefsObject) GetOwnerReferences() []v1.OwnerReference {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetOwnerReferences")
 	}
 
-	var r0 []v10.OwnerReference
-	if returnFunc, ok := ret.Get(0).(func() []v10.OwnerReference); ok {
+	var r0 []v1.OwnerReference
+	if returnFunc, ok := ret.Get(0).(func() []v1.OwnerReference); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]v10.OwnerReference)
+			r0 = ret.Get(0).([]v1.OwnerReference)
 		}
 	}
 	return r0
@@ -989,12 +978,12 @@ func (_c *mockrefsObject_GetOwnerReferences_Call) Run(run func()) *mockrefsObjec
 	return _c
 }
 
-func (_c *mockrefsObject_GetOwnerReferences_Call) Return(ownerReferences []v10.OwnerReference) *mockrefsObject_GetOwnerReferences_Call {
+func (_c *mockrefsObject_GetOwnerReferences_Call) Return(ownerReferences []v1.OwnerReference) *mockrefsObject_GetOwnerReferences_Call {
 	_c.Call.Return(ownerReferences)
 	return _c
 }
 
-func (_c *mockrefsObject_GetOwnerReferences_Call) RunAndReturn(run func() []v10.OwnerReference) *mockrefsObject_GetOwnerReferences_Call {
+func (_c *mockrefsObject_GetOwnerReferences_Call) RunAndReturn(run func() []v1.OwnerReference) *mockrefsObject_GetOwnerReferences_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1190,7 +1179,7 @@ type mockrefsObject_SetAnnotations_Call struct {
 
 // SetAnnotations is a helper method to define mock.On call
 //   - annotations map[string]string
-func (_e *mockrefsObject_Expecter) SetAnnotations(annotations interface{}) *mockrefsObject_SetAnnotations_Call {
+func (_e *mockrefsObject_Expecter) SetAnnotations(annotations any) *mockrefsObject_SetAnnotations_Call {
 	return &mockrefsObject_SetAnnotations_Call{Call: _e.mock.On("SetAnnotations", annotations)}
 }
 
@@ -1218,7 +1207,7 @@ func (_c *mockrefsObject_SetAnnotations_Call) RunAndReturn(run func(annotations 
 }
 
 // SetCreationTimestamp provides a mock function for the type mockrefsObject
-func (_mock *mockrefsObject) SetCreationTimestamp(timestamp v10.Time) {
+func (_mock *mockrefsObject) SetCreationTimestamp(timestamp v1.Time) {
 	_mock.Called(timestamp)
 	return
 }
@@ -1229,16 +1218,16 @@ type mockrefsObject_SetCreationTimestamp_Call struct {
 }
 
 // SetCreationTimestamp is a helper method to define mock.On call
-//   - timestamp v10.Time
-func (_e *mockrefsObject_Expecter) SetCreationTimestamp(timestamp interface{}) *mockrefsObject_SetCreationTimestamp_Call {
+//   - timestamp v1.Time
+func (_e *mockrefsObject_Expecter) SetCreationTimestamp(timestamp any) *mockrefsObject_SetCreationTimestamp_Call {
 	return &mockrefsObject_SetCreationTimestamp_Call{Call: _e.mock.On("SetCreationTimestamp", timestamp)}
 }
 
-func (_c *mockrefsObject_SetCreationTimestamp_Call) Run(run func(timestamp v10.Time)) *mockrefsObject_SetCreationTimestamp_Call {
+func (_c *mockrefsObject_SetCreationTimestamp_Call) Run(run func(timestamp v1.Time)) *mockrefsObject_SetCreationTimestamp_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 v10.Time
+		var arg0 v1.Time
 		if args[0] != nil {
-			arg0 = args[0].(v10.Time)
+			arg0 = args[0].(v1.Time)
 		}
 		run(
 			arg0,
@@ -1252,7 +1241,7 @@ func (_c *mockrefsObject_SetCreationTimestamp_Call) Return() *mockrefsObject_Set
 	return _c
 }
 
-func (_c *mockrefsObject_SetCreationTimestamp_Call) RunAndReturn(run func(timestamp v10.Time)) *mockrefsObject_SetCreationTimestamp_Call {
+func (_c *mockrefsObject_SetCreationTimestamp_Call) RunAndReturn(run func(timestamp v1.Time)) *mockrefsObject_SetCreationTimestamp_Call {
 	_c.Run(run)
 	return _c
 }
@@ -1270,7 +1259,7 @@ type mockrefsObject_SetDeletionGracePeriodSeconds_Call struct {
 
 // SetDeletionGracePeriodSeconds is a helper method to define mock.On call
 //   - n *int64
-func (_e *mockrefsObject_Expecter) SetDeletionGracePeriodSeconds(n interface{}) *mockrefsObject_SetDeletionGracePeriodSeconds_Call {
+func (_e *mockrefsObject_Expecter) SetDeletionGracePeriodSeconds(n any) *mockrefsObject_SetDeletionGracePeriodSeconds_Call {
 	return &mockrefsObject_SetDeletionGracePeriodSeconds_Call{Call: _e.mock.On("SetDeletionGracePeriodSeconds", n)}
 }
 
@@ -1298,7 +1287,7 @@ func (_c *mockrefsObject_SetDeletionGracePeriodSeconds_Call) RunAndReturn(run fu
 }
 
 // SetDeletionTimestamp provides a mock function for the type mockrefsObject
-func (_mock *mockrefsObject) SetDeletionTimestamp(timestamp *v10.Time) {
+func (_mock *mockrefsObject) SetDeletionTimestamp(timestamp *v1.Time) {
 	_mock.Called(timestamp)
 	return
 }
@@ -1309,16 +1298,16 @@ type mockrefsObject_SetDeletionTimestamp_Call struct {
 }
 
 // SetDeletionTimestamp is a helper method to define mock.On call
-//   - timestamp *v10.Time
-func (_e *mockrefsObject_Expecter) SetDeletionTimestamp(timestamp interface{}) *mockrefsObject_SetDeletionTimestamp_Call {
+//   - timestamp *v1.Time
+func (_e *mockrefsObject_Expecter) SetDeletionTimestamp(timestamp any) *mockrefsObject_SetDeletionTimestamp_Call {
 	return &mockrefsObject_SetDeletionTimestamp_Call{Call: _e.mock.On("SetDeletionTimestamp", timestamp)}
 }
 
-func (_c *mockrefsObject_SetDeletionTimestamp_Call) Run(run func(timestamp *v10.Time)) *mockrefsObject_SetDeletionTimestamp_Call {
+func (_c *mockrefsObject_SetDeletionTimestamp_Call) Run(run func(timestamp *v1.Time)) *mockrefsObject_SetDeletionTimestamp_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 *v10.Time
+		var arg0 *v1.Time
 		if args[0] != nil {
-			arg0 = args[0].(*v10.Time)
+			arg0 = args[0].(*v1.Time)
 		}
 		run(
 			arg0,
@@ -1332,7 +1321,7 @@ func (_c *mockrefsObject_SetDeletionTimestamp_Call) Return() *mockrefsObject_Set
 	return _c
 }
 
-func (_c *mockrefsObject_SetDeletionTimestamp_Call) RunAndReturn(run func(timestamp *v10.Time)) *mockrefsObject_SetDeletionTimestamp_Call {
+func (_c *mockrefsObject_SetDeletionTimestamp_Call) RunAndReturn(run func(timestamp *v1.Time)) *mockrefsObject_SetDeletionTimestamp_Call {
 	_c.Run(run)
 	return _c
 }
@@ -1350,7 +1339,7 @@ type mockrefsObject_SetFinalizers_Call struct {
 
 // SetFinalizers is a helper method to define mock.On call
 //   - finalizers []string
-func (_e *mockrefsObject_Expecter) SetFinalizers(finalizers interface{}) *mockrefsObject_SetFinalizers_Call {
+func (_e *mockrefsObject_Expecter) SetFinalizers(finalizers any) *mockrefsObject_SetFinalizers_Call {
 	return &mockrefsObject_SetFinalizers_Call{Call: _e.mock.On("SetFinalizers", finalizers)}
 }
 
@@ -1390,7 +1379,7 @@ type mockrefsObject_SetGenerateName_Call struct {
 
 // SetGenerateName is a helper method to define mock.On call
 //   - name string
-func (_e *mockrefsObject_Expecter) SetGenerateName(name interface{}) *mockrefsObject_SetGenerateName_Call {
+func (_e *mockrefsObject_Expecter) SetGenerateName(name any) *mockrefsObject_SetGenerateName_Call {
 	return &mockrefsObject_SetGenerateName_Call{Call: _e.mock.On("SetGenerateName", name)}
 }
 
@@ -1430,7 +1419,7 @@ type mockrefsObject_SetGeneration_Call struct {
 
 // SetGeneration is a helper method to define mock.On call
 //   - generation int64
-func (_e *mockrefsObject_Expecter) SetGeneration(generation interface{}) *mockrefsObject_SetGeneration_Call {
+func (_e *mockrefsObject_Expecter) SetGeneration(generation any) *mockrefsObject_SetGeneration_Call {
 	return &mockrefsObject_SetGeneration_Call{Call: _e.mock.On("SetGeneration", generation)}
 }
 
@@ -1470,7 +1459,7 @@ type mockrefsObject_SetLabels_Call struct {
 
 // SetLabels is a helper method to define mock.On call
 //   - labels map[string]string
-func (_e *mockrefsObject_Expecter) SetLabels(labels interface{}) *mockrefsObject_SetLabels_Call {
+func (_e *mockrefsObject_Expecter) SetLabels(labels any) *mockrefsObject_SetLabels_Call {
 	return &mockrefsObject_SetLabels_Call{Call: _e.mock.On("SetLabels", labels)}
 }
 
@@ -1498,7 +1487,7 @@ func (_c *mockrefsObject_SetLabels_Call) RunAndReturn(run func(labels map[string
 }
 
 // SetManagedFields provides a mock function for the type mockrefsObject
-func (_mock *mockrefsObject) SetManagedFields(managedFields []v10.ManagedFieldsEntry) {
+func (_mock *mockrefsObject) SetManagedFields(managedFields []v1.ManagedFieldsEntry) {
 	_mock.Called(managedFields)
 	return
 }
@@ -1509,16 +1498,16 @@ type mockrefsObject_SetManagedFields_Call struct {
 }
 
 // SetManagedFields is a helper method to define mock.On call
-//   - managedFields []v10.ManagedFieldsEntry
-func (_e *mockrefsObject_Expecter) SetManagedFields(managedFields interface{}) *mockrefsObject_SetManagedFields_Call {
+//   - managedFields []v1.ManagedFieldsEntry
+func (_e *mockrefsObject_Expecter) SetManagedFields(managedFields any) *mockrefsObject_SetManagedFields_Call {
 	return &mockrefsObject_SetManagedFields_Call{Call: _e.mock.On("SetManagedFields", managedFields)}
 }
 
-func (_c *mockrefsObject_SetManagedFields_Call) Run(run func(managedFields []v10.ManagedFieldsEntry)) *mockrefsObject_SetManagedFields_Call {
+func (_c *mockrefsObject_SetManagedFields_Call) Run(run func(managedFields []v1.ManagedFieldsEntry)) *mockrefsObject_SetManagedFields_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 []v10.ManagedFieldsEntry
+		var arg0 []v1.ManagedFieldsEntry
 		if args[0] != nil {
-			arg0 = args[0].([]v10.ManagedFieldsEntry)
+			arg0 = args[0].([]v1.ManagedFieldsEntry)
 		}
 		run(
 			arg0,
@@ -1532,7 +1521,7 @@ func (_c *mockrefsObject_SetManagedFields_Call) Return() *mockrefsObject_SetMana
 	return _c
 }
 
-func (_c *mockrefsObject_SetManagedFields_Call) RunAndReturn(run func(managedFields []v10.ManagedFieldsEntry)) *mockrefsObject_SetManagedFields_Call {
+func (_c *mockrefsObject_SetManagedFields_Call) RunAndReturn(run func(managedFields []v1.ManagedFieldsEntry)) *mockrefsObject_SetManagedFields_Call {
 	_c.Run(run)
 	return _c
 }
@@ -1550,7 +1539,7 @@ type mockrefsObject_SetName_Call struct {
 
 // SetName is a helper method to define mock.On call
 //   - name string
-func (_e *mockrefsObject_Expecter) SetName(name interface{}) *mockrefsObject_SetName_Call {
+func (_e *mockrefsObject_Expecter) SetName(name any) *mockrefsObject_SetName_Call {
 	return &mockrefsObject_SetName_Call{Call: _e.mock.On("SetName", name)}
 }
 
@@ -1590,7 +1579,7 @@ type mockrefsObject_SetNamespace_Call struct {
 
 // SetNamespace is a helper method to define mock.On call
 //   - namespace string
-func (_e *mockrefsObject_Expecter) SetNamespace(namespace interface{}) *mockrefsObject_SetNamespace_Call {
+func (_e *mockrefsObject_Expecter) SetNamespace(namespace any) *mockrefsObject_SetNamespace_Call {
 	return &mockrefsObject_SetNamespace_Call{Call: _e.mock.On("SetNamespace", namespace)}
 }
 
@@ -1618,7 +1607,7 @@ func (_c *mockrefsObject_SetNamespace_Call) RunAndReturn(run func(namespace stri
 }
 
 // SetOwnerReferences provides a mock function for the type mockrefsObject
-func (_mock *mockrefsObject) SetOwnerReferences(ownerReferences []v10.OwnerReference) {
+func (_mock *mockrefsObject) SetOwnerReferences(ownerReferences []v1.OwnerReference) {
 	_mock.Called(ownerReferences)
 	return
 }
@@ -1629,16 +1618,16 @@ type mockrefsObject_SetOwnerReferences_Call struct {
 }
 
 // SetOwnerReferences is a helper method to define mock.On call
-//   - ownerReferences []v10.OwnerReference
-func (_e *mockrefsObject_Expecter) SetOwnerReferences(ownerReferences interface{}) *mockrefsObject_SetOwnerReferences_Call {
+//   - ownerReferences []v1.OwnerReference
+func (_e *mockrefsObject_Expecter) SetOwnerReferences(ownerReferences any) *mockrefsObject_SetOwnerReferences_Call {
 	return &mockrefsObject_SetOwnerReferences_Call{Call: _e.mock.On("SetOwnerReferences", ownerReferences)}
 }
 
-func (_c *mockrefsObject_SetOwnerReferences_Call) Run(run func(ownerReferences []v10.OwnerReference)) *mockrefsObject_SetOwnerReferences_Call {
+func (_c *mockrefsObject_SetOwnerReferences_Call) Run(run func(ownerReferences []v1.OwnerReference)) *mockrefsObject_SetOwnerReferences_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 []v10.OwnerReference
+		var arg0 []v1.OwnerReference
 		if args[0] != nil {
-			arg0 = args[0].([]v10.OwnerReference)
+			arg0 = args[0].([]v1.OwnerReference)
 		}
 		run(
 			arg0,
@@ -1652,7 +1641,7 @@ func (_c *mockrefsObject_SetOwnerReferences_Call) Return() *mockrefsObject_SetOw
 	return _c
 }
 
-func (_c *mockrefsObject_SetOwnerReferences_Call) RunAndReturn(run func(ownerReferences []v10.OwnerReference)) *mockrefsObject_SetOwnerReferences_Call {
+func (_c *mockrefsObject_SetOwnerReferences_Call) RunAndReturn(run func(ownerReferences []v1.OwnerReference)) *mockrefsObject_SetOwnerReferences_Call {
 	_c.Run(run)
 	return _c
 }
@@ -1670,7 +1659,7 @@ type mockrefsObject_SetResourceVersion_Call struct {
 
 // SetResourceVersion is a helper method to define mock.On call
 //   - version string
-func (_e *mockrefsObject_Expecter) SetResourceVersion(version interface{}) *mockrefsObject_SetResourceVersion_Call {
+func (_e *mockrefsObject_Expecter) SetResourceVersion(version any) *mockrefsObject_SetResourceVersion_Call {
 	return &mockrefsObject_SetResourceVersion_Call{Call: _e.mock.On("SetResourceVersion", version)}
 }
 
@@ -1710,7 +1699,7 @@ type mockrefsObject_SetSelfLink_Call struct {
 
 // SetSelfLink is a helper method to define mock.On call
 //   - selfLink string
-func (_e *mockrefsObject_Expecter) SetSelfLink(selfLink interface{}) *mockrefsObject_SetSelfLink_Call {
+func (_e *mockrefsObject_Expecter) SetSelfLink(selfLink any) *mockrefsObject_SetSelfLink_Call {
 	return &mockrefsObject_SetSelfLink_Call{Call: _e.mock.On("SetSelfLink", selfLink)}
 }
 
@@ -1750,7 +1739,7 @@ type mockrefsObject_SetUID_Call struct {
 
 // SetUID is a helper method to define mock.On call
 //   - uid types.UID
-func (_e *mockrefsObject_Expecter) SetUID(uid interface{}) *mockrefsObject_SetUID_Call {
+func (_e *mockrefsObject_Expecter) SetUID(uid any) *mockrefsObject_SetUID_Call {
 	return &mockrefsObject_SetUID_Call{Call: _e.mock.On("SetUID", uid)}
 }
 
@@ -1839,7 +1828,7 @@ type MockAivenController_Create_Call[T v1alpha1.AivenManagedObject] struct {
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
 //   - obj T
-func (_e *MockAivenController_Expecter[T]) Create(ctx interface{}, obj interface{}) *MockAivenController_Create_Call[T] {
+func (_e *MockAivenController_Expecter[T]) Create(ctx any, obj any) *MockAivenController_Create_Call[T] {
 	return &MockAivenController_Create_Call[T]{Call: _e.mock.On("Create", ctx, obj)}
 }
 
@@ -1861,8 +1850,8 @@ func (_c *MockAivenController_Create_Call[T]) Run(run func(ctx context.Context, 
 	return _c
 }
 
-func (_c *MockAivenController_Create_Call[T]) Return(createResult CreateResult, err error) *MockAivenController_Create_Call[T] {
-	_c.Call.Return(createResult, err)
+func (_c *MockAivenController_Create_Call[T]) Return(v CreateResult, err error) *MockAivenController_Create_Call[T] {
+	_c.Call.Return(v, err)
 	return _c
 }
 
@@ -1896,7 +1885,7 @@ type MockAivenController_Delete_Call[T v1alpha1.AivenManagedObject] struct {
 // Delete is a helper method to define mock.On call
 //   - ctx context.Context
 //   - obj T
-func (_e *MockAivenController_Expecter[T]) Delete(ctx interface{}, obj interface{}) *MockAivenController_Delete_Call[T] {
+func (_e *MockAivenController_Expecter[T]) Delete(ctx any, obj any) *MockAivenController_Delete_Call[T] {
 	return &MockAivenController_Delete_Call[T]{Call: _e.mock.On("Delete", ctx, obj)}
 }
 
@@ -1962,7 +1951,7 @@ type MockAivenController_Observe_Call[T v1alpha1.AivenManagedObject] struct {
 // Observe is a helper method to define mock.On call
 //   - ctx context.Context
 //   - obj T
-func (_e *MockAivenController_Expecter[T]) Observe(ctx interface{}, obj interface{}) *MockAivenController_Observe_Call[T] {
+func (_e *MockAivenController_Expecter[T]) Observe(ctx any, obj any) *MockAivenController_Observe_Call[T] {
 	return &MockAivenController_Observe_Call[T]{Call: _e.mock.On("Observe", ctx, obj)}
 }
 
@@ -2028,7 +2017,7 @@ type MockAivenController_Update_Call[T v1alpha1.AivenManagedObject] struct {
 // Update is a helper method to define mock.On call
 //   - ctx context.Context
 //   - obj T
-func (_e *MockAivenController_Expecter[T]) Update(ctx interface{}, obj interface{}) *MockAivenController_Update_Call[T] {
+func (_e *MockAivenController_Expecter[T]) Update(ctx any, obj any) *MockAivenController_Update_Call[T] {
 	return &MockAivenController_Update_Call[T]{Call: _e.mock.On("Update", ctx, obj)}
 }
 
@@ -2050,8 +2039,8 @@ func (_c *MockAivenController_Update_Call[T]) Run(run func(ctx context.Context, 
 	return _c
 }
 
-func (_c *MockAivenController_Update_Call[T]) Return(updateResult UpdateResult, err error) *MockAivenController_Update_Call[T] {
-	_c.Call.Return(updateResult, err)
+func (_c *MockAivenController_Update_Call[T]) Return(v UpdateResult, err error) *MockAivenController_Update_Call[T] {
+	_c.Call.Return(v, err)
 	return _c
 }
 
@@ -2498,7 +2487,7 @@ type mockserviceAdapter_createOrUpdateServiceSpecific_Call struct {
 //   - ctx context.Context
 //   - avnGen aiven.Client
 //   - old *service.ServiceGetOut
-func (_e *mockserviceAdapter_Expecter) createOrUpdateServiceSpecific(ctx interface{}, avnGen interface{}, old interface{}) *mockserviceAdapter_createOrUpdateServiceSpecific_Call {
+func (_e *mockserviceAdapter_Expecter) createOrUpdateServiceSpecific(ctx any, avnGen any, old any) *mockserviceAdapter_createOrUpdateServiceSpecific_Call {
 	return &mockserviceAdapter_createOrUpdateServiceSpecific_Call{Call: _e.mock.On("createOrUpdateServiceSpecific", ctx, avnGen, old)}
 }
 
@@ -2580,19 +2569,19 @@ func (_c *mockserviceAdapter_getDiskSpace_Call) RunAndReturn(run func() string) 
 }
 
 // getObjectMeta provides a mock function for the type mockserviceAdapter
-func (_mock *mockserviceAdapter) getObjectMeta() *v10.ObjectMeta {
+func (_mock *mockserviceAdapter) getObjectMeta() *v1.ObjectMeta {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for getObjectMeta")
 	}
 
-	var r0 *v10.ObjectMeta
-	if returnFunc, ok := ret.Get(0).(func() *v10.ObjectMeta); ok {
+	var r0 *v1.ObjectMeta
+	if returnFunc, ok := ret.Get(0).(func() *v1.ObjectMeta); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*v10.ObjectMeta)
+			r0 = ret.Get(0).(*v1.ObjectMeta)
 		}
 	}
 	return r0
@@ -2615,12 +2604,12 @@ func (_c *mockserviceAdapter_getObjectMeta_Call) Run(run func()) *mockserviceAda
 	return _c
 }
 
-func (_c *mockserviceAdapter_getObjectMeta_Call) Return(objectMeta *v10.ObjectMeta) *mockserviceAdapter_getObjectMeta_Call {
+func (_c *mockserviceAdapter_getObjectMeta_Call) Return(objectMeta *v1.ObjectMeta) *mockserviceAdapter_getObjectMeta_Call {
 	_c.Call.Return(objectMeta)
 	return _c
 }
 
-func (_c *mockserviceAdapter_getObjectMeta_Call) RunAndReturn(run func() *v10.ObjectMeta) *mockserviceAdapter_getObjectMeta_Call {
+func (_c *mockserviceAdapter_getObjectMeta_Call) RunAndReturn(run func() *v1.ObjectMeta) *mockserviceAdapter_getObjectMeta_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2808,31 +2797,22 @@ func (_c *mockserviceAdapter_getUserConfig_Call) RunAndReturn(run func() any) *m
 }
 
 // newSecret provides a mock function for the type mockserviceAdapter
-func (_mock *mockserviceAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) (*v1.Secret, error) {
+func (_mock *mockserviceAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) *v10.Secret {
 	ret := _mock.Called(ctx, s)
 
 	if len(ret) == 0 {
 		panic("no return value specified for newSecret")
 	}
 
-	var r0 *v1.Secret
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *service.ServiceGetOut) (*v1.Secret, error)); ok {
-		return returnFunc(ctx, s)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *service.ServiceGetOut) *v1.Secret); ok {
+	var r0 *v10.Secret
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *service.ServiceGetOut) *v10.Secret); ok {
 		r0 = returnFunc(ctx, s)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*v1.Secret)
+			r0 = ret.Get(0).(*v10.Secret)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *service.ServiceGetOut) error); ok {
-		r1 = returnFunc(ctx, s)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
+	return r0
 }
 
 // mockserviceAdapter_newSecret_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'newSecret'
@@ -2843,7 +2823,7 @@ type mockserviceAdapter_newSecret_Call struct {
 // newSecret is a helper method to define mock.On call
 //   - ctx context.Context
 //   - s *service.ServiceGetOut
-func (_e *mockserviceAdapter_Expecter) newSecret(ctx interface{}, s interface{}) *mockserviceAdapter_newSecret_Call {
+func (_e *mockserviceAdapter_Expecter) newSecret(ctx any, s any) *mockserviceAdapter_newSecret_Call {
 	return &mockserviceAdapter_newSecret_Call{Call: _e.mock.On("newSecret", ctx, s)}
 }
 
@@ -2865,12 +2845,12 @@ func (_c *mockserviceAdapter_newSecret_Call) Run(run func(ctx context.Context, s
 	return _c
 }
 
-func (_c *mockserviceAdapter_newSecret_Call) Return(secret *v1.Secret, err error) *mockserviceAdapter_newSecret_Call {
-	_c.Call.Return(secret, err)
+func (_c *mockserviceAdapter_newSecret_Call) Return(secret *v10.Secret) *mockserviceAdapter_newSecret_Call {
+	_c.Call.Return(secret)
 	return _c
 }
 
-func (_c *mockserviceAdapter_newSecret_Call) RunAndReturn(run func(ctx context.Context, s *service.ServiceGetOut) (*v1.Secret, error)) *mockserviceAdapter_newSecret_Call {
+func (_c *mockserviceAdapter_newSecret_Call) RunAndReturn(run func(ctx context.Context, s *service.ServiceGetOut) *v10.Secret) *mockserviceAdapter_newSecret_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2901,7 +2881,7 @@ type mockserviceAdapter_performUpgradeTaskIfNeeded_Call struct {
 //   - ctx context.Context
 //   - avn aiven.Client
 //   - old *service.ServiceGetOut
-func (_e *mockserviceAdapter_Expecter) performUpgradeTaskIfNeeded(ctx interface{}, avn interface{}, old interface{}) *mockserviceAdapter_performUpgradeTaskIfNeeded_Call {
+func (_e *mockserviceAdapter_Expecter) performUpgradeTaskIfNeeded(ctx any, avn any, old any) *mockserviceAdapter_performUpgradeTaskIfNeeded_Call {
 	return &mockserviceAdapter_performUpgradeTaskIfNeeded_Call{Call: _e.mock.On("performUpgradeTaskIfNeeded", ctx, avn, old)}
 }
 
@@ -2934,6 +2914,193 @@ func (_c *mockserviceAdapter_performUpgradeTaskIfNeeded_Call) Return(err error) 
 }
 
 func (_c *mockserviceAdapter_performUpgradeTaskIfNeeded_Call) RunAndReturn(run func(ctx context.Context, avn aiven.Client, old *service.ServiceGetOut) error) *mockserviceAdapter_performUpgradeTaskIfNeeded_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// newMockmigrationSecretProvider creates a new instance of mockmigrationSecretProvider. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func newMockmigrationSecretProvider(t interface {
+	mock.TestingT
+	Cleanup(func())
+},
+) *mockmigrationSecretProvider {
+	mock := &mockmigrationSecretProvider{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
+}
+
+// mockmigrationSecretProvider is an autogenerated mock type for the migrationSecretProvider type
+type mockmigrationSecretProvider struct {
+	mock.Mock
+}
+
+type mockmigrationSecretProvider_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockmigrationSecretProvider) EXPECT() *mockmigrationSecretProvider_Expecter {
+	return &mockmigrationSecretProvider_Expecter{mock: &_m.Mock}
+}
+
+// buildUserConfigWithMigration provides a mock function for the type mockmigrationSecretProvider
+func (_mock *mockmigrationSecretProvider) buildUserConfigWithMigration(data map[string]string) (any, error) {
+	ret := _mock.Called(data)
+
+	if len(ret) == 0 {
+		panic("no return value specified for buildUserConfigWithMigration")
+	}
+
+	var r0 any
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(map[string]string) (any, error)); ok {
+		return returnFunc(data)
+	}
+	if returnFunc, ok := ret.Get(0).(func(map[string]string) any); ok {
+		r0 = returnFunc(data)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(any)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(map[string]string) error); ok {
+		r1 = returnFunc(data)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// mockmigrationSecretProvider_buildUserConfigWithMigration_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'buildUserConfigWithMigration'
+type mockmigrationSecretProvider_buildUserConfigWithMigration_Call struct {
+	*mock.Call
+}
+
+// buildUserConfigWithMigration is a helper method to define mock.On call
+//   - data map[string]string
+func (_e *mockmigrationSecretProvider_Expecter) buildUserConfigWithMigration(data any) *mockmigrationSecretProvider_buildUserConfigWithMigration_Call {
+	return &mockmigrationSecretProvider_buildUserConfigWithMigration_Call{Call: _e.mock.On("buildUserConfigWithMigration", data)}
+}
+
+func (_c *mockmigrationSecretProvider_buildUserConfigWithMigration_Call) Run(run func(data map[string]string)) *mockmigrationSecretProvider_buildUserConfigWithMigration_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 map[string]string
+		if args[0] != nil {
+			arg0 = args[0].(map[string]string)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *mockmigrationSecretProvider_buildUserConfigWithMigration_Call) Return(v any, err error) *mockmigrationSecretProvider_buildUserConfigWithMigration_Call {
+	_c.Call.Return(v, err)
+	return _c
+}
+
+func (_c *mockmigrationSecretProvider_buildUserConfigWithMigration_Call) RunAndReturn(run func(data map[string]string) (any, error)) *mockmigrationSecretProvider_buildUserConfigWithMigration_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// deleteMigrationSecret provides a mock function for the type mockmigrationSecretProvider
+func (_mock *mockmigrationSecretProvider) deleteMigrationSecret(ctx context.Context) error {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for deleteMigrationSecret")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// mockmigrationSecretProvider_deleteMigrationSecret_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'deleteMigrationSecret'
+type mockmigrationSecretProvider_deleteMigrationSecret_Call struct {
+	*mock.Call
+}
+
+// deleteMigrationSecret is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *mockmigrationSecretProvider_Expecter) deleteMigrationSecret(ctx any) *mockmigrationSecretProvider_deleteMigrationSecret_Call {
+	return &mockmigrationSecretProvider_deleteMigrationSecret_Call{Call: _e.mock.On("deleteMigrationSecret", ctx)}
+}
+
+func (_c *mockmigrationSecretProvider_deleteMigrationSecret_Call) Run(run func(ctx context.Context)) *mockmigrationSecretProvider_deleteMigrationSecret_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *mockmigrationSecretProvider_deleteMigrationSecret_Call) Return(err error) *mockmigrationSecretProvider_deleteMigrationSecret_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *mockmigrationSecretProvider_deleteMigrationSecret_Call) RunAndReturn(run func(ctx context.Context) error) *mockmigrationSecretProvider_deleteMigrationSecret_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// getMigrationSecretSource provides a mock function for the type mockmigrationSecretProvider
+func (_mock *mockmigrationSecretProvider) getMigrationSecretSource() *v1alpha1.MigrationSecretSource {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for getMigrationSecretSource")
+	}
+
+	var r0 *v1alpha1.MigrationSecretSource
+	if returnFunc, ok := ret.Get(0).(func() *v1alpha1.MigrationSecretSource); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1alpha1.MigrationSecretSource)
+		}
+	}
+	return r0
+}
+
+// mockmigrationSecretProvider_getMigrationSecretSource_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'getMigrationSecretSource'
+type mockmigrationSecretProvider_getMigrationSecretSource_Call struct {
+	*mock.Call
+}
+
+// getMigrationSecretSource is a helper method to define mock.On call
+func (_e *mockmigrationSecretProvider_Expecter) getMigrationSecretSource() *mockmigrationSecretProvider_getMigrationSecretSource_Call {
+	return &mockmigrationSecretProvider_getMigrationSecretSource_Call{Call: _e.mock.On("getMigrationSecretSource")}
+}
+
+func (_c *mockmigrationSecretProvider_getMigrationSecretSource_Call) Run(run func()) *mockmigrationSecretProvider_getMigrationSecretSource_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *mockmigrationSecretProvider_getMigrationSecretSource_Call) Return(migrationSecretSource *v1alpha1.MigrationSecretSource) *mockmigrationSecretProvider_getMigrationSecretSource_Call {
+	_c.Call.Return(migrationSecretSource)
+	return _c
+}
+
+func (_c *mockmigrationSecretProvider_getMigrationSecretSource_Call) RunAndReturn(run func() *v1alpha1.MigrationSecretSource) *mockmigrationSecretProvider_getMigrationSecretSource_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3059,18 +3226,18 @@ func (_c *MockPasswordSource_GetConnInfoSecretSource_Call) RunAndReturn(run func
 }
 
 // GetCreationTimestamp provides a mock function for the type MockPasswordSource
-func (_mock *MockPasswordSource) GetCreationTimestamp() v10.Time {
+func (_mock *MockPasswordSource) GetCreationTimestamp() v1.Time {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetCreationTimestamp")
 	}
 
-	var r0 v10.Time
-	if returnFunc, ok := ret.Get(0).(func() v10.Time); ok {
+	var r0 v1.Time
+	if returnFunc, ok := ret.Get(0).(func() v1.Time); ok {
 		r0 = returnFunc()
 	} else {
-		r0 = ret.Get(0).(v10.Time)
+		r0 = ret.Get(0).(v1.Time)
 	}
 	return r0
 }
@@ -3092,12 +3259,12 @@ func (_c *MockPasswordSource_GetCreationTimestamp_Call) Run(run func()) *MockPas
 	return _c
 }
 
-func (_c *MockPasswordSource_GetCreationTimestamp_Call) Return(time v10.Time) *MockPasswordSource_GetCreationTimestamp_Call {
+func (_c *MockPasswordSource_GetCreationTimestamp_Call) Return(time v1.Time) *MockPasswordSource_GetCreationTimestamp_Call {
 	_c.Call.Return(time)
 	return _c
 }
 
-func (_c *MockPasswordSource_GetCreationTimestamp_Call) RunAndReturn(run func() v10.Time) *MockPasswordSource_GetCreationTimestamp_Call {
+func (_c *MockPasswordSource_GetCreationTimestamp_Call) RunAndReturn(run func() v1.Time) *MockPasswordSource_GetCreationTimestamp_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3149,19 +3316,19 @@ func (_c *MockPasswordSource_GetDeletionGracePeriodSeconds_Call) RunAndReturn(ru
 }
 
 // GetDeletionTimestamp provides a mock function for the type MockPasswordSource
-func (_mock *MockPasswordSource) GetDeletionTimestamp() *v10.Time {
+func (_mock *MockPasswordSource) GetDeletionTimestamp() *v1.Time {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetDeletionTimestamp")
 	}
 
-	var r0 *v10.Time
-	if returnFunc, ok := ret.Get(0).(func() *v10.Time); ok {
+	var r0 *v1.Time
+	if returnFunc, ok := ret.Get(0).(func() *v1.Time); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*v10.Time)
+			r0 = ret.Get(0).(*v1.Time)
 		}
 	}
 	return r0
@@ -3184,12 +3351,12 @@ func (_c *MockPasswordSource_GetDeletionTimestamp_Call) Run(run func()) *MockPas
 	return _c
 }
 
-func (_c *MockPasswordSource_GetDeletionTimestamp_Call) Return(time *v10.Time) *MockPasswordSource_GetDeletionTimestamp_Call {
+func (_c *MockPasswordSource_GetDeletionTimestamp_Call) Return(time *v1.Time) *MockPasswordSource_GetDeletionTimestamp_Call {
 	_c.Call.Return(time)
 	return _c
 }
 
-func (_c *MockPasswordSource_GetDeletionTimestamp_Call) RunAndReturn(run func() *v10.Time) *MockPasswordSource_GetDeletionTimestamp_Call {
+func (_c *MockPasswordSource_GetDeletionTimestamp_Call) RunAndReturn(run func() *v1.Time) *MockPasswordSource_GetDeletionTimestamp_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3375,19 +3542,19 @@ func (_c *MockPasswordSource_GetLabels_Call) RunAndReturn(run func() map[string]
 }
 
 // GetManagedFields provides a mock function for the type MockPasswordSource
-func (_mock *MockPasswordSource) GetManagedFields() []v10.ManagedFieldsEntry {
+func (_mock *MockPasswordSource) GetManagedFields() []v1.ManagedFieldsEntry {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetManagedFields")
 	}
 
-	var r0 []v10.ManagedFieldsEntry
-	if returnFunc, ok := ret.Get(0).(func() []v10.ManagedFieldsEntry); ok {
+	var r0 []v1.ManagedFieldsEntry
+	if returnFunc, ok := ret.Get(0).(func() []v1.ManagedFieldsEntry); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]v10.ManagedFieldsEntry)
+			r0 = ret.Get(0).([]v1.ManagedFieldsEntry)
 		}
 	}
 	return r0
@@ -3410,12 +3577,12 @@ func (_c *MockPasswordSource_GetManagedFields_Call) Run(run func()) *MockPasswor
 	return _c
 }
 
-func (_c *MockPasswordSource_GetManagedFields_Call) Return(managedFieldsEntrys []v10.ManagedFieldsEntry) *MockPasswordSource_GetManagedFields_Call {
+func (_c *MockPasswordSource_GetManagedFields_Call) Return(managedFieldsEntrys []v1.ManagedFieldsEntry) *MockPasswordSource_GetManagedFields_Call {
 	_c.Call.Return(managedFieldsEntrys)
 	return _c
 }
 
-func (_c *MockPasswordSource_GetManagedFields_Call) RunAndReturn(run func() []v10.ManagedFieldsEntry) *MockPasswordSource_GetManagedFields_Call {
+func (_c *MockPasswordSource_GetManagedFields_Call) RunAndReturn(run func() []v1.ManagedFieldsEntry) *MockPasswordSource_GetManagedFields_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3509,19 +3676,19 @@ func (_c *MockPasswordSource_GetNamespace_Call) RunAndReturn(run func() string) 
 }
 
 // GetOwnerReferences provides a mock function for the type MockPasswordSource
-func (_mock *MockPasswordSource) GetOwnerReferences() []v10.OwnerReference {
+func (_mock *MockPasswordSource) GetOwnerReferences() []v1.OwnerReference {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetOwnerReferences")
 	}
 
-	var r0 []v10.OwnerReference
-	if returnFunc, ok := ret.Get(0).(func() []v10.OwnerReference); ok {
+	var r0 []v1.OwnerReference
+	if returnFunc, ok := ret.Get(0).(func() []v1.OwnerReference); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]v10.OwnerReference)
+			r0 = ret.Get(0).([]v1.OwnerReference)
 		}
 	}
 	return r0
@@ -3544,12 +3711,12 @@ func (_c *MockPasswordSource_GetOwnerReferences_Call) Run(run func()) *MockPassw
 	return _c
 }
 
-func (_c *MockPasswordSource_GetOwnerReferences_Call) Return(ownerReferences []v10.OwnerReference) *MockPasswordSource_GetOwnerReferences_Call {
+func (_c *MockPasswordSource_GetOwnerReferences_Call) Return(ownerReferences []v1.OwnerReference) *MockPasswordSource_GetOwnerReferences_Call {
 	_c.Call.Return(ownerReferences)
 	return _c
 }
 
-func (_c *MockPasswordSource_GetOwnerReferences_Call) RunAndReturn(run func() []v10.OwnerReference) *MockPasswordSource_GetOwnerReferences_Call {
+func (_c *MockPasswordSource_GetOwnerReferences_Call) RunAndReturn(run func() []v1.OwnerReference) *MockPasswordSource_GetOwnerReferences_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3699,7 +3866,7 @@ type MockPasswordSource_SetAnnotations_Call struct {
 
 // SetAnnotations is a helper method to define mock.On call
 //   - annotations map[string]string
-func (_e *MockPasswordSource_Expecter) SetAnnotations(annotations interface{}) *MockPasswordSource_SetAnnotations_Call {
+func (_e *MockPasswordSource_Expecter) SetAnnotations(annotations any) *MockPasswordSource_SetAnnotations_Call {
 	return &MockPasswordSource_SetAnnotations_Call{Call: _e.mock.On("SetAnnotations", annotations)}
 }
 
@@ -3727,7 +3894,7 @@ func (_c *MockPasswordSource_SetAnnotations_Call) RunAndReturn(run func(annotati
 }
 
 // SetCreationTimestamp provides a mock function for the type MockPasswordSource
-func (_mock *MockPasswordSource) SetCreationTimestamp(timestamp v10.Time) {
+func (_mock *MockPasswordSource) SetCreationTimestamp(timestamp v1.Time) {
 	_mock.Called(timestamp)
 	return
 }
@@ -3738,16 +3905,16 @@ type MockPasswordSource_SetCreationTimestamp_Call struct {
 }
 
 // SetCreationTimestamp is a helper method to define mock.On call
-//   - timestamp v10.Time
-func (_e *MockPasswordSource_Expecter) SetCreationTimestamp(timestamp interface{}) *MockPasswordSource_SetCreationTimestamp_Call {
+//   - timestamp v1.Time
+func (_e *MockPasswordSource_Expecter) SetCreationTimestamp(timestamp any) *MockPasswordSource_SetCreationTimestamp_Call {
 	return &MockPasswordSource_SetCreationTimestamp_Call{Call: _e.mock.On("SetCreationTimestamp", timestamp)}
 }
 
-func (_c *MockPasswordSource_SetCreationTimestamp_Call) Run(run func(timestamp v10.Time)) *MockPasswordSource_SetCreationTimestamp_Call {
+func (_c *MockPasswordSource_SetCreationTimestamp_Call) Run(run func(timestamp v1.Time)) *MockPasswordSource_SetCreationTimestamp_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 v10.Time
+		var arg0 v1.Time
 		if args[0] != nil {
-			arg0 = args[0].(v10.Time)
+			arg0 = args[0].(v1.Time)
 		}
 		run(
 			arg0,
@@ -3761,7 +3928,7 @@ func (_c *MockPasswordSource_SetCreationTimestamp_Call) Return() *MockPasswordSo
 	return _c
 }
 
-func (_c *MockPasswordSource_SetCreationTimestamp_Call) RunAndReturn(run func(timestamp v10.Time)) *MockPasswordSource_SetCreationTimestamp_Call {
+func (_c *MockPasswordSource_SetCreationTimestamp_Call) RunAndReturn(run func(timestamp v1.Time)) *MockPasswordSource_SetCreationTimestamp_Call {
 	_c.Run(run)
 	return _c
 }
@@ -3779,7 +3946,7 @@ type MockPasswordSource_SetDeletionGracePeriodSeconds_Call struct {
 
 // SetDeletionGracePeriodSeconds is a helper method to define mock.On call
 //   - n *int64
-func (_e *MockPasswordSource_Expecter) SetDeletionGracePeriodSeconds(n interface{}) *MockPasswordSource_SetDeletionGracePeriodSeconds_Call {
+func (_e *MockPasswordSource_Expecter) SetDeletionGracePeriodSeconds(n any) *MockPasswordSource_SetDeletionGracePeriodSeconds_Call {
 	return &MockPasswordSource_SetDeletionGracePeriodSeconds_Call{Call: _e.mock.On("SetDeletionGracePeriodSeconds", n)}
 }
 
@@ -3807,7 +3974,7 @@ func (_c *MockPasswordSource_SetDeletionGracePeriodSeconds_Call) RunAndReturn(ru
 }
 
 // SetDeletionTimestamp provides a mock function for the type MockPasswordSource
-func (_mock *MockPasswordSource) SetDeletionTimestamp(timestamp *v10.Time) {
+func (_mock *MockPasswordSource) SetDeletionTimestamp(timestamp *v1.Time) {
 	_mock.Called(timestamp)
 	return
 }
@@ -3818,16 +3985,16 @@ type MockPasswordSource_SetDeletionTimestamp_Call struct {
 }
 
 // SetDeletionTimestamp is a helper method to define mock.On call
-//   - timestamp *v10.Time
-func (_e *MockPasswordSource_Expecter) SetDeletionTimestamp(timestamp interface{}) *MockPasswordSource_SetDeletionTimestamp_Call {
+//   - timestamp *v1.Time
+func (_e *MockPasswordSource_Expecter) SetDeletionTimestamp(timestamp any) *MockPasswordSource_SetDeletionTimestamp_Call {
 	return &MockPasswordSource_SetDeletionTimestamp_Call{Call: _e.mock.On("SetDeletionTimestamp", timestamp)}
 }
 
-func (_c *MockPasswordSource_SetDeletionTimestamp_Call) Run(run func(timestamp *v10.Time)) *MockPasswordSource_SetDeletionTimestamp_Call {
+func (_c *MockPasswordSource_SetDeletionTimestamp_Call) Run(run func(timestamp *v1.Time)) *MockPasswordSource_SetDeletionTimestamp_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 *v10.Time
+		var arg0 *v1.Time
 		if args[0] != nil {
-			arg0 = args[0].(*v10.Time)
+			arg0 = args[0].(*v1.Time)
 		}
 		run(
 			arg0,
@@ -3841,7 +4008,7 @@ func (_c *MockPasswordSource_SetDeletionTimestamp_Call) Return() *MockPasswordSo
 	return _c
 }
 
-func (_c *MockPasswordSource_SetDeletionTimestamp_Call) RunAndReturn(run func(timestamp *v10.Time)) *MockPasswordSource_SetDeletionTimestamp_Call {
+func (_c *MockPasswordSource_SetDeletionTimestamp_Call) RunAndReturn(run func(timestamp *v1.Time)) *MockPasswordSource_SetDeletionTimestamp_Call {
 	_c.Run(run)
 	return _c
 }
@@ -3859,7 +4026,7 @@ type MockPasswordSource_SetFinalizers_Call struct {
 
 // SetFinalizers is a helper method to define mock.On call
 //   - finalizers []string
-func (_e *MockPasswordSource_Expecter) SetFinalizers(finalizers interface{}) *MockPasswordSource_SetFinalizers_Call {
+func (_e *MockPasswordSource_Expecter) SetFinalizers(finalizers any) *MockPasswordSource_SetFinalizers_Call {
 	return &MockPasswordSource_SetFinalizers_Call{Call: _e.mock.On("SetFinalizers", finalizers)}
 }
 
@@ -3899,7 +4066,7 @@ type MockPasswordSource_SetGenerateName_Call struct {
 
 // SetGenerateName is a helper method to define mock.On call
 //   - name string
-func (_e *MockPasswordSource_Expecter) SetGenerateName(name interface{}) *MockPasswordSource_SetGenerateName_Call {
+func (_e *MockPasswordSource_Expecter) SetGenerateName(name any) *MockPasswordSource_SetGenerateName_Call {
 	return &MockPasswordSource_SetGenerateName_Call{Call: _e.mock.On("SetGenerateName", name)}
 }
 
@@ -3939,7 +4106,7 @@ type MockPasswordSource_SetGeneration_Call struct {
 
 // SetGeneration is a helper method to define mock.On call
 //   - generation int64
-func (_e *MockPasswordSource_Expecter) SetGeneration(generation interface{}) *MockPasswordSource_SetGeneration_Call {
+func (_e *MockPasswordSource_Expecter) SetGeneration(generation any) *MockPasswordSource_SetGeneration_Call {
 	return &MockPasswordSource_SetGeneration_Call{Call: _e.mock.On("SetGeneration", generation)}
 }
 
@@ -3979,7 +4146,7 @@ type MockPasswordSource_SetLabels_Call struct {
 
 // SetLabels is a helper method to define mock.On call
 //   - labels map[string]string
-func (_e *MockPasswordSource_Expecter) SetLabels(labels interface{}) *MockPasswordSource_SetLabels_Call {
+func (_e *MockPasswordSource_Expecter) SetLabels(labels any) *MockPasswordSource_SetLabels_Call {
 	return &MockPasswordSource_SetLabels_Call{Call: _e.mock.On("SetLabels", labels)}
 }
 
@@ -4007,7 +4174,7 @@ func (_c *MockPasswordSource_SetLabels_Call) RunAndReturn(run func(labels map[st
 }
 
 // SetManagedFields provides a mock function for the type MockPasswordSource
-func (_mock *MockPasswordSource) SetManagedFields(managedFields []v10.ManagedFieldsEntry) {
+func (_mock *MockPasswordSource) SetManagedFields(managedFields []v1.ManagedFieldsEntry) {
 	_mock.Called(managedFields)
 	return
 }
@@ -4018,16 +4185,16 @@ type MockPasswordSource_SetManagedFields_Call struct {
 }
 
 // SetManagedFields is a helper method to define mock.On call
-//   - managedFields []v10.ManagedFieldsEntry
-func (_e *MockPasswordSource_Expecter) SetManagedFields(managedFields interface{}) *MockPasswordSource_SetManagedFields_Call {
+//   - managedFields []v1.ManagedFieldsEntry
+func (_e *MockPasswordSource_Expecter) SetManagedFields(managedFields any) *MockPasswordSource_SetManagedFields_Call {
 	return &MockPasswordSource_SetManagedFields_Call{Call: _e.mock.On("SetManagedFields", managedFields)}
 }
 
-func (_c *MockPasswordSource_SetManagedFields_Call) Run(run func(managedFields []v10.ManagedFieldsEntry)) *MockPasswordSource_SetManagedFields_Call {
+func (_c *MockPasswordSource_SetManagedFields_Call) Run(run func(managedFields []v1.ManagedFieldsEntry)) *MockPasswordSource_SetManagedFields_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 []v10.ManagedFieldsEntry
+		var arg0 []v1.ManagedFieldsEntry
 		if args[0] != nil {
-			arg0 = args[0].([]v10.ManagedFieldsEntry)
+			arg0 = args[0].([]v1.ManagedFieldsEntry)
 		}
 		run(
 			arg0,
@@ -4041,7 +4208,7 @@ func (_c *MockPasswordSource_SetManagedFields_Call) Return() *MockPasswordSource
 	return _c
 }
 
-func (_c *MockPasswordSource_SetManagedFields_Call) RunAndReturn(run func(managedFields []v10.ManagedFieldsEntry)) *MockPasswordSource_SetManagedFields_Call {
+func (_c *MockPasswordSource_SetManagedFields_Call) RunAndReturn(run func(managedFields []v1.ManagedFieldsEntry)) *MockPasswordSource_SetManagedFields_Call {
 	_c.Run(run)
 	return _c
 }
@@ -4059,7 +4226,7 @@ type MockPasswordSource_SetName_Call struct {
 
 // SetName is a helper method to define mock.On call
 //   - name string
-func (_e *MockPasswordSource_Expecter) SetName(name interface{}) *MockPasswordSource_SetName_Call {
+func (_e *MockPasswordSource_Expecter) SetName(name any) *MockPasswordSource_SetName_Call {
 	return &MockPasswordSource_SetName_Call{Call: _e.mock.On("SetName", name)}
 }
 
@@ -4099,7 +4266,7 @@ type MockPasswordSource_SetNamespace_Call struct {
 
 // SetNamespace is a helper method to define mock.On call
 //   - namespace string
-func (_e *MockPasswordSource_Expecter) SetNamespace(namespace interface{}) *MockPasswordSource_SetNamespace_Call {
+func (_e *MockPasswordSource_Expecter) SetNamespace(namespace any) *MockPasswordSource_SetNamespace_Call {
 	return &MockPasswordSource_SetNamespace_Call{Call: _e.mock.On("SetNamespace", namespace)}
 }
 
@@ -4127,7 +4294,7 @@ func (_c *MockPasswordSource_SetNamespace_Call) RunAndReturn(run func(namespace 
 }
 
 // SetOwnerReferences provides a mock function for the type MockPasswordSource
-func (_mock *MockPasswordSource) SetOwnerReferences(ownerReferences []v10.OwnerReference) {
+func (_mock *MockPasswordSource) SetOwnerReferences(ownerReferences []v1.OwnerReference) {
 	_mock.Called(ownerReferences)
 	return
 }
@@ -4138,16 +4305,16 @@ type MockPasswordSource_SetOwnerReferences_Call struct {
 }
 
 // SetOwnerReferences is a helper method to define mock.On call
-//   - ownerReferences []v10.OwnerReference
-func (_e *MockPasswordSource_Expecter) SetOwnerReferences(ownerReferences interface{}) *MockPasswordSource_SetOwnerReferences_Call {
+//   - ownerReferences []v1.OwnerReference
+func (_e *MockPasswordSource_Expecter) SetOwnerReferences(ownerReferences any) *MockPasswordSource_SetOwnerReferences_Call {
 	return &MockPasswordSource_SetOwnerReferences_Call{Call: _e.mock.On("SetOwnerReferences", ownerReferences)}
 }
 
-func (_c *MockPasswordSource_SetOwnerReferences_Call) Run(run func(ownerReferences []v10.OwnerReference)) *MockPasswordSource_SetOwnerReferences_Call {
+func (_c *MockPasswordSource_SetOwnerReferences_Call) Run(run func(ownerReferences []v1.OwnerReference)) *MockPasswordSource_SetOwnerReferences_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 []v10.OwnerReference
+		var arg0 []v1.OwnerReference
 		if args[0] != nil {
-			arg0 = args[0].([]v10.OwnerReference)
+			arg0 = args[0].([]v1.OwnerReference)
 		}
 		run(
 			arg0,
@@ -4161,7 +4328,7 @@ func (_c *MockPasswordSource_SetOwnerReferences_Call) Return() *MockPasswordSour
 	return _c
 }
 
-func (_c *MockPasswordSource_SetOwnerReferences_Call) RunAndReturn(run func(ownerReferences []v10.OwnerReference)) *MockPasswordSource_SetOwnerReferences_Call {
+func (_c *MockPasswordSource_SetOwnerReferences_Call) RunAndReturn(run func(ownerReferences []v1.OwnerReference)) *MockPasswordSource_SetOwnerReferences_Call {
 	_c.Run(run)
 	return _c
 }
@@ -4179,7 +4346,7 @@ type MockPasswordSource_SetResourceVersion_Call struct {
 
 // SetResourceVersion is a helper method to define mock.On call
 //   - version string
-func (_e *MockPasswordSource_Expecter) SetResourceVersion(version interface{}) *MockPasswordSource_SetResourceVersion_Call {
+func (_e *MockPasswordSource_Expecter) SetResourceVersion(version any) *MockPasswordSource_SetResourceVersion_Call {
 	return &MockPasswordSource_SetResourceVersion_Call{Call: _e.mock.On("SetResourceVersion", version)}
 }
 
@@ -4219,7 +4386,7 @@ type MockPasswordSource_SetSelfLink_Call struct {
 
 // SetSelfLink is a helper method to define mock.On call
 //   - selfLink string
-func (_e *MockPasswordSource_Expecter) SetSelfLink(selfLink interface{}) *MockPasswordSource_SetSelfLink_Call {
+func (_e *MockPasswordSource_Expecter) SetSelfLink(selfLink any) *MockPasswordSource_SetSelfLink_Call {
 	return &MockPasswordSource_SetSelfLink_Call{Call: _e.mock.On("SetSelfLink", selfLink)}
 }
 
@@ -4259,7 +4426,7 @@ type MockPasswordSource_SetUID_Call struct {
 
 // SetUID is a helper method to define mock.On call
 //   - uid types.UID
-func (_e *MockPasswordSource_Expecter) SetUID(uid interface{}) *MockPasswordSource_SetUID_Call {
+func (_e *MockPasswordSource_Expecter) SetUID(uid any) *MockPasswordSource_SetUID_Call {
 	return &MockPasswordSource_SetUID_Call{Call: _e.mock.On("SetUID", uid)}
 }
 
@@ -4453,18 +4620,18 @@ func (_c *MockSecretSourceResource_GetConnInfoSecretSource_Call) RunAndReturn(ru
 }
 
 // GetCreationTimestamp provides a mock function for the type MockSecretSourceResource
-func (_mock *MockSecretSourceResource) GetCreationTimestamp() v10.Time {
+func (_mock *MockSecretSourceResource) GetCreationTimestamp() v1.Time {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetCreationTimestamp")
 	}
 
-	var r0 v10.Time
-	if returnFunc, ok := ret.Get(0).(func() v10.Time); ok {
+	var r0 v1.Time
+	if returnFunc, ok := ret.Get(0).(func() v1.Time); ok {
 		r0 = returnFunc()
 	} else {
-		r0 = ret.Get(0).(v10.Time)
+		r0 = ret.Get(0).(v1.Time)
 	}
 	return r0
 }
@@ -4486,12 +4653,12 @@ func (_c *MockSecretSourceResource_GetCreationTimestamp_Call) Run(run func()) *M
 	return _c
 }
 
-func (_c *MockSecretSourceResource_GetCreationTimestamp_Call) Return(time v10.Time) *MockSecretSourceResource_GetCreationTimestamp_Call {
+func (_c *MockSecretSourceResource_GetCreationTimestamp_Call) Return(time v1.Time) *MockSecretSourceResource_GetCreationTimestamp_Call {
 	_c.Call.Return(time)
 	return _c
 }
 
-func (_c *MockSecretSourceResource_GetCreationTimestamp_Call) RunAndReturn(run func() v10.Time) *MockSecretSourceResource_GetCreationTimestamp_Call {
+func (_c *MockSecretSourceResource_GetCreationTimestamp_Call) RunAndReturn(run func() v1.Time) *MockSecretSourceResource_GetCreationTimestamp_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4543,19 +4710,19 @@ func (_c *MockSecretSourceResource_GetDeletionGracePeriodSeconds_Call) RunAndRet
 }
 
 // GetDeletionTimestamp provides a mock function for the type MockSecretSourceResource
-func (_mock *MockSecretSourceResource) GetDeletionTimestamp() *v10.Time {
+func (_mock *MockSecretSourceResource) GetDeletionTimestamp() *v1.Time {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetDeletionTimestamp")
 	}
 
-	var r0 *v10.Time
-	if returnFunc, ok := ret.Get(0).(func() *v10.Time); ok {
+	var r0 *v1.Time
+	if returnFunc, ok := ret.Get(0).(func() *v1.Time); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*v10.Time)
+			r0 = ret.Get(0).(*v1.Time)
 		}
 	}
 	return r0
@@ -4578,12 +4745,12 @@ func (_c *MockSecretSourceResource_GetDeletionTimestamp_Call) Run(run func()) *M
 	return _c
 }
 
-func (_c *MockSecretSourceResource_GetDeletionTimestamp_Call) Return(time *v10.Time) *MockSecretSourceResource_GetDeletionTimestamp_Call {
+func (_c *MockSecretSourceResource_GetDeletionTimestamp_Call) Return(time *v1.Time) *MockSecretSourceResource_GetDeletionTimestamp_Call {
 	_c.Call.Return(time)
 	return _c
 }
 
-func (_c *MockSecretSourceResource_GetDeletionTimestamp_Call) RunAndReturn(run func() *v10.Time) *MockSecretSourceResource_GetDeletionTimestamp_Call {
+func (_c *MockSecretSourceResource_GetDeletionTimestamp_Call) RunAndReturn(run func() *v1.Time) *MockSecretSourceResource_GetDeletionTimestamp_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4769,19 +4936,19 @@ func (_c *MockSecretSourceResource_GetLabels_Call) RunAndReturn(run func() map[s
 }
 
 // GetManagedFields provides a mock function for the type MockSecretSourceResource
-func (_mock *MockSecretSourceResource) GetManagedFields() []v10.ManagedFieldsEntry {
+func (_mock *MockSecretSourceResource) GetManagedFields() []v1.ManagedFieldsEntry {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetManagedFields")
 	}
 
-	var r0 []v10.ManagedFieldsEntry
-	if returnFunc, ok := ret.Get(0).(func() []v10.ManagedFieldsEntry); ok {
+	var r0 []v1.ManagedFieldsEntry
+	if returnFunc, ok := ret.Get(0).(func() []v1.ManagedFieldsEntry); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]v10.ManagedFieldsEntry)
+			r0 = ret.Get(0).([]v1.ManagedFieldsEntry)
 		}
 	}
 	return r0
@@ -4804,12 +4971,12 @@ func (_c *MockSecretSourceResource_GetManagedFields_Call) Run(run func()) *MockS
 	return _c
 }
 
-func (_c *MockSecretSourceResource_GetManagedFields_Call) Return(managedFieldsEntrys []v10.ManagedFieldsEntry) *MockSecretSourceResource_GetManagedFields_Call {
+func (_c *MockSecretSourceResource_GetManagedFields_Call) Return(managedFieldsEntrys []v1.ManagedFieldsEntry) *MockSecretSourceResource_GetManagedFields_Call {
 	_c.Call.Return(managedFieldsEntrys)
 	return _c
 }
 
-func (_c *MockSecretSourceResource_GetManagedFields_Call) RunAndReturn(run func() []v10.ManagedFieldsEntry) *MockSecretSourceResource_GetManagedFields_Call {
+func (_c *MockSecretSourceResource_GetManagedFields_Call) RunAndReturn(run func() []v1.ManagedFieldsEntry) *MockSecretSourceResource_GetManagedFields_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4949,19 +5116,19 @@ func (_c *MockSecretSourceResource_GetObjectKind_Call) RunAndReturn(run func() s
 }
 
 // GetOwnerReferences provides a mock function for the type MockSecretSourceResource
-func (_mock *MockSecretSourceResource) GetOwnerReferences() []v10.OwnerReference {
+func (_mock *MockSecretSourceResource) GetOwnerReferences() []v1.OwnerReference {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetOwnerReferences")
 	}
 
-	var r0 []v10.OwnerReference
-	if returnFunc, ok := ret.Get(0).(func() []v10.OwnerReference); ok {
+	var r0 []v1.OwnerReference
+	if returnFunc, ok := ret.Get(0).(func() []v1.OwnerReference); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]v10.OwnerReference)
+			r0 = ret.Get(0).([]v1.OwnerReference)
 		}
 	}
 	return r0
@@ -4984,12 +5151,12 @@ func (_c *MockSecretSourceResource_GetOwnerReferences_Call) Run(run func()) *Moc
 	return _c
 }
 
-func (_c *MockSecretSourceResource_GetOwnerReferences_Call) Return(ownerReferences []v10.OwnerReference) *MockSecretSourceResource_GetOwnerReferences_Call {
+func (_c *MockSecretSourceResource_GetOwnerReferences_Call) Return(ownerReferences []v1.OwnerReference) *MockSecretSourceResource_GetOwnerReferences_Call {
 	_c.Call.Return(ownerReferences)
 	return _c
 }
 
-func (_c *MockSecretSourceResource_GetOwnerReferences_Call) RunAndReturn(run func() []v10.OwnerReference) *MockSecretSourceResource_GetOwnerReferences_Call {
+func (_c *MockSecretSourceResource_GetOwnerReferences_Call) RunAndReturn(run func() []v1.OwnerReference) *MockSecretSourceResource_GetOwnerReferences_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -5139,7 +5306,7 @@ type MockSecretSourceResource_SetAnnotations_Call struct {
 
 // SetAnnotations is a helper method to define mock.On call
 //   - annotations map[string]string
-func (_e *MockSecretSourceResource_Expecter) SetAnnotations(annotations interface{}) *MockSecretSourceResource_SetAnnotations_Call {
+func (_e *MockSecretSourceResource_Expecter) SetAnnotations(annotations any) *MockSecretSourceResource_SetAnnotations_Call {
 	return &MockSecretSourceResource_SetAnnotations_Call{Call: _e.mock.On("SetAnnotations", annotations)}
 }
 
@@ -5167,7 +5334,7 @@ func (_c *MockSecretSourceResource_SetAnnotations_Call) RunAndReturn(run func(an
 }
 
 // SetCreationTimestamp provides a mock function for the type MockSecretSourceResource
-func (_mock *MockSecretSourceResource) SetCreationTimestamp(timestamp v10.Time) {
+func (_mock *MockSecretSourceResource) SetCreationTimestamp(timestamp v1.Time) {
 	_mock.Called(timestamp)
 	return
 }
@@ -5178,16 +5345,16 @@ type MockSecretSourceResource_SetCreationTimestamp_Call struct {
 }
 
 // SetCreationTimestamp is a helper method to define mock.On call
-//   - timestamp v10.Time
-func (_e *MockSecretSourceResource_Expecter) SetCreationTimestamp(timestamp interface{}) *MockSecretSourceResource_SetCreationTimestamp_Call {
+//   - timestamp v1.Time
+func (_e *MockSecretSourceResource_Expecter) SetCreationTimestamp(timestamp any) *MockSecretSourceResource_SetCreationTimestamp_Call {
 	return &MockSecretSourceResource_SetCreationTimestamp_Call{Call: _e.mock.On("SetCreationTimestamp", timestamp)}
 }
 
-func (_c *MockSecretSourceResource_SetCreationTimestamp_Call) Run(run func(timestamp v10.Time)) *MockSecretSourceResource_SetCreationTimestamp_Call {
+func (_c *MockSecretSourceResource_SetCreationTimestamp_Call) Run(run func(timestamp v1.Time)) *MockSecretSourceResource_SetCreationTimestamp_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 v10.Time
+		var arg0 v1.Time
 		if args[0] != nil {
-			arg0 = args[0].(v10.Time)
+			arg0 = args[0].(v1.Time)
 		}
 		run(
 			arg0,
@@ -5201,7 +5368,7 @@ func (_c *MockSecretSourceResource_SetCreationTimestamp_Call) Return() *MockSecr
 	return _c
 }
 
-func (_c *MockSecretSourceResource_SetCreationTimestamp_Call) RunAndReturn(run func(timestamp v10.Time)) *MockSecretSourceResource_SetCreationTimestamp_Call {
+func (_c *MockSecretSourceResource_SetCreationTimestamp_Call) RunAndReturn(run func(timestamp v1.Time)) *MockSecretSourceResource_SetCreationTimestamp_Call {
 	_c.Run(run)
 	return _c
 }
@@ -5219,7 +5386,7 @@ type MockSecretSourceResource_SetDeletionGracePeriodSeconds_Call struct {
 
 // SetDeletionGracePeriodSeconds is a helper method to define mock.On call
 //   - n *int64
-func (_e *MockSecretSourceResource_Expecter) SetDeletionGracePeriodSeconds(n interface{}) *MockSecretSourceResource_SetDeletionGracePeriodSeconds_Call {
+func (_e *MockSecretSourceResource_Expecter) SetDeletionGracePeriodSeconds(n any) *MockSecretSourceResource_SetDeletionGracePeriodSeconds_Call {
 	return &MockSecretSourceResource_SetDeletionGracePeriodSeconds_Call{Call: _e.mock.On("SetDeletionGracePeriodSeconds", n)}
 }
 
@@ -5247,7 +5414,7 @@ func (_c *MockSecretSourceResource_SetDeletionGracePeriodSeconds_Call) RunAndRet
 }
 
 // SetDeletionTimestamp provides a mock function for the type MockSecretSourceResource
-func (_mock *MockSecretSourceResource) SetDeletionTimestamp(timestamp *v10.Time) {
+func (_mock *MockSecretSourceResource) SetDeletionTimestamp(timestamp *v1.Time) {
 	_mock.Called(timestamp)
 	return
 }
@@ -5258,16 +5425,16 @@ type MockSecretSourceResource_SetDeletionTimestamp_Call struct {
 }
 
 // SetDeletionTimestamp is a helper method to define mock.On call
-//   - timestamp *v10.Time
-func (_e *MockSecretSourceResource_Expecter) SetDeletionTimestamp(timestamp interface{}) *MockSecretSourceResource_SetDeletionTimestamp_Call {
+//   - timestamp *v1.Time
+func (_e *MockSecretSourceResource_Expecter) SetDeletionTimestamp(timestamp any) *MockSecretSourceResource_SetDeletionTimestamp_Call {
 	return &MockSecretSourceResource_SetDeletionTimestamp_Call{Call: _e.mock.On("SetDeletionTimestamp", timestamp)}
 }
 
-func (_c *MockSecretSourceResource_SetDeletionTimestamp_Call) Run(run func(timestamp *v10.Time)) *MockSecretSourceResource_SetDeletionTimestamp_Call {
+func (_c *MockSecretSourceResource_SetDeletionTimestamp_Call) Run(run func(timestamp *v1.Time)) *MockSecretSourceResource_SetDeletionTimestamp_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 *v10.Time
+		var arg0 *v1.Time
 		if args[0] != nil {
-			arg0 = args[0].(*v10.Time)
+			arg0 = args[0].(*v1.Time)
 		}
 		run(
 			arg0,
@@ -5281,7 +5448,7 @@ func (_c *MockSecretSourceResource_SetDeletionTimestamp_Call) Return() *MockSecr
 	return _c
 }
 
-func (_c *MockSecretSourceResource_SetDeletionTimestamp_Call) RunAndReturn(run func(timestamp *v10.Time)) *MockSecretSourceResource_SetDeletionTimestamp_Call {
+func (_c *MockSecretSourceResource_SetDeletionTimestamp_Call) RunAndReturn(run func(timestamp *v1.Time)) *MockSecretSourceResource_SetDeletionTimestamp_Call {
 	_c.Run(run)
 	return _c
 }
@@ -5299,7 +5466,7 @@ type MockSecretSourceResource_SetFinalizers_Call struct {
 
 // SetFinalizers is a helper method to define mock.On call
 //   - finalizers []string
-func (_e *MockSecretSourceResource_Expecter) SetFinalizers(finalizers interface{}) *MockSecretSourceResource_SetFinalizers_Call {
+func (_e *MockSecretSourceResource_Expecter) SetFinalizers(finalizers any) *MockSecretSourceResource_SetFinalizers_Call {
 	return &MockSecretSourceResource_SetFinalizers_Call{Call: _e.mock.On("SetFinalizers", finalizers)}
 }
 
@@ -5339,7 +5506,7 @@ type MockSecretSourceResource_SetGenerateName_Call struct {
 
 // SetGenerateName is a helper method to define mock.On call
 //   - name string
-func (_e *MockSecretSourceResource_Expecter) SetGenerateName(name interface{}) *MockSecretSourceResource_SetGenerateName_Call {
+func (_e *MockSecretSourceResource_Expecter) SetGenerateName(name any) *MockSecretSourceResource_SetGenerateName_Call {
 	return &MockSecretSourceResource_SetGenerateName_Call{Call: _e.mock.On("SetGenerateName", name)}
 }
 
@@ -5379,7 +5546,7 @@ type MockSecretSourceResource_SetGeneration_Call struct {
 
 // SetGeneration is a helper method to define mock.On call
 //   - generation int64
-func (_e *MockSecretSourceResource_Expecter) SetGeneration(generation interface{}) *MockSecretSourceResource_SetGeneration_Call {
+func (_e *MockSecretSourceResource_Expecter) SetGeneration(generation any) *MockSecretSourceResource_SetGeneration_Call {
 	return &MockSecretSourceResource_SetGeneration_Call{Call: _e.mock.On("SetGeneration", generation)}
 }
 
@@ -5419,7 +5586,7 @@ type MockSecretSourceResource_SetLabels_Call struct {
 
 // SetLabels is a helper method to define mock.On call
 //   - labels map[string]string
-func (_e *MockSecretSourceResource_Expecter) SetLabels(labels interface{}) *MockSecretSourceResource_SetLabels_Call {
+func (_e *MockSecretSourceResource_Expecter) SetLabels(labels any) *MockSecretSourceResource_SetLabels_Call {
 	return &MockSecretSourceResource_SetLabels_Call{Call: _e.mock.On("SetLabels", labels)}
 }
 
@@ -5447,7 +5614,7 @@ func (_c *MockSecretSourceResource_SetLabels_Call) RunAndReturn(run func(labels 
 }
 
 // SetManagedFields provides a mock function for the type MockSecretSourceResource
-func (_mock *MockSecretSourceResource) SetManagedFields(managedFields []v10.ManagedFieldsEntry) {
+func (_mock *MockSecretSourceResource) SetManagedFields(managedFields []v1.ManagedFieldsEntry) {
 	_mock.Called(managedFields)
 	return
 }
@@ -5458,16 +5625,16 @@ type MockSecretSourceResource_SetManagedFields_Call struct {
 }
 
 // SetManagedFields is a helper method to define mock.On call
-//   - managedFields []v10.ManagedFieldsEntry
-func (_e *MockSecretSourceResource_Expecter) SetManagedFields(managedFields interface{}) *MockSecretSourceResource_SetManagedFields_Call {
+//   - managedFields []v1.ManagedFieldsEntry
+func (_e *MockSecretSourceResource_Expecter) SetManagedFields(managedFields any) *MockSecretSourceResource_SetManagedFields_Call {
 	return &MockSecretSourceResource_SetManagedFields_Call{Call: _e.mock.On("SetManagedFields", managedFields)}
 }
 
-func (_c *MockSecretSourceResource_SetManagedFields_Call) Run(run func(managedFields []v10.ManagedFieldsEntry)) *MockSecretSourceResource_SetManagedFields_Call {
+func (_c *MockSecretSourceResource_SetManagedFields_Call) Run(run func(managedFields []v1.ManagedFieldsEntry)) *MockSecretSourceResource_SetManagedFields_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 []v10.ManagedFieldsEntry
+		var arg0 []v1.ManagedFieldsEntry
 		if args[0] != nil {
-			arg0 = args[0].([]v10.ManagedFieldsEntry)
+			arg0 = args[0].([]v1.ManagedFieldsEntry)
 		}
 		run(
 			arg0,
@@ -5481,7 +5648,7 @@ func (_c *MockSecretSourceResource_SetManagedFields_Call) Return() *MockSecretSo
 	return _c
 }
 
-func (_c *MockSecretSourceResource_SetManagedFields_Call) RunAndReturn(run func(managedFields []v10.ManagedFieldsEntry)) *MockSecretSourceResource_SetManagedFields_Call {
+func (_c *MockSecretSourceResource_SetManagedFields_Call) RunAndReturn(run func(managedFields []v1.ManagedFieldsEntry)) *MockSecretSourceResource_SetManagedFields_Call {
 	_c.Run(run)
 	return _c
 }
@@ -5499,7 +5666,7 @@ type MockSecretSourceResource_SetName_Call struct {
 
 // SetName is a helper method to define mock.On call
 //   - name string
-func (_e *MockSecretSourceResource_Expecter) SetName(name interface{}) *MockSecretSourceResource_SetName_Call {
+func (_e *MockSecretSourceResource_Expecter) SetName(name any) *MockSecretSourceResource_SetName_Call {
 	return &MockSecretSourceResource_SetName_Call{Call: _e.mock.On("SetName", name)}
 }
 
@@ -5539,7 +5706,7 @@ type MockSecretSourceResource_SetNamespace_Call struct {
 
 // SetNamespace is a helper method to define mock.On call
 //   - namespace string
-func (_e *MockSecretSourceResource_Expecter) SetNamespace(namespace interface{}) *MockSecretSourceResource_SetNamespace_Call {
+func (_e *MockSecretSourceResource_Expecter) SetNamespace(namespace any) *MockSecretSourceResource_SetNamespace_Call {
 	return &MockSecretSourceResource_SetNamespace_Call{Call: _e.mock.On("SetNamespace", namespace)}
 }
 
@@ -5567,7 +5734,7 @@ func (_c *MockSecretSourceResource_SetNamespace_Call) RunAndReturn(run func(name
 }
 
 // SetOwnerReferences provides a mock function for the type MockSecretSourceResource
-func (_mock *MockSecretSourceResource) SetOwnerReferences(ownerReferences []v10.OwnerReference) {
+func (_mock *MockSecretSourceResource) SetOwnerReferences(ownerReferences []v1.OwnerReference) {
 	_mock.Called(ownerReferences)
 	return
 }
@@ -5578,16 +5745,16 @@ type MockSecretSourceResource_SetOwnerReferences_Call struct {
 }
 
 // SetOwnerReferences is a helper method to define mock.On call
-//   - ownerReferences []v10.OwnerReference
-func (_e *MockSecretSourceResource_Expecter) SetOwnerReferences(ownerReferences interface{}) *MockSecretSourceResource_SetOwnerReferences_Call {
+//   - ownerReferences []v1.OwnerReference
+func (_e *MockSecretSourceResource_Expecter) SetOwnerReferences(ownerReferences any) *MockSecretSourceResource_SetOwnerReferences_Call {
 	return &MockSecretSourceResource_SetOwnerReferences_Call{Call: _e.mock.On("SetOwnerReferences", ownerReferences)}
 }
 
-func (_c *MockSecretSourceResource_SetOwnerReferences_Call) Run(run func(ownerReferences []v10.OwnerReference)) *MockSecretSourceResource_SetOwnerReferences_Call {
+func (_c *MockSecretSourceResource_SetOwnerReferences_Call) Run(run func(ownerReferences []v1.OwnerReference)) *MockSecretSourceResource_SetOwnerReferences_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 []v10.OwnerReference
+		var arg0 []v1.OwnerReference
 		if args[0] != nil {
-			arg0 = args[0].([]v10.OwnerReference)
+			arg0 = args[0].([]v1.OwnerReference)
 		}
 		run(
 			arg0,
@@ -5601,7 +5768,7 @@ func (_c *MockSecretSourceResource_SetOwnerReferences_Call) Return() *MockSecret
 	return _c
 }
 
-func (_c *MockSecretSourceResource_SetOwnerReferences_Call) RunAndReturn(run func(ownerReferences []v10.OwnerReference)) *MockSecretSourceResource_SetOwnerReferences_Call {
+func (_c *MockSecretSourceResource_SetOwnerReferences_Call) RunAndReturn(run func(ownerReferences []v1.OwnerReference)) *MockSecretSourceResource_SetOwnerReferences_Call {
 	_c.Run(run)
 	return _c
 }
@@ -5619,7 +5786,7 @@ type MockSecretSourceResource_SetResourceVersion_Call struct {
 
 // SetResourceVersion is a helper method to define mock.On call
 //   - version string
-func (_e *MockSecretSourceResource_Expecter) SetResourceVersion(version interface{}) *MockSecretSourceResource_SetResourceVersion_Call {
+func (_e *MockSecretSourceResource_Expecter) SetResourceVersion(version any) *MockSecretSourceResource_SetResourceVersion_Call {
 	return &MockSecretSourceResource_SetResourceVersion_Call{Call: _e.mock.On("SetResourceVersion", version)}
 }
 
@@ -5659,7 +5826,7 @@ type MockSecretSourceResource_SetSelfLink_Call struct {
 
 // SetSelfLink is a helper method to define mock.On call
 //   - selfLink string
-func (_e *MockSecretSourceResource_Expecter) SetSelfLink(selfLink interface{}) *MockSecretSourceResource_SetSelfLink_Call {
+func (_e *MockSecretSourceResource_Expecter) SetSelfLink(selfLink any) *MockSecretSourceResource_SetSelfLink_Call {
 	return &MockSecretSourceResource_SetSelfLink_Call{Call: _e.mock.On("SetSelfLink", selfLink)}
 }
 
@@ -5699,7 +5866,7 @@ type MockSecretSourceResource_SetUID_Call struct {
 
 // SetUID is a helper method to define mock.On call
 //   - uid types.UID
-func (_e *MockSecretSourceResource_Expecter) SetUID(uid interface{}) *MockSecretSourceResource_SetUID_Call {
+func (_e *MockSecretSourceResource_Expecter) SetUID(uid any) *MockSecretSourceResource_SetUID_Call {
 	return &MockSecretSourceResource_SetUID_Call{Call: _e.mock.On("SetUID", uid)}
 }
 
@@ -5788,7 +5955,7 @@ type mockreconcilerType_Reconcile_Call struct {
 // Reconcile is a helper method to define mock.On call
 //   - context1 context.Context
 //   - request reconcile.Request
-func (_e *mockreconcilerType_Expecter) Reconcile(context1 interface{}, request interface{}) *mockreconcilerType_Reconcile_Call {
+func (_e *mockreconcilerType_Expecter) Reconcile(context1 any, request any) *mockreconcilerType_Reconcile_Call {
 	return &mockreconcilerType_Reconcile_Call{Call: _e.mock.On("Reconcile", context1, request)}
 }
 
@@ -5844,7 +6011,7 @@ type mockreconcilerType_SetupWithManager_Call struct {
 
 // SetupWithManager is a helper method to define mock.On call
 //   - mgr controllerruntime.Manager
-func (_e *mockreconcilerType_Expecter) SetupWithManager(mgr interface{}) *mockreconcilerType_SetupWithManager_Call {
+func (_e *mockreconcilerType_Expecter) SetupWithManager(mgr any) *mockreconcilerType_SetupWithManager_Call {
 	return &mockreconcilerType_SetupWithManager_Call{Call: _e.mock.On("SetupWithManager", mgr)}
 }
 

@@ -31,7 +31,7 @@ func newKafkaReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkas/finalizers,verbs=get;create;update
 
 func (r *KafkaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newKafkaAdapter, r.Log), &v1alpha1.Kafka{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(r.Client, r.Recorder, newKafkaAdapter, r.Log), &v1alpha1.Kafka{})
 }
 
 func (r *KafkaReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -70,7 +70,7 @@ func (a *kafkaAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *kafkaAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
+func (a *kafkaAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) *corev1.Secret {
 	var userName, password string
 	if len(s.Users) > 0 {
 		userName = s.Users[0].Username
@@ -115,7 +115,7 @@ func (a *kafkaAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*
 		}
 	}
 
-	return newSecret(a, stringData, false), nil
+	return newSecret(a, stringData, false)
 }
 
 func (a *kafkaAdapter) getServiceType() serviceType {

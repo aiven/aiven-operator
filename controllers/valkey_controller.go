@@ -32,7 +32,7 @@ type ValkeyHandler struct{}
 //+kubebuilder:rbac:groups=aiven.io,resources=valkeys/finalizers,verbs=get;create;update
 
 func (r *ValkeyReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newValkeyAdapter, r.Log), &v1alpha1.Valkey{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(r.Client, r.Recorder, newValkeyAdapter, r.Log), &v1alpha1.Valkey{})
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -72,7 +72,7 @@ func (a *valkeyAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *valkeyAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
+func (a *valkeyAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) *corev1.Secret {
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
 		prefix + "HOST":     s.ServiceUriParams["host"],
@@ -82,7 +82,7 @@ func (a *valkeyAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (
 		prefix + "USER":     s.ServiceUriParams["user"],
 	}
 
-	return newSecret(a, stringData, false), nil
+	return newSecret(a, stringData, false)
 }
 
 func (a *valkeyAdapter) getServiceType() serviceType {

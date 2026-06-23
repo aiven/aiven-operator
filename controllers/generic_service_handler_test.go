@@ -330,11 +330,9 @@ func TestGet_SecretCleanupRunsWhenPoweredOff(t *testing.T) {
 		k8s:    k8s,
 	}
 
-	out, err := h.get(t.Context(), avn, pg)
-	require.NoError(t, err)
-	assert.Nil(t, out, "no connection Secret expected when powered off")
+	require.NoError(t, h.observe(t.Context(), avn, pg))
 
-	err = k8s.Get(t.Context(), types.NamespacedName{Name: "creds", Namespace: "default"}, &corev1.Secret{})
+	err := k8s.Get(t.Context(), types.NamespacedName{Name: "creds", Namespace: "default"}, &corev1.Secret{})
 	assert.True(t, apierrors.IsNotFound(err),
 		"migration Secret should have been deleted even though service is powered off, got err: %v", err)
 }

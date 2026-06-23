@@ -9,7 +9,6 @@ import (
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/hashicorp/go-multierror"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -78,10 +77,10 @@ func (h *ClickhouseGrantHandler) delete(ctx context.Context, avnGen avngen.Clien
 	return err == nil, err
 }
 
-func (h *ClickhouseGrantHandler) get(_ context.Context, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *ClickhouseGrantHandler) observe(_ context.Context, _ avngen.Client, obj client.Object) error {
 	g, err := h.convert(obj)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// Stores previous state
@@ -92,7 +91,7 @@ func (h *ClickhouseGrantHandler) get(_ context.Context, _ avngen.Client, obj cli
 			"Instance is running on Aiven side"))
 
 	metav1.SetMetaDataAnnotation(&g.ObjectMeta, instanceIsRunningAnnotation, "true")
-	return nil, nil
+	return nil
 }
 
 func (h *ClickhouseGrantHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

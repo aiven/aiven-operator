@@ -9,7 +9,6 @@ import (
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -125,10 +124,10 @@ func (h ServiceIntegrationEndpointHandler) delete(ctx context.Context, avnGen av
 	return true, nil
 }
 
-func (h ServiceIntegrationEndpointHandler) get(_ context.Context, _ avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h ServiceIntegrationEndpointHandler) observe(_ context.Context, _ avngen.Client, obj client.Object) error {
 	si, err := h.convert(obj)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	meta.SetStatusCondition(&si.Status.Conditions,
@@ -137,7 +136,7 @@ func (h ServiceIntegrationEndpointHandler) get(_ context.Context, _ avngen.Clien
 
 	metav1.SetMetaDataAnnotation(&si.ObjectMeta, instanceIsRunningAnnotation, "true")
 
-	return nil, nil
+	return nil
 }
 
 func (h ServiceIntegrationEndpointHandler) checkPreconditions(_ context.Context, _ avngen.Client, obj client.Object) (bool, error) {

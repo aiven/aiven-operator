@@ -30,7 +30,7 @@ func newClickhouseReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouses/finalizers,verbs=get;create;update
 
 func (r *ClickhouseReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newClickhouseAdapter, r.Log), &v1alpha1.Clickhouse{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(r.Client, r.Recorder, newClickhouseAdapter, r.Log), &v1alpha1.Clickhouse{})
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -70,7 +70,7 @@ func (a *clickhouseAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *clickhouseAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
+func (a *clickhouseAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) *corev1.Secret {
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
 		prefix + "HOST":     s.ServiceUriParams["host"],
@@ -84,7 +84,7 @@ func (a *clickhouseAdapter) newSecret(_ context.Context, s *service.ServiceGetOu
 		"USER":     s.ServiceUriParams["user"],
 	}
 
-	return newSecret(a, stringData, false), nil
+	return newSecret(a, stringData, false)
 }
 
 func (a *clickhouseAdapter) getServiceType() serviceType {

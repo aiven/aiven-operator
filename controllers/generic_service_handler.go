@@ -10,19 +10,15 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func newGenericServiceHandler(fabric serviceAdapterFabric, log logr.Logger) Handlers {
-	return &genericServiceHandler{fabric: fabric, log: log}
-}
-
-// newGenericServiceHandlerWithClient wires a Kubernetes client into the handler so it can
-// read migration Secrets.
-func newGenericServiceHandlerWithClient(k8s client.Client, fabric serviceAdapterFabric, log logr.Logger) Handlers {
-	return &genericServiceHandler{fabric: fabric, log: log, k8s: k8s}
+func newGenericServiceHandler(k8s client.Client, rec record.EventRecorder, fabric serviceAdapterFabric, log logr.Logger) Handlers {
+	return &genericServiceHandler{fabric: fabric, log: log, k8s: k8s, rec: rec}
 }
 
 // genericServiceHandler provides common CRUD management for all service types using serviceAdapter,
@@ -31,6 +27,7 @@ type genericServiceHandler struct {
 	fabric serviceAdapterFabric
 	log    logr.Logger
 	k8s    client.Client
+	rec    record.EventRecorder
 }
 
 func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, refs []client.Object) error {
@@ -216,16 +213,16 @@ func (h *genericServiceHandler) delete(ctx context.Context, avnGen avngen.Client
 	return false, fmt.Errorf("failed to delete service in Aiven: %w", err)
 }
 
-func (h *genericServiceHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *genericServiceHandler) observe(ctx context.Context, avnGen avngen.Client, obj client.Object) error {
 	o, err := h.fabric(obj)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	spec := o.getServiceCommonSpec()
 	avnService, err := avnGen.ServiceGet(ctx, spec.Project, o.getObjectMeta().Name, service.ServiceGetIncludeSecrets(true))
 	if err != nil {
-		return nil, fmt.Errorf("failed to get service from Aiven: %w", err)
+		return fmt.Errorf("failed to get service from Aiven: %w", err)
 	}
 
 	status := o.getServiceStatus()
@@ -245,7 +242,7 @@ func (h *genericServiceHandler) get(ctx context.Context, avnGen avngen.Client, o
 		msg = "Instance is powered off on Aiven side"
 	default:
 		// Not ready yet
-		return nil, nil
+		return nil
 	}
 
 	meta.SetStatusCondition(&status.Conditions, getRunningCondition(metav1.ConditionTrue, "CheckRunning", msg))
@@ -259,18 +256,18 @@ func (h *genericServiceHandler) get(ctx context.Context, avnGen avngen.Client, o
 		)
 		if !migrationDone {
 			if err := h.updateMigrationStatus(ctx, avnGen, o, spec); err != nil {
-				return nil, err
+				return err
 			}
 		}
 		if err := h.maybeDeleteMigrationSecret(ctx, o, mp); err != nil {
-			return nil, err
+			return err
 		}
 	}
 
 	// If service is powered off, we don't need to return a secret
 	if !isPowered {
 		metav1.SetMetaDataAnnotation(o.getObjectMeta(), instanceIsRunningAnnotation, "false")
-		return nil, nil
+		return nil
 	}
 
 	// Service is powered
@@ -278,21 +275,21 @@ func (h *genericServiceHandler) get(ctx context.Context, avnGen avngen.Client, o
 
 	// Some services get secrets after they are running only,
 	// like ip addresses (hosts)
-	secret, err := o.newSecret(ctx, avnService)
-	if err != nil || secret == nil {
-		return secret, err
+	secret := o.newSecret(ctx, avnService)
+	if secret == nil {
+		return nil
 	}
 
 	switch o.getServiceType() {
 	case serviceTypeKafka, serviceTypePostgreSQL, serviceTypeMySQL:
 		// CA_CERT can be used with these service types only
 	default:
-		return secret, nil
+		return h.publishConnectionSecret(ctx, obj, secret)
 	}
 
 	cert, err := avnGen.ProjectKmsGetCA(ctx, spec.Project)
 	if err != nil {
-		return nil, fmt.Errorf("cannot retrieve project CA certificate: %w", err)
+		return fmt.Errorf("cannot retrieve project CA certificate: %w", err)
 	}
 
 	// We don't expect the StringData map to be empty, it must panic.
@@ -302,7 +299,48 @@ func (h *genericServiceHandler) get(ctx context.Context, avnGen avngen.Client, o
 		// todo: backward compatibility, remove in future releases
 		secret.StringData["CA_CERT"] = cert
 	}
-	return secret, nil
+	return h.publishConnectionSecret(ctx, obj, secret)
+}
+
+func (h *genericServiceHandler) publishConnectionSecret(ctx context.Context, obj client.Object, goalSecret *corev1.Secret) error {
+	o, ok := obj.(v1alpha1.AivenManagedObject)
+	if !ok {
+		return fmt.Errorf("object %T does not implement AivenManagedObject", obj)
+	}
+
+	if o.NoSecret() {
+		h.rec.Event(o, corev1.EventTypeNormal, eventConnInfoSecretCreationDisabled, "connInfoSecretTargetDisabled is true, secret will not be created")
+		return nil
+	}
+
+	// `CreateOrUpdate` will populate this secret by calling Get.
+	secret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      goalSecret.Name,
+			Namespace: goalSecret.Namespace,
+		},
+	}
+
+	_, err := controllerutil.CreateOrUpdate(ctx, h.k8s, secret, func() error {
+		if secret.Data == nil {
+			secret.Data = make(map[string][]byte)
+		}
+
+		// Copy data from our goalSecret's StringData.
+		// This handles both Create and Update.
+		if goalSecret.StringData != nil {
+			secret.Data = make(map[string][]byte) // clear existing data
+			for key, value := range goalSecret.StringData {
+				secret.Data[key] = []byte(value)
+			}
+		}
+
+		secret.Labels = goalSecret.Labels
+		secret.Annotations = goalSecret.Annotations
+
+		return controllerutil.SetControllerReference(o, secret, h.k8s.Scheme())
+	})
+	return err
 }
 
 func (h *genericServiceHandler) updateMigrationStatus(ctx context.Context, avnGen avngen.Client, o serviceAdapter, spec *v1alpha1.ServiceCommonSpec) error {
@@ -430,7 +468,7 @@ type serviceAdapter interface {
 	getServiceType() serviceType
 	getDiskSpace() string
 	getUserConfig() any
-	newSecret(ctx context.Context, s *service.ServiceGetOut) (*corev1.Secret, error)
+	newSecret(ctx context.Context, s *service.ServiceGetOut) *corev1.Secret
 	performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error
 	createOrUpdateServiceSpecific(ctx context.Context, avnGen avngen.Client, old *service.ServiceGetOut) error
 }
