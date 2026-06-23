@@ -8,49 +8,171 @@ import (
 
 	avngen "github.com/aiven/go-client-codegen"
 	proj "github.com/aiven/go-client-codegen/handler/project"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-// ProjectReconciler reconciles a Project object
-type ProjectReconciler struct {
-	Controller
-}
-
 func newProjectReconciler(c Controller) reconcilerType {
-	return &ProjectReconciler{Controller: c}
+	return newManagedReconciler(
+		c,
+		func(c Controller, avnGen avngen.Client) AivenController[*v1alpha1.Project] {
+			return &ProjectController{
+				Client: c.Client,
+				avnGen: avnGen,
+			}
+		},
+		nil,
+	)
 }
-
-// ProjectHandler handles an Aiven project
-type ProjectHandler struct{}
 
 //+kubebuilder:rbac:groups=aiven.io,resources=projects,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=projects/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=aiven.io,resources=projects/finalizers,verbs=get;create;update
 
-func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, ProjectHandler{}, &v1alpha1.Project{})
+// ProjectController reconciles a Project object.
+type ProjectController struct {
+	client.Client
+	avnGen avngen.Client
 }
 
-func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.Project{}).
-		Owns(&corev1.Secret{}).
-		Complete(r)
+func (r *ProjectController) Observe(ctx context.Context, cr *v1alpha1.Project) (Observation, error) {
+	p, err := r.avnGen.ProjectGet(ctx, cr.Name) // nolint:staticcheck
+	if err != nil {
+		if isNotFound(err) {
+			return Observation{ResourceExists: false}, nil
+		}
+		return Observation{}, err
+	}
+
+	setProjectStatus(cr, p)
+
+	if !hasLatestGeneration(cr) {
+		return Observation{
+			ResourceExists:   true,
+			ResourceUpToDate: false,
+		}, nil
+	}
+
+	cert, err := r.avnGen.ProjectKmsGetCA(ctx, cr.Name)
+	if err != nil {
+		return Observation{}, fmt.Errorf("getting project KMS CA: %w", err)
+	}
+	markInstanceRunning(cr)
+
+	prefix := getSecretPrefix(cr)
+	return Observation{
+		ResourceExists:   true,
+		ResourceUpToDate: true,
+		SecretDetails: SecretDetails{
+			prefix + "CA_CERT": cert,
+			// todo: remove in future releases
+			"CA_CERT": cert,
+		},
+	}, nil
 }
 
-func (h ProjectHandler) getLongCardID(ctx context.Context, avnGen avngen.Client, cardID string) (*string, error) {
+func (r *ProjectController) Create(ctx context.Context, cr *v1alpha1.Project) (CreateResult, error) {
+	delete(cr.GetAnnotations(), instanceIsRunningAnnotation)
+
+	cardID, err := r.getLongCardID(ctx, cr.Spec.CardID)
+	if err != nil {
+		return CreateResult{}, fmt.Errorf("getting long card id: %w", err)
+	}
+
+	billingEmails := projectBillingEmails(cr.Spec.BillingEmails)
+	technicalEmails := projectTechnicalEmails(cr.Spec.TechnicalEmails)
+
+	p, err := r.avnGen.ProjectCreate(ctx, &proj.ProjectCreateIn{
+		CardId:           cardID,
+		Project:          cr.Name,
+		BillingCurrency:  cr.Spec.BillingCurrency,
+		BillingEmails:    &billingEmails,
+		Tags:             &cr.Spec.Tags,
+		TechEmails:       &technicalEmails,
+		BillingAddress:   NilIfZero(cr.Spec.BillingAddress),
+		BillingExtraText: NilIfZero(cr.Spec.BillingExtraText),
+		Cloud:            NilIfZero(cr.Spec.Cloud),
+		CountryCode:      NilIfZero(cr.Spec.CountryCode),
+		AccountId:        NilIfZero(cr.Spec.AccountID),
+		BillingGroupId:   NilIfZero(cr.Spec.BillingGroupID),
+		CopyFromProject:  NilIfZero(cr.Spec.CopyFromProject),
+	})
+	if err != nil {
+		if isServerError(err) {
+			return CreateResult{}, fmt.Errorf("%w: creating project: %w", errPreconditionNotMet, err)
+		}
+
+		return CreateResult{}, fmt.Errorf("creating project: %w", err)
+	}
+
+	setProjectStatus(cr, (*proj.ProjectGetOut)(p))
+
+	const reason = "CreatedOrUpdated"
+	meta.SetStatusCondition(&cr.Status.Conditions, getInitializedCondition(reason, "Successfully created or updated the instance in Aiven"))
+	meta.SetStatusCondition(&cr.Status.Conditions, getRunningCondition(metav1.ConditionUnknown, reason, "Successfully created or updated the instance in Aiven, status remains unknown"))
+
+	return CreateResult{}, nil
+}
+
+func (r *ProjectController) Update(ctx context.Context, cr *v1alpha1.Project) (UpdateResult, error) {
+	delete(cr.GetAnnotations(), instanceIsRunningAnnotation)
+
+	cardID, err := r.getLongCardID(ctx, cr.Spec.CardID)
+	if err != nil {
+		return UpdateResult{}, fmt.Errorf("getting long card id: %w", err)
+	}
+
+	billingEmails := projectBillingEmails(cr.Spec.BillingEmails)
+	technicalEmails := projectTechnicalEmails(cr.Spec.TechnicalEmails)
+
+	p, err := r.avnGen.ProjectUpdate(ctx, cr.Name, &proj.ProjectUpdateIn{ // nolint:staticcheck
+		CardId:           cardID,
+		BillingEmails:    &billingEmails,
+		BillingAddress:   NilIfZero(cr.Spec.BillingAddress),
+		BillingExtraText: NilIfZero(cr.Spec.BillingExtraText),
+		Cloud:            NilIfZero(cr.Spec.Cloud),
+		CountryCode:      NilIfZero(cr.Spec.CountryCode),
+		AccountId:        NilIfZero(cr.Spec.AccountID),
+		TechEmails:       &technicalEmails,
+		BillingCurrency:  cr.Spec.BillingCurrency,
+		Tags:             &cr.Spec.Tags,
+	})
+	if err != nil {
+		if isServerError(err) {
+			return UpdateResult{}, fmt.Errorf("%w: updating project: %w", errPreconditionNotMet, err)
+		}
+
+		return UpdateResult{}, fmt.Errorf("updating project: %w", err)
+	}
+
+	setProjectStatus(cr, (*proj.ProjectGetOut)(p))
+
+	const reason = "CreatedOrUpdated"
+	meta.SetStatusCondition(&cr.Status.Conditions, getInitializedCondition(reason, "Successfully created or updated the instance in Aiven"))
+	meta.SetStatusCondition(&cr.Status.Conditions, getRunningCondition(metav1.ConditionUnknown, reason, "Successfully created or updated the instance in Aiven, status remains unknown"))
+
+	return UpdateResult{}, nil
+}
+
+func (r *ProjectController) Delete(ctx context.Context, project *v1alpha1.Project) error {
+	err := r.avnGen.ProjectDelete(ctx, project.Name) // nolint:staticcheck
+	if err != nil && !isNotFound(err) {
+		return fmt.Errorf("deleting project: %w", err)
+	}
+
+	return nil
+}
+
+func (r *ProjectController) getLongCardID(ctx context.Context, cardID string) (*string, error) {
 	if cardID == "" {
 		return nil, nil
 	}
 
 	// Uses the deprecated UserCreditCardsList method to retrieve credit cards.
-	cards, err := avnGen.UserCreditCardsList(ctx) // nolint:staticcheck
+	cards, err := r.avnGen.UserCreditCardsList(ctx) // nolint:staticcheck
 	if err != nil {
 		return nil, err
 	}
@@ -64,146 +186,26 @@ func (h ProjectHandler) getLongCardID(ctx context.Context, avnGen avngen.Client,
 	return nil, nil
 }
 
-// create creates a project on Aiven side
-func (h ProjectHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
-	project, err := h.convert(obj)
-	if err != nil {
-		return err
-	}
-
-	billingEmails := make([]proj.BillingEmailIn, 0, len(project.Spec.BillingEmails))
-	for _, v := range project.Spec.BillingEmails {
-		billingEmails = append(billingEmails, proj.BillingEmailIn{Email: v})
-	}
-
-	technicalEmails := make([]proj.TechEmailIn, 0, len(project.Spec.TechnicalEmails))
-	for _, v := range project.Spec.TechnicalEmails {
-		technicalEmails = append(technicalEmails, proj.TechEmailIn{Email: v})
-	}
-
-	exists, err := h.exists(ctx, avnGen, project)
-	if err != nil {
-		return fmt.Errorf("project does not exists: %w", err)
-	}
-
-	cardID, err := h.getLongCardID(ctx, avnGen, project.Spec.CardID)
-	if err != nil {
-		return fmt.Errorf("cannot get long card id: %w", err)
-	}
-
-	if !exists {
-		req := &proj.ProjectCreateIn{
-			CardId:           cardID,
-			Project:          project.Name,
-			BillingCurrency:  project.Spec.BillingCurrency,
-			BillingEmails:    &billingEmails,
-			Tags:             &project.Spec.Tags,
-			TechEmails:       &technicalEmails,
-			BillingAddress:   NilIfZero(project.Spec.BillingAddress),
-			BillingExtraText: NilIfZero(project.Spec.BillingExtraText),
-			Cloud:            NilIfZero(project.Spec.Cloud),
-			CountryCode:      NilIfZero(project.Spec.CountryCode),
-			AccountId:        NilIfZero(project.Spec.AccountID),
-			BillingGroupId:   NilIfZero(project.Spec.BillingGroupID),
-			CopyFromProject:  NilIfZero(project.Spec.CopyFromProject),
-		}
-
-		p, err := avnGen.ProjectCreate(ctx, req)
-		if err != nil {
-			return fmt.Errorf("failed to create project on aiven side: %w", err)
-		}
-
-		project.Status.VatID = p.VatId
-		project.Status.EstimatedBalance = p.EstimatedBalance
-		project.Status.AvailableCredits = fromAnyPointer(p.AvailableCredits)
-		project.Status.Country = p.Country
-		project.Status.PaymentMethod = p.PaymentMethod
-	} else {
-		req := &proj.ProjectUpdateIn{
-			CardId:           cardID,
-			BillingEmails:    &billingEmails,
-			BillingAddress:   NilIfZero(project.Spec.BillingAddress),
-			BillingExtraText: NilIfZero(project.Spec.BillingExtraText),
-			Cloud:            NilIfZero(project.Spec.Cloud),
-			CountryCode:      NilIfZero(project.Spec.CountryCode),
-			AccountId:        NilIfZero(project.Spec.AccountID),
-			TechEmails:       &technicalEmails,
-			BillingCurrency:  project.Spec.BillingCurrency,
-			Tags:             &project.Spec.Tags,
-		}
-
-		p, err := avnGen.ProjectUpdate(ctx, project.Name, req) // nolint:staticcheck
-		if err != nil {
-			return fmt.Errorf("failed to update project on aiven side: %w", err)
-		}
-
-		project.Status.VatID = p.VatId
-		project.Status.EstimatedBalance = p.EstimatedBalance
-		project.Status.AvailableCredits = fromAnyPointer(p.AvailableCredits)
-		project.Status.Country = p.Country
-		project.Status.PaymentMethod = p.PaymentMethod
-	}
-
-	return nil
+func setProjectStatus(cr *v1alpha1.Project, p *proj.ProjectGetOut) {
+	cr.Status.VatID = p.VatId
+	cr.Status.EstimatedBalance = p.EstimatedBalance
+	cr.Status.AvailableCredits = fromAnyPointer(p.AvailableCredits)
+	cr.Status.Country = p.Country
+	cr.Status.PaymentMethod = p.PaymentMethod
 }
 
-func (h ProjectHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
-	project, err := h.convert(obj)
-	if err != nil {
-		return nil, err
+func projectBillingEmails(emails []string) []proj.BillingEmailIn {
+	billingEmails := make([]proj.BillingEmailIn, len(emails))
+	for i, v := range emails {
+		billingEmails[i] = proj.BillingEmailIn{Email: v}
 	}
-
-	cert, err := avnGen.ProjectKmsGetCA(ctx, project.Name)
-	if err != nil {
-		return nil, fmt.Errorf("aiven client error %w", err)
-	}
-
-	meta.SetStatusCondition(&project.Status.Conditions,
-		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
-			"Instance is running on Aiven side"))
-
-	metav1.SetMetaDataAnnotation(&project.ObjectMeta, instanceIsRunningAnnotation, "true")
-
-	prefix := getSecretPrefix(project)
-	stringData := map[string]string{
-		prefix + "CA_CERT": cert,
-		// todo: remove in future releases
-		"CA_CERT": cert,
-	}
-	return newSecret(project, stringData, false), nil
+	return billingEmails
 }
 
-// exists checks if project already exists on Aiven side
-func (h ProjectHandler) exists(ctx context.Context, client avngen.Client, project *v1alpha1.Project) (bool, error) {
-	pr, err := client.ProjectGet(ctx, project.Name) // nolint:staticcheck
-	if isNotFound(err) {
-		return false, nil
+func projectTechnicalEmails(emails []string) []proj.TechEmailIn {
+	technicalEmails := make([]proj.TechEmailIn, len(emails))
+	for i, v := range emails {
+		technicalEmails[i] = proj.TechEmailIn{Email: v}
 	}
-
-	return pr != nil, err
-}
-
-// delete deletes Aiven project
-func (h ProjectHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
-	project, err := h.convert(obj)
-	if err != nil {
-		return false, err
-	}
-
-	// Delete project on Aiven side
-	err = avnGen.ProjectDelete(ctx, project.Name) // nolint:staticcheck
-	return isDeleted(err)
-}
-
-func (h ProjectHandler) convert(i client.Object) (*v1alpha1.Project, error) {
-	p, ok := i.(*v1alpha1.Project)
-	if !ok {
-		return nil, fmt.Errorf("cannot convert object to project")
-	}
-
-	return p, nil
-}
-
-func (h ProjectHandler) checkPreconditions(_ context.Context, _ avngen.Client, _ client.Object) (bool, error) {
-	return true, nil
+	return technicalEmails
 }
