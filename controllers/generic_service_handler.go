@@ -213,7 +213,7 @@ func (h *genericServiceHandler) delete(ctx context.Context, avnGen avngen.Client
 	return false, fmt.Errorf("failed to delete service in Aiven: %w", err)
 }
 
-func (h *genericServiceHandler) observe(ctx context.Context, avnGen avngen.Client, obj client.Object) error {
+func (h *genericServiceHandler) observe(ctx context.Context, avnGen avngen.Client, obj v1alpha1.AivenManagedObject) error {
 	o, err := h.fabric(obj)
 	if err != nil {
 		return err
@@ -275,7 +275,7 @@ func (h *genericServiceHandler) observe(ctx context.Context, avnGen avngen.Clien
 
 	// Some services get secrets after they are running only,
 	// like ip addresses (hosts)
-	secret := o.newSecret(ctx, avnService)
+	secret := o.newSecret(avnService)
 	if secret == nil {
 		return nil
 	}
@@ -302,14 +302,9 @@ func (h *genericServiceHandler) observe(ctx context.Context, avnGen avngen.Clien
 	return h.publishConnectionSecret(ctx, obj, secret)
 }
 
-func (h *genericServiceHandler) publishConnectionSecret(ctx context.Context, obj client.Object, goalSecret *corev1.Secret) error {
-	o, ok := obj.(v1alpha1.AivenManagedObject)
-	if !ok {
-		return fmt.Errorf("object %T does not implement AivenManagedObject", obj)
-	}
-
-	if o.NoSecret() {
-		h.rec.Event(o, corev1.EventTypeNormal, eventConnInfoSecretCreationDisabled, "connInfoSecretTargetDisabled is true, secret will not be created")
+func (h *genericServiceHandler) publishConnectionSecret(ctx context.Context, obj v1alpha1.AivenManagedObject, goalSecret *corev1.Secret) error {
+	if obj.NoSecret() {
+		h.rec.Event(obj, corev1.EventTypeNormal, eventConnInfoSecretCreationDisabled, "connInfoSecretTargetDisabled is true, secret will not be created")
 		return nil
 	}
 
@@ -338,7 +333,7 @@ func (h *genericServiceHandler) publishConnectionSecret(ctx context.Context, obj
 		secret.Labels = goalSecret.Labels
 		secret.Annotations = goalSecret.Annotations
 
-		return controllerutil.SetControllerReference(o, secret, h.k8s.Scheme())
+		return controllerutil.SetControllerReference(obj, secret, h.k8s.Scheme())
 	})
 	return err
 }
@@ -468,7 +463,7 @@ type serviceAdapter interface {
 	getServiceType() serviceType
 	getDiskSpace() string
 	getUserConfig() any
-	newSecret(ctx context.Context, s *service.ServiceGetOut) *corev1.Secret
+	newSecret(s *service.ServiceGetOut) *corev1.Secret
 	performUpgradeTaskIfNeeded(ctx context.Context, avn avngen.Client, old *service.ServiceGetOut) error
 	createOrUpdateServiceSpecific(ctx context.Context, avnGen avngen.Client, old *service.ServiceGetOut) error
 }

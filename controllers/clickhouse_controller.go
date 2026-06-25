@@ -70,7 +70,7 @@ func (a *clickhouseAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *clickhouseAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) *corev1.Secret {
+func (a *clickhouseAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
 		prefix + "HOST":     s.ServiceUriParams["host"],

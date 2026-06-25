@@ -147,7 +147,7 @@ func (h KafkaConnectorHandler) delete(ctx context.Context, avnGen avngen.Client,
 	return true, nil
 }
 
-func (h KafkaConnectorHandler) observe(ctx context.Context, avnGen avngen.Client, obj client.Object) error {
+func (h KafkaConnectorHandler) observe(ctx context.Context, avnGen avngen.Client, obj v1alpha1.AivenManagedObject) error {
 	conn, err := h.convert(obj)
 	if err != nil {
 		return err

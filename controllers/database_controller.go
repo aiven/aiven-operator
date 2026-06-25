@@ -98,7 +98,7 @@ func (h DatabaseHandler) exists(ctx context.Context, avnGen avngen.Client, db *v
 	return d != nil, nil
 }
 
-func (h DatabaseHandler) observe(ctx context.Context, avnGen avngen.Client, obj client.Object) error {
+func (h DatabaseHandler) observe(ctx context.Context, avnGen avngen.Client, obj v1alpha1.AivenManagedObject) error {
 	db, err := h.convert(obj)
 	if err != nil {
 		return err

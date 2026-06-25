@@ -72,7 +72,7 @@ func (a *valkeyAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *valkeyAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) *corev1.Secret {
+func (a *valkeyAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
 		prefix + "HOST":     s.ServiceUriParams["host"],

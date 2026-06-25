@@ -65,7 +65,7 @@ type (
 		delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error)
 
 		// observe retrieves an object from Aiven and updates Kubernetes status fields.
-		observe(ctx context.Context, avnGen avngen.Client, obj client.Object) error
+		observe(ctx context.Context, avnGen avngen.Client, obj v1alpha1.AivenManagedObject) error
 
 		// checkPreconditions check whether all preconditions for creating (or updating) the resource are in place.
 		// For example, it is applicable when a service needs to be running before this resource can be created.

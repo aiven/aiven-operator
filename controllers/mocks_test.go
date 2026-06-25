@@ -264,7 +264,7 @@ func (_c *MockHandlers_delete_Call) RunAndReturn(run func(ctx context.Context, a
 }
 
 // observe provides a mock function for the type MockHandlers
-func (_mock *MockHandlers) observe(ctx context.Context, avnGen aiven.Client, obj client.Object) error {
+func (_mock *MockHandlers) observe(ctx context.Context, avnGen aiven.Client, obj v1alpha1.AivenManagedObject) error {
 	ret := _mock.Called(ctx, avnGen, obj)
 
 	if len(ret) == 0 {
@@ -272,7 +272,7 @@ func (_mock *MockHandlers) observe(ctx context.Context, avnGen aiven.Client, obj
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, aiven.Client, client.Object) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, aiven.Client, v1alpha1.AivenManagedObject) error); ok {
 		r0 = returnFunc(ctx, avnGen, obj)
 	} else {
 		r0 = ret.Error(0)
@@ -288,12 +288,12 @@ type MockHandlers_observe_Call struct {
 // observe is a helper method to define mock.On call
 //   - ctx context.Context
 //   - avnGen aiven.Client
-//   - obj client.Object
+//   - obj v1alpha1.AivenManagedObject
 func (_e *MockHandlers_Expecter) observe(ctx any, avnGen any, obj any) *MockHandlers_observe_Call {
 	return &MockHandlers_observe_Call{Call: _e.mock.On("observe", ctx, avnGen, obj)}
 }
 
-func (_c *MockHandlers_observe_Call) Run(run func(ctx context.Context, avnGen aiven.Client, obj client.Object)) *MockHandlers_observe_Call {
+func (_c *MockHandlers_observe_Call) Run(run func(ctx context.Context, avnGen aiven.Client, obj v1alpha1.AivenManagedObject)) *MockHandlers_observe_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -303,9 +303,9 @@ func (_c *MockHandlers_observe_Call) Run(run func(ctx context.Context, avnGen ai
 		if args[1] != nil {
 			arg1 = args[1].(aiven.Client)
 		}
-		var arg2 client.Object
+		var arg2 v1alpha1.AivenManagedObject
 		if args[2] != nil {
-			arg2 = args[2].(client.Object)
+			arg2 = args[2].(v1alpha1.AivenManagedObject)
 		}
 		run(
 			arg0,
@@ -321,7 +321,7 @@ func (_c *MockHandlers_observe_Call) Return(err error) *MockHandlers_observe_Cal
 	return _c
 }
 
-func (_c *MockHandlers_observe_Call) RunAndReturn(run func(ctx context.Context, avnGen aiven.Client, obj client.Object) error) *MockHandlers_observe_Call {
+func (_c *MockHandlers_observe_Call) RunAndReturn(run func(ctx context.Context, avnGen aiven.Client, obj v1alpha1.AivenManagedObject) error) *MockHandlers_observe_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2797,16 +2797,16 @@ func (_c *mockserviceAdapter_getUserConfig_Call) RunAndReturn(run func() any) *m
 }
 
 // newSecret provides a mock function for the type mockserviceAdapter
-func (_mock *mockserviceAdapter) newSecret(ctx context.Context, s *service.ServiceGetOut) *v10.Secret {
-	ret := _mock.Called(ctx, s)
+func (_mock *mockserviceAdapter) newSecret(s *service.ServiceGetOut) *v10.Secret {
+	ret := _mock.Called(s)
 
 	if len(ret) == 0 {
 		panic("no return value specified for newSecret")
 	}
 
 	var r0 *v10.Secret
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *service.ServiceGetOut) *v10.Secret); ok {
-		r0 = returnFunc(ctx, s)
+	if returnFunc, ok := ret.Get(0).(func(*service.ServiceGetOut) *v10.Secret); ok {
+		r0 = returnFunc(s)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*v10.Secret)
@@ -2821,25 +2821,19 @@ type mockserviceAdapter_newSecret_Call struct {
 }
 
 // newSecret is a helper method to define mock.On call
-//   - ctx context.Context
 //   - s *service.ServiceGetOut
-func (_e *mockserviceAdapter_Expecter) newSecret(ctx any, s any) *mockserviceAdapter_newSecret_Call {
-	return &mockserviceAdapter_newSecret_Call{Call: _e.mock.On("newSecret", ctx, s)}
+func (_e *mockserviceAdapter_Expecter) newSecret(s any) *mockserviceAdapter_newSecret_Call {
+	return &mockserviceAdapter_newSecret_Call{Call: _e.mock.On("newSecret", s)}
 }
 
-func (_c *mockserviceAdapter_newSecret_Call) Run(run func(ctx context.Context, s *service.ServiceGetOut)) *mockserviceAdapter_newSecret_Call {
+func (_c *mockserviceAdapter_newSecret_Call) Run(run func(s *service.ServiceGetOut)) *mockserviceAdapter_newSecret_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
+		var arg0 *service.ServiceGetOut
 		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 *service.ServiceGetOut
-		if args[1] != nil {
-			arg1 = args[1].(*service.ServiceGetOut)
+			arg0 = args[0].(*service.ServiceGetOut)
 		}
 		run(
 			arg0,
-			arg1,
 		)
 	})
 	return _c
@@ -2850,7 +2844,7 @@ func (_c *mockserviceAdapter_newSecret_Call) Return(secret *v10.Secret) *mockser
 	return _c
 }
 
-func (_c *mockserviceAdapter_newSecret_Call) RunAndReturn(run func(ctx context.Context, s *service.ServiceGetOut) *v10.Secret) *mockserviceAdapter_newSecret_Call {
+func (_c *mockserviceAdapter_newSecret_Call) RunAndReturn(run func(s *service.ServiceGetOut) *v10.Secret) *mockserviceAdapter_newSecret_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -71,7 +71,7 @@ func (a *flinkAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *flinkAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) *corev1.Secret {
+func (a *flinkAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
 	stringData := map[string]string{
 		"HOST":     s.ServiceUriParams["host"],
 		"USER":     s.ServiceUriParams["user"],

@@ -124,7 +124,7 @@ func (h ServiceIntegrationEndpointHandler) delete(ctx context.Context, avnGen av
 	return true, nil
 }
 
-func (h ServiceIntegrationEndpointHandler) observe(_ context.Context, _ avngen.Client, obj client.Object) error {
+func (h ServiceIntegrationEndpointHandler) observe(_ context.Context, _ avngen.Client, obj v1alpha1.AivenManagedObject) error {
 	si, err := h.convert(obj)
 	if err != nil {
 		return err

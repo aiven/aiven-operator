@@ -77,7 +77,7 @@ func (h *ClickhouseGrantHandler) delete(ctx context.Context, avnGen avngen.Clien
 	return err == nil, err
 }
 
-func (h *ClickhouseGrantHandler) observe(_ context.Context, _ avngen.Client, obj client.Object) error {
+func (h *ClickhouseGrantHandler) observe(_ context.Context, _ avngen.Client, obj v1alpha1.AivenManagedObject) error {
 	g, err := h.convert(obj)
 	if err != nil {
 		return err

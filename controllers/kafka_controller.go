@@ -70,7 +70,7 @@ func (a *kafkaAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *kafkaAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) *corev1.Secret {
+func (a *kafkaAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
 	var userName, password string
 	if len(s.Users) > 0 {
 		userName = s.Users[0].Username

@@ -71,7 +71,7 @@ func (a *grafanaAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *grafanaAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) *corev1.Secret {
+func (a *grafanaAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
 	stringData := map[string]string{
 		"HOST":     s.ServiceUriParams["host"],
 		"PORT":     s.ServiceUriParams["port"],

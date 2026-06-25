@@ -72,7 +72,7 @@ func (a *opensearchAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *opensearchAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) *corev1.Secret {
+func (a *opensearchAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
 		prefix + "URI":      s.ServiceUri,

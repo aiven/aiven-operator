@@ -75,7 +75,7 @@ func (a *mySQLAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *mySQLAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) *corev1.Secret {
+func (a *mySQLAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
 	stringData := map[string]string{
 		"HOST":        s.ServiceUriParams["host"],
 		"PORT":        s.ServiceUriParams["port"],

@@ -68,7 +68,7 @@ func (a *kafkaConnectAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *kafkaConnectAdapter) newSecret(_ context.Context, _ *service.ServiceGetOut) *corev1.Secret {
+func (a *kafkaConnectAdapter) newSecret(_ *service.ServiceGetOut) *corev1.Secret {
 	return nil
 }
 

@@ -69,7 +69,7 @@ func (h *clickhouseRoleHandler) delete(ctx context.Context, avnGen avngen.Client
 	return isDeleted(err)
 }
 
-func (h *clickhouseRoleHandler) observe(ctx context.Context, avnGen avngen.Client, obj client.Object) error {
+func (h *clickhouseRoleHandler) observe(ctx context.Context, avnGen avngen.Client, obj v1alpha1.AivenManagedObject) error {
 	role, err := h.convert(obj)
 	if err != nil {
 		return err

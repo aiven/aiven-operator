@@ -108,7 +108,7 @@ func (h *ProjectVPCHandler) delete(ctx context.Context, avnGen avngen.Client, ob
 	return false, nil
 }
 
-func (h *ProjectVPCHandler) observe(ctx context.Context, avnGen avngen.Client, obj client.Object) error {
+func (h *ProjectVPCHandler) observe(ctx context.Context, avnGen avngen.Client, obj v1alpha1.AivenManagedObject) error {
 	projectVPC, err := h.convert(obj)
 	if err != nil {
 		return err
