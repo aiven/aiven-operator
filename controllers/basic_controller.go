@@ -13,6 +13,7 @@ import (
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -190,15 +191,24 @@ func (i *instanceReconcilerHelper) reconcile(ctx context.Context, o v1alpha1.Aiv
 		return false, nil
 	}
 
-	if IsReadyToUse(o) && !hasPendingMigration(o) {
-		return false, nil
+	orig := o.DeepCopyObject().(v1alpha1.AivenManagedObject)
+
+	if IsReadyToUse(o) {
+		// A running service is useful only after its connection details are published.
+		// Don't skip reconciliation on a stale Ready marker when the Secret is missing, stale, or the last publish failed.
+		if !IsMarkedAsPoweredOff(o) && i.needsConnectionSecretPublish(ctx, o) {
+			// Persist NotReady before dependency gates can requeue, so dependants do not keep trusting a stale Ready marker.
+			delete(o.GetAnnotations(), instanceIsRunningAnnotation)
+			setConnectionSecretPublishPendingCondition(o)
+		} else if !hasPendingMigration(o) {
+			return false, nil
+		}
 	}
 
 	// Create or update.
 	// Even if reconcile fails, we need to update the object in kube
 	// to save conditions and other data.
 	// So we don't exit on error.
-	orig := o.DeepCopyObject().(v1alpha1.AivenManagedObject)
 	requeue, err := i.reconcileInstance(ctx, o)
 	if equality.Semantic.DeepEqual(orig, o) {
 		return requeue, err
@@ -549,9 +559,37 @@ func (i *instanceReconcilerHelper) createOrUpdateInstance(ctx context.Context, o
 func (i *instanceReconcilerHelper) updateInstanceStateUntilRunning(ctx context.Context, o v1alpha1.AivenManagedObject) error {
 	i.log.Info("checking if instance is ready")
 
-	// Needs to be before o.NoSecret() check because `observe` mutates the object's metadata annotations.
-	// It set the instanceIsRunningAnnotation annotation when the instance is running on Aiven's side.
 	return i.h.observe(ctx, i.avnGen, o)
+}
+
+// needsConnectionSecretPublish decides whether connection details still need to be published before dependants can trust the resource as ready.
+// A Secret with the right name isn't enough: after a failed publish, or when the Secret belongs to an older object incarnation, the controller must publish it again.
+func (i *instanceReconcilerHelper) needsConnectionSecretPublish(ctx context.Context, obj v1alpha1.AivenManagedObject) bool {
+	withSecret, ok := any(obj).(objWithSecret)
+	if !ok {
+		return false
+	}
+
+	if obj.NoSecret() {
+		return false
+	}
+
+	if hasConnectionSecretPublishError(obj) {
+		return true
+	}
+
+	secret := &corev1.Secret{}
+	if err := i.k8s.Get(ctx, types.NamespacedName{Name: connectionSecretName(withSecret), Namespace: withSecret.GetNamespace()}, secret); err != nil {
+		if !apierrors.IsNotFound(err) {
+			i.log.Info("unable to verify connection secret ownership", "error", err)
+		}
+		return true
+	}
+
+	// A same-named Secret isn't enough: a resource can be deleted and recreated before the old Secret disappears.
+	// The requirement is met only by a Secret published by the current object UID.
+	ref := metav1.GetControllerOf(secret)
+	return ref == nil || obj.GetUID() == "" || ref.UID != obj.GetUID()
 }
 
 func setupLogger(log logr.Logger, o client.Object) logr.Logger {

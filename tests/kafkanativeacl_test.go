@@ -23,11 +23,12 @@ func TestKafkaNativeACL(t *testing.T) {
 	kafkaName := randName("kafka-native-acl")
 	aclName := randName("kafka-acl")
 	yml, err := loadExampleYaml("kafkanativeacl.yaml", map[string]string{
-		"doc[0].metadata.name":    kafkaName,
-		"doc[0].spec.project":     cfg.Project,
-		"doc[1].metadata.name":    aclName,
-		"doc[1].spec.project":     cfg.Project,
-		"doc[1].spec.serviceName": kafkaName,
+		"doc[0].metadata.name":                  kafkaName,
+		"doc[0].spec.project":                   cfg.Project,
+		"doc[0].spec.connInfoSecretTarget.name": kafkaName,
+		"doc[1].metadata.name":                  aclName,
+		"doc[1].spec.project":                   cfg.Project,
+		"doc[1].spec.serviceName":               kafkaName,
 	})
 	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient)

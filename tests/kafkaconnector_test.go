@@ -27,9 +27,10 @@ func TestKafkaConnector(t *testing.T) {
 	connectorName := randName("kafka-connector")
 	yml, err := loadExampleYaml("kafkaconnector.yaml", map[string]string{
 		// Kafka
-		"doc[0].metadata.name":  kafkaName,
-		"doc[0].spec.project":   cfg.Project,
-		"doc[0].spec.cloudName": cfg.PrimaryCloudName,
+		"doc[0].metadata.name":                  kafkaName,
+		"doc[0].spec.project":                   cfg.Project,
+		"doc[0].spec.cloudName":                 cfg.PrimaryCloudName,
+		"doc[0].spec.connInfoSecretTarget.name": kafkaName,
 
 		// Kafka Topic
 		"doc[1].metadata.name":    topicName,

@@ -234,18 +234,10 @@ func (h *genericServiceHandler) observe(ctx context.Context, avnGen avngen.Clien
 	if spec.Powered != nil {
 		isPowered = *spec.Powered
 	}
-	var msg string
-	switch {
-	case isPowered && status.State == service.ServiceStateTypeRunning:
-		msg = "Instance is running on Aiven side"
-	case !isPowered && status.State == service.ServiceStateTypePoweroff:
-		msg = "Instance is powered off on Aiven side"
-	default:
-		// Not ready yet
+
+	if (!isPowered || status.State != service.ServiceStateTypeRunning) && (isPowered || status.State != service.ServiceStateTypePoweroff) {
 		return nil
 	}
-
-	meta.SetStatusCondition(&status.Conditions, getRunningCondition(metav1.ConditionTrue, "CheckRunning", msg))
 
 	if mp, ok := o.(migrationSecretProvider); ok && mp.getMigrationSecretSource() != nil {
 		// Skip polling Aiven once the migration has completed; the status won't
@@ -264,50 +256,59 @@ func (h *genericServiceHandler) observe(ctx context.Context, avnGen avngen.Clien
 		}
 	}
 
-	// If service is powered off, we don't need to return a secret
-	if !isPowered {
-		metav1.SetMetaDataAnnotation(o.getObjectMeta(), instanceIsRunningAnnotation, "false")
-		return nil
+	if hasConnectionSecretPublishError(obj) {
+		meta.RemoveStatusCondition(obj.Conditions(), ConditionTypeError)
 	}
 
-	// Service is powered
-	metav1.SetMetaDataAnnotation(o.getObjectMeta(), instanceIsRunningAnnotation, "true")
+	// If service is powered off, we don't need to return a secret
+	if !isPowered {
+		markInstancePoweredOff(obj)
+		return nil
+	}
 
 	// Some services get secrets after they are running only,
 	// like ip addresses (hosts)
 	secret := o.newSecret(avnService)
 	if secret == nil {
+		markInstanceRunning(obj)
+		return nil
+	}
+
+	if obj.NoSecret() {
+		h.rec.Event(obj, corev1.EventTypeNormal, eventConnInfoSecretCreationDisabled, "connInfoSecretTargetDisabled is true, secret will not be created")
+		markInstanceRunning(obj)
 		return nil
 	}
 
 	switch o.getServiceType() {
 	case serviceTypeKafka, serviceTypePostgreSQL, serviceTypeMySQL:
 		// CA_CERT can be used with these service types only
-	default:
-		return h.publishConnectionSecret(ctx, obj, secret)
+		cert, err := avnGen.ProjectKmsGetCA(ctx, spec.Project)
+		if err != nil {
+			err = fmt.Errorf("cannot retrieve project CA certificate: %w", err)
+			markConnectionSecretPublishFailed(obj, err)
+			return err
+		}
+
+		// We don't expect the StringData map to be empty, it must panic.
+		prefix := getSecretPrefix(o)
+		secret.StringData[prefix+"CA_CERT"] = cert
+		if o.getServiceType() == serviceTypeKafka {
+			// todo: backward compatibility, remove in future releases
+			secret.StringData["CA_CERT"] = cert
+		}
 	}
 
-	cert, err := avnGen.ProjectKmsGetCA(ctx, spec.Project)
-	if err != nil {
-		return fmt.Errorf("cannot retrieve project CA certificate: %w", err)
+	if err := h.publishConnectionSecret(ctx, obj, secret); err != nil {
+		markConnectionSecretPublishFailed(obj, err)
+		return err
 	}
 
-	// We don't expect the StringData map to be empty, it must panic.
-	prefix := getSecretPrefix(o)
-	secret.StringData[prefix+"CA_CERT"] = cert
-	if o.getServiceType() == serviceTypeKafka {
-		// todo: backward compatibility, remove in future releases
-		secret.StringData["CA_CERT"] = cert
-	}
-	return h.publishConnectionSecret(ctx, obj, secret)
+	markInstanceRunning(obj)
+	return nil
 }
 
 func (h *genericServiceHandler) publishConnectionSecret(ctx context.Context, obj v1alpha1.AivenManagedObject, goalSecret *corev1.Secret) error {
-	if obj.NoSecret() {
-		h.rec.Event(obj, corev1.EventTypeNormal, eventConnInfoSecretCreationDisabled, "connInfoSecretTargetDisabled is true, secret will not be created")
-		return nil
-	}
-
 	// `CreateOrUpdate` will populate this secret by calling Get.
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
