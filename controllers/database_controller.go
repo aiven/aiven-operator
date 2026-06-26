@@ -145,7 +145,7 @@ func GetDatabaseByName(ctx context.Context, avnGen avngen.Client, projectName, s
 		return nil, err
 	}
 
-	for _, db := range list {
+	for _, db := range list.Databases {
 		if db.DatabaseName == dbName {
 			return &db, nil
 		}

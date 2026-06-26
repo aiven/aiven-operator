@@ -30,7 +30,7 @@ type IpFilter struct {
 // Enable Kafka audit logging by providing this object. Removing it disables the feature. Enabling, updating, or disabling audit logging causes a rolling restart of all Kafka brokers.
 type AuditLog struct {
 	// +kubebuilder:validation:Minimum=1
-	// +kubebuilder:validation:Maximum=600
+	// +kubebuilder:validation:Maximum=1800
 	// Aggregation period in seconds over which audit log entries are batched before being emitted.
 	AggregationPeriodSec *int `groups:"create,update" json:"aggregation_period_sec,omitempty"`
 
@@ -495,6 +495,10 @@ type KafkaConnectSecretProviders struct {
 
 // Kafka Diskless configuration values
 type KafkaDiskless struct {
+	// +kubebuilder:validation:MaxItems=32
+	// The regexes of topics to auto enable diskless. Topics matching any of the regexes will be created as diskless topics.
+	AutoDisklessTopicRegexes []string `groups:"create,update" json:"auto_diskless_topic_regexes,omitempty"`
+
 	// Whether to enable the Diskless functionality
 	Enabled bool `groups:"create,update" json:"enabled"`
 }
@@ -738,8 +742,8 @@ type KafkaUserConfig struct {
 	// Kafka SASL mechanisms
 	KafkaSaslMechanisms *KafkaSaslMechanisms `groups:"create,update" json:"kafka_sasl_mechanisms,omitempty"`
 
-	// Available versions: `3.7`, `3.8`, `3.9`, `4.0`, `4.1`, `4.2`. Newer versions may also be available.
-	// Kafka major version. Deprecated values: `3.7`
+	// Available versions: `3.8`, `3.9`, `4.0`, `4.1`, `4.2`. Newer versions may also be available.
+	// Kafka major version. Deprecated values: `4.0`
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
 
 	// Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication. (Default: False)

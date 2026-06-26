@@ -256,8 +256,8 @@ Kafka specific user configuration options.
 - [`kafka_rest_authorization`](#spec.userConfig.kafka_rest_authorization-property){: name='spec.userConfig.kafka_rest_authorization-property'} (boolean). Enable authorization in Kafka-REST service.
 - [`kafka_rest_config`](#spec.userConfig.kafka_rest_config-property){: name='spec.userConfig.kafka_rest_config-property'} (object). Kafka REST configuration. See below for [nested schema](#spec.userConfig.kafka_rest_config).
 - [`kafka_sasl_mechanisms`](#spec.userConfig.kafka_sasl_mechanisms-property){: name='spec.userConfig.kafka_sasl_mechanisms-property'} (object). Kafka SASL mechanisms. See below for [nested schema](#spec.userConfig.kafka_sasl_mechanisms).
-- [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string). Available versions: `3.7`, `3.8`, `3.9`, `4.0`, `4.1`, `4.2`. Newer versions may also be available.
-    Kafka major version. Deprecated values: `3.7`.
+- [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string). Available versions: `3.8`, `3.9`, `4.0`, `4.1`, `4.2`. Newer versions may also be available.
+    Kafka major version. Deprecated values: `4.0`.
 - [`letsencrypt_sasl`](#spec.userConfig.letsencrypt_sasl-property){: name='spec.userConfig.letsencrypt_sasl-property'} (boolean). Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication. (Default: False).
 - [`letsencrypt_sasl_privatelink`](#spec.userConfig.letsencrypt_sasl_privatelink-property){: name='spec.userConfig.letsencrypt_sasl_privatelink-property'} (boolean). Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication via Privatelink. (Default: False).
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
@@ -385,7 +385,7 @@ Enable Kafka audit logging by providing this object. Removing it disables the fe
 
 **Optional**
 
-- [`aggregation_period_sec`](#spec.userConfig.kafka.audit_log.aggregation_period_sec-property){: name='spec.userConfig.kafka.audit_log.aggregation_period_sec-property'} (integer, Minimum: 1, Maximum: 600). Aggregation period in seconds over which audit log entries are batched before being emitted.
+- [`aggregation_period_sec`](#spec.userConfig.kafka.audit_log.aggregation_period_sec-property){: name='spec.userConfig.kafka.audit_log.aggregation_period_sec-property'} (integer, Minimum: 1, Maximum: 1800). Aggregation period in seconds over which audit log entries are batched before being emitted.
 - [`group_by`](#spec.userConfig.kafka.audit_log.group_by-property){: name='spec.userConfig.kafka.audit_log.group_by-property'} (string, Enum: `user`, `user_and_ip`). Group audit log entries by user or by user and IP address. Only valid when record_type is user_operations.
 - [`include_denials`](#spec.userConfig.kafka.audit_log.include_denials-property){: name='spec.userConfig.kafka.audit_log.include_denials-property'} (boolean). Whether to include denied authorization attempts in the audit log.
 - [`record_type`](#spec.userConfig.kafka.audit_log.record_type-property){: name='spec.userConfig.kafka.audit_log.record_type-property'} (string, Enum: `user_activity`, `user_operations`). user_operations records individual Kafka API calls (produce, fetch, etc.). user_activity records higher-level user actions.
@@ -508,6 +508,10 @@ Kafka Diskless configuration values.
 **Required**
 
 - [`enabled`](#spec.userConfig.kafka_diskless.enabled-property){: name='spec.userConfig.kafka_diskless.enabled-property'} (boolean). Whether to enable the Diskless functionality.
+
+**Optional**
+
+- [`auto_diskless_topic_regexes`](#spec.userConfig.kafka_diskless.auto_diskless_topic_regexes-property){: name='spec.userConfig.kafka_diskless.auto_diskless_topic_regexes-property'} (array of strings, MaxItems: 32). The regexes of topics to auto enable diskless. Topics matching any of the regexes will be created as diskless topics.
 
 ### kafka_rest_config {: #spec.userConfig.kafka_rest_config }
 
