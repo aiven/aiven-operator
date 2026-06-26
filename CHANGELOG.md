@@ -6,6 +6,8 @@
 - Add new 'KafkaQuota' resource to manage quotas for Aiven for Apache Kafka® services.
 - Change `ClickhouseDatabase` reconciliation to the managed reconciler: the resource now registers a
   finalizer, periodically re-reconciles, and reports `Running` status conditions
+- Change `KafkaSchemaRegistryACL` reconciliation to the managed reconciler: the resource now registers a
+  finalizer, periodically re-reconciles, and reports `Running` status conditions
 - `ConnectionPool` reconciliation: changes to `poolMode` and `poolSize` are now detected and applied on
   update, and the connection info secret is kept in sync on every reconcile
 - Add `Kafka` field `userConfig.kafka.group_coordinator_rebalance_protocols`, type `string`: The enabled
