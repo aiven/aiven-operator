@@ -147,15 +147,15 @@ func (h KafkaConnectorHandler) delete(ctx context.Context, avnGen avngen.Client,
 	return true, nil
 }
 
-func (h KafkaConnectorHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h KafkaConnectorHandler) observe(ctx context.Context, avnGen avngen.Client, obj v1alpha1.AivenManagedObject) error {
 	conn, err := h.convert(obj)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	connAtAiven, err := GetKafkaConnectorByName(ctx, avnGen, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	conn.Status.PluginStatus = v1alpha1.KafkaConnectorPluginStatus{
 		Author:  connAtAiven.Plugin.Author,
@@ -168,7 +168,7 @@ func (h KafkaConnectorHandler) get(ctx context.Context, avnGen avngen.Client, ob
 
 	connStat, err := avnGen.ServiceKafkaConnectGetConnectorStatus(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	conn.Status.State = connStat.State
 	conn.Status.TasksStatus = v1alpha1.KafkaConnectorTasksStatus{}
@@ -196,7 +196,7 @@ func (h KafkaConnectorHandler) get(ctx context.Context, avnGen avngen.Client, ob
 				"Instance is running on Aiven side"))
 		metav1.SetMetaDataAnnotation(&conn.ObjectMeta, instanceIsRunningAnnotation, "true")
 	}
-	return nil, nil
+	return nil
 }
 
 func (h KafkaConnectorHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

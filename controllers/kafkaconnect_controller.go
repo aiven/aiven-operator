@@ -30,7 +30,7 @@ func newKafkaConnectReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkaconnects/finalizers,verbs=get;create;update
 
 func (r *KafkaConnectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newKafkaConnectAdapter, r.Log), &v1alpha1.KafkaConnect{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(r.Client, r.Recorder, newKafkaConnectAdapter, r.Log), &v1alpha1.KafkaConnect{})
 }
 
 func (r *KafkaConnectReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -68,8 +68,8 @@ func (a *kafkaConnectAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *kafkaConnectAdapter) newSecret(_ context.Context, _ *service.ServiceGetOut) (*corev1.Secret, error) {
-	return nil, nil
+func (a *kafkaConnectAdapter) newSecret(_ *service.ServiceGetOut) *corev1.Secret {
+	return nil
 }
 
 func (a *kafkaConnectAdapter) getServiceType() serviceType {

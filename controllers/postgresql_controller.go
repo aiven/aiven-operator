@@ -37,7 +37,7 @@ const waitForTaskToCompleteInterval = time.Second * 3
 //+kubebuilder:rbac:groups=aiven.io,resources=postgresqls/finalizers,verbs=get;create;update
 
 func (r *PostgreSQLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandlerWithClient(r.Client, newPostgreSQLAdapterFactory(r.Client), r.Log), &v1alpha1.PostgreSQL{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(r.Client, r.Recorder, newPostgreSQLAdapterFactory(r.Client), r.Log), &v1alpha1.PostgreSQL{})
 }
 
 func (r *PostgreSQLReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -79,7 +79,7 @@ func (a *postgreSQLAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *postgreSQLAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
+func (a *postgreSQLAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
 	prefix := getSecretPrefix(a)
 	stringData := map[string]string{
 		prefix + "HOST":         s.ServiceUriParams["host"],
@@ -99,7 +99,7 @@ func (a *postgreSQLAdapter) newSecret(_ context.Context, s *service.ServiceGetOu
 		"DATABASE_URI": s.ServiceUri,
 	}
 
-	return newSecret(a, stringData, false), nil
+	return newSecret(a, stringData, false)
 }
 
 func (a *postgreSQLAdapter) getMigrationSecretSource() *v1alpha1.MigrationSecretSource {

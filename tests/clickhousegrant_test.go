@@ -6,7 +6,6 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"slices"
 	"testing"
 
 	"github.com/ClickHouse/clickhouse-go/v2"
@@ -157,7 +156,7 @@ func TestClickhouseGrant(t *testing.T) {
 	results, err := queryAndCollectResults[ClickhouseGrant](ctx, conn, chUtils.QueryNonAivenPrivileges)
 	require.NoError(t, err)
 
-	filteredResults := filterPrivilegeGrantResults(results)
+	filteredResults := filterPrivilegeGrantResults(results, userName, roleName)
 	assert.Len(t, filteredResults, 4)
 
 	expectedPrivilegeGrants := []ClickhouseGrant{
@@ -213,6 +212,7 @@ func TestClickhouseGrant(t *testing.T) {
 		roleGrantResults[i].GrantedRoleID = nil
 	}
 
+	roleGrantResults = filterRoleGrantResults(roleGrantResults, userName, roleName)
 	assert.Len(t, roleGrantResults, 1)
 	expectedRoleGrants := []ClickhouseRoleGrant{
 		{
@@ -247,13 +247,20 @@ func queryAndCollectResults[T any](ctx context.Context, conn clickhouse.Conn, qu
 	return results, nil
 }
 
-// Removes Aiven roles from the results
-func filterPrivilegeGrantResults(results []ClickhouseGrant) []ClickhouseGrant {
+func filterPrivilegeGrantResults(results []ClickhouseGrant, userName, roleName string) []ClickhouseGrant {
 	var filteredResults []ClickhouseGrant
 	for _, r := range results {
-		isAivenUser := r.UserName != nil && slices.Contains(chUtils.InternalAivenRoles, *r.UserName)
-		isRole := r.UserName == nil && r.RoleName != nil
-		if isRole || !isAivenUser {
+		if (r.UserName != nil && *r.UserName == userName) || (r.RoleName != nil && *r.RoleName == roleName) {
+			filteredResults = append(filteredResults, r)
+		}
+	}
+	return filteredResults
+}
+
+func filterRoleGrantResults(results []ClickhouseRoleGrant, userName, roleName string) []ClickhouseRoleGrant {
+	var filteredResults []ClickhouseRoleGrant
+	for _, r := range results {
+		if r.UserName != nil && *r.UserName == userName && r.GrantedRoleName != nil && *r.GrantedRoleName == roleName {
 			filteredResults = append(filteredResults, r)
 		}
 	}

@@ -31,7 +31,7 @@ func newGrafanaReconciler(c Controller) reconcilerType {
 //+kubebuilder:rbac:groups=aiven.io,resources=grafanas/finalizers,verbs=get;create;update
 
 func (r *GrafanaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(newGrafanaAdapter, r.Log), &v1alpha1.Grafana{})
+	return r.reconcileInstance(ctx, req, newGenericServiceHandler(r.Client, r.Recorder, newGrafanaAdapter, r.Log), &v1alpha1.Grafana{})
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -71,7 +71,7 @@ func (a *grafanaAdapter) getUserConfig() any {
 	return a.Spec.UserConfig
 }
 
-func (a *grafanaAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) (*corev1.Secret, error) {
+func (a *grafanaAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
 	stringData := map[string]string{
 		"HOST":     s.ServiceUriParams["host"],
 		"PORT":     s.ServiceUriParams["port"],
@@ -81,7 +81,7 @@ func (a *grafanaAdapter) newSecret(_ context.Context, s *service.ServiceGetOut) 
 		"HOSTS":    strings.Join(s.ConnectionInfo.Grafana, ","),
 	}
 
-	return newSecret(a, stringData, true), nil
+	return newSecret(a, stringData, true)
 }
 
 func (a *grafanaAdapter) getServiceType() serviceType {

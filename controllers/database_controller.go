@@ -8,7 +8,6 @@ import (
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -99,15 +98,15 @@ func (h DatabaseHandler) exists(ctx context.Context, avnGen avngen.Client, db *v
 	return d != nil, nil
 }
 
-func (h DatabaseHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h DatabaseHandler) observe(ctx context.Context, avnGen avngen.Client, obj v1alpha1.AivenManagedObject) error {
 	db, err := h.convert(obj)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	_, err = GetDatabaseByName(ctx, avnGen, db.Spec.Project, db.Spec.ServiceName, db.GetDatabaseName())
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	meta.SetStatusCondition(&db.Status.Conditions,
@@ -116,7 +115,7 @@ func (h DatabaseHandler) get(ctx context.Context, avnGen avngen.Client, obj clie
 
 	metav1.SetMetaDataAnnotation(&db.ObjectMeta, instanceIsRunningAnnotation, "true")
 
-	return nil, nil
+	return nil
 }
 
 func (h DatabaseHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {

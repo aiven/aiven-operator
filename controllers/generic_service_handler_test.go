@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"testing"
+	"time"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
@@ -16,6 +17,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -330,13 +332,162 @@ func TestGet_SecretCleanupRunsWhenPoweredOff(t *testing.T) {
 		k8s:    k8s,
 	}
 
-	out, err := h.get(t.Context(), avn, pg)
-	require.NoError(t, err)
-	assert.Nil(t, out, "no connection Secret expected when powered off")
+	require.NoError(t, h.observe(t.Context(), avn, pg))
 
-	err = k8s.Get(t.Context(), types.NamespacedName{Name: "creds", Namespace: "default"}, &corev1.Secret{})
+	err := k8s.Get(t.Context(), types.NamespacedName{Name: "creds", Namespace: "default"}, &corev1.Secret{})
 	assert.True(t, apierrors.IsNotFound(err),
 		"migration Secret should have been deleted even though service is powered off, got err: %v", err)
+}
+
+func TestObserve_EmitsEventWhenConnectionSecretCreationDisabled(t *testing.T) {
+	t.Parallel()
+
+	pg := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgres)
+	disabled := true
+	pg.Spec.ConnInfoSecretTargetDisabled = &disabled
+
+	avn := avngen.NewMockClient(t)
+	avn.EXPECT().
+		ServiceGet(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
+		Return(&service.ServiceGetOut{
+			State: service.ServiceStateTypeRunning,
+		}, nil).Once()
+
+	recorder := record.NewFakeRecorder(10)
+	h := &genericServiceHandler{
+		fabric: newPostgreSQLAdapterFactory(nil),
+		log:    logr.Discard(),
+		rec:    recorder,
+	}
+
+	require.NoError(t, h.observe(t.Context(), avn, pg))
+	require.Equal(t, "true", pg.Annotations[instanceIsRunningAnnotation])
+
+	select {
+	case event := <-recorder.Events:
+		require.Contains(t, event, corev1.EventTypeNormal)
+		require.Contains(t, event, eventConnInfoSecretCreationDisabled)
+		require.Contains(t, event, "connInfoSecretTargetDisabled is true, secret will not be created")
+	case <-time.After(time.Second):
+		t.Fatal("expected connection secret disabled event")
+	}
+}
+
+func TestObserve_DoesNotEmitDisabledSecretEventForServicesWithoutSecrets(t *testing.T) {
+	t.Parallel()
+
+	kafkaConnect := &v1alpha1.KafkaConnect{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "kafka-connect",
+			Namespace: "default",
+		},
+		Spec: v1alpha1.KafkaConnectSpec{
+			BaseServiceFields: v1alpha1.BaseServiceFields{
+				ProjectDependant: v1alpha1.ProjectDependant{
+					ProjectField: v1alpha1.ProjectField{Project: "test-project"},
+				},
+				Plan: "business-4",
+			},
+		},
+	}
+
+	avn := avngen.NewMockClient(t)
+	avn.EXPECT().
+		ServiceGet(mock.Anything, kafkaConnect.Spec.Project, kafkaConnect.Name, mock.Anything).
+		Return(&service.ServiceGetOut{
+			State: service.ServiceStateTypeRunning,
+		}, nil).Once()
+
+	recorder := record.NewFakeRecorder(10)
+	h := &genericServiceHandler{
+		fabric: newKafkaConnectAdapter,
+		log:    logr.Discard(),
+		rec:    recorder,
+	}
+
+	require.NoError(t, h.observe(t.Context(), avn, kafkaConnect))
+	require.Equal(t, "true", kafkaConnect.Annotations[instanceIsRunningAnnotation])
+
+	select {
+	case event := <-recorder.Events:
+		require.NotContains(t, event, eventConnInfoSecretCreationDisabled)
+	case <-time.After(50 * time.Millisecond):
+	}
+}
+
+func TestObserve_DoesntMarkReadyBeforeConnectionSecretDetails(t *testing.T) {
+	t.Parallel()
+
+	pg := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgres)
+	avn := avngen.NewMockClient(t)
+	avn.EXPECT().
+		ServiceGet(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
+		Return(&service.ServiceGetOut{
+			State: service.ServiceStateTypeRunning,
+			ServiceUriParams: map[string]string{
+				"host":     "pg.example.com",
+				"port":     "5432",
+				"dbname":   "defaultdb",
+				"user":     "avnadmin",
+				"password": "secret",
+				"sslmode":  "require",
+			},
+			ServiceUri: "postgres://avnadmin:secret@pg.example.com:5432/defaultdb?sslmode=require",
+		}, nil).Once()
+	avn.EXPECT().
+		ProjectKmsGetCA(mock.Anything, pg.Spec.Project).
+		Return("", assert.AnError).Once()
+
+	h := &genericServiceHandler{
+		fabric: newPostgreSQLAdapterFactory(nil),
+		log:    logr.Discard(),
+	}
+
+	err := h.observe(t.Context(), avn, pg)
+	require.ErrorIs(t, err, assert.AnError)
+	require.False(t, hasIsRunningAnnotation(pg))
+
+	running := meta.FindStatusCondition(pg.Status.Conditions, conditionTypeRunning)
+	require.NotNil(t, running)
+	require.Equal(t, metav1.ConditionUnknown, running.Status)
+	require.Equal(t, string(errConditionConnInfoSecret), running.Reason)
+
+	errCond := meta.FindStatusCondition(pg.Status.Conditions, ConditionTypeError)
+	require.NotNil(t, errCond)
+	require.Equal(t, string(errConditionConnInfoSecret), errCond.Reason)
+}
+
+func TestObserve_RebalancingServicePreservesExistingReadyMarker(t *testing.T) {
+	t.Parallel()
+
+	scheme := runtime.NewScheme()
+	require.NoError(t, corev1.AddToScheme(scheme))
+	require.NoError(t, v1alpha1.AddToScheme(scheme))
+
+	pg := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgres)
+	pg.UID = types.UID("pg-uid")
+	metav1.SetMetaDataAnnotation(&pg.ObjectMeta, instanceIsRunningAnnotation, "true")
+
+	k8s := fake.NewClientBuilder().WithScheme(scheme).Build()
+	avn := avngen.NewMockClient(t)
+	avn.EXPECT().
+		ServiceGet(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
+		Return(&service.ServiceGetOut{
+			State: service.ServiceStateTypeRebalancing,
+		}, nil).Once()
+
+	h := &genericServiceHandler{
+		fabric: newPostgreSQLAdapterFactory(k8s),
+		log:    logr.Discard(),
+		k8s:    k8s,
+	}
+
+	require.NoError(t, h.observe(t.Context(), avn, pg))
+	require.Equal(t, "true", pg.Annotations[instanceIsRunningAnnotation])
+
+	secret := &corev1.Secret{}
+	err := k8s.Get(t.Context(), types.NamespacedName{Name: pg.Name, Namespace: pg.Namespace}, secret)
+	require.True(t, apierrors.IsNotFound(err))
 }
 
 func TestHasPendingMigration(t *testing.T) {

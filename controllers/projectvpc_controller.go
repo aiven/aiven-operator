@@ -9,7 +9,6 @@ import (
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/vpc"
 	"github.com/go-logr/logr"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -109,15 +108,15 @@ func (h *ProjectVPCHandler) delete(ctx context.Context, avnGen avngen.Client, ob
 	return false, nil
 }
 
-func (h *ProjectVPCHandler) get(ctx context.Context, avnGen avngen.Client, obj client.Object) (*corev1.Secret, error) {
+func (h *ProjectVPCHandler) observe(ctx context.Context, avnGen avngen.Client, obj v1alpha1.AivenManagedObject) error {
 	projectVPC, err := h.convert(obj)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	avnVpc, err := avnGen.VpcGet(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	projectVPC.Status.State = avnVpc.State
@@ -129,7 +128,7 @@ func (h *ProjectVPCHandler) get(ctx context.Context, avnGen avngen.Client, obj c
 		metav1.SetMetaDataAnnotation(&projectVPC.ObjectMeta, instanceIsRunningAnnotation, "true")
 	}
 
-	return nil, nil
+	return nil
 }
 
 func (h *ProjectVPCHandler) checkPreconditions(_ context.Context, _ avngen.Client, _ client.Object) (bool, error) {

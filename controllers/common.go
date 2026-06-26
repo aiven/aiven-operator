@@ -157,6 +157,30 @@ func markInstanceRunning(obj v1alpha1.AivenManagedObject) {
 	metav1.SetMetaDataAnnotation(obj.GetObjectMeta(), instanceIsRunningAnnotation, "true")
 }
 
+func markInstancePoweredOff(obj v1alpha1.AivenManagedObject) {
+	meta.SetStatusCondition(obj.Conditions(), getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is powered off on Aiven side"))
+	metav1.SetMetaDataAnnotation(obj.GetObjectMeta(), instanceIsRunningAnnotation, "false")
+}
+
+func setConnectionSecretPublishPendingCondition(obj v1alpha1.AivenManagedObject) {
+	meta.SetStatusCondition(obj.Conditions(), getRunningCondition(
+		metav1.ConditionUnknown,
+		string(errConditionConnInfoSecret),
+		"Connection details are not published",
+	))
+}
+
+func markConnectionSecretPublishFailed(obj v1alpha1.AivenManagedObject, err error) {
+	delete(obj.GetAnnotations(), instanceIsRunningAnnotation)
+	setConnectionSecretPublishPendingCondition(obj)
+	meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionConnInfoSecret, err))
+}
+
+func hasConnectionSecretPublishError(obj v1alpha1.AivenManagedObject) bool {
+	cond := meta.FindStatusCondition(*obj.Conditions(), ConditionTypeError)
+	return cond != nil && cond.Reason == string(errConditionConnInfoSecret)
+}
+
 func markInstanceNotReconciled(obj v1alpha1.AivenManagedObject) {
 	delete(obj.GetAnnotations(), instanceIsRunningAnnotation)
 	meta.SetStatusCondition(obj.Conditions(), getRunningCondition(metav1.ConditionFalse, "CheckRunning", "Instance is not reconciled on Aiven side"))
@@ -231,6 +255,11 @@ func GetIsRunningAnnotation(o client.Object) string {
 	return o.GetAnnotations()[instanceIsRunningAnnotation]
 }
 
+// IsMarkedAsPoweredOff returns true when the running annotation explicitly marks a service as powered off.
+func IsMarkedAsPoweredOff(o client.Object) bool {
+	return GetIsRunningAnnotation(o) == "false"
+}
+
 // IsReadyToUse returns true when the client.Object's controller has processed the latest manifest changes
 // and the resource is in a running state in Aiven. For services, this includes both running and powered-off states.
 // This indicates the resource is ready for use and has reached its desired state.
@@ -283,14 +312,10 @@ type objWithSecret interface {
 func newSecret(o objWithSecret, stringData map[string]string, addPrefix bool) *corev1.Secret {
 	target := o.GetConnInfoSecretTarget()
 	meta := metav1.ObjectMeta{
-		Name:        o.GetName(),
+		Name:        connectionSecretName(o),
 		Namespace:   o.GetNamespace(),
 		Annotations: target.Annotations,
 		Labels:      target.Labels,
-	}
-
-	if target.Name != "" {
-		meta.Name = target.Name
 	}
 
 	// fixme: set this as default behaviour
@@ -307,6 +332,13 @@ func newSecret(o objWithSecret, stringData map[string]string, addPrefix bool) *c
 		ObjectMeta: meta,
 		StringData: stringData,
 	}
+}
+
+func connectionSecretName(o objWithSecret) string {
+	if target := o.GetConnInfoSecretTarget(); target.Name != "" {
+		return target.Name
+	}
+	return o.GetName()
 }
 
 // getSecretPrefix returns user's prefix or kind name

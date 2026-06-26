@@ -314,6 +314,7 @@ func TestServiceUserCustomCredentials(t *testing.T) {
 
 		// Verify that ServiceUser creation failed
 		require.Error(t, err, "ServiceUser should fail to be created with empty password")
+		require.Contains(t, err.Error(), "password length must be between 8 and 256 characters")
 	})
 }
 
@@ -380,11 +381,12 @@ func TestServiceUserAvnadminPasswordReset(t *testing.T) {
 func getServiceUserWithSourceSecretYaml(project, pgName, userName, cloudName string) string {
 	// secret name based on userName to avoid conflicts
 	secretName := userName + "-secret"
+	sourceSecretName := userName + "-source-secret"
 	return fmt.Sprintf(`
 apiVersion: v1
 kind: Secret
 metadata:
-  name: predefined-password-secret
+  name: %[6]s
 data:
   PASSWORD: TXlDdXN0b21QYXNzd29yZDEyMyE= # MyCustomPassword123! base64 encoded # gitleaks:allow
 ---
@@ -406,12 +408,12 @@ spec:
       type: custom-password
 
   connInfoSecretSource:
-    name: predefined-password-secret
+    name: %[6]s
     passwordKey: PASSWORD
 
   project: %[1]s
   serviceName: %[2]s
-`, project, pgName, userName, cloudName, secretName)
+`, project, pgName, userName, cloudName, secretName, sourceSecretName)
 }
 
 func getServiceUserAvnadminResetYaml(project, pgName, cloudName string) string {
@@ -452,11 +454,12 @@ spec:
 func getServiceUserWithEmptyPasswordYaml(project, pgName, userName, cloudName string) string {
 	// secret name based on userName to avoid conflicts
 	secretName := userName + "-secret"
+	sourceSecretName := userName + "-source-secret"
 	return fmt.Sprintf(`
 apiVersion: v1
 kind: Secret
 metadata:
-  name: empty-password-secret
+  name: %[6]s
 data:
   PASSWORD: "" # Empty password - this should trigger validation error
 ---
@@ -471,19 +474,19 @@ spec:
     key: token
 
   connInfoSecretTarget:
-    name: empty-password-secret-target
+    name: %[5]s
     annotations:
       test: empty-password-validation
     labels:
       type: validation-test
 
   connInfoSecretSource:
-    name: empty-password-secret
+    name: %[6]s
     passwordKey: PASSWORD
 
   project: %[1]s
   serviceName: %[2]s
-`, project, pgName, userName, cloudName, secretName)
+`, project, pgName, userName, cloudName, secretName, sourceSecretName)
 }
 
 func getServiceUserWithRetry(
