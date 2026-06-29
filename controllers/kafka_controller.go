@@ -96,16 +96,10 @@ func (a *kafkaAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
 		"ACCESS_KEY":  *s.ConnectionInfo.KafkaAccessKey,
 	}
 
+	addKafkaEndpointDetails(stringData, s.Components, prefix)
+
 	for _, c := range s.Components {
 		switch c.Component {
-		case "kafka":
-			if c.KafkaAuthenticationMethod == "sasl" {
-				stringData[prefix+"SASL_HOST"] = c.Host
-				stringData[prefix+"SASL_PORT"] = strconv.Itoa(c.Port)
-			}
-		case "schema_registry":
-			stringData[prefix+"SCHEMA_REGISTRY_HOST"] = c.Host
-			stringData[prefix+"SCHEMA_REGISTRY_PORT"] = strconv.Itoa(c.Port)
 		case "kafka_connect":
 			stringData[prefix+"CONNECT_HOST"] = c.Host
 			stringData[prefix+"CONNECT_PORT"] = strconv.Itoa(c.Port)
@@ -132,4 +126,19 @@ func (a *kafkaAdapter) performUpgradeTaskIfNeeded(_ context.Context, _ avngen.Cl
 
 func (a *kafkaAdapter) createOrUpdateServiceSpecific(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
 	return nil
+}
+
+func addKafkaEndpointDetails(details SecretDetails, components []service.ComponentOut, prefix string) {
+	for _, c := range components {
+		switch c.Component {
+		case "kafka":
+			if c.KafkaAuthenticationMethod == service.KafkaAuthenticationMethodTypeSasl {
+				details[prefix+"SASL_HOST"] = c.Host
+				details[prefix+"SASL_PORT"] = strconv.Itoa(c.Port)
+			}
+		case "schema_registry":
+			details[prefix+"SCHEMA_REGISTRY_HOST"] = c.Host
+			details[prefix+"SCHEMA_REGISTRY_PORT"] = strconv.Itoa(c.Port)
+		}
+	}
 }

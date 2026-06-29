@@ -8,6 +8,7 @@ import (
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
+	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
@@ -632,6 +633,293 @@ func TestServiceUserReconciler(t *testing.T) {
 		secret := &corev1.Secret{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
 		require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
+	})
+
+	t.Run("Publishes Kafka endpoint keys for externally managed Kafka service", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+		}
+
+		accessCert := "access-cert"
+		accessKey := "access-key"
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "kafka",
+				Components: []service.ComponentOut{
+					{
+						Component:                 "kafka",
+						Host:                      "kafka-cert.example.com",
+						Port:                      9092,
+						KafkaAuthenticationMethod: service.KafkaAuthenticationMethodTypeCertificate,
+					},
+					{
+						Component:                 "kafka",
+						Host:                      "kafka-sasl.example.com",
+						Port:                      9093,
+						KafkaAuthenticationMethod: service.KafkaAuthenticationMethodTypeSasl,
+					},
+					{Component: "schema_registry", Host: "schema.example.com", Port: 8081},
+				},
+			}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{
+				Username:   user.Name,
+				Password:   "pw",
+				AccessCert: &accessCert,
+				AccessKey:  &accessKey,
+			}, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		r, res := runScenario(t, user, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
+		require.Equal(t, []byte("kafka-cert.example.com"), secret.Data["SERVICEUSER_HOST"])
+		require.Equal(t, []byte("9092"), secret.Data["SERVICEUSER_PORT"])
+		require.Equal(t, []byte(user.Name), secret.Data["SERVICEUSER_USERNAME"])
+		require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
+		require.Equal(t, []byte("access-cert"), secret.Data["SERVICEUSER_ACCESS_CERT"])
+		require.Equal(t, []byte("access-key"), secret.Data["SERVICEUSER_ACCESS_KEY"])
+		require.Equal(t, []byte("ca"), secret.Data["SERVICEUSER_CA_CERT"])
+		require.Equal(t, []byte("kafka-sasl.example.com"), secret.Data["SERVICEUSER_SASL_HOST"])
+		require.Equal(t, []byte("9093"), secret.Data["SERVICEUSER_SASL_PORT"])
+		require.Equal(t, []byte("schema.example.com"), secret.Data["SERVICEUSER_SCHEMA_REGISTRY_HOST"])
+		require.Equal(t, []byte("8081"), secret.Data["SERVICEUSER_SCHEMA_REGISTRY_PORT"])
+	})
+
+	t.Run("Publishes only available Kafka endpoint keys", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+		}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "kafka",
+				Components: []service.ComponentOut{
+					{
+						Component:                 "kafka",
+						Host:                      "kafka-sasl.example.com",
+						Port:                      9093,
+						KafkaAuthenticationMethod: service.KafkaAuthenticationMethodTypeSasl,
+					},
+				},
+			}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw"}, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		r, res := runScenario(t, user, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
+		require.Equal(t, []byte("kafka-sasl.example.com"), secret.Data["SERVICEUSER_SASL_HOST"])
+		require.Equal(t, []byte("9093"), secret.Data["SERVICEUSER_SASL_PORT"])
+		require.NotContains(t, secret.Data, "SERVICEUSER_SCHEMA_REGISTRY_HOST")
+		require.NotContains(t, secret.Data, "SERVICEUSER_SCHEMA_REGISTRY_PORT")
+	})
+
+	t.Run("Preserves existing Kafka endpoint keys when components are temporarily absent", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+		}
+
+		existingSecret := &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{Name: user.Name, Namespace: user.Namespace},
+			Data: map[string][]byte{
+				"SERVICEUSER_SASL_HOST":            []byte("old-sasl.example.com"),
+				"SERVICEUSER_SASL_PORT":            []byte("9093"),
+				"SERVICEUSER_SCHEMA_REGISTRY_HOST": []byte("old-schema.example.com"),
+				"SERVICEUSER_SCHEMA_REGISTRY_PORT": []byte("8081"),
+			},
+		}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "kafka",
+				Components: []service.ComponentOut{
+					{
+						Component:                 "kafka",
+						Host:                      "kafka-cert.example.com",
+						Port:                      9092,
+						KafkaAuthenticationMethod: service.KafkaAuthenticationMethodTypeCertificate,
+					},
+				},
+				UserConfig: map[string]any{
+					"kafka_authentication_methods": map[string]any{"sasl": true},
+					"schema_registry":              true,
+				},
+			}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw"}, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		r, res := runScenario(t, user, avn, existingSecret)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
+		require.Equal(t, []byte("old-sasl.example.com"), secret.Data["SERVICEUSER_SASL_HOST"])
+		require.Equal(t, []byte("9093"), secret.Data["SERVICEUSER_SASL_PORT"])
+		require.Equal(t, []byte("old-schema.example.com"), secret.Data["SERVICEUSER_SCHEMA_REGISTRY_HOST"])
+		require.Equal(t, []byte("8081"), secret.Data["SERVICEUSER_SCHEMA_REGISTRY_PORT"])
+	})
+
+	t.Run("Clears stale Kafka endpoint keys when endpoints are explicitly disabled", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+		}
+
+		existingSecret := &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{Name: user.Name, Namespace: user.Namespace},
+			Data: map[string][]byte{
+				"SERVICEUSER_SASL_HOST":            []byte("old-sasl.example.com"),
+				"SERVICEUSER_SASL_PORT":            []byte("9093"),
+				"SERVICEUSER_SCHEMA_REGISTRY_HOST": []byte("old-schema.example.com"),
+				"SERVICEUSER_SCHEMA_REGISTRY_PORT": []byte("8081"),
+			},
+		}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "kafka",
+				Components: []service.ComponentOut{
+					{
+						Component:                 "kafka",
+						Host:                      "kafka-cert.example.com",
+						Port:                      9092,
+						KafkaAuthenticationMethod: service.KafkaAuthenticationMethodTypeCertificate,
+					},
+				},
+				UserConfig: map[string]any{
+					"kafka_authentication_methods": map[string]any{"sasl": false},
+					"schema_registry":              false,
+					"schema_registry_config":       "unexpected-shape",
+				},
+			}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw"}, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		r, res := runScenario(t, user, avn, existingSecret)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
+		require.Equal(t, []byte(""), secret.Data["SERVICEUSER_SASL_HOST"])
+		require.Equal(t, []byte(""), secret.Data["SERVICEUSER_SASL_PORT"])
+		require.Equal(t, []byte(""), secret.Data["SERVICEUSER_SCHEMA_REGISTRY_HOST"])
+		require.Equal(t, []byte(""), secret.Data["SERVICEUSER_SCHEMA_REGISTRY_PORT"])
+	})
+
+	t.Run("Logs and skips Kafka endpoint cleanup when user config cannot be decoded", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+		}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "kafka",
+				Components: []service.ComponentOut{
+					{
+						Component:                 "kafka",
+						Host:                      "kafka-cert.example.com",
+						Port:                      9092,
+						KafkaAuthenticationMethod: service.KafkaAuthenticationMethodTypeCertificate,
+					},
+				},
+				UserConfig: map[string]any{
+					"schema_registry": "not-a-bool",
+				},
+			}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw"}, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		sink := &logRecorderSink{}
+		ctx := logr.NewContext(t.Context(), logr.New(sink))
+		_, details, err := (&ServiceUserController{avnGen: avn}).fetchUser(ctx, user, false)
+		require.NoError(t, err)
+		require.NotContains(t, details, "SERVICEUSER_SASL_HOST")
+		require.NotContains(t, details, "SERVICEUSER_SASL_PORT")
+		require.NotContains(t, details, "SERVICEUSER_SCHEMA_REGISTRY_HOST")
+		require.NotContains(t, details, "SERVICEUSER_SCHEMA_REGISTRY_PORT")
+		require.Contains(t, sink.logs, "ERROR: unable to decode Kafka user config, keeping existing optional Kafka endpoint keys")
+	})
+
+	t.Run("Doesn't publish Kafka endpoint keys for non-Kafka service", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+		}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "valkey",
+				Components:  []service.ComponentOut{{Component: "valkey", Host: "valkey.example.com", Port: 6379}},
+			}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw"}, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		r, res := runScenario(t, user, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
+		require.NotContains(t, secret.Data, "SERVICEUSER_SASL_HOST")
+		require.NotContains(t, secret.Data, "SERVICEUSER_SASL_PORT")
+		require.NotContains(t, secret.Data, "SERVICEUSER_SCHEMA_REGISTRY_HOST")
+		require.NotContains(t, secret.Data, "SERVICEUSER_SCHEMA_REGISTRY_PORT")
 	})
 
 	t.Run("Retries transient not found for ready ServiceUser before treating it as absent", func(t *testing.T) {
