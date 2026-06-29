@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Change `ClickhouseGrant` reconciliation to the managed reconciler: the resource now registers a
+  finalizer, periodically re-reconciles, and reports `Running` status conditions
 - Add Kafka SASL and Schema Registry endpoint keys to `ServiceUser` connection secrets for Kafka services.
 - Change `ServiceIntegrationEndpoint` reconciliation to the managed reconciler: the resource now adopts a
   pre-existing endpoint matching its `endpointName` and `endpointType`.
