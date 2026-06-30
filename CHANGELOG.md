@@ -68,6 +68,9 @@
   newlines in a log message are escaped so a multi-line record (e.g
 - Change `ServiceIntegrationEndpoint` field `datadog.kafka_consumer_stats_timeout`: maximum ~~`300`~~
   → `298`
+- Add `Kafka` field `userConfig.kafka_diskless.auto_diskless_topic_regexes`, type `array`: The regexes
+  of topics to auto enable diskless
+- Change `Kafka` field `userConfig.kafka.audit_log.aggregation_period_sec`: maximum ~~`600`~~ → `1800`
 
 ## v0.40.0 - 2026-06-05
 

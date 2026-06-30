@@ -4,8 +4,8 @@ go 1.26
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.46.0
-	github.com/aiven/go-api-schemas v1.197.0
-	github.com/aiven/go-client-codegen v0.197.0
+	github.com/aiven/go-api-schemas v1.200.0
+	github.com/aiven/go-client-codegen v0.198.0
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/dave/jennifer v1.7.1
 	github.com/docker/go-units v0.5.0
@@ -24,7 +24,7 @@ require (
 	go.uber.org/zap v1.28.0
 	golang.org/x/exp v0.0.0-20260508232706-74f9aab9d74a
 	golang.org/x/sync v0.21.0
-	golang.org/x/tools v0.46.0
+	golang.org/x/tools v0.47.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.28.15
 	k8s.io/apiextensions-apiserver v0.28.9
