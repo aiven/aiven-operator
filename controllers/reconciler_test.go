@@ -369,6 +369,147 @@ func TestReconciler_Reconcile(t *testing.T) {
 		}, recorderEvents(recorder))
 	})
 
+	t.Run("Protects auth Secret before refs requeue", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgresWithRef)
+		obj.Spec.AuthSecretRef = &v1alpha1.AuthSecretReference{
+			Name: "aiven-token",
+			Key:  "token",
+		}
+		authSecret := newObjectFromYAML[corev1.Secret](t, yamlAuthSecret)
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithObjects(obj, authSecret).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		r := &Reconciler[*v1alpha1.PostgreSQL]{
+			Controller: Controller{
+				Client:   k8sClient,
+				Scheme:   scheme,
+				Recorder: recorder,
+			},
+			newObj: func() *v1alpha1.PostgreSQL { return &v1alpha1.PostgreSQL{} },
+		}
+
+		res, err := r.Reconcile(t.Context(), ctrl.Request{
+			NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
+
+		gotSecret := &corev1.Secret{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: authSecret.Name, Namespace: authSecret.Namespace}, gotSecret))
+		require.Equal(t, []string{secretProtectionFinalizer}, gotSecret.Finalizers)
+		require.Equal(t, []string{
+			"Normal WaitingForPreconditions waiting for referenced resources to be ready",
+		}, recorderEvents(recorder))
+	})
+
+	t.Run("Protects auth Secret before external calls", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUserWithAuth)
+		authSecret := newObjectFromYAML[corev1.Secret](t, yamlAuthSecret)
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(obj, authSecret).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+		c.EXPECT().
+			Observe(mock.Anything, mock.Anything).
+			Return(Observation{ResourceExists: true, ResourceUpToDate: true}, nil).
+			Once()
+
+		newClientCalls := 0
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:          k8sClient,
+				Scheme:          scheme,
+				Recorder:        recorder,
+				KubeVersion:     "v1.30.0",
+				OperatorVersion: "v0.0.0-test",
+				PollInterval:    testPollInterval,
+			},
+			newAivenGeneratedClient: func(token, kubeVersion, operatorVersion string) (avngen.Client, error) {
+				newClientCalls++
+				require.Equal(t, "test-token", token)
+				require.Equal(t, "v1.30.0", kubeVersion)
+				require.Equal(t, "v0.0.0-test", operatorVersion)
+
+				gotSecret := &corev1.Secret{}
+				require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: authSecret.Name, Namespace: authSecret.Namespace}, gotSecret))
+				require.Equal(t, []string{secretProtectionFinalizer}, gotSecret.Finalizers)
+
+				return avngen.NewMockClient(t), nil
+			},
+			newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+				return c
+			},
+			newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+		}
+
+		res, err := r.Reconcile(t.Context(), ctrl.Request{
+			NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
+		require.Equal(t, 1, newClientCalls)
+		require.Equal(t, []string{
+			"Normal InstanceFinalizerAdded instance finalizer added",
+		}, recorderEvents(recorder))
+	})
+
+	t.Run("Reconcile stops before external calls when persisting auth Secret finalizer fails", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUserWithAuth)
+		authSecret := newObjectFromYAML[corev1.Secret](t, yamlAuthSecret)
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(assert.AnError).Once()
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithObjects(obj, authSecret).
+			WithInterceptorFuncs(interceptor.Funcs{
+				Update: func(ctx context.Context, c crclient.WithWatch, o crclient.Object, opts ...crclient.UpdateOption) error {
+					return m.MethodCalled("Update", ctx, c, o, opts).Error(0)
+				},
+			}).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:   k8sClient,
+				Scheme:   scheme,
+				Recorder: recorder,
+			},
+			newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+		}
+
+		res, err := r.Reconcile(t.Context(), ctrl.Request{
+			NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+		})
+
+		require.Equal(t, ctrl.Result{}, res)
+		require.EqualError(t, err, `unable to add finalizer to secret: `+assert.AnError.Error())
+
+		got := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+		require.Empty(t, got.Finalizers)
+
+		gotSecret := &corev1.Secret{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: authSecret.Name, Namespace: authSecret.Namespace}, gotSecret))
+		require.Empty(t, gotSecret.Finalizers)
+		require.Empty(t, recorderEvents(recorder))
+	})
+
 	t.Run("Reconcile stops before external calls when persisting finalizer fails", func(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 
@@ -1006,6 +1147,133 @@ func TestReconciler_ensureFinalizer(t *testing.T) {
 		err := r.ensureFinalizer(t.Context(), obj)
 		require.EqualError(t, err, `persisting finalizer: `+assert.AnError.Error())
 		require.Empty(t, recorderEvents(recorder))
+	})
+}
+
+func TestReconciler_ensureAuthSecretFinalizer(t *testing.T) {
+	t.Parallel()
+
+	scheme := runtime.NewScheme()
+	require.NoError(t, clientgoscheme.AddToScheme(scheme))
+	require.NoError(t, v1alpha1.AddToScheme(scheme))
+
+	t.Run("No-op when default token is configured", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUserWithAuth)
+		authSecret := newObjectFromYAML[corev1.Secret](t, yamlAuthSecret)
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithObjects(authSecret).
+			WithInterceptorFuncs(interceptor.Funcs{
+				Update: func(context.Context, crclient.WithWatch, crclient.Object, ...crclient.UpdateOption) error {
+					t.Fatal("Update should not be called when DefaultToken is configured")
+					return nil
+				},
+			}).
+			Build()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:       k8sClient,
+				DefaultToken: "default-token",
+			},
+		}
+
+		require.NoError(t, r.ensureAuthSecretFinalizer(t.Context(), obj))
+
+		gotSecret := &corev1.Secret{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: authSecret.Name, Namespace: authSecret.Namespace}, gotSecret))
+		require.Empty(t, gotSecret.Finalizers)
+	})
+
+	t.Run("No-op when authSecretRef is nil", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithInterceptorFuncs(interceptor.Funcs{
+				Update: func(context.Context, crclient.WithWatch, crclient.Object, ...crclient.UpdateOption) error {
+					t.Fatal("Update should not be called when authSecretRef is nil")
+					return nil
+				},
+			}).
+			Build()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{Client: k8sClient},
+		}
+
+		require.NoError(t, r.ensureAuthSecretFinalizer(t.Context(), obj))
+	})
+
+	t.Run("No-op when auth Secret finalizer is already present", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUserWithAuth)
+		authSecret := newObjectFromYAML[corev1.Secret](t, yamlAuthSecret)
+		authSecret.Finalizers = []string{secretProtectionFinalizer}
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithObjects(authSecret).
+			WithInterceptorFuncs(interceptor.Funcs{
+				Update: func(context.Context, crclient.WithWatch, crclient.Object, ...crclient.UpdateOption) error {
+					t.Fatal("Update should not be called when auth Secret finalizer is already present")
+					return nil
+				},
+			}).
+			Build()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{Client: k8sClient},
+		}
+
+		require.NoError(t, r.ensureAuthSecretFinalizer(t.Context(), obj))
+
+		gotSecret := &corev1.Secret{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: authSecret.Name, Namespace: authSecret.Namespace}, gotSecret))
+		require.Equal(t, []string{secretProtectionFinalizer}, gotSecret.Finalizers)
+	})
+
+	t.Run("Persists auth Secret finalizer", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUserWithAuth)
+		authSecret := newObjectFromYAML[corev1.Secret](t, yamlAuthSecret)
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithObjects(authSecret).
+			Build()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{Client: k8sClient},
+		}
+
+		require.NoError(t, r.ensureAuthSecretFinalizer(t.Context(), obj))
+
+		gotSecret := &corev1.Secret{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: authSecret.Name, Namespace: authSecret.Namespace}, gotSecret))
+		require.Equal(t, []string{secretProtectionFinalizer}, gotSecret.Finalizers)
+	})
+
+	t.Run("Emits warning and wraps error when auth Secret cannot be fetched", func(t *testing.T) {
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:   k8sClient,
+				Recorder: recorder,
+			},
+		}
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUserWithAuth)
+
+		err := r.ensureAuthSecretFinalizer(t.Context(), obj)
+
+		errNotFound := apierrors.NewNotFound(schema.GroupResource{Resource: "secrets"}, "aiven-token")
+		require.EqualError(t, err, fmt.Sprintf("cannot get secret %q: %s", "aiven-token", errNotFound.Error()))
+		require.Equal(t, []string{
+			fmt.Sprintf("Warning %s %s", eventUnableToGetAuthSecret, errNotFound.Error()),
+		}, recorderEvents(recorder))
 	})
 }
 
