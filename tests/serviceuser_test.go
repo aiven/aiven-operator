@@ -36,6 +36,7 @@ spec:
   plan: startup-4
 
   userConfig:
+    schema_registry: true
     kafka_authentication_methods:
       sasl: true
       certificate: false
@@ -120,6 +121,53 @@ func TestServiceUserKafka(t *testing.T) {
 	assert.Contains(t, secret.Data, "SERVICEUSER_ACCESS_KEY")
 	assert.Equal(t, map[string]string{"foo": "bar"}, secret.Annotations)
 	assert.Equal(t, map[string]string{"baz": "egg"}, secret.Labels)
+
+	var kafkaSaslComponent *service.ComponentOut
+	var schemaRegistryComponent *service.ComponentOut
+	for i := range kafkaAvn.Components {
+		c := &kafkaAvn.Components[i]
+		switch {
+		case c.Component == "kafka" && c.KafkaAuthenticationMethod == service.KafkaAuthenticationMethodTypeSasl:
+			kafkaSaslComponent = c
+		case c.Component == "schema_registry":
+			schemaRegistryComponent = c
+		}
+	}
+
+	require.NotNil(t, kafkaSaslComponent)
+	assert.NotEmpty(t, secret.Data["SERVICEUSER_SASL_HOST"])
+	assert.NotEmpty(t, secret.Data["SERVICEUSER_SASL_PORT"])
+	assert.Equal(t, kafkaSaslComponent.Host, string(secret.Data["SERVICEUSER_SASL_HOST"]))
+	assert.Equal(t, strconv.Itoa(kafkaSaslComponent.Port), string(secret.Data["SERVICEUSER_SASL_PORT"]))
+
+	require.NotNil(t, schemaRegistryComponent)
+	assert.NotEmpty(t, secret.Data["SERVICEUSER_SCHEMA_REGISTRY_HOST"])
+	assert.NotEmpty(t, secret.Data["SERVICEUSER_SCHEMA_REGISTRY_PORT"])
+	assert.Equal(t, schemaRegistryComponent.Host, string(secret.Data["SERVICEUSER_SCHEMA_REGISTRY_HOST"]))
+	assert.Equal(t, strconv.Itoa(schemaRegistryComponent.Port), string(secret.Data["SERVICEUSER_SCHEMA_REGISTRY_PORT"]))
+
+	kafkaForUpdate := new(v1alpha1.Kafka)
+	require.NoError(t, s.GetRunning(kafkaForUpdate, kafkaName))
+	kafkaForUpdate.Spec.UserConfig.SchemaRegistry = anyPointer(false)
+	require.NoError(t, k8sClient.Update(ctx, kafkaForUpdate))
+
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		updatedKafkaAvn, getErr := avnGen.ServiceGet(ctx, cfg.Project, kafkaName)
+		require.NoError(collect, getErr)
+
+		enabled, ok := updatedKafkaAvn.UserConfig["schema_registry"].(bool)
+		require.True(collect, ok)
+		assert.False(collect, enabled)
+	}, 10*time.Minute, 10*time.Second, "Schema Registry should be disabled in Aiven")
+
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		updatedSecret, getErr := s.GetSecret(userName + "-secret")
+		require.NoError(collect, getErr)
+		assert.Contains(collect, updatedSecret.Data, "SERVICEUSER_SCHEMA_REGISTRY_HOST")
+		assert.Contains(collect, updatedSecret.Data, "SERVICEUSER_SCHEMA_REGISTRY_PORT")
+		assert.Empty(collect, updatedSecret.Data["SERVICEUSER_SCHEMA_REGISTRY_HOST"])
+		assert.Empty(collect, updatedSecret.Data["SERVICEUSER_SCHEMA_REGISTRY_PORT"])
+	}, 10*time.Minute, 10*time.Second, "ServiceUser secret should clear disabled Schema Registry endpoint keys")
 
 	// This kafka has sasl enabled and cert auth disabled.
 	// Which means that the port is not the same as in uri params.

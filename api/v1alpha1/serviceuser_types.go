@@ -72,7 +72,7 @@ type ServiceUserStatus struct {
 // ServiceUser is the Schema for the serviceusers API.
 // Creates a service user for accessing Aiven services. The ServiceUser resource name becomes the username in Aiven.
 // Built-in users like 'avnadmin' cannot be deleted but their passwords can be modified using connInfoSecretSource.
-// Info "Exposes secret keys": `SERVICEUSER_HOST`, `SERVICEUSER_PORT`, `SERVICEUSER_USERNAME`, `SERVICEUSER_PASSWORD`, `SERVICEUSER_CA_CERT`, `SERVICEUSER_ACCESS_CERT`, `SERVICEUSER_ACCESS_KEY`
+// Info "Exposes secret keys": `SERVICEUSER_HOST`, `SERVICEUSER_PORT`, `SERVICEUSER_USERNAME`, `SERVICEUSER_PASSWORD`, `SERVICEUSER_CA_CERT`, `SERVICEUSER_ACCESS_CERT`, `SERVICEUSER_ACCESS_KEY`, `SERVICEUSER_SASL_HOST`, `SERVICEUSER_SASL_PORT`, `SERVICEUSER_SCHEMA_REGISTRY_HOST`, `SERVICEUSER_SCHEMA_REGISTRY_PORT`
 // +kubebuilder:printcolumn:name="Service Name",type="string",JSONPath=".spec.serviceName"
 // +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
 // +kubebuilder:printcolumn:name="Connection Information Secret",type="string",JSONPath=".spec.connInfoSecretTarget.name"

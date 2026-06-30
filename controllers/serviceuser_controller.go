@@ -4,6 +4,7 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"slices"
@@ -19,6 +20,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
+	kafkauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/kafka"
 )
 
 func newServiceUserReconciler(c Controller) reconcilerType {
@@ -285,7 +287,46 @@ func (r *ServiceUserController) fetchUser(
 		return nil, nil, fmt.Errorf("aiven client error %w", err)
 	}
 
-	return u, buildSecretDetailsFromComponent(component, user, u, caCert), nil
+	prefix := getSecretPrefix(user)
+	details := SecretDetails{
+		prefix + "HOST":        component.Host,
+		prefix + "PORT":        fmt.Sprintf("%d", component.Port),
+		prefix + "USERNAME":    u.Username,
+		prefix + "PASSWORD":    u.Password,
+		prefix + "ACCESS_CERT": fromAnyPointer(u.AccessCert),
+		prefix + "ACCESS_KEY":  fromAnyPointer(u.AccessKey),
+		prefix + "CA_CERT":     caCert,
+	}
+
+	if svc.ServiceType != string(serviceTypeKafka) {
+		return u, details, nil
+	}
+
+	addKafkaEndpointDetails(details, svc.Components, prefix)
+
+	var kafkaConfig struct {
+		KafkaAuthenticationMethods *kafkauserconfig.KafkaAuthenticationMethods `json:"kafka_authentication_methods,omitempty"`
+		SchemaRegistry             *bool                                       `json:"schema_registry,omitempty"`
+	}
+	if err := decodeMapInto(svc.UserConfig, &kafkaConfig); err != nil {
+		logr.FromContextOrDiscard(ctx).Error(err, "unable to decode Kafka user config, keeping existing optional Kafka endpoint keys")
+		return u, details, nil
+	}
+
+	// Temporary workaround until connection secret publishing removes stale keys.
+	if kafkaConfig.KafkaAuthenticationMethods != nil &&
+		kafkaConfig.KafkaAuthenticationMethods.Sasl != nil &&
+		!*kafkaConfig.KafkaAuthenticationMethods.Sasl {
+		details[prefix+"SASL_HOST"] = ""
+		details[prefix+"SASL_PORT"] = ""
+	}
+
+	if kafkaConfig.SchemaRegistry != nil && !*kafkaConfig.SchemaRegistry {
+		details[prefix+"SCHEMA_REGISTRY_HOST"] = ""
+		details[prefix+"SCHEMA_REGISTRY_PORT"] = ""
+	}
+
+	return u, details, nil
 }
 
 func buildServiceUserAccessControlIn(ac *v1alpha1.ServiceUserAccessControl) *service.AccessControlIn {
@@ -325,22 +366,12 @@ func accessControlMatches(desired *v1alpha1.ServiceUserAccessControl, actual *se
 		lo.ElementsMatch(desired.ValkeyACLChannels, actual.ValkeyAclChannels)
 }
 
-func buildSecretDetailsFromComponent(
-	component *service.ComponentOut,
-	user *v1alpha1.ServiceUser,
-	u *service.ServiceUserGetOut,
-	caCert string,
-) SecretDetails {
-	prefix := getSecretPrefix(user)
-	details := SecretDetails{
-		prefix + "HOST":        component.Host,
-		prefix + "PORT":        fmt.Sprintf("%d", component.Port),
-		prefix + "USERNAME":    u.Username,
-		prefix + "PASSWORD":    u.Password,
-		prefix + "ACCESS_CERT": fromAnyPointer(u.AccessCert),
-		prefix + "ACCESS_KEY":  fromAnyPointer(u.AccessKey),
-		prefix + "CA_CERT":     caCert,
+// TODO: Consider whether github.com/go-viper/mapstructure is a better fit if map-to-struct decoding grows.
+func decodeMapInto(in map[string]any, out any) error {
+	data, err := json.Marshal(in)
+	if err != nil {
+		return err
 	}
 
-	return details
+	return json.Unmarshal(data, out)
 }
