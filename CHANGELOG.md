@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Fix a stale `Error` status condition on resources after they recover
+  from a failed reconciliation; the condition is now cleared once reconciliation succeeds
 - Change `ClickhouseGrant` reconciliation to the managed reconciler: the resource now registers a
   finalizer, periodically re-reconciles, and reports `Running` status conditions
 - Add Kafka SASL and Schema Registry endpoint keys to `ServiceUser` connection secrets for Kafka services.

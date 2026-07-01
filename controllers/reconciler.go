@@ -410,6 +410,9 @@ func (r *Reconciler[T]) updateResource(ctx context.Context, controller AivenCont
 }
 
 func (r *Reconciler[T]) completeReconcileSuccess(obj v1alpha1.AivenManagedObject) (ctrl.Result, error) {
+	// Reconciliation succeeded, remove any Error condition from a previous failed attempt.
+	meta.RemoveStatusCondition(obj.Conditions(), ConditionTypeError)
+
 	metav1.SetMetaDataAnnotation(
 		obj.GetObjectMeta(),
 		processedGenerationAnnotation,
