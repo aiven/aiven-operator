@@ -225,6 +225,72 @@ func TestClickhouseGrant(t *testing.T) {
 		},
 	}
 	assert.ElementsMatch(t, roleGrantResults, expectedRoleGrants)
+
+	// Updating the spec must revoke the previously applied privileges before granting the new ones.
+	t.Run("Update revokes previously applied privileges", func(t *testing.T) {
+		// Drops INSERT, keeping only SELECT for both grantees.
+		updatedYml := getClickhouseGrantUpdatedYaml(cfg.Project, chName, dbName, userName, roleName)
+		require.NoError(t, s.Apply(updatedYml))
+
+		// GetRunning blocks until the new generation is processed, i.e. the update has been applied.
+		require.NoError(t, s.GetRunning(grant, roleName+"-grant"))
+
+		results, err := queryAndCollectResults[ClickhouseGrant](ctx, conn, chUtils.QueryNonAivenPrivileges)
+		require.NoError(t, err)
+
+		filtered := filterPrivilegeGrantResults(results, userName, roleName)
+		// Only SELECT for the user and SELECT for the role remain; both INSERT grants must be revoked.
+		assert.Len(t, filtered, 2)
+		for _, r := range filtered {
+			assert.Equal(t, "SELECT", r.AccessType, "INSERT should have been revoked by the update")
+		}
+	})
+
+	// Deleting the grant must revoke all privileges from ClickHouse.
+	t.Run("Delete revokes all granted privileges", func(t *testing.T) {
+		require.NoError(t, s.Delete(grant, func() error { return nil }))
+
+		results, err := queryAndCollectResults[ClickhouseGrant](ctx, conn, chUtils.QueryNonAivenPrivileges)
+		require.NoError(t, err)
+		assert.Empty(t, filterPrivilegeGrantResults(results, userName, roleName),
+			"all privileges for the user and role must be revoked after deletion")
+	})
+}
+
+// getClickhouseGrantUpdatedYaml returns a ClickhouseGrant manifest with removed INSERT.
+func getClickhouseGrantUpdatedYaml(project, chName, dbName, userName, roleName string) string {
+	return fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: ClickhouseGrant
+metadata:
+  name: %[5]s-grant
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  serviceName: %[2]s
+
+  privilegeGrants:
+    - grantees:
+        - user: %[4]s
+        - role: %[5]s
+      privileges:
+        - SELECT
+      database: %[3]s
+      table: example-table
+      columns:
+        - col1
+      withGrantOption: true
+
+  roleGrants:
+    - roles:
+        - %[5]s
+      grantees:
+        - user: %[4]s
+      withAdminOption: true
+`, project, chName, dbName, userName, roleName)
 }
 
 func queryAndCollectResults[T any](ctx context.Context, conn clickhouse.Conn, query string) ([]T, error) {
