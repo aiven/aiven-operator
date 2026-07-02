@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.41.0 - 2026-07-02
+
 - Fix a stale `Error` status condition on resources after they recover
   from a failed reconciliation; the condition is now cleared once reconciliation succeeds
 - Change `ClickhouseGrant` reconciliation to the managed reconciler: the resource now registers a
