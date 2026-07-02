@@ -43,12 +43,7 @@ func (c *SecretFinalizerGCController) SetupWithManager(mgr ctrl.Manager, hasDefa
 	builder.For(&corev1.Secret{})
 
 	// only watch for delete events
-	builder.WithEventFilter(predicate.Funcs{
-		CreateFunc:  func(_ event.CreateEvent) bool { return false },
-		UpdateFunc:  func(_ event.UpdateEvent) bool { return false },
-		DeleteFunc:  func(_ event.DeleteEvent) bool { return true },
-		GenericFunc: func(_ event.GenericEvent) bool { return false },
-	})
+	builder.WithEventFilter(secretFinalizerGCEventPredicate())
 
 	// watch aiven CRDs to queue secret reconciliations
 	for i := range aivenManagedTypes {
@@ -79,6 +74,47 @@ func (c *SecretFinalizerGCController) SetupWithManager(mgr ctrl.Manager, hasDefa
 	}
 
 	return builder.Complete(c)
+}
+
+func secretFinalizerGCEventPredicate() predicate.Predicate {
+	return predicate.Funcs{
+		// On startup, the controller cache may replay existing Secrets as create events.
+		// If one is already deleting with our finalizer, let GC reconcile it.
+		CreateFunc: func(e event.CreateEvent) bool { return protectedSecretIsDeleting(e.Object) },
+		UpdateFunc: func(e event.UpdateEvent) bool {
+			// EnqueueRequestsFromMapFunc maps both old and new objects on update,
+			// so admitting auth ref changes queues the previous secret too.
+			return protectedSecretIsDeleting(e.ObjectNew) || authSecretRefChanged(e.ObjectOld, e.ObjectNew)
+		},
+		DeleteFunc:  func(_ event.DeleteEvent) bool { return true },
+		GenericFunc: func(_ event.GenericEvent) bool { return false },
+	}
+}
+
+func protectedSecretIsDeleting(obj client.Object) bool {
+	if _, ok := obj.(*corev1.Secret); !ok {
+		return false
+	}
+
+	return !obj.GetDeletionTimestamp().IsZero() && controllerutil.ContainsFinalizer(obj, secretProtectionFinalizer)
+}
+
+func authSecretRefChanged(oldObj, newObj client.Object) bool {
+	return authSecretRefName(oldObj) != authSecretRefName(newObj)
+}
+
+func authSecretRefName(obj client.Object) string {
+	aivenObj, ok := obj.(v1alpha1.AivenManagedObject)
+	if !ok {
+		return ""
+	}
+
+	auth := aivenObj.AuthSecretRef()
+	if auth == nil {
+		return ""
+	}
+
+	return auth.Name
 }
 
 func (c *SecretFinalizerGCController) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {

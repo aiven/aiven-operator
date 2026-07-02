@@ -108,6 +108,10 @@ func (r *Reconciler[T]) Reconcile(ctx context.Context, req ctrl.Request) (res ct
 		return r.reconcileDeletion(ctx, obj)
 	}
 
+	if err := r.ensureAuthSecretFinalizer(ctx, obj); err != nil {
+		return ctrl.Result{}, err
+	}
+
 	if requeue, err := r.resolveK8sRefs(ctx, obj); err != nil {
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToWaitForPreconditions, err.Error())
 		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionPreconditions, err))
@@ -164,6 +168,33 @@ func (r *Reconciler[T]) ensureFinalizer(ctx context.Context, obj client.Object) 
 
 	logr.FromContextOrDiscard(ctx).Info("added finalizer to instance")
 	r.Recorder.Event(obj, corev1.EventTypeNormal, eventAddedFinalizer, "instance finalizer added")
+	return nil
+}
+
+func (r *Reconciler[T]) ensureAuthSecretFinalizer(ctx context.Context, obj T) error {
+	if r.DefaultToken != "" {
+		return nil
+	}
+
+	auth := obj.AuthSecretRef()
+	if auth == nil {
+		return nil
+	}
+
+	secret, err := r.getAuthSecret(ctx, obj, auth)
+	if err != nil {
+		return err
+	}
+
+	if controllerutil.ContainsFinalizer(secret, secretProtectionFinalizer) {
+		return nil
+	}
+
+	logr.FromContextOrDiscard(ctx).Info("adding finalizer to auth secret")
+	if err := addFinalizer(ctx, r.Client, secret, secretProtectionFinalizer); err != nil {
+		return fmt.Errorf("unable to add finalizer to secret: %w", err)
+	}
+
 	return nil
 }
 
@@ -315,13 +346,22 @@ func (r *Reconciler[T]) resolveToken(ctx context.Context, obj T) (string, error)
 		return "", errNoTokenProvided
 	}
 
-	clientAuthSecret := &corev1.Secret{}
-	if err := r.Get(ctx, types.NamespacedName{Name: auth.Name, Namespace: obj.GetNamespace()}, clientAuthSecret); err != nil {
-		r.Recorder.Eventf(obj, corev1.EventTypeWarning, eventUnableToGetAuthSecret, err.Error())
-		return "", fmt.Errorf("cannot get secret %q: %w", auth.Name, err)
+	clientAuthSecret, err := r.getAuthSecret(ctx, obj, auth)
+	if err != nil {
+		return "", err
 	}
 
 	return string(clientAuthSecret.Data[auth.Key]), nil
+}
+
+func (r *Reconciler[T]) getAuthSecret(ctx context.Context, obj T, auth *v1alpha1.AuthSecretReference) (*corev1.Secret, error) {
+	secret := &corev1.Secret{}
+	if err := r.Get(ctx, types.NamespacedName{Name: auth.Name, Namespace: obj.GetNamespace()}, secret); err != nil {
+		r.Recorder.Eventf(obj, corev1.EventTypeWarning, eventUnableToGetAuthSecret, err.Error())
+		return nil, fmt.Errorf("cannot get secret %q: %w", auth.Name, err)
+	}
+
+	return secret, nil
 }
 
 func (r *Reconciler[T]) createResource(ctx context.Context, controller AivenController[T], obj T) (ctrl.Result, error) {
