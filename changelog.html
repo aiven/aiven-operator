@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="./assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.44">
+      <meta name="generator" content="zensical-0.0.46">
     
     
       
@@ -32,7 +32,7 @@
       
         
       
-      <link rel="stylesheet" href="./assets/stylesheets/modern/main.fba56155.min.css">
+      <link rel="stylesheet" href="./assets/stylesheets/modern/main.19d3147f.min.css">
       
         
           
@@ -489,6 +489,17 @@
       On this page
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0410-2026-07-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.41.0 - 2026-07-02
+      </span>
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v0400-2026-06-05" class="md-nav__link">
@@ -3715,6 +3726,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0410-2026-07-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.41.0 - 2026-07-02
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0400-2026-06-05" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -4247,6 +4269,82 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0410-2026-07-02">v0.41.0 - 2026-07-02<a class="headerlink" href="#v0410-2026-07-02" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Fix a stale <code>Error</code> status condition on resources after they recover
+  from a failed reconciliation; the condition is now cleared once reconciliation succeeds</li>
+<li>Change <code>ClickhouseGrant</code> reconciliation to the managed reconciler: the resource now registers a
+  finalizer, periodically re-reconciles, and reports <code>Running</code> status conditions</li>
+<li>Add Kafka SASL and Schema Registry endpoint keys to <code>ServiceUser</code> connection secrets for Kafka services.</li>
+<li>Change <code>ServiceIntegrationEndpoint</code> reconciliation to the managed reconciler: the resource now adopts a
+  pre-existing endpoint matching its <code>endpointName</code> and <code>endpointType</code>.</li>
+<li>Change <code>ServiceIntegrationEndpoint</code> field <code>datadog.site</code>: enum add <code>us2.ddog-gov.com</code></li>
+<li>Add new 'KafkaQuota' resource to manage quotas for Aiven for Apache Kafka® services.</li>
+<li>Change <code>ClickhouseDatabase</code> reconciliation to the managed reconciler: the resource now registers a
+  finalizer, periodically re-reconciles, and reports <code>Running</code> status conditions</li>
+<li>Change <code>KafkaSchemaRegistryACL</code> reconciliation to the managed reconciler: the resource now registers a
+  finalizer, periodically re-reconciles, and reports <code>Running</code> status conditions</li>
+<li><code>ConnectionPool</code> reconciliation: changes to <code>poolMode</code> and <code>poolSize</code> are now detected and applied on
+  update, and the connection info secret is kept in sync on every reconcile</li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka.group_coordinator_rebalance_protocols</code>, type <code>string</code>: The enabled
+  consumer group rebalance protocols</li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka.group_share_delivery_count_limit</code>, type <code>integer</code>: The maximum
+  delivery attempts for a share-group record</li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka.group_share_heartbeat_interval_ms</code>, type <code>integer</code>: The heartbeat
+  interval used by share group members</li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka.group_share_max_groups</code>, type <code>integer</code>: The maximum number of
+  share groups allowed on the broker</li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka.group_share_max_heartbeat_interval_ms</code>, type <code>integer</code>: The maximum
+  heartbeat interval allowed for share group members</li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka.group_share_max_record_lock_duration_ms</code>, type <code>integer</code>: The maximum
+  record lock duration allowed for share groups</li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka.group_share_max_session_timeout_ms</code>, type <code>integer</code>: The maximum
+  session timeout allowed for share group members</li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka.group_share_max_size</code>, type <code>integer</code>: The maximum number of members
+  allowed in a share group</li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka.group_share_min_heartbeat_interval_ms</code>, type <code>integer</code>: The minimum
+  heartbeat interval allowed for share group members</li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka.group_share_min_record_lock_duration_ms</code>, type <code>integer</code>: The minimum
+  record lock duration allowed for share groups</li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka.group_share_min_session_timeout_ms</code>, type <code>integer</code>: The minimum
+  session timeout allowed for share group members</li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka.group_share_partition_max_record_locks</code>, type <code>integer</code>: The maximum
+  number of record locks allowed per share group partition</li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka.group_share_record_lock_duration_ms</code>, type <code>integer</code>: The duration
+  for which a fetched share-group record is locked</li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka.group_share_session_timeout_ms</code>, type <code>integer</code>: The timeout used
+  to detect share group member failures</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.relay_log_space_limit</code>, type <code>integer</code>: The maximum amount of space
+  in bytes to use for all relay logs while replicating from an external migration source</li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka.audit_log</code>, type <code>object</code>: Enable Kafka audit logging by providing
+  this object. Removing it disables the feature</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.innodb_adaptive_hash_index</code>, type <code>boolean</code>: Whether InnoDB adaptive
+  hash indexing is enabled</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.innodb_io_capacity_max</code>, type <code>integer</code>: The maximum number of
+  I/O operations per second (IOPS) that InnoDB background tasks may perform when flushing falls behind</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.innodb_io_capacity</code>, type <code>integer</code>: The number of I/O operations
+  per second (IOPS) available to InnoDB background tasks, such as flushing pages from the buffer
+  pool and merging data from the change buffer</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.azure_migration.max_restore_bytes_per_sec</code>, type <code>string</code>: Throttles
+  the restore rate per node. Defaults to unlimited</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.azure_migration.max_snapshot_bytes_per_sec</code>, type <code>string</code>: Throttles
+  the snapshot rate per node. Defaults to 40mb</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.gcs_migration.max_restore_bytes_per_sec</code>, type <code>string</code>: Throttles
+  the restore rate per node. Defaults to unlimited</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.gcs_migration.max_snapshot_bytes_per_sec</code>, type <code>string</code>: Throttles
+  the snapshot rate per node. Defaults to 40mb</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.s3_migration.max_restore_bytes_per_sec</code>, type <code>string</code>: Throttles
+  the restore rate per node. Defaults to unlimited</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.s3_migration.max_snapshot_bytes_per_sec</code>, type <code>string</code>: Throttles
+  the snapshot rate per node. Defaults to 40mb</li>
+<li>Add <code>ServiceIntegrationEndpoint</code> field <code>rsyslog.escape_newlines</code>, type <code>boolean</code>: When true, embedded
+  newlines in a log message are escaped so a multi-line record (e.g</li>
+<li>Change <code>ServiceIntegrationEndpoint</code> field <code>datadog.kafka_consumer_stats_timeout</code>: maximum <del><code>300</code></del>
+  → <code>298</code></li>
+<li>Add <code>Kafka</code> field <code>userConfig.kafka_diskless.auto_diskless_topic_regexes</code>, type <code>array</code>: The regexes
+  of topics to auto enable diskless</li>
+<li>Change <code>Kafka</code> field <code>userConfig.kafka.audit_log.aggregation_period_sec</code>: maximum <del><code>600</code></del> → <code>1800</code></li>
+</ul>
 <h2 id="v0400-2026-06-05">v0.40.0 - 2026-06-05<a class="headerlink" href="#v0400-2026-06-05" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Add <code>MySQL</code> field <code>userConfig.mysql.performance_schema_events_statements_history_size</code>, type <code>integer</code>:
@@ -5252,10 +5350,10 @@ as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-be
     
       
       
-      <script id="__config" type="application/json">{"annotate":null,"base":".","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"./assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":".","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"./assets/javascripts/workers/search.b6b7e04f.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="./assets/javascripts/bundle.6e5f0216.min.js"></script>
+      <script src="./assets/javascripts/bundle.ee611ef6.min.js"></script>
       
     
   </body>

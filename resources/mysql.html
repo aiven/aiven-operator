@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.44">
+      <meta name="generator" content="zensical-0.0.46">
     
     
       
@@ -32,7 +32,7 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.fba56155.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.19d3147f.min.css">
       
         
           
@@ -3953,7 +3953,7 @@ Values must not contain leading or trailing whitespace; such values are rejected
 <li><a href="#spec.userConfig.mysql-property" name="spec.userConfig.mysql-property"><code>mysql</code></a> (object). mysql.conf configuration values. See below for <a href="#spec.userConfig.mysql">nested schema</a>.</li>
 <li><a href="#spec.userConfig.mysql_incremental_backup-property" name="spec.userConfig.mysql_incremental_backup-property"><code>mysql_incremental_backup</code></a> (object). MySQL incremental backup configuration. See below for <a href="#spec.userConfig.mysql_incremental_backup">nested schema</a>.</li>
 <li><a href="#spec.userConfig.mysql_version-property" name="spec.userConfig.mysql_version-property"><code>mysql_version</code></a> (string). Available versions: <code>8</code>, <code>8.4</code>. Newer versions may also be available.
-    MySQL major version.</li>
+    MySQL major version. Deprecated values: <code>8</code>.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.project_to_fork_from-property" name="spec.userConfig.project_to_fork_from-property"><code>project_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.</li>
@@ -4003,10 +4003,13 @@ Values must not contain leading or trailing whitespace; such values are rejected
 <li><a href="#spec.userConfig.mysql.default_time_zone-property" name="spec.userConfig.mysql.default_time_zone-property"><code>default_time_zone</code></a> (string, Pattern: <code>^([-+][\d:]*|[\w/]*)$</code>, MinLength: 2, MaxLength: 100). Default server time zone as an offset from UTC (from -12:00 to +12:00), a time zone name, or <code>SYSTEM</code> to use the MySQL server default.</li>
 <li><a href="#spec.userConfig.mysql.group_concat_max_len-property" name="spec.userConfig.mysql.group_concat_max_len-property"><code>group_concat_max_len</code></a> (integer, Minimum: 4). The maximum permitted result length in bytes for the GROUP_CONCAT() function.</li>
 <li><a href="#spec.userConfig.mysql.information_schema_stats_expiry-property" name="spec.userConfig.mysql.information_schema_stats_expiry-property"><code>information_schema_stats_expiry</code></a> (integer, Minimum: 900, Maximum: 31536000). The time, in seconds, before cached statistics expire.</li>
+<li><a href="#spec.userConfig.mysql.innodb_adaptive_hash_index-property" name="spec.userConfig.mysql.innodb_adaptive_hash_index-property"><code>innodb_adaptive_hash_index</code></a> (boolean). Whether InnoDB adaptive hash indexing is enabled. The optimal setting is workload-dependent: it speeds up lookups for some workloads but its internal latch can become a contention point under high concurrency, in which case disabling it can improve throughput.</li>
 <li><a href="#spec.userConfig.mysql.innodb_change_buffer_max_size-property" name="spec.userConfig.mysql.innodb_change_buffer_max_size-property"><code>innodb_change_buffer_max_size</code></a> (integer, Minimum: 0, Maximum: 50). Maximum size for the InnoDB change buffer, as a percentage of the total size of the buffer pool. Default is 25.</li>
 <li><a href="#spec.userConfig.mysql.innodb_flush_neighbors-property" name="spec.userConfig.mysql.innodb_flush_neighbors-property"><code>innodb_flush_neighbors</code></a> (integer, Minimum: 0, Maximum: 2). Specifies whether flushing a page from the InnoDB buffer pool also flushes other dirty pages in the same extent (default is 1): 0 - dirty pages in the same extent are not flushed, 1 - flush contiguous dirty pages in the same extent, 2 - flush dirty pages in the same extent.</li>
 <li><a href="#spec.userConfig.mysql.innodb_ft_min_token_size-property" name="spec.userConfig.mysql.innodb_ft_min_token_size-property"><code>innodb_ft_min_token_size</code></a> (integer, Minimum: 0, Maximum: 16). Minimum length of words that are stored in an InnoDB FULLTEXT index. Changing this parameter will lead to a restart of the MySQL service.</li>
 <li><a href="#spec.userConfig.mysql.innodb_ft_server_stopword_table-property" name="spec.userConfig.mysql.innodb_ft_server_stopword_table-property"><code>innodb_ft_server_stopword_table</code></a> (string, Pattern: <code>^.+/.+$</code>, MaxLength: 1024). This option is used to specify your own InnoDB FULLTEXT index stopword list for all InnoDB tables.</li>
+<li><a href="#spec.userConfig.mysql.innodb_io_capacity-property" name="spec.userConfig.mysql.innodb_io_capacity-property"><code>innodb_io_capacity</code></a> (integer, Minimum: 100, Maximum: 4294967295). The number of I/O operations per second (IOPS) available to InnoDB background tasks, such as flushing pages from the buffer pool and merging data from the change buffer. Set this to a value appropriate for the underlying storage; it must not exceed innodb_io_capacity_max.</li>
+<li><a href="#spec.userConfig.mysql.innodb_io_capacity_max-property" name="spec.userConfig.mysql.innodb_io_capacity_max-property"><code>innodb_io_capacity_max</code></a> (integer, Minimum: 100, Maximum: 4294967295). The maximum number of I/O operations per second (IOPS) that InnoDB background tasks may perform when flushing falls behind. Defaults to twice innodb_io_capacity (minimum 2000). This must be greater than or equal to innodb_io_capacity.</li>
 <li><a href="#spec.userConfig.mysql.innodb_lock_wait_timeout-property" name="spec.userConfig.mysql.innodb_lock_wait_timeout-property"><code>innodb_lock_wait_timeout</code></a> (integer, Minimum: 1, Maximum: 3600). The length of time in seconds an InnoDB transaction waits for a row lock before giving up. Default is 120.</li>
 <li><a href="#spec.userConfig.mysql.innodb_log_buffer_size-property" name="spec.userConfig.mysql.innodb_log_buffer_size-property"><code>innodb_log_buffer_size</code></a> (integer, Minimum: 1048576, Maximum: 4294967296). The size in bytes of the buffer that InnoDB uses to write to the log files on disk.</li>
 <li><a href="#spec.userConfig.mysql.innodb_online_alter_log_max_size-property" name="spec.userConfig.mysql.innodb_online_alter_log_max_size-property"><code>innodb_online_alter_log_max_size</code></a> (integer, Minimum: 65536, Maximum: 1099511627776). The upper limit in bytes on the size of the temporary log files used during online DDL operations for InnoDB tables.</li>
@@ -4026,6 +4029,7 @@ Values must not contain leading or trailing whitespace; such values are rejected
 <li><a href="#spec.userConfig.mysql.net_read_timeout-property" name="spec.userConfig.mysql.net_read_timeout-property"><code>net_read_timeout</code></a> (integer, Minimum: 1, Maximum: 3600). The number of seconds to wait for more data from a connection before aborting the read.</li>
 <li><a href="#spec.userConfig.mysql.net_write_timeout-property" name="spec.userConfig.mysql.net_write_timeout-property"><code>net_write_timeout</code></a> (integer, Minimum: 1, Maximum: 3600). The number of seconds to wait for a block to be written to a connection before aborting the write.</li>
 <li><a href="#spec.userConfig.mysql.performance_schema_events_statements_history_size-property" name="spec.userConfig.mysql.performance_schema_events_statements_history_size-property"><code>performance_schema_events_statements_history_size</code></a> (integer, Minimum: 0, Maximum: 1024). The number of rows per thread in the events_statements_history table. Changing this parameter will lead to a restart of the MySQL service.</li>
+<li><a href="#spec.userConfig.mysql.relay_log_space_limit-property" name="spec.userConfig.mysql.relay_log_space_limit-property"><code>relay_log_space_limit</code></a> (integer, Minimum: 134217728). The maximum amount of space in bytes to use for all relay logs while replicating from an external migration source. When the limit is reached, the replication I/O thread stops fetching relay log events until the SQL thread has caught up. Raise this to give a large migration a bigger relay-log budget; ensure the service disk is sized accordingly. The setting applies only on the node replicating from the external source; standby nodes always use the Aiven-managed default (the smaller of 5 GiB and 30% of the service disk), which is also used when this option is left unset. Changing this parameter will lead to a restart of the MySQL service.</li>
 <li><a href="#spec.userConfig.mysql.slow_query_log-property" name="spec.userConfig.mysql.slow_query_log-property"><code>slow_query_log</code></a> (boolean). Slow query log enables capturing of slow queries. Setting slow_query_log to false also truncates the mysql.slow_log table.</li>
 <li><a href="#spec.userConfig.mysql.sort_buffer_size-property" name="spec.userConfig.mysql.sort_buffer_size-property"><code>sort_buffer_size</code></a> (integer, Minimum: 32768, Maximum: 1073741824). Sort buffer size in bytes for ORDER BY optimization. Default is 262144 (256K).</li>
 <li><a href="#spec.userConfig.mysql.sql_mode-property" name="spec.userConfig.mysql.sql_mode-property"><code>sql_mode</code></a> (string, Pattern: <code>^[A-Z_]*(,[A-Z_]+)*$</code>, MaxLength: 1024). Global SQL mode. Set to empty to use MySQL server defaults. When creating a new service and not setting this field Aiven default SQL mode (strict, SQL standard compliant) will be assigned.</li>
@@ -4177,10 +4181,10 @@ Values must not contain leading or trailing whitespace; such values are rejected
     
       
       
-      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"../assets/javascripts/workers/search.b6b7e04f.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.6e5f0216.min.js"></script>
+      <script src="../assets/javascripts/bundle.ee611ef6.min.js"></script>
       
     
   </body>

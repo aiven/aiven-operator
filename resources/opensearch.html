@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.44">
+      <meta name="generator" content="zensical-0.0.46">
     
     
       
@@ -32,7 +32,7 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.fba56155.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.19d3147f.min.css">
       
         
           
@@ -4639,7 +4639,7 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <li><a href="#spec.userConfig.openid-property" name="spec.userConfig.openid-property"><code>openid</code></a> (object). OpenSearch OpenID Connect Configuration. See below for <a href="#spec.userConfig.openid">nested schema</a>.</li>
 <li><a href="#spec.userConfig.opensearch-property" name="spec.userConfig.opensearch-property"><code>opensearch</code></a> (object). OpenSearch settings. See below for <a href="#spec.userConfig.opensearch">nested schema</a>.</li>
 <li><a href="#spec.userConfig.opensearch_dashboards-property" name="spec.userConfig.opensearch_dashboards-property"><code>opensearch_dashboards</code></a> (object). OpenSearch Dashboards settings. See below for <a href="#spec.userConfig.opensearch_dashboards">nested schema</a>.</li>
-<li><a href="#spec.userConfig.opensearch_version-property" name="spec.userConfig.opensearch_version-property"><code>opensearch_version</code></a> (string). Available versions: <code>1</code>, <code>2</code>, <code>2.19</code>, <code>3.3</code>. Newer versions may also be available.
+<li><a href="#spec.userConfig.opensearch_version-property" name="spec.userConfig.opensearch_version-property"><code>opensearch_version</code></a> (string). Available versions: <code>1</code>, <code>2</code>, <code>2.19</code>, <code>3.3</code>, <code>3.6</code>. Newer versions may also be available.
     OpenSearch version.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
@@ -4670,6 +4670,8 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <li><a href="#spec.userConfig.azure_migration.endpoint_suffix-property" name="spec.userConfig.azure_migration.endpoint_suffix-property"><code>endpoint_suffix</code></a> (string, Pattern: <code>^[^\r\n]*$</code>). Defines the DNS suffix for Azure Storage endpoints.</li>
 <li><a href="#spec.userConfig.azure_migration.include_aliases-property" name="spec.userConfig.azure_migration.include_aliases-property"><code>include_aliases</code></a> (boolean). Whether to restore aliases alongside their associated indexes. Default is true.</li>
 <li><a href="#spec.userConfig.azure_migration.key-property" name="spec.userConfig.azure_migration.key-property"><code>key</code></a> (string, Pattern: <code>^[^\r\n]*$</code>). Azure account secret key. One of key or sas_token should be specified.</li>
+<li><a href="#spec.userConfig.azure_migration.max_restore_bytes_per_sec-property" name="spec.userConfig.azure_migration.max_restore_bytes_per_sec-property"><code>max_restore_bytes_per_sec</code></a> (string, Pattern: <code>^\d+\s*(?:[bB]|[kKmMgGtTpP][bB])$</code>). Throttles the restore rate per node. Defaults to unlimited. Note that if the recovery settings for managed services are set, this value is overridden by the recovery settings. Value should be a byte size with unit, e.g. 40mb, 100kb, 1gb.</li>
+<li><a href="#spec.userConfig.azure_migration.max_snapshot_bytes_per_sec-property" name="spec.userConfig.azure_migration.max_snapshot_bytes_per_sec-property"><code>max_snapshot_bytes_per_sec</code></a> (string, Pattern: <code>^\d+\s*(?:[bB]|[kKmMgGtTpP][bB])$</code>). Throttles the snapshot rate per node. Defaults to 40mb. Note that if the recovery settings for managed services are set, this value is overridden by the recovery settings. Value should be a byte size with unit, e.g. 40mb, 100kb, 1gb.</li>
 <li><a href="#spec.userConfig.azure_migration.readonly-property" name="spec.userConfig.azure_migration.readonly-property"><code>readonly</code></a> (boolean). Whether the repository is read-only.</li>
 <li><a href="#spec.userConfig.azure_migration.restore_global_state-property" name="spec.userConfig.azure_migration.restore_global_state-property"><code>restore_global_state</code></a> (boolean). If true, restore the cluster state. Defaults to false.</li>
 <li><a href="#spec.userConfig.azure_migration.sas_token-property" name="spec.userConfig.azure_migration.sas_token-property"><code>sas_token</code></a> (string, Pattern: <code>^[^\r\n]*$</code>). A shared access signatures (SAS) token. One of key or sas_token should be specified.</li>
@@ -4690,6 +4692,8 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <li><a href="#spec.userConfig.gcs_migration.chunk_size-property" name="spec.userConfig.gcs_migration.chunk_size-property"><code>chunk_size</code></a> (string, Pattern: <code>^[^\r\n]*$</code>). Big files can be broken down into chunks during snapshotting if needed. Should be the same as for the 3rd party repository.</li>
 <li><a href="#spec.userConfig.gcs_migration.compress-property" name="spec.userConfig.gcs_migration.compress-property"><code>compress</code></a> (boolean). when set to true metadata files are stored in compressed format.</li>
 <li><a href="#spec.userConfig.gcs_migration.include_aliases-property" name="spec.userConfig.gcs_migration.include_aliases-property"><code>include_aliases</code></a> (boolean). Whether to restore aliases alongside their associated indexes. Default is true.</li>
+<li><a href="#spec.userConfig.gcs_migration.max_restore_bytes_per_sec-property" name="spec.userConfig.gcs_migration.max_restore_bytes_per_sec-property"><code>max_restore_bytes_per_sec</code></a> (string, Pattern: <code>^\d+\s*(?:[bB]|[kKmMgGtTpP][bB])$</code>). Throttles the restore rate per node. Defaults to unlimited. Note that if the recovery settings for managed services are set, this value is overridden by the recovery settings. Value should be a byte size with unit, e.g. 40mb, 100kb, 1gb.</li>
+<li><a href="#spec.userConfig.gcs_migration.max_snapshot_bytes_per_sec-property" name="spec.userConfig.gcs_migration.max_snapshot_bytes_per_sec-property"><code>max_snapshot_bytes_per_sec</code></a> (string, Pattern: <code>^\d+\s*(?:[bB]|[kKmMgGtTpP][bB])$</code>). Throttles the snapshot rate per node. Defaults to 40mb. Note that if the recovery settings for managed services are set, this value is overridden by the recovery settings. Value should be a byte size with unit, e.g. 40mb, 100kb, 1gb.</li>
 <li><a href="#spec.userConfig.gcs_migration.readonly-property" name="spec.userConfig.gcs_migration.readonly-property"><code>readonly</code></a> (boolean). Whether the repository is read-only.</li>
 <li><a href="#spec.userConfig.gcs_migration.restore_global_state-property" name="spec.userConfig.gcs_migration.restore_global_state-property"><code>restore_global_state</code></a> (boolean). If true, restore the cluster state. Defaults to false.</li>
 </ul>
@@ -5108,6 +5112,8 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <li><a href="#spec.userConfig.s3_migration.compress-property" name="spec.userConfig.s3_migration.compress-property"><code>compress</code></a> (boolean). when set to true metadata files are stored in compressed format.</li>
 <li><a href="#spec.userConfig.s3_migration.endpoint-property" name="spec.userConfig.s3_migration.endpoint-property"><code>endpoint</code></a> (string, Pattern: <code>^[^\r\n]*$</code>). The S3 service endpoint to connect to. If you are using an S3-compatible service then you should set this to the service’s endpoint.</li>
 <li><a href="#spec.userConfig.s3_migration.include_aliases-property" name="spec.userConfig.s3_migration.include_aliases-property"><code>include_aliases</code></a> (boolean). Whether to restore aliases alongside their associated indexes. Default is true.</li>
+<li><a href="#spec.userConfig.s3_migration.max_restore_bytes_per_sec-property" name="spec.userConfig.s3_migration.max_restore_bytes_per_sec-property"><code>max_restore_bytes_per_sec</code></a> (string, Pattern: <code>^\d+\s*(?:[bB]|[kKmMgGtTpP][bB])$</code>). Throttles the restore rate per node. Defaults to unlimited. Note that if the recovery settings for managed services are set, this value is overridden by the recovery settings. Value should be a byte size with unit, e.g. 40mb, 100kb, 1gb.</li>
+<li><a href="#spec.userConfig.s3_migration.max_snapshot_bytes_per_sec-property" name="spec.userConfig.s3_migration.max_snapshot_bytes_per_sec-property"><code>max_snapshot_bytes_per_sec</code></a> (string, Pattern: <code>^\d+\s*(?:[bB]|[kKmMgGtTpP][bB])$</code>). Throttles the snapshot rate per node. Defaults to 40mb. Note that if the recovery settings for managed services are set, this value is overridden by the recovery settings. Value should be a byte size with unit, e.g. 40mb, 100kb, 1gb.</li>
 <li><a href="#spec.userConfig.s3_migration.readonly-property" name="spec.userConfig.s3_migration.readonly-property"><code>readonly</code></a> (boolean). Whether the repository is read-only.</li>
 <li><a href="#spec.userConfig.s3_migration.restore_global_state-property" name="spec.userConfig.s3_migration.restore_global_state-property"><code>restore_global_state</code></a> (boolean). If true, restore the cluster state. Defaults to false.</li>
 <li><a href="#spec.userConfig.s3_migration.server_side_encryption-property" name="spec.userConfig.s3_migration.server_side_encryption-property"><code>server_side_encryption</code></a> (boolean). When set to true files are encrypted on server side.</li>
@@ -5234,10 +5240,10 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
     
       
       
-      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"../assets/javascripts/workers/search.b6b7e04f.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.6e5f0216.min.js"></script>
+      <script src="../assets/javascripts/bundle.ee611ef6.min.js"></script>
       
     
   </body>

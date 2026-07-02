@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.44">
+      <meta name="generator" content="zensical-0.0.46">
     
     
       
@@ -32,7 +32,7 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.fba56155.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.19d3147f.min.css">
       
         
           
@@ -3983,9 +3983,9 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <li><a href="#spec.datadog.disable_consumer_stats-property" name="spec.datadog.disable_consumer_stats-property"><code>disable_consumer_stats</code></a> (boolean). Disable consumer group metrics.</li>
 <li><a href="#spec.datadog.extra_tags_prefix-property" name="spec.datadog.extra_tags_prefix-property"><code>extra_tags_prefix</code></a> (string, Pattern: <code>^[A-Za-z0-9\-]{0,64}$</code>, MinLength: 0, MaxLength: 64). Extra tags prefix. Defaults to aiven.</li>
 <li><a href="#spec.datadog.kafka_consumer_check_instances-property" name="spec.datadog.kafka_consumer_check_instances-property"><code>kafka_consumer_check_instances</code></a> (integer, Minimum: 1, Maximum: 100). Number of separate instances to fetch kafka consumer statistics with.</li>
-<li><a href="#spec.datadog.kafka_consumer_stats_timeout-property" name="spec.datadog.kafka_consumer_stats_timeout-property"><code>kafka_consumer_stats_timeout</code></a> (integer, Minimum: 2, Maximum: 300). Number of seconds that datadog will wait to get consumer statistics from brokers.</li>
+<li><a href="#spec.datadog.kafka_consumer_stats_timeout-property" name="spec.datadog.kafka_consumer_stats_timeout-property"><code>kafka_consumer_stats_timeout</code></a> (integer, Minimum: 2, Maximum: 298). Number of seconds that datadog will wait to get consumer statistics from brokers.</li>
 <li><a href="#spec.datadog.max_partition_contexts-property" name="spec.datadog.max_partition_contexts-property"><code>max_partition_contexts</code></a> (integer, Minimum: 200, Maximum: 200000). Maximum number of partition contexts to send.</li>
-<li><a href="#spec.datadog.site-property" name="spec.datadog.site-property"><code>site</code></a> (string, Enum: <code>ap1.datadoghq.com</code>, <code>ap2.datadoghq.com</code>, <code>datadoghq.com</code>, <code>datadoghq.eu</code>, <code>ddog-gov.com</code>, <code>us3.datadoghq.com</code>, <code>us5.datadoghq.com</code>). Datadog intake site. Defaults to datadoghq.com.</li>
+<li><a href="#spec.datadog.site-property" name="spec.datadog.site-property"><code>site</code></a> (string, Enum: <code>ap1.datadoghq.com</code>, <code>ap2.datadoghq.com</code>, <code>datadoghq.com</code>, <code>datadoghq.eu</code>, <code>ddog-gov.com</code>, <code>us2.ddog-gov.com</code>, <code>us3.datadoghq.com</code>, <code>us5.datadoghq.com</code>). Datadog intake site. Defaults to datadoghq.com.</li>
 </ul>
 <h3 id="spec.datadog.datadog_tags">datadog_tags<a class="headerlink" href="#spec.datadog.datadog_tags" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.datadog"><code>spec.datadog</code></a>.</em></p>
@@ -4145,6 +4145,7 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <ul>
 <li><a href="#spec.rsyslog.ca-property" name="spec.rsyslog.ca-property"><code>ca</code></a> (string, MaxLength: 16384). PEM encoded CA certificate.</li>
 <li><a href="#spec.rsyslog.cert-property" name="spec.rsyslog.cert-property"><code>cert</code></a> (string, MaxLength: 16384). PEM encoded client certificate.</li>
+<li><a href="#spec.rsyslog.escape_newlines-property" name="spec.rsyslog.escape_newlines-property"><code>escape_newlines</code></a> (boolean). When true, embedded newlines in a log message are escaped so a multi-line record (e.g. a stack trace) is delivered as one complete log entry. Useful for newline-delimited cloud log intakes that drop continuation lines.</li>
 <li><a href="#spec.rsyslog.key-property" name="spec.rsyslog.key-property"><code>key</code></a> (string, MaxLength: 16384). PEM encoded client key.</li>
 <li><a href="#spec.rsyslog.logline-property" name="spec.rsyslog.logline-property"><code>logline</code></a> (string, Pattern: <code>^[ -~\t]+$</code>, MinLength: 1, MaxLength: 512). Custom syslog message format.</li>
 <li><a href="#spec.rsyslog.max_message_size-property" name="spec.rsyslog.max_message_size-property"><code>max_message_size</code></a> (integer, Minimum: 2048, Maximum: 2147483647). Rsyslog max message size.</li>
@@ -4256,10 +4257,10 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
     
       
       
-      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"../assets/javascripts/workers/search.b6b7e04f.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.6e5f0216.min.js"></script>
+      <script src="../assets/javascripts/bundle.ee611ef6.min.js"></script>
       
     
   </body>
