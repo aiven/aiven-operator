@@ -1,6 +1,82 @@
 # Changelog
 
 
+## v0.41.0 - 2026-07-02
+
+- Fix a stale `Error` status condition on resources after they recover
+  from a failed reconciliation; the condition is now cleared once reconciliation succeeds
+- Change `ClickhouseGrant` reconciliation to the managed reconciler: the resource now registers a
+  finalizer, periodically re-reconciles, and reports `Running` status conditions
+- Add Kafka SASL and Schema Registry endpoint keys to `ServiceUser` connection secrets for Kafka services.
+- Change `ServiceIntegrationEndpoint` reconciliation to the managed reconciler: the resource now adopts a
+  pre-existing endpoint matching its `endpointName` and `endpointType`.
+- Change `ServiceIntegrationEndpoint` field `datadog.site`: enum add `us2.ddog-gov.com`
+- Add new 'KafkaQuota' resource to manage quotas for Aiven for Apache Kafka® services.
+- Change `ClickhouseDatabase` reconciliation to the managed reconciler: the resource now registers a
+  finalizer, periodically re-reconciles, and reports `Running` status conditions
+- Change `KafkaSchemaRegistryACL` reconciliation to the managed reconciler: the resource now registers a
+  finalizer, periodically re-reconciles, and reports `Running` status conditions
+- `ConnectionPool` reconciliation: changes to `poolMode` and `poolSize` are now detected and applied on
+  update, and the connection info secret is kept in sync on every reconcile
+- Add `Kafka` field `userConfig.kafka.group_coordinator_rebalance_protocols`, type `string`: The enabled
+  consumer group rebalance protocols
+- Add `Kafka` field `userConfig.kafka.group_share_delivery_count_limit`, type `integer`: The maximum
+  delivery attempts for a share-group record
+- Add `Kafka` field `userConfig.kafka.group_share_heartbeat_interval_ms`, type `integer`: The heartbeat
+  interval used by share group members
+- Add `Kafka` field `userConfig.kafka.group_share_max_groups`, type `integer`: The maximum number of
+  share groups allowed on the broker
+- Add `Kafka` field `userConfig.kafka.group_share_max_heartbeat_interval_ms`, type `integer`: The maximum
+  heartbeat interval allowed for share group members
+- Add `Kafka` field `userConfig.kafka.group_share_max_record_lock_duration_ms`, type `integer`: The maximum
+  record lock duration allowed for share groups
+- Add `Kafka` field `userConfig.kafka.group_share_max_session_timeout_ms`, type `integer`: The maximum
+  session timeout allowed for share group members
+- Add `Kafka` field `userConfig.kafka.group_share_max_size`, type `integer`: The maximum number of members
+  allowed in a share group
+- Add `Kafka` field `userConfig.kafka.group_share_min_heartbeat_interval_ms`, type `integer`: The minimum
+  heartbeat interval allowed for share group members
+- Add `Kafka` field `userConfig.kafka.group_share_min_record_lock_duration_ms`, type `integer`: The minimum
+  record lock duration allowed for share groups
+- Add `Kafka` field `userConfig.kafka.group_share_min_session_timeout_ms`, type `integer`: The minimum
+  session timeout allowed for share group members
+- Add `Kafka` field `userConfig.kafka.group_share_partition_max_record_locks`, type `integer`: The maximum
+  number of record locks allowed per share group partition
+- Add `Kafka` field `userConfig.kafka.group_share_record_lock_duration_ms`, type `integer`: The duration
+  for which a fetched share-group record is locked
+- Add `Kafka` field `userConfig.kafka.group_share_session_timeout_ms`, type `integer`: The timeout used
+  to detect share group member failures
+- Add `MySQL` field `userConfig.mysql.relay_log_space_limit`, type `integer`: The maximum amount of space
+  in bytes to use for all relay logs while replicating from an external migration source
+- Add `Kafka` field `userConfig.kafka.audit_log`, type `object`: Enable Kafka audit logging by providing
+  this object. Removing it disables the feature
+- Add `MySQL` field `userConfig.mysql.innodb_adaptive_hash_index`, type `boolean`: Whether InnoDB adaptive
+  hash indexing is enabled
+- Add `MySQL` field `userConfig.mysql.innodb_io_capacity_max`, type `integer`: The maximum number of
+  I/O operations per second (IOPS) that InnoDB background tasks may perform when flushing falls behind
+- Add `MySQL` field `userConfig.mysql.innodb_io_capacity`, type `integer`: The number of I/O operations
+  per second (IOPS) available to InnoDB background tasks, such as flushing pages from the buffer
+  pool and merging data from the change buffer
+- Add `OpenSearch` field `userConfig.azure_migration.max_restore_bytes_per_sec`, type `string`: Throttles
+  the restore rate per node. Defaults to unlimited
+- Add `OpenSearch` field `userConfig.azure_migration.max_snapshot_bytes_per_sec`, type `string`: Throttles
+  the snapshot rate per node. Defaults to 40mb
+- Add `OpenSearch` field `userConfig.gcs_migration.max_restore_bytes_per_sec`, type `string`: Throttles
+  the restore rate per node. Defaults to unlimited
+- Add `OpenSearch` field `userConfig.gcs_migration.max_snapshot_bytes_per_sec`, type `string`: Throttles
+  the snapshot rate per node. Defaults to 40mb
+- Add `OpenSearch` field `userConfig.s3_migration.max_restore_bytes_per_sec`, type `string`: Throttles
+  the restore rate per node. Defaults to unlimited
+- Add `OpenSearch` field `userConfig.s3_migration.max_snapshot_bytes_per_sec`, type `string`: Throttles
+  the snapshot rate per node. Defaults to 40mb
+- Add `ServiceIntegrationEndpoint` field `rsyslog.escape_newlines`, type `boolean`: When true, embedded
+  newlines in a log message are escaped so a multi-line record (e.g
+- Change `ServiceIntegrationEndpoint` field `datadog.kafka_consumer_stats_timeout`: maximum ~~`300`~~
+  → `298`
+- Add `Kafka` field `userConfig.kafka_diskless.auto_diskless_topic_regexes`, type `array`: The regexes
+  of topics to auto enable diskless
+- Change `Kafka` field `userConfig.kafka.audit_log.aggregation_period_sec`: maximum ~~`600`~~ → `1800`
+
 ## v0.40.0 - 2026-06-05
 
 - Add `MySQL` field `userConfig.mysql.performance_schema_events_statements_history_size`, type `integer`:
