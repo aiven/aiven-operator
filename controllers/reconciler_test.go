@@ -1054,6 +1054,63 @@ func TestReconciler_Reconcile(t *testing.T) {
 		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
 		require.True(t, hasLatestGeneration(got))
 	})
+
+	t.Run("Clears stale Error condition on successful reconcile", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		obj.Annotations = map[string]string{instanceIsRunningAnnotation: "true"}
+		// A leftover Error condition from a previous failed attempt that must be cleared once reconciliation succeeds.
+		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionPreconditions, assert.AnError))
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(obj).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+		c.EXPECT().
+			Observe(mock.Anything, mock.Anything).
+			Return(Observation{
+				ResourceExists:   true,
+				ResourceUpToDate: true,
+			}, nil).
+			Once()
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+			Return(avngen.NewMockClient(t), nil).
+			Once()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:          k8sClient,
+				Scheme:          scheme,
+				Recorder:        recorder,
+				DefaultToken:    "default-token",
+				KubeVersion:     "v1.30.0",
+				OperatorVersion: "v0.0.0-test",
+				PollInterval:    testPollInterval,
+			},
+			newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
+			newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+				return c
+			},
+			newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+		}
+
+		res, err := r.Reconcile(t.Context(), ctrl.Request{
+			NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, ctrl.Result{RequeueAfter: testPollInterval}, res)
+
+		got := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+		require.Nil(t, meta.FindStatusCondition(*got.Conditions(), ConditionTypeError), "stale Error condition must be cleared on success")
+	})
 }
 
 func TestReconciler_ensureFinalizer(t *testing.T) {
