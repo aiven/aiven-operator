@@ -310,7 +310,7 @@ type MysqlUserConfig struct {
 
 	// +kubebuilder:validation:Minimum=600
 	// +kubebuilder:validation:Maximum=9007199254740991
-	// The minimum amount of time in seconds to keep binlog entries before deletion. This may be extended for services that require binlog entries for longer than the default for example if using the MySQL Debezium Kafka connector.
+	// Warning: reducing this value can make a large batch of binary logs eligible for purge at once. Depending on the volume, this can sometimes stall the MySQL commit path and block writes until the purge completes. To stay on the safe side, prefer lowering the value gradually in small decrements during a low-traffic window rather than dropping it drastically in one step.
 	BinlogRetentionPeriod *int `groups:"create,update" json:"binlog_retention_period,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=8000

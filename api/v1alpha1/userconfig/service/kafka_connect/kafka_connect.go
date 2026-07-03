@@ -158,6 +158,25 @@ type Aws struct {
 	SecretKey *string `groups:"create,update" json:"secret_key,omitempty"`
 }
 
+// Azure KeyVault secret provider configuration
+type Azure struct {
+	// +kubebuilder:validation:Enum="credentials"
+	// Auth method of the Azure KeyVault secret provider
+	AuthMethod string `groups:"create,update" json:"auth_method"`
+
+	// +kubebuilder:validation:MaxLength=128
+	// Azure client ID for the service principal.
+	ClientId *string `groups:"create,update" json:"client_id,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=256
+	// Azure client secret for the service principal.
+	Secret *string `groups:"create,update" json:"secret,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=128
+	// Azure tenant ID for the service principal.
+	TenantId *string `groups:"create,update" json:"tenant_id,omitempty"`
+}
+
 // Key/value map of secrets for ENV secret provider
 type Secrets struct{}
 
@@ -194,10 +213,13 @@ type Vault struct {
 	Token *string `groups:"create,update" json:"token,omitempty"`
 }
 
-// Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault, AWS Secrets Manager, and ENV secret providers are supported.
+// Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault, AWS Secrets Manager, Azure KeyVault, and ENV secret providers are supported.
 type SecretProviders struct {
 	// AWS secret provider configuration
 	Aws *Aws `groups:"create,update" json:"aws,omitempty"`
+
+	// Azure KeyVault secret provider configuration
+	Azure *Azure `groups:"create,update" json:"azure,omitempty"`
 
 	// ENV secret provider configuration
 	Env *Env `groups:"create,update" json:"env,omitempty"`

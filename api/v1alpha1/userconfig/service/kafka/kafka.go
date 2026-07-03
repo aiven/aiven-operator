@@ -441,6 +441,25 @@ type Aws struct {
 	SecretKey *string `groups:"create,update" json:"secret_key,omitempty"`
 }
 
+// Azure KeyVault secret provider configuration
+type Azure struct {
+	// +kubebuilder:validation:Enum="credentials"
+	// Auth method of the Azure KeyVault secret provider
+	AuthMethod string `groups:"create,update" json:"auth_method"`
+
+	// +kubebuilder:validation:MaxLength=128
+	// Azure client ID for the service principal.
+	ClientId *string `groups:"create,update" json:"client_id,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=256
+	// Azure client secret for the service principal.
+	Secret *string `groups:"create,update" json:"secret,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=128
+	// Azure tenant ID for the service principal.
+	TenantId *string `groups:"create,update" json:"tenant_id,omitempty"`
+}
+
 // Key/value map of secrets for ENV secret provider
 type Secrets struct{}
 
@@ -477,10 +496,13 @@ type Vault struct {
 	Token *string `groups:"create,update" json:"token,omitempty"`
 }
 
-// Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault, AWS Secrets Manager, and ENV secret providers are supported.
+// Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault, AWS Secrets Manager, Azure KeyVault, and ENV secret providers are supported.
 type KafkaConnectSecretProviders struct {
 	// AWS secret provider configuration
 	Aws *Aws `groups:"create,update" json:"aws,omitempty"`
+
+	// Azure KeyVault secret provider configuration
+	Azure *Azure `groups:"create,update" json:"azure,omitempty"`
 
 	// ENV secret provider configuration
 	Env *Env `groups:"create,update" json:"env,omitempty"`
@@ -742,7 +764,7 @@ type KafkaUserConfig struct {
 	// Kafka SASL mechanisms
 	KafkaSaslMechanisms *KafkaSaslMechanisms `groups:"create,update" json:"kafka_sasl_mechanisms,omitempty"`
 
-	// Available versions: `3.8`, `3.9`, `4.0`, `4.1`, `4.2`. Newer versions may also be available.
+	// Available versions: `3.9`, `4.0`, `4.1`, `4.2`. Newer versions may also be available.
 	// Kafka major version. Deprecated values: `4.0`
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
 
@@ -751,6 +773,10 @@ type KafkaUserConfig struct {
 
 	// Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication via Privatelink. (Default: False)
 	LetsencryptSaslPrivatelink *bool `groups:"create,update" json:"letsencrypt_sasl_privatelink,omitempty"`
+
+	// +kubebuilder:validation:MaxItems=10
+	// List of preferred zone IDs for service node placement. Nodes will be placed in these zones when available. If a specified zone is unavailable (e.g., due to capacity constraints), nodes will be placed in other available zones to maintain the configured number of zones for availability. Invalid zone IDs are rejected at configuration time. Zone IDs are cloud-specific: AWS uses zone IDs like 'euc1-az1', GCP uses zone names like 'europe-west1-a', and Azure uses 'location/zone' format like 'germanywestcentral/1'. If single_zone is enabled with an availability_zone, that setting takes precedence over preferred_zones.Changes take effect on next node recreation (e.g., maintenance or plan change). For Kafka professional plans, nodes outside preferred zones are automatically rebalanced once per day.
+	PreferredZones []string `groups:"create,update" json:"preferred_zones,omitempty"`
 
 	// Allow access to selected service ports from private networks
 	PrivateAccess *PrivateAccess `groups:"create,update" json:"private_access,omitempty"`

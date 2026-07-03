@@ -770,6 +770,15 @@ spec:
                           maximum: 104857600
                           minimum: 0
                           type: integer
+                        consumer_fetch_max_wait_ms:
+                          description:
+                            The maximum amount of time the server will block
+                            before answering the fetch request if there isn't sufficient
+                            data to immediately satisfy `consumer_fetch_min_bytes`.
+                            Default is `500`.
+                          maximum: 600000
+                          minimum: 0
+                          type: integer
                         consumer_fetch_min_bytes:
                           description:
                             The minimum amount of data the server should

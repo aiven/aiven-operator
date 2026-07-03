@@ -472,8 +472,8 @@ spec:
                         description:
                           Configure external secret providers in order to
                           reference external secrets in connector configuration. Currently
-                          Hashicorp Vault, AWS Secrets Manager, and ENV secret providers
-                          are supported.
+                          Hashicorp Vault, AWS Secrets Manager, Azure KeyVault, and
+                          ENV secret providers are supported.
                         properties:
                           aws:
                             description: AWS secret provider configuration
@@ -500,6 +500,31 @@ spec:
                             required:
                               - auth_method
                               - region
+                            type: object
+                          azure:
+                            description: Azure KeyVault secret provider configuration
+                            properties:
+                              auth_method:
+                                description:
+                                  Auth method of the Azure KeyVault secret
+                                  provider
+                                enum:
+                                  - credentials
+                                type: string
+                              client_id:
+                                description: Azure client ID for the service principal.
+                                maxLength: 128
+                                type: string
+                              secret:
+                                description: Azure client secret for the service principal.
+                                maxLength: 256
+                                type: string
+                              tenant_id:
+                                description: Azure tenant ID for the service principal.
+                                maxLength: 128
+                                type: string
+                            required:
+                              - auth_method
                             type: object
                           env:
                             description: ENV secret provider configuration
