@@ -19,6 +19,11 @@ func (in *KafkaMirrormaker) DeepCopyInto(out *KafkaMirrormaker) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.ConsumerFetchMaxWaitMs != nil {
+		in, out := &in.ConsumerFetchMaxWaitMs, &out.ConsumerFetchMaxWaitMs
+		*out = new(int)
+		**out = **in
+	}
 	if in.ConsumerFetchMinBytes != nil {
 		in, out := &in.ConsumerFetchMinBytes, &out.ConsumerFetchMinBytes
 		*out = new(int)

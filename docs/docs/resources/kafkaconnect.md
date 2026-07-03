@@ -278,7 +278,7 @@ Allow access to selected service ports from the public Internet.
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
 
-Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault, AWS Secrets Manager, and ENV secret providers are supported.
+Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault, AWS Secrets Manager, Azure KeyVault, and ENV secret providers are supported.
 
 **Required**
 
@@ -287,6 +287,7 @@ Configure external secret providers in order to reference external secrets in co
 **Optional**
 
 - [`aws`](#spec.userConfig.secret_providers.aws-property){: name='spec.userConfig.secret_providers.aws-property'} (object). AWS secret provider configuration. See below for [nested schema](#spec.userConfig.secret_providers.aws).
+- [`azure`](#spec.userConfig.secret_providers.azure-property){: name='spec.userConfig.secret_providers.azure-property'} (object). Azure KeyVault secret provider configuration. See below for [nested schema](#spec.userConfig.secret_providers.azure).
 - [`env`](#spec.userConfig.secret_providers.env-property){: name='spec.userConfig.secret_providers.env-property'} (object). ENV secret provider configuration. See below for [nested schema](#spec.userConfig.secret_providers.env).
 - [`vault`](#spec.userConfig.secret_providers.vault-property){: name='spec.userConfig.secret_providers.vault-property'} (object). Vault secret provider configuration. See below for [nested schema](#spec.userConfig.secret_providers.vault).
 
@@ -305,6 +306,22 @@ AWS secret provider configuration.
 
 - [`access_key`](#spec.userConfig.secret_providers.aws.access_key-property){: name='spec.userConfig.secret_providers.aws.access_key-property'} (string, MaxLength: 128). Access key used to authenticate with aws.
 - [`secret_key`](#spec.userConfig.secret_providers.aws.secret_key-property){: name='spec.userConfig.secret_providers.aws.secret_key-property'} (string, MaxLength: 128). Secret key used to authenticate with aws.
+
+#### azure {: #spec.userConfig.secret_providers.azure }
+
+_Appears on [`spec.userConfig.secret_providers`](#spec.userConfig.secret_providers)._
+
+Azure KeyVault secret provider configuration.
+
+**Required**
+
+- [`auth_method`](#spec.userConfig.secret_providers.azure.auth_method-property){: name='spec.userConfig.secret_providers.azure.auth_method-property'} (string, Enum: `credentials`). Auth method of the Azure KeyVault secret provider.
+
+**Optional**
+
+- [`client_id`](#spec.userConfig.secret_providers.azure.client_id-property){: name='spec.userConfig.secret_providers.azure.client_id-property'} (string, MaxLength: 128). Azure client ID for the service principal.
+- [`secret`](#spec.userConfig.secret_providers.azure.secret-property){: name='spec.userConfig.secret_providers.azure.secret-property'} (string, MaxLength: 256). Azure client secret for the service principal.
+- [`tenant_id`](#spec.userConfig.secret_providers.azure.tenant_id-property){: name='spec.userConfig.secret_providers.azure.tenant_id-property'} (string, MaxLength: 128). Azure tenant ID for the service principal.
 
 #### env {: #spec.userConfig.secret_providers.env }
 

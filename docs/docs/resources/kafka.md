@@ -256,10 +256,11 @@ Kafka specific user configuration options.
 - [`kafka_rest_authorization`](#spec.userConfig.kafka_rest_authorization-property){: name='spec.userConfig.kafka_rest_authorization-property'} (boolean). Enable authorization in Kafka-REST service.
 - [`kafka_rest_config`](#spec.userConfig.kafka_rest_config-property){: name='spec.userConfig.kafka_rest_config-property'} (object). Kafka REST configuration. See below for [nested schema](#spec.userConfig.kafka_rest_config).
 - [`kafka_sasl_mechanisms`](#spec.userConfig.kafka_sasl_mechanisms-property){: name='spec.userConfig.kafka_sasl_mechanisms-property'} (object). Kafka SASL mechanisms. See below for [nested schema](#spec.userConfig.kafka_sasl_mechanisms).
-- [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string). Available versions: `3.8`, `3.9`, `4.0`, `4.1`, `4.2`. Newer versions may also be available.
+- [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string). Available versions: `3.9`, `4.0`, `4.1`, `4.2`. Newer versions may also be available.
     Kafka major version. Deprecated values: `4.0`.
 - [`letsencrypt_sasl`](#spec.userConfig.letsencrypt_sasl-property){: name='spec.userConfig.letsencrypt_sasl-property'} (boolean). Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication. (Default: False).
 - [`letsencrypt_sasl_privatelink`](#spec.userConfig.letsencrypt_sasl_privatelink-property){: name='spec.userConfig.letsencrypt_sasl_privatelink-property'} (boolean). Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication via Privatelink. (Default: False).
+- [`preferred_zones`](#spec.userConfig.preferred_zones-property){: name='spec.userConfig.preferred_zones-property'} (array of strings, MaxItems: 10). List of preferred zone IDs for service node placement. Nodes will be placed in these zones when available. If a specified zone is unavailable (e.g., due to capacity constraints), nodes will be placed in other available zones to maintain the configured number of zones for availability. Invalid zone IDs are rejected at configuration time. Zone IDs are cloud-specific: AWS uses zone IDs like `euc1-az1`, GCP uses zone names like `europe-west1-a`, and Azure uses `location/zone` format like `germanywestcentral/1`. If single_zone is enabled with an availability_zone, that setting takes precedence over preferred_zones.Changes take effect on next node recreation (e.g., maintenance or plan change). For Kafka professional plans, nodes outside preferred zones are automatically rebalanced once per day.
 - [`private_access`](#spec.userConfig.private_access-property){: name='spec.userConfig.private_access-property'} (object). Allow access to selected service ports from private networks. See below for [nested schema](#spec.userConfig.private_access).
 - [`privatelink_access`](#spec.userConfig.privatelink_access-property){: name='spec.userConfig.privatelink_access-property'} (object). Allow access to selected service components through Privatelink. See below for [nested schema](#spec.userConfig.privatelink_access).
 - [`public_access`](#spec.userConfig.public_access-property){: name='spec.userConfig.public_access-property'} (object). Allow access to selected service ports from the public Internet. See below for [nested schema](#spec.userConfig.public_access).
@@ -442,7 +443,7 @@ A Kafka Connect plugin.
 
 _Appears on [`spec.userConfig`](#spec.userConfig)._
 
-Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault, AWS Secrets Manager, and ENV secret providers are supported.
+Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault, AWS Secrets Manager, Azure KeyVault, and ENV secret providers are supported.
 
 **Required**
 
@@ -451,6 +452,7 @@ Configure external secret providers in order to reference external secrets in co
 **Optional**
 
 - [`aws`](#spec.userConfig.kafka_connect_secret_providers.aws-property){: name='spec.userConfig.kafka_connect_secret_providers.aws-property'} (object). AWS secret provider configuration. See below for [nested schema](#spec.userConfig.kafka_connect_secret_providers.aws).
+- [`azure`](#spec.userConfig.kafka_connect_secret_providers.azure-property){: name='spec.userConfig.kafka_connect_secret_providers.azure-property'} (object). Azure KeyVault secret provider configuration. See below for [nested schema](#spec.userConfig.kafka_connect_secret_providers.azure).
 - [`env`](#spec.userConfig.kafka_connect_secret_providers.env-property){: name='spec.userConfig.kafka_connect_secret_providers.env-property'} (object). ENV secret provider configuration. See below for [nested schema](#spec.userConfig.kafka_connect_secret_providers.env).
 - [`vault`](#spec.userConfig.kafka_connect_secret_providers.vault-property){: name='spec.userConfig.kafka_connect_secret_providers.vault-property'} (object). Vault secret provider configuration. See below for [nested schema](#spec.userConfig.kafka_connect_secret_providers.vault).
 
@@ -469,6 +471,22 @@ AWS secret provider configuration.
 
 - [`access_key`](#spec.userConfig.kafka_connect_secret_providers.aws.access_key-property){: name='spec.userConfig.kafka_connect_secret_providers.aws.access_key-property'} (string, MaxLength: 128). Access key used to authenticate with aws.
 - [`secret_key`](#spec.userConfig.kafka_connect_secret_providers.aws.secret_key-property){: name='spec.userConfig.kafka_connect_secret_providers.aws.secret_key-property'} (string, MaxLength: 128). Secret key used to authenticate with aws.
+
+#### azure {: #spec.userConfig.kafka_connect_secret_providers.azure }
+
+_Appears on [`spec.userConfig.kafka_connect_secret_providers`](#spec.userConfig.kafka_connect_secret_providers)._
+
+Azure KeyVault secret provider configuration.
+
+**Required**
+
+- [`auth_method`](#spec.userConfig.kafka_connect_secret_providers.azure.auth_method-property){: name='spec.userConfig.kafka_connect_secret_providers.azure.auth_method-property'} (string, Enum: `credentials`). Auth method of the Azure KeyVault secret provider.
+
+**Optional**
+
+- [`client_id`](#spec.userConfig.kafka_connect_secret_providers.azure.client_id-property){: name='spec.userConfig.kafka_connect_secret_providers.azure.client_id-property'} (string, MaxLength: 128). Azure client ID for the service principal.
+- [`secret`](#spec.userConfig.kafka_connect_secret_providers.azure.secret-property){: name='spec.userConfig.kafka_connect_secret_providers.azure.secret-property'} (string, MaxLength: 256). Azure client secret for the service principal.
+- [`tenant_id`](#spec.userConfig.kafka_connect_secret_providers.azure.tenant_id-property){: name='spec.userConfig.kafka_connect_secret_providers.azure.tenant_id-property'} (string, MaxLength: 128). Azure tenant ID for the service principal.
 
 #### env {: #spec.userConfig.kafka_connect_secret_providers.env }
 

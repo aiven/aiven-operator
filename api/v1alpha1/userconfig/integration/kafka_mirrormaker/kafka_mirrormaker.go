@@ -14,6 +14,11 @@ type KafkaMirrormaker struct {
 	// The maximum amount of data the server should return for a fetch request. Default is `52428800` (50MiB).
 	ConsumerFetchMaxBytes *int `groups:"create,update" json:"consumer_fetch_max_bytes,omitempty"`
 
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=600000
+	// The maximum amount of time the server will block before answering the fetch request if there isn't sufficient data to immediately satisfy `consumer_fetch_min_bytes`. Default is `500`.
+	ConsumerFetchMaxWaitMs *int `groups:"create,update" json:"consumer_fetch_max_wait_ms,omitempty"`
+
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=5242880
 	// The minimum amount of data the server should return for a fetch request. Default is `1`.

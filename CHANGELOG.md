@@ -2,6 +2,12 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `Kafka` field `userConfig.preferred_zones`, type `array`: List of preferred zone IDs for service
+  node placement
+- Add `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.consumer_fetch_max_wait_ms`, type
+  `integer`: The maximum amount of time the server will block before answering the fetch request if
+  there isn't sufficient data to immediately satisfy `consumer_fetch_min_bytes`
+
 ## v0.41.0 - 2026-07-02
 
 - Fix a stale `Error` status condition on resources after they recover
