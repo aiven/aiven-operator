@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="./assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.46">
+      <meta name="generator" content="zensical-0.0.47">
     
     
       
@@ -32,7 +32,7 @@
       
         
       
-      <link rel="stylesheet" href="./assets/stylesheets/modern/main.19d3147f.min.css">
+      <link rel="stylesheet" href="./assets/stylesheets/modern/main.5e19f6ca.min.css">
       
         
           
@@ -489,6 +489,17 @@
       On this page
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0420-2026-07-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.42.0 - 2026-07-08
+      </span>
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v0410-2026-07-02" class="md-nav__link">
@@ -3726,6 +3737,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0420-2026-07-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.42.0 - 2026-07-08
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0410-2026-07-02" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -4269,6 +4291,15 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0420-2026-07-08">v0.42.0 - 2026-07-08<a class="headerlink" href="#v0420-2026-07-08" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Upgrade <code>sigs.k8s.io/controller-runtime</code> to <code>v0.21.0</code>; the minimum supported Kubernetes version is now <code>1.30</code></li>
+<li>Add <code>Kafka</code> field <code>userConfig.preferred_zones</code>, type <code>array</code>: List of preferred zone IDs for service
+  node placement</li>
+<li>Add <code>ServiceIntegration</code> field <code>kafkaMirrormaker.kafka_mirrormaker.consumer_fetch_max_wait_ms</code>, type
+  <code>integer</code>: The maximum amount of time the server will block before answering the fetch request if
+  there isn't sufficient data to immediately satisfy <code>consumer_fetch_min_bytes</code></li>
+</ul>
 <h2 id="v0410-2026-07-02">v0.41.0 - 2026-07-02<a class="headerlink" href="#v0410-2026-07-02" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Fix a stale <code>Error</code> status condition on resources after they recover
@@ -4420,6 +4451,7 @@ Valkey major version</li>
 <li>Add <code>Clickhouse</code> field <code>userConfig.public_access.clickhouse_arrowflight</code>, type <code>boolean</code>: Allow clients
   to connect to clickhouse_arrowflight from the public internet for service nodes that are in a
   project VPC or another type of private network</li>
+<li>Add kind: <code>KafkaQuota</code></li>
 </ul>
 <h2 id="v0370-2026-04-09">v0.37.0 - 2026-04-09<a class="headerlink" href="#v0370-2026-04-09" title="Permanent link">&para;</a></h2>
 <ul>
@@ -5353,7 +5385,7 @@ as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-be
       <script id="__config" type="application/json">{"annotate":null,"base":".","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"./assets/javascripts/workers/search.b6b7e04f.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="./assets/javascripts/bundle.ee611ef6.min.js"></script>
+      <script src="./assets/javascripts/bundle.0df4f2d0.min.js"></script>
       
     
   </body>

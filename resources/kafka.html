@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.46">
+      <meta name="generator" content="zensical-0.0.47">
     
     
       
@@ -32,7 +32,7 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.19d3147f.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.5e19f6ca.min.css">
       
         
           
@@ -1518,6 +1518,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         aws
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.kafka_connect_secret_providers.azure" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        azure
       </span>
     </span>
   </a>
@@ -3843,6 +3854,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#spec.userConfig.kafka_connect_secret_providers.azure" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        azure
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#spec.userConfig.kafka_connect_secret_providers.env" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -4278,10 +4300,11 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <li><a href="#spec.userConfig.kafka_rest_authorization-property" name="spec.userConfig.kafka_rest_authorization-property"><code>kafka_rest_authorization</code></a> (boolean). Enable authorization in Kafka-REST service.</li>
 <li><a href="#spec.userConfig.kafka_rest_config-property" name="spec.userConfig.kafka_rest_config-property"><code>kafka_rest_config</code></a> (object). Kafka REST configuration. See below for <a href="#spec.userConfig.kafka_rest_config">nested schema</a>.</li>
 <li><a href="#spec.userConfig.kafka_sasl_mechanisms-property" name="spec.userConfig.kafka_sasl_mechanisms-property"><code>kafka_sasl_mechanisms</code></a> (object). Kafka SASL mechanisms. See below for <a href="#spec.userConfig.kafka_sasl_mechanisms">nested schema</a>.</li>
-<li><a href="#spec.userConfig.kafka_version-property" name="spec.userConfig.kafka_version-property"><code>kafka_version</code></a> (string). Available versions: <code>3.8</code>, <code>3.9</code>, <code>4.0</code>, <code>4.1</code>, <code>4.2</code>. Newer versions may also be available.
+<li><a href="#spec.userConfig.kafka_version-property" name="spec.userConfig.kafka_version-property"><code>kafka_version</code></a> (string). Available versions: <code>3.9</code>, <code>4.0</code>, <code>4.1</code>, <code>4.2</code>. Newer versions may also be available.
     Kafka major version. Deprecated values: <code>4.0</code>.</li>
 <li><a href="#spec.userConfig.letsencrypt_sasl-property" name="spec.userConfig.letsencrypt_sasl-property"><code>letsencrypt_sasl</code></a> (boolean). Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication. (Default: False).</li>
 <li><a href="#spec.userConfig.letsencrypt_sasl_privatelink-property" name="spec.userConfig.letsencrypt_sasl_privatelink-property"><code>letsencrypt_sasl_privatelink</code></a> (boolean). Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication via Privatelink. (Default: False).</li>
+<li><a href="#spec.userConfig.preferred_zones-property" name="spec.userConfig.preferred_zones-property"><code>preferred_zones</code></a> (array of strings, MaxItems: 10). List of preferred zone IDs for service node placement. Nodes will be placed in these zones when available. If a specified zone is unavailable (e.g., due to capacity constraints), nodes will be placed in other available zones to maintain the configured number of zones for availability. Invalid zone IDs are rejected at configuration time. Zone IDs are cloud-specific: AWS uses zone IDs like <code>euc1-az1</code>, GCP uses zone names like <code>europe-west1-a</code>, and Azure uses <code>location/zone</code> format like <code>germanywestcentral/1</code>. If single_zone is enabled with an availability_zone, that setting takes precedence over preferred_zones.Changes take effect on next node recreation (e.g., maintenance or plan change). For Kafka professional plans, nodes outside preferred zones are automatically rebalanced once per day.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.public_access-property" name="spec.userConfig.public_access-property"><code>public_access</code></a> (object). Allow access to selected service ports from the public Internet. See below for <a href="#spec.userConfig.public_access">nested schema</a>.</li>
@@ -4438,7 +4461,7 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 </ul>
 <h3 id="spec.userConfig.kafka_connect_secret_providers">kafka_connect_secret_providers<a class="headerlink" href="#spec.userConfig.kafka_connect_secret_providers" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
-<p>Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault, AWS Secrets Manager, and ENV secret providers are supported.</p>
+<p>Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault, AWS Secrets Manager, Azure KeyVault, and ENV secret providers are supported.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#spec.userConfig.kafka_connect_secret_providers.name-property" name="spec.userConfig.kafka_connect_secret_providers.name-property"><code>name</code></a> (string, Pattern: <code>^[A-Za-z0-9_-]+$</code>). Name of the secret provider. Used to reference secrets in connector config.</li>
@@ -4446,6 +4469,7 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.userConfig.kafka_connect_secret_providers.aws-property" name="spec.userConfig.kafka_connect_secret_providers.aws-property"><code>aws</code></a> (object). AWS secret provider configuration. See below for <a href="#spec.userConfig.kafka_connect_secret_providers.aws">nested schema</a>.</li>
+<li><a href="#spec.userConfig.kafka_connect_secret_providers.azure-property" name="spec.userConfig.kafka_connect_secret_providers.azure-property"><code>azure</code></a> (object). Azure KeyVault secret provider configuration. See below for <a href="#spec.userConfig.kafka_connect_secret_providers.azure">nested schema</a>.</li>
 <li><a href="#spec.userConfig.kafka_connect_secret_providers.env-property" name="spec.userConfig.kafka_connect_secret_providers.env-property"><code>env</code></a> (object). ENV secret provider configuration. See below for <a href="#spec.userConfig.kafka_connect_secret_providers.env">nested schema</a>.</li>
 <li><a href="#spec.userConfig.kafka_connect_secret_providers.vault-property" name="spec.userConfig.kafka_connect_secret_providers.vault-property"><code>vault</code></a> (object). Vault secret provider configuration. See below for <a href="#spec.userConfig.kafka_connect_secret_providers.vault">nested schema</a>.</li>
 </ul>
@@ -4461,6 +4485,19 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <ul>
 <li><a href="#spec.userConfig.kafka_connect_secret_providers.aws.access_key-property" name="spec.userConfig.kafka_connect_secret_providers.aws.access_key-property"><code>access_key</code></a> (string, MaxLength: 128). Access key used to authenticate with aws.</li>
 <li><a href="#spec.userConfig.kafka_connect_secret_providers.aws.secret_key-property" name="spec.userConfig.kafka_connect_secret_providers.aws.secret_key-property"><code>secret_key</code></a> (string, MaxLength: 128). Secret key used to authenticate with aws.</li>
+</ul>
+<h4 id="spec.userConfig.kafka_connect_secret_providers.azure">azure<a class="headerlink" href="#spec.userConfig.kafka_connect_secret_providers.azure" title="Permanent link">&para;</a></h4>
+<p><em>Appears on <a href="#spec.userConfig.kafka_connect_secret_providers"><code>spec.userConfig.kafka_connect_secret_providers</code></a>.</em></p>
+<p>Azure KeyVault secret provider configuration.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.userConfig.kafka_connect_secret_providers.azure.auth_method-property" name="spec.userConfig.kafka_connect_secret_providers.azure.auth_method-property"><code>auth_method</code></a> (string, Enum: <code>credentials</code>). Auth method of the Azure KeyVault secret provider.</li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li><a href="#spec.userConfig.kafka_connect_secret_providers.azure.client_id-property" name="spec.userConfig.kafka_connect_secret_providers.azure.client_id-property"><code>client_id</code></a> (string, MaxLength: 128). Azure client ID for the service principal.</li>
+<li><a href="#spec.userConfig.kafka_connect_secret_providers.azure.secret-property" name="spec.userConfig.kafka_connect_secret_providers.azure.secret-property"><code>secret</code></a> (string, MaxLength: 256). Azure client secret for the service principal.</li>
+<li><a href="#spec.userConfig.kafka_connect_secret_providers.azure.tenant_id-property" name="spec.userConfig.kafka_connect_secret_providers.azure.tenant_id-property"><code>tenant_id</code></a> (string, MaxLength: 128). Azure tenant ID for the service principal.</li>
 </ul>
 <h4 id="spec.userConfig.kafka_connect_secret_providers.env">env<a class="headerlink" href="#spec.userConfig.kafka_connect_secret_providers.env" title="Permanent link">&para;</a></h4>
 <p><em>Appears on <a href="#spec.userConfig.kafka_connect_secret_providers"><code>spec.userConfig.kafka_connect_secret_providers</code></a>.</em></p>
@@ -4698,7 +4735,7 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
       <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"../assets/javascripts/workers/search.b6b7e04f.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.ee611ef6.min.js"></script>
+      <script src="../assets/javascripts/bundle.0df4f2d0.min.js"></script>
       
     
   </body>
