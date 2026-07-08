@@ -2,6 +2,7 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Upgrade `sigs.k8s.io/controller-runtime` to `v0.21.0`; the minimum supported Kubernetes version is now `1.30`
 - Add `Kafka` field `userConfig.preferred_zones`, type `array`: List of preferred zone IDs for service
   node placement
 - Add `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.consumer_fetch_max_wait_ms`, type

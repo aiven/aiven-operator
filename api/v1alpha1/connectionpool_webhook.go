@@ -3,6 +3,8 @@
 package v1alpha1
 
 import (
+	"context"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -16,41 +18,50 @@ var connectionpoollog = logf.Log.WithName("connectionpool-resource")
 func (in *ConnectionPool) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(in).
+		WithDefaulter(&ConnectionPoolWebhook{}).
+		WithValidator(&ConnectionPoolWebhook{}).
 		Complete()
 }
 
+type ConnectionPoolWebhook struct{}
+
 //+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-connectionpool,mutating=true,failurePolicy=fail,groups=aiven.io,resources=connectionpools,verbs=create;update,versions=v1alpha1,name=mconnectionpool.kb.io,sideEffects=none,admissionReviewVersions=v1
 
-var _ webhook.Defaulter = &ConnectionPool{}
+var _ webhook.CustomDefaulter = &ConnectionPoolWebhook{}
 
-// Default implements webhook.Defaulter so a webhook will be registered for the type
-func (in *ConnectionPool) Default() {
+// Default implements webhook.CustomDefaulter so a webhook will be registered for the type
+func (h *ConnectionPoolWebhook) Default(_ context.Context, obj runtime.Object) error {
+	in := obj.(*ConnectionPool)
 	connectionpoollog.Info("default", "name", in.Name)
 
 	if in.Spec.PoolSize == 0 {
 		in.Spec.PoolSize = 10
 	}
+	return nil
 }
 
 //+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-connectionpool,mutating=false,failurePolicy=fail,groups=aiven.io,resources=connectionpools,versions=v1alpha1,name=vconnectionpool.kb.io,sideEffects=none,admissionReviewVersions=v1
 
-var _ webhook.Validator = &ConnectionPool{}
+var _ webhook.CustomValidator = &ConnectionPoolWebhook{}
 
-// ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *ConnectionPool) ValidateCreate() (admission.Warnings, error) {
+// ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
+func (h *ConnectionPoolWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
+	in := obj.(*ConnectionPool)
 	connectionpoollog.Info("validate create", "name", in.Name)
 
 	return nil, nil
 }
 
-// ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *ConnectionPool) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
+// ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
+func (h *ConnectionPoolWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Object) (admission.Warnings, error) {
+	in := newObj.(*ConnectionPool)
 	connectionpoollog.Info("validate update", "name", in.Name)
 	return nil, nil
 }
 
-// ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *ConnectionPool) ValidateDelete() (admission.Warnings, error) {
+// ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
+func (h *ConnectionPoolWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
+	in := obj.(*ConnectionPool)
 	connectionpoollog.Info("validate delete", "name", in.Name)
 
 	return nil, nil

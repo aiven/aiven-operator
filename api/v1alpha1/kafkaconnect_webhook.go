@@ -3,6 +3,7 @@
 package v1alpha1
 
 import (
+	"context"
 	"errors"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -18,42 +19,52 @@ var kafkaconnectlog = logf.Log.WithName("kafkaconnect-resource")
 func (in *KafkaConnect) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(in).
+		WithDefaulter(&KafkaConnectWebhook{}).
+		WithValidator(&KafkaConnectWebhook{}).
 		Complete()
 }
 
+type KafkaConnectWebhook struct{}
+
 //+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-kafkaconnect,mutating=true,failurePolicy=fail,groups=aiven.io,resources=kafkaconnects,verbs=create;update,versions=v1alpha1,name=mkafkaconnect.kb.io,sideEffects=none,admissionReviewVersions=v1
 
-var _ webhook.Defaulter = &KafkaConnect{}
+var _ webhook.CustomDefaulter = &KafkaConnectWebhook{}
 
-// Default implements webhook.Defaulter so a webhook will be registered for the type
-func (in *KafkaConnect) Default() {
+// Default implements webhook.CustomDefaulter so a webhook will be registered for the type
+func (h *KafkaConnectWebhook) Default(_ context.Context, obj runtime.Object) error {
+	in := obj.(*KafkaConnect)
 	kafkaconnectlog.Info("default", "name", in.Name)
+	return nil
 }
 
 //+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-kafkaconnect,mutating=false,failurePolicy=fail,groups=aiven.io,resources=kafkaconnects,versions=v1alpha1,name=vkafkaconnect.kb.io,sideEffects=none,admissionReviewVersions=v1
 
-var _ webhook.Validator = &KafkaConnect{}
+var _ webhook.CustomValidator = &KafkaConnectWebhook{}
 
-// ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaConnect) ValidateCreate() (admission.Warnings, error) {
+// ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
+func (h *KafkaConnectWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
+	in := obj.(*KafkaConnect)
 	kafkaconnectlog.Info("validate create", "name", in.Name)
 
 	return nil, in.Spec.Validate()
 }
 
-// ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaConnect) ValidateUpdate(old runtime.Object) (admission.Warnings, error) {
+// ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
+func (h *KafkaConnectWebhook) ValidateUpdate(_ context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
+	in := newObj.(*KafkaConnect)
+	old := oldObj.(*KafkaConnect)
 	kafkaconnectlog.Info("validate update", "name", in.Name)
 
-	if in.Spec.Project != old.(*KafkaConnect).Spec.Project {
+	if in.Spec.Project != old.Spec.Project {
 		return nil, errors.New("cannot update a KafkaConnect service, project field is immutable and cannot be updated")
 	}
 
 	return nil, in.Spec.Validate()
 }
 
-// ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *KafkaConnect) ValidateDelete() (admission.Warnings, error) {
+// ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
+func (h *KafkaConnectWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
+	in := obj.(*KafkaConnect)
 	kafkaconnectlog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {

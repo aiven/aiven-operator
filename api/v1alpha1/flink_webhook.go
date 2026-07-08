@@ -3,6 +3,7 @@
 package v1alpha1
 
 import (
+	"context"
 	"errors"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -18,36 +19,45 @@ var flinklog = logf.Log.WithName("flink-resource")
 func (in *Flink) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(in).
+		WithDefaulter(&FlinkWebhook{}).
+		WithValidator(&FlinkWebhook{}).
 		Complete()
 }
 
+type FlinkWebhook struct{}
+
 //+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-flink,mutating=true,failurePolicy=fail,sideEffects=None,groups=aiven.io,resources=flinks,verbs=create;update,versions=v1alpha1,name=mflink.kb.io,admissionReviewVersions=v1
 
-var _ webhook.Defaulter = &Flink{}
+var _ webhook.CustomDefaulter = &FlinkWebhook{}
 
-func (in *Flink) Default() {
+func (h *FlinkWebhook) Default(_ context.Context, obj runtime.Object) error {
+	in := obj.(*Flink)
 	flinklog.Info("default", "name", in.Name)
+	return nil
 }
 
 //+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-flink,mutating=false,failurePolicy=fail,groups=aiven.io,resources=flinks,versions=v1alpha1,name=vflink.kb.io,sideEffects=none,admissionReviewVersions=v1
 
-var _ webhook.Validator = &Flink{}
+var _ webhook.CustomValidator = &FlinkWebhook{}
 
-// ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *Flink) ValidateCreate() (admission.Warnings, error) {
+// ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
+func (h *FlinkWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
+	in := obj.(*Flink)
 	flinklog.Info("validate create", "name", in.Name)
 
 	return nil, in.Spec.Validate()
 }
 
-// ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *Flink) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
+// ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
+func (h *FlinkWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Object) (admission.Warnings, error) {
+	in := newObj.(*Flink)
 	flinklog.Info("validate update", "name", in.Name)
 	return nil, in.Spec.Validate()
 }
 
-// ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *Flink) ValidateDelete() (admission.Warnings, error) {
+// ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
+func (h *FlinkWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
+	in := obj.(*Flink)
 	flinklog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {

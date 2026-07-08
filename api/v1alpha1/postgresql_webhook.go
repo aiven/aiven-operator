@@ -3,6 +3,7 @@
 package v1alpha1
 
 import (
+	"context"
 	"errors"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -18,38 +19,47 @@ var pglog = logf.Log.WithName("postgresql-resource")
 func (in *PostgreSQL) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(in).
+		WithDefaulter(&PostgreSQLWebhook{}).
+		WithValidator(&PostgreSQLWebhook{}).
 		Complete()
 }
 
+type PostgreSQLWebhook struct{}
+
 //+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-postgresql,mutating=true,failurePolicy=fail,groups=aiven.io,resources=postgresqls,verbs=create;update,versions=v1alpha1,name=mpg.kb.io,sideEffects=none,admissionReviewVersions=v1
 
-var _ webhook.Defaulter = &PostgreSQL{}
+var _ webhook.CustomDefaulter = &PostgreSQLWebhook{}
 
-// Default implements webhook.Defaulter so a webhook will be registered for the type
-func (in *PostgreSQL) Default() {
+// Default implements webhook.CustomDefaulter so a webhook will be registered for the type
+func (h *PostgreSQLWebhook) Default(_ context.Context, obj runtime.Object) error {
+	in := obj.(*PostgreSQL)
 	pglog.Info("default", "name", in.Name)
+	return nil
 }
 
 //+kubebuilder:webhook:verbs=create;update;delete,path=/validate-aiven-io-v1alpha1-postgresql,mutating=false,failurePolicy=fail,groups=aiven.io,resources=postgresqls,versions=v1alpha1,name=vpg.kb.io,sideEffects=none,admissionReviewVersions=v1
 
-var _ webhook.Validator = &PostgreSQL{}
+var _ webhook.CustomValidator = &PostgreSQLWebhook{}
 
-// ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *PostgreSQL) ValidateCreate() (admission.Warnings, error) {
+// ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
+func (h *PostgreSQLWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
+	in := obj.(*PostgreSQL)
 	pglog.Info("validate create", "name", in.Name)
 
 	return nil, in.Spec.Validate()
 }
 
-// ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *PostgreSQL) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
+// ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
+func (h *PostgreSQLWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Object) (admission.Warnings, error) {
+	in := newObj.(*PostgreSQL)
 	pglog.Info("validate update", "name", in.Name)
 
 	return nil, in.Spec.Validate()
 }
 
-// ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *PostgreSQL) ValidateDelete() (admission.Warnings, error) {
+// ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
+func (h *PostgreSQLWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
+	in := obj.(*PostgreSQL)
 	pglog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {

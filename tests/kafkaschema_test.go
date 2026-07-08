@@ -630,7 +630,7 @@ spec:
       subject: ""
       version: 1
 `, randName("kafka-schema-val"), cfg.Project),
-			expectErrorMsgContains: "set both subject and version, or set kafkaSchemaRef, but not both",
+			expectErrorMsgContains: "spec.references[0].subject in body should be at least 1 chars long",
 		},
 		{
 			name: "reference with zero version",
@@ -653,7 +653,7 @@ spec:
       subject: valid-subject
       version: 0
 `, randName("kafka-schema-val"), cfg.Project),
-			expectErrorMsgContains: "set both subject and version, or set kafkaSchemaRef, but not both",
+			expectErrorMsgContains: "spec.references[0].version in body should be greater than or equal to 1",
 		},
 		{
 			name: "reference sets both explicit and kafkaSchemaRef",
