@@ -1,6 +1,15 @@
 # Changelog
 
 
+## v0.42.0 - 2026-07-08
+
+- Upgrade `sigs.k8s.io/controller-runtime` to `v0.21.0`; the minimum supported Kubernetes version is now `1.30`
+- Add `Kafka` field `userConfig.preferred_zones`, type `array`: List of preferred zone IDs for service
+  node placement
+- Add `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.consumer_fetch_max_wait_ms`, type
+  `integer`: The maximum amount of time the server will block before answering the fetch request if
+  there isn't sufficient data to immediately satisfy `consumer_fetch_min_bytes`
+
 ## v0.41.0 - 2026-07-02
 
 - Fix a stale `Error` status condition on resources after they recover
@@ -152,6 +161,7 @@ Valkey major version
 - Add `Clickhouse` field `userConfig.public_access.clickhouse_arrowflight`, type `boolean`: Allow clients
   to connect to clickhouse_arrowflight from the public internet for service nodes that are in a
   project VPC or another type of private network
+- Add kind: `KafkaQuota`
 
 ## v0.37.0 - 2026-04-09
 
