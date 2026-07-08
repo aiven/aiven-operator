@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.42.0 - 2026-07-08
+
 - Upgrade `sigs.k8s.io/controller-runtime` to `v0.21.0`; the minimum supported Kubernetes version is now `1.30`
 - Add `Kafka` field `userConfig.preferred_zones`, type `array`: List of preferred zone IDs for service
   node placement
