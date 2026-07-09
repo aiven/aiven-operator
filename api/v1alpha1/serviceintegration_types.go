@@ -184,7 +184,7 @@ func (in *ServiceIntegration) getUserConfigFields() map[service.IntegrationType]
 		service.IntegrationTypeClickhouseKafka:              in.Spec.ClickhouseKafkaUserConfig,
 		service.IntegrationTypeClickhousePostgresql:         in.Spec.ClickhousePostgreSQLUserConfig,
 		service.IntegrationTypeDatadog:                      in.Spec.DatadogUserConfig,
-		service.IntegrationTypeExternalAwsCloudwatchMetrics: in.Spec.ExternalAWSCloudwatchMetricsUserConfig,
+		service.IntegrationTypeExternalAWSCloudwatchMetrics: in.Spec.ExternalAWSCloudwatchMetricsUserConfig,
 		service.IntegrationTypeKafkaConnect:                 in.Spec.KafkaConnectUserConfig,
 		service.IntegrationTypeKafkaLogs:                    in.Spec.KafkaLogsUserConfig,
 		service.IntegrationTypeKafkaMirrormaker:             in.Spec.KafkaMirrormakerUserConfig,
