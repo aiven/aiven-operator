@@ -3,10 +3,14 @@
 package tests
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
+	avngen "github.com/aiven/go-client-codegen"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	"github.com/aiven/aiven-operator/controllers"
@@ -170,4 +174,95 @@ func TestDatabase_databaseName(t *testing.T) {
 			}))
 		})
 	}
+
+	t.Run("immutable fields are rejected by the API server", func(t *testing.T) {
+		dbName := randName("database-immutable")
+
+		yml, err := loadExampleYaml("database.yaml", map[string]string{
+			"metadata.name":     dbName,
+			"spec.project":      cfg.Project,
+			"spec.serviceName":  pgName,
+			"spec.databaseName": "REMOVE",
+		})
+		require.NoError(t, err)
+		require.NoError(t, s.Apply(yml))
+
+		db := new(v1alpha1.Database)
+		require.NoError(t, s.GetRunning(db, dbName))
+
+		ymlUpdate, err := loadExampleYaml("database.yaml", map[string]string{
+			"metadata.name":     dbName,
+			"spec.project":      cfg.Project,
+			"spec.serviceName":  pgName,
+			"spec.databaseName": "REMOVE",
+			"spec.lcCtype":      "C",
+		})
+		require.NoError(t, err)
+
+		require.ErrorContains(t, s.Apply(ymlUpdate), "Value is immutable")
+	})
+}
+
+// TestDatabase_terminationProtection verifies that a Database with
+// spec.terminationProtection=true is not deleted on Aiven while protection is on.
+func TestDatabase_terminationProtection(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	pg, release, err := sharedResources.AcquirePostgreSQL(ctx)
+	require.NoError(t, err)
+	defer release()
+
+	s := NewSession(ctx, k8sClient)
+	defer s.Destroy(t)
+
+	pgName := pg.GetName()
+	dbName := randName("database-tp")
+
+	dbYaml := func(terminationProtection bool) string {
+		return fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: Database
+metadata:
+  name: %[3]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+  project: %[1]s
+  serviceName: %[2]s
+  terminationProtection: %[4]t
+`, cfg.Project, pgName, dbName, terminationProtection)
+	}
+
+	// GIVEN a running database with termination protection enabled.
+	require.NoError(t, s.Apply(dbYaml(true)))
+
+	db := new(v1alpha1.Database)
+	require.NoError(t, s.GetRunning(db, dbName))
+
+	// WHEN we attempt to delete the Kubernetes resource.
+	// THEN the admission webhook rejects the request immediately.
+	err = k8sClient.Delete(ctx, db)
+	require.ErrorContains(t, err, "termination protection")
+
+	// AND the database still exists on Aiven.
+	_, err = controllers.GetDatabaseByName(ctx, avnGen, cfg.Project, pgName, dbName)
+	require.NoError(t, err)
+
+	// WHEN termination protection is disabled.
+	require.NoError(t, s.Apply(dbYaml(false)))
+
+	// Fetch the updated object so the delete call carries the current resourceVersion.
+	require.NoError(t, k8sClient.Get(ctx, client.ObjectKey{Namespace: defaultNamespace, Name: dbName}, db))
+
+	// THEN deletion is accepted and the database is gone from Aiven.
+	require.NoError(t, k8sClient.Delete(ctx, db))
+	require.Eventually(t, func() bool {
+		_, err := controllers.GetDatabaseByName(ctx, avnGen, cfg.Project, pgName, dbName)
+		return avngen.IsNotFound(err)
+	}, 2*time.Minute, 5*time.Second, "database %s should be deleted from Aiven", dbName)
 }
