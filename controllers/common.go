@@ -398,13 +398,6 @@ func NewNotFound(msg string) error {
 	return avngen.Error{Status: http.StatusNotFound, Message: msg}
 }
 
-func isDeleted(err error) (bool, error) {
-	if isNotFound(err) {
-		return true, nil
-	}
-	return err == nil, err
-}
-
 // isAivenError returns true if the error comes from the old or new client and has given http code
 func isAivenError(err error, code int) bool {
 	var e avngen.Error
