@@ -389,6 +389,10 @@ type GrafanaUserConfig struct {
 	// Google Analytics ID
 	GoogleAnalyticsUaId *string `groups:"create,update" json:"google_analytics_ua_id,omitempty"`
 
+	// Available versions: `11`. Newer versions may also be available.
+	// Grafana major version
+	GrafanaVersion *string `groups:"create,update" json:"grafana_version,omitempty"`
+
 	// +kubebuilder:validation:MaxItems=8000
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
 	IpFilter []*IpFilter `groups:"create,update" json:"ip_filter,omitempty"`

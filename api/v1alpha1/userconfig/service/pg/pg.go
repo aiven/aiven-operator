@@ -155,7 +155,7 @@ type Pg struct {
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=32
-	// EXPERIMENTAL: Number of IO worker processes, for io_method=worker. Version 18 and up only. Changing this parameter causes a service restart.
+	// EXPERIMENTAL: Number of IO worker processes, for io_method=worker. Version 18 and up only.
 	IoWorkers *int `groups:"create,update" json:"io_workers,omitempty"`
 
 	// Controls system-wide use of Just-in-Time Compilation (JIT).
@@ -278,7 +278,7 @@ type Pg struct {
 	// Controls which role to use for pg_partman's scheduled background tasks.
 	PgPartmanBgwRole *string `groups:"create,update" json:"pg_partman_bgw.role,omitempty"`
 
-	// Enables or disables query plan monitoring. Changing this parameter causes a service restart. Only available for PostgreSQL 13+.
+	// Enables or disables query plan monitoring. Only available for PostgreSQL 13+.
 	PgStatMonitorPgsmEnableQueryPlan *bool `groups:"create,update" json:"pg_stat_monitor.pgsm_enable_query_plan,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
