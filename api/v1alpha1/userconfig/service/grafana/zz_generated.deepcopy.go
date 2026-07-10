@@ -389,6 +389,11 @@ func (in *GrafanaUserConfig) DeepCopyInto(out *GrafanaUserConfig) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.GrafanaVersion != nil {
+		in, out := &in.GrafanaVersion, &out.GrafanaVersion
+		*out = new(string)
+		**out = **in
+	}
 	if in.IpFilter != nil {
 		in, out := &in.IpFilter, &out.IpFilter
 		*out = make([]*IpFilter, len(*in))

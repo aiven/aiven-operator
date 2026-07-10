@@ -1333,10 +1333,10 @@ spec:
                         zone IDs like 'euc1-az1', GCP uses zone names like 'europe-west1-a',
                         and Azure uses 'location/zone' format like 'germanywestcentral/1'.
                         If single_zone is enabled with an availability_zone, that setting
-                        takes precedence over preferred_zones.Changes take effect on
+                        takes precedence over preferred_zones. Changes take effect on
                         next node recreation (e.g., maintenance or plan change). For
-                        Kafka professional plans, nodes outside preferred zones are
-                        automatically rebalanced once per day."
+                        eligible plans, nodes outside preferred zones are automatically
+                        rebalanced once per day."
                       items:
                         type: string
                       maxItems: 10

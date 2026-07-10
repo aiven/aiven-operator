@@ -684,6 +684,11 @@ spec:
                       maxLength: 64
                       pattern: ^(G|UA|YT|MO)-[a-zA-Z0-9-]+$
                       type: string
+                    grafana_version:
+                      description: |-
+                        Available versions: `11`. Newer versions may also be available.
+                        Grafana major version
+                      type: string
                     ip_filter:
                       description:
                         Allow incoming connections from CIDR address block,

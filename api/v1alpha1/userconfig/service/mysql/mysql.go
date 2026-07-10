@@ -62,6 +62,9 @@ type Migration struct {
 
 // mysql.conf configuration values
 type Mysql struct {
+	// When enabled, the server automatically grants the EXECUTE and ALTER ROUTINE privileges to the creator of a stored routine and drops them when the routine is dropped.
+	AutomaticSpPrivileges *bool `groups:"create,update" json:"automatic_sp_privileges,omitempty"`
+
 	// +kubebuilder:validation:Minimum=2
 	// +kubebuilder:validation:Maximum=3600
 	// The number of seconds that the mysqld server waits for a connect packet before responding with Bad handshake
@@ -72,6 +75,9 @@ type Mysql struct {
 	// +kubebuilder:validation:Pattern=`^([-+][\d:]*|[\w/]*)$`
 	// Default server time zone as an offset from UTC (from -12:00 to +12:00), a time zone name, or 'SYSTEM' to use the MySQL server default.
 	DefaultTimeZone *string `groups:"create,update" json:"default_time_zone,omitempty"`
+
+	// Whether optimizer JSON output such as EXPLAIN FORMAT=JSON adds end markers that repeat a structure's key near its closing bracket, making large JSON structures easier to read.
+	EndMarkersInJson *bool `groups:"create,update" json:"end_markers_in_json,omitempty"`
 
 	// +kubebuilder:validation:Minimum=4
 	// The maximum permitted result length in bytes for the GROUP_CONCAT() function.
@@ -129,6 +135,9 @@ type Mysql struct {
 	// +kubebuilder:validation:Maximum=1099511627776
 	// The upper limit in bytes on the size of the temporary log files used during online DDL operations for InnoDB tables.
 	InnodbOnlineAlterLogMaxSize *int `groups:"create,update" json:"innodb_online_alter_log_max_size,omitempty"`
+
+	// When enabled, OPTIMIZE TABLE on InnoDB tables only updates the FULLTEXT index instead of rebuilding the table. Intended to be enabled temporarily during FULLTEXT index maintenance and disabled afterwards; while enabled, OPTIMIZE TABLE does not reclaim table space.
+	InnodbOptimizeFulltextOnly *bool `groups:"create,update" json:"innodb_optimize_fulltext_only,omitempty"`
 
 	// When enabled, information about all deadlocks in InnoDB user transactions is recorded in the error log. Disabled by default.
 	InnodbPrintAllDeadlocks *bool `groups:"create,update" json:"innodb_print_all_deadlocks,omitempty"`
@@ -233,6 +242,9 @@ type Mysql struct {
 	// +kubebuilder:validation:Maximum=2147483
 	// The number of seconds the server waits for activity on a noninteractive connection before closing it.
 	WaitTimeout *int `groups:"create,update" json:"wait_timeout,omitempty"`
+
+	// Whether window functions are computed to high precision. Disabling this trades exactness for speed in window function evaluation.
+	WindowingUseHighPrecision *bool `groups:"create,update" json:"windowing_use_high_precision,omitempty"`
 }
 
 // MySQL incremental backup configuration
