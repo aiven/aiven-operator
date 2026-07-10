@@ -617,8 +617,7 @@ spec:
                         io_workers:
                           description:
                             "EXPERIMENTAL: Number of IO worker processes,
-                            for io_method=worker. Version 18 and up only. Changing this
-                            parameter causes a service restart."
+                            for io_method=worker. Version 18 and up only."
                           maximum: 32
                           minimum: 1
                           type: integer
@@ -818,9 +817,8 @@ spec:
                           type: string
                         pg_stat_monitor.pgsm_enable_query_plan:
                           description:
-                            Enables or disables query plan monitoring. Changing
-                            this parameter causes a service restart. Only available
-                            for PostgreSQL 13+.
+                            Enables or disables query plan monitoring. Only
+                            available for PostgreSQL 13+.
                           type: boolean
                         pg_stat_monitor.pgsm_max_buckets:
                           description:

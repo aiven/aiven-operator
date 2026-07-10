@@ -237,6 +237,11 @@ func (in *KafkaConnectUserConfig) DeepCopyInto(out *KafkaConnectUserConfig) {
 			}
 		}
 	}
+	if in.PreferredZones != nil {
+		in, out := &in.PreferredZones, &out.PreferredZones
+		*out = make([]string, len(*in))
+		copy(*out, *in)
+	}
 	if in.PrivateAccess != nil {
 		in, out := &in.PrivateAccess, &out.PrivateAccess
 		*out = new(PrivateAccess)

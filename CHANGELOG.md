@@ -2,6 +2,22 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `Grafana` field `userConfig.grafana_version`, type `string`: Available versions: `11`. Newer versions
+  may also be available.
+Grafana major version
+- Add `KafkaConnect` field `userConfig.preferred_zones`, type `array`: List of preferred zone IDs for
+  service node placement
+- Add `MySQL` field `userConfig.mysql.automatic_sp_privileges`, type `boolean`: When enabled, the server
+  automatically grants the EXECUTE and ALTER ROUTINE privileges to the creator of a stored routine
+  and drops them when the routine is dropped
+- Add `MySQL` field `userConfig.mysql.end_markers_in_json`, type `boolean`: Whether optimizer JSON output
+  such as EXPLAIN FORMAT=JSON adds end markers that repeat a structure's key near its closing bracket,
+  making large JSON structures easier to read
+- Add `MySQL` field `userConfig.mysql.innodb_optimize_fulltext_only`, type `boolean`: When enabled, OPTIMIZE
+  TABLE on InnoDB tables only updates the FULLTEXT index instead of rebuilding the table
+- Add `MySQL` field `userConfig.mysql.windowing_use_high_precision`, type `boolean`: Whether window functions
+  are computed to high precision
+
 ## v0.42.0 - 2026-07-08
 
 - Upgrade `sigs.k8s.io/controller-runtime` to `v0.21.0`; the minimum supported Kubernetes version is now `1.30`
