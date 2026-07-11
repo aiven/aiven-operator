@@ -106,7 +106,7 @@ func GetDatabaseByName(
 	projectName, serviceName, dbName string,
 ) (*service.DatabaseOut, error) {
 	var after string
-	for page := 0; page < maxDatabaseListPages; page++ {
+	for range maxDatabaseListPages {
 		var query [][2]string
 		if after != "" {
 			query = append(query, service.ServiceDatabaseListAfter(after))

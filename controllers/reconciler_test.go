@@ -72,6 +72,32 @@ func newObjectFromExampleYAML[T any](t *testing.T, exampleName string) *T {
 	return newObjectFromYAML[T](t, string(data))
 }
 
+// newObjectFromExampleYAMLByKind loads a single document of the given kind from a
+// multi-document example file.
+func newObjectFromExampleYAMLByKind[T any](t *testing.T, exampleName, kind string) *T {
+	t.Helper()
+
+	data, err := os.ReadFile(filepath.Join(examplesDirPath, exampleName+".yaml"))
+	require.NoError(t, err)
+
+	for doc := range strings.SplitSeq(string(data), "\n---") {
+		doc = strings.TrimSpace(doc)
+		if doc == "" {
+			continue
+		}
+		var meta struct {
+			Kind string `json:"kind"`
+		}
+		require.NoError(t, yaml.Unmarshal([]byte(doc), &meta))
+		if meta.Kind == kind {
+			return newObjectFromYAML[T](t, doc)
+		}
+	}
+
+	t.Fatalf("no %q document found in example %q", kind, exampleName)
+	return nil
+}
+
 func normalizedConditions(conds []metav1.Condition) []metav1.Condition {
 	out := make([]metav1.Condition, len(conds))
 	for i, c := range conds {
