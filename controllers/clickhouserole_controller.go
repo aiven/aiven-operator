@@ -87,7 +87,8 @@ func (r *ClickhouseRoleController) Update(_ context.Context, _ *v1alpha1.Clickho
 }
 
 func (r *ClickhouseRoleController) Delete(ctx context.Context, role *v1alpha1.ClickhouseRole) error {
-	if err := runQuery(ctx, r.avnGen, role, "DROP ROLE IF EXISTS"); err != nil && !isUnknownRole(err) {
+	err := runQuery(ctx, r.avnGen, role, "DROP ROLE IF EXISTS")
+	if err != nil && !isUnknownRole(err) && !isNotFound(err) {
 		return err
 	}
 	return nil
