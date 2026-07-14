@@ -12,7 +12,6 @@ import (
 	"github.com/aiven/go-client-codegen/handler/clickhouse"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -22,97 +21,85 @@ import (
 // think CREATE ROLE / GRANT / etc...
 const defaultDatabase = "system"
 
-func newClickhouseRoleReconciler(c Controller) reconcilerType {
-	return &ClickhouseRoleReconciler{Controller: c}
-}
-
-// ClickhouseRoleReconciler reconciles a ClickhouseRole object
-type ClickhouseRoleReconciler struct {
-	Controller
-}
-
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouseroles,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouseroles/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouseroles/finalizers,verbs=get;create;update
 
-// Reconcile is part of the main kubernetes reconciliation loop which aims to
-// move the current state of the cluster closer to the desired state.
-func (r *ClickhouseRoleReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, &clickhouseRoleHandler{}, &v1alpha1.ClickhouseRole{})
+// ClickhouseRoleController reconciles a ClickhouseRole object.
+type ClickhouseRoleController struct {
+	client.Client
+	avnGen avngen.Client
 }
 
-// SetupWithManager sets up the controller with the Manager.
-func (r *ClickhouseRoleReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.ClickhouseRole{}).
-		Complete(r)
+func newClickhouseRoleReconciler(c Controller) reconcilerType {
+	return newManagedReconciler(
+		c,
+		func(c Controller, avnGen avngen.Client) AivenController[*v1alpha1.ClickhouseRole] {
+			return &ClickhouseRoleController{Client: c.Client, avnGen: avnGen}
+		},
+		nil,
+	)
 }
 
-type clickhouseRoleHandler struct{}
+func (r *ClickhouseRoleController) Observe(ctx context.Context, role *v1alpha1.ClickhouseRole) (Observation, error) {
+	if _, err := getServiceIfOperational(ctx, r.avnGen, role.Spec.Project, role.Spec.ServiceName); err != nil {
+		return Observation{}, err
+	}
 
-func (h *clickhouseRoleHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
-	role, err := h.convert(obj)
-	if err != nil {
+	err := ClickhouseRoleExists(ctx, r.avnGen, role)
+	switch {
+	case isNotFound(err):
+		return Observation{ResourceExists: false}, nil
+	case err != nil:
+		return Observation{}, fmt.Errorf("describing ClickHouse role: %w", err)
+	}
+
+	markInstanceRunning(role)
+
+	return Observation{
+		ResourceExists:   true,
+		ResourceUpToDate: hasLatestGeneration(role),
+	}, nil
+}
+
+func (r *ClickhouseRoleController) Create(ctx context.Context, role *v1alpha1.ClickhouseRole) (CreateResult, error) {
+	delete(role.GetAnnotations(), instanceIsRunningAnnotation)
+
+	if err := runQuery(ctx, r.avnGen, role, "CREATE ROLE IF NOT EXISTS"); err != nil {
+		// The service can report RUNNING via ServiceGet while its ClickHouse
+		// engine is not ready yet, returning a transient 5xx.
+		if isServerError(err) {
+			return CreateResult{}, fmt.Errorf("%w: %w", errPreconditionNotMet, err)
+		}
+		return CreateResult{}, fmt.Errorf("cannot create clickhouse role on Aiven side: %w", err)
+	}
+
+	const reason = "Created"
+	meta.SetStatusCondition(&role.Status.Conditions, getInitializedCondition(reason, "Successfully created the instance in Aiven"))
+	meta.SetStatusCondition(&role.Status.Conditions, getRunningCondition(metav1.ConditionUnknown, reason, "Successfully created the instance in Aiven, status remains unknown"))
+
+	return CreateResult{}, nil
+}
+
+func (r *ClickhouseRoleController) Update(_ context.Context, _ *v1alpha1.ClickhouseRole) (UpdateResult, error) {
+	// ClickhouseRole spec fields are immutable.
+	return UpdateResult{}, nil
+}
+
+func (r *ClickhouseRoleController) Delete(ctx context.Context, role *v1alpha1.ClickhouseRole) error {
+	err := runQuery(ctx, r.avnGen, role, "DROP ROLE IF EXISTS")
+	if err != nil && !isUnknownRole(err) && !isNotFound(err) {
 		return err
 	}
-
-	return clickhouseRoleCreate(ctx, avnGen, role)
-}
-
-func (h *clickhouseRoleHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
-	role, err := h.convert(obj)
-	if err != nil {
-		return false, err
-	}
-
-	err = clickhouseRoleDelete(ctx, avnGen, role)
-	return isDeleted(err)
-}
-
-func (h *clickhouseRoleHandler) observe(ctx context.Context, avnGen avngen.Client, obj v1alpha1.AivenManagedObject) error {
-	role, err := h.convert(obj)
-	if err != nil {
-		return err
-	}
-
-	err = ClickhouseRoleExists(ctx, avnGen, role)
-	if err != nil {
-		return err
-	}
-
-	meta.SetStatusCondition(&role.Status.Conditions,
-		getRunningCondition(metav1.ConditionTrue, "CheckRunning",
-			"Instance is running on Aiven side"))
-
-	metav1.SetMetaDataAnnotation(&role.ObjectMeta, instanceIsRunningAnnotation, "true")
 	return nil
 }
 
-func (h *clickhouseRoleHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
-	role, err := h.convert(obj)
-	if err != nil {
-		return false, err
+func ClickhouseRoleExists(ctx context.Context, avnGen avngen.Client, r *v1alpha1.ClickhouseRole) error {
+	err := runQuery(ctx, avnGen, r, "SHOW CREATE ROLE")
+	if isUnknownRole(err) {
+		return NewNotFound(fmt.Sprintf("ClickhouseRole %q not found", r.Name))
 	}
-
-	meta.SetStatusCondition(&role.Status.Conditions,
-		getInitializedCondition("Preconditions", "Checking preconditions"))
-
-	return checkServiceIsOperational(ctx, avnGen, role.Spec.Project, role.Spec.ServiceName)
-}
-
-func (h *clickhouseRoleHandler) convert(i client.Object) (*v1alpha1.ClickhouseRole, error) {
-	role, ok := i.(*v1alpha1.ClickhouseRole)
-	if !ok {
-		return nil, fmt.Errorf("cannot convert object to ClickhouseRole")
-	}
-	return role, nil
-}
-
-// Escapes database identifiers like table or column names
-func escape(identifier string) string {
-	// See https://github.com/ClickHouse/clickhouse-go/blob/8ad6ec6b95d8b0c96d00115bc2d69ff13083f94b/lib/column/column.go#L32
-	replacer := strings.NewReplacer("`", "\\`", "\\", "\\\\")
-	return "`" + replacer.Replace(identifier) + "`"
+	return err
 }
 
 func runQuery(ctx context.Context, avnGen avngen.Client, r *v1alpha1.ClickhouseRole, query string) error {
@@ -124,24 +111,11 @@ func runQuery(ctx context.Context, avnGen avngen.Client, r *v1alpha1.ClickhouseR
 	return err
 }
 
-func ClickhouseRoleExists(ctx context.Context, avnGen avngen.Client, r *v1alpha1.ClickhouseRole) error {
-	err := runQuery(ctx, avnGen, r, "SHOW CREATE ROLE")
-	if isUnknownRole(err) {
-		return NewNotFound(fmt.Sprintf("ClickhouseRole %q not found", r.Name))
-	}
-	return err
-}
-
-func clickhouseRoleCreate(ctx context.Context, avnGen avngen.Client, r *v1alpha1.ClickhouseRole) error {
-	return runQuery(ctx, avnGen, r, "CREATE ROLE IF NOT EXISTS")
-}
-
-func clickhouseRoleDelete(ctx context.Context, avnGen avngen.Client, r *v1alpha1.ClickhouseRole) error {
-	err := runQuery(ctx, avnGen, r, "DROP ROLE IF EXISTS")
-	if isUnknownRole(err) {
-		return nil
-	}
-	return err
+// Escapes database identifiers like table or column names
+func escape(identifier string) string {
+	// See https://github.com/ClickHouse/clickhouse-go/blob/8ad6ec6b95d8b0c96d00115bc2d69ff13083f94b/lib/column/column.go#L32
+	replacer := strings.NewReplacer("`", "\\`", "\\", "\\\\")
+	return "`" + replacer.Replace(identifier) + "`"
 }
 
 func isUnknownRole(err error) bool {
