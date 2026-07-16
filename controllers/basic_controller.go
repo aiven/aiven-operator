@@ -126,7 +126,7 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 	} else if auth := o.AuthSecretRef(); auth != nil {
 		clientAuthSecret = &corev1.Secret{}
 		if err := c.Get(ctx, types.NamespacedName{Name: auth.Name, Namespace: req.Namespace}, clientAuthSecret); err != nil {
-			c.Recorder.Eventf(o, corev1.EventTypeWarning, eventUnableToGetAuthSecret, err.Error())
+			c.Recorder.Eventf(o, corev1.EventTypeWarning, eventUnableToGetAuthSecret, "%s", err.Error())
 			return ctrl.Result{}, fmt.Errorf("cannot get secret %q: %w", auth.Name, err)
 		}
 		token = string(clientAuthSecret.Data[auth.Key])
@@ -601,7 +601,7 @@ func setupLogger(log logr.Logger, o client.Object) logr.Logger {
 	if g, ok := o.GetAnnotations()[processedGenerationAnnotation]; ok {
 		a[processedGenerationAnnotation] = g
 	}
-	kind := strings.ToLower(o.GetObjectKind().GroupVersionKind().Kind)
+	kind := strings.ToLower(kindOf(o))
 	name := types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()}
 
 	return log.WithValues("kind", kind, "name", name, "annotations", a)

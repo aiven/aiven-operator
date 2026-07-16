@@ -357,7 +357,7 @@ func (r *Reconciler[T]) resolveToken(ctx context.Context, obj T) (string, error)
 func (r *Reconciler[T]) getAuthSecret(ctx context.Context, obj T, auth *v1alpha1.AuthSecretReference) (*corev1.Secret, error) {
 	secret := &corev1.Secret{}
 	if err := r.Get(ctx, types.NamespacedName{Name: auth.Name, Namespace: obj.GetNamespace()}, secret); err != nil {
-		r.Recorder.Eventf(obj, corev1.EventTypeWarning, eventUnableToGetAuthSecret, err.Error())
+		r.Recorder.Eventf(obj, corev1.EventTypeWarning, eventUnableToGetAuthSecret, "%s", err.Error())
 		return nil, fmt.Errorf("cannot get secret %q: %w", auth.Name, err)
 	}
 

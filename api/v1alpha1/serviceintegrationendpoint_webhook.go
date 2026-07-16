@@ -5,10 +5,8 @@ package v1alpha1
 import (
 	"context"
 
-	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
-	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
@@ -16,8 +14,7 @@ import (
 var serviceintegrationendpointlog = logf.Log.WithName("serviceintegrationendpoint-resource")
 
 func (in *ServiceIntegrationEndpoint) SetupWebhookWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewWebhookManagedBy(mgr).
-		For(in).
+	return ctrl.NewWebhookManagedBy(mgr, &ServiceIntegrationEndpoint{}).
 		WithDefaulter(&ServiceIntegrationEndpointWebhook{}).
 		WithValidator(&ServiceIntegrationEndpointWebhook{}).
 		Complete()
@@ -27,43 +24,35 @@ type ServiceIntegrationEndpointWebhook struct{}
 
 //+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-serviceintegrationendpoint,mutating=true,failurePolicy=fail,groups=aiven.io,resources=serviceintegrationendpoints,verbs=create;update,versions=v1alpha1,name=mserviceintegrationendpoint.kb.io,sideEffects=none,admissionReviewVersions=v1
 
-var _ webhook.CustomDefaulter = &ServiceIntegrationEndpointWebhook{}
-
 // Default implements webhook.CustomDefaulter so a webhook will be registered for the type
-func (h *ServiceIntegrationEndpointWebhook) Default(_ context.Context, obj runtime.Object) error {
-	in := obj.(*ServiceIntegrationEndpoint)
-	serviceintegrationendpointlog.Info("default", "name", in.Name)
+func (h *ServiceIntegrationEndpointWebhook) Default(_ context.Context, obj *ServiceIntegrationEndpoint) error {
+	serviceintegrationendpointlog.Info("default", "name", obj.Name)
 	return nil
 }
 
 //+kubebuilder:webhook:verbs=create;update,path=/validate-aiven-io-v1alpha1-serviceintegrationendpoint,mutating=false,failurePolicy=fail,groups=aiven.io,resources=serviceintegrationendpoints,versions=v1alpha1,name=vserviceintegrationendpoint.kb.io,sideEffects=none,admissionReviewVersions=v1
 
-var _ webhook.CustomValidator = &ServiceIntegrationEndpointWebhook{}
-
 // ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
-func (h *ServiceIntegrationEndpointWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*ServiceIntegrationEndpoint)
-	serviceintegrationendpointlog.Info("validate create", "name", in.Name)
+func (h *ServiceIntegrationEndpointWebhook) ValidateCreate(_ context.Context, obj *ServiceIntegrationEndpoint) (admission.Warnings, error) {
+	serviceintegrationendpointlog.Info("validate create", "name", obj.Name)
 
 	// We need the validation here only
-	_, err := in.GetUserConfig()
+	_, err := obj.GetUserConfig()
 	return nil, err
 }
 
 // ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
-func (h *ServiceIntegrationEndpointWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Object) (admission.Warnings, error) {
-	in := newObj.(*ServiceIntegrationEndpoint)
-	serviceintegrationendpointlog.Info("validate update", "name", in.Name)
+func (h *ServiceIntegrationEndpointWebhook) ValidateUpdate(_ context.Context, _, newObj *ServiceIntegrationEndpoint) (admission.Warnings, error) {
+	serviceintegrationendpointlog.Info("validate update", "name", newObj.Name)
 
 	// We need the validation here only
-	_, err := in.GetUserConfig()
+	_, err := newObj.GetUserConfig()
 	return nil, err
 }
 
 // ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
-func (h *ServiceIntegrationEndpointWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*ServiceIntegrationEndpoint)
-	serviceintegrationendpointlog.Info("validate delete", "name", in.Name)
+func (h *ServiceIntegrationEndpointWebhook) ValidateDelete(_ context.Context, obj *ServiceIntegrationEndpoint) (admission.Warnings, error) {
+	serviceintegrationendpointlog.Info("validate delete", "name", obj.Name)
 
 	return nil, nil
 }

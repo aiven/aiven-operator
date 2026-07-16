@@ -5,10 +5,8 @@ package v1alpha1
 import (
 	"context"
 
-	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
-	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
@@ -16,8 +14,7 @@ import (
 var kafkaacllog = logf.Log.WithName("kafkaacl-resource")
 
 func (in *KafkaACL) SetupWebhookWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewWebhookManagedBy(mgr).
-		For(in).
+	return ctrl.NewWebhookManagedBy(mgr, &KafkaACL{}).
 		WithDefaulter(&KafkaACLWebhook{}).
 		WithValidator(&KafkaACLWebhook{}).
 		Complete()
@@ -27,31 +24,24 @@ type KafkaACLWebhook struct{}
 
 //+kubebuilder:webhook:path=/mutate-aiven-io-v1alpha1-kafkaacl,mutating=true,failurePolicy=fail,groups=aiven.io,resources=kafkaacls,verbs=create;update,versions=v1alpha1,name=mkafkaacl.kb.io,sideEffects=none,admissionReviewVersions=v1
 
-var _ webhook.CustomDefaulter = &KafkaACLWebhook{}
-
 // Default implements webhook.CustomDefaulter so a webhook will be registered for the type
-func (h *KafkaACLWebhook) Default(_ context.Context, obj runtime.Object) error {
-	in := obj.(*KafkaACL)
-	kafkaacllog.Info("default", "name", in.Name)
+func (h *KafkaACLWebhook) Default(_ context.Context, obj *KafkaACL) error {
+	kafkaacllog.Info("default", "name", obj.Name)
 	return nil
 }
 
 //+kubebuilder:webhook:verbs=create;update,path=/validate-aiven-io-v1alpha1-kafkaacl,mutating=false,failurePolicy=fail,groups=aiven.io,resources=kafkaacls,versions=v1alpha1,name=vkafkaacl.kb.io,sideEffects=none,admissionReviewVersions=v1
 
-var _ webhook.CustomValidator = &KafkaACLWebhook{}
-
 // ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
-func (h *KafkaACLWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*KafkaACL)
-	kafkaacllog.Info("validate create", "name", in.Name)
+func (h *KafkaACLWebhook) ValidateCreate(_ context.Context, obj *KafkaACL) (admission.Warnings, error) {
+	kafkaacllog.Info("validate create", "name", obj.Name)
 
 	return nil, nil
 }
 
 // ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
-func (h *KafkaACLWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Object) (admission.Warnings, error) {
-	in := newObj.(*KafkaACL)
-	kafkaacllog.Info("validate update", "name", in.Name)
+func (h *KafkaACLWebhook) ValidateUpdate(_ context.Context, _, newObj *KafkaACL) (admission.Warnings, error) {
+	kafkaacllog.Info("validate update", "name", newObj.Name)
 
 	// TODO: validate that the spec does not get updated; this will fail on the aiven api
 
@@ -59,9 +49,8 @@ func (h *KafkaACLWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Ob
 }
 
 // ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
-func (h *KafkaACLWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*KafkaACL)
-	kafkaacllog.Info("validate delete", "name", in.Name)
+func (h *KafkaACLWebhook) ValidateDelete(_ context.Context, obj *KafkaACL) (admission.Warnings, error) {
+	kafkaacllog.Info("validate delete", "name", obj.Name)
 
 	return nil, nil
 }

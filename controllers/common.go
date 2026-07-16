@@ -341,14 +341,22 @@ func connectionSecretName(o objWithSecret) string {
 	return o.GetName()
 }
 
+// kindOf returns the object's Kind.
+// Clients clear TypeMeta on structured objects (on Get, Update and Patch), so fall back to the Go type name, which is what the scheme derives the Kind from for all registered types.
+func kindOf(o interface{ GetObjectKind() schema.ObjectKind }) string {
+	if kind := o.GetObjectKind().GroupVersionKind().Kind; kind != "" {
+		return kind
+	}
+	return reflect.TypeOf(o).Elem().Name()
+}
+
 // getSecretPrefix returns user's prefix or kind name
 func getSecretPrefix(o objWithSecret) string {
 	target := o.GetConnInfoSecretTarget()
 	if target.Prefix != "" {
 		return target.Prefix
 	}
-	kind := o.GetObjectKind()
-	return strings.ToUpper(kind.GroupVersionKind().Kind) + "_"
+	return strings.ToUpper(kindOf(o)) + "_"
 }
 
 // userConfigurationToAPI converts user config into a map
