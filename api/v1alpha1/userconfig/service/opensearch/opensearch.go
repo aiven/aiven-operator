@@ -740,7 +740,7 @@ type Opensearch struct {
 	// Enable/Disable snapshot API for custom repositories, this requires security management to be enabled
 	EnableSnapshotApi *bool `groups:"create,update" json:"enable_snapshot_api,omitempty"`
 
-	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Minimum=1048576
 	// +kubebuilder:validation:Maximum=2147483647
 	// Maximum content length for HTTP requests to the OpenSearch HTTP API, in bytes.
 	HttpMaxContentLength *int `groups:"create,update" json:"http_max_content_length,omitempty"`

@@ -17,6 +17,34 @@ Grafana major version
   TABLE on InnoDB tables only updates the FULLTEXT index instead of rebuilding the table
 - Add `MySQL` field `userConfig.mysql.windowing_use_high_precision`, type `boolean`: Whether window functions
   are computed to high precision
+- Add `MySQL` field `userConfig.mysql.div_precision_increment`, type `integer`: Number of digits by which
+  to increase the scale of the result of division operations performed with the / operator
+- Add `MySQL` field `userConfig.mysql.eq_range_index_dive_limit`, type `integer`: The number of equality
+  ranges in a query at or above which the optimizer switches from index dives to index statistics
+  when estimating the number of qualifying rows
+- Add `MySQL` field `userConfig.mysql.innodb_ft_enable_stopword`, type `boolean`: Whether stopword processing
+  is applied when creating or rebuilding an InnoDB FULLTEXT index
+- Add `MySQL` field `userConfig.mysql.innodb_ft_max_token_size`, type `integer`: Maximum length of words
+  that are stored in an InnoDB FULLTEXT index
+- Add `MySQL` field `userConfig.mysql.innodb_ft_num_word_optimize`, type `integer`: Number of words processed
+  during each OPTIMIZE TABLE operation on an InnoDB FULLTEXT index
+- Add `MySQL` field `userConfig.mysql.innodb_ft_result_cache_limit`, type `integer`: Maximum memory in
+  bytes used per query for the InnoDB FULLTEXT search query result cache
+- Add `MySQL` field `userConfig.mysql.innodb_ft_user_stopword_table`, type `string`: This option is used
+  to specify your own InnoDB FULLTEXT index stopword list for specific InnoDB tables
+- Add `MySQL` field `userConfig.mysql.max_execution_time`, type `integer`: Execution timeout in milliseconds
+  for read-only top-level SELECT statements
+- Add `MySQL` field `userConfig.mysql.max_seeks_for_key`, type `integer`: Limit on the assumed maximum
+  number of index seeks when looking up rows based on a key
+- Add `MySQL` field `userConfig.mysql.optimizer_prune_level`, type `integer`: Controls the heuristics
+  applied during query optimization to prune less-promising partial plans from the optimizer search
+  space
+- Add `MySQL` field `userConfig.mysql.optimizer_search_depth`, type `integer`: Maximum depth of search
+  performed by the query optimizer when choosing a join order
+- Add `MySQL` field `userConfig.mysql.optimizer_switch`, type `string`: Comma-separated list of optimizer
+  flag assignments in the form flag=on|off|default, or the single value 'default' to reset all
+  flags
+- Change `OpenSearch` field `userConfig.opensearch.http_max_content_length`: minimum ~~`1`~~ → `1048576`
 
 ## v0.42.0 - 2026-07-08
 

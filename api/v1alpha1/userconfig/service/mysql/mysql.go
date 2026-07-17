@@ -76,8 +76,18 @@ type Mysql struct {
 	// Default server time zone as an offset from UTC (from -12:00 to +12:00), a time zone name, or 'SYSTEM' to use the MySQL server default.
 	DefaultTimeZone *string `groups:"create,update" json:"default_time_zone,omitempty"`
 
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=30
+	// Number of digits by which to increase the scale of the result of division operations performed with the / operator. Default is 4.
+	DivPrecisionIncrement *int `groups:"create,update" json:"div_precision_increment,omitempty"`
+
 	// Whether optimizer JSON output such as EXPLAIN FORMAT=JSON adds end markers that repeat a structure's key near its closing bracket, making large JSON structures easier to read.
 	EndMarkersInJson *bool `groups:"create,update" json:"end_markers_in_json,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=4294967295
+	// The number of equality ranges in a query at or above which the optimizer switches from index dives to index statistics when estimating the number of qualifying rows. 0 means always use index dives. Default is 200.
+	EqRangeIndexDiveLimit *int `groups:"create,update" json:"eq_range_index_dive_limit,omitempty"`
 
 	// +kubebuilder:validation:Minimum=4
 	// The maximum permitted result length in bytes for the GROUP_CONCAT() function.
@@ -101,15 +111,38 @@ type Mysql struct {
 	// Specifies whether flushing a page from the InnoDB buffer pool also flushes other dirty pages in the same extent (default is 1): 0 - dirty pages in the same extent are not flushed, 1 - flush contiguous dirty pages in the same extent, 2 - flush dirty pages in the same extent
 	InnodbFlushNeighbors *int `groups:"create,update" json:"innodb_flush_neighbors,omitempty"`
 
+	// Whether stopword processing is applied when creating or rebuilding an InnoDB FULLTEXT index. Enabled by default.
+	InnodbFtEnableStopword *bool `groups:"create,update" json:"innodb_ft_enable_stopword,omitempty"`
+
+	// +kubebuilder:validation:Minimum=10
+	// +kubebuilder:validation:Maximum=84
+	// Maximum length of words that are stored in an InnoDB FULLTEXT index. Changing this parameter will lead to a restart of the MySQL service.
+	InnodbFtMaxTokenSize *int `groups:"create,update" json:"innodb_ft_max_token_size,omitempty"`
+
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=16
 	// Minimum length of words that are stored in an InnoDB FULLTEXT index. Changing this parameter will lead to a restart of the MySQL service.
 	InnodbFtMinTokenSize *int `groups:"create,update" json:"innodb_ft_min_token_size,omitempty"`
 
+	// +kubebuilder:validation:Minimum=1000
+	// +kubebuilder:validation:Maximum=10000
+	// Number of words processed during each OPTIMIZE TABLE operation on an InnoDB FULLTEXT index. Default is 2000.
+	InnodbFtNumWordOptimize *int `groups:"create,update" json:"innodb_ft_num_word_optimize,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1000000
+	// +kubebuilder:validation:Maximum=4294967295
+	// Maximum memory in bytes used per query for the InnoDB FULLTEXT search query result cache. Aiven sizes this automatically based on the service plan's memory; setting a value overrides the calculated default.
+	InnodbFtResultCacheLimit *int `groups:"create,update" json:"innodb_ft_result_cache_limit,omitempty"`
+
 	// +kubebuilder:validation:MaxLength=1024
 	// +kubebuilder:validation:Pattern=`^.+/.+$`
 	// This option is used to specify your own InnoDB FULLTEXT index stopword list for all InnoDB tables.
 	InnodbFtServerStopwordTable *string `groups:"create,update" json:"innodb_ft_server_stopword_table,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Pattern=`^.+/.+$`
+	// This option is used to specify your own InnoDB FULLTEXT index stopword list for specific InnoDB tables.
+	InnodbFtUserStopwordTable *string `groups:"create,update" json:"innodb_ft_user_stopword_table,omitempty"`
 
 	// +kubebuilder:validation:Minimum=100
 	// +kubebuilder:validation:Maximum=4294967295
@@ -188,10 +221,19 @@ type Mysql struct {
 	// Size of the largest message in bytes that can be received by the server. Default is 67108864 (64M)
 	MaxAllowedPacket *int `groups:"create,update" json:"max_allowed_packet,omitempty"`
 
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=4294967295
+	// Execution timeout in milliseconds for read-only top-level SELECT statements. 0 (the default) means no timeout.
+	MaxExecutionTime *int `groups:"create,update" json:"max_execution_time,omitempty"`
+
 	// +kubebuilder:validation:Minimum=1048576
 	// +kubebuilder:validation:Maximum=1073741824
 	// Limits the size of internal in-memory tables. Also set tmp_table_size. Default is 16777216 (16M)
 	MaxHeapTableSize *int `groups:"create,update" json:"max_heap_table_size,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// Limit on the assumed maximum number of index seeks when looking up rows based on a key. Lowering this value causes the optimizer to prefer index lookups over table scans.
+	MaxSeeksForKey *int `groups:"create,update" json:"max_seeks_for_key,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1024
 	// +kubebuilder:validation:Maximum=1048576
@@ -207,6 +249,20 @@ type Mysql struct {
 	// +kubebuilder:validation:Maximum=3600
 	// The number of seconds to wait for a block to be written to a connection before aborting the write.
 	NetWriteTimeout *int `groups:"create,update" json:"net_write_timeout,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1
+	// Controls the heuristics applied during query optimization to prune less-promising partial plans from the optimizer search space. 0 disables heuristics (exhaustive search); 1 prunes plans based on the number of rows retrieved.
+	OptimizerPruneLevel *int `groups:"create,update" json:"optimizer_prune_level,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=62
+	// Maximum depth of search performed by the query optimizer when choosing a join order. Larger values produce better plans for joins over many tables but take longer to compile; 0 lets the optimizer choose the depth automatically.
+	OptimizerSearchDepth *int `groups:"create,update" json:"optimizer_search_depth,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^(default|[a-z_]+=(on|off|default)(,[a-z_]+=(on|off|default))*)$`
+	// Comma-separated list of optimizer flag assignments in the form flag=on|off|default, or the single value 'default' to reset all flags. Flags not listed keep their current values. Controls query optimizer behaviors such as index merge, hash join and semijoin strategies.
+	OptimizerSwitch *string `groups:"create,update" json:"optimizer_switch,omitempty"`
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=1024
@@ -339,7 +395,7 @@ type MysqlUserConfig struct {
 	MysqlIncrementalBackup *MysqlIncrementalBackup `groups:"create,update" json:"mysql_incremental_backup,omitempty"`
 
 	// Available versions: `8`, `8.4`. Newer versions may also be available.
-	// MySQL major version. Deprecated values: `8`
+	// MySQL major version
 	MysqlVersion *string `groups:"create,update" json:"mysql_version,omitempty"`
 
 	// Allow access to selected service ports from private networks

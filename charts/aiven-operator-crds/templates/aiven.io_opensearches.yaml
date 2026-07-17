@@ -1027,7 +1027,7 @@ spec:
                             Maximum content length for HTTP requests to the
                             OpenSearch HTTP API, in bytes.
                           maximum: 2147483647
-                          minimum: 1
+                          minimum: 1048576
                           type: integer
                         http_max_header_size:
                           description: The max size of allowed headers, in bytes
