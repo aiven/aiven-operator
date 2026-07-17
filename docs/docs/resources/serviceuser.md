@@ -175,7 +175,7 @@ The output is similar to the following:
 ## ServiceUser {: #ServiceUser }
 
 ServiceUser is the Schema for the serviceusers API.
-Creates a service user for accessing Aiven services. The ServiceUser resource name becomes the username in Aiven.
+Creates a service user for accessing Aiven services. The ServiceUser resource name becomes the username in Aiven, unless spec.username overrides it.
 Built-in users like `avnadmin` cannot be deleted but their passwords can be modified using connInfoSecretSource.
 
 !!! Info "Exposes secret keys"
@@ -216,6 +216,10 @@ ServiceUserSpec defines the desired state of ServiceUser.
     Password must be 8-256 characters long. See below for [nested schema](#spec.connInfoSecretSource).
 - [`connInfoSecretTarget`](#spec.connInfoSecretTarget-property){: name='spec.connInfoSecretTarget-property'} (object). Secret configuration. See below for [nested schema](#spec.connInfoSecretTarget).
 - [`connInfoSecretTargetDisabled`](#spec.connInfoSecretTargetDisabled-property){: name='spec.connInfoSecretTargetDisabled-property'} (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.
+- [`username`](#spec.username-property){: name='spec.username-property'} (string, Immutable, MaxLength: 64). Username of the service user on Aiven.
+    Defaults to the resource name. Aiven accepts usernames that are not
+    valid Kubernetes object names (e.g. containing underscores or uppercase characters);
+    set this field to manage such users.
 
 ## accessControl {: #spec.accessControl }
 

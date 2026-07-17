@@ -2,6 +2,10 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `ServiceUser` field `username`, type `string`: Username of the service user on Aiven.
+  Defaults to the resource name.
+  Aiven accepts usernames that are **not** valid Kubernetes object names (e.g. containing underscores or uppercase
+  characters); set this field to manage such users
 - Add `Grafana` field `userConfig.grafana_version`, type `string`: Available versions: `11`. Newer versions
   may also be available.
 Grafana major version

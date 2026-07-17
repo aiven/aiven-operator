@@ -46,6 +46,16 @@ type ServiceUserController struct {
 	avnGen avngen.Client
 }
 
+// username returns the Aiven username for the ServiceUser: spec.username when set, the resource name otherwise.
+// The override exists because Aiven accepts usernames (e.g. containing underscores or uppercase characters)
+// that are not valid Kubernetes object names.
+func username(user *v1alpha1.ServiceUser) string {
+	if user.Spec.Username != "" {
+		return user.Spec.Username
+	}
+	return user.Name
+}
+
 func (r *ServiceUserController) Observe(ctx context.Context, user *v1alpha1.ServiceUser) (Observation, error) {
 	u, details, err := r.fetchUser(ctx, user, false)
 	if err != nil {
@@ -82,7 +92,7 @@ func (r *ServiceUserController) Create(ctx context.Context, user *v1alpha1.Servi
 		user.Spec.Project,
 		user.Spec.ServiceName,
 		&service.ServiceUserCreateIn{
-			Username:      user.Name,
+			Username:      username(user),
 			AccessControl: buildServiceUserAccessControlIn(user.Spec.AccessControl),
 		},
 	)
@@ -121,7 +131,7 @@ func (r *ServiceUserController) Update(ctx context.Context, user *v1alpha1.Servi
 			ctx,
 			user.Spec.Project,
 			user.Spec.ServiceName,
-			user.Name,
+			username(user),
 			&service.ServiceUserCredentialsModifyIn{
 				AccessControl: ac,
 				Operation:     service.ServiceUserCredentialsModifyOperationTypeSetAccessControl,
@@ -152,12 +162,12 @@ func (r *ServiceUserController) Update(ctx context.Context, user *v1alpha1.Servi
 
 func (r *ServiceUserController) Delete(ctx context.Context, user *v1alpha1.ServiceUser) error {
 	// skip deletion for built-in users that cannot be deleted
-	if isBuiltInUser(user.Name) {
+	if isBuiltInUser(username(user)) {
 		// built-in users like avnadmin cannot be deleted, this is expected behavior
 		return nil
 	}
 
-	err := r.avnGen.ServiceUserDelete(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
+	err := r.avnGen.ServiceUserDelete(ctx, user.Spec.Project, user.Spec.ServiceName, username(user))
 	if err != nil && !isNotFound(err) {
 		return fmt.Errorf("deleting service user: %w", err)
 	}
@@ -176,7 +186,7 @@ func (r *ServiceUserController) setAivenPasswordIfProvided(ctx context.Context, 
 		ctx,
 		user.Spec.Project,
 		user.Spec.ServiceName,
-		user.Name,
+		username(user),
 		&service.ServiceUserCredentialsModifyIn{
 			NewPassword: &password,
 			Operation:   service.ServiceUserCredentialsModifyOperationTypeResetCredentials,
@@ -224,7 +234,7 @@ func (r *ServiceUserController) fetchUser(
 		// Treating that 404 as "absent" too early pushes reconcile down the Create -> 409 path.
 		if err := retry.Do(
 			func() error {
-				u, err = r.avnGen.ServiceUserGet(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
+				u, err = r.avnGen.ServiceUserGet(ctx, user.Spec.Project, user.Spec.ServiceName, username(user))
 				return err
 			},
 			retry.Context(ctx),

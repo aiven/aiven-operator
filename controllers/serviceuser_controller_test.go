@@ -1147,4 +1147,63 @@ func TestServiceUserReconciler(t *testing.T) {
 		err := r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, got)
 		require.True(t, apierrors.IsNotFound(err))
 	})
+
+	t.Run("Creates ServiceUser on Aiven using spec.username override", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		// A legal Aiven username that cannot be a Kubernetes object name.
+		user.Spec.Username = "test_team_test_app_1a2b3c4d_abc"
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "kafka",
+				Components:  []service.ComponentOut{{Component: "kafka", Host: "host", Port: 9092}},
+			}, nil).Twice()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Spec.Username).
+			Return(nil, newAivenError(404, "not found")).Once()
+		avn.EXPECT().
+			ServiceUserCreate(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.MatchedBy(func(in *service.ServiceUserCreateIn) bool {
+				return in.Username == user.Spec.Username
+			})).
+			Return(&service.ServiceUserCreateOut{}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Spec.Username).
+			Return(&service.ServiceUserGetOut{Username: user.Spec.Username, Password: "pw"}, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		r, res := runScenario(t, user, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		// The secret keeps the resource's name; the username inside it is the override.
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
+		require.Equal(t, []byte(user.Spec.Username), secret.Data["SERVICEUSER_USERNAME"])
+		require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
+	})
+
+	t.Run("Deletes ServiceUser using spec.username override", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Spec.Username = "test_team_test_app_1a2b3c4d_abc"
+		user.Finalizers = []string{instanceDeletionFinalizer}
+		now := metav1.Now()
+		user.DeletionTimestamp = &now
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceUserDelete(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Spec.Username).
+			Return(nil).Once()
+
+		r, res := runScenario(t, user, avn)
+		require.Equal(t, ctrlruntime.Result{}, res)
+
+		got := &v1alpha1.ServiceUser{}
+		err := r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, got)
+		require.True(t, apierrors.IsNotFound(err))
+	})
 }
