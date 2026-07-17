@@ -62,7 +62,3 @@ type KafkaConnectList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []KafkaConnect `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&KafkaConnect{}, &KafkaConnectList{})
-}

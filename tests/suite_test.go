@@ -26,6 +26,7 @@ import (
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	"github.com/aiven/aiven-operator/controllers"
+	operatorwebhook "github.com/aiven/aiven-operator/internal/webhook"
 )
 
 func TestMain(m *testing.M) {
@@ -154,7 +155,7 @@ func setupSuite(ctx context.Context) (*envtest.Environment, error) {
 		return nil, fmt.Errorf("unable to setup controllers: %w", err)
 	}
 
-	err = v1alpha1.SetupWebhooks(mgr)
+	err = operatorwebhook.SetupWebhooks(mgr)
 	if err != nil {
 		return nil, fmt.Errorf("unable to setup webhooks: %w", err)
 	}

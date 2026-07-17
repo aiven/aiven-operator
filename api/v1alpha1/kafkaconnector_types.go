@@ -103,7 +103,3 @@ type KafkaConnectorList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []KafkaConnector `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&KafkaConnector{}, &KafkaConnectorList{})
-}

@@ -23,6 +23,7 @@ import (
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	"github.com/aiven/aiven-operator/controllers"
+	operatorwebhook "github.com/aiven/aiven-operator/internal/webhook"
 	"github.com/aiven/aiven-operator/utils"
 	//+kubebuilder:scaffold:imports
 )
@@ -149,7 +150,7 @@ func main() {
 	switch strings.ToLower(os.Getenv("ENABLE_WEBHOOKS")) {
 	case "false", "0", "f":
 	default:
-		err = v1alpha1.SetupWebhooks(mgr)
+		err = operatorwebhook.SetupWebhooks(mgr)
 		if err != nil {
 			setupLog.Error(err, "unable to create webhook")
 			os.Exit(1)

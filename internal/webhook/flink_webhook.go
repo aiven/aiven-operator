@@ -1,6 +1,6 @@
 // Copyright (c) 2024 Aiven, Helsinki, Finland. https://aiven.io/
 
-package v1alpha1
+package webhook
 
 import (
 	"context"
@@ -11,14 +11,16 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 // log is for logging in this package.
 var flinklog = logf.Log.WithName("flink-resource")
 
-func (in *Flink) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func SetupFlinkWebhook(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(in).
+		For(&v1alpha1.Flink{}).
 		WithDefaulter(&FlinkWebhook{}).
 		WithValidator(&FlinkWebhook{}).
 		Complete()
@@ -31,7 +33,7 @@ type FlinkWebhook struct{}
 var _ webhook.CustomDefaulter = &FlinkWebhook{}
 
 func (h *FlinkWebhook) Default(_ context.Context, obj runtime.Object) error {
-	in := obj.(*Flink)
+	in := obj.(*v1alpha1.Flink)
 	flinklog.Info("default", "name", in.Name)
 	return nil
 }
@@ -42,7 +44,7 @@ var _ webhook.CustomValidator = &FlinkWebhook{}
 
 // ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *FlinkWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*Flink)
+	in := obj.(*v1alpha1.Flink)
 	flinklog.Info("validate create", "name", in.Name)
 
 	return nil, in.Spec.Validate()
@@ -50,14 +52,14 @@ func (h *FlinkWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (ad
 
 // ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *FlinkWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Object) (admission.Warnings, error) {
-	in := newObj.(*Flink)
+	in := newObj.(*v1alpha1.Flink)
 	flinklog.Info("validate update", "name", in.Name)
 	return nil, in.Spec.Validate()
 }
 
 // ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *FlinkWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*Flink)
+	in := obj.(*v1alpha1.Flink)
 	flinklog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {

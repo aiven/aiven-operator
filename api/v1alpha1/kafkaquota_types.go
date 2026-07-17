@@ -100,7 +100,3 @@ type KafkaQuotaList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []KafkaQuota `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&KafkaQuota{}, &KafkaQuotaList{})
-}

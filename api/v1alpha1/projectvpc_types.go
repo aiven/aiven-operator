@@ -76,7 +76,3 @@ type ProjectVPCList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []ProjectVPC `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&ProjectVPC{}, &ProjectVPCList{})
-}

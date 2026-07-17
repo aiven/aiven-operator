@@ -115,7 +115,3 @@ type UpgradePipelineStepList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []UpgradePipelineStep `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&UpgradePipelineStep{}, &UpgradePipelineStepList{})
-}

@@ -90,7 +90,3 @@ type OpenSearchACLConfigList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []OpenSearchACLConfig `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&OpenSearchACLConfig{}, &OpenSearchACLConfigList{})
-}

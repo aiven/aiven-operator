@@ -220,7 +220,3 @@ type ServiceIntegrationList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []ServiceIntegration `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&ServiceIntegration{}, &ServiceIntegrationList{})
-}

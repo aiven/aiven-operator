@@ -1,6 +1,6 @@
 // Copyright (c) 2024 Aiven, Helsinki, Finland. https://aiven.io/
 
-package v1alpha1
+package webhook
 
 import (
 	"context"
@@ -11,14 +11,16 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 // log is for logging in this package.
 var kafkatopiclog = logf.Log.WithName("kafkatopic-resource")
 
-func (in *KafkaTopic) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func SetupKafkaTopicWebhook(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(in).
+		For(&v1alpha1.KafkaTopic{}).
 		WithDefaulter(&KafkaTopicWebhook{}).
 		WithValidator(&KafkaTopicWebhook{}).
 		Complete()
@@ -32,7 +34,7 @@ var _ webhook.CustomDefaulter = &KafkaTopicWebhook{}
 
 // Default implements webhook.CustomDefaulter so a webhook will be registered for the type
 func (h *KafkaTopicWebhook) Default(_ context.Context, obj runtime.Object) error {
-	in := obj.(*KafkaTopic)
+	in := obj.(*v1alpha1.KafkaTopic)
 	kafkatopiclog.Info("default", "name", in.Name)
 	return nil
 }
@@ -43,7 +45,7 @@ var _ webhook.CustomValidator = &KafkaTopicWebhook{}
 
 // ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *KafkaTopicWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*KafkaTopic)
+	in := obj.(*v1alpha1.KafkaTopic)
 	kafkatopiclog.Info("validate create", "name", in.Name)
 
 	return nil, nil
@@ -51,8 +53,8 @@ func (h *KafkaTopicWebhook) ValidateCreate(_ context.Context, obj runtime.Object
 
 // ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *KafkaTopicWebhook) ValidateUpdate(_ context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
-	in := newObj.(*KafkaTopic)
-	old := oldObj.(*KafkaTopic)
+	in := newObj.(*v1alpha1.KafkaTopic)
+	old := oldObj.(*v1alpha1.KafkaTopic)
 	kafkatopiclog.Info("validate update", "name", in.Name)
 
 	if in.Spec.Project != old.Spec.Project {
@@ -68,7 +70,7 @@ func (h *KafkaTopicWebhook) ValidateUpdate(_ context.Context, oldObj, newObj run
 
 // ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *KafkaTopicWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*KafkaTopic)
+	in := obj.(*v1alpha1.KafkaTopic)
 	kafkatopiclog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {
