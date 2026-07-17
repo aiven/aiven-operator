@@ -104,9 +104,19 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.DivPrecisionIncrement != nil {
+		in, out := &in.DivPrecisionIncrement, &out.DivPrecisionIncrement
+		*out = new(int)
+		**out = **in
+	}
 	if in.EndMarkersInJson != nil {
 		in, out := &in.EndMarkersInJson, &out.EndMarkersInJson
 		*out = new(bool)
+		**out = **in
+	}
+	if in.EqRangeIndexDiveLimit != nil {
+		in, out := &in.EqRangeIndexDiveLimit, &out.EqRangeIndexDiveLimit
+		*out = new(int)
 		**out = **in
 	}
 	if in.GroupConcatMaxLen != nil {
@@ -134,13 +144,38 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.InnodbFtEnableStopword != nil {
+		in, out := &in.InnodbFtEnableStopword, &out.InnodbFtEnableStopword
+		*out = new(bool)
+		**out = **in
+	}
+	if in.InnodbFtMaxTokenSize != nil {
+		in, out := &in.InnodbFtMaxTokenSize, &out.InnodbFtMaxTokenSize
+		*out = new(int)
+		**out = **in
+	}
 	if in.InnodbFtMinTokenSize != nil {
 		in, out := &in.InnodbFtMinTokenSize, &out.InnodbFtMinTokenSize
 		*out = new(int)
 		**out = **in
 	}
+	if in.InnodbFtNumWordOptimize != nil {
+		in, out := &in.InnodbFtNumWordOptimize, &out.InnodbFtNumWordOptimize
+		*out = new(int)
+		**out = **in
+	}
+	if in.InnodbFtResultCacheLimit != nil {
+		in, out := &in.InnodbFtResultCacheLimit, &out.InnodbFtResultCacheLimit
+		*out = new(int)
+		**out = **in
+	}
 	if in.InnodbFtServerStopwordTable != nil {
 		in, out := &in.InnodbFtServerStopwordTable, &out.InnodbFtServerStopwordTable
+		*out = new(string)
+		**out = **in
+	}
+	if in.InnodbFtUserStopwordTable != nil {
+		in, out := &in.InnodbFtUserStopwordTable, &out.InnodbFtUserStopwordTable
 		*out = new(string)
 		**out = **in
 	}
@@ -229,8 +264,18 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.MaxExecutionTime != nil {
+		in, out := &in.MaxExecutionTime, &out.MaxExecutionTime
+		*out = new(int)
+		**out = **in
+	}
 	if in.MaxHeapTableSize != nil {
 		in, out := &in.MaxHeapTableSize, &out.MaxHeapTableSize
+		*out = new(int)
+		**out = **in
+	}
+	if in.MaxSeeksForKey != nil {
+		in, out := &in.MaxSeeksForKey, &out.MaxSeeksForKey
 		*out = new(int)
 		**out = **in
 	}
@@ -247,6 +292,21 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 	if in.NetWriteTimeout != nil {
 		in, out := &in.NetWriteTimeout, &out.NetWriteTimeout
 		*out = new(int)
+		**out = **in
+	}
+	if in.OptimizerPruneLevel != nil {
+		in, out := &in.OptimizerPruneLevel, &out.OptimizerPruneLevel
+		*out = new(int)
+		**out = **in
+	}
+	if in.OptimizerSearchDepth != nil {
+		in, out := &in.OptimizerSearchDepth, &out.OptimizerSearchDepth
+		*out = new(int)
+		**out = **in
+	}
+	if in.OptimizerSwitch != nil {
+		in, out := &in.OptimizerSwitch, &out.OptimizerSwitch
+		*out = new(string)
 		**out = **in
 	}
 	if in.PerformanceSchemaEventsStatementsHistorySize != nil {
