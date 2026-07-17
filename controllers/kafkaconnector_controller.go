@@ -5,8 +5,8 @@ package controllers
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
-	"strings"
 	"text/template"
 
 	avngen "github.com/aiven/go-client-codegen"
@@ -15,84 +15,158 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 // errSecretFetch returned when unable to fetch the secret, that is described in the connector UserConfig value.
-const errSecretFetch = "unable to fetch secret"
-
-// KafkaConnectorReconciler reconciles a KafkaConnector object
-type KafkaConnectorReconciler struct {
-	Controller
-}
-
-func newKafkaConnectorReconciler(c Controller) reconcilerType {
-	return &KafkaConnectorReconciler{Controller: c}
-}
-
-type KafkaConnectorHandler struct {
-	k8s client.Client
-}
+var errSecretFetch = errors.New("unable to fetch secret")
 
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkaconnectors,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkaconnectors/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkaconnectors/finalizers,verbs=get;create;update
 
-func (r *KafkaConnectorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, KafkaConnectorHandler{k8s: r.Client}, &v1alpha1.KafkaConnector{})
+// KafkaConnectorController reconciles a KafkaConnector object.
+type KafkaConnectorController struct {
+	client.Client
+	avnGen avngen.Client
 }
 
-// SetupWithManager sets up the controller with the Manager.
-func (r *KafkaConnectorReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.KafkaConnector{}).
-		Complete(r)
+func newKafkaConnectorReconciler(c Controller) reconcilerType {
+	return newManagedReconciler(
+		c,
+		func(c Controller, avnGen avngen.Client) AivenController[*v1alpha1.KafkaConnector] {
+			return &KafkaConnectorController{Client: c.Client, avnGen: avnGen}
+		},
+		nil,
+	)
 }
 
-func (h KafkaConnectorHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
-	conn, err := h.convert(obj)
-	if err != nil {
-		return err
+func (r *KafkaConnectorController) Observe(ctx context.Context, conn *v1alpha1.KafkaConnector) (Observation, error) {
+	if _, err := getServiceIfOperational(ctx, r.avnGen, conn.Spec.Project, conn.Spec.ServiceName); err != nil {
+		return Observation{}, err
 	}
 
-	connCfg, err := h.buildConnectorConfig(ctx, conn)
-	if err != nil {
-		return fmt.Errorf("unable to build connector config: %w", err)
+	// A missing secret (errSecretFetch) is a transient precondition error.
+	if _, err := r.buildConnectorConfig(ctx, conn); err != nil {
+		if errors.Is(err, errSecretFetch) {
+			return Observation{}, fmt.Errorf("%w: %w", errPreconditionNotMet, err)
+		}
+		return Observation{}, err
 	}
 
-	// Sometimes GET (ServiceKafkaConnectGetConnectorStatus) returns OK,
-	// and POST (ServiceKafkaConnectCreateConnector) returns NotFound error.
-	// So instead of asking Aiven API if the connector exists,
-	// we try to create it.
-	_, err = avnGen.ServiceKafkaConnectCreateConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, &connCfg)
-	if isAlreadyExists(err) {
-		_, err = avnGen.ServiceKafkaConnectEditConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name, &connCfg)
-		if err != nil {
-			return err
+	connAtAiven, err := GetKafkaConnectorByName(ctx, r.avnGen, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
+	switch {
+	case isNotFound(err):
+		return Observation{ResourceExists: false}, nil
+	case err != nil:
+		return Observation{}, fmt.Errorf("describing kafka connector: %w", err)
+	}
+
+	conn.Status.PluginStatus = v1alpha1.KafkaConnectorPluginStatus{
+		Author:  connAtAiven.Plugin.Author,
+		Class:   connAtAiven.Plugin.Class,
+		DocURL:  connAtAiven.Plugin.DocUrl,
+		Title:   connAtAiven.Plugin.Title,
+		Type:    string(connAtAiven.Plugin.Type),
+		Version: connAtAiven.Plugin.Version,
+	}
+
+	connStat, err := r.avnGen.ServiceKafkaConnectGetConnectorStatus(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
+	if err != nil {
+		return Observation{}, fmt.Errorf("getting kafka connector status: %w", err)
+	}
+
+	conn.Status.State = connStat.State
+	conn.Status.TasksStatus = v1alpha1.KafkaConnectorTasksStatus{}
+	for i := range connStat.Tasks {
+		conn.Status.TasksStatus.Total++
+		switch connStat.Tasks[i].State {
+		case kafkaconnect.TaskStateTypeRunning:
+			conn.Status.TasksStatus.Running++
+		case kafkaconnect.TaskStateTypePaused:
+			conn.Status.TasksStatus.Paused++
+		case kafkaconnect.TaskStateTypeUnassigned:
+			conn.Status.TasksStatus.Unassigned++
+		case kafkaconnect.TaskStateTypeFailed:
+			// in case we have a failed task, we just use the last failed stacktrace
+			conn.Status.TasksStatus.Failed++
+			conn.Status.TasksStatus.StackTrace = connStat.Tasks[i].Trace
+		default:
+			conn.Status.TasksStatus.Unknown++
 		}
 	}
 
-	switch {
-	case isNotFound(err):
-		// Means, the API isn't consistent yet,
-		// because checkPreconditions() passed, yet we get 404.
-		// Retry later.
-		return ErrRequeueNeeded{OriginalError: err}
-	case isServerError(err):
-		// Service is not ready yet, retry later.
-		return nil
-	case err != nil:
-		return err
+	// Mark running only when the connector is actually RUNNING on Aiven side.
+	if connStat.State == kafkaconnect.ServiceKafkaConnectConnectorStateTypeRunning {
+		markInstanceRunning(conn)
 	}
 
+	return Observation{
+		ResourceExists:   true,
+		ResourceUpToDate: hasLatestGeneration(conn),
+	}, nil
+}
+
+func (r *KafkaConnectorController) Create(ctx context.Context, conn *v1alpha1.KafkaConnector) (CreateResult, error) {
+	delete(conn.GetAnnotations(), instanceIsRunningAnnotation)
+
+	connCfg, err := r.buildConnectorConfig(ctx, conn)
+	if err != nil {
+		return CreateResult{}, fmt.Errorf("unable to build connector config: %w", err)
+	}
+
+	_, err = r.avnGen.ServiceKafkaConnectCreateConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, &connCfg)
+	switch {
+	case isAlreadyExists(err) || isNotFound(err) || isServerError(err):
+		// Transient errors, just requeue.
+		return CreateResult{}, fmt.Errorf("%w: %w", errPreconditionNotMet, err)
+	case err != nil:
+		return CreateResult{}, fmt.Errorf("cannot create kafka connector on Aiven side: %w", err)
+	}
+
+	const reason = "Created"
+	meta.SetStatusCondition(&conn.Status.Conditions, getInitializedCondition(reason, "Successfully created the instance in Aiven"))
+	meta.SetStatusCondition(&conn.Status.Conditions, getRunningCondition(metav1.ConditionUnknown, reason, "Successfully created the instance in Aiven, status remains unknown"))
+
+	return CreateResult{}, nil
+}
+
+func (r *KafkaConnectorController) Update(ctx context.Context, conn *v1alpha1.KafkaConnector) (UpdateResult, error) {
+	delete(conn.GetAnnotations(), instanceIsRunningAnnotation)
+
+	connCfg, err := r.buildConnectorConfig(ctx, conn)
+	if err != nil {
+		return UpdateResult{}, fmt.Errorf("unable to build connector config: %w", err)
+	}
+
+	_, err = r.avnGen.ServiceKafkaConnectEditConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name, &connCfg)
+	switch {
+	case isNotFound(err) || isServerError(err):
+		// Kafka Connect API not consistent yet (404) or service not ready (5xx). Requeue softly.
+		return UpdateResult{}, fmt.Errorf("%w: %w", errPreconditionNotMet, err)
+	case err != nil:
+		return UpdateResult{}, fmt.Errorf("cannot update kafka connector on Aiven side: %w", err)
+	}
+
+	const reason = "Updated"
+	meta.SetStatusCondition(&conn.Status.Conditions, getInitializedCondition(reason, "Successfully updated the instance in Aiven"))
+	meta.SetStatusCondition(&conn.Status.Conditions, getRunningCondition(metav1.ConditionUnknown, reason, "Successfully updated the instance in Aiven, status remains unknown"))
+
+	return UpdateResult{}, nil
+}
+
+func (r *KafkaConnectorController) Delete(ctx context.Context, conn *v1alpha1.KafkaConnector) error {
+	err := r.avnGen.ServiceKafkaConnectDeleteConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
+	if err != nil && !isNotFound(err) {
+		return fmt.Errorf("unable to delete kafka connector: %w", err)
+	}
 	return nil
 }
 
 // buildConnectorConfig joins mandatory fields with additional connector specific config
-func (h KafkaConnectorHandler) buildConnectorConfig(ctx context.Context, conn *v1alpha1.KafkaConnector) (map[string]string, error) {
+func (r *KafkaConnectorController) buildConnectorConfig(ctx context.Context, conn *v1alpha1.KafkaConnector) (map[string]string, error) {
 	const (
 		configFieldConnectorName  = "name"
 		configFieldConnectorClass = "connector.class"
@@ -101,8 +175,8 @@ func (h KafkaConnectorHandler) buildConnectorConfig(ctx context.Context, conn *v
 		templateFuncFromSecret = func(name, key string) (string, error) {
 			var secret corev1.Secret
 			objectKey := types.NamespacedName{Namespace: conn.GetNamespace(), Name: name}
-			if err := h.k8s.Get(ctx, objectKey, &secret); err != nil {
-				return "", fmt.Errorf("%s: %w", errSecretFetch, err)
+			if err := r.Get(ctx, objectKey, &secret); err != nil {
+				return "", fmt.Errorf("%w: %w", errSecretFetch, err)
 			}
 			v, ok := secret.Data[key]
 			if !ok {
@@ -133,104 +207,6 @@ func (h KafkaConnectorHandler) buildConnectorConfig(ctx context.Context, conn *v
 		m[k] = templateRes.String()
 	}
 	return m, nil
-}
-
-func (h KafkaConnectorHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
-	conn, err := h.convert(obj)
-	if err != nil {
-		return false, err
-	}
-	err = avnGen.ServiceKafkaConnectDeleteConnector(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
-	if err != nil && !isNotFound(err) {
-		return false, fmt.Errorf("unable to delete kafka connector: %w", err)
-	}
-	return true, nil
-}
-
-func (h KafkaConnectorHandler) observe(ctx context.Context, avnGen avngen.Client, obj v1alpha1.AivenManagedObject) error {
-	conn, err := h.convert(obj)
-	if err != nil {
-		return err
-	}
-
-	connAtAiven, err := GetKafkaConnectorByName(ctx, avnGen, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
-	if err != nil {
-		return err
-	}
-	conn.Status.PluginStatus = v1alpha1.KafkaConnectorPluginStatus{
-		Author:  connAtAiven.Plugin.Author,
-		Class:   connAtAiven.Plugin.Class,
-		DocURL:  connAtAiven.Plugin.DocUrl,
-		Title:   connAtAiven.Plugin.Title,
-		Type:    string(connAtAiven.Plugin.Type),
-		Version: connAtAiven.Plugin.Version,
-	}
-
-	connStat, err := avnGen.ServiceKafkaConnectGetConnectorStatus(ctx, conn.Spec.Project, conn.Spec.ServiceName, conn.Name)
-	if err != nil {
-		return err
-	}
-	conn.Status.State = connStat.State
-	conn.Status.TasksStatus = v1alpha1.KafkaConnectorTasksStatus{}
-	for i := range connStat.Tasks {
-		conn.Status.TasksStatus.Total++
-		switch connStat.Tasks[i].State {
-		case kafkaconnect.TaskStateTypeRunning:
-			conn.Status.TasksStatus.Running++
-		case kafkaconnect.TaskStateTypePaused:
-			conn.Status.TasksStatus.Paused++
-		case kafkaconnect.TaskStateTypeUnassigned:
-			conn.Status.TasksStatus.Unassigned++
-		case kafkaconnect.TaskStateTypeFailed:
-			// in case we have a failed task, we just use the last failed stacktrace
-			conn.Status.TasksStatus.Failed++
-			conn.Status.TasksStatus.StackTrace = connStat.Tasks[i].Trace
-		default:
-			conn.Status.TasksStatus.Unknown++
-		}
-	}
-
-	if connStat.State == kafkaconnect.ServiceKafkaConnectConnectorStateTypeRunning {
-		meta.SetStatusCondition(&conn.Status.Conditions,
-			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
-				"Instance is running on Aiven side"))
-		metav1.SetMetaDataAnnotation(&conn.ObjectMeta, instanceIsRunningAnnotation, "true")
-	}
-	return nil
-}
-
-func (h KafkaConnectorHandler) checkPreconditions(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
-	conn, err := h.convert(obj)
-	if err != nil {
-		return false, err
-	}
-
-	meta.SetStatusCondition(&conn.Status.Conditions,
-		getInitializedCondition("Preconditions", "Checking preconditions"))
-
-	// Check if the service is operational
-	ok, err := checkServiceIsOperational(ctx, avnGen, conn.Spec.Project, conn.Spec.ServiceName)
-	if !ok || err != nil {
-		return ok, err
-	}
-
-	// Checks if the secret in the config is ready.
-	// Instead of using error.Is() we check the error message,
-	// because buildConnectorConfig() uses template engine, which might merge errors.
-	_, err = h.buildConnectorConfig(ctx, conn)
-	if err != nil && strings.Contains(err.Error(), errSecretFetch) {
-		return false, nil
-	}
-
-	return err == nil, err
-}
-
-func (h KafkaConnectorHandler) convert(o client.Object) (*v1alpha1.KafkaConnector, error) {
-	conn, ok := o.(*v1alpha1.KafkaConnector)
-	if !ok {
-		return nil, fmt.Errorf("cannot convert object to KafkaConnector")
-	}
-	return conn, nil
 }
 
 func GetKafkaConnectorByName(ctx context.Context, avnGen avngen.Client, projectName, serviceName, name string) (*kafkaconnect.ConnectorOut, error) {
