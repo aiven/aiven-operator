@@ -62,7 +62,3 @@ type ClickhouseRoleList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []ClickhouseRole `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&ClickhouseRole{}, &ClickhouseRoleList{})
-}

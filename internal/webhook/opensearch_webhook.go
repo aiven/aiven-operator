@@ -1,6 +1,6 @@
 // Copyright (c) 2024 Aiven, Helsinki, Finland. https://aiven.io/
 
-package v1alpha1
+package webhook
 
 import (
 	"context"
@@ -11,14 +11,16 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 // log is for logging in this package.
 var opensearchlog = logf.Log.WithName("opensearch-resource")
 
-func (in *OpenSearch) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func SetupOpenSearchWebhook(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(in).
+		For(&v1alpha1.OpenSearch{}).
 		WithDefaulter(&OpenSearchWebhook{}).
 		WithValidator(&OpenSearchWebhook{}).
 		Complete()
@@ -32,7 +34,7 @@ var _ webhook.CustomDefaulter = &OpenSearchWebhook{}
 
 // Default implements webhook.CustomDefaulter so a webhook will be registered for the type
 func (h *OpenSearchWebhook) Default(_ context.Context, obj runtime.Object) error {
-	in := obj.(*OpenSearch)
+	in := obj.(*v1alpha1.OpenSearch)
 	opensearchlog.Info("default", "name", in.Name)
 	return nil
 }
@@ -43,7 +45,7 @@ var _ webhook.CustomValidator = &OpenSearchWebhook{}
 
 // ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *OpenSearchWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*OpenSearch)
+	in := obj.(*v1alpha1.OpenSearch)
 	opensearchlog.Info("validate create", "name", in.Name)
 
 	return nil, in.Spec.Validate()
@@ -51,14 +53,14 @@ func (h *OpenSearchWebhook) ValidateCreate(_ context.Context, obj runtime.Object
 
 // ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *OpenSearchWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Object) (admission.Warnings, error) {
-	in := newObj.(*OpenSearch)
+	in := newObj.(*v1alpha1.OpenSearch)
 	opensearchlog.Info("validate update", "name", in.Name)
 	return nil, in.Spec.Validate()
 }
 
 // ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *OpenSearchWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*OpenSearch)
+	in := obj.(*v1alpha1.OpenSearch)
 	opensearchlog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {

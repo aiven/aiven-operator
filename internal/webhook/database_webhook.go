@@ -1,6 +1,6 @@
 // Copyright (c) 2024 Aiven, Helsinki, Finland. https://aiven.io/
 
-package v1alpha1
+package webhook
 
 import (
 	"context"
@@ -11,14 +11,16 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 // log is for logging in this package.
 var databaselog = logf.Log.WithName("database-resource")
 
-func (in *Database) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func SetupDatabaseWebhook(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(in).
+		For(&v1alpha1.Database{}).
 		WithDefaulter(&DatabaseWebhook{}).
 		WithValidator(&DatabaseWebhook{}).
 		Complete()
@@ -32,7 +34,7 @@ var _ webhook.CustomDefaulter = &DatabaseWebhook{}
 
 // Default implements webhook.CustomDefaulter so a webhook will be registered for the type
 func (h *DatabaseWebhook) Default(_ context.Context, obj runtime.Object) error {
-	in := obj.(*Database)
+	in := obj.(*v1alpha1.Database)
 	databaselog.Info("default", "name", in.Name)
 	return nil
 }
@@ -43,7 +45,7 @@ var _ webhook.CustomValidator = &DatabaseWebhook{}
 
 // ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *DatabaseWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*Database)
+	in := obj.(*v1alpha1.Database)
 	databaselog.Info("validate create", "name", in.Name)
 
 	return nil, nil
@@ -51,7 +53,7 @@ func (h *DatabaseWebhook) ValidateCreate(_ context.Context, obj runtime.Object) 
 
 // ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *DatabaseWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Object) (admission.Warnings, error) {
-	in := newObj.(*Database)
+	in := newObj.(*v1alpha1.Database)
 	databaselog.Info("validate update", "name", in.Name)
 
 	return nil, nil
@@ -59,7 +61,7 @@ func (h *DatabaseWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Ob
 
 // ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *DatabaseWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*Database)
+	in := obj.(*v1alpha1.Database)
 	databaselog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {

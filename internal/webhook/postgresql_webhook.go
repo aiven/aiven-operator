@@ -1,6 +1,6 @@
 // Copyright (c) 2024 Aiven, Helsinki, Finland. https://aiven.io/
 
-package v1alpha1
+package webhook
 
 import (
 	"context"
@@ -11,14 +11,16 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 // log is for logging in this package.
 var pglog = logf.Log.WithName("postgresql-resource")
 
-func (in *PostgreSQL) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func SetupPostgreSQLWebhook(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(in).
+		For(&v1alpha1.PostgreSQL{}).
 		WithDefaulter(&PostgreSQLWebhook{}).
 		WithValidator(&PostgreSQLWebhook{}).
 		Complete()
@@ -32,7 +34,7 @@ var _ webhook.CustomDefaulter = &PostgreSQLWebhook{}
 
 // Default implements webhook.CustomDefaulter so a webhook will be registered for the type
 func (h *PostgreSQLWebhook) Default(_ context.Context, obj runtime.Object) error {
-	in := obj.(*PostgreSQL)
+	in := obj.(*v1alpha1.PostgreSQL)
 	pglog.Info("default", "name", in.Name)
 	return nil
 }
@@ -43,7 +45,7 @@ var _ webhook.CustomValidator = &PostgreSQLWebhook{}
 
 // ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *PostgreSQLWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*PostgreSQL)
+	in := obj.(*v1alpha1.PostgreSQL)
 	pglog.Info("validate create", "name", in.Name)
 
 	return nil, in.Spec.Validate()
@@ -51,7 +53,7 @@ func (h *PostgreSQLWebhook) ValidateCreate(_ context.Context, obj runtime.Object
 
 // ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *PostgreSQLWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Object) (admission.Warnings, error) {
-	in := newObj.(*PostgreSQL)
+	in := newObj.(*v1alpha1.PostgreSQL)
 	pglog.Info("validate update", "name", in.Name)
 
 	return nil, in.Spec.Validate()
@@ -59,7 +61,7 @@ func (h *PostgreSQLWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.
 
 // ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *PostgreSQLWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*PostgreSQL)
+	in := obj.(*v1alpha1.PostgreSQL)
 	pglog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {

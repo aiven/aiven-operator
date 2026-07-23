@@ -1,6 +1,6 @@
 // Copyright (c) 2024 Aiven, Helsinki, Finland. https://aiven.io/
 
-package v1alpha1
+package webhook
 
 import (
 	"context"
@@ -11,14 +11,16 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 // log is for logging in this package.
 var kafkalog = logf.Log.WithName("kafka-resource")
 
-func (in *Kafka) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func SetupKafkaWebhook(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(in).
+		For(&v1alpha1.Kafka{}).
 		WithDefaulter(&KafkaWebhook{}).
 		WithValidator(&KafkaWebhook{}).
 		Complete()
@@ -32,7 +34,7 @@ var _ webhook.CustomDefaulter = &KafkaWebhook{}
 
 // Default implements webhook.CustomDefaulter so a webhook will be registered for the type
 func (h *KafkaWebhook) Default(_ context.Context, obj runtime.Object) error {
-	in := obj.(*Kafka)
+	in := obj.(*v1alpha1.Kafka)
 	kafkalog.Info("default", "name", in.Name)
 	return nil
 }
@@ -43,7 +45,7 @@ var _ webhook.CustomValidator = &KafkaWebhook{}
 
 // ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *KafkaWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*Kafka)
+	in := obj.(*v1alpha1.Kafka)
 	kafkalog.Info("validate create", "name", in.Name)
 
 	return nil, in.Spec.Validate()
@@ -51,14 +53,14 @@ func (h *KafkaWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (ad
 
 // ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *KafkaWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Object) (admission.Warnings, error) {
-	in := newObj.(*Kafka)
+	in := newObj.(*v1alpha1.Kafka)
 	kafkalog.Info("validate update", "name", in.Name)
 	return nil, in.Spec.Validate()
 }
 
 // ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *KafkaWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*Kafka)
+	in := obj.(*v1alpha1.Kafka)
 	kafkalog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {

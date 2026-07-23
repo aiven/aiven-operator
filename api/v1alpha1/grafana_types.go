@@ -68,7 +68,3 @@ type GrafanaList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []Grafana `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&Grafana{}, &GrafanaList{})
-}

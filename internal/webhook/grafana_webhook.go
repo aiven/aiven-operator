@@ -1,6 +1,6 @@
 // Copyright (c) 2024 Aiven, Helsinki, Finland. https://aiven.io/
 
-package v1alpha1
+package webhook
 
 import (
 	"context"
@@ -11,14 +11,16 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 // log is for logging in this package.
 var grafanalog = logf.Log.WithName("grafana-resource")
 
-func (in *Grafana) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func SetupGrafanaWebhook(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(in).
+		For(&v1alpha1.Grafana{}).
 		WithDefaulter(&GrafanaWebhook{}).
 		WithValidator(&GrafanaWebhook{}).
 		Complete()
@@ -31,7 +33,7 @@ type GrafanaWebhook struct{}
 var _ webhook.CustomDefaulter = &GrafanaWebhook{}
 
 func (h *GrafanaWebhook) Default(_ context.Context, obj runtime.Object) error {
-	in := obj.(*Grafana)
+	in := obj.(*v1alpha1.Grafana)
 	grafanalog.Info("default", "name", in.Name)
 	return nil
 }
@@ -42,7 +44,7 @@ var _ webhook.CustomValidator = &GrafanaWebhook{}
 
 // ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *GrafanaWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*Grafana)
+	in := obj.(*v1alpha1.Grafana)
 	grafanalog.Info("validate create", "name", in.Name)
 
 	return nil, in.Spec.Validate()
@@ -50,14 +52,14 @@ func (h *GrafanaWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (
 
 // ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *GrafanaWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Object) (admission.Warnings, error) {
-	in := newObj.(*Grafana)
+	in := newObj.(*v1alpha1.Grafana)
 	grafanalog.Info("validate update", "name", in.Name)
 	return nil, in.Spec.Validate()
 }
 
 // ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *GrafanaWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*Grafana)
+	in := obj.(*v1alpha1.Grafana)
 	grafanalog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {

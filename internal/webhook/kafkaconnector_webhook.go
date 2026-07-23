@@ -1,6 +1,6 @@
 // Copyright (c) 2024 Aiven, Helsinki, Finland. https://aiven.io/
 
-package v1alpha1
+package webhook
 
 import (
 	"context"
@@ -10,14 +10,16 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 // log is for logging in this package.
 var kafkaconnectorlog = logf.Log.WithName("kafkaconnector-resource")
 
-func (in *KafkaConnector) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func SetupKafkaConnectorWebhook(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(in).
+		For(&v1alpha1.KafkaConnector{}).
 		WithDefaulter(&KafkaConnectorWebhook{}).
 		WithValidator(&KafkaConnectorWebhook{}).
 		Complete()
@@ -31,7 +33,7 @@ var _ webhook.CustomDefaulter = &KafkaConnectorWebhook{}
 
 // Default implements webhook.CustomDefaulter so a webhook will be registered for the type
 func (h *KafkaConnectorWebhook) Default(_ context.Context, obj runtime.Object) error {
-	in := obj.(*KafkaConnector)
+	in := obj.(*v1alpha1.KafkaConnector)
 	kafkaconnectorlog.Info("default", "name", in.Name)
 	return nil
 }
@@ -42,7 +44,7 @@ var _ webhook.CustomValidator = &KafkaConnectorWebhook{}
 
 // ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *KafkaConnectorWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*KafkaConnector)
+	in := obj.(*v1alpha1.KafkaConnector)
 	kafkaconnectorlog.Info("validate create", "name", in.Name)
 
 	return nil, nil
@@ -50,7 +52,7 @@ func (h *KafkaConnectorWebhook) ValidateCreate(_ context.Context, obj runtime.Ob
 
 // ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *KafkaConnectorWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Object) (admission.Warnings, error) {
-	in := newObj.(*KafkaConnector)
+	in := newObj.(*v1alpha1.KafkaConnector)
 	kafkaconnectorlog.Info("validate update", "name", in.Name)
 
 	return nil, nil
@@ -58,7 +60,7 @@ func (h *KafkaConnectorWebhook) ValidateUpdate(_ context.Context, _, newObj runt
 
 // ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *KafkaConnectorWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*KafkaConnector)
+	in := obj.(*v1alpha1.KafkaConnector)
 	kafkaconnectorlog.Info("validate delete", "name", in.Name)
 
 	return nil, nil

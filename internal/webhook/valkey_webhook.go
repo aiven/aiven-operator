@@ -1,6 +1,6 @@
 // Copyright (c) 2024 Aiven, Helsinki, Finland. https://aiven.io/
 
-package v1alpha1
+package webhook
 
 import (
 	"context"
@@ -11,14 +11,16 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 // log is for logging in this package.
 var valkeylog = logf.Log.WithName("valkey-resource")
 
-func (in *Valkey) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func SetupValkeyWebhook(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(in).
+		For(&v1alpha1.Valkey{}).
 		WithDefaulter(&ValkeyWebhook{}).
 		WithValidator(&ValkeyWebhook{}).
 		Complete()
@@ -32,7 +34,7 @@ var _ webhook.CustomDefaulter = &ValkeyWebhook{}
 
 // Default implements webhook.CustomDefaulter so a webhook will be registered for the type
 func (h *ValkeyWebhook) Default(_ context.Context, obj runtime.Object) error {
-	in := obj.(*Valkey)
+	in := obj.(*v1alpha1.Valkey)
 	valkeylog.Info("default", "name", in.Name)
 	return nil
 }
@@ -43,7 +45,7 @@ var _ webhook.CustomValidator = &ValkeyWebhook{}
 
 // ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *ValkeyWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*Valkey)
+	in := obj.(*v1alpha1.Valkey)
 	valkeylog.Info("validate create", "name", in.Name)
 
 	return nil, in.Spec.Validate()
@@ -51,14 +53,14 @@ func (h *ValkeyWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (a
 
 // ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *ValkeyWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Object) (admission.Warnings, error) {
-	in := newObj.(*Valkey)
+	in := newObj.(*v1alpha1.Valkey)
 	valkeylog.Info("validate update", "name", in.Name)
 	return nil, in.Spec.Validate()
 }
 
 // ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *ValkeyWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*Valkey)
+	in := obj.(*v1alpha1.Valkey)
 	valkeylog.Info("validate delete", "name", in.Name)
 
 	if in.Spec.TerminationProtection != nil && *in.Spec.TerminationProtection {

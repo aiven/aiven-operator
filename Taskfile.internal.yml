@@ -240,6 +240,18 @@ tasks:
     cmds:
       - "{{.GO_CMD}} vet ./..."
 
+  lint:api-decoupled:
+    desc: Ensure api/ does not depend on controller-runtime or client-go
+    cmds:
+      - |
+        deps=$({{.GO_CMD}} list -deps ./api/... | grep -E 'sigs.k8s.io/controller-runtime|k8s.io/client-go' || true)
+        if [ -n "$deps" ]; then
+          echo "api/ must not import controller-runtime or client-go — doing so breaks downstream imports (see PR #1235)."
+          echo "Offending transitive dependencies:"
+          echo "$deps" | sed 's/^/  /'
+          exit 1
+        fi
+
   lint:trunk:
     desc: Run Trunk linters
     preconditions:

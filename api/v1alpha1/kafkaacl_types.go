@@ -74,7 +74,3 @@ type KafkaACLList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []KafkaACL `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&KafkaACL{}, &KafkaACLList{})
-}

@@ -75,7 +75,3 @@ type ClickhouseDatabaseList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []ClickhouseDatabase `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&ClickhouseDatabase{}, &ClickhouseDatabaseList{})
-}

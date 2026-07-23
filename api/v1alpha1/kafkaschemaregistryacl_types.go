@@ -77,7 +77,3 @@ type KafkaSchemaRegistryACLList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []KafkaSchemaRegistryACL `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&KafkaSchemaRegistryACL{}, &KafkaSchemaRegistryACLList{})
-}

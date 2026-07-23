@@ -70,7 +70,3 @@ type ValkeyList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []Valkey `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&Valkey{}, &ValkeyList{})
-}

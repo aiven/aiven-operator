@@ -1,6 +1,6 @@
 // Copyright (c) 2024 Aiven, Helsinki, Finland. https://aiven.io/
 
-package v1alpha1
+package webhook
 
 import (
 	"context"
@@ -10,14 +10,16 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 // log is for logging in this package.
 var serviceuserlog = logf.Log.WithName("serviceuser-resource")
 
-func (in *ServiceUser) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func SetupServiceUserWebhook(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(in).
+		For(&v1alpha1.ServiceUser{}).
 		WithDefaulter(&ServiceUserWebhook{}).
 		WithValidator(&ServiceUserWebhook{}).
 		Complete()
@@ -31,7 +33,7 @@ var _ webhook.CustomDefaulter = &ServiceUserWebhook{}
 
 // Default implements webhook.CustomDefaulter so a webhook will be registered for the type
 func (h *ServiceUserWebhook) Default(_ context.Context, obj runtime.Object) error {
-	in := obj.(*ServiceUser)
+	in := obj.(*v1alpha1.ServiceUser)
 	serviceuserlog.Info("default", "name", in.Name)
 	return nil
 }
@@ -42,7 +44,7 @@ var _ webhook.CustomValidator = &ServiceUserWebhook{}
 
 // ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *ServiceUserWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*ServiceUser)
+	in := obj.(*v1alpha1.ServiceUser)
 	serviceuserlog.Info("validate create", "name", in.Name)
 
 	return nil, nil
@@ -50,14 +52,14 @@ func (h *ServiceUserWebhook) ValidateCreate(_ context.Context, obj runtime.Objec
 
 // ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *ServiceUserWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Object) (admission.Warnings, error) {
-	in := newObj.(*ServiceUser)
+	in := newObj.(*v1alpha1.ServiceUser)
 	serviceuserlog.Info("validate update", "name", in.Name)
 	return nil, nil
 }
 
 // ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *ServiceUserWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*ServiceUser)
+	in := obj.(*v1alpha1.ServiceUser)
 	serviceuserlog.Info("validate delete", "name", in.Name)
 
 	return nil, nil

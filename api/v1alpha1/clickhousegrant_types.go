@@ -170,10 +170,6 @@ type ClickhouseGrantList struct {
 	Items           []ClickhouseGrant `json:"items,omitempty"`
 }
 
-func init() {
-	SchemeBuilder.Register(&ClickhouseGrant{}, &ClickhouseGrantList{})
-}
-
 func (g *PrivilegeGrant) ConstructParts(t chUtils.StatementType) (string, string, string) {
 	privilegesPart := constructPrivilegesPart(g)
 	granteesPart := constructGranteePart(g.Grantees)

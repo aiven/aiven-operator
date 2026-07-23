@@ -66,7 +66,3 @@ type FlinkList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []Flink `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&Flink{}, &FlinkList{})
-}

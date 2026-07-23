@@ -67,7 +67,3 @@ func (in *Clickhouse) GetRefs() []*ResourceReferenceObject {
 func (in *Clickhouse) GetConnInfoSecretTarget() ConnInfoSecretTarget {
 	return in.Spec.ConnInfoSecretTarget
 }
-
-func init() {
-	SchemeBuilder.Register(&Clickhouse{}, &ClickhouseList{})
-}

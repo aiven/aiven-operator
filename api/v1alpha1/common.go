@@ -8,9 +8,9 @@ import (
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/docker/go-units"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 var ErrDeleteDependencies = errors.New("object has dependencies and cannot be deleted")
@@ -253,7 +253,7 @@ func ConvertDiskSpace(v string) int {
 }
 
 // FindProjectVPC returns ProjectVPC from reference list
-func FindProjectVPC(refs []client.Object) *ProjectVPC {
+func FindProjectVPC(refs []Object) *ProjectVPC {
 	for _, o := range refs {
 		if p, ok := o.(*ProjectVPC); ok {
 			return p
@@ -319,9 +319,17 @@ type ServiceIntegrationItem struct {
 	SourceServiceName string `json:"sourceServiceName"`
 }
 
+// Object is the subset of sigs.k8s.io/controller-runtime/pkg/client.Object that this package needs.
+// It is redefined, so that api/v1alpha1 does not depend on controller-runtime.
+// +k8s:deepcopy-gen=false
+type Object interface {
+	metav1.Object
+	runtime.Object
+}
+
 // +k8s:deepcopy-gen=false
 type AivenManagedObject interface {
-	client.Object
+	Object
 
 	AuthSecretRef() *AuthSecretReference
 	Conditions() *[]metav1.Condition

@@ -76,7 +76,3 @@ type PostgreSQLList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []PostgreSQL `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&PostgreSQL{}, &PostgreSQLList{})
-}

@@ -1,6 +1,6 @@
 // Copyright (c) 2024 Aiven, Helsinki, Finland. https://aiven.io/
 
-package v1alpha1
+package webhook
 
 import (
 	"context"
@@ -10,14 +10,16 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 // log is for logging in this package.
 var serviceintegrationlog = logf.Log.WithName("serviceintegration-resource")
 
-func (in *ServiceIntegration) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func SetupServiceIntegrationWebhook(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(in).
+		For(&v1alpha1.ServiceIntegration{}).
 		WithDefaulter(&ServiceIntegrationWebhook{}).
 		WithValidator(&ServiceIntegrationWebhook{}).
 		Complete()
@@ -31,7 +33,7 @@ var _ webhook.CustomDefaulter = &ServiceIntegrationWebhook{}
 
 // Default implements webhook.CustomDefaulter so a webhook will be registered for the type
 func (h *ServiceIntegrationWebhook) Default(_ context.Context, obj runtime.Object) error {
-	in := obj.(*ServiceIntegration)
+	in := obj.(*v1alpha1.ServiceIntegration)
 	serviceintegrationlog.Info("default", "name", in.Name)
 	return nil
 }
@@ -42,7 +44,7 @@ var _ webhook.CustomValidator = &ServiceIntegrationWebhook{}
 
 // ValidateCreate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *ServiceIntegrationWebhook) ValidateCreate(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*ServiceIntegration)
+	in := obj.(*v1alpha1.ServiceIntegration)
 	serviceintegrationlog.Info("validate create", "name", in.Name)
 
 	// We need the validation here only
@@ -52,7 +54,7 @@ func (h *ServiceIntegrationWebhook) ValidateCreate(_ context.Context, obj runtim
 
 // ValidateUpdate implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *ServiceIntegrationWebhook) ValidateUpdate(_ context.Context, _, newObj runtime.Object) (admission.Warnings, error) {
-	in := newObj.(*ServiceIntegration)
+	in := newObj.(*v1alpha1.ServiceIntegration)
 	serviceintegrationlog.Info("validate update", "name", in.Name)
 
 	// We need the validation here only
@@ -62,7 +64,7 @@ func (h *ServiceIntegrationWebhook) ValidateUpdate(_ context.Context, _, newObj 
 
 // ValidateDelete implements webhook.CustomValidator so a webhook will be registered for the type
 func (h *ServiceIntegrationWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	in := obj.(*ServiceIntegration)
+	in := obj.(*v1alpha1.ServiceIntegration)
 	serviceintegrationlog.Info("validate delete", "name", in.Name)
 
 	return nil, nil
