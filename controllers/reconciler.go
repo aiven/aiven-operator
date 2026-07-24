@@ -488,6 +488,11 @@ func (r *Reconciler[T]) publishSecretDetails(ctx context.Context, obj T, details
 	return nil
 }
 
+// errDeletionSkipped is returned by AivenController.Delete when the remote resource is
+// intentionally left at Aiven.
+// NOTE: Consider replacing it with DeleteResult in the future.
+var errDeletionSkipped = errors.New("deletion at Aiven skipped")
+
 func (r *Reconciler[T]) reconcileDeletion(ctx context.Context, obj T) (ctrl.Result, error) {
 	if !controllerutil.ContainsFinalizer(obj, instanceDeletionFinalizer) {
 		return ctrl.Result{}, nil
@@ -506,16 +511,17 @@ func (r *Reconciler[T]) reconcileDeletion(ctx context.Context, obj T) (ctrl.Resu
 
 		controller := r.newController(avnGen)
 		r.Recorder.Event(obj, corev1.EventTypeNormal, eventTryingToDeleteAtAiven, "trying to delete instance at aiven")
-		if err := controller.Delete(ctx, obj); err != nil {
-			if isInvalidTokenError(err) && !hasIsRunningAnnotation(obj) {
-				logr.FromContextOrDiscard(ctx).Info("invalid token error on deletion, removing finalizer", "apiError", err)
-			} else {
-				return r.handleDeleteError(ctx, orig, obj, err)
-			}
+		switch err := controller.Delete(ctx, obj); {
+		case err == nil:
+			logr.FromContextOrDiscard(ctx).Info("instance was successfully deleted at Aiven, removing finalizer")
+			r.Recorder.Event(obj, corev1.EventTypeNormal, eventSuccessfullyDeletedAtAiven, "instance is gone at aiven now")
+		case errors.Is(err, errDeletionSkipped):
+			logr.FromContextOrDiscard(ctx).Info("deletion at Aiven was skipped, removing finalizer", "reason", err.Error())
+		case isInvalidTokenError(err) && !hasIsRunningAnnotation(obj):
+			logr.FromContextOrDiscard(ctx).Info("invalid token error on deletion, removing finalizer", "apiError", err)
+		default:
+			return r.handleDeleteError(ctx, orig, obj, err)
 		}
-
-		logr.FromContextOrDiscard(ctx).Info("instance was successfully deleted at Aiven, removing finalizer")
-		r.Recorder.Event(obj, corev1.EventTypeNormal, eventSuccessfullyDeletedAtAiven, "instance is gone at aiven now")
 	case policy == deletionPolicyOrphan:
 		logr.FromContextOrDiscard(ctx).Info("finalizing with Orphan deletion policy - Aiven resource will be preserved on Kubernetes resource deletion")
 	default:

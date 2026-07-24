@@ -2916,7 +2916,6 @@ func TestReconciler_reconcileDeletion(t *testing.T) {
 		require.Empty(t, normalizedConditions(obj.Status.Conditions))
 		require.Equal(t, []string{
 			"Normal TryingToDeleteAtAiven trying to delete instance at aiven",
-			"Normal SuccessfullyDeletedAtAiven instance is gone at aiven now",
 		}, recorderEvents(recorder))
 	})
 

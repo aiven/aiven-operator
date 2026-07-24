@@ -181,7 +181,7 @@ func (r *ServiceUserController) Delete(ctx context.Context, user *v1alpha1.Servi
 		r.rec.Eventf(user, corev1.EventTypeWarning, eventSkippedDeletionAtAiven,
 			"skipped deleting user %q at Aiven: it is also managed by ServiceUser %s",
 			user.GetUsername(), sharedKey)
-		return nil
+		return fmt.Errorf("%w: user %q is managed by ServiceUser %s", errDeletionSkipped, user.GetUsername(), sharedKey)
 	}
 
 	err = r.avnGen.ServiceUserDelete(ctx, user.Spec.Project, user.Spec.ServiceName, user.GetUsername())
