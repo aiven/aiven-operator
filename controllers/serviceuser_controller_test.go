@@ -1210,15 +1210,17 @@ func TestServiceUserReconciler(t *testing.T) {
 		err := r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, got)
 		require.True(t, apierrors.IsNotFound(err))
 
-		// The deleted resource gets a Warning event explaining the skip
+		// The deleted resource gets a Warning event explaining the skip,
+		// and no event claiming the user is gone at Aiven
 		rec := r.Recorder.(*record.FakeRecorder)
-		var skipped bool
+		var skipped, deleted bool
 		for len(rec.Events) > 0 {
-			if strings.Contains(<-rec.Events, eventSkippedDeletionAtAiven) {
-				skipped = true
-			}
+			e := <-rec.Events
+			skipped = skipped || strings.Contains(e, eventSkippedDeletionAtAiven)
+			deleted = deleted || strings.Contains(e, eventSuccessfullyDeletedAtAiven)
 		}
 		require.True(t, skipped, "expected %s warning event", eventSkippedDeletionAtAiven)
+		require.False(t, deleted, "unexpected %s event: nothing was deleted at Aiven", eventSuccessfullyDeletedAtAiven)
 	})
 
 	t.Run("Skips deletion at Aiven when another resource's name matches the username", func(t *testing.T) {
