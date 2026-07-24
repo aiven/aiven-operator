@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.43.0 - 2026-07-24
+
 - Add `ServiceUser` field `username`, type `string`: Username of the service user on Aiven.
   Defaults to the resource name. Aiven accepts usernames that are **not** valid Kubernetes object names
   (e.g. containing underscores or uppercase characters); set this field to manage such users.
@@ -153,7 +155,7 @@ Grafana major version
 - Add `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.producer_send_buffer_bytes`, type
   `integer`: The size of the TCP send buffer (SO_SNDBUF) to use when sending data. -1 uses the OS
   default
-- Add `UpgradePipelineStep` to manage Aiven upgrade pipeline steps
+- Add `UpgradePipelineStep` to manage [Aiven upgrade pipeline steps](https://aiven.io/docs/platform/howto/controlled-upgrade)
 
 ## v0.39.0 - 2026-05-29
 
