@@ -1,6 +1,56 @@
 # Changelog
 
 
+## v0.43.0 - 2026-07-24
+
+- Add `ServiceUser` field `username`, type `string`: Username of the service user on Aiven.
+  Defaults to the resource name. Aiven accepts usernames that are **not** valid Kubernetes object names
+  (e.g. containing underscores or uppercase characters); set this field to manage such users.
+  Can only be set at creation and is immutable afterwards.
+- Add `Grafana` field `userConfig.grafana_version`, type `string`: Available versions: `11`. Newer versions
+  may also be available.
+Grafana major version
+- Add `KafkaConnect` field `userConfig.preferred_zones`, type `array`: List of preferred zone IDs for
+  service node placement
+- Add `MySQL` field `userConfig.mysql.automatic_sp_privileges`, type `boolean`: When enabled, the server
+  automatically grants the EXECUTE and ALTER ROUTINE privileges to the creator of a stored routine
+  and drops them when the routine is dropped
+- Add `MySQL` field `userConfig.mysql.end_markers_in_json`, type `boolean`: Whether optimizer JSON output
+  such as EXPLAIN FORMAT=JSON adds end markers that repeat a structure's key near its closing bracket,
+  making large JSON structures easier to read
+- Add `MySQL` field `userConfig.mysql.innodb_optimize_fulltext_only`, type `boolean`: When enabled, OPTIMIZE
+  TABLE on InnoDB tables only updates the FULLTEXT index instead of rebuilding the table
+- Add `MySQL` field `userConfig.mysql.windowing_use_high_precision`, type `boolean`: Whether window functions
+  are computed to high precision
+- Add `MySQL` field `userConfig.mysql.div_precision_increment`, type `integer`: Number of digits by which
+  to increase the scale of the result of division operations performed with the / operator
+- Add `MySQL` field `userConfig.mysql.eq_range_index_dive_limit`, type `integer`: The number of equality
+  ranges in a query at or above which the optimizer switches from index dives to index statistics
+  when estimating the number of qualifying rows
+- Add `MySQL` field `userConfig.mysql.innodb_ft_enable_stopword`, type `boolean`: Whether stopword processing
+  is applied when creating or rebuilding an InnoDB FULLTEXT index
+- Add `MySQL` field `userConfig.mysql.innodb_ft_max_token_size`, type `integer`: Maximum length of words
+  that are stored in an InnoDB FULLTEXT index
+- Add `MySQL` field `userConfig.mysql.innodb_ft_num_word_optimize`, type `integer`: Number of words processed
+  during each OPTIMIZE TABLE operation on an InnoDB FULLTEXT index
+- Add `MySQL` field `userConfig.mysql.innodb_ft_result_cache_limit`, type `integer`: Maximum memory in
+  bytes used per query for the InnoDB FULLTEXT search query result cache
+- Add `MySQL` field `userConfig.mysql.innodb_ft_user_stopword_table`, type `string`: This option is used
+  to specify your own InnoDB FULLTEXT index stopword list for specific InnoDB tables
+- Add `MySQL` field `userConfig.mysql.max_execution_time`, type `integer`: Execution timeout in milliseconds
+  for read-only top-level SELECT statements
+- Add `MySQL` field `userConfig.mysql.max_seeks_for_key`, type `integer`: Limit on the assumed maximum
+  number of index seeks when looking up rows based on a key
+- Add `MySQL` field `userConfig.mysql.optimizer_prune_level`, type `integer`: Controls the heuristics
+  applied during query optimization to prune less-promising partial plans from the optimizer search
+  space
+- Add `MySQL` field `userConfig.mysql.optimizer_search_depth`, type `integer`: Maximum depth of search
+  performed by the query optimizer when choosing a join order
+- Add `MySQL` field `userConfig.mysql.optimizer_switch`, type `string`: Comma-separated list of optimizer
+  flag assignments in the form flag=on|off|default, or the single value 'default' to reset all
+  flags
+- Change `OpenSearch` field `userConfig.opensearch.http_max_content_length`: minimum ~~`1`~~ → `1048576`
+
 ## v0.42.0 - 2026-07-08
 
 - Upgrade `sigs.k8s.io/controller-runtime` to `v0.21.0`; the minimum supported Kubernetes version is now `1.30`
@@ -104,7 +154,7 @@
 - Add `ServiceIntegration` field `kafkaMirrormaker.kafka_mirrormaker.producer_send_buffer_bytes`, type
   `integer`: The size of the TCP send buffer (SO_SNDBUF) to use when sending data. -1 uses the OS
   default
-- Add `UpgradePipelineStep` to manage [Aiven upgrade pipeline steps](https://aiven.io/docs/platform/howto/controlled-upgrade)
+- Add `UpgradePipelineStep` to manage Aiven upgrade pipeline steps
 
 ## v0.39.0 - 2026-05-29
 

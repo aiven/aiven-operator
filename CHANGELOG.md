@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.43.0 - 2026-07-24
+
 - Add `ServiceUser` field `username`, type `string`: Username of the service user on Aiven.
   Defaults to the resource name. Aiven accepts usernames that are **not** valid Kubernetes object names
   (e.g. containing underscores or uppercase characters); set this field to manage such users.
