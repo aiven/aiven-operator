@@ -29,7 +29,7 @@ spec:
         openAPIV3Schema:
           description: |-
             ServiceUser is the Schema for the serviceusers API.
-            Creates a service user for accessing Aiven services. The ServiceUser resource name becomes the username in Aiven.
+            Creates a service user for accessing Aiven services. The ServiceUser resource name becomes the username in Aiven, unless spec.username overrides it.
             Built-in users like 'avnadmin' cannot be deleted but their passwords can be modified using connInfoSecretSource.
             Info "Exposes secret keys": `SERVICEUSER_HOST`, `SERVICEUSER_PORT`, `SERVICEUSER_USERNAME`, `SERVICEUSER_PASSWORD`, `SERVICEUSER_CA_CERT`, `SERVICEUSER_ACCESS_CERT`, `SERVICEUSER_ACCESS_KEY`, `SERVICEUSER_SASL_HOST`, `SERVICEUSER_SASL_PORT`, `SERVICEUSER_SCHEMA_REGISTRY_HOST`, `SERVICEUSER_SCHEMA_REGISTRY_PORT`
           properties:
@@ -186,11 +186,29 @@ spec:
                   x-kubernetes-validations:
                     - message: Value is immutable
                       rule: self == oldSelf
+                username:
+                  description: |-
+                    Username of the service user on Aiven.
+                    Defaults to the K8S resource name. Aiven accepts usernames that are not valid
+                    Kubernetes object names (e.g. containing underscores or uppercase characters);
+                    set this field to manage such users.
+                    Can only be set at creation and is immutable afterward.
+                    To use a different username, delete the resource and create a new one.
+                    Multiple ServiceUser resources referencing the same username are not supported.
+                    Ensure each Aiven service user is managed by at most one resource.
+                  maxLength: 64
+                  minLength: 1
+                  type: string
+                  x-kubernetes-validations:
+                    - message: username is immutable.
+                      rule: self == oldSelf
               required:
                 - project
                 - serviceName
               type: object
               x-kubernetes-validations:
+                - message: username can only be set during resource creation.
+                  rule: has(self.username) == has(oldSelf.username)
                 - message:
                     connInfoSecretTargetDisabled can only be set during resource
                     creation.

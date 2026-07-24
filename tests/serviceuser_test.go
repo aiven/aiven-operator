@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -364,6 +365,105 @@ func TestServiceUserCustomCredentials(t *testing.T) {
 		require.Error(t, err, "ServiceUser should fail to be created with empty password")
 		require.Contains(t, err.Error(), "password length must be between 8 and 256 characters")
 	})
+}
+
+// TestServiceUserSpecUsername tests spec.username decoupling the Aiven username from the resource name.
+func TestServiceUserSpecUsername(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	// GIVEN
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	pg, releasePG, err := sharedResources.AcquirePostgreSQL(ctx)
+	require.NoError(t, err)
+	defer releasePG()
+
+	pgName := pg.GetName()
+	s := NewSession(ctx, k8sClient)
+
+	defer s.Destroy(t)
+
+	t.Run("UsernameOverride", func(t *testing.T) {
+		// Manages an Aiven user whose name contains underscores, which is not a valid Kubernetes object name.
+		resourceName := randName("su-override")
+		username := strings.ReplaceAll(resourceName, "-", "_")
+
+		require.NoError(t, s.Apply(getServiceUserSpecUsernameYaml(cfg.Project, pgName, resourceName, username)))
+
+		user := new(v1alpha1.ServiceUser)
+		require.NoError(t, s.GetRunning(user, resourceName))
+
+		// The user exists at Aiven under the override, not the resource name
+		userAvn, err := getServiceUserWithRetry(ctx, avnGen, cfg.Project, pgName, username)
+		require.NoError(t, err)
+		assert.Equal(t, username, userAvn.Username)
+		assert.Equal(t, resourceName, user.GetName())
+
+		// The secret keeps the resource name; SERVICEUSER_USERNAME carries the override
+		secret, err := s.GetSecret(resourceName + "-secret")
+		require.NoError(t, err)
+		assert.Equal(t, username, string(secret.Data["SERVICEUSER_USERNAME"]))
+		assert.NotEmpty(t, secret.Data["SERVICEUSER_PASSWORD"])
+
+		// Deletion removes the user at Aiven under the override name
+		assert.NoError(t, s.Delete(user, func() error {
+			_, err := avnGen.ServiceUserGet(ctx, cfg.Project, pgName, username)
+			return err
+		}))
+	})
+
+	t.Run("UsernameImmutability", func(t *testing.T) {
+		resourceName := randName("su-immutable")
+		username := strings.ReplaceAll(resourceName, "-", "_")
+
+		require.NoError(t, s.Apply(getServiceUserSpecUsernameYaml(cfg.Project, pgName, resourceName, username)))
+
+		user := new(v1alpha1.ServiceUser)
+		require.NoError(t, s.GetRunning(user, resourceName))
+
+		// Changing the value is rejected by the field-level rule
+		err := s.Apply(getServiceUserSpecUsernameYaml(cfg.Project, pgName, resourceName, username+"_new"))
+		require.ErrorContains(t, err, "username is immutable")
+
+		// Unsetting the field is rejected by the spec-level presence rule.
+		err = s.Apply(getServiceUserSpecUsernameYaml(cfg.Project, pgName, resourceName, ""))
+		require.ErrorContains(t, err, "username can only be set during resource creation")
+
+		// Setting the field on a resource created without it is rejected by the same presence rule.
+		plainName := randName("su-plain")
+		require.NoError(t, s.Apply(getServiceUserSpecUsernameYaml(cfg.Project, pgName, plainName, "")))
+
+		plain := new(v1alpha1.ServiceUser)
+		require.NoError(t, s.GetRunning(plain, plainName))
+
+		err = s.Apply(getServiceUserSpecUsernameYaml(cfg.Project, pgName, plainName, plainName+"_override"))
+		require.ErrorContains(t, err, "username can only be set during resource creation")
+	})
+}
+
+func getServiceUserSpecUsernameYaml(project, pgName, resourceName, username string) string {
+	usernameField := ""
+	if username != "" {
+		usernameField = "\n  username: " + username
+	}
+	return fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUser
+metadata:
+  name: %[2]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: %[2]s-secret
+
+  project: %[1]s
+  serviceName: %[3]s%[4]s
+`, project, resourceName, pgName, usernameField)
 }
 
 func TestServiceUserAvnadminPasswordReset(t *testing.T) {

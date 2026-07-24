@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"slices"
+	"strings"
 	"testing"
 	"testing/synctest"
 
@@ -1138,6 +1139,147 @@ func TestServiceUserReconciler(t *testing.T) {
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
 			ServiceUserDelete(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(nil).Once()
+
+		r, res := runScenario(t, user, avn)
+		require.Equal(t, ctrlruntime.Result{}, res)
+
+		got := &v1alpha1.ServiceUser{}
+		err := r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, got)
+		require.True(t, apierrors.IsNotFound(err))
+	})
+
+	t.Run("Creates ServiceUser on Aiven using spec.username override", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		// A legal Aiven username that cannot be a Kubernetes object name.
+		user.Spec.Username = "test_team_test_app_1a2b3c4d_abc"
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "kafka",
+				Components:  []service.ComponentOut{{Component: "kafka", Host: "host", Port: 9092}},
+			}, nil).Twice()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Spec.Username).
+			Return(nil, newAivenError(404, "not found")).Once()
+		avn.EXPECT().
+			ServiceUserCreate(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.MatchedBy(func(in *service.ServiceUserCreateIn) bool {
+				return in.Username == user.Spec.Username
+			})).
+			Return(&service.ServiceUserCreateOut{}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Spec.Username).
+			Return(&service.ServiceUserGetOut{Username: user.Spec.Username, Password: "pw"}, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		r, res := runScenario(t, user, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		// The secret keeps the resource's name; the username inside it is the override.
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
+		require.Equal(t, []byte(user.Spec.Username), secret.Data["SERVICEUSER_USERNAME"])
+		require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
+	})
+
+	t.Run("Skips deletion at Aiven when another resource manages the same username", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Spec.Username = "shared_user"
+		user.Finalizers = []string{instanceDeletionFinalizer}
+		now := metav1.Now()
+		user.DeletionTimestamp = &now
+
+		other := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		other.Name = "other-user"
+		other.Namespace = "other-namespace"
+		other.Spec.Username = "shared_user"
+
+		// No ServiceUserDelete expected: the mock fails the test on an unexpected call.
+		avn := avngen.NewMockClient(t)
+
+		r, res := runScenario(t, user, avn, other)
+		require.Equal(t, ctrlruntime.Result{}, res)
+
+		got := &v1alpha1.ServiceUser{}
+		err := r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, got)
+		require.True(t, apierrors.IsNotFound(err))
+
+		// The deleted resource gets a Warning event explaining the skip
+		rec := r.Recorder.(*record.FakeRecorder)
+		var skipped bool
+		for len(rec.Events) > 0 {
+			if strings.Contains(<-rec.Events, eventSkippedDeletionAtAiven) {
+				skipped = true
+			}
+		}
+		require.True(t, skipped, "expected %s warning event", eventSkippedDeletionAtAiven)
+	})
+
+	t.Run("Skips deletion at Aiven when another resource's name matches the username", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Spec.Username = "other-user"
+		user.Finalizers = []string{instanceDeletionFinalizer}
+		now := metav1.Now()
+		user.DeletionTimestamp = &now
+
+		other := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		other.Name = "other-user"
+
+		avn := avngen.NewMockClient(t)
+
+		r, res := runScenario(t, user, avn, other)
+		require.Equal(t, ctrlruntime.Result{}, res)
+
+		got := &v1alpha1.ServiceUser{}
+		err := r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, got)
+		require.True(t, apierrors.IsNotFound(err))
+	})
+
+	t.Run("Deletes at Aiven when the resource sharing the username is also being deleted", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Spec.Username = "shared_user"
+		user.Finalizers = []string{instanceDeletionFinalizer}
+		now := metav1.Now()
+		user.DeletionTimestamp = &now
+
+		other := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		other.Name = "other-user"
+		other.Spec.Username = "shared_user"
+		other.Finalizers = []string{instanceDeletionFinalizer}
+		other.DeletionTimestamp = &now
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceUserDelete(mock.Anything, user.Spec.Project, user.Spec.ServiceName, "shared_user").
+			Return(nil).Once()
+
+		r, res := runScenario(t, user, avn, other)
+		require.Equal(t, ctrlruntime.Result{}, res)
+
+		got := &v1alpha1.ServiceUser{}
+		err := r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, got)
+		require.True(t, apierrors.IsNotFound(err))
+	})
+
+	t.Run("Deletes ServiceUser using spec.username override", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Spec.Username = "test_team_test_app_1a2b3c4d_abc"
+		user.Finalizers = []string{instanceDeletionFinalizer}
+		now := metav1.Now()
+		user.DeletionTimestamp = &now
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceUserDelete(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Spec.Username).
 			Return(nil).Once()
 
 		r, res := runScenario(t, user, avn)

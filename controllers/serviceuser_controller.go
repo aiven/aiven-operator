@@ -15,8 +15,10 @@ import (
 	"github.com/avast/retry-go"
 	"github.com/go-logr/logr"
 	"github.com/samber/lo"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -30,6 +32,7 @@ func newServiceUserReconciler(c Controller) reconcilerType {
 			return &ServiceUserController{
 				Client: c.Client,
 				avnGen: avnGen,
+				rec:    c.Recorder,
 			}
 		},
 		nil,
@@ -44,7 +47,10 @@ func newServiceUserReconciler(c Controller) reconcilerType {
 type ServiceUserController struct {
 	client.Client
 	avnGen avngen.Client
+	rec    record.EventRecorder
 }
+
+const eventSkippedDeletionAtAiven = "SkippedDeletionAtAiven"
 
 func (r *ServiceUserController) Observe(ctx context.Context, user *v1alpha1.ServiceUser) (Observation, error) {
 	u, details, err := r.fetchUser(ctx, user, false)
@@ -82,7 +88,7 @@ func (r *ServiceUserController) Create(ctx context.Context, user *v1alpha1.Servi
 		user.Spec.Project,
 		user.Spec.ServiceName,
 		&service.ServiceUserCreateIn{
-			Username:      user.Name,
+			Username:      user.GetUsername(),
 			AccessControl: buildServiceUserAccessControlIn(user.Spec.AccessControl),
 		},
 	)
@@ -121,7 +127,7 @@ func (r *ServiceUserController) Update(ctx context.Context, user *v1alpha1.Servi
 			ctx,
 			user.Spec.Project,
 			user.Spec.ServiceName,
-			user.Name,
+			user.GetUsername(),
 			&service.ServiceUserCredentialsModifyIn{
 				AccessControl: ac,
 				Operation:     service.ServiceUserCredentialsModifyOperationTypeSetAccessControl,
@@ -152,17 +158,60 @@ func (r *ServiceUserController) Update(ctx context.Context, user *v1alpha1.Servi
 
 func (r *ServiceUserController) Delete(ctx context.Context, user *v1alpha1.ServiceUser) error {
 	// skip deletion for built-in users that cannot be deleted
-	if isBuiltInUser(user.Name) {
+	if isBuiltInUser(user.GetUsername()) {
 		// built-in users like avnadmin cannot be deleted, this is expected behavior
 		return nil
 	}
 
-	err := r.avnGen.ServiceUserDelete(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
+	// Kubernetes doesn't enforce uniqueness of the username.
+	// If user by mistake has another resource that manages the same Aiven user.
+	// Deleting the serviceUser would cut off the credentials that resource published.
+	// So we keep the serviceUser and let the surviving resource continue managing it.
+	shared, err := r.findDuplicate(ctx, user)
+	if err != nil {
+		return err
+	}
+	if shared != nil {
+		sharedKey := client.ObjectKeyFromObject(shared).String()
+		logr.FromContextOrDiscard(ctx).Info(
+			"skipping deletion at Aiven: the same service user is managed by another ServiceUser resource",
+			"username", user.GetUsername(),
+			"sharedWith", sharedKey,
+		)
+		r.rec.Eventf(user, corev1.EventTypeWarning, eventSkippedDeletionAtAiven,
+			"skipped deleting user %q at Aiven: it is also managed by ServiceUser %s",
+			user.GetUsername(), sharedKey)
+		return nil
+	}
+
+	err = r.avnGen.ServiceUserDelete(ctx, user.Spec.Project, user.Spec.ServiceName, user.GetUsername())
 	if err != nil && !isNotFound(err) {
 		return fmt.Errorf("deleting service user: %w", err)
 	}
 
 	return nil
+}
+
+// findDuplicate returns another ServiceUser resource that manages the same Aiven user, or nil if there is none.
+func (r *ServiceUserController) findDuplicate(ctx context.Context, user *v1alpha1.ServiceUser) (*v1alpha1.ServiceUser, error) {
+	var list v1alpha1.ServiceUserList
+	if err := r.List(ctx, &list); err != nil {
+		return nil, fmt.Errorf("listing ServiceUser resources: %w", err)
+	}
+
+	for i := range list.Items {
+		o := &list.Items[i]
+		if (o.Namespace == user.Namespace && o.Name == user.Name) || o.DeletionTimestamp != nil {
+			continue
+		}
+		if o.Spec.Project == user.Spec.Project &&
+			o.Spec.ServiceName == user.Spec.ServiceName &&
+			o.GetUsername() == user.GetUsername() {
+			return o, nil
+		}
+	}
+
+	return nil, nil
 }
 
 // setAivenPasswordIfProvided pushes the password to Aiven if non-empty.
@@ -176,7 +225,7 @@ func (r *ServiceUserController) setAivenPasswordIfProvided(ctx context.Context, 
 		ctx,
 		user.Spec.Project,
 		user.Spec.ServiceName,
-		user.Name,
+		user.GetUsername(),
 		&service.ServiceUserCredentialsModifyIn{
 			NewPassword: &password,
 			Operation:   service.ServiceUserCredentialsModifyOperationTypeResetCredentials,
@@ -224,7 +273,7 @@ func (r *ServiceUserController) fetchUser(
 		// Treating that 404 as "absent" too early pushes reconcile down the Create -> 409 path.
 		if err := retry.Do(
 			func() error {
-				u, err = r.avnGen.ServiceUserGet(ctx, user.Spec.Project, user.Spec.ServiceName, user.Name)
+				u, err = r.avnGen.ServiceUserGet(ctx, user.Spec.Project, user.Spec.ServiceName, user.GetUsername())
 				return err
 			},
 			retry.Context(ctx),
