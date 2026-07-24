@@ -4,12 +4,12 @@ go 1.26
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.47.0
-	github.com/aiven/go-api-schemas v1.207.0
+	github.com/aiven/go-api-schemas v1.209.0
 	github.com/aiven/go-client-codegen v0.206.0
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/dave/jennifer v1.7.1
 	github.com/docker/go-units v0.5.0
-	github.com/go-logr/logr v1.4.3
+	github.com/go-logr/logr v1.4.4
 	github.com/goccy/go-yaml v1.19.2
 	github.com/google/go-cmp v0.7.0
 	github.com/hashicorp/go-multierror v1.1.1
