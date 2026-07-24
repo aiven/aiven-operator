@@ -864,7 +864,7 @@ spec:
                     mysql_version:
                       description: |-
                         Available versions: `8`, `8.4`. Newer versions may also be available.
-                        MySQL major version
+                        MySQL major version. Deprecated values: `8`
                       type: string
                     private_access:
                       description:
