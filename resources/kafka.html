@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.47">
+      <meta name="generator" content="zensical-0.0.51">
     
     
       
@@ -32,7 +32,7 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.5e19f6ca.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.62c9b9cc.min.css">
       
         
           
@@ -4304,7 +4304,7 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
     Kafka major version. Deprecated values: <code>4.0</code>.</li>
 <li><a href="#spec.userConfig.letsencrypt_sasl-property" name="spec.userConfig.letsencrypt_sasl-property"><code>letsencrypt_sasl</code></a> (boolean). Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication. (Default: False).</li>
 <li><a href="#spec.userConfig.letsencrypt_sasl_privatelink-property" name="spec.userConfig.letsencrypt_sasl_privatelink-property"><code>letsencrypt_sasl_privatelink</code></a> (boolean). Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication via Privatelink. (Default: False).</li>
-<li><a href="#spec.userConfig.preferred_zones-property" name="spec.userConfig.preferred_zones-property"><code>preferred_zones</code></a> (array of strings, MaxItems: 10). List of preferred zone IDs for service node placement. Nodes will be placed in these zones when available. If a specified zone is unavailable (e.g., due to capacity constraints), nodes will be placed in other available zones to maintain the configured number of zones for availability. Invalid zone IDs are rejected at configuration time. Zone IDs are cloud-specific: AWS uses zone IDs like <code>euc1-az1</code>, GCP uses zone names like <code>europe-west1-a</code>, and Azure uses <code>location/zone</code> format like <code>germanywestcentral/1</code>. If single_zone is enabled with an availability_zone, that setting takes precedence over preferred_zones.Changes take effect on next node recreation (e.g., maintenance or plan change). For Kafka professional plans, nodes outside preferred zones are automatically rebalanced once per day.</li>
+<li><a href="#spec.userConfig.preferred_zones-property" name="spec.userConfig.preferred_zones-property"><code>preferred_zones</code></a> (array of strings, MaxItems: 10). List of preferred zone IDs for service node placement. Nodes will be placed in these zones when available. If a specified zone is unavailable (e.g., due to capacity constraints), nodes will be placed in other available zones to maintain the configured number of zones for availability. Invalid zone IDs are rejected at configuration time. Zone IDs are cloud-specific: AWS uses zone IDs like <code>euc1-az1</code>, GCP uses zone names like <code>europe-west1-a</code>, and Azure uses <code>location/zone</code> format like <code>germanywestcentral/1</code>. If single_zone is enabled with an availability_zone, that setting takes precedence over preferred_zones. Changes take effect on next node recreation (e.g., maintenance or plan change). For eligible plans, nodes outside preferred zones are automatically rebalanced once per day.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.public_access-property" name="spec.userConfig.public_access-property"><code>public_access</code></a> (object). Allow access to selected service ports from the public Internet. See below for <a href="#spec.userConfig.public_access">nested schema</a>.</li>
@@ -4735,7 +4735,7 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
       <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"../assets/javascripts/workers/search.b6b7e04f.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.0df4f2d0.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7f30b55.min.js"></script>
       
     
   </body>

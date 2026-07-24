@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.47">
+      <meta name="generator" content="zensical-0.0.51">
     
     
       
@@ -32,7 +32,7 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.5e19f6ca.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.62c9b9cc.min.css">
       
         
           
@@ -3698,7 +3698,7 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <hr />
 <h2 id="ServiceUser">ServiceUser<a class="headerlink" href="#ServiceUser" title="Permanent link">&para;</a></h2>
 <p>ServiceUser is the Schema for the serviceusers API.
-Creates a service user for accessing Aiven services. The ServiceUser resource name becomes the username in Aiven.
+Creates a service user for accessing Aiven services. The ServiceUser resource name becomes the username in Aiven, unless spec.username overrides it.
 Built-in users like <code>avnadmin</code> cannot be deleted but their passwords can be modified using connInfoSecretSource.</p>
 <div class="admonition info">
 <p class="admonition-title">Exposes secret keys</p>
@@ -3735,6 +3735,14 @@ Built-in users like <code>avnadmin</code> cannot be deleted but their passwords 
     Password must be 8-256 characters long. See below for <a href="#spec.connInfoSecretSource">nested schema</a>.</li>
 <li><a href="#spec.connInfoSecretTarget-property" name="spec.connInfoSecretTarget-property"><code>connInfoSecretTarget</code></a> (object). Secret configuration. See below for <a href="#spec.connInfoSecretTarget">nested schema</a>.</li>
 <li><a href="#spec.connInfoSecretTargetDisabled-property" name="spec.connInfoSecretTargetDisabled-property"><code>connInfoSecretTargetDisabled</code></a> (boolean, Immutable). When true, the secret containing connection information will not be created, defaults to false. This field cannot be changed after resource creation.</li>
+<li><a href="#spec.username-property" name="spec.username-property"><code>username</code></a> (string, Immutable, MinLength: 1, MaxLength: 64). Username of the service user on Aiven.
+    Defaults to the K8S resource name. Aiven accepts usernames that are not valid
+    Kubernetes object names (e.g. containing underscores or uppercase characters);
+    set this field to manage such users.
+    Can only be set at creation and is immutable afterward.
+    To use a different username, delete the resource and create a new one.
+    Multiple ServiceUser resources referencing the same username are not supported.
+    Ensure each Aiven service user is managed by at most one resource.</li>
 </ul>
 <h2 id="spec.accessControl">accessControl<a class="headerlink" href="#spec.accessControl" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -3895,7 +3903,7 @@ Password must be 8-256 characters long.</p>
       <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"../assets/javascripts/workers/search.b6b7e04f.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.0df4f2d0.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7f30b55.min.js"></script>
       
     
   </body>

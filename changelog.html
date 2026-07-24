@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="./assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.47">
+      <meta name="generator" content="zensical-0.0.51">
     
     
       
@@ -32,7 +32,7 @@
       
         
       
-      <link rel="stylesheet" href="./assets/stylesheets/modern/main.5e19f6ca.min.css">
+      <link rel="stylesheet" href="./assets/stylesheets/modern/main.62c9b9cc.min.css">
       
         
           
@@ -489,6 +489,17 @@
       On this page
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0430-2026-07-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.43.0 - 2026-07-24
+      </span>
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v0420-2026-07-08" class="md-nav__link">
@@ -3737,6 +3748,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0430-2026-07-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.43.0 - 2026-07-24
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0420-2026-07-08" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -4291,6 +4313,56 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0430-2026-07-24">v0.43.0 - 2026-07-24<a class="headerlink" href="#v0430-2026-07-24" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Add <code>ServiceUser</code> field <code>username</code>, type <code>string</code>: Username of the service user on Aiven.
+  Defaults to the resource name. Aiven accepts usernames that are <strong>not</strong> valid Kubernetes object names
+  (e.g. containing underscores or uppercase characters); set this field to manage such users.
+  Can only be set at creation and is immutable afterwards.</li>
+<li>Add <code>Grafana</code> field <code>userConfig.grafana_version</code>, type <code>string</code>: Available versions: <code>11</code>. Newer versions
+  may also be available.
+Grafana major version</li>
+<li>Add <code>KafkaConnect</code> field <code>userConfig.preferred_zones</code>, type <code>array</code>: List of preferred zone IDs for
+  service node placement</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.automatic_sp_privileges</code>, type <code>boolean</code>: When enabled, the server
+  automatically grants the EXECUTE and ALTER ROUTINE privileges to the creator of a stored routine
+  and drops them when the routine is dropped</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.end_markers_in_json</code>, type <code>boolean</code>: Whether optimizer JSON output
+  such as EXPLAIN FORMAT=JSON adds end markers that repeat a structure's key near its closing bracket,
+  making large JSON structures easier to read</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.innodb_optimize_fulltext_only</code>, type <code>boolean</code>: When enabled, OPTIMIZE
+  TABLE on InnoDB tables only updates the FULLTEXT index instead of rebuilding the table</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.windowing_use_high_precision</code>, type <code>boolean</code>: Whether window functions
+  are computed to high precision</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.div_precision_increment</code>, type <code>integer</code>: Number of digits by which
+  to increase the scale of the result of division operations performed with the / operator</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.eq_range_index_dive_limit</code>, type <code>integer</code>: The number of equality
+  ranges in a query at or above which the optimizer switches from index dives to index statistics
+  when estimating the number of qualifying rows</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.innodb_ft_enable_stopword</code>, type <code>boolean</code>: Whether stopword processing
+  is applied when creating or rebuilding an InnoDB FULLTEXT index</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.innodb_ft_max_token_size</code>, type <code>integer</code>: Maximum length of words
+  that are stored in an InnoDB FULLTEXT index</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.innodb_ft_num_word_optimize</code>, type <code>integer</code>: Number of words processed
+  during each OPTIMIZE TABLE operation on an InnoDB FULLTEXT index</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.innodb_ft_result_cache_limit</code>, type <code>integer</code>: Maximum memory in
+  bytes used per query for the InnoDB FULLTEXT search query result cache</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.innodb_ft_user_stopword_table</code>, type <code>string</code>: This option is used
+  to specify your own InnoDB FULLTEXT index stopword list for specific InnoDB tables</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.max_execution_time</code>, type <code>integer</code>: Execution timeout in milliseconds
+  for read-only top-level SELECT statements</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.max_seeks_for_key</code>, type <code>integer</code>: Limit on the assumed maximum
+  number of index seeks when looking up rows based on a key</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.optimizer_prune_level</code>, type <code>integer</code>: Controls the heuristics
+  applied during query optimization to prune less-promising partial plans from the optimizer search
+  space</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.optimizer_search_depth</code>, type <code>integer</code>: Maximum depth of search
+  performed by the query optimizer when choosing a join order</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.optimizer_switch</code>, type <code>string</code>: Comma-separated list of optimizer
+  flag assignments in the form flag=on|off|default, or the single value 'default' to reset all
+  flags</li>
+<li>Change <code>OpenSearch</code> field <code>userConfig.opensearch.http_max_content_length</code>: minimum <del><code>1</code></del> → <code>1048576</code></li>
+</ul>
 <h2 id="v0420-2026-07-08">v0.42.0 - 2026-07-08<a class="headerlink" href="#v0420-2026-07-08" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Upgrade <code>sigs.k8s.io/controller-runtime</code> to <code>v0.21.0</code>; the minimum supported Kubernetes version is now <code>1.30</code></li>
@@ -5385,7 +5457,7 @@ as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-be
       <script id="__config" type="application/json">{"annotate":null,"base":".","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"./assets/javascripts/workers/search.b6b7e04f.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="./assets/javascripts/bundle.0df4f2d0.min.js"></script>
+      <script src="./assets/javascripts/bundle.d7f30b55.min.js"></script>
       
     
   </body>

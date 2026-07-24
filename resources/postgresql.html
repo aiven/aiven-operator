@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.47">
+      <meta name="generator" content="zensical-0.0.51">
     
     
       
@@ -32,7 +32,7 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.5e19f6ca.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.62c9b9cc.min.css">
       
         
           
@@ -4136,7 +4136,7 @@ at reconcile time so malformed credentials surface clearly instead of being sile
 <li><a href="#spec.userConfig.pg.io_max_combine_limit-property" name="spec.userConfig.pg.io_max_combine_limit-property"><code>io_max_combine_limit</code></a> (integer, Minimum: 1, Maximum: 128). EXPERIMENTAL: Controls the largest I/O size in operations that combine I/O in 8kB units, and silently limits the user-settable parameter io_combine_limit. Version 18 and up only. Changing this parameter causes a service restart.</li>
 <li><a href="#spec.userConfig.pg.io_max_concurrency-property" name="spec.userConfig.pg.io_max_concurrency-property"><code>io_max_concurrency</code></a> (integer, Minimum: -1, Maximum: 1024). EXPERIMENTAL: Controls the maximum number of I/O operations that one process can execute simultaneously. Version 18 and up only. Changing this parameter causes a service restart.</li>
 <li><a href="#spec.userConfig.pg.io_method-property" name="spec.userConfig.pg.io_method-property"><code>io_method</code></a> (string, Enum: <code>io_uring</code>, <code>sync</code>, <code>worker</code>). EXPERIMENTAL: Controls the maximum number of I/O operations that one process can execute simultaneously. Version 18 and up only. Changing this parameter causes a service restart.</li>
-<li><a href="#spec.userConfig.pg.io_workers-property" name="spec.userConfig.pg.io_workers-property"><code>io_workers</code></a> (integer, Minimum: 1, Maximum: 32). EXPERIMENTAL: Number of IO worker processes, for io_method=worker. Version 18 and up only. Changing this parameter causes a service restart.</li>
+<li><a href="#spec.userConfig.pg.io_workers-property" name="spec.userConfig.pg.io_workers-property"><code>io_workers</code></a> (integer, Minimum: 1, Maximum: 32). EXPERIMENTAL: Number of IO worker processes, for io_method=worker. Version 18 and up only.</li>
 <li><a href="#spec.userConfig.pg.jit-property" name="spec.userConfig.pg.jit-property"><code>jit</code></a> (boolean). Controls system-wide use of Just-in-Time Compilation (JIT).</li>
 <li><a href="#spec.userConfig.pg.log_autovacuum_min_duration-property" name="spec.userConfig.pg.log_autovacuum_min_duration-property"><code>log_autovacuum_min_duration</code></a> (integer, Minimum: -1, Maximum: 2147483647). Causes each action executed by autovacuum to be logged if it ran for at least the specified number of milliseconds. Setting this to zero logs all autovacuum actions. Minus-one disables logging autovacuum actions. The default is <code>1000</code>.</li>
 <li><a href="#spec.userConfig.pg.log_error_verbosity-property" name="spec.userConfig.pg.log_error_verbosity-property"><code>log_error_verbosity</code></a> (string, Enum: <code>DEFAULT</code>, <code>TERSE</code>, <code>VERBOSE</code>). Controls the amount of detail written in the server log for each message that is logged.</li>
@@ -4162,7 +4162,7 @@ at reconcile time so malformed credentials surface clearly instead of being sile
 <li><a href="#spec.userConfig.pg.password_encryption-property" name="spec.userConfig.pg.password_encryption-property"><code>password_encryption</code></a> (string, Enum: <code>md5</code>, <code>scram-sha-256</code>). Chooses the algorithm for encrypting passwords.</li>
 <li><a href="#spec.userConfig.pg.pg_partman_bgw.interval-property" name="spec.userConfig.pg.pg_partman_bgw.interval-property"><code>pg_partman_bgw.interval</code></a> (integer, Minimum: 3600, Maximum: 604800). Sets the time interval in seconds to run pg_partman's scheduled tasks. The default is <code>3600</code>.</li>
 <li><a href="#spec.userConfig.pg.pg_partman_bgw.role-property" name="spec.userConfig.pg.pg_partman_bgw.role-property"><code>pg_partman_bgw.role</code></a> (string, Pattern: <code>^[_A-Za-z0-9][-._A-Za-z0-9]{0,63}$</code>, MaxLength: 64). Controls which role to use for pg_partman's scheduled background tasks.</li>
-<li><a href="#spec.userConfig.pg.pg_stat_monitor.pgsm_enable_query_plan-property" name="spec.userConfig.pg.pg_stat_monitor.pgsm_enable_query_plan-property"><code>pg_stat_monitor.pgsm_enable_query_plan</code></a> (boolean). Enables or disables query plan monitoring. Changing this parameter causes a service restart. Only available for PostgreSQL 13+.</li>
+<li><a href="#spec.userConfig.pg.pg_stat_monitor.pgsm_enable_query_plan-property" name="spec.userConfig.pg.pg_stat_monitor.pgsm_enable_query_plan-property"><code>pg_stat_monitor.pgsm_enable_query_plan</code></a> (boolean). Enables or disables query plan monitoring. Only available for PostgreSQL 13+.</li>
 <li><a href="#spec.userConfig.pg.pg_stat_monitor.pgsm_max_buckets-property" name="spec.userConfig.pg.pg_stat_monitor.pgsm_max_buckets-property"><code>pg_stat_monitor.pgsm_max_buckets</code></a> (integer, Minimum: 1, Maximum: 10). Sets the maximum number of buckets. Changing this parameter causes a service restart. Only available for PostgreSQL 13+.</li>
 <li><a href="#spec.userConfig.pg.pg_stat_statements.track-property" name="spec.userConfig.pg.pg_stat_statements.track-property"><code>pg_stat_statements.track</code></a> (string, Enum: <code>all</code>, <code>none</code>, <code>top</code>). Controls which statements are counted. Specify top to track top-level statements (those issued directly by clients), all to also track nested statements (such as statements invoked within functions), or none to disable statement statistics collection. The default is <code>top</code>.</li>
 <li><a href="#spec.userConfig.pg.synchronous_commit-property" name="spec.userConfig.pg.synchronous_commit-property"><code>synchronous_commit</code></a> (string, Enum: <code>local</code>, <code>off</code>, <code>on</code>, <code>remote_apply</code>, <code>remote_write</code>). Sets the current transaction's synchronization level. The default is <code>off</code>. This setting takes precedence over <code>synchronous_replication</code>.</li>
@@ -4380,7 +4380,7 @@ at reconcile time so malformed credentials surface clearly instead of being sile
       <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"../assets/javascripts/workers/search.b6b7e04f.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.0df4f2d0.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7f30b55.min.js"></script>
       
     
   </body>
