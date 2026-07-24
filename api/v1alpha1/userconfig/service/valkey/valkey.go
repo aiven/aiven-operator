@@ -194,7 +194,7 @@ type ValkeyUserConfig struct {
 	// Valkey idle connection timeout in seconds
 	ValkeyTimeout *int `groups:"create,update" json:"valkey_timeout,omitempty"`
 
-	// Available versions: `8.1`, `9.0`. Newer versions may also be available.
+	// Available versions: `8.1`, `9.0`, `9.1`. Newer versions may also be available.
 	// Valkey major version
 	ValkeyVersion *string `groups:"create,update" json:"valkey_version,omitempty"`
 }
