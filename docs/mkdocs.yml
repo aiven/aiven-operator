@@ -101,6 +101,7 @@ nav:
               - resources/kafkatopic.md
           - resources/mysql.md
           - resources/opensearch.md
+          - resources/organizationproject.md
           - resources/postgresql.md
           - resources/project.md
           - resources/projectvpc.md

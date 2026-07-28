@@ -51,8 +51,8 @@ type Observation struct {
 
 	// SecretDetails contains secret data for the resource (credentials, endpoints, CA certs, etc.).
 	// Will be written to the connInfoSecretTarget if not nil and not empty.
-	// Keys should NOT include prefixes - the reconciler will apply the appropriate prefix.
-	// Example keys: "HOST", "PORT", "USERNAME", "PASSWORD", "CA_CERT"
+	// Keys are written as-is: controllers apply the secret prefix themselves,
+	// e.g. getSecretPrefix(obj) + "CA_CERT".
 	SecretDetails SecretDetails
 }
 

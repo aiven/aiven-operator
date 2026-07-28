@@ -309,4 +309,12 @@ resources:
   kind: KafkaQuota
   path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
+  kind: OrganizationProject
+  path: github.com/aiven/aiven-operator/api/v1alpha1
+  version: v1alpha1
 version: "3"

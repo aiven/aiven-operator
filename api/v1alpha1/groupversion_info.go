@@ -47,6 +47,7 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&MySQL{}, &MySQLList{},
 		&OpenSearch{}, &OpenSearchList{},
 		&OpenSearchACLConfig{}, &OpenSearchACLConfigList{},
+		&OrganizationProject{}, &OrganizationProjectList{},
 		&PostgreSQL{}, &PostgreSQLList{},
 		&Project{}, &ProjectList{},
 		&ProjectVPC{}, &ProjectVPCList{},

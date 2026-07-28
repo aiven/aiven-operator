@@ -277,6 +277,14 @@ func NilIfZero[T comparable](v T) *T {
 	return &v
 }
 
+// emptyIfNil returns the map, or a non-nil empty map if it is nil.
+func emptyIfNil[K comparable, V any](m map[K]V) map[K]V {
+	if m == nil {
+		return map[K]V{}
+	}
+	return m
+}
+
 // userAgent is a helper function to create a User-Agent string used for the Go client.
 func userAgent(kubeVersion, operatorVersion string) string {
 	// Remove the leading "v" from the version strings, if present.

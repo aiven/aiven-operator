@@ -74,6 +74,7 @@ func SetupControllersWithConfig(mgr ctrl.Manager, cfg SetupConfig) error {
 		"MySQL":                      newMySQLReconciler,
 		"OpenSearch":                 newOpenSearchReconciler,
 		"OpenSearchACLConfig":        newOpenSearchACLConfigReconciler,
+		"OrganizationProject":        newOrganizationProjectReconciler,
 		"PostgreSQL":                 newPostgreSQLReconciler,
 		"Project":                    newProjectReconciler,
 		"ProjectVPC":                 newProjectVPCReconciler,
