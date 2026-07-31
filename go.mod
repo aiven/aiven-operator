@@ -4,7 +4,7 @@ go 1.26
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.47.0
-	github.com/aiven/go-api-schemas v1.210.0
+	github.com/aiven/go-api-schemas v1.211.0
 	github.com/aiven/go-client-codegen v0.207.0
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/dave/jennifer v1.7.1
