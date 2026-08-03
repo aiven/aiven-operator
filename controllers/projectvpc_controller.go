@@ -8,11 +8,8 @@ import (
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/vpc"
-	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
@@ -22,124 +19,141 @@ var isDependencyError = v1alpha1.ErrorSubstrChecker(
 	"VPC cannot be deleted while there are services migrating from it",
 )
 
-// ProjectVPCReconciler reconciles a ProjectVPC object
-type ProjectVPCReconciler struct {
-	Controller
-}
-
-func newProjectVPCReconciler(c Controller) reconcilerType {
-	return &ProjectVPCReconciler{Controller: c}
-}
-
-type ProjectVPCHandler struct {
-	log logr.Logger
-}
-
 //+kubebuilder:rbac:groups=aiven.io,resources=projectvpcs,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=projectvpcs/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=aiven.io,resources=projectvpcs/finalizers,verbs=get;create;update
 
-func (r *ProjectVPCReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, &ProjectVPCHandler{log: r.Log}, &v1alpha1.ProjectVPC{})
+// ProjectVPCController reconciles a ProjectVPC object.
+type ProjectVPCController struct {
+	avnGen avngen.Client
 }
 
-func (r *ProjectVPCReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.ProjectVPC{}).
-		Complete(r)
+func newProjectVPCReconciler(c Controller) reconcilerType {
+	return newManagedReconciler(
+		c,
+		func(_ Controller, avnGen avngen.Client) AivenController[*v1alpha1.ProjectVPC] {
+			return &ProjectVPCController{avnGen: avnGen}
+		},
+		nil,
+	)
 }
 
-func (h *ProjectVPCHandler) createOrUpdate(ctx context.Context, avnGen avngen.Client, obj client.Object, _ []client.Object) error {
-	projectVPC, err := h.convert(obj)
-	if err != nil {
-		return err
+func (r *ProjectVPCController) Observe(ctx context.Context, projectVPC *v1alpha1.ProjectVPC) (Observation, error) {
+	// An empty status.ID means we have not recorded a VPC yet. Before creating one, adopt any
+	// existing VPC that already matches the spec.
+	if projectVPC.Status.ID == "" {
+		vpcs, err := r.avnGen.VpcList(ctx, projectVPC.Spec.Project)
+		if err != nil {
+			return Observation{}, fmt.Errorf("cannot list project VPCs: %w", err)
+		}
+
+		for _, v := range vpcs {
+			// cloudName + networkCidr uniquely identify a VPC within a project, and both are
+			// immutable on the spec, so a match is unambiguously our resource.
+			if v.CloudName == projectVPC.Spec.CloudName && v.NetworkCidr == projectVPC.Spec.NetworkCidr {
+				projectVPC.Status.ID = v.ProjectVpcId
+				return r.observeState(projectVPC, v.State), nil
+			}
+		}
+
+		// No matching VPC exists yet; let the reconciler create one.
+		return Observation{ResourceExists: false}, nil
 	}
 
-	avnVpc, err := avnGen.VpcCreate(ctx, projectVPC.Spec.Project, &vpc.VpcCreateIn{
+	avnVpc, err := r.avnGen.VpcGet(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
+	switch {
+	case isNotFound(err):
+		// The VPC vanished on Aiven side; trigger recreation like other migrated resources.
+		return Observation{ResourceExists: false}, nil
+	case err != nil:
+		return Observation{}, fmt.Errorf("cannot get project VPC: %w", err)
+	}
+
+	return r.observeState(projectVPC, avnVpc.State), nil
+}
+
+// observeState records the observed VPC state on the status and reports whether the resource
+// is up to date. It marks the instance running only once Aiven reports the VPC ACTIVE.
+func (r *ProjectVPCController) observeState(projectVPC *v1alpha1.ProjectVPC, state vpc.VpcStateType) Observation {
+	projectVPC.Status.State = state
+
+	// The VPC transitions APPROVED -> ACTIVE asynchronously, so only mark it running
+	// once Aiven reports it ACTIVE. An APPROVED VPC stays not-running and keeps requeueing.
+	if state == vpc.VpcStateTypeActive {
+		markInstanceRunning(projectVPC)
+	}
+
+	return Observation{
+		ResourceExists:   true,
+		ResourceUpToDate: hasLatestGeneration(projectVPC),
+	}
+}
+
+func (r *ProjectVPCController) Create(ctx context.Context, projectVPC *v1alpha1.ProjectVPC) (CreateResult, error) {
+	delete(projectVPC.GetAnnotations(), instanceIsRunningAnnotation)
+
+	avnVpc, err := r.avnGen.VpcCreate(ctx, projectVPC.Spec.Project, &vpc.VpcCreateIn{
 		CloudName:          projectVPC.Spec.CloudName,
 		NetworkCidr:        projectVPC.Spec.NetworkCidr,
 		PeeringConnections: make([]vpc.PeeringConnectionIn, 0),
 	})
 	if err != nil {
-		return err
+		return CreateResult{}, fmt.Errorf("cannot create project VPC on Aiven side: %w", err)
 	}
 
 	projectVPC.Status.ID = avnVpc.ProjectVpcId
-	return nil
+
+	const reason = "Created"
+	meta.SetStatusCondition(&projectVPC.Status.Conditions, getInitializedCondition(reason, "Successfully created the instance in Aiven"))
+	meta.SetStatusCondition(&projectVPC.Status.Conditions, getRunningCondition(metav1.ConditionUnknown, reason, "Successfully created the instance in Aiven, status remains unknown"))
+
+	return CreateResult{}, nil
 }
 
-func (h *ProjectVPCHandler) delete(ctx context.Context, avnGen avngen.Client, obj client.Object) (bool, error) {
-	projectVPC, err := h.convert(obj)
-	if err != nil {
-		return false, err
+func (r *ProjectVPCController) Update(_ context.Context, _ *v1alpha1.ProjectVPC) (UpdateResult, error) {
+	// ProjectVPC spec is fully immutable, so this is a no-op.
+	return UpdateResult{}, nil
+}
+
+func (r *ProjectVPCController) Delete(ctx context.Context, projectVPC *v1alpha1.ProjectVPC) error {
+	// Nothing was ever created on Aiven side.
+	if projectVPC.Status.ID == "" {
+		return nil
 	}
 
-	vpc, err := avnGen.VpcGet(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
+	avnVpc, err := r.avnGen.VpcGet(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
 	if isNotFound(err) {
-		return true, nil
+		return nil
 	}
-
 	if err != nil {
-		return false, err
+		return err
 	}
 
-	switch vpc.State {
-	case "DELETING", "DELETED":
-		return true, nil
+	switch avnVpc.State {
+	case vpc.VpcStateTypeDeleting, vpc.VpcStateTypeDeleted:
+		// Deletion already confirmed on Aiven side; remove the finalizer.
+		return nil
 	}
 
-	services, err := avnGen.ServiceList(ctx, projectVPC.Spec.Project)
+	services, err := r.avnGen.ServiceList(ctx, projectVPC.Spec.Project)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	for _, s := range services {
 		if s.ProjectVpcId == projectVPC.Status.ID {
-			h.log.Info(fmt.Sprintf("vpc has dependent service %q in status %q", s.ServiceName, s.State))
-			return false, nil
+			return fmt.Errorf("%w: vpc has dependent service %q in state %q", v1alpha1.ErrDeleteDependencies, s.ServiceName, s.State)
 		}
 	}
 
-	_, err = avnGen.VpcDelete(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
+	_, err = r.avnGen.VpcDelete(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
 	if isDependencyError(err) {
-		return false, fmt.Errorf("%w: %w", v1alpha1.ErrDeleteDependencies, err)
+		return fmt.Errorf("%w: %w", v1alpha1.ErrDeleteDependencies, err)
 	}
-
-	return false, nil
-}
-
-func (h *ProjectVPCHandler) observe(ctx context.Context, avnGen avngen.Client, obj v1alpha1.AivenManagedObject) error {
-	projectVPC, err := h.convert(obj)
 	if err != nil {
 		return err
 	}
 
-	avnVpc, err := avnGen.VpcGet(ctx, projectVPC.Spec.Project, projectVPC.Status.ID)
-	if err != nil {
-		return err
-	}
-
-	projectVPC.Status.State = avnVpc.State
-	if avnVpc.State == "ACTIVE" {
-		meta.SetStatusCondition(&projectVPC.Status.Conditions,
-			getRunningCondition(metav1.ConditionTrue, "CheckRunning",
-				"Instance is running on Aiven side"))
-
-		metav1.SetMetaDataAnnotation(&projectVPC.ObjectMeta, instanceIsRunningAnnotation, "true")
-	}
-
-	return nil
-}
-
-func (h *ProjectVPCHandler) checkPreconditions(_ context.Context, _ avngen.Client, _ client.Object) (bool, error) {
-	return true, nil
-}
-
-func (h *ProjectVPCHandler) convert(i client.Object) (*v1alpha1.ProjectVPC, error) {
-	projectVPC, ok := i.(*v1alpha1.ProjectVPC)
-	if !ok {
-		return nil, fmt.Errorf("cannot convert object to ProjectVPC")
-	}
-
-	return projectVPC, nil
+	// Delete was accepted; wait for the state to flip to DELETING/DELETED before the finalizer is removed.
+	return fmt.Errorf("%w: vpc deletion accepted, waiting for DELETING state", errDeletionInProgress)
 }

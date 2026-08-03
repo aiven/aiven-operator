@@ -488,10 +488,15 @@ func (r *Reconciler[T]) publishSecretDetails(ctx context.Context, obj T, details
 	return nil
 }
 
-// errDeletionSkipped is returned by AivenController.Delete when the remote resource is
-// intentionally left at Aiven.
-// NOTE: Consider replacing it with DeleteResult in the future.
-var errDeletionSkipped = errors.New("deletion at Aiven skipped")
+var (
+	// errDeletionSkipped is returned when the remote resource is intentionally left at Aiven.
+	// NOTE: Consider replacing it with DeleteResult in the future.
+	errDeletionSkipped = errors.New("deletion at Aiven skipped")
+
+	// errDeletionInProgress is returned when the remote deletion has
+	// been accepted by Aiven but is still running.
+	errDeletionInProgress = errors.New("deletion at Aiven in progress")
+)
 
 func (r *Reconciler[T]) reconcileDeletion(ctx context.Context, obj T) (ctrl.Result, error) {
 	if !controllerutil.ContainsFinalizer(obj, instanceDeletionFinalizer) {
@@ -517,6 +522,11 @@ func (r *Reconciler[T]) reconcileDeletion(ctx context.Context, obj T) (ctrl.Resu
 			r.Recorder.Event(obj, corev1.EventTypeNormal, eventSuccessfullyDeletedAtAiven, "instance is gone at aiven now")
 		case errors.Is(err, errDeletionSkipped):
 			logr.FromContextOrDiscard(ctx).Info("deletion at Aiven was skipped, removing finalizer", "reason", err.Error())
+		case errors.Is(err, errDeletionInProgress):
+			// Deletion is still running on Aiven side; keep the finalizer and requeue so a
+			// later reconcile can confirm the resource is gone.
+			logr.FromContextOrDiscard(ctx).Info("deletion at Aiven in progress, will requeue", "reason", err.Error())
+			return ctrl.Result{RequeueAfter: requeueTimeout}, r.persistReconcileState(ctx, orig, obj)
 		case isInvalidTokenError(err) && !hasIsRunningAnnotation(obj):
 			logr.FromContextOrDiscard(ctx).Info("invalid token error on deletion, removing finalizer", "apiError", err)
 		default:
