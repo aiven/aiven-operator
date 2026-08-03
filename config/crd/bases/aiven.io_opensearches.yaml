@@ -1763,8 +1763,8 @@ spec:
                       type: object
                     opensearch_version:
                       description: |-
-                        Available versions: `1`, `2`, `2.19`, `3.3`, `3.6`. Newer versions may also be available.
-                        OpenSearch version
+                        Available versions: `2`, `2.19`, `3.3`, `3.6`. Newer versions may also be available.
+                        OpenSearch version. Deprecated values: `2`
                       type: string
                     private_access:
                       description:

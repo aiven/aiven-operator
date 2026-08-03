@@ -1146,8 +1146,8 @@ type OpensearchUserConfig struct {
 	// OpenSearch Dashboards settings
 	OpensearchDashboards *OpensearchDashboards `groups:"create,update" json:"opensearch_dashboards,omitempty"`
 
-	// Available versions: `1`, `2`, `2.19`, `3.3`, `3.6`. Newer versions may also be available.
-	// OpenSearch version
+	// Available versions: `2`, `2.19`, `3.3`, `3.6`. Newer versions may also be available.
+	// OpenSearch version. Deprecated values: `2`
 	OpensearchVersion *string `groups:"create,update" json:"opensearch_version,omitempty"`
 
 	// Allow access to selected service ports from private networks
