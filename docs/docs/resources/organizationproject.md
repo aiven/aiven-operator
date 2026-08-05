@@ -138,8 +138,8 @@ OrganizationProjectSpec defines the desired state of OrganizationProject.
     This map is authoritative: when omitted, tags added outside
     Kubernetes are removed.
 - [`technicalEmails`](#spec.technicalEmails-property){: name='spec.technicalEmails-property'} (array of strings, MaxItems: 10). TechnicalEmails are the technical contact emails of the project.
-    This list is authoritative: when omitted, emails added outside
-    Kubernetes are removed.
+    This list is authoritative: when omitted, emails added outside Kubernetes are removed.
+    Duplicates are rejected.
 
 ## authSecretRef {: #spec.authSecretRef }
 

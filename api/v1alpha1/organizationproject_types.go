@@ -40,9 +40,11 @@ type OrganizationProjectSpec struct {
 	BasePort *int `json:"basePort,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=10
+	// +kubebuilder:validation:items:MaxLength=254
+	// +kubebuilder:validation:XValidation:rule="self.all(x, self.exists_one(y, y == x))",message="Emails must be unique"
 	// TechnicalEmails are the technical contact emails of the project.
-	// This list is authoritative: when omitted, emails added outside
-	// Kubernetes are removed.
+	// This list is authoritative: when omitted, emails added outside Kubernetes are removed.
+	// Duplicates are rejected.
 	TechnicalEmails []string `json:"technicalEmails,omitempty"`
 
 	// Tags are key-value pairs that allow you to categorize projects.

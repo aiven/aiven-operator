@@ -3,6 +3,7 @@
 package tests
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -190,6 +191,31 @@ func TestOrganizationProject(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.ErrorContains(t, s.Apply(organizationIDUpdate), "Value is immutable")
+	})
+
+	t.Run("duplicate technical emails are rejected by the API server", func(t *testing.T) {
+		// Aiven deduplicates technicalEmails, which the controller would then see as
+		// permanent drift and try to fix on every poll. A CEL rule on the CRD stops
+		// the manifest at admission, so the resource is never created.
+		duplicateEmails := fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: OrganizationProject
+metadata:
+  name: %[1]s-duplicate-emails
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+  organizationId: %[2]s
+  projectId: %[1]s-duplicate-emails
+  billingGroupId: %[3]s
+  parentId: %[2]s
+  technicalEmails:
+    - tech@example.com
+    - tech@example.com
+`, name, organizationID, billingGroupID)
+
+		require.ErrorContains(t, s.Apply(duplicateEmails), "Emails must be unique")
 	})
 
 	// WHEN/THEN

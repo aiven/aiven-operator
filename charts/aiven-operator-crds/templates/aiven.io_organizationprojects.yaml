@@ -162,12 +162,16 @@ spec:
                 technicalEmails:
                   description: |-
                     TechnicalEmails are the technical contact emails of the project.
-                    This list is authoritative: when omitted, emails added outside
-                    Kubernetes are removed.
+                    This list is authoritative: when omitted, emails added outside Kubernetes are removed.
+                    Duplicates are rejected.
                   items:
+                    maxLength: 254
                     type: string
                   maxItems: 10
                   type: array
+                  x-kubernetes-validations:
+                    - message: Emails must be unique
+                      rule: self.all(x, self.exists_one(y, y == x))
               required:
                 - billingGroupId
                 - organizationId

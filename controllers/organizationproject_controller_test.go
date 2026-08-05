@@ -448,6 +448,97 @@ func TestOrganizationProjectReconciler(t *testing.T) {
 		require.Equal(t, metav1.ConditionTrue, condition.Status)
 	})
 
+	t.Run("Stays up to date when Aiven lowercases an email domain", func(t *testing.T) {
+		// Aiven lowercases the domain, so the echo must not read as drift.
+		op := newOrganizationProject(t)
+		op.Generation = 1
+		op.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+		}
+		op.Spec.TechnicalEmails = []string{"Ops.Team@Example.COM"}
+
+		remote := remoteFromSpec(op)
+		remote.TechEmails = []organizationprojects.TechEmailOut{{Email: "Ops.Team@example.com"}}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			OrganizationProjectsGet(mock.Anything, op.Spec.OrganizationID, op.Spec.ProjectID).
+			Return(remote, nil).Once()
+		expectParentIDResolution(op, avn)
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, op.Spec.ProjectID).
+			Return("ca-cert", nil).Once()
+		// No OrganizationProjectsUpdate expectation: the domain-case echo must not
+		// be read as drift. The mock fails the test if Update is called.
+
+		r, res := runScenario(t, op, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		got := &v1alpha1.OrganizationProject{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: op.Name, Namespace: op.Namespace}, got))
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
+	})
+
+	t.Run("Stays up to date when Aiven collapses domain-case duplicates", func(t *testing.T) {
+		// Byte-wise unique, so the CEL rule allows it, but Aiven stores one entry.
+		op := newOrganizationProject(t)
+		op.Generation = 1
+		op.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+		}
+		op.Spec.TechnicalEmails = []string{"dup@Example.com", "dup@example.com"}
+
+		remote := remoteFromSpec(op)
+		remote.TechEmails = []organizationprojects.TechEmailOut{{Email: "dup@example.com"}}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			OrganizationProjectsGet(mock.Anything, op.Spec.OrganizationID, op.Spec.ProjectID).
+			Return(remote, nil).Once()
+		expectParentIDResolution(op, avn)
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, op.Spec.ProjectID).
+			Return("ca-cert", nil).Once()
+		// No Update expectation: the collapse must not read as drift.
+
+		r, res := runScenario(t, op, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		got := &v1alpha1.OrganizationProject{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: op.Name, Namespace: op.Namespace}, got))
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
+	})
+
+	t.Run("Treats a local-part case difference as real drift", func(t *testing.T) {
+		// Aiven keeps these as two addresses, so folding the local part would
+		// wrongly report in-sync. Guards against EqualFold creeping in.
+		op := newOrganizationProject(t)
+		op.Generation = 1
+		op.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+		}
+		op.Spec.TechnicalEmails = []string{"Ops@example.com"}
+
+		remote := remoteFromSpec(op)
+		remote.TechEmails = []organizationprojects.TechEmailOut{{Email: "ops@example.com"}}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			OrganizationProjectsGet(mock.Anything, op.Spec.OrganizationID, op.Spec.ProjectID).
+			Return(remote, nil).Once()
+		// Only one resolution (in Update): the drift check short-circuits on the
+		// email mismatch before reaching the parent_id comparison.
+		expectParentIDResolution(op, avn)
+		avn.EXPECT().
+			OrganizationProjectsUpdate(mock.Anything, op.Spec.OrganizationID, op.Spec.ProjectID, mock.MatchedBy(func(in *organizationprojects.OrganizationProjectsUpdateIn) bool {
+				return in.TechEmails != nil && assert.Equal(t, organizationProjectTechEmails(op.Spec.TechnicalEmails), *in.TechEmails)
+			})).
+			Return(&organizationprojects.OrganizationProjectsUpdateOut{ProjectId: op.Spec.ProjectID}, nil).Once()
+
+		_, res := runScenario(t, op, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
+	})
+
 	t.Run("Reverts out-of-band remote changes even when generation is processed", func(t *testing.T) {
 		op := newOrganizationProject(t)
 		op.Generation = 1
@@ -554,7 +645,7 @@ func TestOrganizationProjectReconciler(t *testing.T) {
 		require.True(t, apierrors.IsNotFound(err))
 	})
 
-	t.Run("Does not write CA cert secret when connection secret is disabled", func(t *testing.T) {
+	t.Run("Skips the CA fetch and writes no secret when connection secret is disabled", func(t *testing.T) {
 		op := newOrganizationProject(t)
 		op.Generation = 1
 		op.Annotations = map[string]string{
@@ -568,9 +659,8 @@ func TestOrganizationProjectReconciler(t *testing.T) {
 			OrganizationProjectsGet(mock.Anything, op.Spec.OrganizationID, op.Spec.ProjectID).
 			Return(remoteFromSpec(op), nil).Once()
 		expectParentIDResolution(op, avn)
-		avn.EXPECT().
-			ProjectKmsGetCA(mock.Anything, op.Spec.ProjectID).
-			Return("ca-cert", nil).Once()
+		// No ProjectKmsGetCA expectation: the cert only feeds the connection secret,
+		// so the call must not be made at all. The mock fails on an unexpected call.
 
 		r, res := runScenario(t, op, avn)
 		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
@@ -601,4 +691,49 @@ func TestOrganizationProjectReconciler(t *testing.T) {
 		require.Contains(t, got.Finalizers, instanceDeletionFinalizer)
 		require.NotNil(t, meta.FindStatusCondition(got.Status.Conditions, ConditionTypeError))
 	})
+}
+
+func TestNormalizeTechEmails(t *testing.T) {
+	t.Parallel()
+
+	// Behaviors verified against the live API.
+	cases := []struct {
+		name string
+		in   []string
+		want []string
+	}{{
+		name: "lowercases the domain but not the local part",
+		in:   []string{"MixedCase.Probe@Example.COM"},
+		want: []string{"MixedCase.Probe@example.com"},
+	}, {
+		name: "keeps local-part case differences as distinct addresses",
+		in:   []string{"Case.Dup@example.com", "case.dup@example.com"},
+		want: []string{"Case.Dup@example.com", "case.dup@example.com"},
+	}, {
+		name: "collapses domain-case duplicates",
+		in:   []string{"domain.dup@Example.com", "domain.dup@example.com"},
+		want: []string{"domain.dup@example.com"},
+	}, {
+		name: "drops exact duplicates",
+		in:   []string{"dup@example.com", "dup@example.com"},
+		want: []string{"dup@example.com"},
+	}, {
+		name: "sorts so order is not drift",
+		in:   []string{"b@example.com", "a@example.com"},
+		want: []string{"a@example.com", "b@example.com"},
+	}, {
+		name: "leaves a value without @ alone",
+		in:   []string{"not-an-email"},
+		want: []string{"not-an-email"},
+	}, {
+		name: "handles nil",
+		in:   nil,
+		want: []string{},
+	}}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			require.Equal(t, tc.want, normalizeTechEmails(tc.in))
+		})
+	}
 }

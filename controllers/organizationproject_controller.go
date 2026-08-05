@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"maps"
+	"slices"
 	"strings"
 
 	avngen "github.com/aiven/go-client-codegen"
@@ -66,20 +67,26 @@ func (r *OrganizationProjectController) Observe(ctx context.Context, cr *v1alpha
 		}, nil
 	}
 
-	cert, err := r.avnGen.ProjectKmsGetCA(ctx, cr.Spec.ProjectID)
-	if err != nil {
-		return Observation{}, fmt.Errorf("getting project KMS CA: %w", err)
+	// The CA cert is only fetched to fill the connection secret, so skip the call
+	// entirely when the secret is disabled: the details would be dropped anyway.
+	var details SecretDetails
+	if !cr.NoSecret() {
+		cert, err := r.avnGen.ProjectKmsGetCA(ctx, cr.Spec.ProjectID)
+		if err != nil {
+			return Observation{}, fmt.Errorf("getting project KMS CA: %w", err)
+		}
+
+		details = SecretDetails{
+			getSecretPrefix(cr) + "CA_CERT": cert,
+		}
 	}
 
 	markInstanceRunning(cr)
-	prefix := getSecretPrefix(cr)
 
 	return Observation{
 		ResourceExists:   true,
 		ResourceUpToDate: true,
-		SecretDetails: SecretDetails{
-			prefix + "CA_CERT": cert,
-		},
+		SecretDetails:    details,
 	}, nil
 }
 
@@ -175,7 +182,7 @@ func (r *OrganizationProjectController) orgProjectMatchesSpec(ctx context.Contex
 	for i, e := range got.TechEmails {
 		gotEmails[i] = e.Email
 	}
-	if !cmp.Equal(cr.Spec.TechnicalEmails, gotEmails, cmpopts.SortSlices(strings.Compare), cmpopts.EquateEmpty()) {
+	if !cmp.Equal(normalizeTechEmails(cr.Spec.TechnicalEmails), normalizeTechEmails(gotEmails), cmpopts.EquateEmpty()) {
 		return false, nil
 	}
 
@@ -199,6 +206,25 @@ func (r *OrganizationProjectController) resolveParentID(ctx context.Context, par
 		return "", fmt.Errorf("converting organization ID %q to account ID: %w", parentID, err)
 	}
 	return org.AccountId, nil
+}
+
+// normalizeTechEmails mirrors how Aiven stores tech emails: domain lowercased duplicates dropped, sorted.
+func normalizeTechEmails(emails []string) []string {
+	out := make([]string, 0, len(emails))
+	seen := make(map[string]struct{}, len(emails))
+	for _, e := range emails {
+		at := strings.LastIndex(e, "@")
+		if at >= 0 {
+			e = e[:at+1] + strings.ToLower(e[at+1:])
+		}
+		if _, ok := seen[e]; ok {
+			continue
+		}
+		seen[e] = struct{}{}
+		out = append(out, e)
+	}
+	slices.Sort(out)
+	return out
 }
 
 // organizationProjectTechEmails always returns a non-nil slice of technical emails.

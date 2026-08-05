@@ -14,6 +14,8 @@ resources:
   - bases/aiven.io_kafkaschemas.yaml
   - bases/aiven.io_kafkatopics.yaml
   - bases/aiven.io_opensearches.yaml
+  - bases/aiven.io_opensearchaclconfigs.yaml
+  - bases/aiven.io_organizationprojects.yaml
   - bases/aiven.io_postgresqls.yaml
   - bases/aiven.io_projects.yaml
   - bases/aiven.io_projectvpcs.yaml
