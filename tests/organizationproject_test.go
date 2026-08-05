@@ -167,6 +167,18 @@ func TestOrganizationProject(t *testing.T) {
 		}, 3*time.Minute, 5*time.Second, "remote tags were not cleared; spec has no tags so the drift must be reverted")
 	})
 
+	t.Run("parent_id is echoed in the account form", func(t *testing.T) {
+		// orgProjectMatchesSpec resolves spec.parentId to the account form before comparing it with parent_id.
+		// If the API echoed the org form instead, the comparison would never match and Update would re-run on every poll.
+		out, err := avnGen.OrganizationProjectsGet(ctx, organizationID, projectID)
+		require.NoError(t, err)
+		org, err := avnGen.OrganizationGet(ctx, organizationID)
+		require.NoError(t, err)
+
+		assert.Equal(t, org.AccountId, out.ParentId)
+		assert.NotEqual(t, organizationID, out.ParentId, "the org form must not be echoed back")
+	})
+
 	t.Run("immutable fields are rejected by the API server", func(t *testing.T) {
 		// organizationId and projectId are guarded by CEL rules on the CRD, so the
 		// API server must reject any change before it ever reaches the controller.
