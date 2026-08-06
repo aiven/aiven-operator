@@ -3,6 +3,10 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - Add kind: `OrganizationProject` to manage Aiven projects that belong to an organization or organizational unit.
+- Fix `KafkaNativeACL` and `KafkaSchemaRegistryACL` to adopt an existing matching ACL when
+  the custom resource is created while the ACL is already present on Aiven, for example
+  after an `Orphan` deletion. Previously `KafkaNativeACL` failed with a 409 conflict and
+  `KafkaSchemaRegistryACL` created a duplicate entry.
 
 ## v0.43.0 - 2026-07-24
 
