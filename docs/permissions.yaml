@@ -156,6 +156,15 @@ OpenSearchACLConfig:
     ServiceOpenSearchAclSet,
     ServiceOpenSearchAclUpdate,
   ]
+OrganizationProject:
+  [
+    OrganizationGet,
+    OrganizationProjectsCreate,
+    OrganizationProjectsGet,
+    OrganizationProjectsUpdate,
+    OrganizationProjectsDelete,
+    ProjectKmsGetCA,
+  ]
 PostgreSQL:
   [
     ServiceGet,

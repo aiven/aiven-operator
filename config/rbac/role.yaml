@@ -47,6 +47,7 @@ rules:
       - mysqls
       - opensearchaclconfigs
       - opensearches
+      - organizationprojects
       - postgresqls
       - projects
       - projectvpcs
@@ -87,6 +88,7 @@ rules:
       - mysqls/finalizers
       - opensearchaclconfigs/finalizers
       - opensearches/finalizers
+      - organizationprojects/finalizers
       - postgresqls/finalizers
       - projects/finalizers
       - projectvpcs/finalizers
@@ -123,6 +125,7 @@ rules:
       - mysqls/status
       - opensearchaclconfigs/status
       - opensearches/status
+      - organizationprojects/status
       - postgresqls/status
       - projects/status
       - projectvpcs/status

@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add kind: `OrganizationProject` to manage Aiven projects that belong to an organization or organizational unit.
+
 ## v0.43.0 - 2026-07-24
 
 - Add `ServiceUser` field `username`, type `string`: Username of the service user on Aiven.
