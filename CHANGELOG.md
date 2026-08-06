@@ -5,6 +5,7 @@
 - Add kind: `OrganizationProject` to manage Aiven projects that belong to an organization or organizational unit.
 - Fix `KafkaACL`, `KafkaQuota`, and `KafkaSchemaRegistryACL` to reach the `ReadyToUse`
   state in a single reconcile cycle after creation or update.
+- Add `extraEnvs` option to Helm chart, to set additional environment variables on the operator deployment.
 
 ## v0.43.0 - 2026-07-24
 

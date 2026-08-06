@@ -53,6 +53,9 @@ spec:
             - name: WATCHED_NAMESPACES
               value: {{ . | uniq | join "," | quote }}
             {{- end }}
+            {{- with .Values.extraEnvs }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           command:
             - /manager
           args:
