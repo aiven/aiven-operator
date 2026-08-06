@@ -62,6 +62,7 @@ func (r *KafkaACLController) Create(ctx context.Context, acl *v1alpha1.KafkaACL)
 	if err := r.applyACL(ctx, acl); err != nil {
 		return CreateResult{}, err
 	}
+	markInstanceRunning(acl)
 	return CreateResult{}, nil
 }
 
@@ -69,6 +70,7 @@ func (r *KafkaACLController) Update(ctx context.Context, acl *v1alpha1.KafkaACL)
 	if err := r.applyACL(ctx, acl); err != nil {
 		return UpdateResult{}, err
 	}
+	markInstanceRunning(acl)
 	return UpdateResult{}, nil
 }
 

@@ -112,13 +112,13 @@ func TestKafkaSchemaRegistryACLReconciler(t *testing.T) {
 
 		r, res, err := runKafkaSchemaRegistryACLScenario(t, acl, avn)
 		require.NoError(t, err)
-		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
 
 		got := &v1alpha1.KafkaSchemaRegistryACL{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: acl.Name, Namespace: acl.Namespace}, got))
 		require.Equal(t, "acl-id", got.Status.ACLId)
 		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
-		require.NotContains(t, got.Annotations, instanceIsRunningAnnotation)
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
 	})
 
 	t.Run("Fails when the created ACL is absent from the Aiven response", func(t *testing.T) {
@@ -209,12 +209,12 @@ func TestKafkaSchemaRegistryACLReconciler(t *testing.T) {
 
 		r, res, err := runKafkaSchemaRegistryACLScenario(t, acl, avn)
 		require.NoError(t, err)
-		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
 
 		got := &v1alpha1.KafkaSchemaRegistryACL{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: acl.Name, Namespace: acl.Namespace}, got))
 		require.Equal(t, "new-id", got.Status.ACLId)
-		require.NotContains(t, got.Annotations, instanceIsRunningAnnotation)
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
 	})
 
 	t.Run("Deletes KafkaSchemaRegistryACL and removes finalizer on deletion", func(t *testing.T) {
