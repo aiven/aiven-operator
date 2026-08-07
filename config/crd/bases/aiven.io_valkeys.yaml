@@ -460,6 +460,14 @@ spec:
                       maximum: 10
                       minimum: 1
                       type: integer
+                    valkey_activedefrag:
+                      description:
+                        Enable active memory defragmentation. When enabled,
+                        Valkey relocates objects off sparsely-used memory pages to reduce
+                        fragmentation and return memory to the operating system. Defragmentation
+                        runs on the main thread and consumes CPU, so it may increase
+                        latency under load.
+                      type: boolean
                     valkey_io_threads:
                       description:
                         Set Valkey IO thread count. Changing this will cause
