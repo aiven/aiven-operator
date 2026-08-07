@@ -109,3 +109,6 @@ logging:
   # Log level for the operator (debug, info, error)
   # If not set, the operator will use its default logging configuration
   level: ""
+  # Log encoder for the operator (json, console)
+  # If not set, the operator will use its default encoder
+  encoder: ""
