@@ -234,12 +234,12 @@ func TestKafkaQuotaReconciler(t *testing.T) {
 
 		r, res, err := runKafkaQuotaScenario(t, quota, avn)
 		require.NoError(t, err)
-		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
 
 		got := &v1alpha1.KafkaQuota{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: quota.Name, Namespace: quota.Namespace}, got))
 		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
-		require.NotContains(t, got.Annotations, instanceIsRunningAnnotation)
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
 	})
 
 	t.Run("Marks KafkaQuota running when remote quota matches spec", func(t *testing.T) {
@@ -303,12 +303,12 @@ func TestKafkaQuotaReconciler(t *testing.T) {
 
 		r, res, err := runKafkaQuotaScenario(t, quota, avn)
 		require.NoError(t, err)
-		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
 
 		got := &v1alpha1.KafkaQuota{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: quota.Name, Namespace: quota.Namespace}, got))
 		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
-		require.NotContains(t, got.Annotations, instanceIsRunningAnnotation)
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
 	})
 
 	t.Run("Deletes KafkaQuota and removes finalizer on deletion", func(t *testing.T) {

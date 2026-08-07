@@ -68,6 +68,8 @@ func (r *KafkaSchemaRegistryACLController) Create(ctx context.Context, acl *v1al
 	if err := r.addACL(ctx, acl); err != nil {
 		return CreateResult{}, err
 	}
+
+	markInstanceRunning(acl)
 	return CreateResult{}, nil
 }
 

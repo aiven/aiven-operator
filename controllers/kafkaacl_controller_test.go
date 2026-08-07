@@ -123,13 +123,13 @@ func TestKafkaACLReconciler(t *testing.T) {
 
 		r, res, err := runKafkaACLScenario(t, acl, avn)
 		require.NoError(t, err)
-		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
 
 		got := &v1alpha1.KafkaACL{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: acl.Name, Namespace: acl.Namespace}, got))
 		require.Equal(t, "acl-id", got.Status.ID)
 		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
-		require.NotContains(t, got.Annotations, instanceIsRunningAnnotation)
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
 	})
 
 	t.Run("Marks KafkaACL running when it already exists", func(t *testing.T) {
@@ -283,11 +283,12 @@ func TestKafkaACLReconciler(t *testing.T) {
 
 		r, res, err := runKafkaACLScenario(t, acl, avn)
 		require.NoError(t, err)
-		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
 
 		got := &v1alpha1.KafkaACL{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: acl.Name, Namespace: acl.Namespace}, got))
 		require.Equal(t, "new-id", got.Status.ID)
 		require.Equal(t, "2", got.Annotations[processedGenerationAnnotation])
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
 	})
 }
