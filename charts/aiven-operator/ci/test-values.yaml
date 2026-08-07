@@ -6,3 +6,7 @@ webhooks:
 extraEnvs:
   - name: AIVEN_OPERATOR_CI_EXTRA_ENV
     value: chart-testing
+
+logging:
+  level: info
+  encoder: json

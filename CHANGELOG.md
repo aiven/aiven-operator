@@ -6,6 +6,7 @@
 - Fix `KafkaACL`, `KafkaQuota`, and `KafkaSchemaRegistryACL` to reach the `ReadyToUse`
   state in a single reconcile cycle after creation or update.
 - Add `extraEnvs` option to Helm chart, to set additional environment variables on the operator deployment.
+- Add `logging.encoder` option to Helm chart, to log in `json` or `console` format.
 - Add `Valkey` field `userConfig.valkey_activedefrag`, type `boolean`: Enable active memory defragmentation
 
 ## v0.43.0 - 2026-07-24
