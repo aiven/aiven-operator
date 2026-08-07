@@ -245,6 +245,11 @@ func (in *ValkeyUserConfig) DeepCopyInto(out *ValkeyUserConfig) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.ValkeyActivedefrag != nil {
+		in, out := &in.ValkeyActivedefrag, &out.ValkeyActivedefrag
+		*out = new(bool)
+		**out = **in
+	}
 	if in.ValkeyIoThreads != nil {
 		in, out := &in.ValkeyIoThreads, &out.ValkeyIoThreads
 		*out = new(int)
