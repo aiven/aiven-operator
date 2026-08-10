@@ -53,6 +53,9 @@ spec:
             - name: WATCHED_NAMESPACES
               value: {{ . | uniq | join "," | quote }}
             {{- end }}
+            {{- with .Values.extraEnvs }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           command:
             - /manager
           args:
@@ -65,6 +68,12 @@ spec:
             {{- fail (printf "Invalid log level '%s'. Must be one of: debug, info, error" .Values.logging.level) }}
             {{- end }}
             - --zap-log-level={{ .Values.logging.level }}
+            {{- end }}
+            {{- if .Values.logging.encoder }}
+            {{- if not (has .Values.logging.encoder (list "json" "console")) }}
+            {{- fail (printf "Invalid log encoder '%s'. Must be one of: json, console" .Values.logging.encoder) }}
+            {{- end }}
+            - --zap-encoder={{ .Values.logging.encoder }}
             {{- end }}
 
           ports:

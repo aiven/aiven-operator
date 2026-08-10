@@ -72,7 +72,7 @@ func (r *KafkaQuotaController) Create(ctx context.Context, q *v1alpha1.KafkaQuot
 
 	const reason = "CreatedOrUpdated"
 	meta.SetStatusCondition(&q.Status.Conditions, getInitializedCondition(reason, "Successfully created or updated the instance in Aiven"))
-	meta.SetStatusCondition(&q.Status.Conditions, getRunningCondition(metav1.ConditionUnknown, reason, "Successfully created or updated the instance in Aiven, status remains unknown"))
+	markInstanceRunning(q)
 
 	return CreateResult{}, nil
 }
@@ -85,7 +85,7 @@ func (r *KafkaQuotaController) Update(ctx context.Context, q *v1alpha1.KafkaQuot
 
 	const reason = "CreatedOrUpdated"
 	meta.SetStatusCondition(&q.Status.Conditions, getInitializedCondition(reason, "Successfully created or updated the instance in Aiven"))
-	meta.SetStatusCondition(&q.Status.Conditions, getRunningCondition(metav1.ConditionUnknown, reason, "Successfully created or updated the instance in Aiven, status remains unknown"))
+	markInstanceRunning(q)
 
 	return UpdateResult{}, nil
 }

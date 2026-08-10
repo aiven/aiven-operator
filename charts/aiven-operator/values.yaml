@@ -10,6 +10,12 @@ metricsBindAddress: ""
 healthProbeBindAddress: ""
 leaderElect: true
 
+# Extra environment variables for the operator container.
+# extraEnvs:
+#   - name: example_name
+#     value: "example_value"
+extraEnvs: []
+
 # Default Aiven Token Secret
 # Configure a single Aiven API token that can be used by all resources.
 # This eliminates the need to create token secrets in every namespace.
@@ -103,3 +109,6 @@ logging:
   # Log level for the operator (debug, info, error)
   # If not set, the operator will use its default logging configuration
   level: ""
+  # Log encoder for the operator (json, console)
+  # If not set, the operator will use its default encoder
+  encoder: ""

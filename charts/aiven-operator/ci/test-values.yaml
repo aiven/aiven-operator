@@ -1,2 +1,12 @@
 webhooks:
   enabled: false
+
+# Renders the extraEnvs block without affecting the operator's runtime behaviour;
+# proxy variables would break `ct install` against the kind cluster.
+extraEnvs:
+  - name: AIVEN_OPERATOR_CI_EXTRA_ENV
+    value: chart-testing
+
+logging:
+  level: info
+  encoder: json

@@ -148,6 +148,9 @@ type ValkeyUserConfig struct {
 	// Valkey reclaims expired keys both when accessed and in the background. The background process scans for expired keys to free memory. Increasing the active-expire-effort setting (default 1, max 10) uses more CPU to reclaim expired keys faster, reducing memory usage but potentially increasing latency.
 	ValkeyActiveExpireEffort *int `groups:"create,update" json:"valkey_active_expire_effort,omitempty"`
 
+	// Enable active memory defragmentation. When enabled, Valkey relocates objects off sparsely-used memory pages to reduce fragmentation and return memory to the operating system. Defragmentation runs on the main thread and consumes CPU, so it may increase latency under load.
+	ValkeyActivedefrag *bool `groups:"create,update" json:"valkey_activedefrag,omitempty"`
+
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=256
 	// Set Valkey IO thread count. Changing this will cause a restart of the Valkey service.
