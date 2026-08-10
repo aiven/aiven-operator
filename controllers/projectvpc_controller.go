@@ -47,13 +47,25 @@ func (r *ProjectVPCController) Observe(ctx context.Context, projectVPC *v1alpha1
 			return Observation{}, fmt.Errorf("cannot list project VPCs: %w", err)
 		}
 
-		for _, v := range vpcs {
-			// cloudName + networkCidr uniquely identify a VPC within a project, and both are
-			// immutable on the spec, so a match is unambiguously our resource.
-			if v.CloudName == projectVPC.Spec.CloudName && v.NetworkCidr == projectVPC.Spec.NetworkCidr {
-				projectVPC.Status.ID = v.ProjectVpcId
-				return r.observeState(projectVPC, v.State), nil
+		var pending *vpc.VpcOut
+		for i, v := range vpcs {
+			if !vpcMatchesSpec(v, projectVPC.Spec) {
+				continue
 			}
+
+			// A VPC still being torn down can be neither adopted nor replaced.
+			if isVPCGone(v.State) {
+				pending = &vpcs[i]
+				continue
+			}
+
+			projectVPC.Status.ID = v.ProjectVpcId
+			return r.observeState(projectVPC, v.State), nil
+		}
+
+		if pending != nil {
+			return Observation{}, fmt.Errorf("%w: vpc %s with the same cloudName and networkCidr is %s, waiting for it to be removed before creating a replacement",
+				errPreconditionNotMet, pending.ProjectVpcId, pending.State)
 		}
 
 		// No matching VPC exists yet; let the reconciler create one.
@@ -70,6 +82,17 @@ func (r *ProjectVPCController) Observe(ctx context.Context, projectVPC *v1alpha1
 	}
 
 	return r.observeState(projectVPC, avnVpc.State), nil
+}
+
+// vpcMatchesSpec reports whether the remote VPC is the one this resource describes.
+// cloudName and networkCidr uniquely identify a VPC within a project.
+func vpcMatchesSpec(v vpc.VpcOut, spec v1alpha1.ProjectVPCSpec) bool {
+	return v.CloudName == spec.CloudName && v.NetworkCidr == spec.NetworkCidr
+}
+
+// isVPCGone reports whether Aiven has already torn the VPC down.
+func isVPCGone(state vpc.VpcStateType) bool {
+	return state == vpc.VpcStateTypeDeleting || state == vpc.VpcStateTypeDeleted
 }
 
 // observeState records the observed VPC state on the status and reports whether the resource
@@ -129,9 +152,8 @@ func (r *ProjectVPCController) Delete(ctx context.Context, projectVPC *v1alpha1.
 		return err
 	}
 
-	switch avnVpc.State {
-	case vpc.VpcStateTypeDeleting, vpc.VpcStateTypeDeleted:
-		// Deletion already confirmed on Aiven side; remove the finalizer.
+	// Deletion already confirmed on Aiven side; remove the finalizer.
+	if isVPCGone(avnVpc.State) {
 		return nil
 	}
 
