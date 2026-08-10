@@ -38,6 +38,23 @@ spec:
   resourceType: Topic
 `
 
+// nativeACLListWith returns a list response holding one remote entry that matches the CR spec
+// under the given ID.
+func nativeACLListWith(acl *v1alpha1.KafkaNativeACL, id string) *kafka.ServiceKafkaNativeAclListOut {
+	return &kafka.ServiceKafkaNativeAclListOut{
+		KafkaAcl: []kafka.KafkaAclOut{{
+			Id:             id,
+			Host:           acl.Spec.Host,
+			Operation:      acl.Spec.Operation,
+			PatternType:    acl.Spec.PatternType,
+			PermissionType: kafka.KafkaAclPermissionType(acl.Spec.PermissionType),
+			Principal:      acl.Spec.Principal,
+			ResourceName:   acl.Spec.ResourceName,
+			ResourceType:   acl.Spec.ResourceType,
+		}},
+	}
+}
+
 func runKafkaNativeACLScenario(
 	t *testing.T,
 	acl *v1alpha1.KafkaNativeACL,
@@ -106,7 +123,7 @@ func TestKafkaNativeACLReconciler(t *testing.T) {
 		avn.EXPECT().
 			ServiceGet(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName, mock.Anything).
 			Return(runningService(), nil).Once()
-		// New path: list is checked first; empty list means no orphan to adopt.
+		// Existence comes from the live list; an empty list means there is nothing to adopt.
 		avn.EXPECT().
 			ServiceKafkaNativeAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
 			Return(&kafka.ServiceKafkaNativeAclListOut{KafkaAcl: nil}, nil).Once()
@@ -146,8 +163,8 @@ func TestKafkaNativeACLReconciler(t *testing.T) {
 			ServiceGet(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName, mock.Anything).
 			Return(runningService(), nil).Once()
 		avn.EXPECT().
-			ServiceKafkaNativeAclGet(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName, "acl-123").
-			Return(&kafka.ServiceKafkaNativeAclGetOut{Id: "acl-123"}, nil).Once()
+			ServiceKafkaNativeAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
+			Return(nativeACLListWith(acl, "acl-123"), nil).Once()
 
 		r, res, err := runKafkaNativeACLScenario(t, acl, avn)
 		require.NoError(t, err)
@@ -155,22 +172,27 @@ func TestKafkaNativeACLReconciler(t *testing.T) {
 
 		got := &v1alpha1.KafkaNativeACL{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: acl.Name, Namespace: acl.Namespace}, got))
+		require.Equal(t, "acl-123", got.Status.ID)
 		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
 	})
 
-	t.Run("Recreates KafkaNativeACL when status ID is stale (404 on get)", func(t *testing.T) {
+	t.Run("Recreates KafkaNativeACL when no remote entry matches the spec", func(t *testing.T) {
 		acl := newObjectFromYAML[v1alpha1.KafkaNativeACL](t, yamlKafkaNativeACL)
 		acl.Generation = 1
 		acl.Status.ID = "stale-id"
 		acl.Annotations = map[string]string{processedGenerationAnnotation: "1"}
+
+		// An unrelated entry on the same service must not be mistaken for this one.
+		other := nativeACLListWith(acl, "other-acl-id")
+		other.KafkaAcl[0].Principal = "User:bob"
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
 			ServiceGet(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName, mock.Anything).
 			Return(runningService(), nil).Once()
 		avn.EXPECT().
-			ServiceKafkaNativeAclGet(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName, "stale-id").
-			Return(nil, newAivenError(404, "not found")).Once()
+			ServiceKafkaNativeAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
+			Return(other, nil).Once()
 		avn.EXPECT().
 			ServiceKafkaNativeAclAdd(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName, mock.Anything).
 			Return(&kafka.ServiceKafkaNativeAclAddOut{Id: "acl-456"}, nil).Once()
@@ -182,6 +204,76 @@ func TestKafkaNativeACLReconciler(t *testing.T) {
 		got := &v1alpha1.KafkaNativeACL{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: acl.Name, Namespace: acl.Namespace}, got))
 		require.Equal(t, "acl-456", got.Status.ID)
+	})
+
+	t.Run("Re-adopts KafkaNativeACL when the entry was recreated under a new ID", func(t *testing.T) {
+		// Aiven assigns a fresh ID whenever an entry is recreated, so a cached ID can point at
+		// nothing while an identical entry exists. Creating again would 409 forever.
+		acl := newObjectFromYAML[v1alpha1.KafkaNativeACL](t, yamlKafkaNativeACL)
+		acl.Generation = 1
+		acl.Status.ID = "stale-id"
+		acl.Annotations = map[string]string{processedGenerationAnnotation: "1"}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName, mock.Anything).
+			Return(runningService(), nil).Once()
+		avn.EXPECT().
+			ServiceKafkaNativeAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
+			Return(nativeACLListWith(acl, "recreated-acl-id"), nil).Once()
+		// ServiceKafkaNativeAclAdd must NOT be called.
+
+		r, res, err := runKafkaNativeACLScenario(t, acl, avn)
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		got := &v1alpha1.KafkaNativeACL{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: acl.Name, Namespace: acl.Namespace}, got))
+		require.Equal(t, "recreated-acl-id", got.Status.ID)
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
+	})
+
+	t.Run("Adopts KafkaNativeACL when Aiven reports an empty host", func(t *testing.T) {
+		// Aiven only substitutes "*" for a missing host key, so an entry created elsewhere
+		// with an explicit empty host still means all hosts.
+		acl := newObjectFromYAML[v1alpha1.KafkaNativeACL](t, yamlKafkaNativeACL)
+		acl.Generation = 1
+		require.Equal(t, "*", acl.Spec.Host)
+
+		emptyHost := nativeACLListWith(acl, "empty-host-acl-id")
+		emptyHost.KafkaAcl[0].Host = ""
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName, mock.Anything).
+			Return(runningService(), nil).Once()
+		avn.EXPECT().
+			ServiceKafkaNativeAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
+			Return(emptyHost, nil).Once()
+
+		r, res, err := runKafkaNativeACLScenario(t, acl, avn)
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		got := &v1alpha1.KafkaNativeACL{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: acl.Name, Namespace: acl.Namespace}, got))
+		require.Equal(t, "empty-host-acl-id", got.Status.ID)
+	})
+
+	t.Run("Fails reconcile when the KafkaNativeACL list call fails", func(t *testing.T) {
+		acl := newObjectFromYAML[v1alpha1.KafkaNativeACL](t, yamlKafkaNativeACL)
+		acl.Generation = 1
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName, mock.Anything).
+			Return(runningService(), nil).Once()
+		avn.EXPECT().
+			ServiceKafkaNativeAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
+			Return(nil, newAivenError(400, "bad request")).Once()
+
+		_, _, err := runKafkaNativeACLScenario(t, acl, avn)
+		require.ErrorContains(t, err, "list Kafka-native ACLs error")
 	})
 
 	t.Run("Deletes KafkaNativeACL and removes finalizer on deletion", func(t *testing.T) {
@@ -228,6 +320,25 @@ func TestKafkaNativeACLReconciler(t *testing.T) {
 		require.True(t, apierrors.IsNotFound(err))
 	})
 
+	t.Run("Skips the Aiven delete when no KafkaNativeACL ID was ever recorded", func(t *testing.T) {
+		acl := newObjectFromYAML[v1alpha1.KafkaNativeACL](t, yamlKafkaNativeACL)
+		acl.Generation = 1
+		acl.Finalizers = []string{instanceDeletionFinalizer}
+		now := metav1.Now()
+		acl.DeletionTimestamp = &now
+
+		// No Aiven call is expected: there is nothing to address without an ID.
+		avn := avngen.NewMockClient(t)
+
+		r, res, err := runKafkaNativeACLScenario(t, acl, avn)
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{}, res)
+
+		got := &v1alpha1.KafkaNativeACL{}
+		err = r.Get(t.Context(), types.NamespacedName{Name: acl.Name, Namespace: acl.Namespace}, got)
+		require.True(t, apierrors.IsNotFound(err))
+	})
+
 	t.Run("Adopts orphaned KafkaNativeACL when status ID is empty but spec matches existing entry", func(t *testing.T) {
 		// Simulates: CR deleted with deletionPolicy:Orphan, then re-applied.
 		// The operator must adopt the existing ACL instead of trying to create a duplicate.
@@ -241,20 +352,7 @@ func TestKafkaNativeACLReconciler(t *testing.T) {
 			Return(runningService(), nil).Once()
 		avn.EXPECT().
 			ServiceKafkaNativeAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
-			Return(&kafka.ServiceKafkaNativeAclListOut{
-				KafkaAcl: []kafka.KafkaAclOut{
-					{
-						Id:             "orphaned-acl-id",
-						Principal:      acl.Spec.Principal,
-						ResourceName:   acl.Spec.ResourceName,
-						Operation:      acl.Spec.Operation,
-						PatternType:    acl.Spec.PatternType,
-						PermissionType: kafka.KafkaAclPermissionType(acl.Spec.PermissionType),
-						ResourceType:   acl.Spec.ResourceType,
-						Host:           acl.Spec.Host,
-					},
-				},
-			}, nil).Once()
+			Return(nativeACLListWith(acl, "orphaned-acl-id"), nil).Once()
 		// ServiceKafkaNativeAclAdd must NOT be called — adoption avoids the 409.
 
 		r, res, err := runKafkaNativeACLScenario(t, acl, avn)
@@ -284,6 +382,12 @@ func TestNativeSpecMatches(t *testing.T) {
 		ResourceType:   spec.ResourceType,
 	}
 	require.True(t, nativeSpecMatches(spec, remote))
+
+	// Aiven stores an explicitly empty host verbatim, but it means the same as the "*" the
+	// spec defaults to.
+	emptyHost := remote
+	emptyHost.Host = ""
+	require.True(t, nativeSpecMatches(spec, emptyHost))
 
 	// Every field below is part of the Kafka ACL identity tuple, so a difference in any
 	// single one of them must prevent adoption.

@@ -19,7 +19,7 @@ This resource uses the following API operations, and for each operation, _any_ o
 | [ServiceGet](https://api.aiven.io/doc/#operation/ServiceGet) | `project:services:read` |
 | [ServiceKafkaNativeAclAdd](https://api.aiven.io/doc/#operation/ServiceKafkaNativeAclAdd) | `service:data:write` |
 | [ServiceKafkaNativeAclDelete](https://api.aiven.io/doc/#operation/ServiceKafkaNativeAclDelete) | `service:data:write` |
-| [ServiceKafkaNativeAclGet](https://api.aiven.io/doc/#operation/ServiceKafkaNativeAclGet) | `service:data:write` |
+| [ServiceKafkaNativeAclList](https://api.aiven.io/doc/#operation/ServiceKafkaNativeAclList) | `service:data:write` |
 
 ## Usage example
 

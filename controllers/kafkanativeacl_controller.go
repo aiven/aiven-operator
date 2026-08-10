@@ -8,6 +8,7 @@ import (
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafka"
+	"github.com/go-logr/logr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -38,37 +39,30 @@ func (r *KafkaNativeACLController) Observe(ctx context.Context, acl *v1alpha1.Ka
 		return Observation{}, err
 	}
 
-	if acl.Status.ID == "" {
-		// No stored ID — the ACL may already exist on Aiven, e.g. the CR was recreated after a
-		// deletionPolicy:Orphan deletion, or the ACL was created outside the operator. Check the
-		// live list before creating.
-		list, err := r.avnGen.ServiceKafkaNativeAclList(ctx, acl.Spec.Project, acl.Spec.ServiceName)
-		if err != nil {
-			return Observation{}, fmt.Errorf("list Kafka-native ACLs error: %w", err)
-		}
-		for _, existing := range list.KafkaAcl {
-			if nativeSpecMatches(acl.Spec, existing) {
-				acl.Status.ID = existing.Id
-				markInstanceRunning(acl)
-				// The spec is immutable, so an adopted ACL is always up to date.
-				return Observation{ResourceExists: true, ResourceUpToDate: true}, nil
-			}
-		}
-		return Observation{ResourceExists: false}, nil
+	list, err := r.avnGen.ServiceKafkaNativeAclList(ctx, acl.Spec.Project, acl.Spec.ServiceName)
+	if err != nil {
+		return Observation{}, fmt.Errorf("list Kafka-native ACLs error: %w", err)
 	}
 
-	_, err := r.avnGen.ServiceKafkaNativeAclGet(ctx, acl.Spec.Project, acl.Spec.ServiceName, acl.Status.ID)
-	switch {
-	case isNotFound(err):
-		return Observation{ResourceExists: false}, nil
-	case err != nil:
-		return Observation{}, fmt.Errorf("get Kafka-native ACL error: %w", err)
+	for _, existing := range list.KafkaAcl {
+		if !nativeSpecMatches(acl.Spec, existing) {
+			continue
+		}
+
+		if acl.Status.ID != existing.Id {
+			// Adopting an entry this CR did not create.
+			logr.FromContextOrDiscard(ctx).Info("adopting existing Kafka-native ACL",
+				"aclID", existing.Id, "cachedID", acl.Status.ID)
+			acl.Status.ID = existing.Id
+		}
+
+		markInstanceRunning(acl)
+
+		// The spec is immutable, so an existing ACL is always up to date.
+		return Observation{ResourceExists: true, ResourceUpToDate: true}, nil
 	}
 
-	markInstanceRunning(acl)
-
-	// The spec is immutable, so an existing ACL is always up to date.
-	return Observation{ResourceExists: true, ResourceUpToDate: true}, nil
+	return Observation{ResourceExists: false}, nil
 }
 
 func (r *KafkaNativeACLController) Create(ctx context.Context, acl *v1alpha1.KafkaNativeACL) (CreateResult, error) {
@@ -102,6 +96,10 @@ func (r *KafkaNativeACLController) Update(_ context.Context, acl *v1alpha1.Kafka
 }
 
 func (r *KafkaNativeACLController) Delete(ctx context.Context, acl *v1alpha1.KafkaNativeACL) error {
+	if acl.Status.ID == "" {
+		return nil
+	}
+
 	err := r.avnGen.ServiceKafkaNativeAclDelete(ctx, acl.Spec.Project, acl.Spec.ServiceName, acl.Status.ID)
 	if err != nil && !isNotFound(err) {
 		return fmt.Errorf("delete Kafka-native ACL error: %w", err)
@@ -112,11 +110,19 @@ func (r *KafkaNativeACLController) Delete(ctx context.Context, acl *v1alpha1.Kaf
 // nativeSpecMatches reports whether an existing Kafka-native ACL from Aiven matches the CR
 // spec. All immutable identifying fields are compared.
 func nativeSpecMatches(spec v1alpha1.KafkaNativeACLSpec, existing kafka.KafkaAclOut) bool {
-	return spec.Host == existing.Host &&
+	return normalizeACLHost(spec.Host) == normalizeACLHost(existing.Host) &&
 		spec.Principal == existing.Principal &&
 		spec.ResourceName == existing.ResourceName &&
 		spec.Operation == existing.Operation &&
 		spec.PatternType == existing.PatternType &&
 		string(spec.PermissionType) == string(existing.PermissionType) &&
 		spec.ResourceType == existing.ResourceType
+}
+
+// normalizeACLHost resolves an empty host to the wildcard the spec defaults to.
+func normalizeACLHost(host string) string {
+	if host == "" {
+		return "*"
+	}
+	return host
 }
