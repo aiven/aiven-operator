@@ -138,6 +138,84 @@ func TestProjectVPCReconciler(t *testing.T) {
 		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
 	})
 
+	for _, tc := range []struct {
+		name  string
+		state vpc.VpcStateType
+	}{
+		{"DELETING", vpc.VpcStateTypeDeleting},
+		{"DELETED", vpc.VpcStateTypeDeleted},
+	} {
+		t.Run("Waits instead of adopting or replacing a "+tc.name+" VPC matching the spec", func(t *testing.T) {
+			vpcObj := newProjectVPC(t)
+			vpcObj.Generation = 1
+
+			avn := avngen.NewMockClient(t)
+			avn.EXPECT().
+				VpcList(mock.Anything, vpcObj.Spec.Project).
+				Return([]vpc.VpcOut{
+					// Matches the spec, but is being torn down. Adopting it would wait for an
+					// ACTIVE state that never comes; creating a replacement cannot work while it
+					// still holds the cloudName + networkCidr key.
+					{ProjectVpcId: "gone-id", CloudName: vpcObj.Spec.CloudName, NetworkCidr: vpcObj.Spec.NetworkCidr, State: tc.state},
+				}, nil).Once()
+			// Neither VpcCreate nor any other call: the precondition is simply not met yet.
+
+			r, res := runScenario(t, vpcObj, avn)
+			require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
+
+			got := getVPC(t, r, vpcObj)
+			require.Empty(t, got.Status.ID, "must not adopt the VPC being torn down")
+			// A precondition wait is not an error state, so no Error condition is recorded.
+			require.Nil(t, meta.FindStatusCondition(got.Status.Conditions, ConditionTypeError))
+		})
+	}
+
+	t.Run("A torn-down VPC with a different key does not block creation", func(t *testing.T) {
+		vpcObj := newProjectVPC(t)
+		vpcObj.Generation = 1
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			VpcList(mock.Anything, vpcObj.Spec.Project).
+			Return([]vpc.VpcOut{
+				// Being torn down, but holds a different CIDR, so it occupies no key of ours.
+				{ProjectVpcId: "gone-id", CloudName: vpcObj.Spec.CloudName, NetworkCidr: "10.99.0.0/24", State: vpc.VpcStateTypeDeleting},
+			}, nil).Once()
+		avn.EXPECT().
+			VpcCreate(mock.Anything, vpcObj.Spec.Project, mock.Anything).
+			Return(&vpc.VpcCreateOut{ProjectVpcId: "new-vpc-id", State: vpc.VpcStateTypeApproved}, nil).Once()
+
+		r, res := runScenario(t, vpcObj, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
+
+		got := getVPC(t, r, vpcObj)
+		require.Equal(t, "new-vpc-id", got.Status.ID)
+	})
+
+	t.Run("Adopts the live VPC when a torn-down one with the same key is listed first", func(t *testing.T) {
+		vpcObj := newProjectVPC(t)
+		vpcObj.Generation = 1
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			VpcList(mock.Anything, vpcObj.Spec.Project).
+			Return([]vpc.VpcOut{
+				// A previous VPC with the same cloud and CIDR, already deleted. It must not
+				// shadow the live one that follows it.
+				{ProjectVpcId: "gone-id", CloudName: vpcObj.Spec.CloudName, NetworkCidr: vpcObj.Spec.NetworkCidr, State: vpc.VpcStateTypeDeleted},
+				{ProjectVpcId: "adopted-id", CloudName: vpcObj.Spec.CloudName, NetworkCidr: vpcObj.Spec.NetworkCidr, State: vpc.VpcStateTypeActive},
+			}, nil).Once()
+		// VpcCreate must NOT be called: the live VPC is adopted.
+
+		r, res := runScenario(t, vpcObj, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		got := getVPC(t, r, vpcObj)
+		require.Equal(t, "adopted-id", got.Status.ID)
+		require.Equal(t, vpc.VpcStateTypeActive, got.Status.State)
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
+	})
+
 	t.Run("APPROVED state does not mark running and soft-requeues", func(t *testing.T) {
 		vpcObj := newProjectVPC(t)
 		vpcObj.Generation = 1
