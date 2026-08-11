@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.44.0 - 2026-08-11
+
+- Add kind: `OrganizationProject` to manage Aiven projects that belong to an organization or organizational unit.
+- Fix `KafkaACL`, `KafkaQuota`, and `KafkaSchemaRegistryACL` to reach the `ReadyToUse`
+  state in a single reconcile cycle after creation or update.
+- Add `extraEnvs` option to Helm chart, to set additional environment variables on the operator deployment.
+- Add `logging.encoder` option to Helm chart, to log in `json` or `console` format.
+- Add `Valkey` field `userConfig.valkey_activedefrag`, type `boolean`: Enable active memory defragmentation
+- Fix `ProjectVPC` adopting a VPC that Aiven is already tearing down. Re-creating a `ProjectVPC` with the
+  same `cloudName` and `networkCidr` shortly after deleting one left the resource waiting forever for an
+  `ACTIVE` state. It now waits for the old VPC to disappear and then creates a replacement.
+
 ## v0.43.0 - 2026-07-24
 
 - Add `ServiceUser` field `username`, type `string`: Username of the service user on Aiven.

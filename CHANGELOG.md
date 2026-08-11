@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.44.0 - 2026-08-11
+
 - Add kind: `OrganizationProject` to manage Aiven projects that belong to an organization or organizational unit.
 - Fix `KafkaACL`, `KafkaQuota`, and `KafkaSchemaRegistryACL` to reach the `ReadyToUse`
   state in a single reconcile cycle after creation or update.
