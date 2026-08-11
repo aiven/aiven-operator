@@ -1,0 +1,24 @@
+apiVersion: aiven.io/v1alpha1
+kind: OrganizationProject
+metadata:
+  name: my-organization-project
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: my-organization-project-ca-cert
+
+  organizationId: org123456789a
+  projectId: my-organization-project
+  billingGroupId: bg123456789a
+  parentId: org123456789a
+
+  basePort: 12000
+
+  technicalEmails:
+    - tech@example.com
+
+  tags:
+    env: prod

@@ -97,6 +97,9 @@
         <loc>https://aiven.github.io/aiven-operator/resources/opensearch.html</loc>
       </url>
       <url>
+        <loc>https://aiven.github.io/aiven-operator/resources/organizationproject.html</loc>
+      </url>
+      <url>
         <loc>https://aiven.github.io/aiven-operator/resources/postgresql.html</loc>
       </url>
       <url>
@@ -173,6 +176,9 @@
       </url>
       <url>
         <loc>https://aiven.github.io/aiven-operator/resources/opensearch.html</loc>
+      </url>
+      <url>
+        <loc>https://aiven.github.io/aiven-operator/resources/organizationproject.html</loc>
       </url>
       <url>
         <loc>https://aiven.github.io/aiven-operator/resources/postgresql.html</loc>
