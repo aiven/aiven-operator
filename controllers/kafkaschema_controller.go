@@ -213,7 +213,24 @@ func (r *KafkaSchemaController) Update(ctx context.Context, schema *v1alpha1.Kaf
 // Schema A -> ID:1, Version:1
 // Schema B -> ID:2, Version:2
 // Revert to A -> ID:1, Version:1
+//
+// The compatibility level must be set first, see the KafkaSchema docs for why. The two calls
+// are not atomic, so a rejected schema leaves the new level applied and is retried on the next
+// reconciliation. Configuring a subject that does not exist yet is accepted by the registry and
+// does not make it visible to Observe.
 func (r *KafkaSchemaController) applySchema(ctx context.Context, schema *v1alpha1.KafkaSchema) error {
+	if schema.Spec.CompatibilityLevel != "" {
+		if _, err := r.avnGen.ServiceSchemaRegistrySubjectConfigPut(
+			ctx,
+			schema.Spec.Project,
+			schema.Spec.ServiceName,
+			schema.Spec.SubjectName,
+			&kafkaschemaregistry.ServiceSchemaRegistrySubjectConfigPutIn{Compatibility: schema.Spec.CompatibilityLevel},
+		); err != nil {
+			return fmt.Errorf("cannot update Kafka Schema Configuration: %w", err)
+		}
+	}
+
 	postIn := &kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionPostIn{
 		Schema:     schema.Spec.Schema,
 		SchemaType: schema.Spec.SchemaType,
@@ -246,18 +263,6 @@ func (r *KafkaSchemaController) applySchema(ctx context.Context, schema *v1alpha
 	}
 	schema.Status.ID = schemaID
 	schema.Status.Version = version
-
-	if schema.Spec.CompatibilityLevel != "" {
-		if _, err := r.avnGen.ServiceSchemaRegistrySubjectConfigPut(
-			ctx,
-			schema.Spec.Project,
-			schema.Spec.ServiceName,
-			schema.Spec.SubjectName,
-			&kafkaschemaregistry.ServiceSchemaRegistrySubjectConfigPutIn{Compatibility: schema.Spec.CompatibilityLevel},
-		); err != nil {
-			return fmt.Errorf("cannot update Kafka Schema Configuration: %w", err)
-		}
-	}
 
 	metav1.SetMetaDataAnnotation(
 		&schema.ObjectMeta,

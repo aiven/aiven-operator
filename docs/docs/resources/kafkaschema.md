@@ -178,6 +178,10 @@ Deletion: the operator performs a soft delete followed by a hard delete on
 the subject. The subject disappears from the registry's listing, re-applying a KafkaSchema with the same subjectName
 after deletion starts a brand-new subject at version 1.
 
+Update ordering: when schema and compatibilityLevel change in the same apply, the
+compatibility level is set first, because the registry validates a new version against the
+level currently configured for the subject. A rejected schema leaves the new level applied.
+
 **Required**
 
 - [`apiVersion`](#apiVersion-property){: name='apiVersion-property'} (string). Value `aiven.io/v1alpha1`.

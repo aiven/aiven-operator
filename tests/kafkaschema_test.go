@@ -162,6 +162,55 @@ func TestKafkaSchema(t *testing.T) {
 	assert.NoError(t, s.Delete(schemaA, subjectExists))
 }
 
+// Loosening compatibilityLevel and breaking the schema in one apply must converge.
+func TestKafkaSchemaCompatibilityLoosening(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	kafka, releaseKafka, err := sharedResources.AcquireKafka(ctx)
+	require.NoError(t, err)
+	defer releaseKafka()
+
+	kafkaName := kafka.GetName()
+	schemaName := randName("kafka-schema-compat")
+	subjectName := randName("kafka-schema-compat")
+	s := NewSession(ctx, k8sClient)
+	defer s.Destroy(t)
+
+	// getKafkaSchemaYaml pins the subject to BACKWARD.
+	require.NoError(t, s.Apply(getKafkaSchemaYaml(cfg.Project, kafkaName, schemaName, subjectName)))
+
+	strict := new(v1alpha1.KafkaSchema)
+	require.NoError(t, s.GetRunning(strict, schemaName))
+	require.Equal(t, 1, strict.Status.Version)
+
+	// Guards against the test going vacuous if the registry ever accepts the breaking schema.
+	check, err := avnGen.ServiceSchemaRegistryCompatibility(
+		ctx, cfg.Project, kafkaName, subjectName, strict.Status.Version,
+		&kafkaschemaregistry.ServiceSchemaRegistryCompatibilityIn{
+			Schema:     avroSchemaBreaking,
+			SchemaType: kafkaschemaregistry.SchemaTypeAvro,
+		},
+	)
+	require.NoError(t, err)
+	require.False(t, check.IsCompatible, "must be incompatible under BACKWARD: %v", check.Messages)
+
+	loose := strict.DeepCopy()
+	loose.Spec.CompatibilityLevel = kafkaschemaregistry.CompatibilityTypeNone
+	loose.Spec.Schema = avroSchemaBreaking
+	require.NoError(t, k8sClient.Update(ctx, loose))
+	require.NoError(t, s.GetRunning(loose, schemaName))
+
+	assert.Greater(t, loose.Status.Version, strict.Status.Version)
+
+	level, err := avnGen.ServiceSchemaRegistrySubjectConfigGet(ctx, cfg.Project, kafkaName, subjectName)
+	require.NoError(t, err)
+	assert.Equal(t, kafkaschemaregistry.CompatibilityTypeNone, level)
+}
+
 func TestKafkaSchemaReferences(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
@@ -906,6 +955,11 @@ spec:
     }
 `, project, kafkaName, schemaName, subjectName)
 }
+
+// avroSchemaBreaking adds a field without a default value to the schema built by
+// getKafkaSchemaYaml: a reader using it cannot read data written with the previous version,
+// so BACKWARD rejects it and NONE accepts it.
+const avroSchemaBreaking = `{"type":"record","doc":"example_doc","name":"example_name","namespace":"example_namespace","fields":[{"name":"field_name","namespace":"field_namespace","type":"int","default":5},{"name":"addition","type":"string"}]}`
 
 func getKafkaSchemaYaml(project, kafkaName, schemaName, subjectName string) string {
 	return fmt.Sprintf(`
