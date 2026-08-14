@@ -39,6 +39,21 @@ func (r *KafkaNativeACLController) Observe(ctx context.Context, acl *v1alpha1.Ka
 	}
 
 	if acl.Status.ID == "" {
+		// No stored ID — the ACL may already exist on Aiven, e.g. the CR was recreated after a
+		// deletionPolicy:Orphan deletion, or the ACL was created outside the operator. Check the
+		// live list before creating.
+		list, err := r.avnGen.ServiceKafkaNativeAclList(ctx, acl.Spec.Project, acl.Spec.ServiceName)
+		if err != nil {
+			return Observation{}, fmt.Errorf("list Kafka-native ACLs error: %w", err)
+		}
+		for _, existing := range list.KafkaAcl {
+			if nativeSpecMatches(acl.Spec, existing) {
+				acl.Status.ID = existing.Id
+				markInstanceRunning(acl)
+				// The spec is immutable, so an adopted ACL is always up to date.
+				return Observation{ResourceExists: true, ResourceUpToDate: true}, nil
+			}
+		}
 		return Observation{ResourceExists: false}, nil
 	}
 
@@ -53,10 +68,7 @@ func (r *KafkaNativeACLController) Observe(ctx context.Context, acl *v1alpha1.Ka
 	markInstanceRunning(acl)
 
 	// The spec is immutable, so an existing ACL is always up to date.
-	return Observation{
-		ResourceExists:   true,
-		ResourceUpToDate: hasLatestGeneration(acl),
-	}, nil
+	return Observation{ResourceExists: true, ResourceUpToDate: true}, nil
 }
 
 func (r *KafkaNativeACLController) Create(ctx context.Context, acl *v1alpha1.KafkaNativeACL) (CreateResult, error) {
@@ -95,4 +107,16 @@ func (r *KafkaNativeACLController) Delete(ctx context.Context, acl *v1alpha1.Kaf
 		return fmt.Errorf("delete Kafka-native ACL error: %w", err)
 	}
 	return nil
+}
+
+// nativeSpecMatches reports whether an existing Kafka-native ACL from Aiven matches the CR
+// spec. All immutable identifying fields are compared.
+func nativeSpecMatches(spec v1alpha1.KafkaNativeACLSpec, existing kafka.KafkaAclOut) bool {
+	return spec.Host == existing.Host &&
+		spec.Principal == existing.Principal &&
+		spec.ResourceName == existing.ResourceName &&
+		spec.Operation == existing.Operation &&
+		spec.PatternType == existing.PatternType &&
+		string(spec.PermissionType) == string(existing.PermissionType) &&
+		spec.ResourceType == existing.ResourceType
 }

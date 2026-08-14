@@ -98,7 +98,7 @@ func TestKafkaNativeACLReconciler(t *testing.T) {
 		require.NotContains(t, got.Annotations, processedGenerationAnnotation)
 	})
 
-	t.Run("Creates ACL on Aiven when status ID is empty", func(t *testing.T) {
+	t.Run("Creates KafkaNativeACL on Aiven when it does not exist", func(t *testing.T) {
 		acl := newObjectFromYAML[v1alpha1.KafkaNativeACL](t, yamlKafkaNativeACL)
 		acl.Generation = 1
 
@@ -106,6 +106,10 @@ func TestKafkaNativeACLReconciler(t *testing.T) {
 		avn.EXPECT().
 			ServiceGet(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName, mock.Anything).
 			Return(runningService(), nil).Once()
+		// New path: list is checked first; empty list means no orphan to adopt.
+		avn.EXPECT().
+			ServiceKafkaNativeAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
+			Return(&kafka.ServiceKafkaNativeAclListOut{KafkaAcl: nil}, nil).Once()
 		avn.EXPECT().
 			ServiceKafkaNativeAclAdd(
 				mock.Anything, acl.Spec.Project, acl.Spec.ServiceName,
@@ -131,7 +135,7 @@ func TestKafkaNativeACLReconciler(t *testing.T) {
 		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
 	})
 
-	t.Run("Marks ACL running when it exists on Aiven", func(t *testing.T) {
+	t.Run("Marks KafkaNativeACL running when it already exists", func(t *testing.T) {
 		acl := newObjectFromYAML[v1alpha1.KafkaNativeACL](t, yamlKafkaNativeACL)
 		acl.Generation = 1
 		acl.Status.ID = "acl-123"
@@ -154,7 +158,7 @@ func TestKafkaNativeACLReconciler(t *testing.T) {
 		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
 	})
 
-	t.Run("Recreates ACL when status ID is stale (404 on get)", func(t *testing.T) {
+	t.Run("Recreates KafkaNativeACL when status ID is stale (404 on get)", func(t *testing.T) {
 		acl := newObjectFromYAML[v1alpha1.KafkaNativeACL](t, yamlKafkaNativeACL)
 		acl.Generation = 1
 		acl.Status.ID = "stale-id"
@@ -180,7 +184,7 @@ func TestKafkaNativeACLReconciler(t *testing.T) {
 		require.Equal(t, "acl-456", got.Status.ID)
 	})
 
-	t.Run("Deletes ACL and removes finalizer on deletion", func(t *testing.T) {
+	t.Run("Deletes KafkaNativeACL and removes finalizer on deletion", func(t *testing.T) {
 		acl := newObjectFromYAML[v1alpha1.KafkaNativeACL](t, yamlKafkaNativeACL)
 		acl.Generation = 1
 		acl.Status.ID = "acl-123"
@@ -223,4 +227,82 @@ func TestKafkaNativeACLReconciler(t *testing.T) {
 		err = r.Get(t.Context(), types.NamespacedName{Name: acl.Name, Namespace: acl.Namespace}, got)
 		require.True(t, apierrors.IsNotFound(err))
 	})
+
+	t.Run("Adopts orphaned KafkaNativeACL when status ID is empty but spec matches existing entry", func(t *testing.T) {
+		// Simulates: CR deleted with deletionPolicy:Orphan, then re-applied.
+		// The operator must adopt the existing ACL instead of trying to create a duplicate.
+		acl := newObjectFromYAML[v1alpha1.KafkaNativeACL](t, yamlKafkaNativeACL)
+		acl.Generation = 1
+		// No Status.ID — as if this is a freshly applied CR after an Orphan deletion.
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName, mock.Anything).
+			Return(runningService(), nil).Once()
+		avn.EXPECT().
+			ServiceKafkaNativeAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
+			Return(&kafka.ServiceKafkaNativeAclListOut{
+				KafkaAcl: []kafka.KafkaAclOut{
+					{
+						Id:             "orphaned-acl-id",
+						Principal:      acl.Spec.Principal,
+						ResourceName:   acl.Spec.ResourceName,
+						Operation:      acl.Spec.Operation,
+						PatternType:    acl.Spec.PatternType,
+						PermissionType: kafka.KafkaAclPermissionType(acl.Spec.PermissionType),
+						ResourceType:   acl.Spec.ResourceType,
+						Host:           acl.Spec.Host,
+					},
+				},
+			}, nil).Once()
+		// ServiceKafkaNativeAclAdd must NOT be called — adoption avoids the 409.
+
+		r, res, err := runKafkaNativeACLScenario(t, acl, avn)
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		got := &v1alpha1.KafkaNativeACL{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: acl.Name, Namespace: acl.Namespace}, got))
+		require.Equal(t, "orphaned-acl-id", got.Status.ID)
+		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
+	})
+}
+
+func TestNativeSpecMatches(t *testing.T) {
+	t.Parallel()
+
+	spec := newObjectFromYAML[v1alpha1.KafkaNativeACL](t, yamlKafkaNativeACL).Spec
+	remote := kafka.KafkaAclOut{
+		Id:             "acl-1",
+		Host:           spec.Host,
+		Operation:      spec.Operation,
+		PatternType:    spec.PatternType,
+		PermissionType: kafka.KafkaAclPermissionType(spec.PermissionType),
+		Principal:      spec.Principal,
+		ResourceName:   spec.ResourceName,
+		ResourceType:   spec.ResourceType,
+	}
+	require.True(t, nativeSpecMatches(spec, remote))
+
+	// Every field below is part of the Kafka ACL identity tuple, so a difference in any
+	// single one of them must prevent adoption.
+	mismatches := map[string]func(*kafka.KafkaAclOut){
+		"host":           func(o *kafka.KafkaAclOut) { o.Host = "10.0.0.1" },
+		"principal":      func(o *kafka.KafkaAclOut) { o.Principal = "User:bob" },
+		"resourceName":   func(o *kafka.KafkaAclOut) { o.ResourceName = "other-topic" },
+		"operation":      func(o *kafka.KafkaAclOut) { o.Operation = kafka.OperationTypeWrite },
+		"patternType":    func(o *kafka.KafkaAclOut) { o.PatternType = kafka.PatternTypePrefixed },
+		"permissionType": func(o *kafka.KafkaAclOut) { o.PermissionType = kafka.KafkaAclPermissionTypeDeny },
+		"resourceType":   func(o *kafka.KafkaAclOut) { o.ResourceType = kafka.ResourceTypeGroup },
+	}
+
+	for name, mutate := range mismatches {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			out := remote
+			mutate(&out)
+			require.False(t, nativeSpecMatches(spec, out))
+		})
+	}
 }
