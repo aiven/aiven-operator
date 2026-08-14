@@ -1,0 +1,208 @@
+# Step 2 of the release: triggered when a release PR (branch release-v*, label `release`) merges into main.
+# Tags the merge commit, creates a draft release
+# with the changelog notes, builds the artifacts and dispatches the docs build.
+name: Publish Release
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+permissions: {}
+
+concurrency:
+  group: publish-release-${{ github.event.pull_request.head.ref }}
+  cancel-in-progress: false
+
+jobs:
+  tag-and-draft-release:
+    if: >
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      startsWith(github.event.pull_request.head.ref, 'release-v') &&
+      contains(github.event.pull_request.labels.*.name, 'release')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.get_version.outputs.tag }}
+    steps:
+      # merge_commit_sha, so the tag, the collision check and the changelog read all
+      # operate on exactly the released commit.
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+
+      - name: Extract version from branch name
+        id: get_version
+        env:
+          BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
+        run: |
+          VERSION="${BRANCH_NAME#release-v}"
+          # Pattern quoted into a variable: inline in [[ =~ ]] the shell strips the
+          # backslashes, so `\.` becomes any-character and 1x2x3 would pass.
+          re='^[0-9]+\.[0-9]+\.[0-9]+$'
+          if ! [[ "$VERSION" =~ $re ]]; then
+            echo "::error::Could not extract a valid version from branch '$BRANCH_NAME'"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      # The version comes from the branch name.
+      - name: Verify the charts were bumped to this version
+        shell: bash
+        env:
+          TAG: ${{ steps.get_version.outputs.tag }}
+        run: |
+          set -euo pipefail
+          for chart in charts/aiven-operator/Chart.yaml charts/aiven-operator-crds/Chart.yaml; do
+            for field in version appVersion; do
+              # A missing field yields an empty string, which mismatches and fails.
+              got=$(sed -n "s/^${field}: *//p" "$chart")
+              if [ "$got" != "$TAG" ]; then
+                echo "::error::$chart has $field='$got' but this release is $TAG. Re-run Prepare Release for the right version rather than editing the release PR."
+                exit 1
+              fi
+            done
+          done
+          echo "Charts confirmed at $TAG"
+
+      - name: Generate release notes
+        id: notes
+        shell: bash
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
+        run: |
+          set -euo pipefail
+          NOTES_FILE="ci-release-notes.md"
+          # Fails on a missing or empty section, so no check is needed here — and
+          # `set -e` stops the redirect leaving a truncated file that looks fine.
+          go run ./generators/changelog --version="v$VERSION" > "$NOTES_FILE"
+          echo "path=$NOTES_FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Verify the commit being tagged is on main
+        run: |
+          git fetch --quiet origin main
+          if ! git merge-base --is-ancestor HEAD origin/main; then
+            echo "::error::Refusing to tag $(git rev-parse HEAD): it is not an ancestor of main"
+            exit 1
+          fi
+          echo "Tagging $(git rev-parse --short HEAD), confirmed on main"
+
+      # Draft because the artifacts it links to do not exist yet; publish_release in
+      # reusable-release-artifacts.yml flips it once they do.
+      - name: Create draft GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.get_version.outputs.tag }}
+          SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          NOTES_PATH: ${{ steps.notes.outputs.path }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Idempotent so "Re-run all jobs" works after a downstream failure.
+          # `gh release view` sees drafts; the by-tag REST endpoint does not.
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::notice::Release $TAG already exists, leaving it as is"
+          else
+            gh release create "$TAG" \
+              --target "$SHA" \
+              --draft \
+              --title "$TAG" \
+              --notes-file "$NOTES_PATH"
+          fi
+
+      - name: Create and push tag
+        shell: bash
+        env:
+          TAG: ${{ steps.get_version.outputs.tag }}
+        run: |
+          set -euo pipefail
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "::notice::Tag $TAG already exists locally, not re-creating"
+          else
+            git config user.name "GitHub Action"
+            git config user.email "action@github.com"
+            git tag "$TAG"
+          fi
+          # No --force and no `|| true`: pushing a tag the remote already has at the
+          # same commit exits 0, so a re-run is a no-op. A failure here is real — a
+          # tag on a different commit, or a rejected push — and must not look green.
+          git push origin "refs/tags/$TAG"
+
+  publish-docs:
+    needs: tag-and-draft-release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: write # dispatch pages.yml
+    steps:
+      - name: Publish the docs site for this tag
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.tag-and-draft-release.outputs.tag }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # --repo because there is no checkout here, so `gh` has no git remote to
+          # infer the repository from.
+          gh workflow run pages.yml --repo "$REPO" --ref "$TAG"
+
+  artifacts:
+    needs: tag-and-draft-release
+    permissions:
+      contents: write
+    uses: ./.github/workflows/reusable-release-artifacts.yml
+    with:
+      tag: ${{ needs.tag-and-draft-release.outputs.tag }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      AIVEN_CI_PAT__VALID_WHILE_MURAD_IS_EMPLOYED: ${{ secrets.AIVEN_CI_PAT__VALID_WHILE_MURAD_IS_EMPLOYED }}
+
+  notify-slack-success:
+    needs:
+      - tag-and-draft-release
+      - artifacts
+      - publish-docs
+    if: github.repository == 'aiven/aiven-operator'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/slack-notify.yml
+    with:
+      status: success
+      workflow_name: Publish Release
+      custom_message: Release ${{ needs.tag-and-draft-release.outputs.tag }} is published
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+
+  notify-slack-failure:
+    needs:
+      - tag-and-draft-release
+      - artifacts
+      - publish-docs
+    permissions:
+      contents: read
+    if: failure() && github.repository == 'aiven/aiven-operator'
+    uses: ./.github/workflows/slack-notify.yml
+    with:
+      status: failure
+      workflow_name: Publish Release
+      custom_message: >-
+        ${{ needs.artifacts.outputs.published == 'true'
+        && format('Release {0} IS published, but a follow-up step failed — check the charts sync PR and the docs site build', needs.tag-and-draft-release.outputs.tag)
+        || 'Release publishing failed' }}
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}

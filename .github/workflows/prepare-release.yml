@@ -1,0 +1,348 @@
+# Step 1 of the release: bumps chart/changelog versions, opens a labeled release
+# PR, and runs lint + unit + e2e tests against the PR head.
+# Merging the PR triggers publish-release.yml.
+#
+# The contexts in report_all_statuses must cover main's required checks.
+#
+# On failure use "Re-run failed jobs".
+# Re-dispatching is refused by the in-flight check in validate_inputs anyway.
+name: Prepare Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version without the v prefix (e.g. 0.41.0)
+        required: true
+        type: string
+      run_e2e_tests:
+        description: Run the e2e acceptance tests? (Uncheck to skip, only if you are sure)
+        required: true
+        type: boolean
+        default: true
+
+concurrency:
+  # One release at a time.
+  group: ${{ github.workflow }}
+  # Cancelling mid-run can leave a branch and PR behind with no statuses reported.
+  cancel-in-progress: false
+
+jobs:
+  validate_inputs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Verify dispatched from main
+        if: github.ref != 'refs/heads/main'
+        env:
+          DISPATCH_REF: ${{ github.ref }}
+        run: |
+          echo "::error::Prepare Release must be dispatched from main, got $DISPATCH_REF"
+          exit 1
+
+      - name: Verify release version format
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          # Pattern quoted into a variable: inline in [[ =~ ]] the shell strips the
+          # backslashes, so `\.` becomes any-character and 1x2x3 would pass.
+          re='^[0-9]+\.[0-9]+\.[0-9]+$'
+          if ! [[ "$VERSION" =~ $re ]]; then
+            echo "::error::Version '$VERSION' must be in the form X.Y.Z without a leading v"
+            exit 1
+          fi
+
+      # ANY open release PR blocks.
+      # A second release would bump from a stale base and double-count
+      # changelog entries. create-pull-request also force-updates an existing
+      # branch, which would rewrite a PR under review.
+      - name: Verify no release is already in flight
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          IN_FLIGHT=$(gh api "repos/$REPO/pulls?state=open&per_page=100" --paginate \
+            --jq '.[] | select(.head.ref | startswith("release-v")) | "#\(.number) \(.head.ref)"')
+          if [ -n "$IN_FLIGHT" ]; then
+            echo "::error::A release PR is already open: $(echo "$IN_FLIGHT" | tr '\n' ' '). Merge or close it before dispatching another release."
+            exit 1
+          fi
+
+          # Reported but not blocking. grep exits 1 on no match, which under
+          # `set -e` would abort the step, hence || true.
+          ORPHANS=$(gh api "repos/$REPO/branches" --paginate --jq '.[].name' | { grep '^release-v' || true; })
+          if [ -n "$ORPHANS" ]; then
+            echo "::notice::Leftover release branches, not blocking: $(echo "$ORPHANS" | tr '\n' ' ')"
+          fi
+
+  # Check that image can be built. The build is not pushed.
+  create_release_pr:
+    needs: validate_inputs
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      pr_head_sha: ${{ steps.create-pr.outputs.pull-request-head-sha }}
+      pr_created: ${{ steps.create-pr.outputs.pull-request-number != '' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+
+      - name: Verify the tag does not exist yet
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
+            echo "::error::Tag v$VERSION already exists"
+            exit 1
+          fi
+
+      - name: install goimports
+        run: |
+          # Match the x/tools the module builds against, so there is no version to
+          # bump separately. Keep in sync with generate.yml.
+          go install golang.org/x/tools/cmd/goimports@"$(go list -m -f '{{.Version}}' golang.org/x/tools)"
+
+      - run: curl https://get.trunk.io -fsSL | bash
+
+      - name: Generate files
+        run: make generate
+
+      - name: Update charts and changelog
+        env:
+          VERSION: ${{ inputs.version }}
+        run: make "version=v$VERSION" charts
+
+      - name: Extract changelog content for PR
+        id: changelog
+        shell: bash
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          # Exits non-zero with a specific message for a missing header versus an
+          # empty section, so no checks are needed here.
+          NOTES=$(go run ./generators/changelog --version="v$VERSION")
+          # Random delimiter: the changelog is arbitrary text, and a line equal to
+          # the delimiter would truncate this output or forge extra step outputs.
+          DELIM="EOF_$(openssl rand -hex 12)"
+          {
+            echo "content<<$DELIM"
+            echo "$NOTES"
+            echo "$DELIM"
+          } >> "$GITHUB_OUTPUT"
+
+      # create-pull-request fetches main fresh and cherry-picks onto it with
+      # --strategy-option=theirs, so a commit since dispatch would join
+      # this release silently. A release is the snapshot of main it was dispatched from.
+      - name: Verify main has not moved since dispatch
+        shell: bash
+        env:
+          DISPATCH_SHA: ${{ github.sha }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          CURRENT=$(git ls-remote origin refs/heads/main | cut -f1)
+          if [ "$CURRENT" != "$DISPATCH_SHA" ]; then
+            echo "::error::main moved from $DISPATCH_SHA to $CURRENT since this run started, so this release would quietly contain that commit. Re-dispatch Prepare Release to cut v$VERSION from the new main."
+            exit 1
+          fi
+
+      - name: Create Pull Request
+        id: create-pr
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sign-commits: true
+          commit-message: "chore(release): v${{ inputs.version }}"
+          branch: release-v${{ inputs.version }}
+          base: main
+          title: "chore(release): v${{ inputs.version }}"
+          body: |
+            ## Release v${{ inputs.version }}
+
+            ### Changelog
+            ${{ steps.changelog.outputs.content }}
+
+            ---
+
+            *This PR was created automatically by the Prepare Release workflow.*
+          labels: |
+            release
+          draft: false
+
+      # create-pull-request is a no-op when there is nothing to commit, which would
+      # leave this workflow green without a release PR.
+      - name: Verify the release PR exists
+        env:
+          PR_NUMBER: ${{ steps.create-pr.outputs.pull-request-number }}
+        run: |
+          if [ -z "$PR_NUMBER" ]; then
+            echo '::error::No release PR was created — make generate/make charts produced no changes'
+            exit 1
+          fi
+          echo "Created release PR #$PR_NUMBER"
+
+  run_lint_checks:
+    needs: create_release_pr
+    if: needs.create_release_pr.outputs.pr_created == 'true'
+    permissions:
+      contents: read # checkout
+      checks: write # trunk annotations
+      actions: read # codeql
+      security-events: write # codeql upload
+    uses: ./.github/workflows/lint.yml
+    with:
+      ref: ${{ needs.create_release_pr.outputs.pr_head_sha }}
+
+  run_unit_tests:
+    needs: create_release_pr
+    if: needs.create_release_pr.outputs.pr_created == 'true'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/unit-tests.yml
+    with:
+      ref: ${{ needs.create_release_pr.outputs.pr_head_sha }}
+
+  verify_docker_build:
+    needs: create_release_pr
+    if: needs.create_release_pr.outputs.pr_created == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.create_release_pr.outputs.pr_head_sha }}
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+      - name: Build the release image without publishing it
+        uses: docker/build-push-action@v7
+        with:
+          # Without this the action builds from the event's git context rather than the checkout.
+          context: .
+          push: false
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            VERSION=v${{ inputs.version }}
+
+  run_e2e_tests:
+    needs: create_release_pr
+    if: needs.create_release_pr.outputs.pr_created == 'true' && inputs.run_e2e_tests
+    permissions:
+      contents: read
+    uses: ./.github/workflows/tests.yml
+    with:
+      ref: ${{ needs.create_release_pr.outputs.pr_head_sha }}
+    secrets:
+      AIVEN_TOKEN: ${{ secrets.AIVEN_TOKEN }}
+      AIVEN_ACCOUNT_ID: ${{ secrets.AIVEN_ACCOUNT_ID }}
+      AIVEN_PROJECT_NAME_PREFIX: ${{ secrets.AIVEN_PROJECT_NAME_PREFIX }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+
+  report_all_statuses:
+    needs:
+      - verify_docker_build
+      - create_release_pr
+      - run_lint_checks
+      - run_unit_tests
+      - run_e2e_tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: |
+      always() && needs.create_release_pr.result == 'success'
+      && needs.create_release_pr.outputs.pr_created == 'true'
+    permissions:
+      contents: read # actions/checkout below
+      statuses: write
+    steps:
+      - name: Verify we have a SHA to report against
+        env:
+          HEAD_SHA: ${{ needs.create_release_pr.outputs.pr_head_sha }}
+        run: |
+          if [ -z "$HEAD_SHA" ]; then
+            echo "::error::No PR head SHA, cannot report statuses to the release PR"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/actions
+
+      - uses: ./.github/actions/report-statuses
+        with:
+          sha: ${{ needs.create_release_pr.outputs.pr_head_sha }}
+          success_on_skip: tests
+          statuses: >-
+            {
+              "generate": "success",
+              "commitlint": "${{ needs.run_lint_checks.outputs.commitlint }}",
+              "lint-go": "${{ needs.run_lint_checks.outputs.lint-go }}",
+              "trunk": "${{ needs.run_lint_checks.outputs.trunk }}",
+              "codeql_analysis": "${{ needs.run_lint_checks.outputs.codeql_analysis }}",
+              "kustomize_can_build_deployment": "${{ needs.run_lint_checks.outputs.kustomize_can_build_deployment }}",
+              "unit-tests": "${{ needs.run_unit_tests.result }}",
+              "tests": "${{ needs.run_e2e_tests.result }}",
+              "docker": "${{ needs.verify_docker_build.result }}"
+            }
+
+  notify-slack-success:
+    needs:
+      - verify_docker_build
+      - create_release_pr
+      - run_lint_checks
+      - run_unit_tests
+      - run_e2e_tests
+      - report_all_statuses
+    if: >
+      always() &&
+      github.repository == 'aiven/aiven-operator' &&
+      needs.create_release_pr.outputs.pr_created == 'true' &&
+      needs.run_lint_checks.result == 'success' &&
+      needs.run_unit_tests.result == 'success' &&
+      needs.verify_docker_build.result == 'success' &&
+      needs.report_all_statuses.result == 'success' &&
+      (needs.run_e2e_tests.result == 'success' || needs.run_e2e_tests.result == 'skipped')
+    permissions:
+      contents: read
+    uses: ./.github/workflows/slack-notify.yml
+    with:
+      status: success
+      workflow_name: Prepare Release
+      custom_message: Release v${{ inputs.version }} preparation completed successfully
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+
+  notify-slack-failure:
+    needs:
+      - verify_docker_build
+      - create_release_pr
+      - run_lint_checks
+      - run_unit_tests
+      - run_e2e_tests
+      - report_all_statuses
+    if: (failure() || cancelled()) && github.repository == 'aiven/aiven-operator'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/slack-notify.yml
+    with:
+      status: failure
+      workflow_name: Prepare Release
+      custom_message: Release v${{ inputs.version }} preparation failed
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}

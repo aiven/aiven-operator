@@ -11,7 +11,9 @@ permissions:
   statuses: write
 
 jobs:
+  # Skip the run that opens the bot's release PR.
   generate:
+    if: ${{ !(github.event.action == 'opened' && startsWith(github.head_ref, 'release-v') && github.event.pull_request.user.login == 'github-actions[bot]') }}
     runs-on: ubuntu-latest
     outputs:
       commit_hash: ${{ steps.auto_commit.outputs.commit-hash }}
@@ -25,7 +27,8 @@ jobs:
           go-version-file: go.mod
       - name: install goimports
         run: |
-          go install golang.org/x/tools/cmd/goimports@latest
+          # Match the x/tools the module builds against, so `make fmt-imports` is reproducible.
+          go install golang.org/x/tools/cmd/goimports@"$(go list -m -f '{{.Version}}' golang.org/x/tools)"
       - run: curl https://get.trunk.io -fsSL | bash
       - name: generate files
         run: make generate
