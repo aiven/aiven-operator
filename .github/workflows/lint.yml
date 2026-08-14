@@ -25,8 +25,10 @@ on:
       kustomize_can_build_deployment:
         value: ${{ jobs.kustomize_can_build_deployment.outputs.result }}
 
+# Skip the run that opens the bot's release PR,which prepare-release.yml already runs and reports itself.
 jobs:
   commitlint:
+    if: ${{ !(github.event.action == 'opened' && startsWith(github.head_ref, 'release-v') && github.event.pull_request.user.login == 'github-actions[bot]') }}
     runs-on: ubuntu-latest
     outputs:
       result: ${{ job.status }}
@@ -38,13 +40,10 @@ jobs:
       - uses: wagoid/commitlint-github-action@v6
 
   lint-go:
+    if: ${{ !(github.event.action == 'opened' && startsWith(github.head_ref, 'release-v') && github.event.pull_request.user.login == 'github-actions[bot]') }}
     runs-on: ubuntu-latest
     outputs:
       result: ${{ job.status }}
-    if: >-
-      github.event_name == 'push'
-      || github.event_name == 'workflow_call'
-      || (github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'skip workflows'))
     steps:
       - uses: actions/checkout@v7
         with:
@@ -61,6 +60,7 @@ jobs:
       - run: task lint:go
 
   trunk:
+    if: ${{ !(github.event.action == 'opened' && startsWith(github.head_ref, 'release-v') && github.event.pull_request.user.login == 'github-actions[bot]') }}
     runs-on: ubuntu-latest
     outputs:
       result: ${{ job.status }}
@@ -79,6 +79,7 @@ jobs:
           # fall back to a full check when invoked via workflow_call
           check-mode: ${{ inputs.ref != '' && 'all' || '' }}
   codeql_analysis:
+    if: ${{ !(github.event.action == 'opened' && startsWith(github.head_ref, 'release-v') && github.event.pull_request.user.login == 'github-actions[bot]') }}
     runs-on: ubuntu-latest
     outputs:
       result: ${{ job.status }}
@@ -100,6 +101,7 @@ jobs:
       - uses: github/codeql-action/autobuild@v4
       - uses: github/codeql-action/analyze@v4
   kustomize_can_build_deployment:
+    if: ${{ !(github.event.action == 'opened' && startsWith(github.head_ref, 'release-v') && github.event.pull_request.user.login == 'github-actions[bot]') }}
     runs-on: ubuntu-latest
     outputs:
       result: ${{ job.status }}
@@ -108,7 +110,7 @@ jobs:
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 0
-      - uses: karancode/kustomize-github-action@master
+      - uses: karancode/kustomize-github-action@883a86ec3535e4e7d0fe6450a85f8325c97d2a7b # v1.3.2
         with:
           kustomize_version: 4.5.7
           kustomize_build_dir: config/default
@@ -116,4 +118,4 @@ jobs:
           # TODO: remove token once https://github.com/karancode/kustomize-github-action/issues/46 is resolved
           token: ${{ github.token }}
         env:
-          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}

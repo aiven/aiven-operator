@@ -10,6 +10,14 @@ inputs:
       JSON object mapping check context names to results.
       Example: {"commitlint": "success", "trunk": "failure"}
     required: true
+  success_on_skip:
+    description: >-
+      Comma-separated contexts to report green when their result is "skipped".
+      Everything else fails closed: anything other than an explicit "success" is a
+      failure. A reusable workflow returns an EMPTY output when the job behind it
+      failed or was skipped, so an omitted result must never pass.
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -18,22 +26,30 @@ runs:
       env:
         COMMIT_SHA: ${{ inputs.sha }}
         STATUSES: ${{ inputs.statuses }}
+        SUCCESS_ON_SKIP: ${{ inputs.success_on_skip }}
       with:
         script: |
           const sha = process.env.COMMIT_SHA;
           const statuses = JSON.parse(process.env.STATUSES);
+          const skipOk = new Set(
+            (process.env.SUCCESS_ON_SKIP || '')
+              .split(',')
+              .map((s) => s.trim())
+              .filter(Boolean)
+          );
           const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
 
           for (const [name, result] of Object.entries(statuses)) {
-            const state = (result === 'success' || result === 'skipped') ? 'success' : 'failure';
-            console.log(`Reporting ${name}: ${state} (${result})`);
+            const ok = result === 'success' || (skipOk.has(name) && result === 'skipped');
+            const state = ok ? 'success' : 'failure';
+            console.log(`Reporting ${name}: ${result || '<empty>'} -> ${state}`);
             await github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
               sha,
               state,
               context: name,
-              description: `${name} ${result}`,
+              description: `${name} ${result || 'no result'}`,
               target_url: runUrl
             });
           }

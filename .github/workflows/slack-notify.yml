@@ -34,6 +34,7 @@ jobs:
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           webhook-type: webhook-trigger
+          retries: "0"
           payload: |
             {
               "blocks": [
@@ -81,6 +82,7 @@ jobs:
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           webhook-type: webhook-trigger
+          retries: "0"
           payload: |
             {
               "blocks": [

@@ -60,6 +60,8 @@ jobs:
       - uses: ./.github/actions/report-statuses
         with:
           sha: ${{ needs.trunk_upgrade.outputs.pr_head_sha }}
+          # "skipped" on purpose: a trunkupgrade touches .trunk/ config only.
+          success_on_skip: commitlint,codeql_analysis,generate
           statuses: >-
             {
               "trunk": "${{ needs.verify_trunk.result }}",
