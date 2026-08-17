@@ -4,11 +4,17 @@ package tests
 
 import (
 	"fmt"
+	"slices"
 	"testing"
+	"time"
 
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/yaml"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	mysqluserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/mysql"
@@ -117,6 +123,123 @@ func TestMySQL(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["MYSQL_URI"])
 	assert.NotEmpty(t, secret.Data["MYSQL_REPLICA_URI"]) // business-4 has replica
 	assert.NotEmpty(t, secret.Data["MYSQL_CA_CERT"])
+
+	newServiceUser := func(t *testing.T) *v1alpha1.ServiceUser {
+		t.Helper()
+		userName := randName("mysql-user")
+		yml, err := loadExampleYaml("serviceuser.yaml", map[string]string{
+			"metadata.name":                    userName,
+			"spec.project":                     cfg.Project,
+			"spec.serviceName":                 name,
+			"spec.connInfoSecretTarget.name":   userName,
+			"spec.connInfoSecretTarget.prefix": "SERVICEUSER_",
+		})
+		require.NoError(t, err)
+		user := new(v1alpha1.ServiceUser)
+		require.NoError(t, yaml.Unmarshal([]byte(yml), user))
+		user.Spec.Authentication = service.AuthenticationTypeMysqlNativePassword
+		return user
+	}
+
+	waitForCredentials := func(t *testing.T, user *v1alpha1.ServiceUser, authentication service.AuthenticationType, password string) {
+		t.Helper()
+		require.EventuallyWithT(t, func(collect *assert.CollectT) {
+			userAvn, err := avnGen.ServiceUserGet(ctx, cfg.Project, name, user.GetUsername())
+			require.NoError(collect, err)
+			assert.Equal(collect, authentication, userAvn.Authentication)
+			assert.Equal(collect, password, userAvn.Password)
+
+			secret, err := s.GetSecret(user.Spec.ConnInfoSecretTarget.Name)
+			require.NoError(collect, err)
+			assert.Equal(collect, user.GetUsername(), string(secret.Data["SERVICEUSER_USERNAME"]))
+			assert.Equal(collect, password, string(secret.Data["SERVICEUSER_PASSWORD"]))
+		}, 3*time.Minute, 10*time.Second, "authentication and published credentials should match")
+	}
+
+	t.Run("creates ServiceUser with requested authentication", func(t *testing.T) {
+		user := newServiceUser(t)
+		require.NoError(t, s.ApplyObjects(user))
+		require.NoError(t, s.GetRunning(user, user.Name))
+
+		userAvn, err := avnGen.ServiceUserGet(ctx, cfg.Project, name, user.GetUsername())
+		require.NoError(t, err)
+		assert.Equal(t, service.AuthenticationTypeMysqlNativePassword, userAvn.Authentication)
+		require.NotEmpty(t, userAvn.Password)
+		waitForCredentials(t, user, service.AuthenticationTypeMysqlNativePassword, userAvn.Password)
+	})
+
+	t.Run("preserves the password when authentication changes in the spec", func(t *testing.T) {
+		user := newServiceUser(t)
+		require.NoError(t, s.ApplyObjects(user))
+		require.NoError(t, s.GetRunning(user, user.Name))
+
+		secret, err := s.GetSecret(user.Spec.ConnInfoSecretTarget.Name)
+		require.NoError(t, err)
+		password := string(secret.Data["SERVICEUSER_PASSWORD"])
+		require.NotEmpty(t, password)
+		waitForCredentials(t, user, service.AuthenticationTypeMysqlNativePassword, password)
+
+		orig := user.DeepCopy()
+		user.Spec.Authentication = service.AuthenticationTypeCachingSha2Password
+		require.NoError(t, k8sClient.Patch(ctx, user, client.MergeFrom(orig)))
+
+		waitForCredentials(t, user, service.AuthenticationTypeCachingSha2Password, password)
+	})
+
+	t.Run("restores authentication after an external change without changing the password", func(t *testing.T) {
+		user := newServiceUser(t)
+		require.NoError(t, s.ApplyObjects(user))
+		require.NoError(t, s.GetRunning(user, user.Name))
+
+		secret, err := s.GetSecret(user.Spec.ConnInfoSecretTarget.Name)
+		require.NoError(t, err)
+		password := string(secret.Data["SERVICEUSER_PASSWORD"])
+		require.NotEmpty(t, password)
+		waitForCredentials(t, user, service.AuthenticationTypeMysqlNativePassword, password)
+
+		changed, err := avnGen.ServiceUserCredentialsModify(ctx, cfg.Project, name, user.GetUsername(), &service.ServiceUserCredentialsModifyIn{
+			Authentication: service.AuthenticationTypeCachingSha2Password,
+			NewPassword:    &password,
+			Operation:      service.ServiceUserCredentialsModifyOperationTypeResetCredentials,
+		})
+		require.NoError(t, err)
+		idx := slices.IndexFunc(changed.Users, func(u service.UserOut) bool { return u.Username == user.GetUsername() })
+		require.NotEqual(t, -1, idx)
+		require.Equal(t, service.AuthenticationTypeCachingSha2Password, changed.Users[idx].Authentication)
+		require.Equal(t, password, changed.Users[idx].Password)
+
+		// Leave the CR untouched so the operator has to discover the drift.
+		waitForCredentials(t, user, service.AuthenticationTypeMysqlNativePassword, password)
+	})
+
+	t.Run("restores authentication and the source password after an external change", func(t *testing.T) {
+		user := newServiceUser(t)
+		const sourcePassword = "SourceMySQLPassword123!"
+		source := &corev1.Secret{
+			TypeMeta:   metav1.TypeMeta{APIVersion: "v1", Kind: "Secret"},
+			ObjectMeta: metav1.ObjectMeta{Name: user.Name + "-source"},
+			Data:       map[string][]byte{"PASSWORD": []byte(sourcePassword)},
+		}
+		require.NoError(t, s.ApplyObjects(source))
+		user.Spec.ConnInfoSecretSource = &v1alpha1.ConnInfoSecretSource{Name: source.Name, PasswordKey: "PASSWORD"}
+		require.NoError(t, s.ApplyObjects(user))
+		require.NoError(t, s.GetRunning(user, user.Name))
+		waitForCredentials(t, user, service.AuthenticationTypeMysqlNativePassword, sourcePassword)
+
+		externalPassword := "ExternalMySQLPassword456!"
+		changed, err := avnGen.ServiceUserCredentialsModify(ctx, cfg.Project, name, user.GetUsername(), &service.ServiceUserCredentialsModifyIn{
+			Authentication: service.AuthenticationTypeCachingSha2Password,
+			NewPassword:    &externalPassword,
+			Operation:      service.ServiceUserCredentialsModifyOperationTypeResetCredentials,
+		})
+		require.NoError(t, err)
+		idx := slices.IndexFunc(changed.Users, func(u service.UserOut) bool { return u.Username == user.GetUsername() })
+		require.NotEqual(t, -1, idx)
+		require.Equal(t, service.AuthenticationTypeCachingSha2Password, changed.Users[idx].Authentication)
+		require.Equal(t, externalPassword, changed.Users[idx].Password)
+
+		waitForCredentials(t, user, service.AuthenticationTypeMysqlNativePassword, sourcePassword)
+	})
 
 	// Tests service power off functionality
 	// Note: Power on testing is handled generically in generic_service_handler_test.go
