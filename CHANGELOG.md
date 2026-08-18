@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- `ServiceUser`: increased the amount of concurrent reconcilers up to 10
+
 ## v0.44.0 - 2026-08-11
 
 - Add kind: `OrganizationProject` to manage Aiven projects that belong to an organization or organizational unit.

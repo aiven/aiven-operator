@@ -20,10 +20,15 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	kafkauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/kafka"
 )
+
+// serviceUserMaxConcurrentReconciles keeps the queue draining faster than the poll interval refills it.
+// With a single worker the standing population alone saturates it at a few hundred users.
+const serviceUserMaxConcurrentReconciles = 10
 
 func newServiceUserReconciler(c Controller) reconcilerType {
 	return newManagedReconciler(
@@ -35,7 +40,7 @@ func newServiceUserReconciler(c Controller) reconcilerType {
 				rec:    c.Recorder,
 			}
 		},
-		nil,
+		&controller.Options{MaxConcurrentReconciles: serviceUserMaxConcurrentReconciles},
 	)
 }
 

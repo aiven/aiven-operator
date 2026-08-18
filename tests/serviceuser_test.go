@@ -650,8 +650,8 @@ func getServiceUserWithRetry(
 			return retryErr
 		},
 		retry.RetryIf(isNotFound),
-		retry.Attempts(3),
-		retry.Delay(200*time.Millisecond),
+		retry.Attempts(5),
+		retry.Delay(400*time.Millisecond),
 	)
 
 	return user, err

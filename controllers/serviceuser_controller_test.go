@@ -37,6 +37,14 @@ spec:
   serviceName: test-service
 `
 
+func Test_newServiceUserReconciler(t *testing.T) {
+	t.Parallel()
+
+	r := newServiceUserReconciler(Controller{}).(*Reconciler[*v1alpha1.ServiceUser])
+	require.NotNil(t, r.options)
+	require.Equal(t, serviceUserMaxConcurrentReconciles, r.options.MaxConcurrentReconciles)
+}
+
 func TestAccessControlMatches(t *testing.T) {
 	t.Parallel()
 
