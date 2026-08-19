@@ -25,3 +25,20 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/site
+
+  notify-slack-failure:
+    needs: release_pages
+    # Keeps a fork building its own docs out of the team's Slack.
+    if: failure() && github.repository == 'aiven/aiven-operator'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/slack-notify.yml
+    with:
+      status: failure
+      workflow_name: pages
+      custom_message: >-
+        Docs site build failed for ${{ github.ref_name }} — the site is still
+        serving the previous version
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}

@@ -1,0 +1,244 @@
+# Builds and publishes the release artifacts for a tag.
+# Then publishes the GitHub release.
+name: reusable release artifacts
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: Release tag to build artifacts for (e.g. v0.41.0)
+        required: true
+        type: string
+      publish:
+        description: >-
+          Publish the release once the artifacts exist. False leaves it a draft to
+          be filled in and published by hand, which is what the manual tag-push
+          flow in release.md expects.
+        required: false
+        type: boolean
+        default: true
+    outputs:
+      published:
+        description: >-
+          "true" once the release is out of draft, i.e. public. Empty otherwise,
+          including when publish_release failed, since a failed job returns empty
+          outputs. Callers use it to tell "the release never shipped" from "it
+          shipped and something afterwards broke".
+        value: ${{ jobs.publish_release.outputs.published }}
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+      AIVEN_CI_PAT__VALID_WHILE_MURAD_IS_EMPLOYED:
+        required: true
+
+jobs:
+  # release.yml passes whatever tag was pushed, and git permits shell
+  # metacharacters in ref names, so validate once before anything shells out.
+  validate_tag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          # Pattern quoted into a variable: inline in [[ =~ ]] the shell strips the
+          # backslashes, so `\.` becomes any-character and v1x2x3 would pass.
+          re='^v[0-9]+\.[0-9]+\.[0-9]+$'
+          if ! [[ "$TAG" =~ $re ]]; then
+            echo "::error::Refusing to build artifacts for malformed tag '$TAG' (expected vX.Y.Z)"
+            exit 1
+          fi
+
+      # The image repo defaults to production, so a fork that was given Docker Hub
+      # credentials and forgot RELEASE_IMAGE_REPO would publish a rehearsal tag to
+      # the real repo — irreversible and visible to every user.
+      - name: Verify a fork cannot publish the production image
+        if: github.repository != 'aiven/aiven-operator' && vars.RELEASE_IMAGE_REPO == ''
+        run: |
+          echo "::error::Running in ${{ github.repository }} with no RELEASE_IMAGE_REPO variable set, so this would push to the production Docker Hub repo. Set the variable to a scratch repo first."
+          exit 1
+
+  ensure_draft_release:
+    needs: validate_tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Ensure a draft release exists for the tag
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.tag }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # --repo because this job has no checkout, so `gh` has no git remote to
+          # infer the repository from.
+          #
+          # `gh release view` sees drafts; the by-tag REST endpoint does not, so it
+          # is the only reliable existence check. Leaving an existing release alone
+          # keeps the release-PR path's changelog notes intact.
+          if gh release view "$TAG" --repo "$REPO" >/dev/null 2>&1; then
+            echo "::notice::Release $TAG already exists, leaving it as is"
+          else
+            gh release create "$TAG" --repo "$REPO" --draft --title "$TAG" --generate-notes
+            echo "::notice::Created draft release $TAG with generated notes"
+          fi
+
+  build_default_release_manifest:
+    needs: ensure_draft_release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag }}
+          fetch-depth: 0
+      - shell: bash
+        env:
+          TAG: ${{ inputs.tag }}
+          # Unset in production. A fork points it at a scratch Docker Hub repo,
+          # which is what lets a rehearsal run this file unmodified. Must resolve
+          # the same way in build_and_push_docker_image below, or deployment.yaml
+          # would point at an image this release never pushed.
+          IMAGE_REPO: ${{ vars.RELEASE_IMAGE_REPO || 'aivenoy/aiven-operator' }}
+        run: |
+          echo "resources: [manager.yaml]
+          apiVersion: kustomize.config.k8s.io/v1beta1
+          kind: Kustomization
+          images:
+          - name: controller
+            newName: $IMAGE_REPO
+            newTag: $TAG
+          " > config/manager/kustomization.yaml
+      - uses: karancode/kustomize-github-action@883a86ec3535e4e7d0fe6450a85f8325c97d2a7b # v1.3.2
+        with:
+          kustomize_version: 4.5.7
+          kustomize_build_dir: config/default
+          kustomize_output_file: deployment.yaml
+          # TODO: remove token once https://github.com/karancode/kustomize-github-action/issues/46 is resolved
+          token: ${{ github.token }}
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # `gh`, not svenstaro/upload-release-action: that action resolves the release
+      # with GET /releases/tags/{tag}, which does not return drafts, so it creates a
+      # second release and attaches the asset to that one. It also rewrites the
+      # draft flag on every upload.
+      #
+      # No existence check: ensure_draft_release guarantees one, and re-checking
+      # here would hide it failing to. --clobber makes a re-run idempotent.
+      - name: Attach deployment.yaml to the release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          gh release upload "$TAG" deployment.yaml --clobber
+
+  # needs ensure_draft_release, not validate_tag: the image push is the first
+  # irreversible, publicly visible step, so a release must exist to point at it.
+  build_and_push_docker_image:
+    needs: ensure_draft_release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Pushes to Docker Hub, needs nothing from the GitHub API beyond checkout.
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag }}
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - id: docker_build
+        uses: docker/build-push-action@v7
+        with:
+          # Required: with no context the action ignores the checkout and builds
+          # from the event's git context, which on the release-PR path resolves to
+          # the pull_request commit and only happens to equal the tag.
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          # Keep in sync with IMAGE_REPO in build_default_release_manifest.
+          tags: ${{ vars.RELEASE_IMAGE_REPO || 'aivenoy/aiven-operator' }}:${{ inputs.tag }}
+          build-args: |
+            VERSION=${{ inputs.tag }}
+
+  # Publishing announces the release, so it goes last: the page links the image tag
+  # and carries deployment.yaml, and a draft is invisible without push access. That
+  # is also what makes a failed run recoverable — it leaves a draft nobody saw.
+  #
+  # Not gated on sync-charts: that opens a PR in another repo for a human to merge,
+  # so a failure there must not hold back a release whose artifacts are all in place.
+  #
+  # Skipped when publish is false: the manual tag-push flow publishes by hand, after
+  # pasting the changelog into the draft.
+  publish_release:
+    if: inputs.publish
+    needs:
+      - build_default_release_manifest
+      - build_and_push_docker_image
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      published: ${{ steps.publish.outputs.published }}
+    steps:
+      - name: Publish the GitHub release
+        id: publish
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.tag }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # --repo because this job has no checkout, so `gh` dies with "not a git
+          # repository" without it.
+          #
+          # --draft=false on an already-published release is a no-op, so a re-run
+          # after a later failure does not die here.
+          #
+          # No --latest: GitHub resolves that by version, and forcing it would
+          # mislabel a patch cut from an older branch.
+          gh release edit "$TAG" --repo "$REPO" --draft=false
+          # After the edit returns, so `published` means the release is public
+          # rather than that this job was reached.
+          echo "published=true" >> "$GITHUB_OUTPUT"
+          echo "::notice::Published release $TAG"
+
+  sync-charts:
+    # Opens a PR in another repo, so it must never fire from a fork rehearsing the
+    # release. Unlike the image repo, there is nothing to redirect it at.
+    if: github.repository == 'aiven/aiven-operator'
+    needs:
+      - build_default_release_manifest
+      - build_and_push_docker_image
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Acts on the charts repo through GH_PAT, so the run's own token stays read-only.
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag }}
+          fetch-depth: 0
+      # Pinned to a SHA: this step receives a long-lived PAT, so a moved tag on a
+      # third-party action would hand that credential to unreviewed code.
+      - uses: BetaHuhn/repo-file-sync-action@8b92be3375cf1d1b0cd579af488a9255572e4619 # v1
+        with:
+          GH_PAT: ${{ secrets.AIVEN_CI_PAT__VALID_WHILE_MURAD_IS_EMPLOYED }}
+          COMMIT_PREFIX: "chore:"
