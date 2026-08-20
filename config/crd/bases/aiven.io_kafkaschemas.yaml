@@ -81,7 +81,11 @@ spec:
                     - name
                   type: object
                 compatibilityLevel:
-                  description: Kafka Schemas compatibility level
+                  description: |-
+                    Kafka Schemas compatibility level.
+                    When set, it is applied as the subject-level compatibility override.
+                    Removing this field does not change the subject: an existing override stays in place
+                    and is not reverted to the registry's global default.
                   enum:
                     - BACKWARD
                     - BACKWARD_TRANSITIVE
