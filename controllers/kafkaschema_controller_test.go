@@ -1075,6 +1075,36 @@ func TestFingerprintSchema(t *testing.T) {
 	})
 }
 
+func TestKafkaSchemaApplySchemaConfigBeforePost(t *testing.T) {
+	t.Parallel()
+
+	schema := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+	schema.Spec.CompatibilityLevel = kafkaschemaregistry.CompatibilityTypeNone
+
+	avn := avngen.NewMockClient(t)
+	configPut := avn.EXPECT().
+		ServiceSchemaRegistrySubjectConfigPut(
+			mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName,
+			&kafkaschemaregistry.ServiceSchemaRegistrySubjectConfigPutIn{
+				Compatibility: kafkaschemaregistry.CompatibilityTypeNone,
+			},
+		).Return(kafkaschemaregistry.CompatibilityTypeNone, nil).Once()
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionPost(
+			mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, mock.Anything,
+		).Return(1, nil).Once().
+		NotBefore(configPut)
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
+		Return([]int{1}, nil).Once()
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, 1).
+		Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{Id: 1, Version: 1}, nil).Once()
+
+	r := &KafkaSchemaController{avnGen: avn}
+	require.NoError(t, r.applySchema(t.Context(), schema))
+}
+
 // A missing referent must surface as errPreconditionNotMet.
 func TestResolveReferences(t *testing.T) {
 	scheme := runtime.NewScheme()
