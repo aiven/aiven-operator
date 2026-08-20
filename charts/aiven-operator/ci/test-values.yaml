@@ -10,3 +10,5 @@ extraEnvs:
 logging:
   level: info
   encoder: json
+
+pollInterval: 15m

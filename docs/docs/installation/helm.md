@@ -86,3 +86,24 @@ Refer to the [values.yaml file](https://github.com/aiven/aiven-charts/blob/main/
 You can configure the operator to monitor resources within specific namespaces.
 If the `ClusterRole` is enabled, it's bound to the operator's `ServiceAccount` within each watched namespace using a `RoleBinding`.
 This setup grants the operator the permissions specified in the `ClusterRole`, but only within the context of the specific namespaces where the `RoleBinding` is created.
+
+### Tune the reconcile interval
+
+Once a resource is ready, the operator re-reconciles most kinds against the Aiven API on a fixed
+interval to pick up changes made outside Kubernetes. The default is 10 minutes. See
+[which resources this affects](#which-resources-this-affects) below — the service kinds are not
+among them.
+
+Set the `pollInterval` value to change it:
+
+```yaml
+pollInterval: 30m
+```
+
+The accepted range is `10m` to `60m`. A value outside it is rejected at startup.
+
+#### Which resources this affects
+
+It does **not** apply to the service kinds — `Clickhouse`, `Flink`, `Grafana`, `Kafka`,
+`KafkaConnect`, `MySQL`, `OpenSearch`, `PostgreSQL` and `Valkey`. Those do not re-reconcile on a
+fixed interval at all at the moment.

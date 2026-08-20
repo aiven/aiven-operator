@@ -145,7 +145,7 @@ func setupSuite(ctx context.Context) (*envtest.Environment, error) {
 		return nil, err
 	}
 
-	err = controllers.SetupControllersWithConfig(mgr, controllers.SetupConfig{
+	err = controllers.SetupControllers(mgr, controllers.SetupConfig{
 		DefaultToken:    cfg.Token,
 		KubeVersion:     kubeVersion.String(),
 		OperatorVersion: operatorVersion,

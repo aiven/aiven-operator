@@ -48,6 +48,11 @@
 - Add `PostgreSQL` field `userConfig.pgbouncer.server_login_retry`, type `number`: If login to the server
   failed, because of failure to connect or from authentication, the pooler waits this much before
   retrying to connect
+- Add `--poll-interval` flag and matching `pollInterval` Helm value, to configure how often
+  resources in a steady state are re-reconciled against the Aiven API. Accepted range is 10m-60m,
+  so the interval can only be raised; the default is unchanged at 10 minutes. Does not apply to
+  the service kinds (`Clickhouse`, `Flink`, `Grafana`, `Kafka`, `KafkaConnect`, `MySQL`,
+  `OpenSearch`, `PostgreSQL`, `Valkey`), which do not re-reconcile on a fixed interval.
 
 ## v0.44.0 - 2026-08-11
 
