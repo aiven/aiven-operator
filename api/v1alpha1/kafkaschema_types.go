@@ -26,7 +26,10 @@ type KafkaSchemaSpec struct {
 	SchemaType kafkaschemaregistry.SchemaType `json:"schemaType,omitempty"`
 
 	// +kubebuilder:validation:Enum=BACKWARD;BACKWARD_TRANSITIVE;FORWARD;FORWARD_TRANSITIVE;FULL;FULL_TRANSITIVE;NONE
-	// Kafka Schemas compatibility level
+	// Kafka Schemas compatibility level.
+	// When set, it is applied as the subject-level compatibility override.
+	// Removing this field does not change the subject: an existing override stays in place
+	// and is not reverted to the registry's global default.
 	CompatibilityLevel kafkaschemaregistry.CompatibilityType `json:"compatibilityLevel,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=100
