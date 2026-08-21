@@ -287,6 +287,10 @@ type Pg struct {
 	PgStatMonitorPgsmMaxBuckets *int `groups:"create,update" json:"pg_stat_monitor.pgsm_max_buckets,omitempty"`
 
 	// +kubebuilder:validation:Enum="all";"none";"top"
+	// Controls which statements' plans are tracked. Specify top to track top-level statements (those issued directly by clients), all to also track nested statements (such as statements invoked within functions), or none to disable plan tracking. The default is `top`.
+	PgStatPlansTrack *string `groups:"create,update" json:"pg_stat_plans.track,omitempty"`
+
+	// +kubebuilder:validation:Enum="all";"none";"top"
 	// Controls which statements are counted. Specify top to track top-level statements (those issued directly by clients), all to also track nested statements (such as statements invoked within functions), or none to disable statement statistics collection. The default is `top`.
 	PgStatStatementsTrack *string `groups:"create,update" json:"pg_stat_statements.track,omitempty"`
 
@@ -440,6 +444,11 @@ type Pgbouncer struct {
 	// Add more server connections to pool if below this number. Improves behavior when usual load comes suddenly back after period of total inactivity. The value is effectively capped at the pool size.
 	MinPoolSize *int `groups:"create,update" json:"min_pool_size,omitempty"`
 
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=86400
+	// If connection and login don’t finish in this amount of time, the connection will be closed. [seconds]
+	ServerConnectTimeout *float64 `groups:"create,update" json:"server_connect_timeout,omitempty"`
+
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=86400
 	// If a server connection has been idle more than this many seconds it will be dropped. If 0 then timeout is disabled. [seconds]
@@ -449,6 +458,11 @@ type Pgbouncer struct {
 	// +kubebuilder:validation:Maximum=86400
 	// The pooler will close an unused server connection that has been connected longer than this. [seconds]
 	ServerLifetime *int `groups:"create,update" json:"server_lifetime,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=86400
+	// If login to the server failed, because of failure to connect or from authentication, the pooler waits this much before retrying to connect. During the waiting interval, new clients trying to connect to the failing server will get an error immediately without another connection attempt. [seconds]
+	ServerLoginRetry *float64 `groups:"create,update" json:"server_login_retry,omitempty"`
 
 	// Run server_reset_query (DISCARD ALL) in all pooling modes
 	ServerResetQueryAlways *bool `groups:"create,update" json:"server_reset_query_always,omitempty"`
@@ -593,6 +607,9 @@ type PgUserConfig struct {
 
 	// Enable the pg_stat_monitor extension. Changing this parameter causes a service restart. When this extension is enabled, pg_stat_statements results for utility commands are unreliable
 	PgStatMonitorEnable *bool `groups:"create,update" json:"pg_stat_monitor_enable,omitempty"`
+
+	// Enable the pg_stat_plans extension. Changing this parameter causes a service restart. Tracks execution plans for SQL queries
+	PgStatPlansEnable *bool `groups:"create,update" json:"pg_stat_plans_enable,omitempty"`
 
 	// Available versions: `14`, `15`, `16`, `17`, `18`. Newer versions may also be available.
 	// PostgreSQL major version. Deprecated values: `14`

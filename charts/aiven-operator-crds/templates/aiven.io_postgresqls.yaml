@@ -828,6 +828,18 @@ spec:
                           maximum: 10
                           minimum: 1
                           type: integer
+                        pg_stat_plans.track:
+                          description:
+                            Controls which statements' plans are tracked.
+                            Specify top to track top-level statements (those issued
+                            directly by clients), all to also track nested statements
+                            (such as statements invoked within functions), or none to
+                            disable plan tracking. The default is `top`.
+                          enum:
+                            - all
+                            - none
+                            - top
+                          type: string
                         pg_stat_statements.track:
                           description:
                             Controls which statements are counted. Specify
@@ -964,6 +976,12 @@ spec:
                         Enable the pg_stat_monitor extension. Changing this
                         parameter causes a service restart. When this extension is enabled,
                         pg_stat_statements results for utility commands are unreliable
+                      type: boolean
+                    pg_stat_plans_enable:
+                      description:
+                        Enable the pg_stat_plans extension. Changing this
+                        parameter causes a service restart. Tracks execution plans for
+                        SQL queries
                       type: boolean
                     pg_version:
                       description: |-
@@ -1126,6 +1144,13 @@ spec:
                           maximum: 10000
                           minimum: 0
                           type: integer
+                        server_connect_timeout:
+                          description:
+                            If connection and login don’t finish in this
+                            amount of time, the connection will be closed. [seconds]
+                          maximum: 86400
+                          minimum: 1
+                          type: number
                         server_idle_timeout:
                           description:
                             If a server connection has been idle more than
@@ -1141,6 +1166,17 @@ spec:
                           maximum: 86400
                           minimum: 60
                           type: integer
+                        server_login_retry:
+                          description:
+                            If login to the server failed, because of failure
+                            to connect or from authentication, the pooler waits this
+                            much before retrying to connect. During the waiting interval,
+                            new clients trying to connect to the failing server will
+                            get an error immediately without another connection attempt.
+                            [seconds]
+                          maximum: 86400
+                          minimum: 1
+                          type: number
                         server_reset_query_always:
                           description:
                             Run server_reset_query (DISCARD ALL) in all pooling

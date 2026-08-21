@@ -264,6 +264,11 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.MaxConnections != nil {
+		in, out := &in.MaxConnections, &out.MaxConnections
+		*out = new(int)
+		**out = **in
+	}
 	if in.MaxExecutionTime != nil {
 		in, out := &in.MaxExecutionTime, &out.MaxExecutionTime
 		*out = new(int)
@@ -276,6 +281,11 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 	}
 	if in.MaxSeeksForKey != nil {
 		in, out := &in.MaxSeeksForKey, &out.MaxSeeksForKey
+		*out = new(int)
+		**out = **in
+	}
+	if in.MaxUserConnections != nil {
+		in, out := &in.MaxUserConnections, &out.MaxUserConnections
 		*out = new(int)
 		**out = **in
 	}
