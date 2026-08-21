@@ -27,6 +27,17 @@ func newKafkaSchemaRegistryACL(t *testing.T) *v1alpha1.KafkaSchemaRegistryACL {
 	return acl
 }
 
+// schemaRegistryACLListWith returns a list response holding one remote entry that matches the
+// CR spec under the given ID.
+func schemaRegistryACLListWith(acl *v1alpha1.KafkaSchemaRegistryACL, id string) []kafkaschemaregistry.AclOut {
+	return []kafkaschemaregistry.AclOut{{
+		Id:         new(id),
+		Permission: kafkaschemaregistry.PermissionType(acl.Spec.Permission),
+		Resource:   acl.Spec.Resource,
+		Username:   acl.Spec.Username,
+	}}
+}
+
 func runKafkaSchemaRegistryACLScenario(
 	t *testing.T,
 	acl *v1alpha1.KafkaSchemaRegistryACL,
@@ -165,12 +176,7 @@ func TestKafkaSchemaRegistryACLReconciler(t *testing.T) {
 			Return(runningService(), nil).Once()
 		avn.EXPECT().
 			ServiceSchemaRegistryAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
-			Return([]kafkaschemaregistry.AclOut{{
-				Id:         new("acl-id"),
-				Permission: kafkaschemaregistry.PermissionType(acl.Spec.Permission),
-				Resource:   acl.Spec.Resource,
-				Username:   acl.Spec.Username,
-			}}, nil).Once()
+			Return(schemaRegistryACLListWith(acl, "acl-id"), nil).Once()
 
 		r, res, err := runKafkaSchemaRegistryACLScenario(t, acl, avn)
 		require.NoError(t, err)
@@ -182,7 +188,48 @@ func TestKafkaSchemaRegistryACLReconciler(t *testing.T) {
 		require.Equal(t, "acl-id", got.Status.ACLId)
 	})
 
-	t.Run("Recreates ACL when Status.ACLId is no longer present on Aiven", func(t *testing.T) {
+	t.Run("Re-adopts KafkaSchemaRegistryACL when the entry was recreated under a new ID", func(t *testing.T) {
+		acl := newKafkaSchemaRegistryACL(t)
+		acl.Generation = 1
+		acl.Annotations = map[string]string{processedGenerationAnnotation: "1"}
+		acl.Status.ACLId = "stale-id"
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName, mock.Anything).
+			Return(runningService(), nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistryAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
+			Return(schemaRegistryACLListWith(acl, "recreated-acl-id"), nil).Once()
+		// ServiceSchemaRegistryAclAdd must NOT be called.
+
+		r, res, err := runKafkaSchemaRegistryACLScenario(t, acl, avn)
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		got := &v1alpha1.KafkaSchemaRegistryACL{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: acl.Name, Namespace: acl.Namespace}, got))
+		require.Equal(t, "recreated-acl-id", got.Status.ACLId)
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
+	})
+
+	t.Run("Fails reconcile when the KafkaSchemaRegistryACL list call fails", func(t *testing.T) {
+		acl := newKafkaSchemaRegistryACL(t)
+		acl.Generation = 1
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName, mock.Anything).
+			Return(runningService(), nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistryAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
+			Return(nil, newAivenError(400, "bad request")).Once()
+
+		_, _, err := runKafkaSchemaRegistryACLScenario(t, acl, avn)
+		require.ErrorContains(t, err, "cannot list KafkaSchemaRegistryACLs on Aiven side")
+	})
+
+	t.Run("Recreates ACL when no remote entry matches the spec", func(t *testing.T) {
 		acl := newKafkaSchemaRegistryACL(t)
 		acl.Generation = 1
 		acl.Annotations = map[string]string{
@@ -195,10 +242,12 @@ func TestKafkaSchemaRegistryACLReconciler(t *testing.T) {
 		avn.EXPECT().
 			ServiceGet(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName, mock.Anything).
 			Return(runningService(), nil).Once()
-		// Observe: the stored ID is no longer present, so the resource is recreated.
+		// Observe: only an unrelated entry is present, which must not be adopted.
+		other := schemaRegistryACLListWith(acl, "other-acl-id")
+		other[0].Username = "someone-else"
 		avn.EXPECT().
 			ServiceSchemaRegistryAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
-			Return(nil, nil).Once()
+			Return(other, nil).Once()
 		// Create: adds the ACL and resolves the new ID.
 		avn.EXPECT().
 			ServiceSchemaRegistryAclAdd(
@@ -208,12 +257,7 @@ func TestKafkaSchemaRegistryACLReconciler(t *testing.T) {
 						in.Resource == acl.Spec.Resource &&
 						in.Username == acl.Spec.Username
 				}),
-			).Return([]kafkaschemaregistry.AclOut{{
-			Id:         new("new-id"),
-			Permission: kafkaschemaregistry.PermissionType(acl.Spec.Permission),
-			Resource:   acl.Spec.Resource,
-			Username:   acl.Spec.Username,
-		}}, nil).Once()
+			).Return(schemaRegistryACLListWith(acl, "new-id"), nil).Once()
 
 		r, res, err := runKafkaSchemaRegistryACLScenario(t, acl, avn)
 		require.NoError(t, err)
@@ -271,8 +315,7 @@ func TestKafkaSchemaRegistryACLReconciler(t *testing.T) {
 
 	t.Run("Adopts orphaned KafkaSchemaRegistryACL when status ACLId is empty but spec matches existing entry", func(t *testing.T) {
 		// Simulates: CR deleted with deletionPolicy:Orphan, then re-applied.
-		// Without the fix, the operator would call ServiceSchemaRegistryAclAdd and create a
-		// duplicate instead of adopting the existing entry.
+		// Without the fix, ServiceSchemaRegistryAclAdd is called and fails with 409 forever.
 		acl := newKafkaSchemaRegistryACL(t)
 		acl.Generation = 1
 		// No Status.ACLId — fresh CR after Orphan deletion.
@@ -283,13 +326,8 @@ func TestKafkaSchemaRegistryACLReconciler(t *testing.T) {
 			Return(runningService(), nil).Once()
 		avn.EXPECT().
 			ServiceSchemaRegistryAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
-			Return([]kafkaschemaregistry.AclOut{{
-				Id:         new("orphaned-schema-acl-id"),
-				Permission: kafkaschemaregistry.PermissionType(acl.Spec.Permission),
-				Resource:   acl.Spec.Resource,
-				Username:   acl.Spec.Username,
-			}}, nil).Once()
-		// ServiceSchemaRegistryAclAdd must NOT be called — adoption avoids the duplicate.
+			Return(schemaRegistryACLListWith(acl, "orphaned-schema-acl-id"), nil).Once()
+		// ServiceSchemaRegistryAclAdd must NOT be called — adoption avoids the conflict.
 
 		r, res, err := runKafkaSchemaRegistryACLScenario(t, acl, avn)
 		require.NoError(t, err)
