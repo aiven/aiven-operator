@@ -8,6 +8,19 @@
   schema that only becomes valid after a loosening change (for example `BACKWARD` to `NONE`) is accepted.
   Behavior change: a schema the registry rejects now leaves the new compatibility level applied, and
   tightening the level together with a schema that violates it now fails instead of silently succeeding
+- Add `MySQL` field `userConfig.mysql.max_connections`, type `integer`: The maximum permitted number
+  of simultaneous client connections
+- Add `MySQL` field `userConfig.mysql.max_user_connections`, type `integer`: The maximum number of simultaneous
+  connections permitted to any single user account
+- Add `PostgreSQL` field `userConfig.pg.pg_stat_plans.track`, type `string`: Controls which statements'
+  plans are tracked
+- Add `PostgreSQL` field `userConfig.pg_stat_plans_enable`, type `boolean`: Enable the pg_stat_plans
+  extension. Changing this parameter causes a service restart
+- Add `PostgreSQL` field `userConfig.pgbouncer.server_connect_timeout`, type `number`: If connection
+  and login don’t finish in this amount of time, the connection will be closed
+- Add `PostgreSQL` field `userConfig.pgbouncer.server_login_retry`, type `number`: If login to the server
+  failed, because of failure to connect or from authentication, the pooler waits this much before
+  retrying to connect
 
 ## v0.44.0 - 2026-08-11
 

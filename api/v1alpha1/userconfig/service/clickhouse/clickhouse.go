@@ -99,7 +99,7 @@ type ClickhouseUserConfig struct {
 	BackupMinute *int `groups:"create,update" json:"backup_minute,omitempty"`
 
 	// Available versions: `25.3`, `25.8`, `26.3`. Newer versions may also be available.
-	// ClickHouse major version
+	// ClickHouse major version. Deprecated values: `25.3`
 	ClickhouseVersion *string `groups:"create,update" json:"clickhouse_version,omitempty"`
 
 	// Register AAAA DNS records for the service, and allow IPv6 packets to service ports
