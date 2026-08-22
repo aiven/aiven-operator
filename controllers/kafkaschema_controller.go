@@ -32,6 +32,10 @@ import (
 // schema body + resolved references + compatibility level.
 const kafkaSchemaAppliedFingerprintAnnotation = "controllers.aiven.io/kafka-schema-applied"
 
+// kafkaSchemaAppliedCompatibilityAnnotation records the subject-level compatibility
+// override last applied by the operator.
+const kafkaSchemaAppliedCompatibilityAnnotation = "controllers.aiven.io/kafka-schema-applied-compatibility"
+
 // kafkaSchemaRefIndex is the cache index key for finding KafkaSchemas that
 // reference another KafkaSchema by name.
 const kafkaSchemaRefIndex = "spec.references.kafkaSchemaRef.name"
@@ -162,8 +166,15 @@ func (r *KafkaSchemaController) Observe(ctx context.Context, schema *v1alpha1.Ka
 		resolvedRefs = refs
 	}
 	desiredFP := fingerprintSchema(schema, resolvedRefs)
-
 	appliedFP, ok := schema.GetAnnotations()[kafkaSchemaAppliedFingerprintAnnotation]
+
+	// Backfill ownership for CRs whose level was applied before the annotation existed,
+	// so clearing the field on them still reverts the override.
+	if ok && appliedFP == desiredFP && schema.Spec.CompatibilityLevel != "" &&
+		!metav1.HasAnnotation(schema.ObjectMeta, kafkaSchemaAppliedCompatibilityAnnotation) {
+		metav1.SetMetaDataAnnotation(&schema.ObjectMeta, kafkaSchemaAppliedCompatibilityAnnotation, string(schema.Spec.CompatibilityLevel))
+	}
+
 	if !ok || appliedFP != desiredFP {
 		return Observation{ResourceExists: true, ResourceUpToDate: false}, nil
 	}
@@ -214,23 +225,11 @@ func (r *KafkaSchemaController) Update(ctx context.Context, schema *v1alpha1.Kaf
 // Schema B -> ID:2, Version:2
 // Revert to A -> ID:1, Version:1
 //
-// The compatibility level must be set first, see the KafkaSchema docs for why. The two calls
+// The compatibility level must be applied first, see the KafkaSchema docs for why. The calls
 // are not atomic, so a rejected schema leaves the new level applied and is retried on the next
 // reconciliation. Configuring a subject that does not exist yet is accepted by the registry and
 // does not make it visible to Observe.
 func (r *KafkaSchemaController) applySchema(ctx context.Context, schema *v1alpha1.KafkaSchema) error {
-	if schema.Spec.CompatibilityLevel != "" {
-		if _, err := r.avnGen.ServiceSchemaRegistrySubjectConfigPut(
-			ctx,
-			schema.Spec.Project,
-			schema.Spec.ServiceName,
-			schema.Spec.SubjectName,
-			&kafkaschemaregistry.ServiceSchemaRegistrySubjectConfigPutIn{Compatibility: schema.Spec.CompatibilityLevel},
-		); err != nil {
-			return fmt.Errorf("cannot update Kafka Schema Configuration: %w", err)
-		}
-	}
-
 	postIn := &kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionPostIn{
 		Schema:     schema.Spec.Schema,
 		SchemaType: schema.Spec.SchemaType,
@@ -244,6 +243,10 @@ func (r *KafkaSchemaController) applySchema(ctx context.Context, schema *v1alpha
 		}
 		resolvedRefs = refs
 		postIn.References = &refs
+	}
+
+	if err := r.applyCompatibilityLevel(ctx, schema); err != nil {
+		return err
 	}
 
 	schemaID, err := r.avnGen.ServiceSchemaRegistrySubjectVersionPost(
@@ -269,6 +272,67 @@ func (r *KafkaSchemaController) applySchema(ctx context.Context, schema *v1alpha
 		kafkaSchemaAppliedFingerprintAnnotation,
 		fingerprintSchema(schema, resolvedRefs),
 	)
+
+	return nil
+}
+
+// applyCompatibilityLevel reconciles the subject-level compatibility override.
+func (r *KafkaSchemaController) applyCompatibilityLevel(ctx context.Context, schema *v1alpha1.KafkaSchema) error {
+	if level := schema.Spec.CompatibilityLevel; level != "" {
+		if err := r.putCompatibilityLevel(ctx, schema, level); err != nil {
+			return err
+		}
+		metav1.SetMetaDataAnnotation(&schema.ObjectMeta, kafkaSchemaAppliedCompatibilityAnnotation, string(level))
+		return nil
+	}
+
+	applied, ok := schema.GetAnnotations()[kafkaSchemaAppliedCompatibilityAnnotation]
+	if !ok {
+		return nil
+	}
+
+	override, err := r.avnGen.ServiceSchemaRegistrySubjectConfigGet(
+		ctx,
+		schema.Spec.Project,
+		schema.Spec.ServiceName,
+		schema.Spec.SubjectName,
+		kafkaschemaregistry.ServiceSchemaRegistrySubjectConfigGetGlobalDefaultFallback(false),
+	)
+	switch {
+	case isNotFound(err):
+		// Override already gone, nothing to revert.
+	case err != nil:
+		return fmt.Errorf("getting Kafka Schema Configuration: %w", err)
+	case string(override) != applied:
+		// The override no longer matches what we applied — changed externally. We do not override.
+	default:
+		global, err := r.avnGen.ServiceSchemaRegistryGlobalConfigGet(ctx, schema.Spec.Project, schema.Spec.ServiceName)
+		if err != nil {
+			return fmt.Errorf("getting global Kafka Schema Configuration: %w", err)
+		}
+		if override != global {
+			if err := r.putCompatibilityLevel(ctx, schema, global); err != nil {
+				return err
+			}
+		}
+	}
+
+	delete(schema.GetAnnotations(), kafkaSchemaAppliedCompatibilityAnnotation)
+	return nil
+}
+
+func (r *KafkaSchemaController) putCompatibilityLevel(
+	ctx context.Context, schema *v1alpha1.KafkaSchema, level kafkaschemaregistry.CompatibilityType,
+) error {
+	if _, err := r.avnGen.ServiceSchemaRegistrySubjectConfigPut(
+		ctx,
+		schema.Spec.Project,
+		schema.Spec.ServiceName,
+		schema.Spec.SubjectName,
+		&kafkaschemaregistry.ServiceSchemaRegistrySubjectConfigPutIn{Compatibility: level},
+	); err != nil {
+		return fmt.Errorf("cannot update Kafka Schema Configuration: %w", err)
+	}
 
 	return nil
 }

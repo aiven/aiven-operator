@@ -18,6 +18,9 @@ import (
 	"github.com/aiven/aiven-operator/controllers"
 )
 
+// appliedCompatibilityAnnotation mirrors the controller's unexported ownership annotation.
+const appliedCompatibilityAnnotation = "controllers.aiven.io/kafka-schema-applied-compatibility"
+
 func TestKafkaSchema(t *testing.T) {
 	t.Parallel()
 	defer recoverPanic(t)
@@ -209,6 +212,71 @@ func TestKafkaSchemaCompatibilityLoosening(t *testing.T) {
 	level, err := avnGen.ServiceSchemaRegistrySubjectConfigGet(ctx, cfg.Project, kafkaName, subjectName)
 	require.NoError(t, err)
 	assert.Equal(t, kafkaschemaregistry.CompatibilityTypeNone, level)
+}
+
+// Clearing compatibilityLevel must revert the subject override to the registry's
+// current global default instead of being silently ignored.
+func TestKafkaSchemaCompatibilityRevertToGlobalDefault(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	ctx, cancel := testCtx()
+	defer cancel()
+
+	kafka, releaseKafka, err := sharedResources.AcquireKafka(ctx)
+	require.NoError(t, err)
+	defer releaseKafka()
+
+	kafkaName := kafka.GetName()
+	schemaName := randName("kafka-schema-revert")
+	subjectName := randName("kafka-schema-revert")
+	s := NewSession(ctx, k8sClient)
+	defer s.Destroy(t)
+
+	// getKafkaSchemaYaml pins the subject to BACKWARD.
+	require.NoError(t, s.Apply(getKafkaSchemaYaml(cfg.Project, kafkaName, schemaName, subjectName)))
+
+	created := new(v1alpha1.KafkaSchema)
+	require.NoError(t, s.GetRunning(created, schemaName))
+
+	global, err := avnGen.ServiceSchemaRegistryGlobalConfigGet(ctx, cfg.Project, kafkaName)
+	require.NoError(t, err)
+	// Guards against the revert going vacuous: pin an override that differs from the global default.
+	// Assumes no other test mutates the shared service's global config; one that sets it to NONE
+	// would fail this guard.
+	require.NotEqual(t, kafkaschemaregistry.CompatibilityTypeNone, global,
+		"the service's global default must differ from the override this test pins")
+
+	pinned := created.DeepCopy()
+	pinned.Spec.CompatibilityLevel = kafkaschemaregistry.CompatibilityTypeNone
+	require.NoError(t, k8sClient.Update(ctx, pinned))
+	require.NoError(t, s.GetRunning(pinned, schemaName))
+	// The applied override is marked operator-owned; only owned overrides are reverted.
+	require.Equal(t, string(kafkaschemaregistry.CompatibilityTypeNone),
+		pinned.GetAnnotations()[appliedCompatibilityAnnotation])
+
+	override, err := avnGen.ServiceSchemaRegistrySubjectConfigGet(
+		ctx, cfg.Project, kafkaName, subjectName,
+		kafkaschemaregistry.ServiceSchemaRegistrySubjectConfigGetGlobalDefaultFallback(false),
+	)
+	require.NoError(t, err)
+	require.Equal(t, kafkaschemaregistry.CompatibilityTypeNone, override)
+
+	cleared := pinned.DeepCopy()
+	cleared.Spec.CompatibilityLevel = ""
+	require.NoError(t, k8sClient.Update(ctx, cleared))
+	require.NoError(t, s.GetRunning(cleared, schemaName))
+
+	// The override cannot be deleted through the Aiven API, so the operator
+	// overwrites it with a snapshot of the global default.
+	reverted, err := avnGen.ServiceSchemaRegistrySubjectConfigGet(
+		ctx, cfg.Project, kafkaName, subjectName,
+		kafkaschemaregistry.ServiceSchemaRegistrySubjectConfigGetGlobalDefaultFallback(false),
+	)
+	require.NoError(t, err)
+	assert.Equal(t, global, reverted)
+	assert.NotContains(t, cleared.GetAnnotations(), appliedCompatibilityAnnotation,
+		"ownership is released after the revert")
 }
 
 func TestKafkaSchemaReferences(t *testing.T) {

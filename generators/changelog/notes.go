@@ -25,7 +25,7 @@ func extractNotes(body []byte, version string) (string, error) {
 	var section []string
 	found := false
 
-	for _, line := range strings.Split(string(body), "\n") {
+	for line := range strings.SplitSeq(string(body), "\n") {
 		if !found {
 			found = reHeader.MatchString(line)
 			continue

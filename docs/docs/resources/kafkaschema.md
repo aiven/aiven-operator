@@ -179,8 +179,12 @@ the subject. The subject disappears from the registry's listing, re-applying a K
 after deletion starts a brand-new subject at version 1.
 
 Update ordering: when schema and compatibilityLevel change in the same apply, the
-compatibility level is set first, because the registry validates a new version against the
-level currently configured for the subject. A rejected schema leaves the new level applied.
+compatibility level is applied first, because the registry validates a new version against
+the level currently configured for the subject. A rejected schema leaves the new level applied.
+Removing compatibilityLevel reverts a subject-level override previously applied by the
+operator to a snapshot of the registry's current global default before the schema is
+registered; overrides created outside the operator, or changed outside it since they
+were applied, are left untouched.
 
 **Required**
 
@@ -207,8 +211,11 @@ KafkaSchemaSpec defines the desired state of KafkaSchema.
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
 - [`compatibilityLevel`](#spec.compatibilityLevel-property){: name='spec.compatibilityLevel-property'} (string, Enum: `BACKWARD`, `BACKWARD_TRANSITIVE`, `FORWARD`, `FORWARD_TRANSITIVE`, `FULL`, `FULL_TRANSITIVE`, `NONE`). Kafka Schemas compatibility level.
     When set, it is applied as the subject-level compatibility override.
-    Removing this field does not change the subject: an existing override stays in place
-    and is not reverted to the registry's global default.
+    When removed, an override previously applied by the operator is reverted to a
+    snapshot of the registry's current global default; later changes to the global
+    default are not tracked.
+    Overrides created outside the operator, or changed
+    outside it since they were applied, are never modified.
 - [`references`](#spec.references-property){: name='spec.references-property'} (array of objects, MaxItems: 100). Schema references for Protobuf or JSON schemas that import other schemas.
     References must form a directed acyclic graph (DAG); cycles are not allowed. See below for [nested schema](#spec.references).
 - [`schemaType`](#spec.schemaType-property){: name='spec.schemaType-property'} (string, Enum: `AVRO`, `JSON`, `PROTOBUF`, Immutable). Schema type.
