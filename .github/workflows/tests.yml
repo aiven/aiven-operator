@@ -65,6 +65,7 @@ jobs:
   post-initial-comment:
     runs-on: ubuntu-latest
     if: inputs.pr_number != ''
+    continue-on-error: true
     outputs:
       comment_id: ${{ steps.comment.outputs.comment_id }}
     steps:
@@ -158,9 +159,10 @@ jobs:
             ${{ secrets.AIVEN_PROJECT_NAME_PREFIX }}${{ needs.setup_aiven_project_suffix.outputs.project_name_suffix }}
 
   update-pr-comment:
-    if: always() && inputs.pr_number != ''
+    if: always() && inputs.pr_number != '' && needs.post-initial-comment.outputs.comment_id != ''
     needs: [setup_aiven_project_suffix, post-initial-comment, test, sweep]
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Update PR comment with results
         uses: actions/github-script@v9
