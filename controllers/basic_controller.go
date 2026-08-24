@@ -154,7 +154,7 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 	}
 
 	requeue, err := helper.reconcile(ctx, o)
-	result := ctrl.Result{Requeue: requeue}
+	result := ctrl.Result{}
 	if requeue {
 		result.RequeueAfter = requeueTimeout
 	}
