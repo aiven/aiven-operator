@@ -646,6 +646,9 @@ type PublicAccess struct {
 	SchemaRegistry *bool `groups:"create,update" json:"schema_registry,omitempty"`
 }
 
+// Mapping of HTTP methods to the list of roles allowed to perform them on the Schema Registry. Role names use the `karapace.` prefix, e.g. `karapace.schema:read`.
+type SaslOauthbearerMethodRoles struct{}
+
 // Schema Registry configuration
 type SchemaRegistryConfig struct {
 	// If true, Karapace / Schema Registry on the service nodes can participate in leader election. It might be needed to disable this when the schemas topic is replicated to a secondary cluster and Karapace / Schema Registry there must not participate in leader election. Defaults to `true`.
@@ -653,6 +656,20 @@ type SchemaRegistryConfig struct {
 
 	// If enabled, kafka errors which can be retried or custom errors specified for the service will not be raised, instead, a warning log is emitted. This will denoise issue tracking systems, i.e. sentry. Defaults to `true`.
 	RetriableErrorsSilenced *bool `groups:"create,update" json:"retriable_errors_silenced,omitempty"`
+
+	// If enabled, the Schema Registry validates OAuth2/OIDC JWT bearer tokens on incoming requests. Requires the OIDC provider settings under the `kafka` configuration (`sasl_oauthbearer_jwks_endpoint_url` and related). Defaults to `false`.
+	SaslOauthbearerAuthenticationEnabled *bool `groups:"create,update" json:"sasl_oauthbearer_authentication_enabled,omitempty"`
+
+	// If enabled, the Schema Registry enforces role-based authorization derived from the JWT roles claim. Requires `sasl_oauthbearer_authentication_enabled` to be enabled. Defaults to `false`.
+	SaslOauthbearerAuthorizationEnabled *bool `groups:"create,update" json:"sasl_oauthbearer_authorization_enabled,omitempty"`
+
+	// Mapping of HTTP methods to the list of roles allowed to perform them on the Schema Registry. Role names use the `karapace.` prefix, e.g. `karapace.schema:read`.
+	SaslOauthbearerMethodRoles *SaslOauthbearerMethodRoles `groups:"create,update" json:"sasl_oauthbearer_method_roles,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=128
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*\S[^\r\n]*$`
+	// JSON path used to extract the roles claim from the JWT for Schema Registry authorization. Defaults to `resource_access.karapace.roles`.
+	SaslOauthbearerRolesClaimPath *string `groups:"create,update" json:"sasl_oauthbearer_roles_claim_path,omitempty"`
 
 	// If enabled, causes the Karapace schema-registry service to shutdown when there are invalid schema records in the `_schemas` topic. Defaults to `false`.
 	SchemaReaderStrictMode *bool `groups:"create,update" json:"schema_reader_strict_mode,omitempty"`
@@ -767,6 +784,10 @@ type KafkaUserConfig struct {
 	// Available versions: `3.9`, `4.0`, `4.1`, `4.2`. Newer versions may also be available.
 	// Kafka major version. Deprecated values: `4.0`
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^[0-9]+\.[0-9]+\.[0-9]+$`
+	// Pin a specific installed Karapace version on this service. Leave null/unset to auto-follow the newest installed version.
+	KarapaceVersion *string `groups:"create,update" json:"karapace_version,omitempty"`
 
 	// Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication. (Default: False)
 	LetsencryptSasl *bool `groups:"create,update" json:"letsencrypt_sasl,omitempty"`

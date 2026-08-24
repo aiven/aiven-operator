@@ -265,7 +265,7 @@ spec:
                     clickhouse_version:
                       description: |-
                         Available versions: `25.3`, `25.8`, `26.3`. Newer versions may also be available.
-                        ClickHouse major version
+                        ClickHouse major version. Deprecated values: `25.3`
                       type: string
                     enable_ipv6:
                       description:
