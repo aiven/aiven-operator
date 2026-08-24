@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="./assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.53">
+      <meta name="generator" content="zensical-0.0.57">
     
     
       
@@ -32,12 +32,12 @@
       
         
       
-      <link rel="stylesheet" href="./assets/stylesheets/modern/main.20815dad.min.css">
+      <link rel="stylesheet" href="./assets/stylesheets/modern/main.5da3a30f.min.css">
       
         
           
         
-        <link rel="stylesheet" href="./assets/stylesheets/modern/palette.dfe2e883.min.css">
+        <link rel="stylesheet" href="./assets/stylesheets/modern/palette.812a03bb.min.css">
       
       
 
@@ -489,6 +489,17 @@
       On this page
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0450-2026-08-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.45.0 - 2026-08-24
+      </span>
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v0440-2026-08-11" class="md-nav__link">
@@ -3813,6 +3824,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0450-2026-08-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.45.0 - 2026-08-24
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0440-2026-08-11" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -4389,6 +4411,45 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0450-2026-08-24">v0.45.0 - 2026-08-24<a class="headerlink" href="#v0450-2026-08-24" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>ServiceUser</code>: increased the amount of concurrent reconcilers up to 10</li>
+<li>Fix <code>KafkaNativeACL</code> and <code>KafkaSchemaRegistryACL</code> to adopt the matching ACL that is already
+  present on Aiven instead of trying to create a second one. Existence is decided by matching
+  every identifying field against the ACL list. This
+  covers an ACLs created outside the operator as well. Note
+  that an adopted ACL is deleted together with the custom resource unless the
+  <code>controllers.aiven.io/deletion-policy: Orphan</code> annotation is set.</li>
+<li>Fix <code>KafkaSchema</code> never converging when <code>schema</code> and <code>compatibilityLevel</code> change in the same apply:
+  the compatibility level is now set before the new schema version is registered. Behavior change: a
+  rejected schema leaves the new level applied, and tightening the level alongside a schema that violates it now fails.</li>
+<li>Docs: clarified that removing <code>KafkaSchema.spec.compatibilityLevel</code> leaves the existing
+  subject-level override in place instead of reverting it to the registry's global default.</li>
+<li>Add <code>Kafka</code> field <code>userConfig.karapace_version</code>, type <code>string</code>: Pin a specific installed Karapace version
+  on this service</li>
+<li>Add <code>Kafka</code> field <code>userConfig.schema_registry_config.sasl_oauthbearer_authentication_enabled</code>, type
+  <code>boolean</code>: If enabled, the Schema Registry validates OAuth2/OIDC JWT bearer tokens on incoming requests</li>
+<li>Add <code>Kafka</code> field <code>userConfig.schema_registry_config.sasl_oauthbearer_authorization_enabled</code>, type
+  <code>boolean</code>: If enabled, the Schema Registry enforces role-based authorization derived from the JWT
+  roles claim</li>
+<li>Add <code>Kafka</code> field <code>userConfig.schema_registry_config.sasl_oauthbearer_method_roles</code>, type <code>object</code>:
+  Mapping of HTTP methods to the list of roles allowed to perform them on the Schema Registry</li>
+<li>Add <code>Kafka</code> field <code>userConfig.schema_registry_config.sasl_oauthbearer_roles_claim_path</code>, type <code>string</code>:
+  JSON path used to extract the roles claim from the JWT for Schema Registry authorization</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.max_connections</code>, type <code>integer</code>: The maximum permitted number
+  of simultaneous client connections</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.max_user_connections</code>, type <code>integer</code>: The maximum number of simultaneous
+  connections permitted to any single user account</li>
+<li>Add <code>PostgreSQL</code> field <code>userConfig.pg.pg_stat_plans.track</code>, type <code>string</code>: Controls which statements'
+  plans are tracked</li>
+<li>Add <code>PostgreSQL</code> field <code>userConfig.pg_stat_plans_enable</code>, type <code>boolean</code>: Enable the pg_stat_plans
+  extension. Changing this parameter causes a service restart</li>
+<li>Add <code>PostgreSQL</code> field <code>userConfig.pgbouncer.server_connect_timeout</code>, type <code>number</code>: If connection
+  and login don’t finish in this amount of time, the connection will be closed</li>
+<li>Add <code>PostgreSQL</code> field <code>userConfig.pgbouncer.server_login_retry</code>, type <code>number</code>: If login to the server
+  failed, because of failure to connect or from authentication, the pooler waits this much before
+  retrying to connect</li>
+</ul>
 <h2 id="v0440-2026-08-11">v0.44.0 - 2026-08-11<a class="headerlink" href="#v0440-2026-08-11" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Add kind: <code>OrganizationProject</code> to manage Aiven projects that belong to an organization or organizational unit.</li>
@@ -5545,7 +5606,7 @@ as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-be
       <script id="__config" type="application/json">{"annotate":null,"base":".","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"./assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="./assets/javascripts/bundle.69c251d7.min.js"></script>
+      <script src="./assets/javascripts/bundle.49251538.min.js"></script>
       
     
   </body>

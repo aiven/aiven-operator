@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.53">
+      <meta name="generator" content="zensical-0.0.57">
     
     
       
@@ -32,12 +32,12 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.20815dad.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.5da3a30f.min.css">
       
         
           
         
-        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.dfe2e883.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.812a03bb.min.css">
       
       
 
@@ -3401,7 +3401,7 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>helm<span class="w"> </span>uninstall<span class="w"> </span>aiven-operator-crds
 </code></pre></div>
 <p>The confirmation message is similar to the following:</p>
-<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>release<span class="w"> </span><span class="s2">&quot;aiven-operator-crds&quot;</span><span class="w"> </span>uninstalled
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>release<span class="w"> </span><span class="s2">"aiven-operator-crds"</span><span class="w"> </span>uninstalled
 </code></pre></div>
 <ol>
 <li>To remove the operator, run:</li>
@@ -3409,7 +3409,7 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>helm<span class="w"> </span>uninstall<span class="w"> </span>aiven-operator
 </code></pre></div>
 <p>The confirmation message is similar to the following:</p>
-<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>release<span class="w"> </span><span class="s2">&quot;aiven-operator&quot;</span><span class="w"> </span>uninstalled
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>release<span class="w"> </span><span class="s2">"aiven-operator"</span><span class="w"> </span>uninstalled
 </code></pre></div>
 <h2 id="uninstall-with-kubectl">Uninstall with kubectl<a class="headerlink" href="#uninstall-with-kubectl" title="Permanent link">&para;</a></h2>
 <p>To uninstall the operator, run:</p>
@@ -3426,7 +3426,7 @@ This solves a race condition that happens when deleting a namespace, where there
 When the controller is deleted it may not cleanup the finalizers from all Secrets.
 If there is a Secret with this finalizer blocking deletion of a namespace, you can remove the finalizer.</p>
 <p>To remove a finalizer, run:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>kubectl<span class="w"> </span>patch<span class="w"> </span>secret<span class="w"> </span>&lt;offending-secret&gt;<span class="w"> </span>-p<span class="w"> </span><span class="s1">&#39;{&quot;metadata&quot;:{&quot;finalizers&quot;:null}}&#39;</span><span class="w"> </span>--type<span class="o">=</span>merge
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>kubectl<span class="w"> </span>patch<span class="w"> </span>secret<span class="w"> </span>&lt;offending-secret&gt;<span class="w"> </span>-p<span class="w"> </span><span class="s1">'{"metadata":{"finalizers":null}}'</span><span class="w"> </span>--type<span class="o">=</span>merge
 </code></pre></div>
 
 
@@ -3537,7 +3537,7 @@ If there is a Secret with this finalizer blocking deletion of a namespace, you c
       <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.69c251d7.min.js"></script>
+      <script src="../assets/javascripts/bundle.49251538.min.js"></script>
       
     
   </body>

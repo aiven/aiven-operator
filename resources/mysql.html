@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.53">
+      <meta name="generator" content="zensical-0.0.57">
     
     
       
@@ -32,12 +32,12 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.20815dad.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.5da3a30f.min.css">
       
         
           
         
-        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.dfe2e883.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.812a03bb.min.css">
       
       
 
@@ -3850,19 +3850,19 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>secret<span class="w"> </span>mysql-secret
 </code></pre></div></p>
 <p>You can use the <a href="https://github.com/jqlang/jq">jq</a> to quickly decode the <code>Secret</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>mysql-secret<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data | map_values(@base64d)&#39;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>mysql-secret<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.data | map_values(@base64d)'</span>
 </code></pre></div>
 <p>The output is similar to the following:</p>
 <div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="nt">&quot;MYSQL_HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">&quot;MYSQL_PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">&quot;MYSQL_DATABASE&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nt">&quot;MYSQL_USER&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">&quot;MYSQL_PASSWORD&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nt">&quot;MYSQL_SSL_MODE&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="nt">&quot;MYSQL_URI&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="nt">&quot;MYSQL_REPLICA_URI&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="nt">&quot;MYSQL_CA_CERT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="nt">"MYSQL_HOST"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">"MYSQL_PORT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">"MYSQL_DATABASE"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nt">"MYSQL_USER"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">"MYSQL_PASSWORD"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nt">"MYSQL_SSL_MODE"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="nt">"MYSQL_URI"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="nt">"MYSQL_REPLICA_URI"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="nt">"MYSQL_CA_CERT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
 <a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="p">}</span>
 </code></pre></div>
 <hr />
@@ -4093,9 +4093,11 @@ MySQL major version. Deprecated values: <code>8</code>.</li>
 <li><a href="#spec.userConfig.mysql.long_query_time-property" name="spec.userConfig.mysql.long_query_time-property"><code>long_query_time</code></a> (number, Minimum: 0, Maximum: 3600). The slow_query_logs work as SQL statements that take more than long_query_time seconds to execute.</li>
 <li><a href="#spec.userConfig.mysql.lower_case_table_names-property" name="spec.userConfig.mysql.lower_case_table_names-property"><code>lower_case_table_names</code></a> (integer, Enum: <code>0</code>, <code>1</code>, Immutable). Sets how table and database names are stored and compared. 0 = case-sensitive (default), 1 = names stored lowercase, comparisons are case-insensitive. This option can only be set when creating the service and cannot be changed later. See <a href="https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html">https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html</a> for details.</li>
 <li><a href="#spec.userConfig.mysql.max_allowed_packet-property" name="spec.userConfig.mysql.max_allowed_packet-property"><code>max_allowed_packet</code></a> (integer, Minimum: 102400, Maximum: 1073741824). Size of the largest message in bytes that can be received by the server. Default is 67108864 (64M).</li>
+<li><a href="#spec.userConfig.mysql.max_connections-property" name="spec.userConfig.mysql.max_connections-property"><code>max_connections</code></a> (integer, Minimum: 30, Maximum: 100000). The maximum permitted number of simultaneous client connections. Lower this to reserve memory for other work. The value cannot exceed the limit provided by your service plan. Upgrading the plan does not raise a value you have set explicitly, so increase it yourself after an upgrade.</li>
 <li><a href="#spec.userConfig.mysql.max_execution_time-property" name="spec.userConfig.mysql.max_execution_time-property"><code>max_execution_time</code></a> (integer, Minimum: 0, Maximum: 4294967295). Execution timeout in milliseconds for read-only top-level SELECT statements. 0 (the default) means no timeout.</li>
 <li><a href="#spec.userConfig.mysql.max_heap_table_size-property" name="spec.userConfig.mysql.max_heap_table_size-property"><code>max_heap_table_size</code></a> (integer, Minimum: 1048576, Maximum: 1073741824). Limits the size of internal in-memory tables. Also set tmp_table_size. Default is 16777216 (16M).</li>
 <li><a href="#spec.userConfig.mysql.max_seeks_for_key-property" name="spec.userConfig.mysql.max_seeks_for_key-property"><code>max_seeks_for_key</code></a> (integer, Minimum: 1). Limit on the assumed maximum number of index seeks when looking up rows based on a key. Lowering this value causes the optimizer to prefer index lookups over table scans.</li>
+<li><a href="#spec.userConfig.mysql.max_user_connections-property" name="spec.userConfig.mysql.max_user_connections-property"><code>max_user_connections</code></a> (integer, Minimum: 0, Maximum: 99990). The maximum number of simultaneous connections permitted to any single user account. 0, the default, means no per-account limit. Any other value must be at least 10 below max_connections, so that monitoring and your own admin sessions can still connect when an application saturates its own limit. Aiven's replication and management connections are unaffected however low you set this.</li>
 <li><a href="#spec.userConfig.mysql.net_buffer_length-property" name="spec.userConfig.mysql.net_buffer_length-property"><code>net_buffer_length</code></a> (integer, Minimum: 1024, Maximum: 1048576). Start sizes of connection buffer and result buffer. Default is 16384 (16K). Changing this parameter will lead to a restart of the MySQL service.</li>
 <li><a href="#spec.userConfig.mysql.net_read_timeout-property" name="spec.userConfig.mysql.net_read_timeout-property"><code>net_read_timeout</code></a> (integer, Minimum: 1, Maximum: 3600). The number of seconds to wait for more data from a connection before aborting the read.</li>
 <li><a href="#spec.userConfig.mysql.net_write_timeout-property" name="spec.userConfig.mysql.net_write_timeout-property"><code>net_write_timeout</code></a> (integer, Minimum: 1, Maximum: 3600). The number of seconds to wait for a block to be written to a connection before aborting the write.</li>
@@ -4259,7 +4261,7 @@ MySQL major version. Deprecated values: <code>8</code>.</li>
       <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.69c251d7.min.js"></script>
+      <script src="../assets/javascripts/bundle.49251538.min.js"></script>
       
     
   </body>

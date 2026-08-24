@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.53">
+      <meta name="generator" content="zensical-0.0.57">
     
     
       
@@ -32,12 +32,12 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.20815dad.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.5da3a30f.min.css">
       
         
           
         
-        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.dfe2e883.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.812a03bb.min.css">
       
       
 
@@ -4202,25 +4202,25 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>secret<span class="w"> </span>kafka-secret
 </code></pre></div></p>
 <p>You can use the <a href="https://github.com/jqlang/jq">jq</a> to quickly decode the <code>Secret</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>kafka-secret<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data | map_values(@base64d)&#39;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>kafka-secret<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.data | map_values(@base64d)'</span>
 </code></pre></div>
 <p>The output is similar to the following:</p>
 <div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="nt">&quot;KAFKA_HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">&quot;KAFKA_PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">&quot;KAFKA_USERNAME&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nt">&quot;KAFKA_PASSWORD&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">&quot;KAFKA_ACCESS_CERT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nt">&quot;KAFKA_ACCESS_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="nt">&quot;KAFKA_SASL_HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="nt">&quot;KAFKA_SASL_PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="nt">&quot;KAFKA_SCHEMA_REGISTRY_HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="nt">&quot;KAFKA_SCHEMA_REGISTRY_PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="nt">&quot;KAFKA_CONNECT_HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">    </span><span class="nt">&quot;KAFKA_CONNECT_PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">    </span><span class="nt">&quot;KAFKA_REST_HOST&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">    </span><span class="nt">&quot;KAFKA_REST_PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">    </span><span class="nt">&quot;KAFKA_CA_CERT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;secret&gt;&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="nt">"KAFKA_HOST"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">"KAFKA_PORT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">"KAFKA_USERNAME"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nt">"KAFKA_PASSWORD"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">"KAFKA_ACCESS_CERT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nt">"KAFKA_ACCESS_KEY"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="nt">"KAFKA_SASL_HOST"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="nt">"KAFKA_SASL_PORT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="nt">"KAFKA_SCHEMA_REGISTRY_HOST"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="nt">"KAFKA_SCHEMA_REGISTRY_PORT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="nt">"KAFKA_CONNECT_HOST"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">    </span><span class="nt">"KAFKA_CONNECT_PORT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">    </span><span class="nt">"KAFKA_REST_HOST"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">    </span><span class="nt">"KAFKA_REST_PORT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">    </span><span class="nt">"KAFKA_CA_CERT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
 <a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="p">}</span>
 </code></pre></div>
 <hr />
@@ -4356,6 +4356,7 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <li><a href="#spec.userConfig.kafka_sasl_mechanisms-property" name="spec.userConfig.kafka_sasl_mechanisms-property"><code>kafka_sasl_mechanisms</code></a> (object). Kafka SASL mechanisms. See below for <a href="#spec.userConfig.kafka_sasl_mechanisms">nested schema</a>.</li>
 <li><a href="#spec.userConfig.kafka_version-property" name="spec.userConfig.kafka_version-property"><code>kafka_version</code></a> (string). Available versions: <code>3.9</code>, <code>4.0</code>, <code>4.1</code>, <code>4.2</code>. Newer versions may also be available.
     Kafka major version. Deprecated values: <code>4.0</code>.</li>
+<li><a href="#spec.userConfig.karapace_version-property" name="spec.userConfig.karapace_version-property"><code>karapace_version</code></a> (string, Pattern: <code>^[0-9]+\.[0-9]+\.[0-9]+$</code>). Pin a specific installed Karapace version on this service. Leave null/unset to auto-follow the newest installed version.</li>
 <li><a href="#spec.userConfig.letsencrypt_sasl-property" name="spec.userConfig.letsencrypt_sasl-property"><code>letsencrypt_sasl</code></a> (boolean). Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication. (Default: False).</li>
 <li><a href="#spec.userConfig.letsencrypt_sasl_privatelink-property" name="spec.userConfig.letsencrypt_sasl_privatelink-property"><code>letsencrypt_sasl_privatelink</code></a> (boolean). Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication via Privatelink. (Default: False).</li>
 <li><a href="#spec.userConfig.preferred_zones-property" name="spec.userConfig.preferred_zones-property"><code>preferred_zones</code></a> (array of strings, MaxItems: 10). List of preferred zone IDs for service node placement. Nodes will be placed in these zones when available. If a specified zone is unavailable (e.g., due to capacity constraints), nodes will be placed in other available zones to maintain the configured number of zones for availability. Invalid zone IDs are rejected at configuration time. Zone IDs are cloud-specific: AWS uses zone IDs like <code>euc1-az1</code>, GCP uses zone names like <code>europe-west1-a</code>, and Azure uses <code>location/zone</code> format like <code>germanywestcentral/1</code>. If single_zone is enabled with an availability_zone, that setting takes precedence over preferred_zones. Changes take effect on next node recreation (e.g., maintenance or plan change). For eligible plans, nodes outside preferred zones are automatically rebalanced once per day.</li>
@@ -4654,6 +4655,10 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <ul>
 <li><a href="#spec.userConfig.schema_registry_config.leader_eligibility-property" name="spec.userConfig.schema_registry_config.leader_eligibility-property"><code>leader_eligibility</code></a> (boolean). If true, Karapace / Schema Registry on the service nodes can participate in leader election. It might be needed to disable this when the schemas topic is replicated to a secondary cluster and Karapace / Schema Registry there must not participate in leader election. Defaults to <code>true</code>.</li>
 <li><a href="#spec.userConfig.schema_registry_config.retriable_errors_silenced-property" name="spec.userConfig.schema_registry_config.retriable_errors_silenced-property"><code>retriable_errors_silenced</code></a> (boolean). If enabled, kafka errors which can be retried or custom errors specified for the service will not be raised, instead, a warning log is emitted. This will denoise issue tracking systems, i.e. sentry. Defaults to <code>true</code>.</li>
+<li><a href="#spec.userConfig.schema_registry_config.sasl_oauthbearer_authentication_enabled-property" name="spec.userConfig.schema_registry_config.sasl_oauthbearer_authentication_enabled-property"><code>sasl_oauthbearer_authentication_enabled</code></a> (boolean). If enabled, the Schema Registry validates OAuth2/OIDC JWT bearer tokens on incoming requests. Requires the OIDC provider settings under the <code>kafka</code> configuration (<code>sasl_oauthbearer_jwks_endpoint_url</code> and related). Defaults to <code>false</code>.</li>
+<li><a href="#spec.userConfig.schema_registry_config.sasl_oauthbearer_authorization_enabled-property" name="spec.userConfig.schema_registry_config.sasl_oauthbearer_authorization_enabled-property"><code>sasl_oauthbearer_authorization_enabled</code></a> (boolean). If enabled, the Schema Registry enforces role-based authorization derived from the JWT roles claim. Requires <code>sasl_oauthbearer_authentication_enabled</code> to be enabled. Defaults to <code>false</code>.</li>
+<li><a href="#spec.userConfig.schema_registry_config.sasl_oauthbearer_method_roles-property" name="spec.userConfig.schema_registry_config.sasl_oauthbearer_method_roles-property"><code>sasl_oauthbearer_method_roles</code></a> (object). Mapping of HTTP methods to the list of roles allowed to perform them on the Schema Registry. Role names use the <code>karapace.</code> prefix, e.g. <code>karapace.schema:read</code>.</li>
+<li><a href="#spec.userConfig.schema_registry_config.sasl_oauthbearer_roles_claim_path-property" name="spec.userConfig.schema_registry_config.sasl_oauthbearer_roles_claim_path-property"><code>sasl_oauthbearer_roles_claim_path</code></a> (string, Pattern: <code>^[^\r\n]*\S[^\r\n]*$</code>, MaxLength: 128). JSON path used to extract the roles claim from the JWT for Schema Registry authorization. Defaults to <code>resource_access.karapace.roles</code>.</li>
 <li><a href="#spec.userConfig.schema_registry_config.schema_reader_strict_mode-property" name="spec.userConfig.schema_registry_config.schema_reader_strict_mode-property"><code>schema_reader_strict_mode</code></a> (boolean). If enabled, causes the Karapace schema-registry service to shutdown when there are invalid schema records in the <code>_schemas</code> topic. Defaults to <code>false</code>.</li>
 <li><a href="#spec.userConfig.schema_registry_config.topic_name-property" name="spec.userConfig.schema_registry_config.topic_name-property"><code>topic_name</code></a> (string, MinLength: 1, MaxLength: 249). The durable single partition topic that acts as the durable log for the data. This topic must be compacted to avoid losing data due to retention policy. Please note that changing this configuration in an existing Schema Registry / Karapace setup leads to previous schemas being inaccessible, data encoded with them potentially unreadable and schema ID sequence put out of order. It's only possible to do the switch while Schema Registry / Karapace is disabled. Defaults to <code>_schemas</code>.</li>
 </ul>
@@ -4789,7 +4794,7 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
       <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.69c251d7.min.js"></script>
+      <script src="../assets/javascripts/bundle.49251538.min.js"></script>
       
     
   </body>
