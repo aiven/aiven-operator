@@ -3,6 +3,12 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - `ServiceUser`: increased the amount of concurrent reconcilers up to 10
+- Fix `KafkaNativeACL` and `KafkaSchemaRegistryACL` to adopt the matching ACL that is already
+  present on Aiven instead of trying to create a second one. Existence is decided by matching
+  every identifying field against the ACL list. This
+  covers an ACLs created outside the operator as well. Note
+  that an adopted ACL is deleted together with the custom resource unless the
+  `controllers.aiven.io/deletion-policy: Orphan` annotation is set.
 - Fix `KafkaSchema` never converging when `schema` and `compatibilityLevel` change in the same apply:
   the compatibility level is now set before the new schema version is registered. Behavior change: a
   rejected schema leaves the new level applied, and tightening the level alongside a schema that violates it now fails.
@@ -36,10 +42,6 @@
 ## v0.44.0 - 2026-08-11
 
 - Add kind: `OrganizationProject` to manage Aiven projects that belong to an organization or organizational unit.
-- Fix `KafkaNativeACL` and `KafkaSchemaRegistryACL` to adopt an existing matching ACL when
-  the custom resource is created while the ACL is already present on Aiven, for example
-  after an `Orphan` deletion. Previously `KafkaNativeACL` failed with a 409 conflict and
-  `KafkaSchemaRegistryACL` created a duplicate entry.
 - Fix `KafkaACL`, `KafkaQuota`, and `KafkaSchemaRegistryACL` to reach the `ReadyToUse`
   state in a single reconcile cycle after creation or update.
 - Add `extraEnvs` option to Helm chart, to set additional environment variables on the operator deployment.

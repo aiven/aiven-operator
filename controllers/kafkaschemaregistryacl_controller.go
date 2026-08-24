@@ -5,10 +5,10 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"slices"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/kafkaschemaregistry"
+	"github.com/go-logr/logr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -39,40 +39,30 @@ func (r *KafkaSchemaRegistryACLController) Observe(ctx context.Context, acl *v1a
 		return Observation{}, err
 	}
 
-	if acl.Status.ACLId == "" {
-		// No stored ID — adopt an existing ACL if one matches the spec, e.g. after an
-		// Orphan-policy deletion and re-application of the CR, or an ACL created outside
-		// the operator.
-		list, err := r.avnGen.ServiceSchemaRegistryAclList(ctx, acl.Spec.Project, acl.Spec.ServiceName)
-		if err != nil {
-			return Observation{}, fmt.Errorf("cannot list KafkaSchemaRegistryACLs on Aiven side: %w", err)
-		}
-		for _, existing := range list {
-			if existing.Id != nil && schemaRegistrySpecMatches(acl.Spec, existing) {
-				acl.Status.ACLId = *existing.Id
-				markInstanceRunning(acl)
-				return Observation{ResourceExists: true, ResourceUpToDate: true}, nil
-			}
-		}
-		return Observation{ResourceExists: false}, nil
-	}
-
-	exists, err := r.exists(ctx, acl)
+	list, err := r.avnGen.ServiceSchemaRegistryAclList(ctx, acl.Spec.Project, acl.Spec.ServiceName)
 	if err != nil {
-		return Observation{}, err
+		return Observation{}, fmt.Errorf("cannot list KafkaSchemaRegistryACLs on Aiven side: %w", err)
 	}
 
-	// Spec fields are immutable
-	if !exists {
-		return Observation{ResourceExists: false}, nil
+	for _, existing := range list {
+		if existing.Id == nil || !schemaRegistrySpecMatches(acl.Spec, existing) {
+			continue
+		}
+
+		if acl.Status.ACLId != *existing.Id {
+			// Adopting an entry this CR did not create.
+			logr.FromContextOrDiscard(ctx).Info("adopting existing KafkaSchemaRegistryACL",
+				"aclID", *existing.Id)
+			acl.Status.ACLId = *existing.Id
+		}
+
+		markInstanceRunning(acl)
+
+		// Spec fields are immutable, so an existing ACL is always up to date.
+		return Observation{ResourceExists: true, ResourceUpToDate: true}, nil
 	}
 
-	markInstanceRunning(acl)
-
-	return Observation{
-		ResourceExists:   true,
-		ResourceUpToDate: true,
-	}, nil
+	return Observation{ResourceExists: false}, nil
 }
 
 func (r *KafkaSchemaRegistryACLController) Create(ctx context.Context, acl *v1alpha1.KafkaSchemaRegistryACL) (CreateResult, error) {
@@ -130,22 +120,6 @@ func (r *KafkaSchemaRegistryACLController) addACL(ctx context.Context, acl *v1al
 	}
 
 	return fmt.Errorf("created KafkaSchemaRegistryACL not found in Aiven response")
-}
-
-// exists reports whether the ACL identified by Status.ACLId is present on Aiven.
-func (r *KafkaSchemaRegistryACLController) exists(
-	ctx context.Context,
-	acl *v1alpha1.KafkaSchemaRegistryACL,
-) (bool, error) {
-	list, err := r.avnGen.ServiceSchemaRegistryAclList(ctx, acl.Spec.Project, acl.Spec.ServiceName)
-	if err != nil {
-		return false, err
-	}
-
-	return slices.ContainsFunc(
-		list,
-		func(v kafkaschemaregistry.AclOut) bool { return v.Id != nil && *v.Id == acl.Status.ACLId },
-	), nil
 }
 
 // schemaRegistrySpecMatches reports whether an existing Schema Registry ACL matches the CR spec.

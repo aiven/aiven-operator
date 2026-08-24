@@ -96,7 +96,7 @@ KafkaNativeACL:
     ServiceGet,
     ServiceKafkaNativeAclAdd,
     ServiceKafkaNativeAclDelete,
-    ServiceKafkaNativeAclGet,
+    ServiceKafkaNativeAclList,
   ]
 KafkaQuota:
   [
