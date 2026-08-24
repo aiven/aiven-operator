@@ -221,6 +221,11 @@ type Mysql struct {
 	// Size of the largest message in bytes that can be received by the server. Default is 67108864 (64M)
 	MaxAllowedPacket *int `groups:"create,update" json:"max_allowed_packet,omitempty"`
 
+	// +kubebuilder:validation:Minimum=30
+	// +kubebuilder:validation:Maximum=100000
+	// The maximum permitted number of simultaneous client connections. Lower this to reserve memory for other work. The value cannot exceed the limit provided by your service plan. Upgrading the plan does not raise a value you have set explicitly, so increase it yourself after an upgrade.
+	MaxConnections *int `groups:"create,update" json:"max_connections,omitempty"`
+
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=4294967295
 	// Execution timeout in milliseconds for read-only top-level SELECT statements. 0 (the default) means no timeout.
@@ -234,6 +239,11 @@ type Mysql struct {
 	// +kubebuilder:validation:Minimum=1
 	// Limit on the assumed maximum number of index seeks when looking up rows based on a key. Lowering this value causes the optimizer to prefer index lookups over table scans.
 	MaxSeeksForKey *int `groups:"create,update" json:"max_seeks_for_key,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=99990
+	// The maximum number of simultaneous connections permitted to any single user account. 0, the default, means no per-account limit. Any other value must be at least 10 below max_connections, so that monitoring and your own admin sessions can still connect when an application saturates its own limit. Aiven's replication and management connections are unaffected however low you set this.
+	MaxUserConnections *int `groups:"create,update" json:"max_user_connections,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1024
 	// +kubebuilder:validation:Maximum=1048576

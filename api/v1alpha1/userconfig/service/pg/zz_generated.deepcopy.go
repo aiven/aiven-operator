@@ -319,6 +319,11 @@ func (in *Pg) DeepCopyInto(out *Pg) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.PgStatPlansTrack != nil {
+		in, out := &in.PgStatPlansTrack, &out.PgStatPlansTrack
+		*out = new(string)
+		**out = **in
+	}
 	if in.PgStatStatementsTrack != nil {
 		in, out := &in.PgStatStatementsTrack, &out.PgStatStatementsTrack
 		*out = new(string)
@@ -512,6 +517,11 @@ func (in *PgUserConfig) DeepCopyInto(out *PgUserConfig) {
 	}
 	if in.PgStatMonitorEnable != nil {
 		in, out := &in.PgStatMonitorEnable, &out.PgStatMonitorEnable
+		*out = new(bool)
+		**out = **in
+	}
+	if in.PgStatPlansEnable != nil {
+		in, out := &in.PgStatPlansEnable, &out.PgStatPlansEnable
 		*out = new(bool)
 		**out = **in
 	}
@@ -746,6 +756,11 @@ func (in *Pgbouncer) DeepCopyInto(out *Pgbouncer) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.ServerConnectTimeout != nil {
+		in, out := &in.ServerConnectTimeout, &out.ServerConnectTimeout
+		*out = new(float64)
+		**out = **in
+	}
 	if in.ServerIdleTimeout != nil {
 		in, out := &in.ServerIdleTimeout, &out.ServerIdleTimeout
 		*out = new(int)
@@ -754,6 +769,11 @@ func (in *Pgbouncer) DeepCopyInto(out *Pgbouncer) {
 	if in.ServerLifetime != nil {
 		in, out := &in.ServerLifetime, &out.ServerLifetime
 		*out = new(int)
+		**out = **in
+	}
+	if in.ServerLoginRetry != nil {
+		in, out := &in.ServerLoginRetry, &out.ServerLoginRetry
+		*out = new(float64)
 		**out = **in
 	}
 	if in.ServerResetQueryAlways != nil {

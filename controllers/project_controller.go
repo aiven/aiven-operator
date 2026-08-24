@@ -85,7 +85,7 @@ func (r *ProjectController) Create(ctx context.Context, cr *v1alpha1.Project) (C
 	billingEmails := projectBillingEmails(cr.Spec.BillingEmails)
 	technicalEmails := projectTechnicalEmails(cr.Spec.TechnicalEmails)
 
-	p, err := r.avnGen.ProjectCreate(ctx, &proj.ProjectCreateIn{
+	p, err := r.avnGen.ProjectCreate(ctx, &proj.ProjectCreateIn{ //nolint: staticcheck
 		CardId:           cardID,
 		Project:          cr.Name,
 		BillingCurrency:  cr.Spec.BillingCurrency,
