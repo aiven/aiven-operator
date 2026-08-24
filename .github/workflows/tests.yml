@@ -27,7 +27,7 @@ on:
         type: string
         default: ""
       ref:
-        description: Git ref (branch/tag/SHA) to checkout. Defaults to the default branch.
+        description: Git ref (branch/tag/SHA) to checkout. Defaults to the calling workflow's ref.
         required: false
         type: string
         default: ""
