@@ -7,8 +7,8 @@
   present on Aiven instead of trying to create a second one. Existence is decided by matching
   every identifying field against the ACL list. This
   covers an ACLs created outside the operator as well. Note
-  that an adopted ACL is deleted together with the custom resource unless `deletionPolicy: Orphan`
-  is set.
+  that an adopted ACL is deleted together with the custom resource unless the
+  `controllers.aiven.io/deletion-policy: Orphan` annotation is set.
 - Fix `KafkaSchema` never converging when `schema` and `compatibilityLevel` change in the same apply:
   the compatibility level is now set before the new schema version is registered. Behavior change: a
   rejected schema leaves the new level applied, and tightening the level alongside a schema that violates it now fails.
