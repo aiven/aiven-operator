@@ -1,6 +1,45 @@
 # Changelog
 
 
+## v0.45.0 - 2026-08-24
+
+- `ServiceUser`: increased the amount of concurrent reconcilers up to 10
+- Fix `KafkaNativeACL` and `KafkaSchemaRegistryACL` to adopt the matching ACL that is already
+  present on Aiven instead of trying to create a second one. Existence is decided by matching
+  every identifying field against the ACL list. This
+  covers an ACLs created outside the operator as well. Note
+  that an adopted ACL is deleted together with the custom resource unless the
+  `controllers.aiven.io/deletion-policy: Orphan` annotation is set.
+- Fix `KafkaSchema` never converging when `schema` and `compatibilityLevel` change in the same apply:
+  the compatibility level is now set before the new schema version is registered. Behavior change: a
+  rejected schema leaves the new level applied, and tightening the level alongside a schema that violates it now fails.
+- Docs: clarified that removing `KafkaSchema.spec.compatibilityLevel` leaves the existing
+  subject-level override in place instead of reverting it to the registry's global default.
+- Add `Kafka` field `userConfig.karapace_version`, type `string`: Pin a specific installed Karapace version
+  on this service
+- Add `Kafka` field `userConfig.schema_registry_config.sasl_oauthbearer_authentication_enabled`, type
+  `boolean`: If enabled, the Schema Registry validates OAuth2/OIDC JWT bearer tokens on incoming requests
+- Add `Kafka` field `userConfig.schema_registry_config.sasl_oauthbearer_authorization_enabled`, type
+  `boolean`: If enabled, the Schema Registry enforces role-based authorization derived from the JWT
+  roles claim
+- Add `Kafka` field `userConfig.schema_registry_config.sasl_oauthbearer_method_roles`, type `object`:
+  Mapping of HTTP methods to the list of roles allowed to perform them on the Schema Registry
+- Add `Kafka` field `userConfig.schema_registry_config.sasl_oauthbearer_roles_claim_path`, type `string`:
+  JSON path used to extract the roles claim from the JWT for Schema Registry authorization
+- Add `MySQL` field `userConfig.mysql.max_connections`, type `integer`: The maximum permitted number
+  of simultaneous client connections
+- Add `MySQL` field `userConfig.mysql.max_user_connections`, type `integer`: The maximum number of simultaneous
+  connections permitted to any single user account
+- Add `PostgreSQL` field `userConfig.pg.pg_stat_plans.track`, type `string`: Controls which statements'
+  plans are tracked
+- Add `PostgreSQL` field `userConfig.pg_stat_plans_enable`, type `boolean`: Enable the pg_stat_plans
+  extension. Changing this parameter causes a service restart
+- Add `PostgreSQL` field `userConfig.pgbouncer.server_connect_timeout`, type `number`: If connection
+  and login don’t finish in this amount of time, the connection will be closed
+- Add `PostgreSQL` field `userConfig.pgbouncer.server_login_retry`, type `number`: If login to the server
+  failed, because of failure to connect or from authentication, the pooler waits this much before
+  retrying to connect
+
 ## v0.44.0 - 2026-08-11
 
 - Add kind: `OrganizationProject` to manage Aiven projects that belong to an organization or organizational unit.

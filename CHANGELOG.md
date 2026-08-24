@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.45.0 - 2026-08-24
+
 - `ServiceUser`: increased the amount of concurrent reconcilers up to 10
 - Fix `KafkaNativeACL` and `KafkaSchemaRegistryACL` to adopt the matching ACL that is already
   present on Aiven instead of trying to create a second one. Existence is decided by matching
