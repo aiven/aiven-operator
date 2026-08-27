@@ -12,8 +12,12 @@ import (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // ValkeySpec defines the desired state of Valkey
+// +kubebuilder:validation:XValidation:rule="!(has(self.version) && has(self.userConfig) && has(self.userConfig.valkey_version))",message="cannot use both version and userConfig.valkey_version"
 type ValkeySpec struct {
 	ServiceCommonSpec `json:",inline"`
+
+	// Valkey major version, an alias for `userConfig.valkey_version`
+	Version string `json:"version,omitempty"`
 
 	// Valkey specific user configuration options
 	UserConfig *valkeyuserconfig.ValkeyUserConfig `json:"userConfig,omitempty"`

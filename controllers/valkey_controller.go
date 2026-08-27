@@ -14,6 +14,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
+	valkeyuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/valkey"
 )
 
 // ValkeyReconciler reconciles a Valkey object
@@ -69,7 +70,16 @@ func (a *valkeyAdapter) getServiceCommonSpec() *v1alpha1.ServiceCommonSpec {
 }
 
 func (a *valkeyAdapter) getUserConfig() any {
-	return a.Spec.UserConfig
+	if a.Spec.Version == "" {
+		return a.Spec.UserConfig
+	}
+
+	userConfig := a.Spec.UserConfig.DeepCopy()
+	if userConfig == nil {
+		userConfig = new(valkeyuserconfig.ValkeyUserConfig)
+	}
+	userConfig.ValkeyVersion = &a.Spec.Version
+	return userConfig
 }
 
 func (a *valkeyAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {

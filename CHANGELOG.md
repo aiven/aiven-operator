@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `Valkey` field `version`, type `string`: Valkey major version, an alias for `userConfig.valkey_version`
+
 ## v0.45.0 - 2026-08-24
 
 - `ServiceUser`: increased the amount of concurrent reconcilers up to 10

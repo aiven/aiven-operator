@@ -160,6 +160,7 @@ ValkeySpec defines the desired state of Valkey.
 - [`technicalEmails`](#spec.technicalEmails-property){: name='spec.technicalEmails-property'} (array of objects, MaxItems: 10). Defines the email addresses that will receive alerts about upcoming maintenance updates or warnings about service instability. See below for [nested schema](#spec.technicalEmails).
 - [`terminationProtection`](#spec.terminationProtection-property){: name='spec.terminationProtection-property'} (boolean). Prevent service from being deleted. It is recommended to have this enabled for all services.
 - [`userConfig`](#spec.userConfig-property){: name='spec.userConfig-property'} (object). Valkey specific user configuration options. See below for [nested schema](#spec.userConfig).
+- [`version`](#spec.version-property){: name='spec.version-property'} (string). Valkey major version, an alias for `userConfig.valkey_version`.
 
 ## authSecretRef {: #spec.authSecretRef }
 

@@ -546,11 +546,16 @@ spec:
                         Valkey major version
                       type: string
                   type: object
+                version:
+                  description: Valkey major version, an alias for `userConfig.valkey_version`
+                  type: string
               required:
                 - plan
                 - project
               type: object
               x-kubernetes-validations:
+                - message: cannot use both version and userConfig.valkey_version
+                  rule: "!(has(self.version) && has(self.userConfig) && has(self.userConfig.valkey_version))"
                 - message:
                     connInfoSecretTargetDisabled can only be set during resource
                     creation.
