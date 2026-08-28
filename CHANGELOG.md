@@ -9,6 +9,8 @@
   Resources whose `compatibilityLevel` was removed under an older operator version are not detected
   retroactively: their override is picked up again the next time `compatibilityLevel` is set and
   applied, after which removing the field reverts it as described above.
+- Add `status.version` to service resources (`Kafka`, `PostgreSQL`, `MySQL`, `ClickHouse`, `OpenSearch`,
+  `Grafana`, `Flink`, `Valkey`): the version the service is currently running.
 
 ## v0.45.0 - 2026-08-24
 

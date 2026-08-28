@@ -68,8 +68,8 @@ kubectl get postgresqls my-postgresql
 
 The output is similar to the following:
 ```shell
-Name             Project               Region                 Plan         State      
-my-postgresql    aiven-project-name    google-europe-west1    startup-4    RUNNING    
+Name             Project               Region                 Plan         State      Version      
+my-postgresql    aiven-project-name    google-europe-west1    startup-4    RUNNING    <version>    
 ```
 
 To view the details of the `Secret`, use the following command:

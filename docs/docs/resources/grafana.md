@@ -74,8 +74,8 @@ kubectl get grafanas my-grafana
 
 The output is similar to the following:
 ```shell
-Name          Project             Region                 Plan         State      
-my-grafana    my-aiven-project    google-europe-west1    startup-1    RUNNING    
+Name          Project             Region                 Plan         State      Version      
+my-grafana    my-aiven-project    google-europe-west1    startup-1    RUNNING    <version>    
 ```
 
 To view the details of the `Secret`, use the following command:

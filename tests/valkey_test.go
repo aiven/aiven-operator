@@ -48,6 +48,8 @@ func TestValkey(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, rsAvn.ServiceName, rs.GetName())
 	assert.Equal(t, serviceRunningState, rs.Status.State)
+	assert.NotEmpty(t, rs.Status.Version)
+	assert.Equal(t, rsAvn.Metadata["valkey_version"], rs.Status.Version)
 	assert.Contains(t, serviceRunningStatesAiven, rsAvn.State)
 	assert.Equal(t, rsAvn.Plan, rs.Spec.Plan)
 	assert.Equal(t, rsAvn.CloudName, rs.Spec.CloudName)

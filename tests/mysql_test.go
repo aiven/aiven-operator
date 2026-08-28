@@ -73,6 +73,8 @@ func TestMySQL(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, msAvn.ServiceName, ms.GetName())
 	assert.Equal(t, serviceRunningState, ms.Status.State)
+	assert.NotEmpty(t, ms.Status.Version)
+	assert.Equal(t, msAvn.Metadata["mysql_version"], ms.Status.Version)
 	assert.Contains(t, serviceRunningStatesAiven, msAvn.State)
 	assert.Equal(t, msAvn.Plan, ms.Spec.Plan)
 	assert.Equal(t, msAvn.CloudName, ms.Spec.CloudName)

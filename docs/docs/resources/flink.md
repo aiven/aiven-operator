@@ -72,8 +72,8 @@ kubectl get flinks my-flink
 
 The output is similar to the following:
 ```shell
-Name        Project             Region                 Plan          State      
-my-flink    my-aiven-project    google-europe-west1    business-4    RUNNING    
+Name        Project             Region                 Plan          State      Version      
+my-flink    my-aiven-project    google-europe-west1    business-4    RUNNING    <version>    
 ```
 
 To view the details of the `Secret`, use the following command:

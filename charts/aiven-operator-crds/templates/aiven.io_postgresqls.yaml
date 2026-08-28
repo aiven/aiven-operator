@@ -27,6 +27,9 @@ spec:
         - jsonPath: .status.state
           name: State
           type: string
+        - jsonPath: .status.version
+          name: Version
+          type: string
       name: v1alpha1
       schema:
         openAPIV3Schema:
@@ -1456,6 +1459,11 @@ spec:
                   type: array
                 state:
                   description: Service state
+                  type: string
+                version:
+                  description: |-
+                    Version of the service currently running.
+                    May be more specific than the version configured in userConfig, e.g. `8.1.2` vs `8.1`
                   type: string
               type: object
           type: object

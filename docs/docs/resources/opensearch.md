@@ -67,8 +67,8 @@ kubectl get opensearches my-os
 
 The output is similar to the following:
 ```shell
-Name     Project             Region                 Plan         State      
-my-os    my-aiven-project    google-europe-west1    startup-4    RUNNING    
+Name     Project             Region                 Plan         State      Version      
+my-os    my-aiven-project    google-europe-west1    startup-4    RUNNING    <version>    
 ```
 
 To view the details of the `Secret`, use the following command:
