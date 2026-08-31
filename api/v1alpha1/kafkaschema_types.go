@@ -28,8 +28,11 @@ type KafkaSchemaSpec struct {
 	// +kubebuilder:validation:Enum=BACKWARD;BACKWARD_TRANSITIVE;FORWARD;FORWARD_TRANSITIVE;FULL;FULL_TRANSITIVE;NONE
 	// Kafka Schemas compatibility level.
 	// When set, it is applied as the subject-level compatibility override.
-	// Removing this field does not change the subject: an existing override stays in place
-	// and is not reverted to the registry's global default.
+	// When removed, an override previously applied by the operator is reverted to a
+	// snapshot of the registry's current global default; later changes to the global
+	// default are not tracked.
+	// Overrides created outside the operator, or changed
+	// outside it since they were applied, are never modified.
 	CompatibilityLevel kafkaschemaregistry.CompatibilityType `json:"compatibilityLevel,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=100
@@ -102,8 +105,12 @@ type KafkaSchemaStatus struct {
 // after deletion starts a brand-new subject at version 1.
 //
 // Update ordering: when schema and compatibilityLevel change in the same apply, the
-// compatibility level is set first, because the registry validates a new version against the
-// level currently configured for the subject. A rejected schema leaves the new level applied.
+// compatibility level is applied first, because the registry validates a new version against
+// the level currently configured for the subject. A rejected schema leaves the new level applied.
+// Removing compatibilityLevel reverts a subject-level override previously applied by the
+// operator to a snapshot of the registry's current global default before the schema is
+// registered; overrides created outside the operator, or changed outside it since they
+// were applied, are left untouched.
 // +kubebuilder:printcolumn:name="Service Name",type="string",JSONPath=".spec.serviceName"
 // +kubebuilder:printcolumn:name="Project",type="string",JSONPath=".spec.project"
 // +kubebuilder:printcolumn:name="Subject",type="string",JSONPath=".spec.subjectName"

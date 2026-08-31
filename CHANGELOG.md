@@ -2,6 +2,14 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Fix `KafkaSchema` silently ignoring the removal of `compatibilityLevel`: a subject-level override
+  previously applied by the operator is now reverted to a snapshot of the registry's current global
+  default. Overrides created outside the operator, or changed outside it since they were
+  applied, are never modified.
+  Resources whose `compatibilityLevel` was removed under an older operator version are not detected
+  retroactively: their override is picked up again the next time `compatibilityLevel` is set and
+  applied, after which removing the field reverts it as described above.
+
 ## v0.45.0 - 2026-08-24
 
 - `ServiceUser`: increased the amount of concurrent reconcilers up to 10

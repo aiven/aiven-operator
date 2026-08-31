@@ -1103,6 +1103,225 @@ func TestKafkaSchemaApplySchemaConfigBeforePost(t *testing.T) {
 
 	r := &KafkaSchemaController{avnGen: avn}
 	require.NoError(t, r.applySchema(t.Context(), schema))
+	require.Equal(t, string(kafkaschemaregistry.CompatibilityTypeNone),
+		schema.GetAnnotations()[kafkaSchemaAppliedCompatibilityAnnotation],
+		"applying a level must mark the override operator-owned")
+}
+
+// Clearing compatibilityLevel reverts an operator-owned subject override to the current
+// global default, and the revert lands before the schema is registered.
+func TestKafkaSchemaApplySchemaRevertsClearedCompatibility(t *testing.T) {
+	t.Parallel()
+
+	schema := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+	metav1.SetMetaDataAnnotation(&schema.ObjectMeta, kafkaSchemaAppliedCompatibilityAnnotation,
+		string(kafkaschemaregistry.CompatibilityTypeFull))
+
+	avn := avngen.NewMockClient(t)
+	configGet := avn.EXPECT().
+		ServiceSchemaRegistrySubjectConfigGet(
+			mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName,
+			[][2]string{kafkaschemaregistry.ServiceSchemaRegistrySubjectConfigGetGlobalDefaultFallback(false)},
+		).Return(kafkaschemaregistry.CompatibilityTypeFull, nil).Once()
+	globalGet := avn.EXPECT().
+		ServiceSchemaRegistryGlobalConfigGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName).
+		Return(kafkaschemaregistry.CompatibilityTypeBackward, nil).Once()
+	configPut := avn.EXPECT().
+		ServiceSchemaRegistrySubjectConfigPut(
+			mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName,
+			&kafkaschemaregistry.ServiceSchemaRegistrySubjectConfigPutIn{
+				Compatibility: kafkaschemaregistry.CompatibilityTypeBackward,
+			},
+		).Return(kafkaschemaregistry.CompatibilityTypeBackward, nil).Once().
+		NotBefore(configGet, globalGet)
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionPost(
+			mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, mock.Anything,
+		).Return(1, nil).Once().
+		NotBefore(configPut)
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
+		Return([]int{1}, nil).Once()
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, 1).
+		Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{Id: 1, Version: 1}, nil).Once()
+
+	r := &KafkaSchemaController{avnGen: avn}
+	require.NoError(t, r.applySchema(t.Context(), schema))
+	require.NotContains(t, schema.GetAnnotations(), kafkaSchemaAppliedCompatibilityAnnotation,
+		"a reverted override is no longer operator-owned")
+}
+
+// An override already equal to the global default needs no write.
+func TestKafkaSchemaApplySchemaSkipsRevertWhenOverrideEqualsGlobal(t *testing.T) {
+	t.Parallel()
+
+	schema := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+	metav1.SetMetaDataAnnotation(&schema.ObjectMeta, kafkaSchemaAppliedCompatibilityAnnotation,
+		string(kafkaschemaregistry.CompatibilityTypeBackward))
+
+	avn := avngen.NewMockClient(t)
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectConfigGet(
+			mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName,
+			[][2]string{kafkaschemaregistry.ServiceSchemaRegistrySubjectConfigGetGlobalDefaultFallback(false)},
+		).Return(kafkaschemaregistry.CompatibilityTypeBackward, nil).Once()
+	avn.EXPECT().
+		ServiceSchemaRegistryGlobalConfigGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName).
+		Return(kafkaschemaregistry.CompatibilityTypeBackward, nil).Once()
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionPost(
+			mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, mock.Anything,
+		).Return(1, nil).Once()
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
+		Return([]int{1}, nil).Once()
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, 1).
+		Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{Id: 1, Version: 1}, nil).Once()
+
+	r := &KafkaSchemaController{avnGen: avn}
+	require.NoError(t, r.applySchema(t.Context(), schema))
+	require.NotContains(t, schema.GetAnnotations(), kafkaSchemaAppliedCompatibilityAnnotation)
+}
+
+// An empty compatibilityLevel on a CR that never applied one must not touch subject
+// config at all: an out-of-band override stays in place. The strict mock proves no
+// config call is made.
+func TestKafkaSchemaApplySchemaLeavesUnownedOverrideUntouched(t *testing.T) {
+	t.Parallel()
+
+	schema := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+
+	avn := avngen.NewMockClient(t)
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionPost(
+			mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, mock.Anything,
+		).Return(1, nil).Once()
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
+		Return([]int{1}, nil).Once()
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, 1).
+		Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{Id: 1, Version: 1}, nil).Once()
+
+	r := &KafkaSchemaController{avnGen: avn}
+	require.NoError(t, r.applySchema(t.Context(), schema))
+	require.NotContains(t, schema.GetAnnotations(), kafkaSchemaAppliedCompatibilityAnnotation)
+}
+
+// An owned override changed outside the operator since it was applied is not reverted:
+// the current level no longer matches the annotated one, so it is no longer ours.
+// Ownership is still released. The strict mock proves no global lookup or write happens.
+func TestKafkaSchemaApplySchemaLeavesExternallyChangedOverrideUntouched(t *testing.T) {
+	t.Parallel()
+
+	schema := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+	metav1.SetMetaDataAnnotation(&schema.ObjectMeta, kafkaSchemaAppliedCompatibilityAnnotation,
+		string(kafkaschemaregistry.CompatibilityTypeFull))
+
+	avn := avngen.NewMockClient(t)
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectConfigGet(
+			mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName,
+			[][2]string{kafkaschemaregistry.ServiceSchemaRegistrySubjectConfigGetGlobalDefaultFallback(false)},
+		).Return(kafkaschemaregistry.CompatibilityTypeForward, nil).Once()
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionPost(
+			mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, mock.Anything,
+		).Return(1, nil).Once()
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
+		Return([]int{1}, nil).Once()
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, 1).
+		Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{Id: 1, Version: 1}, nil).Once()
+
+	r := &KafkaSchemaController{avnGen: avn}
+	require.NoError(t, r.applySchema(t.Context(), schema))
+	require.NotContains(t, schema.GetAnnotations(), kafkaSchemaAppliedCompatibilityAnnotation)
+}
+
+// An owned override that disappeared from the registry needs no revert; ownership is released.
+func TestKafkaSchemaApplySchemaReleasesOwnershipWhenOverrideGone(t *testing.T) {
+	t.Parallel()
+
+	schema := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+	metav1.SetMetaDataAnnotation(&schema.ObjectMeta, kafkaSchemaAppliedCompatibilityAnnotation,
+		string(kafkaschemaregistry.CompatibilityTypeFull))
+
+	avn := avngen.NewMockClient(t)
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectConfigGet(
+			mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName,
+			[][2]string{kafkaschemaregistry.ServiceSchemaRegistrySubjectConfigGetGlobalDefaultFallback(false)},
+		).Return("", newAivenError(404, "no explicit config for this subject")).Once()
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionPost(
+			mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, mock.Anything,
+		).Return(1, nil).Once()
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
+		Return([]int{1}, nil).Once()
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName, 1).
+		Return(&kafkaschemaregistry.ServiceSchemaRegistrySubjectVersionGetOut{Id: 1, Version: 1}, nil).Once()
+
+	r := &KafkaSchemaController{avnGen: avn}
+	require.NoError(t, r.applySchema(t.Context(), schema))
+	require.NotContains(t, schema.GetAnnotations(), kafkaSchemaAppliedCompatibilityAnnotation)
+}
+
+// A CR whose level was applied by an operator version predating ownership tracking
+// gets the annotation backfilled by Observe, so a later removal still reverts.
+func TestKafkaSchemaObserveBackfillsCompatibilityOwnership(t *testing.T) {
+	t.Parallel()
+
+	schema := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+	schema.Spec.CompatibilityLevel = kafkaschemaregistry.CompatibilityTypeFull
+	// A matching fingerprint proves the pre-annotation operator applied this exact level.
+	metav1.SetMetaDataAnnotation(&schema.ObjectMeta, kafkaSchemaAppliedFingerprintAnnotation,
+		fingerprintSchema(schema, nil))
+
+	avn := avngen.NewMockClient(t)
+	avn.EXPECT().
+		ServiceGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, mock.Anything).
+		Return(runningService(), nil).Once()
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
+		Return([]int{1}, nil).Once()
+
+	r := &KafkaSchemaController{avnGen: avn}
+	obs, err := r.Observe(t.Context(), schema)
+	require.NoError(t, err)
+	require.True(t, obs.ResourceExists)
+	require.Equal(t, string(kafkaschemaregistry.CompatibilityTypeFull),
+		schema.GetAnnotations()[kafkaSchemaAppliedCompatibilityAnnotation])
+}
+
+// A set level whose fingerprint never landed is not backfilled: the spec field alone
+// doesn't prove the operator wrote the override, and claiming ownership of a
+// never-applied level could revert an override created outside the operator.
+func TestKafkaSchemaObserveSkipsBackfillWhenLevelNotApplied(t *testing.T) {
+	t.Parallel()
+
+	schema := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+	schema.Spec.CompatibilityLevel = kafkaschemaregistry.CompatibilityTypeFull
+
+	avn := avngen.NewMockClient(t)
+	avn.EXPECT().
+		ServiceGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, mock.Anything).
+		Return(runningService(), nil).Once()
+	avn.EXPECT().
+		ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
+		Return([]int{1}, nil).Once()
+
+	r := &KafkaSchemaController{avnGen: avn}
+	obs, err := r.Observe(t.Context(), schema)
+	require.NoError(t, err)
+	require.True(t, obs.ResourceExists)
+	require.False(t, obs.ResourceUpToDate)
+	require.NotContains(t, schema.GetAnnotations(), kafkaSchemaAppliedCompatibilityAnnotation)
 }
 
 // A missing referent must surface as errPreconditionNotMet.
