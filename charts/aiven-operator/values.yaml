@@ -112,3 +112,11 @@ logging:
   # Log encoder for the operator (json, console)
   # If not set, the operator will use its default encoder
   encoder: ""
+
+# How often resources in a steady state are re-reconciled against the Aiven API.
+# Go duration between 10m and 60m, e.g. 15m or 1h.
+# If not set, the operator uses its built-in default of 10m.
+# Values outside the range are rejected at startup.
+# Does not apply to the service kinds (Clickhouse, Flink, Grafana, Kafka, KafkaConnect, MySQL,
+# OpenSearch, PostgreSQL, Valkey), which do not re-reconcile on a fixed interval.
+pollInterval: ""

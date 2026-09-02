@@ -75,6 +75,14 @@ spec:
             {{- end }}
             - --zap-encoder={{ .Values.logging.encoder }}
             {{- end }}
+            {{- if .Values.pollInterval }}
+            {{- $pollInterval := .Values.pollInterval | toString }}
+            {{- /* Bare numbers are not durations; the operator validates the accepted range at startup. */}}
+            {{- if regexMatch "^[0-9.]+$" $pollInterval }}
+            {{- fail (printf "pollInterval '%s' has no unit. Use a Go duration such as 15m or 1h, or leave it empty for the default" $pollInterval) }}
+            {{- end }}
+            - --poll-interval={{ $pollInterval }}
+            {{- end }}
 
           ports:
             - name: metrics

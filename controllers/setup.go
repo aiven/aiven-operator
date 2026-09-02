@@ -16,27 +16,50 @@ type reconcilerType interface {
 	SetupWithManager(mgr ctrl.Manager) error
 }
 
-const defaultPollInterval = 10 * time.Minute
+// DefaultPollInterval is how often a Ready resource is re-reconciled when no interval is configured.
+const DefaultPollInterval = 10 * time.Minute
+
+const (
+	minPollInterval = DefaultPollInterval
+	maxPollInterval = 60 * time.Minute
+)
+
+// ValidatePollInterval reports whether d is an acceptable value for the --poll-interval flag.
+func ValidatePollInterval(d time.Duration) error {
+	if d == 0 {
+		return nil
+	}
+
+	if d < minPollInterval || d > maxPollInterval {
+		return fmt.Errorf(
+			"poll interval %s is outside the accepted range %s-%s",
+			d,
+			minPollInterval,
+			maxPollInterval,
+		)
+	}
+
+	return nil
+}
 
 type SetupConfig struct {
 	DefaultToken    string
 	KubeVersion     string
 	OperatorVersion string
-	PollInterval    time.Duration
+
+	// PollInterval is how often a Ready resource is re-reconciled against the Aiven API.
+	PollInterval time.Duration
 }
 
-func SetupControllers(mgr ctrl.Manager, defaultToken, kubeVersion, operatorVersion string) error {
-	return SetupControllersWithConfig(mgr, SetupConfig{
-		DefaultToken:    defaultToken,
-		KubeVersion:     kubeVersion,
-		OperatorVersion: operatorVersion,
-	})
-}
-
-func SetupControllersWithConfig(mgr ctrl.Manager, cfg SetupConfig) error {
-	if cfg.PollInterval <= 0 {
-		cfg.PollInterval = defaultPollInterval
+// normalize applies built-in defaults to unset fields.
+func (c *SetupConfig) normalize() {
+	if c.PollInterval <= 0 {
+		c.PollInterval = DefaultPollInterval
 	}
+}
+
+func SetupControllers(mgr ctrl.Manager, cfg SetupConfig) error {
+	cfg.normalize()
 
 	if err := (&SecretFinalizerGCController{
 		Client: mgr.GetClient(),

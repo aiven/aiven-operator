@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"go.uber.org/zap/zapcore"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -54,7 +55,11 @@ func main() {
 	var probeAddr string
 	var development bool
 	var webhookPort int
+	var pollInterval time.Duration
 	flag.IntVar(&webhookPort, "webhook-port", webhookDefaultPort, "Webhook server port (default: 9443)")
+	flag.DurationVar(&pollInterval, "poll-interval", controllers.DefaultPollInterval,
+		"How often resources in a steady state are re-reconciled against the Aiven API. "+
+			"Accepted range is 10m-60m.")
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
@@ -78,6 +83,12 @@ func main() {
 	}
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
+
+	// Validated before the manager is built, so a bad value costs nothing.
+	if err := controllers.ValidatePollInterval(pollInterval); err != nil {
+		setupLog.Error(err, "invalid --poll-interval")
+		os.Exit(1)
+	}
 
 	ctrlOptions := ctrl.Options{
 		Scheme: scheme,
@@ -140,10 +151,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	defaultToken := os.Getenv("DEFAULT_AIVEN_TOKEN")
-	err = controllers.SetupControllers(mgr, defaultToken, kubeVersion.String(), operatorVersion)
+	err = controllers.SetupControllers(mgr, controllers.SetupConfig{
+		DefaultToken:    os.Getenv("DEFAULT_AIVEN_TOKEN"),
+		KubeVersion:     kubeVersion.String(),
+		OperatorVersion: operatorVersion,
+		PollInterval:    pollInterval,
+	})
 	if err != nil {
 		setupLog.Error(err, "controllers setup error")
+		os.Exit(1)
 	}
 
 	// Webhooks are enabled by default
