@@ -2,8 +2,6 @@
 # PR, and runs lint + unit + e2e tests against the PR head.
 # Merging the PR triggers publish-release.yml.
 #
-# The contexts in report_all_statuses must cover main's required checks.
-#
 # On failure use "Re-run failed jobs".
 # Re-dispatching is refused by the in-flight check in validate_inputs anyway.
 name: Prepare Release
@@ -89,6 +87,7 @@ jobs:
       pull-requests: write
     outputs:
       pr_head_sha: ${{ steps.create-pr.outputs.pull-request-head-sha }}
+      pr_number: ${{ steps.create-pr.outputs.pull-request-number }}
       pr_created: ${{ steps.create-pr.outputs.pull-request-number != '' }}
     steps:
       - uses: actions/checkout@v7
@@ -194,6 +193,38 @@ jobs:
           fi
           echo "Created release PR #$PR_NUMBER"
 
+  report_pending_statuses:
+    needs: create_release_pr
+    if: needs.create_release_pr.outputs.pr_created == 'true'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 5
+    permissions:
+      contents: read # actions/checkout below
+      statuses: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/actions
+
+      - uses: ./.github/actions/report-statuses
+        with:
+          sha: ${{ needs.create_release_pr.outputs.pr_head_sha }}
+          success_on_skip: tests
+          # Keep in sync with report_all_statuses below.
+          statuses: >-
+            {
+              "generate": "pending",
+              "commitlint": "pending",
+              "lint-go": "pending",
+              "trunk": "pending",
+              "codeql_analysis": "pending",
+              "kustomize_can_build_deployment": "pending",
+              "unit-tests": "pending",
+              "tests": "${{ inputs.run_e2e_tests && 'pending' || 'skipped' }}",
+              "docker": "pending"
+            }
+
   run_lint_checks:
     needs: create_release_pr
     if: needs.create_release_pr.outputs.pr_created == 'true'
@@ -243,9 +274,11 @@ jobs:
     if: needs.create_release_pr.outputs.pr_created == 'true' && inputs.run_e2e_tests
     permissions:
       contents: read
+      pull-requests: write # progress/result comments on the release PR
     uses: ./.github/workflows/tests.yml
     with:
       ref: ${{ needs.create_release_pr.outputs.pr_head_sha }}
+      pr_number: ${{ needs.create_release_pr.outputs.pr_number }}
     secrets:
       AIVEN_TOKEN: ${{ secrets.AIVEN_TOKEN }}
       AIVEN_ACCOUNT_ID: ${{ secrets.AIVEN_ACCOUNT_ID }}
@@ -255,6 +288,7 @@ jobs:
 
   report_all_statuses:
     needs:
+      - report_pending_statuses
       - verify_docker_build
       - create_release_pr
       - run_lint_checks
@@ -286,6 +320,7 @@ jobs:
         with:
           sha: ${{ needs.create_release_pr.outputs.pr_head_sha }}
           success_on_skip: tests
+          # Keep in sync with report_pending_statuses above.
           statuses: >-
             {
               "generate": "success",

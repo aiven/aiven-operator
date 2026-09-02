@@ -7,7 +7,8 @@ inputs:
     required: true
   statuses:
     description: >-
-      JSON object mapping check context names to results.
+      JSON object mapping check context names to results. A literal "pending"
+      reports the pending state, for marking checks in progress up front.
       Example: {"commitlint": "success", "trunk": "failure"}
     required: true
   success_on_skip:
@@ -41,7 +42,8 @@ runs:
 
           for (const [name, result] of Object.entries(statuses)) {
             const ok = result === 'success' || (skipOk.has(name) && result === 'skipped');
-            const state = ok ? 'success' : 'failure';
+            // Only the literal "pending" maps to pending.
+            const state = result === 'pending' ? 'pending' : ok ? 'success' : 'failure';
             console.log(`Reporting ${name}: ${result || '<empty>'} -> ${state}`);
             await github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
