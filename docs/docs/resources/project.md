@@ -37,6 +37,7 @@ spec:
     env: prod
 
   accountId: my-account-id
+  billingGroupId: 00000000-0000-0000-0000-000000000000
   billingAddress: NYC
   cloud: aws-eu-west-1
 ```
