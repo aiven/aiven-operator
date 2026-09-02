@@ -19,10 +19,23 @@ func TestProject(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
+	// Pins an existing billing group so a failed run can't strand an auto-created one.
+	billingGroups, err := avnGen.BillingGroupList(ctx)
+	require.NoError(t, err)
+	var billingGroupID string
+	for _, bg := range billingGroups {
+		if bg.AccountId == cfg.AccountID {
+			billingGroupID = bg.BillingGroupId
+			break
+		}
+	}
+	require.NotEmpty(t, billingGroupID, "no billing group found for account %q", cfg.AccountID)
+
 	name := randName("project")
 	yml, err := loadExampleYaml("project.yaml", map[string]string{
-		"metadata.name":  name,
-		"spec.accountId": cfg.AccountID,
+		"metadata.name":       name,
+		"spec.accountId":      cfg.AccountID,
+		"spec.billingGroupId": billingGroupID,
 	})
 	require.NoError(t, err)
 	s := NewSession(ctx, k8sClient)
