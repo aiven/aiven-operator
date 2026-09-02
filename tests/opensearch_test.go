@@ -78,6 +78,8 @@ func TestOpenSearch(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, osAvn.ServiceName, os.GetName())
 	assert.Equal(t, serviceRunningState, os.Status.State)
+	assert.NotEmpty(t, os.Status.Version)
+	assert.Equal(t, osAvn.Metadata["opensearch_version"], os.Status.Version)
 	assert.Contains(t, serviceRunningStatesAiven, osAvn.State)
 	assert.Equal(t, osAvn.Plan, os.Spec.Plan)
 	assert.Equal(t, osAvn.CloudName, os.Spec.CloudName)

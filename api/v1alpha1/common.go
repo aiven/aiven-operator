@@ -62,6 +62,10 @@ type ServiceStatus struct {
 
 	// Service state
 	State service.ServiceStateType `json:"state,omitempty"`
+
+	// Version of the service currently running.
+	// May be more specific than the version configured in userConfig, e.g. `8.1.2` vs `8.1`
+	Version string `json:"version,omitempty"`
 }
 
 type ServiceTechEmail struct {

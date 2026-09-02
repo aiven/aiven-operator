@@ -73,6 +73,8 @@ func TestGrafana(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, grafanaAvn.ServiceName, grafana.GetName())
 	assert.Equal(t, serviceRunningState, grafana.Status.State)
+	assert.NotEmpty(t, grafana.Status.Version)
+	assert.Equal(t, grafanaAvn.Metadata["grafana_version"], grafana.Status.Version)
 	assert.Contains(t, serviceRunningStatesAiven, grafanaAvn.State)
 	assert.Equal(t, grafanaAvn.Plan, grafana.Spec.Plan)
 	assert.Equal(t, grafanaAvn.CloudName, grafana.Spec.CloudName)

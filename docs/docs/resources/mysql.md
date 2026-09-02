@@ -74,8 +74,8 @@ kubectl get mysqls my-mysql
 
 The output is similar to the following:
 ```shell
-Name        Project             Region                 Plan          State      
-my-mysql    my-aiven-project    google-europe-west1    business-4    RUNNING    
+Name        Project             Region                 Plan          State      Version      
+my-mysql    my-aiven-project    google-europe-west1    business-4    RUNNING    <version>    
 ```
 
 To view the details of the `Secret`, use the following command:

@@ -31,6 +31,7 @@ type MySQLSpec struct {
 // +kubebuilder:printcolumn:name="Region",type="string",JSONPath=".spec.cloudName"
 // +kubebuilder:printcolumn:name="Plan",type="string",JSONPath=".spec.plan"
 // +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state"
+// +kubebuilder:printcolumn:name="Version",type="string",JSONPath=".status.version"
 type MySQL struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

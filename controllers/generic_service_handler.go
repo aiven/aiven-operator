@@ -231,6 +231,7 @@ func (h *genericServiceHandler) observe(ctx context.Context, avnGen avngen.Clien
 
 	status := o.getServiceStatus()
 	status.State = avnService.State
+	status.Version = serviceVersion(o.getServiceType(), avnService.Metadata)
 
 	// Powered=true is in priority, we check if it was explicitly set to false
 	// This could have been a one-liner, but we want to be explicit about the logic
@@ -458,6 +459,26 @@ const (
 	serviceTypeFlink        serviceType = "flink"
 	serviceTypeValkey       serviceType = "valkey"
 )
+
+// serviceVersionKeys maps a service type to the key holding its running version in the
+// service metadata. kafka_connect is absent: its metadata has no comparable version string.
+var serviceVersionKeys = map[serviceType]string{
+	serviceTypeKafka:      "kafka_version",
+	serviceTypeMySQL:      "mysql_version",
+	serviceTypePostgreSQL: "pg_version",
+	serviceTypeClickhouse: "clickhouse_version",
+	serviceTypeOpenSearch: "opensearch_version",
+	serviceTypeGrafana:    "grafana_version",
+	serviceTypeFlink:      "flink_version",
+	serviceTypeValkey:     "valkey_version",
+}
+
+// serviceVersion extracts the running service version from the service metadata.
+// Returns an empty string when the API doesn't report one.
+func serviceVersion(t serviceType, metadata map[string]any) string {
+	v, _ := metadata[serviceVersionKeys[t]].(string)
+	return v
+}
 
 // serviceAdapter turns client.Object into a generic thing
 type serviceAdapter interface {
