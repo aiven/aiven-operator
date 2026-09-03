@@ -495,8 +495,7 @@ func (i *instanceReconcilerHelper) createOrUpdateInstance(ctx context.Context, o
 
 	err := i.h.createOrUpdate(ctx, i.avnGen, o, refs)
 
-	var requeueNeeded ErrRequeueNeeded
-	if errors.As(err, &requeueNeeded) {
+	if requeueNeeded, ok := errors.AsType[ErrRequeueNeeded](err); ok {
 		i.log.Info("requeue needed", "reason", requeueNeeded.Error())
 		return true, nil
 	}

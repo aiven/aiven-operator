@@ -1,6 +1,9 @@
 ---
-title: "Project"
+title: "Project [DEPRECATED]"
 ---
+
+!!! warning "Deprecation warning"
+	aiven.io/v1alpha1 Project is deprecated: use OrganizationProject instead.
 
 ## Prerequisites
 	

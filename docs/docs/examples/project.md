@@ -6,6 +6,11 @@ weight: 5
 
 The `Project` CRD allows you to create Aiven Projects, where your resources can be located.
 
+!!! warning "Deprecated"
+    `Project` is deprecated in favor of [`OrganizationProject`](../resources/organizationproject.md).
+    See the [migration guide](../guides/migrate-project-to-organizationproject.md) for moving an
+    existing project to the new resource.
+
 ## Prerequisites
 
 * A Kubernetes cluster with Aiven Kubernetes Operator installed using [helm](../installation/helm.md) or [kubectl](../installation/kubectl.md).

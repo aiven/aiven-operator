@@ -11,6 +11,9 @@
   applied, after which removing the field reverts it as described above.
 - Add `status.version` to service resources (`Kafka`, `PostgreSQL`, `MySQL`, `ClickHouse`, `OpenSearch`,
   `Grafana`, `Flink`, `Valkey`): the version the service is currently running.
+- Deprecate `Project` in favor of `OrganizationProject`. `Project` keeps working; see the new
+  [migration guide](https://aiven.github.io/aiven-operator/guides/migrate-project-to-organizationproject.html)
+  for moving an existing project over without deleting it
 
 ## v0.45.0 - 2026-08-24
 

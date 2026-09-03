@@ -14,7 +14,11 @@ spec:
     singular: project
   scope: Namespaced
   versions:
-    - name: v1alpha1
+    - deprecated: true
+      deprecationWarning:
+        "aiven.io/v1alpha1 Project is deprecated: use OrganizationProject
+        instead."
+      name: v1alpha1
       schema:
         openAPIV3Schema:
           description: |-
