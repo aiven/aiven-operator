@@ -3,10 +3,12 @@
 package tests
 
 import (
+	"testing"
 	"time"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
+	"github.com/stretchr/testify/assert"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -43,6 +45,14 @@ const serviceRunningState = service.ServiceStateTypeRunning
 
 // serviceRunningStatesAiven these Aiven service states match to RUNNING state in kube
 var serviceRunningStatesAiven = []service.ServiceStateType{service.ServiceStateTypeRunning, service.ServiceStateTypeRebalancing}
+
+// assertServiceVersion verifies status.version against the version in the service metadata.
+// Metadata may gain patch precision between the operator's snapshot and the test's read
+// (e.g. flink_version flips "1.20" -> "1.20.0" as the service turns RUNNING).
+func assertServiceVersion(t *testing.T, avnVersion any, statusVersion string) {
+	assert.NotEmpty(t, statusVersion)
+	assert.Contains(t, avnVersion, statusVersion)
+}
 
 func ptr(s string) *string { return &s }
 
